@@ -1,0 +1,138 @@
+<?php
+	require_once("../lib/AntConfig.php");
+	require_once("ant.php");
+	require_once("ant_user.php");	
+	require_once("contacts/contact_functions.awp");
+	require_once("lib/content_table.awp");
+	require_once("lib/CToolTable.awp");
+	require_once("lib/CPopup.awp");
+	require_once("lib/WindowFrame.awp");
+	require_once("lib/Button.awp");
+	require_once("lib/CAntObject.php");
+	require_once("lib/CAntObjectList.php");
+	
+	$dbh = $ANT->dbh;
+	$USERNAME = $USER->name;
+	$USERID =  $USER->id;
+	$ACCOUNT = $USER->accountId;
+	$FRMID = $_GET['frmid'];
+?>
+<html>
+<head>
+	<title>Select Contacts</title>
+	<link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme($dbh, $USERID, 'css'); ?>">
+	<script language="javascript" type="text/javascript">
+	function AddAddresses()
+	{
+		for (var i = 0; i < document.contacts.elements.length; i++)
+		{
+			if( document.contacts.elements[i].type == 'checkbox' && document.contacts.elements[i].checked == true)
+			{
+				switch(document.contacts.elements[i].name)
+				{
+					case 'chk_to':
+						opener.g_inp_to.add(document.getElementById(document.contacts.elements[i].value).innerHTML);
+						break;
+					case 'chk_cc':
+						var setval = opener.document.cmp_frm<?php print($FRMID); ?>.cmp_cc.value;
+						var addval = document.getElementById(document.contacts.elements[i].value).innerHTML;
+						if (setval)
+							setval += ", " + addval;
+						else
+							setval = addval;
+						opener.document.cmp_frm<?php print($FRMID); ?>.cmp_cc.value = setval;
+						break;
+					case 'chk_bcc':
+						var setval = opener.document.cmp_frm<?php print($FRMID); ?>.cmp_bcc.value;
+						var addval = document.getElementById(document.contacts.elements[i].value).innerHTML;
+						if (setval)
+							setval += ", " + addval;
+						else
+							setval = addval;
+						opener.document.cmp_frm<?php print($FRMID); ?>.cmp_bcc.value = setval;
+						break;
+				}
+			}
+		}
+		
+		window.close();
+	}
+	</script>
+</head>
+<body style="margin:0px;">
+<form name="contacts">
+<?php
+	// Create toolbar
+	//--------------------------------------------------------------------------
+	WindowFrameToolbarStart('100%');
+	echo ButtonCreate("OK", "AddAddresses();");
+	echo ButtonCreate("Cancel", "window.close();");
+	WindowFrameToolbarEnd();
+			
+	// Create new tool table
+	$tbl = new CToolTable;
+	
+	// Create table headers
+	$tbl->StartHeaders();
+	$tbl->AddHeader("Name");
+	$tbl->AddHeader("TO");
+	$tbl->AddHeader("CC");
+	$tbl->AddHeader("BCC");
+	$tbl->AddHeader("Email");
+	$tbl->EndHeaders();
+	
+	
+	$olist = new CAntObjectList($dbh, "contact_personal", $USER);
+	$olist->addCondition("and", 'user_id', "is_equal", $USERID);
+	$olist->getObjects(0, 1000);
+	$num = $olist->getNumObjects();
+	for ($i=0; $i<$num; $i++)
+	{
+		$obj = $olist->getObject($i);
+		$id = $obj->id;
+		$name = $obj->getName();
+
+		// Add first email
+		if ($obj->getValue('email'))
+		{
+			$tbl->StartRow();
+			$tbl->AddCell($name);
+			$tbl->AddCell("<input type='checkbox' name='chk_to' value='$id'>");
+			$tbl->AddCell("<input type='checkbox' name='chk_cc' value='$id'>");
+			$tbl->AddCell("<input type='checkbox' name='chk_bcc' value='$id'>");
+			$tbl->AddCell("<span id='$id'>".$obj->getValue('email')."</span>");
+			$tbl->EndRow();
+		}
+		// Add second email
+		if ($obj->getValue('email2'))
+		{
+			$tbl->StartRow();
+			$tbl->AddCell($name);
+			$tbl->AddCell("<input type='checkbox' name='chk_to' value='".$id."_2'>");
+			$tbl->AddCell("<input type='checkbox' name='chk_cc' value='".$id."_2'>");
+			$tbl->AddCell("<input type='checkbox' name='chk_bcc' value='".$id."_2'>");
+			$tbl->AddCell("<span id='".$id."_2'>".$obj->getValue('email2')."</span>");
+			$tbl->EndRow();
+		}
+		// Add Spouse Email
+		if ($obj->getValue('email_spouse')) 
+		{
+			if ($obj->getValue('spouse_name'))
+				$name = $obj->getValue('spouse_name');
+				
+			$tbl->StartRow();
+			$tbl->AddCell($name);
+			$tbl->AddCell("<input type='checkbox' name='chk_to' value='".$id."_3'>");
+			$tbl->AddCell("<input type='checkbox' name='chk_cc' value='".$id."_3'>");
+			$tbl->AddCell("<input type='checkbox' name='chk_bcc' value='".$id."_3'>");
+			$tbl->AddCell("<span id='".$id."_3'>".$obj->getValue('email_spouse')."</span>");
+			$tbl->EndRow();
+		}
+	}
+	$dbh->FreeResults($result);
+	
+	$tbl->PrintTable();
+?>
+</form>
+</body>
+</html>

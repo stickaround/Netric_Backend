@@ -1,0 +1,38 @@
+{
+	"id" : 1,
+	"obj_type" : "customer",
+	"title" : "Customer",
+	"revision" : 10,
+	"is_private" : true,
+	"recur_rules" : {
+
+	},
+	"parent_field" : "fake_field",
+	"list_title" : "Customers",
+	"icon" : "customIcon",
+	"browser_mode" : "table",
+	"browser_blank_content" : "No items found",
+	"system" : true,
+	"fields" : [
+		{
+			"id" : 2,
+			"name" : "id",
+			"title" : "Id",
+			"type" : "number",
+			"subtype" : "integer",
+			"default_val" : {
+				"on" : "null",
+				"value" : "3"
+			},
+			"mask" : "xxx,xxx",
+			"required" : true,
+			"system" : true,
+			"readonly" : true,
+			"unique" : true,
+			"use_when" : "",
+			"optional_values" : ""
+		}
+	],
+	"views" : [
+	]
+}

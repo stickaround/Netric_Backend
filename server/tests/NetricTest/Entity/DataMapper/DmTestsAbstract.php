@@ -1,0 +1,505 @@
+<?php
+/**
+ * Define common tests that will need to be run with all data mappers.
+ *
+ * In order to implement the unit tests, a datamapper test case just needs
+ * to extend this class and create a getDataMapper class that returns the
+ * datamapper to be tested
+ */
+namespace NetricTest\Entity\DataMapper;
+
+use Netric;
+use PHPUnit_Framework_TestCase;
+
+abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase 
+{
+	/**
+     * Tennant account
+     * 
+     * @var \Netric\Account
+     */
+    protected $account = null;
+    
+    /**
+     * Administrative user
+     * 
+     * @var \Netric\User
+     */
+    protected $user = null;
+    
+
+	/**
+	 * Setup each test
+	 */
+	protected function setUp() 
+	{
+        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+	}
+    
+    /**
+	 * Setup datamapper for the parent DataMapperTests class
+	 *
+	 * @return DataMapperInterface
+	 */
+	abstract protected function getDataMapper();
+
+	/**
+	 * Utility function to populate custome entity for testing
+	 *
+	 * @return Entity
+	 */
+	protected function createCustomer()
+	{
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		// text
+		$customer->setValue("name", "Entity_DataMapperTests");
+		// bool
+		$customer->setValue("f_nocall", true);
+		// object
+		$customer->setValue("owner_id", $this->user->getId(), $this->user->getName());
+		// object_multi
+		// timestamp
+		$contactedTime = mktime(0, 0, 0, 12, 1, 2013);
+		$customer->setValue("last_contacted", $contactedTime);
+
+		return $customer;
+	}
+
+	/**
+	 * Test loading an object by id and putting it into cache
+	 */
+	public function testGetById()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+		{
+			// Do not run if we don't have a datamapper to work with
+			$this->assertTrue(true);
+			return;
+		}
+
+        // Create a few test groups
+        $groupingsStat = $dm->getGroupings("customer", "status_id");
+        $statGrp = $groupingsStat->create("Unit Test Status");
+        $groupingsStat->add($statGrp);
+        $dm->saveGroupings($groupingsStat);
+        
+        $groupingsGroups = $dm->getGroupings("customer", "groups");
+        $groupsGrp = $groupingsGroups->create("Unit Test Group");
+        $groupingsGroups->add($groupsGrp);
+        $dm->saveGroupings($groupingsGroups);
+
+		// Create an entity and initialize values
+		$customer = $this->createCustomer();
+		// fkey
+		$customer->setValue("status_id", $statGrp->id, $statGrp->name);
+		// fkey_multi - groups
+		$customer->addMultiValue("groups", $groupsGrp->id, $groupsGrp->name);
+		// Cache returned time
+		$contactedTime = $customer->getValue("last_contacted");
+		$cid = $dm->save($customer, $this->user);
+
+		// Get entity definition
+		$def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
+		$ent = \Netric\Entity::factory($def);
+
+		// Load the object through the loader which should cache it
+		$ret = $dm->getById($ent, $cid);
+		$this->assertTrue($ret);
+		$this->assertEquals($ent->getId(), $cid);
+		$this->assertEquals($ent->getValue("id"), $cid);
+		$this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
+		$this->assertTrue($ent->getValue("f_nocall"));
+		$this->assertEquals($ent->getValue("owner_id"), $this->user->getId());
+		$this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
+		$this->assertEquals($ent->getValue("status_id"), $statGrp->id);
+		$this->assertEquals($ent->getValueName("status_id"), "Unit Test Status");
+		$this->assertEquals($ent->getValue("groups"), array($groupsGrp->id));
+		$this->assertEquals($ent->getValueName("groups"), "Unit Test Group");
+		$this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
+
+		// Cleanup
+		$groupingsStat->delete($statGrp->id);
+        $dm->saveGroupings($groupingsStat);
+        
+        $groupingsGroups->delete($groupsGrp->id);
+        $dm->saveGroupings($groupingsGroups);
+        
+		$dm->delete($ent, true);
+	}
+
+	/**
+	 * Test loading an object by id and putting it into cache
+	 */
+	public function testSave()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+		{
+			// Do not run if we don't have a datamapper to work with
+			$this->assertTrue(true);
+			return;
+		}
+
+        // Create a few test groups
+        $groupingsStat = $dm->getGroupings("customer", "status_id");
+        $statGrp = $groupingsStat->create("Unit Test Status");
+        $groupingsStat->add($statGrp);
+        $dm->saveGroupings($groupingsStat);
+        
+        $groupingsGroups = $dm->getGroupings("customer", "groups");
+        $groupsGrp = $groupingsGroups->create("Unit Test Group");
+        $groupingsGroups->add($groupsGrp);
+        $dm->saveGroupings($groupingsGroups);
+
+		// Create an entity and initialize values
+		$customer = $this->createCustomer();
+		// fkey
+		$customer->setValue("status_id", $statGrp->id, $statGrp->name);
+		// fkey_multi - groups
+		$customer->addMultiValue("groups", $groupsGrp->id, $groupsGrp->name);
+		// Cache returned time
+		$contactedTime = $customer->getValue("last_contacted");
+		$cid = $dm->save($customer, $this->user);
+		$this->assertNotEquals(false, $cid);
+
+		// Get entity definition
+		$def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
+		$ent = \Netric\Entity::factory($def);
+
+		// Load the object through the loader which should cache it
+		$ret = $dm->getById($ent, $cid);
+		$this->assertTrue($ret);
+		$this->assertEquals($ent->getId(), $cid);
+		$this->assertEquals($ent->getValue("id"), $cid);
+		$this->assertEquals($ent->getValue("name"), "Entity_DataMapperTests");
+		$this->assertTrue($ent->getValue("f_nocall"));
+		$this->assertEquals($ent->getValue("owner_id"), $this->user->getId());
+		$this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
+		$this->assertEquals($ent->getValue("status_id"), $statGrp->id);
+		$this->assertEquals($ent->getValueName("status_id"), $statGrp->name);
+		$this->assertEquals($ent->getValue("groups"), array($groupsGrp->id));
+		$this->assertEquals($ent->getValueName("groups"), $groupsGrp->name);
+		$this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
+
+		// Cleanup
+		$groupingsStat->delete($statGrp->id);
+        $dm->saveGroupings($groupingsStat);
+        $groupingsGroups->delete($groupsGrp->id);
+        $dm->saveGroupings($groupingsGroups);
+		$dm->delete($ent, true);
+	}
+
+	/**
+	 * Test delete
+	 */
+	public function testDelete()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// First test a custom table object
+		// ------------------------------------------------------------------------
+		
+		// Create a test customer to delete
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "Entity_DataMapperTests");
+		$cid = $dm->save($customer, $this->user);
+		$this->assertNotEquals(false, $cid);
+
+		// Test soft delete first
+		$ret = $dm->delete($customer);
+		$this->assertTrue($ret);
+
+		// Reload and test if flagged but still in database
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$ret = $dm->getById($customer, $cid);
+		$this->assertTrue($ret);
+		$this->assertEquals(true, $customer->isDeleted());
+
+		// Now delete and make sure the object cannot be reloaded
+		$ret = $dm->delete($customer);
+		$this->assertTrue($ret);
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$ret = $dm->getById($customer, $cid);
+		$this->assertFalse($ret); // Not found
+
+		// Test a dynamic table object
+		// ------------------------------------------------------------------------
+		
+		// Create a test customer to delete
+		$story = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
+		$story->setValue("name", "Entity_DataMapperTests");
+		$cid = $dm->save($story, $this->user);
+		$this->assertNotEquals(false, $cid);
+
+		// Test soft delete first
+		$ret = $dm->delete($story);
+		$this->assertTrue($ret);
+
+		// Reload and test if flagged but still in database
+		$story = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
+		$ret = $dm->getById($story, $cid);
+		$this->assertTrue($ret);
+		$this->assertEquals(true, $story->isDeleted());
+
+		// Now delete and make sure the object cannot be reloaded
+		$ret = $dm->delete($story);
+		$this->assertTrue($ret);
+		$story = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
+		$ret = $dm->getById($story, $cid);
+		$this->assertFalse($ret); // Not found
+	}
+
+	/**
+	 * Test entity has moved functionalty
+	 */
+	public function testSetEntityMovedTo()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Create first entity
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "testSetEntityMovedTo");
+		$oid1 = $dm->save($customer, $this->user);
+
+		// Create second entity
+		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer2->setValue("name", "testSetEntityMovedTo");
+		$oid2 = $dm->save($customer2, $this->user);
+
+		// Set moved to
+        $def = $customer->getDefinition();
+		$ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
+		$this->assertTrue($ret);
+
+		// Cleanup
+		$dm->delete($customer, true);
+		$dm->delete($customer2, true);
+	}
+
+	/**
+	 * Test entity has moved functionalty
+	 */
+	public function testEntityHasMoved()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Create first entity
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "testSetEntityMovedTo");
+		$oid1 = $dm->save($customer, $this->user);
+
+		// Create second entity
+		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer2->setValue("name", "testSetEntityMovedTo");
+		$oid2 = $dm->save($customer2, $this->user);
+
+		// Set moved to
+        $def = $customer->getDefinition();
+		$ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
+
+		// Get access to protected entityHasMoved with reflection object
+		$refIm = new \ReflectionObject($dm);
+		$entityHasMoved = $refIm->getMethod("entityHasMoved");
+		$entityHasMoved->setAccessible(true);
+		$movedTo = $entityHasMoved->invoke($dm, $customer->getDefinition(), $oid1);
+
+		// Now make sure the movedTo works
+		$this->assertEquals($oid2, $movedTo);
+
+		// Cleanup
+		$dm->delete($customer, true);
+		$dm->delete($customer2, true);
+	}
+	
+	/**
+	 * Test revisions
+	 */
+	public function testGetRevisions()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Save first time
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "First");
+		$cid = $dm->save($customer, $this->user);
+		$this->assertEquals(1, $customer->getValue("revision"));
+
+		// Change value and set again
+		$customer->setValue("name", "Second");
+		$dm->save($customer, $this->user);
+		$rev1 = $customer->getValue("revision");
+		$this->assertEquals(2, $customer->getValue("revision"));
+
+		// Get the revisions and make sure old value is stored
+		$revisions = $dm->getRevisions("customer", $cid);
+		$this->assertEquals("First", $revisions[1]->getValue("name"));
+		$this->assertEquals("Second", $revisions[2]->getValue("name"));
+
+		// Cleanup
+		$dm->delete($customer, true);
+
+		// Make sure revisions got deleted
+		$this->assertEquals(0, count($dm->getRevisions("customer", $cid)));
+	}
+
+	/**
+	 * Test skip revisions if the definition has saveRevisions set to false
+	 */
+	public function testSaveRevisionsSetting()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Save first time
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		// Set saveRevisions to false
+		$customer->getDefinition()->storeRevisions = false;
+		$customer->setValue("name", "First");
+		$cid = $dm->save($customer, $this->user);
+		$this->assertEquals(1, $customer->getValue("revision"));
+
+		// Make sure revisions got deleted
+		$this->assertEquals(0, count($dm->getRevisions("customer", $cid)));
+
+		// Turn back on and save changes
+		$customer->getDefinition()->storeRevisions = true;
+		$customer->setValue("name", "Second");
+		$dm->save($customer, $this->user);
+
+		// Get the revisions and make sure old value is stored
+		$revisions = $dm->getRevisions("customer", $cid);
+		$this->assertEquals("Second", $revisions[2]->getValue("name"));
+
+		// Cleanup
+		$dm->delete($customer, true);
+
+	}
+
+    // Test saving and deleting groupings
+    public function testSaveGroupings()
+    {
+        $dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+        
+        $groupings = $dm->getGroupings("customer", "groups");
+        
+        // Save new
+        $newGroup = $groupings->create();
+        $newGroup->name = "UTTEST DM::testSaveGroupings";
+        $groupings->add($newGroup);
+        $dm->saveGroupings($groupings);
+        $group = $groupings->getByName($newGroup->name);
+        $this->assertNotEquals($group->id, "");
+        
+        // Save existing
+        $name2 = "UTTEST DM::testSaveGroupings::edited";
+        $group = $groupings->getByName($newGroup->name);
+        $group->name = $name2;
+        $group->setDirty(true);
+        $dm->saveGroupings($groupings);
+        $gid = $group->id;
+        unset($groupings);
+        $groupings = $dm->getGroupings("customer", "groups");
+        $group = $groupings->getById($gid);
+        $this->assertEquals($name2, $group->name);
+        
+        // Test delete
+        $groupings->delete($gid);
+        $dm->saveGroupings($groupings);
+        unset($groupings);
+        $groupings = $dm->getGroupings("customer", "groups");
+        $this->assertFalse($groupings->getById($gid));
+    }
+    
+	/**
+	 * TODO: Test getGroupings
+	 */
+	public function testGetGroupings()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+        
+        // No filter
+        $groupings = $dm->getGroupings("customer", "groups");
+        
+        // Delete just in case
+        if ($groupings->getByName("UTEST.DM.testGetGroupings"))
+        {
+            $groupings->delete($groupings->getByName("UTEST.DM.testGetGroupings")->id);
+            $dm->saveGroupings($groupings);
+        }
+        
+        // Save new
+        $newGroup = $groupings->create();
+        $newGroup->name = "UTEST.DM.testGetGroupings";
+        $groupings->add($newGroup);
+        $dm->saveGroupings($groupings);
+        $groupings = $dm->getGroupings("customer", "groups");
+        $group1 = $groupings->getByName($newGroup->name);
+        $this->assertEquals($newGroup->name, $group1->name);
+        
+        // Add a subgroup
+        $newGroup2 = $groupings->create();
+        $newGroup2->name = "UTEST.DM.testGetGroupings2";
+        $newGroup2->parentId = $group1->id;
+        $groupings->add($newGroup2);
+        $dm->saveGroupings($groupings);
+        unset($groupings);
+        $groupings = $dm->getGroupings("customer", "groups");
+        $group2 = $groupings->getByPath($newGroup->name . "/" . $newGroup2->name);
+        $this->assertEquals($newGroup2->name, $group2->name);
+        
+        // Cleanup
+        $groupings->delete($group1->id);
+        $groupings->delete($group2->id);
+        $dm->saveGroupings($groupings);
+	}
+
+	/**
+	 * Test entity has moved functionalty
+	 */
+	public function testCommitImcrement()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Create first entity
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "testCommitImcrement");
+		$oid1 = $dm->save($customer, $this->user);
+		$this->assertTrue(is_numeric($customer->getValue("commit_id")));
+
+		// Create second entity
+		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer2->setValue("name", "testSetEntityMovedTo");
+		$oid2 = $dm->save($customer2, $this->user);
+		$this->assertTrue(is_numeric($customer2->getValue("commit_id")));
+
+		// Make sure the commit was incremented
+		$this->assertTrue($customer->getValue("commit_id") < $customer2->getValue("commit_id"));
+        
+	}
+
+	/**
+	 * TODO: Test verifyUniqueName
+	 */
+	public function testVerifyUniqueName()
+	{
+		// We need to test verifyUniqueName here for all datamappers
+		$this->assertTrue(true);
+	}
+}

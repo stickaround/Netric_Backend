@@ -1,0 +1,13 @@
+{
+	"id" : 1,
+	"modules" : [
+		{ 
+			"name" : "home",
+			"title" : "Home"
+		},
+		{ 
+			"name" : "messages",
+			"title"  : "Messages"
+		}
+	]
+}

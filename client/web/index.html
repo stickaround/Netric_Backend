@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <!-- manually add aereus lib -->
+        <script src="vendor/aereus/alib_full.js"></script>
+
+        <!-- bower:js -->
+        <!-- endbower -->
+
+        <!-- fileblock:js app -->
+        <script src="js/base.js"></script>
+        <script src="js/AbstractDataMapper.js"></script>
+        <script src="js/Application.js"></script>
+        <script src="js/User.js"></script>
+        <script src="js/account/AbstractDataMapper.js"></script>
+        <script src="js/account/Account.js"></script>
+        <script src="js/account/DataMapperLocal.js"></script>
+        <script src="js/account/DataMapperServer.js"></script>
+        <script src="js/account/loader.js"></script>
+        <script src="js/entity/Entity.js"></script>
+        <script src="js/entity/loader.js"></script>
+        <script src="js/module/Module.js"></script>
+        <script src="js/module/loader.js"></script>
+        <script src="js/notused.js"></script>
+        <script src="js/subfunction.js"></script>
+        <script src="js/BackendRequest.js"></script>
+        <script src="js/server.js"></script>
+        <script src="js/mvc/Controller.js"></script>
+        <script src="js/mvc/Router.js"></script>
+        <script src="js/mvc/View.js"></script>
+        <script src="js/Device.js"></script>
+        <script src="js/controller/AppController.js"></script>
+        <script src="js/controller/ModuleController.js"></script>
+        <script src="js/controller/controller.js"></script>
+        <script src="js/mvc/mvc.js"></script>
+        <script src="js/mvc/ViewTemplate.js"></script>
+        <script src="js/mvc/ViewManager.js"></script>
+        <script src="js/template/application/large.js"></script>
+        <script src="js/template/application/small.js"></script>
+        <script src="js/ui/ApplicationView.js"></script>
+        
+        <!-- endfileblock -->
+
+        <!-- fileblock:other reload -->
+        <!-- livereload is started by running 'grunt default' or 'grunt' -->
+        <script src="//localhost:35729/livereload.js"></script>
+        <!-- endfileblock -->
+
+        <script>
+            netric.Application.load(function(appInstance){
+                appInstance.run(document.getElementById("netric-app"));
+            });
+        </script>
+
+
+        <!-- css files -->
+        <link rel="stylesheet" id='ant_css_base' href="css/base.css" /> 
+        <link rel="stylesheet" id='ant_css_theme' href="css/theme-default.css" /> 
+        <!-- css files -->
+
+    </head>
+    <body id='netric-app'>
+    </body>
+</html>

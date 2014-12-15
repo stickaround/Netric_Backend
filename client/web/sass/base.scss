@@ -1,0 +1,24 @@
+$font-stack:    Helvetica, sans-serif;
+$primary-color: #333;
+
+body {
+  font: 100% $font-stack;
+  color: $primary-color;
+  margin: 0px;
+  padding: 0px;
+}
+
+/** 
+ * Common effects
+ */
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+
+/**
+ * Add base application classes
+ */
+@import 'base/application';
