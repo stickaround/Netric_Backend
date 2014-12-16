@@ -19,7 +19,7 @@ ini_set("memory_limit", "200M");
 if (!getenv('APPLICATION_ENV'))
 	die("No APPLICATION_ENV variable has been set. Please add it to your system variables before running this command.");
 
-if (empty(AntConfig::getInstance()->default_account))
+if (!AntConfig::getInstance()->default_account)
 	die("The 'default_account' variable was not found in the current config. This variable is required. Please check your config and add it.");
 
 /**
