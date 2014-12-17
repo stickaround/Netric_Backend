@@ -7,8 +7,8 @@ alib.require("netric.mvc.Controller");
 alib.require("netric.controller");
 
 // Include views
-alib.require("netric.view.application.small");
-alib.require("netric.view.application.large");
+alib.require("netric.template.application.small");
+alib.require("netric.template.application.large");
 
 /**
  * Make sure the netric controller namespace exists

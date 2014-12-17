@@ -1,9 +1,9 @@
 /**
-* @fileOverview Base entity may be extended
-*
-* @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
-* 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
-*/
+ * @fileOverview Base entity may be extended
+ *
+ * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
+ * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
+ */
 alib.declare("netric.entity.Entity");
 
 alib.require("netric");

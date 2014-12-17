@@ -7,7 +7,7 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2012 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.mvc.View");
+alib.declare("netric.mvc.ViewManager");
 
 alib.require("netric");
 alib.require("netric.mvc");

@@ -7,7 +7,6 @@
 alib.declare("netric.ui.ApplicationView");
 
 alib.require("netric");
-alib.require("netric.Application");
 alib.require("netric.mvc.ViewManager");
 alib.require("netric.template.application.small");
 alib.require("netric.template.application.large");
