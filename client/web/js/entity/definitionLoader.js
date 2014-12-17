@@ -58,17 +58,17 @@ netric.entity.definitionLoader.get = function(objType, cbLoaded) {
 
 	if (cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
-			var account = netric.entity.definitionLoader.createFromData(this.getResponse());
-			cbLoaded(account);
+			var def = netric.entity.definitionLoader.createFromData(this.getResponse());
+			cbLoaded(def);
 		});
 	} else {
 		// Set request to be synchronous if no callback is set	
 		request.setAsync(false);
 	}
 
-	request.send("svr/Entity/getDefinition", "GET", {obj_type:objType});
+	request.send("svr/entity/getDefinition", "GET", {obj_type:objType});
 
-	// If no callback then construct netric.account.Account from request date (synchronous)
+	// If no callback then construct netric.entity.Definition from request date (synchronous)
 	if (!cbLoaded) {
 		return this.createFromData(request.getResponse());
 	}
@@ -88,4 +88,18 @@ netric.entity.definitionLoader.createFromData = function(data) {
 	this.definitions_[def.objType] = def;
 
 	return this.definitions_[def.objType];
+}
+
+/**
+ * Get a pre-loaded / cached object definition
+ *
+ * @param {string} objType The uniqy name of the object entity type
+ * @return {netric.entity.Definition} Entity defintion on success, null if not cached
+ */
+netric.entity.definitionLoader.getCached = function(objType) {
+	if (this.definitions_[objType]) {
+		return this.definitions_[objType];
+	}
+
+	return null;
 }

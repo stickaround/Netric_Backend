@@ -1,0 +1,4 @@
+# Local directories that should never be put into git
+css/
+node_modules/
+vendor/

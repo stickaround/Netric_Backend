@@ -51,6 +51,7 @@ describe("Get Definition Asynchronously", function() {
 		
 		// Check the private definitions_ property of the loader
 		expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
+		expect(netric.entity.definitionLoader.getCached("customer")).not.toBeNull();
 		done();
 
 	});

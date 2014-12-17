@@ -1,5 +1,12 @@
 {
 	"id" : 1,
+	"name" : "test",
+	"orgName" : "Test Company LLC",
+	"user" : {
+		"id" : 1002,
+		"name" : "test.user",
+		"fullName" : "Test User"
+	},
 	"modules" : [
 		{ 
 			"name" : "home",

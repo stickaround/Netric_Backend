@@ -8,4 +8,3 @@ npm install
 grunt compile
 cp -r dist/* ../../server/
 echo "[done]";
-

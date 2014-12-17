@@ -14,7 +14,7 @@
 *	// Set callback on error
 *	alib.events.listen(request, "error", function(evt) { } );
 *
-*	var ret = request.send("/controller/Object/getDefinition", "POST", {obj_type:this.objType});
+*	var ret = request.send("/controller/object/getDefinition", "POST", {obj_type:this.objType});
 * </code>
 *
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 

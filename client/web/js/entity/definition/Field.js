@@ -131,7 +131,7 @@ netric.entity.definition.Field = function(opt_data) {
 	 * Default value to use with this field
 	 *
 	 * @public
-	 * @var array('on', 'value')
+	 * @var {array('on', 'value')}
 	 */
 	this.defaultVal = data.default_val || null;
 
@@ -141,7 +141,7 @@ netric.entity.definition.Field = function(opt_data) {
 	 * If an associative array then the id is the key, otherwise the value is used
 	 *
 	 * @public
-	 * @var array
+	 * @var {Array}
 	 */
 	this.optionalValues = data.optional_values || null;
 
@@ -168,6 +168,26 @@ netric.entity.definition.Field = function(opt_data) {
 	 * @type {string}
 	 */
 	this.autocreatename = data.autocreatename || "";
+
+	/** 
+	 * Add static types to a variable in 'this'
+	 *
+	 * @public
+	 * @type {Object}
+	 */
+	this.types = netric.entity.definition.Field.types;
+}
+
+/**
+ * Static definition of all field types
+ */
+netric.entity.definition.Field.types = {
+	fkey : "fkey",
+	fkeyMulti : "fkey_multi",
+	object : "object",
+	objectMulti : "object_multi",
+	string : "string",
+	bool : "bool",
 }
 
 /**

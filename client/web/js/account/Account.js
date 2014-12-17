@@ -1,12 +1,13 @@
 /**
-* @fileOverview Object represents the netric account object
-*
-* @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
-* 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
-*/
+ * @fileOverview Object represents the netric account object
+ *
+ * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
+ * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
+ */
 alib.declare("netric.account.Account");
 alib.require("netric");
 alib.require("netric.module.loader");
+alib.require("netric.User");
 
 /**
  * Make sure account namespace is initialized
@@ -40,12 +41,20 @@ netric.account.Account = function(opt_data)
 	this.name = initData.name || "";
 
 	/**
-	 * Company name
+	 * Organization name
 	 * 
 	 * @public
 	 * @type {string}
 	 */
-	this.companyName = initData.companyName || "";
+	this.orgName = initData.orgName || "";
+
+	/**
+	 * Currently authenticated user
+	 * 
+	 * @public
+	 * @type {netric.User}
+	 */
+	this.user = (initData.user) ? new netric.User(initData.user) : null;
 
 	/**
 	 * If modules have been pre-loaded in the application data then set

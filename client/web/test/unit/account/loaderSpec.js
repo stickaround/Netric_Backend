@@ -26,6 +26,18 @@ describe("Get Account Asynchronously", function() {
 	it("Should have loaded the right data", function(done) {
 		
 		expect(account.id).toEqual(1);
+		expect(account.name).toEqual("test");
+		expect(account.orgName).toEqual("Test Company LLC");
+		done();
+
+	});
+
+	it("Should have a user object", function(done) {
+		
+		expect(account.user).not.toBeNull();
+		expect(account.user.id).toEqual(1002);
+		expect(account.user.name).toEqual("test.user");
+		expect(account.user.fullName).toEqual("Test User");
 		done();
 
 	});
