@@ -123,7 +123,7 @@ netric.entity.Entity.prototype.setValue = function(name, value, opt_valueName) {
     if(typeof name == "undefined")
         return;
 
-	var valueName = valueName || null;
+	var valueName = opt_valueName || null;
 
     var field = this.def.getField(name);
 	if (!field)
@@ -196,12 +196,6 @@ netric.entity.Entity.prototype.getValue = function(name) {
     return null;
 }
 
-/*************************************************************************
-*    Function:    getValueName
-*
-*    Purpose:    If exists, get the value name (label) of a referenced field
-*                Typically, get name from id in an fkey
-**************************************************************************/
 /**
  * Get the name/lable of a key value
  * 
@@ -209,7 +203,7 @@ netric.entity.Entity.prototype.getValue = function(name) {
  * @param {val} opt_val If querying *_multi type values the get the label for a specifc key
  * @reutrn {string} the textual representation of the key value
  */
-netric.entity.Entity.prototype.getValueName = function(name, val) {
+netric.entity.Entity.prototype.getValueName = function(name, opt_val) {
 	// Get value from fieldValue
     if (this.fieldValues_[name]) {
     	if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
@@ -270,21 +264,6 @@ netric.entity.Entity.prototype.getValueName = function(name, val) {
     */
     
     return "";
-}
-
-/*************************************************************************
-*    Function:    getValueStr
-*
-*    Purpose:    If a foreign reference, then return name, otherwise
-*                return the value of the field.
-**************************************************************************/
-netric.entity.Entity.prototype.getValueStr = function(name)
-{
-    var val = this.getValueName(name);
-    if (!val)
-        val = this.getValue(name);
-    
-    return val;
 }
 
 /**

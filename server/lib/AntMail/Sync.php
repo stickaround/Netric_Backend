@@ -97,8 +97,6 @@ class AntMail_Sync
 			{
 				$obj = CAntObject::factory($this->dbh, "email_message", $stat['id'], $this->user);
 
-				AntLog::getInstance()->error("Sending {$stat['action']}[:{$stat['id']}] to mailserver with flag_seen:" . $obj->getValue("flag_seen"));
-
 				switch ($stat['action'])
 				{
 				case 'change':
@@ -340,6 +338,15 @@ class AntMail_Sync
 		$list->addCondition("and", "mailbox_id", "is_equal", $mailboxId);
 		$list->addCondition("and", "message_uid", "is_equal", $email['uid']);
 		$list->addCondition("and", "email_account", "is_equal", $account->id);
+		$list->getObjects();
+		if ($list->getNumObjects() > 0)
+			return false;
+		// Also checked previously deleted
+		$list = new CAntObjectList($this->dbh, "email_message");
+		$list->addCondition("and", "mailbox_id", "is_equal", $mailboxId);
+		$list->addCondition("and", "message_uid", "is_equal", $email['uid']);
+		$list->addCondition("and", "email_account", "is_equal", $account->id);
+		$list->addCondition("and", "f_deleted", "is_equal", "t");
 		$list->getObjects();
 		if ($list->getNumObjects() > 0)
 			return false;

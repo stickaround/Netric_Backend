@@ -91,8 +91,10 @@ describe("Get and Set Entity Values", function() {
 	});
 
 	it("should be able to get and set fkey values with valueNames", function() {
-		var testStr = "My Test Value";
-		entity.setValue("name", testStr);
-		expect(entity.getValue("name")).toEqual(testStr);
+		var statusName = "My Test Value";
+		var statusId = 2; 
+		entity.setValue("status", statusId, statusName);
+		expect(entity.getValue("status")).toEqual(statusId);
+		expect(entity.getValueName("status")).toEqual(statusName);
 	});
 });

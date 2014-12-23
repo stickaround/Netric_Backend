@@ -20,5 +20,16 @@ netric.template.appication = netric.template.application || {};
  * @param {Object} data Used for rendering the template
  */
 netric.template.application.small = function(data) {
-	return "<div id='main'><div id='loading'>Loading...</div></div><div id='footerTabs'></div>";
+	var vt = new netric.mvc.ViewTemplate();
+
+	var header = alib.dom.createElement("div", null, null, {id:"app-header-small"});
+	header.innerHTML = "Mobile Header";
+	vt.addElement(header);
+	vt.header = header; // Add for later reference
+
+	vt.bodyCon = alib.dom.createElement("p");
+	vt.bodyCon.innerHTML = "Put the app body here!";
+	vt.addElement(vt.bodyCon);
+
+	return vt;
 }

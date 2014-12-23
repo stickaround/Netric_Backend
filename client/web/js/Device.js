@@ -11,7 +11,8 @@ alib.require("netric");
 
 // Information about the current device
 netric.Device = function() {
-	// TODO: try to determine the size of the viewport of this device
+	// Try to determine the current devices size
+	this.getDeviceSize_();
 }
 
 /**
@@ -35,3 +36,20 @@ netric.Device.sizes = {
  * @type {netric.Device.sizes}
  */
 netric.Device.prototype.size = netric.Device.sizes.large;
+
+/**
+ * Detect the size of the current device and set this.size
+ *
+ * @private
+ */
+ netric.Device.prototype.getDeviceSize_ = function() {
+ 	var width = alib.dom.getClientWidth();
+ 	
+ 	if (width <= 768) {
+ 		this.size = netric.Device.sizes.small;
+ 	} else if (width > 768 && width < 1200) {
+ 		this.size = netric.Device.sizes.medium;
+ 	} else if (width >= 1200) {
+ 		this.size = netric.Device.sizes.large;
+ 	}
+ }

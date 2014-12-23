@@ -46,7 +46,7 @@ class Where
      * Create a where condition
      * 
      * @param string $fieldName
-     
+     *
      * @return \Netric\Models\Collection\Where
      */
     public function __construct($fieldName="*") 

@@ -63,8 +63,8 @@ netric.ui.ApplicationView.prototype.render = function(domCon) {
 	// Clear the continer
 	this.outerCon_.innterHTML = "";
 
+	// Get a view template for rendering
 	var template = null;
-
 	switch (this.application.device.size)
 	{
 	case netric.Device.sizes.small:
@@ -106,7 +106,7 @@ netric.ui.ApplicationView.prototype.load = function(path) {
  * @private
  */
 netric.ui.ApplicationView.prototype.renderSmall_ = function() {
-	//view.setTemplate(netric.template.application.small);
+	return netric.template.application.small();
 }
 
 /**
