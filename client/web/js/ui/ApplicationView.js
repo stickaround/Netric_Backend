@@ -125,5 +125,8 @@ netric.ui.ApplicationView.prototype.renderMedium_ = function() {
  * @private
  */
 netric.ui.ApplicationView.prototype.renderLarge_ = function() {
-	return netric.template.application.large();
+	var data = {
+		logoSrc : "img/netric-logo-32.png"
+	}
+	return netric.template.application.large(data);
 }

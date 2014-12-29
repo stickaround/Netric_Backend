@@ -103,14 +103,23 @@ netric.template.application.large = function(data) {
 
 	var vt = new netric.mvc.ViewTemplate();
 
+	// Add header
+	// ------------------------------------------
 	var header = alib.dom.createElement("div", null, null, {id:"app-header-large"});
-	header.innerHTML = "Desktop Header";
 	vt.addElement(header);
 	vt.header = header; // Add for later reference
 
-	vt.bodyCon = alib.dom.createElement("p");
-	vt.bodyCon.innerHTML = "Put the app body here!";
-	vt.addElement(vt.bodyCon);
+	// Add logo
+	var headerLogo = alib.dom.createElement("div", header);
+	alib.dom.styleAddClass(headerLogo, "app-header-logo-con");
+	headerLogo.innerHTML = "<img src=\"" + data.logoSrc + "\" id='app-header-logo' />";
+
+	// Add module body
+	// ------------------------------------------
+	var bodyCon = alib.dom.createElement("div", null, null, {id:"app-body-large"});
+	bodyCon.innerHTML = "Put the app body here!";
+	vt.addElement(bodyCon);
+	vt.bodyCon = bodyCon;
 
 	return vt;
 }
