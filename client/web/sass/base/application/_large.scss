@@ -1,7 +1,28 @@
-#app-header-large {
+.app-header-large {
 	vertical-align: middle;
+
+	.app-header-logo-con {
+		padding: 7px 20px 7px 20px;
+		width: 200px;
+		float: left;
+	}
+
+	.app-header-search-con {
+		margin-left: 240px;
+	}
+
+	.app-header-profile-con {
+		float: right;
+		margin-right: 20px;
+	}
 }
 
-#app-body-large {
-	
+.app-body-large {
+	font-family: Casper;
+}
+
+/* Override logo to add desktop styles */
+.app-header-logo-large {
+	margin: 10px;
+	background-color: yellow;
 }

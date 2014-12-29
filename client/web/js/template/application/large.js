@@ -105,21 +105,32 @@ netric.template.application.large = function(data) {
 
 	// Add header
 	// ------------------------------------------
-	var header = alib.dom.createElement("div", null, null, {id:"app-header-large"});
-	vt.addElement(header);
-	vt.header = header; // Add for later reference
+	vt.header = alib.dom.createElement("div", null, null, {id:"app-header"});
+	alib.dom.styleAddClass(vt.header, "app-header app-header-large");
+	vt.addElement(vt.header);
 
 	// Add logo
-	var headerLogo = alib.dom.createElement("div", header);
+	var headerLogo = alib.dom.createElement("div", vt.header);
 	alib.dom.styleAddClass(headerLogo, "app-header-logo-con");
-	headerLogo.innerHTML = "<img src=\"" + data.logoSrc + "\" id='app-header-logo' />";
+	headerLogo.innerHTML = "<i class=\"fa fa-bars fa-lg\"></i> <img src=\"" + data.logoSrc + "\" id='app-header-logo' />";
+
+	// Add search box
+	vt.headerSearchCon = alib.dom.createElement("div", vt.header, null, {id:"app-header-search"});
+	alib.dom.styleAddClass(vt.headerSearchCon, "app-header-search-con");
+	vt.headerSearchCon.innerHTML = "Search goes here";
+
+	// Add profile area
+	vt.headerProfileCon = alib.dom.createElement("div", vt.header, null, {id:"app-header-search"});
+	alib.dom.styleAddClass(vt.headerProfileCon, "app-header-profile-con");
+	vt.headerProfileCon.innerHTML = "<i class=\"fa fa-camera-retro fa-lg\"></i>";
 
 	// Add module body
 	// ------------------------------------------
-	var bodyCon = alib.dom.createElement("div", null, null, {id:"app-body-large"});
-	bodyCon.innerHTML = "Put the app body here!";
-	vt.addElement(bodyCon);
-	vt.bodyCon = bodyCon;
+	vt.bodyCon = alib.dom.createElement("div", null, null, {id:"app-body"});
+	alib.dom.styleAddClass(vt.bodyCon, "app-body");
+	alib.dom.styleAddClass(vt.bodyCon, "app-body-large");
+	vt.bodyCon.innerHTML = "Put the app body here!";
+	vt.addElement(vt.bodyCon);
 
 	return vt;
 }

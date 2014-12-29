@@ -8,6 +8,40 @@ body {
   padding: 0px;
 }
 
+/**
+ * Load up netric font
+ */
+@font-face {
+  font-family: "Casper";
+  src: url('../fonts/Casper_R.ttf') format("truetype");
+}
+
+/**
+ * Utility classes
+ */
+.pull-left { float: left; }
+.pull-right { float: left; }
+@mixin clearfix() {
+  &:before,
+  &:after {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+.show {
+  display: block !important;
+}
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+.invisible {
+  visibility: hidden;
+}
+
 /** 
  * Common effects
  */

@@ -49,7 +49,8 @@ module.exports = function(grunt) {
             dist: {
                     files: {
                         'css/base.css': 'sass/base.scss',
-                        'css/theme-default.css': 'sass/theme-default.scss'
+                        'css/theme-default.css': 'sass/theme-default.scss',
+                        'css/font-awesome.css': 'sass/font-awesome/font-awesome.scss'
                     }
             }
         },
@@ -90,6 +91,9 @@ module.exports = function(grunt) {
 
                     // Copy css
                     {expand: true, cwd: '.', src: ['css/**'], dest: 'dist/'},
+
+                    // Copy fonts
+                    {expand: true, cwd: '.', src: ['fonts/**'], dest: 'dist/'},
 
                     // JS should be already copied by the concat_in_order task
                 ]
