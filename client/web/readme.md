@@ -10,6 +10,10 @@ Then, use NPM to install grunt client
 
     sudo npm -g install grunt-cli
 
+Install react command line tools
+
+	npm install -g react-tools
+
 Next, clone this repository using Git:
 
     git clone ...

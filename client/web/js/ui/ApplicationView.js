@@ -11,10 +11,22 @@ alib.require("netric.mvc.ViewManager");
 alib.require("netric.template.application.small");
 alib.require("netric.template.application.large");
 
+alib.require("netric.ui.component.application.Small");
+alib.require("netric.ui.component.application.Large");
+
 /**
  * Make sure the ui namespace exists
  */
 netric.ui = netric.ui || {};
+
+TestComponent = React.createClass({
+   displayName: 'TestComponent',
+  render: function() {
+    return (
+      React.createElement("p", null, "Hello World!")
+    );
+  }
+});
 
 /**
  * Application instance
@@ -48,6 +60,14 @@ netric.ui.ApplicationView = function(application) {
 	 */
 	this.outerCon_ = null;
 
+	/**
+	 * Main applicaiton component for rendering application shell
+	 *
+	 * @private
+	 * @type {ReactComponent}
+	 */
+	this.appComponent_ = null;
+
 }
 
 /**
@@ -63,25 +83,38 @@ netric.ui.ApplicationView.prototype.render = function(domCon) {
 	// Clear the continer
 	this.outerCon_.innterHTML = "";
 
-	// Get a view template for rendering
-	var template = null;
+	// Get a view component for rendering
 	switch (this.application.device.size)
 	{
 	case netric.Device.sizes.small:
-		template = this.renderSmall_();
+		this.appComponent_ = netric.ui.component.application.Small;
 		break;
 	case netric.Device.sizes.medium:
-		template = this.renderMedium_();
+		this.appComponent_ = netric.ui.component.application.Large;
 		break;
 	case netric.Device.sizes.large:
-		template = this.renderLarge_();
+		this.appComponent_ = netric.ui.component.application.Large;
 		break;
 	}
 
+	// Setup application data
+	var data = {
+		orgName : this.application.getAccount().orgName,
+		logoSrc : "img/netric-logo-32.png"
+	}
+
+	// Render application component
+	var view = React.render(
+		React.createElement(this.appComponent_, data),
+		domCon
+	);
+
+	/*
 	// Render the template into this.outerCon_;
 	if (template) {
 		template.render(this.outerCon_);
 	}
+	*/
 }
 
 /**

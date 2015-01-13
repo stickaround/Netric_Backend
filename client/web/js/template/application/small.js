@@ -4,15 +4,10 @@
  alib.declare("netric.template.application.small");
 
  /**
-  * Make sure tha namespace exists for template
-  */
-
- /**
  * Make sure module namespace is initialized
  */
 netric.template = netric.template || {};
 netric.template.appication = netric.template.application || {};
-
 
 /**
  * Large and medium views will use this same template

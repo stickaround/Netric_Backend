@@ -188,8 +188,6 @@ netric.mvc.View.prototype.addView = function(name, optionargs, con)
 	if (this.viewManager == null)
 	{
 		this.viewManager = new netric.mvc.ViewManager();
-		if (this.parentViewManager)
-			this.viewManager.isMobile = this.parentViewManager.isMobile;
 	}
 
 	//ALib.m_debug = true;
@@ -223,9 +221,6 @@ netric.mvc.View.prototype.setViewsToggle = function(fToggle)
 	if (this.viewManager == null)
 	{
 		this.viewManager = new netric.mvc.ViewManager();
-
-		if (this.parentViewManager)
-			this.viewManager.isMobile = this.parentViewManager.isMobile;
 	}
 	
 	this.viewManager.setViewsToggle(fToggle);
@@ -240,9 +235,6 @@ netric.mvc.View.prototype.setViewsSingle = function(fToggle)
 	if (this.viewManager == null)
 	{
 		this.viewManager = new netric.mvc.ViewManager();
-
-		if (this.parentViewManager)
-			this.viewManager.isMobile = this.parentViewManager.isMobile;
 	}
 	
 	this.viewManager.setViewsSingle(fToggle);

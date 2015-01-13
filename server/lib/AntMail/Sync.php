@@ -341,6 +341,7 @@ class AntMail_Sync
 		$list->getObjects();
 		if ($list->getNumObjects() > 0)
 			return false;
+
 		// Also checked previously deleted
 		$list = new CAntObjectList($this->dbh, "email_message");
 		$list->addCondition("and", "mailbox_id", "is_equal", $mailboxId);

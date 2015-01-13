@@ -4,7 +4,15 @@
         <script src="vendor/aereus/alib_full.js"></script>
 
         <!-- bower:js -->
+        <script src="vendor/react/react.js"></script>
         <!-- endbower -->
+
+        <!-- fileblock:js components -->
+        <script src="build/js/ui/component/test.js"></script>
+        <script src="build/js/ui/component/application/Small.js"></script>
+        <script src="build/js/ui/component/ActionBar.js"></script>
+        <script src="build/js/ui/component/application/Large.js"></script>
+        <!-- endfileblock -->
 
         <!-- fileblock:js app -->
         <script src="js/base.js"></script>
@@ -50,18 +58,17 @@
         <script src="//localhost:35729/livereload.js"></script>
         <!-- endfileblock -->
 
-        <script>
-            netric.Application.load(function(appInstance){
-                appInstance.run(document.getElementById("netric-app"));
-            });
-        </script>
-
-
         <!-- css files -->
         <link rel="stylesheet" id='font-awesome' href="css/font-awesome.css" /> 
         <link rel="stylesheet" id='netric-css-base' href="css/base.css" /> 
         <link rel="stylesheet" id='netric-css-theme' href="css/theme-default.css" /> 
         <!-- css files -->
+
+        <script>
+            netric.Application.load(function(appInstance){
+                appInstance.run(document.getElementById("netric-app"));
+            });
+        </script>
 
     </head>
     <body id='netric-app'>

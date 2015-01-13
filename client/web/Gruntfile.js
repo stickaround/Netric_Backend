@@ -20,8 +20,14 @@ module.exports = function(grunt) {
             
             // Make sure any new scripts are included in the html documents
             blocks: {
-                files: ['src/js/**/*.js'],
+                files: ['js/**/*.js', 'build/js/ui/component/**/*.js'],
                 tasks: ['fileblocks:dev']
+            },
+
+            // Render jsx filse into js files
+            react: {
+                files: ['js/ui/component/**/*.jsx'],
+                tasks: ['react']
             },
             
             // Reload the browser if any of these files change
@@ -30,6 +36,7 @@ module.exports = function(grunt) {
                     '*.html', 
                     'css/*.css',
                     'js/**/*.js',
+                    'js/**/*.jsx',
                     'img/**/*.{png,jpg,jpeg,gif,webp,svg}'
                 ],
                 options: {
@@ -54,6 +61,19 @@ module.exports = function(grunt) {
                     }
             }
         },
+
+        /*
+         * Compile react jsx files into normal js files
+         */
+        react: {
+            files: {
+                expand: true,
+                cwd: 'js/ui/component',
+                src: ['**/*.jsx'],
+                dest: 'build/js/ui/component',
+                ext: '.js'
+            }
+        },
         
         /**
          * Gather all javascript files and concat into a single file
@@ -75,7 +95,7 @@ module.exports = function(grunt) {
                    //onlyConcatRequiredFiles: true
                 },
                 files: {
-                  'dist/js/netric.js': ['js/**/*.js']
+                  'dist/js/netric.js': ['build/**/*.js']
                 }
             }
         },
@@ -97,6 +117,12 @@ module.exports = function(grunt) {
 
                     // JS should be already copied by the concat_in_order task
                 ]
+            },
+            build: {
+                files: [
+                    // Copy all js to build dir so we can merge with jsx
+                    {expand: true, cwd: '.', src: ['js/**'], dest: 'build/'},
+                ]
             }
         },
         
@@ -104,11 +130,21 @@ module.exports = function(grunt) {
          * Automatically insert script tags into index.html
          */
         fileblocks: {
+            /* Task options */
+            options: {
+                templates: {
+                    'jsx': '<script type="text/jsx" src="${file}"></script>',
+                    md: '+ ${file}' // Add a custom template
+                }
+            },
             dev: {
                 src: 'index.html',
                 blocks: {
                     'app': { 
                         src: 'js/**/*.js'
+                    },
+                    'components': {
+                        src: 'build/js/ui/component/**/*.js'
                     }
                 }
             }
@@ -155,6 +191,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-file-blocks');
     grunt.loadNpmTasks('grunt-wiredep');
     grunt.loadNpmTasks('grunt-svn-fetch');
+    grunt.loadNpmTasks('grunt-react');
 
     /*
      * Now register callable tasks
@@ -167,7 +204,7 @@ module.exports = function(grunt) {
     grunt.registerTask('includes', ['wiredep', 'fileblocks:dev']);
     
     // Compine and put built application in dist
-    grunt.registerTask('compile', ['svn_fetch', 'concat', 'sass:dist', 'copy']);
+    grunt.registerTask('compile', ['svn_fetch', 'copy:build', 'react', 'concat', 'sass:dist', 'copy:main']);
     
     // Default will build sass, update js includes and then sit and watch for changes
     grunt.registerTask('default', ['svn_fetch:alib', 'sass:dist', 'includes', 'watch']);

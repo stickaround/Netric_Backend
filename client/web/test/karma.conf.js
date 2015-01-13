@@ -5,6 +5,7 @@ module.exports = function(config){
 
     files : [
       'vendor/aereus/alib_full.js',
+      'vendor/react/react.js',
       'js/base.js',
       'js/mvc/mvc.js',
       'js/mvc/Controller.js',

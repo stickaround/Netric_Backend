@@ -257,7 +257,7 @@ class AntMail_Account
 		}
 
 		// Look for system default type and host
-		if (!$this->type && AntConfig::getInstance()->email['default_type'] && $this->fDefault)
+		if (AntConfig::getInstance()->email['default_type']  && AntConfig::getInstance()->email['backend_host'] && $this->fSystem)
 		{
 			$this->type = AntConfig::getInstance()->email['default_type'];
 			$this->host = AntConfig::getInstance()->email['backend_host'];
