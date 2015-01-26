@@ -1,3 +1,5 @@
+@import "base/main";
+
 $font-stack:    Helvetica, sans-serif;
 $primary-color: #333;
 
@@ -56,3 +58,8 @@ body {
  * Add base application classes
  */
 @import 'base/application';
+
+/**
+ * Add module layouts
+ */
+@import 'base/module';

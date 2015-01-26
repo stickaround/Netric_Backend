@@ -6,7 +6,7 @@
  * @package		EmailQueueProcess
  * @copyright	Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
-require_once(dirname(__FILE__)."/../../lib/AntConfig.php");
+require_once(dirname(__FILE__)."/../../../lib/AntConfig.php");
 require_once("lib/AntUser.php");		
 require_once("lib/CAntObjectList.php");		
 require_once("lib/AntService.php");
@@ -22,23 +22,38 @@ class AntService_Routine_Tmp_EmailCleanDuplicates extends AntRoutine
 							FROM objects_email_message
 					  ) dups WHERE dups.Row > 1";
 		$results = $dbh->Query($dupsQuery);
-		$num = $dbh->GetNumRows($results);
+		$num = $dbh->GetNumberRows($results);
 		for ($i = 0; $i < $num; $i++)
 		{
-			$row = $dbh->GetRow($results, $i);
+			$id = $dbh->GetValue($results, $i, "id");
+
+			$getFirstQuery = "SELECT id, message_id, email_account, message_date, owner_id
+								FROM objects_email_message WHERE id='$id'";
+			$resOrig = $dbh->Query($getFirstQuery);
+			$row = $dbh->GetRow($resOrig, 0);
 
 			$toRemoveQuery = "SELECT id, owner_id FROM objects_email_message WHERE
-								message_id='" . $row['message_id'} . "' AND
+								message_id='" . $row['message_id'] . "' AND
 							 	email_account='" . $row['email_account'] . "' AND
-							 	message_date='" . $row['message_date'] . "' 
+							 	message_date='" . $row['message_date'] . "' AND
+							 	owner_id='" . $row['owner_id'] . "'
+							 	f_deleted is false AND
+							 	id!='" . $row['id'] . "'
 							 ";
 			$result2 = $dbh->Query($toRemoveQuery);
-			$num2 = $dbh->GetNumRows($result2);
-			for ($j = 0; $j > $num2; $j++)
+			$num2 = $dbh->GetNumberRows($result2);
+			for ($j = 0; $j < $num2; $j++)
 			{
 				$row2 = $dbh->GetRow($result2, $j);
-				echo "Delete {$row['id']}:{$row['owner_id']}\n";
+				echo "Delete {$row2['id']}:{$row2['owner_id']}\n";
+
+				$user = new AntUser($dbh, $row['owner_id']);
+				$obj = CAndObject::factory($dbh, "email_message", $row['id'], $user);
+				$obj->delete();
 			}
 		}
 	}
 }
+
+$svc = new AntService_Routine_Tmp_EmailCleanDuplicates();
+$svc->run();

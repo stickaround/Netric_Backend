@@ -1,0 +1,18 @@
+// Core variables and mixins
+@import "variables/colors";
+@import "variables/media-queries";
+@import "variables/spacing";
+@import "variables/theme-variables";
+
+// Common mixins
+@import "mixins/mixins";
+
+// Reset and dependencies
+@import "resets/normalize";
+@import "resets/typography-resets";
+
+// Core CSS
+@import "core/core";
+
+// Components
+@import "components/components";

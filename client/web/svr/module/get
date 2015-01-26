@@ -1,4 +1,8 @@
 {
 	"name" : "messages",
-	"title" : "Messages"
+	"title" : "Messages",
+	"leftNav" : [
+		{type:"header", text="My Test Header"},
+		{type:"divider"}
+	]
 }

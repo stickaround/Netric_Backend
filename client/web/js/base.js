@@ -85,3 +85,97 @@ netric.getApplication = function() {
 
 	return this.application_;
 }
+
+/**
+ * Inherit the prototype methods from one funciton
+ *
+ * <pre>
+ * function ParentClass(a, b) { }
+ * ParentClass.prototype.foo = function(a) { }
+ *
+ * function ChildClass(a, b, c) {
+ *   ParentClass.call(this, a, b, c);
+ * }
+ * netric.inherits(ChildClass, ParentClass);
+ *
+ * var child = new ChildClass('a', 'b', 'see');
+ * child.foo(); // works
+ * </pre>
+ *
+ * In addition, a parent class' implementation of a method can be invoked
+ * as follows:
+ *
+ * <pre>
+ * ChildClass.prototype.foo = function(a) {
+ *   ChildClass.parentClass_.foo.call(this, a);
+ *   // other code
+ * };
+ * </pre>
+ *
+ * @param {Function} childCtor Child class.
+ * @param {Function} parentCtor Parent class.
+ */
+netric.inherits = function(childCtor, parentCtor) 
+{
+  /** @constructor */
+  function tempCtor() {};
+  tempCtor.prototype = parentCtor.prototype;
+  childCtor.parentClass_ = parentCtor.prototype;
+  childCtor.prototype = new tempCtor();
+  /** @override */
+  childCtor.prototype.constructor = childCtor;
+}
+
+/**
+ * Used to manage dependencies at compile time or run-time if a callback is specified
+ *
+ * @param {string|string[]} mDeps Mixeed, can be a string or array of strings indicating required namespaces
+ * @param {function} opt_methodName Optional callback function to be called once all dependencies are loaded
+ */
+ netric.require = function(mDeps, opt_methodName)
+ {
+  // TODO: currently a stub for the compiler
+ }
+
+
+/**
+  * Declare a namespace
+  *
+  * @param {string} sName The full path of the namespace to provide
+  */
+netric.declare = function(sName) 
+{
+  netric.exportPath_(sName);
+};
+
+/**
+ * Create object structure for a namespace path and make sure existing object are NOT overwritten
+ *
+ * @param {string} path oath of the object that this file defines.
+ * @param {*=} opt_object the object to expose at the end of the path.
+ * @param {Object=} opt_objectToExportTo The object to add the path to; default this
+ * @private
+ */
+netric.exportPath_ = function(name, opt_object, opt_objectToExportTo) {
+  var parts = name.split('.');
+  var cur = opt_objectToExportTo || window;
+
+  // Internet Explorer exhibits strange behavior when throwing errors from
+  // methods externed in this manner.
+  if (!(parts[0] in cur) && cur.execScript) {
+    cur.execScript('var ' + parts[0]);
+  }
+
+  // Parentheses added to eliminate strict JS warning in Firefox.
+  for (var part; parts.length && (part = parts.shift());) {
+    if (!parts.length && opt_object) {
+      // last part and we have an object; use it
+      cur[part] = opt_object;
+    } else if (cur[part]) {
+      cur = cur[part];
+    } else {
+      cur = cur[part] = {};
+    }
+  }
+};
+

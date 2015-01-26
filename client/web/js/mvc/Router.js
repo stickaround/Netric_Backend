@@ -19,8 +19,10 @@ alib.require("netric.mvc");
  * Creates an instance of AntViewsRouter
  *
  * @constructor
+ * @param {netric.mvc.Route} parentRoute If set this is a sub-route router
  */
-netric.mvc.Router = function() {
+netric.mvc.Router = function(parentRoute) {
+	
 	/**
 	 * Keep a record of the last route loaded
 	 * 
@@ -79,4 +81,16 @@ netric.mvc.Router.prototype.checkNav = function() {
  * Callback can be overridden and triggered when a hash changes in the URL
  */
 netric.mvc.Router.prototype.onchange = function(path) {
+}
+
+/**
+ * Add a route segment to the current level
+ * 
+ * @param {string} segmentName Can be a constant string or a variable with ":" prefixed which falls back to the previous route(?)
+ * @param {Controller} controller The controller to load
+ * @param {Object} data Optional data to pass to the controller when routed to
+ * @param {ReactElement} opt_element Optional parent element to render a fragment into
+ */
+netric.mvc.Router.prototype.addRoute = function(segmentName, controller, data, opt_element) {
+
 }

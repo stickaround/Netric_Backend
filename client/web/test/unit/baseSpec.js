@@ -31,3 +31,82 @@ describe("Public Base Functions:", function() {
 		expect( function(){ netric.getApplication(); } ).toThrow(new Error(error));
 	});
 });
+
+/**
+ * Test inherits functionality
+ */
+describe("Class inheritance:", function() {
+
+	it("Can extend a base class functions", function() {
+		function ParentClass(somevar) { this.someVar_ = somevar; }
+ 		ParentClass.prototype.getvar = function() { return this.someVar_; }
+
+ 		function ChildClass(somevar) { ParentClass.call(this, somevar); }
+ 		netric.inherits(ChildClass, ParentClass);
+
+ 		var child = new ChildClass("test");
+ 		expect(child.getvar()).toEqual("test");
+	});
+
+	it("Can override base class functions", function() {
+		
+		function ParentClass(somevar) { this.someVar_ = somevar; }
+ 		ParentClass.prototype.getvar = function() { return this.someVar_; }
+
+ 		function ChildClass(somevar) { ParentClass.call(this, somevar); }
+ 		netric.inherits(ChildClass, ParentClass);
+
+ 		// Override
+ 		ChildClass.prototype.getvar = function() { return "child"; }
+
+ 		var child = new ChildClass("test");
+ 		expect(child.getvar()).toEqual("child");
+
+	});
+
+	it("Can call base functions from child functions", function() {
+		function ParentClass(somevar) { this.someVar_ = somevar; }
+ 		ParentClass.prototype.getvar = function() { return this.someVar_; }
+
+ 		function ChildClass(somevar) { ParentClass.call(this, somevar); }
+ 		netric.inherits(ChildClass, ParentClass);
+
+ 		// Override
+ 		ChildClass.prototype.getvar2 = function() { return this.getvar(); }
+
+ 		var child = new ChildClass("test");
+ 		expect(child.getvar2()).toEqual("test");
+	});
+
+	it("Can access base variables from child functions", function() {
+		function ParentClass(somevar) { this.someVar_ = somevar; }
+
+ 		function ChildClass(somevar) { ParentClass.call(this, somevar); }
+ 		netric.inherits(ChildClass, ParentClass);
+ 		ChildClass.prototype.getvar = function() { return this.someVar_; }
+
+ 		var child = new ChildClass("test");
+ 		expect(child.getvar()).toEqual("test");
+	});
+
+});
+
+/**
+ * Test inherits functionality
+ */
+describe("Namespace declare:", function() {
+
+	it("Can create new namespaces before they exist", function() {
+		netric.declare("my.test.namespace");
+		expect(typeof my.test.namespace).toEqual("object");
+	});
+
+	it("Should not override existing functions", function() {
+		var testns = {};
+		testns.testClass = function() {}
+		netric.declare("testns.testClass");
+		expect(typeof testns.testClass).toEqual("function");
+	});
+
+});
+

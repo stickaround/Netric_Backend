@@ -20,13 +20,13 @@ module.exports = function(grunt) {
             
             // Make sure any new scripts are included in the html documents
             blocks: {
-                files: ['js/**/*.js', 'build/js/ui/component/**/*.js'],
+                files: ['js/**/*.js', 'build/js/ui/**/*.js'],
                 tasks: ['fileblocks:dev']
             },
 
             // Render jsx filse into js files
             react: {
-                files: ['js/ui/component/**/*.jsx'],
+                files: ['js/ui/**/*.jsx'],
                 tasks: ['react']
             },
             
@@ -68,9 +68,9 @@ module.exports = function(grunt) {
         react: {
             files: {
                 expand: true,
-                cwd: 'js/ui/component',
+                cwd: 'js/ui',
                 src: ['**/*.jsx'],
-                dest: 'build/js/ui/component',
+                dest: 'build/js/ui',
                 ext: '.js'
             }
         },
@@ -144,7 +144,7 @@ module.exports = function(grunt) {
                         src: 'js/**/*.js'
                     },
                     'components': {
-                        src: 'build/js/ui/component/**/*.js'
+                        src: 'build/js/ui/**/*.js'
                     }
                 }
             }

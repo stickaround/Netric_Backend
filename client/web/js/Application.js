@@ -4,13 +4,14 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2011 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.Application");
+netric.declare("netric.Application");
 
-alib.require("netric");
-alib.require("netric.account.loader");
-alib.require("netric.mvc.Router");
-alib.require("netric.Device");
-alib.require("netric.ui.ApplicationView");
+netric.require("netric");
+netric.require("netric.account.loader");
+netric.require("netric.location");
+netric.require("netric.location.Router");
+netric.require("netric.Device");
+netric.require("netric.controller.MainController");
 
 /**
  * Application instance
@@ -77,21 +78,28 @@ netric.Application.prototype.getAccount = function() {
  */
 netric.Application.prototype.run = function(domCon) {
 
+	// Load up the new router
+	var router = new netric.location.Router();
+
+	// Create the root route which is also the default
+	router.addRoute("/", netric.controller.MainController, {}, domCon);
+
+	// Setup location change listener
+	netric.location.setupRouter(router);
+
 	// Create root application view
-	var appView = new netric.ui.ApplicationView(this);
+	//var appView = new netric.ui.ApplicationView(this);
 
 	/*
 	 * Setup the router so that any change to the URL will route through
 	 * the redner action for the front contoller which will propogate the new
 	 * url path down through all children contollers as well.
 	 */
-	var router = new netric.mvc.Router();
-	//router.options.viewManager = new AntViewManager();
-	//router.options.viewManager.setViewsToggle(true); // Only view one view at a time at the root level
-	router.onchange = function(path) {
-		appView.load(path);
-	}
+	//var router = new netric.mvc.Router();
+	//router.onchange = function(path) {
+	//	appView.load(path);
+	//}
 
 	// Render application
-	appView.render(domCon);
+	//appView.render(domCon);
 }

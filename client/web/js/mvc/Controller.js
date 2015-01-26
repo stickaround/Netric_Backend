@@ -21,52 +21,30 @@ netric.mvc = netric.mvc || {};
  * @param {netric.mvc.Controller} parentController Optional parent controller
  */
 netric.mvc.Controller = function(name, parentController) {
-	/** 
-	 * Represents the full path of this contoller based on 'name'
-	 *
-	 * @type {string}
-	 */
-	this.path = "";
-
-	/**
-	 * The current action/view that is actively displayed
-	 * 
-	 * @type {string}
-	 */
-	this.currViewName = "";
-
-	/**
-	 * Default action
-	 *
-	 * @type {string}
-	 */
-	this.defaultAction = "main";
 	
 	/**
-	 * Array of views associated with this controller and its actions
-	 * 
-	 * @type {netric.mvc.view[]}
-	 */
-	this.views = new Array();
-
-	/**
-	 * Only one action is visible at a time
+	 * Type determins how this controller is loaded into the document
 	 *
-	 * @type {bool}
+	 * @private
 	 */
-	this.pageView = false;
+	this.type_ = netric.mvc.Controller.types.page;
+}
 
-	/**
-	 * If a child controller is shown, then hide this view
-	 *
-	 * pageViewSingle means that if a child view shows, this view is hidden
-	 *
-	 * @type {bool}
-	 */
-	this.pageViewSingle = false;
+/**
+ * Define the controller types to determine how they are rendered
+ *
+ * @public
+ */
+netric.mvc.Controller.types = {
+	
+	// Page will hide parent when loaded
+	page : 1,
+	
+	// A fragmen is loaded inline in the context of a page
+	fragment : 3,
 
-	// Automatically convert any predefined actions for this contoller into views
-	this.init();
+	// Modals are opened in a dialog
+	modal : 5
 }
 
 /**

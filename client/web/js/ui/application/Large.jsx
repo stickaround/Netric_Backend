@@ -4,22 +4,21 @@
  * @jsx React.DOM
  */
 
-alib.declare("netric.ui.component.application.Large");
+alib.declare("netric.ui.application.Large");
 
-alib.require("netric.ui.component.ActionBar");
+alib.require("netric.ui.ActionBar");
 
 /** 
  * Make sure namespace exists
  */
 var netric = netric || {};
 netric.ui = netric.ui || {};
-netric.ui.component = netric.ui.component || {};
-netric.ui.component.application = netric.ui.component.application || {};
+netric.ui.application = netric.ui.application || {};
 
 /**
  * Large application component
  */
-netric.ui.component.application.Large = React.createClass({
+netric.ui.application.Large = React.createClass({
   getInitialState: function() {
     return {orgName: this.props.orgName};
   },
@@ -31,14 +30,13 @@ netric.ui.component.application.Large = React.createClass({
             <img src={this.props.logoSrc} id="app-header-logo" />
           </div>
           <div id="app-header-search" className="app-header-search-con">
-            Search goes here
+            Search goes here <a onClick={function() {netric.location.go("/messages")}}>Go to messages</a>
           </div>
           <div className="app-header-profile-con">
             <i className="fa fa-camera-retro fa-lg"></i>
           </div>
         </div>
-        <div id="app-body" className="app-body app-body-large">
-          Put the app body here
+        <div id="app-body" ref="appMain" className="app-body app-body-large">
         </div>
       </div>
     );

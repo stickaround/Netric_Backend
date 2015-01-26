@@ -8,10 +8,16 @@
         <!-- endbower -->
 
         <!-- fileblock:js components -->
-        <script src="build/js/ui/component/test.js"></script>
-        <script src="build/js/ui/component/application/Small.js"></script>
-        <script src="build/js/ui/component/ActionBar.js"></script>
-        <script src="build/js/ui/component/application/Large.js"></script>
+        <script src="build/js/ui/ActionBar.js"></script>
+        <script src="build/js/ui/Module.js"></script>
+        <script src="build/js/ui/application/Large.js"></script>
+        <script src="build/js/ui/application/Small.js"></script>
+        <script src="build/js/ui/test.js"></script>
+        <script src="build/js/ui/LeftNav.js"></script>
+        <script src="build/js/ui/Overlay.js"></script>
+        <script src="build/js/ui/Paper.js"></script>
+        <script src="build/js/ui/Menu.js"></script>
+        <script src="build/js/ui/EntityBrowser.js"></script>
         <!-- endfileblock -->
 
         <!-- fileblock:js app -->
@@ -36,21 +42,30 @@
         <script src="js/mvc/Router.js"></script>
         <script src="js/mvc/View.js"></script>
         <script src="js/Device.js"></script>
-        <script src="js/controller/AppController.js"></script>
-        <script src="js/controller/ModuleController.js"></script>
-        <script src="js/controller/controller.js"></script>
         <script src="js/mvc/mvc.js"></script>
         <script src="js/mvc/ViewTemplate.js"></script>
         <script src="js/mvc/ViewManager.js"></script>
         <script src="js/template/application/large.js"></script>
         <script src="js/template/application/small.js"></script>
-        <script src="js/ui/ApplicationView.js"></script>
         <script src="js/entity/Definition.js"></script>
         <script src="js/entity/definition/Field.js"></script>
         <script src="js/entity/definitionLoader.js"></script>
         <script src="js/entity/Collection.js"></script>
         <script src="js/entity/Query.js"></script>
         <script src="js/entity/collectionLoader.js"></script>
+        <script src="js/location/location.js"></script>
+        <script src="js/location/adaptor/Hash.js"></script>
+        <script src="js/location/path.js"></script>
+        <script src="js/location/Router.js"></script>
+        <script src="js/location/Route.js"></script>
+        <script src="js/controller/controller.js"></script>
+        <script src="js/controller/AbstractController.js"></script>
+        <script src="js/controller/TestController.js"></script>
+        <script src="js/controller/MainController.js"></script>
+        <script src="js/controller/AppController.js"></script>
+        <script src="js/controller/ModuleController.js"></script>
+        <script src="js/log.js"></script>
+        <script src="js/controller/EntityBrowserController.js"></script>
         <!-- endfileblock -->
 
         <!-- fileblock:other reload -->
@@ -65,12 +80,14 @@
         <!-- css files -->
 
         <script>
-            netric.Application.load(function(appInstance){
-                appInstance.run(document.getElementById("netric-app"));
-            });
+            function startApplication() {
+                netric.Application.load(function(appInstance){
+                    appInstance.run(document.getElementById("netric-app"));
+                });
+            }
         </script>
 
     </head>
-    <body id='netric-app'>
+    <body id='netric-app' onload="startApplication();">
     </body>
 </html>

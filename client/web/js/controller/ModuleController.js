@@ -1,70 +1,113 @@
 /**
  * @fileoverview Main application controller
  */
-alib.declare("netric.controller.ModuleController");
+netric.declare("netric.controller.ModuleController");
 
-alib.require("netric.mvc.Controller");
-alib.require("netric.controller");
-
-// Include views
-alib.require("netric.template.application.small");
-alib.require("netric.template.application.large");
+netric.require("netric.controller.AbstractController");
 
 /**
- * Make sure the netric controller namespace exists
+ * Controller that loads modules into the applicatino
  */
-netric.controller = netric.controller || {};
-
-netric.controller.ModuleController = function(domCon) {
-	// Case base class constructor
-	netric.mvc.Controller.call(this, domCon);
+netric.controller.ModuleController = function() {
 }
 
 /**
  * Extend base controller class
  */
-alib.inherits(netric.controller.ModuleController, netric.mvc.Controller);
+netric.inherits(netric.controller.ModuleController, netric.controller.AbstractController);
 
 /**
- * Default action will be called if action was specified
+ * Handle to root ReactElement where the UI is rendered
  *
- * @param {netric.mvc.View}
+ * @private
+ * @type {ReactElement}
  */
-netric.controller.ModuleController.prototype.mainAction = function(view) {
+netric.controller.ModuleController.prototype.rootReactNode_ = null;
 
-	/*
+/**
+ * Function called when controller is first loaded but before the dom ready to render
+ *
+ * @param {function} opt_callback If set call this function when we are finished loading
+ */
+netric.controller.ModuleController.prototype.onLoad = function(opt_callback) {
+
+	// Change the type based on the device size
 	switch (netric.getApplication().device.size)
 	{
 	case netric.Device.sizes.small:
-		view.setTemplate(netric.view.application.small);
-		break;
 	case netric.Device.sizes.medium:
+		this.type_ = netric.controller.types.PAGE;
+		break;
 	case netric.Device.sizes.large:
-		view.setTemplate(netric.view.application.large);
+		this.type_ = netric.controller.types.FRAGMENT;
 		break;
 	}
-	*/
 
-	// TODO: add actions for each object type in the navigation
-
+	// By default just immediately execute the callback because nothing needs to be done
+	if (opt_callback)
+		opt_callback();
 }
 
 /**
- * Default action will be called if action was specified
- *
- * @param {netric.mvc.View}
+ * Render this controller into the dom tree
  */
-netric.controller.ModuleController.prototype.browseAction = function(view) {
-	
-	// Component model
-	var entityBrowser = new netric.ui.entity.Browser('customer', view);
-	// TODO: set all conditions here
-	entityBrowser.render(view.con);
+netric.controller.ModuleController.prototype.render = function() { 
+	// Set outer application container
+	var domCon = this.domNode_;
 
-	/* Concept for creating an entity browser
-	// MVC model
-	var brwsr = new netric.controller.EntityBrowser(view.con, this);
-	brwsr.renderAction('main', {objType:'customer'});
-	*/
+	var data = {
+		name: "Loading...",
+		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.small) ? false : true,
+		leftNavItems: [
+			{name: "Create New Entity", "route": "compose"},
+			{name: "Browse Entity", "route": "browse"},
+			{name: "Third Menu Entry"}
+		],
+		onLeftNavChange: this.onLeftNavChange_.bind(this)
+	}
 
+	// Render application component
+	this.rootReactNode_ = React.render(
+		React.createElement(netric.ui.Module, data),
+		domCon
+	);
+
+	// Add route to compose a new entity
+	this.addSubRoute("compose", 
+		netric.controller.TestController, 
+		{ type: netric.controller.types.FRAGMENT }, 
+		this.rootReactNode_.refs.moduleMain.getDOMNode()
+	);
+
+	// Add route to compose a new entity
+	this.addSubRoute("browse", 
+		netric.controller.EntityBrowserController, 
+		{ 
+			type: netric.controller.types.FRAGMENT,
+			onNavBtnClick: function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this) 
+		}, 
+		this.rootReactNode_.refs.moduleMain.getDOMNode()
+	);
+
+	/* 
+	 * Add listener to update leftnav state when a child route changes
+	 */
+	if (this.getChildRouter() && this.rootReactNode_.refs.leftNav) {
+		alib.events.listen(this.getChildRouter(), "routechange", function(evt) {
+			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.path });
+		}.bind(this));
+	}
+
+	// Set a default route to messages
+	//this.getChildRouter().setDefaultRoute("browse");
+}
+
+/**
+ * User selected an alternate menu item in the left navigation
+ */
+netric.controller.ModuleController.prototype.onLeftNavChange_ = function(evt, index, payload) {
+	if (payload && payload.route) {
+		var basePath = this.getRoutePath();
+		netric.location.go(basePath + "/" + payload.route);
+	}
 }
