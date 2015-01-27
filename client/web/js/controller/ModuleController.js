@@ -99,7 +99,7 @@ netric.controller.ModuleController.prototype.render = function() {
 	}
 
 	// Set a default route to messages
-	//this.getChildRouter().setDefaultRoute("browse");
+	this.getChildRouter().setDefaultRoute("browse");
 }
 
 /**

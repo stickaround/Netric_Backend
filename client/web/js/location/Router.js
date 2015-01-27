@@ -14,7 +14,7 @@ netric.declare("netric.location.Router");
 
 netric.require("netric");
 netric.require("netric.location");
-netric.require("netric.Route");
+netric.require("netric.location.Route");
 
 /**
  * Creates an instance of AntViewsRouter

@@ -8,7 +8,6 @@
 netric.declare("netric.location.adaptor.Hash");
 
 netric.require("netric");
-netric.require("netric.adaptor");
 
 /**
  * Create global namespaces
