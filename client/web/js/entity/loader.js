@@ -74,7 +74,7 @@ netric.entity.loader.get = function(objType, entId, cbLoaded, force) {
 		requestData.loadDef = 1;
 	}
 
-	request.send("svr/entity/get", "GET", requestData);
+	request.send("/svr/entity/get", "GET", requestData);
 
 	// If no callback then construct netric.entity.Entity from request date (synchronous)
 	if (!cbLoaded) {

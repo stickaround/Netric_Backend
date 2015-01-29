@@ -8,7 +8,7 @@ describe("Get Entity Asynchronously", function() {
 
 	beforeEach(function(done) {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 		netric.entity.loader.get("customer", "1", function(ent){
 			entity = ent;
 			done(); 
@@ -57,7 +57,7 @@ describe("Get Entity Non Async", function() {
 
 	beforeEach(function() {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 	});
 	
 	it("can fallback to loading entity synchronously", function() {

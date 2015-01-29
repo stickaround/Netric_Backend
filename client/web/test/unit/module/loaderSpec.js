@@ -8,7 +8,7 @@ describe("Get Module Asynchronously", function() {
 
 	beforeEach(function(done) {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 		netric.module.loader.get("messages", function(mdl){
 			module = mdl;
 			done(); 
@@ -47,7 +47,7 @@ describe("Get Module Non Async", function() {
 
 	beforeEach(function() {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 	});
 	
 	it("Can can fallback to loading module synchronously", function() {
@@ -82,7 +82,7 @@ describe("Test preloading module data", function() {
 
 	beforeEach(function() {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 	});
 	
 	it("Should be able to preload modules", function() {

@@ -8,7 +8,7 @@ describe("Get Account Asynchronously", function() {
 
 	beforeEach(function(done) {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 		netric.account.loader.get(function(acct){
 			account = acct;
 			done(); 
@@ -66,7 +66,7 @@ describe("Get Account Non Async", function() {
 
 	beforeEach(function() {
 		// Set test base where karma unit tests are hosted
-		netric.server.host = "base/";
+		netric.server.host = "base";
 	});
 	
 	it("Can can fallback to loading account synchronously", function() {
