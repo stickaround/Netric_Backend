@@ -357,7 +357,8 @@ class AntObjectSync_Collection
 				AND object_id='" . $oid . "'";
 		 */
 		$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "' 
-				AND object_id='" . $oid . "' AND action='" . $this->dbh->Escape($action) . "'";
+				AND object_id='" . $oid . "' AND object_type_id='".$odef->object_type_id."'
+				AND action='" . $this->dbh->Escape($action) . "'";
 		if ($parentId)
 			$sql .= " AND parent_id=".$this->dbh->EscapeNumber($parentId)."";
 		$this->dbh->Query($sql);
@@ -446,8 +447,12 @@ class AntObjectSync_Collection
 		}
 		else
 		{
+			if (!$this->objDef)
+				$this->objDef = CAntObject::factory($this->dbh, $this->objectType);
+
 			$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "' 
-								AND object_id='" . $statId . "'";
+								AND object_id='" . $statId . "'
+								AND object_type_id='" . $this->objDef->object_type_id . "'";
 			if ($parentId)
 				$sql .= "AND parent_id='$parentId'";
 			else
@@ -476,9 +481,13 @@ class AntObjectSync_Collection
 
 		if ($oid)
 		{
+			if (!$this->objDef)
+				$this->objDef = CAntObject::factory($this->dbh, $this->objectType);
+
 			// Frist remove from stat outgoing table if already entered like object just saved before updating the import stat
 			$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "' 
 					AND object_id='" . $oid . "' 
+					AND object_type_id='" . $this->objDef->object_type_id . "'
 					AND revision=".$this->dbh->EscapeNumber($revision)."";
 			if ($parentId)
 				$sql .= " AND parent_id=".$this->dbh->EscapeNumber($parentId)."";
@@ -524,9 +533,12 @@ class AntObjectSync_Collection
 
 		if ($oid)
 		{
+			if (!$this->objDef)
+				$this->objDef = CAntObject::factory($this->dbh, $this->objectType);
+
 			// Frist remove from stat outgoing table if already entered like object just saved before updating the import stat
 			$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "' 
-					AND object_id='" . $oid . "' ";
+					AND object_id='" . $oid . "' AND object_type_id='" . $this->objDef->object_type_id . "' ";
 			if ($parentId)
 				$sql .= " AND parent_id=".$this->dbh->EscapeNumber($parentId)."";
 			$this->dbh->Query($sql);
@@ -780,7 +792,9 @@ class AntObjectSync_Collection
 		// Get list of updates 1000 objects at a time because subsequent calls will pick up where last left off
 		$result = $this->dbh->Query("SELECT field_val, action FROM object_sync_stats 
 									 WHERE collection_id='" . $this->id . "' AND field_id='" . $field['id'] . "'
-									 AND object_id is NULL AND field_val IS NOT NULL
+									 AND object_id is NULL 
+									 AND object_type_id='" . $odef->object_type_id . "'
+									 AND field_val IS NOT NULL
 									 LIMIT 1000");
 		$num = $this->dbh->GetNumberRows($result);
 		for ($i = 0; $i < $num; $i++)

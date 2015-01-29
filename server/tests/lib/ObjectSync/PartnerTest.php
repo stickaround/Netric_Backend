@@ -2,7 +2,7 @@
 /**
  * Test the sync partnership class
  */
-require_once 'PHPUnit/Autoload.php';
+
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../lib/AntConfig.php');
 require_once('lib/CDatabase.awp');
