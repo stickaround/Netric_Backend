@@ -21,9 +21,9 @@
 	$obj = CAntObject::factory($dbh, $OBJ_TYPE, $OID);
 
 	// Get permissions
-	$f_canview = $obj->obj->checkAccess($USER, "View", ($USER->id==$obj->owner_id)?true:false);
-	$f_canedit = $obj->obj->checkAccess($USER, "Edit", ($USER->id==$obj->owner_id)?true:false);
-	$f_candelete = $obj->obj->checkAccess($USER, "Delete", ($USER->id==$obj->owner_id)?true:false);
+	$f_canview = $obj->dacl->checkAccess($USER, "View", ($USER->id==$obj->owner_id)?true:false);
+	$f_canedit = $obj->dacl->checkAccess($USER, "Edit", ($USER->id==$obj->owner_id)?true:false);
+	$f_candelete = $obj->dacl->checkAccess($USER, "Delete", ($USER->id==$obj->owner_id)?true:false);
 
 	echo "<object sec_view='".(($f_canview)?'t':'f')."' sec_edit='".(($f_canedit)?'t':'f')."'";
 	echo " icon_name=\"".escape($obj->getIconName())."\" sec_delete='".(($f_candelete)?'t':'f')."'>";

@@ -4,7 +4,7 @@
  */
 
 // Appended to make sure updates invalidate cached old versions
-$ver = 30;
+$ver = 31;
 
 
 if (AntConfig::getInstance()->debug) 

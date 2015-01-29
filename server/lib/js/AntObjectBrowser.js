@@ -1545,7 +1545,9 @@ AntObjectBrowser.prototype.resize = function()
 	if (this.preview)
 	{		
         alib.dom.styleSet(this.innerCon, "height", "200px");
-		this.spCon.setHeight("300px");
+
+        if (this.spCon && this.spCon.setHeight)
+			this.spCon.setHeight("300px");
 
 		// Resize the outer con
 		var height = getWorkspaceHeight();
@@ -1561,7 +1563,7 @@ AntObjectBrowser.prototype.resize = function()
 		//if (height <= 0)
 			//height = 300;
 
-		if (height > 0)
+		if (height > 0 && this.spCon && this.spCon.setHeight)
 			this.spCon.setHeight(height+"px");
 
 		// Resize the objects contianer minus the toolbar
