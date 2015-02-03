@@ -183,10 +183,10 @@ class ServiceManager
 	 *
 	 * @return EntityLoader
 	 */
-	private function factoryEntityCommitManager()
+	private function factoryEntitySyncCommitManager()
 	{
-		$dm = $this->get("EntityCommit_DataMapper");
-		$manager = new \Netric\Entity\Commit\Manager($dm);
+		$dm = $this->get("EntitySyncCommit_DataMapper");
+		$manager = new \Netric\EntitySync\Commit\CommitManager($dm);
 		return $manager;
 	}
 
@@ -195,9 +195,21 @@ class ServiceManager
 	 *
 	 * @return EntityLoader
 	 */
-	private function factoryEntityCommit_DataMapper()
+	private function factoryEntitySyncCommit_DataMapper()
 	{
-		$dm = new \Netric\Entity\Commit\DataMapper\Pgsql($this->getAccount());
+		$dm = new \Netric\EntitySync\Commit\DataMapper\Pgsql($this->getAccount());
+		return $dm;
+	}
+
+	/**
+	 * Get entity commit datamapper
+	 *
+	 * @return EntityLoader
+	 */
+	private function factoryEntitySync_DataMapper()
+	{
+		$db = $this->get("Db");
+		$dm = new \Netric\EntitySync\DataMapperPgsql($this->getAccount(), $db);
 		return $dm;
 	}
     

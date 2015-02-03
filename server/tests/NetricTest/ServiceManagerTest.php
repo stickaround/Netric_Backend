@@ -122,14 +122,14 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Test getting entity datamapper
+	 * Test getting entity syncronization commit manager
 	 */
-	public function testEntityCommitManager()
+	public function testEntitySyncCommitManager()
 	{
 		$sl = $this->account->getServiceManager();
 
 		// Get config service
-		$manager = $sl->get("EntityCommitManager");
-		$this->assertInstanceOf("Netric\\Entity\\Commit\\Manager", $manager);
+		$manager = $sl->get("EntitySyncCommitManager");
+		$this->assertInstanceOf("Netric\\EntitySync\\Commit\\CommitManager", $manager);
 	}
 }

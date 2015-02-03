@@ -115,6 +115,9 @@ module.exports = function(grunt) {
                     // Copy fonts
                     {expand: true, cwd: '.', src: ['fonts/**'], dest: 'dist/'},
 
+                    // Copy raect
+                    {expand: true, cwd: '.', src: ['vendor/react/react-with-addons.min.js'], dest: 'dist/js/'},
+
                     // JS should be already copied by the concat_in_order task
                 ]
             },
@@ -163,11 +166,11 @@ module.exports = function(grunt) {
                     '**/*.html'
                 ]
             }
-        },
+        }
 
         /*
          * Load aereus lib
-         */
+         
         svn_fetch: {
             options: {
                 'repository': 'svn://src.aereus.com/var/src/',
@@ -179,6 +182,7 @@ module.exports = function(grunt) {
                 }
             }
         }
+        */
     });
 
     /*
@@ -190,7 +194,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-file-blocks');
     grunt.loadNpmTasks('grunt-wiredep');
-    grunt.loadNpmTasks('grunt-svn-fetch');
+    //grunt.loadNpmTasks('grunt-svn-fetch');
     grunt.loadNpmTasks('grunt-react');
 
     /*
@@ -204,8 +208,8 @@ module.exports = function(grunt) {
     grunt.registerTask('includes', ['wiredep', 'fileblocks:dev']);
     
     // Compine and put built application in dist
-    grunt.registerTask('compile', ['svn_fetch', 'copy:build', 'react', 'concat', 'sass:dist', 'copy:main']);
+    grunt.registerTask('compile', ['copy:build', 'react', 'concat', 'sass:dist', 'copy:main']);
     
     // Default will build sass, update js includes and then sit and watch for changes
-    grunt.registerTask('default', ['svn_fetch:alib', 'sass:dist', 'includes', 'watch']);
+    grunt.registerTask('default', ['sass:dist', 'includes', 'watch']);
 };

@@ -11,7 +11,7 @@
  * Global variable is required. Must be incremented with every change to keep
  * scripts in ./updates from running if not needed
  */
-$schema_version = "3.1.132";
+$schema_version = "3.1.133";
 
 /* moved to object tables
 $schema['activity'] = array(
@@ -3211,6 +3211,19 @@ $schema['dataware_olap_cube_measures'] = array(
 	)
 );
 
+/**
+ * Store history of commit heads
+ */
+$schema['object_sync_commit_heads'] = array(
+	"COLUMNS" => array(
+		'type_key'		=> array('type'=>'character varying(256)'),
+		'head_commit_id'=> array('type'=>'bigint', 'notnull'=>true),
+	),
+	'PRIMARY_KEY'		=> 'type_key',
+	"KEYS" => array(
+	)
+);
+
 $schema['object_sync_partners'] = array(
 	"COLUMNS" => array(
 		'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
@@ -3228,6 +3241,7 @@ $schema['object_sync_partners'] = array(
 $schema['object_sync_partner_collections'] = array(
 	"COLUMNS" => array(
 		'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
+		'type'			=> array('type'=>'character varying(16)'),
 		'partner_id'	=> array('type'=>'integer'),
 		'object_type_id'=> array('type'=>'integer'),
 		'object_type'	=> array('type'=>'character varying(256)'),
@@ -3237,6 +3251,7 @@ $schema['object_sync_partner_collections'] = array(
 		'conditions'	=> array('type'=>'text'),
 		'f_initialized'	=> array('type'=>'boolean', "default"=>"false"),
 		'revision'		=> array('type'=>'bigint'),
+		'last_commit_id'=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(

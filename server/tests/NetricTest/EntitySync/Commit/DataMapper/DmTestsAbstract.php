@@ -10,7 +10,7 @@
  * (like querying a database to verify data) should go in the derrived
  * unit tests.
  */
-namespace NetricTest\Entity\Commit\DataMapper;
+namespace NetricTest\EntitySync\Commit\DataMapper;
 
 use PHPUnit_Framework_TestCase;
 
@@ -23,21 +23,12 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
      */
     protected $account = null;
 
-    /**
-     * Entity definition for customer
-     *
-     * @var \Netric\Entity\EntityDefinition
-     */
-    protected $entDefCustomer = null;
-
 	/**
 	 * Setup each test
 	 */
 	protected function setUp() 
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
-
-        $this->entDefCustomer = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
 	}
 
 	/**
@@ -50,7 +41,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	public function testGetNextCommitId()
 	{
 		$dm = $this->getDataMapper();
-		$nextCid = $dm->getNextCommitId($this->entDefCustomer->getId());
+		$nextCid = $dm->getNextCommitId("test_dm");
 		$this->assertTrue($nextCid > 0);
 	}
 
@@ -59,27 +50,27 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$dm = $this->getDataMapper();
 
 		// Increment head
-		$nextCid = $dm->getNextCommitId($this->entDefCustomer->getId());
-		$dm->saveHead($this->entDefCustomer->getId(), $nextCid);
+		$nextCid = $dm->getNextCommitId("test_dm");
+		$dm->saveHead("test_dm", $nextCid);
 
 		// Test saved value
-		$this->assertEquals($nextCid, $dm->getHead($this->entDefCustomer->getId()));
+		$this->assertEquals($nextCid, $dm->getHead("test_dm"));
 	}
 
 	public function testGetHead()
 	{
 		$dm = $this->getDataMapper();
 
-		$currCid = $dm->getHead($this->entDefCustomer->getId());
+		$currCid = $dm->getHead("test_dm");
 
 		// Increment head if new object
 		if (0 == $currCid)
 		{
-			$nextCid = $dm->getNextCommitId($this->entDefCustomer->getId());
-			$dm->saveHead($this->entDefCustomer->getId(), $nextCid);
+			$nextCid = $dm->getNextCommitId("test_dm");
+			$dm->saveHead("test_dm", $nextCid);
 		}
 
-		$currCid = $dm->getHead($this->entDefCustomer->getId());
+		$currCid = $dm->getHead("test_dm");
 		$this->assertTrue($currCid > 0);
 	}
 }

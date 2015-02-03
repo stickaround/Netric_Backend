@@ -122,7 +122,7 @@ class Application
 			 && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root))
 		{
 			$left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
-			if ($left)
+            if ($left)
 				return $left;
 		}
 		

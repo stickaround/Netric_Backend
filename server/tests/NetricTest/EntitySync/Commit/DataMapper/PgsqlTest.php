@@ -7,7 +7,7 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
-namespace NetricTest\Entity\Commit\DataMapper;
+namespace NetricTest\EntitySync\Commit\DataMapper;
 
 use PHPUnit_Framework_TestCase;
 
@@ -31,7 +31,7 @@ class PgsqlTest extends DmTestsAbstract
         $dbh = $sm->get("Db");
         $this->dbh = $dbh;
 
-		return new \Netric\Entity\Commit\DataMapper\Pgsql($this->account);
+		return new \Netric\EntitySync\Commit\DataMapper\Pgsql($this->account);
 	}
 
 	public function testCreateNewSequenceIfMissing()
@@ -44,7 +44,7 @@ class PgsqlTest extends DmTestsAbstract
         $property->setValue($dm, "test_create_new_for_commit");
 
         $nextCid = $dm->getNextCommitId('customer');
-        $this->assertTrue($nextCid > 0); // craeted
+        $this->assertTrue($nextCid > 0); // make sure the sequence gets created
 
         $this->dbh->query("DROP SEQUENCE test_create_new_for_commit;");
 

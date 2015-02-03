@@ -6,6 +6,7 @@
   "license": "COMMERCIAL",
   "private": true,
   "dependencies": {
+  	"aereus": "ssh://git@src.aereusdev.com/alib.js.git",
     "react": "~0.12.2"
   }
 }

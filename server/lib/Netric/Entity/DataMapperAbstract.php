@@ -42,7 +42,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$this->setAccount($account);
 		$this->setUp();
 
-		$this->commitManager = $account->getServiceManager()->get("EntityCommitManager");
+		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
 	}
 
     /**
@@ -152,7 +152,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$entity->setValue("revision", $revision);
 
 		// Create new global commit revision
-		$commitId = $this->commitManager->createCommit($entity->getDefinition()->getId());
+		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
 		$entity->setValue('commit_id', $commitId);
 
 		// Save data to DataMapper implementation
