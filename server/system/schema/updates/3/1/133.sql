@@ -11,7 +11,8 @@ CREATE TABLE object_sync_commit_heads
 ALTER TABLE object_sync_partner_collections ADD COLUMN last_commit_id bigint;
 
 -- Add a type column so we know what kind of collection to load
-ALTER TABLE object_sync_partner_collections ADD COLUMN type character varying(16);
+-- which is defined in Netric\EntitySync\COLL_TYPE_* constants
+ALTER TABLE object_sync_partner_collections ADD COLUMN type integer;
 
 -- Copy the last commit from app_object_types from previous revisions
 INSERT INTO object_sync_commit_heads(type_key, head_commit_id)

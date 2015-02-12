@@ -46,18 +46,28 @@ class EntityGroupings
      * @var Entity\DataMapperInterface
      */
     private $dataMapper = null;
+
+    /**
+     * Default filters that should be applied to all groups within this groupings container
+     *
+     * @var array
+     */
+    private $filters = array();
     
     /**
      * Initialize groupings
      * 
      * @param string $objType Set object type
      * @param string $fieldName The name of the field we are working with
+     * @param array $filters Key/Value filter conditions for each group
      */
-    public function __construct($objType, $fieldName="") 
+    public function __construct($objType, $fieldName="", $filters=array()) 
     {
         $this->objType = $objType;
         if ($fieldName)
             $this->fieldName= $fieldName;
+
+        $this->filters = $filters;
     }
     
     /**
@@ -101,6 +111,16 @@ class EntityGroupings
     public function getFieldName()
     {
         return $this->fieldName;
+    }
+
+    /**
+     * Get array of filters
+     *
+     * @return array
+     */
+    public function getFilters()
+    {
+        return $this->filters;
     }
     
     /**
@@ -276,8 +296,18 @@ class EntityGroupings
         {
             // TODO: check for circular reference in the chain
         }
+
+        // Set filters to match the defaults set in this container
+        foreach ($this->filters as $name=>$value)
+        {
+            if ($value && !$group->getFilteredVal($name))
+            {
+                $group->setValue($name, $value);
+            }
+        }
         
 		$this->groups[] = $group;
+        
 		return true;
 	}
 
@@ -337,4 +367,26 @@ class EntityGroupings
 
 		return true;
 	}
+
+    /**
+     * Get unique filters hash
+     */
+    static public function getFiltersHash($filters=array())
+    {
+        $buf = $filters; // copy array
+        ksort($buf);
+        
+        $ret = "";
+        
+        foreach ($buf as $fname=>$fval)
+        {
+            if ($fval)
+                $ret .= $fname . "=" . $fval;
+        }
+        
+        if ("" == $ret)
+            $ret = 'none';
+        
+        return $ret;
+    }
 }

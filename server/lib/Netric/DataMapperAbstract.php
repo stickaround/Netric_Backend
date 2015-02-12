@@ -16,6 +16,13 @@ abstract class DataMapperAbstract
 	 * @var Netric\Account
 	 */
 	protected $account = "";
+
+	/**
+	 * Errors
+	 *
+	 * @var array(array('message','file','line'))
+	 */
+	protected $errors = array();
     
 	/**
 	 * Get account
@@ -35,5 +42,42 @@ abstract class DataMapperAbstract
 	public function setAccount($account)
 	{
 		$this->account = $account; 
+	}
+
+	/**
+	 * Function is used to return false and set the error message
+	 *
+	 * 
+	 * @param string $message The error message
+	 * @param string $file The name of the file/class that caused the error
+	 * @param string $line The line number if the file that caused the error
+	 * @param mixed $retVal What to return, usually a false
+	 * @return mixed the value of $retVal param which is false by default
+	 */
+	protected function returnError($message, $file=null, $line=null, $retVal=false)
+	{
+		$this->errors[] = array(
+			'message' => $message,
+			'file' => $file,
+			'line' => $line,
+		);
+
+		return $retVal;
+	}
+
+	/**
+	 * Get the last error message
+	 *
+	 * @return string Last error message
+	 */
+	public function getLastError()
+	{
+		$numErrors = count($this->errors);
+		if ($numErrors > 0)
+		{
+			return $this->errors[$numErrors-1]['message'];
+		}
+
+		return "";
 	}
 }

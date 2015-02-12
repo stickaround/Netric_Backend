@@ -10,13 +10,19 @@ namespace Netric\EntitySync\Collection;
 interface CollectionInterface
 {
 	/**
+	 * Get a id if it is saved
+	 *
+	 * @return string
+	 */
+	public function getId();
+
+	/**
 	 * Get a stats list of what has changed locally since the last sync
 	 *
-	 * @param int $parentId If set, pull all objects that are a child of the parent id only
-	 * @param bool $autoClear If true (default) then purge stats as soon as they are returned
+	 * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
 	 * @return array of assoiative array [["id"=><object_id>, "action"=>'change'|'delete']]
 	 */
-	public function getExportChanged($parentId=null, $autoClear=true);
+	public function getExportChanged($autoFastForward=true);
 
 	/**
 	 * Get a stats of the difference between an import and what is stored locally
@@ -32,4 +38,16 @@ interface CollectionInterface
 	 *		);
 	 */
 	public function getImportChanged($importList, $parentId=null);
+
+	/**
+	 * Get a collection type id
+	 *
+	 * @return int Type from \Netric\EntitySync::COLL_TYPE_*
+	 */
+	public function getType();
+
+	/**
+	 * Fast forward this collection to current head which resets it to only get future changes
+	 */
+	public function fastForwardToHead();
 }

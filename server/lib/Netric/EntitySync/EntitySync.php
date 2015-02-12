@@ -19,6 +19,13 @@ namespace Netric\EntitySync;
 class EntitySync
 {
     /**
+     * Collection types
+     */
+    const COLL_TYPE_ENTITY = 1;
+    const COLL_TYPE_GROUPING = 2;
+    const COLL_TYPE_ENTITYDEF = 3;
+
+    /**
      * Current sync partner instance
      */
     private $partner = null;
@@ -77,6 +84,18 @@ class EntitySync
     }
 
     /**
+     * Mark a commit as stale for all sync collections
+     *
+     * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
+     * @param string $lastCommitId
+     * @param string $newCommitId
+     */
+    public function setExportedStale($collType, $lastCommitId, $newCommitId)
+    {
+        return $this->dataMapper->setExportedStale($collType, $lastCommitId, $newCommitId);
+    }
+
+    /**
      * Send object grouping/field change
      *
      * Update stat partnership collections if any match the given field and value
@@ -109,4 +128,6 @@ class EntitySync
 
         return $ret;
     }
+
+    
 }

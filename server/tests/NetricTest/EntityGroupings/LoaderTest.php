@@ -94,22 +94,4 @@ class LoaderTest extends PHPUnit_Framework_TestCase
         $groupings->delete($grp->id);
         $groupings->save();
 	}
-    
-    /**
-	 * Test standardized hash for filters
-	 */
-	public function testGetFiltersHash()
-	{
-        // Load through loader
-        $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        
-		// Test to see if the isLoaded function indicates the entity has been loaded and cached locally
-		$refIm = new \ReflectionObject($loader);
-        $getFiltersHash = $refIm->getMethod("getFiltersHash");
-		$getFiltersHash->setAccessible(true);
-        // Make sure no filters results in default none hash
-		$this->assertEquals("none", $getFiltersHash->invoke($loader, array()));
-        // Make sure filters are sorted right
-        $this->assertEquals("test=2user_id=1", $getFiltersHash->invoke($loader, array("user_id"=>1, "test"=>2)));
-    }
 }

@@ -11,6 +11,9 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @group integration
+ */
 abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase 
 {
     /**

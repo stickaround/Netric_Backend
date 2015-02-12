@@ -10,15 +10,29 @@ namespace Netric\EntitySync;
 interface DataMapperInterface
 {
 	/**
-	 * Get a partner by id
+	 * Get a partner by unique system id
 	 *
-	 * @param string partnerId
+	 * This is also responsible for loading collections
+	 *
+	 * @param string $id Netric unique partner id
 	 * @return Netric\EntitySync\Partner or null if id does not exist
 	 */
-	public function getPartner($partnerId);
+	public function getPartnerById($id);
+
+	/**
+	 * Get a partner by the remote partner id
+	 *
+	 * This is also responsible for loading collections
+	 *
+	 * @param string $partnerId Remotely provided unique ident
+	 * @return Netric\EntitySync\Partner or null if id does not exist
+	 */
+	public function getPartnerByPartnerId($partnerId);
 
 	/**
 	 * Get a partner by id
+	 *
+	 * This is also responsible for saving collections for the partner
 	 *
 	 * @param Netric\EntitySync\Partner $partner Will set the id if new partner
 	 * @return bool true on success, false on failure
@@ -32,6 +46,47 @@ interface DataMapperInterface
 	 * @return bool true on success, false on failure
 	 */
 	public function deletePartner($id);
+
+	/**
+     * Mark a commit as stale for all sync collections
+     *
+     * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
+     * @param string $lastCommitId
+     * @param string $newCommitId
+     */
+    public function setExportedStale($collType, $lastCommitId, $newCommitId);
+
+    /**
+     * Log that a commit was exported from this collection
+     *
+     * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
+     * @param int $collectionId The unique id of the collection we exported for
+     * @param int $uniqueId Unique id of the object sent
+     * @param int $commitId The commit id synchronized
+     * @return bool true on success, false on failure
+     */
+    public function logExported($collType, $collectionId, $uniqueId, $commitId);
+
+    /**
+	 * Get a list of previously exported commits that have been updated
+	 *
+	 * This is used to get a list of objects that were previously synchornized
+	 * but were later either moved outside the collection (no longer met conditions)
+	 * or deleted.
+	 *
+	 * This function will only return 1000 entries at a time so it should be called
+	 * repeatedly until the number of stats returned is 0 to process all the way
+	 * through the queue.
+	 *
+	 * NOTE: THIS MUST BE RUN AFTER GETTING NEW/CHANGED OBJECTS IN A COLLECTION.
+	 * 	1. Get all new commits from last_commit and log the export
+	 * 	2. Once all new commit updates were retrieved for a collection then call this
+	 *  3. Once this returns empty then fast-forward this collection to head
+	 *
+	 * @param int $collectionId The id of the collection we get stats for
+	 * @return array(array('id'=>objectId, 'action'=>'delete'))
+	 */
+	public function getExportedStale($collectionId);
 
 	/**
 	 * Get listening partnership for this object type

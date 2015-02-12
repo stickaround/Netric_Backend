@@ -25,14 +25,14 @@ class Partner
 	 *
 	 * @var int
 	 */
-	public $id = null;
+	private $id = null;
 
 	/**
 	 * The netric user who owns this partnership
 	 *
 	 * @var int
 	 */
-	public $ownerId = null;
+	private $ownerId = null;
 
 	/**
 	 * Partner id which is a foreign id but must be unique
@@ -41,14 +41,21 @@ class Partner
 	 *
 	 * @var string
 	 */
-	public $partnerId = null;
+	private $partnerId = null;
 
 	/**
 	 * Last sync time
 	 *
-	 * @var string
+	 * @var \DateTime
 	 */
-	public $lastSync = null;
+	private $lastSync = null;
+
+	/**
+	 * A log of removed collections for saving
+	 *
+	 * @var string[]
+	 */
+	private $removedCollections = array();
 
 	/**
 	 * Object collections this partner is listening for
@@ -61,7 +68,7 @@ class Partner
 	 *
 	 * @var Netric\EntitySync\Collection\CollectionInterface[]
 	 */
-	public $collections = array();
+	private $collections = array();
 
 	/**
 	 * Class constructor
@@ -80,82 +87,171 @@ class Partner
 	}
 
 	/**
+	 * Set the internal id of this partner
+	 *
+	 * @param string $id Unique id
+	 */
+	public function setId($id)
+	{
+		$this->id = $id;
+	}
+
+	/**
+	 * Get the internal id of this partner
+	 *
+	 * @return string Unique id of this partner if it has one
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	/**
+	 * Set the remote partner id of this partnership
+	 *
+	 * @param string $partnerId Unique id (from the client) of this partner
+	 */
+	public function setPartnerId($partnerId)
+	{
+		$this->partnerId = $partnerId;
+	}
+
+	/**
+	 * Get the internal id of this partner
+	 *
+	 * @return string Unique id of this partner
+	 */
+	public function getPartnerId()
+	{
+		return $this->partnerId;
+	}
+	
+
+	/**
+	 * Set the owner of this partner
+	 *
+	 * @param string $ownerId Unique id of the netric user who owns this
+	 */
+	public function setOwnerId($ownerId)
+	{
+		$this->ownerId = $ownerId;
+	}
+
+	/**
+	 * Get the internal id of this partner
+	 *
+	 * @return string Unique id of this partner if it has one
+	 */
+	public function getOwnerId()
+	{
+		return $this->ownerId;
+	}
+
+	/**
+	 * Set last sync timestamp
+	 *
+	 * @param \DateTime $timestamp When the partnership was last synchronized
+	 */
+	public function setLastSync(\DateTime $timestamp)
+	{
+		$this->lastSync = $timestamp;
+	}
+
+	/**
+	 * Get last sync timestamp
+	 *
+	 * @param string $strFormat If set format the DateTime object as a string and return
+	 * @return DateTime|string $timestamp When the partnership was last synchronized
+	 */
+	public function getLastSync($strFormat=null)
+	{
+		// If desired return a formatted string version of the timestamp
+		if ($strFormat && $this->lastSync)
+		{
+			return $this->lastSync->format($strFormat);
+		}
+
+		return $this->lastSync;
+	}
+
+	/**
 	 * Check to see if this partnership is listening for changes for a specific type of object
 	 *
-	 * @param string $obj_type The name of the object type to check
-	 * @param string $fieldName Name of a field if this is a grouping collection
+	 * @param string $objType The name of the object type to check
 	 * @param array $conditions Array of conditions used to filter the collection
-	 * @param bool $addIfMissing Add the object type to the list of synchronized objects if it does not already exist
-	 * @return AntObjectSync_Collection|bool collection on found, false if none found
+	 * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
 	 */
-	public function getEntityCollection($obj_type, $conditions=array(), $addIfMissing=false)
+	public function getEntityCollection($objType, $conditions=array())
 	{
+		return $this->getCollection($objType, null, $conditions);
 	}
 
 	/**
 	 * Check to see if this partnership is listening for changes for a grouping field
 	 *
-	 * @param string $obj_type The name of the object type to check
+	 * @param string $objType The name of the object type to check
 	 * @param string $fieldName Name of a field if this is a grouping collection
 	 * @param array $conditions Array of conditions used to filter the collection
-	 * @param bool $addIfMissing Add the object type to the list of synchronized objects if it does not already exist
-	 * @return AntObjectSync_Collection|bool collection on found, false if none found
+	 * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
 	 */
-	public function getGroupingCollection($obj_type, $fieldName=null, $conditions=array(), $addIfMissing=false)
+	public function getGroupingCollection($objType, $fieldName, $conditions=array())
 	{
+		return $this->getCollection($objType, $fieldName, $conditions);
+	}
+
+	/**
+	 * Check to see if this partnership is listening  for entity definitions
+	 *
+	 * @param array $conditions Array of conditions used to filter the collection
+	 * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
+	 */
+	public function getEntityDefintionCollection($conditions=array())
+	{
+		return $this->getCollection(null, null, $conditions);
 	}
 
 	/**
 	 * Check to see if this partnership is listening for changes for a specific type of object
 	 *
-	 * @param array $conditions Array of conditions used to filter the collection
-	 * @param bool $addIfMissing Add the object type to the list of synchronized objects if it does not already exist
-	 * @return AntObjectSync_Collection|bool collection on found, false if none found
-	 */
-	public function getEntityDefintionCollection($conditions=array(), $addIfMissing=false)
-	{
-	}
-
-	/**
-	 * Check to see if this partnership is listening for changes for a specific type of object
-	 *
 	 * @param string $obj_type The name of the object type to check
 	 * @param string $fieldName Name of a field if this is a grouping collection
 	 * @param array $conditions Array of conditions used to filter the collection
 	 * @param bool $addIfMissing Add the object type to the list of synchronized objects if it does not already exist
-	 * @return AntObjectSync_Collection|bool collection on found, false if none found
+	 * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
 	 */
-	private function getCollection($obj_type, $fieldName=null, $conditions=array(), $addIfMissing=false)
+	private function getCollection($obj_type, $fieldName=null, $conditions=array())
 	{
-		$ret = false;
+		$ret = null;
+
+		// Make sure conditions is an array so we can loop over them (even if 0)
 		if (!is_array($conditions))
 			$conditions = array();
 
 		foreach ($this->collections as $col)
 		{
-			if (!is_array($col->conditions))
-				$col->conditions = array();
-
-			if ($obj_type == $col->objectType && count($conditions) == count($col->conditions))
+			if ($obj_type == $col->getObjType() && count($conditions) == count($col->getConditions()))
 			{
 				if ($fieldName)
 				{
-					if ($fieldName == $col->fieldName)
+					if ($fieldName == $col->getFieldName())
 						$ret = $col;
 				}
-				else if (!$col->fieldName)
+				else if (!$col->getFieldName())
 				{
 					$ret = $col;
 				}
 
 				// Make sure conditions match - if not set back to false
-				if ($ret!=false && count($conditions) > 0)
+				if ($ret!=null && count($conditions) > 0)
 				{
+					$collConds = $col->getConditions();
+
 					// Compare against challenge list
 					foreach ($conditions as $cond)
 					{
 						$found = false;
-						foreach ($col->conditions as $cmdCond)
+
+						foreach ($collConds as $cmdCond)
 						{
 							if ($cmdCond['blogic'] == $cond['blogic'] 
 								&& $cmdCond['field'] == $cond['field'] 
@@ -168,13 +264,13 @@ class Partner
 
 						if (!$found)
 						{
-							$ret = false;
+							$ret = null;
 							break;
 						}
 					}
 
 					// Compare against collection conditions
-					foreach ($col->conditions as $cond)
+					foreach ($collConds as $cond)
 					{
 						$found = false;
 						foreach ($conditions as $cmdCond)
@@ -190,7 +286,7 @@ class Partner
 
 						if (!$found)
 						{
-							$ret = false;
+							$ret = null;
 							break;
 						}
 					}
@@ -198,49 +294,33 @@ class Partner
 			}
 		}
 
-		if (!$ret && $addIfMissing)
-			$ret = $this->addCollection($obj_type, $fieldName, $conditions);
-
 		return $ret;
 	}
 
 	/**
-	 * Add an object type to the list of synchronized objects for this partnership
+	 * Add a collection to this partner
 	 *
-	 * @param string $obj_type The name of the object type to check
-	 * @param string $fieldName optional field name of synchronizing grouping fields
-	 * @param CAntObjectCond[] $conditions Array of conditions used to filter the collection
-	 * @return array|bool entity associative array if the partner is listening, false if it should ignore this object type
+	 * @param Netric\EneitySync\Collection\CollectionInterface $collection
+	 * @return bool true on success, false on failre
 	 */
-	public function addCollection($obj_type, $fieldName=null, $conditions=array())
+	public function addCollection(Collection\CollectionInterface $collection)
 	{
-		// Make sure we are not already listening
-		$ret = $this->getCollection($obj_type, $fieldName);
-		if ($ret)
-			return $ret;
+		// TODO: we should check to make sure this colleciton does not already exist
 
-		$odef = CAntObject::factory($this->dbh, $obj_type);
-		$fieldId = null;
-		if ($fieldName)
-		{
-			$field = $odef->fields->getField($fieldName);
-			$fieldId = $field['id'];
-		}
+		// Add the colleciton to to the array
+		$this->collections[] = $collection;
 
-		$col = new AntObjectSync_Collection($this->dbh, null, $this->user);
-		$col->objectType = $obj_type;
-		$col->objectTypeId = $odef->object_type_id;
-		$col->fieldName = $fieldName;
-		$col->fieldId = $fieldId;
-		$col->conditions = $conditions;
-		if ($this->id)
-		{
-			$col->partnerId = $this->id;
-			$col->save();
-		}
-		$this->collections[] = $col;
+		return true;
+	}
 
-		return $col;
+	/**
+	 * Get all collections for this partner
+	 *
+	 * @return \Netric\EntitySync\Collection\CollectionInterface[]
+	 */
+	public function getCollections()
+	{
+		return $this->collections;
 	}
 
 	/**
@@ -249,7 +329,56 @@ class Partner
 	 * Note: Calling code must save the partnership to cause the clearing to persist.
 	 */
 	public function removeCollections()
-	{	
+	{
+		// Log each collection that was previously saved with an id for saving later
+		foreach ($this->collections as $collection)
+		{
+			if ($collection->getId())
+			{
+				$this->removedCollections[] = $collection->getId();
+			}
+		}
+
+		// Empty the collections id
 		$this->collections = array();
+	}
+
+	/**
+	 * Remove a collection by id
+	 *
+	 * @param string $collectionId The unique id of the collection to remove
+	 * @return bool true if the collection was found and deleted, otherwise false
+	 */
+	public function removeCollection($collectionId)
+	{
+		$num = count($this->collections);
+		for ($i = 0; $i < $num; $i++)
+		{
+			$collection = $this->collections[$i];
+
+			if ($collection->getId() && $collection->getId() == $collectionId)
+			{
+				// Log the removal for saving later
+				$this->removedCollections[] = $collectionId;
+
+				// Remove the collection from the array
+				array_splice($this->collections, $i, 1);
+
+				// Return right away since we have modified the bounds of the array
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get removed collections
+	 *
+	 * @return string[] Unique id of each removed collection
+	 */
+	public function getRemovedCollections()
+	{
+		return $this->removedCollections;
 	}
 }

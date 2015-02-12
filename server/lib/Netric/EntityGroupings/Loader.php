@@ -70,21 +70,7 @@ class Loader
      */
     private function getFiltersHash($filters=array())
     {
-        $buf = $filters; // copy array
-        ksort($buf);
-        
-        $ret = "";
-        
-        foreach ($buf as $fname=>$fval)
-        {
-            if ($fval)
-                $ret .= $fname . "=" . $fval;
-        }
-        
-        if ("" == $ret)
-            $ret = 'none';
-        
-        return $ret;
+        return \Netric\EntityGroupings::getFiltersHash($filters);
     }
 
 	/**

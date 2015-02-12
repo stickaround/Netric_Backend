@@ -313,7 +313,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
         // Technically, the limit of groupings is 1000 per field, but just to be safe
 		$sql .= " LIMIT 10000"; 
         
-        $groupings = new \Netric\EntityGroupings($objType, $fieldName);
+        $groupings = new \Netric\EntityGroupings($objType, $fieldName, $filters);
 
 		$result = $dbh->Query($sql);
 		$num = $this->dbh->getNumRows($result);

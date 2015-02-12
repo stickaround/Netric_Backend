@@ -9,6 +9,8 @@
  */
 namespace Netric\EntitySync\Collection;
 
+use Netric\EntitySync\Commit;
+
 /**
  * Class used to represent a sync partner or endpoint
  */
@@ -22,92 +24,63 @@ class AbstractCollection
 	protected $dataMapper = null;
 
 	/**
+	 * Service for managing commits
+	 *
+	 * @var \Netric\EntitySync\Commit\CommitManager 
+	 */
+	protected $commitManager = null;
+
+	/**
 	 * Internal id
 	 *
 	 * @var int
 	 */
-	public $id = null;
+	protected $id = null;
 
 	/**
 	 * Partner id
 	 *
 	 * @var string
 	 */
-	public $partnerId = null;
-
-	/**
-	 * Last sync time
-	 *
-	 * @var string
-	 */
-	public $lastSync = null;
+	protected $partnerId = null;
 
 	/**
 	 * Object type name
 	 *
 	 * @var string
 	 */
-	public $objectType = "";
-
+	protected $objType = null;
 
 	/**
-	 * Field name if grouping collection
+	 * Object type name
 	 *
 	 * @var string
 	 */
-	public $fieldName = null;
+	protected $fieldName = null;
 
 	/**
-	 * Time of last update
+	 * Last sync time
 	 *
+	 * @var \DateTime
+	 */
+	protected $lastSync = null;
+
+	/**
+	 * Last commit id that was exported from this colleciton
+	 * 
 	 * @var string
 	 */
-	public $tsLastSync = "";
-
-	/**
-	 * Flag to indicate collection was initialized by pulling existing objects
-	 *
-	 * @var bool
-	 */
-	public $fInitialized = false;
-
-	/**
-	 * Initilized subjects
-	 *
-	 * @var array
-	 */
-	public $initailizedParents = array();
-
-	/**
-	 * Optional cutoff date to limit returned items on initialization
-	 *
-	 * @var EPOCH
-	 */
-	public $cutoffdate = null;
-
-	/**
-	 * Current user
-	 *
-	 * @var AntUser
-	 */
-	public $user = null;
+	protected $lastCommitId = null;
 
 	/**
 	 * Conditions array
 	 *
 	 * @var array(array("blogic", "field", "operator", "condValue"));
 	 */
-    public $conditions = array();
+    protected $conditions = array();
 
 	/**
-	 * Cache used to keep from having to ping the DB every single time we check for changes
-	 *
-	 * @var CCache
-	 */
-	protected $cache = null;
-
-	/**
-	 * Reach change results in a revision increment
+	 * Cache change results in a revision increment
 	 *
 	 * @var double
 	 */
@@ -125,108 +98,231 @@ class AbstractCollection
 	 *
 	 * @param \Netric\EntitySync\DataMapperInterface $dm The sync datamapper
 	 */
-	public function __construct(\Netric\EntitySync\DataMapperInterface $dm)
+	public function __construct(
+		\Netric\EntitySync\DataMapperInterface $dm, 
+		Commit\CommitManager $commitManager)
 	{
 		$this->dataMapper = $dm;
+		$this->commitManager = $commitManager;
 	}
 
 	/**
-	 * Save the collection
+	 * Set the last commit id synchronized
+	 *
+	 * @param string $commitId
 	 */
-	public function save()
+	public function setLastCommitId($commitId)
 	{
-		if (!$this->partnerId)
-			return false;
+		$this->lastCommitId = $commitId;
+	}
 
-		if ($this->id)
-		{
-			$sql = "UPDATE object_sync_partner_collections SET
-					partner_id='".$this->partnerId."',
-					f_initialized='" . (($this->fInitialized) ? 't' : 'f') . "',
-					object_type='".$this->dbh->Escape($this->objectType)."',
-					object_type_id=".$this->dbh->EscapeNumber($this->objectTypeId).",
-					field_name='".$this->dbh->Escape($this->fieldName)."',
-					field_id=".$this->dbh->EscapeNumber($this->fieldId).",
-					revision=".$this->dbh->EscapeNumber($this->revision).",
-					conditions='".$this->dbh->Escape(serialize($this->conditions))."'
-					WHERE id='" . $this->id . "'";
-		}
-		else
-		{
-			$sql = "INSERT INTO object_sync_partner_collections(partner_id, object_type, object_type_id, 
-						field_name, field_id, conditions, f_initialized, revision) 
-					VALUES(
-						'" . $this->partnerId . "',
-						'" . $this->dbh->Escape($this->objectType) . "',
-						" . $this->dbh->EscapeNumber($this->objectTypeId) . ",
-						'" . $this->dbh->Escape($this->fieldName) . "',
-						" . $this->dbh->EscapeNumber($this->fieldId) . ",
-						'" . $this->dbh->Escape(serialize($this->conditions)) . "',
-						'" . (($this->fInitialized) ? 't' : 'f') . "',
-						" . $this->dbh->EscapeNumber($this->revision) . "
-					); SELECT currval('object_sync_partner_collections_id_seq') as id;";
-		}
+	/**
+	 * Get the last commit ID that was syncrhonzied/exported from this collection
+	 *
+	 * @return string
+	 */
+	public function getLastCommitId()
+	{
+		return $this->lastCommitId;
+	}
 
-		// Run query
-		$result = $this->dbh->Query($sql);
+	/**
+	 * Set the id of this collection
+	 *
+	 * @param string $id
+	 */
+	public function setId($id)
+	{
+		$this->id = $id;
+	}
 
-		if (!$this->id)
-			$this->id = $this->dbh->GetValue($result, 0, "id");
-
+	/**
+	 * Get the unique id of this collection
+	 *
+	 * @return string
+	 */
+	public function getId()
+	{
 		return $this->id;
 	}
 
 	/**
-	 * Load collection data from database
+	 * Set the partner id of this collection
 	 *
-	 * @param int $id The id of the collection to load
+	 * @param string $pid
 	 */
-	public function load($id)
+	public function setPartnerId($pid)
 	{
-		if (!is_numeric($id))
-			return false;
-		
-		$result = $this->dbh->Query("SELECT 
-										partner_id, object_type, object_type_id, field_id, 
-										field_name, ts_last_sync, conditions, f_initialized, revision
-									 FROM object_sync_partner_collections WHERE id='".$id."'");
-		if ($this->dbh->GetNumberRows($result))
-		{
-			$row = $this->dbh->GetRow($result, 0);
-
-			$this->id = $id;
-			$this->partnerId = $row['partner_id'];
-			$this->objectType = $row['object_type'];
-			$this->objectTypeId = $row['object_type_id'];
-			$this->fieldName = $row['field_name'];
-			$this->fieldId = $row['field_id'];
-			$this->tsLastSync = $row['ts_last_sync'];
-			$this->fInitialized = ($row['f_initialized'] == 't') ? true : false;
-			$this->objectType = $row['object_type'];
-			$this->conditions =  unserialize($row['conditions']);
-			if ($row['revision'])
-				$this->revision = $row['revision'];
-
-			return true;
-		}
-
-		return false;
+		$this->partnerId = $pid;
 	}
 
 	/**
-	 * Remove this collection & all stats
+	 * Get the partner id of this collection
 	 *
-	 * @return bool true on success, false on failure
+	 * @return string
 	 */
-	public function remove()
+	public function getPartnerId()
 	{
-		if (!is_numeric($this->id))
+		return $this->partnerId;
+	}
+
+	/**
+	 * Set the object type if applicable
+	 *
+	 * @param string $objType
+	 */
+	public function setObjType($objType)
+	{
+		$this->objType = $objType;
+	}
+
+	/**
+	 * Get the object type if applicable
+	 *
+	 * @return string
+	 */
+	public function getObjType()
+	{
+		return $this->objType;
+	}
+
+	/**
+	 * Set the name of a grouping field if set
+	 *
+	 * @param string $fieldName Name of field to set
+	 */
+	public function setFieldName($fieldName)
+	{
+		$this->fieldName = $fieldName;
+	}
+
+	/**
+	 * Get the name of a grouping field if set
+	 *
+	 * @return string
+	 */
+	public function getFieldName()
+	{
+		return $this->fieldName;
+	}
+
+	/**
+	 * Set last sync timestamp
+	 *
+	 * @param \DateTime $timestamp When the partnership was last synchronized
+	 */
+	public function setLastSync(\DateTime $timestamp)
+	{
+		$this->lastSync = $timestamp;
+	}
+
+	/**
+	 * Set the revision
+	 *
+	 * @param string $revision
+	 */
+	public function setRevision($revision)
+	{
+		$this->revision = $revision;
+	}
+
+	/**
+	 * Get the revision
+	 *
+	 * @return string
+	 */
+	public function getRevision()
+	{
+		return $this->revision;
+	}
+
+	/**
+	 * Set conditions with array
+	 *
+	 * @param array $conditions array(array("blogic", "field", "operator", "condValue"))
+	 */
+	public function setConditions($conditions)
+	{
+		$this->conditions = $conditions;
+	}
+
+	/**
+	 * Get conditions
+	 * 
+	 * @return array(array("blogic", "field", "operator", "condValue"))
+	 */
+	public function getConditions()
+	{
+		return $this->conditions;
+	}
+
+	/**
+	 * Get last sync timestamp
+	 *
+	 * @param string $strFormat If set format the DateTime object as a string and return
+	 * @return DateTime|string $timestamp When the partnership was last synchronized
+	 */
+	public function getLastSync($strFormat=null)
+	{
+		// If desired return a formatted string version of the timestamp
+		if ($strFormat && $this->lastSync)
+		{
+			return $this->lastSync->format($strFormat);
+		}
+
+		return $this->lastSync;
+	}
+
+	/**
+	 * Log that a commit was exported from this collection
+	 * 
+	 * @param int $uniqueId The unique id of the object we sent
+	 * @param int $commitId The unique id of the commit we sent
+	 */
+	public function logExported($uniqueId, $commitId)
+	{
+		if (!$this->getId())
 			return false;
 
-		$ret = $this->dbh->Query("DELETE FROM object_sync_partner_collections WHERE id='" . $this->id . "'");
-
-		return ($ret === false) ? false : true;
+		return $this->dataMapper->logExported($this->getType(), $this->getId(), $uniqueId, $commitId);
 	}
+
+	/**
+	 * Get a list of previously exported commits that have been updated
+	 *
+	 * This is used to get a list of objects that were previously synchornized
+	 * but were later either moved outside the collection (no longer met conditions)
+	 * or deleted.
+	 *
+	 * NOTE: THIS MUST BE RUN AFTER GETTING NEW/CHANGED OBJECTS IN A COLLECTION.
+	 * 	1. Get all new commits from last_commit and log the export
+	 * 	2. Once all new commit updates were retrieved for a collection then call this
+	 *  3. Once this returns empty then fast-forward this collection to head
+	 *
+	 * @return array(array('id'=>objectId, 'action'=>'delete'))
+	 */
+	public function getExportedStale()
+	{
+		if (!$this->getId())
+			return array();
+
+		$staleStats = array();
+
+		$stale = $this->dataMapper->getExportedStale($this->getId());
+		foreach ($stale as $oid)
+		{
+			$staleStats[] = array(
+				"id" => $oid,
+				"action" => 'delete',
+			);
+		}
+
+		return $staleStats;
+	}
+
+
+	// LEGACY BELOW
+	// -------------------------------------------------
 
 	/**
 	 * Test whether a referenced object matches filter conditions for this collection
@@ -360,26 +456,6 @@ class AbstractCollection
 			return false;
 		else
 			return true;
-	}
-
-	/**
-	 * Reset or clear all existing stats for this collection
-	 *
-	 * @param int $parentId If set then only reset stats with a certain parent subset
-	 * @return bool true on success, false on failure
-	 */
-	public function resetStats($parentId=null)
-	{
-		if (!$this->id)
-			return false;
-
-		$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "'";
-		if ($parentId)
-			$sql .= " AND parent_id='$parentId'";
-
-		$ret = $this->dbh->Query($sql);
-
-		return ($ret === false) ? false : true;
 	}
 
 	/**
@@ -680,4 +756,5 @@ class AbstractCollection
 								VALUES('".$this->id."', '".(($parentId) ? $parentId : '0')."', 'now');");
 		}
 	}
+
 }

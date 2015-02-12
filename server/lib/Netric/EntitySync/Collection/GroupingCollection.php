@@ -1,6 +1,6 @@
 <?php
 /**
- * Sync collection for entities
+ * Sync collection for entity groupings
  *
  * @category  AntObjectSync
  * @package   Collection
@@ -9,7 +9,7 @@
  */
 namespace Netric\EntitySync\Collection;
 
-use Netric\EntityQuery\Index;
+use Netric\Entity;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
@@ -17,27 +17,28 @@ use Netric\EntitySync\Commit;
 /**
  * Class used to represent a sync partner or endpoint
  */
-class EntityCollection extends AbstractCollection implements CollectionInterface
+class GroupingCollection extends AbstractCollection implements CollectionInterface
 {
 	/**
 	 * Index for querying entities
 	 *
 	 * @var \Netric\EntityQuery\Index\IndexInterface
 	 */
-	private $index = null;
+	private $entityDataMapper = null;
 
 	/**
 	 * Constructor
 	 *
 	 * @param \Netric\EntitySync\DataMapperInterface $dm The sync datamapper
-	 * @param \Netric\EntityQuery\Index\IndexInterface $idx Index for querying entities
+	 * @param \Netirc\EntitySync\Commit\CommitManager $commitManager Manage system commits
+	 * @param \Netric\Entity\DataMapperInterface $entityDataMapper Entity DataMapper
 	 */
 	public function __construct(
 		DataMapperInterface $dm, 
 		Commit\CommitManager $commitManager, 
-		Index\IndexInterface $idx)
+		Entity\DataMapperInterface $entityDataMapper)
 	{
-		$this->index = $idx;
+		$this->entityDataMapper = $entityDataMapper;
 
 		// Pass datamapper to parent
 		parent::__construct($dm, $commitManager);
@@ -53,14 +54,19 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	{
 		if (!$this->getObjType())
 		{
-			throw new \Exception("Object type not set! Cannot export changes.");
+			throw new \InvalidArgumentException("Object type not set! Cannot export changes.");
+		}
+
+		if (!$this->getFieldName())
+		{
+			throw new \InvalidArgumentException("Field name is not set! Cannot export changes.");
 		}
 
 		// Set return array
 		$retStats = array();
 
 		// Get last commit id for this collection
-		$headCommit = $this->commitManager->getHeadCommit("entities/" . $this->getObjType());
+		$headCommit = $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
 
 		// Get the current commit for this collection
 		$lastCollectionCommit = $this->getLastCommitId();
@@ -167,7 +173,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	 */
 	public function getType()
 	{
-		return EntitySync::COLL_TYPE_ENTITY;
+		return EntitySync::COLL_TYPE_GROUPING;
 	}
 
 	/**
@@ -175,9 +181,32 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	 */
 	public function fastForwardToHead()
 	{
-		$headCommitId = $this->commitManager->getHeadCommit("entities/" . $this->getObjType());
+		$headCommitId = $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
 
 		if ($headCommitId)
 			$this->setLastCommitId($headCommitId);
+	}
+
+	/**
+	 * Construct unique commit identifier for this collection
+	 *
+	 * @return string
+	 */
+	private function getCommitHeadIdent()
+	{
+		// Convert collection conditions to simpler filters for groupings
+		$conditions = $this->getConditions();
+        foreach ($conditions as $cond)
+        {
+        	if ($cond['blogic'] == 'and' && $cond['operator'] == 'id_equal')
+        	{
+        		$filters[$cond['field']] = $cond['condValue'];
+        	}
+        }
+
+        $filtersHash = \Netric\EntityGrouping::getFiltersHash($filters);
+
+		// TODO: if private then add the user_id as a filter field
+		return "groupings/" . $this->getObjType() . "/" . $this->getFieldName() . "/" . $filtersHash;
 	}
 }

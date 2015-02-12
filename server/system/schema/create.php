@@ -11,7 +11,7 @@
  * Global variable is required. Must be incremented with every change to keep
  * scripts in ./updates from running if not needed
  */
-$schema_version = "3.1.133";
+$schema_version = "3.1.135";
 
 /* moved to object tables
 $schema['activity'] = array(
@@ -45,6 +45,7 @@ $schema['activity_types'] = array(
 		'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
 		'name'			=> array('type'=>'character varying(256)'),
 		'obj_type'		=> array('type'=>'character varying(256)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -876,6 +877,7 @@ $schema['customer_invoice_status'] = array(
 		'name'			=> array('type'=>'character varying(128)'),
 		'sort_order'	=> array('type'=>'smallint'),
 		'f_paid'		=> array('type'=>'boolean', "default"=>"false"),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -889,6 +891,7 @@ $schema['customer_labels'] = array(
 		'parent_id'		=> array('type'=>'integer'),
 		'f_special'		=> array('type'=>'boolean', "default"=>"false"),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -964,6 +967,7 @@ $schema['customer_lead_status'] = array(
 		'f_closed'		=> array('type'=>'boolean', "default"=>"false"),
 		'f_converted'	=> array('type'=>'boolean', "default"=>"false"),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -976,6 +980,7 @@ $schema['customer_lead_sources'] = array(
 		'name'			=> array('type'=>'character varying(128)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -988,6 +993,7 @@ $schema['customer_lead_rating'] = array(
 		'name'			=> array('type'=>'character varying(128)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1000,6 +1006,7 @@ $schema['customer_lead_classes'] = array(
 		'name'			=> array('type'=>'character varying(128)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1013,6 +1020,7 @@ $schema['customer_lead_queues'] = array(
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
 		'dacl_edit'		=> array('type'=>'integer'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1026,6 +1034,7 @@ $schema['customer_objections'] = array(
 		'description'	=> array('type'=>'text'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1078,6 +1087,7 @@ $schema['customer_opportunity_stages'] = array(
 		'color'			=> array('type'=>'character varying(6)'),
 		'f_closed'		=> array('type'=>'boolean', "default"=>"false"),
 		'f_won'			=> array('type'=>'boolean', "default"=>"false"),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1090,6 +1100,7 @@ $schema['customer_opportunity_types'] = array(
 		'name'			=> array('type'=>'character varying(128)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1120,6 +1131,7 @@ $schema['customer_stages'] = array(
 		'name'			=> array('type'=>'character varying(128)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1133,6 +1145,7 @@ $schema['customer_status'] = array(
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'color'			=> array('type'=>'character varying(6)'),
 		'f_closed'		=> array('type'=>'boolean', "default"=>"false"),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1354,6 +1367,7 @@ $schema['email_mailboxes'] = array(
         'user_id'       => array('type'=>'integer'),
         'type'          => array('type'=>'character varying(16)'),
 		'mailbox'		=> array('type'=>'character varying(128)'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -1881,6 +1895,7 @@ $schema['object_groupings'] = array(
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'f_system'		=> array('type'=>'boolean', "default"=>"false"),
 		'f_closed'		=> array('type'=>'boolean', "default"=>"false"),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> array('id'),
 	"KEYS" => array(
@@ -2018,6 +2033,7 @@ $schema['project_bug_severity'] = array(
 		'name'			=> array('type'=>'character varying(128)', 'notnull'=>true),
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -2031,6 +2047,7 @@ $schema['project_bug_status'] = array(
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'f_closed'		=> array('type'=>'boolean', "default"=>"false"),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -2043,6 +2060,7 @@ $schema['project_bug_types'] = array(
 		'name'			=> array('type'=>'character varying(128)', 'notnull'=>true),
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -2100,18 +2118,7 @@ $schema['project_priorities'] = array(
 		'name'			=> array('type'=>'character varying(128)', 'notnull'=>true),
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
-	),
-	'PRIMARY_KEY'		=> 'id',
-	"KEYS" => array(
-	)
-);
-
-$schema['project_priorities'] = array(
-	"COLUMNS" => array(
-		'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
-		'name'			=> array('type'=>'character varying(128)', 'notnull'=>true),
-		'color'			=> array('type'=>'character varying(6)'),
-		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -2243,6 +2250,7 @@ $schema['project_groups'] = array(
 		'name'			=> array('type'=>'character varying(128)', 'notnull'=>true),
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -2268,6 +2276,7 @@ $schema['project_positions'] = array(
 		'name'			=> array('type'=>'character varying(256)'),
 		'project_id'	=> array('type'=>'integer'),
 		'template_id'	=> array('type'=>'integer'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -2684,6 +2693,7 @@ $schema['user_teams'] = array(
 		'id'			=> array('type'=>'integer', 'subtype'=>'', 'default'=>'auto_increment'),
 		'name'			=> array('type'=>'character varying(256)', 'notnull'=>true),
 		'parent_id'		=> array('type'=>'integer'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY' => 'id',
 	"KEYS" => array(
@@ -2746,6 +2756,7 @@ $schema['user_groups'] = array(
 		'name'		=> array('type'=>'character varying(512)', 'notnull'=>true),
 		'f_system'	=> array('type'=>'boolean', "default"=>"false"),
 		'f_admin'	=> array('type'=>'boolean', "default"=>"false"),
+		'commit_id'	=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'	=> 'id',
 	"KEYS" => array(
@@ -2795,6 +2806,7 @@ $schema['user_notes_categories'] = array(
 		'name'			=> array('type'=>'character varying(128)', 'notnull'=>true),
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -3068,6 +3080,7 @@ $schema['xml_feed_post_categories'] = array(
 		'color'			=> array('type'=>'character varying(6)'),
 		'sort_order'	=> array('type'=>'smallint', 'default'=>'0'),
 		'feed_id'		=> array('type'=>'integer'),
+		'commit_id'		=> array('type'=>'bigint'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(
@@ -3241,7 +3254,7 @@ $schema['object_sync_partners'] = array(
 $schema['object_sync_partner_collections'] = array(
 	"COLUMNS" => array(
 		'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
-		'type'			=> array('type'=>'character varying(16)'),
+		'type'			=> array('type'=>'integer'),
 		'partner_id'	=> array('type'=>'integer'),
 		'object_type_id'=> array('type'=>'integer'),
 		'object_type'	=> array('type'=>'character varying(256)'),
@@ -3319,3 +3332,22 @@ $schema['object_sync_import'] = array(
 		'parent_id'		=> array("INDEX", "parent_id"),
 	)
 );
+
+$schema['object_sync_export'] = array(
+	"COLUMNS" => array(
+		'collection_id'	=> array('type'=>'bigint'),
+		'collection_type' => array('type'=>'smallint'),
+		'commit_id'		=> array('type'=>'bigint'),
+		'new_commit_id'	=> array('type'=>'bigint'),
+		'unique_id'		=> array('type'=>'bigint'),
+	),
+	"KEYS" => array(
+		'collection'	=> array("FKEY", "collection_id", "object_sync_partner_collections", "id"),
+		'collecttionid'	=> array("INDEX", "collection_id"),
+		'unique_id'		=> array("INDEX", "unique_id"),
+		'new_commit_id'	=> array("INDEX", "new_commit_id", "new_commit_id IS NOT NULL"),
+		'commituni'		=> array("INDEX", array("collection_type", "commit_id")),
+		'newcommituni'	=> array("INDEX", array("collection_type", "new_commit_id")),
+	)
+);
+

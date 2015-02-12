@@ -43,6 +43,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$this->setUp();
 
 		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
+		$this->entitySync = $account->getServiceManager()->get("EntitySync");
 	}
 
     /**
@@ -152,6 +153,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$entity->setValue("revision", $revision);
 
 		// Create new global commit revision
+		$lastCommitId = $entity->getValue('commit_id');
 		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
 		$entity->setValue('commit_id', $commitId);
 
@@ -170,6 +172,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		if ($this->getAccount()->getServiceManager())
 			$this->getAccount()->getServiceManager()->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
 		
+		// Log the change in entity sync
+		if ($ret && $lastCommitId && $commitId)
+		{
+			$this->entitySync->setExportedStale(
+				\Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY, 
+				$lastCommitId, $commitId);
+		}
+
 		return $ret;
 	}
 
@@ -202,6 +212,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function delete(&$entity, $forceHard=false)
 	{
+		$lastCommitId = $entity->getValue("commit_id");
+		// Create new global commit revision
+		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
+
 		// Determine if we are flagging the entity as deleted or actually purging
 		if ($entity->getValue("f_deleted") || $forceHard)
 		{
@@ -217,10 +231,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 		else
 		{
-			// Create new global commit revision
-			$cid = $this->commitManager->createCommit($entity->getDefinition()->getId());
-			$entity->setValue('commit_id', $cid);
-
+			$entity->setValue('commit_id', $commitId);
 			$ret = $this->deleteSoft($entity);
 
 			// Delete from EntityCollection_Index
@@ -228,7 +239,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 				//$this->getServiceLocator()->get("EntityCollection_Index")->delete($entity);
 		}
 
-		
+		// Log the change in entity sync
+		if ($ret && $lastCommitId && $commitId)
+		{
+			$this->entitySync->setExportedStale(
+				\Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY, 
+				$lastCommitId, $commitId);
+		}
+
 		// Clear cache in the EntityLoader
 		if ($this->getAccount()->getServiceManager())
 			$this->getAccount()->getServiceManager()->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
@@ -244,6 +262,24 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     public function saveGroupings(\Netric\EntityGroupings $groupings)
     {
         $log = $this->_saveGroupings($groupings);
+
+        // If anything was changed then update the commit head to a new commit
+        if (count($log['changed']) > 0 || count($log['deleted']) > 0)
+        {
+        	// TODO: Increment head commit for groupings which triggers all collections to sync
+			$commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
+			$commitHeadIdent .= $groupings->getObjType() . "/";
+			$commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());
+
+			/*
+			 * Groups are all treated as a single commit so all we need to do is
+			 * increment the head commit which will invalidate all collections because
+			 * they will have the previous commit head logged.
+			 */
+			$nextCommit = $this->commitManager->createCommit($commitHeadIdent);
+        }
+
+        /*
         foreach ($log['changed'] as $gid)
         {
             //$this->updateObjectSyncStat('c', $groupings->getFieldName(), $grp->id);
@@ -253,6 +289,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         {
             //$this->updateObjectSyncStat('c', $groupings->getFieldName(), $grp->id);
         }
+        */
     }
         
 	/**

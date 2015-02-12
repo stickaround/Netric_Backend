@@ -179,6 +179,18 @@ class ServiceManager
 	}
 
 	/**
+	 * Get entity sync service
+	 *
+	 * @return EntitySync\EntitySync
+	 */
+	private function factoryEntitySync()
+	{
+		$dm = $this->get("EntitySync_DataMapper");
+		$manager = new \Netric\EntitySync\EntitySync($dm);
+		return $manager;
+	}
+
+	/**
 	 * Get entity commit manager
 	 *
 	 * @return EntityLoader
