@@ -59,8 +59,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * Save groupings
      * 
      * @param \Netric\EntityGroupings
+     * @param int $commitId The new commit id
      */
-    abstract protected function _saveGroupings(\Netric\EntityGroupings $groupings);
+    abstract protected function _saveGroupings(\Netric\EntityGroupings $groupings, $commitId);
 
 	/**
 	 * Set this object as having been moved to another object
@@ -261,35 +262,43 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function saveGroupings(\Netric\EntityGroupings $groupings)
     {
-        $log = $this->_saveGroupings($groupings);
+    	// Increment head commit for groupings which triggers all collections to sync
+		$commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
+		$commitHeadIdent .= $groupings->getFieldName() . "/";
+		$commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());	
 
-        // If anything was changed then update the commit head to a new commit
-        if (count($log['changed']) > 0 || count($log['deleted']) > 0)
-        {
-        	// TODO: Increment head commit for groupings which triggers all collections to sync
-			$commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
-			$commitHeadIdent .= $groupings->getObjType() . "/";
-			$commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());
+    	/*
+		 * Groupings are all saved as a single collection, but only updated
+		 * groupings will shre a new commit id.
+		 */
+		$nextCommit = $this->commitManager->createCommit($commitHeadIdent);
 
-			/*
-			 * Groups are all treated as a single commit so all we need to do is
-			 * increment the head commit which will invalidate all collections because
-			 * they will have the previous commit head logged.
-			 */
-			$nextCommit = $this->commitManager->createCommit($commitHeadIdent);
-        }
+		// Save the grouping
+        $log = $this->_saveGroupings($groupings, $nextCommit);
 
-        /*
-        foreach ($log['changed'] as $gid)
+        /* No need to log changes because the sync function will get all newer commits
+        foreach ($log['changed'] as $gid=>$lastCommitId)
         {
-            //$this->updateObjectSyncStat('c', $groupings->getFieldName(), $grp->id);
-        }
-        
-        foreach ($log['deleted'] as $gid)
-        {
-            //$this->updateObjectSyncStat('c', $groupings->getFieldName(), $grp->id);
+            // Log the change in entity sync
+			if ($gid && $lastCommitId && $nextCommit)
+			{
+				$this->entitySync->setExportedStale(
+					\Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING, 
+					$lastCommitId, $nextCommit);
+			}
         }
         */
+        
+        foreach ($log['deleted'] as $gid=>$lastCommitId)
+        {
+            // Log the change in entity sync
+			if ($gid && $lastCommitId && $nextCommit)
+			{
+				$this->entitySync->setExportedStale(
+					\Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING, 
+					$lastCommitId, $nextCommit);
+			}
+        }
     }
         
 	/**
@@ -343,125 +352,5 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		{
 			return true;
 		}
-	}
-    
-    /**
-	 * Update object sync stat
-	 *
-	 * Devices may register with Netric and once registered all changes of watched object entities are
-	 * tracked in the stat table making incremental updates effecient.
-	 *
-	 * If background processing is enabled, this will be launched as a background process to
-	 * keep updates to objects as lean as possible.
-	 *
-	 * @param string $action Either 'c' for changed or 'd' for deleted
-	 * @param string $fieldName Optional grouping field name
-	 * @param string $fieldVal If field name is defined, then a value must be added for the entry id
-	 */
-	protected function syncStatEntity($action='c', \Netric\EntityInterface $entity)
-	{
-		// Add worker job to log the update in the device stat table
-		$data = array(
-            "action"=>$action,
-			"oid"=>$entity->getId(), 
-			"obj_type"=>$entity->getObjType(), 
-			//"field_name"=>"", 
-			//"field_val"=>"",
-			//"debug"=>$this->debug,
-			//"skipcoll"=>$this->skipObjectSyncStatCol,
-		);
-
-		if ($entity->getDefinition()->parentField)
-			$data['parent_id'] = $entity->getValue($entity->getDefinition()->parentField);
-
-        /**
-         * TODO: we need to move workerman over to the new Netric classes
-        $wman = new WorkerMan($this->dbh);
-
-        if (AntConfig::getInstance()->obj_sync_lazy_stat)
-            $jobid = $wman->runBackground("lib/object/syncstat", serialize($data));
-        else
-            $jobid = $wman->run("lib/object/syncstat", serialize($data));
-
-        // If we are in hierarchical object and we've moved then delete from the old folder/parent
-        if ($entity->getDefinition()->parentField)
-        {
-            if ($entity->fieldValueChanged($entity->getDefinition()->parentField) 
-                && $entity->getPreviousValue($entity->getDefinition()->parentField))
-            {
-                $data['revision'] = $entity->getValue("revision"); // log at this revision only
-                $data['action'] = 'd';
-                $data['parent_id']= $entity->getPreviousValue($entity->getDefinition()->parentField);
-
-                if (AntConfig::getInstance()->obj_sync_lazy_stat)
-                    $jobid = $wman->runBackground("lib/object/syncstat", serialize($data));
-                else
-                    $jobid = $wman->run("lib/object/syncstat", serialize($data));
-            }
-        }
-         * 
-         */
-	}
-    
-    /**
-	 * Update object sync stat
-	 *
-	 * Devices may register with Netric and once registered all changes of watched object entities are
-	 * tracked in the stat table making incremental updates effecient.
-	 *
-	 * If background processing is enabled, this will be launched as a background process to
-	 * keep updates to objects as lean as possible.
-	 *
-	 * @param string $action Either 'c' for changed or 'd' for deleted
-	 * @param string $fieldName Optional grouping field name
-	 * @param string $fieldVal If field name is defined, then a value must be added for the entry id
-	 */
-	protected function syncStatGrouping($action='c', $fieldName=null, $fieldVal=null)
-	{
-        /**
-         * TODO: we need to move workerman over to the new Netric classes
-         * 
-         
-		// Add worker job to log the update in the device stat table
-		$data = array(
-			"oid"=>$this->id, 
-			"obj_type"=>$this->object_type, 
-			"field_name"=>$fieldName, 
-			"field_val"=>$fieldVal,
-			"action"=>$action,
-			"debug"=>$this->debug,
-			"skipcoll"=>$this->skipObjectSyncStatCol,
-		);
-
-		if ($this->def->parentField)
-			$data['parent_id'] = $this->getValue($this->def->parentField);
-
-		if (!$this->skipObjectSyncStat)
-		{
-			$wman = new WorkerMan($this->dbh);
-			
-			if (AntConfig::getInstance()->obj_sync_lazy_stat)
-				$jobid = $wman->runBackground("lib/object/syncstat", serialize($data));
-			else
-				$jobid = $wman->run("lib/object/syncstat", serialize($data));
-
-			// If we are in hierarchical object and we've moved then delete from the old folder/parent
-			if ($this->def->parentField)
-			{
-				if ($this->fieldValueChanged($this->def->parentField) && $this->changelog[$this->def->parentField]['oldvalraw'])
-				{
-					$data['revision'] = $this->revision; // log at this revision rather than a specific
-					$data['action'] = 'd';
-					$data['parent_id']= $this->changelog[$this->def->parentField]['oldvalraw'];
-
-					if (AntConfig::getInstance()->obj_sync_lazy_stat)
-						$jobid = $wman->runBackground("lib/object/syncstat", serialize($data));
-					else
-						$jobid = $wman->run("lib/object/syncstat", serialize($data));
-				}
-			}
-		}
-         * 
-         */
 	}
 }

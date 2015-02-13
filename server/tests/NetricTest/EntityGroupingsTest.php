@@ -34,7 +34,7 @@ class EntityGroupingsTest extends PHPUnit_Framework_TestCase
         $groupings->delete($group->id);
         
         $ret = $groupings->getDeleted();
-        $this->assertEquals($group->id, $ret[0]);
+        $this->assertEquals($group->id, $ret[0]->id);
         
         $ret = $groupings->getAll();
         $this->assertEquals(0, count($ret));

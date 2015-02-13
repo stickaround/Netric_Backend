@@ -70,54 +70,35 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
 		// Get the current commit for this collection
 		$lastCollectionCommit = $this->getLastCommitId();
-
 		if ($lastCollectionCommit < $headCommit)
 		{
-			// Query local objects for commit_id with EntityList
-			$query = new \Netric\EntityQuery($this->getObjType());
-	        $query->orderBy('commit_id');
-	        $query->setLimit(250);
-
-	        // Set base/common condition
-	        $query->where('commit_id')->isGreaterThan($lastCollectionCommit);
-
-	        // Add any collection conditions
-	        $conditions = $this->getConditions();
-	        foreach ($conditions as $cond)
-	        {
-	        	if ($cond['blogic'] == 'or')
-	        	{
-	        		$query->orWhere($cond['field'], $cond['operator'], $cond['condValue']);
-	        	}
-	        	else
-	        	{
-	        		$query->andWhere($cond['field'], $cond['operator'], $cond['condValue']);
-	        	}
-	        }
-
-	        // Execute query and get num results
-	        $res = $this->index->executeQuery($query);
-	  		$num = $res->getNum();
+	        // Get groupings
+	        $filters = $this->getFiltersFromConditions();
+	        $groupings = $this->entityDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
 
 	        // Loop through each change
-	        for ($i = 0; $i < $num; $i++)
+	        $grps = $groupings->getAll();
+	        for ($i = 0; $i < count($grps); $i++)
 	        {
-	        	$ent = $res->getEntity($i);
+	        	$grp = $grps[$i];
 
-	        	$retStats[] = array(
-	        		"id" => $ent->getId(),
-	        		"action" => (($ent->isDeleted()) ? 'delete' : 'change'),
-	        	);
+	        	if ($grp->commitId > $lastCollectionCommit || !$grp->commitId)
+	        	{
+	        		$retStats[] = array(
+		        		"id" => $grp->id,
+		        		"action" => 'change',
+		        	);
+	        	}	
 
-	        	if ($autoFastForward)
+	        	if ($autoFastForward && $grp->commitId)
 				{
 					// Fast-forward $lastCommitId to last commit_id sent
-					$this->setLastCommitId($ent->getValue("commit_id"));
+					$this->setLastCommitId($grp->commitId);
 
 					// Save to exported log
-					$this->logExported(
-						$ent->getId(), 
-						$ent->getValue("commit_id")
+					$logRet = $this->logExported(
+						$grp->id, 
+						$grp->commitId
 					);
 				}
 	        }
@@ -136,34 +117,9 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	        {
 	        	$retStats = $this->getExportedStale();
 	        }
-
-	        // TODO: Save lastCommit if changed
-	        if (count($retStats) && $autoFastForward && $this->getId())
-	        {
-	        	// saveCollection is currently private, research...
-	        	// $this->dataMapper->saveCollection($this);
-	        }
 		}
 
 		return $retStats;
-	}
-
-	/**
-	 * Get a stats of the difference between an import and what is stored locally
-	 *
-	 * @param array $importList Array of arrays with the following param for each object {uid, revision}
-	 * @param int $parentId If set, pull all objects that are a child of the parent id only
-	 * @return array(
-	 *		array(
-	 *			'uid', // Unique id of foreign object 
-	 *			'object_id', // Local entity/object (same thing) id
-	 *			'action', // 'chage'|'delete'
-	 *			'revision' // Revision of local entity at time of last import
-	 *		);
-	 */
-	public function getImportChanged($importList, $parentId=null)
-	{
-
 	}
 
 	/**
@@ -187,14 +143,14 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 			$this->setLastCommitId($headCommitId);
 	}
 
-	/**
-	 * Construct unique commit identifier for this collection
+	/** 
+	 * Convert collection conditions to simpler groupings filter which only supports equals
 	 *
-	 * @return string
+	 * @return array
 	 */
-	private function getCommitHeadIdent()
+	private function getFiltersFromConditions()
 	{
-		// Convert collection conditions to simpler filters for groupings
+		$filters = array();
 		$conditions = $this->getConditions();
         foreach ($conditions as $cond)
         {
@@ -203,8 +159,19 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
         		$filters[$cond['field']] = $cond['condValue'];
         	}
         }
+        return $filters;
+	}
 
-        $filtersHash = \Netric\EntityGrouping::getFiltersHash($filters);
+	/**
+	 * Construct unique commit identifier for this collection
+	 *
+	 * @return string
+	 */
+	private function getCommitHeadIdent()
+	{
+		// Convert collection conditions to simpler filters for groupings
+		$filters = $this->getFiltersFromConditions();
+        $filtersHash = \Netric\EntityGroupings::getFiltersHash($filters);
 
 		// TODO: if private then add the user_id as a filter field
 		return "groupings/" . $this->getObjType() . "/" . $this->getFieldName() . "/" . $filtersHash;

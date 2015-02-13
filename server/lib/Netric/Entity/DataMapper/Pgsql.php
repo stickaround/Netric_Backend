@@ -332,6 +332,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
             if(isset($row['sort_order']))
                 $group->sortOrder = $row['sort_order'];
             $group->isSystem = (isset($row['f_system']) && $row['f_system']=='t') ? true : false;
+            $group->commitId = $row['commit_id'];
             
 			//$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
             
@@ -362,9 +363,10 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
      * Save groupings
      * 
      * @param \Netric\EntityGroupings
+     * @param int $commitId The commit id of this save
      * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
-    protected function _saveGroupings(\Netric\EntityGroupings $groupings)
+    protected function _saveGroupings(\Netric\EntityGroupings $groupings, $commitId)
     {
         $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($groupings->getObjType());
         if (!$def)
@@ -375,23 +377,26 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
         $ret = array("deleted"=>array(), "changed"=>array());
         
         $toDelete = $groupings->getDeleted();
-        foreach ($toDelete as $did)
+        foreach ($toDelete as $grp)
         {
-            $query = "DELETE FROM " . $field->subtype . " where id='" . $did . "'";
+            $query = "DELETE FROM " . $field->subtype . " where id='" . $grp->id . "'";
             $this->dbh->query($query);
             
             // Log here
-            $ret['deleted'][] = $did;
+            $ret['deleted'][$grp->id] = $grp->commitId;
         }
         
         $toSave = $groupings->getChanged();
         foreach ($toSave as $grp)
         {
+        	// Set the new commit id
+        	$grp->setValue("commitId", $commitId);
+
             if ($this->saveGroup($def, $field, $grp))
             {
                 $grp->setDirty(false);
                 // Log here
-                $ret['changed'][] = $grp->id;
+                $ret['changed'][$grp->id] = $grp->commitId;
             }
         }
         
@@ -445,6 +450,12 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 		{
 			$columns[] = $field->fkeyTable['parent'];
 			$values[] = $this->dbh->escapeNumber($grp->parentId);
+		}
+
+		if ($grp->commitId)
+		{
+			$columns[] = "commit_id";
+			$values[] = $this->dbh->escapeNumber($grp->commitId);
 		}
 
 		if ($field->subtype == "object_groupings")

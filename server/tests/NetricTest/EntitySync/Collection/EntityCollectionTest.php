@@ -17,16 +17,6 @@ class EntityCollectionTest extends AbstractCollectionTests
 	}
 
 	/**
-	 * Make sure we can construct this colleciton
-	 */
-	public function testConstruct()
-	{
-		$coll = $this->getCollection();
-		
-		$this->assertInstanceOf('\Netric\EntitySync\Collection\CollectionInterface', $coll);
-	}
-
-	/**
      * Test getting changed objects for this collection
      */
     public function testGetExportChanged() 

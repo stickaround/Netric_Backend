@@ -358,12 +358,15 @@ class EntityGroupings
         {
             if ($this->groups[$i]->id == $entryId)
             {
+                // Move to deleted queue
+                $this->deleted[] = $this->groups[$i];
+
+                // Remove group from this grouping collection
                 array_splice($this->groups, $i, 1);
+
                 break;
             }
         }
-        
-        $this->deleted[] = $entryId;
 
 		return true;
 	}

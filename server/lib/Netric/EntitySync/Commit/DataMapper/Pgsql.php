@@ -27,8 +27,9 @@ class Pgsql extends DataMapperAbstract
 	 * give a unique id to every star in the milky way (100 billion stars),
 	 * then we could track 9.2 million mikly way size universes before UID collision!
 	 *
-	 * If we need to namespace this, then we could easily just prefix with ddmmYYYY.
-	 * This should be researched to see if it is something we should do. We have time...
+	 * For a real world example, let's assume one account (each account has it's own commit id)
+	 * was sustaining 100,000 commits per second without pause the whole year. One bigint could
+	 * keep up with those commits for 2,924,712 years before wrapping.
 	 */
 	private $sSequenceName = "object_commit_seq";
 

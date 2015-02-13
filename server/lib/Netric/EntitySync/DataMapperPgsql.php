@@ -485,4 +485,99 @@
 
 		return $staleStats;
 	}
+
+	/**
+	 * Get a list of previously imported objects
+	 *
+	 * @param int $collectionId The id of the collection we get stats for
+	 * @return array(array('uid', 'local_id', 'revision'))
+	 */
+	public function getImported($collectionId)
+	{
+		if (!is_numeric($collectionId))
+		{
+			throw new \ExceptionInvalidParam("A valid $collectionId is a required param.");
+		}
+
+		$importedStats = array();
+
+		// Get everything from the exported log that is set as stale
+    	$sql = "SELECT unique_id, object_id, revision FROM object_sync_import 
+    			WHERE collection_id=" . $this->dbh->escapeNumber($collectionId) . ";";
+        $result = $this->dbh->query($sql);
+		if (!$result)
+			throw new \Exception("There was a problem querying: " . $this->dbh->getLastError());
+
+		$num = $this->dbh->getNumRows($result);
+		for ($i = 0; $i < $num; $i++)
+		{
+			$row = $this->dbh->getRow($result, $i);
+			$importedStats[] = array(
+				'uid' => $row['unique_id'],
+				'local_id' => $row['object_id'],
+				'revision' => $row['revision']
+			);
+		}
+
+		return $importedStats;
+	}
+
+	/**
+     * Log that a commit was exported from this collection
+     *
+     * @param int $collectionId The unique id of the collection we exported for
+     * @param string $uniqueId The foreign unique id of the object being imported 
+	 * @param int $revision A revision of the remote object (could be an epoch)
+	 * @param int $localId If imported to a local object then record the id, if null the delete
+     * @return bool true on success, false on failure
+     */
+    public function logImported($collectionId, $uniqueId, $revision, $localId=null)
+    {
+    	$updateSql = "";
+
+    	if ($localId)
+    	{
+    		$existsSql = "SELECT unique_id FROM object_sync_import 
+    				  WHERE collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
+    				  	AND unique_id=" . $this->dbh->escapeNumber($uniqueId) . ";";
+	    	if (!$this->dbh->getNumRows($this->dbh->query($existsSql)))
+	    	{
+	    		$updateSql = "INSERT INTO object_sync_import(unique_id, revision, collection_id, object_id)
+	    					  VALUES(
+	    					  	'" . $this->dbh->escape($uniqueId) . "',
+	    					  	'" . $this->dbh->escape($revision) . "',
+	    					  	" . $this->dbh->escapeNumber($collectionId) . ",
+	    					  	" . $this->dbh->escapeNumber($localId) . "
+	    					  	
+	    					  );";
+	    	}
+	    	else
+	    	{
+	    		$updateSql = "UPDATE object_sync_import
+							  SET 
+							  	revision='" . $this->dbh->escape($revision) . "', 
+							  	object_id=" . $this->dbh->escapeNumber($localId) . " 
+							  WHERE 
+							  	collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
+							  	AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
+
+	    	}
+    	}
+    	else
+    	{
+    		/*
+    		 * If we have no localId then that means the import is no longer part of the local store
+    		 * and has not been imported so delete the log entry.
+    		 */
+    		$updateSql = "DELETE FROM object_sync_import
+						  WHERE collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
+							  	AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
+    	}
+    	
+
+    	if (!$this->dbh->query($updateSql))
+			return $this->returnError("DB Error: " . $this->dbh->getLastError(), __FILE__, __LINE__);
+		else
+			return true;
+    }
  }

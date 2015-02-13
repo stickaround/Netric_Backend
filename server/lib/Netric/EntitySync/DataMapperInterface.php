@@ -68,6 +68,17 @@ interface DataMapperInterface
     public function logExported($collType, $collectionId, $uniqueId, $commitId);
 
     /**
+     * Log that a commit was exported from this collection
+     *
+     * @param int $collectionId The unique id of the collection we exported for
+     * @param string $uniqueId The foreign unique id of the object being imported 
+	 * @param int $revision A revision of the remote object (could be an epoch)
+	 * @param int $localId If imported to a local object then record the id, if null the delete
+     * @return bool true on success, false on failure
+     */
+    public function logImported($collectionId, $uniqueId, $revision, $localId=null);
+
+    /**
 	 * Get a list of previously exported commits that have been updated
 	 *
 	 * This is used to get a list of objects that were previously synchornized
@@ -87,6 +98,14 @@ interface DataMapperInterface
 	 * @return array(array('id'=>objectId, 'action'=>'delete'))
 	 */
 	public function getExportedStale($collectionId);
+
+	/**
+	 * Get a list of previously imported objects
+	 *
+	 * @param int $collectionId The id of the collection we get stats for
+	 * @return array(array('uid', 'local_id', 'revision'))
+	 */
+	public function getImported($collectionId);
 
 	/**
 	 * Get listening partnership for this object type

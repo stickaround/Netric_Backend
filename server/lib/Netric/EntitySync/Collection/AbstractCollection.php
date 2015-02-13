@@ -320,6 +320,93 @@ class AbstractCollection
 		return $staleStats;
 	}
 
+	/**
+	 * Get a stats of the difference between an import and what is stored locally
+	 *
+	 * @param array $importList Array of arrays with the following param for each object {uid, revision}
+	 * @return array(
+	 *		array(
+	 *			'uid', // Unique id of foreign object 
+	 *			'local_id', // Local entity/object (same thing) id
+	 *			'action', // 'chage'|'delete'
+	 *			'revision' // Revision of local entity at time of last import
+	 *		);
+	 */
+	public function getImportChanged(array $importList)
+	{
+		if (!$this->getId())
+			return array();
+
+		// Get previously imported list and set the default action to delete
+		// --------------------------------------------------------------------
+		$changes = $this->dataMapper->getImported($this->getId());
+		$numChanges = count($changes);
+		for ($i = 0; $i < $numChanges; $i++)
+		{
+			$changes[$i]['action'] = 'delete';
+		}
+		
+		// Loop through both lists and look for differences
+		// --------------------------------------------------------------------
+		foreach ($importList as $item) 
+		{
+			$found = false;
+
+			// Check existing
+			for ($i = 0; $i < $numChanges; $i++)
+			{
+				if ($changes[$i]['uid'] == $item['uid'])
+				{
+					if ($changes[$i]['revision'] == $item['revision'])
+					{
+						array_splice($changes, $i, 1); // no changes, remove
+					}
+					else
+					{
+						$changes[$i]['action'] = 'change'; // was updated on remote source
+						$changes[$i]['revision'] = $item['revision'];
+					}
+
+					$found = true;
+					break;
+				}
+			}
+
+			if (!$found) // not found locally or revisions do not match
+			{
+				$changes[] = array(
+					"uid" => $item['uid'], 
+					"local_id" => isset($item['local_id']) ? $item['local_id'] : null, 
+					"revision" => $item['revision'], 
+					"action" => "change",
+				);
+			}
+		}
+
+		return $changes;
+	}
+
+	/**
+	 * Log an imported object
+	 * 
+	 * @param string $uniqueId The foreign unique id of the object being imported 
+	 * @param int $revision A revision of the remote object (could be an epoch)
+	 * @param int $localId If imported to a local object then record the id, if null the delete
+	 */
+	public function logImported($uniqueId, $revision, $localId=null)
+	{
+		if (!$this->getId())
+			return false;
+
+		if (!$uniqueId)
+			throw new \InvalidParamException("uniqueId was not set and is required.");
+
+		if (!$revision)
+			throw new \InvalidParamException("revision was not set and is required.");
+
+		return $this->dataMapper->logImported($this->getId(), $uniqueId, $revision, $localId);
+	}
+
 
 	// LEGACY BELOW
 	// -------------------------------------------------

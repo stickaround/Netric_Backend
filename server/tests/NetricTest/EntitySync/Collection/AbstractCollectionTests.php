@@ -5,6 +5,7 @@
 namespace NetricTest\EntitySync\Collection;
 
 use PHPUnit_Framework_TestCase;
+use Netric\EntitySync;
 
 /*
  * @group integration
@@ -57,6 +58,21 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
 	 * @return CollectionInterface
 	 */
 	abstract protected function getCollection();
+
+    /**
+     * Required collection type test for getting local changes (in netric)
+     */
+    abstract public function testGetExportChanged();
+
+    /**
+     * Make sure we can construct this colleciton
+     */
+    public function testConstruct()
+    {
+        $coll = $this->getCollection();
+        
+        $this->assertInstanceOf('\Netric\EntitySync\Collection\CollectionInterface', $coll);
+    }
 
     /**
      * Test to make sure the collection returns a valid type
@@ -133,19 +149,76 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Required collection type test for getting local changes (in netric)
+     * Test importing objects from a remote source/device
      */
-    abstract public function testGetExportChanged();
+    public function testGetImportChanged()
+    {
+        // Setup collection
+        $collection = $this->getCollection();
+
+        // Create and save partner with one collection watching customers
+        $partner = new EntitySync\Partner($this->esDataMapper);
+        $partner->setPartnerId("AbstractCollectionTests::testGetImportChanged");
+        $partner->setOwnerId($this->user->getId());
+        $partner->addCollection($collection);
+        $this->esDataMapper->savePartner($partner);
+
+        // Import orignial group of changes
+        $customers = array(
+            array('uid'=>'test1', 'revision'=>1),
+            array('uid'=>'test2', 'revision'=>1),
+        );
+        $stats = $collection->getImportChanged($customers);
+        $this->assertEquals(count($stats), count($customers));
+        foreach ($stats as $ostat)
+        {
+            $this->assertEquals('change', $ostat['action']);
+            $collection->logImported($ostat['uid'], $ostat['revision'], 1001);
+        }
+
+        // Try again with no changes
+        $stats = $collection->getImportChanged($customers);
+        $this->assertEquals(count($stats), 0);
+
+        // Change the revision of one of the objects
+        $customers = array(
+            array('uid'=>'test1', 'revision'=>2),
+            array('uid'=>'test2', 'revision'=>1),
+        );
+        $stats = $collection->getImportChanged($customers);
+        $this->assertEquals(count($stats), 1);
+
+        // Remove one of the objects
+        $customers = array(
+            array('uid'=>'test2', 'revision'=>1),
+        );
+        $stats = $collection->getImportChanged($customers);
+        $this->assertEquals(count($stats), 1);
+        $this->assertEquals($stats[0]['action'], 'delete');
+
+        // Change both revisions
+        $customers = array(
+            array('uid'=>'test1', 'revision'=>2),
+            array('uid'=>'test2', 'revision'=>2),
+        );
+        $stats = $collection->getImportChanged($customers);
+        $this->assertEquals(count($stats), 2);
+        $this->assertEquals($stats[0]['action'], 'change');
+        $this->assertEquals($stats[1]['action'], 'change');
+
+        // Cleanup
+        $this->esDataMapper->deletePartner($partner, true);
+    }   
 
     /**
      *  Get getting changed objects for this collection using heiarchy
      */
-    abstract public function testGetExportChangedHeiarch();
+    //abstract public function testGetExportChangedHeiarch();
 
     /**
      *  Test moving with a heiarchy - should add a delete entry for old parent
      */
-    abstract public function testGetExportChangedHeiarchMoved();   
+    //abstract public function testGetExportChangedHeiarchMoved();   
 
     /**
      * Test getting changed grouping entries

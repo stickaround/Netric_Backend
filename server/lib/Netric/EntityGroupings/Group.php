@@ -71,6 +71,13 @@ class Group
      * @var int
      */
     public $sortOrder = 0;
+
+    /**
+     * The last save commit id
+     * 
+     * @var int
+     */
+    public $commitId = 0;
     
     /**
      * Children
@@ -107,6 +114,7 @@ class Group
             "parent_id" => $this->parentId,
             "color" => $this->color,
             "sort_order" => $this->sortOrder,
+            "commit_id" => $this->commitId,
             "filter_fields" => $this->filterFields,
             "children" => array(),
         );
@@ -150,10 +158,17 @@ class Group
         case "sortOrder":
             $this->sortOrder = $fval;
             break;
+        case "commit_id":
+        case "commitId":
+            $this->commitId = $fval;
+            break;
         default:
             $this->filterFields[$fname] = $fval;
             break;
         }
+
+        // Inicate this group has been changed
+        $this->setDirty(true);
     }
     
     /**
@@ -186,6 +201,10 @@ class Group
             break;
         case "sortOrder":
             return $this->sortOrder;
+            break;
+        case "commit_id":
+        case "commitId":
+            return $this->commitId;
             break;
         default:
             if (isset($this->filterFields[$fname]))

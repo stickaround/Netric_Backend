@@ -476,22 +476,36 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$dm = $this->getDataMapper();
 		if (!$dm)
 			return;
-
-		// Create first entity
-		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-		$customer->setValue("name", "testCommitImcrement");
-		$oid1 = $dm->save($customer, $this->user);
-		$this->assertTrue(is_numeric($customer->getValue("commit_id")));
-
-		// Create second entity
-		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-		$customer2->setValue("name", "testSetEntityMovedTo");
-		$oid2 = $dm->save($customer2, $this->user);
-		$this->assertTrue(is_numeric($customer2->getValue("commit_id")));
-
-		// Make sure the commit was incremented
-		$this->assertTrue($customer->getValue("commit_id") < $customer2->getValue("commit_id"));
         
+        // No filter grouping
+        $groupings = $dm->getGroupings("customer", "groups");
+        
+        // Save new
+        $newGroup = $groupings->create();
+        $newGroup->name = "UTEST.DM.testGetGroupings";
+        $groupings->add($newGroup);
+        $dm->saveGroupings($groupings);
+        $oldCommitId = $groupings->getByName($newGroup->name)->commitId;
+        $this->assertNotEquals(0, $oldCommitId);
+
+		// Add another to increment commit id
+		$newGroup2 = $groupings->create();
+        $newGroup2->name = "UTEST.DM.testGetGroupings2";
+        $groupings->add($newGroup2);
+        $dm->saveGroupings($groupings);
+        $newCommitId = $groupings->getByName($newGroup2->name)->commitId;
+        $this->assertNotEquals($oldCommitId, $newCommitId);
+
+        // Reload and double check commitIDs
+		$groupings = $dm->getGroupings("customer", "groups");
+		$oldCommitId = $groupings->getByName($newGroup->name)->commitId;
+		$newCommitId = $groupings->getByName($newGroup2->name)->commitId;
+		$this->assertNotEquals($oldCommitId, $newCommitId);
+
+		// Cleanup
+        $groupings->delete($newGroup->id);
+        $groupings->delete($newGroup2->id);
+        $dm->saveGroupings($groupings);
 	}
 
 	/**
