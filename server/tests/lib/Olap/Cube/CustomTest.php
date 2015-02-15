@@ -5,7 +5,7 @@
  * CustCubes populate cube data for working with OLAP but the data can be generated in any way
  * within the custom cube interface.
  */
-require_once 'PHPUnit/Autoload.php';
+//require_once 'PHPUnit/Autoload.php';
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../../lib/AntConfig.php');
 require_once(dirname(__FILE__).'/../../../../lib/CDatabase.awp');

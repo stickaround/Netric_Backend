@@ -34,7 +34,7 @@
  *	f. Sync and make sure the message in the local store was deleted
  */
 
-require_once 'PHPUnit/Autoload.php';
+//require_once 'PHPUnit/Autoload.php';
 
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../lib/AntConfig.php');

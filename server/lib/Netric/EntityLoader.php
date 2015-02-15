@@ -151,6 +151,7 @@ class EntityLoader
 	public function create($objType)
 	{
 		$def = $this->definitionLoader->get($objType);
+		
 		if ($def->getId())
 		{
 			return Entity::factory($def);

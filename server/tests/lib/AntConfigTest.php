@@ -1,6 +1,6 @@
 <?php
 // SimpleTest Framework
-require_once 'PHPUnit/Autoload.php';
+//require_once 'PHPUnit/Autoload.php';
 //require_once(dirname(__FILE__).'/../simpletest/autorun.php');
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../lib/AntConfig.php');

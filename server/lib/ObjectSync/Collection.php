@@ -626,47 +626,6 @@ class AntObjectSync_Collection
 			}
 		}
 
-		/**
-		 * This is no longer used because the object list perform heirarchian queries with is_greater_or_equal operators
-		 * - Sky Stebnicki, December 12 2013
-		 */
-		// If we are working with a parent id and the parent is an object rather than a grouping 
-		// then we need to loop through children. Groupings automatically include all children
-		// but parent objects can go very deep and wide like with folders.
-		/*
-		if ($odef->def->parentField && $parentId)
-		{
-			$field = $odef->def->getField($odef->fields->parentField);
-			if ($field->type == "object" && $field->subtype)
-			{
-				$refParentDef = CAntObject::factory($this->dbh, $field->subtype);
-				if ($refParentDef->def->parentField)
-				{
-					$olist = new CAntObjectList($this->dbh, $field->subtype);
-					$olist->addCondition("and", $refParentDef->def->parentField, "is_equal", $parentId);
-					$olist->getObjects(0, 1000);
-					$num = $olist->getNumObjects();
-					$totalNum = $olist->getTotalNumObjects();
-					$offset = 0;
-					for ($i = 0; $i < $num; $i++)
-					{
-						$objMin = $olist->getObjectMin($i);
-						$this->initObjectCollection($objMin['id']);
-
-						// Get next page if more
-						if (($i+1) == $num && ($num+$offset) < $totalNum)
-						{
-							$offset += 1000;
-							$olist->getObjects($offset, 1000); // get next 1000 objects
-							$num = $olist->getNumObjects($offset, 1000); // update number of objects to loop through
-							$i = 0; // Reset counter
-						}
-					}
-				}
-			}
-		}
-		 */
-
 		$this->fInitialized = true;
 	}
 

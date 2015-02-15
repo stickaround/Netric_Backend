@@ -64,7 +64,7 @@ class Entity implements EntityInterface
      * 
      * @param EntityDefinition $def The definition of this type of object
      */
-    public static function factory(&$def)
+    public static function factory(\Netric\EntityDefinition &$def)
     {
 		$obj = false;
 		$objType = $def->getObjType();
@@ -83,10 +83,6 @@ class Entity implements EntityInterface
 		if (file_exists(dirname(__FILE__)."/Entity/" . $fname . ".php"))
 		{
 			$className = '\Netric\Entity' . "\\" . $fname;
-            
-            // The below is now handled automatically with the autoloader
-			//if (!class_exists($className, false))
-				//require_once("lib/Entity/" . $fname . ".php");
 
 			$obj = new $className($def);
 		}
@@ -332,7 +328,7 @@ class Entity implements EntityInterface
 	 */
 	public function save(Entity_DataMapperInterface $dm, $user)
 	{
-		throw new Exception("Save is not yet implemented");
+		throw new \Exception("Save is not yet implemented");
 
 		$dbh = $this->dbh;
 		$all_fields = $this->def->getFields();
@@ -536,16 +532,16 @@ class Entity implements EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param Entity_DataMapperInterface $dm The datamapper for saving data & contains getServiceLocator
+	 * @param \Netric\ServiceManager $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(Entity_DataMapperInterface $dm) { }
+	public function onBeforeSave(\Netric\ServiceManager $sm) { }
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param Entity_DataMapperInterface $dm The datamapper for saving data & contains getServiceLocator
+	 * @param E\Netric\ServiceManager $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(Entity_DataMapperInterface $dm) { }
+	public function onAfterSave(\Netric\ServiceManager $sm) { }
 
 	/**
 	 * Check if a field value changed since created or opened

@@ -6,7 +6,12 @@
  * @copyright Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
  * @author Sky stebnicki, sky.stebnicki@aereus.com
  */
+
+/**
+ * Initialize new Netric application code with autoloaders
+ */
 require_once("init_application.php");
+
 require_once("lib/AntLog.php");
 require_once("lib/CDatabase.awp");
 require_once("lib/AntSystem.php");
@@ -17,11 +22,6 @@ require_once("lib/ServiceLocator.php");
 require_once("lib/NetricApplicationLoader.php");
 require_once("lib/ServiceLocatorLoader.php"); // Temp
 //require_once("lib/aereus.lib.php/CSessions.php");
-
-/**
- * Initialize new Netric application code with autoloaders
- */
-require_once("init_application.php");
 
 /**
  * Define editions

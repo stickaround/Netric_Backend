@@ -158,6 +158,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
 		$entity->setValue('commit_id', $commitId);
 
+		// Call onBeforeSave
+		if ($this->getAccount()->getServiceManager())
+			$entity->onBeforeSave($this->getAccount()->getServiceManager());
+
 		// Save data to DataMapper implementation
 		$ret = $this->saveData($entity);
 
@@ -180,6 +184,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 				\Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY, 
 				$lastCommitId, $commitId);
 		}
+
+		// Call onAfterSave
+		if ($this->getAccount()->getServiceManager())
+			$entity->onAfterSave($this->getAccount()->getServiceManager());
 
 		return $ret;
 	}

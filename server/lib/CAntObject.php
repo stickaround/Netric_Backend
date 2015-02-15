@@ -319,7 +319,6 @@ class CAntObject
                 $id = $this->openByName($id, false); // Get id but do not load
             }
 		}
-
 		$this->id = $id;
 
 		// Get default generic dacl for all objects of this type, using the loader will cache it

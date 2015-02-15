@@ -2,7 +2,7 @@
 /**
  * This unit test specifically focusses on the adhock cube implementation.
  */
-require_once 'PHPUnit/Autoload.php';
+//require_once 'PHPUnit/Autoload.php';
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../../lib/AntConfig.php');
 require_once(dirname(__FILE__).'/../../../../lib/CDatabase.awp');

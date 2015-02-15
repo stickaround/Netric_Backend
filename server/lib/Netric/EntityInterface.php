@@ -108,16 +108,16 @@ interface EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param Entity_DataMapperInterface $dm The datamapper for saving data & contains getServiceLocator
+	 * @param \Netric\ServiceManager $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(Entity_DataMapperInterface $dm);
+	public function onBeforeSave(\Netric\ServiceManager $sm);
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param Entity_DataMapperInterface $dm The datamapper for saving data & contains getServiceLocator
+	 * @param E\Netric\ServiceManager $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(Entity_DataMapperInterface $dm);
+	public function onAfterSave(\Netric\ServiceManager $sm);
 
 	/**
 	 * Check if a field value changed since created or opened

@@ -1,7 +1,6 @@
 <?php
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../lib/AntConfig.php');
-require_once(dirname(__FILE__).'/../../lib/CDatabase.awp');
 require_once(dirname(__FILE__).'/../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');

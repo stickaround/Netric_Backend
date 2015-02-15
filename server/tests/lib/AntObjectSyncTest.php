@@ -1,5 +1,5 @@
 <?php
-require_once 'PHPUnit/Autoload.php';
+//require_once 'PHPUnit/Autoload.php';
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../lib/AntConfig.php');
 require_once(dirname(__FILE__).'/../../lib/Ant.php');
