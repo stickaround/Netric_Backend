@@ -31,6 +31,10 @@ class CAntObject_Activity extends CAntObject
 	 */
 	protected function beforesaved()
 	{
+		/**
+		 * The below functionality has been replaces with \Netic\Entity\Activity
+		 * - Sky Stebnicki <sky.stebnicki@aereus.com>
+		 *
 		// Set association for the object
 		if ($this->getValue('obj_reference'))
 		{
@@ -40,6 +44,7 @@ class CAntObject_Activity extends CAntObject
 				$this->setMValue("associations", $this->getValue('obj_reference'));
 			}
 		}
+		*/
 	}
 
 	/**

@@ -1,11 +1,5 @@
 <?php
 	/*
-	COMPLETED: 
-	Tested save, open, and isChanged functions
-
-	NEXT: 
-	Integrate this with CAntObject to handle saves. I determined that we should probably change "All Recurring Events" to "This And All Future Events" so past events will never be modified. On save the parentId of the recurrence pattern will simply be updated to $this.
-
 	save:
 	if isChanged && !exception
 		move/set parentId and processedTo to this & delete all future

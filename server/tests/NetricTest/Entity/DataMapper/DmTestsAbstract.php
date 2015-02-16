@@ -81,12 +81,16 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 
         // Create a few test groups
         $groupingsStat = $dm->getGroupings("customer", "status_id");
-        $statGrp = $groupingsStat->create("Unit Test Status");
+        $statGrp = $groupingsStat->getByName("Unit Test Status");
+        if (!$statGrp)
+        	$statGrp = $groupingsStat->create("Unit Test Status");
         $groupingsStat->add($statGrp);
         $dm->saveGroupings($groupingsStat);
         
         $groupingsGroups = $dm->getGroupings("customer", "groups");
-        $groupsGrp = $groupingsGroups->create("Unit Test Group");
+        $groupsGrp = $groupingsGroups->getByName("Unit Test Group");
+        if (!$groupsGrp)
+        	$groupsGrp = $groupingsGroups->create("Unit Test Group");
         $groupingsGroups->add($groupsGrp);
         $dm->saveGroupings($groupingsGroups);
 

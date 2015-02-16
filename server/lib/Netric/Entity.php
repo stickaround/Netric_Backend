@@ -727,8 +727,11 @@ class Entity implements EntityInterface
 		$parts = explode(":", $value);
 		if (count($parts)>1)
 		{
-			$ret = array();
-			$ret['obj_type'] = $parts[0];
+			$ret = array(
+				'obj_type' => $parts[0],
+				'id' => null,
+				'name' => null,
+			);
 
 			// Check for full name added after bar '|'
 			$parts2 = explode("|", $parts[1]);

@@ -260,7 +260,17 @@ class ServiceManager
         return new \Netric\EntityQuery\Index\Pgsql($this->getAccount());
 	}
     
-        
+     /**
+	 * Get entity query index
+	 *
+	 * @return EntityQuery\IndexInterface
+	 */
+	private function factoryEntity_RecurrenceDataMapper()
+	{
+		$acct = $this->getAccount();
+		$dbh = $this->get("Db");
+        return new \Netric\Entity\Recurrence\RecurrenceDataMapper($acct, $dbh);
+	}
 
 	/**
 	 * Get DACL loader for security

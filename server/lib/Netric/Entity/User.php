@@ -26,4 +26,24 @@ class User extends \Netric\Entity implements \Netric\EntityInterface
     const GROUP_EVERYONE = -3;
     const GROUP_CREATOROWNER = -2;
     const GROUP_ADMINISTRATORS = -1;
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param \Netric\ServiceManager $sm Service manager used to load supporting services
+     */
+    public function onBeforeSave(\Netric\ServiceManager $sm)
+    {
+
+    }
+
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param E\Netric\ServiceManager $sm Service manager used to load supporting services
+     */
+    public function onAfterSave(\Netric\ServiceManager $sm)
+    {
+        
+    }
 }
