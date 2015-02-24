@@ -194,5 +194,7 @@ function getErrorArgument($arg)
 }
 
 // Set error handler - this must be called first
-if (!function_exists("phpunit_autoload")) // only hande if not in unit test
+// only hande if not in unit test
+/// and if netric application is not handling the error
+if (!function_exists("phpunit_autoload") && !class_exists('\Netric\Application', false)) 
 	set_error_handler("ant_error_handler");
