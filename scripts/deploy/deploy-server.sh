@@ -32,4 +32,4 @@ then
 fi
 
 echo "Deploying to $TARGET_SERVER:$REMOTE_DIR"
-rsync -rvzh --chmod=ug+rwx,o=rx $LOCAL_DIR "$TARGET_SERVER:$REMOTE_DIR"
+rsync -rvzh --exclude data --chmod=ug+rwx,o=rx $LOCAL_DIR "$TARGET_SERVER:$REMOTE_DIR"

@@ -113,7 +113,6 @@ class AntMail_Sync
 					break;
 
 				case 'delete':
-					AntLog::getInstance()->error("Upsync delete for message {$stat['id']}");
 					$backend->debug = $this->debug;
 					$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "deleted", null);
 					break;

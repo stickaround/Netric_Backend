@@ -96,8 +96,15 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function save($def)
 	{
-		// Increment revision
-		//$def->revision ++;
+		/*
+		 * Increment revision
+		 * The below was not working becuase if a user edits the object then 
+		 * system changes will never take effect because they are set from a revision
+		 * which essentially means that revision in definitions are used for system
+		 * revisions and not user saves.
+		 * - Sky Stebnicki
+		 */
+		//$def->revision++;
 
 		// Save data
 		$this->saveDef($def);

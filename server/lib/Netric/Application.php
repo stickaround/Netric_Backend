@@ -12,6 +12,13 @@ class Application
      * @var Netric\Config
      */
     protected $config = null;
+
+    /**
+     * Application log
+     *
+     * @var Netric\Log
+     */
+    protected $log = null;
     
     /**
      * Instances of a netric accounts
@@ -35,6 +42,20 @@ class Application
     public function __construct(Config $config)
     {
         $this->config = $config;
+
+        // Setup log
+        $this->log = new Log($config);
+
+        // Setup error handler if not in a unit test
+        if (!class_exists('\PHPUnit_Framework_TestCase'))
+        {
+            // Watch for error notices and log them
+            set_error_handler(array($this->log, "phpErrorHandler"));
+            // Log unhandled exceptions
+            set_exception_handler(array($this->log, "phpUnhandledExceptionHandler"));
+            // Watch for fatals which cause script execution to fail
+            register_shutdown_function(array($this->log, "phpShutdownErrorChecker"));
+        }
                 
         // Setup antsystem datamapper
         $this->dm = new Application\DataMapperPgsql($config->db["host"], 
@@ -42,8 +63,6 @@ class Application
                                                     $config->db["user"], 
                                                     $config->db["password"]);
     }
-    
-    
     
     /**
      * Get initialized config
@@ -183,4 +202,14 @@ class Application
 	{
 		setcookie($name, base64_encode($value), $expires);
 	}
+
+    /**
+     * Get the application log
+     *
+     * @return \Netric\Log
+     */
+    public function getLog()
+    {
+        return $this->log;
+    }
 }

@@ -13,28 +13,28 @@ namespace Netric;
  * Set log level constants if not already set by the system
  */
 if (!defined("LOG_EMERG"))
-	define("LOG_EMERG", 1); // system is unusable
+	define("LOG_EMERG", 0); // system is unusable
 
 if (!defined("LOG_ALERT"))
-	define("LOG_ALERT", 2); // action must be taken immediately
+	define("LOG_ALERT", 1); // action must be taken immediately
 
 if (!defined("LOG_CRIT"))
-	define("LOG_CRIT", 3); // critical issues
+	define("LOG_CRIT", 2); // critical issues
 
 if (!defined("LOG_ERR"))
-	define("LOG_ERR", 4); // error conditions
+	define("LOG_ERR", 3); // error conditions
 
 if (!defined("LOG_WARNING"))
-	define("LOG_WARNING", 5); // warning conditions
+	define("LOG_WARNING", 4); // warning conditions
 
 if (!defined("LOG_NOTICE"))
-	define("LOG_NOTICE", 6); // normal, but significant, condition
+	define("LOG_NOTICE", 5); // normal, but significant, condition
 
 if (!defined("LOG_INFO"))
-	define("LOG_INFO", 7); // informational message
+	define("LOG_INFO", 6); // informational message
 
 if (!defined("LOG_DEBUG"))
-	define("LOG_DEBUG", 8); // debug-level message
+	define("LOG_DEBUG", 7); // debug-level message
 
 /**
  * Description of Log
@@ -239,6 +239,234 @@ class Log
 		case LOG_INFO:
 		default:
 			return 'INFO';
+		}
+	}
+
+	/**
+	 * PHP error handler function is called with set_error_handler early in execution
+	 *
+	 * @param int $errorno The error code
+	 * @param string $errstr The error message
+	 * @param string $errfile The file originating the error
+	 * @param int $errline The line that triggered the error
+	 * @param array $errcontext Every variable that existed in the scope the error was triggered in
+	 */
+	public function phpErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+	{
+		// if error has been supressed with an @
+		if (error_reporting() == 0) {
+			return;
+		}
+
+		// check if function has been called by an exception
+		if(func_num_args() == 5) 
+		{
+			// called by trigger_error()
+			$exception = null;
+			list($errno, $errstr, $errfile, $errline) = func_get_args();
+			$backtrace = array_reverse(debug_backtrace());
+		}
+		else 
+		{
+			// called by unhandled exception
+			$exc = func_get_arg(0);
+			$errno = $exc->getCode();
+			$errstr = $exc->getMessage();
+			$errfile = $exc->getFile();
+			$errline = $exc->getLine();
+			$backtrace = $exc->getTrace();
+		}
+
+		$errorType = array (
+			E_ERROR          => 'ERROR',
+			E_WARNING        => 'WARNING',
+			E_PARSE          => 'PARSING ERROR',
+			E_NOTICE         => 'NOTICE',
+			E_CORE_ERROR     => 'CORE ERROR',
+			E_CORE_WARNING   => 'CORE WARNING',
+			E_COMPILE_ERROR  => 'COMPILE ERROR',
+			E_COMPILE_WARNING => 'COMPILE WARNING',
+			E_USER_ERROR     => 'USER ERROR',
+			E_USER_WARNING   => 'USER WARNING',
+			E_USER_NOTICE    => 'USER NOTICE',
+			E_STRICT         => 'STRICT NOTICE',
+			E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
+			E_ANT_ERROR  => 'ANT APPLICATION ERROR'
+		);
+
+		// create error message
+		if (array_key_exists($errno, $errorType)) 
+		{
+			$err = $errorType[$errno];
+		} 
+		else 
+		{
+			$err = 'UNHANDLED ERROR';
+		}
+
+		$errMsg = "$err: $errstr in $errfile on line $errline";
+
+		// start backtrace
+		foreach ($backtrace as $v) 
+		{
+			if (isset($v['class'])) 
+			{
+				$trace = 'in class '.$v['class'].'::'.$v['function'].'(';
+
+				if (isset($v['args'])) 
+				{
+					$separator = '';
+
+					foreach($v['args'] as $arg ) 
+					{
+						$trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
+						$separator = ', ';
+					}
+				}
+				$trace .= ')';
+			}
+			elseif (isset($v['function']) && empty($trace)) 
+			{
+				$trace = 'in function '.$v['function'].'(';
+				if (!empty($v['args'])) 
+				{
+					$separator = '';
+
+					foreach($v['args'] as $arg ) 
+					{
+						$trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
+						$separator = ', ';
+					}
+				}
+				$trace .= ')';
+			}
+		}
+
+		// what to do
+		switch ($errno) 
+		{
+		case E_NOTICE:
+		case E_USER_NOTICE:
+		case E_STRICT:
+		case E_DEPRECATED:
+			return;
+			break;
+
+		default:
+
+			$body = "";
+			if (isset($_COOKIE['uname']))
+				$body .= "USER_NAME: ".$_COOKIE['uname']."\n";
+			$body .= "Type: System\n";
+			if (isset($_COOKIE['db']))
+				$body .= "DATABASE: ".$_COOKIE['db']."\n";
+			if (isset($_COOKIE['dbs']))
+				$body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
+			if (isset($_COOKIE['aname']))
+				$body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
+
+			$body .= "When: ".date('Y-m-d H:i:s')."\n";
+			$body .= "URL: ".$_SERVER['REQUEST_URI']."\n";
+			$body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
+			$body .= "----------------------------------------------\n".nl2br($errMsg)."\nTrace: ".nl2br($trace);
+			$body .= "\n----------------------------------------------\n";
+
+			// Log the error
+			$this->error($body);
+
+			break;
+		}
+	}
+
+	/**
+	 * Log an unhandled exception
+	 *
+	 * @param \ExceptionInterface $exception
+	 */
+	public function phpUnhandledExceptionHandler($exception)
+	{
+		$errno = $exception->getCode();
+		$errstr = $exception->getMessage();
+		$errfile = $exception->getFile();
+		$errline = $exception->getLine();
+		$backtrace = $exception->getTraceAsString();
+
+		$body = "$errMsg = \"$errno: $errstr in $errfile on line $errline\";\n";
+		if (isset($_COOKIE['uname']))
+			$body .= "USER_NAME: ".$_COOKIE['uname']."\n";
+		$body .= "Type: System\n";
+		if (isset($_COOKIE['db']))
+			$body .= "DATABASE: ".$_COOKIE['db']."\n";
+		if (isset($_COOKIE['dbs']))
+			$body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
+		if (isset($_COOKIE['aname']))
+			$body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
+
+		$body .= "When: ".date('Y-m-d H:i:s')."\n";
+		$body .= "URL: ".$_SERVER['REQUEST_URI']."\n";
+		$body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
+		$body .= "----------------------------------------------\n";
+		$body .= $errMsg."\nTrace: $backtrace";
+		$body .= "\n----------------------------------------------\n";
+
+		// Log the error
+		$this->error($body);
+	}
+
+	/**
+	 * Capture PHP shutdown event to look for a fatal error
+	 */
+	public function phpShutdownErrorChecker()
+	{
+		// Check for a fatal error that would halted execution
+		$error = error_get_last();
+		if (null != $error)
+		{
+			if ($error['type'] <= E_ERROR)
+			{
+				$this->phpErrorHandler($error['type'], 
+					$error['message'], 
+					$error['file'], 
+					$error['line'], array()
+				);
+			}
+		}
+	}
+
+	/**
+	 * Convert an error argument or backtrace to a string for logging
+	 */
+	private function getPhpErrorArgumentStr($arg)
+	{
+		switch (strtolower(gettype($arg))) 
+		{
+		case 'string':
+			return( '"'.str_replace( array("\n"), array(''), $arg ).'"' );
+
+		case 'boolean':
+			return (bool)$arg;
+
+		case 'object':
+			return 'object('.get_class($arg).')';
+
+		case 'array':
+			$ret = 'array(';
+			$separtor = '';
+
+			foreach ($arg as $k => $v) 
+			{
+				//$ret .= $separtor.$this->getPhpErrorArgumentStr).' => '.$this->getPhpErrorArgumentStr);
+				$separtor = ', ';
+			}
+			$ret .= ')';
+
+			return $ret;
+
+		case 'resource':
+			return 'resource('.get_resource_type($arg).')';
+
+		default:
+			return var_export($arg, true);
 		}
 	}
 }

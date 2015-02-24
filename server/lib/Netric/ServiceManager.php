@@ -245,9 +245,7 @@ class ServiceManager
 	 */
 	private function factoryLog()
 	{
-        $config = $this->get("Config");
-		$logger = new Log($config);
-		return $logger;
+        return $this->getAccount()->getApplication()->getLog();
 	}
     
     /**

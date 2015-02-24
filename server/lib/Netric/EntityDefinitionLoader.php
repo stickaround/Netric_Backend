@@ -78,7 +78,6 @@ class EntityDefinitionLoader
 	{
 		// First try to load from cache
 		$def = $this->getCached($objType);
-		$def = null;
 
 		// No cache, then load from dataMapper
 		if (!$def)
@@ -90,14 +89,10 @@ class EntityDefinitionLoader
 		// Check the revision to see if we need to update
 		if ($sysData)
 		{
-			if ($sysData['revision'] > $def->revision)
+			if ((int)$sysData['revision'] > $def->revision)
 			{
-				// Decrement revision one so that on save the revisions will match
-				//$sysData['revision']--;
-
-				// The above was not working becuase if a user edits the object then 
-				// system changes will never take effect.
-				$def->revision = $sysData['revision'];
+				$log = $this->dataMapper->getAccount()->getServiceManager()->get("Log");
+				$log->error("loadDefinition saving {$sysData['revision']}:" . var_expor($sysData, true));
 
 				// System definition has been updated, save to datamapper
 				$def->fromArray($sysData);
@@ -105,7 +100,7 @@ class EntityDefinitionLoader
 			}
 			else
 			{
-				// Load custom system varibales
+				// Set custom code level variables not in the dataMapper
 				if (isset($sysData["default_activity_level"]))
 					$def->defaultActivityLevel = $sysData["default_activity_level"];
 
