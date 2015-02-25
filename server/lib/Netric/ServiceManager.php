@@ -155,13 +155,11 @@ class ServiceManager
     /**
 	 * Get cache
 	 *
-	 * @return Netric\Cache
+	 * @return Netric\Cache\CacheInterface
 	 */
 	private function factoryCache()
 	{
-        // Include old config for legacy
-        require_once(dirname(__FILE__) . "/../AntConfig.php");
-        $cache = new Cache();
+        $cache = new Cache\AlibCache();
 		return $cache;
 	}
 
@@ -292,7 +290,7 @@ class ServiceManager
         require_once(dirname(__FILE__) . "/../AntConfig.php");
         require_once(dirname(__FILE__) . "/../CDatabase.awp");
         require_once(dirname(__FILE__) . "/../Ant.php");
-        require_once(dirname(__FILE__) . "/../Ant.php");
+        require_once(dirname(__FILE__) . "/../AntUser.php");
         require_once(dirname(__FILE__) . "/../AntFs.php");
 
         $ant = new \Ant($this->getAccount()->getId());

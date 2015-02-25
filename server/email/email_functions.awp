@@ -981,7 +981,7 @@ function EmailGetAttachmentType(&$dbh, $ATTID)
 	}
 }
 
-if (!function_exists(quoted_printable_encode))
+if (!function_exists('quoted_printable_encode'))
 {
 	function quoted_printable_encode($sString , $line_max = 76)
 	{

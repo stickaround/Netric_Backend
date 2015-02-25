@@ -284,15 +284,3 @@ class CAnsCLient
 	}
 }
 
-if ($_GET['test'])
-{
-	/*
-	$ans = new CAnsCLient("ans.aereus.com", "ant", "d");
-	// Put URL
-	$url = "http://www.google.com/dsdsfds.jpg";
-	$ans->putFileByUrl($url, "/", "myimage.jpeg", "image/jpg");
-
-	echo $ans->getFileUrl("myimage.jpeg", "/");
-	 */
-}
-?>

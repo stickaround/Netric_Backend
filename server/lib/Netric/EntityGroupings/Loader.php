@@ -26,7 +26,7 @@ class Loader
 	/**
 	 * Cache
 	 *
-	 * @var Cache
+	 * @var \Netric\Cache\CacheInterface
 	 */
 	private $cache = null;
     
@@ -34,10 +34,10 @@ class Loader
      * Setup IdentityMapper for loading objects
      * 
      * @param DataMapperInterface $dm Datamapper for entity definitions
-     * @param Netric\Cache $cache Optional cache object
+     * @param Netric\Cache\CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
-    public function __construct($dm, \Netric\Cache $cache=null)
+    public function __construct($dm, \Netric\Cache\CacheInterface $cache=null)
 	{
 		$this->cache = $cache;
 		$this->dataMapper = $dm;

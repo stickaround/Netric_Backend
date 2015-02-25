@@ -250,7 +250,7 @@ class EntityDefinition
 	 */
 	public function getForm($medium='default')
 	{
-		return $this->forms[$medium];
+		return (isset($this->forms[$medium])) ? $this->forms[$medium] : null;
 	}
 
 	/**

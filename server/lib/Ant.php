@@ -1043,6 +1043,8 @@ class Ant
 
         // Initialize application
         //$application = new Netric\Application($config);
+        require_once("lib/NetricApplicationLoader.php");
+
         $application = NetricApplicationLoader::getInstance($config)->getApplication();
 
         // Initialize account

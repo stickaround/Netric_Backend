@@ -10,7 +10,7 @@ class CCustomer extends CAntObject
 		parent::CAntObject($dbh, "customer", $id);
 	}
 
-	function save()
+	function save($logact = true)
 	{
 		parent::save();
 
