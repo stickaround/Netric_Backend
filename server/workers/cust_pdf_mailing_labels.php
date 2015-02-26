@@ -12,7 +12,7 @@
 		$data = unserialize($job->workload());
 		$dbh = $job->dbh;
 
-		$pdf =& new Cezpdf();
+		$pdf = new Cezpdf();
 		$pdf->selectFont(AntConfig::getInstance()->application_path.'/lib/pdf/fonts/Helvetica.afm');
 		$pdf->ezSetMargins(0,0,0,0);
 		

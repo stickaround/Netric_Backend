@@ -79,6 +79,20 @@ class Account
                 
         return true;
     }
+
+    /**
+     * Export internal properties to an associative array
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return array(
+            "id" => $this->id,
+            "name" => $this->name,
+            "database" => $this->dbname,
+        );
+    }
     
     /**
      * Get account id

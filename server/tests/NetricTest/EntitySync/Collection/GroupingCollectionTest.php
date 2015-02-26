@@ -129,7 +129,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $group1 = $groupings->getByName("UTTEST CS::testGetExportChanged_Deleted");
 
         // Get exported which will cause the customer to be logged
-        $stats = $collection->getExportChanged();
+        while (count($stats = $collection->getExportChanged())) {}
 
         // Fast forward past all previous groupings
         $collection->fastForwardToHead();

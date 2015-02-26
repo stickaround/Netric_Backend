@@ -58,6 +58,17 @@ class WorkerMan
 		{
 			$this->noBackground = true;
 		}
+
+		/** 
+		 * For some reason autoloader is not referencing the constants
+		 * - Sky Stebnicki
+		 */
+		if (!defined("WORKER_SUCCESS"))
+			define("WORKER_SUCCESS", 1);
+		if (!defined("WORKER_ERROR"))
+			define("WORKER_ERROR", 2);
+		if (!defined("WORKER_DEFERRED"))
+			define("WORKER_DEFERRED", 3);
 	}
 
 	/**

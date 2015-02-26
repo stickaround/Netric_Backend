@@ -81,8 +81,8 @@ class EntityCollectionTest extends AbstractCollectionTests
         $partner->addCollection($collection);
         $this->esDataMapper->savePartner($partner);
 
-        // Get exported which will cause the customer to be logged
-        $stats = $collection->getExportChanged();
+        // Get all exported which will cause the customer to be logged
+        while (count($stats = $collection->getExportChanged())) {}
 
         // Fast-forward past the created customer
         $collection->fastForwardToHead();
@@ -94,7 +94,7 @@ class EntityCollectionTest extends AbstractCollectionTests
 
 		// Make sure the one change is now returned
         $stats = $collection->getExportChanged();
-        $this->assertTrue(count($stats) >= 1);
+        $this->assertEquals(1, count($stats));
         $this->assertEquals($customerId, $stats[0]['id']);
         $this->assertEquals("delete", $stats[0]['action']);
 

@@ -22,7 +22,7 @@ class CAntObjectIndexDb extends CAntObjectIndex
 	 *
 	 * @param CAntObject $obj The object to index
 	 */
-	public function indexObject($obj, $commit)
+	public function indexObject($obj, $commit = true)
 	{
 		global $G_OBJ_IND_EXISTS;
 			

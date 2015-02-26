@@ -9,30 +9,38 @@ class Application
     /**
      * Initialized configuration class
      * 
-     * @var Netric\Config
+     * @var \Netric\Config
      */
     protected $config = null;
 
     /**
      * Application log
      *
-     * @var Netric\Log
+     * @var \Netric\Log
      */
     protected $log = null;
-    
-    /**
-     * Instances of a netric accounts
-     *
-     * @var Netric\Account[]
-     */
-    protected $accounts = array();
+
     
     /**
      * Application DataMapper
      * 
-     * @var Netric\Application\DataMapperInterface
+     * @var \Netric\Application\DataMapperInterface
      */
     private $dm = null;
+
+    /**
+     * Application cache
+     *
+     * @var \Netric\Cache\CacheInterface
+     */
+    private $cache = null;
+
+    /**
+     * Accounts identity mapper
+     *
+     * @var \Netric\Account\AccountIdentityMapper
+     */
+    private $accountsIdentityMapper = null;
     
     /**
      * Initialize application
@@ -62,6 +70,12 @@ class Application
                                                     $config->db["sysdb"], 
                                                     $config->db["user"], 
                                                     $config->db["password"]);
+
+        // Setup application cache
+        $this->cache = new Cache\AlibCache();
+
+        // Setup account identity mapper
+        $this->accountsIdentityMapper = new Account\AccountIdentityMapper($this->dm, $this->cache);
     }
     
     /**
@@ -79,6 +93,7 @@ class Application
      * 
      * @param string $accountId If set the pull an account by id, otherwise automatically get from url or config
      * @param string $name If set try to get an account by the unique name
+     * @throws \Exception when an invalid account id or name is passed
      * @return Netric\Account
      */
     public function getAccount($accountId="", $name="")
@@ -87,32 +102,19 @@ class Application
         if (!$accountId && !$name)
             $name = $this->getAccountName();
         
-        // Check to see if account is already loaded
-        if ($accountId)
-        {
-            foreach ($this->accounts as $aname=>$acc)
-            {
-                if ($acc->getId() == $accountId)
-                    return $acc;
-            }
-        }
-        else
-        {
-            if (isset($this->accounts[$name]))
-                return $this->accounts[$name];
-        }
-        
         if (!$accountId && !$name)
             throw new \Exception("Cannot get account without name");
         
         // Account has not yet been loaded
         $account = new Account($this);
-        $ret = ($accountId) ? $this->dm->getAccountById($accountId, $account) : $this->dm->getAccountByName($name, $account);
+        $ret = ($accountId) ?
+            $this->accountsIdentityMapper->loadById($accountId, $account) :
+            $this->accountsIdentityMapper->loadByName($name, $account);
+
         if (!$ret)
-            return false;
-        
-        // Cache for later queries
-        $this->accounts[$account->getName()] = $account;
+        {
+            $account = null;
+        }
         
         return $account;
     }
@@ -211,5 +213,15 @@ class Application
     public function getLog()
     {
         return $this->log;
+    }
+
+    /**
+     * Get the application cache
+     *
+     * @return \Netric\Cache\CacheInterface
+     */
+    public function getCache()
+    {
+        return $this->cache;
     }
 }

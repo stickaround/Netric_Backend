@@ -13,7 +13,7 @@ require_once('lib/ServiceLocatorLoader.php');
 
 define('OBJ_TYPE_TEXT', 'text');
 define('OBJ_TYPE_INT', 'integer');
-define('OBJ_TYPE_REAL', 'real');
+//define('OBJ_TYPE_REAL', 'real');
 define('OBJ_TYPE_REAL', 'double');
 
 $G_CACHE_ANTOBJFDEFS = array();

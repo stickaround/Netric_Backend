@@ -155,10 +155,14 @@
 			return false;
 
 		$sync = new AntObjectSync($dbh, $data['obj_type']);
-		if ($data['debug'])
+		if (isset($data['debug']))
 			$sync->debug = true;
-		if ($data['skipcoll'])
+		if (isset($data['skipcoll']))
 			$sync->ignoreCollection = $data['skipcoll'];
+		if (!isset($data['revision']))
+			$data['revision'] = null;
+		if (!isset($data['parent_id']))
+			$data['parent_id'] = null;
 
 		if ($data['field_name'] && $data['field_val'])
 			$colUpdated = $sync->updateGroupingStat($data['field_name'], $data['field_val'], $data['action']);

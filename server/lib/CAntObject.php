@@ -922,13 +922,13 @@ class CAntObject
 			$this->index = new CAntObjectIndexSolr($this->dbh, $this);
 			break;
         case 'entityquery':
-			$this->index = new CAntObjectIndexEq($this->dbh, $this);
-			break;
 		case 'db':
 		default:
             // EntityQuery has now replaced the default db index because
             // we are moving everything over to lib\Netric\* v3 core.
             // - Sky Stebnicki
+			require_once("lib/CAntObjectIndex.php");
+			require_once("lib/obj_indexers/entityquery.php");
             $this->index = new CAntObjectIndexEq($this->dbh, $this);
 			//$this->index = new CAntObjectIndexDb($this->dbh, $this);
 			break;
@@ -2232,6 +2232,7 @@ class CAntObject
 		$dbh = $this->dbh;
 
 		// Now check for workflow
+		require_once("lib/WorkFlow.php");
 		$wflist = new WorkFlow_List($dbh, "object_type='".$this->object_type."' and f_active='t' and f_on_$event='t'");        
 
 		for ($w = 0; $w < $wflist->getNumWorkFlows(); $w++)
@@ -2440,6 +2441,8 @@ class CAntObject
 	 */
 	public function removeMValue($name, $value)
 	{
+		$field = $this->def->getField($name);
+
 		// Get old values
 		$oldvalraw = $this->getValue($name);
 		if ($field->type == 'fkey_multi' || $field->type == 'object_multi')
@@ -3474,7 +3477,7 @@ class CAntObject
 		if (($this->object_type == "comment") && $this->getValue("obj_reference"))
 		{
 			$parts = CAntObject::decodeObjRef($this->getValue("obj_reference"));
-			if ($parts['name'])
+			if (isset($parts['name']))
 				$name = $parts['name'];
 			else if ($parts > 1)
 				$name = objGetName($this->dbh, $parts['obj_type'], $parts['id'], $this->user);
@@ -4452,9 +4455,9 @@ class CAntObject
             
 			$item['id'] = $row[$field->fkeyTable['key']];
 			$item['uname'] = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
-			$item['title'] = $row[$field->fkeyTable['title']];
-			$item['heiarch'] = ($field->fkeyTable['parent']) ? true : false;
-			$item['parent_id'] = $row[$field->fkeyTable['parent']];
+			$item['title'] = (isset($field->fkeyTable['title'])) ? $row[$field->fkeyTable['title']] : null;
+			$item['heiarch'] = (isset($field->fkeyTable['parent'])) ? true : false;
+			$item['parent_id'] = (isset($field->fkeyTable['parent'])) ? $row[$field->fkeyTable['parent']] : null;
 			$item['viewname'] = $viewname;
 			$item['color'] = $row['color'];
 			$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
@@ -5533,6 +5536,7 @@ class CAntObject
 
 		if (!$this->skipObjectSyncStat)
 		{
+			require_once("lib/WorkerMan.php");
 			$wman = new WorkerMan($this->dbh);
 
 			/*

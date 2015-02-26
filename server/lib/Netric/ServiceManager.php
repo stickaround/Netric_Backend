@@ -159,8 +159,7 @@ class ServiceManager
 	 */
 	private function factoryCache()
 	{
-        $cache = new Cache\AlibCache();
-		return $cache;
+        return $this->getAccount()->getApplication()->getCache();
 	}
 
 	/**
@@ -267,6 +266,20 @@ class ServiceManager
 		$dbh = $this->get("Db");
         return new \Netric\Entity\Recurrence\RecurrenceDataMapper($acct, $dbh);
 	}
+
+    /**
+     * Get the application datamapper
+     *
+     * @return Application\DataMapperInterface
+     */
+    private function factoryApplication_DataMapper()
+    {
+        $config = $this->get("Config");
+        return new Application\DataMapperPgsql($config->db["host"],
+                                                $config->db["sysdb"],
+                                                $config->db["user"],
+                                                $config->db["password"]);
+    }
 
 	/**
 	 * Get DACL loader for security

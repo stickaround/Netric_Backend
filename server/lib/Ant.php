@@ -918,7 +918,7 @@ class Ant
 		}
 
 		// 5 check for any third level domain
-		if (!$ret && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.')>=2)
+		if (!$ret && isset($_SERVER['HTTP_HOST']) && substr_count($_SERVER['HTTP_HOST'], '.')>=2)
 		{
 			$left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
 			if ($left)

@@ -1,4 +1,5 @@
 <?php
+
 class CAntObjectIndexEq extends CAntObjectIndex
 {
     public function __construct($dbh, $obj) 

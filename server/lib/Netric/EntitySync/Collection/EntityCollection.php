@@ -70,7 +70,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 			// Query local objects for commit_id with EntityList
 			$query = new \Netric\EntityQuery($this->getObjType());
 	        $query->orderBy('commit_id');
-	        $query->setLimit(250);
+	        $query->setLimit(1000);
 
 	        // Set base/common condition
 	        $query->where('commit_id')->isGreaterThan($lastCollectionCommit);

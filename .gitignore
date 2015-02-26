@@ -30,6 +30,9 @@
 ehthumbs.db
 Thumbs.db
 
+# IDE Files #
+######################
+/.idea/
 
 # Ignore the server data directory
 server/data/
