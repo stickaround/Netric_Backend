@@ -74,6 +74,8 @@ class AntMail_Sync
 		else
 			$accounts = $this->user->getEmailAccounts();
 
+        $ret = array();
+
 		$mailObj = CAntObject::factory($this->dbh, "email_message", null, $this->user);
 		$mailboxPath = $mailObj->getGroupingPath("mailbox_id", $mailboxId);
 
@@ -82,17 +84,40 @@ class AntMail_Sync
             // When syncing emails, account type should not be empty
             if(empty($accountObj->type))
                 continue;
-            
+
 			$backend = $accountObj->getBackend();
 
 			// Get object sync partnership and collection
 			$syncPartner = $accountObj->getSyncPartner();
-			$conditions = array(array("blogic"=>"and", "field"=>"email_account", "operator"=>"is_equal", "condValue"=>$accountObj->id));
-			$syncColl = $syncPartner->getCollection("email_message", null, $conditions, true); // Create if missing for some reason
+			$conditions = array(
+                array(
+                    "blogic"=>"and",
+                    "field"=>"email_account",
+                    "operator"=>"is_equal",
+                    "condValue"=>$accountObj->id,
+                ),
+                array(
+                    "blogic"=>"and",
+                    "field"=>"mailbox_id",
+                    "operator"=>"is_equal",
+                    "condValue"=>$mailboxId,
+                ),
+            );
+			$syncColl = $syncPartner->getEntityCollection("email_message", $conditions);
+            // Create collection
+            if (!$syncColl)
+            {
+                $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+                $syncColl = \Netric\EntitySync\Collection\CollectionFactory::create($serviceManager, \Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY);
+                $syncColl->setObjType("email_message");
+                $syncColl->setConditions($conditions);
+                $syncPartner->addCollection($syncColl);
+                $serviceManager->get("EntitySync_DataMapper")->savePartner($syncPartner);
+            }
 
 			// First send changes to server
 			// --------------------------------------------------------------------
-			$stats = $syncColl->getChangedObjects($mailboxId, false);
+			$stats = $syncColl->getExportChanged();
 			foreach ($stats as $stat)
 			{
 				$obj = CAntObject::factory($this->dbh, "email_message", $stat['id'], $this->user);
@@ -110,14 +135,18 @@ class AntMail_Sync
 					else
 						$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "flagged", false);
 
+                    $syncColl->logExported($stat['id'], $obj->getValue("commit_id"));
 					break;
 
 				case 'delete':
-					$backend->debug = $this->debug;
+					//$backend->debug = $this->debug;
 					$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "deleted", null);
-					break;
+                    $syncColl->logExported($stat['id'], null);
+                    break;
 				}
-				$syncColl->deleteStat($stat['id'], $mailboxId);
+				//$syncColl->deleteStat($stat['id'], $mailboxId);
+                $syncColl->setLastCommitId($obj->getValue("commit_id"));
+
 
 				// Check for error
 				$error = $backend->getLastError();
@@ -125,7 +154,6 @@ class AntMail_Sync
 					AntLog::getInstance()->error("Error trying to send change to mailserver for msg[{$stat['id']}]:" . $error);
 			}
 			
-
 			// Now get new messages from the server and import
 			// --------------------------------------------------------------------
 			$emailList = $backend->getMessageList($mailboxPath);
@@ -136,7 +164,7 @@ class AntMail_Sync
 				foreach($emailList as $email)
 					$importList[] = array("uid"=>$email['uid'], "revision"=>1);
 
-				$stats = $syncColl->importObjectsDiff($importList, $mailboxId);
+				$stats = $syncColl->getImportChanged($importList);
 			}
 			else
 			{
@@ -159,9 +187,9 @@ class AntMail_Sync
 						}
 					}
 
-					if ($stat['object_id'])
+					if (isset($stat['local_id']))
 					{
-						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['object_id'], $this->user);
+						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['local_id'], $this->user);
 						$emailObj->setValue("flag_seen", $emailMeta['seen']==1?'t':'f');            
 						$emailObj->setValue("flag_flagged", $emailMeta['flagged']==1?'t':'f');
 						$mid = $emailObj->save();
@@ -169,27 +197,29 @@ class AntMail_Sync
 					else
 					{
 						$mid = $this->importEmail($emailMeta, $accountObj, $mailboxId);
+
 					}
 
 					if ($mid)
 					{
-						$syncColl->updateImportObjectStat($stat['uid'], $stat['revision'], $mid, $mailboxId);
+                        $emailObj = CAntObject::factory($this->dbh, "email_message", $mid, $this->user);
+						$syncColl->logImported($stat['uid'], $emailObj->revision, $mid);
 						$ret[] = $mid;
 					}
 
 					break;
 
 				case 'delete':
-					if ($stat['object_id'] && $backend->isTwoWaySync())
+					if (isset($stat['local_id']) && $backend->isTwoWaySync())
 					{
-						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['object_id'], $this->user);
+						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['local_id'], $this->user);
 						if ($emailObj->getValue("f_deleted") != 't')
 							$emailObj->remove();
 
-						$ret[] = $stat['object_id'];
+						$ret[] = $stat['local_id'];
 					}
 
-					$syncColl->updateImportObjectStat($stat['uid'], $stat['revision'], null, $mailboxId);
+					$syncColl->logImported($stat['uid'], $stat['revision'], null);
 
 					break;
 				}
@@ -201,6 +231,11 @@ class AntMail_Sync
 
 	/**
 	 * Synchronize all mailboxes
+     *
+     * NOTE: This is currently not in use anywhere but we have left it
+     * uncommented because unit tests are still running against it. There has
+     * been no request to sync the mailboxes of imap servers as of yet so
+     * we can revisit this finish the TODO sections below.
 	 *
 	 * @param AntMail_Account $account Optional account to sync, if not set then all accounts will sync
 	 * @return int[] Array of mailbox ids(Netric groupings) that were downloaded and saved
@@ -215,12 +250,32 @@ class AntMail_Sync
 
 		// Get object sync partnership and collection
 		$syncPartner = $accountObj->getSyncPartner();
-		$conditions = array(array("blogic"=>"and", "field"=>"email_account", "operator"=>"is_equal", "condValue"=>$accountObj->id));
-		$syncColl = $syncPartner->getCollection("email_message", "mailbox_id", $conditions, true); // Create if missing for some reason
+
+        $syncPartner = $accountObj->getSyncPartner();
+        $conditions = array(
+            array(
+                "blogic"=>"and",
+                "field"=>"email_account",
+                "operator"=>"is_equal",
+                "condValue"=>$accountObj->id,
+            )
+        );
+        $syncColl = $syncPartner->getGroupingCollection("email_message", "mailbox_id", $conditions);
+        // Create collection
+        if (!$syncColl)
+        {
+            $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+            $syncColl = \Netric\EntitySync\Collection\CollectionFactory::create($serviceManager, \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING);
+            $syncColl->setObjType("email_message");
+            $syncColl->setFieldName("mailbox_id");
+            $syncColl->setConditions($conditions);
+            $syncPartner->addCollection($syncColl);
+            $serviceManager->get("EntitySync_DataMapper")->savePartner($syncPartner);
+        }
 
 		// First send changes to server
 		// --------------------------------------------------------------------
-		$stats = $syncColl->getChangedGroupings($mailboxId);
+		$stats = $syncColl->getExportChanged();
 		foreach ($stats as $stat)
 		{
 			/* TODO: for now we are not sending mailboxes
@@ -249,7 +304,13 @@ class AntMail_Sync
 
 		if (is_array($mailboxList))
 		{
-			$stats = $syncColl->importGroupingDiff($mailboxList, "/");
+			$stats = $syncColl->getImportChanged($mailboxList);
+            foreach ($stats as $stat)
+            {
+                // TODO: create groupings and save
+                //$syncPartner->logImported($uniqueId, $revision, $localId);
+            }
+            // TODO: after count($stats)==0 then $syncColl->fastForwardToHead();
 		}
 		else
 		{

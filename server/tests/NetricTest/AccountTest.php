@@ -13,12 +13,12 @@ class AccountTest extends PHPUnit_Framework_TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
         
-        $this->assertInstanceOf("Netric\ServiceManager", $account->getServiceManager());
+        $this->assertInstanceOf('Netric\ServiceManager\ServiceLocatorInterface', $account->getServiceManager());
     }
     
     public function testGetApplication()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        $this->assertInstanceOf("Netric\Application", $account->getApplication());
+        $this->assertInstanceOf('Netric\Application', $account->getApplication());
     }
 }

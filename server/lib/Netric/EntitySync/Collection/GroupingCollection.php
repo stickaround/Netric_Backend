@@ -65,12 +65,9 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 		// Set return array
 		$retStats = array();
 
-		// Get last commit id for this collection
-		$headCommit = $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
-
 		// Get the current commit for this collection
 		$lastCollectionCommit = $this->getLastCommitId();
-		if ($lastCollectionCommit < $headCommit)
+        if ($this->isBehindHead())
 		{
 	        // Get groupings
 	        $filters = $this->getFiltersFromConditions();
@@ -104,19 +101,19 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	        }
 
 	        /*
-	         * If no new changes were found, then get previously exported
-	         * objects that have been updated but apparently no longer meet
-	         * the conditions of this collection.
-	         * 
-	         * Only do this if we have conditions that might have moved an entity
-	         * outside of a subset of entities (query). If all entities are being 
-	         * returned by this collection then every change will be replayed in order
-	         * by the above query.
+	         * Deleted groupings are marked after bing deleted by there is no reference
+	         * so it will be in the stale log.
 	         */
-	        if (0 == count($retStats))
-	        {
-	        	$retStats = $this->getExportedStale();
-	        }
+            $staleStats = $this->getExportedStale();
+            if ($autoFastForward)
+            {
+                foreach ($staleStats as $stale)
+                {
+                    // Save to exported log with no commit deletes the export
+                    $logRet = $this->logExported($stale['id'], null);
+                }
+            }
+            $retStats = array_merge($retStats, $staleStats);
 		}
 
 		return $retStats;
@@ -137,7 +134,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	 */
 	public function fastForwardToHead()
 	{
-		$headCommitId = $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
+		$headCommitId = $this->getCollectionTypeHeadCommit();
 
 		if ($headCommitId)
 			$this->setLastCommitId($headCommitId);
@@ -176,4 +173,14 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 		// TODO: if private then add the user_id as a filter field
 		return "groupings/" . $this->getObjType() . "/" . $this->getFieldName() . "/" . $filtersHash;
 	}
+
+    /**
+     * Get the head commit for a given collection type
+     *
+     * @return string The last commit id for the type of data we are watching
+     */
+    protected function getCollectionTypeHeadCommit()
+    {
+        return $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
+    }
 }

@@ -84,7 +84,7 @@ class ServiceLocatorLoader
     /**
 	 * Get service locator
 	 *
-	 * @return \Netric\ServiceManager
+	 * @return \Netric\ServiceManager\ServiceLocatorInterface
 	 */
 	public function getServiceManager()
 	{

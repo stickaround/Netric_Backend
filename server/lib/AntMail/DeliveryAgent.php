@@ -125,7 +125,10 @@ class AntMail_DeliveryAngent
 									   'include_bodies' => true, 'charset' => 'utf-8'));
 		$plainbody = $this->importMimeDecodeGetBody($message, "plain");
 		$htmlbody = $this->importMimeDecodeGetBody($message, "html");
-		$spamFlag = (trim(strtolower($message->headers['x-spam-flag'])) == "yes") ? 't' : 'f';
+        if (isset($message->headers['x-spam-flag']))
+		    $spamFlag = (trim(strtolower($message->headers['x-spam-flag'])) == "yes") ? 't' : 'f';
+        else
+            $spamFlag = 'f';
 
 		// Create new mail object and save it to ANT
         
@@ -139,7 +142,7 @@ class AntMail_DeliveryAngent
 		    $email->setGroup("Inbox");
 		}
 
-		$messageDate = ($message->headers['date']) ? date(DATE_RFC822, strtotime($message->headers['date'])) : date(DATE_RFC822);
+		$messageDate = (isset($message->headers['date'])) ? date(DATE_RFC822, strtotime($message->headers['date'])) : date(DATE_RFC822);
             
 		$email->setValue("message_date", $messageDate);
 		$email->setValue("flag_seen", 'f');
@@ -147,11 +150,15 @@ class AntMail_DeliveryAngent
 		$email->setHeader("subject", trim($this->decodeMimeStr($message->headers['subject'])));
 		$email->setHeader("from", trim($this->decodeMimeStr($message->headers['from'])));
 		$email->setHeader("to", trim($this->decodeMimeStr($message->headers['to'])));
-		$email->setHeader("cc", trim($this->decodeMimeStr($message->headers['cc'])));
-		$email->setHeader("bcc", trim($this->decodeMimeStr($message->headers['bcc'])));
-		$email->setHeader("in_reply_to", trim($message->headers['in-reply-to']));
+        if (isset($message->headers['cc']))
+		    $email->setHeader("cc", trim($this->decodeMimeStr($message->headers['cc'])));
+        if (isset($message->headers['bcc']))
+		    $email->setHeader("bcc", trim($this->decodeMimeStr($message->headers['bcc'])));
+        if (isset($message->headers['in_reply_to']))
+		    $email->setHeader("in_reply_to", trim($message->headers['in-reply-to']));
 		$email->setHeader("flag_spam", $spamFlag);
-		$email->setHeader("message_id", trim($message->headers['message-id']));
+        if (isset($message->headers['message_id']))
+		    $email->setHeader("message_id", trim($message->headers['message-id']));
 		$email->setBody($plainbody, "plain");
 		if ($htmlbody)
 			$email->setBody($htmlbody, "html");
@@ -176,7 +183,8 @@ class AntMail_DeliveryAngent
 	 */
 	private function importMimeDecodeAtt(&$mimePart, &$email)
 	{
-		if(isset($mimePart->disposition) || strcasecmp($mimePart->disposition,"attachment")==0 || $mimePart->ctype_primary=="image")  
+		if((isset($mimePart->disposition) && strcasecmp($mimePart->disposition,"attachment")==0) ||
+            (isset($mimePart->ctype_primary) && $mimePart->ctype_primary=="image"))
 		{
 			/*
 			 * 	1. Write attachment to temp file
@@ -206,7 +214,7 @@ class AntMail_DeliveryAngent
 			$att->contentTransferEncoding = $mimePart->headers['content-transfer-encoding']; // encoding
 			$att->cleanFileOnSave = true; // cleanup once the attachment has been saved
 		}
-		else if(strcasecmp($mimePart->ctype_primary,"multipart")==0) // call recurrsively to get all attachments
+		else if(isset($mimePart->ctype_primary) && strcasecmp($mimePart->ctype_primary,"multipart")==0) // call recurrsively to get all attachments
 		{
 			foreach($mimePart->parts as $subPart) 
 			{

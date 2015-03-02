@@ -2,7 +2,7 @@
 /**
  * All entities/objects should implement this interface
  */
-namespace Netric;
+namespace Netric\Entity;
 
 interface EntityInterface
 {
@@ -103,21 +103,21 @@ interface EntityInterface
 	 * @param Entity_DataMapperInterface $dm The datamapper for saving data
 	 * @param AntUser $user The user who is saving this object
 	 */
-	public function save(Entity_DataMapperInterface $dm, $user);
+	//public function save(Entity_DataMapperInterface $dm, $user);
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param \Netric\ServiceManager $sm Service manager used to load supporting services
+	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(\Netric\ServiceManager $sm);
+	public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm);
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param E\Netric\ServiceManager $sm Service manager used to load supporting services
+	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(\Netric\ServiceManager $sm);
+	public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm);
 
 	/**
 	 * Check if a field value changed since created or opened

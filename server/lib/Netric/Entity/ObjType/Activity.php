@@ -1,26 +1,26 @@
 <?php
-/*
+/**
  * Activity entity extension
  * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
 
-namespace Netric\Entity;
+namespace Netric\Entity\ObjType;
 
 /**
  * Description of User
  *
  * @author Sky Stebnicki
  */
-class Activity extends \Netric\Entity implements \Netric\EntityInterface
+class Activity extends \Netric\Entity implements \Netric\Entity\EntityInterface
 {
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager $sm Service manager used to load supporting services
+     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager $sm)
+    public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
     {
         // Set association for the object which is used for queries
         if ($this->getValue('obj_reference'))

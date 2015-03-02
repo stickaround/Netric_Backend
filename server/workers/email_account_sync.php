@@ -98,9 +98,15 @@ function email_account_sync_mailbox($job)
 			AntLog::getInstance()->error("$context - Exception when trying to sync: " . $e->getMessage());
 		}
 
+        /*
+         * This option is currently disabled until we make sure that
+         * we have resolved an issue with it creating duplicate mailboxes.
+         * For now we will just sync the inbox.
+         *
 		// Check last full sync and update every 30 minutes - 60 * 30
 		if ($account->tsLastFullSync==null || $account->tsLastFullSync > (time() - 60*30))
 			$sync->syncMailboxes($account);
+        */
 	}
 
 	$lastUpdate = $cache->set($dbh->dbname . "/email/sync/" . $data['user_id'] . "/" . $data['mailbox_id'], time());

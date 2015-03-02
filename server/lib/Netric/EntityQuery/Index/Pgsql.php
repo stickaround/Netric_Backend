@@ -26,7 +26,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
      */
     protected function setUp(\Netric\Account $account)
     {
-       $this->dbh = $account->getServiceManager()->get("Db");
+        $this->dbh = $account->getServiceManager()->get("Db");
     }
     
     /**
@@ -188,7 +188,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             }
 
             // Set and add entity
-            $ent = \Netric\Entity::factory($def);
+            $ent = $this->entityFactory->create($def->getObjType());
             $ent->fromArray($row);
             $results->addEntity($ent);
         }
@@ -316,6 +316,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 		if ($fullText && $def->isCustomTable())
 		{
 			// First add text fields
+			// ------------------------------------------------
 			// ------------------------------------------------
 			$part_buf = "";
 			foreach ($ofields as $fname=>$field)

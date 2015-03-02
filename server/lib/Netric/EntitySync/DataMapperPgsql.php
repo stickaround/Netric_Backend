@@ -402,7 +402,7 @@
      * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
      * @param int $collectionId The unique id of the collection we exported for
      * @param int $uniqueId Unique id of the object sent
-     * @param int $commitId The commit id synchronized
+     * @param int $commitId The commit id synchronized, if null then delete the entry
      * @return bool true on success, false on failure
      */
     public function logExported($collType, $collectionId, $uniqueId, $commitId)
@@ -424,14 +424,23 @@
     	}
     	else
     	{
-    		$updateSql = "UPDATE object_sync_export
-						  SET 
-						  	commit_id='" . $this->dbh->escape($commitId) . "', 
-						  	new_commit_id=NULL
-						  WHERE 
-						  	collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
-						  	AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
 
+            if (!$commitId)
+            {
+                $updateSql = "DELETE from object_sync_export WHERE
+                              collection_id=" . $this->dbh->escapeNumber($collectionId) . "
+                              AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
+            }
+            else
+            {
+                $updateSql = "UPDATE object_sync_export
+                              SET
+                                commit_id='" . $this->dbh->escape($commitId) . "',
+                                new_commit_id=NULL
+                              WHERE
+                                collection_id=" . $this->dbh->escapeNumber($collectionId) . "
+                                AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
+            }
     	}
 
     	if (!$this->dbh->query($updateSql))

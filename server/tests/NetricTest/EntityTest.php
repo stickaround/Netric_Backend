@@ -32,16 +32,6 @@ class EntityTest extends PHPUnit_Framework_TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
 	}
-    
-	/**
-	 * Test dynamic factory of entity
-	 */
-	public function testFactory()
-	{
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
-		$entity = \Netric\Entity::factory($def);
-		$this->assertInstanceOf("\Netric\Entity\Customer", $entity);
-	}
 
 	/**
 	 * Test default timestamp

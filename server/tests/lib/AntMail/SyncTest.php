@@ -73,14 +73,12 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		$this->ant = new ANT();
 		$this->user = new AntUser($this->ant->dbh, -1); // -1 = administrator
 		$this->host = AntConfig::getInstance()->email['backend_host'];
-		$this->username = "administrator@test.netricos.com";
-		$this->password = "Password1";
-		$this->type = "imap";
+		$this->type = "test";
 		$this->port = 465;
 
 		$this->emailAccount = new AntMail_Account($this->ant->dbh, null, $this->user);
-		$this->emailAccount->name = "UnitTest Imap EmailAccount";
-		$this->emailAccount->type = "imap";
+		$this->emailAccount->name = "UnitTest Test EmailAccount";
+		$this->emailAccount->type = "test";
 		$this->emailAccount->username = $this->username;
 		$this->emailAccount->password = $this->password;
 		$this->emailAccount->host = $this->host;
@@ -96,12 +94,60 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		if ($this->emailAccount)
 			$this->emailAccount->remove();
 	}
+
+    public function testSyncMailbox_Test()
+    {
+        // Instantiate test backend which has 2 messages added by default
+        $syncObj = new AntMail_Sync($this->ant->dbh, $this->user);
+        $mailObj = CAntObject::factory($this->ant->dbh, "email_message", null, $this->user);
+        $mailbox = $mailObj->getGroup("Inbox");
+
+        $this->emailAccount->type = "test";
+        $aid = $this->emailAccount->save();
+        $this->assertTrue($aid > 0);
+
+        $backend = $this->emailAccount->getBackend();
+        $this->assertTrue($backend != null);
+
+        // Sync and make sure two messages (in test backend) are added to the local ANT store in the inbox
+        $syncMessages = $syncObj->syncMailbox($mailbox["id"], $this->emailAccount);
+        $this->assertEquals(2, count($syncMessages));
+        $openMid = $syncMessages[count($syncMessages)-1];
+        $this->assertNotNull($openMid); // Email Object Id
+
+        // Sync again and make sure already synchronized messages were not saved again
+        $syncMessages = $syncObj->syncMailbox($mailbox["id"], $this->emailAccount);
+        $this->assertEquals(count($syncMessages), 0);
+
+        // Delete a message from the local ANT store
+        $msgObj = CAntObject::factory($this->ant->dbh, "email_message", $openMid, $this->user);
+        $ret = $msgObj->remove();
+        $this->assertTrue($ret); // make sure message exists and was removed
+
+        // Check and make sure the message was deleted on the server
+        $syncObj->syncMailbox($mailbox["id"], $this->emailAccount);
+        $currentNumMessages = $backend->getNumMessages();
+        $this->assertEquals(1, $currentNumMessages);
+
+        // Now delete the last message on the server directly and sync and make sure it is deleted locally
+        $list = $backend->getMessageList();
+        $backend->deleteMessage($list[count($list)-1]['uid'], "Inbox");
+        $syncMessages = $syncObj->syncMailbox($mailbox["id"], $this->emailAccount);
+        $this->assertEquals(count($syncMessages), 1);
+
+        // Sync again and make sure already synchronized messages were not saved again
+        $syncMessages = $syncObj->syncMailbox($mailbox["id"], $this->emailAccount);
+        $this->assertEquals(count($syncMessages), 0);
+
+        // Final Cleanup
+        $msgObj->removeHard();
+    }
 	
 	/**
 	 * Test POP3 sync
 	 *
 	 * @group testSyncMailbox_Pop3
-	 */
+	 *
 	public function testSyncMailbox_Pop3()
 	{
 		// Instantiate 
@@ -160,12 +206,13 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		// Final Cleanup
 		$msgObj->removeHard();
 	}
+     */
 
 	/**
 	 * Test IMAP sync
 	 *
 	 * @group testSyncMailbox_Imap
-	 */
+	 *
 	public function testSyncMailbox_Imap()
 	{
 		// Instantiate 
@@ -224,12 +271,13 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		// Final Cleanup
 		$msgObj->removeHard();
 	}
+     * */
 
 	/**
 	 * Test moving a message with imap sync
 	 *
 	 * @group testSyncMailbox_ImapMove
-	 */
+	 *
 	public function testSyncMailbox_ImapMove()
 	{
 		// Instantiate 
@@ -279,12 +327,13 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		$msgObj->deleteGroupingEntry("mailbox_id", $mailbox2['id']);
 		$msgObj->removeHard();
 	}
+     * */
 
 	/**
 	 * Make sure that deleting the thread results in deleting the message in imap
 	 *
 	 * @group testSyncMailbox_ImapMove
-	 */
+	 *
 	public function testSyncMailbox_MarkSeen()
 	{
 		// Instantiate 
@@ -337,11 +386,11 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 
 		// Final Cleanup
 		$mailObj->removeHard();
-	}
+	}*/
 
 	/**
 	 * Test scenario where a message is marked as seen after it is marked as deleted
-	 */
+	 *
 	public function testMarkSeenAfterDeleted()
 	{
 		// Instantiate 
@@ -392,13 +441,13 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 
 		// Final Cleanup
 		$mailObj->removeHard();
-	}
+	}*/
 
 	/**
 	 * Make sure that deleting the thread results in deleting the message in imap
 	 *
 	 * @group testSyncMailbox_ImapMove
-	 */
+	 *
 	public function testSyncMailbox_ImapDeleteThread()
 	{
 		// Instantiate 
@@ -446,13 +495,13 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		// Final Cleanup
 		$msgObj->deleteGroupingEntry("mailbox_id", $mailbox2['id']);
 		$msgObj->removeHard();
-	}
+	}*/
 
 	/**
 	 * Test sync of non-existent folder on imap
 	 *
 	 * @group testSyncMailbox_ImapFolderMissing
-	 */
+	 *
 	public function testSyncMailbox_ImapFolderMissing()
 	{
 		// Instantiate 
@@ -473,13 +522,13 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 
 		// Final Cleanup
 		$mailObj->deleteGroupingEntry("mailbox_id", $mailbox['id']);
-	}
+	}*/
 
 	/**
 	 * Test sync mailboxes
 	 *
 	 * @group testSyncMailboxes_Imap
-	 */
+	 *
 	public function testSyncMailboxes_Imap()
 	{
 		// Instantiate 
@@ -507,7 +556,7 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 
 		// Cleanup mailbox
 		$mailObj->deleteGroupingEntry("mailbox_id", $grp['id']);
-	}
+	}*/
 	
 	/**
 	 * Wait until message was delivered

@@ -1,5 +1,4 @@
 <?php
-require_once 'PHPUnit/Autoload.php';
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../lib/AntConfig.php');
 require_once(dirname(__FILE__).'/../../lib/CDatabase.awp');
@@ -84,7 +83,7 @@ ini_set('include_path', ini_get('include_path')
 
 require_once(dirname(__FILE__).'/../../async/backend/ant/ant.php');
 
-class BackendAntTest extends PHPUnit_Framework_TestCase
+class BackendAntTest extends \PHPUnit_Framework_TestCase
 {
     var $dbh = null;
     var $user = null;
@@ -344,18 +343,6 @@ class BackendAntTest extends PHPUnit_Framework_TestCase
 	}
 
     /**
-     * Test ANT backend - get email message list
-     */
-    public function testAntBackendGetMessages()
-	{
-        $emailUserId = $this->user->getEmailUserId();
-        $emailMailboxId = EmailGetFolder($this->dbh, "Inbox", $this->user->id);
-        $email = $this->backend->GetMessageList($emailMailboxId);
-        
-        $this->assertTrue(count($email) > 0);
-	}
-
-    /**
      * Test ANT backend - get personal_contact
      */
     public function testAntBackendGetContact()
@@ -485,10 +472,7 @@ class BackendAntTest extends PHPUnit_Framework_TestCase
 
 		// Initialize and remove any stats and ignore existing messages
 		$collection = $this->backend->getSyncCollection("Inbox");
-		$collection->cutoffdate = strtotime("-1 day");
-		$collection->fInitialized = true;
-		$collection->resetStats();
-		$collection->save(); // Save so fInitialized is saved for CAntObject::save below and wont get all existing mesages
+		$collection->fastForwardToHead();
 
 		// Get changes for Inbox - should be 0 because we reset above
 		$changedFolders = $this->backend->ChangesSink(10);
@@ -523,10 +507,7 @@ class BackendAntTest extends PHPUnit_Framework_TestCase
 
 		// Initialize and remove any stats and ignore existing messages
 		$collection = $this->backend->getSyncCollection("calendar_root");
-		$collection->cutoffdate = strtotime("-1 day");
-		$collection->fInitialized = true;
-		$collection->resetStats();
-		$collection->save(); // Save so fInitialized is saved for CAntObject::save below and wont get all existing mesages
+		$collection->fastForwardToHead();
 
 		// Get changes for calendar - should be 0 because we reset above
 		$changedFolders = $this->backend->ChangesSink(10);

@@ -59,13 +59,10 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 		// Set return array
 		$retStats = array();
 
-		// Get last commit id for this collection
-		$headCommit = $this->commitManager->getHeadCommit("entities/" . $this->getObjType());
-
 		// Get the current commit for this collection
 		$lastCollectionCommit = $this->getLastCommitId();
 
-		if ($lastCollectionCommit < $headCommit)
+		if ($this->isBehindHead())
 		{
 			// Query local objects for commit_id with EntityList
 			$query = new \Netric\EntityQuery($this->getObjType());
@@ -129,6 +126,14 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	        if (0 == count($retStats))
 	        {
 	        	$retStats = $this->getExportedStale();
+                if ($autoFastForward)
+                {
+                    foreach ($retStats as $stale)
+                    {
+                        // Save to exported log with no commit deletes the export
+                        $this->logExported($stale['id'], null);
+                    }
+                }
 	        }
 
 	        // TODO: Save lastCommit if changed
@@ -157,9 +162,19 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	 */
 	public function fastForwardToHead()
 	{
-		$headCommitId = $this->commitManager->getHeadCommit("entities/" . $this->getObjType());
+		$headCommitId = $this->getCollectionTypeHeadCommit();
 
 		if ($headCommitId)
 			$this->setLastCommitId($headCommitId);
 	}
+
+    /**
+     * Get the head commit for a given collection type
+     *
+     * @return string The last commit id for the type of data we are watching
+     */
+    protected function getCollectionTypeHeadCommit()
+    {
+        return $this->commitManager->getHeadCommit("entities/" . $this->getObjType());
+    }
 }

@@ -205,7 +205,7 @@ class Partner
 	 * @param array $conditions Array of conditions used to filter the collection
 	 * @return \Netric\EntitySync\Collection\CollectionInterface if found, null if none found
 	 */
-	public function getEntityDefintionCollection($conditions=array())
+	public function getEntityDefinitionCollection($conditions=array())
 	{
 		return $this->getCollection(null, null, $conditions);
 	}

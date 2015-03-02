@@ -62,7 +62,7 @@ interface DataMapperInterface
      * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
      * @param int $collectionId The unique id of the collection we exported for
      * @param int $uniqueId Unique id of the object sent
-     * @param int $commitId The commit id synchronized
+     * @param int $commitId The commit id synchronized, if null then delete the entry
      * @return bool true on success, false on failure
      */
     public function logExported($collType, $collectionId, $uniqueId, $commitId);

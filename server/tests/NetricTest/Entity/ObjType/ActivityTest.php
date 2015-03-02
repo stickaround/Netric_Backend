@@ -2,7 +2,7 @@
 /**
  * Test entity activity class
  */
-namespace NetricTest\Entity;
+namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use PHPUnit_Framework_TestCase;
@@ -39,14 +39,13 @@ class ActivityTest extends PHPUnit_Framework_TestCase
     public function testFactory()
     {
         $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("activity");
-        $entity = \Netric\Entity::factory($def);
-        $this->assertInstanceOf("\Netric\Entity\Activity", $entity);
+        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("activity");
+        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\Activity", $entity);
     }
 
     public function testOnBeforeSave()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("activity");
-        $entity = \Netric\Entity::factory($def);
+        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("activity");
 
         // onBeforeSave copies obj_reference to the 'associations' field
         $entity->setValue("obj_reference", "customer:123", "Fake Customer Name");

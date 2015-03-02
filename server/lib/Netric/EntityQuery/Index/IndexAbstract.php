@@ -12,6 +12,13 @@ abstract class IndexAbstract
      * @var \Netric\Account
      */
     protected $account = null;
+
+    /**
+     * Entity factory used for instantiating new entities
+     *
+     * @var \Netric\Entity\EntityFactory
+     */
+    protected $entityFactory = null;
     
     /**
      * Setup this index for the given account
@@ -21,6 +28,7 @@ abstract class IndexAbstract
     public function __construct(\Netric\Account $account)
     {
         $this->account = $account;
+        $this->entityFactory = $account->getServiceManager()->get("EntityFactory");
         
         // Setup the index
         $this->setUp($account);

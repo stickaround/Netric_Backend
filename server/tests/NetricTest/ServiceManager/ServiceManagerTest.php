@@ -2,7 +2,7 @@
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  */
-namespace NetricTest;
+namespace NetricTest\ServiceManager;
 
 use Netric;
 use PHPUnit_Framework_TestCase;
@@ -25,10 +25,33 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
         $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
 	}
 
-	/**
+    /**
+     * Load a service by full namespace
+     */
+    public function testGetByFactory()
+    {
+        $sl = $this->account->getServiceManager();
+        $svc = $sl->get("Netric/ServiceManager/Test/Service");
+        $this->assertInstanceOf('\Netric\ServiceManager\Test\Service', $svc);
+        $this->assertEquals("TEST", $svc->getTestString());
+    }
+
+    /**
+     * Make sure that mapped or aliased services can be loaded
+     */
+    public function testGetMapped()
+    {
+        // "test" should map to "Netric/ServiceManager/Test/Service"
+        $sl = $this->account->getServiceManager();
+        $svc = $sl->get("test");
+        $this->assertInstanceOf('\Netric\ServiceManager\Test\Service', $svc);
+        $this->assertEquals("TEST", $svc->getTestString());
+    }
+
+    /**
 	 * Check if we can get the config
 	 */
-	public function testGet()
+	public function testGetLocalFactoryFunction()
 	{
 		$sl = $this->account->getServiceManager();
 

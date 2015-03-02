@@ -105,8 +105,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$cid = $dm->save($customer, $this->user);
 
 		// Get entity definition
-		$def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
-		$ent = \Netric\Entity::factory($def);
+		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 
 		// Load the object through the loader which should cache it
 		$ret = $dm->getById($ent, $cid);
@@ -169,8 +168,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertNotEquals(false, $cid);
 
 		// Get entity definition
-		$def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
-		$ent = \Netric\Entity::factory($def);
+		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 
 		// Load the object through the loader which should cache it
 		$ret = $dm->getById($ent, $cid);

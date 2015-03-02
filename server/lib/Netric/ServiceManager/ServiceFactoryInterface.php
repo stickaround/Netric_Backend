@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Define invokable service factory interface
  * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
@@ -19,5 +19,4 @@ interface ServiceFactoryInterface
 	 * @return mixed Initailized service object
 	 */
 	public function createService(\Netric\ServiceManager\ServiceLocatorInterface $sl);
-
 }

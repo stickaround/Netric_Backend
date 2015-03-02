@@ -93,9 +93,9 @@ class Dacl
 		// Make sure this DACL can be accessed by someone
 		if (count($this->entries) == 0)
 		{
-			$this->allowGroup(\Netric\Entity\User::GROUP_USERS);
-			$this->allowGroup(\Netric\Entity\User::GROUP_CREATOROWNER);
-			$this->allowGroup(\Netric\Entity\User::GROUP_ADMINISTRATORS);
+			$this->allowGroup(\Netric\Entity\ObjType\User::GROUP_USERS);
+			$this->allowGroup(\Netric\Entity\ObjType\User::GROUP_CREATOROWNER);
+			$this->allowGroup(\Netric\Entity\ObjType\User::GROUP_ADMINISTRATORS);
 		}
 	}	
 

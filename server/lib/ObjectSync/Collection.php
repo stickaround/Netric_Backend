@@ -678,7 +678,9 @@ class AntObjectSync_Collection
 
 		// Find out if this is our first sync
 		if (false == $this->fInitialized)
-			$this->initObjectCollection();
+        {
+            $this->initObjectCollection();
+        }
 
 		// Get list of updates 1000 objects at a time because subsequent calls will pick up where last left off
 		$sql = "SELECT object_id, action FROM object_sync_stats 

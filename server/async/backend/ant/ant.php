@@ -18,6 +18,7 @@ include_once("lib/AntObjectSync.php");
 include_once("lib/AntFs.php");
 include_once("lib/Email.php");
 include_once("lib/AntCalendar.php");
+include_once("lib/ServiceLocatorLoader.php");
 
 // processing of RFC822 messages
 include_once('include/mimeDecode.php');
@@ -404,7 +405,8 @@ class BackendAnt extends BackendDiff
 				$v = EmailGetUserName($this->dbh, $this->user->id, 'reply_to');
             }
 
-			$email->setHeader(ucfirst($k), $v);
+            if ($k)
+				$email->setHeader(ucfirst($k), $v);
         }
 
 		//if ($forward_h_ct)
@@ -673,12 +675,12 @@ class BackendAnt extends BackendDiff
 				$collection = $this->getSyncCollection($folder['id']);
 
 				// Get the number of changes since last sync
-				if ($collection->changesExist())
+				if ($collection->isBehindHead())
 				{
 					// Sky Stebnicki: For now we just reset all stats because we are pretty much
 					// only using this as a flag to track whether a collection has any changes.
 					//$collection->resetStats($folder['grouping']);
-					$collection->resetStats(); // Do not filter the grouping
+					$collection->fastForwardToHead(); // Do not filter the grouping
 					$notifications[] = $folder['id'];
 					
 					/*
@@ -2278,7 +2280,15 @@ class BackendAnt extends BackendDiff
 		$cond = array();
 
 		if (!$this->partnership && $this->deviceId)
-			$this->partnership = new AntObjectSync_Partner($this->dbh, $this->deviceId, $this->user);
+        {
+            $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+            $entitySync = $serviceManager->get("EntitySync");
+            $this->partnership = $entitySync->getPartner($this->deviceId);
+            if (!$this->partnership)
+            {
+                $this->partnership = $entitySync->createPartner($this->deviceId, $this->user->id);
+            }
+        }
 
 		if (!$this->partnership)
 			throw new StatusException("AntBackend::getSyncCollection(): Could not create partnership");
@@ -2311,11 +2321,27 @@ class BackendAnt extends BackendDiff
 			$parent = "mailbox_id";
 			$cond = array(
 				array("blogic"=>"and", "field"=>"owner_id", "operator"=>"is_equal", "condValue"=>$this->user->id),
+                array("blogic"=>"and", "field"=>"mailbox_id", "operator"=>"is_equal", "condValue"=>$folderid),
 			);
 			break;
 		}
 
-		$coll = $this->partnership->getCollection($objType, null, $cond, true);
+		$coll = $this->partnership->getEntityCollection($objType, $cond);
+        if (!$coll)
+        {
+            $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+            $coll = \Netric\EntitySync\Collection\CollectionFactory::create(
+                $serviceManager,
+                \Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY
+            );
+            $coll->setObjType($objType);
+            $coll->setConditions($conditions);
+            $this->partnership->addCollection($coll);
+            $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
+        }
+
+        // Cache for later
+        $this->syncCollections[$folderid] = $coll;
 
         return $coll;
     }

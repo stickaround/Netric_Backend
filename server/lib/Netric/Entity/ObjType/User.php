@@ -1,19 +1,19 @@
 <?php
-/*
+/**
  * Provide user extensions to base Entity class
  * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
 
-namespace Netric\Entity;
+namespace Netric\Entity\ObjType;
 
 /**
  * Description of User
  *
  * @author Sky Stebnicki
  */
-class User extends \Netric\Entity implements \Netric\EntityInterface
+class User extends \Netric\Entity implements \Netric\Entity\EntityInterface
 {
     const USER_ADMINISTRATOR = -1;
     const USER_CURRENT = -3;
@@ -30,9 +30,9 @@ class User extends \Netric\Entity implements \Netric\EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager $sm Service manager used to load supporting services
+     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager $sm)
+    public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
     {
 
     }
@@ -40,9 +40,9 @@ class User extends \Netric\Entity implements \Netric\EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param E\Netric\ServiceManager $sm Service manager used to load supporting services
+     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(\Netric\ServiceManager $sm)
+    public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
     {
         
     }

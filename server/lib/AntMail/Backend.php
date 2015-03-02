@@ -15,6 +15,7 @@
  
 require_once('lib/AntMail/Protocol/Imap.php');
 require_once('lib/AntMail/Protocol/Pop3.php');
+require_once('lib/AntMail/Protocol/Test.php');
  
 class AntMail_Backend
 {
@@ -46,6 +47,9 @@ class AntMail_Backend
 		case "imap":
 			$this->mailProtocol = new AntMail_Protocol_Imap($host, $username, $password, $port, $ssl);
 			break;
+        case "test":
+            $this->mailProtocol = new AntMail_Protocol_Test($host, $username, $password, $port, $ssl);
+            break;
 		default:
 			break;
         }

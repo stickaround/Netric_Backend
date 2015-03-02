@@ -225,13 +225,13 @@ class CAntObjectTest extends PHPUnit_Framework_TestCase
 						VALUES('".$act->object_type_id."', '$aid', '".$this->user->userObj->object_type_id."', 
 						'".$this->user->id."', '".$fieldUser->id."');");
 
-		$obj = new CAntObject($dbh, "activity", null, $this->user);
-		$obj->id = $aid;
-		$obj->load();
-		$this->assertEquals($obj->getValue("obj_reference"), "customer:$cid");
-		$this->assertEquals($obj->getForeignValue("obj_reference"), "testSavedExisting");
-		$this->assertEquals($obj->getValue("user_id"), $this->user->id);
-		$this->assertEquals($obj->getForeignValue("user_id"), $this->user->name);
+		$obj2 = new CAntObject($dbh, "activity", null, $this->user);
+        $obj2->id = $aid;
+        $obj2->load();
+		$this->assertEquals($obj2->getValue("obj_reference"), "customer:$cid");
+		$this->assertEquals($obj2->getForeignValue("obj_reference"), "testSavedExisting");
+		$this->assertEquals($obj2->getValue("user_id"), $this->user->id);
+		$this->assertEquals($obj2->getForeignValue("user_id"), $this->user->name);
 
 		// Cleanup
 		$obj->deleteGroupingEntry("groups", $grpd['id']);
@@ -758,7 +758,7 @@ class CAntObjectTest extends PHPUnit_Framework_TestCase
 
 		// Create test feed
 		$feed = CAntObject::factory($dbh, "content_feed", null, $this->user);
-		$feed->setValue("name", "testVerifyUniqueName");
+		$feed->setValue("title", "testVerifyUniqueName");
 		$fid = $feed->save();
 
 		// Create a new post and put it in the feed namespace by setting the field
@@ -1589,10 +1589,10 @@ class CAntObjectTest extends PHPUnit_Framework_TestCase
 		// Cleanup just in case the first level already exists
 		$objDef = CAntObject::factory($this->dbh, "project", null, $this->user);
 		$obj = $objDef->loadByName("testLoadByPathLevel1");
-		if ($obj->id)
+		if ($obj && $obj->id)
 			$obj->removeHard();
 		$obj = $objDef->loadByPath("/testLoadByPathLevel1/Level2");
-		if ($obj->id)
+		if ($obj && $obj->id)
 			$obj->removeHard();
 
 		// Create parent project

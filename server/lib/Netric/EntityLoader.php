@@ -30,6 +30,13 @@ class EntityLoader
 	 */
 	private $definitionLoader = null;
 
+    /**
+     * Entity factory used for instantiating new entities
+     *
+     * @var \Netric\Entity\EntityFactory
+     */
+    protected $entityFactory = null;
+
 	/**
 	 * Cache
 	 *
@@ -47,6 +54,7 @@ class EntityLoader
 	{
 		$this->dataMapper = $dm;
 		$this->definitionLoader = $defLoader;
+        $this->entityFactory = $dm->getAccount()->getServiceManager()->get("EntityFactory");
 		$this->cache = $dm->getAccount()->getServiceManager()->get("Cache");
 		return $this;
 	}
@@ -146,20 +154,11 @@ class EntityLoader
 	 * Shortcut for constructing an Entity
 	 *
 	 * @param string $objType The name of the object type
-	 * @return Entity|bool Eneity on success, false if definition does not exist for this entity
+	 * @return \Netric\Entity\EntityInterface
 	 */
 	public function create($objType)
 	{
-		$def = $this->definitionLoader->get($objType);
-		
-		if ($def->getId())
-		{
-			return Entity::factory($def);
-		}
-		else
-		{
-			return false;
-		}
+        return $this->entityFactory->create($objType);
 	}
 
 	/**

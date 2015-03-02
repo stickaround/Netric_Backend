@@ -58,29 +58,65 @@ class EntitySync
      * Get device
      *
      * @param string $devid The device id to query stats for
+     * @throws \Exception if no partner id is defined
+     * @return \Netric\EntitySync\Partner
      */
     public function getPartner($pid)
     {
         if (!$pid)
         {
-            throw new Exception("Partner id is required");
+            throw new \Exception("Partner id is required");
         }
 
         // First get cached partners because we do not want to load them twice
         if ($this->partner)
         {
-                if ($this->partner->partnerId != $pid)
-                {
-                        $this->partner = null; // Reset
-                }
-        }
-        else
-        {
-                // Load the partner from the database
-                $this->partner = $this->dataMapper->getPartner($pid);
+            if ($this->partner->getPartnerId() == $pid)
+            {
+                return $this->partner;
+            }
         }
 
+        // Load the partner from the database
+        $this->partner = $this->dataMapper->getPartnerByPartnerId($pid);
+
         return $this->partner;		
+    }
+
+    /**
+     * Create a new partner
+     *
+     * @param string $pid The unique partner id
+     * @param string $ownerId The unique id of the owning user
+     * @return \Netric\EntitySync\Partner
+     */
+    public function createPartner($pid, $ownerId)
+    {
+        $partner = new Partner($this->dataMapper);
+        $partner->setPartnerId($pid);
+        $partner->setOwnerId($ownerId);
+        $this->dataMapper->savePartner($partner);
+        return $partner;
+    }
+
+    /**
+     * Save a partner
+     *
+     * @params \Netric\EntitySync\Partner $partner
+     */
+    public function savePartner(Partner $partner)
+    {
+        $this->dataMapper->savePartner($partner);
+    }
+
+    /**
+     * Delete a partner
+     *
+     * @param Partner $partner
+     */
+    public function deletePartner(Partner $partner)
+    {
+        $this->dataMapper->deletePartner($partner);
     }
 
     /**

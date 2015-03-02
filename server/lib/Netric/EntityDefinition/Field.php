@@ -392,21 +392,24 @@ class Field implements \ArrayAccess
 		}
 
 		// Look for variables
-		if ("<%username%>" == (string)$ret)
-		{
-			if ($user)
-				$ret = $user->name;
-			else
-				$ret = "";
-		}
+        if (is_string($ret))
+        {
+            if ("<%username%>" == (string)$ret)
+            {
+                if ($user)
+                    $ret = $user->name;
+                else
+                    $ret = "";
+            }
 
-		if ("<%userid%>" == (string)$ret)
-		{
-			if ($user)
-				$ret = $user->id;
-			else
-				$ret = "";
-		}
+            if ("<%userid%>" == (string)$ret)
+            {
+                if ($user)
+                    $ret = $user->id;
+                else
+                    $ret = "";
+            }
+        }
 
 		if ((($this->type == "fkey" && $this->subtype == "users") 
 			  || ($this->type == "object" && $this->subtype == "user")) && $ret == "-3")

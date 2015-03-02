@@ -87,7 +87,7 @@ class Results
      */
     public function getObjType()
     {
-        return $this->query->objType;
+        return $this->query->getObjType();
     }
     
     /**
@@ -175,9 +175,9 @@ class Results
     /**
      * Add an entity to this collection
      * 
-     * @param \Netric\EntityInterface $entity
+     * @param \Netric\Entity\EntityInterface $entity
      */
-    public function addEntity(\Netric\EntityInterface $entity)
+    public function addEntity(\Netric\Entity\EntityInterface $entity)
     {
         $this->entities[] = $entity;
     }
@@ -194,7 +194,7 @@ class Results
      * Retrieve an entity from the collection
      * 
      * @param int $offset The offset of the entity to get in the collection
-     * @return \Netric\Models\EntityAbstract
+     * @return \Netric\Entity\EntityInterface
      */
     public function getEntity($offset=0)
     {

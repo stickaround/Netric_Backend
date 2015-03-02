@@ -4,7 +4,7 @@
  */
 namespace Netric;
 
-class Entity implements EntityInterface
+class Entity implements \Netric\Entity\EntityInterface
 {
 	/**
      * The unique id of this object/entity
@@ -57,41 +57,6 @@ class Entity implements EntityInterface
     {
 		$this->def = $def;
         $this->objType = $def->getObjType();
-    }
-
-	/**
-     * This function is responsible for loading subclasses or the base class
-     * 
-     * @param EntityDefinition $def The definition of this type of object
-     */
-    public static function factory(\Netric\EntityDefinition &$def)
-    {
-		$obj = false;
-		$objType = $def->getObjType();
-
-		// First convert object name to file name - camelCase
-		$fname = ucfirst($objType);
-		if (strpos($objType, "_") !== false)
-		{
-			$parts = explode("_", $fname);
-			$fname = "";
-			foreach ($parts as $word)
-				$fname .= ucfirst($word);
-		}
-
-		// Dynamically load subclass if it exists
-		if (file_exists(dirname(__FILE__)."/Entity/" . $fname . ".php"))
-		{
-			$className = '\Netric\Entity' . "\\" . $fname;
-
-			$obj = new $className($def);
-		}
-		else
-		{
-			$obj = new Entity($def);
-		}
-
-		return $obj;
     }
     
     /**
@@ -202,11 +167,26 @@ class Entity implements EntityInterface
 		$oldval = $this->getValue($strName);
 		$oldvalName = $this->getValueNames($strName);
 
+        // Convert data types and validate
+        $field = $this->def->getField($strName);
+        if ($field)
+        {
+            switch ($field->type)
+            {
+                case 'bool':
+                    if (is_string($value))
+                    {
+                        $value = ($value == 't') ? true : false;
+                    }
+                    break;
+            }
+        }
+
         $this->values[$strName] = $value;
         
         if ($strName == "id")
             $this->setId($value);
-        
+
         if ($valueName)
 		{
 			if (is_array($valueName))
@@ -532,16 +512,16 @@ class Entity implements EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param \Netric\ServiceManager $sm Service manager used to load supporting services
+	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(\Netric\ServiceManager $sm) { }
+	public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm) { }
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param E\Netric\ServiceManager $sm Service manager used to load supporting services
+	 * @param E\Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(\Netric\ServiceManager $sm) { }
+	public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm) { }
 
 	/**
 	 * Check if a field value changed since created or opened

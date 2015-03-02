@@ -14,7 +14,7 @@ use Netric\EntitySync\Commit;
 /**
  * Class used to represent a sync partner or endpoint
  */
-class AbstractCollection
+abstract class AbstractCollection
 {
 	/**
 	 * DataMapper for sync operations
@@ -105,6 +105,13 @@ class AbstractCollection
 		$this->dataMapper = $dm;
 		$this->commitManager = $commitManager;
 	}
+
+    /**
+     * Get the head commit for a given collection type
+     *
+     * @return string The last commit id for the type of data we are watching
+     */
+    abstract protected function getCollectionTypeHeadCommit();
 
 	/**
 	 * Set the last commit id synchronized
@@ -273,11 +280,28 @@ class AbstractCollection
 		return $this->lastSync;
 	}
 
+    /**
+     * Determine if this collection is behind the head commit of data it is watching
+     *
+     * @return bool true if behind, false if no changes have been made since last sync
+     */
+    public function isBehindHead()
+    {
+        // Get last commit id for this collection
+        $headCommit = $this->getCollectionTypeHeadCommit();
+
+        // Get the current commit for this collection
+        $lastCollectionCommit = $this->getLastCommitId();
+
+        return ($lastCollectionCommit < $headCommit);
+    }
+
 	/**
 	 * Log that a commit was exported from this collection
 	 * 
 	 * @param int $uniqueId The unique id of the object we sent
 	 * @param int $commitId The unique id of the commit we sent
+     * @return bool
 	 */
 	public function logExported($uniqueId, $commitId)
 	{
@@ -719,48 +743,6 @@ class AbstractCollection
 		$odef->skipObjectSyncStat = false; // Turn sync back on
 
 		return $changed;
-	}
-
-	/**
-	 * Determin if this collection has any changes to sync
-	 *
-	 * This is used to decrease performance load. It is especially useful for
-	 * hierarchy collections like file systems because a call to the root parent
-	 * will indicate the change status of all children as well.
-	 */
-	public function changesExist()
-	{
-		if (!$this->id)
-			return false;
-
-		if (!$this->fInitialized)
-			$this->initObjectCollection();
-
-		// This is a subsequent call, use cache to check if another process has updated and limit db queries
-		if ($this->lastRevisionCheck)
-		{
-			$currentRevision = $this->cache->get($this->dbh->accountId . "/objectsync/collections/" . $this->id . "/revision");
-			if (is_numeric($currentRevision))
-			{
-				$hasChanged = ($this->lastRevisionCheck < $currentRevision) ? true : false;
-				$this->lastRevisionCheck = $currentRevision;
-				return $hasChanged;
-			}
-            else
-            {
-                // Current revision has not been updated which means the collection has not been modified since last check
-                return false;
-            }
-		}
-
-		// Check if we have any stats to work with
-		$result = $this->dbh->Query("select 1 as exists FROM object_sync_stats where collection_id='" . $this->id . "' limit 1");
-		$hasChanged = ($this->dbh->GetNumberRows($result) > 0) ? true : false;
-
-		// Set last checked revision for subsequent calls resulting in minimal db hits
-		$this->lastRevisionCheck = $this->revision;
-
-		return $hasChanged;
 	}
 
 	/**

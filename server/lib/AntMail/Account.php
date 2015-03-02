@@ -166,7 +166,14 @@ class AntMail_Account
 	 * @var string
 	 */
 	public $userOut = null;
-	
+
+    /**
+     * Smtp username to use if authentication is required and different from incoming
+     *
+     * @var string
+     */
+    public $usernameOut = null;
+
 	/**
 	 * Smtp password to use if authentication is required and different from incoming
 	 *
@@ -382,9 +389,13 @@ class AntMail_Account
 			return;
 
 		// Check to see if sync partnership exists
-		$partner = $this->getSyncPartner();
+		$partner = $this->getSyncPartner(false);
 		if ($partner)
-			$partner->remove();
+        {
+            $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+            $entitySync = $serviceManager->get("EntitySync");
+            $entitySync->deletePartner($partner);
+        }
 
 		$ret = $this->dbh->Query("DELETE FROM email_accounts WHERE id='".$this->id."'");
 
@@ -398,6 +409,15 @@ class AntMail_Account
 	 */
 	public function getSyncPartner($createIfMissing=true)
 	{
+        $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+        $entitySync = $serviceManager->get("EntitySync");
+        $partner = $entitySync->getPartner("EmailAccounts/" . $this->id);
+        if (!$partner && $createIfMissing)
+        {
+            $partner = $entitySync->createPartner("EmailAccounts/" . $this->id, $this->user->id);
+        }
+
+        /*
 		$sync = new AntObjectSync($this->dbh, "email_message", $this->user);
 		$partner = $sync->getPartner("EmailAccounts/" . $this->id);
 
@@ -410,6 +430,7 @@ class AntMail_Account
 			$coll->fInitialized = true; // Do not copy existing messages so we avoid duplicates
 			$coll->save();
 		}
+        */
 
 		return $partner;
 	}

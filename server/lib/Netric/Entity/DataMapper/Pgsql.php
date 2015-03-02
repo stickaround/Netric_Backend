@@ -151,8 +151,8 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 			}
 
 			switch ($fdef->type)
-			{
-			case "bool":
+            {
+            case "bool":
 				$row[$fname] = ($row[$fname] == 't') ? true : false;
 				break;
 			case "date":
@@ -1089,7 +1089,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 		{
 			$row = $this->dbh->getRow($results, $i);
 
-			$ent = Entity::factory($def);
+			$ent = $this->getAccount()->getServiceManager()->get("EntityFactory")->create($objType);
 			$ent->fromArray(unserialize($row['data']));
 			$ret[$row['revision']] = $ent;
 		}

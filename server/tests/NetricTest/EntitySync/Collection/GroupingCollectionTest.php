@@ -129,7 +129,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $group1 = $groupings->getByName("UTTEST CS::testGetExportChanged_Deleted");
 
         // Get exported which will cause the customer to be logged
-        while (count($stats = $collection->getExportChanged())) {}
+        $stats = $collection->getExportChanged();
 
         // Fast forward past all previous groupings
         $collection->fastForwardToHead();
@@ -152,5 +152,15 @@ class GroupingCollectionTest extends AbstractCollectionTests
         }
         $this->assertNotNull($foundStat);
         $this->assertEquals("delete", $foundStat['action']);
+
+        // Make sure a second call does not get the same stale id
+        $stats = $collection->getExportChanged();
+        $foundStat = null;
+        foreach ($stats as $stat)
+        {
+            if ($stat["id"] == $group1->id)
+                $foundStat = $stat;
+        }
+        $this->assertNull($foundStat);
     }
 }

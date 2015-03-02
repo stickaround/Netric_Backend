@@ -15,7 +15,7 @@ namespace Netric;
 /**
  * Netric user class is basically just a factory for Entity\User
  */
-class User extends Entity\User
+class User extends Entity\ObjType\User
 {
     /**
      * Class constructor
@@ -33,6 +33,7 @@ class User extends Entity\User
         if ($id)
         {
             $loader = $account->getServiceManager()->get("EntityLoader");
+            // TODO: this is pretty much broken
             $user = $loader->get("user", $id);
         }
     }

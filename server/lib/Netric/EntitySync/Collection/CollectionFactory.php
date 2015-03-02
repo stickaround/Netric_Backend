@@ -14,12 +14,12 @@ class CollectionFactory implements CollectionFactoryInterface
 	/**
 	 * Factory for creating collections and injecting all dependencies
 	 *
-	 * @param \Netric\ServiceManager $sm
+	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm
 	 * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
 	 * @param array $data Optional data to initialize into the collection
 	 * @return CollectionInterface
 	 */
-	public static function create(\Netric\ServiceManager $sm, $type, $data=null)
+	public static function create(\Netric\ServiceManager\ServiceLocatorInterface $sm, $type, $data=null)
 	{
 		$collection = null;
 

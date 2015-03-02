@@ -37,14 +37,14 @@ class Account
     /**
      * Handle to service manager for this account
      * 
-     * @var Netric\ServiceManager
+     * @var Netric\ServiceManager\ServiceLocatorInterface
      */
     private $serviceManager = null;
     
     /**
      * Handle to the current user
      * 
-     * @var Netric\Entity\User
+     * @var Netric\Entity\ObjType\User
      */
     private $currentUser = null;
     
@@ -57,7 +57,7 @@ class Account
     {
         $this->application = $app;
         
-        $this->serviceManager = new \Netric\ServiceManager($this);
+        $this->serviceManager = new \Netric\ServiceManager\ServiceManager($this);
     }
 
     /**
@@ -127,7 +127,7 @@ class Account
     /**
      * Get ServiceManager for this account
      * 
-     * @return Netric\ServiceManager
+     * @return Netric\ServiceManager\ServiceLocatorInterface
      */
     public function getServiceManager()
     {

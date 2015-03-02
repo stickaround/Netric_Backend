@@ -581,7 +581,7 @@ class CAntObject
 			if ($oname) // skip over first which is root and will be empty string
 			{
 				$obj = $this->loadByName($oname, $lastParent);
-				if ($obj->id)
+				if ($obj && $obj->id)
 				{
 					$lastParent = $obj->id;
 				}
@@ -2306,11 +2306,14 @@ class CAntObject
 		$field = $this->def->getField($name);
 		$oldval = $this->getValue($name);
 
+        if (!$field)
+            throw new InvalidArgumentException("There is no field named $name in " . $this->object_type);
+
 		// Clear foreign value cache
         $this->fValues[$name] = null;
         $this->values[$name] = null;
 
-		if ((($field->type=='object' && $field->subtype=='user') || ($field->type=='fkey' && $field->subtype=='users')) && $value==-3)
+		if ($field && (($field->type=='object' && $field->subtype=='user') || ($field->type=='fkey' && $field->subtype=='users')) && $value==-3)
 		{
 			if ($this->user)
 				$value = $this->user->id;
@@ -4353,10 +4356,10 @@ class CAntObject
 		{
 			foreach ($field->fkeyTable['filter'] as $referenced_field=>$object_field)
 			{
-				if (($referenced_field=="user_id" || $referenced_field=="owner_id") && $filter[$object_field])
+				if (($referenced_field=="user_id" || $referenced_field=="owner_id") && isset($filter[$object_field]))
 					$filter[$object_field] = $this->user->id;
 
-				if ($filter[$object_field])
+				if (isset($filter[$object_field]))
 				{
 					if ($cnd) $cnd .= " and ";
 
@@ -4457,7 +4460,8 @@ class CAntObject
 			$item['uname'] = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
 			$item['title'] = (isset($field->fkeyTable['title'])) ? $row[$field->fkeyTable['title']] : null;
 			$item['heiarch'] = (isset($field->fkeyTable['parent'])) ? true : false;
-			$item['parent_id'] = (isset($field->fkeyTable['parent'])) ? $row[$field->fkeyTable['parent']] : null;
+			$item['parent_id'] = (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
+                ? $row[$field->fkeyTable['parent']] : null;
 			$item['viewname'] = $viewname;
 			$item['color'] = $row['color'];
 			$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
@@ -4686,7 +4690,7 @@ class CAntObject
 
 
 			$ret = array();
-			$viewname = $prefix.str_replace(" ", "_", str_replace("/", "-", $row[$field->fkeyTable['title']]));
+			$viewname = str_replace(" ", "_", str_replace("/", "-", $row[$field->fkeyTable['title']]));
             
 			$ret['id'] = $row[$field->fkeyTable['key']];
 			$ret['uname'] = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
@@ -4748,6 +4752,11 @@ class CAntObject
 	public function deleteGroupingEntry($fieldName, $entryId)
 	{
 		$field = $this->def->getField($fieldName);
+
+        if (!$field)
+        {
+            throw new InvalidArgumentException("There is no grouping field called $fieldName in " . $this->object_type);
+        }
 
 		if ($field->type != "fkey" && $field->type != "fkey_multi")
 			return false;
@@ -5516,6 +5525,12 @@ class CAntObject
 	 */
 	public function updateObjectSyncStat($action='c', $fieldName=null, $fieldVal=null)
 	{
+        /*
+         * The below function is not longer needed since we are now using the new EntitySync
+         * library which depends on a commit id query and real-time updates for deletion rather than
+         * backend stats. See /tests/NetricTest/EntitySync/* for more information.
+         * - Sky Stebnicki (March 2, 2015)
+
 		// Do not stat activity because it causes a big hit on performance
 		if ($this->object_type == "activity")
 			return; 
@@ -5538,13 +5553,6 @@ class CAntObject
 		{
 			require_once("lib/WorkerMan.php");
 			$wman = new WorkerMan($this->dbh);
-
-			/*
-			if ($this->object_type == "email_message" && 'd'==$action)
-				AntLog::getInstance()->error("Stating to delete message {$this->id}");
-			else if ($this->object_type == "email_message" && 'c'==$action)
-				AntLog::getInstance()->error("Stating to update/mark message {$this->id}");
-			*/
 			
 			if (AntConfig::getInstance()->obj_sync_lazy_stat)
 				$jobid = $wman->runBackground("lib/object/syncstat", serialize($data));
@@ -5568,6 +5576,7 @@ class CAntObject
 			}
 
 		}
+        */
 	}
 
 	/**

@@ -9,7 +9,7 @@
 namespace Netric;
 
 /**
- * Base filesystem calss
+ * Base filesystem class
  */
 class FileSystem {
     /**
