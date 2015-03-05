@@ -401,13 +401,12 @@ class AntMail_DeliveryAngent
 			if (!$dbh->GetNumberRows($dbh->Query($query)))
 			{
 				$email->move($email->getGroupId("Junk Mail"));
-				//$email->setGroup("Junk Mail");
 				return; // No futher filters should be processed if this is junk
 			}
 		}
 		else
 		{
-			// First make sure this user is not in the blacklist
+			// Now make sure this user is not in the blacklist
 			$query = "select id from email_settings_spam where preference='blacklist_from' 
 						and '".strtolower($fromEmail)."' like lower(replace(value, '*', '%'))
 						and user_id='".$user->id."'";
@@ -491,6 +490,13 @@ class AntMail_DeliveryAngent
 			}
 		}
 		$dbh->FreeResults($result);
+
+        // Check for a future date which is almost always junk mail
+        // ------------------------------------------------
+        if (strtotime("+30 days") < $email->getValue("message_date"))
+        {
+            $email->move($email->getGroupId("Junk Mail"));
+        }
 	}
 
 	/**

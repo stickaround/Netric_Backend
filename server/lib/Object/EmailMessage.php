@@ -528,6 +528,7 @@ class CAntObject_EmailMessage extends CAntObject
 		$trans = array(
 			"from" => "sent_from",
 			"to" => "send_to",
+            "reply-to" => "reply_to",
 			"in-reply-to" => "in_reply_to",
 			"return-path" => "return_path",
 		);

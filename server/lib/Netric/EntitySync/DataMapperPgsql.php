@@ -255,7 +255,7 @@
 
 			// Construct a new collection
 			if (!$this->getAccount())
-				throw new Exception("This DataMapper requires a reference to account!");
+				throw new \Exception("This DataMapper requires a reference to account!");
 
 			/* 
 			 * Try to auto detect if we have data and no type.
@@ -263,11 +263,11 @@
 			 */
 			if (!$row['type'])
 			{
-				if ($collection->getObjType() && $collection->setFieldName())
+				if ($row['object_type'] && $row['field_name'])
 				{
 					$row['type'] = \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING;
 				}
-				else if ($collection->getObjType())
+				else if ($row['object_type'])
 				{
 					$row['type'] = \Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY;
 				}
@@ -275,7 +275,7 @@
 				/*
 				 * We do not need to auto-detect \Netric\EntitySync\EntitySync::COLL_TYPE_ENTITYDEF
 				 * since it is a new collection type and it is now impossible to save without
-				 * the type since ::getType is an abstract requrement for all collections.
+				 * the type since ::getType is an abstract requirement for all collections.
 				 */
 			} 
 				
@@ -284,7 +284,8 @@
 			$collection = Collection\CollectionFactory::create($serviceManager, $row['type'], $row);
 			
 			// Add the collection to the partner object
-			$partner->addCollection($collection);
+            if ($collection)
+			    $partner->addCollection($collection);
 		}
 	}
 
@@ -499,19 +500,21 @@
 	 * Get a list of previously imported objects
 	 *
 	 * @param int $collectionId The id of the collection we get stats for
-	 * @return array(array('uid', 'local_id', 'revision'))
+     * @throws \InvalidArgumentException If there is no collection id
+     * @throws \Exception if we cannot query the database
+     * @return array(array('remote_id', 'remote_revision', 'local_id', 'local_revision'))
 	 */
 	public function getImported($collectionId)
 	{
 		if (!is_numeric($collectionId))
 		{
-			throw new \ExceptionInvalidParam("A valid $collectionId is a required param.");
+			throw new \InvalidArgumentException("A valid $collectionId is a required param.");
 		}
 
 		$importedStats = array();
 
 		// Get everything from the exported log that is set as stale
-    	$sql = "SELECT unique_id, object_id, revision FROM object_sync_import 
+    	$sql = "SELECT unique_id, remote_revision, object_id, revision FROM object_sync_import
     			WHERE collection_id=" . $this->dbh->escapeNumber($collectionId) . ";";
         $result = $this->dbh->query($sql);
 		if (!$result)
@@ -522,9 +525,10 @@
 		{
 			$row = $this->dbh->getRow($result, $i);
 			$importedStats[] = array(
-				'uid' => $row['unique_id'],
+				'remote_id' => $row['unique_id'],
+                'remote_revision' => $row['remote_revision'],
 				'local_id' => $row['object_id'],
-				'revision' => $row['revision']
+                'local_revision' => $row['revision'],
 			);
 		}
 
@@ -534,41 +538,46 @@
 	/**
      * Log that a commit was exported from this collection
      *
-     * @param int $collectionId The unique id of the collection we exported for
-     * @param string $uniqueId The foreign unique id of the object being imported 
-	 * @param int $revision A revision of the remote object (could be an epoch)
-	 * @param int $localId If imported to a local object then record the id, if null the delete
-     * @return bool true on success, false on failure
+     * @param int $collectionId The id of the collection we are logging changes to
+     * @param string $remoteId The foreign unique id of the object being imported
+     * @param int $remoteRevision A revision of the remote object (could be an epoch)
+     * @param int $localId If imported to a local object then record the id, if null the delete
+     * @param int $localRevision The revision of the local object
+     * @return bool true if imported false if failure
      */
-    public function logImported($collectionId, $uniqueId, $revision, $localId=null)
+    public function logImported($collectionId, $remoteId, $remoteRevision=null, $localId=null, $localRevision=null)
     {
     	$updateSql = "";
+
+        if (!$remoteId)
+            throw new \InvalidArgumentException("remoteId was not set and is required.");
 
     	if ($localId)
     	{
     		$existsSql = "SELECT unique_id FROM object_sync_import 
     				  WHERE collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
-    				  	AND unique_id=" . $this->dbh->escapeNumber($uniqueId) . ";";
+    				  	AND unique_id=" . $this->dbh->escapeNumber($remoteId) . ";";
 	    	if (!$this->dbh->getNumRows($this->dbh->query($existsSql)))
 	    	{
-	    		$updateSql = "INSERT INTO object_sync_import(unique_id, revision, collection_id, object_id)
+	    		$updateSql = "INSERT INTO object_sync_import(unique_id, remote_revision, collection_id, object_id, revision)
 	    					  VALUES(
-	    					  	'" . $this->dbh->escape($uniqueId) . "',
-	    					  	'" . $this->dbh->escape($revision) . "',
+	    					  	'" . $this->dbh->escape($remoteId) . "',
+	    					  	" . $this->dbh->escapeNumber($remoteRevision) . ",
 	    					  	" . $this->dbh->escapeNumber($collectionId) . ",
-	    					  	" . $this->dbh->escapeNumber($localId) . "
-	    					  	
+	    					  	" . $this->dbh->escapeNumber($localId) . ",
+	    					  	" . $this->dbh->escapeNumber($localRevision) . "
 	    					  );";
 	    	}
 	    	else
 	    	{
 	    		$updateSql = "UPDATE object_sync_import
-							  SET 
-							  	revision='" . $this->dbh->escape($revision) . "', 
+							  SET
+							    remote_revision='" . $this->dbh->escape($remoteRevision) . "'
+							  	revision='" . $this->dbh->escape($localRevision) . "',
 							  	object_id=" . $this->dbh->escapeNumber($localId) . " 
 							  WHERE 
 							  	collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
-							  	AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
+							  	AND unique_id='" . $this->dbh->escape($remoteId) . "'";
 
 	    	}
     	}
@@ -580,7 +589,7 @@
     		 */
     		$updateSql = "DELETE FROM object_sync_import
 						  WHERE collection_id=" . $this->dbh->escapeNumber($collectionId) . " 
-							  	AND unique_id='" . $this->dbh->escape($uniqueId) . "'";
+							  	AND unique_id='" . $this->dbh->escape($remoteId) . "'";
     	}
     	
 

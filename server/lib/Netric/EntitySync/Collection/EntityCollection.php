@@ -61,9 +61,11 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
 		// Get the current commit for this collection
 		$lastCollectionCommit = $this->getLastCommitId();
+        if ($lastCollectionCommit === null)
+            $lastCollectionCommit = 0;
 
 		if ($this->isBehindHead())
-		{
+        {
 			// Query local objects for commit_id with EntityList
 			$query = new \Netric\EntityQuery($this->getObjType());
 	        $query->orderBy('commit_id');
@@ -90,17 +92,47 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	        $res = $this->index->executeQuery($query);
 	  		$num = $res->getNum();
 
+            /*
+             * Get previously imported so we do not try to export a recent import.
+             * Only get list if there are entities to export to save time
+             */
+            if ($this->getId() && $num)
+            {
+                $imports = $this->dataMapper->getImported($this->getId());
+            }
+            else
+            {
+                $imports = array();
+            }
+
 	        // Loop through each change
 	        for ($i = 0; $i < $num; $i++)
 	        {
 	        	$ent = $res->getEntity($i);
 
-	        	$retStats[] = array(
-	        		"id" => $ent->getId(),
-	        		"action" => (($ent->isDeleted()) ? 'delete' : 'change'),
-	        	);
+                // First make sure we didn't just import this
+                $skipStat = false;
+                foreach ($imports as $imported)
+                {
+                    if ($imported['local_id'] == $ent->getId()
+                        && $imported['local_revision'] == $ent->getValue("revision"))
+                    {
+                        // Skip over this export because we just imported it
+                        $skipStat = true;
+                        break;
+                    }
+                }
 
-	        	if ($autoFastForward)
+                if (!$skipStat)
+                {
+                    $retStats[] = array(
+                        "id" => $ent->getId(),
+                        "action" => (($ent->isDeleted()) ? 'delete' : 'change'),
+                    );
+                }
+
+
+	        	if (($autoFastForward || $skipStat) && $ent->getValue("commit_id"))
 				{
 					// Fast-forward $lastCommitId to last commit_id sent
 					$this->setLastCommitId($ent->getValue("commit_id"));
@@ -130,8 +162,11 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 {
                     foreach ($retStats as $stale)
                     {
-                        // Save to exported log with no commit deletes the export
-                        $this->logExported($stale['id'], null);
+                        if ($autoFastForward)
+                        {
+                            // Save to exported log with no commit deletes the export
+                            $this->logExported($stale['id'], null);
+                        }
                     }
                 }
 	        }

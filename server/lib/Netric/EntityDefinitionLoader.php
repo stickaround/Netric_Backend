@@ -92,7 +92,7 @@ class EntityDefinitionLoader
 			if ((int)$sysData['revision'] > $def->revision)
 			{
 				$log = $this->dataMapper->getAccount()->getServiceManager()->get("Log");
-				$log->error("loadDefinition saving {$sysData['revision']}:" . var_expor($sysData, true));
+				$log->error("loadDefinition saving {$sysData['revision']}:" . var_export($sysData, true));
 
 				// System definition has been updated, save to datamapper
 				$def->fromArray($sysData);

@@ -292,6 +292,12 @@ class Partner
 					}
 				}
 			}
+
+            /*
+             * If we found a match then there's no point in continuing our search
+             */
+            if ($ret)
+               break;
 		}
 
 		return $ret;

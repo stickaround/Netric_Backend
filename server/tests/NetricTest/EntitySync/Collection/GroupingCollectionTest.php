@@ -18,25 +18,30 @@ class GroupingCollectionTest extends AbstractCollectionTests
     private $entityDataMapper = null;
 
     /**
-     * Test partner id
+     * Groupings object
      *
-     * @var string
+     * @var \Netric\EntityGrouping
      */
-    private $partner = null;
+    private $groupings = null;
+
+    /**
+     * Setup datamapper
+     */
+    protected function setUp()
+    {
+        // Make sure we don't override parent tearDown
+        parent::setUp();
+
+        $this->entityDataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+    }
 
     /**
      * Cleanup
      */
     protected function tearDown()
     {
-        // Make sure we dont override parent teardonw
+        // Make sure we don't override parent tearDown
         parent::tearDown();
-
-        if ($this->partner)
-        {
-            $this->esDataMapper->deletePartner($this->partner, true);
-        }
-
     }
     
     /**
@@ -44,19 +49,54 @@ class GroupingCollectionTest extends AbstractCollectionTests
      */
 	protected function getCollection()
 	{
-		$this->entityDataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
-		return new Collection\GroupingCollection($this->esDataMapper, $this->commitManager, $this->entityDataMapper);
+
+        $collection = new Collection\GroupingCollection($this->esDataMapper, $this->commitManager, $this->entityDataMapper);
+        $collection->setObjType("customer");
+        $collection->setFieldName("groups");
+		return $collection;
 	}
+
+    protected function createLocal()
+    {
+        // Create the grouping below
+        $this->groupings = $this->entityDataMapper->getGroupings("customer", "groups");
+        $newGroup = $this->groupings->create();
+        $newGroup->name = "UTEST CS::testGetExportChanged" . rand();
+        $this->groupings->add($newGroup);
+        $this->entityDataMapper->saveGroupings($this->groupings);
+        $group = $this->groupings->getByName($newGroup->name);
+        return array("id"=>$group->id, "revision"=>$group->commitId);
+    }
+
+    protected function changeLocal($id)
+    {
+        $group = $this->groupings->getById($id);
+        // Record a change to the grouping
+        $group->name = "UTEST CS::testGetExportChanged" . rand();
+        $group->setDirty(true);
+        $this->entityDataMapper->saveGroupings($this->groupings);
+    }
+
+    protected function deleteLocal($id=null)
+    {
+        if ($this->groupings)
+        {
+            if ($id)
+            {
+                $this->groupings->delete($id);
+            }
+
+            $this->entityDataMapper->saveGroupings($this->groupings);
+        }
+    }
 
 	/**
      * Test getting changed objects for this collection
-     */
+     *
     public function testGetExportChanged() 
     {
         // Setup collection
         $collection = $this->getCollection();
-        $collection->setObjType("customer");
-        $collection->setFieldName("groups");
 
 		// Create and save partner with one collection watching customers
 		$this->partner = new EntitySync\Partner($this->esDataMapper);
@@ -64,15 +104,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $this->partner->setOwnerId($this->user->getId());
         $this->esDataMapper->savePartner($this->partner);
 
-        $dm = $this->entityDataMapper;
-
-        // Create the grouping below
-        $groupings = $dm->getGroupings("customer", "groups");
-        $newGroup = $groupings->create();
-        $newGroup->name = "UTTEST CS::testGetExportChanged";
-        $groupings->add($newGroup);
-        $dm->saveGroupings($groupings);
-        $group1 = $groupings->getByName("UTTEST CS::testGetExportChanged");
+        $id = $this->createLocal();
 
         // Fast forward past all previous groupings
         $collection->fastForwardToHead();
@@ -81,29 +113,22 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $stats = $collection->getExportChanged();
         $this->assertEquals(0, count($stats));
 
-        // Record a change to the grouping
-        $group1->name = "UTTEST CS::testGetExportChanged2";
-        $group1->setDirty(true);
-        $dm->saveGroupings($groupings);
+        $this->changeLocal();
 
 		// Make sure the one change is now returned
         $stats = $collection->getExportChanged();
         $found = false;
         foreach ($stats as $stat)
         {
-            if ($stat["id"] == $group1->id)
+            if ($stat["id"] == $id)
                 $found = true;
         }
         $this->assertTrue($found);
-
-        // Cleanup
-        $groupings->delete($group1->id);
-        $dm->saveGroupings($groupings);
-    }
+    }*/
 
     /**
      * Make sure we can detect when an entity has been deleted
-     */
+     *
     public function testGetExportChanged_Deleted() 
     {
         // Setup collection 
@@ -162,5 +187,5 @@ class GroupingCollectionTest extends AbstractCollectionTests
                 $foundStat = $stat;
         }
         $this->assertNull($foundStat);
-    }
+    }*/
 }

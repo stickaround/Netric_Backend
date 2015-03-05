@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 34;
+$obj_revision = 35;
 
 $listTitle = "full_name";
 
@@ -106,6 +106,14 @@ $obj_fields = array(
 			"@mymetropcs.com"=>"Metro PCS",
 		),
 	),
+
+    // Aereus customer number
+    'customer_number' => array(
+        'title'=>'Netric Customer Number',
+        'type'=>'text',
+        'subtype'=>'64',
+        'readonly'=>true,
+    ),
 );
 
 $obj_fields['job_title']		= array('title'=>'Job Title', 'type'=>'text', 'subtype'=>'256', 'readonly'=>false, 'required'=>false);

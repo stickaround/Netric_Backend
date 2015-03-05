@@ -389,6 +389,9 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
         $toSave = $groupings->getChanged();
         foreach ($toSave as $grp)
         {
+            // Cache for updates to object_sync
+            $lastCommitId = $grp->getValue("commitId");
+
         	// Set the new commit id
         	$grp->setValue("commitId", $commitId);
 
@@ -396,7 +399,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
             {
                 $grp->setDirty(false);
                 // Log here
-                $ret['changed'][$grp->id] = $grp->commitId;
+                $ret['changed'][$grp->id] = $lastCommitId;
             }
         }
         

@@ -207,20 +207,47 @@ class PartnerTest extends PHPUnit_Framework_TestCase
 				"operator"=>"is_equal",
 				"condValue"=>1, // person
 			),
+            array(
+                "blogic"=>"and",
+                "field"=>"name",
+                "operator"=>"is_equal",
+                "condValue"=>"john",
+            ),
 		);
 
-		// Create a mock collection
+        $conditions2 = array(
+            array(
+                "blogic"=>"and",
+                "field"=>"type_id",
+                "operator"=>"is_equal",
+                "condValue"=>1,
+            ),
+            array(
+                "blogic"=>"and",
+                "field"=>"name",
+                "operator"=>"is_equal",
+                "condValue"=>"sky",
+            ),
+        );
+
+		// Create two mock collections
         $collection = $this->getMockBuilder('\Netric\EntitySync\Collection\EntityCollection')
                      ->disableOriginalConstructor()
                      ->getMock();
         $collection->method('getType')->willReturn(1);
         $collection->method('getObjType')->willReturn("customer");
         $collection->method('getConditions')->willReturn($conditions);
-
-        // Add the collection 
         $this->partner->addCollection($collection);
 
-        // Setup save colleciton reflection object
+        $collection2 = $this->getMockBuilder('\Netric\EntitySync\Collection\EntityCollection')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $collection2->method('getType')->willReturn(1);
+        $collection2->method('getObjType')->willReturn("customer");
+        $collection2->method('getConditions')->willReturn($conditions2);
+        $this->partner->addCollection($collection2);
+
+        // Setup get collection reflection object
         $refIm = new \ReflectionObject($this->partner);
         $getCollection = $refIm->getMethod("getCollection");
         $getCollection->setAccessible(true);
@@ -241,6 +268,12 @@ class PartnerTest extends PHPUnit_Framework_TestCase
 				"operator"=>"is_equal",
 				"condValue"=>2, // account - should not match because the collection is only for type=person
 			),
+            array(
+                "blogic"=>"and",
+                "field"=>"name",
+                "operator"=>"is_equal",
+                "condValue"=>"john",
+            ),
 		);
 		$gotColl = $getCollection->invoke($this->partner, "customer", null, $noMatchConditions);
 		$this->assertNull($gotColl);

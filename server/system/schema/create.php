@@ -11,7 +11,7 @@
  * Global variable is required. Must be incremented with every change to keep
  * scripts in ./updates from running if not needed
  */
-$schema_version = "3.1.135";
+$schema_version = "3.1.138";
 
 /* moved to object tables
 $schema['activity'] = array(
@@ -3321,6 +3321,7 @@ $schema['object_sync_import'] = array(
 		'revision'		=> array('type'=>'integer'),
 		'field_id'		=> array('type'=>'integer'),
 		'unique_id'		=> array('type'=>'character varying(512)'),
+        'remote_revision'=> array('type'=>'integer'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(

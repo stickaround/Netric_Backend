@@ -682,6 +682,10 @@ class BackendAnt extends BackendDiff
 					//$collection->resetStats($folder['grouping']);
 					$collection->fastForwardToHead(); // Do not filter the grouping
 					$notifications[] = $folder['id'];
+
+                    // Save the collection
+                    $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+                    $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
 					
 					/*
 					$changes = $collection->getChangedObjects($folder['grouping']); 

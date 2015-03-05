@@ -38,7 +38,7 @@ class CollectionFactory implements CollectionFactoryInterface
 		case EntitySync::COLL_TYPE_ENTITYDEF:
 			break;
 		default:
-			throw Exception("Unrecognized type of entity!");
+			throw \Exception("Unrecognized type of entity!");
 			break;
 		}
 		
@@ -47,8 +47,8 @@ class CollectionFactory implements CollectionFactoryInterface
 		{
 			if ($data['id'])
 				$collection->setId($data['id']);
-			if ($data['object_type_id'])
-				$collection->setObjTypeId($data['object_type_id']);
+			//if ($data['object_type_id'])
+			//	$collection->setObjTypeId($data['object_type_id']);
 			if ($data['object_type'])
 				$collection->setObjType($data['object_type']);
 			if ($data['field_id'])

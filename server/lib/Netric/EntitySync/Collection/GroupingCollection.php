@@ -69,6 +69,16 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 		$lastCollectionCommit = $this->getLastCommitId();
         if ($this->isBehindHead())
 		{
+            // Get previously imported so we do not try to export a recent import
+            if ($this->getId())
+            {
+                $imports = $this->dataMapper->getImported($this->getId());
+            }
+            else
+            {
+                $imports = array();
+            }
+
 	        // Get groupings
 	        $filters = $this->getFiltersFromConditions();
 	        $groupings = $this->entityDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
@@ -81,23 +91,38 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
 	        	if ($grp->commitId > $lastCollectionCommit || !$grp->commitId)
 	        	{
-	        		$retStats[] = array(
-		        		"id" => $grp->id,
-		        		"action" => 'change',
-		        	);
+                    // First make sure we didn't just import this
+                    $skipStat = false;
+                    foreach ($imports as $imported)
+                    {
+                        if ($imported['local_id'] == $grp->id
+                            && $imported['local_revision'] == $grp->commitId)
+                        {
+                            // Skip over this export because we just imported it
+                            $skipStat = true;
+                            break;
+                        }
+                    }
+
+                    if (!$skipStat) {
+                        $retStats[] = array(
+                            "id" => $grp->id,
+                            "action" => 'change',
+                        );
+                    }
+
+                    if (($autoFastForward && $grp->commitId) || $skipStat)
+                    {
+                        // Fast-forward $lastCommitId to last commit_id sent
+                        $this->setLastCommitId($grp->commitId);
+
+                        // Save to exported log
+                        $logRet = $this->logExported(
+                            $grp->id,
+                            $grp->commitId
+                        );
+                    }
 	        	}	
-
-	        	if ($autoFastForward && $grp->commitId)
-				{
-					// Fast-forward $lastCommitId to last commit_id sent
-					$this->setLastCommitId($grp->commitId);
-
-					// Save to exported log
-					$logRet = $this->logExported(
-						$grp->id, 
-						$grp->commitId
-					);
-				}
 	        }
 
 	        /*

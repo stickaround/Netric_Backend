@@ -107,6 +107,7 @@ class AntMail_Sync
             // Create collection
             if (!$syncColl)
             {
+                echo "Creating a new collection for {$accountObj->emailAddress}:$mailboxId\n";
                 $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
                 $syncColl = \Netric\EntitySync\Collection\CollectionFactory::create($serviceManager, \Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY);
                 $syncColl->setObjType("email_message");
@@ -117,42 +118,50 @@ class AntMail_Sync
 
 			// First send changes to server
 			// --------------------------------------------------------------------
-			$stats = $syncColl->getExportChanged();
-			foreach ($stats as $stat)
-			{
-				$obj = CAntObject::factory($this->dbh, "email_message", $stat['id'], $this->user);
+            while (count($stats = $syncColl->getExportChanged(false)) > 0)
+            {
+                foreach ($stats as $stat)
+                {
+                    $obj = CAntObject::factory($this->dbh, "email_message", $stat['id'], $this->user);
 
-				switch ($stat['action'])
-				{
-				case 'change':
-					if ($obj->getValue("flag_seen") == 't' || $obj->getValue("flag_seen") === true)
-						$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "read", true);
-					else
-						$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "read", false);
+                    switch ($stat['action'])
+                    {
+                        case 'change':
+                            if ($obj->getValue("flag_seen") == 't' || $obj->getValue("flag_seen") === true)
+                                $backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "read", true);
+                            else
+                                $backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "read", false);
 
-					if ($obj->getValue("flag_flagged") == 't')
-						$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "flagged", true);
-					else
-						$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "flagged", false);
+                            if ($obj->getValue("flag_flagged") == 't')
+                                $backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "flagged", true);
+                            else
+                                $backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "flagged", false);
 
-                    $syncColl->logExported($stat['id'], $obj->getValue("commit_id"));
-					break;
+                            echo "Exported: change:{$stat['id']}:{$obj->getValue("commit_id")} to " . $accountObj->emailAddress . ":$mailboxPath\n";
+                            $syncColl->logExported($stat['id'], $obj->getValue("commit_id"));
+                            break;
 
-				case 'delete':
-					//$backend->debug = $this->debug;
-					$backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "deleted", null);
-                    $syncColl->logExported($stat['id'], null);
-                    break;
-				}
-				//$syncColl->deleteStat($stat['id'], $mailboxId);
-                $syncColl->setLastCommitId($obj->getValue("commit_id"));
+                        case 'delete':
+                            //$backend->debug = $this->debug;
+                            $backend->processUpsync($mailboxPath, $obj->getValue("message_uid"), "deleted", null);
+                            $syncColl->logExported($stat['id'], null);
+                            echo "Exported: delete:{$stat['id']}\n";
+                            break;
+                    }
+                    //$syncColl->deleteStat($stat['id'], $mailboxId);
+                    if ($obj->getValue("commit_id"))
+                    {
+                        $syncColl->setLastCommitId($obj->getValue("commit_id"));
+                    }
 
 
-				// Check for error
-				$error = $backend->getLastError();
-				if ($error)
-					AntLog::getInstance()->error("Error trying to send change to mailserver for msg[{$stat['id']}]:" . $error);
-			}
+                    // Check for error
+                    $error = $backend->getLastError();
+                    if ($error)
+                        AntLog::getInstance()->error("Error trying to send change to mailserver for msg[{$stat['id']}]:" . $error);
+                }
+            }
+
 			
 			// Now get new messages from the server and import
 			// --------------------------------------------------------------------
@@ -162,7 +171,7 @@ class AntMail_Sync
 			{
 				$importList = array();
 				foreach($emailList as $email)
-					$importList[] = array("uid"=>$email['uid'], "revision"=>1);
+					$importList[] = array("remote_id"=>$email['uid'], "remote_revision"=>1);
 
 				$stats = $syncColl->getImportChanged($importList);
 			}
@@ -171,7 +180,7 @@ class AntMail_Sync
 				$stats = array(); // Do nothing, could not connect to the server
 			}
 
-			foreach ($stats as $stat) // $msg = array('uid', 'object_id', 'action', 'revision')
+			foreach ($stats as $stat) // $msg = array('remote_id', 'remote_revision', 'local_id', 'action', 'local_revision')
 			{
 				switch ($stat['action'])
 				{
@@ -180,7 +189,7 @@ class AntMail_Sync
 					$emailMeta = null;
 					foreach ($emailList as $svrEmail)
 					{
-						if ($svrEmail['uid'] == $stat['uid']) 
+						if ($svrEmail['uid'] == $stat['remote_id'])
 						{
 							$emailMeta = $svrEmail;
 							break; // stop the loop
@@ -192,24 +201,75 @@ class AntMail_Sync
 						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['local_id'], $this->user);
 						$emailObj->setValue("flag_seen", $emailMeta['seen']==1?'t':'f');            
 						$emailObj->setValue("flag_flagged", $emailMeta['flagged']==1?'t':'f');
-						$mid = $emailObj->save();
+                        if ($emailObj->fieldValueChanged("seen") || $emailObj->fieldValueChanged("flagged"))
+                        {
+                            $mid = $emailObj->save();
+                            echo "Importing changed {$stat['local_id']}\n";
+                        }
+                        else
+                        {
+                            $mid = $stat['local_id'];
+                        }
 					}
 					else
 					{
 						$mid = $this->importEmail($emailMeta, $accountObj, $mailboxId);
+                        echo "Imported new $mid\n";
 
 					}
 
-					if ($mid)
+					if ($mid>0)
 					{
                         $emailObj = CAntObject::factory($this->dbh, "email_message", $mid, $this->user);
-						$syncColl->logImported($stat['uid'], $emailObj->revision, $mid);
+						$syncColl->logImported($stat['remote_id'], $stat['remote_revision'], $mid, $emailObj->revision);
 						$ret[] = $mid;
+
+                        /*
+                         * Routine to clean-up bugs in the old sync system where moves and deletes were not being sent
+                         * to the server. This should eventually be removed but for now it can be used to clean-up
+                         * imap inboxes.
+                         * - Sky Stebnicki <sky.stebnicki@aereus.com>, 3/2/2015
+                         *
+
+                        // Check undeleted
+                        $list = new CAntObjectList($this->dbh, "email_message");
+                        $list->addCondition("and", "id", "is_not_equal", $mid);
+                        $list->addCondition("and", "message_id", "is_equal", $emailObj->getValue('message_id'));
+                        $list->addCondition("and", "message_date", "is_equal", $emailObj->getValue('message_date'));
+                        $list->addCondition("and", "email_account", "is_equal", $accountObj->id);
+                        $list->addCondition("and", "subject", "is_equal", $emailObj->getValue('subject'));
+                        $list->addCondition("and", "owner_id", "is_equal", $emailObj->getValue('owner_id')); // just to be safe
+                        $list->addCondition("and", "f_deleted", "is_equal", "f");
+                        $list->getObjects();
+                        if ($list->getNumObjects() > 0)
+                            $emailObj->remove();
+
+                        // Check deleted
+                        $list = new CAntObjectList($this->dbh, "email_message");
+                        $list->addCondition("and", "id", "is_not_equal", $mid);
+                        $list->addCondition("and", "message_id", "is_equal", $emailObj->getValue('message_id'));
+                        $list->addCondition("and", "message_date", "is_equal", $emailObj->getValue('message_date'));
+                        $list->addCondition("and", "email_account", "is_equal", $accountObj->id);
+                        $list->addCondition("and", "subject", "is_equal", $emailObj->getValue('subject'));
+                        $list->addCondition("and", "owner_id", "is_equal", $emailObj->getValue('owner_id')); // just to be safe
+                        $list->addCondition("and", "f_deleted", "is_equal", "t");
+                        $list->getObjects();
+                        if ($list->getNumObjects() > 0)
+                            $emailObj->remove();
+                        */
 					}
+                    else if ($mid == -1)
+                    {
+                        echo "Deleting stale imported message...\n";
+                        // This message was previously imported and then deleted so delete on the server
+                        $backend->processUpsync($mailboxPath, $stat['remote_id'], "deleted", null);
+                        $syncColl->logImported($stat['remote_id']);
+                    }
 
 					break;
 
 				case 'delete':
+                    echo "Imported delete {$stat['local_id']}\n";
 					if (isset($stat['local_id']) && $backend->isTwoWaySync())
 					{
 						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['local_id'], $this->user);
@@ -219,11 +279,15 @@ class AntMail_Sync
 						$ret[] = $stat['local_id'];
 					}
 
-					$syncColl->logImported($stat['uid'], $stat['revision'], null);
+					$syncColl->logImported($stat['remote_id']);
 
 					break;
 				}
 			}
+
+            // Save the changes to the collection
+            $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+            $serviceManager->get("EntitySync_DataMapper")->savePartner($syncPartner);
 		}
 
 		return $ret;
@@ -400,7 +464,11 @@ class AntMail_Sync
 		$list->addCondition("and", "email_account", "is_equal", $account->id);
 		$list->getObjects();
 		if ($list->getNumObjects() > 0)
-			return false;
+        {
+            $emailObj = $list->getObject(0);
+            // Return the id so we can log it as already imported
+            return $emailObj->id;
+        }
 
 		// Also checked previously deleted
 		$list = new CAntObjectList($this->dbh, "email_message");
@@ -410,7 +478,7 @@ class AntMail_Sync
 		$list->addCondition("and", "f_deleted", "is_equal", "t");
 		$list->getObjects();
 		if ($list->getNumObjects() > 0)
-			return false;
+			return -1;
 
 		// Insert new message
 		// TODO: maybe we should stream this rather than load the message into memory?

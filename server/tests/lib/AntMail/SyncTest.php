@@ -47,7 +47,7 @@ require_once(dirname(__FILE__).'/../../../lib/AntMail/Backend.php');
 require_once(dirname(__FILE__).'/../../../lib/WorkerMan.php');
 
 
-class AntMail_SyncTest extends PHPUnit_Framework_TestCase 
+class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 {
 	var $ant = null;
 	var $user = null;

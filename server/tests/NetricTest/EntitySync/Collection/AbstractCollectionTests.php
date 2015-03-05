@@ -39,6 +39,13 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
      * @var \Netric\EntitySync\Commit\CommitManager
      */
     protected $commitManager = null;
+
+    /**
+     * Test partner
+     *
+     * @var EntitySync\Partner
+     */
+    protected $partner = null;
     
 
 	/**
@@ -50,7 +57,21 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
         $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
         $this->esDataMapper = $this->account->getServiceManager()->get("EntitySync_DataMapper");
         $this->commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+
+        // Create a new partner
+        $this->partner = new EntitySync\Partner($this->esDataMapper);
+        $this->partner->setPartnerId("AbstractCollectionTests");
+        $this->partner->setOwnerId($this->user->getId());
+        $this->esDataMapper->savePartner($this->partner);
 	}
+
+    protected function tearDown()
+    {
+        $this->deleteLocal();
+
+        // Cleanup partner
+        $this->esDataMapper->deletePartner($this->partner, true);
+    }
     
     /**
 	 * Get a collection object to perform common tests
@@ -60,9 +81,25 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
 	abstract protected function getCollection();
 
     /**
-     * Required collection type test for getting local changes (in netric)
+     * Create a new local object
+     *
+     * @return array('id', 'revision')
      */
-    abstract public function testGetExportChanged();
+    abstract protected function createLocal();
+
+    /**
+     * Change a local object
+     *
+     * @param $id
+     */
+    abstract protected function changeLocal($id);
+
+    /**
+     * Delete a local object or objects
+     *
+     * @param null $id If no $id is passed then delete all local objects (cleanup)
+     */
+    abstract protected function deleteLocal($id=null);
 
     /**
      * Make sure we can construct this colleciton
@@ -163,17 +200,17 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
         $partner->addCollection($collection);
         $this->esDataMapper->savePartner($partner);
 
-        // Import orignial group of changes
+        // Import original group of changes
         $customers = array(
-            array('uid'=>'test1', 'revision'=>1),
-            array('uid'=>'test2', 'revision'=>1),
+            array('remote_id'=>'test1', 'remote_revision'=>1),
+            array('remote_id'=>'test2', 'remote_revision'=>1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));
         foreach ($stats as $ostat)
         {
             $this->assertEquals('change', $ostat['action']);
-            $collection->logImported($ostat['uid'], $ostat['revision'], 1001);
+            $collection->logImported($ostat['remote_id'], $ostat['remote_revision'], 1001, 1);
         }
 
         // Try again with no changes
@@ -182,15 +219,15 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
 
         // Change the revision of one of the objects
         $customers = array(
-            array('uid'=>'test1', 'revision'=>2),
-            array('uid'=>'test2', 'revision'=>1),
+            array('remote_id'=>'test1', 'remote_revision'=>2),
+            array('remote_id'=>'test2', 'remote_revision'=>1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 1);
 
         // Remove one of the objects
         $customers = array(
-            array('uid'=>'test2', 'revision'=>1),
+            array('remote_id'=>'test2', 'remote_revision'=>1),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 1);
@@ -198,8 +235,8 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
 
         // Change both revisions
         $customers = array(
-            array('uid'=>'test1', 'revision'=>2),
-            array('uid'=>'test2', 'revision'=>2),
+            array('remote_id'=>'test1', 'remote_revision'=>2),
+            array('remote_id'=>'test2', 'remote_revision'=>2),
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), 2);
@@ -208,7 +245,77 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
 
         // Cleanup
         $this->esDataMapper->deletePartner($partner, true);
-    }   
+    }
+
+    /**
+     * Test getting changed objects
+     */
+    public function testGetExportChanged()
+    {
+        // Create and save partner with one collection watching customers
+        $collection = $this->getCollection();
+        $this->partner->addCollection($collection);
+        $this->esDataMapper->savePartner($this->partner);
+        $collection->fastForwardToHead();
+
+        // Create a local object to work with
+        $localData = $this->createLocal();
+        $localId = $localData['id'];
+
+        // Initial pull should start with all objects
+        $stats = $collection->getExportChanged();
+        $this->assertTrue(count($stats) >= 1);
+
+
+        // Should be no changes now
+        $stats = $collection->getExportChanged();
+        $this->assertEquals(0, count($stats));
+
+        // Change the local object
+        $this->changeLocal($localId);
+
+        // Make sure the one change is now returned
+        $stats = $collection->getExportChanged();
+        $this->assertTrue(count($stats) >= 1);
+        $this->assertEquals($stats[0]['id'], $localId);
+    }
+
+    /**
+     * Make sure we do not export imports because that will cause an infinite loop
+     */
+    public function testNotExportImport()
+    {
+        // Create and save partner with one collection watching customers
+        $collection = $this->getCollection();
+        $this->partner->addCollection($collection);
+        $this->esDataMapper->savePartner($this->partner);
+        $collection->fastForwardToHead();
+
+        // Import original group of changes
+        $customers = array(
+            array('remote_id'=>'test1', 'remote_revision'=>1),
+            array('remote_id'=>'test2', 'remote_revision'=>1),
+        );
+        $stats = $collection->getImportChanged($customers);
+        $this->assertEquals(count($stats), count($customers));
+        foreach ($stats as $ostat)
+        {
+            $newData = $this->createLocal();
+            $collection->logImported($ostat['remote_id'], $ostat['remote_revision'], $newData['id'], $newData['revision']);
+        }
+
+        // Now pull export changes which should be 0
+        $stats = $collection->getExportChanged();
+        $this->assertEquals(0, count($stats));
+
+        // Make a change after the import
+        $localData = $this->createLocal();
+        $localId = $localData['id'];
+        // Make sure the one change is now returned
+        $stats = $collection->getExportChanged();
+        $this->assertEquals(1, count($stats));
+        $this->assertEquals($stats[0]['id'], $localId);
+    }
 
     /**
      *  Get getting changed objects for this collection using heiarchy

@@ -19,7 +19,7 @@ class AntService_Routine_Tmp_EmailCleanDuplicates extends AntRoutine
 		$dupsQuery = "SELECT * FROM (
 						SELECT id, 
 							ROW_NUMBER() OVER(PARTITION BY email_account, message_id, message_date ORDER by id desc) as Row 
-							FROM objects_email_message
+							FROM objects_email_message WHERE owner_id='37'
 					  ) dups WHERE dups.Row > 1";
 		$results = $dbh->Query($dupsQuery);
 		$num = $dbh->GetNumberRows($results);

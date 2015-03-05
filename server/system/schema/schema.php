@@ -288,7 +288,7 @@ return array(
 			'description'	=> array('type'=>'text'),
 		),
 		'PRIMARY_KEY'		=> 'id',
-	);
+	),
 
 	"application_calendars" => array(
 		"COLUMNS" => array(
@@ -3005,10 +3005,17 @@ return array(
 			'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
 			'collection_id'	=> array('type'=>'bigint'),
 			'object_type_id'=> array('type'=>'integer'),
-			'object_id'		=> array('type'=>'bigint'),
+			// Local object id once imported
+            'object_id'		=> array('type'=>'bigint'),
+            // Revision of the local object
+            'revision'		=> array('type'=>'integer'),
+            // This field is depricated and should eventually be deleted
 			'parent_id'		=> array('type'=>'bigint'),
-			'revision'		=> array('type'=>'integer'),
-			'field_id'		=> array('type'=>'integer'),
+            // This field is depricated and should eventually be deleted
+            'field_id'		=> array('type'=>'integer'),
+            // A revision (usually modified epoch) of the remote object
+            'remote_revision' => array('type'=>'integer'),
+			// The unique id of the remote object we have imported
 			'unique_id'		=> array('type'=>'character varying(512)'),
 		),
 		'PRIMARY_KEY'		=> 'id',

@@ -379,16 +379,16 @@ abstract class AbstractCollection
 			// Check existing
 			for ($i = 0; $i < $numChanges; $i++)
 			{
-				if ($changes[$i]['uid'] == $item['uid'])
+				if ($changes[$i]['remote_id'] == $item['remote_id'])
 				{
-					if ($changes[$i]['revision'] == $item['revision'])
+					if ($changes[$i]['remote_revision'] == $item['remote_revision'])
 					{
 						array_splice($changes, $i, 1); // no changes, remove
 					}
 					else
 					{
 						$changes[$i]['action'] = 'change'; // was updated on remote source
-						$changes[$i]['revision'] = $item['revision'];
+						$changes[$i]['remote_revision'] = $item['remote_revision'];
 					}
 
 					$found = true;
@@ -399,9 +399,10 @@ abstract class AbstractCollection
 			if (!$found) // not found locally or revisions do not match
 			{
 				$changes[] = array(
-					"uid" => $item['uid'], 
-					"local_id" => isset($item['local_id']) ? $item['local_id'] : null, 
-					"revision" => $item['revision'], 
+					"remote_id" => $item['remote_id'],
+                    "remote_revision" => $item['remote_revision'],
+                    "local_id" => null,
+					"local_revision" => isset($item['local_revision']) ? $item['local_revision'] : 1,
 					"action" => "change",
 				);
 			}
@@ -413,22 +414,22 @@ abstract class AbstractCollection
 	/**
 	 * Log an imported object
 	 * 
-	 * @param string $uniqueId The foreign unique id of the object being imported 
-	 * @param int $revision A revision of the remote object (could be an epoch)
+	 * @param string $remoteId The foreign unique id of the object being imported
+     * @param int $remoteRevision A revision of the remote object (could be an epoch)
 	 * @param int $localId If imported to a local object then record the id, if null the delete
+     * @param int $localRevision The revision of the local object
+     * @return bool true if imported false if failure
+     * @throws \InvalidArgumentException
 	 */
-	public function logImported($uniqueId, $revision, $localId=null)
+	public function logImported($remoteId, $remoteRevision=null, $localId=null, $localRevision=null)
 	{
 		if (!$this->getId())
 			return false;
 
-		if (!$uniqueId)
-			throw new \InvalidParamException("uniqueId was not set and is required.");
+		if (!$remoteId)
+			throw new \InvalidArgumentException("remoteId was not set and is required.");
 
-		if (!$revision)
-			throw new \InvalidParamException("revision was not set and is required.");
-
-		return $this->dataMapper->logImported($this->getId(), $uniqueId, $revision, $localId);
+		return $this->dataMapper->logImported($this->getId(), $remoteId, $remoteRevision, $localId, $localRevision);
 	}
 
 
@@ -567,263 +568,6 @@ abstract class AbstractCollection
 			return false;
 		else
 			return true;
-	}
-
-	/**
-	 * Get stats array with a diff from the previous import for objects in this collection
-	 *
-	 * @param array $importList Array of arrays with the following param for each object {uid, revision}
-	 * @param int $parentId If set, pull all objects that are a child of the parent id only
-	 * @return array(array('uid', 'object_id', 'action', 'revision');
-	 */
-	public function importObjectsDiff($importList, $parentId=null)
-	{
-		$changes = array();
-
-		// Get previously imported list
-		// --------------------------------------------------------------------
-		$sql = "SELECT unique_id, object_id, revision FROM object_sync_import WHERE collection_id='" . $this->id . "'";
-		if (is_numeric($parentId))
-			$sql .= " AND parent_id='$parentId'";
-		$result = $this->dbh->Query($sql);
-		$num = $this->dbh->GetNumberRows($result);
-		for ($i = 0; $i < $num; $i++)
-		{
-			$row = $this->dbh->GetRow($result, $i);
-			
-			// Mark all local to be deleted unless still exists in the imported list
-			$changes[] = array(
-				'uid' => $row['unique_id'],
-				'object_id' => $row['object_id'],
-				'revision' => $row['revision'],
-				'action' => 'delete',
-			);
-		}
-		
-		// Loop through both lists and look for differences
-		// --------------------------------------------------------------------
-		foreach ($importList as $item)
-		{
-			$found = false;
-
-			// Check existing
-			for ($i = 0; $i < count($changes); $i++)
-			{
-				if ($changes[$i]['uid'] == $item['uid'])
-				{
-					if ($changes[$i]['revision'] == $item['revision'])
-					{
-						array_splice($changes, $i, 1); // no changes, remove
-					}
-					else
-					{
-						$changes[$i]['action'] = 'change'; // was updated on remote source
-						$changes[$i]['revision'] = $item['revision'];
-					}
-
-					$found = true;
-					break;
-				}
-			}
-
-			if (!$found) // not found locally or revisions do not match
-			{
-				$changes[] = array(
-					"uid" => $item['uid'], 
-					"object_id" => $item['object_id'], 
-					"revision" => $item['revision'], 
-					"action" => "change",
-				);
-			}
-		}
-
-		return $changes;
-	}
-
-	/**
-	 * Import groupings from device, keep history for incremental changes
-	 *
-	 * Sync local groupings with list from remote device. We do not need to export changes
-	 * because that is handled real time with the device stat table as objects are updated.
-	 *
-	 * @param string[] $groupList Array of all groupings from the device
-	 * @param string $delimiter Hierarchical delimiter to use when parsing groups
-	 * @return array of assoiative array [["id"=><grouping.id>, "action"=>'change'|'delete']]
-	 */
-	public function importGroupingDiff($groupList, $delimiter='/')
-	{
-		$changed = array();
-		$fieldName = $this->fieldName;
-		$odef = ($objDef) ? $objDef : CAntObject::factory($this->dbh, $this->objectType, null, $this->user);
-
-		// Leave if no field name or groups to sync
-		if (!$fieldName || !is_array($groupList))
-			return $changed;
-
-		$field = $odef->fields->getField($fieldName);
-		if (!is_array($field))
-			return $changed;
-
-		// Get previously imported list
-		// --------------------------------------------------------------------
-		$local = array();
-		$result = $this->dbh->Query("SELECT unique_id FROM object_sync_import WHERE collection_id='" . $this->id . "'
-									 AND field_id='".$field['id']."'");
-		$num = $this->dbh->GetNumberRows($result);
-		for ($i = 0; $i < $num; $i++)
-			$local[] = $this->dbh->GetValue($result, $i, "unique_id");
-
-		// Mark all local to be deleted unless still exists in the imported list
-		foreach ($local as $lpath)
-			$changed[] = array("unique_id"=>$lpath, "action"=>"delete");
-		unset($local);
-
-		// Loop through both lists and look for differences
-		// --------------------------------------------------------------------
-		foreach ($groupList as $grpName) 
-		{
-			$found = false;
-
-			// Check existing
-			for ($i = 0; $i < count($changed); $i++)
-			{
-				if ($changed[$i]['unique_id'] == $grpName)
-				{
-					array_splice($changed, $i, 1);
-					$found = true;
-					break;
-				}
-			}
-
-			if (!$found) // not found locally
-				$changed[] = array("unique_id"=>$grpName, "action"=>"change");
-		}
-
-		$odef->skipObjectSyncStat = true; // Do no sync changes up after importing thus creating an endless loop
-
-		// Save new list to import
-		// --------------------------------------------------------------------
-		foreach ($changed as $ch)
-		{
-			// Translate hierarchical path
-			if ($delimiter != "/") 
-			   $grpPath = str_replace($delimiter, "/", $ch['unique_id']);
-			else
-				$grpPath = $ch['unique_id'];
-
-			switch ($ch['action'])
-			{
-			case 'delete':
-				$this->dbh->Query("DELETE FROM object_sync_import WHERE collection_id='" . $this->id . "'
-									AND field_id='".$field['id']."' AND unique_id='" . $this->dbh->Escape($ch['unique_id']) . "'");
-
-				// Delete grouping if it exists
-				$grp = $odef->getGroupingEntryByPath($fieldName, $grpPath);
-				if (is_array($grp) && $grp['id'])
-					$odef->deleteGroupingEntry($fieldName, $grp['id']);
-
-				break;
-			case 'change':
-				$this->dbh->Query("INSERT INTO object_sync_import(collection_id, object_type_id, field_id, unique_id) 
-								   VALUES(
-										'" . $this->id . "',
-										'" . $this->objectTypeId. "',
-										'" . $field['id'] . "',
-										'" . $this->dbh->Escape($ch['unique_id']) . "'
-								   );");
-
-				// Add grouping if not exists
-				$grp = $odef->getGroupingEntryByPath($fieldName, $grpPath);
-				if (!$grp)
-					$odef->addGroupingEntry($fieldName, $grpPath);
-				break;
-			}
-		}
-
-		$odef->skipObjectSyncStat = false; // Turn sync back on
-
-		return $changed;
-	}
-
-	/**
-	 * Increment the interval collection revision
-	 */
-	private function updateRevision()
-	{
-		// Increment
-		$this->revision++;
-
-		if (!$this->id)
-			return false;
-
-		// Save to persistant store
-		$this->dbh->Query("UPDATE object_sync_partner_collections 
-						   SET ts_last_sync='now', revision='" . $this->revision . "' 
-						   WHERE id='".$this->id."'");
-		
-		// Save to cache for parallel processes
-		$this->cache->set($this->dbh->accountId . "/objectsync/collections/" . $this->id . "/revision", $this->revision);
-	}
-
-	/**
-	 * Check if this collection, or a subset of this collection by parentId, is initailized
-	 *
-	 * @param int $parentId Optional subset of collection
-	 * @return bool true if collection or subject has been initialized
-	 */
-	public function isInitialized($parentId=null)
-	{
-		if (!$this->id)
-			return false;
-
-		if ($this->initialized)
-
-		// If no parent or heirarch then just use collection init flag
-		if (null == $parentId && false == $this->fInitialized)
-			return false;
-
-		if (null == $parentId && true == $this->fInitialized)
-			return true;
-
-		if (isset($this->initailizedParents[$parentId]))
-			return $this->initailizedParents[$parentId];
-
-		// Get from table
-		$res = $this->dbh->Query("SELECT ts_completed FROM object_sync_partner_collection_init 
-						   		  WHERE collection_id='".$this->id."' AND parent_id='" . (($parentId)?$parentId:'0') . "'");
-
-		$isInit = ($this->dbh->GetNumberRows($res)>0) ? true : false;
-
-		$this->initailizedParents[$parentId] = $isInit;
-
-		return $isInit;
-	}
-
-	/**
-	 * Set if this collection has been initialized or not
-	 *
-	 * @param int $parentId Optional subset of collection
-	 */
-	public function setIsInitialized($parentId=null, $isInit=true)
-	{
-		$this->fInitialized = $isInit;
-		$this->initailizedParents[$parentId] = $isInit;
-
-		if (!$this->id)
-			return false;
-
-        // Set initialized to true first because the below process may take some time
-        // and we don't want multiple instances of this collection initailizing at once
-        // due to multiple apache threads running
-        $this->dbh->Query("UPDATE object_sync_partner_collections SET f_initialized='t' WHERE id='".$this->id."'");
-
-		$res = $this->dbh->Query("SELECT ts_completed FROM object_sync_partner_collection_init 
-						   		  WHERE collection_id='".$this->id."' AND parent_id='" . (($parentId) ? $parentId : '0') . "'");
-		if ($this->dbh->GetNumberRows($res)==0)
-		{
-			$this->dbh->Query("INSERT INTO object_sync_partner_collection_init(collection_id, parent_id, ts_completed) 
-								VALUES('".$this->id."', '".(($parentId) ? $parentId : '0')."', 'now');");
-		}
 	}
 
 }
