@@ -96,3 +96,12 @@ netric.module.loader.preloadFromData = function(modulesData) {
 		this.createModuleFromData(modulesData[i]);
 	}
 }
+
+/**
+ * Get all loaded modules
+ *
+ * @return {netric.module.Module[]}
+ */
+netric.module.loader.getModules = function() {
+    return this.loadedModules_;
+}

@@ -6,7 +6,7 @@
 
 alib.declare("netric.ui.application.Large");
 
-alib.require("netric.ui.ActionBar");
+alib.require("netric.ui.AppBar");
 
 /** 
  * Make sure namespace exists

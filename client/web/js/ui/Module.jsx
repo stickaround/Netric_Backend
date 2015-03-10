@@ -6,7 +6,7 @@
 
 alib.declare("netric.ui.Module");
 
-alib.require("netric.ui.ActionBar");
+alib.require("netric.ui.AppBar");
 
 /** 
  * Make sure namespace exists
@@ -35,23 +35,22 @@ netric.ui.Module = React.createClass({
       this.setState({name: mdl.name});
     }.bind(this));
 
-    
   },
 
   render: function() {
 
-    // Set module main 
+    // Set module main
     var moduleMainClass = "module-main";
     if (this.props.leftNavDocked) {
-      moduleMainClass += " left-nav-docked";
-    }      
+        moduleMainClass += " left-nav-docked";
+    }
+    var leftNavHeader = <netric.ui.LeftNavModuleHeader moduleTitle={this.props.title} />
 
     return (
-      <div>
-        <netric.ui.LeftNav onChange={this.onLeftNavChange_} ref="leftNav" menuItems={this.props.leftNavItems} docked={this.props.leftNavDocked} />
-        <div ref="moduleMain" className={moduleMainClass}>
+        <div>
+            <netric.ui.LeftNav onChange={this.onLeftNavChange_} ref="leftNav" menuItems={this.props.leftNavItems} docked={this.props.leftNavDocked} header={leftNavHeader} />
+            <div ref="moduleMain" className={moduleMainClass}></div>
         </div>
-      </div>
     );
   },
 

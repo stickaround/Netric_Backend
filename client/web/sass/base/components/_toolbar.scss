@@ -1,4 +1,4 @@
-.mui-toolbar {
+.toolbar {
   background-color: $toolbar-background-color;
   height: $toolbar-height;
   width: 100%;
@@ -90,5 +90,19 @@
         margin-right: -24px;
       }
     }
+  }
+}
+
+@media #{$device-medium} {
+  .paper-container {
+    padding-left: $gutter;
+    padding-right: $gutter;
+  }
+}
+
+@media #{$device-large} {
+  .paper-container {
+    padding-left: $gutter;
+    padding-right: $gutter;
   }
 }

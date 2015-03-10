@@ -79,6 +79,16 @@ class AntMail_Sync
 		$mailObj = CAntObject::factory($this->dbh, "email_message", null, $this->user);
 		$mailboxPath = $mailObj->getGroupingPath("mailbox_id", $mailboxId);
 
+        /*
+         * Right now we only want to synchronize the Inbox
+         * - Sky Stebnicki
+         */
+        if (strtolower($mailboxPath) != "inbox")
+        {
+            return array();
+        }
+
+        // Synchronize for each account
 		foreach ($accounts as $accountObj)
 		{
             // When syncing emails, account type should not be empty
@@ -147,13 +157,19 @@ class AntMail_Sync
                             $syncColl->logExported($stat['id'], null);
                             echo "Exported: delete:{$stat['id']}\n";
                             break;
+                        default:
+                            throw new Exception("Sync action {$stat['action']} is not handled!");
                     }
+
                     //$syncColl->deleteStat($stat['id'], $mailboxId);
                     if ($obj->getValue("commit_id"))
                     {
                         $syncColl->setLastCommitId($obj->getValue("commit_id"));
                     }
-
+                    else
+                    {
+                        throw new Exception("Tried to synchronize an entity without a commit id: " . $obj->id);
+                    }
 
                     // Check for error
                     $error = $backend->getLastError();

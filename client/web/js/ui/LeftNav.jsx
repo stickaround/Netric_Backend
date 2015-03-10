@@ -22,6 +22,7 @@ netric.ui.LeftNav = React.createClass({
     header: React.PropTypes.element,
     onChange: React.PropTypes.func,
     menuItems: React.PropTypes.array.isRequired,
+    modules: React.PropTypes.array,
     selectedIndex: React.PropTypes.number
   },
 
@@ -88,6 +89,8 @@ netric.ui.LeftNav = React.createClass({
         items.push(<div onClick={this._sendClick.bind(null, i)}>{this.props.menuItems[i].name} {sltd}</div>);
     }
 
+      var zDept = (this.props.docked) ? 0 : 2;
+
     return (
       <div className={classes}>
 
@@ -95,7 +98,7 @@ netric.ui.LeftNav = React.createClass({
         <netric.ui.Paper
           ref="clickAwayableElement"
           className="left-nav-menu"
-          zDepth={2}
+          zDepth={zDept}
           rounded={false}>
           
           {this.props.header}

@@ -6,7 +6,7 @@
 
 alib.declare("netric.ui.EntityBrowser");
 
-alib.require("netric.ui.ActionBar");
+alib.require("netric.ui.AppBar");
 
 /** 
  * Make sure namespace exists
@@ -34,18 +34,18 @@ netric.ui.EntityBrowser = React.createClass({
 
   render: function() {
 
-    var actionBar = "";
+    var appBar = "";
 
     if (this.props.onNavBtnClick) {
-      actionBar = <netric.ui.ActionBar title={this.state.name} onNavBtnClick={this.menuClick_} />;
+        appBar = <netric.ui.AppBar title={this.state.name} onNavBtnClick={this.menuClick_} />;
     } else {
-      actionBar = <netric.ui.ActionBar title={this.state.name} />;
+        appBar = <netric.ui.AppBar title={this.state.name} />;
     }
 
     return (
       <div>
         <div>
-          {actionBar}
+          {appBar}
         </div>
         <div ref="moduleMain">
           Browser loaded

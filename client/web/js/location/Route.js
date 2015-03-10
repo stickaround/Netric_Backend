@@ -109,6 +109,12 @@ netric.location.Route.prototype.enterRoute = function(opt_params, opt_callback) 
 		this.controller_ = new this.controllerClass_;
 	}
 
+    if (opt_params) {
+        for (var name in opt_params) {
+            this.controllerData_[name] = opt_params[name];
+        }
+    }
+
 	// Load up the controller and pass the callback if set
 	this.controller_.load(this.controllerData_, this.domNode_, this.getChildRouter(), doneLoadingCB);
 }

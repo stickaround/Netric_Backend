@@ -589,7 +589,7 @@ CAntObject.prototype.setData = function(objData)
 			{   
 				this.setValue(field.name, fieldData.key, fieldData.value);
 			}
-			else if (field.type == "bool")
+			else if (field.type == "bool" && typeof fieldData === "string")
 			{
 				this.setValue(field.name, (fieldData=='t')?true:false);
 			}

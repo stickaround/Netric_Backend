@@ -25,6 +25,13 @@ netric.inherits(netric.controller.ModuleController, netric.controller.AbstractCo
 netric.controller.ModuleController.prototype.rootReactNode_ = null;
 
 /**
+ * Loaded module definition
+ *
+ * @type {netric.module.Module}
+ */
+netric.controller.ModuleController.prototype.module_ = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -44,8 +51,14 @@ netric.controller.ModuleController.prototype.onLoad = function(opt_callback) {
 	}
 
 	// By default just immediately execute the callback because nothing needs to be done
-	if (opt_callback)
-		opt_callback();
+	if (opt_callback) {
+        netric.module.loader.get(this.props.module, function(module) {
+            this.module_ = module;
+            opt_callback();
+        }.bind(this));
+    } else {
+        opt_callback();
+    }
 }
 
 /**
@@ -55,14 +68,17 @@ netric.controller.ModuleController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
+    // Initialize properties to send to the netric.ui.Module view
 	var data = {
-		name: "Loading...",
+		name: this.module_.name,
+        title: this.module_.title,
 		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.small) ? false : true,
 		leftNavItems: [
 			{name: "Create New Entity", "route": "compose"},
 			{name: "Browse Entity", "route": "browse"},
 			{name: "Third Menu Entry"}
 		],
+        modules: netric.module.loader.getModules(),
 		onLeftNavChange: this.onLeftNavChange_.bind(this)
 	}
 
@@ -81,10 +97,11 @@ netric.controller.ModuleController.prototype.render = function() {
 
 	// Add route to compose a new entity
 	this.addSubRoute("browse", 
-		netric.controller.EntityBrowserController, 
-		{ 
+		netric.controller.EntityBrowserController,
+        {
 			type: netric.controller.types.FRAGMENT,
-			onNavBtnClick: function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this) 
+			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.small) ?
+                function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this) : null
 		}, 
 		this.rootReactNode_.refs.moduleMain.getDOMNode()
 	);
