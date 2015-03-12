@@ -304,7 +304,10 @@ class AntMail_DeliveryAngent
 		    $email->setGroup("Inbox");
 		}
 
-		$messageDate = ($parser->getHeader('date')) ? date(DATE_RFC822, strtotime($parser->getHeader('date'))) : date(DATE_RFC822);
+        $origDate = $parser->getHeader('date');
+        if (is_array($origDate))
+            $origDate = $origDate[count($origDate) - 1];
+		$messageDate = ($origDate) ? date(DATE_RFC822, $origDate) : date(DATE_RFC822);
             
 		// Create new mail object and save it to ANT
 		$email->setValue("message_date", $messageDate);

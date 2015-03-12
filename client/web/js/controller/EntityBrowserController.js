@@ -25,6 +25,14 @@ netric.inherits(netric.controller.EntityBrowserController, netric.controller.Abs
 netric.controller.EntityBrowserController.prototype.rootReactNode_ = null;
 
 /**
+ * A collection of entities
+ *
+ * @private
+ * @type {netric.entity.Collection}
+ */
+netric.controller.EntityBrowserController.prototype.collection_ = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -45,7 +53,11 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 
 	var data = {
 		name: "Loading...",
-		onNavBtnClick: this.props.onNavBtnClick || null
+        entities: new Array(),
+        onEntityListClick: function(objType, oid) {
+            this.onEntityListClick(objType, oid);
+        }.bind(this),
+        onNavBtnClick: this.props.onNavBtnClick || null
 	}
 
 	// Render application component
@@ -54,6 +66,13 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 		domCon
 	);
 
+    // Load the entity list
+    this.collection_ = new netric.entity.Collection(this.props.objType);
+    alib.events.listen(this.collection_, "change", function() {
+        this.onCollectionChange();
+    }.bind(this));
+    this.collection_.load();
+
 	/*
 	// Add route to compose a new entity
 	this.addSubRoute("compose", 
@@ -61,22 +80,32 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 		{ type: netric.controller.types.FRAGMENT }, 
 		this.rootReactNode_.refs.moduleMain.getDOMNode()
 	);
+	*/
 
 	// Add route to compose a new entity
-	this.addSubRoute("browse", 
-		netric.controller.TestController, 
-		{ type: netric.controller.types.FRAGMENT }, 
-		this.rootReactNode_.refs.moduleMain.getDOMNode()
+	this.addSubRoute(":oid",
+		netric.controller.EntityController,
+		{
+            type: netric.controller.types.PAGE,
+            objType: this.props.objType
+        }
 	);
-	*/
+}
+
+/**
+ * User clicked/touched an entity in the list
+ */
+netric.controller.EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
+    if (objType && oid) {
+        var basePath = this.getRoutePath();
+        netric.location.go(basePath + "/" + oid);
+    }
 }
 
 /**
  * User selected an alternate menu item in the left navigation
  */
-netric.controller.EntityBrowserController.prototype.onLeftNavChange_ = function(evt, index, payload) {
-	if (payload && payload.route) {
-		var basePath = this.getRoutePath();
-		netric.location.go(basePath + "/" + payload.route);
-	}
+netric.controller.EntityBrowserController.prototype.onCollectionChange = function() {
+    var entities = this.collection_.getEntities();
+    this.rootReactNode_.setProps({entities: entities});
 }

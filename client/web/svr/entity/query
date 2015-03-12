@@ -1,0 +1,22 @@
+{
+	"totalNum" : 3,
+	"offset" : 0,
+	"limit" : 10,
+	"entities" : [
+        {
+            "id" : 1,
+            "obj_type" : "customer",
+            "name" : "Test Customer"
+        },
+        {
+            "id" : 2,
+            "obj_type" : "customer",
+            "name" : "Test Customer 2"
+        },
+        {
+            "id" : 3,
+            "obj_type" : "customer",
+            "name" : "Test Customer 3"
+        }
+	]
+}

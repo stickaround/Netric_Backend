@@ -107,7 +107,7 @@ netric.entity.Entity.prototype.loadData = function (data) {
 	this.id = data.id.toString();
 	this.objType = data.obj_type;
 
-	// Now set all the values for this entity
+	// TODO: Now set all the values for this entity
 }
 
 /**

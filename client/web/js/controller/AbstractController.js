@@ -156,9 +156,9 @@ netric.controller.AbstractController.prototype.unload = function() {
  */
 netric.controller.AbstractController.prototype.resume = function() {
 	// If this controller is of type PAGE then hide the parent (if exists)
-	if (this.type_ == netric.controller.types.PAGE && this.isPaused()) {
+	if (this.isPaused()) {
 
-		// Hide me
+		// unhide me
 		if (this.domNode_) {
 			alib.dom.styleSet(this.domNode_, "display", "block");
 		}
@@ -174,29 +174,25 @@ netric.controller.AbstractController.prototype.resume = function() {
  * Pause this controller and move it into the background
  */
 netric.controller.AbstractController.prototype.pause = function() {
-	// If this controller is of type PAGE then hide the parent (if exists)
-	if (this.type_ == netric.controller.types.PAGE) {
 
-		// Hide me
-		if (this.domNode_) {
-			alib.dom.styleSet(this.domNode_, "display", "none");
-		}
+    // Hide me
+    if (this.domNode_) {
+        alib.dom.styleSet(this.domNode_, "display", "none");
+    }
 
-		// Set paused flag for resuming later
-		this.isPaused_ = true;
+    // Set paused flag for resuming later
+    this.isPaused_ = true;
 
-		// Get my parent and pause it
-		var parentRouter = this.getParentRouter();
-		
-		// Get the parent controller of this controller
-		var parentController = this.getParentController();
-		if (parentController) {
-			// Pause/hide parent controller before we render this controller
-			parentController.pause();
-		}
+    // Get the parent controller of this controller
+    if (this.getType() == netric.controller.types.PAGE) {
+        var parentController = this.getParentController();
+        if (parentController && parentController.getType() == netric.controller.types.PAGE) {
+            // Pause/hide parent controller before we render this controller
+            parentController.pause();
+        }
+    }
 
-		this.onPause();
-	}
+    this.onPause();
 }
 
 /**
@@ -314,7 +310,9 @@ netric.controller.AbstractController.prototype.getTopPageNode = function(opt_roo
 	if (this.getParentController()) {
 		if (this.getParentController().getType() == netric.controller.types.PAGE) {
 			return this.getParentController().getTopPageNode();
-		}
+		} else if (this.getParentController().getDOMNode().parentNode) {
+            return this.getParentController().getDOMNode().parentNode;
+        }
 	}
 
 	// No parent pages were found so simply return my parent node
@@ -383,6 +381,15 @@ netric.controller.AbstractController.prototype.getType = function() {
 	return this.type_;
 }
 
+
+/**
+ * Get the dom node this controller is rendered into
+ *
+ * @returns {RactElement|DOMElement}
+ */
+netric.controller.AbstractController.prototype.getDOMNode = function() {
+    return this.domNode_;
+}
 
 /**
  * Detect if this controller was previously paused

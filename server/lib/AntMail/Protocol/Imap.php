@@ -121,7 +121,6 @@ class AntMail_Protocol_Imap extends AntMail_Protocol_Abstract
         $ret = array();
 
         $emails = imap_search($this->imapObj, 'ALL');
-        //rsort($emails); // Put the newest emails on top
 		
 		// Error getting messages
 		if (!is_array($emails))

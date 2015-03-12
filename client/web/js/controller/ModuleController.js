@@ -100,6 +100,7 @@ netric.controller.ModuleController.prototype.render = function() {
 		netric.controller.EntityBrowserController,
         {
 			type: netric.controller.types.FRAGMENT,
+            objType: "customer",
 			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.small) ?
                 function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this) : null
 		}, 

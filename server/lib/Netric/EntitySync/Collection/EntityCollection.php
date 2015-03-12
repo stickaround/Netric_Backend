@@ -73,6 +73,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 
 	        // Set base/common condition
 	        $query->where('commit_id')->isGreaterThan($lastCollectionCommit);
+	        $query->andWhere('commit_id')->doesNotEqual('');
 
 	        // Add any collection conditions
 	        $conditions = $this->getConditions();

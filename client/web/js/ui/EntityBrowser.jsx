@@ -48,7 +48,10 @@ netric.ui.EntityBrowser = React.createClass({
           {appBar}
         </div>
         <div ref="moduleMain">
-          Browser loaded
+            <netric.ui.entitybrowser.List
+                onEntityListClick={this.props.onEntityListClick}
+                entities={this.props.entities}
+            />
         </div>
       </div>
     );

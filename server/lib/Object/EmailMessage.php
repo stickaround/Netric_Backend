@@ -496,7 +496,10 @@ class CAntObject_EmailMessage extends CAntObject
 	public function setHeader($name, $value)
 	{
 		$name = $this->transFromRfcToAnt($name);
-		$this->setValue($name, $value);
+		if ($name)
+		{
+			$this->setValue($name, $value);
+		}
 	}
 
 	/**
@@ -525,21 +528,30 @@ class CAntObject_EmailMessage extends CAntObject
 		// All properties in ANT should be lower case
 		$name = strtolower($name);
 
+		// Replace dash with underscore
+		$name = str_replace("-", "_", $name);
+
 		$trans = array(
 			"from" => "sent_from",
 			"to" => "send_to",
-            "reply-to" => "reply_to",
-			"in-reply-to" => "in_reply_to",
-			"return-path" => "return_path",
 		);
 
 		foreach ($trans as $rfcname=>$antname)
 		{
 			if ($rfcname == strtolower($name))
-				$name = $antname;
+				return $antname;
 		}
 
-		return $name;
+		// Check to make sure the field exists
+		if ($this->def->getField($name))
+		{
+			return $name;
+		}
+		else
+		{
+			return null;
+
+		}
 	}
 
 	/**

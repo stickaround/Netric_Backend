@@ -35,12 +35,12 @@ netric.entity.Query = function(objType) {
 	 * @type {string}
 	 * @private
 	 */
-	this.objType_ = obj_type;
+	this.objType_ = objType;
 
 	/**
 	 * Array of condition objects {blogic, fieldName, operator, condValue}
 	 *
-	 * @type {array}
+	 * @type {Array}
 	 * @private
 	 */
 	this.conditions_ = new Array();
@@ -49,7 +49,7 @@ netric.entity.Query = function(objType) {
 	/**
 	 * Array of sort order objects
 	 *
-	 * @type {array}
+	 * @type {Array}
 	 * @private
 	 */
 	this.orderBy_ = new Array();
