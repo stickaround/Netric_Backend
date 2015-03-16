@@ -42,9 +42,9 @@ netric.controller.ModuleController.prototype.onLoad = function(opt_callback) {
 	switch (netric.getApplication().device.size)
 	{
 	case netric.Device.sizes.small:
-	case netric.Device.sizes.medium:
 		this.type_ = netric.controller.types.PAGE;
 		break;
+    case netric.Device.sizes.medium:
 	case netric.Device.sizes.large:
 		this.type_ = netric.controller.types.FRAGMENT;
 		break;
@@ -72,7 +72,7 @@ netric.controller.ModuleController.prototype.render = function() {
 	var data = {
 		name: this.module_.name,
         title: this.module_.title,
-		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.small) ? false : true,
+		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large) ? true : false,
 		leftNavItems: [
 			{name: "Create New Entity", "route": "compose"},
 			{name: "Browse Entity", "route": "browse"},
@@ -101,8 +101,8 @@ netric.controller.ModuleController.prototype.render = function() {
         {
 			type: netric.controller.types.FRAGMENT,
             objType: "customer",
-			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.small) ?
-                function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this) : null
+			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
+                null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
 		}, 
 		this.rootReactNode_.refs.moduleMain.getDOMNode()
 	);

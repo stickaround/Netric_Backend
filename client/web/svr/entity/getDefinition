@@ -34,5 +34,11 @@
 		}
 	],
 	"views" : [
-	]
+	],
+	"forms" : {
+	    "large": "<field name='id' /><field name='first_name' />",
+	    "medium": "<field name='id' /><field name='first_name' />",
+	    "small": "<field name='id' /><field name='first_name' />",
+	    "infobox": "<field name='id' /><field name='first_name' />"
+	}
 }

@@ -434,6 +434,6 @@ netric.controller.AbstractController.prototype.onUnload = function() {}
 netric.controller.AbstractController.prototype.onPause = function() {}
 
 /**
- * Called when this function was paused but it has been resumed to the forground
+ * Called when this function was paused but it has been resumed to the foreground
  */
 netric.controller.AbstractController.prototype.onResume = function() {}

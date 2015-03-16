@@ -63,7 +63,7 @@ abstract class IndexAbstract
      * @param string $id Unique id of object to delete
 	 * @return \Netric\EntityQuery\Results
 	 */
-	abstract public function executeQuery(\Netric\EntityQuery &$query);
+	//abstract public function executeQuery(\Netric\EntityQuery &$query);
     
     /**
 	 * Split a full text string into an array of terms

@@ -26,6 +26,7 @@ netric.entity = netric.entity || {};
 netric.entity.Definition = function(opt_data) {
 
 	var data = opt_data || new Object();
+    if (!data.forms) data.forms = {};
 
 	/**
 	 * The object type for this definition
@@ -144,7 +145,25 @@ netric.entity.Definition = function(opt_data) {
 	 * @private
 	 * @type {string}
 	 */
-	this.browserBlankContent = data.browser_blank_content || "";;
+	this.browserBlankContent = data.browser_blank_content || "";
+
+    /**
+     * Forms for different devices and use cases
+     *
+     * These forms will UIML which is just XML
+     * with netric specific tags for rendering an entity
+     * form.
+     *
+     * @see https://aereus.netric.com/obj/infocenter_document/241
+     * @public
+     * @type {Object}
+     */
+    this.forms = {
+        large: data.forms.large || "",
+        medium: data.forms.medium || "",
+        small: data.forms.small || "",
+        infobox: data.forms.infobox || ""
+    };
 
 	/*
 	 * Initialize fields if set in the data object

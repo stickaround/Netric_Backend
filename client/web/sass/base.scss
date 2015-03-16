@@ -1,11 +1,7 @@
 @import "base/main";
 
-$font-stack:    Helvetica, sans-serif;
-$primary-color: #333;
-
 body {
-  font: 100% $font-stack;
-  color: $primary-color;
+  font-family: Tahoma, Arial, Verdana, Helvetica, sans-serif;
   margin: 0px;
   padding: 0px;
 }

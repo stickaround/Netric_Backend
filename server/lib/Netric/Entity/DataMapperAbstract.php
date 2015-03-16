@@ -53,7 +53,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param string $fieldName The field name to get grouping data for
 	 * @return \Netric\\EntityGroupings
 	 */
-	abstract public function getGroupings($objType, $fieldName, $filters=array());
+	//abstract public function getGroupings($objType, $fieldName, $filters=array());
     
     /**
      * Save groupings
@@ -71,7 +71,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 * @param stirng $toId The unique id of the object this was moved to
 	 * @return bool true on succes, false on failure
 	 */
-	abstract public function setEntityMovedTo(&$def, $fromId, $toId);
+	//abstract public function setEntityMovedTo(&$def, $fromId, $toId);
 
 	/**
 	 * The setup function is used by all derrived classes as constructors

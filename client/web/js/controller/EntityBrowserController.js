@@ -32,6 +32,15 @@ netric.controller.EntityBrowserController.prototype.rootReactNode_ = null;
  */
 netric.controller.EntityBrowserController.prototype.collection_ = null;
 
+
+/**
+ * Selected entities
+ *
+ * @private
+ * @type {int[]}
+ */
+netric.controller.EntityBrowserController.prototype.selected_ = new Array();
+
 /**
  * Function called when controller is first loaded but before the dom ready to render
  *
@@ -54,8 +63,13 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 	var data = {
 		name: "Loading...",
         entities: new Array(),
+        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
+            ? "compact" : "table",
         onEntityListClick: function(objType, oid) {
             this.onEntityListClick(objType, oid);
+        }.bind(this),
+        onEntityListSelect: function(oid) {
+            this.toggleEntitySelect(oid);
         }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null
 	}
@@ -97,8 +111,33 @@ netric.controller.EntityBrowserController.prototype.render = function() {
  */
 netric.controller.EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
     if (objType && oid) {
+
+        // Mark the entity as selected
+        if (this.props.objType == objType) {
+            this.selected_ = new Array();
+            this.selected_.push(oid);
+            this.rootReactNode_.setProps({selectedEntities: this.selected_});
+        }
+
         var basePath = this.getRoutePath();
         netric.location.go(basePath + "/" + oid);
+    }
+}
+
+/**
+ * User clicked/touched an entity in the list
+ */
+netric.controller.EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
+    if (oid) {
+        var selectedAt = this.selected_.indexOf(oid);
+
+        if (selectedAt == -1) {
+            this.selected_.push(oid);
+        } else {
+            this.selected_.splice(selectedAt, 1);
+        }
+
+        this.rootReactNode_.setProps({selectedEntities: this.selected_});
     }
 }
 
@@ -108,4 +147,23 @@ netric.controller.EntityBrowserController.prototype.onEntityListClick = function
 netric.controller.EntityBrowserController.prototype.onCollectionChange = function() {
     var entities = this.collection_.getEntities();
     this.rootReactNode_.setProps({entities: entities});
+}
+
+/**
+ * Called when this controller is paused and moved to the background
+ */
+netric.controller.EntityBrowserController.prototype.onPause = function() {
+
+}
+
+/**
+ * Called when this function was paused but it has been resumed to the foreground
+ */
+netric.controller.EntityBrowserController.prototype.onResume = function() {
+    /*
+     * Clear selected because we do not want the last selected entity to still
+     * be selected when a user closes the previously selected entity controller.
+     */
+    this.selected_ = new Array();
+    this.rootReactNode_.setProps({selectedEntities: this.selected_});
 }

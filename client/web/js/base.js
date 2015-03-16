@@ -179,3 +179,36 @@ netric.exportPath_ = function(name, opt_object, opt_objectToExportTo) {
   }
 };
 
+/**
+ * Get an object by name if it exists
+ *
+ * @param {string} path oath of the object that this file defines.
+ * @param {*=} opt_object the object to expose at the end of the path.
+ * @param {Object=} opt_objectToExportTo The object to add the path to; default this
+ */
+netric.getObjectByName = function(name, opt_object, opt_objectToExportTo) {
+    var parts = name.split('.');
+    var cur = opt_objectToExportTo || window;
+
+    // Internet Explorer exhibits strange behavior when throwing errors from
+    // methods externed in this manner.
+    if (!(parts[0] in cur) && cur.execScript) {
+        cur.execScript('var ' + parts[0]);
+    }
+
+    // Parentheses added to eliminate strict JS warning in Firefox.
+    for (var part; parts.length && (part = parts.shift());) {
+        if (!parts.length && opt_object) {
+            // last part and we have an object; use it
+            cur[part] = opt_object;
+        } else if (cur[part]) {
+            cur = cur[part];
+        } else {
+            // Object does not exist and/or is not loaded
+            return null;
+        }
+    }
+
+    // Looks like our object exists, return it now
+    return cur;
+};

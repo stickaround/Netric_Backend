@@ -128,10 +128,10 @@ class CCache
         
 		if($alibMemCached)
 		{
-			$this->memCached = new Memcached();
+			$this->memCached = new Memcache();
 
 			// Make sure servers are not already added
-			if (!count($this->memCached->getServerList()))
+			//if (!count($this->memCached->getServerList()))
 			{
 				if (defined("ANT_DEBUG_CLI")) echo "Setting servers to ".var_export($alibMemSvr, true)."...";
 				if (is_array($alibMemSvr))
@@ -146,10 +146,10 @@ class CCache
 					$this->memCached->addServer($alibMemSvr, 11211);
 				if (defined("ANT_DEBUG_CLI")) echo "[done]\n";
 			}
-			else
-			{
-				if (defined("ANT_DEBUG_CLI")) echo "Servers already set\n";
-			}
+			//else
+			//{
+		//		if (defined("ANT_DEBUG_CLI")) echo "Servers already set\n";
+		//	}
 		}
 		else
 		{

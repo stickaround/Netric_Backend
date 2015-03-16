@@ -48,6 +48,7 @@
     float: left;
     margin-right: $gutter-less;
     height: $app-bar-height-small;
+    width: $icon-size;
 
     @media #{$device-medium} {
       height: $app-bar-height-medium;

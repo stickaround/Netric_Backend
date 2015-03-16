@@ -31,6 +31,7 @@ netric.ui.AppBar = React.createClass({
         return {
             showMenuIconButton: true,
             title: '',
+            iconClassNameLeft: 'fa fa-bars',
             zDepth: 1
         }
     },
@@ -41,7 +42,7 @@ netric.ui.AppBar = React.createClass({
 		if (this.props.onNavBtnClick) {
             menuElementLeft = (
                 <div className="app-bar-navigation-icon-button">
-                    <i className="fa fa-bars" onClick={this.props.onNavBtnClick}></i>
+                    <i className={this.props.iconClassNameLeft} onClick={this.props.onNavBtnClick}></i>
                 </div>
             );
 		}

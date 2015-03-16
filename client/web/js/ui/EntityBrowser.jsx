@@ -19,6 +19,22 @@ netric.ui = netric.ui || {};
  */
 netric.ui.EntityBrowser = React.createClass({
 
+    propTypes: {
+        onEntityListClick: React.PropTypes.func,
+        onEntityListSelect: React.PropTypes.func,
+        layout : React.PropTypes.string,
+        entities: React.PropTypes.array,
+        selectedEntities: React.PropTypes.array
+    },
+
+    getDefaultProps: function() {
+        return {
+            layout: '',
+            entities: [],
+            selectedEntities: []
+        }
+    },
+
   getInitialState: function() {
     return {name: "Browser"};
   },
@@ -50,7 +66,10 @@ netric.ui.EntityBrowser = React.createClass({
         <div ref="moduleMain">
             <netric.ui.entitybrowser.List
                 onEntityListClick={this.props.onEntityListClick}
+                onEntityListSelect={this.props.onEntityListSelect}
                 entities={this.props.entities}
+                selectedEntities={this.props.selectedEntities}
+                layout={this.props.layout}
             />
         </div>
       </div>
