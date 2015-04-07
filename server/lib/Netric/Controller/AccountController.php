@@ -19,6 +19,7 @@ class AccountController extends Mvc\AbstractController
 			"id" => $this->account->getId(),
 			"name" => $this->account->getName(),
 			"orgName" => "", // TODO: $this->account->get
+			"defaultModule" => "notes", // TODO: this should be home until it is configurable
 		);
 
 		// Add the user if we have a currently authenticated user

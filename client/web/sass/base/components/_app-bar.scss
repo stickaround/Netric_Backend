@@ -23,8 +23,20 @@
   }
 
   .icon-button {
-    margin-top: 8px;
-    color: $app-bar-text-color;
+    margin-top: (($app-bar-height-small - $icon-button-size) / 2);
+
+    @media #{$device-medium} {
+      margin-top: (($app-bar-height-medium - $icon-button-size) / 2);
+    }
+
+    @media #{$device-large} {
+      margin-top: (($app-bar-height-large - $icon-button-size) / 2);
+    }
+
+    * {
+      fill: $app-bar-text-color;
+      color: $app-bar-text-color;
+    }
   }
 
   .app-bar-title {
@@ -44,22 +56,29 @@
     }
   }
 
-  .app-bar-navigation-icon-button {
-    float: left;
-    margin-right: $gutter-less;
-    height: $app-bar-height-small;
-    width: $icon-size;
+  .app-bar-toolbar {
+    float: right;
+    margin: 0 ($gutter-less * -1) 0 $gutter-less;
 
     @media #{$device-medium} {
-      height: $app-bar-height-medium;
-      line-height: $app-bar-height-medium;
-      margin-right: $gutter;
+      margin: 0 ($gutter * -1) 0 $gutter;
     }
 
     @media #{$device-large} {
-      height: $app-bar-height-large;
-      line-height: $app-bar-height-large;
-      margin-right: $gutter;
+      margin: 0 ($gutter * -1) 0 $gutter;
+    }
+  }
+
+  .app-bar-navigation-icon-button {
+    float: left;
+    margin: 0 $gutter-less 0 ($gutter-less * -1);
+
+    @media #{$device-medium} {
+      margin: 0 $gutter 0 ($gutter * -1);
+    }
+
+    @media #{$device-large} {
+      margin: 0 $gutter 0 ($gutter * -1);
     }
 
   }

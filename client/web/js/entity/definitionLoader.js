@@ -4,24 +4,15 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.entity.definitionLoader");
+'use strict';
 
-alib.require("netric");
-
-alib.require("netric.entity.Definition");
-alib.require("netric.BackendRequest");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+var BackendRequest = require("../BackendRequest");
+var Definition = require("./Definition");
 
 /**
  * Entity definition loader
- *
- * @param {netric.Application} application Application instance
  */
-netric.entity.definitionLoader = netric.entity.definitionLoader || {};
+var definitionLoader = {};
 
 /**
  * Keep a reference to loaded definitions to reduce requests
@@ -29,7 +20,7 @@ netric.entity.definitionLoader = netric.entity.definitionLoader || {};
  * @private
  * @param {Array}
  */
-netric.entity.definitionLoader.definitions_ = new Array();
+definitionLoader.definitions_ = new Array();
 
 /**
  * Static function used to load an entity definition
@@ -40,9 +31,9 @@ netric.entity.definitionLoader.definitions_ = new Array();
  *
  * @param {string} objType The object type we are loading a definition for
  * @param {function} cbLoaded Callback function once definition is loaded
- * @return {netric.entity.Definition|void} If no callback is provded then force a return
+ * @return {Definition|void} If no callback is provded then force a return
  */
-netric.entity.definitionLoader.get = function(objType, cbLoaded) {
+definitionLoader.get = function(objType, cbLoaded) {
 	
 	// Return (or callback callback) cached definition if already loaded
 	if (this.definitions_[objType] != null) {
@@ -54,11 +45,11 @@ netric.entity.definitionLoader.get = function(objType, cbLoaded) {
 		return this.definitions_[objType];
 	}
 
-	var request = new netric.BackendRequest();
+	var request = new BackendRequest();
 
 	if (cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
-			var def = netric.entity.definitionLoader.createFromData(this.getResponse());
+			var def = definitionLoader.createFromData(this.getResponse());
 			cbLoaded(def);
 		});
 	} else {
@@ -68,7 +59,7 @@ netric.entity.definitionLoader.get = function(objType, cbLoaded) {
 
 	request.send("svr/entity/getDefinition", "GET", {obj_type:objType});
 
-	// If no callback then construct netric.entity.Definition from request date (synchronous)
+	// If no callback then construct Definition from request date (synchronous)
 	if (!cbLoaded) {
 		return this.createFromData(request.getResponse());
 	}
@@ -79,10 +70,10 @@ netric.entity.definitionLoader.get = function(objType, cbLoaded) {
  *
  * @param {Object} data The data to create the definition from
  */
-netric.entity.definitionLoader.createFromData = function(data) {
+definitionLoader.createFromData = function(data) {
 
 	// Construct definition and initialize with data	
-	var def = new netric.entity.Definition(data);
+	var def = new Definition(data);
 	
 	// Cache it for future requests
 	this.definitions_[def.objType] = def;
@@ -94,12 +85,14 @@ netric.entity.definitionLoader.createFromData = function(data) {
  * Get a pre-loaded / cached object definition
  *
  * @param {string} objType The uniqy name of the object entity type
- * @return {netric.entity.Definition} Entity defintion on success, null if not cached
+ * @return {Definition} Entity defintion on success, null if not cached
  */
-netric.entity.definitionLoader.getCached = function(objType) {
+definitionLoader.getCached = function(objType) {
 	if (this.definitions_[objType]) {
 		return this.definitions_[objType];
 	}
 
 	return null;
 }
+
+module.exports = definitionLoader;

@@ -38,17 +38,12 @@
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
  * 			Copyright (c) 2014-2015 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.entity.Collection");
+'use strict';
 
-alib.require("netric");
-alib.require("netric.entity.Definition");
-alib.require("netric.entity.Where");
-alib.require("netric.BackendRequest");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+var definitionLoader = require("./definitionLoader");
+var BackendRequest = require("../BackendRequest");
+var Entity = require("./Entity");
+var Where = require("./Where");
 
 /**
  * Represents a collection of entities
@@ -56,7 +51,7 @@ netric.entity = netric.entity || {};
  * @constructor
  * @param {string} objType The name of the object type we are collecting
  */
-netric.entity.Collection = function(objType) {
+var Collection = function(objType) {
 
     /**
      * Object type for this list
@@ -69,14 +64,14 @@ netric.entity.Collection = function(objType) {
     /**
      * Entity definition
      *
-     * @type {netric.entity.Definition}
+     * @type {EntityDefinition}
      */
     this.entityDefinition_ = null;
 
     /**
      * Array of where conditions
      *
-     * @type {netric.entity.Where[]}
+     * @type {Where[]}
      * @private
      */
     this.conditions_ = new Array();
@@ -118,15 +113,15 @@ netric.entity.Collection = function(objType) {
      * Copy static order by direction to this so we can access through this.orderByDir
      *
      * @public
-     * @type {netric.entity.Collection.orderByDir}
+     * @type {Collection.orderByDir}
      */
-    this.orderByDir = netric.entity.Collection.orderByDir;
+    this.orderByDir = Collection.orderByDir;
 
     /**
      * Array of entities in this collection
      *
      * @private
-     * @type {netric.entity.Entity[]}
+     * @type {Entity[]}
      */
     this.entities_ = new Array();
 
@@ -137,7 +132,7 @@ netric.entity.Collection = function(objType) {
  *
  * @const
  */
-netric.entity.Collection.orderByDir = {
+Collection.orderByDir = {
     ASC : "ASC",
     DESC : "DESC"
 }
@@ -147,12 +142,12 @@ netric.entity.Collection.orderByDir = {
  *
  * @param {function} opt_callback Optional callback to be called when finished loading
  */
-netric.entity.Collection.prototype.load = function(opt_callback) {
+Collection.prototype.load = function(opt_callback) {
 
     // First get the entity definition
     if (null === this.entityDefinition_) {
 
-        netric.entity.definitionLoader.get(this.objType_, function(def){
+        definitionLoader.get(this.objType_, function(def){
             this.entityDefinition_ = def;
 
             if (opt_callback) {
@@ -168,7 +163,7 @@ netric.entity.Collection.prototype.load = function(opt_callback) {
 
     // TODO: first try to load cached
 
-    var request = new netric.BackendRequest();
+    var request = new BackendRequest();
 
     var collection = this;
     alib.events.listen(request, "load", function(evt) {
@@ -190,7 +185,7 @@ netric.entity.Collection.prototype.load = function(opt_callback) {
  *
  * @param {Array} data
  */
-netric.entity.Collection.prototype.setEntitiesData = function(data) {
+Collection.prototype.setEntitiesData = function(data) {
 
     if (this.offset_ == 0) {
         // Cleanup
@@ -204,7 +199,7 @@ netric.entity.Collection.prototype.setEntitiesData = function(data) {
 
     // Initialize entities
     for (var i in data) {
-        this.entities_[this.offset_ + parseInt(i)] = new netric.entity.Entity(this.entityDefinition_, data[i]);
+        this.entities_[this.offset_ + parseInt(i)] = new Entity(this.entityDefinition_, data[i]);
     }
 
     // Triger change event
@@ -216,21 +211,21 @@ netric.entity.Collection.prototype.setEntitiesData = function(data) {
  *
  * @returns {integer}
  */
-netric.entity.Collection.prototype.getTotalNum = function() {
+Collection.prototype.getTotalNum = function() {
     return this.totalNum_;
 }
 
 /**
  * Get array of all entities in this collection
  */
-netric.entity.Collection.prototype.getEntities = function() {
+Collection.prototype.getEntities = function() {
     return this.entities_;
 }
 
 /**
  * Get updates from the backend and refresh the collection
  */
-netric.entity.Collection.prototype.refresh = function() {
+Collection.prototype.refresh = function() {
     // if this.syncCollectionId then call entitySync conctroller to look for changes
     // Otherwise load the query
 }
@@ -239,9 +234,9 @@ netric.entity.Collection.prototype.refresh = function() {
  * Proxy used to add the first where condition to this query
  *
  * @param {string} fieldName The name of the field to query
- * @return {netric.entity.Where}
+ * @return {Where}
  */
-netric.entity.Collection.prototype.where = function(fieldName) {
+Collection.prototype.where = function(fieldName) {
     return this.andWhere(fieldName);
 }
 
@@ -249,10 +244,10 @@ netric.entity.Collection.prototype.where = function(fieldName) {
  * Add a where condition using the logical 'and' operator
  *
  * @param {string} fieldName The name of the field to query
- * @return {netric.entity.Where}
+ * @return {Where}
  */
-netric.entity.Collection.prototype.andWhere = function(fieldName) {
-    var where = new netric.entity.Where(fieldName);
+Collection.prototype.andWhere = function(fieldName) {
+    var where = new Where(fieldName);
     this.conditions_.push(where);
     return where;
 }
@@ -261,11 +256,11 @@ netric.entity.Collection.prototype.andWhere = function(fieldName) {
  * Add a where condition using the logical 'and' operator
  *
  * @param {string} fieldName The name of the field to query
- * @return {netric.entity.Where}
+ * @return {Where}
  */
-netric.entity.Collection.prototype.orWhere = function(fieldName) {
-    var where = new netric.entity.Where(fieldName);
-    where.operator = netric.entity.Where.boolOperator.OR;
+Collection.prototype.orWhere = function(fieldName) {
+    var where = new Where(fieldName);
+    where.operator = Where.boolOperator.OR;
     this.conditions_.push(where);
     return where;
 }
@@ -275,7 +270,7 @@ netric.entity.Collection.prototype.orWhere = function(fieldName) {
  *
  * @return {Array}
  */
-netric.entity.Collection.prototype.getConditions = function() {
+Collection.prototype.getConditions = function() {
     return this.conditions_;
 }
 
@@ -284,9 +279,9 @@ netric.entity.Collection.prototype.getConditions = function() {
  * Add an order by condition
  *
  * @param {string} fieldName The name of the field to sort by
- * @param {netric.entity.Collection.orderByDir} The direction of the sort
+ * @param {Collection.orderByDir} The direction of the sort
  */
-netric.entity.Collection.prototype.setOrderBy = function(fieldName, direction) {
+Collection.prototype.setOrderBy = function(fieldName, direction) {
    this.orderBy_.push({field:fieldName, direction:direction});
 }
 
@@ -295,7 +290,7 @@ netric.entity.Collection.prototype.setOrderBy = function(fieldName, direction) {
  *
  * @return {Array}
  */
-netric.entity.Collection.prototype.getOrderBy = function() {
+Collection.prototype.getOrderBy = function() {
     return this.orderBy_;
 }
 
@@ -304,7 +299,7 @@ netric.entity.Collection.prototype.getOrderBy = function() {
  *
  * @param {int} offset
  */
-netric.entity.Collection.prototype.setOffset = function(offset) {
+Collection.prototype.setOffset = function(offset) {
     this.offset_ = offset;
 }
 /**
@@ -312,7 +307,7 @@ netric.entity.Collection.prototype.setOffset = function(offset) {
  *
  * @return {int}
  */
-netric.entity.Collection.prototype.getOffset = function() {
+Collection.prototype.getOffset = function() {
     return this.offset_;
 }
 
@@ -321,7 +316,7 @@ netric.entity.Collection.prototype.getOffset = function() {
  *
  * @param {int} limit
  */
-netric.entity.Collection.prototype.setLimit = function(limit) {
+Collection.prototype.setLimit = function(limit) {
     this.limit_ = limit;
 }
 /**
@@ -329,6 +324,8 @@ netric.entity.Collection.prototype.setLimit = function(limit) {
  *
  * @return {int}
  */
-netric.entity.Collection.prototype.getLimit = function() {
+Collection.prototype.getLimit = function() {
     return this.limit_;
 }
+
+module.exports = Collection;

@@ -4,19 +4,14 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
+'use strict';
 
-alib.declare("netric");
-
-/**
- * @define {boolean} Overridden to true by the compiler when --closure_pass
- *     or --mark_as_compiled is specified.
- */
-var COMPILED = false;
+var server = require("./server");
 
 /**
  * The root namespace for all netric code
  */
-var netric = netric || {};
+var netric = {};
 
 /**
  * Set version
@@ -41,6 +36,14 @@ netric.version = "2.0.1";
  * @var {bool}
  */
 netric.online = false;
+
+/**
+ * Netric server object
+ *
+ * @public
+ * @var {Object}
+ */
+netric.server = server;
 
 /**
  * Private reference to initialized applicaiton
@@ -212,3 +215,5 @@ netric.getObjectByName = function(name, opt_object, opt_objectToExportTo) {
     // Looks like our object exists, return it now
     return cur;
 };
+
+module.exports = netric;

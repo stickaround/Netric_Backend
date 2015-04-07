@@ -1,5 +1,10 @@
 'use strict';
 
+var Definition = require("../../../js/entity/Definition");
+var definitionLoader = require("../../../js/entity/definitionLoader");
+var Entity = require("../../../js/entity/Entity");
+var netric = require("../../../js/main");
+
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests
  */
@@ -9,7 +14,7 @@ describe("Get Definition Asynchronously", function() {
 	beforeEach(function(done) {
 		// Set test base where karma unit tests are hosted
 		netric.server.host = "base/";
-		netric.entity.definitionLoader.get("customer", function(def){
+		definitionLoader.get("customer", function(def){
 			definition = def;
 			done(); 
 		});
@@ -50,8 +55,8 @@ describe("Get Definition Asynchronously", function() {
 	it("Should have cached the definition object", function(done) {
 		
 		// Check the private definitions_ property of the loader
-		expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
-		expect(netric.entity.definitionLoader.getCached("customer")).not.toBeNull();
+		expect(definitionLoader.definitions_["customer"]).not.toBeNull();
+		expect(definitionLoader.getCached("customer")).not.toBeNull();
 		done();
 
 	});
@@ -71,16 +76,16 @@ describe("Get Definition Non Async", function() {
 	it("Can fallback to loading definition synchronously", function() {
 		
 		// Clear cache which forces the loader to get the definition through BackendRequest
-		netric.entity.definitionLoader.definitions_ = new Array();
-		var definition = netric.entity.definitionLoader.get("customer"); // No callback forces sync load
+		definitionLoader.definitions_ = new Array();
+		var definition = definitionLoader.get("customer"); // No callback forces sync load
 		expect(definition).not.toBeNull();
 	});
 
 	it("Should have loaded the right data", function() {
 		
 		// Clear cache which forces the loader to get the definition through BackendRequest
-		netric.entity.definitionLoader.definitions_ = new Array();
-		var definition = netric.entity.definitionLoader.get("customer"); // No callback forces sync load
+		definitionLoader.definitions_ = new Array();
+		var definition = definitionLoader.get("customer"); // No callback forces sync load
 		expect(definition.objType).toEqual("customer");
 		expect(definition.title).toEqual("Customer");
 	});
@@ -88,9 +93,9 @@ describe("Get Definition Non Async", function() {
 	it("Should have cached the definition object", function() {
 		
 		// Check the private definitions_ property of the loader
-		netric.entity.definitionLoader.definitions_ = new Array();
-		var definition = netric.entity.definitionLoader.get("customer"); // No callback forces sync load
-		expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
+		definitionLoader.definitions_ = new Array();
+		var definition = definitionLoader.get("customer"); // No callback forces sync load
+		expect(definitionLoader.definitions_["customer"]).not.toBeNull();
 
 	});
 

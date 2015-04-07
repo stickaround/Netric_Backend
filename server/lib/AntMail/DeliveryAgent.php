@@ -307,7 +307,9 @@ class AntMail_DeliveryAngent
         $origDate = $parser->getHeader('date');
         if (is_array($origDate))
             $origDate = $origDate[count($origDate) - 1];
-		$messageDate = ($origDate) ? date(DATE_RFC822, $origDate) : date(DATE_RFC822);
+        if (!strtotime($origDate) && $origDate)
+            $origDate = substr($origDate, 0, strrpos($origDate, " "));
+		$messageDate = ($origDate) ? date(DATE_RFC822, strtotime($origDate)) : date(DATE_RFC822);
             
 		// Create new mail object and save it to ANT
 		$email->setValue("message_date", $messageDate);
@@ -576,6 +578,14 @@ class AntMail_DeliveryAngent
 			}
 
 			$ret = $email->save(false);
+
+            // Update date for thread
+            if ($email->getValue('thread'))
+            {
+                $thread = CAntObject::factory($this->dbh, "email_thread", $email->getValue('thread'));
+                $thread->setValue("ts_delivered", $email->getValue("message_date"));
+                $thread->save(false);
+            }
 		}
 
 
@@ -790,9 +800,15 @@ class AntMail_DeliveryAngent
 		//$plainbody = iconv($plainCharType,  "UTF-8//IGNORE", $plainbody);
 		//$htmlbody = iconv($htmlCharType,  "UTF-8//IGNORE", $htmlbody);
 
-		
+        $origDate = $parser->getHeader('date');
+        if (is_array($origDate))
+            $origDate = $origDate[count($origDate) - 1];
+        if (!strtotime($origDate) && $origDate)
+            $origDate = substr($origDate, 0, strrpos($origDate, " "));
+        $messageDate = ($origDate) ? date(DATE_RFC822, strtotime($origDate)) : date(DATE_RFC822);
 
-		// Create new mail object and save it to ANT
+        // Create new mail object and save it to ANT
+        $email->setValue("message_date", $messageDate);
 		$email->setValue("parse_rev", self::PARSE_REV);
 		$email->setHeader("Subject", trim($this->decodeMimeStr($parser->getHeader('subject'))));
 		$email->setHeader("From", trim($this->decodeMimeStr($parser->getHeader('from'))));

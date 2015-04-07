@@ -36,7 +36,7 @@
 	"views" : [
 	],
 	"forms" : {
-	    "large": "<field name='id' /><field name='first_name' />",
+	    "large": "<tabs><tab name='General'><fieldset name='Name'><row><column><field name='first_name' /></column><column><field name='last_name' /></column></row></fieldset></tab><tab name='Cases'><objectsref obj_type='case' ref_field='customer_id'></objectsref></tab></tabs>",
 	    "medium": "<field name='id' /><field name='first_name' />",
 	    "small": "<field name='id' /><field name='first_name' />",
 	    "infobox": "<field name='id' /><field name='first_name' />"

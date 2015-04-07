@@ -6,16 +6,9 @@
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
  * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.entity.Definition");
+'use strict';
 
-alib.require("netric.entity.definition.Field");
-
-alib.require("netric");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+var Field = require("./definition/Field");
 
 /**
  * Creates an instance of EntityDefinition
@@ -23,7 +16,7 @@ netric.entity = netric.entity || {};
  * @constructor
  * @param {Object} opt_data The definition data
  */
-netric.entity.Definition = function(opt_data) {
+var Definition = function(opt_data) {
 
 	var data = opt_data || new Object();
     if (!data.forms) data.forms = {};
@@ -125,7 +118,7 @@ netric.entity.Definition = function(opt_data) {
 	 * For definition see EntityDefinition_Field::toArray on backend
 	 *
 	 * @private
-	 * @type {netric.entity.definition.Field[]}
+	 * @type {Field[]}
 	 */
 	this.fields = new Array();
 
@@ -170,7 +163,7 @@ netric.entity.Definition = function(opt_data) {
 	 */
 	if (data.fields) {
 		for (var fname in data.fields) {
-			var field = new netric.entity.definition.Field(data.fields[fname]);
+			var field = new Field(data.fields[fname]);
 			this.fields.push(field);
 		}
 	}
@@ -194,7 +187,7 @@ netric.entity.Definition = function(opt_data) {
  * @public
  * @param {Object} data Initialize values of this defintion based on data
  */
-netric.entity.Definition.prototype.getField = function(fname) {
+Definition.prototype.getField = function(fname) {
 	for (var i in this.fields)
 	{
 		if (this.fields[i].name == fname)
@@ -207,9 +200,9 @@ netric.entity.Definition.prototype.getField = function(fname) {
  * Get fields
  *
  * @public
- * @return {netric.entity.Definition.Field[]}
+ * @return {Definition.Field[]}
  */
-netric.entity.Definition.prototype.getFields = function() {
+Definition.prototype.getFields = function() {
 	return this.fields;
 }
 
@@ -219,7 +212,7 @@ netric.entity.Definition.prototype.getFields = function() {
  * @public
  * @return {AntObjectBrowserView[]}
  */
-netric.entity.Definition.prototype.getViews = function() {
+Definition.prototype.getViews = function() {
 	return this.views;
 }
 
@@ -229,6 +222,8 @@ netric.entity.Definition.prototype.getViews = function() {
  * @public
  * @return {string}
  */
-netric.entity.Definition.prototype.getBrowserBlankContent = function() {
+Definition.prototype.getBrowserBlankContent = function() {
 	return this.browserBlankContent;
 }
+
+module.exports = Definition;

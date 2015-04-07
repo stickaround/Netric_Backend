@@ -103,6 +103,9 @@ $input-placeholder-size: 13px !default;
 $input-error-color: red !default;
 $input-bar-height: 2px !default;
 
+// switches
+$switches-ripple-color: rgba($primary-1-color, 0.2) !default;
+
 // radio button
 $radio-button-size: 16px !default;
 $radio-button-border-color: black !default;
@@ -119,14 +122,21 @@ $mui-toast-color: white !default;
 $mui-toast-background-color: #323232 !default;
 $mui-toast-action-color: yellow !default;
 
+// snackbar
+$mui-snackbar-text-color: white !default;
+$mui-snackbar-background-color: #323232 !default;
+$mui-snackbar-action-color: $accent-1-color !default;
+
 // toggle
 $toggle-size: 20px !default;
-$toggle-track-on-color: $cyan-200 !default;
-$toggle-track-off-color: $min-black !default;
-$toggle-track-disabled-color: $faint-black !default;
 $toggle-thumb-on-color: $primary-1-color !default;
 $toggle-thumb-off-color: $grey-50 !default;
-$toggle-thumb-disabled-color: $grey-800 !default;
+$toggle-thumb-disabled-color: $grey-400 !default;
+$toggle-thumb-required-color: $primary-1-color !default;
+$toggle-track-on-color: fade-out($toggle-thumb-on-color, 0.5) !default;
+$toggle-track-off-color: $min-black !default;
+$toggle-track-disabled-color: $faint-black !default;
+$toggle-track-required-color: fade-out($toggle-thumb-required-color, 0.5) !default;
 
 // toolbar
 $toolbar-background-color: darken(#eeeeee, 5%) !default;

@@ -4,15 +4,12 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-
-alib.declare("netric.server");
-
-alib.require("netric");
+'use strict';
 
 /**
  * Create global namespace for server settings
  */
-netric.server = netric.server || {};
+var server = {};
 
 /**
  * Server host
@@ -26,4 +23,6 @@ netric.server = netric.server || {};
  * @public
  * @var {string}
  */
-netric.server.host = "";
+server.host = "";
+
+module.exports = server;

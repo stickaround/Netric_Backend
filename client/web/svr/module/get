@@ -2,7 +2,7 @@
 	"name" : "messages",
 	"title" : "Messages",
 	"leftNav" : [
-		{type:"header", text="My Test Header"},
-		{type:"divider"}
+		{"type":"header", "text":"My Test Header"},
+		{"type":"divider"}
 	]
 }

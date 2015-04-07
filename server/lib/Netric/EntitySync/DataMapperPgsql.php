@@ -572,7 +572,7 @@
 	    	{
 	    		$updateSql = "UPDATE object_sync_import
 							  SET
-							    remote_revision='" . $this->dbh->escape($remoteRevision) . "'
+							    remote_revision='" . $this->dbh->escape($remoteRevision) . "',
 							  	revision='" . $this->dbh->escape($localRevision) . "',
 							  	object_id=" . $this->dbh->escapeNumber($localId) . " 
 							  WHERE 

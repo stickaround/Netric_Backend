@@ -33,6 +33,10 @@ else
     die("Invalid controller");
 }
 
+// Set headers to allow CORS 
+// @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
+header("Access-Control-Allow-Origin: *");
+
 // Lod up the router and run the $functionName
 $svr = new Netric\Mvc\Router($application);
 $svr->setClass("Netric\\Controller\\" . $controller . "Controller");

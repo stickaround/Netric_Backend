@@ -3,20 +3,14 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.entitybrowser.ListItem");
-
-/**
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
-netric.ui.entitybrowser = netric.ui.entitybrowser || {};
+var React = require('react');
 
 /**
  * Module shell
  */
-netric.ui.entitybrowser.ListItem = React.createClass({
+var ListItem = React.createClass({
 
     render: function () {
         var entity = this.props.entity;
@@ -24,6 +18,8 @@ netric.ui.entitybrowser.ListItem = React.createClass({
         if (this.props.selected) {
             classes += " selected";
         }
+        var headerText = entity.getName();
+        var snippet = entity.getSnippet();
 
         return (
             <div className={classes}>
@@ -33,13 +29,13 @@ netric.ui.entitybrowser.ListItem = React.createClass({
                 <div className="entity-browser-item-cmp-body"
                     onClick={this.props.onClick}>
                     <div className="entity-browser-item-cmp-header">
-                        Subject Here
+                        {headerText}
                     </div>
                     <div className="entity-browser-item-cmp-subheader">
                         From Here
                     </div>
                     <div className="entity-browser-item-cmp-caption">
-                        Snippet here {entity.id}
+                        {snippet}
                     </div>
                 </div>
             </div>
@@ -56,3 +52,5 @@ netric.ui.entitybrowser.ListItem = React.createClass({
     }
 
 });
+
+module.exports = ListItem;

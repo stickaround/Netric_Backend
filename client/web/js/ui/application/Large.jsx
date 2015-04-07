@@ -3,22 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.application.Large");
-
-alib.require("netric.ui.AppBar");
-
-/** 
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
-netric.ui.application = netric.ui.application || {};
+var React = require('react');
+var Paper = require("../Paper.jsx");
+var netric = require("../../main.js");
 
 /**
  * Large application component
  */
-netric.ui.application.Large = React.createClass({
+var Large = React.createClass({
   getInitialState: function() {
     return {orgName: this.props.orgName};
   },
@@ -42,3 +36,5 @@ netric.ui.application.Large = React.createClass({
     );
   }
 });
+
+module.exports = Large;

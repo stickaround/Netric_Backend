@@ -4,30 +4,28 @@
 * @author:  Sky Stebnicki, sky.stebnicki@aereus.com; 
 *       Copyright (c) 2015 Aereus Corporation. All rights reserved.
 */
-
-netric.declare("netric.location.adaptor.Hash");
-
-netric.require("netric");
-
-/**
- * Create global namespaces
- */
-netric.location = netric.location || {};
-netric.location.adaptor = netric.location.adaptor || {};
+'use strict';
 
 /**
  * Get the window has adaptor
  *
  * @constructor
  */
-netric.location.adaptor.Hash = function() {
+var Hash = function() {
 
   /**
    * Type of action last performed
    * 
-   * @type {netric.location.actions}
+   * @type {location.actions}
    */
   this.actionType_ = null;
+
+  /**
+   * Local renference to netric.location object
+   *
+   * type {location}
+   */
+  this.netricLocation_ = require("../location.js");
 
   // Begin listening for hash changes
   alib.events.listen(window, "hashchange", function(evt) {
@@ -37,7 +35,7 @@ netric.location.adaptor.Hash = function() {
       // changed. It was probably caused by the user clicking the Back
       // button, but may have also been the Forward button or manual
       // manipulation. So just guess 'pop'.
-      this.notifyChange_(this.actionType_ || netric.location.actions.POP);
+      this.notifyChange_(this.actionType_ || location.actions.POP);
       this.actionType_ = null;  
     }
   }.bind(this));
@@ -49,9 +47,9 @@ netric.location.adaptor.Hash = function() {
  *
  * @param {string} path The path to push onto the history statck
  */
-netric.location.adaptor.Hash.prototype.push = function (path) {
-  this.actionType_ = netric.location.actions.PUSH;
-  window.location.hash = netric.location.path.encode(path);
+Hash.prototype.push = function (path) {
+  this.actionType_ = this.netricLocation_.actions.PUSH;
+  window.location.hash = this.netricLocation_.path.encode(path);
 }
 
 /**
@@ -59,24 +57,24 @@ netric.location.adaptor.Hash.prototype.push = function (path) {
  *
  * @param {string} path The path to push onto the history statck
  */
-netric.location.adaptor.Hash.prototype.replace = function (path) {
-  this.actionType_ = netric.location.actions.REPLACE;
-  window.location.replace(window.location.pathname + window.location.search + '#' + netric.location.path.encode(path));
+Hash.prototype.replace = function (path) {
+  this.actionType_ = location.actions.REPLACE;
+  window.location.replace(window.location.pathname + window.location.search + '#' + this.netricLocation_.path.encode(path));
 }
 
 /**
  * The most recent path should be removed from the history stack
  */
-netric.location.adaptor.Hash.prototype.pop = function () {
-    this.actionType_ = netric.location.actions.POP;
+Hash.prototype.pop = function () {
+    this.actionType_ = this.netricLocation_.actions.POP;
     History.back();
 }
 
 /**
  * Get the current path from the 'hash' including query string
  */
-netric.location.adaptor.Hash.prototype.getCurrentPath = function () {
-  return netric.location.path.decode(
+Hash.prototype.getCurrentPath = function () {
+  return this.netricLocation_.path.decode(
     // We can't use window.location.hash here because it's not
     // consistent across browsers - Firefox will pre-decode it!
     window.location.href.split('#')[1] || ''
@@ -86,7 +84,7 @@ netric.location.adaptor.Hash.prototype.getCurrentPath = function () {
 /**
  * Assure that the path begins with a slash '/'
  */
-netric.location.adaptor.Hash.prototype.ensureSlash_ = function() {
+Hash.prototype.ensureSlash_ = function() {
   var path = this.getCurrentPath();
 
   if (path.charAt(0) === '/')
@@ -100,9 +98,9 @@ netric.location.adaptor.Hash.prototype.ensureSlash_ = function() {
 /**
  * Notify the listeners that the location has changed
  */
-netric.location.adaptor.Hash.prototype.notifyChange_ = function(type) {
-  if (type === netric.location.actions.PUSH)
-    History.length += 1;
+Hash.prototype.notifyChange_ = function(type) {
+  //if (type === this.netricLocation_.actions.PUSH)
+    //History.length += 1;
 
   var data = {
     path: this.getCurrentPath(),
@@ -111,3 +109,5 @@ netric.location.adaptor.Hash.prototype.notifyChange_ = function(type) {
 
   alib.events.triggerEvent(this, "pathchange", data);
 }
+
+module.exports = Hash;

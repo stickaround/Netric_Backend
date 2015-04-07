@@ -3,24 +3,30 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.form.Form");
-
-/**
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
-netric.ui.entity = netric.ui.entity || {};
-netric.ui.entity.form = netric.ui.entity.form || {};
+var React = require('react');
 
 /**
  * Base level element for enetity forms
  */
-netric.ui.entity.form.Form = React.createClass({
+var Form = React.createClass({
+
+	/**
+     * Expected props
+     */
+    propTypes: {
+        xmlNode: React.PropTypes.object,
+        entity: React.PropTypes.object,
+        eventsObj: React.PropTypes.object,
+        editMode: React.PropTypes.bool
+    },
+    
     render: function() {
         return (
-            <div>{this.props.childElements}</div>
+            <div className="entity-form">{this.props.children}</div>
         );
     }
 });
+
+module.exports = Form;

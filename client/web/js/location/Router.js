@@ -9,20 +9,17 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
 */
+'use strict';
 
-netric.declare("netric.location.Router");
-
-netric.require("netric");
-netric.require("netric.location");
-netric.require("netric.location.Route");
+var location = require("./location.js");
 
 /**
  * Creates an instance of AntViewsRouter
  *
  * @constructor
- * @param {netric.location.Router} parentRouter If set this is a sub-route router
+ * @param {Router} parentRouter If set this is a sub-route router
  */
-netric.location.Router = function(parentRouter) {
+var Router = function(parentRouter) {
 	
 	/**
 	 * Routes for this router
@@ -32,7 +29,7 @@ netric.location.Router = function(parentRouter) {
 	 * navigated to when it loops throught the routes to find a match.
 	 *
 	 * @private
-	 * @type {netric.location.Route[]}
+	 * @type {Route[]}
 	 */
 	this.routes_ = new Array();
 
@@ -40,7 +37,7 @@ netric.location.Router = function(parentRouter) {
 	 * Parent router
 	 *
 	 * @private
-	 * @type {netric.location.Router}
+	 * @type {Router}
 	 */
 	this.parentRouter_ = parentRouter || null;
 
@@ -56,7 +53,7 @@ netric.location.Router = function(parentRouter) {
 	 * Store a reference to the currently active route
 	 *
 	 * @private
-	 * @type {netric.location.Route}
+	 * @type {Route}
 	 */
 	this.activeRoute_ = null;
 
@@ -77,7 +74,7 @@ netric.location.Router = function(parentRouter) {
  * @param {Object} opt_data Optional data to pass to the controller when routed to
  * @param {ReactElement} opt_element Optional parent element to render a fragment into
  */
-netric.location.Router.prototype.addRoute = function(segmentPath, controller, opt_data, opt_element) {
+Router.prototype.addRoute = function(segmentPath, controller, opt_data, opt_element) {
 
 	// Set defaults
 	var data = opt_data || {};
@@ -87,7 +84,8 @@ netric.location.Router.prototype.addRoute = function(segmentPath, controller, op
 	this.removeRoute(segmentPath);
 
 	// Create a fresh new route
-	var route = new netric.location.Route(this, segmentPath, controller, data, ele);
+	var Route = require("./Route.js");
+	var route = new Route(this, segmentPath, controller, data, ele);
 
 	// Add to this.routes_
 	this.routes_.push(route);
@@ -101,7 +99,7 @@ netric.location.Router.prototype.addRoute = function(segmentPath, controller, op
  *
  * @param {string} segmentPath The path/pattern for the route to remove
  */
-netric.location.Router.prototype.removeRoute = function(segmentPath) {
+Router.prototype.removeRoute = function(segmentPath) {
 	var route = this.getRoute(segmentPath);
 	// TODO: cascade remove route and all its children calling cleanup on constructors
 }
@@ -110,9 +108,9 @@ netric.location.Router.prototype.removeRoute = function(segmentPath) {
  * Get a route by a segment name
  *
  * @param {string} name The name of the route to get
- * @return {netric.location.Route|bool} A route if one exists by that name, otherwise return false
+ * @return {Route|bool} A route if one exists by that name, otherwise return false
  */
-netric.location.Router.prototype.getRoute = function(name) {
+Router.prototype.getRoute = function(name) {
 	for (var i in this.routes_) {
 		if (this.routes_[i].getName() == name) {
 			return this.routes_[i];
@@ -125,9 +123,9 @@ netric.location.Router.prototype.getRoute = function(name) {
 /**
  * Get the parent router of this router
  *
- * @return {netric.location.Router}
+ * @return {Router}
  */
-netric.location.Router.prototype.getParentRouter = function() {
+Router.prototype.getParentRouter = function() {
 	return this.parentRouter_;
 }
 
@@ -136,7 +134,7 @@ netric.location.Router.prototype.getParentRouter = function() {
  *
  * @return {string} Full path
  */
-netric.location.Router.prototype.getActivePath = function() {
+Router.prototype.getActivePath = function() {
 	var pre = "";
 
 	if (this.getParentRouter()) {
@@ -156,7 +154,7 @@ netric.location.Router.prototype.getActivePath = function() {
  * @param {string} path Path to route to
  * @return {bool} return true if route was found and followed, false if no route matched path
  */
-netric.location.Router.prototype.go = function(path) {
+Router.prototype.go = function(path) {
 
 	var route = null;
 
@@ -193,12 +191,12 @@ netric.location.Router.prototype.go = function(path) {
 /**
  * Goto a specific route
  *
- * @param {netric.location.Route} route The route to load
+ * @param {Route} route The route to load
  * @param {string} opt_path If we are loading a route from a path, what the actual path was
  * @param {Object} opt_params URL params
  * @param {string} opt_remainingPath The rest of the path to continue loading past route
  */
-netric.location.Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remainingPath) {
+Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remainingPath) {
 	var segPath = opt_path || "";
 	var params = opt_params || {};
 	var remPath = opt_remainingPath || "";
@@ -248,7 +246,7 @@ netric.location.Router.prototype.followRoute = function(route, opt_path, opt_par
 /**
  * Exit active route
  */
-netric.location.Router.prototype.exitActiveRoute = function() {
+Router.prototype.exitActiveRoute = function() {
 	var actRoute = this.getActiveRoute();
 	if (actRoute) {
 		actRoute.exitRoute();
@@ -261,9 +259,9 @@ netric.location.Router.prototype.exitActiveRoute = function() {
 /**
  * Get the currently active route
  *
- * @return {netric.location.Route} Route if active, null of no routes are active
+ * @return {Route} Route if active, null of no routes are active
  */
-netric.location.Router.prototype.getActiveRoute = function() {
+Router.prototype.getActiveRoute = function() {
 	return this.activeRoute_;
 }
 
@@ -272,7 +270,7 @@ netric.location.Router.prototype.getActiveRoute = function() {
  *
  * @param {string} defaultRoute
  */
-netric.location.Router.prototype.setDefaultRoute = function(defaultRoute) {
+Router.prototype.setDefaultRoute = function(defaultRoute) {
 	this.defaultRoute_ = defaultRoute;
 }
 
@@ -281,7 +279,7 @@ netric.location.Router.prototype.setDefaultRoute = function(defaultRoute) {
  *
  * @return {bool} true if there was a default route, false if no default exists
  */
-netric.location.Router.prototype.goToDefaultRoute = function() {
+Router.prototype.goToDefaultRoute = function() {
 
 	if (this.defaultRoute_) {
 		// Get the base path
@@ -291,10 +289,12 @@ netric.location.Router.prototype.goToDefaultRoute = function() {
 		}
 
 		// We can't just call this.go because we need to change the location object
-		netric.location.go(basePath + this.defaultRoute_);
+		location.go(basePath + this.defaultRoute_);
 		return true;
 	} 
 
 	// There was no default route
 	return false;
 }
+
+module.exports = Router;

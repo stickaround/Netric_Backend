@@ -4,15 +4,7 @@
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
  * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.entity.Where");
-
-alib.require("netric");
-alib.require("netric.entity.Definition");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+'use strict';
 
 /**
  * Represents a collection of entities
@@ -20,7 +12,7 @@ netric.entity = netric.entity || {};
  * @constructor
  * @param {string} objType The name of the object type we are collecting
  */
-netric.entity.Where = function(fieldName) {
+var Where = function(fieldName) {
 
     /**
      * Field name to check
@@ -36,9 +28,9 @@ netric.entity.Where = function(fieldName) {
      * Operator
      *
      * @public
-     * @type {netric.entity.Where.operator}
+     * @type {Where.operator}
      */
-    this.operator = netric.entity.Where.boolOperator.AND;
+    this.operator = Where.boolOperator.AND;
 
     /**
      * The value to check against
@@ -54,7 +46,7 @@ netric.entity.Where = function(fieldName) {
  *
  * @const
  */
-netric.entity.Where.boolOperator = {
+Where.boolOperator = {
     AND : "and",
     OR : "or"
 }
@@ -64,7 +56,7 @@ netric.entity.Where.boolOperator = {
  *
  * @const
  */
-netric.entity.Where.operator = {
+Where.operator = {
     EQUALTO : "=",
     DOESNOTEQUA : "!=",
     LIKE : "like",
@@ -80,7 +72,7 @@ netric.entity.Where.operator = {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.equalTo = function(value) {
+Where.prototype.equalTo = function(value) {
 
 }
 
@@ -89,7 +81,7 @@ netric.entity.Where.prototype.equalTo = function(value) {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.doesNotEqual = function(value) {
+Where.prototype.doesNotEqual = function(value) {
 
 }
 
@@ -98,7 +90,7 @@ netric.entity.Where.prototype.doesNotEqual = function(value) {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.like = function(value) {
+Where.prototype.like = function(value) {
 
 }
 
@@ -108,7 +100,7 @@ netric.entity.Where.prototype.like = function(value) {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.isGreaterThan = function(value) {
+Where.prototype.isGreaterThan = function(value) {
 
 }
 
@@ -118,7 +110,7 @@ netric.entity.Where.prototype.isGreaterThan = function(value) {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.isGreaterorEqualTo = function(value) {
+Where.prototype.isGreaterorEqualTo = function(value) {
 
 }
 
@@ -127,7 +119,7 @@ netric.entity.Where.prototype.isGreaterorEqualTo = function(value) {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.isLessThan = function(value) {
+Where.prototype.isLessThan = function(value) {
 
 }
 
@@ -136,6 +128,8 @@ netric.entity.Where.prototype.isLessThan = function(value) {
  *
  * @param {string} value The value to check quality against
  */
-netric.entity.Where.prototype.isLessOrEqaulTo = function(value) {
+Where.prototype.isLessOrEqaulTo = function(value) {
 
 }
+
+module.exports = Where;

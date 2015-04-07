@@ -286,7 +286,10 @@ class Entity implements \Netric\Entity\EntityInterface
 	 */
 	public function toArray()
 	{
-		$data = array();
+		$data = array(
+			"obj_type" => $this->objType,
+		);
+		
 		$fields = $this->def->getFields();
 
 		foreach ($fields as $fname=>$field)

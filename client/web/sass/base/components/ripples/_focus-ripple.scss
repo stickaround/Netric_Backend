@@ -1,4 +1,4 @@
-.mui-focus-ripple {
+.focus-ripple {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -9,7 +9,7 @@
   transform: scale(0);
   opacity: 0;
 
-  .mui-focus-ripple-inner {
+  .focus-ripple-inner {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -24,7 +24,7 @@
 
   }
 
-  &.mui-is-shown {
+  &.is-shown {
     transform: scale(1);
     opacity: 1;
   }

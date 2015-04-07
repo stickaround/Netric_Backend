@@ -3,19 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.AppBar");
-
-/** 
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+var React = require('react');
+var Paper = require("./Paper.jsx");
+var IconButton = require("./IconButton.jsx");
 
 /**
  * Small application component
  */
-netric.ui.AppBar = React.createClass({
+var AppBar = React.createClass({
 
     propTypes: {
         onNavBtnClick: React.PropTypes.func,
@@ -40,14 +37,30 @@ netric.ui.AppBar = React.createClass({
 
 		// Set the back/menu button
 		if (this.props.onNavBtnClick) {
-            menuElementLeft = (
-                <div className="app-bar-navigation-icon-button">
-                    <i className={this.props.iconClassNameLeft} onClick={this.props.onNavBtnClick}></i>
-                </div>
-            );
+
+            if (this.props.iconElementLeft) {
+                menuElementLeft = (
+                    <div className="app-bar-navigation-icon-button"> 
+                        {this.props.iconElementLeft} 
+                    </div>
+                );
+            } else {
+                var child = (this.props.iconClassNameLeft) ? '' : <NavigationMenu/>;
+                menuElementLeft = (
+                    <IconButton
+                        className="app-bar-navigation-icon-button" 
+                        iconClassName={this.props.iconClassNameLeft}
+                        onTouchTap={this.props.onNavBtnClick}>
+                        {child}
+                    </IconButton>
+                );
+            }
 		}
 
-        var classes = 'mui-app-bar', title, menuElementLeft, menuElementRight;
+        var classes = 'app-bar', title, menuElementLeft, menuElementRight;
+
+        menuElementRight = (this.props.children) ? this.props.children : 
+                       (this.props.iconElementRight) ? this.props.iconElementRight : '';
 
         if (this.props.title) {
             // If the title is a string, wrap in an h1 tag.
@@ -58,11 +71,15 @@ netric.ui.AppBar = React.createClass({
         }
 
 		return (
-            <netric.ui.Paper rounded={false} className="app-bar" zDepth={this.props.zDepth}>
+            <Paper rounded={false} className="app-bar" zDepth={this.props.zDepth}>
                 {menuElementLeft}
                 {title}
-                {menuElementRight}
-            </netric.ui.Paper>
+                <div className="app-bar-toolbar">
+                    {menuElementRight}
+                </div>
+            </Paper>
 		);
 	}
 });
+
+module.exports = AppBar;

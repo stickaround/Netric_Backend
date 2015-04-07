@@ -6,27 +6,15 @@
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
  * 			Copyright (c) 2013 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.entity.definition.Field");
-
-alib.require("netric");
+'use strict';
 
 /**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
-
-/**
- * Make sure entity definition namespace is initialized
- */
-netric.entity.definition = netric.entity.definition || {};
-
-/**
- * Creates an instance of netric.entity.definition.Field
+ * Creates an instance of an entity definition field
  *
  * @param {Object} opt_data The definition data
  * @constructor
  */
-netric.entity.definition.Field = function(opt_data) {
+var Field = function(opt_data) {
 
 	var data = opt_data || new Object();
 
@@ -175,18 +163,18 @@ netric.entity.definition.Field = function(opt_data) {
 	 * @public
 	 * @type {Object}
 	 */
-	this.types = netric.entity.definition.Field.types;
+	this.types = Field.types;
 }
 
 /**
  * Static definition of all field types
  */
-netric.entity.definition.Field.types = {
+Field.types = {
 	fkey : "fkey",
 	fkeyMulti : "fkey_multi",
 	object : "object",
 	objectMulti : "object_multi",
-	string : "string",
+	text : "text",
 	bool : "bool",
 }
 
@@ -196,7 +184,7 @@ netric.entity.definition.Field.types = {
  * @param {string} on The event to set default value on - default to null
  * @return {string}
  */
-netric.entity.definition.Field.prototype.getDefault = function(on)
+Field.prototype.getDefault = function(on)
 {
 	if (!this.defaultVal)
 		return "";
@@ -209,3 +197,5 @@ netric.entity.definition.Field.prototype.getDefault = function(on)
 
 	return "";
 }
+
+module.exports = Field;

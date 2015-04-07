@@ -4,24 +4,18 @@
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
  * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.entity.Entity");
+'use strict';
 
-alib.require("netric");
-alib.require("netric.entity.Definition");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+var Definition = require("./Definition");
 
 /**
  * Entity represents a netric object
  *
  * @constructor
- * @param {netric.entity.Definition} entityDef Required definition of this entity
+ * @param {Definition} entityDef Required definition of this entity
  * @param {Object} opt_data Optional data to load into this object
  */
-netric.entity.Entity = function(entityDef, opt_data) {
+var Entity = function(entityDef, opt_data) {
 
 	/** 
 	 * Unique id of this object entity
@@ -43,7 +37,7 @@ netric.entity.Entity = function(entityDef, opt_data) {
 	 * Entity definition
 	 *
 	 * @public
-	 * @type {netric.entity.Definition}
+	 * @type {Definition}
 	 */
 	this.def = entityDef;
 
@@ -89,7 +83,7 @@ netric.entity.Entity = function(entityDef, opt_data) {
  * 
  * @param {Object} data
  */
-netric.entity.Entity.prototype.loadData = function (data) {
+Entity.prototype.loadData = function (data) {
 	
 	// Data is a required param and we should fail if called without it
 	if (!data) {
@@ -99,7 +93,7 @@ netric.entity.Entity.prototype.loadData = function (data) {
 	// Make sure that the data passed is valid data
 	if (!data.id || !data.obj_type) {
 		var err = "Data passed is not a valid entity";
-		console.log(err + JSON.strigify(data));
+		console.log(err + JSON.stringify(data));
 		throw err;
 	}
 
@@ -107,7 +101,36 @@ netric.entity.Entity.prototype.loadData = function (data) {
 	this.id = data.id.toString();
 	this.objType = data.obj_type;
 
-	// TODO: Now set all the values for this entity
+	// Now set all the values for this entity
+	for (var i in data) {
+
+		var field = this.def.getField(i);
+		var value = data[i];
+		
+		// Skip over non existent fields
+		if (!field) {
+			continue;
+		}
+
+		// Check to see if _fval cache was set
+		var valueName = (data[i + "_fval"]) ? data[i + "_fval"] : null;
+
+		// Set the field values
+		if (field.type == field.types.fkeyMulti || field.type == field.types.objectMulti) {
+			if (value instanceof Array) {
+				for (var j in value) {
+					var vName = (valueName && valueName[value[j]]) ? valueName[value[j]] : null;
+					this.addMultiValue(i, value[j], vName);
+				}
+			} else {
+				var vName = (valueName && valueName[value]) ? valueName[value] : null;
+				this.addMultiValue(i, value, vName);
+			}
+		} else {
+			this.setValue(i, value, valueName);
+		}
+		
+	}
 }
 
 /**
@@ -116,8 +139,9 @@ netric.entity.Entity.prototype.loadData = function (data) {
  * @param {string} name The name of the field to set
  * @param {mixed} value The value to set the field to
  * @param {string} opt_valueName The label if setting an fkey/object value
+ * @return {bool} true on success, false on failure
  */
-netric.entity.Entity.prototype.setValue = function(name, value, opt_valueName) {
+Entity.prototype.setValue = function(name, value, opt_valueName) {
     
     // Can't set a field without a name
     if(typeof name == "undefined")
@@ -127,37 +151,15 @@ netric.entity.Entity.prototype.setValue = function(name, value, opt_valueName) {
 
     var field = this.def.getField(name);
 	if (!field)
-		return;
+		return false;
 
-	// Check if this is a multi-field
+	// Check if this is a multi-value field
 	if (field.type == field.types.fkeyMulti || field.type == field.types.objectMulti) {
-		if (value instanceof Array) {
-			for (var j in value) {
-				this.setMultiValue(name, value[j]);
-			}
-		} else {
-			this.setMultiValue(name, value, valueName);
-		}
-
-		return true;
+		throw "Call addMultiValue to handle values for fkey_multi and object_mulit";
 	}
 
-	// Handle bool conversion
-	if (field.type == field.types.bool) {
-		switch (value)
-		{
-		case 1:
-		case 't':
-		case 'true':
-			value = true;
-			break;
-		case 0:
-		case 'f':
-		case 'false':
-			value = false;
-			break;
-		}
-	}
+	// Handle type conversion
+	value = this.normalizeFieldValue_(field, value);
     
     // Referenced object fields cannot be updated
     if (name.indexOf(".")!=-1) {
@@ -174,7 +176,57 @@ netric.entity.Entity.prototype.setValue = function(name, value, opt_valueName) {
     }
 
     // Trigger onchange event to alert any observers that this value has changed
-	alib.events.triggerEvent(this, "fieldchange", {fieldName: name, value:value, valueName:valueName});
+	alib.events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
+    
+}
+
+/**
+ * Add a value to a field that supports an array of values
+ *
+ * @param {string} name The name of the field to set
+ * @param {mixed} value The value to set the field to
+ * @param {string} opt_valueName The label if setting an fkey/object value
+ */
+Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
+    
+    // Can't set a field without a name
+    if(typeof name == "undefined")
+        return;
+
+	var valueName = opt_valueName || null;
+
+    var field = this.def.getField(name);
+	if (!field)
+		return;
+
+	// Handle type conversion
+	value = this.normalizeFieldValue_(field, value);
+    
+    // Referenced object fields cannot be updated
+    if (name.indexOf(".")!=-1) {
+        return;
+    }
+
+    // A value of this entity is about to change
+    this.dirty_ = true;
+
+    // Initialize arrays if not set
+    if (!this.fieldValues_[name]) {
+    	this.fieldValues_[name] = {
+	    	value: [],
+	    	valueName: []
+	    }
+    }
+
+    // Set the value and optional valueName label for foreign keys    
+	this.fieldValues_[name].value.push(value);
+
+	if (valueName) {
+		this.fieldValues_[name].valueName.push({key:value, value:valueName});
+	}
+
+    // Trigger onchange event to alert any observers that this value has changed
+	alib.events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
     
 }
 
@@ -184,7 +236,7 @@ netric.entity.Entity.prototype.setValue = function(name, value, opt_valueName) {
  * @public
  * @param {string} name The unique name of the field to get the value for
  */
-netric.entity.Entity.prototype.getValue = function(name) {
+Entity.prototype.getValue = function(name) {
     if (!name)
         return null;
 
@@ -203,12 +255,12 @@ netric.entity.Entity.prototype.getValue = function(name) {
  * @param {val} opt_val If querying *_multi type values the get the label for a specifc key
  * @reutrn {string} the textual representation of the key value
  */
-netric.entity.Entity.prototype.getValueName = function(name, opt_val) {
+Entity.prototype.getValueName = function(name, opt_val) {
 	// Get value from fieldValue
     if (this.fieldValues_[name]) {
     	if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
     		for (var i in this.fieldValues_[name].valueName) {
-    			if (this.fieldValues_[name].valueName[i].key == name) {
+    			if (this.fieldValues_[name].valueName[i].key == opt_val) {
     				return this.fieldValues_[name].valueName[i].value;
     			}
     		}
@@ -216,52 +268,6 @@ netric.entity.Entity.prototype.getValueName = function(name, opt_val) {
     		return this.fieldValues_[name].valueName;    		
     	}
     }
-	/*
-    var field = this.getFieldByName(name);
-    if (field && field.type == "alias")
-    {
-        if (!val)
-            var val = this.getValue(name);
-        return this.getValue(val); // Get aliased value
-    }
-
-    if (field.type == "object" || field.type == "fkey" || field.type == "object_multi" || field.type == "fkey_multi")
-    {
-        for (var i = 0; i < this.values.length; i++)
-        {
-            if (this.values[i][0] == name)
-            {
-                if (val) // multival
-                {
-                    for (var m = 0; m < this.values[i][1].length; m++)
-                    {
-                        if (this.values[i][1][m] == val && this.values[i][2])
-                            return this.values[i][2][m];
-                    }
-                }
-                else
-                {
-                    if (this.values[i][2]!=null && this.values[i][2]!="null")
-                        return this.values[i][2];
-                }
-            }
-        }
-    }
-	else if (field.optional_vals.length)
-	{
-		for (var i = 0 ; i < field.optional_vals.length; i++)
-		{
-			if (field.optional_vals[i][0] == this.getValue(name))
-			{
-				return field.optional_vals[i][1];
-			}
-		}
-	}
-    else
-    {
-        return this.getValue(name);
-    }
-    */
     
     return "";
 }
@@ -271,7 +277,7 @@ netric.entity.Entity.prototype.getValueName = function(name, opt_val) {
  *
  * @return {string} The name of this object based on common name fields like 'name' 'title 'subject'
  */
-netric.entity.Entity.prototype.getName = function()
+Entity.prototype.getName = function()
 {
     if (this.getValue("name")) {
         return this.getValue("name");
@@ -289,3 +295,56 @@ netric.entity.Entity.prototype.getName = function()
         return "";
     }
 }
+
+/**
+ * Get a snippet of this object
+ *
+ * @return {string}
+ */
+Entity.prototype.getSnippet = function()
+{
+	var snippet = "";
+
+    if (this.getValue("notes")) {
+        snippet = this.getValue("notes");
+    } else if (this.getValue("description")) {
+        snippet = this.getValue("description");
+    } else if (this.getValue("body")) {
+        snippet = this.getValue("body");
+    }
+
+    // TODO: strip all tags and new lines
+
+    return snippet;
+}
+
+/**
+ * Normalize field values based on type
+ *
+ * @private
+ * @param {EntityField} field The field we are normalizing
+ * @param {mixed} value The value we need to normalize
+ * @return {mixed}
+ */
+Entity.prototype.normalizeFieldValue_ = function(field, value) {
+
+	if (field.type == field.types.bool) {
+		switch (value)
+		{
+		case 1:
+		case 't':
+		case 'true':
+			value = true;
+			break;
+		case 0:
+		case 'f':
+		case 'false':
+			value = false;
+			break;
+		}
+	}
+
+	return value;
+}
+
+module.exports = Entity;

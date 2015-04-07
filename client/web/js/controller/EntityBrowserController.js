@@ -1,20 +1,26 @@
 /**
  * @fileoverview Entity browser
  */
-netric.declare("netric.controller.EntityBrowserController");
+'use strict';
 
-netric.require("netric.controller.AbstractController");
+var React = require('react');
+var netric = require("../base");
+var controller = require("./controller");
+var AbstractController = require("./AbstractController");
+var EntityController = require("./EntityController");
+var UiEntityBrowser = require("../ui/EntityBrowser.jsx");
+var EntityCollection = require("../entity/Collection");
 
 /**
  * Controller that loads an entity browser
  */
-netric.controller.EntityBrowserController = function() {
+var EntityBrowserController = function() {
 }
 
 /**
  * Extend base controller class
  */
-netric.inherits(netric.controller.EntityBrowserController, netric.controller.AbstractController);
+netric.inherits(EntityBrowserController, AbstractController);
 
 /**
  * Handle to root ReactElement where the UI is rendered
@@ -22,7 +28,7 @@ netric.inherits(netric.controller.EntityBrowserController, netric.controller.Abs
  * @private
  * @type {ReactElement}
  */
-netric.controller.EntityBrowserController.prototype.rootReactNode_ = null;
+EntityBrowserController.prototype.rootReactNode_ = null;
 
 /**
  * A collection of entities
@@ -30,7 +36,7 @@ netric.controller.EntityBrowserController.prototype.rootReactNode_ = null;
  * @private
  * @type {netric.entity.Collection}
  */
-netric.controller.EntityBrowserController.prototype.collection_ = null;
+EntityBrowserController.prototype.collection_ = null;
 
 
 /**
@@ -39,14 +45,14 @@ netric.controller.EntityBrowserController.prototype.collection_ = null;
  * @private
  * @type {int[]}
  */
-netric.controller.EntityBrowserController.prototype.selected_ = new Array();
+EntityBrowserController.prototype.selected_ = new Array();
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-netric.controller.EntityBrowserController.prototype.onLoad = function(opt_callback) {
+EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
 	// By default just immediately execute the callback because nothing needs to be done
 	if (opt_callback)
@@ -56,7 +62,7 @@ netric.controller.EntityBrowserController.prototype.onLoad = function(opt_callba
 /**
  * Render this controller into the dom tree
  */
-netric.controller.EntityBrowserController.prototype.render = function() { 
+EntityBrowserController.prototype.render = function() { 
 	// Set outer application container
 	var domCon = this.domNode_;
 
@@ -76,12 +82,12 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 
 	// Render application component
 	this.rootReactNode_ = React.render(
-		React.createElement(netric.ui.EntityBrowser, data),
+		React.createElement(UiEntityBrowser, data),
 		domCon
 	);
 
     // Load the entity list
-    this.collection_ = new netric.entity.Collection(this.props.objType);
+    this.collection_ = new EntityCollection(this.props.objType);
     alib.events.listen(this.collection_, "change", function() {
         this.onCollectionChange();
     }.bind(this));
@@ -97,10 +103,9 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 	*/
 
 	// Add route to compose a new entity
-	this.addSubRoute(":oid",
-		netric.controller.EntityController,
-		{
-            type: netric.controller.types.PAGE,
+	this.addSubRoute(":eid",
+		EntityController, {
+            type: controller.types.PAGE,
             objType: this.props.objType
         }
 	);
@@ -109,7 +114,7 @@ netric.controller.EntityBrowserController.prototype.render = function() {
 /**
  * User clicked/touched an entity in the list
  */
-netric.controller.EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
+EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
     if (objType && oid) {
 
         // Mark the entity as selected
@@ -119,15 +124,20 @@ netric.controller.EntityBrowserController.prototype.onEntityListClick = function
             this.rootReactNode_.setProps({selectedEntities: this.selected_});
         }
 
-        var basePath = this.getRoutePath();
-        netric.location.go(basePath + "/" + oid);
+        // Check to see if we have an onEntityClick callback registered
+        if (this.props.onEntityClick) {
+            this.props.onEntityClick(objType, oid);
+        } else if (this.getRoutePath()) {
+            netric.location.go(this.getRoutePath() + "/" + oid);
+        }
+
     }
 }
 
 /**
  * User clicked/touched an entity in the list
  */
-netric.controller.EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
+EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
     if (oid) {
         var selectedAt = this.selected_.indexOf(oid);
 
@@ -144,7 +154,7 @@ netric.controller.EntityBrowserController.prototype.toggleEntitySelect = functio
 /**
  * User selected an alternate menu item in the left navigation
  */
-netric.controller.EntityBrowserController.prototype.onCollectionChange = function() {
+EntityBrowserController.prototype.onCollectionChange = function() {
     var entities = this.collection_.getEntities();
     this.rootReactNode_.setProps({entities: entities});
 }
@@ -152,14 +162,14 @@ netric.controller.EntityBrowserController.prototype.onCollectionChange = functio
 /**
  * Called when this controller is paused and moved to the background
  */
-netric.controller.EntityBrowserController.prototype.onPause = function() {
+EntityBrowserController.prototype.onPause = function() {
 
 }
 
 /**
  * Called when this function was paused but it has been resumed to the foreground
  */
-netric.controller.EntityBrowserController.prototype.onResume = function() {
+EntityBrowserController.prototype.onResume = function() {
     /*
      * Clear selected because we do not want the last selected entity to still
      * be selected when a user closes the previously selected entity controller.
@@ -167,3 +177,5 @@ netric.controller.EntityBrowserController.prototype.onResume = function() {
     this.selected_ = new Array();
     this.rootReactNode_.setProps({selectedEntities: this.selected_});
 }
+
+module.exports = EntityBrowserController;

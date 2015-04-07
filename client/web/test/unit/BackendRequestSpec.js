@@ -1,10 +1,13 @@
 'use strict';
 
+var netric = require("../../js/main.js");
+var BackendRequest = require("../../js/BackendRequest");
+
 /**
  * Check to make sure expected public varibles are set
  */
 describe("Send Requests", function() {
-	var request = new netric.BackendRequest();
+	var request = new BackendRequest();
 
 	beforeEach(function(done) {
 
@@ -38,7 +41,7 @@ describe("Static Send Requests", function() {
 
 	beforeEach(function(done) {
 		netric.server.host = "base/";
-		request = netric.BackendRequest.send("svr/test.json", function(evt){
+		request = BackendRequest.send("svr/test.json", function(evt){
 			done(); 
 		});
 	});

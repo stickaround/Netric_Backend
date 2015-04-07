@@ -5,17 +5,13 @@
  *
  * @jsx React.DOM
  */
-
-/** 
- * Make sure ui namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+'use strict';
+var React = require('react');
 
 /**
  * Menu component
  */
-netric.ui.Menu = React.createClass({
+var Menu = React.createClass({
 
 	propTypes: {
 		autoWidth: React.PropTypes.bool,
@@ -189,3 +185,5 @@ netric.ui.Menu = React.createClass({
     if (this.props.onItemToggle) this.props.onItemToggle(e, index, this.props.menuItems[index], toggled);
   }
 });
+
+module.exports = Menu;

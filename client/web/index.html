@@ -3,79 +3,14 @@
         <!-- manually add aereus lib -->
         <script src="vendor/aereus/alib_full.js"></script>
 
-        <!-- bower:js -->
-        <script src="vendor/react/react.js"></script>
-        <!-- endbower -->
+        <!-- bower:js --
+        -- endbower -->
 
         <!-- fileblock:js components -->
-        <script src="build/js/ui/Module.js"></script>
-        <script src="build/js/ui/application/Large.js"></script>
-        <script src="build/js/ui/application/Small.js"></script>
-        <script src="build/js/ui/test.js"></script>
-        <script src="build/js/ui/LeftNav.js"></script>
-        <script src="build/js/ui/Overlay.js"></script>
-        <script src="build/js/ui/Paper.js"></script>
-        <script src="build/js/ui/Menu.js"></script>
-        <script src="build/js/ui/EntityBrowser.js"></script>
-        <script src="build/js/ui/AppBar.js"></script>
-        <script src="build/js/ui/LeftNavModuleHeader.js"></script>
-        <script src="build/js/ui/entitybrowser/List.js"></script>
-        <script src="build/js/ui/Entity.js"></script>
-        <script src="build/js/ui/entitybrowser/ListItem.js"></script>
-        <script src="build/js/ui/entitybrowser/ListItemTableRow.js"></script>
-        <script src="build/js/ui/entity/FormBuilder.js"></script>
-        <script src="build/js/ui/entity/form/Field.js"></script>
-        <script src="build/js/ui/entity/form/Form.js"></script>
         <!-- endfileblock -->
 
         <!-- fileblock:js app -->
-        <script src="js/base.js"></script>
-        <script src="js/AbstractDataMapper.js"></script>
-        <script src="js/Application.js"></script>
-        <script src="js/User.js"></script>
-        <script src="js/account/AbstractDataMapper.js"></script>
-        <script src="js/account/Account.js"></script>
-        <script src="js/account/DataMapperLocal.js"></script>
-        <script src="js/account/DataMapperServer.js"></script>
-        <script src="js/account/loader.js"></script>
-        <script src="js/entity/Entity.js"></script>
-        <script src="js/entity/loader.js"></script>
-        <script src="js/module/Module.js"></script>
-        <script src="js/module/loader.js"></script>
-        <script src="js/notused.js"></script>
-        <script src="js/subfunction.js"></script>
-        <script src="js/BackendRequest.js"></script>
-        <script src="js/server.js"></script>
-        <script src="js/mvc/Controller.js"></script>
-        <script src="js/mvc/Router.js"></script>
-        <script src="js/mvc/View.js"></script>
-        <script src="js/Device.js"></script>
-        <script src="js/mvc/mvc.js"></script>
-        <script src="js/mvc/ViewTemplate.js"></script>
-        <script src="js/mvc/ViewManager.js"></script>
-        <script src="js/template/application/large.js"></script>
-        <script src="js/template/application/small.js"></script>
-        <script src="js/entity/Definition.js"></script>
-        <script src="js/entity/definition/Field.js"></script>
-        <script src="js/entity/definitionLoader.js"></script>
-        <script src="js/entity/Collection.js"></script>
-        <script src="js/entity/Query.js"></script>
-        <script src="js/entity/collectionLoader.js"></script>
-        <script src="js/location/location.js"></script>
-        <script src="js/location/adaptor/Hash.js"></script>
-        <script src="js/location/path.js"></script>
-        <script src="js/location/Router.js"></script>
-        <script src="js/location/Route.js"></script>
-        <script src="js/controller/controller.js"></script>
-        <script src="js/controller/AbstractController.js"></script>
-        <script src="js/controller/TestController.js"></script>
-        <script src="js/controller/MainController.js"></script>
-        <script src="js/controller/AppController.js"></script>
-        <script src="js/controller/ModuleController.js"></script>
-        <script src="js/log.js"></script>
-        <script src="js/controller/EntityBrowserController.js"></script>
-        <script src="js/entity/Where.js"></script>
-        <script src="js/controller/EntityController.js"></script>
+        <script src="build/js/netric.js"></script>
         <!-- endfileblock -->
 
         <!-- fileblock:other reload -->
@@ -91,6 +26,8 @@
 
         <script>
             function startApplication() {
+                netric.server.host = "http://netric.myaereus.com/";
+                
                 netric.Application.load(function(appInstance){
                     appInstance.run(document.getElementById("netric-app"));
                 });

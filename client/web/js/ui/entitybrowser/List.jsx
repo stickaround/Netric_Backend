@@ -3,20 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.entitybrowser.List");
-
-/**
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
-netric.ui.entitybrowser = netric.ui.entitybrowser || {};
+var React = require('react');
+var ListItem = require("./ListItem.jsx");
+var ListItemTableRow = require("./ListItemTableRow.jsx");
 
 /**
  * Module shell
  */
-netric.ui.entitybrowser.List = React.createClass({
+var List = React.createClass({
 
     propTypes: {
         onEntityListClick: React.PropTypes.func,
@@ -55,21 +51,19 @@ netric.ui.entitybrowser.List = React.createClass({
                 default:
 
                     if (this.props.layout == 'table'){
-                        item = <netric.ui.entitybrowser.ListItemTableRow
+                        item = <ListItemTableRow
                             key={entity.id}
                             selected={selected}
                             entity={entity}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id)}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
-                        />;
+                            onSelect={this._sendSelect.bind(null, entity.id)} />;
                     } else {
-                        item = <netric.ui.entitybrowser.ListItem
+                        item = <ListItem
                             key={entity.id}
                             selected={selected}
                             entity={entity}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id)}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
-                        />;
+                            onSelect={this._sendSelect.bind(null, entity.id)} />;
                     }
 
                     break;
@@ -119,3 +113,5 @@ netric.ui.entitybrowser.List = React.createClass({
     }
 
 });
+
+module.exports = List;

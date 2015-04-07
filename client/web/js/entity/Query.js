@@ -3,32 +3,26 @@
  *
  * Example:
  * <code>
- * 	var query = new netric.entity.Query("customer");
+ * 	var query = new Query("customer");
  * 	query.where('first_name').equals("sky");
  *  query.andWhere('last_name').contains("steb");
- *	query.orderBy("last_name", netric.entity.Query.orderByDir.desc);
+ *	query.orderBy("last_name", Query.orderByDir.desc);
  * </code>
  *
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
  * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.entity.Query");
+'use strict';
 
-alib.require("netric");
-alib.require("netric.entity.Definition");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+var Where = require("./Where");
 
 /**
- * Entity represents a netric object
+ * Query entity object
  *
  * @constructor
  * @param {string} objType Name of the object type we are querying
  */
-netric.entity.Query = function(objType) {
+var Query = function(objType) {
 	/**
 	 * Object type for this list
 	 *
@@ -82,9 +76,9 @@ netric.entity.Query = function(objType) {
 	 * Copy static order by direction to this so we can access through this.orderByDir
 	 *
 	 * @public
-	 * @type {netric.entity.Query.orderByDir}
+	 * @type {Query.orderByDir}
 	 */
-	this.orderByDir = netric.entity.Query.orderByDir;
+	this.orderByDir = Query.orderByDir;
 }
 
 /**
@@ -92,7 +86,7 @@ netric.entity.Query = function(objType) {
  * 
  * @const
  */
-netric.entity.Query.orderByDir = {
+Query.orderByDir = {
 	asc : "ASC",
 	desc : "DESC"
 }
@@ -101,9 +95,9 @@ netric.entity.Query.orderByDir = {
  * Proxy used to add the first where condition to this query
  *
  * @param {string} fieldName The name of the field to query
- * @return {netric.entity.query.Where}
+ * @return {Where}
  */
-netric.entity.Query.prototype.where = function(fieldName) {
+Query.prototype.where = function(fieldName) {
 	return this.andWhere(fieldName);
 }
 
@@ -111,29 +105,29 @@ netric.entity.Query.prototype.where = function(fieldName) {
  * Add a where condition using the logical 'and' operator
  * 
  * @param {string} fieldName The name of the field to query
- * @return {netric.entity.query.Where}
+ * @return {Where}
  */
-netric.entity.Query.prototype.andWhere = function(fieldName) {
-	// TODO: return netri.entity.query.Where
+Query.prototype.andWhere = function(fieldName) {
+	// TODO: return Where
 }
 
 /**
  * Add a where condition using the logical 'and' operator
  * 
  * @param {string} fieldName The name of the field to query
- * @return {netric.entity.query.Where}
+ * @return {Where}
  */
-netric.entity.Query.prototype.orWhere = function(fieldName) {
-	// TODO: return netri.entity.query.Where
+Query.prototype.orWhere = function(fieldName) {
+	// TODO: return Where
 }
 
 /**
  * Add an order by condition
  * 
  * @param {string} fieldName The name of the field to sort by
- * @param {netric.entity.Query.orderByDir} The direction of the sort
+ * @param {Query.orderByDir} The direction of the sort
  */
-netric.entity.Query.prototype.orderBy = function(fieldName, direction) {
+Query.prototype.orderBy = function(fieldName, direction) {
 	// TODO: add order by condition
 }
 
@@ -142,7 +136,7 @@ netric.entity.Query.prototype.orderBy = function(fieldName, direction) {
  * 
  * @return {Array}
  */
-netric.entity.Query.prototype.getConditions = function() {
+Query.prototype.getConditions = function() {
 	return this.conditions_;
 }
 
@@ -151,7 +145,7 @@ netric.entity.Query.prototype.getConditions = function() {
  * 
  * @return {Array}
  */
-netric.entity.Query.prototype.getOrderBy = function() {
+Query.prototype.getOrderBy = function() {
 	return this.orderBy_;
 }
 
@@ -160,7 +154,7 @@ netric.entity.Query.prototype.getOrderBy = function() {
  * 
  * @param {int} offset
  */
-netric.entity.Query.prototype.setOffset = function(offset) {
+Query.prototype.setOffset = function(offset) {
 	this.offset_ = offset;
 }
 /**
@@ -168,7 +162,7 @@ netric.entity.Query.prototype.setOffset = function(offset) {
  * 
  * @return {int}
  */
-netric.entity.Query.prototype.getOffset = function() {
+Query.prototype.getOffset = function() {
 	return this.offset_;
 }
 
@@ -177,7 +171,7 @@ netric.entity.Query.prototype.getOffset = function() {
  * 
  * @param {int} limit
  */
-netric.entity.Query.prototype.setLimit = function(limit) {
+Query.prototype.setLimit = function(limit) {
 	this.limit_ = limit;
 }
 /**
@@ -185,6 +179,8 @@ netric.entity.Query.prototype.setLimit = function(limit) {
  * 
  * @return {int}
  */
-netric.entity.Query.prototype.getLimit = function() {
+Query.prototype.getLimit = function() {
 	return this.limit_;
 }
+
+module.exports = Query;

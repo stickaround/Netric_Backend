@@ -1,20 +1,17 @@
 /**
  * @fileoverview controller namespace
  */
-
-alib.declare("netric.controller");
-
-alib.require("netric");
+'use strict';
 
 /**
- * The MVC namespace where all MVC core functionality will liveß
+ * Create controller object
  */
-netric.controller = netric.controller || {};
+var controller = {};
 
 /**
  * Set controller types
  */
-netric.controller.types = {
+controller.types = {
 	/*
 	 * Pages will hide their parent when they are brought to the foreground or hidden
 	 * to make sore that only one page in the stack is visible at once.
@@ -39,3 +36,5 @@ netric.controller.types = {
 	 */
 	DIALOG: 'dialog'
 }
+
+module.exports = controller;

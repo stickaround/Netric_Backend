@@ -4,15 +4,14 @@
  * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
  * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
-alib.declare("netric.User");
-alib.require("netric");
+'use strict';
 
 /**
  * User instance
  *
  * @param {Object} opt_data Optional data used to initialize the user
  */
-netric.User = function(opt_data)
+var User = function(opt_data)
 {
 	// Initialize empty object if opt_data was not set
 	var initData = opt_data || new Object();
@@ -41,3 +40,5 @@ netric.User = function(opt_data)
 	 */
 	this.fullName = initData.fullName || "";
 }
+
+module.exports = User;

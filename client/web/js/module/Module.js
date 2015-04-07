@@ -4,21 +4,14 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.module.Module");
-
-alib.require("netric");
-
-/**
- * Make sure module namespace is initialized
- */
-netric.module = netric.module || {};
+'use strict';
 
 /**
  * Application module instance
  *
  * @param {Object} opt_data Optional data for loading the module
  */
-netric.module.Module = function(opt_data) {
+var Module = function(opt_data) {
 	var data = opt_data || new Object();
 
 	/**
@@ -43,7 +36,7 @@ netric.module.Module = function(opt_data) {
  *
  * @param {function} opt_cbFunction Optional callback function once module is loaded
  */
-netric.module.Module.load = function(opt_cbFunction) {
+Module.load = function(opt_cbFunction) {
 	// TODO: load module definition
 }
 
@@ -52,6 +45,8 @@ netric.module.Module.load = function(opt_cbFunction) {
  *
  * @param {DOMElement} domCon Container to render module into
  */
-netric.module.Module.prototype.run = function(domCon) {
+Module.prototype.run = function(domCon) {
 	// TODO: render module into domCon
 }
+
+module.exports = Module;

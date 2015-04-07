@@ -143,6 +143,16 @@ class Account
     {
         return $this->application;
     }
+
+    /**
+     * Update the current user
+     *
+     * @param \Netric\Entity\ObjType\User $user
+     */
+    public function setCurrentUser(Entity\ObjType\User $user)
+    {
+        $this->currentUser = $user;
+    }
     
     /**
      * Get user by id or name
@@ -158,10 +168,11 @@ class Account
     {
         $loader = $this->getServiceManager()->get("EntityLoader");
         
-        /**
+        /*
          * Try to get the currently logged in user
          */
-        if (!$id && !$username) {
+        if (!$id && !$username) 
+        {
             // First check to see if we already loaded
             if ($this->currentUser)
                 return $this->currentUser;
@@ -179,9 +190,8 @@ class Account
                     return $user;
                 }
             }
-        }
-        
-        if ($id) 
+        } 
+        else if ($id) 
         {
             $user = $loader->get("user", $id);
             if ($user != false)
@@ -191,10 +201,12 @@ class Account
             }
         }
         
-        if ($username) {
-            
+        if ($username) 
+        {
+            // TODO: query based on username    
         }
                 
-        return false;
+        // Get anonymous user
+        return $loader->get("user", \Netric\Entity\ObjType\User::USER_ANONYMOUS);
     }
 }

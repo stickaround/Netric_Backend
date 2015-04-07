@@ -1,14 +1,19 @@
 /**
  * @fileoverview This is the main controller used for the base application
  */
-netric.declare("netric.controller.MainController");
+'use strict';
 
-netric.require("netric.controller");
+var React = require('react');
+var netric = require("../base");
+var AbstractController = require("./AbstractController");
+var ModuleController = require("./ModuleController");
+var UiAppLarge = require("../ui/application/Large.jsx");
+var UiAppSmall = require("../ui/application/Small.jsx");
 
 /**
  * Main application controller
  */
-netric.controller.MainController = function() {
+var MainController = function() {
 
 	this.application = netric.getApplication();
 
@@ -17,14 +22,14 @@ netric.controller.MainController = function() {
 /**
  * Extend base controller class
  */
-netric.inherits(netric.controller.MainController, netric.controller.AbstractController);
+netric.inherits(MainController, AbstractController);
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-netric.controller.MainController.prototype.onLoad = function(opt_callback) {
+MainController.prototype.onLoad = function(opt_callback) {
 
 	// By default just immediately execute the callback because nothing needs to be done
 	if (opt_callback)
@@ -34,7 +39,7 @@ netric.controller.MainController.prototype.onLoad = function(opt_callback) {
 /**
  * Render this controller into the dom tree
  */
-netric.controller.MainController.prototype.render = function() { 
+MainController.prototype.render = function() { 
 	// Set outer application container
 	var domCon = this.domNode_;
 
@@ -42,20 +47,20 @@ netric.controller.MainController.prototype.render = function() {
 	switch (netric.getApplication().device.size)
 	{
 	case netric.Device.sizes.small:
-		this.appComponent_ = netric.ui.application.Small;
+		this.appComponent_ = UiAppSmall;
 		break;
 	case netric.Device.sizes.medium:
-		this.appComponent_ = netric.ui.application.Large;
+		this.appComponent_ = UiAppSmall;
 		break;
 	case netric.Device.sizes.large:
-		this.appComponent_ = netric.ui.application.Large;
+		this.appComponent_ = UiAppLarge;
 		break;
 	}
 
 	// Setup application data
 	var data = {
 		orgName : netric.getApplication().getAccount().orgName,
-		module : "messages",
+		module : netric.getApplication().getAccount().defaultModule,
 		logoSrc : "img/netric-logo-32.png",
 		basePath : this.getParentRouter().getActivePath()
 	}
@@ -68,11 +73,12 @@ netric.controller.MainController.prototype.render = function() {
 
 	// Add dynamic route to the module
 	this.addSubRoute(":module", 
-		netric.controller.ModuleController, 
-		{}, 
+		ModuleController, {}, 
 		view.refs.appMain.getDOMNode()
 	);
 
 	// Set a default route to messages
-	this.getChildRouter().setDefaultRoute("messages");
+	this.getChildRouter().setDefaultRoute(netric.getApplication().getAccount().defaultModule);
 }
+
+module.exports = MainController;

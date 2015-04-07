@@ -4,21 +4,22 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
 */
+'use strict';
 
-netric.declare("netric.location");
-
-netric.require("netric");
-netric.require("netric.location.adaptor.Hash");
+var Hash = require("./adaptor/Hash.js");
+var path = require("./path");
 
 /**
- * Create global namespace for server settings
+ * Create namespace for server settings
  */
-netric.location = netric.location || {};
+var location = {
+	path: path
+};
 
 /**
  * The type of actions that can take place in the location of this device
  */
-netric.location.actions = {
+location.actions = {
 
   // Indicates a new location is being pushed to the history stack.
   PUSH: 'push',
@@ -35,14 +36,14 @@ netric.location.actions = {
  * Location adaptor handle
  *
  * @private
- * @type {netric.location.adaptor}
+ * @type {location.adaptor}
  */
-netric.location.adaptor_ = null;
+location.adaptor_ = null;
 
 /**
  * Go to a path
  */
-netric.location.go = function(path) {
+location.go = function(path) {
 	// Push the location to the current adaptor
 	this.getAdaptor().push(path);
 }
@@ -50,10 +51,10 @@ netric.location.go = function(path) {
 /**
  * Setup a router to listen for location change events
  * 
- * @param {netric.location.Router} router The router that handles location changes
- * @param {netric.location.adaptor} opt_handler Manually set the location adaptor
+ * @param {location.Router} router The router that handles location changes
+ * @param {location.adaptor} opt_handler Manually set the location adaptor
  */
-netric.location.setupRouter = function(router, opt_adaptor) {
+location.setupRouter = function(router, opt_adaptor) {
 	// Check to see if we should be manually setting the adaptor
 	if (opt_adaptor) {
 		this.setAdaptor(opt_adaptor);
@@ -82,7 +83,7 @@ netric.location.setupRouter = function(router, opt_adaptor) {
 /** 
  * Temp hack
  */
-netric.location.checkNav = function() {
+location.checkNav = function() {
 	var load = "";
 	if (document.location.hash)
 	{
@@ -97,7 +98,7 @@ netric.location.checkNav = function() {
 		this.lastLoaded = load;
 		//ALib.m_debug = true;
 		//ALib.trace(load);
-		this.triggerPathChange_(load, netric.location.actions.PUSH);
+		this.triggerPathChange_(load, location.actions.PUSH);
 	}
 }
 
@@ -105,18 +106,18 @@ netric.location.checkNav = function() {
  * Trigger location change events
  *
  * @param {string} path The path we changed to
- * @param {netric.location.actions} type The type of action that triggered the event
+ * @param {location.actions} type The type of action that triggered the event
  */
-netric.location.triggerPathChange_ = function(path, type) {
+location.triggerPathChange_ = function(path, type) {
 	alib.events.triggerEvent(this, "pathchange", {path:path, actionType:type});
 }
 
 /**
  * Get the location adaptor
  * 
- * @return {netric.location.adaptor}
+ * @return {location.adaptor}
  */
-netric.location.getAdaptor = function() {
+location.getAdaptor = function() {
 	// If we do not have an adaptor set then get the best option with setAdaptor
 	if (null == this.adaptor_)
 		this.setAdaptor();
@@ -129,13 +130,13 @@ netric.location.getAdaptor = function() {
  *
  * @param {Object} opt_handler Manually set the location adaptor
  */
-netric.location.setAdaptor = function(opt_adaptor) {
+location.setAdaptor = function(opt_adaptor) {
 
 	// Set local location adaptor
 	this.adaptor_ = opt_adaptor || this.getBestAdaptor_();
 
 	alib.events.listen(this.adaptor_, "pathchange", function(evt) {
-		netric.location.triggerPathChange_(evt.data.path, evt.data.type);
+		location.triggerPathChange_(evt.data.path, evt.data.type);
 	});
 
 	return this.adaptor_;
@@ -146,6 +147,8 @@ netric.location.setAdaptor = function(opt_adaptor) {
  *
  * @private
  */
-netric.location.getBestAdaptor_ = function() {
-	return new netric.location.adaptor.Hash();
+location.getBestAdaptor_ = function() {
+	return new Hash();
 }
+
+module.exports = location;

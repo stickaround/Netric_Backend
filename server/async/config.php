@@ -66,7 +66,7 @@
 /**********************************************************************************
  *  Default FileStateMachine settings
  */
-    define('STATE_DIR', BASE_PATH . 'state/');
+define('STATE_DIR', BASE_PATH . '../data/async/state/');
 
 
 /**********************************************************************************

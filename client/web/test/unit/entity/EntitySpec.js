@@ -1,5 +1,8 @@
 'use strict';
 
+var Definition = require("../../../js/entity/Definition");
+var Entity = require("../../../js/entity/Entity");
+
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests
  */
@@ -8,7 +11,7 @@ describe("Get and Set Entity Values", function() {
 
 	// Setup test entity
 	beforeEach(function() {
-		var definition = new netric.entity.Definition({
+		var definition = new Definition({
 			obj_type: "test",
 			title: "Test Object",
 			id: "1",
@@ -81,7 +84,7 @@ describe("Get and Set Entity Values", function() {
 				}
 			]
 		});
-		entity = new netric.entity.Entity(definition);
+		entity = new Entity(definition);
 	});
 
 	it("should be able to get and set string values", function() {
@@ -96,5 +99,42 @@ describe("Get and Set Entity Values", function() {
 		entity.setValue("status", statusId, statusName);
 		expect(entity.getValue("status")).toEqual(statusId);
 		expect(entity.getValueName("status")).toEqual(statusName);
+	});
+
+	it("should be able to get and add fkey_multi values with valueNames", function() {
+		var catName = "My Test Value";
+		var catId = 2; 
+		entity.addMultiValue("categories", catId, catName);
+		expect(entity.getValue("categories")).toEqual([catId]);
+		expect(entity.getValueName("categories")).toEqual([{key: catId, value:catName}]);
+		expect(entity.getValueName("categories", catId)).toEqual(catName);
+	});
+
+	it("should loadData for *_multi fields", function() {
+		var catName = "My Test Value";
+		var catId = 2; 
+
+		var data = {
+			id: 1,
+			obj_type: "customer",
+			"categories": [catId],
+			"categories_fval": {"2":catName}
+		};
+
+		entity.loadData(data);
+		expect(entity.getValue("categories")).toEqual([catId]);
+		expect(entity.getValueName("categories")).toEqual([{key: catId, value:catName}]);
+		expect(entity.getValueName("categories", catId)).toEqual(catName);
+	});
+
+	it("should loadData for string fields", function() {
+		var data = {
+			id: 1,
+			obj_type: "customer",
+			"name": "test"
+		};
+
+		entity.loadData(data);
+		expect(entity.getValue("name")).toEqual(data.name);
 	});
 });

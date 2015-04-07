@@ -3,22 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.application.Small");
-
-alib.require("netric.ui.AppBar");
-
-/** 
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
-netric.ui.application = netric.ui.application || {};
+var React = require('react');
+var Paper = require("../Paper.jsx");
+var netric = require("../../main.js");
 
 /**
  * Small application component
  */
-netric.ui.application.Small = React.createClass({
+var Small = React.createClass({
   
   getInitialState: function() {
     return {orgName: this.props.orgName};
@@ -33,3 +27,5 @@ netric.ui.application.Small = React.createClass({
     );
   }
 });
+
+module.exports = Small;

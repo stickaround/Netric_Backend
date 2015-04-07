@@ -3,21 +3,13 @@
  *
  * @jsx React.DOM
  */
-
-alib.declare("netric.ui.LeftNavModuleHeader");
-
-alib.require("netric.ui.AppBar");
-
-/**
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+'use strict';
+var React = require('react');
 
 /**
  * Module shell
  */
-netric.ui.LeftNavModuleHeader = React.createClass({
+var LeftNavModuleHeader = React.createClass({
 
     getDefaultProps: function() {
         return {
@@ -44,3 +36,5 @@ netric.ui.LeftNavModuleHeader = React.createClass({
     }
 
 });
+
+module.exports = LeftNavModuleHeader;

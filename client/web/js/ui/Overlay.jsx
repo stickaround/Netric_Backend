@@ -3,19 +3,13 @@
  *
  * @jsx React.DOM
  */
-
-alib.declare("netric.ui.Overlay");
-
-/** 
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+'use strict';
+var React = require('react');
 
 /**
  * Small application component
  */
-netric.ui.Overlay = React.createClass({
+var Overlay = React.createClass({
 	// mixins: [Classable],
 
 	propTypes: {
@@ -34,3 +28,5 @@ netric.ui.Overlay = React.createClass({
 		);
 	}
 });
+
+module.exports = Overlay;

@@ -3,17 +3,13 @@
  *
  * @jsx React.DOM
  */
-
-/** 
- * Make sure ui namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+'use strict';
+var React = require('react');
 
 /**
  * Small application component
  */
-netric.ui.Paper = React.createClass({
+var Paper = React.createClass({
 
   //mixins: [Classable],
 
@@ -69,3 +65,5 @@ netric.ui.Paper = React.createClass({
   }
 
 });
+
+module.exports = Paper;

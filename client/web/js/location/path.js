@@ -4,20 +4,17 @@
 * @author:  Sky Stebnicki, sky.stebnicki@aereus.com; 
 *       Copyright (c) 2015 Aereus Corporation. All rights reserved.
 */
-
-alib.declare("netric.location.path");
-
-alib.require("netric.location")
+'use strict';
 
 /** 
  * Create path namespace for path utility funtions
  */
-netric.location.path = netric.location.path || {};
+var locationPath = {};
 
 /**
  * Setup patterns
  */
-netric.location.path.patterns = {
+locationPath.patterns = {
   paramCompileMatcher: /:([a-zA-Z_$][a-zA-Z0-9_$]*)|[*.()\[\]\\+|{}^$]/g,
   paramInjectMatcher:  /:([a-zA-Z_$][a-zA-Z0-9_$?]*[?]?)|[*]/g,
   paramInjectTrailingSlashMatcher: /\/\/\?|\/\?/g,
@@ -30,19 +27,19 @@ netric.location.path.patterns = {
  * @private
  * @type {Object}
  */
-netric.location.path.compiledPatterns_ = {};
+locationPath.compiledPatterns_ = {};
 
 /**
  * Safely decodes special characters in the given URL path.
  */
-netric.location.path.decode = function (path) {
+locationPath.decode = function (path) {
   return decodeURI(path.replace(/\+/g, ' '));
 }
 
 /**
  * Safely encodes special characters in the given URL path.
  */
-netric.location.path.encode = function (path) {
+locationPath.encode = function (path) {
   return encodeURI(path).replace(/%20/g, '+');
 }
 
@@ -52,7 +49,7 @@ netric.location.path.encode = function (path) {
  * @private
  * @param {string} pattern The pattern to look for in the given path
  */
-netric.location.path.compilePattern_ = function(pattern) {
+locationPath.compilePattern_ = function(pattern) {
 
   if (!(pattern in this.compiledPatterns_)) {
     var paramNames = [];
@@ -84,7 +81,7 @@ netric.location.path.compilePattern_ = function(pattern) {
  * @param {string} pattern The pattern to look for in the given path
  * @returns {Object} Object with a .matcher RegExp and a .paramNames array
  */
-netric.location.path.extractParamNames = function(pattern) {
+locationPath.extractParamNames = function(pattern) {
   return this.compilePattern_(pattern).paramNames;
 }
 
@@ -93,7 +90,7 @@ netric.location.path.extractParamNames = function(pattern) {
    * and returns an object of param name => value pairs. Returns null if the
    * pattern does not match the given path.
    */
-netric.location.path.extractParams = function(pattern, path) {
+locationPath.extractParams = function(pattern, path) {
 
   var object = this.compilePattern_(pattern);
   var match = path.match(object.matcher);
@@ -114,7 +111,7 @@ netric.location.path.extractParams = function(pattern, path) {
  * Returns a version of the given route path with params interpolated. Throws
  * if there is a dynamic segment of the route path for which there is no param.
  */
-netric.location.path.injectParams = function(pattern, params) {
+locationPath.injectParams = function(pattern, params) {
   params = params || {};
 
   var splatIndex = 0;
@@ -149,14 +146,14 @@ netric.location.path.injectParams = function(pattern, params) {
     }
 
     return segment;
-  }).replace(netric.location.path.patterns.paramInjectTrailingSlashMatcher, '/');
+  }).replace(locationPath.patterns.paramInjectTrailingSlashMatcher, '/');
 }
 
 /**
  * Returns an object that is the result of parsing any query string contained
  * in the given path, null if the path contains no query string.
  */
-netric.location.path.extractQuery = function(path) {
+locationPath.extractQuery = function(path) {
   var match = path.match(this.patterns.queryMatcher);
   return match && this.parseQuery(match[1]);
 }
@@ -164,28 +161,28 @@ netric.location.path.extractQuery = function(path) {
 /**
  * Returns a version of the given path without the query string.
  */
-netric.location.path.withoutQuery = function(path) {
+locationPath.withoutQuery = function(path) {
   return path.replace(this.patterns.queryMatcher, '');
 }
 
 /**
  * Returns true if the given path is absolute.
  */
-netric.location.path.isAbsolute = function(path) {
+locationPath.isAbsolute = function(path) {
   return path.charAt(0) === '/';
 }
 
 /**
  * Returns a normalized version of the given path.
  */
-netric.location.path.normalize = function(path, parentRoute) {
+locationPath.normalize = function(path, parentRoute) {
   return path.replace(/^\/*/, '/');
 }
 
 /**
  * Joins two URL paths together.
  */
-netric.location.path.join = function(a, b) {
+locationPath.join = function(a, b) {
   return a.replace(/\/*$/, '/') + b;
 }
 
@@ -193,7 +190,7 @@ netric.location.path.join = function(a, b) {
  * Returns a version of the given path with the parameters in the given
  * query merged into the query string.
  */
-netric.location.path.withQuery = function(path, query) {
+locationPath.withQuery = function(path, query) {
   var existingQuery = this.extractQuery(path);
 
   // Merge query objects
@@ -220,7 +217,7 @@ netric.location.path.withQuery = function(path, query) {
  * @param {Object} queryObj An objet with key values
  * @return {string} A string representation of the object
  */
-netric.location.path.stringifyQuery = function(queryObj) {
+locationPath.stringifyQuery = function(queryObj) {
   return queryObj ? Object.keys(queryObj).map(function (key) {
       var val = queryObj[key];
 
@@ -240,7 +237,7 @@ netric.location.path.stringifyQuery = function(queryObj) {
  * @param {string} str The query string to parse
  * @return {} Key value for each query string param
  */
-netric.location.path.parseQuery = function (str) {
+locationPath.parseQuery = function (str) {
   if (typeof str !== 'string') {
     return {};
   }
@@ -276,3 +273,6 @@ netric.location.path.parseQuery = function (str) {
     return ret;
   }, {});
 };
+
+module.exports = locationPath;
+

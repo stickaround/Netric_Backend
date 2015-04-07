@@ -4,24 +4,17 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.account.loader");
+'use strict';
 
-alib.require("netric");
-
-alib.require("netric.account.Account");
-alib.require("netric.BackendRequest");
-
-/**
- * Make sure account namespace is initialized
- */
-netric.account = netric.account || {};
+var BackendRequest = require("../BackendRequest");
+var Account = require("../account/Account");
 
 /**
  * Global module loader
  *
  * @param {netric.Application} application Application instance
  */
-netric.account.loader = netric.account.loader || {};
+var loader = {};
 
 /**
  * Keep a reference to last loaded application to reduce requests
@@ -29,7 +22,7 @@ netric.account.loader = netric.account.loader || {};
  * @private
  * @param {Array}
  */
-netric.account.loader.accountCache_ = null;
+loader.accountCache_ = null;
 
 /**
  * Static function used to load the module
@@ -41,7 +34,7 @@ netric.account.loader.accountCache_ = null;
  * @param {function} cbLoaded Callback function once account is loaded
  * @return {netric.account.Account|void} If no callback is provded then force a return
  */
-netric.account.loader.get = function(cbLoaded) {
+loader.get = function(cbLoaded) {
 	
 	// Return (or callback callback) cached account if already loaded
 	if (this.accountCache_ != null) {
@@ -53,11 +46,11 @@ netric.account.loader.get = function(cbLoaded) {
 		return this.accountCache_;
 	}
 
-	var request = new netric.BackendRequest();
+	var request = new BackendRequest();
 
 	if (cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
-			var account = netric.account.loader.createAccountFromData(this.getResponse());
+			var account = loader.createAccountFromData(this.getResponse());
 			cbLoaded(account);
 		});
 	} else {
@@ -78,13 +71,15 @@ netric.account.loader.get = function(cbLoaded) {
  *
  * @param {Object} data The data to create an account from
  */
-netric.account.loader.createAccountFromData = function(data) {
+loader.createAccountFromData = function(data) {
 
 	// Construct account and initialize with data	
-	var account = new netric.account.Account(data);
+	var account = new Account(data);
 	
 	// Cache it for future requests
 	this.accountCache_ = account;
 
 	return this.accountCache_;
 }
+
+module.exports = loader;

@@ -3,6 +3,36 @@ module.exports = function(grunt) {
         // Used to build
         distFolder: 'dist',
         pkg: grunt.file.readJSON('package.json'),
+
+        browserify: {
+            options: {
+                debug: true,
+                transform: [
+                    ['reactify', {"harmony": true}] 
+                ],
+                extensions: ['.jsx'],
+                browserifyOptions : {
+                    standalone: 'netric'
+                }
+            },
+            dev: {
+                options: {
+                  //alias: ['react:']  // Make React available externally for dev tools
+                },
+                //cwd: 'js',
+                src: ['js/main.js'],
+                dest: 'build/js/netric.js'
+            },
+            production: {
+                options: {
+                  debug: false
+                },
+                //cwd: 'js',
+                //src: ['**/*.jsx'],
+                src: ['js/main.js'],
+                dest: 'build/js/netric.js'
+            }
+        },
         
         /**
          * Settings for watch which basically monitors files for
@@ -18,17 +48,24 @@ module.exports = function(grunt) {
                 tasks: ['sass:dist']
             },
             
+            // Build browserfly bundle
+            browserify: {
+                files: ['js/**/*.js', 'js/**/*.jsx'],
+                tasks: ['browserify:dev']
+            },
+
             // Make sure any new scripts are included in the html documents
             blocks: {
-                files: ['js/**/*.js', 'build/js/ui/**/*.js'],
+                //files: ['js/**/*.js', 'build/js/ui/**/*.js'],
+                files: ['build/js/**/*.js'],
                 tasks: ['fileblocks:dev']
             },
 
             // Render jsx filse into js files
-            react: {
-                files: ['js/ui/**/*.jsx'],
-                tasks: ['react']
-            },
+            // react: {
+            //     files: ['js/ui/**/*.jsx'],
+            //     tasks: ['react', 'browserify']
+            // },
             
             // Reload the browser if any of these files change
             livereload: {
@@ -144,7 +181,7 @@ module.exports = function(grunt) {
                 src: 'index.html',
                 blocks: {
                     'app': { 
-                        src: 'js/**/*.js'
+                        src: 'build/js/**/*.js'
                     },
                     'components': {
                         src: 'build/js/ui/**/*.js'
@@ -211,5 +248,8 @@ module.exports = function(grunt) {
     grunt.registerTask('compile', ['copy:build', 'react', 'concat', 'sass:dist', 'copy:main']);
     
     // Default will build sass, update js includes and then sit and watch for changes
-    grunt.registerTask('default', ['sass:dist', 'includes', 'watch']);
+    grunt.registerTask('default', ['sass:dist', 'browserify:dev', 'includes', 'watch']);
+
+    // We are utilizing browserify for react components
+    grunt.loadNpmTasks('grunt-browserify');
 };

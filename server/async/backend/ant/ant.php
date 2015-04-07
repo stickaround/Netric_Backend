@@ -1604,8 +1604,8 @@ class BackendAnt extends BackendDiff
 			$attachments = $msg->getAttachments();
 			if (count($attachments))
 			{
-				if (!isset($output->asattachments) || !is_array($output->asattachments))
-					$output->asattachments = array();
+				if (!isset($output->attachments) || !is_array($output->attachments))
+					$output->attachments = array();
 
 				foreach ($attachments as $att)
 				{

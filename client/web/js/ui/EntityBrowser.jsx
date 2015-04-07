@@ -3,21 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.EntityBrowser");
-
-alib.require("netric.ui.AppBar");
-
-/** 
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+var React = require('react');
+var AppBar = require("./AppBar.jsx");
+var List = require("./entitybrowser/List.jsx");
 
 /**
  * Module shell
  */
-netric.ui.EntityBrowser = React.createClass({
+var EntityBrowser = React.createClass({
 
     propTypes: {
         onEntityListClick: React.PropTypes.func,
@@ -53,9 +48,9 @@ netric.ui.EntityBrowser = React.createClass({
     var appBar = "";
 
     if (this.props.onNavBtnClick) {
-        appBar = <netric.ui.AppBar title={this.state.name} onNavBtnClick={this.menuClick_} />;
+        appBar = <AppBar title={this.state.name} onNavBtnClick={this.menuClick_} />;
     } else {
-        appBar = <netric.ui.AppBar title={this.state.name} />;
+        appBar = <AppBar title={this.state.name} />;
     }
 
     return (
@@ -64,13 +59,12 @@ netric.ui.EntityBrowser = React.createClass({
           {appBar}
         </div>
         <div ref="moduleMain">
-            <netric.ui.entitybrowser.List
+            <List
                 onEntityListClick={this.props.onEntityListClick}
                 onEntityListSelect={this.props.onEntityListSelect}
                 entities={this.props.entities}
                 selectedEntities={this.props.selectedEntities}
-                layout={this.props.layout}
-            />
+                layout={this.props.layout} />
         </div>
       </div>
     );
@@ -83,3 +77,5 @@ netric.ui.EntityBrowser = React.createClass({
   },
 
 });
+
+module.exports = EntityBrowser;

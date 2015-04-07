@@ -2,6 +2,7 @@
 	"id" : 1,
 	"name" : "test",
 	"orgName" : "Test Company LLC",
+	"defaultModule" : "messages",
 	"user" : {
 		"id" : 1002,
 		"name" : "test.user",

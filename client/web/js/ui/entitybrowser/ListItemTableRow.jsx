@@ -3,20 +3,14 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-alib.declare("netric.ui.entitybrowser.ListItemTableRow");
-
-/**
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
-netric.ui.entitybrowser = netric.ui.entitybrowser || {};
+var React = require('react');
 
 /**
  * Module shell
  */
-netric.ui.entitybrowser.ListItemTableRow = React.createClass({
+var ListItemTableRow = React.createClass({
 
     render: function () {
         var entity = this.props.entity;
@@ -53,3 +47,5 @@ netric.ui.entitybrowser.ListItemTableRow = React.createClass({
     }
 
 });
+
+module.exports = ListItemTableRow;

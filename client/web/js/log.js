@@ -4,15 +4,12 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-
-alib.declare("netric.log");
-
-alib.require("netric");
+'use strict';
 
 /**
- * Create global namespace for server settings
+ * Create global namespace for logging
  */
-netric.log = netric.log || {};
+var log = {}
 
 /**
  * Write an error to the log
@@ -20,7 +17,7 @@ netric.log = netric.log || {};
  * @public
  * @var {string} message
  */
-netric.log.error = function(message) {
+log.error = function(message) {
 	// Get the name of the calling function
 	var myName = arguments.callee.toString();
 	/*
@@ -30,3 +27,5 @@ netric.log.error = function(message) {
 
 	console.log(myName + ":" + message);
 }
+
+module.exports = log;

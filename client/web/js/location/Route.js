@@ -4,27 +4,22 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
 */
+'use strict';
 
-alib.declare("netric.location.Route");
-
-alib.require("netric");
-
-/**
- * Make sure namespace exists
- */
-netric.location = netric.location || {};
+var Router = require("./Router");
+var locationPath = require("./path");
 
 /**
  * Route segment
  *
  * @constructor
- * @param {netric.locateion.Router} parentRouter Instance of a parentRouter that will own this route
+ * @param {Router} parentRouter Instance of a parentRouter that will own this route
  * @param {string} segmentName Can be a constant string or a variable with ":" prefixed which falls back to the previous route(?)
  * @param {Controller} controller The controller to load
  * @param {Object} opt_data Optional data to pass to the controller when routed to
  * @param {ReactElement} opt_element Optional parent element to render a fragment into
  */
-netric.location.Route = function(parentRouter, segmentName, controller, opt_data, opt_element) {
+var Route = function(parentRouter, segmentName, controller, opt_data, opt_element) {
 
 	/**
 	 * Path of this route segment
@@ -45,7 +40,7 @@ netric.location.Route = function(parentRouter, segmentName, controller, opt_data
 	 * Parent inbound router
 	 *
 	 * @private
-	 * @type {netric.location.Router}
+	 * @type {Router}
 	 */
 	this.parentRouter_ = parentRouter;
 
@@ -54,7 +49,7 @@ netric.location.Route = function(parentRouter, segmentName, controller, opt_data
 	 * 
 	 * This is just the class name, it has not yet been instantiated
 	 *
-	 * @type {classname: netric.controller.AbstractController}
+	 * @type {classname: AbstractController}
 	 */
 	this.controllerClass_ = controller;
 
@@ -64,7 +59,7 @@ netric.location.Route = function(parentRouter, segmentName, controller, opt_data
 	 * We are lazy with the loading of the controller to preserve resources
 	 * until absolutely necessary.
 	 *
-	 * @type {netric.controller.AbstractController}
+	 * @type {AbstractController}
 	 */
 	this.controller_ = null;
 
@@ -80,9 +75,9 @@ netric.location.Route = function(parentRouter, segmentName, controller, opt_data
 	 * Outbound next-hop router
 	 *
 	 * @private
-	 * @type {netric.location.Router}
+	 * @type {Router}
 	 */
-	this.nexthopRouter_ = new netric.location.Router(this.parentRouter_);
+	this.nexthopRouter_ = new Router(this.parentRouter_);
 
 	/**
 	 * The domNode that we should render this route into
@@ -100,7 +95,7 @@ netric.location.Route = function(parentRouter, segmentName, controller, opt_data
  * @param {Object} opt_params Optional URL params object
  * @param {function} opt_callback If set call this function when we are finished loading route
  */
-netric.location.Route.prototype.enterRoute = function(opt_params, opt_callback) {
+Route.prototype.enterRoute = function(opt_params, opt_callback) {
 
 	var doneLoadingCB = opt_callback || null;
 
@@ -122,7 +117,7 @@ netric.location.Route.prototype.enterRoute = function(opt_params, opt_callback) 
 /**
  * Called when the router moves away from this route to show an alternate route
  */
-netric.location.Route.prototype.exitRoute = function() {
+Route.prototype.exitRoute = function() {
 	// Exit all childen first
 	if (this.getChildRouter().getActiveRoute()) {
 		this.getChildRouter().getActiveRoute().exitRoute();
@@ -143,7 +138,7 @@ netric.location.Route.prototype.exitRoute = function() {
  *
  * @return {string}
  */
-netric.location.Route.prototype.getName = function() {
+Route.prototype.getName = function() {
 	return this.name_;
 }
 
@@ -152,14 +147,14 @@ netric.location.Route.prototype.getName = function() {
  *
  * @return {string} Full path leading up to and including this path
  */
-netric.location.Route.prototype.getPath = function() {
+Route.prototype.getPath = function() {
 	return this.parentRouter_.getActivePath();
 }
 
 /**
  * Get the router for the next hops
  */
-netric.location.Route.prototype.getChildRouter = function() {
+Route.prototype.getChildRouter = function() {
 	return this.nexthopRouter_;
 }
 
@@ -172,7 +167,7 @@ netric.location.Route.prototype.getChildRouter = function() {
  *
  * @return {int} The number of segments this route handles
  */
-netric.location.Route.prototype.getNumPathSegments = function() {
+Route.prototype.getNumPathSegments = function() {
 	return this.numPathSegments_;
 }
 
@@ -182,7 +177,7 @@ netric.location.Route.prototype.getNumPathSegments = function() {
  * @param {string} path The path to test
  * @return {Object|null} If a match is found it retuns an object with .params object and nextHopPath to continue route
  */
-netric.location.Route.prototype.matchesPath = function(path) {
+Route.prototype.matchesPath = function(path) {
 
 	// If this is a simple one to one then retun a basic match and save cycles
 	if (path === this.name_ || ("" == path && this.name_ == "/")) {
@@ -193,7 +188,7 @@ netric.location.Route.prototype.matchesPath = function(path) {
 	var pathReq = this.getPathSegments(path, this.numPathSegments_);
 	if (pathReq != null) {
 		// Now check for a match and parse params
-		var params = netric.location.path.extractParams(this.name_, pathReq.target);
+		var params = locationPath.extractParams(this.name_, pathReq.target);
 
 		// If params is null then the path does not match at all
 		if (params !== null) {
@@ -216,7 +211,7 @@ netric.location.Route.prototype.matchesPath = function(path) {
  * @param {int} numSegments
  * @return {Object} Format: {target:"math/with/my/num/segs", remainder:"any/trailing/path"}
  */
-netric.location.Route.prototype.getPathSegments = function(path, numSegments) {
+Route.prototype.getPathSegments = function(path, numSegments) {
 
 	var testTarget = "";
 
@@ -251,8 +246,10 @@ netric.location.Route.prototype.getPathSegments = function(path, numSegments) {
 /**
  * Get the controller instance for this route
  * 
- * @return {netric.contoller.AbstractController}
+ * @return {AbstractController}
  */
-netric.location.Route.prototype.getController = function() {
+Route.prototype.getController = function() {
 	return this.controller_;
 }
+
+module.exports = Route;

@@ -14,3 +14,14 @@ body {
   width: 100%;
 }
 
+html {
+  -webkit-font-smoothing: antialiased;
+  color: $body-text-color;
+  font-family: $contentFontFamily;
+  background-color: $canvas-color;
+}
+
+hr {
+  border: none;
+  border-bottom: solid 1px $border-color;
+}

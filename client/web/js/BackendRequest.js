@@ -3,7 +3,7 @@
 *
 * Example:
 * <code>
-* 	var request = new netric.BackendRequest();
+* 	var request = new BackendRequest();
 *	
 *	// Setup callback for successful load
 *	alib.events.listen(request, "load", function(evt) { 
@@ -20,17 +20,23 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.BackendRequest");
+'use strict';
+
+var netric = require("./base.js");
+
+/*
+alib.declare("BackendRequest");
 
 alib.require("netric");
 alib.require("netric.server");
+*/
 
 /**
  * Class for handling XMLHttpRequests
  *
  * @constructor
  */
-netric.BackendRequest = function() {
+var BackendRequest = function() {
 	/**
 	 * Handle to server xhr to use when connected
 	 *
@@ -48,7 +54,7 @@ netric.BackendRequest = function() {
  * @private
  * @type {string}
  */
-netric.BackendRequest.prototype.returnType_ = "json";
+BackendRequest.prototype.returnType_ = "json";
 
 /**
  * Determine whether or not we will send async or hang the UI until request returns (yikes)
@@ -56,7 +62,7 @@ netric.BackendRequest.prototype.returnType_ = "json";
  * @private
  * @type {bool}
  */
-netric.BackendRequest.prototype.isAsync_ = true;
+BackendRequest.prototype.isAsync_ = true;
 
 /**
  * Number of seconds before the request times out
@@ -66,7 +72,7 @@ netric.BackendRequest.prototype.isAsync_ = true;
  * @private
  * @type {int}
  */
-netric.BackendRequest.prototype.timeoutInterval_ = 0;
+BackendRequest.prototype.timeoutInterval_ = 0;
 
 /**
  * Buffer for response
@@ -74,7 +80,7 @@ netric.BackendRequest.prototype.timeoutInterval_ = 0;
  * @private
  * @type {bool}
  */
-netric.BackendRequest.prototype.response_ = null;
+BackendRequest.prototype.response_ = null;
 
 /**
  * Static send that creates a short lived instance.
@@ -86,7 +92,7 @@ netric.BackendRequest.prototype.response_ = null;
  * @param {number=} opt_timeoutInterval Number of milliseconds after which an
  *     incomplete request will be aborted; 0 means no timeout is set.
  */
-netric.BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInterval) 
+BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInterval) 
 {
 	// Set defaults
 	if (typeof opt_method == "undefined")
@@ -95,7 +101,7 @@ netric.BackendRequest.send = function(url, opt_callback, opt_method, opt_content
 		opt_content = null;
 
 	// Crete new Xhr instance and send
-	var request = new netric.BackendRequest();
+	var request = new BackendRequest();
 	if (opt_callback) {
 		alib.events.listen(request, "load", function(evt) { 
 			evt.data.cb(this.getResponse); 
@@ -117,7 +123,7 @@ netric.BackendRequest.send = function(url, opt_callback, opt_method, opt_content
  * @param {string=} opt_method Send method, default: GET.
  * @param {Array|Object|string=} opt_content Body data.
  */
-netric.BackendRequest.prototype.send = function(urlPath, opt_method, opt_content) 
+BackendRequest.prototype.send = function(urlPath, opt_method, opt_content) 
 {
 	var method = opt_method || "GET";
 	var data = opt_content || null;
@@ -138,6 +144,7 @@ netric.BackendRequest.prototype.send = function(urlPath, opt_method, opt_content
 
 	// Fire error event
 	alib.events.listen(xhr, "error", function(evt){
+		// There was a problem loading the data
 		alib.events.triggerEvent(request, "error");
 	});
 
@@ -149,7 +156,7 @@ netric.BackendRequest.prototype.send = function(urlPath, opt_method, opt_content
  *
  * @param {string} type Can be "xml", "json", "script", "text", or "html"
  */
-netric.BackendRequest.prototype.setReturnType = function(type)
+BackendRequest.prototype.setReturnType = function(type)
 {
 	this.returnType_ = type;
 }
@@ -161,7 +168,7 @@ netric.BackendRequest.prototype.setReturnType = function(type)
  *
  * @param {bool} asyc If true then set request to async
  */
-netric.BackendRequest.prototype.setAsync = function(async)
+BackendRequest.prototype.setAsync = function(async)
 {
 	this.netXhr_.setAsync(async);
 }
@@ -171,14 +178,14 @@ netric.BackendRequest.prototype.setAsync = function(async)
  *
  * @param {int} seconds Number of seconds
  */
-netric.BackendRequest.prototype.setTimeoutInterval = function(seconds) {
+BackendRequest.prototype.setTimeoutInterval = function(seconds) {
 	this.netXhr_.setTimeoutInterval(seconds);
 }
 
 /**
  * Abort the request
  */
-netric.BackendRequest.prototype.abort = function() {
+BackendRequest.prototype.abort = function() {
 	if (this.netXhr_)
 		this.netXhr_.abort();
 }
@@ -188,27 +195,29 @@ netric.BackendRequest.prototype.abort = function() {
  *
  * @return bool True if a request is in progress
  */
-netric.BackendRequest.prototype.isInProgress = function() {
+BackendRequest.prototype.isInProgress = function() {
 	return this.netXhr_.isInProgress();
 }
 
 /**
  * Get response text from xhr object
  */
-netric.BackendRequest.prototype.getResponseText = function() {
+BackendRequest.prototype.getResponseText = function() {
 	return this.netXhr_.getResponseText();
 }
 
 /**
  * Get response text from xhr object
  */
-netric.BackendRequest.prototype.getResponseXML = function() {
+BackendRequest.prototype.getResponseXML = function() {
 	return this.netXhr_.getResponseXML();
 }
 
 /**
  * Get the parsed response
  */
-netric.BackendRequest.prototype.getResponse = function() {
+BackendRequest.prototype.getResponse = function() {
 	return this.netXhr_.getResponse();
 }
+
+module.exports = BackendRequest;

@@ -4,20 +4,16 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.entity.loader");
+'use strict';
 
-alib.require("netric");
-alib.require("netric.entity.definitionLoader");
-
-/**
- * Make sure entity namespace is initialized
- */
-netric.entity = netric.entity || {};
+var definitionLoader = require("./definitionLoader");
+var BackendRequest = require("../BackendRequest");
+var Entity = require("./Entity");
 
 /**
  * Global entity loader namespace
  */
-netric.entity.loader = netric.entity.loader || {};
+var loader = {};
 
 /**
  * Array of already loaded entities
@@ -25,7 +21,7 @@ netric.entity.loader = netric.entity.loader || {};
  * @private
  * @var {Array}
  */
-netric.entity.loader.entities_ = new Object();
+loader.entities_ = new Object();
 
 /**
  * Static function used to load the entity
@@ -35,7 +31,7 @@ netric.entity.loader.entities_ = new Object();
  * @param {function} cbLoaded Callback function once entity is loaded
  * @param {bool} force If true then force the entity to reload even if cached
  */
-netric.entity.loader.get = function(objType, entId, cbLoaded, force) {
+loader.get = function(objType, entId, cbLoaded, force) {
 	// Return (or callback callback) cached entity if already loaded
 	var ent = this.getCached(objType, entId);
 	if (ent && !force) {
@@ -50,11 +46,11 @@ netric.entity.loader.get = function(objType, entId, cbLoaded, force) {
 	/*
 	 * Load the entity data
 	 */
-	var request = new netric.BackendRequest();
+	var request = new BackendRequest();
 
 	if (cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
-			var entity = netric.entity.loader.createFromData(this.getResponse());
+			var entity = loader.createFromData(this.getResponse());
 			cbLoaded(entity);
 		});
 	} else {
@@ -70,13 +66,13 @@ netric.entity.loader.get = function(objType, entId, cbLoaded, force) {
 
 	// Add definition if it is not loaded already.
 	// This will cause the backend to include a .definition property in the resp
-	if (netric.entity.definitionLoader.getCached(objType) == null) {
+	if (definitionLoader.getCached(objType) == null) {
 		requestData.loadDef = 1;
 	}
 
-	request.send("/svr/entity/get", "GET", requestData);
+	request.send("svr/entity/get", "GET", requestData);
 
-	// If no callback then construct netric.entity.Entity from request date (synchronous)
+	// If no callback then construct Entity from request date (synchronous)
 	if (!cbLoaded) {
 		return this.createFromData(request.getResponse());
 	}
@@ -93,19 +89,19 @@ netric.entity.loader.get = function(objType, entId, cbLoaded, force) {
  * @param {string} objType The object type to load
  * @param {function} opt_cbCreated Optional callback function once entity is initialized
  */
-netric.entity.loader.factory = function(objType, opt_cbCreated) {
+loader.factory = function(objType, opt_cbCreated) {
 
-	var entDef = netric.entity.definitionLoader.getCached(data.obj_type);
+	var entDef = definitionLoader.getCached(data.obj_type);
 
 	if (opt_cbCreated) {
-		netric.entity.definitionLoader.get(objType, function(def) {
-			var ent = new netric.entity.Entity(def);
+		definitionLoader.get(objType, function(def) {
+			var ent = new Entity(def);
 			opt_cbCreated(ent);
 		});
 	} else {
 		// Force a syncronous request with no second param (callback)
-		var def = netric.entity.definitionLoader.get(objType);
-		return new netric.entity.Entity(def);
+		var def = definitionLoader.get(objType);
+		return new Entity(def);
 	}
 }
 
@@ -114,17 +110,17 @@ netric.entity.loader.factory = function(objType, opt_cbCreated) {
  *
  * @param {Object} data The data to create an entity from
  */
-netric.entity.loader.createFromData = function(data) {
+loader.createFromData = function(data) {
 
 	if (typeof data === 'undefined') {
 		throw "data is a required param to create an object";
 	}
 
 	// Get cached object definition
-	var entDef = netric.entity.definitionLoader.getCached(data.obj_type);
+	var entDef = definitionLoader.getCached(data.obj_type);
 	// If cached definition is not found then the data object should include a .definition prop
 	if (entDef == null && data.definition) {
-		entDef = netric.entity.definitionLoader.createFromData(data.definition);
+		entDef = definitionLoader.createFromData(data.definition);
 	}
 
 	// If we don't have a definition to work with we should throw an error
@@ -137,7 +133,7 @@ netric.entity.loader.createFromData = function(data) {
 	if (ent != null) {
 		ent.loadData(data);
 	} else {
-		ent = new netric.entity.Entity(entDef, data);
+		ent = new Entity(entDef, data);
 
 		// Make sure the name was set to something other than "" and place it in cache
 		if (ent.id && ent.objType) {
@@ -151,9 +147,9 @@ netric.entity.loader.createFromData = function(data) {
 /**
  * Put an entity in the local cache for future quick loading
  *
- * @param {netric.entity.Entity} ent The entity to store
+ * @param {Entity} ent The entity to store
  */
-netric.entity.loader.cacheEntity = function(ent) {
+loader.cacheEntity = function(ent) {
 
 	if (!this.entities_[ent.objType]) {
 		this.entities_[ent.objType] = new Object();	
@@ -168,9 +164,9 @@ netric.entity.loader.cacheEntity = function(ent) {
  *
  * @param {string} objType The object type to load
  * @param {string} entId The unique entity to load
- * @return {netric.entity.Entity} or null if not cached
+ * @return {Entity} or null if not cached
  */
-netric.entity.loader.getCached = function(objType, entId) {
+loader.getCached = function(objType, entId) {
 
 	// Check to see if the entity is already loaded and return it
 	if (this.entities_[objType]) {
@@ -181,3 +177,5 @@ netric.entity.loader.getCached = function(objType, entId) {
 
 	return null;
 }
+
+module.exports = loader;

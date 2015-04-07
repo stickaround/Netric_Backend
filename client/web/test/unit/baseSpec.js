@@ -1,5 +1,7 @@
 'use strict';
 
+var netric = require("../../js/main.js");
+
 /**
  * Check to make sure expected public varibles are set
  */
@@ -30,6 +32,7 @@ describe("Public Base Functions:", function() {
 		var error = "An instance of netric.Application has not yet been loaded.";
 		expect( function(){ netric.getApplication(); } ).toThrow(new Error(error));
 	});
+
 });
 
 /**
@@ -96,6 +99,7 @@ describe("Class inheritance:", function() {
  */
 describe("Namespace declare:", function() {
 
+	// This is no longer in use
 	it("Can create new namespaces before they exist", function() {
 		netric.declare("my.test.namespace");
 		expect(typeof my.test.namespace).toEqual("object");
@@ -107,6 +111,6 @@ describe("Namespace declare:", function() {
 		netric.declare("testns.testClass");
 		expect(typeof testns.testClass).toEqual("function");
 	});
-
+	
 });
 

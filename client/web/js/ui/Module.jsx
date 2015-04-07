@@ -3,21 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
+var React = require('react');
 
-alib.declare("netric.ui.Module");
-
-alib.require("netric.ui.AppBar");
-
-/** 
- * Make sure namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+var LeftNav = require("./LeftNav.jsx");
+var LeftNavModuleHeader = require("./LeftNavModuleHeader.jsx");
 
 /**
  * Module shell
  */
-netric.ui.Module = React.createClass({
+var Module = React.createClass({
 
   getInitialState: function() {
     return {name: "Loading..."};
@@ -31,10 +26,6 @@ netric.ui.Module = React.createClass({
 
   componentDidMount: function() {
 
-    netric.module.loader.get("messages", function(mdl){
-      this.setState({name: mdl.name});
-    }.bind(this));
-
   },
 
   render: function() {
@@ -44,11 +35,11 @@ netric.ui.Module = React.createClass({
     if (this.props.leftNavDocked) {
         moduleMainClass += " left-nav-docked";
     }
-    var leftNavHeader = <netric.ui.LeftNavModuleHeader moduleTitle={this.props.title} />
+    var leftNavHeader = <LeftNavModuleHeader moduleTitle={this.props.title} />
 
     return (
         <div>
-            <netric.ui.LeftNav onChange={this.onLeftNavChange_} ref="leftNav" menuItems={this.props.leftNavItems} docked={this.props.leftNavDocked} header={leftNavHeader} />
+            <LeftNav onChange={this.onLeftNavChange_} ref="leftNav" menuItems={this.props.leftNavItems} docked={this.props.leftNavDocked} header={leftNavHeader} />
             <div ref="moduleMain" className={moduleMainClass}></div>
         </div>
     );
@@ -62,3 +53,5 @@ netric.ui.Module = React.createClass({
   }
 
 });
+
+module.exports = Module;

@@ -4,22 +4,15 @@
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
 */
-alib.declare("netric.module.loader");
+'use strict';
 
-alib.require("netric");
-alib.require("netric.module.Module")
-
-/**
- * Make sure module namespace is initialized
- */
-netric.module = netric.module || {};
+var BackendRequest = require("../BackendRequest.js");
+var Module = require("./Module.js");
 
 /**
  * Global module loader
- *
- * @param {netric.Application} application Application instance
  */
-netric.module.loader = netric.module.loader || {};
+var loader = {}
 
 /**
  * Loaded applications
@@ -27,7 +20,7 @@ netric.module.loader = netric.module.loader || {};
  * @private
  * @param {Array}
  */
-netric.module.loader.loadedModules_ = new Array();
+loader.loadedModules_ = new Array();
 
 /**
  * Static function used to load the module
@@ -35,7 +28,7 @@ netric.module.loader.loadedModules_ = new Array();
  * @param {string} moduleName The name of the module to load
  * @param {function} cbLoaded Callback function once module is loaded
  */
-netric.module.loader.get = function(moduleName, cbLoaded)
+loader.get = function(moduleName, cbLoaded)
 {
 	// Return (or callback callback) cached module if already loaded
 	if (this.loadedModules_[moduleName]) {
@@ -47,11 +40,11 @@ netric.module.loader.get = function(moduleName, cbLoaded)
 		return this.loadedModules_[moduleName];
 	}
 
-	var request = new netric.BackendRequest();
+	var request = new BackendRequest();
 
 	if (cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
-			var module = netric.module.loader.createModuleFromData(this.getResponse());
+			var module = loader.createModuleFromData(this.getResponse());
 			cbLoaded(module);
 		});
 	} else {
@@ -72,9 +65,9 @@ netric.module.loader.get = function(moduleName, cbLoaded)
  *
  * @param {Object} data The data to create an module from
  */
-netric.module.loader.createModuleFromData = function(data) {
+loader.createModuleFromData = function(data) {
 	
-	var module = new netric.module.Module(data);
+	var module = new Module(data);
 
 	// Make sure the name was set to something other than ""
 	if (module.name.length) {
@@ -91,7 +84,7 @@ netric.module.loader.createModuleFromData = function(data) {
  *
  * @param {Object[]} modulesData
  */
-netric.module.loader.preloadFromData = function(modulesData) {
+loader.preloadFromData = function(modulesData) {
 	for (var i in modulesData) {
 		this.createModuleFromData(modulesData[i]);
 	}
@@ -102,6 +95,8 @@ netric.module.loader.preloadFromData = function(modulesData) {
  *
  * @return {netric.module.Module[]}
  */
-netric.module.loader.getModules = function() {
+loader.getModules = function() {
     return this.loadedModules_;
 }
+
+module.exports = loader;

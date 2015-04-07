@@ -2,7 +2,7 @@
  * @fileoverview This is the bast controller that all other controllers should extend
  *
  * All instances of this class should call in their constructor:
- * 	netric.controller.AbstractController.call(this, args...);
+ * 	AbstractController.call(this, args...);
  *
  * The lifecycle of a controller is:
  * ::load -> onLoad is the first function called when the controllers is first loaded
@@ -12,27 +12,26 @@
  * ::resume - onResume Is called if the controller was paused in the background but gets moved to the foreground again
  *
  * And immediately after the constructor definition call:
- * netric.inherits(netric.controller.<thiscontrollername>, netric.controller.AbstractController);
+ * netric.inherits(<thiscontrollername>, AbstractController);
  */
-netric.declare("netric.controller.AbstractController");
+'use strict';
 
-netric.require("netric.controller");
-netric.require("netric.log");
+ var controller = require("./controller.js");
 
 /**
  * Abstract controller
  *
  * @constructor
  */
-netric.controller.AbstractController = function() {
+var AbstractController = function() {
 
 	/*
 	 * We try not to include too much in the base constructor because there is
-	 * no way we can assure that all inherited classes call netric.controller.AbstractController.call
+	 * no way we can assure that all inherited classes call AbstractController.call
 	 */
 
 	// Call base class constructor
-	//netric.controller.AbstractController.call(this, domCon);
+	//AbstractController.call(this, domCon);
 
 }
 
@@ -42,7 +41,7 @@ netric.controller.AbstractController = function() {
  * @protected
  * @type {Object}
  */
-netric.controller.AbstractController.prototype.props = {};
+AbstractController.prototype.props = {};
 
 /**
  * DOM node to render everything into
@@ -50,21 +49,21 @@ netric.controller.AbstractController.prototype.props = {};
  * @private
  * @type {RactElement|DOMElement}
  */
-netric.controller.AbstractController.prototype.domNode_ = null;
+AbstractController.prototype.domNode_ = null;
 
 /**
  * The type of controller this is.
  * 
  * @see comments on netric.location.controller.types property
  */
-netric.controller.AbstractController.prototype.type_ = null;
+AbstractController.prototype.type_ = null;
 
 /**
  * Handle to the parent router of this controller
  * 
  * @type {netric.location.Router}
  */
-netric.controller.AbstractController.prototype.router_ = null;
+AbstractController.prototype.router_ = null;
 
 /** 
  * Flag to indicate if it is paused
@@ -72,12 +71,12 @@ netric.controller.AbstractController.prototype.router_ = null;
  * @private 
  * @type {bool}
  */
-netric.controller.AbstractController.prototype.isPaused_ = false;
+AbstractController.prototype.isPaused_ = false;
 
 /**
  * All child classes should extend this base class with:
  */
-//netric.inherits(netric.controller.ModuleController, netric.controller.AbstractController);
+//netric.inherits(ModuleController, AbstractController);
 
 
 /**
@@ -88,7 +87,7 @@ netric.controller.AbstractController.prototype.isPaused_ = false;
  * @param {netric.location.Router} opt_router The parent router of this controller
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-netric.controller.AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_callback) {
+AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_callback) {
 
 	this.domNode_ = null;
 
@@ -96,7 +95,7 @@ netric.controller.AbstractController.prototype.load = function(data, opt_domNode
 	this.props = data;
 
 	// Setup the type
-	this.type_ = data.type || netric.controller.types.PAGE;
+	this.type_ = data.type || controller.types.PAGE;
 
 	// Set reference to the parent router
 	this.router_ = opt_router || null;
@@ -111,7 +110,7 @@ netric.controller.AbstractController.prototype.load = function(data, opt_domNode
 		this.setupDomNode_(parentDomNode)
 
 		// Pause parent controller (if a page)
-		if (this.getParentController() && this.type_ == netric.controller.types.PAGE) {
+		if (this.getParentController() && this.type_ == controller.types.PAGE) {
 			this.getParentController().pause();
 		}
 
@@ -130,7 +129,7 @@ netric.controller.AbstractController.prototype.load = function(data, opt_domNode
  *
  * This is where we will cleanup
  */
-netric.controller.AbstractController.prototype.unload = function() {
+AbstractController.prototype.unload = function() {
 	// The onUnload callback for child classes needs to be called first
 	this.onUnload();
 
@@ -154,7 +153,7 @@ netric.controller.AbstractController.prototype.unload = function() {
 /**
  * Resume this controller and move it back to the foreground
  */
-netric.controller.AbstractController.prototype.resume = function() {
+AbstractController.prototype.resume = function() {
 	// If this controller is of type PAGE then hide the parent (if exists)
 	if (this.isPaused()) {
 
@@ -173,7 +172,7 @@ netric.controller.AbstractController.prototype.resume = function() {
 /**
  * Pause this controller and move it into the background
  */
-netric.controller.AbstractController.prototype.pause = function() {
+AbstractController.prototype.pause = function() {
 
     // Hide me
     if (this.domNode_) {
@@ -184,9 +183,9 @@ netric.controller.AbstractController.prototype.pause = function() {
     this.isPaused_ = true;
 
     // Get the parent controller of this controller
-    if (this.getType() == netric.controller.types.PAGE) {
+    if (this.getType() == controller.types.PAGE) {
         var parentController = this.getParentController();
-        if (parentController && parentController.getType() == netric.controller.types.PAGE) {
+        if (parentController && parentController.getType() == controller.types.PAGE) {
             // Pause/hide parent controller before we render this controller
             parentController.pause();
         }
@@ -199,12 +198,12 @@ netric.controller.AbstractController.prototype.pause = function() {
  * Add a subroute to the nexthop router if it exists
  *
  * @param {string} path The path pattern
- * @param {netric.controller.AbstractController} controllerClass The ctrl class to load
+ * @param {AbstractController} controllerClass The ctrl class to load
  * @param {Object} data Any data to pass to the controller
  * @param {DOMElement} domNode The node to load this controller into
  * @return {bool} true if route added, false if it failed
  */
-netric.controller.AbstractController.prototype.addSubRoute = function(path, controllerClass, data, domNode) {
+AbstractController.prototype.addSubRoute = function(path, controllerClass, data, domNode) {
 	if (this.getChildRouter()) {
 		this.getChildRouter().addRoute(path, controllerClass, data, domNode);
 		return true;
@@ -219,7 +218,7 @@ netric.controller.AbstractController.prototype.addSubRoute = function(path, cont
  *
  * @return {netric.location.Router} Router than owns the route tha rendered this controller
  */
-netric.controller.AbstractController.prototype.getParentController = function() {
+AbstractController.prototype.getParentController = function() {
 
 	// Get the parent router of this controller
 	var parentRouter = this.getParentRouter();
@@ -247,7 +246,7 @@ netric.controller.AbstractController.prototype.getParentController = function() 
  *
  * @param {DOMElement} opt_domNode Optional DOM node. Usually only used for fragments but also for custom root node.
  */
-netric.controller.AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
+AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
 
 	var parentNode = null;
 
@@ -258,7 +257,7 @@ netric.controller.AbstractController.prototype.setupDomNode_ = function(opt_domN
 		 * pages will hide their parents so a child page cannot be a child dom
 		 * element.
 		 */
-    	case netric.controller.types.PAGE:
+    	case controller.types.PAGE:
     		
     		/* 
     		 * We can set a default root node to use if no parent nodes exists.
@@ -274,7 +273,7 @@ netric.controller.AbstractController.prototype.setupDomNode_ = function(opt_domN
     	 * It is unique in that it cannot hide its parent so the contianing controller
     	 * will always be visible.
     	 */
-    	case netric.controller.types.FRAGMENT:
+    	case controller.types.FRAGMENT:
     		if (opt_domNode) {
     			parentNode = opt_domNode;	
     		} else {
@@ -285,13 +284,14 @@ netric.controller.AbstractController.prototype.setupDomNode_ = function(opt_domN
     	/*
 		 * If this is a dialog then render a new dialog into the dom and get the inner container to render controller
 		 */
-    	case netric.controller.types.DIALOG:
+    	case controller.types.DIALOG:
     		// TODO: create dialog
     		break;
     }
 	
 
-	this.domNode_ = alib.dom.createElement("div", parentNode, null, {id:this.getParentRouter().getActiveRoute().getPath()});
+    var id = (this.getParentRouter()) ? this.getParentRouter().getActiveRoute().getPath() : null;
+	this.domNode_ = alib.dom.createElement("div", parentNode, null, {id:id});
 }
 
 /**
@@ -305,10 +305,10 @@ netric.controller.AbstractController.prototype.setupDomNode_ = function(opt_domN
  * @param {DOMElement} opt_rootDomNode An optional default root in case none is found (like this is a root conroller)
  * @return {DOMElement} The parent of the topmost page in this tree (will stop at a fragment or top)
  */
-netric.controller.AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
+AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
 	
 	if (this.getParentController()) {
-		if (this.getParentController().getType() == netric.controller.types.PAGE) {
+		if (this.getParentController().getType() == controller.types.PAGE) {
 			return this.getParentController().getTopPageNode();
 		} else if (this.getParentController().getDOMNode().parentNode) {
             return this.getParentController().getDOMNode().parentNode;
@@ -336,7 +336,7 @@ netric.controller.AbstractController.prototype.getTopPageNode = function(opt_roo
  *
  * @return {netric.location.Router} Router than owns the route tha rendered this controller
  */
-netric.controller.AbstractController.prototype.getParentRouter = function() {
+AbstractController.prototype.getParentRouter = function() {
 
 	if (this.router_) {
 		return this.router_.getParentRouter();
@@ -350,7 +350,7 @@ netric.controller.AbstractController.prototype.getParentRouter = function() {
  *
  * @return {netric.location.Router} Handle to the router for child routes
  */
-netric.controller.AbstractController.prototype.getChildRouter = function() {
+AbstractController.prototype.getChildRouter = function() {
 	return this.router_;
 }
 
@@ -362,7 +362,7 @@ netric.controller.AbstractController.prototype.getChildRouter = function() {
  *
  * @return {stirng} Absolute path of the current controller.
  */
-netric.controller.AbstractController.prototype.getRoutePath = function() {
+AbstractController.prototype.getRoutePath = function() {
 	if (this.getParentRouter()) {
 		return this.getParentRouter().getActiveRoute().getPath();
 	}
@@ -375,9 +375,9 @@ netric.controller.AbstractController.prototype.getRoutePath = function() {
 /**
  * Get the type of controller
  *
- * @return {netric.controller.types}
+ * @return {controller.types}
  */
-netric.controller.AbstractController.prototype.getType = function() {
+AbstractController.prototype.getType = function() {
 	return this.type_;
 }
 
@@ -387,7 +387,7 @@ netric.controller.AbstractController.prototype.getType = function() {
  *
  * @returns {RactElement|DOMElement}
  */
-netric.controller.AbstractController.prototype.getDOMNode = function() {
+AbstractController.prototype.getDOMNode = function() {
     return this.domNode_;
 }
 
@@ -396,7 +396,7 @@ netric.controller.AbstractController.prototype.getDOMNode = function() {
  *
  * @return {bool} true if the controller was paused, false if not
  */
-netric.controller.AbstractController.prototype.isPaused = function() {
+AbstractController.prototype.isPaused = function() {
 	return this.isPaused_;
 }
 
@@ -407,7 +407,7 @@ netric.controller.AbstractController.prototype.isPaused = function() {
  * @param {ReactElement|DomElement} ele The element to render into
  * @param {Object} data Optiona forwarded data
  */
-netric.controller.AbstractController.prototype.render = function() {}
+AbstractController.prototype.render = function() {}
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -417,7 +417,7 @@ netric.controller.AbstractController.prototype.render = function() {}
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-netric.controller.AbstractController.prototype.onLoad = function(opt_callback) {
+AbstractController.prototype.onLoad = function(opt_callback) {
 	// By default just immediately execute the callback because nothing needs to be done
 	if (opt_callback)
 		opt_callback();
@@ -426,14 +426,16 @@ netric.controller.AbstractController.prototype.onLoad = function(opt_callback) {
 /**
  * Called when the controller is unloaded from the page
  */
-netric.controller.AbstractController.prototype.onUnload = function() {}
+AbstractController.prototype.onUnload = function() {}
 
 /**
  * Called when this controller is paused and moved to the background
  */
-netric.controller.AbstractController.prototype.onPause = function() {}
+AbstractController.prototype.onPause = function() {}
 
 /**
  * Called when this function was paused but it has been resumed to the foreground
  */
-netric.controller.AbstractController.prototype.onResume = function() {}
+AbstractController.prototype.onResume = function() {}
+
+module.exports = AbstractController;

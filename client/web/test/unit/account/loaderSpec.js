@@ -1,5 +1,9 @@
 'use strict';
 
+var accountLoader = require("../../../js/account/loader");
+var moduleLoader = require("../../../js/module/loader");
+var netric = require("../../../js/main");
+
 /**
  * Test loading the account asynchronously and make sure it gets cached for future requests
  */
@@ -9,7 +13,7 @@ describe("Get Account Asynchronously", function() {
 	beforeEach(function(done) {
 		// Set test base where karma unit tests are hosted
 		netric.server.host = "base";
-		netric.account.loader.get(function(acct){
+		accountLoader.get(function(acct){
 			account = acct;
 			done(); 
 		});
@@ -45,15 +49,15 @@ describe("Get Account Asynchronously", function() {
 	it("Should have cached the account object", function(done) {
 		
 		// Check the private accountCache_ property of the loader
-		expect(netric.account.loader.accountCache_).not.toBeNull();
+		expect(accountLoader.accountCache_).not.toBeNull();
 		done();
 
 	});
 	
 	it("Should preload modules", function(done) {
-		// netric.account.loader will call netric.module.loader.preloadFormData
-		expect(netric.module.loader.loadedModules_["messages"]).not.toBeNull();
-		expect(netric.module.loader.loadedModules_["home"]).not.toBeNull();
+		// accountLoader will call moduleLoader.preloadFormData
+		expect(moduleLoader.loadedModules_["messages"]).not.toBeNull();
+		expect(moduleLoader.loadedModules_["home"]).not.toBeNull();
 		done();
 	});
 
@@ -72,25 +76,25 @@ describe("Get Account Non Async", function() {
 	it("Can can fallback to loading account synchronously", function() {
 		
 		// Clear cache which forces the loader to get the account through BackendRequest
-		netric.account.loader.accountCache_ = null;
-		var account = netric.account.loader.get(); // No callback forces sync load
+		accountLoader.accountCache_ = null;
+		var account = accountLoader.get(); // No callback forces sync load
 		expect(account).not.toBeNull();
 	});
 
 	it("Should have loaded the right data", function() {
 		
 		// Clear cache which forces the loader to get the account through BackendRequest
-		netric.account.loader.accountCache_ = null;
-		var account = netric.account.loader.get(); // No callback forces sync load
+		accountLoader.accountCache_ = null;
+		var account = accountLoader.get(); // No callback forces sync load
 		expect(account.id).toEqual(1);
 	});
 
 	it("Should have cached the account object", function() {
 		
 		// Check the private accountCache_ property of the loader
-		netric.account.loader.accountCache_ = null;
-		var account = netric.account.loader.get(); // No callback forces sync load
-		expect(netric.account.loader.accountCache_).not.toBeNull();
+		accountLoader.accountCache_ = null;
+		var account = accountLoader.get(); // No callback forces sync load
+		expect(accountLoader.accountCache_).not.toBeNull();
 
 	});
 

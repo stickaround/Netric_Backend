@@ -1,5 +1,8 @@
 'use strict';
 
+var EntityCollection = require("../../../js/entity/Collection");
+var netric = require("../../../js/main");
+
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests
  */
@@ -13,36 +16,36 @@ describe("Entity Collection", function() {
     */
 
     it("can take andWhere conditions", function() {
-        var collection = new netric.entity.Collection("customer");
+        var collection = new EntityCollection("customer");
         collection.where("first_name").equalTo("test");
         expect(collection.getConditions().length).toEqual(1);
     });
 
     it("can take andWhere conditions", function() {
-        var collection = new netric.entity.Collection("customer");
+        var collection = new EntityCollection("customer");
         collection.where("first_name").equalTo("test");
         collection.orWhere("last_name").equalTo("test");
         expect(collection.getConditions().length).toEqual(2);
     });
 
     it("sets the limit", function() {
-        var collection = new netric.entity.Collection("customer");
+        var collection = new EntityCollection("customer");
         collection.setLimit(50);
         expect(collection.getLimit()).toEqual(50);
     });
 
     it("sets the offset", function() {
-        var collection = new netric.entity.Collection("customer");
+        var collection = new EntityCollection("customer");
         collection.setOffset(50);
         expect(collection.getOffset()).toEqual(50);
     });
 
     it("sets order by", function() {
-        var collection = new netric.entity.Collection("customer");
-        collection.setOrderBy("first_name", netric.entity.Collection.orderByDir.DESC);
+        var collection = new EntityCollection("customer");
+        collection.setOrderBy("first_name", EntityCollection.orderByDir.DESC);
         var orderBy = collection.getOrderBy();
         expect(orderBy[0].field).toEqual("first_name");
-        expect(orderBy[0].direction).toEqual(netric.entity.Collection.orderByDir.DESC);
+        expect(orderBy[0].direction).toEqual(EntityCollection.orderByDir.DESC);
     });
 
 });
@@ -51,7 +54,7 @@ describe("Entity Collection", function() {
  * Test loading collections asynchronously
  */
 describe("Entity Collection Loading Asynchronously", function() {
-    var collection = new netric.entity.Collection("customer");
+    var collection = new EntityCollection("customer");
 
     beforeEach(function(done) {
         // Set test base where karma unit tests are hosted

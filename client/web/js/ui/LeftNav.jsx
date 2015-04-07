@@ -3,17 +3,16 @@
  *
  * @jsx React.DOM
  */
+'use strict';
 
-/** 
- * Make sure ui namespace exists
- */
-var netric = netric || {};
-netric.ui = netric.ui || {};
+var React = require('react');
+var Paper = require("./Paper.jsx");
+var Overlay = require("./Overlay.jsx");
 
 /**
  * Small application component
  */
-netric.ui.LeftNav = React.createClass({
+var LeftNav = React.createClass({
 
   //mixins: [Classable, WindowListenable],
 
@@ -71,7 +70,7 @@ netric.ui.LeftNav = React.createClass({
       overlay;
 
     if (!this.props.docked) 
-      overlay = <netric.ui.Overlay show={this.state.open} onClick={this._onOverlayTouchTap} />;
+      overlay = <Overlay show={this.state.open} onClick={this._onOverlayTouchTap} />;
 
     /* We should nest the menu eventually
     <Menu 
@@ -95,7 +94,7 @@ netric.ui.LeftNav = React.createClass({
       <div className={classes}>
 
         {overlay}
-        <netric.ui.Paper
+        <Paper
           ref="clickAwayableElement"
           className="left-nav-menu"
           zDepth={zDept}
@@ -106,7 +105,7 @@ netric.ui.LeftNav = React.createClass({
           <div>
             {items}
           </div>
-        </netric.ui.Paper>
+        </Paper>
       </div>
     );
   },
@@ -145,3 +144,5 @@ netric.ui.LeftNav = React.createClass({
   }
 
 });
+
+module.exports = LeftNav;
