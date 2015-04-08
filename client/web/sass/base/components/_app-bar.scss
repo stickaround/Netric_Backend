@@ -83,4 +83,17 @@
 
   }
 
+  &.detail {
+    background-color: $transparent;
+
+    * {
+      fill: $grey-600;
+      color: $grey-600;
+    }
+  }
+
+  &.edit {
+    background-color: $red-500;
+  }
+
 }

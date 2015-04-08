@@ -18,6 +18,7 @@ var AppBar = React.createClass({
         onNavBtnClick: React.PropTypes.func,
         showMenuIconButton: React.PropTypes.bool,
         iconClassNameLeft: React.PropTypes.string,
+        className: React.PropTypes.string,
         iconElementLeft: React.PropTypes.element,
         iconElementRight: React.PropTypes.element,
         title : React.PropTypes.node,
@@ -59,9 +60,14 @@ var AppBar = React.createClass({
 
         var classes = 'app-bar', title, menuElementLeft, menuElementRight;
 
+        if (this.props.className) {
+            classes += " " + this.props.className;
+        }
+
         menuElementRight = (this.props.children) ? this.props.children : 
                        (this.props.iconElementRight) ? this.props.iconElementRight : '';
 
+        // Add title
         if (this.props.title) {
             // If the title is a string, wrap in an h1 tag.
             // If not, just use it as a node.
@@ -71,7 +77,7 @@ var AppBar = React.createClass({
         }
 
 		return (
-            <Paper rounded={false} className="app-bar" zDepth={this.props.zDepth}>
+            <Paper rounded={false} className={classes} zDepth={this.props.zDepth}>
                 {menuElementLeft}
                 {title}
                 <div className="app-bar-toolbar">

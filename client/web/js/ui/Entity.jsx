@@ -40,9 +40,6 @@ var Entity = React.createClass({
 
     render: function() {
 
-        var appBar = "";
-
-
         var rightIcons = [];
 
         if (this.state.editMode) {
@@ -55,15 +52,20 @@ var Entity = React.createClass({
             );
         }
         
+        var appBar = "";
+        var appBarClassName = (this.state.editMode) ? "edit" : "detail";
+        var appBarZDepth = (this.state.editMode) ? 1 : 0;
 
         if (this.props.onNavBtnClick) {
             appBar = (<AppBar
+                className={appBarClassName}
                 iconClassNameLeft="fa fa-times"
+                zDepth={appBarZDepth}
                 onNavBtnClick={this.navigationClick_}>
                 {rightIcons}
             </AppBar>);
         } else {
-            appBar = (<AppBar>{rightIcons}</AppBar>);
+            appBar = (<AppBar zDepth={appBarZDepth} className={appBarClassName}>{rightIcons}</AppBar>);
         }
 
         // Get the form
@@ -73,18 +75,21 @@ var Entity = React.createClass({
         var xmlDoc = jQuery.parseXML(xmlData);
         var rootFormNode = xmlDoc.documentElement;
 
+        // If the zDepth is 0 then add an hr
+        var hr = (appBarZDepth == 0) ? <hr /> : null;
+
         return (
             <div>
                 <div>
                     {appBar}
                 </div>
+                {hr}
                 <div>
                     <UiXmlElement 
                         xmlNode={rootFormNode} 
                         eventsObj={this.props.eventsObj} 
                         entity={this.props.entity}
-                        editMode={this.state.editMode}
-                    />
+                        editMode={this.state.editMode} />
                 </div>
             </div>
         );
@@ -92,8 +97,12 @@ var Entity = React.createClass({
 
     // The navigation button was clicked
     navigationClick_: function(evt) {
-        if (this.props.onNavBtnClick)
+        if (this.state.editMode) {
+            this.editModeClick_(null);
+        }
+        else if (this.props.onNavBtnClick) {
             this.props.onNavBtnClick(evt);
+        }
     },
 
     /**

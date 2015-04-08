@@ -26,10 +26,17 @@ var Field = React.createClass({
         editMode: React.PropTypes.bool
     },
 
+    /**
+     * Render this component
+     */
     render: function() {
 
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('name');
+        var classes = "entity-form-field";
+        if (xmlNode.getAttribute('class')) {
+            classes += " font-style-" + xmlNode.getAttribute('class');
+        }
 
 		
         var fieldContent = null;
@@ -50,6 +57,8 @@ var Field = React.createClass({
         	fieldContent = <div>Field ToDo: {fieldName}:{fieldValue}</div>;
         	break;
         }
+
+        var hr = (!this.props.editMode && this.props.entity.getValue(fieldName)) ? <hr /> : null;
         /*
         case 'object':
             break;
@@ -73,8 +82,9 @@ var Field = React.createClass({
         */
 
         return (
-            <div>
+            <div className={classes}>
                 {fieldContent}
+                {hr}
             </div>
         );
     }
