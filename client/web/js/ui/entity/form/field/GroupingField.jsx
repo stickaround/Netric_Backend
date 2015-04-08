@@ -28,6 +28,8 @@ var GroupingField = React.createClass({
         	);
         }
 
+        // TODO: create a GroupingChip component
+        
         if (this.props.editMode) {
           return (
               <div>{chips}</div>
