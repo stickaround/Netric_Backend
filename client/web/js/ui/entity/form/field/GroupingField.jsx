@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var GroupingChip = require("../../GroupingChip.jsx");
 
 /**
  * Base level element for enetity forms
@@ -24,12 +25,12 @@ var GroupingField = React.createClass({
         var chips = [];
         for (var i in fieldValues) {
         	chips.push(
-        		<span>{fieldValues[i].key}:{fieldValues[i].value}</span>
+        		<GroupingChip id={fieldValues[i].key} name={fieldValues[i].value} />
         	);
         }
 
         // TODO: create a GroupingChip component
-        
+
         if (this.props.editMode) {
           return (
               <div>{chips}</div>

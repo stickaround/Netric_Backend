@@ -29,6 +29,30 @@ var Module = function(opt_data) {
 	 * @type {string}
 	 */
 	this.title = data.title || "";
+
+	/**
+	 * Icon class name
+	 * 
+	 * @public
+	 * @type {string}
+	 */
+	this.icon = data.icon || "";
+
+	/**
+	 * The default route to load once the module is rendered
+	 * 
+	 * @public
+	 * @type {string}
+	 */
+	this.defaultRoute = data.defaultRoute || "";
+
+	/**
+	 * Navigation configuration
+	 * 
+	 * @public
+	 * @type {string}
+	 */
+	this.navigation = data.navigation || "";
 }
 
 /**

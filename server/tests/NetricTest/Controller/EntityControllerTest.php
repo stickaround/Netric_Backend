@@ -52,4 +52,22 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         // Make sure the large form was loaded
         $this->assertFalse(empty($ret['forms']['large']));
     }
+
+    public function testSave()
+    {
+        $data = array(
+            'obj_type' => "customer",
+            'first_name' => "Test",
+            'last_name' => "User",
+        );
+        $params = array(
+            'raw_body' => json_encode($data)
+        );
+
+        $ret = $this->controller->save($params);
+
+        $this->assertEquals($data['obj_type'], $ret['obj_type']);
+        $this->assertEquals($data['first_name'], $ret['first_name']);
+        $this->assertEquals($data['last_name'], $ret['last_name']);
+    }
 }

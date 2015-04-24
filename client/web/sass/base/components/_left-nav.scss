@@ -6,29 +6,43 @@
   .left-nav-header {
 
     height: $app-bar-height-small;
-    padding-left: $gutter-less;
 
     @media #{$device-medium} {
       height: $app-bar-height-medium;
-      padding-left: $gutter;
     }
 
     @media #{$device-large} {
       height: $app-bar-height-large;
-      padding-left: $gutter;
     }
 
     h2 {
       font-family: "Casper";
       @extend %font-style-title;
-      padding: 0px;
-      margin: 0px;
+      padding: 0 $gutter-less 0 $gutter-less;
       line-height: $app-bar-height-small;
+      margin: 0;
+
       @media #{$device-medium} {
         line-height: $app-bar-height-medium;
+        padding: 0 $gutter 0 $gutter;
       }
       @media #{$device-large} {
         line-height: $app-bar-height-large;
+        padding: 0 $gutter 0 $gutter;
+      }
+    }
+
+    .left-nav-header-menu {
+
+      height: 100%;
+      position: fixed;
+      width: $left-nav-width;
+      z-index: 20;
+      display: block;
+      background-color: $left-nav-color;
+      
+      &.is-closed {
+        display: none;
       }
     }
   }

@@ -24,13 +24,6 @@
 
 var netric = require("./base.js");
 
-/*
-alib.declare("BackendRequest");
-
-alib.require("netric");
-alib.require("netric.server");
-*/
-
 /**
  * Class for handling XMLHttpRequests
  *

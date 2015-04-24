@@ -189,7 +189,7 @@ class EntityController extends Mvc\AbstractController
 	}
 
     /**
-     * Query entities
+     * Retrieve a single entity
      *
      * @param array $params Associative array of request params
      */
@@ -199,7 +199,7 @@ class EntityController extends Mvc\AbstractController
 
         if (!$params['obj_type'] || !$params['id'])
         {
-            return $this->sendOutput(array("error"=>"obj_type and id are required param"));
+            return $this->sendOutput(array("error"=>"obj_type and id are required params"));
         }
 
 
@@ -218,5 +218,52 @@ class EntityController extends Mvc\AbstractController
 
 
         return $this->sendOutput($ret);
+    }
+
+    /**
+     * Save an entity
+     *
+     * @param array $params Associative array of request params
+     */
+    public function save($params=array())
+    {
+        $ret = array();
+        if (!isset($params['raw_body']))
+        {
+            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($params['raw_body'], true);
+
+        if (!isset($objData['obj_type']))
+        {
+            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        }
+
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+
+        if (isset($objData['id']))
+        {
+            $entity = $loader->get($objData['obj_type'], $objData['id']);
+        }
+        else
+        {
+            $entity = $loader->create($objData['obj_type']);
+        }
+
+        // Parse the params
+        $entity->fromArray($objData);
+
+        // Save the entity
+        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        if ($dataMapper->save($entity))
+        {
+            return $this->sendOutput($entity->toArray());
+        }
+        else
+        {
+            return $this->sendOutput(array("error"=>"Error saving: " . $dataMapper->getLastError()));
+        }
     }
 }

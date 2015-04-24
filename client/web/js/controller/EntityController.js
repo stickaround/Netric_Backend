@@ -10,6 +10,7 @@ var AbstractController = require("./AbstractController");
 var UiEntity = require("../ui/Entity.jsx");
 var definitionLoader = require("../entity/definitionLoader");
 var entityLoader = require("../entity/loader");
+var entitySaver = require("../entity/saver");
 
 /**
  * Controller that loads an entity browser
@@ -97,6 +98,9 @@ EntityController.prototype.onLoad = function(opt_callback) {
 
         this.entityDefinition_ = def;
 
+        // Setup an empty entity
+        this.entity_ = entityLoader.factory(this.props.objType);
+
         // Now load the entity if set
         if (this.props.eid) {
 
@@ -141,6 +145,12 @@ EntityController.prototype.render = function() {
         entity: this.entity_,
         onNavBtnClick: function(evt) {
             this.close();
+        }.bind(this),
+        onSaveClick: function(evt) {
+            this.saveEntity();
+        }.bind(this),
+        onCancelChanges: function(evt) {
+            this.revertChanges();
         }.bind(this)
     }
 
@@ -178,6 +188,28 @@ EntityController.prototype.close = function() {
     } else {
         window.close();
     }
+    
+}
+
+/**
+ * Save an entity
+ */
+EntityController.prototype.saveEntity = function() {
+
+    // Save the entity
+    entitySaver.save(this.entity_, function() {
+        console.log("Entity saved");
+    });
+    
+}
+
+/**
+ * Undo changes to an entity
+ */
+EntityController.prototype.revertChanges = function() {
+
+    // TODO: save the entity
+    console.log("Undo changes");
     
 }
 

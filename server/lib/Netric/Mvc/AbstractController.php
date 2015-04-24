@@ -22,6 +22,13 @@ abstract class AbstractController
 	public $account = null;
 
 	/**
+	 * Get request interface
+	 *
+	 * @var \Netric\Request\RequestInterface
+	 */
+	protected $request = null;
+
+	/**
      * If set to true then all 'echo' statements should be ignored for unit tests
      *
      * @var bool
@@ -51,6 +58,7 @@ abstract class AbstractController
 	function __construct($account)
 	{
 		$this->account = $account;
+        $this->request = $account->getServiceManager()->get("/Netric/Request/Request");
 		$this->init();
 	}
 

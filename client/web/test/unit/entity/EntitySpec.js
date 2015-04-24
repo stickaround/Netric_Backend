@@ -137,4 +137,22 @@ describe("Get and Set Entity Values", function() {
 		entity.loadData(data);
 		expect(entity.getValue("name")).toEqual(data.name);
 	});
+
+	it("should getData for string fields", function() {
+		entity.setValue('name', 'test');
+		var data = entity.getData();
+		expect(data.name).toEqual('test');
+	});
+
+	it("should getData for *_multi fields", function() {
+		var catName = "My Test Value";
+		var catId = 2; 
+		entity.addMultiValue("categories", catId, catName);
+
+		var data = entity.getData();
+		expect(data.categories).toEqual([catId]);
+		var expRet = {};
+		expRet[catId] = catName;
+		expect(data.categories_fval).toEqual(expRet);
+	});
 });

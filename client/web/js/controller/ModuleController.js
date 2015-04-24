@@ -8,6 +8,7 @@ var netric = require("../base");
 var controller = require("./controller")
 var AbstractController = require("./AbstractController");
 var TestController = require("./TestController");
+var EntityController = require("./EntityController");
 var EntityBrowserController = require("./EntityBrowserController");
 var UiModule = require("../ui/Module.jsx");
 var moduleLoader = require("../module/loader");
@@ -15,8 +16,7 @@ var moduleLoader = require("../module/loader");
 /**
  * Controller that loads modules into the applicatino
  */
-var ModuleController = function() {
-}
+var ModuleController = function() {}
 
 /**
  * Extend base controller class
@@ -76,18 +76,27 @@ ModuleController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
+	// Set left navigation
+	var leftNavigation = [];
+	for (var i = 0; i < this.module_.navigation.length; i++) {
+		leftNavigation.push({
+			text: this.module_.navigation[i].title,
+			route: this.module_.navigation[i].route,
+			iconClassName: "fa fa-" + this.module_.navigation[i].icon
+		});
+	}
+
     // Initialize properties to send to the netric.ui.Module view
 	var data = {
 		name: this.module_.name,
         title: this.module_.title,
+        deviceIsSmall: netric.getApplication().device.size == netric.Device.sizes.small,
 		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large) ? true : false,
-		leftNavItems: [
-			{name: "Create New Entity", "route": "compose"},
-			{name: "Browse Entity", "route": "browse"},
-			{name: "Third Menu Entry"}
-		],
+		leftNavItems: leftNavigation,
         modules: moduleLoader.getModules(),
-		onLeftNavChange: this.onLeftNavChange_.bind(this)
+        user: netric.getApplication().getAccount().getUser(),
+		onLeftNavChange: this.onLeftNavChange_.bind(this),
+		onModuleChange: this.onModuleChange_.bind(this)
 	}
 
 	// Render application component
@@ -96,24 +105,8 @@ ModuleController.prototype.render = function() {
 		domCon
 	);
 
-	// Add route to compose a new entity
-	this.addSubRoute("compose", 
-		TestController, 
-		{ type: controller.types.FRAGMENT }, 
-		this.rootReactNode_.refs.moduleMain.getDOMNode()
-	);
-
-	// Add route to compose a new entity
-	this.addSubRoute("browse", 
-		EntityBrowserController,
-        {
-			type: controller.types.FRAGMENT,
-            objType: "note",
-			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
-                null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
-		}, 
-		this.rootReactNode_.refs.moduleMain.getDOMNode()
-	);
+	// Setup navigation routes
+	this.setupNavigation_();
 
 	// Add listener to update leftnav state when a child route changes
 	if (this.getChildRouter() && this.rootReactNode_.refs.leftNav) {
@@ -121,9 +114,6 @@ ModuleController.prototype.render = function() {
 			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.path });
 		}.bind(this));
 	}
-
-	// Set a default route to messages
-	this.getChildRouter().setDefaultRoute("browse");
 }
 
 /**
@@ -135,5 +125,79 @@ ModuleController.prototype.onLeftNavChange_ = function(evt, index, payload) {
 		netric.location.go(basePath + "/" + payload.route);
 	}
 }
+
+/**
+ * User selected an alternate module to laod
+ */
+ModuleController.prototype.onModuleChange_ = function(evt, moduleName) {
+	if (moduleName) {
+		netric.location.go("/" + moduleName);
+	}
+}
+
+/**
+ * Setup routes and controller to work with loaded module
+ *
+ * @private
+ */
+ModuleController.prototype.setupNavigation_ = function() {
+
+	for (var i = 0; i < this.module_.navigation.length; i++) {
+		var navItem = this.module_.navigation[i];
+
+		// Add the navigation route
+		switch (navItem.type) {
+			case 'entity':
+			case 'object':
+				this.setupEntityRoute_(navItem);
+				break;
+			case 'browse':
+				this.setupEntityBrowseRoute_(navItem);
+				break;
+		}
+	}
+
+	// Set a default route to messages
+	this.getChildRouter().setDefaultRoute(this.module_.defaultRoute);
+}
+
+/**
+ * Setup route data for an entity controller
+ *
+ * @private
+ */
+ModuleController.prototype.setupEntityRoute_ = function(navItem) {
+	// Add route to compose a new entity
+	this.addSubRoute(navItem.route, 
+		EntityController,
+        {
+			type: controller.types.FRAGMENT,
+            objType: navItem.objType,
+			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
+                null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
+		}, 
+		this.rootReactNode_.refs.moduleMain.getDOMNode()
+	);
+}
+
+/**
+ * Setup route data for an entity browser controller
+ *
+ * @private
+ */
+ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
+	// Add route to compose a new entity
+	this.addSubRoute(navItem.route, 
+		EntityBrowserController,
+        {
+			type: controller.types.FRAGMENT,
+            objType: navItem.objType,
+			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
+                null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
+		}, 
+		this.rootReactNode_.refs.moduleMain.getDOMNode()
+	);
+}
+
 
 module.exports = ModuleController;

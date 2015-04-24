@@ -33,7 +33,7 @@ else
     die("Invalid controller");
 }
 
-// Set headers to allow CORS 
+// Set headers to allow CORS since we are using /svr resources in multiple clients
 // @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
 header("Access-Control-Allow-Origin: *");
 

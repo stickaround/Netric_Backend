@@ -27,6 +27,9 @@ $left-nav-color: $white !default;
 $subheader-border-color: $border-color !default;
 $subheader-text-color: $primary-1-color !default;
 
+//Disabled Colors
+$disabled-color: rgba($body-text-color, 0.3);
+
 //Date Picker
 $date-picker-color: $primary-1-color !default;
 $date-picker-text-color: $white !default;

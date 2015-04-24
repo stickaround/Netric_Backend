@@ -80,7 +80,9 @@ loader.createModuleFromData = function(data) {
 /** 
  * Preload/cache modules from data
  *
- * Use data to preload or cache modules by name
+ * Use data to preload or cache modules by name. This is typically
+ * called from netric/account/Account when loading data from the
+ * server, all the modules are preloaded at that time.
  *
  * @param {Object[]} modulesData
  */

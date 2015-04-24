@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 35;
+$obj_revision = 36;
 
 $listTitle = "full_name";
 
@@ -38,6 +38,13 @@ $obj_fields = array(
 		'type'=>'text', 
 		'subtype'=>'password', 
 		'readonly'=>false
+	),
+
+	'password_salt' => array(
+		'title'=>'PW Salt', 
+		'type'=>'text', 
+		'subtype'=>'password', 
+		'readonly'=>true
 	),
 
 	'theme' => array(

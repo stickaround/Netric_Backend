@@ -1,10 +1,11 @@
-.mui-dialog {
-  .mui-dialog-title {
-    padding: $desktop-gutter $desktop-gutter 0 $desktop-gutter;
+.dialog {
+
+  .dialog-title {
+    padding: $gutter $gutter 0 $gutter;
     margin-bottom: 0;
   }
 
-  .mui-dialog-content {
-    padding: $desktop-gutter;
+  .dialog-content {
+    padding: $gutter;
   }
 }

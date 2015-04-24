@@ -131,6 +131,48 @@ Entity.prototype.loadData = function (data) {
 		}
 		
 	}
+
+	// TODO: Handle recurrence
+}
+
+/**
+ * Return an object representing the actual values of this entity
+ *
+ * @return {}
+ */
+Entity.prototype.getData = function() {
+	
+	// Set the object type
+	var retObj = { obj_type: this.objType };
+
+	// Loop through all fields and set the value
+	var fields = this.def.getFields();
+	for (var i in fields) {
+		var field = fields[i];
+		var value = this.getValue(field.name);
+		var valueNames = this.getValueName(field.name);
+
+		retObj[field.name] = value;
+
+		if (valueNames instanceof Array) {
+			
+			retObj[field.name + "_fval"] = {};
+			for (var i in valueNames) {
+				retObj[field.name + "_fval"][valueNames[i].key] = valueNames[i].value;
+			}
+
+		} else if (valueNames) {
+
+			retObj[field.name + "_fval"] = {};
+			retObj[field.name + "_fval"][value] = valueNames;
+
+		}
+
+	}
+
+	// TODO: Handle recurrence
+
+	return retObj;
 }
 
 /**

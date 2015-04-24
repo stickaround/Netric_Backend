@@ -22,22 +22,6 @@ var netric = {};
 netric.version = "2.0.1";
 
 /**
- * Connection status used to indicate if we are able to query the server
- *
- * Example"
- * <code>
- *	if (netric.online)
- *		server.getData();
- *	else
- * 		localStore.getData();
- * </code>
- *
- * @public
- * @var {bool}
- */
-netric.online = false;
-
-/**
  * Netric server object
  *
  * @public

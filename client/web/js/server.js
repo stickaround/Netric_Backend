@@ -25,4 +25,20 @@ var server = {};
  */
 server.host = "";
 
+/**
+ * Connection status used to indicate if we are able to query the server
+ *
+ * Example"
+ * <code>
+ *	if (netric.server.online)
+ *		server.getData();
+ *	else
+ * 		localStore.getData();
+ * </code>
+ *
+ * @public
+ * @var {bool}
+ */
+server.online = true;
+
 module.exports = server;

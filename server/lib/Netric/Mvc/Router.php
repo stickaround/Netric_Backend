@@ -57,7 +57,7 @@ class Router
      * @var \Netric\Application 
 	 */
 	private $application = null;
-    
+
     /**
      * Determines if the class is run by unit test
      *
@@ -107,20 +107,33 @@ class Router
         
 		if (method_exists($this->svrCls, $fName))
 		{
+			/*
+			 * TODO: $params are no longer needed for action functions
+			 * since every controller now has a $this->request object
+			 * which is more useful for different environments
+			 */
 			// forward request variables in as params
 			$params = array(); 
+
+			// POST params
 			foreach ($_POST as $varname=>$varval)
 			{
 				if ($varname != 'function')
 					$params[$varname] = $varval;
 			}
 
+			// Add raw post body for JSON
+			$params['raw_body'] = file_get_contents("php://input");
+
+			// GET params
 			foreach ($_GET as $varname=>$varval)
 			{
-				if ($varname != 'function')
+				if ($varname != 'function' && $varname != 'authentication')
 					$params[$varname] = $varval;
 			}
             
+      		// If testing, add session
+      		// I'm not sure why we are doing this - Sky Stebnicki
             if($this->testMode)
             {
                 foreach ($_REQUEST as $varname=>$varval)

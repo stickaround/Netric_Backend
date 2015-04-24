@@ -35,7 +35,17 @@ var Module = React.createClass({
     if (this.props.leftNavDocked) {
         moduleMainClass += " left-nav-docked";
     }
-    var leftNavHeader = <LeftNavModuleHeader moduleTitle={this.props.title} />
+
+    // Setup the left nav header
+    var leftNavHeader = (
+      <LeftNavModuleHeader 
+        moduleName={this.props.name} 
+        onModuleChange={this.onModuleChange_}
+        deviceIsSmall={this.props.deviceIsSmall} 
+        title={this.props.title} 
+        modules={this.props.modules} 
+        user={this.props.user}/>
+    );
 
     return (
         <div>
@@ -49,6 +59,15 @@ var Module = React.createClass({
   onLeftNavChange_: function(evt, index, payload) {
     if (this.props.onLeftNavChange) {
       this.props.onLeftNavChange(evt, index, payload);
+    }
+  },
+
+  /**
+   * The user selected a different menu
+   */
+  onModuleChange_: function(evt, moduleName) {
+    if (this.props.onModuleChange) {
+      this.props.onModuleChange(evt, moduleName);
     }
   }
 

@@ -43,7 +43,7 @@ var Paper = React.createClass({
       }
       
       if (this.props.circle) {
-        classes += " mui-circle"; 
+        classes += " circle"; 
       }
       
       var insideClasses = 

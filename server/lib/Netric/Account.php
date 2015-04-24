@@ -40,13 +40,13 @@ class Account
      * @var Netric\ServiceManager\ServiceLocatorInterface
      */
     private $serviceManager = null;
-    
+
     /**
-     * Handle to the current user
+     * Property to set the current user rather than using the auth service
      * 
      * @var Netric\Entity\ObjType\User
      */
-    private $currentUser = null;
+    private $currentUserOverride = null;
     
     /**
      * Initialize netric account
@@ -145,14 +145,19 @@ class Account
     }
 
     /**
-     * Update the current user
+     * Override the currently authenticated user with a specific user
+     *
+     * This is often used in testing and in background services where
+     * there is no current authenticated user but we need to setup one
+     * manually for act on behalf of a user.
      *
      * @param \Netric\Entity\ObjType\User $user
      */
-    public function setCurrentUser(Entity\ObjType\User $user)
+    public function setCurrentUser(\Netric\Entity\ObjType\User $user)
     {
-        $this->currentUser = $user;
+        $this->currentUserOverride = $user;
     }
+
     
     /**
      * Get user by id or name
@@ -160,48 +165,46 @@ class Account
      * If neither id or username are defined, then try to get the currently authenticated user.
      * If no users are authenticated, then this function will return false.
      * 
-     * @param string $id The id of the user to get
+     * @param string $userId The userId of the user to get
      * @param string $username Get user by name
      * @return \Netric\User|bool user on success, false on failure
      */
-    public function getUser($id="", $username="")
-    {
+    public function getUser($userId=null, $username=null)
+    {      
+        // Check to see if we have manually set the current user and if so skip session auth
+        if ($this->currentUserOverride)
+            return $this->currentUserOverride;
+
+        // Entity loader will be needed once we have determined a user id to load
         $loader = $this->getServiceManager()->get("EntityLoader");
         
         /*
-         * Try to get the currently logged in user
+         * Try to get the currently logged in user from the authentication service if not provided
          */
-        if (!$id && !$username) 
+        if (!$userId && !$username) 
         {
-            // First check to see if we already loaded
-            if ($this->currentUser)
-                return $this->currentUser;
-            
-            // Try to get currently authenticated user
-            $userId = $this->getApplication()->getSessionVar('uid');
-            $userName = $this->getApplication()->getSessionVar('uname');
-            
-            if ($userId)
-            {
-                $user = $loader->get("user", $userId);
-                if ($user != false)
-                {
-                    $this->currentUser = $user;
-                    return $user;
-                }
-            }
+            // Get the authentication service
+            $auth = $this->getServiceManager()->get("Netric/Authentication/AuthenticationService");
+
+            // Check if the current session is authenticated
+            $userId = $auth->getIdentity();
         } 
-        else if ($id) 
+
+        /*
+         * Load the user with the loader service.
+         * This makes it unnecessary to cache the current user locally
+         * since the loader handles making sure there is only one instance
+         * of each user object in memory.
+         */
+        if ($userId)
         {
-            $user = $loader->get("user", $id);
+            $user = $loader->get("user", $userId);
             if ($user != false)
             {
-                $this->currentUser = $user;
                 return $user;
             }
         }
-        
-        if ($username) 
+        elseif ($username) 
         {
             // TODO: query based on username    
         }

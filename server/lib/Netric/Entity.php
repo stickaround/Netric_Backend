@@ -230,7 +230,24 @@ class Entity implements \Netric\Entity\EntityInterface
     {
         if (!isset($this->values[$strName]))
             $this->values[$strName] = array();
+
+        // Check to make sure we do not already have this value added
+        for ($i = 0; $i < count($this->values[$strName]); $i++)
+        {
+        	if ($value == $this->values[$strName][$i])
+        	{
+        		// The value was already added and they need to be unique
+
+        		// Update valueName just in case it has changed
+        		if ($valueName)
+        			$this->fkeysValues[$strName][$value] = $valueName;
+
+        		// Do not add an additional value
+        		return;
+        	}
+        }
         
+        // Set the value
         $this->values[$strName][] = $value;
 
         if ($valueName)
@@ -255,18 +272,33 @@ class Entity implements \Netric\Entity\EntityInterface
 	 */
 	public function fromArray($data)
 	{
-		foreach ($data as $fname=>$value)
+		$fields = $this->def->getFields();
+		foreach ($fields as $field)
 		{
+			$fname = $field->name;
+			$value = (isset($data[$fname])) ? $data[$fname] : "";
 			$valNames = array();
 
 			// Check for fvals
 			if (isset($data[$fname . "_fval"]))
+			{
+				if (!is_array([$fname . "_fval"]))
+					$data[$fname . "_fval"] = array($data[$fname . "_fval"]);
+
 				$valNames = $data[$fname . "_fval"];
+			}
 
 			if (is_array($value))
 			{
 				foreach ($value as $mval)
 				{
+					if (is_array($mval) || is_object($mval))
+					{
+						throw new \InvalidArgumentException(
+							"Array value for $fname was " . var_export($mval, true)
+						);
+					}
+
 					$valName = (isset($valNames[$mval])) ? $valNames[$mval] : null;
 					$this->addMultiValue($fname, $mval, $valName);
 				}

@@ -91,7 +91,7 @@ loader.get = function(objType, entId, cbLoaded, force) {
  */
 loader.factory = function(objType, opt_cbCreated) {
 
-	var entDef = definitionLoader.getCached(data.obj_type);
+	var entDef = definitionLoader.getCached(objType);
 
 	if (opt_cbCreated) {
 		definitionLoader.get(objType, function(def) {
@@ -118,6 +118,7 @@ loader.createFromData = function(data) {
 
 	// Get cached object definition
 	var entDef = definitionLoader.getCached(data.obj_type);
+	
 	// If cached definition is not found then the data object should include a .definition prop
 	if (entDef == null && data.definition) {
 		entDef = definitionLoader.createFromData(data.definition);

@@ -82,8 +82,10 @@ var Field = React.createClass({
         */
 
         return (
-            <div className={classes}>
-                {fieldContent}
+            <div>
+                <div className={classes}>
+                    {fieldContent}
+                </div>
                 {hr}
             </div>
         );

@@ -22,6 +22,35 @@ class AccountController extends Mvc\AbstractController
 			"defaultModule" => "notes", // TODO: this should be home until it is configurable
 		);
 
+		// Get account modules
+		// TODO: this should be dynamic
+		$ret['modules'] = array(
+			array(
+				"name" => "notes",
+				"title" => "Notes",
+				"icon" => "pencil-square-o",
+				"defaultRoute" => "all-notes",
+				"navigation" => array(
+					array(
+						"title" => "New Note",
+						"type" => "entity",
+						"route" => "new-note",
+						"objType" => "note",
+						"icon" => "plus",
+					),
+					array(
+						"title" => "All Notes",
+						"type" => "browse",
+						"route" => "all-notes",
+						"title" => "All Notes",
+						"objType" => "note",
+						"icon" => "tags",
+						"browseby" => "groups",
+					),
+				),
+			),
+		);
+
 		// Add the user if we have a currently authenticated user
 		$user = $this->account->getUser();
 		if ($user)

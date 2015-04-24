@@ -78,4 +78,13 @@ var Account = function(opt_data)
 		moduleLoader.preloadFromData(initData.modules);
 }
 
+/**
+ * Get the current authenticated user
+ *
+ * @return netric/User
+ */
+Account.prototype.getUser = function() {
+	return this.user;
+}
+
 module.exports = Account;

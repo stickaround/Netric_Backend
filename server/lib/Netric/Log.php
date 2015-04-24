@@ -291,7 +291,6 @@ class Log
 			E_USER_NOTICE    => 'USER NOTICE',
 			E_STRICT         => 'STRICT NOTICE',
 			E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
-			E_ANT_ERROR  => 'ANT APPLICATION ERROR'
 		);
 
 		// create error message

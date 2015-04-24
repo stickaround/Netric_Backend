@@ -8,6 +8,7 @@
 var React = require('react');
 var Paper = require("./Paper.jsx");
 var Overlay = require("./Overlay.jsx");
+var Menu = require("./menu/Menu.jsx");
 
 /**
  * Small application component
@@ -82,14 +83,39 @@ var LeftNav = React.createClass({
             */
 
     // Add each menu item
-    var items = [];
-    for (var i in this.props.menuItems) {
-        var sltd = (this.state.selected == this.props.menuItems[i].route) ? "*" : "";
-        items.push(<div onClick={this._sendClick.bind(null, i)}>{this.props.menuItems[i].name} {sltd}</div>);
+    var selectedIndex = null;
+    for (var i = 0; i < this.props.menuItems.length; i++) {
+      if (this.state.selected == this.props.menuItems[i].route) {
+        selectedIndex = i;
+      }
+        //var sltd =  ? "*" : "";
+        //items.push(<div onClick={this._sendClick.bind(null, i)}>{this.props.menuItems[i].name} {sltd}</div>);
     }
 
-      var zDept = (this.props.docked) ? 0 : 2;
+    var zDept = (this.props.docked) ? 0 : 2;
 
+    return (
+      <div className={classes}>
+
+        {overlay}
+        <Paper
+          ref="clickAwayableElement"
+          className="left-nav-menu"
+          zDepth={zDept}
+          rounded={false}>
+          
+          {this.props.header}
+          
+          <Menu 
+            ref="menuItems"
+            zDepth={0}
+            menuItems={this.props.menuItems}
+            selectedIndex={selectedIndex}
+            onItemClick={this._onMenuItemClick} />
+        </Paper>
+      </div>
+    );
+    /*
     return (
       <div className={classes}>
 
@@ -108,6 +134,7 @@ var LeftNav = React.createClass({
         </Paper>
       </div>
     );
+    */
   },
 
   /**

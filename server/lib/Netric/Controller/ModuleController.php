@@ -15,22 +15,31 @@ class ModuleController extends Mvc\AbstractController
 	 */
 	public function get($params=array())
 	{
+		// TODO: this should be dynamic
 		$ret = array(
-			"id" => $this->account->getId(),
-			"name" => $this->account->getName(),
-			"orgName" => "", // TODO: $this->account->get
+			"name" => "notes",
+			"title" => "Notes",
+			"icon" => "pencil-square-o",
+			"defaultRoute" => "all-notes",
+			"navigation" = array(
+				array(
+					"title" => "New Note",
+					"type" => "entity",
+					"route" => "new-note",
+					"objType" => "note",
+					"icon" => "plus",
+				),
+				array(
+					"title" => "All Notes",
+					"type" => "browse",
+					"route" => "all-notes",
+					"title" => "All Notes",
+					"objType" => "note",
+					"icon" => "tags",
+					"browseby" => "groups",
+				),
+			),
 		);
-
-		// Add the user if we have a currently authenticated user
-		$user = $this->account->getUser();
-		if ($user)
-		{
-			$ret["user"] = array(
-				"id" => $user->getId(),
-				"name" => $user->getValue("name"),
-				"fullName" => $user->getValue("full_name"),
-			);
-		}
 
 		return $this->sendOutput($ret);
 	}
