@@ -43,4 +43,22 @@ interface DataMapperInterface
      * @return array
      */
     public function getAccounts($version="");
+
+    /**
+     * Get account and username from email address
+     *
+     * @param string $emailAddress The email address to pull from
+     * @return array("account"=>"accountname", "username"=>"the login username")
+     */
+    public function getAccountsByEmail($emailAddress);
+
+    /**
+     * Set account and username from email address
+     *
+     * @param int $accountId The id of the account user is interacting with
+     * @param string $username The user name - unique to the account
+     * @param string $emailAddress The email address to pull from
+     * @return bool true on success, false on failure
+     */
+    public function setAccountUserEmail($accountId, $username, $emailAddress);
 }

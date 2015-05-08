@@ -74,6 +74,17 @@ netric.getApplication = function() {
 }
 
 /**
+ * Set the current running applicaiton
+ * 
+ * This is called in netric.Application.run
+ *
+ * @param {netric.Application}
+ */
+netric.setApplication = function(applicaiton) {
+  this.application_ = applicaiton;
+}
+
+/**
  * Inherit the prototype methods from one funciton
  *
  * <pre>

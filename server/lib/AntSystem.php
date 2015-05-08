@@ -630,9 +630,16 @@ class AntSystem
 		$this->dbh->Query("DELETE FROM account_users WHERE account_id='$accountId' AND 
 									username='" . $this->dbh->Escape($username) . "'");
 
-		// Insert into account_users table
-		$ret = $this->dbh->Query("INSERT INTO account_users(account_id, email_address, username)
-								  VALUES('$accountId', '" . $this->dbh->Escape($emailAddress) . "', '" . $this->dbh->Escape($username) . "');");
+		// Insert into account_users table if an active email address was passed
+		if ($emailAddress)
+		{
+			$ret = $this->dbh->Query("INSERT INTO account_users(account_id, email_address, username)
+								  	VALUES(
+								  		'$accountId', '" . $this->dbh->Escape($emailAddress) . "', 
+								  		'" . $this->dbh->Escape($username) . "'
+									);");
+		}
+		
 
 		return $ret;
 	}

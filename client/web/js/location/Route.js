@@ -96,7 +96,6 @@ var Route = function(parentRouter, segmentName, controller, opt_data, opt_elemen
  * @param {function} opt_callback If set call this function when we are finished loading route
  */
 Route.prototype.enterRoute = function(opt_params, opt_callback) {
-
 	var doneLoadingCB = opt_callback || null;
 
 	// Instantiate the controller if not already done (lazy load)
@@ -118,9 +117,10 @@ Route.prototype.enterRoute = function(opt_params, opt_callback) {
  * Called when the router moves away from this route to show an alternate route
  */
 Route.prototype.exitRoute = function() {
+
 	// Exit all childen first
 	if (this.getChildRouter().getActiveRoute()) {
-		this.getChildRouter().getActiveRoute().exitRoute();
+		this.getChildRouter().exitActiveRoute();
 	}
 
 	// Now unload the controller
@@ -187,8 +187,24 @@ Route.prototype.matchesPath = function(path) {
 	// Pull this.numPathSegments_ from the front of the path to test
 	var pathReq = this.getPathSegments(path, this.numPathSegments_);
 	if (pathReq != null) {
-		// Now check for a match and parse params
+		// Now check for a match and parse params in the string
 		var params = locationPath.extractParams(this.name_, pathReq.target);
+
+		// Get any query params
+		var queryParams = locationPath.extractQuery(pathReq.target);
+
+		// Merge url params with query params if they exist for this segment
+		if (params !== null && queryParams !== null) {
+			for (var pname in queryParams) {
+				// Do not override URL params
+				if (!params[pname]) {
+					params[pname] = queryParams[pname];
+				}
+			}
+		} else if (queryParams !== null) {
+			params = queryParams;
+		}
+		
 
 		// If params is null then the path does not match at all
 		if (params !== null) {

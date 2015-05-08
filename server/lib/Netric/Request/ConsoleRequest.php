@@ -27,7 +27,7 @@ class ConsoleRequest implements RequestInterface
 	/**
 	 * Initialize request object variables
 	 */
-	public function __constructor(array $args = null, array $env = null)
+	public function __construct(array $args = null, array $env = null)
 	{
 		if ($args === null) 
 		{
@@ -56,7 +56,7 @@ class ConsoleRequest implements RequestInterface
          * Store runtime params
          */
         $this->params = $args;
-        $this->setContent($args);
+        //$this->setContent($args);
 
         /**
          * Store environment data
@@ -87,6 +87,17 @@ class ConsoleRequest implements RequestInterface
 	{
 		return $this->params;
 	}
+
+    /**
+     * Set/override a param
+     *
+     * @param string $name
+     * @param string $value
+     */
+    public function setParam($name, $value)
+    {
+        $this->params[$name] = $value;
+    }
 
     /**
      * Get an environment variable

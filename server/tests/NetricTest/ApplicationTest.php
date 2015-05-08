@@ -9,12 +9,22 @@ use PHPUnit_Framework_TestCase;
 
 class ApplicationTest extends PHPUnit_Framework_TestCase
 {
-    public function testGetConfig()
+    /**
+     * Application object to test
+     *
+     * @var Netric\Application
+     */
+    private $application = null;
+
+    protected function setUp()
     {
         $config = new Netric\Config();
-        $app = new Netric\Application($config);
-        
-        $this->assertInstanceOf("Netric\Config", $app->getConfig());
+        $this->application = new Netric\Application($config);
+    }
+
+    public function testGetConfig()
+    {
+        $this->assertInstanceOf("Netric\Config", $this->application->getConfig());
     }
     
     /**
@@ -22,9 +32,11 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testGetAccount()
     {
-        $config = new Netric\Config();
-        $app = new Netric\Application($config);
-        
-        $this->assertInstanceOf("Netric\Account", $app->getAccount());
+        $this->assertInstanceOf("Netric\Account", $this->application->getAccount());
+    }
+
+    public function testGetAccountsByEmail()
+    {
+
     }
 }

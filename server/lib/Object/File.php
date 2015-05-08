@@ -534,16 +534,34 @@ class CAntObject_File extends CAntObject
 	 */
 	private function verifyPathTree($path)
 	{
-		$fullPath = AntFs::getAccountDirectory($this->dbh);
-		$fullPath .= "/".$path;
+		$base = AntFs::getAccountDirectory($this->dbh);
 
-		$exists = file_exists($fullPath);
-		if ($exists)
+		if (file_exists($base . "/" . $path))
 			return true;
-		else
+
+		$pathParts = explode("/", $path);
+		$curr = $base;
+		$allOk = true;
+		foreach ($pathParts as $dirName)
 		{
-			return mkdir($fullPath, 0777, true);
+			// Skip over root
+			if (!$dirName)
+				continue;
+
+			$curr .= "/" . $dirName;
+
+			if (!file_exists($curr))
+			{
+				if (!@mkdir($curr, 0775))
+					throw new \Exception("Permission denied mkdir($curr)");
+			}
+
+			// Error out
+			if (!$allOk)
+				return false;
 		}
+
+		return $allOk;
 	}
 
 	/**

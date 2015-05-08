@@ -21,7 +21,7 @@ class ModuleController extends Mvc\AbstractController
 			"title" => "Notes",
 			"icon" => "pencil-square-o",
 			"defaultRoute" => "all-notes",
-			"navigation" = array(
+			"navigation" => array(
 				array(
 					"title" => "New Note",
 					"type" => "entity",

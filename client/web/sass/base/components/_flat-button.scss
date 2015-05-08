@@ -1,7 +1,7 @@
-.mui-flat-button {
+.flat-button {
 
   @include ease-out();
-  @extend %mui-font-style-button;
+  @extend %font-style-button;
   border-radius: 2px;
   user-select: none;
 
@@ -19,28 +19,28 @@
   //See: http://stackoverflow.com/questions/17298739/css-overflow-hidden-not-working-in-chrome-when-parent-has-border-radius-and-chil
   transform: translate3d(0, 0, 0);
 
-  .mui-touch-ripple {
-    .mui-ripple-circle-inner {
+  .touch-ripple {
+    .ripple-circle-inner {
       background-color: $flat-button-ripple-color;
     }
   }
 
-  .mui-focus-ripple {
-    .mui-focus-ripple-inner {
+  .focus-ripple {
+    .focus-ripple-inner {
       background-color: $flat-button-focus-ripple-color;
     }
   }
 
-  .mui-flat-button-label {
+  .flat-button-label {
     position: relative;
   }
 
   &:hover,
-  &.mui-is-keyboard-focused {
+  &.is-keyboard-focused {
     background-color: $flat-button-hover-color;
   }
 
-  &.mui-is-disabled {
+  &.is-disabled {
     color: $flat-button-disabled-text-color;
 
     &:hover {
@@ -48,43 +48,43 @@
     }
   }
 
-  &.mui-is-primary {
+  &.is-primary {
     color: $flat-button-primary-text-color;
 
     &:hover,
-    &.mui-is-keyboard-focused {
+    &.is-keyboard-focused {
       background-color: $flat-button-primary-hover-color;
     }
 
-    .mui-touch-ripple {
-      .mui-ripple-circle-inner {
+    .touch-ripple {
+      .ripple-circle-inner {
         background-color: $flat-button-primary-ripple-color;
       }
     }
 
-    .mui-focus-ripple {
-      .mui-focus-ripple-inner {
+    .focus-ripple {
+      .focus-ripple-inner {
         background-color: $flat-button-primary-focus-ripple-color;
       }
     }
   }
 
-  &.mui-is-secondary {
+  &.is-secondary {
     color: $flat-button-secondary-text-color;
 
     &:hover,
-    &.mui-is-keyboard-focused {
+    &.is-keyboard-focused {
       background-color: $flat-button-secondary-hover-color;
     }
 
-    .mui-touch-ripple {
-      .mui-ripple-circle-inner {
+    .touch-ripple {
+      .ripple-circle-inner {
         background-color: $flat-button-secondary-ripple-color;
       }
     }
 
-    .mui-focus-ripple {
-      .mui-focus-ripple-inner {
+    .focus-ripple {
+      .focus-ripple-inner {
         background-color: $flat-button-secondary-focus-ripple-color;
       }
     }

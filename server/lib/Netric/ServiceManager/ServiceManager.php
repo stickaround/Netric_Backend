@@ -74,10 +74,6 @@ class ServiceManager implements ServiceLocatorInterface
 	 */
 	public function get($serviceName)
 	{
-		// Return cached version if already loaded
-		if ($this->isLoaded($serviceName))
-			return $this->loadedServices[$serviceName];
-
 		$service = false;
 
 		/*
@@ -87,6 +83,10 @@ class ServiceManager implements ServiceLocatorInterface
 		 */
 		if (method_exists($this, "factory" . $serviceName))
         {
+        	// Return cached version if already loaded
+			if ($this->isLoaded($serviceName))
+				return $this->loadedServices[$serviceName];
+
             $service = call_user_func(array($this, "factory" . $serviceName));
 
             // Cache the service
@@ -124,9 +124,17 @@ class ServiceManager implements ServiceLocatorInterface
         // First check to see if $sServiceName has been mapped to a factory
         $serviceName = $this->getInvokableTarget($serviceName);
 
+        // Normalie the serviceName
+        $serviceName = $this->normalizeClassPath($serviceName);
+
+        // First check to see if the service was already loaded
+        if ($this->isLoaded($serviceName))
+			return $this->loadedServices[$serviceName];
+
         // Get actual class name by appending 'Factory' and normalizing slashes
         $classPath = $this->getServiceFactoryPath($serviceName);
 
+		// Load the the service for the first time
         $service = null;
 
         // Try to load the service and allow exception to be thrown if not found
@@ -162,9 +170,30 @@ class ServiceManager implements ServiceLocatorInterface
 
         // Cache for future calls
         if ($bCache)
-            $this->loadedServices[$classPath] = $service;
+        {
+            $this->loadedServices[$serviceName] = $service;
+        }
 
         return $service;
+    }
+
+    /**
+     * Normalize class path
+     *
+     * @param string $classPath The unique name of the service to load
+     */
+    private function normalizeClassPath($classPath)
+    {
+        // Replace forward slash with backslash
+        $classPath = str_replace('/', '\\', $classPath);
+
+        // If class begins with "\Netric" then remove the first slash because it is not needed
+        if ("\\Netric" == substr($classPath, 0 , strlen("\\Netric")))
+        {
+        	$classPath = substr($classPath, 1);
+        }
+
+        return $classPath;
     }
 
     /**
@@ -175,11 +204,8 @@ class ServiceManager implements ServiceLocatorInterface
      */
     private function getServiceFactoryPath($sServiceName)
     {
-        // Replace forward slash with backslash
-        $sClassPath = str_replace('/', '\\', $sServiceName);
-
         // Append Factory to the service name, then try to load using the initialized autoloaders
-        $sClassPath = $sClassPath . "Factory";
+        $sClassPath = $sServiceName . "Factory";
         return $sClassPath;
     }
 

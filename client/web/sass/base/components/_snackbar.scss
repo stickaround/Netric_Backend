@@ -1,7 +1,7 @@
-.mui-snackbar {
+.snackbar {
 
-  color: $mui-snackbar-text-color;
-  background-color: $mui-snackbar-background-color;
+  color: $snackbar-text-color;
+  background-color: $snackbar-background-color;
   border-radius: 2px;
   padding: 0 $desktop-gutter;
   height: $desktop-subheader-height;
@@ -18,8 +18,8 @@
   opacity: 0;
   transform: translate3d(0, 8px, 0);
 
-  .mui-snackbar-action {
-    color: $mui-snackbar-action-color;
+  .snackbar-action {
+    color: $snackbar-action-color;
     float: right;
     margin-top: 6px;
     margin-right: -16px;
@@ -27,7 +27,7 @@
     background-color: transparent;
   }
 
-  &.mui-is-open {
+  &.is-open {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }

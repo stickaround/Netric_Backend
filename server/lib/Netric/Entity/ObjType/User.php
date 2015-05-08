@@ -17,14 +17,24 @@ use Netric\Authentication\AuthenticationService;
  */
 class User extends \Netric\Entity implements \Netric\Entity\EntityInterface
 {
+    /**
+     * System users
+     *
+     * @const int
+     */
     const USER_ADMINISTRATOR = -1;
     const USER_CURRENT = -3;
     const USER_ANONYMOUS = -4;
     const USER_SYSTEM = -5;
     const USER_WORKFLOW = -6;
-    //put your code here
     
-    const GROUP_USERS = -4;
+
+    /**
+     * System groups
+     *
+     * @const int
+     */
+    const GROUP_USERS = -4; // Authenticated users
     const GROUP_EVERYONE = -3;
     const GROUP_CREATOROWNER = -2;
     const GROUP_ADMINISTRATORS = -1;
@@ -51,7 +61,22 @@ class User extends \Netric\Entity implements \Netric\Entity\EntityInterface
      */
     public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
     {
-        
+        // Update the account email address for the application if changed
+        if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name"))
+        {
+            // Delete old username if changed
+            $previousName = $this->getPreviousValue("name");
+            if ($previousName && $previousName != $this->getValue("name"))
+            {
+                $sm->getAccount()->setAccountUserEmail($previousName, null);
+            }
+
+            // Set the new username to this email address
+            $sm->getAccount()->setAccountUserEmail(
+                $this->getValue("name"),
+                $this->getValue("email") 
+            );
+        }
     }
 
     /**
@@ -78,5 +103,35 @@ class User extends \Netric\Entity implements \Netric\Entity\EntityInterface
         // Update password to hashed
         $hashedPassword = $authService->hashPassword($password, $salt);
         $this->setValue("password", md5($hashedPassword));
+    }
+
+    /**
+     * Get list of groups this user belongs to
+     *
+     * @return int[]
+     */
+    public function getGroups()
+    {
+        $groups = $this->getValue("groups");
+        if (!$groups || !is_array($groups))
+            $groups = array();
+
+        // Add to authenticated users group if we have determined this is a valid user
+        if ($this->getId() &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups))
+            $groups[] = self::GROUP_USERS;
+
+        // Of course every user is part of everyone
+        if (!in_array(self::GROUP_EVERYONE, $groups))
+            $groups[] = self::GROUP_EVERYONE;
+
+        return $groups;
+    }
+
+    /**
+     * Determine if this is anonymous
+     */
+    public function isAnonymous()
+    {
+        return ($this->getId() == self::USER_ANONYMOUS);
     }
 }

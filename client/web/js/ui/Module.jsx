@@ -25,7 +25,6 @@ var Module = React.createClass({
   },
 
   componentDidMount: function() {
-
   },
 
   render: function() {

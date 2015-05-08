@@ -40,6 +40,7 @@ MainController.prototype.onLoad = function(opt_callback) {
  * Render this controller into the dom tree
  */
 MainController.prototype.render = function() { 
+
 	// Set outer application container
 	var domCon = this.domNode_;
 
@@ -77,7 +78,7 @@ MainController.prototype.render = function() {
 		view.refs.appMain.getDOMNode()
 	);
 
-	// Set a default route to messages
+	// Set a default route
 	this.getChildRouter().setDefaultRoute(netric.getApplication().getAccount().defaultModule);
 }
 

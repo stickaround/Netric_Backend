@@ -27,7 +27,7 @@ class AuthenticationServiceFactory implements ServiceManager\ServiceFactoryInter
         $key = "GENERATEDSERVERSIDEKEY";
         $userIndex = $sl->get("EntityQuery_Index");
         $userLoader = $sl->get("EntityLoader");
-        $request = new \Netric\Request\HttpRequest();
+        $request = $sl->get("Netric/Request/Request");
 
         return new AuthenticationService($key, $userIndex, $userLoader, $request);
     }

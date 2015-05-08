@@ -36,6 +36,8 @@ else
 // Set headers to allow CORS since we are using /svr resources in multiple clients
 // @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+header("Access-Control-Allow-Headers: Authentication");
 
 // Lod up the router and run the $functionName
 $svr = new Netric\Mvc\Router($application);

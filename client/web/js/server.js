@@ -21,9 +21,20 @@ var server = {};
  * negotiated and set.
  *
  * @public
- * @var {string}
+ * @type {string}
  */
 server.host = "";
+
+/**
+ * The URI for the universal login service
+ *
+ * This is used if server.host has not been set to determine
+ * what instance of netric to actually authenticate the user against.
+ *
+ * @public
+ * @type {string}
+ */
+server.universalLoginUri = "https://login.netric.com";
 
 /**
  * Connection status used to indicate if we are able to query the server
@@ -37,8 +48,17 @@ server.host = "";
  * </code>
  *
  * @public
- * @var {bool}
+ * @type {bool}
  */
 server.online = true;
+
+
+/**
+ * Auth string is returned from the server when a user authenticates
+ *
+ * @public
+ * @type {string}
+ */
+server.sessionAuthToken = null
 
 module.exports = server;

@@ -83,5 +83,28 @@ Device.prototype.size = Device.sizes.large;
  	// TODO: Detect platform here
  }
 
+ /**
+  * Try to determine if a device is connected
+  *
+  * It is more likely that this function return a false
+  * positive than a false negative so use it assuming that (1)
+  * it is likely that it returns true even if there are connection
+  * problems (like the server being down or non-public netric)
+  * (2) if it returns false that should be considered pretty reliable.
+  *
+  * @return {bool} true if connected, false if offline
+  */
+ Device.prototype.isOnline = function() {
+
+ 	// Try HTML5 navigator.online status
+ 	if (navigator && navigator.onLine) {
+ 		return navigator.onLine;
+ 	}
+
+ 	// Assume true
+ 	return true;
+ }
+ 
+
  module.exports = Device;
  

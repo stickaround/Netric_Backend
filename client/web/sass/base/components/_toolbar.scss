@@ -3,55 +3,56 @@
   height: $toolbar-height;
   width: 100%;
   padding: 0 $desktop-gutter;
-  
-  .mui-toolbar-group {
+
+  .toolbar-group {
     position: relative;
 
-    .mui-toolbar-title {
+    .toolbar-title {
       padding-right: $desktop-gutter-less;
       line-height: $toolbar-height;
     }
 
-    .mui-toolbar-separator {
+    .toolbar-separator {
       background-color: $toolbar-separator-color;
       display: inline-block;
       height: $desktop-gutter-more;
       margin-left: $desktop-gutter;
       position: relative;
-      top: 12px;
+      top: (($toolbar-height - $desktop-gutter-more) / 2);
       width: 1px;
     }
 
-    .mui-raised-button {
+    .raised-button,
+    .flat-button {
       margin: 0 $desktop-gutter;
       margin-top: (($toolbar-height - $button-height) / 2);
       position: relative;
     }
 
-    .mui-drop-down-menu {
+    .drop-down-menu {
       color: $light-black;
       display: inline-block;
       margin-right: $desktop-gutter;
 
-      .mui-menu-control-bg {
+      .menu-control-bg {
         background-color: $toolbar-menu-hover-color;
         border-radius: 0;
       }
 
-      .mui-menu-control {
-        .mui-menu-control-underline {
+      .menu-control {
+        .menu-control-underline {
           display: none;
         }
       }
 
-      .mui-icon {
+      .font-icon {
         &:hover {
           color: $toolbar-icon-color;
         }
       }
     }
 
-    .mui-icon {
+    .font-icon {
       color: $toolbar-icon-color;
       cursor: pointer;
       line-height: $toolbar-height;
@@ -63,23 +64,23 @@
       }
     }
 
-    &.mui-left {
+    &.left {
       float: left;
 
-      .mui-drop-down-menu, .mui-icon, .mui-toolbar-separator, .mui-drop-down-icon  {
+      .drop-down-menu, .font-icon, .toolbar-separator, .drop-down-icon  {
         float: left;
       }
 
       &:first-child {
         margin-left: -24px;
 
-        .mui-toolbar-title {
+        .toolbar-title {
           margin-left: 24px;
         }
       }
     }
 
-    &.mui-right {
+    &.right {
       float: right;
 
       * {
@@ -90,19 +91,5 @@
         margin-right: -24px;
       }
     }
-  }
-}
-
-@media #{$device-medium} {
-  .paper-container {
-    padding-left: $gutter;
-    padding-right: $gutter;
-  }
-}
-
-@media #{$device-large} {
-  .paper-container {
-    padding-left: $gutter;
-    padding-right: $gutter;
   }
 }

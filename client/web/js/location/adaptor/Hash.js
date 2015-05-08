@@ -35,7 +35,7 @@ var Hash = function() {
       // changed. It was probably caused by the user clicking the Back
       // button, but may have also been the Forward button or manual
       // manipulation. So just guess 'pop'.
-      this.notifyChange_(this.actionType_ || location.actions.POP);
+      this.notifyChange_(this.actionType_ || this.netricLocation_.actions.POP);
       this.actionType_ = null;  
     }
   }.bind(this));

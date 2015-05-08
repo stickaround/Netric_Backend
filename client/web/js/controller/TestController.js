@@ -19,11 +19,15 @@ netric.inherits(TestController, AbstractController);
 /**
  * Function called when controller is first loaded
  */
-TestController.prototype.onload = function() { }
+TestController.prototype.onLoad = function(opt_callback) { 
+	if (opt_callback) {
+		opt_callback();
+	}
+}
 
 /**
  * Render the contoller into the dom
  */
-TestController.prototype.onload = function() { }
+TestController.prototype.render = function() { }
 
 module.exports = TestController;

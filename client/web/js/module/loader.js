@@ -52,7 +52,7 @@ loader.get = function(moduleName, cbLoaded)
 		request.setAsync(false);
 	}
 
-	request.send("/svr/module/get", "GET", {name:moduleName});
+	request.send("svr/module/get", "GET", {name:moduleName});
 
 	// If no callback then construct netric.module.Module from request date (synchronous)
 	if (!cbLoaded) {

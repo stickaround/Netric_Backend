@@ -11,6 +11,7 @@ require_once("lib/aereus.lib.php/CCache.php");
 //require_once("lib/aereus.lib.php/CSessions.php");
 require_once("lib/aereus.lib.php/antapi.php");
 require_once('security/security_functions.php');
+require_once('lib/ServiceLocatorLoader.php');
 
 // Define reserved group ids
 define("GROUP_USERS", -4);
@@ -715,30 +716,72 @@ class AntUser
 	}
 
 	/**
+	 * @depricated This is being replaced with Netric\Authentication\AuthenticationService
+	 *
 	 * Authenticate a user
 	 *
 	 * May be called statically so long as $dbh is passed
+	 *
 	 *
 	 * @param string $user The user name
 	 * @param string $password Password of user
 	 * @param CDatabase $dbh This is required if function is called statically
 	 * @return integer The user id on success and = on failure
 	 */
-	public function authenticate($user, $password, $dbh=null)
+	public function authenticate($username, $password, $dbh=null)
 	{
 		if (!$dbh && $this && $this->dbh)
 			$dbh = $this->dbh;
 		else if (!$dbh)
 			return 0;
 
-		$query = "select users.id from users where lower(users.name)=lower('" . $dbh->Escape($user) . "') and active is not false
-					and (users.password='" . $dbh->Escape($password) . "' or users.password=md5('" . $dbh->Escape($password) . "'))";
+		// Get new netric authentication service
+		$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+		$authService = $sl->get("AuthenticationService");
+
+		$query = "SELECT id, password, password_salt FROM users 
+				  WHERE lower(users.name)=lower('" . $dbh->Escape($username) . "')";
+
+		//			and (users.password='" . $dbh->Escape($password) . "' or users.password=md5('" . $dbh->Escape($password) . "'))";
 		$result = $dbh->Query($query);
 		if ($dbh->GetNumberRows($result))
 		{
 			$row = $dbh->GetNextRow($result, 0);
-			$res = $row['id'];
-			Stats::increment("logins.success");
+
+			// Check to see if the user is on old authentication cheme
+			if (!$row['password_salt'])
+			{
+				/*
+				 * If we force an update in the user entity it will create
+				 * a new salt and encrypt the password appropriately. This is a
+				 * perfect time to do the upgrade since we have the user-supplied
+				 * clear text password
+				 */
+				$loader = $sl->get("EntityLoader");
+				$user = $loader->get("user", $row['id']);
+				$dm = $sl->get("Entity_DataMapper");
+
+				// Change to temp password to force reset
+				$user->setValue("password", "TMPWILLRESET");
+				$dm->save($user);
+
+				// Now reset to real password which will encode properly
+				$user->setValue("password", $password);
+				$dm->save($user);
+			}
+
+			// Authenticate using the auth service
+			$ret = $authService->authenticate($username, $password);
+			if ($ret)
+			{
+				$res = $row['id'];
+				Stats::increment("logins.success");
+			}
+			else
+			{
+				$res = 0;
+				Stats::increment("logins.failed");
+			}		
 		}
 		else
 		{
@@ -752,6 +795,16 @@ class AntUser
 	}
 
 	/**
+	 * @depricated This has been replaced with the AuthenticationService
+	 * "Authentication" header which is far more secure and unified so
+	 * every client authenticates the same way.
+	 *
+	 * Right now it is left in place soley to interact with legacy API
+	 * but it is a ticking timebomb because as soon as someone logs into
+	 * netric with the administator account it will cause the APIs
+	 * to fail so we should probably move it over to the new contorllers
+	 * and authentication service as soon as possible.
+	 *
 	 * Authenticate a user encoded string
 	 *
 	 * @param string $auth The user and password encoded into username:md5(pass)

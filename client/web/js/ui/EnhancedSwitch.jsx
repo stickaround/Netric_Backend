@@ -93,16 +93,16 @@ var EnhancedSwitch = React.createClass({
       ...other
     } = this.props;
 
-    var classes = this.getClasses('mui-enhanced-switch', {
-      'mui-is-switched': this.state.switched,
-      'mui-is-disabled': this.props.disabled,
-      'mui-is-required': this.props.required
+    var classes = this.getClasses('enhanced-switch', {
+      'is-switched': this.state.switched,
+      'is-disabled': this.props.disabled,
+      'is-required': this.props.required
     });
 
     var inputId = this.props.id || UniqueId.generate();
 
     var labelElement = this.props.label ? (
-      <label className="mui-switch-label" htmlFor={inputId}>
+      <label className="switch-label" htmlFor={inputId}>
         {this.props.label}
       </label>
     ) : null;
@@ -135,7 +135,7 @@ var EnhancedSwitch = React.createClass({
       <input
         {...other}
         {...inputProps}
-        className="mui-enhanced-switch-input"/>
+        className="enhanced-switch-input"/>
     );
 
     var touchRipple = (
@@ -156,7 +156,7 @@ var EnhancedSwitch = React.createClass({
       this.props.disabled || disableFocusRipple ? null : focusRipple
     ];
 
-    iconClassName += ' mui-enhanced-switch-wrap';
+    iconClassName += ' enhanced-switch-wrap';
 
     var switchElement = (this.props.iconClassName.indexOf("toggle") == -1) ? (
         <div className={iconClassName}>
@@ -165,8 +165,8 @@ var EnhancedSwitch = React.createClass({
         </div>
       ) : (
         <div className={iconClassName}>
-          <div className="mui-toggle-track" />
-          <Paper className="mui-toggle-thumb" zDepth={1}> {ripples} </Paper>
+          <div className="toggle-track" />
+          <Paper className="toggle-thumb" zDepth={1}> {ripples} </Paper>
         </div>
     );
 

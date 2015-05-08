@@ -14,6 +14,14 @@ interface RequestInterface
 	public function getParam($name);
 
 	/**
+	 * Set/override a param
+	 *
+	 * @param string $name
+	 * @param string $value
+	 */
+	public function setParam($name, $value);
+
+	/**
 	 * Get all params in an associative array
 	 *
 	 * @return array

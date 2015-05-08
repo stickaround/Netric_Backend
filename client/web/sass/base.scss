@@ -1,4 +1,9 @@
-@import "base/main";
+/**
+ * Include global variables
+ */
+@import "variables/media-queries";
+
+
 
 body {
   font-family: Tahoma, Arial, Verdana, Helvetica, sans-serif;
@@ -51,6 +56,16 @@ body {
 }
 
 /**
+ * Load the grid
+ */
+@import 'grid';
+
+/**
+ * Include base theme
+ */
+@import "base/main";
+
+/**
  * Add base application classes
  */
 @import 'base/application';
@@ -59,3 +74,4 @@ body {
  * Add module layouts
  */
 @import 'base/module';
+

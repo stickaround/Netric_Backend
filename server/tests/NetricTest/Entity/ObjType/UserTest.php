@@ -30,7 +30,7 @@ class UserTest extends PHPUnit_Framework_TestCase
      */
     const TEST_USER = "entity_objtype_test";
     const TEST_USER_PASS = "testpass";
-    
+    const TEST_EMAIL = "entity_objtype_test@netric.com";
 
 	/**
 	 * Setup each test
@@ -106,5 +106,73 @@ class UserTest extends PHPUnit_Framework_TestCase
 
         // Make sure we have hashed and encoded the password
         $this->assertNotEquals($user->getValue("password"), self::TEST_USER_PASS);
+    }
+
+    public function testOnAfterSaveAppicationEmailMapSet()
+    {
+        $user = $this->account->getServiceManager()->get("EntityFactory")->create("user");
+        $user->setValue("name", self::TEST_USER);
+        $user->setValue("email", self::TEST_EMAIL);
+        $user->setValue("password", self::TEST_USER_PASS);
+        $user->onAfterSave($this->account->getServiceManager());
+
+        // Make sure the application can get the username from the email now
+        $app = $this->account->getApplication();
+        $accounts = $app->getAccountsByEmail(self::TEST_EMAIL);
+        $this->assertEquals(1, count($accounts));
+        $this->assertEquals($accounts[0]['username'], self::TEST_USER);
+    }
+
+    public function testOnAfterSaveAppicationEmailMapSetChanged()
+    {
+        $app = $this->account->getApplication();
+
+        $user = $this->account->getServiceManager()->get("EntityFactory")->create("user");
+        $user->setValue("name", self::TEST_USER);
+        $user->setValue("email", self::TEST_EMAIL);
+        $user->setValue("password", self::TEST_USER_PASS);
+        $user->onAfterSave($this->account->getServiceManager());
+
+        // Change the username and make sure the old username was deleted
+        $user->setValue("name", self::TEST_USER . "-changed");
+        $user->onAfterSave($this->account->getServiceManager());
+
+        // Make sure the application can get the username from the email now
+        $accounts = $app->getAccountsByEmail(self::TEST_EMAIL);
+        $this->assertEquals(1, count($accounts));
+        $this->assertEquals($accounts[0]['username'], self::TEST_USER . "-changed");
+
+        // Reset
+        $user->setValue("name", self::TEST_USER);
+        $user->onAfterSave($this->account->getServiceManager());
+
+        // Change the email and make sure the old username was deleted
+        $user->setValue("email", self::TEST_EMAIL . "-changed");
+        $user->onAfterSave($this->account->getServiceManager());
+
+        // Make sure the application can get the username from the email now
+        $accounts = $app->getAccountsByEmail(self::TEST_EMAIL);
+        $this->assertEquals(0, count($accounts));
+    }
+
+    public function testGetGroups()
+    {
+        $this->user->addMultiValue("groups", Entity\ObjType\User::GROUP_ADMINISTRATORS);
+        
+        $groups = $this->user->getGroups();
+
+        // Make sure administrators was added
+        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_ADMINISTRATORS, $groups));
+
+        // Make sure default users was also added
+        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_USERS, $groups));
+    }
+
+    // Test before adding any groups that the default USERS groups was added
+    public function testGetGroupsDefault()
+    {
+        $groups = $this->user->getGroups();
+        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_USERS, $groups));
+        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_EVERYONE, $groups));
     }
 }

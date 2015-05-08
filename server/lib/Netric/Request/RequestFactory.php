@@ -25,7 +25,7 @@ class RequestFactory implements ServiceManager\ServiceFactoryInterface
      */
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
-        if (Console::isConsole()) {
+        if (Console::isConsole()) { 
             return new ConsoleRequest();
         }
 

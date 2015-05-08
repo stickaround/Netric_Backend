@@ -198,6 +198,24 @@ class ServiceLocator
 	}
 
 	/**
+	 * Construct entity definition loader
+	 *
+	 * @return EntityDefinition_DataMapper
+	 */
+	private function factoryAuthenticationService()
+	{
+        $acc = $this->getAnt()->getNetricAccount(); 
+        if (!$acc)
+        	throw new \Exception("Could not get the account. Aborting!");
+
+        return $acc->getServiceManager()->get("/Netric/Authentication/AuthenticationService");
+		// For now all we support is pgsql
+		//$dm = $this->get("EntityDefinition_DataMapper");
+		//$loader = new EntityDefinitionLoader($dm);
+		//return $loader;
+	}
+
+	/**
 	 * Get config service
 	 *
 	 * @return AntConfig

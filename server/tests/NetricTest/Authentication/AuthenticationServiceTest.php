@@ -67,6 +67,7 @@ class AuthenticationServiceTest extends PHPUnit_Framework_TestCase
         $user = $loader->create("user");
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
+        $user->setValue("active", true);
         $dm->save($user);
         $this->user = $user;
     }

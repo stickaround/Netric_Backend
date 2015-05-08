@@ -96,27 +96,56 @@ class Application
      * @throws \Exception when an invalid account id or name is passed
      * @return Netric\Account
      */
-    public function getAccount($accountId="", $name="")
+    public function getAccount($accountId="", $accountName="")
     {
         // If no specific account is set to be loaded, then get current/default
-        if (!$accountId && !$name)
-            $name = $this->getAccountName();
-        
-        if (!$accountId && !$name)
-            throw new \Exception("Cannot get account without name");
-        
-        // Account has not yet been loaded
-        $account = new Account($this);
-        $ret = ($accountId) ?
-            $this->accountsIdentityMapper->loadById($accountId, $account) :
-            $this->accountsIdentityMapper->loadByName($name, $account);
+        if (!$accountId && !$accountName)
+            $accountName = $this->getAccountName();
 
-        if (!$ret)
-        {
-            $account = null;
-        }
+        if (!$accountId && !$accountName)
+            throw new \Exception("Cannot get account without accountName");
         
+        // Get the account with either $accountId or $accountName
+        $account = null;
+        if ($accountId)
+            $account = $this->accountsIdentityMapper->loadById($accountId, $this);
+        else
+            $account = $this->accountsIdentityMapper->loadByName($accountName, $this);
+
         return $account;
+    }
+
+
+    /**
+     * Get account and username from email address
+     *
+     * @param string $emailAddress The email address to pull from
+     * @return array("account"=>"accountname", "username"=>"the login username")
+     */
+    public function getAccountsByEmail($emailAddress)
+    {
+        $accounts = $this->dm->getAccountsByEmail($emailAddress);
+
+        // Add instanceUri
+        for ($i = 0; $i < count($accounts); $i++) 
+        {
+            $accounts[$i]['instanceUri'] = $accounts[$i]["account"] . "." . $this->config->localhost_root;
+        }
+
+        return $accounts;
+    }
+
+    /**
+     * Set account and username from email address
+     *
+     * @param int $accountId The id of the account user is interacting with
+     * @param string $username The user name - unique to the account
+     * @param string $emailAddress The email address to pull from
+     * @return bool true on success, false on failure
+     */
+    public function setAccountUserEmail($accountId, $username, $emailAddress)
+    {
+        return $this->dm->setAccountUserEmail($accountId, $username, $emailAddress);
     }
     
     /**

@@ -468,10 +468,28 @@ class AntFs
 		if (!$dbh)
 			return false;
 
-		$path = AntConfig::getInstance()->data_path . "/antfs/" . $dbh->dbname;
+		$path = AntConfig::getInstance()->data_path . "/antfs";
+
+		// Create antfs directory in the data if it does not yet exist
+		if (!file_exists($path))
+		{
+			mkdir($path, 0775);
+
+			if (!chmod($path, 0775))
+				throw new \Exception("Permission denied chmod($curr)");
+		}
+
+		// Now create namespace dir for dbname
+		$path .=  "/" . $dbh->dbname;		
 
 		if (!file_exists($path))
-			mkdir($path, 0777, true);
+		{
+			mkdir($path, 0775);
+
+			if (!chmod($path, 0775))
+				throw new \Exception("Permission denied chmod($curr)");
+
+		}
 
 		return $path;
 	}

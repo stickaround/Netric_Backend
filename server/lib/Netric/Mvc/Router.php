@@ -105,7 +105,8 @@ class Router
                 $this->svrCls->testMode = $this->testMode;
 		}
         
-		if (method_exists($this->svrCls, $fName))
+        $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
+		if (method_exists($this->svrCls, $fName) && $requestMethod!='OPTIONS')
 		{
 			/*
 			 * TODO: $params are no longer needed for action functions
@@ -147,12 +148,45 @@ class Router
 			if (isset($params['output']))
 				$this->svrCls->output = $params['output'];
 
+			// Check permissions to make sure the current user has access to the controller
+			$hasPermission = $this->currentUserHasPermission();
+
 			// Call class method and pass request params
-			return call_user_func(array($this->svrCls, $fName), $params);
+			if ($hasPermission)
+			{
+				return call_user_func(array($this->svrCls, $fName), $params);
+			}
+			else
+			{
+				// TODO: return 401	Authorization Required
+				echo "Authorization Required";
+				return false;
+			}
+
 		}
 		else
 		{
+			// TODO: return 404	Not Found
 			return false;
 		}
+	}
+
+	/**
+	 * Check permissions to verify that the current user has access to this resource
+	 *
+	 * @return bool true if current user can call the controller, otherwise false
+	 */
+	private function currentUserHasPermission()
+	{
+		// Get the DACL for the selected controller
+		$dacl = $this->svrCls->getAccessControlList();
+
+		// Get the currently authenticated user
+		$user = $this->application->getAccount()->getUser();
+
+		//echo "\nChecking if " . $user->getId() . " has access: " . var_export($user, true);
+
+		// Check if the user can access this resource and return the result
+		return $dacl->isAllowed($user);
 	}
 }

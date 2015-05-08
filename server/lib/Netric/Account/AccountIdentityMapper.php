@@ -46,6 +46,9 @@ class AccountIdentityMapper
 	 */
 	public function __construct(Application\DataMapperInterface $appDm, Cache\CacheInterface $cache)
 	{
+        if (!$appDm)
+            throw new \Exception("Application datamapper is required");
+
 		$this->appDm = $appDm;
         $this->cache = $cache;
 	}
@@ -54,21 +57,25 @@ class AccountIdentityMapper
      * Load an account by id
      * 
      * @param string $id The unique id of the account to get
-     * @param \Netric\Account $account Reference to Account object to initialize
-     * @return bool true on success, false on failure/not found
+     * @param \Netric\Application $application Reference to Application instance
+     * @return \Netric\Account on success, null on failure
      */
-    public function loadById($id, &$account)
+    public function loadById($id, \Netric\Application $application)
     {
         // First check to see if we have it cached in local memory
-        if ($this->loadFromMemory($id, $account))
-        {
-            return true;
-        }
-        else if ($this->loadFromCache($id, $account))
-        {
-            return true;
-        }
+        $account = $this->loadFromMemory($id);
 
+        // Return already loaded account
+        if ($account)
+            return $account;
+
+        // Account is not already loaded so create a new instance
+        $account = new \Netric\Account($application);
+
+        // Try from cache if not loaded in memeory
+        if ($this->loadFromCache($id, $account))
+            return $account;
+        
         // Load from the datamapper
         $ret = $this->appDm->getAccountById($id, $account);
 
@@ -77,34 +84,38 @@ class AccountIdentityMapper
         {
             $this->setLocalMemory($account);
             $this->setCache($account);
+            return $account;
         }
-
-        return $ret;
+        else
+        {
+            return null;
+        }
     }
 
     /**
      * Get an account by the unique name
      * 
      * @param string $name
-     * @param \Netric\Account $account Reference to Account object to initialize
-     * @return bool true on success, false on failure/not found
+     * @param \Netric\Application $application Reference to Application instance
+     * @return \Netric\Account on success, null on failure
      */
-    public function loadByName($name, &$account)
+    public function loadByName($name, \Netric\Application $application)
     {
         // Try local memory first
         if (isset($this->nameToIdMap[$name]))
         {
-            return $this->loadById($this->nameToIdMap[$name], $account);
+            return $this->loadById($this->nameToIdMap[$name], $application);
         }
 
         // Now try cache
         $cachedId = $this->cache->get("netric/account/nametoidmap/$name");
         if ($cachedId)
         {
-            return $this->loadById($cachedId, $account);
+            return $this->loadById($cachedId, $application);
         }
 
         // Load from the datamapper by name
+        $account = new \Netric\Account($application);
         if ($this->appDm->getAccountByName($name, $account))
         {
             // Save the data to cache and memory
@@ -114,17 +125,20 @@ class AccountIdentityMapper
             // Save the maps
             $this->nameToIdMap[$name] = $account->getId();
             $this->cache->set("netric/account/nametoidmap/$name", $account->getId());
-            return true;
+            return $account;
+        }
+        else
+        {
+            return null;
         }
 
-        return false;
     }
 
     /**
      * Get an account details from cache and load
      *
      * @param string $id The unique id of the account to get
-     * @param \Netric\Account $account Reference to Account object to initialize
+     * @param \Netric\Account $account Account to load data into
      * @return bool true on success, false on failure/not found
      */
     private function loadFromCache($id, \Netric\Account &$account)
@@ -135,6 +149,9 @@ class AccountIdentityMapper
             if (isset($data["id"]) && isset($data["name"]))
             {
                 $account->fromArray($data);
+                // Put in local memory for even faster retrieval next time
+                $this->setLocalMemory($account);
+                
                 return true;
             }
         }
@@ -147,16 +164,12 @@ class AccountIdentityMapper
      * Load from local memory
      *
      * @param string $id The unique id of the account to get
-     * @param \Netric\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
-    private function loadFromMemory($id, \Netric\Account &$account)
+    private function loadFromMemory($id)
     {
         if (isset($this->loadedAccounts[$id]))
-        {
-            $account->fromArray($this->loadedAccounts[$id]);
-            return true;
-        }
+            return $this->loadedAccounts[$id];
 
         // Not found
         return false;
@@ -169,7 +182,7 @@ class AccountIdentityMapper
      */
     private function setLocalMemory(\Netric\Account &$account)
     {
-        $this->loadedAccounts[$account->getId()] = $account->toArray();
+        $this->loadedAccounts[$account->getId()] = $account;
     }
 
     /**

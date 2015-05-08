@@ -100,8 +100,12 @@ Router.prototype.addRoute = function(segmentPath, controller, opt_data, opt_elem
  * @param {string} segmentPath The path/pattern for the route to remove
  */
 Router.prototype.removeRoute = function(segmentPath) {
-	var route = this.getRoute(segmentPath);
-	// TODO: cascade remove route and all its children calling cleanup on constructors
+	for (var i in this.routes_) {
+		if (this.routes_[i].getName() == segmentPath) {
+			this.routes_.splice([i], 1);
+			return;
+		}
+	}
 }
 
 /**
@@ -203,19 +207,18 @@ Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remaini
 
 	// Check to see if we have already loaded this path
 	if (segPath != this.lastRoutePath_) {
+
+		// Exit the last active route
+		this.exitActiveRoute();
+
 		// Set local history to keep from re-rendering when a subroute changes
 		this.lastRoutePath_ = segPath;
 
-		// Exit the last active route
-		if (this.activeRoute_) {
-			this.activeRoute_.exitRoute();
-		}
+		// Save new active route
+		this.activeRoute_ = route;
 
 		// Trigger route change event
 		alib.events.triggerEvent(this, "routechange", { path: segPath});
-
-		// Save new active route
-		this.activeRoute_ = route;
 
 		// Load up and enter the route
 		route.enterRoute(params, function() {

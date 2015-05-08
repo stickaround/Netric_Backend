@@ -22,7 +22,8 @@
 */
 'use strict';
 
-var netric = require("./base.js");
+var netric = require("./base");
+var sessionManager = require("./sessionManager");
 
 /**
  * Class for handling XMLHttpRequests
@@ -85,8 +86,7 @@ BackendRequest.prototype.response_ = null;
  * @param {number=} opt_timeoutInterval Number of milliseconds after which an
  *     incomplete request will be aborted; 0 means no timeout is set.
  */
-BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInterval) 
-{
+BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInterval) {
 	// Set defaults
 	if (typeof opt_method == "undefined")
 		opt_method = "GET";
@@ -116,14 +116,20 @@ BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_t
  * @param {string=} opt_method Send method, default: GET.
  * @param {Array|Object|string=} opt_content Body data.
  */
-BackendRequest.prototype.send = function(urlPath, opt_method, opt_content) 
-{
+BackendRequest.prototype.send = function(urlPath, opt_method, opt_content) {
 	var method = opt_method || "GET";
 	var data = opt_content || null;
 
 	// Check if we need to put a prefix on the request
-	if (netric.server.host != "") {
+	if (netric.server.host != "" && netric.server.host != null && urlPath.indexOf("://") === -1) {
 		alib.net.prefixHttp = netric.server.host;
+
+		// Add slash after server name if neither the host or the urlPath already has it
+		if (urlPath.charAt(0) != "/" && alib.net.prefixHttp.charAt(alib.net.prefixHttp.length-1) != "/")
+		 	alib.net.prefixHttp += "/";
+	} else {
+		// Clear the prefix in case it was previously set in session
+		alib.net.prefixHttp = "";
 	}
 
 	// Set local variable for closure
@@ -131,15 +137,20 @@ BackendRequest.prototype.send = function(urlPath, opt_method, opt_content)
 	var request = this;
 	
 	// Fire load event
-	alib.events.listen(xhr, "load", function(evt){
+	alib.events.listen(xhr, "load", function(evt) {
 		alib.events.triggerEvent(request, "load");
 	});
 
 	// Fire error event
-	alib.events.listen(xhr, "error", function(evt){
+	alib.events.listen(xhr, "error", function(evt) {
 		// There was a problem loading the data
 		alib.events.triggerEvent(request, "error");
 	});
+
+	// Send session token
+	if (sessionManager.getSessionToken()) {
+		xhr.setHeader("Authentication", sessionManager.getSessionToken());
+	}
 
 	xhr.send(urlPath, method, data);
 }
@@ -149,8 +160,7 @@ BackendRequest.prototype.send = function(urlPath, opt_method, opt_content)
  *
  * @param {string} type Can be "xml", "json", "script", "text", or "html"
  */
-BackendRequest.prototype.setReturnType = function(type)
-{
+BackendRequest.prototype.setReturnType = function(type) {
 	this.returnType_ = type;
 }
 
@@ -161,8 +171,7 @@ BackendRequest.prototype.setReturnType = function(type)
  *
  * @param {bool} asyc If true then set request to async
  */
-BackendRequest.prototype.setAsync = function(async)
-{
+BackendRequest.prototype.setAsync = function(async) {
 	this.netXhr_.setAsync(async);
 }
 

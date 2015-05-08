@@ -26,10 +26,11 @@
 
         <script>
             function startApplication() {
-                netric.server.host = "http://netric.myaereus.com/";
-                
-                netric.Application.load(function(appInstance){
-                    appInstance.run(document.getElementById("netric-app"));
+                // Change the universal login to use local server
+                netric.server.universalLoginUri = "http://netric.myaereus.com";
+
+                netric.Application.load(function(app){
+                    app.run(document.getElementById("netric-app"));
                 });
             }
         </script>

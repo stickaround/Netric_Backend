@@ -2,7 +2,6 @@
 /**
  * Console interaction class
  *
- * @category    EntityDefinition
  * @author      Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright   Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
  */

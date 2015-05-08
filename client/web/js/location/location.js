@@ -7,13 +7,13 @@
 'use strict';
 
 var Hash = require("./adaptor/Hash.js");
-var path = require("./path");
+var locationPath = require("./path");
 
 /**
  * Create namespace for server settings
  */
 var location = {
-	path: path
+	path: locationPath
 };
 
 /**
@@ -43,9 +43,27 @@ location.adaptor_ = null;
 /**
  * Go to a path
  */
-location.go = function(path) {
+location.go = function(path, queryParams) {
+
+	if (typeof queryParams !== "undefined") {
+		path = this.path.withQuery(path, queryParams);
+	}
+
 	// Push the location to the current adaptor
 	this.getAdaptor().push(path);
+}
+
+/**
+ * Try to go back if there is anything in history
+ *
+ * @return bool true 
+ */
+location.goBack = function() {
+	if (typeof window != "undefined") {
+		window.history.back();
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -110,6 +128,17 @@ location.checkNav = function() {
  */
 location.triggerPathChange_ = function(path, type) {
 	alib.events.triggerEvent(this, "pathchange", {path:path, actionType:type});
+}
+
+/**
+ * Get the current path
+ * 
+ * @return {string}
+ */
+location.getCurrentPath = function() {
+	
+	var adaptor = this.getAdaptor();
+	return adaptor.getCurrentPath();
 }
 
 /**

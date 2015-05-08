@@ -46,7 +46,7 @@ class Account
      * 
      * @var Netric\Entity\ObjType\User
      */
-    private $currentUserOverride = null;
+    public $currentUserOverride = null;
     
     /**
      * Initialize netric account
@@ -157,7 +157,6 @@ class Account
     {
         $this->currentUserOverride = $user;
     }
-
     
     /**
      * Get user by id or name
@@ -211,5 +210,17 @@ class Account
                 
         // Get anonymous user
         return $loader->get("user", \Netric\Entity\ObjType\User::USER_ANONYMOUS);
+    }
+
+    /**
+     * Set account and username for a user's email address and username
+     *
+     * @param string $username The user name - unique to the account
+     * @param string $emailAddress The email address to pull from
+     * @return bool true on success, false on failure
+     */
+    public function setAccountUserEmail($username, $emailAddress)
+    {
+        return $this->application->setAccountUserEmail($this->getId(), $username, $emailAddress);
     }
 }

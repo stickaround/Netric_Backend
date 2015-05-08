@@ -65,6 +65,7 @@ class AuthenticationService
     const IDENTITY_NOT_FOUND = 'identityNotFound';
     const IDENTITY_AMBIGUOUS = 'identityAmbiguous';
     const CREDENTIAL_INVALID = 'credentialInvalid';
+    const IDENTITY_DISABLED  = 'identityDisabled';
     const UNCATEGORIZED      = 'uncategorized';
     const GENERAL            = 'general';
 
@@ -83,6 +84,7 @@ class AuthenticationService
     protected $messageTemplates = array(
         self::IDENTITY_NOT_FOUND => 'Invalid identity',
         self::IDENTITY_AMBIGUOUS => 'Identity is ambiguous',
+        self::IDENTITY_DISABLED  => 'User is no longer active',
         self::CREDENTIAL_INVALID => 'Invalid password',
         self::UNCATEGORIZED      => 'Authentication failed',
         self::GENERAL            => 'Authentication failed',
@@ -174,6 +176,16 @@ class AuthenticationService
 	}
 
 	/**
+	 * Get explanation for why authentication failed
+	 *
+	 * @return string
+	 */
+	public function getFailureReason()
+	{
+		return ($this->lastErrorMessage) ? $this->messageTemplates[$this->lastErrorMessage] : null;
+	}
+
+	/**
 	 * Clear authenticated identity
 	 */
 	public function clearIdentity()
@@ -203,7 +215,9 @@ class AuthenticationService
 
 		// Load the user by username
 		$query = new \Netric\EntityQuery("user");
-        $query->where('name')->equals(strtolower($username));
+		$query->where("active")->equals(true);
+        $query->andWhere('name')->equals(strtolower($username));
+        $query->orWhere('email')->equals(strtolower($username));
         $res = $this->userIndex->executeQuery($query);
         if (!$res->getTotalNum())
         {
@@ -213,6 +227,13 @@ class AuthenticationService
         else
         {
 	        $user = $res->getEntity(0);
+        }
+
+        // Make sure user is active
+        if (false == $user->getValue("active"))
+        {
+        	$this->lastErrorMessage = self::IDENTITY_DISABLED;
+			return null;
         }
 
 		// Get the salt
@@ -230,7 +251,7 @@ class AuthenticationService
 		$this->validatedIdentityUid = $user->getId();
 
 		// Create a session string
-		return $this->getSignedSession($user->getId(), self::DEFAULT_EXPIRES, $hashedPass, $salt);
+		return $this->getSignedSession($user->getId(), $this->getExpiresTs(), $hashedPass, $salt);
 	}
 
 	/**
@@ -260,16 +281,15 @@ class AuthenticationService
 		$authStr = $this->request->getParam("Authentication");
 		$authData = array();
 
-
 		// Extract the parts
-		$authData = exolode(":", $authStr);
+		$authData = explode(":", $authStr);
 
 		// Make sure all the required data is in place and no more
 		if (self::NUM_AUTH_PARAMS != count($authData))
 			return null;
 
 		// Appears to have a valid number of params
-		return $authStr;
+		return $authData;
 	}
 
 	/**
@@ -287,6 +307,19 @@ class AuthenticationService
 			self::SESSIONPART_PASSWORD => $password,
 		);
 		return implode(":", $sessionDataArr);
+	}
+
+	/**
+	 * Get expires seconds
+	 *
+	 * @return int Current timestamp plus number of seconds until it expires
+	 */
+	public function getExpiresTs()
+	{
+		if (self::DEFAULT_EXPIRES > 0)
+			return time() + self::DEFAULT_EXPIRES;
+		else
+			return -1;
 	}
 
 	/**

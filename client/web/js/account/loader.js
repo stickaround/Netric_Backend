@@ -58,7 +58,7 @@ loader.get = function(cbLoaded) {
 		request.setAsync(false);
 	}
 
-	request.send("/svr/account/get");
+	request.send("svr/account/get");
 
 	// If no callback then construct netric.account.Account from request date (synchronous)
 	if (!cbLoaded) {

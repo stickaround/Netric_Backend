@@ -3,7 +3,6 @@
  *
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  */
- alib.require("netric.Application");
 
 /**
  * Ant namespace
@@ -121,53 +120,56 @@ Ant.m_hHinstRef = new Array();
  */
 Ant.init = function(opt_callback)
 {
-	netric.Application.load(function(appInstance){
-        
-        Ant.isSessionLoaded_ = true; 
+	// Get current authenticated session information
+	var xhr = new alib.net.Xhr();
+	alib.events.listen(xhr, "load", function(evt) { 
 
-        // Set account
-        var account = appInstance.getAccount();
-        Ant.account.id = account.id;
-        Ant.account.name = account.name;
-        Ant.account.companyName = account.orgName;
+		Ant.isSessionLoaded_ = true; 
+		var resp = this.getResponse();
 
-        // Set user
-        if (account.user) {
-        	Ant.user.id = account.user.id;
-        	Ant.user.name = account.user.name;
-        	Ant.user.fullName = account.user.fullName;
-        }
+		// Set data
+		if (resp.account)
+		{
+			Ant.account.id = resp.account.id;
+			Ant.account.name = resp.account.name;
+			Ant.account.companyName = resp.account.companyName;
+		}
 
-        /*
-        TODO: Find out where we can load this from
-        if (resp.theme)
+		if (resp.user)
+		{
+			Ant.user.id = resp.user.id;
+			Ant.user.name = resp.user.name;
+			Ant.user.fullName = resp.user.fullName;
+		}
+
+		if (resp.theme)
 		{
 			Ant.theme.name = resp.theme.name;
 		}
-		*/
-    
-        // Callback
-        Ant.onload();
 
-        // Check for inline callback
+		// Callbacks
+		Ant.onload(resp);
+
+		// Check for inline callback
 		if (opt_callback) 
-			opt_callback(); 
+			opt_callback(resp); 
 
 		// Start keepalive
 		Ant.keepAlive();
+	});
+	xhr.send("/controller/User/getSession");
 
-		// Attach on resize event
-		Ant.antResizeTimer = null;
-		alib.dom.addEvent(window, "resize", function(){ 
-			if (Ant && !Ant.antResizeTimer)
-			{
-				Ant.antResizeTimer = window.setTimeout(function() {
-					try{ Ant.resizeActiveApp(); } catch(e) {};
-					Ant.antResizeTimer = null;
-				}, 1000); // Delay for a second so we don't kill the CPU
-			}
-		});
-    });
+	// Attach on resize event
+	this.antResizeTimer = null;
+	alib.dom.addEvent(window, "resize", function(){ 
+		if (Ant && !Ant.antResizeTimer)
+		{
+			Ant.antResizeTimer = window.setTimeout(function() {
+				try{ Ant.resizeActiveApp(); } catch(e) {};
+				Ant.antResizeTimer = null;
+			}, 1000); // Delay for a second so we don't kill the CPU
+		}
+	});
 }
 
 /**

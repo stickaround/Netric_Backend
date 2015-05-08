@@ -220,8 +220,6 @@ class Dacl
 	 */
 	public function allowUser($USERID, $permission="Full Control")
 	{
-		$dbh = $this->dbh;
-
 		if ("Full Control" == $permission)
 		{
 			foreach ($this->entries as $ent)
@@ -251,11 +249,9 @@ class Dacl
 	 */
 	public function allowGroup($gid, $permission="Full Control")
 	{
-		$dbh = $this->dbh;
-
 		// Add specific permission
 		if (!isset($this->entries[$permission]))
-			$this->entries[$permission] = new Netric\Permissions\Dacl\Entry();
+			$this->entries[$permission] = new Dacl\Entry();
 
 		// Grant group access
 		$ent = $this->entries[$permission];
@@ -282,8 +278,6 @@ class Dacl
 	 */
 	public function denyUser($uid, $permission="Full Control")
 	{
-		$dbh = $this->dbh;
-
 		if ($this->entries[$permission])
 		{
 			for ($i = 0; $i < count($this->entries[$permission]->users); $i++)
@@ -302,8 +296,6 @@ class Dacl
 	 */
 	public function denyGroup($gid, $permission="Full Control")
 	{
-		$dbh = $this->dbh;
-
 		if ($this->entries[$permission])
 		{
 			for ($i = 0; $i < count($this->entries[$permission]->groups); $i++)
@@ -329,7 +321,7 @@ class Dacl
 		$granted = false;
 		$groups = $user->getGroups();
 		if ($isowner)
-			$groups[] = GROUP_CREATOROWNER; // Add to Creator/Owner group
+			$groups[] = User::GROUP_CREATOROWNER; // Add to Creator/Owner group
 
 		// Sometimes used for user-specific objects like calendars
 		if ($ignoreadmin)
@@ -337,7 +329,7 @@ class Dacl
 			$tmp_groups = array();
 			foreach ($groups as $gid)
 			{
-				if ($gid != GROUP_ADMINISTRATORS) // Admin
+				if ($gid != User::GROUP_ADMINISTRATORS) // Admin
 					$tmp_groups[] = $gid;
 			}
 			unset($groups);
@@ -444,8 +436,6 @@ class Dacl
 	 */
 	public function removeInheritFrom()
 	{
-		$dbh = $this->dbh;
-        
         $this->inheritFrom = null;
 
 		return true;

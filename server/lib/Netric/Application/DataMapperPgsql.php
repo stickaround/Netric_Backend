@@ -143,4 +143,67 @@ class DataMapperPgsql implements DataMapperInterface
         
         return $ret;
     }
+
+    /**
+     * Get account and username from email address
+     *
+     * @param string $emailAddress The email address to pull from
+     * @return array("account"=>"accountname", "username"=>"the login username")
+     */
+    public function getAccountsByEmail($emailAddress)
+    {
+        $ret = array();
+
+        // All email addresses are stored in lower case
+        $emailAddress = strtolower($emailAddress);
+
+        // Check accounts for a username matching this address
+        $result = $this->dbh->query("SELECT accounts.name as account, account_users.username 
+                                     FROM accounts, account_users WHERE
+                                        accounts.id=account_users.account_id AND 
+                                        account_users.email_address='" . $this->dbh->escape($emailAddress) . "';");
+        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++)
+        {
+            $row = $this->dbh->getRow($result, $i);
+            $ret[] = array(
+                'account' => $row['account'],
+                'username' => $row['username'],
+            );
+        }
+        $this->dbh->freeResults($result);
+
+        return $ret;
+    }
+
+    /**
+     * Set account and username from email address
+     *
+     * @param int $accountId The id of the account user is interacting with
+     * @param string $username The user name - unique to the account
+     * @param string $emailAddress The email address to pull from
+     * @return bool true on success, false on failure
+     */
+    public function setAccountUserEmail($accountId, $username, $emailAddress)
+    {
+        $ret = false;
+
+        if (!is_numeric($accountId) || !$username)
+            return $ret;
+
+        // Delete any existing entries for this user name attached to this account
+        $this->dbh->query("DELETE FROM account_users WHERE account_id='$accountId' AND 
+                                    username='" . $this->dbh->escape($username) . "'");
+
+        // Insert into account_users table
+        if ($emailAddress)
+        {
+            $ret = $this->dbh->query("INSERT INTO account_users(account_id, email_address, username)
+                                      VALUES(
+                                        '$accountId', '" . $this->dbh->escape($emailAddress) . "', 
+                                        '" . $this->dbh->escape($username) . "'
+                                      );");
+        }
+
+        return $ret;
+    }
 }

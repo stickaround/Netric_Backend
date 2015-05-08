@@ -10,10 +10,8 @@ class AccountController extends Mvc\AbstractController
 {
 	/**
 	 * Get the definition of an account
-	 * 
-	 * @param array $params Array of params from get > post > cookie
 	 */
-	public function get($params=array())
+	public function get()
 	{
 		$ret = array(
 			"id" => $this->account->getId(),

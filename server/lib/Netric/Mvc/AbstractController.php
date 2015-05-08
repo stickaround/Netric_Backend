@@ -68,6 +68,34 @@ abstract class AbstractController
 	public function init() {}
 
 	/**
+	 * Get the request object
+	 *
+	 * @return \Netric\Request\RequestInterface
+	 */
+	public function getRequest()
+	{
+		return $this->request;
+	}
+
+	/**
+	 * Determine what users can access actions in the concrete controller
+	 *
+	 * This can easily be overridden in derrived controllers to allow custom access per controller
+	 * or each action can handle its own access controll list if desired.
+	 *
+	 * @return \Netric\Permissions\Dacl
+	 */
+	public function getAccessControlList()
+	{
+		$dacl = new \Netric\Permissions\Dacl();
+
+		// By default allow authenticated users to access a controller
+		$dacl->allowGroup(\Netric\Entity\ObjType\User::GROUP_USERS);
+
+		return $dacl;
+	}
+
+	/**
 	 * Print data to the browser. If debug, just cache data
 	 *
 	 * @param string $data The data to data to the browser or store in buffer

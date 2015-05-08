@@ -43,9 +43,11 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
 
     public function testLoadById()
     {
+        $application = $this->account->getApplication();
+
         // First reset cache to make sure the mapper is setting it correctly
         $this->cache->delete("netric/account/" . $this->account->getId());
-
+        
         // Setup Reflection Methods
         $refIm = new \ReflectionObject($this->mapper);
         $loadFromCache = $refIm->getMethod("loadFromCache");
@@ -66,8 +68,7 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($loadFromMemory->invokeArgs($this->mapper, $args));
 
         // Test loading existing account which should cache it
-        $testAccount = new Netric\Account($this->account->getApplication());
-        $this->assertTrue($this->mapper->loadById($this->account->getId(), $testAccount));
+        $testAccount = $this->mapper->loadById($this->account->getId(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
 
         // Make sure cache returns true
@@ -76,15 +77,14 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
 
         // Make sure memory returns true
         $args = array($this->account->getId(), &$this->account);
-        $this->assertTrue($loadFromMemory->invokeArgs($this->mapper, $args));
+        $this->assertNotNull($loadFromMemory->invokeArgs($this->mapper, $args));
 
         // Unset the datamapper so we can test memory and cache
         $propAppDm->setValue($this->mapper, null);
 
         // Make sure we are loading from memory by disabling the cache
         $propCache->setValue($this->mapper, null);
-        $testAccount = new Netric\Account($this->account->getApplication());
-        $this->assertTrue($this->mapper->loadById($this->account->getId(), $testAccount));
+        $testAccount =$this->mapper->loadById($this->account->getId(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
         $propCache->setValue($this->mapper, $this->cache); // re-enable
 
@@ -92,18 +92,19 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
         $loadedAccounts = $refIm->getProperty("loadedAccounts");
         $loadedAccounts->setAccessible(true);
         $loadedAccounts->setValue($this->mapper, null);
-        $this->assertTrue($this->mapper->loadById($this->account->getId(), $testAccount));
+        $testAccount = $this->mapper->loadById($this->account->getId(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
     }
 
     public function testLoadByName()
     {
+        $application = $this->account->getApplication();
+
         // First reset cache to make sure the mapper is setting it correctly
         $this->cache->delete("netric/account/nametoidmap/" . $this->account->getName());
 
         // Test loading existing account which should cache it
-        $testAccount = new Netric\Account($this->account->getApplication());
-        $this->assertTrue($this->mapper->loadByName($this->account->getName(), $testAccount));
+        $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
 
         // Check local memory map
@@ -121,15 +122,13 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
         $propCache = new \ReflectionProperty($this->mapper, "cache");
         $propCache->setAccessible(true);
         $propCache->setValue($this->mapper, null);
-        $testAccount = new Netric\Account($this->account->getApplication());
-        $this->assertTrue($this->mapper->loadByName($this->account->getName(), $testAccount));
+        $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
 
         // Make sure the cache is working by disabling local memory cache
         $propCache->setValue($this->mapper, $this->cache);
         $propNameToIdMap->setValue($this->mapper, null);
-        $testAccount = new Netric\Account($this->account->getApplication());
-        $this->assertTrue($this->mapper->loadByName($this->account->getName(), $testAccount));
+        $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
     }
 }
