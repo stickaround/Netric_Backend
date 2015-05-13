@@ -63,12 +63,12 @@ if ($ret == false)
  * Add default user to the new account
  */
 $ant = new Ant($ret['id']);
-$user = $ant->createUser("test", "test");
+$user = $ant->createUser("test@myaereus.com", "test");
 if (!$user)
 	echo "Error creating user: ".$ant->lastError."\n\n";
 $user->addToGroup(GROUP_ADMINISTRATORS);
 
-echo "\nCreated initial user with username='test' and password='test'\n";
+echo "\nCreated initial user with username='test@myaereus.com' and password='test'\n";
 
 /**
  * Inform the user that we are done

@@ -310,7 +310,8 @@ class AntUser
 	 */
 	public function setPassword($password)
 	{
-		$this->userObj->setValue("password", md5($password));
+		// We do not need to hash it here because the new user entity will hash
+		$this->userObj->setValue("password", $password);
 	}
 
 	/**

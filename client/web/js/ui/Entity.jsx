@@ -90,7 +90,11 @@ var Entity = React.createClass({
                         entity={this.props.entity}
                         editMode={this.state.editMode} />
                 </div>
-                <Dialog ref='confirm' title="Cancel Changes" actions={confirmActions}>
+                <Dialog 
+                    ref='confirm' 
+                    title="Cancel Changes" 
+                    actions={confirmActions} 
+                    modal={true}>
                   This will undo any changes you made.
                 </Dialog>
             </div>

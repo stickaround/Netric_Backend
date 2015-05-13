@@ -9,6 +9,7 @@ require_once(dirname(__FILE__).'/../lib/AntSystem.php');
 require_once(dirname(__FILE__).'/../lib/AntFs.php');
 require_once(dirname(__FILE__).'/../lib/Social.php');
 require_once(dirname(__FILE__).'/../lib/AntChat.php');
+require_once('lib/ServiceLocatorLoader.php');
 
 /**
 * Class for controlling User functions
@@ -317,15 +318,15 @@ class UserController extends Controller
             // check password if correct
             if ($params['currentPassword'] && $params['newPassword'] && $params['verifyPassword'])
             {
+                // Get new netric authentication service
+                $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+                $authService = $sl->get("AuthenticationService");
+
+                // TODO: change this to the authservice
                 $currentPassword = $params['currentPassword'];
-                $query = "select password from users where
-                        id = '" . $this->user->id . "' and (password = md5('$currentPassword') or password = '$currentPassword')";
-                $result = $dbh->Query($query);
-                $num = $dbh->GetNumberRows($result);
-                $dbh->FreeResults($result);
-                
-                
-                if($num > 0)
+
+                $ret = $authService->authenticate($this->user->name, $params['currentPassword']);
+                if($ret)
                 {
                     if($params['newPassword'] !== $params['verifyPassword'])
                         $ret = array("error"=>"New Password and Verify Password didnt match. New password was not applied.", "errorId" => 2);
@@ -333,12 +334,12 @@ class UserController extends Controller
                 else
                     $ret = array("error"=>"Invalid current password. New password was not applied.", "errorId" => 3);
             }
-                
+
             if(empty($ret))
             {
 				$this->user->setValue("full_name", $params['fullName']);
 				$this->user->setValue("timezone", $params['timezone']);
-				$this->user->setValue("phone", $params['phone']);
+				$this->user->setValue("phone_mobile", $params['phone_mobile']);
 				$this->user->setValue("image_id", $params['imageId']);
                 $this->user->setValue("theme", $params['theme']);
 				$this->user->setValue("email", $params['email']);
@@ -348,7 +349,7 @@ class UserController extends Controller
 				$this->user->setValue("phone_ext", $params['officeExt']);
                 
                 if(!empty($params['newPassword']))
-				    $this->user->setValue("password", md5($params['newPassword']));
+				    $this->user->setValue("password", $params['newPassword']);
                 
 				$this->user->save();
 

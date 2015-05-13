@@ -52,7 +52,14 @@ class User extends \Netric\Entity implements \Netric\Entity\EntityInterface
             $authService = $sm->get("/Netric/Authentication/AuthenticationService");
             $this->encryptPassword($authService);
         }
+
+        // Check to see if the username is an email and copy to email if empty
+        if (!$this->getValue("email") && strpos($this->getValue("name"), "@"))
+        {
+            $this->setValue("email", $this->getValue("name"));
+        }
     }
+
 
     /**
      * Callback function used for derrived subclasses

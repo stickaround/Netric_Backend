@@ -8,6 +8,7 @@
 
 var BackendRequest = require("../BackendRequest");
 var Account = require("../account/Account");
+var localData = require("../localData");
 
 /**
  * Global module loader
@@ -36,6 +37,9 @@ loader.accountCache_ = null;
  */
 loader.get = function(cbLoaded) {
 	
+	if (typeof cbLoaded == "undefined")
+		var cbLoaded = null;
+
 	// Return (or callback callback) cached account if already loaded
 	if (this.accountCache_ != null) {
 		
@@ -46,11 +50,57 @@ loader.get = function(cbLoaded) {
 		return this.accountCache_;
 	}
 
+	return this.getFromLocalDb_(cbLoaded);
+}
+
+/**
+ * Get an account from the local database cache
+ *
+ * @param {function} cbLoaded Callback function once account is loaded
+ */
+loader.getFromLocalDb_ = function(cbLoaded) {
+	
+	if (typeof cbLoaded == "undefined")
+		var cbLoaded = null;
+
+	// If no callback was sent and we are forcing async then go to server
+	if (!cbLoaded)
+		return this.getFromServer_(null);
+	
+	// First try to get from local store
+	localData.dbGetItem("account", function(err, val){
+		if (val) {
+			// Create/update the account
+			var account = loader.createAccountFromData(val);
+
+			// Call finished callback
+			cbLoaded(account);
+
+			// Load from the server anyway to get updates
+			this.getFromServer_(function(){ });
+		} else {
+			this.getFromServer_(cbLoaded);
+		}
+	}.bind(this));
+}
+
+/**
+ * Get an account from the server
+ *
+ * @param {function} cbLoaded Callback function once account is loaded
+ */
+loader.getFromServer_ = function(cbLoaded) {
 	var request = new BackendRequest();
 
 	if (cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
+			// Create/update the account
 			var account = loader.createAccountFromData(this.getResponse());
+			
+			// Save in local db
+			localData.dbSetItem("account", this.getResponse(), function(err, val){});
+
+			// Call finished callback
 			cbLoaded(account);
 		});
 	} else {
@@ -73,11 +123,18 @@ loader.get = function(cbLoaded) {
  */
 loader.createAccountFromData = function(data) {
 
-	// Construct account and initialize with data	
-	var account = new Account(data);
+	if (!this.accountCache_) {
+		// Construct account and initialize with data	
+		var account = new Account(data);
+		
+		// Cache it for future requests
+		this.accountCache_ = account;
+	} else {
+		// Update
+		this.accountCache_.loadData(data);
+	}
+
 	
-	// Cache it for future requests
-	this.accountCache_ = account;
 
 	return this.accountCache_;
 }

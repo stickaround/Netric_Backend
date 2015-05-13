@@ -36,9 +36,10 @@ var Field = React.createClass({
         var classes = "entity-form-field";
         if (xmlNode.getAttribute('class')) {
             classes += " font-style-" + xmlNode.getAttribute('class');
+        } else if (!this.props.editMode) {
+            classes += " font-style-body-1";
         }
 
-		
         var fieldContent = null;
 
         var field = this.props.entity.def.getField(fieldName);

@@ -27,7 +27,7 @@
       cursor: pointer;
       padding-top: 7px;
       padding-bottom: 7px;
-      @extend %font-style-body-1;
+      @extend .font-style-body-1;
     }
 
     td:first-child {
@@ -42,7 +42,7 @@
     }
 
     td.entity-browser-item-trow-name {
-      @extend %font-style-body-2;
+      @extend .font-style-body-2;
     }
   }
 
@@ -94,7 +94,7 @@
       flex: 1;
 
       .entity-browser-item-cmp-header {
-        @extend %font-style-subhead-1;
+        @extend .font-style-subhead-1;
         line-height: 17px;
         padding-top: 0px;
         margin-bottom: 0px;
@@ -102,14 +102,14 @@
       }
 
       .entity-browser-item-cmp-subheader {
-        @extend %font-style-body-1;
+        @extend .font-style-body-1;
         line-height: 15px;
         padding-top: 0px;
         margin-bottom: 0px;
       }
 
       .entity-browser-item-cmp-caption {
-        @extend %font-style-caption;
+        @extend .font-style-caption;
         line-height: 14px;
         padding-top: 0px;
         margin-bottom: 0px;

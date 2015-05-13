@@ -25,7 +25,7 @@ var Account = function(opt_data) {
 	 * @public
 	 * @type {string}
 	 */
-	this.id = initData.id || "";
+	this.id = "";
 
 	/**
 	 * Unique account name
@@ -33,7 +33,7 @@ var Account = function(opt_data) {
 	 * @public
 	 * @type {string}
 	 */
-	this.name = initData.name || "";
+	this.name = "";
 
 	/**
 	 * Organization name
@@ -41,7 +41,7 @@ var Account = function(opt_data) {
 	 * @public
 	 * @type {string}
 	 */
-	this.orgName = initData.orgName || "";
+	this.orgName = "";
 
 	/**
 	 * The default module to load
@@ -49,7 +49,7 @@ var Account = function(opt_data) {
 	 * @public
 	 * @type {string}
 	 */
-	this.defaultModule = initData.defaultModule || "home";
+	this.defaultModule = "home";
 
 	/**
 	 * Currently authenticated user
@@ -57,13 +57,11 @@ var Account = function(opt_data) {
 	 * @public
 	 * @type {netric.User}
 	 */
-	this.user = (initData.user) ? new user(initData.user) : null;
+	this.user = null;
 
-	/**
-	 * If modules have been pre-loaded in the application data then set
-	 */
-	if (initData.modules)
-		moduleLoader.preloadFromData(initData.modules);
+	// If data was passed in then load it
+	if (initData)
+		this.loadData(initData);
 }
 
 /**
@@ -73,6 +71,30 @@ var Account = function(opt_data) {
  */
 Account.prototype.getUser = function() {
 	return this.user;
+}
+
+/**
+ * Load data
+ *
+ * If we are loading in array form that means that properties are not camel case
+ * 
+ * @param {Object} data
+ */
+Account.prototype.loadData = function(data) {
+	this.id = data.id || "";
+	this.name = data.name || "";
+	this.orgName = data.orgName || "";
+	this.defaultModule = data.defaultModule || "home";
+	this.user = (data.user) ? new user(data.user) : null;
+
+	/*
+	 * If modules have been pre-loaded in the application data then set
+	 */
+	if (data.modules)
+		moduleLoader.preloadFromData(data.modules);
+
+	// Trigger onchange event to alert any observers that this value has changed
+	alib.events.triggerEvent(this, "change");
 }
 
 module.exports = Account;

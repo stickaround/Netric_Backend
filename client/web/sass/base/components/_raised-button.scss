@@ -50,7 +50,7 @@
 
   .raised-button-label {
     position: relative;
-    @extend %font-style-button;
+    @extend .font-style-button;
     margin: 0;
     padding: 0 $desktop-gutter-less;
     user-select: none;

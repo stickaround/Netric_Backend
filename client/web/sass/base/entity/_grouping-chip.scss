@@ -5,5 +5,5 @@
 	padding: 0 5px 0 5px;
 	border: 1px solid $border-color;
 
-	@extend %font-style-caption;
+	@extend .font-style-caption;
 }

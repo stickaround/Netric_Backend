@@ -1,3 +1,7 @@
+// Reset and dependencies
+@import "resets/normalize";
+@import "resets/typography-resets";
+
 // Core variables and mixins
 @import "variables/colors";
 @import "variables/spacing";
@@ -5,10 +9,6 @@
 
 // Common mixins
 @import "mixins/mixins";
-
-// Reset and dependencies
-@import "resets/normalize";
-@import "resets/typography-resets";
 
 // Core CSS
 @import "core/core";

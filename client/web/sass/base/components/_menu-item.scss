@@ -43,7 +43,7 @@
     vertical-align: top;
     top: -12px;
     position: relative;
-    @extend %font-weight-light;
+    @extend .font-weight-light;
   }
 
   .muidocs-icon-custom-arrow-drop-right {

@@ -9,7 +9,7 @@
 		margin: 0 $gutter 0 $gutter;
 	}
 
-  .entity-form-row {
+	.entity-form-row {
 		/*display: -webkit-box;
 		display: -moz-box;*/
 		display: -ms-flexbox;
@@ -19,11 +19,11 @@
 		.entity-form-column {
 			flex: 1 100%;
 		}
-  }
+	}
 
-  .entity-form-field {
-  	/*
-  	display: -webkit-box;
+	.entity-form-field {
+		/*
+		display: -webkit-box;
 		display: -moz-box;
 
 		display: -ms-flexbox;
@@ -41,6 +41,10 @@
 			
 		}
 		*/
-  }
+	}
+
+	hr {
+		margin-bottom: 7px;
+	}
 
 }

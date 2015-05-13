@@ -1,7 +1,7 @@
 .flat-button {
 
   @include ease-out();
-  @extend %font-style-button;
+  @extend .font-style-button;
   border-radius: 2px;
   user-select: none;
 
