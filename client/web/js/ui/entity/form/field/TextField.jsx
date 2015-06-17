@@ -87,7 +87,7 @@ var TextField = React.createClass({
       /*
        * Transform fieldValue for display
        */
-      if (rich) {
+      if (rich && fieldValue) {
         var re = new RegExp ("\n", 'gi') ;
         fieldValue = fieldValue.replace(re, "<br />");
       }

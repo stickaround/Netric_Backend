@@ -1,0 +1,51 @@
+/**
+ * AppBar used for browse mode
+ *
+ * @jsx React.DOM
+ */
+'use strict';
+
+var React = require('react');
+var IconButton = require("../IconButton.jsx");
+
+/**
+ * Module shell
+ */
+var AppBarBrowse = React.createClass({
+
+    propTypes: {
+        onPerformAction: React.PropTypes.func,
+        // Entity actions to perform when selected
+        actions: React.PropTypes.array
+    },
+
+    getDefaultProps: function() {
+        return {
+            onPerformAction: null
+        };
+    },
+
+    render: function() {
+
+        var icons = [];
+        for (var i in this.props.actions) {
+            var act = this.props.actions[i];
+            icons.push(
+                <IconButton
+                    iconClassName={act.iconClassName}
+                    onTouchTap={this.handleActionClick_.bind(this, act.name)}>
+                </IconButton>
+            );
+        }
+
+        return (<div>{icons}</div>);
+    },
+
+    handleActionClick_: function(actionName) {
+        if (this.props.onPerformAction) {
+            this.props.onPerformAction(actionName);
+        }
+    }
+});
+
+module.exports = AppBarBrowse;

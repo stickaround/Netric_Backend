@@ -110,6 +110,15 @@ describe("Get and Set Entity Values", function() {
 		expect(entity.getValueName("categories", catId)).toEqual(catName);
 	});
 
+	it("should be able to remove fkey_multi fields", function() {
+		var catName = "My Third Test Value";
+		var catId = 3; 
+		entity.addMultiValue("categories", catId, catName);
+		expect(entity.getValue("categories")).toContain(catId);
+		expect(entity.remMultiValue("categories", catId)).toBeTruthy();
+		expect(entity.getValue("categories")).not.toContain(catId);
+	});
+
 	it("should loadData for *_multi fields", function() {
 		var catName = "My Test Value";
 		var catId = 2; 

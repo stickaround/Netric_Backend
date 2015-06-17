@@ -1,0 +1,33 @@
+{
+    "obj_type": "customer",
+    "field_name": "groups",
+    "filter": [],
+    "groups": [
+        {
+            "id": "123",
+            "name": "First Group",
+            "uname": "first-group",
+            "is_heiarch": true,
+            "is_system": true,
+            "parent_id": null,
+            "color": "000000",
+            "sort_order": 0,
+            "commit_id": 1234,
+            "filter_fields": "",
+            "children": []
+        },
+        {
+            "id": "321",
+            "name": "Second Group",
+            "uname": "second-group",
+            "is_heiarch": true,
+            "is_system": true,
+            "parent_id": null,
+            "color": "000000",
+            "sort_order": 0,
+            "commit_id": 1234543,
+            "filter_fields": "",
+            "children": []
+        }
+    ]
+}

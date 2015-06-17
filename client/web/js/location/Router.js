@@ -134,16 +134,28 @@ Router.prototype.getParentRouter = function() {
 }
 
 /**
+ * Get the active path leading up to but NOT including this router
+ *
+ * @return {string} Full path
+ */
+Router.prototype.getBasePath = function() {
+	var basePath = "";
+
+	if (this.getParentRouter()) {
+		basePath = this.getParentRouter().getActivePath();
+	}
+
+
+	return basePath;
+}
+
+/**
  * Get the active path leading up to and including this router
  *
  * @return {string} Full path
  */
 Router.prototype.getActivePath = function() {
-	var pre = "";
-
-	if (this.getParentRouter()) {
-		pre = this.getParentRouter().getActivePath();
-	}
+	var pre = this.getBasePath();
 
 	if (pre && pre != "/") {
 		pre += "/";
@@ -183,10 +195,11 @@ Router.prototype.go = function(path) {
 
 	/*
 	 * No match was found. Check to see if there is a default that is 
-	 * differed (circular calls to self = bad),
+	 * different than the current path (circular calls to self = bad),
 	 */
 	if (this.defaultRoute_ && this.defaultRoute_ != path) {
-		return this.go(this.defaultRoute_);
+		return this.goToDefaultRoute();
+		//return this.go(this.defaultRoute_);
 	}
 
 	return false;
@@ -286,7 +299,7 @@ Router.prototype.goToDefaultRoute = function() {
 
 	if (this.defaultRoute_) {
 		// Get the base path
-		var basePath = this.getActivePath();
+		var basePath = this.getBasePath();
 		if (basePath != "/") {
 			basePath += "/";
 		}

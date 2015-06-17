@@ -184,6 +184,7 @@ EntityController.prototype.close = function() {
         this.unload();
     } else if (this.getParentController()) {
         var path = this.getParentController().getRoutePath();
+        console.log("Controller going back to:", path);
         netric.location.go(path);
     } else {
         window.close();
@@ -210,7 +211,9 @@ EntityController.prototype.revertChanges = function() {
 
     // TODO: save the entity
     console.log("Undo changes");
-    
+
+    if (!this.entity_.id)
+        this.close();
 }
 
 module.exports = EntityController;

@@ -153,6 +153,7 @@ var Menu = React.createClass({
   },
 
   componentDidUpdate: function(prevProps, prevState) {
+
     if (this.props.visible !== prevProps.visible) this._renderVisibility();
   },
 
@@ -258,14 +259,19 @@ var Menu = React.createClass({
     return children;
   },
 
-  _setKeyWidth: function(el) {
+  _setKeyWidth  : function(el) {
     var menuWidth = this.props.autoWidth ?
       KeyLine.getIncrementalDim(el.offsetWidth) + 'px' :
       '100%';
 
     //Update the menu width
     Dom.withoutTransition(el, function() {
-      el.style.width = menuWidth;
+        // Changed the below to use auto width because
+        // it was causing text to extnd beyond the menu
+        // if items were added after the fact.
+        // - Sky Stebnicki
+        // el.style.width = menuWidth;
+        el.style.width = "auto";
     });
   },
 
@@ -277,9 +283,16 @@ var Menu = React.createClass({
       var innerContainer = this.refs.paperContainer.getInnerContainer().getDOMNode();
       
       if (this.props.visible) {
+        // Update the width
+        this._setKeyWidth(el);
 
         //Open the menu
-        el.style.height = this._initialMenuHeight + 'px';
+          /*
+          This was not dealing with added menu items well at all. Changed the height
+          to auto to fix the problems.
+          - Sky Stebnicki
+           */
+        el.style.height = "auto"; //this._initialMenuHeight + 'px';
 
         //Set the overflow to visible after the animation is done so
         //that other nested menus can be shown

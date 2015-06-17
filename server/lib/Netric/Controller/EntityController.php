@@ -14,7 +14,7 @@ class EntityController extends Mvc\AbstractController
 	}
 
 	/**
-	 * Get the definition of an entity
+	 * Get the definition (metadata) of an entity
      *
      * @param array $params Associative array of request params
 	 */
@@ -264,6 +264,53 @@ class EntityController extends Mvc\AbstractController
         else
         {
             return $this->sendOutput(array("error"=>"Error saving: " . $dataMapper->getLastError()));
+        }
+    }
+
+    /**
+     * Get groupings for an object
+     *
+     * @param array $params Associative array of request params
+     */
+    public function getGroupings($params=array())
+    {
+        $objType = $this->request->getParam("obj_type");
+        $fieldName = $this->request->getParam("field_name");
+        $filterString = $this->request->getParam("filter");
+
+        if (!$objType || !$fieldName)
+        {
+            return $this->sendOutput(array("error"=>"obj_type & field_name are required params"));
+        }
+
+        // If filter was passed then decode it as an array
+        $filterArray = ($filterString) ? json_decode($filterString) : array();
+
+        // Get the service manager and current user
+        $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
+
+        // If this is a private object then send the current user as a filter
+        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
+        if ($def->isPrivate && !count($filterArray))
+        {
+            $filterArray['user_id'] = $this->account->getUser()->getId();
+        }
+        
+        // Get all groupings from the loader
+        $groups = $loader->get($objType, $fieldName, $filterArray);
+
+        if ($groups)
+        {
+            return $this->sendOutput(array(
+                "obj_type" => $objType,
+                "field_name" => $fieldName,
+                "filter" => $filterArray,
+                "groups"=> $groups->toArray()
+            ));
+        }
+        else
+        {
+            return $this->sendOutput(array("error"=>"No groupings found for specified obj_type and field"));
         }
     }
 }

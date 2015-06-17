@@ -101,6 +101,14 @@
 
       }
 
+      .entity-browser-item-cmp-time {
+        @extend .font-style-caption;
+        padding: 0;
+        margin: 0;
+        float: right;
+
+      }
+
       .entity-browser-item-cmp-subheader {
         @extend .font-style-body-1;
         line-height: 15px;
@@ -112,7 +120,9 @@
         @extend .font-style-caption;
         line-height: 14px;
         padding-top: 0px;
-        margin-bottom: 0px;
+        margin: 3px 0;
+        white-space: nowrap;
+        overflow: hidden;
       }
     }
   }
@@ -136,8 +146,8 @@
    */
   &.selected,
   &.selected:hover{
-    background-color:#00b2d9;
-    color:#fff;
+    background-color:#e3e3e3;
+    color:#000;
   }
 
   /**

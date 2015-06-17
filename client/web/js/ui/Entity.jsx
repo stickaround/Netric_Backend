@@ -21,6 +21,7 @@ var Entity = React.createClass({
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         onSaveClick: React.PropTypes.func,
+        onPerformAction: React.PropTypes.func,
         onCancelChanges: React.PropTypes.func,
     },
 
@@ -140,8 +141,9 @@ var Entity = React.createClass({
         // Hide the dialog
         this.refs.confirm.dismiss();
 
-        // Go back to view mode
-        this.editModeClick_(null);
+        // Go back to view mode if we are editing an existing entity
+        if (this.props.entity.id)
+            this.editModeClick_(null);
 
         // Notify the parent (probably a controller)
         if (this.props.onCancelChanges) {

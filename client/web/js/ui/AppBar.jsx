@@ -37,7 +37,7 @@ var AppBar = React.createClass({
 	render: function() {
 
 		// Set the back/menu button
-		if (this.props.onNavBtnClick) {
+		if (this.props.onNavBtnClick || this.props.iconElementLeft) {
 
             if (this.props.iconElementLeft) {
                 menuElementLeft = (
@@ -83,6 +83,7 @@ var AppBar = React.createClass({
                 <div className="app-bar-toolbar">
                     {menuElementRight}
                 </div>
+                <div className="clear" />
             </Paper>
 		);
 	}

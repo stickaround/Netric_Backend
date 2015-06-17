@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var Checkbox = require("../Checkbox.jsx");
 
 /**
  * Module shell
@@ -19,21 +20,33 @@ var ListItem = React.createClass({
             classes += " selected";
         }
         var headerText = entity.getName();
+        var headerTime = entity.getTime();
         var snippet = entity.getSnippet();
+        var actors = entity.getActors();
+
+        var actorsUi = null;
+        if (actors) {
+            actorsUi = (
+                <div className="entity-browser-item-cmp-subheader">
+                    {actors}
+                </div>
+            );
+        }
 
         return (
             <div className={classes}>
                 <div className="entity-browser-item-cmp-icon">
-                    <input type="checkbox" checked={this.props.selected} onChange={this.toggleSelected} />
+                    <Checkbox checked={this.props.selected} onCheck={this.toggleSelected} />
                 </div>
                 <div className="entity-browser-item-cmp-body"
                     onClick={this.props.onClick}>
                     <div className="entity-browser-item-cmp-header">
                         {headerText}
+                        <div className="entity-browser-item-cmp-time">
+                            {headerTime}
+                        </div>
                     </div>
-                    <div className="entity-browser-item-cmp-subheader">
-                        From Here
-                    </div>
+                    {actorsUi}
                     <div className="entity-browser-item-cmp-caption">
                         {snippet}
                     </div>

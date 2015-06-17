@@ -118,9 +118,10 @@ $radio-button-required-color: $primary-1-color !default;
 $radio-button-disabled-color: $disabled-color !default;
 
 // checkbox
-$checkbox-box-background-color: white !default;
-$checkbox-box-border-color: black !default;
-$checkbox-check-color: green !default;
+$checkbox-box-color: $body-text-color !default;
+$checkbox-checked-color: $primary-1-color !default;
+$checkbox-required-color: $primary-1-color !default;
+$checkbox-disabled-color: $disabled-color !default;
 
 // toast
 $mui-toast-color: white !default;

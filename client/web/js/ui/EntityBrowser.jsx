@@ -6,57 +6,50 @@
 'use strict';
 
 var React = require('react');
-var AppBar = require("./AppBar.jsx");
 var List = require("./entitybrowser/List.jsx");
+var IconButton = require("./IconButton.jsx");
+var AppBarBrowse = require("./entitybrowser/AppBarBrowse.jsx");
 
 /**
  * Module shell
  */
 var EntityBrowser = React.createClass({
 
-    propTypes: {
-        onEntityListClick: React.PropTypes.func,
-        onEntityListSelect: React.PropTypes.func,
-        layout : React.PropTypes.string,
-        entities: React.PropTypes.array,
-        selectedEntities: React.PropTypes.array
-    },
-
-    getDefaultProps: function() {
-        return {
-            layout: '',
-            entities: [],
-            selectedEntities: []
-        }
-    },
-
-  getInitialState: function() {
-    return {name: "Browser"};
+  propTypes: {
+      onEntityListClick: React.PropTypes.func,
+      onEntityListSelect: React.PropTypes.func,
+      onPerformAction: React.PropTypes.func,
+      layout : React.PropTypes.string,
+      title : React.PropTypes.string,
+      actionHandler : React.PropTypes.object,
+      entities: React.PropTypes.array,
+      deviceSize: React.PropTypes.number,
+      selectedEntities: React.PropTypes.array
   },
 
-  /*
-  componentDidMount: function() {
-
-    netric.module.loader.get("messages", function(mdl){
-      this.setState({name: mdl.name});
-    }.bind(this));
+  getDefaultProps: function() {
+      return {
+          layout: '',
+          title: "Browser",
+          entities: [],
+          selectedEntities: []
+      }
   },
-  */
 
   render: function() {
-
-    var appBar = "";
-
-    if (this.props.onNavBtnClick) {
-        appBar = <AppBar title={this.state.name} onNavBtnClick={this.menuClick_} />;
-    } else {
-        appBar = <AppBar title={this.state.name} />;
-    }
 
     return (
       <div>
         <div>
-          {appBar}
+          <AppBarBrowse 
+            title={this.props.title}
+            actionHandler={this.props.actionHandler}
+            deviceSize={this.props.deviceSize}
+            onNavBtnClick={this.props.onNavBtnClick}
+            onSearchChange={this.props.onSearchChange}
+            onPerformAction={this.props.onPerformAction}
+            onSelectAll={this.handleSeelctAll_}
+            selectedEntities={this.props.selectedEntities} />
         </div>
         <div ref="moduleMain">
             <List
@@ -70,11 +63,14 @@ var EntityBrowser = React.createClass({
     );
   },
 
-  // The menu item was clicked
-  menuClick_: function(evt) {
-    if (this.props.onNavBtnClick)
-      this.props.onNavBtnClick(evt);
-  },
+  /** 
+   * Select/Deselect all
+   */
+  handleSeelctAll_: function(selected) {
+    if (this.props.onEntityListSelect) {
+      this.props.onEntityListSelect(selected);
+    }
+  }
 
 });
 

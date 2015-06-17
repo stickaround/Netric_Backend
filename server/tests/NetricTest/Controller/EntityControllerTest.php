@@ -1,11 +1,6 @@
 <?php
 /**
- * Test querying ElasticSearch server
- *
- * Most tests are inherited from IndexTestsAbstract.php.
- * Only define index specific tests here and try to avoid name collision with the tests
- * in the parent class. For the most part, the parent class tests all public functions
- * so private functions should be tested below.
+ * Test the entity controller
  */
 namespace NetricTest\Controller;
 
@@ -69,5 +64,16 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['obj_type'], $ret['obj_type']);
         $this->assertEquals($data['first_name'], $ret['first_name']);
         $this->assertEquals($data['last_name'], $ret['last_name']);
+    }
+
+    public function testGetGroupings()
+    {
+        $req = $this->controller->getRequest();
+        $req->setParam("obj_type", "customer");
+        $req->setParam("field_name", "groups");
+
+        $ret = $this->controller->getGroupings();
+        $this->assertFalse(isset($ret['error']));
+        $this->assertTrue(count($ret) > 0);
     }
 }

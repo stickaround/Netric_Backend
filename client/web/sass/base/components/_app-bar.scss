@@ -71,16 +71,33 @@
 
   .app-bar-navigation-icon-button {
     float: left;
-    margin: 0 $gutter-less 0 ($gutter-less * -1);
+    margin: 0 ($gutter-less - ($gutter-less - ($icon-size / 2))) 0 (($icon-size / 2) * -1);
 
     @media #{$device-medium} {
-      margin: 0 $gutter 0 ($gutter * -1);
+      margin: 0 ($gutter - ($gutter - ($icon-size / 2))) 0 (($icon-size / 2) * -1);
     }
 
     @media #{$device-large} {
-      margin: 0 $gutter 0 ($gutter * -1);
+      margin: 0 ($gutter - ($gutter - ($icon-size / 2))) 0 (($icon-size / 2) * -1);
     }
 
+  }
+
+  .app-bar-input-search-box {
+    float: left;
+
+    .text-field-hint {
+      color: white;
+    }
+  }
+
+  &.search {
+    background-color: $transparent;
+
+    * {
+      fill: $grey-600;
+      color: $grey-600;
+    }
   }
 
   &.detail {

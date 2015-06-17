@@ -10,12 +10,12 @@ var AbstractController = require("./AbstractController");
 var EntityController = require("./EntityController");
 var UiEntityBrowser = require("../ui/EntityBrowser.jsx");
 var EntityCollection = require("../entity/Collection");
+var actionsLoader = require("../entity/actionsLoader");
 
 /**
  * Controller that loads an entity browser
  */
-var EntityBrowserController = function() {
-}
+var EntityBrowserController = function() {}
 
 /**
  * Extend base controller class
@@ -48,11 +48,21 @@ EntityBrowserController.prototype.collection_ = null;
 EntityBrowserController.prototype.selected_ = new Array();
 
 /**
+ * Entity actions object
+ *
+ * @private
+ * @type {netric.entity.actions.*}
+ */
+EntityBrowserController.prototype.actions_ = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
 EntityBrowserController.prototype.onLoad = function(opt_callback) {
+
+    this.actions_ = actionsLoader.get(this.props.objType);
 
 	// By default just immediately execute the callback because nothing needs to be done
 	if (opt_callback)
@@ -66,16 +76,29 @@ EntityBrowserController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
+    // Define the data
 	var data = {
-		name: "Loading...",
+		title: this.props.title,
         entities: new Array(),
+        deviceSize: netric.getApplication().device.size,
         layout: (netric.getApplication().device.size === netric.Device.sizes.small)
             ? "compact" : "table",
+        actionHandler: this.actions_,
         onEntityListClick: function(objType, oid) {
             this.onEntityListClick(objType, oid);
         }.bind(this),
         onEntityListSelect: function(oid) {
-            this.toggleEntitySelect(oid);
+            if (oid) {
+                this.toggleEntitySelect(oid);
+            } else {
+                this.toggleSelectAll(false);
+            }
+        }.bind(this),
+        onSearchChange: function(fullText, conditions) {
+            this.onSearchChange(fullText, conditions);
+        }.bind(this),
+        onPerformAction: function(actionName) {
+            this.performActionOnSelected(actionName);
         }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null
 	}
@@ -93,15 +116,6 @@ EntityBrowserController.prototype.render = function() {
     }.bind(this));
     this.collection_.load();
 
-	/*
-	// Add route to compose a new entity
-	this.addSubRoute("compose", 
-		netric.controller.TestController, 
-		{ type: netric.controller.types.FRAGMENT }, 
-		this.rootReactNode_.refs.moduleMain.getDOMNode()
-	);
-	*/
-
 	// Add route to compose a new entity
 	this.addSubRoute(":eid",
 		EntityController, {
@@ -116,7 +130,6 @@ EntityBrowserController.prototype.render = function() {
  */
 EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
     if (objType && oid) {
-
         // Mark the entity as selected
         if (this.props.objType == objType) {
             this.selected_ = new Array();
@@ -130,8 +143,18 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
         } else if (this.getRoutePath()) {
             netric.location.go(this.getRoutePath() + "/" + oid);
         }
-
     }
+}
+
+/**
+ * Fired if the user changes search conditions in the UI
+ * 
+ * @param {string} fullText Search string
+ * @param {netric/entity/Where[]} opt_conditions Array of filter conditions
+ */
+EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
+    var conditions = opt_conditions || null;
+    console.log("Filter the collection with:", fullText);
 }
 
 /**
@@ -149,6 +172,51 @@ EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
 
         this.rootReactNode_.setProps({selectedEntities: this.selected_});
     }
+}
+
+/**
+ * Select or deselect all
+ *
+ * @param {bool} selected If true select all, else deselect all
+ */
+EntityBrowserController.prototype.toggleSelectAll = function(selected) {
+    if (typeof selected == "undefined") {
+        var selected = false;
+    }
+
+    if (selected) {
+        // TODO: slect all or set a flag to do so
+    } else {
+        // Clear all selected
+        this.selected_ = new Array();
+    }
+
+    this.rootReactNode_.setProps({selectedEntities: this.selected_});
+}
+
+/**
+ * Perform an action on selected messages
+ *
+ * @param {string} actionName
+ */
+EntityBrowserController.prototype.performActionOnSelected = function(actionName) {
+
+    var workingText = this.actions_.performAction(actionName, this.selected_, function(error, message) {
+        
+        if (error) {
+            console.error(message);
+        } else {
+            console.log(message);
+        }
+
+        // TODO: clear workingText notification
+
+        // Refresh the collection to display the changes
+        this.collection_.refresh();
+    
+    }.bind(this));
+
+    // TODO: display working notification(workingText) only if the function has not already finished
 }
 
 /**

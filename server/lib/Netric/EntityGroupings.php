@@ -196,6 +196,23 @@ class EntityGroupings
 	{
 		return $this->groups;
 	}
+
+    /**
+     * Recurrsively return all as an array
+     *
+     * @return arrray
+     */
+    public function toArray()
+    {
+        $ret = array();
+
+        foreach ($this->groups as $grp)
+        {
+            $ret[] = $grp->toArray();
+        }
+
+        return $ret;
+    }
     
     /**
      * Put all the groupings into a hierarchical structure with group->children being populated

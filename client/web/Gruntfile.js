@@ -30,7 +30,7 @@ module.exports = function(grunt) {
                 //cwd: 'js',
                 //src: ['**/*.jsx'],
                 src: ['js/main.js'],
-                dest: 'build/js/netric.js'
+                dest: 'dist/js/netric.js'
             }
         },
         
@@ -144,7 +144,7 @@ module.exports = function(grunt) {
             main: {
                 files: [
                     // Copy images
-                    {expand: true, cwd: '.', src: ['images/**'], dest: 'dist/'},
+                    {expand: true, cwd: '.', src: ['img/**'], dest: 'dist/'},
 
                     // Copy css
                     {expand: true, cwd: '.', src: ['css/**'], dest: 'dist/'},
@@ -152,10 +152,13 @@ module.exports = function(grunt) {
                     // Copy fonts
                     {expand: true, cwd: '.', src: ['fonts/**'], dest: 'dist/'},
 
-                    // Copy raect
-                    {expand: true, cwd: '.', src: ['vendor/react/react-with-addons.min.js'], dest: 'dist/js/'},
+                    // Copy react - no longer needed because we now use requirejs for this
+                    //{expand: true, cwd: '.', src: ['vendor/react/react-with-addons.min.js'], dest: 'dist/js/'},
 
-                    // JS should be already copied by the concat_in_order task
+                    // Copy aereus lib
+                    {expand: true, cwd: '.', src: ['vendor/aereus/alib_full.cmp.js'], dest: 'dist/js/'},
+
+                    // JS should be already copied by the browserify:production task
                 ]
             },
             build: {
@@ -245,7 +248,7 @@ module.exports = function(grunt) {
     grunt.registerTask('includes', ['wiredep', 'fileblocks:dev']);
     
     // Compine and put built application in dist
-    grunt.registerTask('compile', ['copy:build', 'react', 'concat', 'sass:dist', 'copy:main']);
+    grunt.registerTask('compile', ['sass:dist', 'browserify:production', 'copy:main']);
     
     // Default will build sass, update js includes and then sit and watch for changes
     grunt.registerTask('default', ['sass:dist', 'browserify:dev', 'includes', 'watch']);

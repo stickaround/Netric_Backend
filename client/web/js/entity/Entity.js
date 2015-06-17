@@ -260,7 +260,10 @@ Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
 	    }
     }
 
-    // Set the value and optional valueName label for foreign keys    
+    // First clear any existing values
+    this.remMultiValue(name, value);
+
+    // Set the value and optional valueName label for foreign keys
 	this.fieldValues_[name].value.push(value);
 
 	if (valueName) {
@@ -270,6 +273,64 @@ Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
     // Trigger onchange event to alert any observers that this value has changed
 	alib.events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
     
+}
+
+/**
+ * Remove a value to a field that supports an array of values
+ *
+ * @param {string} name The name of the field to set
+ * @param {mixed} value The value to set the field to
+ */
+Entity.prototype.remMultiValue = function(name, value) {
+    
+    // Can't set a field without a name
+    if(typeof name == "undefined")
+        return;
+
+    var field = this.def.getField(name);
+	if (!field)
+		return;
+
+	// Handle type conversion
+	value = this.normalizeFieldValue_(field, value);
+    
+    // Referenced object fields cannot be updated
+    if (name.indexOf(".")!=-1) {
+        return;
+    }
+
+    // Look for the value
+    if (!this.fieldValues_[name]) {
+    	return false;
+    }
+
+    // Remove the value
+    for (var i in this.fieldValues_[name].value) {
+    	if (this.fieldValues_[name].value[i] == value) {
+    		// A value of this entity is about to change
+    		this.dirty_ = true;
+
+    		// Remove the value which should invalidate the valueName as well
+    		this.fieldValues_[name].value.splice(i, 1);
+
+    		// Remove the value name
+    		for (var j in this.fieldValues_[name].valueName) {
+    			if (this.fieldValues_[name].valueName[j].key == value) {
+    				this.fieldValues_[name].valueName.splice(j, 1);
+    				break;
+    			}
+    		}
+
+    		// Trigger onchange event to alert any observers that this value has changed
+			alib.events.triggerEvent(this, "change", {
+				fieldName: name, value: this.getValue(name), valueName: null
+			});
+
+    		return true;
+    	}
+    }
+
+    return false;
 }
 
 /**
@@ -319,8 +380,7 @@ Entity.prototype.getValueName = function(name, opt_val) {
  *
  * @return {string} The name of this object based on common name fields like 'name' 'title 'subject'
  */
-Entity.prototype.getName = function()
-{
+Entity.prototype.getName = function() {
     if (this.getValue("name")) {
         return this.getValue("name");
     } else if (this.getValue("title")) {
@@ -343,8 +403,7 @@ Entity.prototype.getName = function()
  *
  * @return {string}
  */
-Entity.prototype.getSnippet = function()
-{
+Entity.prototype.getSnippet = function() {
 	var snippet = "";
 
     if (this.getValue("notes")) {
@@ -358,6 +417,30 @@ Entity.prototype.getSnippet = function()
     // TODO: strip all tags and new lines
 
     return snippet;
+}
+
+/**
+ * If there are people interacting with this entity get their names
+ *
+ * @return {string}
+ */
+Entity.prototype.getActors = function() {
+	return "";
+}
+
+/**
+ * Get relative timestamp
+ *
+ * @return {string}
+ */
+Entity.prototype.getTime = function() {
+	if (this.getValue("ts_updated")) {
+        return this.getValue("ts_updated");
+    } else if (this.getValue("ts_entered")) {
+        return this.getValue("ts_entered");
+    } else {
+        return "";
+    }
 }
 
 /**

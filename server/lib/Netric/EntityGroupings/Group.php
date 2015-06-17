@@ -82,7 +82,7 @@ class Group
     /**
      * Children
      * 
-     * @var \Netrig\EntityGroupings\Group[]
+     * @var \Netric\EntityGroupings\Group[]
      */
     public $children = array();
     
