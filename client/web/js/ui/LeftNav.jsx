@@ -71,7 +71,7 @@ var LeftNav = React.createClass({
       overlay;
 
     if (!this.props.docked) 
-      overlay = <Overlay show={this.state.open} onClick={this._onOverlayTouchTap} />;
+      overlay = <Overlay show={this.state.open} onTouchTap={this._onOverlayTouchTap} />;
 
     /* We should nest the menu eventually
     <Menu 
@@ -85,9 +85,19 @@ var LeftNav = React.createClass({
     // Add each menu item
     var selectedIndex = null;
     for (var i = 0; i < this.props.menuItems.length; i++) {
-      if (this.state.selected == this.props.menuItems[i].route) {
-        selectedIndex = i;
+
+      // Put in variables for readability
+      var selected = this.state.selected;
+      var route = this.props.menuItems[i].route;
+
+      // Selected could extend beyond the route path since a route can be
+      // multiple levels deep like /my/path/to/100
+      if (selected.length >= route.length) {
+        if (selected.substring(0, route.length) == route) {
+          selectedIndex = i;
+        }
       }
+
         //var sltd =  ? "*" : "";
         //items.push(<div onClick={this._sendClick.bind(null, i)}>{this.props.menuItems[i].name} {sltd}</div>);
     }

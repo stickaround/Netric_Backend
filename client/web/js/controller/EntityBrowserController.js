@@ -38,6 +38,14 @@ EntityBrowserController.prototype.rootReactNode_ = null;
  */
 EntityBrowserController.prototype.collection_ = null;
 
+/**
+ * Set if the user searched for something
+ *
+ * @private
+ * @type {string}
+ */
+EntityBrowserController.prototype.userSearchString_ = null;
+
 
 /**
  * Selected entities
@@ -114,7 +122,19 @@ EntityBrowserController.prototype.render = function() {
     alib.events.listen(this.collection_, "change", function() {
         this.onCollectionChange();
     }.bind(this));
-    this.collection_.load();
+
+    // Load the colleciton
+    this.loadCollection();
+
+    // Add route to browseby
+    this.addSubRoute("browse/:browseby/:browseval",
+        EntityBrowserController, {
+            type: controller.types.PAGE,
+            title: this.props.title,
+            objType: this.props.objType,
+            onNavBtnClick: this.props.onNavBtnClick || null
+        }
+    );
 
 	// Add route to compose a new entity
 	this.addSubRoute(":eid",
@@ -155,6 +175,33 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
     console.log("Filter the collection with:", fullText);
+
+    this.userSearchString_ = fullText;
+
+    this.loadCollection();
+
+}
+
+/**
+ * Fill the collection for this browser
+ */
+EntityBrowserController.prototype.loadCollection = function() {
+
+    // Clear out conditions to remove stale wheres
+    this.collection_.clearConditions();
+
+    // Check filter conditions
+    if (this.props.browseby && this.props.browseval) {
+        this.collection_.where(this.props.browseby).equalTo(this.props.browseval);
+    }
+
+    // Check if the user entered a full-text search condition
+    if (this.userSearchString_) {
+        this.collection_.where("*").equalTo(this.userSearchString_);
+    }
+
+    // Load (we depend on 'onload' events for triggering UI rendering in this.render)
+    this.collection_.load();
 }
 
 /**

@@ -218,6 +218,12 @@ Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remaini
 	var params = opt_params || {};
 	var remPath = opt_remainingPath || "";
 
+    // Trigger route change event
+    alib.events.triggerEvent(this, "routechange", {
+        path: segPath,
+        relativePath: (remPath) ? segPath + "/" + remPath : segPath
+    });
+
 	// Check to see if we have already loaded this path
 	if (segPath != this.lastRoutePath_) {
 
@@ -229,9 +235,6 @@ Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remaini
 
 		// Save new active route
 		this.activeRoute_ = route;
-
-		// Trigger route change event
-		alib.events.triggerEvent(this, "routechange", { path: segPath});
 
 		// Load up and enter the route
 		route.enterRoute(params, function() {

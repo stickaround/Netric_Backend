@@ -13,6 +13,7 @@ var FontIcon = require("./FontIcon.jsx");
 var Snackbar = require("./Snackbar.jsx");
 var RadioButton = require("./RadioButton.jsx");
 var RadioButtonGroup = require("./RadioButtonGroup.jsx");
+var location = require("../location/location")
 
 /**
  * Large application component
@@ -64,10 +65,14 @@ var Large = React.createClass({
       
       var radioButtons = [];
       for (var i in this.props.accounts) {
+
+        var accountTitle = (this.props.accounts[i].title) ?
+          this.props.accounts[i].title : this.props.accounts[i].account;
+
         radioButtons.push(
           <RadioButton
               value={this.props.accounts[i].instanceUri}
-              label={this.props.accounts[i].title} 
+              label={accountTitle}
               defaultChecked={true} />
         );
       }
@@ -84,16 +89,20 @@ var Large = React.createClass({
       );
     }
 
+      var imagePath = location.getRelativeUrlRoot();
+      imagePath += "/img/logo_login.png";
+
     return (
       <div className="login-page">
         <div className="login-logo-con">
-          <img className="login-logo" src="/img/logo_login.png" />
+          <img className="login-logo" src={imagePath} />
         </div>
         <div className="login-form-con">
           <TextField
                 floatingLabelText="Username"
                 onChange={this._handleUsernameChange} />
           <TextField
+                type="password"
                 floatingLabelText="Password"
                 onChange={this._handlePasswordChange} />
           {accountOptions}

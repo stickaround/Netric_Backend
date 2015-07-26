@@ -96,7 +96,18 @@ var AppBarBrowse = React.createClass({
         );
     },
 
+    /**
+     *  Turn search mode on or off
+     *
+     * @param evt
+     */
     toggleSearchMode: function(evt) {
+
+        // Clear any text
+        if (this.state.searchMode) {
+            this.handleSearchChange_("");
+        }
+
         this.setState({searchMode: (this.state.searchMode) ? false : true});
     },
 

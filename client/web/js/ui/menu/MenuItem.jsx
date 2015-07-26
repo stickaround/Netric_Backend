@@ -25,7 +25,8 @@ var MenuItem = React.createClass({
     onTouchTap: React.PropTypes.func,
     onClick: React.PropTypes.func,
     onToggle: React.PropTypes.func,
-    selected: React.PropTypes.bool
+    selected: React.PropTypes.bool,
+      indent: React.PropTypes.number
   },
   
   statics: {
@@ -57,7 +58,16 @@ var MenuItem = React.createClass({
     if (this.props.data) data = <span className="menu-item-data">{this.props.data}</span>;
     if (this.props.number !== undefined) number = <span className="menu-item-number">{this.props.number}</span>;
     if (this.props.attribute !== undefined) attribute = <span className="menu-item-attribute">{this.props.attribute}</span>;
-    
+
+      // Add indentations for hierarchical menus
+      var numIndents = this.props.indent || 0;
+      var indentItems = (numIndents) ? [] : null;
+      for (var i = 0; i < numIndents; i++) {
+          indentItems.push(
+              <span className="menu-item-indent">{"\u00a0"}</span>
+          );
+      }
+
     if (this.props.toggle) {
       var {
         toggle,
@@ -77,6 +87,7 @@ var MenuItem = React.createClass({
         onTouchTap={this._handleTouchTap}
         onClick={this._handleOnClick}>
 
+        {indentItems}
         {icon}
         {this.props.children}
         {data}
@@ -84,7 +95,6 @@ var MenuItem = React.createClass({
         {number}
         {toggle}
         {iconRight}
-        
       </div>
     );
   },

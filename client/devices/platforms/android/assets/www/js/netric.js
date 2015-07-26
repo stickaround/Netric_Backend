@@ -346,7 +346,7 @@ BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_t
 	var request = new BackendRequest();
 	if (opt_callback) {
 		alib.events.listen(request, "load", function(evt) { 
-			evt.data.cb(this.getResponse); 
+			evt.data.cb(this.getResponse());
 		}, {cb:opt_callback});
 	}
 	
@@ -1580,6 +1580,14 @@ EntityBrowserController.prototype.rootReactNode_ = null;
  */
 EntityBrowserController.prototype.collection_ = null;
 
+/**
+ * Set if the user searched for something
+ *
+ * @private
+ * @type {string}
+ */
+EntityBrowserController.prototype.userSearchString_ = null;
+
 
 /**
  * Selected entities
@@ -1656,7 +1664,19 @@ EntityBrowserController.prototype.render = function() {
     alib.events.listen(this.collection_, "change", function() {
         this.onCollectionChange();
     }.bind(this));
-    this.collection_.load();
+
+    // Load the colleciton
+    this.loadCollection();
+
+    // Add route to browseby
+    this.addSubRoute("browse/:browseby/:browseval",
+        EntityBrowserController, {
+            type: controller.types.PAGE,
+            title: this.props.title,
+            objType: this.props.objType,
+            onNavBtnClick: this.props.onNavBtnClick || null
+        }
+    );
 
 	// Add route to compose a new entity
 	this.addSubRoute(":eid",
@@ -1697,6 +1717,33 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
     console.log("Filter the collection with:", fullText);
+
+    this.userSearchString_ = fullText;
+
+    this.loadCollection();
+
+}
+
+/**
+ * Fill the collection for this browser
+ */
+EntityBrowserController.prototype.loadCollection = function() {
+
+    // Clear out conditions to remove stale wheres
+    this.collection_.clearConditions();
+
+    // Check filter conditions
+    if (this.props.browseby && this.props.browseval) {
+        this.collection_.where(this.props.browseby).equalTo(this.props.browseval);
+    }
+
+    // Check if the user entered a full-text search condition
+    if (this.userSearchString_) {
+        this.collection_.where("*").equalTo(this.userSearchString_);
+    }
+
+    // Load (we depend on 'onload' events for triggering UI rendering in this.render)
+    this.collection_.load();
 }
 
 /**
@@ -1892,9 +1939,6 @@ EntityController.prototype.onLoad = function(opt_callback) {
 
         this.entityDefinition_ = def;
 
-        // Setup an empty entity
-        this.entity_ = entityLoader.factory(this.props.objType);
-
         // Now load the entity if set
         if (this.props.eid) {
 
@@ -1917,6 +1961,16 @@ EntityController.prototype.onLoad = function(opt_callback) {
             }.bind(this));
 
         } else if (callbackWhenLoaded) {
+
+            // Setup an empty entity
+            this.entity_ = entityLoader.factory(this.props.objType);
+
+            // Set listener to call this.render when properties change
+            alib.events.listen(this.entity_, "change", function(evt){
+                // Re-render
+                this.render();
+            }.bind(this));
+
             // Let the application router know we're all loaded
             callbackWhenLoaded();
         }
@@ -2356,6 +2410,7 @@ var EntityController = require("./EntityController");
 var EntityBrowserController = require("./EntityBrowserController");
 var UiModule = require("../ui/Module.jsx");
 var moduleLoader = require("../module/loader");
+var groupingLoader = require("../entity/groupingLoader");
 
 /**
  * Controller that loads modules into the applicatino
@@ -2381,6 +2436,14 @@ ModuleController.prototype.rootReactNode_ = null;
  * @type {netric.module.Module}
  */
 ModuleController.prototype.module_ = null;
+
+/**
+ * Grouping loaders used for browseBy functionality of the left navigation
+ *
+ * @private
+ * @type {Object}
+ */
+ModuleController.prototype.groupingLoaders_ = {};
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -2420,28 +2483,18 @@ ModuleController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
-	// Set left navigation
-	var leftNavigation = [];
-	for (var i = 0; i < this.module_.navigation.length; i++) {
-		leftNavigation.push({
-			text: this.module_.navigation[i].title,
-			route: this.module_.navigation[i].route,
-			iconClassName: "fa fa-" + this.module_.navigation[i].icon
-		});
-	}
-
     // Initialize properties to send to the netric.ui.Module view
 	var data = {
 		name: this.module_.name,
         title: this.module_.title,
         deviceIsSmall: netric.getApplication().device.size == netric.Device.sizes.small,
-		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large) ? true : false,
-		leftNavItems: leftNavigation,
+		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large),
+		leftNavItems: [],
         modules: moduleLoader.getModules(),
         user: netric.getApplication().getAccount().getUser(),
 		onLeftNavChange: this.onLeftNavChange_.bind(this),
 		onModuleChange: this.onModuleChange_.bind(this)
-	}
+	};
 
 	// Render application component
 	this.rootReactNode_ = React.render(
@@ -2449,13 +2502,16 @@ ModuleController.prototype.render = function() {
 		domCon
 	);
 
+    // Setup navigation items
+    this.setNavigationItems_();
+
 	// Setup navigation routes
 	this.setupNavigation_();
 
 	// Add listener to update leftnav state when a child route changes
 	if (this.getChildRouter() && this.rootReactNode_.refs.leftNav) {
 		alib.events.listen(this.getChildRouter(), "routechange", function(evt) {
-			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.path });
+			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.relativePath });
 		}.bind(this));
 	}
 }
@@ -2477,6 +2533,87 @@ ModuleController.prototype.onModuleChange_ = function(evt, moduleName) {
 	if (moduleName) {
 		netric.location.go("/" + moduleName);
 	}
+}
+
+/**
+ * Set navigation items for view based on module config and browseby groups
+ *
+ * @private
+ */
+ModuleController.prototype.setNavigationItems_ = function() {
+
+    // Set left navigation
+    var leftNavigation = [];
+    for (var i = 0; i < this.module_.navigation.length; i++) {
+
+        var navItem = this.module_.navigation[i];
+
+        leftNavigation.push({
+            text: navItem.title,
+            route: navItem.route,
+            iconClassName: "fa fa-" + navItem.icon
+        });
+
+        // Populate browseby groupings
+        if (navItem.objType && navItem.browseby) {
+            var groupings = null;
+
+            // Make sure the groupings cache object is initialized for this object
+            if (!this.groupingLoaders_[navItem.objType]) {
+                this.groupingLoaders_[navItem.objType] = {};
+            }
+
+            if (this.groupingLoaders_[navItem.objType][navItem.browseby]) {
+                groupings = this.groupingLoaders_[navItem.objType][navItem.browseby];
+            } else {
+                /* We really only want to setup the groupings once because we
+                 * will be calling this function any time a change is made to the
+                 * groupings and we do not want to add additional listeners.
+                 */
+                var groupings = groupingLoader.get(navItem.objType, navItem.browseby, function() {
+                    // Do nothing, let the onchange event listener handle freshly loaded groupings
+                });
+
+                alib.events.listen(groupings, "change", this.setNavigationItems_.bind(this));
+
+                // Cache grouping so we do not try to set it up again with listeners
+                this.groupingLoaders_[navItem.objType][navItem.browseby] = groupings;
+            }
+
+            // Get first level groupings
+            if (groupings) {
+                var groups = groupings.getGroupsHierarch();
+
+                this.setBrowseByItems_(groups, leftNavigation, 1, navItem.route, navItem.browseby);
+            }
+
+        }
+    }
+
+    this.rootReactNode_.setProps({leftNavItems: leftNavigation});
+}
+
+/**
+ * Traverse browseby
+ *
+ * @private
+ */
+ModuleController.prototype.setBrowseByItems_ = function(groups, leftNavigation, indentLevel, route, browseby) {
+
+    // Loop through all groups and add to the navigation
+    for (var j in groups) {
+        leftNavigation.push({
+            text: groups[j].name,
+            route: route + "/browse/" + browseby + "/" + groups[j].id,
+            iconClassName: "fa fa-chevron-right",
+            indent: indentLevel
+        });
+
+        // Add children
+        if (groups[j].children && groups[j].children.length) {
+            this.setBrowseByItems_(groups[j].children, leftNavigation, (indentLevel + 1), route, browseby)
+        }
+    }
 }
 
 /**
@@ -2512,7 +2649,7 @@ ModuleController.prototype.setupNavigation_ = function() {
  */
 ModuleController.prototype.setupEntityRoute_ = function(navItem) {
 	// Add route to compose a new entity
-	this.addSubRoute(navItem.route, 
+	this.addSubRoute(navItem.route,
 		EntityController,
         {
 			type: controller.types.FRAGMENT,
@@ -2532,8 +2669,7 @@ ModuleController.prototype.setupEntityRoute_ = function(navItem) {
 ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 	// Add route to compose a new entity
 	this.addSubRoute(navItem.route, 
-		EntityBrowserController,
-        {
+		EntityBrowserController, {
 			type: controller.types.FRAGMENT,
             objType: navItem.objType,
             title: navItem.title,
@@ -2547,7 +2683,8 @@ ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 
 module.exports = ModuleController;
 
-},{"../base":7,"../module/loader":37,"../ui/Module.jsx":57,"./AbstractController":8,"./EntityBrowserController":9,"./EntityController":10,"./TestController":14,"./controller":15,"react":463}],14:[function(require,module,exports){
+
+},{"../base":7,"../entity/groupingLoader":26,"../module/loader":37,"../ui/Module.jsx":57,"./AbstractController":8,"./EntityBrowserController":9,"./EntityController":10,"./TestController":14,"./controller":15,"react":463}],14:[function(require,module,exports){
 /**
  * @fileoverview This is a test controller used primarily for unit tests
  */
@@ -2791,6 +2928,9 @@ Collection.prototype.load = function(opt_callback) {
 
     // TODO: first try to load cached
 
+    // Setup the request
+    var requestParams = {obj_type:this.objType_};
+
     var request = new BackendRequest();
 
     var collection = this;
@@ -2805,7 +2945,29 @@ Collection.prototype.load = function(opt_callback) {
         }
     });
 
-    request.send("svr/entity/query", "GET", {obj_type:this.objType_});
+    /*
+     * Add each condition as a 'where' that is csv encoded
+     * in the format blogic,field_name,operator,value
+     */
+
+    var whereConditions = this.getConditions();
+
+    // If there are where conditions then initialize the param in the request object
+    if (whereConditions.length > 0) {
+        requestParams.where = [];
+    }
+
+    for (var i in whereConditions) {
+        requestParams.where.push(
+            whereConditions[i].bLogic + "," +
+            whereConditions[i].fieldName + "," +
+            whereConditions[i].operator + "," +
+            '"' + whereConditions[i].value + '"' // Escape for csv quotes
+        );
+    }
+
+    // Send request to the server (listeners attached above will handle onload or error)
+    request.send("svr/entity/query", "GET", requestParams);
 }
 
 /**
@@ -2888,7 +3050,7 @@ Collection.prototype.andWhere = function(fieldName) {
  */
 Collection.prototype.orWhere = function(fieldName) {
     var where = new Where(fieldName);
-    where.operator = Where.boolOperator.OR;
+    where.operator = Where.boolOperators.OR;
     this.conditions_.push(where);
     return where;
 }
@@ -2902,6 +3064,12 @@ Collection.prototype.getConditions = function() {
     return this.conditions_;
 }
 
+/**
+ * Clear all where conditions
+ */
+Collection.prototype.clearConditions = function() {
+    this.conditions_ = [];
+}
 
 /**
  * Add an order by condition
@@ -3224,7 +3392,7 @@ var Entity = function(entityDef, opt_data) {
 	 * @public
 	 * @type {string}
 	 */
-	this.objType = "";
+	this.objType = entityDef.objType;
 
 	/**
 	 * Entity definition
@@ -3805,7 +3973,15 @@ var Where = function(fieldName) {
      * @public
      * @type {Where.operator}
      */
-    this.operator = Where.boolOperator.AND;
+    this.operator = Where.operators.EQUALTO;
+
+    /**
+     * Boolean operator for combining with previous
+     *
+     * @public
+     * @type {Where.boolOperator}
+     */
+    this.bLogic = Where.boolOperators.AND;
 
     /**
      * The value to check against
@@ -3821,7 +3997,7 @@ var Where = function(fieldName) {
  *
  * @const
  */
-Where.boolOperator = {
+Where.boolOperators = {
     AND : "and",
     OR : "or"
 }
@@ -3831,9 +4007,9 @@ Where.boolOperator = {
  *
  * @const
  */
-Where.operator = {
-    EQUALTO : "=",
-    DOESNOTEQUA : "!=",
+Where.operators = {
+    EQUALTO : "is_equal",
+    DOESNOTEQUAL : "!=",
     LIKE : "like",
     ISGREATERTHAN : ">",
     ISGREATEROREQUALTO : ">=",
@@ -3848,7 +4024,8 @@ Where.operator = {
  * @param {string} value The value to check quality against
  */
 Where.prototype.equalTo = function(value) {
-
+    this.operator = Where.operators.EQUALTO;
+    this.value = value;
 }
 
 /**
@@ -4841,14 +5018,14 @@ var saver = {
 		// If we are connected
 		if (netric.server.online) {
 			// Save the data remotely
-			BackendRequest.send("svr/entity/save", function(evt) {
+			BackendRequest.send("svr/entity/save", function(resp) {
 
-				var resp = this.getResponse();
-
-				// TODO: First check to see if there was an error
+				// First check to see if there was an error
 				if (resp.error) {
 					throw "Error saving entity: " + resp.error;
 				}
+
+				console.log(resp);
 
 				// Update the data in the original entity
 				entity.loadData(resp);
@@ -5506,6 +5683,12 @@ Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remaini
 	var params = opt_params || {};
 	var remPath = opt_remainingPath || "";
 
+    // Trigger route change event
+    alib.events.triggerEvent(this, "routechange", {
+        path: segPath,
+        relativePath: (remPath) ? segPath + "/" + remPath : segPath
+    });
+
 	// Check to see if we have already loaded this path
 	if (segPath != this.lastRoutePath_) {
 
@@ -5517,9 +5700,6 @@ Router.prototype.followRoute = function(route, opt_path, opt_params, opt_remaini
 
 		// Save new active route
 		this.activeRoute_ = route;
-
-		// Trigger route change event
-		alib.events.triggerEvent(this, "routechange", { path: segPath});
 
 		// Load up and enter the route
 		route.enterRoute(params, function() {
@@ -5685,6 +5865,14 @@ Hash.prototype.getCurrentPath = function () {
     // consistent across browsers - Firefox will pre-decode it!
     window.location.href.split('#')[1] || ''
   );
+}
+
+/**
+ * Get the root relative to the current path
+ */
+Hash.prototype.getRelativeRoot = function () {
+    // Since hash is always on the root then just return .
+    return ".";
 }
 
 /**
@@ -5858,9 +6046,22 @@ location.triggerPathChange_ = function(path, type) {
  * @return {string}
  */
 location.getCurrentPath = function() {
-	
 	var adaptor = this.getAdaptor();
 	return adaptor.getCurrentPath();
+}
+
+/**
+ * Get the relative URL root of the current path
+ *
+ * For example:
+ *  www.host.com/my/deep/path would return ../../..
+ *  www.host.com#/my/deep/path would return . because of the #
+ *
+ * @returns {string}
+ */
+location.getRelativeUrlRoot = function() {
+    var adaptor = this.getAdaptor();
+    return adaptor.getRelativeRoot();
 }
 
 /**
@@ -8176,7 +8377,7 @@ var LeftNav = React.createClass({displayName: "LeftNav",
       overlay;
 
     if (!this.props.docked) 
-      overlay = React.createElement(Overlay, {show: this.state.open, onClick: this._onOverlayTouchTap});
+      overlay = React.createElement(Overlay, {show: this.state.open, onTouchTap: this._onOverlayTouchTap});
 
     /* We should nest the menu eventually
     <Menu 
@@ -8190,9 +8391,19 @@ var LeftNav = React.createClass({displayName: "LeftNav",
     // Add each menu item
     var selectedIndex = null;
     for (var i = 0; i < this.props.menuItems.length; i++) {
-      if (this.state.selected == this.props.menuItems[i].route) {
-        selectedIndex = i;
+
+      // Put in variables for readability
+      var selected = this.state.selected;
+      var route = this.props.menuItems[i].route;
+
+      // Selected could extend beyond the route path since a route can be
+      // multiple levels deep like /my/path/to/100
+      if (selected.length >= route.length) {
+        if (selected.substring(0, route.length) == route) {
+          selectedIndex = i;
+        }
       }
+
         //var sltd =  ? "*" : "";
         //items.push(<div onClick={this._sendClick.bind(null, i)}>{this.props.menuItems[i].name} {sltd}</div>);
     }
@@ -8413,6 +8624,7 @@ var FontIcon = require("./FontIcon.jsx");
 var Snackbar = require("./Snackbar.jsx");
 var RadioButton = require("./RadioButton.jsx");
 var RadioButtonGroup = require("./RadioButtonGroup.jsx");
+var location = require("../location/location")
 
 /**
  * Large application component
@@ -8464,10 +8676,14 @@ var Large = React.createClass({displayName: "Large",
       
       var radioButtons = [];
       for (var i in this.props.accounts) {
+
+        var accountTitle = (this.props.accounts[i].title) ?
+          this.props.accounts[i].title : this.props.accounts[i].account;
+
         radioButtons.push(
           React.createElement(RadioButton, {
               value: this.props.accounts[i].instanceUri, 
-              label: this.props.accounts[i].title, 
+              label: accountTitle, 
               defaultChecked: true})
         );
       }
@@ -8484,16 +8700,20 @@ var Large = React.createClass({displayName: "Large",
       );
     }
 
+      var imagePath = location.getRelativeUrlRoot();
+      imagePath += "/img/logo_login.png";
+
     return (
       React.createElement("div", {className: "login-page"}, 
         React.createElement("div", {className: "login-logo-con"}, 
-          React.createElement("img", {className: "login-logo", src: "/img/logo_login.png"})
+          React.createElement("img", {className: "login-logo", src: imagePath})
         ), 
         React.createElement("div", {className: "login-form-con"}, 
           React.createElement(TextField, {
                 floatingLabelText: "Username", 
                 onChange: this._handleUsernameChange}), 
           React.createElement(TextField, {
+                type: "password", 
                 floatingLabelText: "Password", 
                 onChange: this._handlePasswordChange}), 
           accountOptions, 
@@ -8564,7 +8784,7 @@ var Large = React.createClass({displayName: "Large",
 module.exports = Large;
 
 
-},{"./FontIcon.jsx":51,"./Paper.jsx":59,"./RadioButton.jsx":60,"./RadioButtonGroup.jsx":61,"./RaisedButton.jsx":62,"./Snackbar.jsx":63,"./TextField.jsx":64,"react":463}],57:[function(require,module,exports){
+},{"../location/location":33,"./FontIcon.jsx":51,"./Paper.jsx":59,"./RadioButton.jsx":60,"./RadioButtonGroup.jsx":61,"./RaisedButton.jsx":62,"./Snackbar.jsx":63,"./TextField.jsx":64,"react":463}],57:[function(require,module,exports){
 /**
  * Render a module
  *
@@ -9924,8 +10144,8 @@ var GroupingSelect = React.createClass({displayName: "GroupingSelect",
          */
         if (!groupings_) {
             groupings_ = groupingLoader.get(this.props.objType, this.props.fieldName, function() {
-                // Do nothing, let the onchange event listener handle freshly loaded groupings
-            });
+                this._handleGroupingChange();
+            }.bind(this));
 
             alib.events.listen(groupings_, "change", this._handleGroupingChange);
         }
@@ -10034,7 +10254,7 @@ var GroupingSelect = React.createClass({displayName: "GroupingSelect",
 		this.setState({ddSelectedIndex: selectedIndex})
 
 		if (this.props.onChange) {
-			this.props.onChange(menuItem.payload, menuItem.text);
+            this.props.onChange(menuItem.payload, menuItem.text);
 		}
 
 		// Reset back to the first element
@@ -10633,11 +10853,14 @@ var GroupingField = React.createClass({displayName: "GroupingField",
         var fieldValues = this.props.entity.getValueName(fieldName);
 
         var chips = [];
-        for (var i in fieldValues) {
-        	chips.push(
-        		React.createElement(GroupingChip, {id: fieldValues[i].key, onRemove: this._handleRemove, name: fieldValues[i].value})
-        	);
+        if (Array.isArray(fieldValues)) {
+            for (var i in fieldValues) {
+                chips.push(
+                    React.createElement(GroupingChip, {id: fieldValues[i].key, onRemove: this._handleRemove, name: fieldValues[i].value})
+                );
+            }
         }
+
 
         // TODO: create a GroupingChip component
         var selectElement = null;
@@ -10645,7 +10868,7 @@ var GroupingField = React.createClass({displayName: "GroupingField",
         if (this.props.editMode) {
           selectElement = (
             React.createElement(GroupingSelect, {
-              objType: this.props.entity.objType, 
+              objType: this.props.entity.def.objType, 
                 fieldName: fieldName, 
               onChange: this._handleGroupAdd})
           );
@@ -10673,7 +10896,7 @@ var GroupingField = React.createClass({displayName: "GroupingField",
      * @param {string} name Optional name value of the id
      */
     _handleGroupAdd: function(id, name) {
-      this.props.entity.addMultiValue(this.props.xmlNode.getAttribute('name'), id, name);
+        this.props.entity.addMultiValue(this.props.xmlNode.getAttribute('name'), id, name);
     }
 });
 
@@ -10959,7 +11182,18 @@ var AppBarBrowse = React.createClass({displayName: "AppBarBrowse",
         );
     },
 
+    /**
+     *  Turn search mode on or off
+     *
+     * @param evt
+     */
     toggleSearchMode: function(evt) {
+
+        // Clear any text
+        if (this.state.searchMode) {
+            this.handleSearchChange_("");
+        }
+
         this.setState({searchMode: (this.state.searchMode) ? false : true});
     },
 
@@ -11769,7 +12003,8 @@ var MenuItem = React.createClass({displayName: "MenuItem",
     onTouchTap: React.PropTypes.func,
     onClick: React.PropTypes.func,
     onToggle: React.PropTypes.func,
-    selected: React.PropTypes.bool
+    selected: React.PropTypes.bool,
+      indent: React.PropTypes.number
   },
   
   statics: {
@@ -11801,7 +12036,16 @@ var MenuItem = React.createClass({displayName: "MenuItem",
     if (this.props.data) data = React.createElement("span", {className: "menu-item-data"}, this.props.data);
     if (this.props.number !== undefined) number = React.createElement("span", {className: "menu-item-number"}, this.props.number);
     if (this.props.attribute !== undefined) attribute = React.createElement("span", {className: "menu-item-attribute"}, this.props.attribute);
-    
+
+      // Add indentations for hierarchical menus
+      var numIndents = this.props.indent || 0;
+      var indentItems = (numIndents) ? [] : null;
+      for (var i = 0; i < numIndents; i++) {
+          indentItems.push(
+              React.createElement("span", {className: "menu-item-indent"}, "\u00a0")
+          );
+      }
+
     if (this.props.toggle) {
       var $__0=
         
@@ -11821,6 +12065,7 @@ var MenuItem = React.createClass({displayName: "MenuItem",
         onTouchTap: this._handleTouchTap, 
         onClick: this._handleOnClick}, 
 
+        indentItems, 
         icon, 
         this.props.children, 
         data, 
@@ -11828,7 +12073,6 @@ var MenuItem = React.createClass({displayName: "MenuItem",
         number, 
         toggle, 
         iconRight
-        
       )
     );
   },

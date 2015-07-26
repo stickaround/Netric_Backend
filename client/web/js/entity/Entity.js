@@ -31,7 +31,7 @@ var Entity = function(entityDef, opt_data) {
 	 * @public
 	 * @type {string}
 	 */
-	this.objType = "";
+	this.objType = entityDef.objType;
 
 	/**
 	 * Entity definition

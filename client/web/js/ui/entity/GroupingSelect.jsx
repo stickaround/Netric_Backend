@@ -63,8 +63,8 @@ var GroupingSelect = React.createClass({
          */
         if (!groupings_) {
             groupings_ = groupingLoader.get(this.props.objType, this.props.fieldName, function() {
-                // Do nothing, let the onchange event listener handle freshly loaded groupings
-            });
+                this._handleGroupingChange();
+            }.bind(this));
 
             alib.events.listen(groupings_, "change", this._handleGroupingChange);
         }
@@ -173,7 +173,7 @@ var GroupingSelect = React.createClass({
 		this.setState({ddSelectedIndex: selectedIndex})
 
 		if (this.props.onChange) {
-			this.props.onChange(menuItem.payload, menuItem.text);
+            this.props.onChange(menuItem.payload, menuItem.text);
 		}
 
 		// Reset back to the first element

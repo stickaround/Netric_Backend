@@ -35,6 +35,12 @@
     margin-right: $desktop-gutter;
   }
 
+  .menu-item-indent {
+    float: left;
+    width: 10px;
+    line-height: $menu-item-height;
+  }
+
   .menu-item-data {
     display: block;
     padding-left: ($desktop-gutter * 2);

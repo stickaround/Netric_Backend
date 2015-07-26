@@ -12,10 +12,15 @@ require_once("lib/CBrowser.awp");
 require_once("users/user_functions.php");
 require_once("customer/customer_functions.awp");
 require_once("lib/AntUser.php");
+require_once('lib/ServiceLocatorLoader.php');
 
 // ALIB
 //require_once("lib/aereus.lib.php/CCache.php");
 //require_once("lib/aereus.lib.php/CSessions.php");
+
+// Get new netric authentication service
+$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+$authService = $sl->get("AuthenticationService");
 
 $binfo = new CBrowser();
 $antsys = new AntSystem();
@@ -68,11 +73,15 @@ if ($username && $pass && $account)
 	{
 		$user = $ANT->getUser($ret);
 
-		// Set variables
-		$ANT->setSessionVar('uname', $username);
+        // Set variables
+        $ANT->setSessionVar('uname', $username);
 		$ANT->setSessionVar('uid', $ret);
 		$ANT->setSessionVar('aid', $acctinf['id']);
 		$ANT->setSessionVar('aname', $account);
+
+        // Store the new authentication string
+        $authString = $authService->authenticate($username, $pass);
+        setcookie("Authentication", $authString, time()+60*60*24*30);
 
 		// Automatically determine timezone
 		if (function_exists(geoip_record_by_name) && function_exists(geoip_time_zone_by_country_and_region) && $_SERVER['REMOTE_ADDR'])

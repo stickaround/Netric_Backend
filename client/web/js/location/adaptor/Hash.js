@@ -82,6 +82,14 @@ Hash.prototype.getCurrentPath = function () {
 }
 
 /**
+ * Get the root relative to the current path
+ */
+Hash.prototype.getRelativeRoot = function () {
+    // Since hash is always on the root then just return .
+    return ".";
+}
+
+/**
  * Assure that the path begins with a slash '/'
  */
 Hash.prototype.ensureSlash_ = function() {

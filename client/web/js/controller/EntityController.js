@@ -98,9 +98,6 @@ EntityController.prototype.onLoad = function(opt_callback) {
 
         this.entityDefinition_ = def;
 
-        // Setup an empty entity
-        this.entity_ = entityLoader.factory(this.props.objType);
-
         // Now load the entity if set
         if (this.props.eid) {
 
@@ -123,6 +120,16 @@ EntityController.prototype.onLoad = function(opt_callback) {
             }.bind(this));
 
         } else if (callbackWhenLoaded) {
+
+            // Setup an empty entity
+            this.entity_ = entityLoader.factory(this.props.objType);
+
+            // Set listener to call this.render when properties change
+            alib.events.listen(this.entity_, "change", function(evt){
+                // Re-render
+                this.render();
+            }.bind(this));
+
             // Let the application router know we're all loaded
             callbackWhenLoaded();
         }

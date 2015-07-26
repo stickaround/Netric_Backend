@@ -163,6 +163,9 @@ Collection.prototype.load = function(opt_callback) {
 
     // TODO: first try to load cached
 
+    // Setup the request
+    var requestParams = {obj_type:this.objType_};
+
     var request = new BackendRequest();
 
     var collection = this;
@@ -177,7 +180,29 @@ Collection.prototype.load = function(opt_callback) {
         }
     });
 
-    request.send("svr/entity/query", "GET", {obj_type:this.objType_});
+    /*
+     * Add each condition as a 'where' that is csv encoded
+     * in the format blogic,field_name,operator,value
+     */
+
+    var whereConditions = this.getConditions();
+
+    // If there are where conditions then initialize the param in the request object
+    if (whereConditions.length > 0) {
+        requestParams.where = [];
+    }
+
+    for (var i in whereConditions) {
+        requestParams.where.push(
+            whereConditions[i].bLogic + "," +
+            whereConditions[i].fieldName + "," +
+            whereConditions[i].operator + "," +
+            '"' + whereConditions[i].value + '"' // Escape for csv quotes
+        );
+    }
+
+    // Send request to the server (listeners attached above will handle onload or error)
+    request.send("svr/entity/query", "GET", requestParams);
 }
 
 /**
@@ -260,7 +285,7 @@ Collection.prototype.andWhere = function(fieldName) {
  */
 Collection.prototype.orWhere = function(fieldName) {
     var where = new Where(fieldName);
-    where.operator = Where.boolOperator.OR;
+    where.operator = Where.boolOperators.OR;
     this.conditions_.push(where);
     return where;
 }
@@ -274,6 +299,12 @@ Collection.prototype.getConditions = function() {
     return this.conditions_;
 }
 
+/**
+ * Clear all where conditions
+ */
+Collection.prototype.clearConditions = function() {
+    this.conditions_ = [];
+}
 
 /**
  * Add an order by condition

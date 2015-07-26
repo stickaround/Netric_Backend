@@ -37,11 +37,14 @@ var GroupingField = React.createClass({
         var fieldValues = this.props.entity.getValueName(fieldName);
 
         var chips = [];
-        for (var i in fieldValues) {
-        	chips.push(
-        		<GroupingChip id={fieldValues[i].key} onRemove={this._handleRemove} name={fieldValues[i].value} />
-        	);
+        if (Array.isArray(fieldValues)) {
+            for (var i in fieldValues) {
+                chips.push(
+                    <GroupingChip id={fieldValues[i].key} onRemove={this._handleRemove} name={fieldValues[i].value} />
+                );
+            }
         }
+
 
         // TODO: create a GroupingChip component
         var selectElement = null;
@@ -49,7 +52,7 @@ var GroupingField = React.createClass({
         if (this.props.editMode) {
           selectElement = (
             <GroupingSelect 
-              objType={this.props.entity.objType}
+              objType={this.props.entity.def.objType}
                 fieldName={fieldName}
               onChange={this._handleGroupAdd} />
           );
@@ -77,7 +80,7 @@ var GroupingField = React.createClass({
      * @param {string} name Optional name value of the id
      */
     _handleGroupAdd: function(id, name) {
-      this.props.entity.addMultiValue(this.props.xmlNode.getAttribute('name'), id, name);
+        this.props.entity.addMultiValue(this.props.xmlNode.getAttribute('name'), id, name);
     }
 });
 

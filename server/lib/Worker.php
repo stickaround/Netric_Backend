@@ -206,6 +206,7 @@ class Worker
 				$this->ant = $antAcct;
 
 				// insert into job log for account database
+                $this->dbh->Query("DELETE FROM worker_jobs WHERE job_id='" . $row['id'] . "'");
 				$ret = $this->dbh->Query("INSERT INTO worker_jobs(job_id, function_name, ts_started, status_numerator)
 								   			VALUES('".$row['id']."', '".$row['function_name']."', 'now', '-1')");
 				if ($ret !== false)

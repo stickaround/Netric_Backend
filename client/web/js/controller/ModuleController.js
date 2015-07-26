@@ -12,6 +12,7 @@ var EntityController = require("./EntityController");
 var EntityBrowserController = require("./EntityBrowserController");
 var UiModule = require("../ui/Module.jsx");
 var moduleLoader = require("../module/loader");
+var groupingLoader = require("../entity/groupingLoader");
 
 /**
  * Controller that loads modules into the applicatino
@@ -37,6 +38,14 @@ ModuleController.prototype.rootReactNode_ = null;
  * @type {netric.module.Module}
  */
 ModuleController.prototype.module_ = null;
+
+/**
+ * Grouping loaders used for browseBy functionality of the left navigation
+ *
+ * @private
+ * @type {Object}
+ */
+ModuleController.prototype.groupingLoaders_ = {};
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -76,28 +85,18 @@ ModuleController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
-	// Set left navigation
-	var leftNavigation = [];
-	for (var i = 0; i < this.module_.navigation.length; i++) {
-		leftNavigation.push({
-			text: this.module_.navigation[i].title,
-			route: this.module_.navigation[i].route,
-			iconClassName: "fa fa-" + this.module_.navigation[i].icon
-		});
-	}
-
     // Initialize properties to send to the netric.ui.Module view
 	var data = {
 		name: this.module_.name,
         title: this.module_.title,
         deviceIsSmall: netric.getApplication().device.size == netric.Device.sizes.small,
-		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large) ? true : false,
-		leftNavItems: leftNavigation,
+		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large),
+		leftNavItems: [],
         modules: moduleLoader.getModules(),
         user: netric.getApplication().getAccount().getUser(),
 		onLeftNavChange: this.onLeftNavChange_.bind(this),
 		onModuleChange: this.onModuleChange_.bind(this)
-	}
+	};
 
 	// Render application component
 	this.rootReactNode_ = React.render(
@@ -105,13 +104,16 @@ ModuleController.prototype.render = function() {
 		domCon
 	);
 
+    // Setup navigation items
+    this.setNavigationItems_();
+
 	// Setup navigation routes
 	this.setupNavigation_();
 
 	// Add listener to update leftnav state when a child route changes
 	if (this.getChildRouter() && this.rootReactNode_.refs.leftNav) {
 		alib.events.listen(this.getChildRouter(), "routechange", function(evt) {
-			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.path });
+			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.relativePath });
 		}.bind(this));
 	}
 }
@@ -133,6 +135,87 @@ ModuleController.prototype.onModuleChange_ = function(evt, moduleName) {
 	if (moduleName) {
 		netric.location.go("/" + moduleName);
 	}
+}
+
+/**
+ * Set navigation items for view based on module config and browseby groups
+ *
+ * @private
+ */
+ModuleController.prototype.setNavigationItems_ = function() {
+
+    // Set left navigation
+    var leftNavigation = [];
+    for (var i = 0; i < this.module_.navigation.length; i++) {
+
+        var navItem = this.module_.navigation[i];
+
+        leftNavigation.push({
+            text: navItem.title,
+            route: navItem.route,
+            iconClassName: "fa fa-" + navItem.icon
+        });
+
+        // Populate browseby groupings
+        if (navItem.objType && navItem.browseby) {
+            var groupings = null;
+
+            // Make sure the groupings cache object is initialized for this object
+            if (!this.groupingLoaders_[navItem.objType]) {
+                this.groupingLoaders_[navItem.objType] = {};
+            }
+
+            if (this.groupingLoaders_[navItem.objType][navItem.browseby]) {
+                groupings = this.groupingLoaders_[navItem.objType][navItem.browseby];
+            } else {
+                /* We really only want to setup the groupings once because we
+                 * will be calling this function any time a change is made to the
+                 * groupings and we do not want to add additional listeners.
+                 */
+                var groupings = groupingLoader.get(navItem.objType, navItem.browseby, function() {
+                    // Do nothing, let the onchange event listener handle freshly loaded groupings
+                });
+
+                alib.events.listen(groupings, "change", this.setNavigationItems_.bind(this));
+
+                // Cache grouping so we do not try to set it up again with listeners
+                this.groupingLoaders_[navItem.objType][navItem.browseby] = groupings;
+            }
+
+            // Get first level groupings
+            if (groupings) {
+                var groups = groupings.getGroupsHierarch();
+
+                this.setBrowseByItems_(groups, leftNavigation, 1, navItem.route, navItem.browseby);
+            }
+
+        }
+    }
+
+    this.rootReactNode_.setProps({leftNavItems: leftNavigation});
+}
+
+/**
+ * Traverse browseby
+ *
+ * @private
+ */
+ModuleController.prototype.setBrowseByItems_ = function(groups, leftNavigation, indentLevel, route, browseby) {
+
+    // Loop through all groups and add to the navigation
+    for (var j in groups) {
+        leftNavigation.push({
+            text: groups[j].name,
+            route: route + "/browse/" + browseby + "/" + groups[j].id,
+            iconClassName: "fa fa-chevron-right",
+            indent: indentLevel
+        });
+
+        // Add children
+        if (groups[j].children && groups[j].children.length) {
+            this.setBrowseByItems_(groups[j].children, leftNavigation, (indentLevel + 1), route, browseby)
+        }
+    }
 }
 
 /**
@@ -168,7 +251,7 @@ ModuleController.prototype.setupNavigation_ = function() {
  */
 ModuleController.prototype.setupEntityRoute_ = function(navItem) {
 	// Add route to compose a new entity
-	this.addSubRoute(navItem.route, 
+	this.addSubRoute(navItem.route,
 		EntityController,
         {
 			type: controller.types.FRAGMENT,
@@ -188,8 +271,7 @@ ModuleController.prototype.setupEntityRoute_ = function(navItem) {
 ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 	// Add route to compose a new entity
 	this.addSubRoute(navItem.route, 
-		EntityBrowserController,
-        {
+		EntityBrowserController, {
 			type: controller.types.FRAGMENT,
             objType: navItem.objType,
             title: navItem.title,

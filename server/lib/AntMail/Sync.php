@@ -166,7 +166,7 @@ class AntMail_Sync
                     {
                         $syncColl->setLastCommitId($obj->getValue("commit_id"));
                     }
-                    else
+                    else if ($obj->id) // If not permanantly deleted then throw exception without commit id
                     {
                         throw new Exception("Tried to synchronize an entity without a commit id: " . $obj->id);
                     }
@@ -239,6 +239,7 @@ class AntMail_Sync
                         $emailObj = CAntObject::factory($this->dbh, "email_message", $mid, $this->user);
 						$syncColl->logImported($stat['remote_id'], $stat['remote_revision'], $mid, $emailObj->revision);
 						$ret[] = $mid;
+                        echo "This was already imported earlier: $mid\n";
 
                         /*
                          * Routine to clean-up bugs in the old sync system where moves and deletes were not being sent
@@ -280,6 +281,12 @@ class AntMail_Sync
                         // This message was previously imported and then deleted so delete on the server
                         $backend->processUpsync($mailboxPath, $stat['remote_id'], "deleted", null);
                         $syncColl->logImported($stat['remote_id']);
+                    }
+                    else if (0 == $mid)
+                    {
+                        // If there was an error it $this->importEmail will return zero which
+                        // will do nothing. This will cause the system to try again nex time
+                        AntLog::getInstance()->error("Error trying to import [" . $accountObj->emailAddress . "]:" . var_export($emailMeta, true));
                     }
 
 					break;
@@ -478,6 +485,10 @@ class AntMail_Sync
 		$list->addCondition("and", "mailbox_id", "is_equal", $mailboxId);
 		$list->addCondition("and", "message_uid", "is_equal", $email['uid']);
 		$list->addCondition("and", "email_account", "is_equal", $account->id);
+        if ($email['subject'])
+        {
+            $list->addCondition("and", "subject", "is_equal", $email['subject']);
+        }
 		$list->getObjects();
 		if ($list->getNumObjects() > 0)
         {
@@ -492,6 +503,10 @@ class AntMail_Sync
 		$list->addCondition("and", "message_uid", "is_equal", $email['uid']);
 		$list->addCondition("and", "email_account", "is_equal", $account->id);
 		$list->addCondition("and", "f_deleted", "is_equal", "t");
+        if ($email['subject'])
+        {
+            $list->addCondition("and", "subject", "is_equal", $email['subject']);
+        }
 		$list->getObjects();
 		if ($list->getNumObjects() > 0)
 			return -1;
@@ -500,6 +515,8 @@ class AntMail_Sync
 		// TODO: maybe we should stream this rather than load the message into memory?
 		$mimeEmail = $account->getBackend()->getFullMessage($email['msgno']);
 		$filePath = $this->saveTempFile($mimeEmail);
+        if (!$filePath)
+            return 0; // Failed to download temp message
 
 		// Import the message
 		$newEmail = new CAntObject_EmailMessage($this->dbh, null, $this->user);
@@ -540,9 +557,14 @@ class AntMail_Sync
         if ($mimeEmail)
         {
             $handle = @fopen($tmpFile, "w+");
-            fwrite($handle, preg_replace('/\r?\n$/', '', $mimeEmail)."\r\n"); // Write the email message content
-            
-            return $tmpFile;
+            $ret = fwrite($handle, preg_replace('/\r?\n$/', '', $mimeEmail)."\r\n"); // Write the email message content
+
+            if (!$ret)
+            {
+                AntLog::getInstance()->error("Error trying to write temp message file $tmpFile");
+            }
+
+            return ($ret) ? $tmpFile : false;
         }
         else
             return null;

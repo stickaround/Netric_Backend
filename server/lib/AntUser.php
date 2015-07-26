@@ -70,8 +70,11 @@ class AntUser
 			$this->accountId = $antObj->accountId;
 			$this->accountName = $antObj->accountName;
 		}
-		else if (Ant::getSessionVar("aid"))
+		else if (Ant::getSessionVar("aid") && $_REQUEST["Authentication"])
 		{
+			// $_REQUEST["Authentication"] was added above to check to make
+			// sure the aid cookie was set with the new authentication service
+			// - Sky Stebnicki, 2015-07-15
 			$antsys = new AntSystem();
 			$this->accountId = Ant::getSessionVar("aid");
 			$this->accountName = $antsys->getAccountInfoByUId($this->accountId);
@@ -749,7 +752,7 @@ class AntUser
 		{
 			$row = $dbh->GetNextRow($result, 0);
 
-			// Check to see if the user is on old authentication cheme
+			// Check to see if the user is on old authentication scheme
 			if (!$row['password_salt'])
 			{
 				/*

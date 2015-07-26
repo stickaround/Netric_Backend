@@ -31,7 +31,8 @@ function email_spamlearn($job)
         @mkdir($tmpFolder, 0777, true);
 
     $filePath = $tmpFolder . "/" . $dbh->accountId . "-" . $email->id . ".eml";
-    $bwritten = file_put_contents($filePath, $email->getOriginal());
+    $original = $email->getOriginal();
+    $bwritten = file_put_contents($filePath, $original);
     if (!$bwritten)
         unlink($filePath);
             

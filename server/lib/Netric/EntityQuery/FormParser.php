@@ -25,7 +25,9 @@ class FormParser
             if (!is_array($params["where"]))
                 $params["where"] = array($params["where"]);
             
-            // Add each where condition
+            // Add each where condition which is represented in csv
+            // as "blogic,fieldname,operator,value" like:
+            // "and,first_name,is_equal,sky"
             foreach ($params["where"] as $whereData)
             {
                 $whereVals = str_getcsv($whereData);
@@ -39,12 +41,12 @@ class FormParser
                     $query->where($whereVals[1], $whereVals[2], $whereVals[3]);
                 }
             }
-            
-            // Look for full text search
-            if ($params["q"])
-                $query->where("*")->equals ($params["q"]);
-            
-            
+        }
+
+        // Look for full text search
+        if ($params["q"])
+        {
+            $query->where("*")->equals ($params["q"]);
         }
         
         // Add order by params

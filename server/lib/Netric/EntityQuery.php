@@ -94,6 +94,14 @@ class EntityQuery
      * @var Netric\EntityQuery\Aggregation\AbstractAggregation[]
      */
     private $aggregations = array();
+
+    /**
+     * Operator constants
+     *
+     * @var const string
+     */
+    const OP_EQUALTO = "is_equal";
+    const OP_DOESNOTEQUAL = "is_not_equal";
        
     /**
      * Class constructor

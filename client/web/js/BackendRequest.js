@@ -97,7 +97,7 @@ BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_t
 	var request = new BackendRequest();
 	if (opt_callback) {
 		alib.events.listen(request, "load", function(evt) { 
-			evt.data.cb(this.getResponse); 
+			evt.data.cb(this.getResponse());
 		}, {cb:opt_callback});
 	}
 	

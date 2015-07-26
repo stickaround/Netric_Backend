@@ -34,14 +34,14 @@ var saver = {
 		// If we are connected
 		if (netric.server.online) {
 			// Save the data remotely
-			BackendRequest.send("svr/entity/save", function(evt) {
+			BackendRequest.send("svr/entity/save", function(resp) {
 
-				var resp = this.getResponse();
-
-				// TODO: First check to see if there was an error
+				// First check to see if there was an error
 				if (resp.error) {
 					throw "Error saving entity: " + resp.error;
 				}
+
+				console.log(resp);
 
 				// Update the data in the original entity
 				entity.loadData(resp);

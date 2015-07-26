@@ -30,7 +30,15 @@ var Where = function(fieldName) {
      * @public
      * @type {Where.operator}
      */
-    this.operator = Where.boolOperator.AND;
+    this.operator = Where.operators.EQUALTO;
+
+    /**
+     * Boolean operator for combining with previous
+     *
+     * @public
+     * @type {Where.boolOperator}
+     */
+    this.bLogic = Where.boolOperators.AND;
 
     /**
      * The value to check against
@@ -46,7 +54,7 @@ var Where = function(fieldName) {
  *
  * @const
  */
-Where.boolOperator = {
+Where.boolOperators = {
     AND : "and",
     OR : "or"
 }
@@ -56,9 +64,9 @@ Where.boolOperator = {
  *
  * @const
  */
-Where.operator = {
-    EQUALTO : "=",
-    DOESNOTEQUA : "!=",
+Where.operators = {
+    EQUALTO : "is_equal",
+    DOESNOTEQUAL : "!=",
     LIKE : "like",
     ISGREATERTHAN : ">",
     ISGREATEROREQUALTO : ">=",
@@ -73,7 +81,8 @@ Where.operator = {
  * @param {string} value The value to check quality against
  */
 Where.prototype.equalTo = function(value) {
-
+    this.operator = Where.operators.EQUALTO;
+    this.value = value;
 }
 
 /**

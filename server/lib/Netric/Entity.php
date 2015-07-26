@@ -282,8 +282,10 @@ class Entity implements \Netric\Entity\EntityInterface
 			// Check for fvals
 			if (isset($data[$fname . "_fval"]))
 			{
-				if (!is_array([$fname . "_fval"]))
-					$data[$fname . "_fval"] = array($data[$fname . "_fval"]);
+				if (!is_array($data[$fname . "_fval"]))
+                {
+                    $data[$fname . "_fval"] = array($data[$fname . "_fval"]);
+                }
 
 				$valNames = $data[$fname . "_fval"];
 			}

@@ -33,7 +33,7 @@ class PaymentGateway_AuthDotNet extends PaymentGateway
      *
      * @var string
 	 */
-	private $gatewayUrl = "https://secure.authorize.net/gateway/transact.dll";
+	private $gatewayUrl = "https://secure2.authorize.net/gateway/transact.dll";
 
 	/**
      * Test Gateway URL

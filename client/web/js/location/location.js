@@ -136,9 +136,22 @@ location.triggerPathChange_ = function(path, type) {
  * @return {string}
  */
 location.getCurrentPath = function() {
-	
 	var adaptor = this.getAdaptor();
 	return adaptor.getCurrentPath();
+}
+
+/**
+ * Get the relative URL root of the current path
+ *
+ * For example:
+ *  www.host.com/my/deep/path would return ../../..
+ *  www.host.com#/my/deep/path would return . because of the #
+ *
+ * @returns {string}
+ */
+location.getRelativeUrlRoot = function() {
+    var adaptor = this.getAdaptor();
+    return adaptor.getRelativeRoot();
 }
 
 /**

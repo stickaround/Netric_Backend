@@ -166,7 +166,14 @@ class AntMail_DeliveryAngent
 		$ret = $this->importMimeDecodeAtt($message, $email);
 
 		// Save message to inbox - filters will move if needed
-		$mid = $email->save();
+		if ($email->getHeader("from"))
+		{
+			$mid = $email->save();
+		}
+		else
+		{
+			$mid = 0;
+		}
 
 		// Process filters/autoresponders before saving
 		$this->importProcessFilters($email, $dbh, $user);
@@ -331,10 +338,16 @@ class AntMail_DeliveryAngent
 		foreach ($attachments as $att)
 			$this->importMailParseAtt($att, $email);
 
-		$mid = $email->save();
-
-		// Process filters/autoresponders before saving
-		$this->importProcessFilters($email, $dbh, $user);
+		if ($email->getHeader("from"))
+		{
+			$mid = $email->save();
+			// Process filters/autoresponders before saving
+			$this->importProcessFilters($email, $dbh, $user);
+		}
+		else
+		{
+			$mid = 0;
+		}
 
 		// Cleanup resources
 		$parser = null;
