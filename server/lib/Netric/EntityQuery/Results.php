@@ -8,6 +8,8 @@
 
 namespace Netric\EntityQuery;
 
+use Netric\Stats\StatsPublisher;
+
 /**
  * Description of Results
  *
@@ -179,6 +181,8 @@ class Results
      */
     public function addEntity(\Netric\Entity\EntityInterface $entity)
     {
+        // Stat a cache list hit
+        StatsPublisher::increment("entity.cache.queryres");
         $this->entities[] = $entity;
     }
     

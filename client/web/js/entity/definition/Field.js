@@ -176,6 +176,7 @@ Field.types = {
 	objectMulti : "object_multi",
 	text : "text",
 	bool : "bool",
+	timestamp: "timestamp"
 }
 
 /**

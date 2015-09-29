@@ -70,6 +70,19 @@ var Entity = function(entityDef, opt_data) {
 		childObject : new Array()
 	};
 
+    /**
+     * Loading flag is used to indicate if the entity is pending a load
+     *
+     * This is useful for allowing "promise entities" where a request
+     * has been made to fill an entity from the server, by an empty
+     * entity with only the id and the objType set is returned to allow
+     * the client to continue working.
+     *
+     * @public
+     * @type {bool}
+     */
+    this.isLoading = false;
+
 	// If data has been passed then load it into this entity
 	if (opt_data) {
 		this.loadData(opt_data);
@@ -93,7 +106,7 @@ Entity.prototype.loadData = function (data) {
 	// Make sure that the data passed is valid data
 	if (!data.id || !data.obj_type) {
 		var err = "Data passed is not a valid entity";
-		console.log(err + JSON.stringify(data));
+		console.error(err + JSON.stringify(data));
 		throw err;
 	}
 
@@ -133,6 +146,9 @@ Entity.prototype.loadData = function (data) {
 	}
 
 	// TODO: Handle recurrence
+
+    // Trigger onload event to alert any observers that the data for this entity has loaded (batch)
+    alib.events.triggerEvent(this, "load");
 }
 
 /**
@@ -207,6 +223,11 @@ Entity.prototype.setValue = function(name, value, opt_valueName) {
     if (name.indexOf(".")!=-1) {
         return;
     }
+
+	// If a special property for this object also set
+	if (name == "id") {
+		this.id = value;
+	}
 
     // A value of this entity is about to change
     this.dirty_ = true;
@@ -340,7 +361,7 @@ Entity.prototype.remMultiValue = function(name, value) {
  * @param {string} name The unique name of the field to get the value for
  */
 Entity.prototype.getValue = function(name) {
-    if (!name)
+	if (!name)
         return null;
 
     // Get value from fieldValue
@@ -431,16 +452,52 @@ Entity.prototype.getActors = function() {
 /**
  * Get relative timestamp
  *
+ * @param {string} field Optional field to use (otherwise autodetect)
+ * @param {bool} compress If true the compress to time if today, otherwise only show the date
  * @return {string}
  */
-Entity.prototype.getTime = function() {
-	if (this.getValue("ts_updated")) {
-        return this.getValue("ts_updated");
+Entity.prototype.getTime = function(field, compress) {
+
+    var fieldName = field || null;
+    var compressDate = compress || false;
+
+    var val = null;
+
+    if (fieldName) {
+        val = this.getValue(fieldName);
+    } else if (this.getValue("ts_updated")) {
+        val = this.getValue("ts_updated");
     } else if (this.getValue("ts_entered")) {
-        return this.getValue("ts_entered");
-    } else {
-        return "";
+        val = this.getValue("ts_entered");
     }
+
+    // Check to see if we should compess the date
+    if (compressDate) {
+        var dtVal = new Date(val);
+        var today = new Date();
+
+        if (dtVal.getFullYear() == today.getFullYear() &&
+            dtVal.getMonth() == today.getMonth() &&
+            dtVal.getDate() == today.getDate()) {
+
+            // Show only the time
+            var hours = dtVal.getHours();
+            var minutes = dtVal.getMinutes();
+            var ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            val = hours + ':' + minutes + ' ' + ampm;
+
+        } else {
+
+            // Show only the date
+            val = dtVal.getMonth() + "/" + (dtVal.getDate() + 1) + "/" + dtVal.getFullYear();
+        }
+    }
+
+    return val;
+
 }
 
 /**

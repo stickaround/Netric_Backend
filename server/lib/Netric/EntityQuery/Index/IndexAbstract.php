@@ -4,6 +4,9 @@
  */
 namespace Netric\EntityQuery\Index;
 
+use Netric\EntityDefinition;
+use Netric\Entity\ObjType\User;
+
 abstract class IndexAbstract
 {
     /**
@@ -217,4 +220,64 @@ abstract class IndexAbstract
 
 		return $ret;
 	}
+
+    /**
+     * Sanitize condition values for querying
+     *
+     * This function also takes care of translating environment varials such as
+     * current user and current user's team into IDs for the query.
+     *
+     * @param EntityDefinition\Field $field
+     * @param mixed $value
+     */
+    public function sanitizeWhereCondition(EntityDefinition\Field $field, $value)
+    {
+        $user = $this->account->getUser();
+
+        // Replace user vars
+        if ($user)
+        {
+            // Replace current user
+            if (($field->type == "object" && $field->subtype == "user") ||
+                (($field->type == "fkey" || $field->type == "fkey_multi") && $field->subtype == "users")
+                && $value == USER::USER_CURRENT)
+            {
+                $value = $user->getId();
+            }
+
+            /*
+             * TODO: Handle the below conditions
+             *
+            // Replace dereferenced current user team
+            if ($field->type == "object" && $field->subtype == "user" && $ref_field == "team_id"
+                && ($value==USER_CURRENT || $value==TEAM_CURRENTUSER)  && $user->teamId)
+                $value = $user->teamId;
+
+            // Replace current user team
+            if ($field->type == "fkey" && $field->subtype == "user_teams"
+                && ($value==USER_CURRENT || $value==TEAM_CURRENTUSER) && $user->teamId)
+                $value = $user->teamId;
+
+
+             */
+            // Replace object reference with user variables
+            if (($field->type == "object" || $field->type == "object_multi") && !$field->subtype
+                && $value == "user:" . USER::USER_CURRENT)
+                $value = "user:" . $user->getId();
+        }
+
+        /*
+        // TODO: Replace grouping labels with id
+        if (($field->type == "fkey" || $field->type == "fkey_multi") && $value && !is_numeric($value))
+        {
+            $grp = $this->obj->getGroupingEntryByName($fieldParts[0], $value);
+            if ($grp)
+                $value = $grp['id'];
+            else
+                return;
+        }
+        */
+
+        return $value;
+    }
 }

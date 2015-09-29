@@ -41,8 +41,6 @@ var saver = {
 					throw "Error saving entity: " + resp.error;
 				}
 
-				console.log(resp);
-
 				// Update the data in the original entity
 				entity.loadData(resp);
 
@@ -57,7 +55,7 @@ var saver = {
 			}, 'POST', JSON.stringify(data));
 			
 		} else {
-			// Save the data locally into an "outbox" 
+			// TODO: Save the data locally into an "outbox"
 			// to be saved on the next connection
 		}
 	},
@@ -72,6 +70,69 @@ var saver = {
 		
 		// TODO: save locally
 
+	},
+
+	/**
+	 * Delete an entity
+	 *
+	 * @param {string} objType The type of entity we are deleting
+	 * @param {string[]} iDs The id or ids of entities we are deleting
+	 * @param {function} opt_finishedCallback Optional callback to call when deleted
+	 */
+	remove: function(objType, iDs, opt_finishedCallback) {
+
+		if (!objType) {
+			throw "entity/saver/remove: First param must be an object type";
+		}
+
+		if (!iDs) {
+			throw "entity/saver/remove: Second param must be an entity id or array if IDs";
+		}
+
+		// Setup request properties
+		var data = {obj_type: objType, id: iDs};
+
+		// Create a reference to this for tricky callbacks
+		var saverObj = this;
+
+		// If we are connected
+		if (netric.server.online) {
+			// Save the data remotely
+			BackendRequest.send("svr/entity/remove", function(resp) {
+
+				// First check to see if there was an error
+				if (resp.error) {
+					throw "Error removing entity: " + resp.error;
+				}
+
+				// Remove all IDs locally
+				for (var i in resp) {
+					saverObj.removeLocal(objType, resp[i]);
+				}
+
+				// Invoke callback if set
+				if (opt_finishedCallback) {
+					opt_finishedCallback(resp);
+				}
+
+			}, 'POST', data);
+
+		} else {
+			// TODO: Save the data locally into an "outbox"
+			// to be deleted on the next connection
+		}
+	},
+
+	/**
+	 * Queue an entity locally for removal
+	 *
+	 * @param {string} objType The type of entity we are deleting
+	 * @param {string[]} iDs The id or ids of entities we are deleting
+	 * @param {function} opt_finishedCallback Optional callback to call when deleted
+	 */
+	removeLocal: function(objType, iDs, opt_finishedCallback) {
+
+		// TODO: remove locally
 	}
 
 }

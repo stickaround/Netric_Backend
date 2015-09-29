@@ -1,5 +1,5 @@
 <row>
-	<field name='name' hidelabel='f' class='formTitle'></field>
+	<field name='name' hidelabel='f' class='headline'></field>
 </row>
 <row>
 	<field name='groups'></field>

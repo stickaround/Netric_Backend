@@ -429,10 +429,18 @@ class EntityDefinition
             "parent_field" => $this->parentField,
 		);
 
+		// Add fields for this object definition
 		foreach ($this->fields as $fname=>$field)
 		{
 			$ret['fields'][$fname] = $field->toArray();
 		}
+
+        $views = $this->getViews();
+        $ret['views'] = array();
+        foreach ($views as $view)
+        {
+            $ret['views'][] = $view->toArray();
+        }
 
 		return $ret;
 	}

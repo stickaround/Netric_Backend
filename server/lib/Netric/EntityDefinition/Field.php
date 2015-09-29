@@ -342,7 +342,7 @@ class Field implements \ArrayAccess
 			case 'update':
 				if ($on == "update")
 				{
-					if ($this->default['coalesce'] && is_array($this->default['coalesce']) && $obj)
+					if (isset($this->default['coalesce']) && is_array($this->default['coalesce']) && $obj)
 					{
 						$ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias")?true:false);
 						if (!$ret)
@@ -397,7 +397,7 @@ class Field implements \ArrayAccess
             if ("<%username%>" == (string)$ret)
             {
                 if ($user)
-                    $ret = $user->name;
+                    $ret = $user->getValue('name');
                 else
                     $ret = "";
             }
@@ -405,7 +405,7 @@ class Field implements \ArrayAccess
             if ("<%userid%>" == (string)$ret)
             {
                 if ($user)
-                    $ret = $user->id;
+                    $ret = $user->getId();
                 else
                     $ret = "";
             }
@@ -415,7 +415,7 @@ class Field implements \ArrayAccess
 			  || ($this->type == "object" && $this->subtype == "user")) && $ret == "-3")
 		{
 			if ($user)
-				$ret = $user->id;
+				$ret = $user->getId();
 			else
 				$ret = ""; // TODO: possibly use system or anonymous
 		}

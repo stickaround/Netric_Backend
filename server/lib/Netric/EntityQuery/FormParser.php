@@ -44,7 +44,7 @@ class FormParser
         }
 
         // Look for full text search
-        if ($params["q"])
+        if (isset($params["q"]))
         {
             $query->where("*")->equals ($params["q"]);
         }

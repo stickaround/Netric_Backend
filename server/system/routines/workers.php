@@ -13,7 +13,7 @@ require_once("lib/WorkerMan.php");
 
 ini_set("max_execution_time", "0");
 ini_set("max_input_time", "0");
-ini_set('memory_limit','2G');
+ini_set('memory_limit','4G');
 
 // Get process id lock to assure we only run one instance at a time
 $pidFp = fopen(AntConfig::getInstance()->data_path."/tmp/svc_workers_" . AntConfig::getInstance()->version, 'w+');

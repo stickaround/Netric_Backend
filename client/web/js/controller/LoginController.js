@@ -134,7 +134,8 @@ LoginController.prototype.login = function(username, password) {
 		// TODO: Unable to contact the server. Handle gracefully.
 		loginController.rootReactNode_.setProps({processing: false});
 		var response = this.getResponse();
-		console.log(response);
+		console.error(response);
+		// TODO: we should log this
 	});
 
 	request.send("svr/authentication/authenticate", "POST", credentials);
@@ -184,7 +185,8 @@ LoginController.prototype.getLoginAccounts = function(username, password) {
 		// TODO: Unable to contact the server. Handle gracefully.
 		loginController.rootReactNode_.setProps({processing: false});
 		var response = this.getResponse();
-		console.log(response);
+		console.error(response);
+		// TODO: we should definitely log this
 	});
 
 	// Make a request to the universal login endpoint to get accounts

@@ -20,7 +20,7 @@ var ListItem = React.createClass({
             classes += " selected";
         }
         var headerText = entity.getName();
-        var headerTime = entity.getTime();
+        var headerTime = entity.getTime(null, true);
         var snippet = entity.getSnippet();
         var actors = entity.getActors();
 

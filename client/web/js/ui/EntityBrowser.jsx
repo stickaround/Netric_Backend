@@ -9,6 +9,7 @@ var React = require('react');
 var List = require("./entitybrowser/List.jsx");
 var IconButton = require("./IconButton.jsx");
 var AppBarBrowse = require("./entitybrowser/AppBarBrowse.jsx");
+var Loading = require("./Loading.jsx");
 
 /**
  * Module shell
@@ -24,7 +25,9 @@ var EntityBrowser = React.createClass({
       actionHandler : React.PropTypes.object,
       entities: React.PropTypes.array,
       deviceSize: React.PropTypes.number,
-      selectedEntities: React.PropTypes.array
+      selectedEntities: React.PropTypes.array,
+      browserView: React.PropTypes.object,
+      collectionLoading: React.PropTypes.bool
   },
 
   getDefaultProps: function() {
@@ -32,11 +35,32 @@ var EntityBrowser = React.createClass({
           layout: '',
           title: "Browser",
           entities: [],
-          selectedEntities: []
+          selectedEntities: [],
+          collectionLoading: false
       }
   },
 
   render: function() {
+
+      var bodyContent = null;
+
+      if (this.props.entities.length == 0 && this.props.collectionLoading) {
+          bodyContent = <Loading />;
+      } else if (this.props.entities.length == 0) {
+          bodyContent = <div className="entity-browser-blank">No items found.</div>;
+      } else {
+          bodyContent = (<List
+              onEntityListClick={this.props.onEntityListClick}
+              onEntityListSelect={this.props.onEntityListSelect}
+              entities={this.props.entities}
+              selectedEntities={this.props.selectedEntities}
+              browserView={this.props.browserView}
+              layout={this.props.layout} />);
+
+          if (this.props.collectionLoading) {
+              // TODO: display loading indicator over the list
+          }
+      }
 
     return (
       <div>
@@ -52,12 +76,7 @@ var EntityBrowser = React.createClass({
             selectedEntities={this.props.selectedEntities} />
         </div>
         <div ref="moduleMain">
-            <List
-                onEntityListClick={this.props.onEntityListClick}
-                onEntityListSelect={this.props.onEntityListSelect}
-                entities={this.props.entities}
-                selectedEntities={this.props.selectedEntities}
-                layout={this.props.layout} />
+            {bodyContent}
         </div>
       </div>
     );

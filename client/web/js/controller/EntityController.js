@@ -101,25 +101,27 @@ EntityController.prototype.onLoad = function(opt_callback) {
         // Now load the entity if set
         if (this.props.eid) {
 
-            entityLoader.get(this.props.objType, this.props.eid, function(ent) {
-
-                // Set local entity
-                this.entity_ = ent;
-
-                // Set listener to call this.render when properties change
-                alib.events.listen(this.entity_, "change", function(evt){
+            // Load the entity and get a promised entity back
+            this.entity_ = entityLoader.get(this.props.objType, this.props.eid, function(ent) {
+                /*
+                 * Set listener to call this.render when properties change.
+                 * This is save because the load has already set all properties so
+                 * it should only call render if a property changes post-load
+                 */
+                alib.events.listen(ent, "change", function(evt){
                     // Re-render
                     this.render();
                 }.bind(this));
 
-                if (callbackWhenLoaded) {
-                    // Let the application router know we're all loaded
-                    callbackWhenLoaded();
-                }
-
             }.bind(this));
 
-        } else if (callbackWhenLoaded) {
+            // Listen for initial load to re-render this entity
+            alib.events.listen(this.entity_, "load", function(evt){
+                // Re-render
+                this.render();
+            }.bind(this));
+
+        } else {
 
             // Setup an empty entity
             this.entity_ = entityLoader.factory(this.props.objType);
@@ -129,7 +131,9 @@ EntityController.prototype.onLoad = function(opt_callback) {
                 // Re-render
                 this.render();
             }.bind(this));
+        }
 
+        if (callbackWhenLoaded) {
             // Let the application router know we're all loaded
             callbackWhenLoaded();
         }
@@ -167,7 +171,12 @@ EntityController.prototype.render = function() {
             data.form = this.entityDefinition_.forms.small;
             break;
         case netric.Device.sizes.medium:
-            data.form = this.entityDefinition_.forms.medium;
+            if (this.entityDefinition_.forms.medium) {
+                data.form = this.entityDefinition_.forms.medium;
+            } else {
+                data.form = this.entityDefinition_.forms.large;
+            }
+
             break;
         case netric.Device.sizes.large:
             data.form = this.entityDefinition_.forms.large;
@@ -191,7 +200,6 @@ EntityController.prototype.close = function() {
         this.unload();
     } else if (this.getParentController()) {
         var path = this.getParentController().getRoutePath();
-        console.log("Controller going back to:", path);
         netric.location.go(path);
     } else {
         window.close();

@@ -58,6 +58,8 @@ if ($username && $pass && $account)
 		$dbh = $ANT->dbh;
         $ANT->id = $acctinf['id'];
 
+
+
 		// Now check user table for user name and password combinations
 		if ($uid)
 			$ret = $uid;

@@ -9,6 +9,7 @@
 'use strict';
 
 var Field = require("./definition/Field");
+var BrowserView = require("./BrowserView");
 
 /**
  * Creates an instance of EntityDefinition
@@ -126,7 +127,7 @@ var Definition = function(opt_data) {
 	 * Array of object views
 	 *
 	 * @private
-	 * @type {AntObjectBrowserView[]}
+	 * @type {BrowserView[]}
 	 */
 	this.views = new Array();
 
@@ -173,7 +174,7 @@ var Definition = function(opt_data) {
 	 */
 	if (data.views) {
 		for (var i in data.views) {
-			var view = new AntObjectBrowserView();
+			var view = new BrowserView();
 			view.fromData(data.views[i]);
 			this.views.push(view);
 		}
@@ -200,10 +201,20 @@ Definition.prototype.getField = function(fname) {
  * Get fields
  *
  * @public
- * @return {Definition.Field[]}
+ * @return {Field[]}
  */
 Definition.prototype.getFields = function() {
 	return this.fields;
+}
+
+/**
+ * Get the field used for the name/list title
+ *
+ * @public
+ * @return {string}
+ */
+Definition.prototype.getNameField = function() {
+    return this.listTitle;
 }
 
 /**
@@ -224,6 +235,28 @@ Definition.prototype.getViews = function() {
  */
 Definition.prototype.getBrowserBlankContent = function() {
 	return this.browserBlankContent;
+}
+
+
+/**
+ * Get the default browser view
+ *
+ * @returns {BrowserView}
+ */
+Definition.prototype.getDefaultView = function() {
+
+    // First check to see if there is a default view already setup
+    for (var i in this.views) {
+        if (this.views[i].default) {
+            return this.views[i];
+        }
+    }
+
+    // No default was found, construct a default
+    var view = new BrowserView(this.objType);
+    view.tableColumns_.push("id");
+    // TODO: add a few more here
+    return view;
 }
 
 module.exports = Definition;

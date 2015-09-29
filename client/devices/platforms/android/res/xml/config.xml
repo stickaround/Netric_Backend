@@ -1,11 +1,27 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.netric.client" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.netric.client" version="0.0.9" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
     <feature name="Whitelist">
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
+        <param name="onload" value="true" />
+    </feature>
     <allow-intent href="market:*" />
+    <splash density="land-ldpi" src="res/android/splash/ldpi-land.png" />
+    <splash density="land-mdpi" src="res/android/splash/mdpi-land.png" />
+    <splash density="land-hdpi" src="res/android/splash/hdpi-land.png" />
+    <splash density="land-xhdpi" src="res/android/splash/xhdpi-land.png" />
+    <splash density="port-ldpi" src="res/android/splash/ldpi-port.png" />
+    <splash density="port-mdpi" src="res/android/splash/mdpi-port.png" />
+    <splash density="port-hdpi" src="res/android/splash/hdpi-port.png" />
+    <splash density="port-xhdpi" src="res/android/splash/xhdpi-port.png" />
     <icon density="ldpi" src="res/android/ldpi.png" />
     <icon density="mdpi" src="res/android/mdpi.png" />
     <icon density="hdpi" src="res/android/hdpi.png" />
@@ -27,5 +43,8 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
-    <preference name="SplashScreenDelay" value="10000" />
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="1000" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#0097a7" />
 </widget>

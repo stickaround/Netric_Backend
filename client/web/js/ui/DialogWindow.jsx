@@ -72,7 +72,7 @@ var DialogWindow = React.createClass({
           {this.props.children}
           {actions}
         </Paper>
-        <Overlay ref="dialogOverlay" show={this.state.open} autoLockScrolling={false} onTouchTap={this._handleOverlayTouchTap} />
+        <Overlay ref="dialogOverlay" show={this.state.open} autoLockScrolling={false} onClick={this._handleOverlayTouchTap} />
       </div>
     );
   },

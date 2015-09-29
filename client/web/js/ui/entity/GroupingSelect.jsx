@@ -122,7 +122,7 @@ var GroupingSelect = React.createClass({
 		 * - Sky Stebnicki
 		return (
 			<span>
-				<FlatButton label={this.props.label} onTouchTap={this._handleDialogShow} />
+				<FlatButton label={this.props.label} onClick={this._handleDialogShow} />
 				<Dialog 
                     ref='groupings' 
                     title={this.props.label} 

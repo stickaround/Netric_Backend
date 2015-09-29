@@ -139,7 +139,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 		$sql .= " OFFSET " . $query->getOffset();
 		if ($query->getLimit())
 			$sql .= " LIMIT " . $query->getLimit();
-        
+
 		// Get fields for this object type (used in decoding multi-valued fields)
 		$ofields = $def->getFields();
 
@@ -148,14 +148,14 @@ class Pgsql extends IndexAbstract implements IndexInterface
             $results = new EntityQuery\Results($query, $this);
         else 
             $results->clearEntities();
-        
+
         $sqlRes = $this->dbh->query($sql);
         for ($i = 0; $i < $this->dbh->getNumRows($sqlRes); $i++)
         {
             $row = $this->dbh->getRow($sqlRes, $i);
             $id = $row["id"];
 
-            // Winodow function no longer used to get count because of performance issues - Sky Stebnicki
+            // Window function no longer used to get count because of performance issues - Sky Stebnicki
             // 
             // Set total num of returned objects from the window function count(*) OVER() above in the
             // query. Not sure if this more performant than running two separate queries or not.
@@ -475,10 +475,12 @@ class Pgsql extends IndexAbstract implements IndexInterface
 					$ref_field = "";
 				}
 
-                 
+				// Sanitize and replace environment variables like 'current_user' to concrete vals
+				$condValue = $this->sanitizeWhereCondition($field, $condValue);
 
-                if ($field->type == "bool")
-                    $condValue = ($condValue === true) ? 't' : 'f';
+				// Convert PHP bool to textual true or false
+				if ($field->type == "bool")
+					$condValue = ($condValue === true) ? 't' : 'f';
                 
 				if ($condValue!="" && $condValue!=null)
 				{

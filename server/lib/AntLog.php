@@ -180,13 +180,13 @@ class AntLog
 		global $_SERVER;
 
 		$source = "ANT";
-		if ($_SERVER['REQUEST_URI'])
+		if (isset($_SERVER['REQUEST_URI']))
 			$source = $_SERVER['REQUEST_URI'];
-		else if ($_SERVER['PHP_SELF'])
+		else if (isset($_SERVER['PHP_SELF']))
 			$source = $_SERVER['PHP_SELF'];
 
 		$server = "";
-		if ($_SERVER['SERVER_NAME'])
+		if (isset($_SERVER['SERVER_NAME']))
 			$server = $_SERVER['SERVER_NAME'];
 
 		$eventData = array();

@@ -117,7 +117,6 @@ Route.prototype.enterRoute = function(opt_params, opt_callback) {
  * Called when the router moves away from this route to show an alternate route
  */
 Route.prototype.exitRoute = function() {
-
 	// Exit all childen first
 	if (this.getChildRouter().getActiveRoute()) {
 		this.getChildRouter().exitActiveRoute();

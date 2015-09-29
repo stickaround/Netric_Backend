@@ -247,8 +247,7 @@ var Menu = React.createClass({
               number={menuItem.number}
               toggle={menuItem.toggle}
               disabled={isDisabled}
-              onClick={this._onItemClick}
-              onTouchTap={this._onItemTap}>
+              onClick={this._onItemClick}>
               {menuItem.text}
             </MenuItem>
           );

@@ -1,5 +1,5 @@
 <?php
-	require_once('File/IMC.php');
+	require_once('lib/File/IMC.php');
 
 	class CImcCalendar
 	{

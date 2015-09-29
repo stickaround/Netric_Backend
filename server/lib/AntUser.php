@@ -134,7 +134,7 @@ class AntUser
 			{
 				$this->timezoneName = Ant::getSessionVar("tz");
 			}
-			else if (function_exists("geoip_record_by_name") && function_exists("geoip_time_zone_by_country_and_region") && $_SERVER['REMOTE_ADDR'])
+			else if (function_exists("geoip_record_by_name") && function_exists("geoip_time_zone_by_country_and_region") && isset($_SERVER['REMOTE_ADDR']))
 			{
 				$region = geoip_record_by_name($_SERVER['REMOTE_ADDR']);
 				if ($region)
@@ -159,6 +159,14 @@ class AntUser
 	 */
 	public function load()
 	{
+	}
+
+	/**
+	 * Return the id of this user
+	 */
+	public function getId()
+	{
+		return $this->id;
 	}
 
 	/**
@@ -753,7 +761,7 @@ class AntUser
 			$row = $dbh->GetNextRow($result, 0);
 
 			// Check to see if the user is on old authentication scheme
-			if (!$row['password_salt'])
+			if (!$row['password_salt'] && ($row['password'] == $password || $row['password'] == md5($password)))
 			{
 				/*
 				 * If we force an update in the user entity it will create
@@ -876,7 +884,8 @@ class AntUser
 		if (!$this->id)
 			return false;
 
-		$this->dbh->Query("update users set last_login='now', last_login_from='".$_SERVER['REMOTE_ADDR']."' where id='".$this->id."'");
+		$remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "unknown";
+		$this->dbh->Query("update users set last_login='now', last_login_from='" . $remoteAddr . "' where id='".$this->id."'");
 	}
 
 	/**

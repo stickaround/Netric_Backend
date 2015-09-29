@@ -151,12 +151,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			$revision = 1;
 		else
 			$revision++;
+
 		$entity->setValue("revision", $revision);
 
 		// Create new global commit revision
 		$lastCommitId = $entity->getValue('commit_id');
 		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
 		$entity->setValue('commit_id', $commitId);
+
+        // Set defaults
+        $event = ($entity->getId()) ? "update" : "create";
+        $user = $this->getAccount()->getUser();
+        $entity->setFieldsDefault($event, $user);
 
 		// Call onBeforeSave
 		if ($this->getAccount()->getServiceManager())
@@ -189,6 +195,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		if ($this->getAccount()->getServiceManager())
 			$entity->onAfterSave($this->getAccount()->getServiceManager());
 
+		// Reset dirty flag and changelog
+		$entity->resetIsDirty();
+
 		return $ret;
 	}
 
@@ -208,6 +217,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			if ($movedToId && $movedToId != $id)
 				$ret = $this->fetchById($entity, $movedToId);
 		}
+
+        // Reset dirty flag and changelog since we just loaded
+        $entity->resetIsDirty();
 
 		return $ret;
 	}

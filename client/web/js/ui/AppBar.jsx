@@ -34,6 +34,15 @@ var AppBar = React.createClass({
         }
     },
 
+    componentDidMount: function() {
+        // If we are working with a device that supports status bar color, then set
+        if (typeof cordova != "undefined" && typeof StatusBar != "undefined") {
+            if (cordova.platformId == 'android') {
+               // StatusBar.backgroundColorByHexString("#fff");
+            }
+        }
+    },
+
 	render: function() {
 
 		// Set the back/menu button
@@ -51,7 +60,7 @@ var AppBar = React.createClass({
                     <IconButton
                         className="app-bar-navigation-icon-button" 
                         iconClassName={this.props.iconClassNameLeft}
-                        onTouchTap={this.props.onNavBtnClick}>
+                        onClick={this.props.onNavBtnClick}>
                         {child}
                     </IconButton>
                 );

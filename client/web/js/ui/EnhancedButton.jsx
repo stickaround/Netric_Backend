@@ -18,7 +18,7 @@ var EnhancedButton = React.createClass({
     linkButton: React.PropTypes.bool,
     onBlur: React.PropTypes.func,
     onFocus: React.PropTypes.func,
-    onTouchTap: React.PropTypes.func
+    onClick: React.PropTypes.func
   },
 
   windowListeners: {
@@ -41,7 +41,7 @@ var EnhancedButton = React.createClass({
     var linkButton = this.props.linkButton;
     var onBlur = this.props.onBlur;
     var onFocus = this.props.onFocus;
-    var onTouchTap = this.props.onTouchTap;
+    var onClick = this.props.onClick;
 
     var classes = this.getClasses('enhanced-button', {
       'is-disabled': disabled,
@@ -66,7 +66,7 @@ var EnhancedButton = React.createClass({
       disabled: disabled,
       onBlur: this._handleBlur,
       onFocus: this._handleFocus,
-      onTouchTap: this._handleTouchTap
+        onClick: this._handleTouchTap
     };
     var buttonChildren = [
       disabled || disableTouchRipple ? this.props.children : touchRipple,
@@ -139,7 +139,7 @@ var EnhancedButton = React.createClass({
     this.setState({
       isKeyboardFocused: false
     });
-    if (this.props.onTouchTap) this.props.onTouchTap(e);
+    if (this.props.onClick) this.props.onClick(e);
   }
 
 });

@@ -47,7 +47,7 @@ var AppBarBrowse = React.createClass({
             elemmentLeft = (
                 <IconButton
                     iconClassName="fa fa-arrow-left"
-                    onTouchTap={this.deSelectAll_} />
+                    onClick={this.deSelectAll_} />
             );
 
             // Create app bar for selected elements
@@ -62,7 +62,7 @@ var AppBarBrowse = React.createClass({
             elemmentLeft = (
                 <IconButton
                     iconClassName="fa fa-arrow-left"
-                    onTouchTap={this.toggleSearchMode} />
+                    onClick={this.toggleSearchMode} />
             );
 
             // Create AppBar with search form
@@ -78,7 +78,7 @@ var AppBarBrowse = React.createClass({
                 <div>
                     <IconButton
                         iconClassName="fa fa-search"
-                        onTouchTap={this.toggleSearchMode}>
+                        onClick={this.toggleSearchMode}>
                     </IconButton>
                 </div>
             );

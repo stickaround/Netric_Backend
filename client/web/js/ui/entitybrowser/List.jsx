@@ -19,6 +19,9 @@ var List = React.createClass({
         onEntityListSelect: React.PropTypes.func,
         layout : React.PropTypes.string,
         entities: React.PropTypes.array,
+
+        // Instance of Netric/Entity/BrowserView defining which columns a table show show
+        browserView: React.PropTypes.object,
         selectedEntities: React.PropTypes.array
     },
 
@@ -50,11 +53,12 @@ var List = React.createClass({
                  */
                 default:
 
-                    if (this.props.layout == 'table'){
+                    if (this.props.layout == 'table') {
                         item = <ListItemTableRow
                             key={entity.id}
                             selected={selected}
                             entity={entity}
+                            browserView={this.props.browserView}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id)}
                             onSelect={this._sendSelect.bind(null, entity.id)} />;
                     } else {
@@ -73,11 +77,14 @@ var List = React.createClass({
 
         }.bind(this));
 
-        if (this.props.layout == 'table'){
+        if (this.props.layout == 'table') {
             return (
-                <table><tbody>
-                    {entityNodes}
-                </tbody></table>
+                <div className="entity-browser-list">
+                    <table className="entity-browser-list-table">
+                        <tbody>
+                            {entityNodes}
+                        </tbody></table>
+                </div>
             );
         } else {
             return (

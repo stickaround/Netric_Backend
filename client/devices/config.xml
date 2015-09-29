@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.netric.client" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget
+        id="com.netric.client"
+        version="0.0.9"
+        xmlns="http://www.w3.org/ns/widgets"
+        xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Netric</name>
     <description>
         Mobile client for netric.
@@ -20,17 +24,15 @@
         <allow-intent href="market:*" />
 
         <!-- Splash Screens -->
-        <!-- you can use any density that exists in the Android project
-        <splash src="res/screen/android/splash-land-hdpi.png" density="land-hdpi"/>
-        <splash src="res/screen/android/splash-land-ldpi.png" density="land-ldpi"/>
-        <splash src="res/screen/android/splash-land-mdpi.png" density="land-mdpi"/>
-        <splash src="res/screen/android/splash-land-xhdpi.png" density="land-xhdpi"/>
+        <splash src="res/android/splash/ldpi-land.png" density="land-ldpi"/>
+        <splash src="res/android/splash/mdpi-land.png" density="land-mdpi"/>
+        <splash src="res/android/splash/hdpi-land.png" density="land-hdpi"/>
+        <splash src="res/android/splash/xhdpi-land.png" density="land-xhdpi"/>
 
-        <splash src="res/screen/android/splash-port-hdpi.png" density="port-hdpi"/>
-        <splash src="res/screen/android/splash-port-ldpi.png" density="port-ldpi"/>
-        <splash src="res/screen/android/splash-port-mdpi.png" density="port-mdpi"/>
-        <splash src="res/screen/android/splash-port-xhdpi.png" density="port-xhdpi"/>
-        -->
+        <splash src="res/android/splash/ldpi-port.png" density="port-ldpi"/>
+        <splash src="res/android/splash/mdpi-port.png" density="port-mdpi"/>
+        <splash src="res/android/splash/hdpi-port.png" density="port-hdpi"/>
+        <splash src="res/android/splash/xhdpi-port.png" density="port-xhdpi"/>
 
         <!-- Android incons -->
         <icon src="res/android/ldpi.png" density="ldpi" />
@@ -40,10 +42,10 @@
         <icon src="res/android/xxhdpi.png" density="xxhdpi" />
         <icon src="res/android/xxxhdpi.png" density="xxxhdpi" />
     </platform>
+
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
-
     </platform>
 
     <platform name="wp8">
@@ -55,5 +57,9 @@
 
     </platform>
 
-    <preference name="SplashScreenDelay" value="10000" />
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="1000" />
+
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#0097a7" />
 </widget>

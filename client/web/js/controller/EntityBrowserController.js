@@ -11,6 +11,7 @@ var EntityController = require("./EntityController");
 var UiEntityBrowser = require("../ui/EntityBrowser.jsx");
 var EntityCollection = require("../entity/Collection");
 var actionsLoader = require("../entity/actionsLoader");
+var definitionLoader = require("../entity/definitionLoader");
 
 /**
  * Controller that loads an entity browser
@@ -64,6 +65,14 @@ EntityBrowserController.prototype.selected_ = new Array();
 EntityBrowserController.prototype.actions_ = null;
 
 /**
+ * View being used to filter and order the collection
+ *
+ * @type {BrowserView}
+ * @private
+ */
+EntityBrowserController.prototype.browserView_ = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -72,26 +81,38 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
 
-	// By default just immediately execute the callback because nothing needs to be done
-	if (opt_callback)
-		opt_callback();
+    if (this.props.objType) {
+        // Get the default view from the object definition
+        definitionLoader.get(this.props.objType, function(def){
+            this.browserView_ = def.getDefaultView();
+            if (opt_callback) {
+                opt_callback();
+            }
+        }.bind(this));
+    } else if (opt_callback) {
+        // By default just immediately execute the callback because nothing needs to be done
+        opt_callback();
+    }
+
 }
 
 /**
  * Render this controller into the dom tree
  */
-EntityBrowserController.prototype.render = function() { 
+EntityBrowserController.prototype.render = function() {
+
 	// Set outer application container
 	var domCon = this.domNode_;
 
     // Define the data
 	var data = {
-		title: this.props.title,
+		title: this.props.browsebytitle ||this.props.title,
         entities: new Array(),
         deviceSize: netric.getApplication().device.size,
         layout: (netric.getApplication().device.size === netric.Device.sizes.small)
             ? "compact" : "table",
         actionHandler: this.actions_,
+        browserView:this.browserView_,
         onEntityListClick: function(objType, oid) {
             this.onEntityListClick(objType, oid);
         }.bind(this),
@@ -111,7 +132,7 @@ EntityBrowserController.prototype.render = function() {
         onNavBtnClick: this.props.onNavBtnClick || null
 	}
 
-	// Render application component
+	// Render browser component
 	this.rootReactNode_ = React.render(
 		React.createElement(UiEntityBrowser, data),
 		domCon
@@ -123,11 +144,19 @@ EntityBrowserController.prototype.render = function() {
         this.onCollectionChange();
     }.bind(this));
 
+    alib.events.listen(this.collection_, "loading", function() {
+        this.onCollectionLoading();
+    }.bind(this));
+
+    alib.events.listen(this.collection_, "loaded", function() {
+        this.onCollectionLoaded();
+    }.bind(this));
+
     // Load the colleciton
     this.loadCollection();
 
     // Add route to browseby
-    this.addSubRoute("browse/:browseby/:browseval",
+    this.addSubRoute("browse/:browseby/:browseval/:browsebytitle",
         EntityBrowserController, {
             type: controller.types.PAGE,
             title: this.props.title,
@@ -174,7 +203,6 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
  */
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
-    console.log("Filter the collection with:", fullText);
 
     this.userSearchString_ = fullText;
 
@@ -189,6 +217,7 @@ EntityBrowserController.prototype.loadCollection = function() {
 
     // Clear out conditions to remove stale wheres
     this.collection_.clearConditions();
+    this.collection_.clearOrderBy();
 
     // Check filter conditions
     if (this.props.browseby && this.props.browseval) {
@@ -198,6 +227,14 @@ EntityBrowserController.prototype.loadCollection = function() {
     // Check if the user entered a full-text search condition
     if (this.userSearchString_) {
         this.collection_.where("*").equalTo(this.userSearchString_);
+    }
+
+    if (this.browserView_) {
+        var viewConditions = this.browserView_.getConditions();
+        for (var i in viewConditions) {
+            this.collection_.addWhere(viewConditions[i]);
+        }
+        // TODO: Add anything else from this.browserView_ to the conditions and order
     }
 
     // Load (we depend on 'onload' events for triggering UI rendering in this.render)
@@ -232,7 +269,7 @@ EntityBrowserController.prototype.toggleSelectAll = function(selected) {
     }
 
     if (selected) {
-        // TODO: slect all or set a flag to do so
+        // TODO: select all or set a flag to do so
     } else {
         // Clear all selected
         this.selected_ = new Array();
@@ -248,12 +285,11 @@ EntityBrowserController.prototype.toggleSelectAll = function(selected) {
  */
 EntityBrowserController.prototype.performActionOnSelected = function(actionName) {
 
-    var workingText = this.actions_.performAction(actionName, this.selected_, function(error, message) {
+    var workingText = this.actions_.performAction(actionName, this.props.objType, this.selected_, function(error, message) {
         
         if (error) {
             console.error(message);
-        } else {
-            console.log(message);
+            // TODO: we should probably log this
         }
 
         // TODO: clear workingText notification
@@ -272,6 +308,21 @@ EntityBrowserController.prototype.performActionOnSelected = function(actionName)
 EntityBrowserController.prototype.onCollectionChange = function() {
     var entities = this.collection_.getEntities();
     this.rootReactNode_.setProps({entities: entities});
+}
+
+/**
+ * The collection is attempting to get results from the backend
+ */
+EntityBrowserController.prototype.onCollectionLoading = function() {
+    var entities = this.collection_.getEntities();
+    this.rootReactNode_.setProps({collectionLoading: true});
+}
+
+/**
+ * The collection has finished requesting results from the backend
+ */
+EntityBrowserController.prototype.onCollectionLoaded = function() {
+    this.rootReactNode_.setProps({collectionLoading: false});
 }
 
 /**

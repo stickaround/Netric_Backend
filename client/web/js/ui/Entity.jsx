@@ -10,6 +10,7 @@ var AppBar = require("./AppBar.jsx");
 var UiXmlElement = require("./entity/UiXmlElement.jsx");
 var IconButton = require("./IconButton.jsx");
 var Dialog = require("./Dialog.jsx");
+var Loading = require("./Loading.jsx");
 
 /**
  * Module shell
@@ -32,17 +33,29 @@ var Entity = React.createClass({
         return { editMode: (this.props.entity.id) ? false : true };
     },
 
+    /**
+     * Notify the application if we have changed modes
+     */
+    componentDidMount: function() {
+        // If we are working with a device that supports status bar color, then set
+        if (typeof cordova != "undefined" && typeof StatusBar != "undefined") {
+            if (cordova.platformId == 'android') {
+                // StatusBar.backgroundColorByHexString("#fff");
+            }
+        }
+    },
+
     render: function() {
 
         var rightIcons = [];
 
         if (this.state.editMode) {
             rightIcons.push(
-                <IconButton iconClassName="fa fa-check" onTouchTap={this.saveClick_}></IconButton>
+                <IconButton iconClassName="fa fa-check" onClick={this.saveClick_}></IconButton>
             );
         } else {
             rightIcons.push(
-                <IconButton iconClassName="fa fa-pencil" onTouchTap={this.editModeClick_}></IconButton>
+                <IconButton iconClassName="fa fa-pencil" onClick={this.editModeClick_}></IconButton>
             );
         }
         
@@ -72,6 +85,19 @@ var Entity = React.createClass({
         // If the zDepth is 0 then add an hr
         var hr = (appBarZDepth == 0) ? <hr /> : null;
 
+        // Show loading indicator if the entity is not yet loaded for the first time
+        var body = null;
+        if (this.props.entity.isLoading) {
+            body = <Loading />;
+        } else {
+            // render the UIXML form
+            body = (<UiXmlElement
+                xmlNode={rootFormNode}
+                eventsObj={this.props.eventsObj}
+                entity={this.props.entity}
+                editMode={this.state.editMode} />);
+        }
+
         // Add confirmation dialog for undoing changes
         var confirmActions = [
           { text: 'Cancel' },
@@ -85,11 +111,7 @@ var Entity = React.createClass({
                 </div>
                 {hr}
                 <div>
-                    <UiXmlElement 
-                        xmlNode={rootFormNode} 
-                        eventsObj={this.props.eventsObj} 
-                        entity={this.props.entity}
-                        editMode={this.state.editMode} />
+                    {body}
                 </div>
                 <Dialog 
                     ref='confirm' 

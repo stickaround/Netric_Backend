@@ -99,7 +99,7 @@ var Large = React.createClass({
         </div>
         <div className="login-form-con">
           <TextField
-                floatingLabelText="Username"
+                floatingLabelText="Email"
                 onChange={this._handleUsernameChange} />
           <TextField
                 type="password"

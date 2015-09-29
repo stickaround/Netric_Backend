@@ -4,6 +4,8 @@
  */
 namespace Netric;
 
+use Netric\Stats\StatsPublisher;
+
 class EntityLoader
 {
 	/**
@@ -129,11 +131,21 @@ class EntityLoader
 			$entity->fromArray($data);
 			if ($entity->getId())
 			{
+				// Clear dirty status
+				$entity->resetIsDirty();
+
 				// Save in loadedEntities so we don't hit the cache again
 				$this->loadedEntities[$objType][$id] = $entity;
+
+				// Stat a cache hit
+				StatsPublisher::increment("entity.cache.hit");
+
 				return $entity;
 			}
 		}
+
+		// Stat a cache miss
+		StatsPublisher::increment("entity.cache.miss");
 
 		// Load from datamapper
 		if ($this->dataMapper->getById($entity, $id))

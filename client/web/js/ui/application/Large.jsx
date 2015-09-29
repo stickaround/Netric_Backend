@@ -24,7 +24,7 @@ var Large = React.createClass({
             <img src={this.props.logoSrc} id="app-header-logo" />
           </div>
           <div id="app-header-search" className="app-header-search-con">
-            Search goes here <a onClick={function() {netric.location.go("/messages")}}>Go to messages</a>
+            Search goes here
           </div>
           <div className="app-header-profile-con">
             <i className="fa fa-camera-retro fa-lg"></i>

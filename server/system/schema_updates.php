@@ -1,9 +1,15 @@
 <?php
+/**
+ * Everything is relative to the application root now.
+ */
+chdir(dirname(__DIR__));
+
+
 /************************************************************************
  * This contains a list of SQL schema updates for the datbase
  * **********************************************************************/
-require_once("../init_application.php");
-require_once("../lib/AntConfig.php");
+require_once("init_application.php");
+require_once("lib/AntConfig.php");
 require_once("lib/Ant.php");
 require_once("settings/settings_functions.php");		
 require_once("lib/CDatabase.awp");
@@ -77,13 +83,10 @@ for ($s = 0; $s < $num_sys; $s++)
 	if (!$HIDE_MESSAGES)
 		echo "Updating ".$ant->accountName."\n";
 
-	// Include legacy updates in case schema is < 3.0.0
-	if (!$ant->settingsGet("system/schema_version"))
-		include("schema/legacy/updates.php");
-
 	// Update schmea to latest version
-	$ret = $ant->schemaUpdate();
-
-	if (!$ret)
-		echo "New schema updater did not run because current schma is not >= 3.1.0";
+	try {
+		$ret = $ant->schemaUpdate();
+	} catch (Exception $ex) {
+		echo "There was an error updating " . $ant->accountName . ":" . $ex->getMessage() . "\n";
+	}
 }

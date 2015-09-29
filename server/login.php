@@ -6,14 +6,14 @@
 	require_once("lib/CDatabase.awp");
 	require_once("users/user_functions.php");
 	
-	$requestedPage = $_REQUEST['p'];
+	$requestedPage = (isset($_REQUEST['p'])) ? $_REQUEST['p'] : null;
 
 	// Try to detect moble devices
 	// -------------------------------------------------------------------------------
 	$mobile_browser = '0';
 	$match = '/(up.browser|up.link|windows ce|iemobile|mmp|symbian|';
 	$match .= 'smartphone|midp|wap|phone|vodafone|o2|pocket|mobile|psp)/i';
-	if(preg_match($match,strtolower($_SERVER['HTTP_USER_AGENT'])) || $_GET['mobile'])
+	if(preg_match($match,strtolower($_SERVER['HTTP_USER_AGENT'])) || isset($_GET['mobile']))
 	{
 		$mobile_browser++;
 	}
@@ -49,13 +49,13 @@
 
 	// Get forwarded variables
 	// -------------------------------------------------------------------------------
-	$err = $_GET['e'];
+	$err = (isset($_GET['e'])) ? $_GET['e'] : null;
 	$FWD = "";
-	if ($_GET['user'])
+	if (isset($_GET['user']))
 		$FWD .= "&user=".$_GET['user'];
 	if ($requestedPage)
 		$FWD .= "&p=".$requestedPage;
-	if ($_GET['e'])
+	if (isset($_GET['e']))
 		$FWD .= "&e=".$_GET['e'];
 
 	// Get forwarded variables
@@ -223,7 +223,7 @@
 			<form name="logon" method="post" action="authenticate.php">
 				<?php if ($err != '4') { ?>
 				<h3>Username</h3>
-				<input name="user" type="text" maxlength="64" value="<?php print($_GET['user']);?>" onfocus="g_frmFocussed=true"><br>
+				<input name="user" type="text" maxlength="64" value="<?php if (isset($_GET['user'])) { print($_GET['user']); } ?>" onfocus="g_frmFocussed=true"><br>
 				<h3>Password</h3>
 				<input name="password" type="password" maxlength="64" onfocus="g_frmFocussed=true">
 				<div style='margin-top: 10px;'>

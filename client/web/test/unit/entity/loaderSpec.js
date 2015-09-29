@@ -36,7 +36,7 @@ describe("Get Entity Asynchronously", function() {
 
 	it("should have loaded the right data", function(done) {
 		
-		expect(entity.id).toEqual("1");
+		expect(entity.id).toEqual(1);
 		expect(entity.objType).toEqual("customer");
 		
 		// TODO: views
@@ -78,7 +78,7 @@ describe("Get Entity Non Async", function() {
 		entityLoader.entities_ = new Object();
 		var entity = entityLoader.get("customer", "1"); // No callback forces sync load
 		expect(entity.objType).toEqual("customer");
-		expect(entity.id).toEqual("1");
+		expect(entity.id).toEqual(1);
 	});
 
 	it("should have cached the entity object", function() {

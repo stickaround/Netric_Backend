@@ -13,7 +13,7 @@ var React = require('react');
 var GroupingChip = React.createClass({
 
 	propTypes: {
-		id: React.PropTypes.string,
+		id: React.PropTypes.number,
 		name: React.PropTypes.string,
 		onRemove: React.PropTypes.func
 	},
@@ -22,7 +22,7 @@ var GroupingChip = React.createClass({
 
 		var remEl = null;
 		if (this.props.onRemove) {
-			remEl = (<span> | <i className="fa fa-times" onTouchTap={this._handleRemove}/></span>);
+			remEl = (<span> | <i className="fa fa-times" onClick={this._handleRemove}/></span>);
 		}
 
 		return (

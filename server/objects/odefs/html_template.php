@@ -10,28 +10,54 @@ $obj_fields['subject']				= array('title'=>'Subject', 'type'=>'text', 'subtype'=
 $obj_fields['body_html']			= array('title'=>'Html Body', 'type'=>'text', 'subtype'=>'', 'readonly'=>false);
 $obj_fields['body_plain']			= array('title'=>'Plain Body', 'type'=>'text', 'subtype'=>'', 'readonly'=>false);
 
-$obj_fields['obj_type']				= array('title'=>'Type',
-											  'type'=>'text',
-											  'subtype'=>'128',
-											  'optional_values'=>array(
-												  "email_message"=>"Email", 
-											 	  "content_feed_post"=>"Content Post"),
-										  	  );
+$obj_fields['obj_type'] = array(
+	'title'=>'Type',
+	'type'=>'text',
+	'subtype'=>'128',
+	'optional_values'=>array(
+		"email_message"=>"Email",
+		"content_feed_post"=>"Content Post"
+	),
+);
 
-$obj_fields['scope']				= array('title'=>'Scope',
-											  'type'=>'text',
-											  'subtype'=>'32',
-											  'optional_values'=>array("system"=>"System/Everyone", "user"=>"User"));
+// Who this notification is sent to
+$obj_fields['owner_id'] = array(
+	'title' => 'Owner',
+	'type' => 'object',
+	'subtype' => 'user',
+	'readonly' => false,
+	'require' => true,
+	'default' => array(
+		"on" => "null",
+		"value" => "-3",
+	),
+);
 
-$obj_fields['groups'] = array('title'=>'Groups',
-								  'type'=>'fkey_multi',
-								  'subtype'=>'object_groupings',
-								  'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
-																									"ref_table"=>array(
-																									"table"=>"object_grouping_mem", 
-																									"this"=>"object_id", 
-																									"ref"=>"grouping_id"
-																												   )));
+$obj_fields['scope'] = array(
+	'title' => 'Scope',
+	'type' => 'text',
+	'subtype' => '32',
+	'optional_values' => array(
+		"system"=>"System/Everyone",
+		"user"=>"User"
+	),
+);
+
+$obj_fields['groups'] = array(
+	'title'=>'Groups',
+	'type'=>'fkey_multi',
+	'subtype'=>'object_groupings',
+	'fkey_table'=>array(
+		"key"=>"id",
+		"title"=>"name",
+		"parent"=>"parent_id",
+		"ref_table"=>array(
+			"table"=>"object_grouping_mem",
+			"this"=>"object_id",
+			"ref"=>"grouping_id"
+		)
+	)
+);
 
 // Set views
 $obj_views = array();

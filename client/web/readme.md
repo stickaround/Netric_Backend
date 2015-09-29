@@ -14,11 +14,6 @@ Install react command line tools
 
 	npm install -g react-tools
 
-Next, clone this repository using Git:
-
-    git clone ...
-    cd ...
-
 And then install the remaining build dependencies locally:
 
     npm install
@@ -29,25 +24,20 @@ Grunt is used for automating builds and invoking livereload to make dev much eas
 
 	sudo npm install -g grunt-cli
 
-Now install bower to add third party vendor dependencies
-	
-	sudo npm install -g bower
-	bower install
-
-To build the project for testing run:
+Now Build the Project
 	
 	grunt
 
 This will build the project and start a liveupdate server locally for dynamic refreshes and compilation every
 time you make a change to a file.
 
-To begin developement just start the node http server with.
+Open an additional shell window (leave the above command running) and run
 
     npm start
 
-Then load http://localhost:8000/src/
+Then load http://localhost:8000 in your browser.
 
-To run automated tests automatically as you make changes then run
+To run automated tests automatically as you make changes, open another shell and type:
 
 	npm test
 
@@ -56,3 +46,5 @@ Which will launch a browser window in the background (don't minimize it on mac b
 When you're ready to push the app into production, just run the compile command:
 
     grunt compile
+
+This will build the app and put it into ./dist which can be copied to the server and to ../devices/web

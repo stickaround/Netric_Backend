@@ -102,7 +102,6 @@ var localData = {
 	dbRemoveItem: function(key, cbFunction) {
 		localforage.removeItem(key, function(err) {
 		    // Run this code once the key has been removed.
-		    console.log('Key is cleared!');
 
 		    // TODO: Not yet tested
 		    throw "Not yet tested";
@@ -115,7 +114,9 @@ var localData = {
 	dbClear: function(cbFunction) {
 		localforage.clear(function(err) {
 		    // Run this code once the database has been entirely deleted.
-		    console.log('Database is now empty.');
+			if (err) {
+				console.error("There was a problem clearing the local database");
+			}
 		});
 	}
 }

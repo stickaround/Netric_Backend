@@ -1,12 +1,15 @@
 <?php
 /**
+ * Everything is relative to the application root now.
+ */
+chdir(dirname(__DIR__));
+
+/**
  * Create AntConfig::default_account locally if it does not exist
  *
  * This is usually used for development to create a local development instance of ANT.
  */
-require_once("../init_application.php");
-require_once("../lib/AntLog.php");
-require_once("../lib/AntConfig.php");
+require_once("init_application.php");
 require_once("lib/Ant.php");
 require_once("lib/AntUser.php");
 
@@ -19,20 +22,23 @@ ini_set("memory_limit", "200M");
 if (!getenv('APPLICATION_ENV'))
 	die("No APPLICATION_ENV variable has been set. Please add it to your system variables before running this command.");
 
-if (!AntConfig::getInstance()->default_account)
+if (!Netric\Config::getInstance()->default_account)
 	die("The 'default_account' variable was not found in the current config. This variable is required. Please check your config and add it.");
 
 /**
  * Make sure that the system database exists
  */
-$dbh = new CDatabase(AntConfig::getInstance()->db['syshost'], "template1");
-$result = $dbh->Query("select * from pg_database where datname='".AntConfig::getInstance()->db['sysdb']."'");
+$dbh = new CDatabase(Netric\Config::getInstance()->db['syshost'], "template1");
+$result = $dbh->Query("select * from pg_database where datname='".Netric\Config::getInstance()->db['sysdb']."'");
 if (!$dbh->GetNumberRows($result))
 {
 	// create antsystem database
-	$dbh->Query("CREATE DATABASE ".AntConfig::getInstance()->db['sysdb'].";");
+	$res = $dbh->Query("CREATE DATABASE ".Netric\Config::getInstance()->db['sysdb'].";");
+    if ($res === false) {
+        die("Could not create ansystem database: " . $dbh->getLastError());
+    }
 	
-	$dbh = new CDatabase(AntConfig::getInstance()->db['syshost'], AntConfig::getInstance()->db['sysdb']);
+	$dbh = new CDatabase(Netric\Config::getInstance()->db['syshost'], Netric\Config::getInstance()->db['sysdb']);
 
 	// Get queries from create script
 	$queries = array();
@@ -42,7 +48,7 @@ if (!$dbh->GetNumberRows($result))
 		$ret = $dbh->Query($query);
 		if ($ret === false)
 		{
-			echo "Could not create antsystem database. Error: ".$dbh->lastError."\n";
+			echo "Could not initailize antsystem database. Error: ".$dbh->lastError."\n";
 			exit;
 		}
 	}
@@ -52,7 +58,7 @@ if (!$dbh->GetNumberRows($result))
  * Create local ant database using settings local host
  */
 $antsys = new AntSystem();
-$ret = $antsys->createAccount(AntConfig::getInstance()->default_account);
+$ret = $antsys->createAccount(Netric\Config::getInstance()->default_account);
 if ($ret == false)
 {
 	echo "Create Account Error: ".$antsys->lastError."\n";

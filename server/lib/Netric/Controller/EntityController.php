@@ -39,9 +39,6 @@ class EntityController extends Mvc\AbstractController
 
 		$ret = $def->toArray();
 
-		// TODO: As soon as views are included in EntityDefinition then update here
-		$ret['views'] = array();
-
 		// TODO: Get browser mode preference (Netric/Entity/ObjectType/User has no getSetting)
 		/*
 		$browserMode = $user->getSetting("/objects/browse/mode/" . $params['obj_type']);
@@ -265,6 +262,49 @@ class EntityController extends Mvc\AbstractController
         {
             return $this->sendOutput(array("error"=>"Error saving: " . $dataMapper->getLastError()));
         }
+    }
+
+    /**
+     * Remove an entity (or a list of entities)
+     *
+     * @param array $params Associative array of request params
+     */
+    public function remove($params=array())
+    {
+        $ret = array();
+        // objType is a required to determine what exactly we are deleting
+        $objType = $this->request->getParam("obj_type");
+        // IDs can either be a single entry or an array
+        $ids = $this->request->getParam("id");
+
+        // Convert a single id to an array so we can handle them all the same way
+        if (!is_array($ids) && $ids)
+        {
+            $ids = array($ids);
+        }
+
+        if (!$objType)
+        {
+            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        }
+
+        // Get the entity loader so we can initialize (and check the permissions for) each entity
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+
+        // Get the datamapper to delete
+        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+
+        foreach ($ids as $did)
+        {
+            $entity = $loader->get($objType, $did);
+            if ($dataMapper->delete($entity))
+            {
+                $ret[] = $did;
+            }
+        }
+
+        // Return what was deleted
+        return $this->sendOutput($ret);
     }
 
     /**

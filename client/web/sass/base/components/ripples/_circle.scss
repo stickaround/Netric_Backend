@@ -11,7 +11,7 @@
     height: 100%;
     width: 100%;
     border-radius: 50%;
-    transform: scale(0);
+    @include transform(scale(0));
     background-color: rgba(0,0,0,0.2);
     @include ease-out($property: transform, $duration: 1s);
   }
@@ -20,7 +20,7 @@
     opacity: 1;
 
     .ripple-circle-inner {
-      transform: scale(1);
+      @include transform(scale(1));
     }
   }
 

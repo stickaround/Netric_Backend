@@ -1,0 +1,11 @@
+{
+  "name": "netric/netric-server",
+  "description": "Netric Server",
+  "license": "Commercial",
+  "homepage": "http://www.netric.com/",
+  "require": {
+    "php": ">=5.4",
+    "facebook/php-sdk-v4" : "4.0.*",
+    "zendframework/zendframework": "~2.5"
+  }
+}

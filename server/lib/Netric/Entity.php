@@ -574,7 +574,9 @@ class Entity implements \Netric\Entity\EntityInterface
 		foreach ($this->changelog as $fname=>$log)
 		{
 			if ($fname == $checkfield)
-				return true;
+            {
+                return true;
+            }
 		}
 
 		return false;

@@ -2,7 +2,7 @@
 	"id" : 1,
 	"obj_type" : "customer",
 	"definition" : {
-		"id" : 1,
+		"id" : "1",
 		"obj_type" : "customer",
 		"title" : "Customer",
 		"revision" : 10,
@@ -18,7 +18,7 @@
 		"system" : true,
 		"fields" : [
 			{
-				"id" : 2,
+				"id" : "2",
 				"name" : "id",
 				"title" : "Id",
 				"type" : "number",

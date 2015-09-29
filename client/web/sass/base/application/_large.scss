@@ -20,6 +20,12 @@
 
 .app-body-large {
 	/*font-family: Casper;*/
+
+  /* Override the generic loading div */
+  .loading {
+	margin-top: 10px;
+	text-align: left;
+  }
 }
 
 /* Override logo to add desktop styles */

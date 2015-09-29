@@ -57,14 +57,14 @@
   .text-field-focus-underline {
     border-color: $primary-1-color;
     border-bottom-width: 2px;
-    transform: scaleX(0);
+    @include transform(scaleX(0));
     @include ease-out();
   }
 
   &.has-error {
     .text-field-focus-underline {
       border-color: $error-color;
-      transform: scaleX(1);
+      @include transform(scaleX(1));
     }
   }
 
@@ -98,7 +98,7 @@
 
   &.is-focused {
     .text-field-focus-underline {
-      transform: scaleX(1);
+      @include transform(scaleX(1));
     }
   }
 
@@ -109,8 +109,9 @@
 
     .text-field-floating-label {
       top: 24px;
-      transform: scale(1) translate3d(0, 0, 0);
+      @include transform(scale(1) translate3d(0, 0, 0));
       transform-origin: left top;
+      -webkit-transform-origin: left top;
     }
 
     .text-field-hint {
@@ -125,7 +126,7 @@
     &.has-value,
     &.is-focused {
       .text-field-floating-label {
-        transform: scale(0.75) translate3d(0, -18px, 0);
+        @include transform(scale(0.75) translate3d(0, -18px, 0));
       }
     }
 
@@ -148,7 +149,7 @@
       }
 
       .text-field-floating-label {
-        transform: scale(0.75) translate3d(0, -18px, 0);
+        @include transform(scale(0.75) translate3d(0, -18px, 0));
         color: $primary-1-color;
       }
 

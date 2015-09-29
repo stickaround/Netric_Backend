@@ -10,7 +10,7 @@
   }
 
   .enhanced-textarea-shadow {
-    transform: scale(0);
+    @include transform(scale(0));
     position: absolute;
   }
 }

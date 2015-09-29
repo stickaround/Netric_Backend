@@ -33,7 +33,60 @@
 			"optional_values" : ""
 		}
 	],
-	"views" : [
+	"views":[
+		{
+			"id":"sys_1",
+			"name":"Default View",
+			"description":"Default System View",
+			"filter_key":null,
+			"f_system":false,
+			"f_default":true,
+			"view_fields":[
+				"name",
+				"email_default",
+				"stage_id",
+				"status_id",
+				"owner_id",
+				"city",
+				"state"
+			],
+			"conditions":[],
+			"sort_order":[
+			{
+				"field_name":"name",
+				"order":"asc"
+			}]
+		},
+		{
+			"id":"sys_2",
+			"name":"Assigned to me",
+			"description":"",
+			"filter_key":null,
+			"f_system":false,
+			"f_default":false,
+			"view_fields":[
+				"name","email_default",
+				"stage_id",
+				"status_id",
+				"owner_id",
+				"city",
+				"state"
+			],
+			"conditions":[
+				{
+					"blogic":"and",
+					"field_name":"owner_id",
+					"operator":"is_equal",
+					"value":"-3"
+				}
+			],
+			"sort_order":[
+				{
+					"field_name":"name",
+					"order":"asc"
+				}
+			]
+		}
 	],
 	"forms" : {
 	    "large": "<tabs><tab name='General'><fieldset name='Name'><row><column><field name='first_name' /></column><column><field name='last_name' /></column></row></fieldset></tab><tab name='Cases'><objectsref obj_type='case' ref_field='customer_id'></objectsref></tab></tabs>",

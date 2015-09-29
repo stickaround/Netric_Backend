@@ -308,7 +308,15 @@ abstract class AbstractCollection
 		if (!$this->getId())
 			return false;
 
-		return $this->dataMapper->logExported($this->getType(), $this->getId(), $uniqueId, $commitId);
+		$ret = $this->dataMapper->logExported($this->getType(), $this->getId(), $uniqueId, $commitId);
+
+		// Check if there was a problem because that should never happen
+		if (!$ret)
+		{
+			throw new \Exception("Could not log exported sync entry: " . $this->dataMapper->getLastError());
+		}
+
+		return $ret;
 	}
 
 	/**
@@ -384,6 +392,7 @@ abstract class AbstractCollection
 					if ($changes[$i]['remote_revision'] == $item['remote_revision'])
 					{
 						array_splice($changes, $i, 1); // no changes, remove
+						$numChanges = count($changes);
 					}
 					else
 					{

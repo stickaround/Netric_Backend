@@ -591,9 +591,9 @@ class Ant
 		}
 
 		// Escape username
-		if (preg_match( "[~|@|\|\S|[^a-zA-Z0-9_.]]", $username)) 
+		if (preg_match( "[~|\|\S|[^a-zA-Z0-9_.@]]", $username))
 		{
-			$this->lastError = "User name can only contain letters, numbers _ and .";
+			$this->lastError = "User name ($username) can only contain letters, numbers _ and .";
 			return false;
 		}
 
@@ -612,7 +612,7 @@ class Ant
 		$user = new CAntObject($this->dbh, "user");
 		$user->setValue("name", $username);
 		$user->setValue("full_name", $username);
-		$user->setValue("password", md5($password));
+		$user->setValue("password", $password);
 		$user->setValue("active", 't');
 		$user->save();
 

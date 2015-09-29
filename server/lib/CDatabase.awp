@@ -130,7 +130,7 @@ class CDatabase
 	{
 		if ($this->dbname)
 		{
-			$this->dbHandle = @pg_connect("host=".$this->server." 
+			$this->dbHandle = pg_connect("host=".$this->server."
 										  dbname=".$this->dbname."
 										  user=".$this->user." 
 										  port=".$this->port." 
@@ -379,8 +379,8 @@ class CDatabase
 		$body .= "Database: ".$this->dbname."\r\n";
         $body .= "Schema: ".$this->schema."\r\n";
 		$body .= "When: ".date('Y-m-d H:i:s')."\r\n";
-		$body .= "Host: ".$_SERVER['HTTP_HOST']."\r\n";
-		$body .= "Page: ".$_SERVER['REQUEST_URI']."\r\n";
+		$body .= "Host: ". (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '' ) ."\r\n";
+		$body .= "Page: ". (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '' ) ."\r\n";
 		$body .= "Error\n";
 		$body .= "----------------------------------------------\n";
 		$body .= $error . "\n";

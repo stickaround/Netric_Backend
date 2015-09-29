@@ -27,22 +27,25 @@
       cursor: pointer;
       padding-top: 7px;
       padding-bottom: 7px;
+      padding-left: 7px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
       @extend .font-style-body-1;
     }
 
     td:first-child {
       cursor: default;
       padding-left: $gutter-less;
-      @media #{$device-medium} {
-        padding-left: $gutter;
-      }
+
       @media #{$device-large} {
         padding-left: $gutter;
       }
     }
 
-    td.entity-browser-item-trow-name {
-      @extend .font-style-body-2;
+    .entity-browser-item-trow-name {
+      @extend .font-style-body-1;
     }
   }
 
@@ -59,8 +62,9 @@
     }
 
     display: -webkit-flex;
-    align-items: center;
     display: flex;
+    align-items: center;
+    -webkit-align-items: center;
 
     &:hover {
       background-color: #e3e3e3;

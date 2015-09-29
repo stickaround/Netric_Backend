@@ -22,7 +22,7 @@ var MenuItem = React.createClass({
     data: React.PropTypes.string,
     toggle: React.PropTypes.bool,
     disabled: React.PropTypes.bool,
-    onTouchTap: React.PropTypes.func,
+    onClick: React.PropTypes.func,
     onClick: React.PropTypes.func,
     onToggle: React.PropTypes.func,
     selected: React.PropTypes.bool,
@@ -64,7 +64,7 @@ var MenuItem = React.createClass({
       var indentItems = (numIndents) ? [] : null;
       for (var i = 0; i < numIndents; i++) {
           indentItems.push(
-              <span className="menu-item-indent">{"\u00a0"}</span>
+              <span className="menu-item-indent" key={i}>{"\u00a0"}</span>
           );
       }
 
@@ -84,7 +84,6 @@ var MenuItem = React.createClass({
       <div
         key={this.props.index}
         className={classes}
-        onTouchTap={this._handleTouchTap}
         onClick={this._handleOnClick}>
 
         {indentItems}
@@ -100,7 +99,11 @@ var MenuItem = React.createClass({
   },
 
   _handleTouchTap: function(e) {
-    if (!this.props.disabled && this.props.onTouchTap) this.props.onTouchTap(e, this.props.index);
+    if (!this.props.disabled && this.props.onClick) {
+        this.props.onClick(e, this.props.index);
+      } else if (!this.props.disabled && this.props.onClick) {
+          this._handleOnClick(e);
+      }
   },
 
   _handleOnClick: function(e) {

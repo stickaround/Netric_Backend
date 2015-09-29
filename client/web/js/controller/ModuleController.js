@@ -206,7 +206,7 @@ ModuleController.prototype.setBrowseByItems_ = function(groups, leftNavigation, 
     for (var j in groups) {
         leftNavigation.push({
             text: groups[j].name,
-            route: route + "/browse/" + browseby + "/" + groups[j].id,
+            route: route + "/browse/" + browseby + "/" + groups[j].id + "/" + groups[j].name,
             iconClassName: "fa fa-chevron-right",
             indent: indentLevel
         });

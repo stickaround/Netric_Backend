@@ -12,7 +12,7 @@
     @include ease-out();
     opacity: 0;
     border-radius: 50%;
-    transform: scale(0);
+    @include transform(scale(0));
   }
 
   .mui-date-picker-day-button-label {
@@ -25,7 +25,7 @@
     }
     .mui-date-picker-day-button-select {
       opacity: 1;
-      transform: scale(1);
+      @include transform(scale(1));
     }
   }
 

@@ -99,7 +99,7 @@ var Collection = function(objType) {
      * @type {number}
      * @private
      */
-    this.limit_ = 100;
+    this.limit_ = 25;
 
     /**
      * Total number of objects in this query set
@@ -161,10 +161,16 @@ Collection.prototype.load = function(opt_callback) {
         return;
     }
 
+    // Triger loading event
+    alib.events.triggerEvent(this, "loading");
+
     // TODO: first try to load cached
 
     // Setup the request
-    var requestParams = {obj_type:this.objType_};
+    var requestParams = {
+        obj_type:this.objType_,
+        limit:this.limit_
+    };
 
     var request = new BackendRequest();
 
@@ -178,6 +184,9 @@ Collection.prototype.load = function(opt_callback) {
         if (opt_callback) {
             opt_callback(collection);
         }
+
+        // Triger loaded event
+        alib.events.triggerEvent(collection, "loaded");
     });
 
     /*
@@ -251,8 +260,17 @@ Collection.prototype.getEntities = function() {
  * Get updates from the backend and refresh the collection
  */
 Collection.prototype.refresh = function() {
-    // if this.syncCollectionId then call entitySync conctroller to look for changes
-    // Otherwise load the query
+    // Reload which will trigger a load event
+    this.load();
+}
+
+/**
+ * Add a Where object directly
+ *
+ * @param {Where} where The where objet to add to conditions
+ */
+Collection.prototype.addWhere = function(where) {
+    this.conditions_.push(where);
 }
 
 /**
@@ -323,6 +341,13 @@ Collection.prototype.setOrderBy = function(fieldName, direction) {
  */
 Collection.prototype.getOrderBy = function() {
     return this.orderBy_;
+}
+
+/**
+ * Clear the order for this entity query
+ */
+Collection.prototype.clearOrderBy = function() {
+    this.orderBy_ = [];
 }
 
 /**

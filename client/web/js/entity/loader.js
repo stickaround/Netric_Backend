@@ -43,6 +43,17 @@ loader.get = function(objType, entId, cbLoaded, force) {
 		return ent;
 	}
 
+    /*
+     * Create entity to fill and put it in cache.
+     * This allows us to immediate return an entity object
+     * to be worked with while the entity is loading.
+     */
+    var entityToFill = this.factory(objType);
+    entityToFill.setValue("id", entId);
+    // Flag the entity as pending load
+    entityToFill.isLoading = true;
+    this.cacheEntity(entityToFill);
+
 	/*
 	 * Load the entity data
 	 */
@@ -75,6 +86,12 @@ loader.get = function(objType, entId, cbLoaded, force) {
 	// If no callback then construct Entity from request date (synchronous)
 	if (!cbLoaded) {
 		return this.createFromData(request.getResponse());
+	} else {
+		// Return an entity that has not yet been populated
+        // This is basically a promise but the calling function
+        // will need to listen for a change event to refresh
+        // its data.
+        return entityToFill;
 	}
 }
 
@@ -132,6 +149,8 @@ loader.createFromData = function(data) {
 	// Check to see if we have previously already loaded this object
 	var ent = this.getCached(entDef.objType, data.id);
 	if (ent != null) {
+        // Clean any loading flags that were set
+        ent.isLoading = false;
 		ent.loadData(data);
 	} else {
 		ent = new Entity(entDef, data);

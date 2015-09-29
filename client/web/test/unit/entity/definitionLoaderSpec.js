@@ -46,7 +46,9 @@ describe("Get Definition Asynchronously", function() {
 		var idField = definition.getField("id");
 		expect(idField.type).toEqual("number");
 		
-		// TODO: views
+		// Make sure views were loaded
+		var views = definition.getViews();
+		expect(views.length).toBeGreaterThan(0);
 
 		done();
 

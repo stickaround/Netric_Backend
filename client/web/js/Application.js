@@ -170,6 +170,12 @@ Application.prototype.run = function(domCon) {
 		location.go("/login");
 	}
 
+	// If user is theoretically logged in, but there's no account the clear local data
+	// and force the user to log back in.
+	if (!this.getAccount()) {
+		location.go("/logout");
+	}
+
 	// Setup location change listener
 	location.setupRouter(router);
 

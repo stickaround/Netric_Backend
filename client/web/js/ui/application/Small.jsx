@@ -21,7 +21,6 @@ var Small = React.createClass({
   render: function() {
     return (
       <div>
-        <a href={"javascript:netric.location.go('" + this.props.basePath + "messages" + "')" }>Go to messages</a>
         <div ref="appMain"></div>
       </div>
     );

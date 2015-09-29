@@ -71,7 +71,7 @@ var LeftNav = React.createClass({
       overlay;
 
     if (!this.props.docked) 
-      overlay = <Overlay show={this.state.open} onTouchTap={this._onOverlayTouchTap} />;
+      overlay = <Overlay show={this.state.open} onClick={this._onOverlayTouchTap} />;
 
     /* We should nest the menu eventually
     <Menu 

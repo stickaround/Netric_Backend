@@ -511,6 +511,51 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * Make sure that after saving the isDirty flag is unset
+	 */
+	public function testDirtyFlagUnsetOnSave()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Create first entity
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "testNotDirty");
+		$dm->save($customer, $this->user);
+
+		$this->assertFalse($customer->isDirty());
+
+		// Cleanup
+		$dm->delete($customer, true);
+	}
+
+	/**
+	 * Make sure that after saving the isDirty flag is unset
+	 */
+	public function testDirtyFlagUnsetOnLoad()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Create first entity
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "testNotDirty");
+		$oid = $dm->save($customer, $this->user);
+
+		// Load into a new entity
+		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
+		$ret = $dm->getById($ent, $oid);
+
+		// Even though we just loaded all the data into the entity, it should not be marked as dirty
+		$this->assertFalse($ent->isDirty());
+
+		// Cleanup
+		$dm->delete($ent, true);
+	}
+
+	/**
 	 * TODO: Test verifyUniqueName
 	 */
 	public function testVerifyUniqueName()

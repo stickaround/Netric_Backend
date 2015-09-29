@@ -59,7 +59,7 @@ $view->name = "My Notes";
 $view->description = "User notes";
 $view->fDefault = true;
 $view->view_fields = array("name", "ts_entered", "body");
-//$view->conditions[] = new CAntObjectCond("and", "owner_id", "is_equal", "-3");
+$view->conditions[] = new CAntObjectCond("and", "user_id", "is_equal", "-3");
 $view->sort_order[] = new CAntObjectSort("ts_entered", "desc");
 $obj_views[] = $view;
 unset($view);

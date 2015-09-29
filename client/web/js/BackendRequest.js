@@ -96,8 +96,15 @@ BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_t
 	// Crete new Xhr instance and send
 	var request = new BackendRequest();
 	if (opt_callback) {
+
+		// Success callback
 		alib.events.listen(request, "load", function(evt) { 
 			evt.data.cb(this.getResponse());
+		}, {cb:opt_callback});
+
+		// Error callback
+		alib.events.listen(request, "error", function(evt) {
+			evt.data.cb({error: "There was a problem contacting the server"});
 		}, {cb:opt_callback});
 	}
 	

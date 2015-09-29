@@ -17,7 +17,12 @@
     padding-right: $gutter-less;
 
     @media #{$device-medium} {
-      padding-left: $gutter;
+      padding-left: $gutter-less;
+      padding-right: $gutter;
+    }
+
+    @media #{$device-large} {
+      padding-left: $gutter-less;
       padding-right: $gutter;
     }
   }
@@ -71,14 +76,17 @@
 
   .app-bar-navigation-icon-button {
     float: left;
-    margin: 0 ($gutter-less - ($gutter-less - ($icon-size / 2))) 0 (($icon-size / 2) * -1);
+    margin-right: $gutter-less - ($gutter-less - ($icon-size / 2));
+    margin-left: ($icon-size / 2) * -1;
 
     @media #{$device-medium} {
-      margin: 0 ($gutter - ($gutter - ($icon-size / 2))) 0 (($icon-size / 2) * -1);
+      margin-right: $gutter - ($gutter - ($icon-size / 2));
+      margin-left: ($icon-size / 2) * -1;
     }
 
     @media #{$device-large} {
-      margin: 0 ($gutter - ($gutter - ($icon-size / 2))) 0 (($icon-size / 2) * -1);
+      margin-right: $gutter - ($gutter - ($icon-size / 2));
+      margin-left: ($icon-size / 2) * -1;
     }
 
   }

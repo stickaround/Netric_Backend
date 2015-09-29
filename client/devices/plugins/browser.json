@@ -9,6 +9,12 @@
     "installed_plugins": {
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.netric.client"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.netric.client"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "com.netric.client"
         }
     },
     "dependent_plugins": {}

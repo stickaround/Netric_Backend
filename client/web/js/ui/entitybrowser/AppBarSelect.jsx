@@ -33,7 +33,7 @@ var AppBarBrowse = React.createClass({
             icons.push(
                 <IconButton
                     iconClassName={act.iconClassName}
-                    onTouchTap={this.handleActionClick_.bind(this, act.name)}>
+                    onClick={this.handleActionClick_.bind(this, act.name)}>
                 </IconButton>
             );
         }

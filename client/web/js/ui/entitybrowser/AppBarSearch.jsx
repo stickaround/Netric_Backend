@@ -44,7 +44,7 @@ var AppBarBrowse = React.createClass({
                 
                 <IconButton
                     iconClassName="fa fa-search"
-                    onTouchTap={this.handleDoSearch_}>
+                    onClick={this.handleDoSearch_}>
                 </IconButton>
             </div>
         );

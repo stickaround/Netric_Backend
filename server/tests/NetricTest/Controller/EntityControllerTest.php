@@ -66,6 +66,26 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['last_name'], $ret['last_name']);
     }
 
+    public function testDelete()
+    {
+        // First create an entity to save
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $entity = $loader->create("note");
+        $entity->setValue("name", "Test");
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm->save($entity);
+        $entityId = $entity->getId();
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam("obj_type", "note");
+        $req->setParam("id", $entityId);
+
+        // Try to delete
+        $ret = $this->controller->remove();
+        $this->assertEquals($entityId, $ret[0]);
+    }
+
     public function testGetGroupings()
     {
         $req = $this->controller->getRequest();

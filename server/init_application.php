@@ -9,40 +9,9 @@
  *  @copyright 2014 Aereus
  */
 
-// Setup Zend Autoloader
-// ------------------------------------------------
-$zf2Path = false;
 
-if (is_dir('lib/ZF2/library')) {
-    $zf2Path = 'lib/ZF2/library';
-} elseif (getenv('ZF2_PATH')) {      // Support for ZF2_PATH environment variable or git submodule
-    $zf2Path = getenv('ZF2_PATH');
-} elseif (get_cfg_var('zf2_path')) { // Support for zf2_path directive value
-    $zf2Path = get_cfg_var('zf2_path');
-}
-
-if ($zf2Path) {
-    require_once $zf2Path . '/Zend/Loader/StandardAutoloader.php';
-    $autoLoader = new Zend\Loader\StandardAutoloader(array(
-        /*
-        'prefixes' => array(
-            'MyVendor' => __DIR__ . '/MyVendor',
-        ),
-        */
-        'namespaces' => array(
-            'Netric' => __DIR__ . '/lib/Netric',
-            'NetricPublic' => __DIR__ . '/public',
-            //'Elastica' => __DIR__ . '/lib/Elastica',
-            'Zend' => $zf2Path,
-        ),
-        'fallback_autoloader' => true,
-    ));
-    $autoLoader->register();
-}
-
-if (!class_exists('Zend\Loader\StandardAutoloader')) {
-    throw new RuntimeException('Unable to load ZF2. Define a ZF2_PATH environment variable.');
-}
+// Setup autoloader
+include(__DIR__ . "/init_autoloader.php");
 
 // Initialize Netric Application and Account
 // ------------------------------------------------

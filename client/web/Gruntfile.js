@@ -102,15 +102,15 @@ module.exports = function(grunt) {
         /*
          * Compile react jsx files into normal js files
          */
-        react: {
-            files: {
-                expand: true,
-                cwd: 'js/ui',
-                src: ['**/*.jsx'],
-                dest: 'build/js/ui',
-                ext: '.js'
-            }
-        },
+        //react: {
+        //    files: {
+        //        expand: true,
+        //        cwd: 'js/ui',
+        //        src: ['**/*.jsx'],
+        //        dest: 'build/js/ui',
+        //        ext: '.js'
+        //    }
+        //},
         
         /**
          * Gather all javascript files and concat into a single file

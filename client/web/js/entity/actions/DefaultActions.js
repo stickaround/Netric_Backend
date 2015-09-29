@@ -4,6 +4,7 @@
 'use strict';
 
 var ActionModes = require("./actionModes");
+var entitySaver = require("../saver");
 
 /**
  * This is the base/default actions class that all other object types will inherit
@@ -105,11 +106,12 @@ DefaultActions.prototype.getConfirmMessage = function(actionName, selectedEntiti
  * Perform an action on the selected entities
  *
  * @param {string} actionName The unique name of the action to perform
+ * @param {string} objType The type of object we re performing actions on
  * @param {int[]} selectedEntities The entities to perform the action on
  * @param {function} finishedFunction A funciton to call when finished
  * @return {string} Working text like "Deleting" or "Saving"
  */
-DefaultActions.prototype.performAction = function(actionName, selectedEntities, finishedFunction) {
+DefaultActions.prototype.performAction = function(actionName, objType, selectedEntities, finishedFunction) {
 
 	if (typeof finishedFunction === "undefined") {
 		finishedFunction = function() {};
@@ -118,7 +120,7 @@ DefaultActions.prototype.performAction = function(actionName, selectedEntities, 
 	// Check to see if the handler exists
 	if (typeof this[actionName] === "function") {
 		var funct = this[actionName];
-		return funct(selectedEntities, finishedFunction);
+		return funct(objType, selectedEntities, finishedFunction);
 	} else {
 		throw "Action function " + actionName + " not defined";
 	}
@@ -158,22 +160,16 @@ DefaultActions.prototype.performAction = function(actionName, selectedEntities, 
 /**
  * Entity delete action
  *
+ * @param {string} objType The type of object to perform the action on
  * @param {int[]} selectedEntities The entities to perform the action on
  * @param {function} finishedFunction A funciton to call when finished
  * @return {string} Working text like "Deleting" or "Saving"
  */
-DefaultActions.prototype.remove = function(selectedEntities, finishedFunction) {
-	
-	console.log("DefaultAciton: Remove");
-	// Loop through the seclected entities
-	for (var i in selectedEntities) {
-		// TODO: delete selectedEntities[i]
-		//console.log("Delete", selectedEntities[i]);
-	}
+DefaultActions.prototype.remove = function(objType, selectedEntities, finishedFunction) {
 
-	finishedFunction(false, selectedEntities.length + " Items Deleted");
-
-	// Call the finished calledback once the ajax request is finished
+	entitySaver.remove(objType, selectedEntities, function(removedIds) {
+		finishedFunction(false, removedIds.length + " Items Deleted");
+	});
 
 	return "Deleting";
 }
