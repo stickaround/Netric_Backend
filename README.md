@@ -12,10 +12,9 @@ Once both those are installed, perform the following:
 3. vagrant up (may ask for your local password)
 4. vagrant ssh
 5. cd /var/www/html/netric
-6. curl -sS https://getcomposer.org/installer | php
-7. php composer.phar install
-8. cd ./system
-9. php createdefaultaccount.php
+6. php composer.phar install
+7. cd ./system
+8. php createdefaultaccount.php
 
 That's all there is to it, you should now be able to navigate to devel.netric.com on your workstation.
 
