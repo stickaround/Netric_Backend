@@ -17,6 +17,10 @@ Install react command line tools
 And then install the remaining build dependencies locally:
 
     npm install
+	
+Now install bowser dependencies:
+
+    bowser install
 
 This will read the dependencies and the devDependencies (which contains our build requirements) from package.json and install everything needed into a folder called node_modules/.
 
