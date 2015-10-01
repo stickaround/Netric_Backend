@@ -134,8 +134,6 @@ loader.createAccountFromData = function(data) {
 		this.accountCache_.loadData(data);
 	}
 
-	
-
 	return this.accountCache_;
 }
 
