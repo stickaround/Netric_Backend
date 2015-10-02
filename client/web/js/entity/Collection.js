@@ -177,7 +177,7 @@ Collection.prototype.load = function(opt_callback) {
     var collection = this;
     alib.events.listen(request, "load", function(evt) {
         var resp = this.getResponse();
-        collection.totalNum_ = resp.totalNum;
+        collection.totalNum_ = resp.total_num;
         collection.setEntitiesData(resp.entities);
 
         // Call the optional callback if set

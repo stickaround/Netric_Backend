@@ -52,6 +52,7 @@ var EntityBrowser = React.createClass({
           bodyContent = (<List
               onEntityListClick={this.props.onEntityListClick}
               onEntityListSelect={this.props.onEntityListSelect}
+              onLoadMoreEntities={this.props.onLoadMoreEntities}
               entities={this.props.entities}
               selectedEntities={this.props.selectedEntities}
               browserView={this.props.browserView}
