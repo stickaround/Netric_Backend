@@ -14,23 +14,13 @@ var ListItemTableRow = require("./ListItemTableRow.jsx");
  */
 var List = React.createClass({
 	
-	getInitialState:function(){
-        //setting initiall values
-        //attach the scroll event listener to the scroll handler function
-    	window.addEventListener("scroll", this.handleScroll);
-    	
-		return{
-			loadingFlag: false,   // to avoid multiple fetch request if user is keep scrolling
-		}
-
-	},
-
     propTypes: {
         onEntityListClick: React.PropTypes.func,
         onEntityListSelect: React.PropTypes.func,
         onLoadMoreEntities: React.PropTypes.func,
         layout : React.PropTypes.string,
         entities: React.PropTypes.array,
+        routePath: React.PropTypes.string,
 
         // Instance of Netric/Entity/BrowserView defining which columns a table show show
         browserView: React.PropTypes.object,
@@ -40,21 +30,58 @@ var List = React.createClass({
     getDefaultProps: function() {
         return {
             layout: '',
+            routePath: '',
             entities: [],
             selectedEntities: []
         }
     },
     
     loadMoreEntities: function(){
-		var newLimitIncrement = 50; // This will add the number to the current limit
+    	var newLimitIncrement = 50; // This will add the number to the current limit
 		
-	    //method to update the entities
+		// method to update the entities
 		this.props.onLoadMoreEntities(newLimitIncrement);
 		 
-		if (this.isMounted()) {
+		if (this.isMounted()){
 			this.setState({
-	          loadingFlag: false, // set to false to get new updates when reached at bottom
-	        });
+				loadingFlag: false, // set to false to get new updates when reached at bottom
+			});
+		}
+    },
+	
+	componentDidMount: function(){
+		// Get the current container of the object
+		var container = document.getElementById(this.props.routePath);
+		
+		/*
+		 * Uncomment this to test the div container scrolling
+		 * container.style.height = "200px";
+		 * container.style.overflow = "auto";
+		 */
+		
+		// If the div container has scroll bars
+		if(container.scrollHeight > container.offsetHeight)
+		{
+			container.addEventListener("scroll", this.handleScroll);
+		}
+		else{
+			window.addEventListener("scroll", this.handleScroll);
+		}
+		
+		this.setState({
+			loadingFlag: false, // set to false to get new updates when reached at bottom
+		})
+	},
+	
+	componentWillUnmount: function(){
+		var container = document.getElementById(this.props.routePath);
+		
+		if(container.scrollHeight > container.offsetHeight)
+		{
+			container.removeEventListener("scroll", this.handleScroll);
+		}
+		else{
+			window.removeEventListener('scroll', this.handleScroll, false);
 		}
 	},
 
@@ -103,7 +130,7 @@ var List = React.createClass({
 
         if (this.props.layout == 'table') {
             return (
-                <div className="entity-browser-list">
+                <div onscroll="handleScroll(this)" className="entity-browser-list">
                     <table className="entity-browser-list-table">
                         <tbody>
                             {entityNodes}
@@ -112,7 +139,7 @@ var List = React.createClass({
             );
         } else {
             return (
-                <div>
+                <div onscroll="handleScroll(this)">
                     {entityNodes}
                 </div>
             );
@@ -148,23 +175,40 @@ var List = React.createClass({
      *
      */
     handleScroll:function(e){
-        //this function will be triggered if user scrolls
-        var windowHeight = $(window).height();
-        var inHeight = $(document).height();
-        var scrollT = $(window).scrollTop();
-        
-        if(scrollT >= inHeight - windowHeight ){  //user reached at bottom
-        	if(!this.state.loadingFlag){  //to avoid multiple request 
-        		this.setState({
-        			loadingFlag:true,  
-        		});
-        		this.loadMoreEntities(); // calls the function that will load additional entities
-        	}
-        }
+    	
+    	var bottomPage = false;
+    	
+    	// Check if the scroll event is coming from the div object or from the window
+    	if(typeof e.target.id !== "undefined" && e.target.id == this.props.routePath)
+    	{
+    		var offsetHeight = e.target.offsetHeight;
+            var scrollHeight = e.target.scrollHeight;
+            var scrollTop = e.target.scrollTop;
+            
+            //user reached at bottom
+            if(offsetHeight + scrollTop == scrollHeight){
+            	bottomPage = true;
+            }
+    	}
+    	else{
+    		var windowHeight = $(window).height();
+            var inHeight = $(document).height();
+            var scrollT = $(window).scrollTop();
+            
+            //user reached at bottom
+            if(scrollT >= inHeight - windowHeight ){
+            	bottomPage = true
+            }
+    	}
+    	
+    	// to avoid multiple request
+    	if(!this.state.loadingFlag && bottomPage){ 
+    		this.setState({
+    			loadingFlag:true,  
+    		});
+    		this.loadMoreEntities(); // calls the function that will load additional entities
+    	}
     }
-    
-    
-
 });
 
 module.exports = List;
