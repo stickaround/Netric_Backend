@@ -13,10 +13,22 @@ var ListItemTableRow = require("./ListItemTableRow.jsx");
  * Module shell
  */
 var List = React.createClass({
+	
+	getInitialState:function(){
+        //setting initiall values
+        //attach the scroll event listener to the scroll handler function
+    	window.addEventListener("scroll", this.handleScroll);
+    	
+		return{
+			loadingFlag: false,   // to avoid multiple fetch request if user is keep scrolling
+		}
+
+	},
 
     propTypes: {
         onEntityListClick: React.PropTypes.func,
         onEntityListSelect: React.PropTypes.func,
+        onLoadMoreEntities: React.PropTypes.func,
         layout : React.PropTypes.string,
         entities: React.PropTypes.array,
 
@@ -32,9 +44,22 @@ var List = React.createClass({
             selectedEntities: []
         }
     },
+    
+    loadMoreEntities: function(){
+		var newLimitIncrement = 50; // This will add the number to the current limit
+		
+	    //method to update the entities
+		this.props.onLoadMoreEntities(newLimitIncrement);
+		 
+		if (this.isMounted()) {
+			this.setState({
+	          loadingFlag: false, // set to false to get new updates when reached at bottom
+	        });
+		}
+	},
 
     render: function() {
-
+    	
         var entityNodes = this.props.entities.map(function(entity) {
             var item = null;
             var selected = (this.props.selectedEntities.indexOf(entity.id) != -1);
@@ -52,7 +77,6 @@ var List = React.createClass({
                  * for large devices or a regular detailed item for small or preview mode.
                  */
                 default:
-
                     if (this.props.layout == 'table') {
                         item = <ListItemTableRow
                             key={entity.id}
@@ -117,7 +141,29 @@ var List = React.createClass({
         if (this.props.onEntityListSelect) {
             this.props.onEntityListSelect(oid);
         }
+    },
+    
+    /**
+     * Handles the scroll event
+     *
+     */
+    handleScroll:function(e){
+        //this function will be triggered if user scrolls
+        var windowHeight = $(window).height();
+        var inHeight = $(document).height();
+        var scrollT = $(window).scrollTop();
+        
+        if(scrollT >= inHeight - windowHeight ){  //user reached at bottom
+        	if(!this.state.loadingFlag){  //to avoid multiple request 
+        		this.setState({
+        			loadingFlag:true,  
+        		});
+        		this.loadMoreEntities(); // calls the function that will load additional entities
+        	}
+        }
     }
+    
+    
 
 });
 
