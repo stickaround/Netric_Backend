@@ -123,6 +123,9 @@ EntityBrowserController.prototype.render = function() {
                 this.toggleSelectAll(false);
             }
         }.bind(this),
+        onLoadMoreEntities: function(limitIncrease){
+        	return this.getMoreEntities(limitIncrease);
+        }.bind(this),
         onSearchChange: function(fullText, conditions) {
             this.onSearchChange(fullText, conditions);
         }.bind(this),
@@ -154,7 +157,7 @@ EntityBrowserController.prototype.render = function() {
 
     // Load the colleciton
     this.loadCollection();
-
+    
     // Add route to browseby
     this.addSubRoute("browse/:browseby/:browseval/:browsebytitle",
         EntityBrowserController, {
@@ -342,6 +345,28 @@ EntityBrowserController.prototype.onResume = function() {
      */
     this.selected_ = new Array();
     this.rootReactNode_.setProps({selectedEntities: this.selected_});
+}
+
+/**
+ * The collection is updated with new limits to display
+ *
+ * @param {integer} limitIncrease	Optional of entities to increment the limit by. Default is 50.
+ */
+EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
+	
+	// set new limit plus 50 if not set
+	if(typeof limitIncrease === 'undefined')
+		limitIncrease = 50; 
+	
+	var limit = this.collection_.getLimit();
+	var newLimit = limit + limitIncrease; // increase the limit
+	var totalNum = this.collection_.getTotalNum();
+	
+	// Check if maxed out already so no more actions needed
+	if(limit < totalNum) {
+		this.collection_.setLimit(newLimit);
+		this.collection_.refresh();
+	}
 }
 
 module.exports = EntityBrowserController;
