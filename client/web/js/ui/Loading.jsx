@@ -5,18 +5,18 @@ var React = require('react');
 var Loading = React.createClass({
 	
 	propTypes: {
-        loadingCss: React.PropTypes.string,
+		className: React.PropTypes.string,
     },
 
     getDefaultProps: function() {
         return {
-        	loadingCss: "loading",
+        	className: "loading",
         }
     },
 	
     render: function() {
         return (
-            <div className={this.props.loadingCss}>
+            <div className={this.props.className}>
                 <i className="fa fa-spinner fa-pulse" />
             </div>
         );

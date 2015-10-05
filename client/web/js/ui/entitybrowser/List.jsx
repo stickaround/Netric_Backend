@@ -37,14 +37,12 @@ var List = React.createClass({
         }
     },
     
-    loadMoreEntities: function() {
+    _loadMoreEntities: function() {
     	
-    	var newLimitIncrement = 50; // This will add the number to the current limit
+		// Function load more entities. The argument 50 will increment the current limit. 
+		this.props.onLoadMoreEntities(50);
 		
-		// Method to update the entities
-		this.props.onLoadMoreEntities(newLimitIncrement);
-		
-		if (this.isMounted()){
+		if (this.isMounted()) {
 			this.setState({
 				loadingFlag: false, // set to false to get new updates when reached at bottom
 			});
@@ -127,9 +125,9 @@ var List = React.createClass({
         var loadingIndicator = null;
         
         // Place loading indicator at the bottom of the list if we will display additioal entities
-        if (this.props.entities.length && this.props.collectionLoading){
+        if (this.props.entities.length && this.props.collectionLoading) {
         	loadingIndicator = <Loading
-        					loadingCss="scroll-loading" />;
+        	className="scroll-loading" />;
         }
 
         if (this.props.layout == 'table') {
@@ -184,16 +182,17 @@ var List = React.createClass({
      */
     _handleScroll: function(evt) {
     	
+    	// This will determine if the scroll has reached the bottom of the page
     	var bottomPage = false;
     	
     	// Check if the scroll event is coming from the window or from the div list container
-    	if(this.state.scrollContainer == window){
+    	if(this.state.scrollContainer == window) {
     		var windowHeight = $(window).height();
     		var inHeight = $(document).height();
     		var scrollTop = $(window).scrollTop();
             
     		// User reached at bottom
-    		if(scrollTop >= inHeight - windowHeight ){
+    		if(scrollTop >= inHeight - windowHeight) {
     			bottomPage = true
     		}
     	}
@@ -203,18 +202,18 @@ var List = React.createClass({
     		var scrollTop = evt.target.scrollTop;
             
     		// User reached at bottom
-    		if(offsetHeight + scrollTop == scrollHeight){
+    		if(offsetHeight + scrollTop == scrollHeight) {
     			bottomPage = true;
     		}
     	}
     	
     	// loadingFlag will avoid multiple request and if set to true it will load more entities
-    	if(!this.state.loadingFlag && bottomPage){ 
+    	if(!this.state.loadingFlag && bottomPage) { 
     		this.setState({
     			loadingFlag:true,  
     		});
     		
-    		this.loadMoreEntities(); // calls the function that will load additional entities
+    		this._loadMoreEntities(); // calls the function that will load additional entities
     	}
     }
 });
