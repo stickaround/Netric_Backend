@@ -111,7 +111,6 @@ EntityBrowserController.prototype.render = function() {
         deviceSize: netric.getApplication().device.size,
         layout: (netric.getApplication().device.size === netric.Device.sizes.small)
             ? "compact" : "table",
-        routePath: this.getRoutePath(),
         actionHandler: this.actions_,
         browserView:this.browserView_,
         onEntityListClick: function(objType, oid) {
@@ -351,12 +350,13 @@ EntityBrowserController.prototype.onResume = function() {
 /**
  * The collection is updated with new limits to display
  *
- * @param {integer} limitIncrease	Will increment the current limit
+ * @param {integer} limitIncrease	Optional of entities to increment the limit by. Default is 50.
  */
 EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 	
+	// set new limit plus 50 if not set
 	if(typeof limitIncrease === 'undefined')
-		limitIncrease = 50; // set new limit plus 50 if not set
+		limitIncrease = 50; 
 	
 	var limit = this.collection_.getLimit();
 	var newLimit = limit + limitIncrease; // increase the limit
