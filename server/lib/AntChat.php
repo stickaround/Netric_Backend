@@ -164,13 +164,14 @@ class AntChat
 		$userId = $this->userId;
 		
 		$teamId = null;
+		$friendFilter = null;
 		$arr_online = array();
 		$arr_offline = array();
 		
 		if(isset($args['teamId']))
 			$teamId = $args['teamId'];
 		
-		if($args['filterId'])
+		if(isset($args['filterId']))
 			$friendFilter = " and id = " . $args['filterId'];
 		
 		$sql = "select id, friend_name, friend_server, team_id, null as image_id, 
@@ -203,7 +204,7 @@ class AntChat
 			//$ret = $this->updateFriendTeam($row);
 			
 			// Only list team members at this point
-			if($teamId > 0 && $ret == $teamId && $row['friend_team']==0)
+			if($teamId > 0 && $row['friend_team']==0)
 				continue;
 			
 			// get friendDetails

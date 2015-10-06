@@ -279,7 +279,7 @@ class CAntObject_Dashboard extends CAntObject
 			}
 
 			// Get additional column params like width
-			if (is_array($this->layout[$col]))
+			if (array_key_exists($col, $this->layout)  && is_array($this->layout[$col]))
 			{
 				foreach ($this->layout[$col] as $pname=>$pval)
 					$ret[$col][$pname] = $this->layout[$col][$pname];

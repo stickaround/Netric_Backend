@@ -263,7 +263,9 @@ class CBrowser
         $this->Name = $bd['browser'];
         $this->Version = $bd['version'];
         $this->Platform = $bd['platform'];
-        $this->AOL = $bd['aol'];
+        
+        if(isset($bd['aol']))
+        	$this->AOL = $bd['aol'];
     }
 }		
 ?>
