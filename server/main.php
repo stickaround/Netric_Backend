@@ -12,7 +12,7 @@
 	$ACCOUNT = $USER->accountId;
 	$THEME_NAME = $USER->themeName;
 	
-	if (isset($_GET['change_theme']) && (is_numeric($_GET['change_theme'])) && is_numeric($USERID))
+	if ((isset($_GET['change_theme']) && is_numeric($_GET['change_theme'])) && is_numeric($USERID))
 	{
 		$dbh->Query("update users set theme='".$_GET['change_theme']."' where id='$USERID'");
 		// If using default image, reset text color
