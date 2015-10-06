@@ -19,6 +19,9 @@ require_once('lib/ServiceLocatorLoader.php');
 //require_once("lib/aereus.lib.php/CSessions.php");
 
 // Get new netric authentication service
+if(!isset($dbh))
+	$dbh = null;
+
 $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
 $authService = $sl->get("AuthenticationService");
 
@@ -26,14 +29,14 @@ $binfo = new CBrowser();
 $antsys = new AntSystem();
 
 // p will be raw if from a form, but encoded if from a get url
-$fwdpage = ($_POST["p"]) ? $_POST['p'] : "";
-if (!$fwdpage && $_GET['p'])
+$fwdpage = isset($_POST["p"]) ? $_POST['p'] : "";
+if (!$fwdpage && isset($_GET['p']))
 	$fwdpage = base64_decode($_GET['p']);
 
 $account = $ANT->accountName;
 
 // Check if user name and password has been saved in cookie
-if ($_REQUEST["user"] && $_REQUEST["password"])
+if (isset($_REQUEST["user"]) && isset($_REQUEST["password"]))
 {
 	$pass = $_REQUEST["password"];
 	$username = strtolower($_REQUEST["user"]);
@@ -61,7 +64,7 @@ if ($username && $pass && $account)
 
 
 		// Now check user table for user name and password combinations
-		if ($uid)
+		if (isset($uid))
 			$ret = $uid;
 		else
 			$ret = AntUser::authenticate($username, $pass, $dbh);
@@ -86,7 +89,7 @@ if ($username && $pass && $account)
         setcookie("Authentication", $authString, time()+60*60*24*30);
 
 		// Automatically determine timezone
-		if (function_exists(geoip_record_by_name) && function_exists(geoip_time_zone_by_country_and_region) && $_SERVER['REMOTE_ADDR'])
+		if (@function_exists(geoip_record_by_name) && @function_exists(geoip_time_zone_by_country_and_region) && $_SERVER['REMOTE_ADDR'])
 		{
 			$region = geoip_record_by_name($_SERVER['REMOTE_ADDR']);
 			if ($region)

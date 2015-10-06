@@ -9,7 +9,7 @@
     $dbh = $ANT->dbh;    
     $USERID =  $USER->id;    
     $controller = $_GET['controller'];
-    $apimodule = $_GET['apim'];
+    $apimodule = isset($_GET['apim']) ? $_GET['apim'] : null;
 
 	if ($apimodule)
 	{

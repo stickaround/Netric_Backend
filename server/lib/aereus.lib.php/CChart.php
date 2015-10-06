@@ -1343,7 +1343,7 @@ class CChart
 	}
 }
 
-if ($_GET['test'])
+if (isset($_GET['test']))
 {
 	$chart = new CChart("Column3D", "/datacenter/xml_chartdata.awp?gid=6");
 	echo $chart->getChart();

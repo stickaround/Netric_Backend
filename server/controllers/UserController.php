@@ -1375,11 +1375,18 @@ class UserController extends Controller
      */
 	public function getSession($params)
 	{
-		$dbh = $ANT->dbh;
-		$USERNAME = $USER->name;
-		$USERID =  $USER->id;
-		$ACCOUNT = $USER->accountId;	
-		$theme_name = $USER->themeName;
+		$dbh = $USERNAME = $USERID = $ACCOUNT = $theme_name = null;
+		
+		if(isset($ANT)) {
+			$dbh = $ANT->dbh;
+		}
+		
+		if(isset($USER)) {
+			$USERNAME = $USER->name;
+			$USERID =  $USER->id;
+			$ACCOUNT = $USER->accountId;
+			$theme_name = $USER->themeName;
+		}
 
 		$theme_title = UserGetTheme($dbh, $USERID, 'title');
 		if (!$theme_title)
@@ -1389,7 +1396,6 @@ class UserController extends Controller
 		$theme_css = UserGetTheme($dbh, $USERID, 'css');
 		if (!$theme_css)
 			$theme_css = "ant_skygrey.css";
-
 
 		$session = array();
 

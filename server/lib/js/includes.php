@@ -198,7 +198,7 @@
 	// Combine all scripts into a single file
 	foreach ($libs as $lib)
 	{
-		if ($_SERVER['argv'][1] == "build")
+		if (isset($_SERVER['argv']) && $_SERVER['argv'][1] == "build")
 		{
 			include(APPLICATION_PATH . $lib);
 			echo "\n";
@@ -212,7 +212,7 @@
 	// Widgets are handled differently because we will eventually be loading these dynamically
     foreach ($dashboardWidgets as $widget)
 	{
-		if ($_SERVER['argv'][1] == "build")
+		if (isset($_SERVER['argv']) && $_SERVER['argv'][1] == "build")
 		{
 			include(APPLICATION_PATH . $widget);
 			echo "\n";

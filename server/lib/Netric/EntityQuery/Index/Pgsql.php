@@ -894,7 +894,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             }
             break;
         case 'object_dereference':
-            if ($field->subtype && $ref_field)
+            if ($field->subtype && isset($ref_field))
             {
                 // Create subquery
                 $subQuery = new \Netric\EntityQuery($field->subtype);

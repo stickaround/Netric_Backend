@@ -80,7 +80,7 @@ class ObjectController extends Controller
         
         $data = $obj->getGroupingData($params['field'], $conditions, $filters);
 
-        if($params['noPrint'])
+        if(isset($params['noPrint']))
             return $data;
         else
             return $this->sendOutputJson($data);
@@ -1992,7 +1992,7 @@ class ObjectController extends Controller
 
 		$defLoader = $this->ant->getServiceLocator()->get("EntityDefinitionLoader");
 
-		if ($params['clearcache']) // force a refresh of cache
+		if (isset($params['clearcache'])) // force a refresh of cache
 			$defLoader->clearCache($objType);
 
 		$def = $defLoader->get($objType);
