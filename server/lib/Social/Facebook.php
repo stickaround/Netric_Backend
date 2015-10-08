@@ -100,7 +100,7 @@ class AntSocial_Facebook extends AntSocial
 			$prof = new AntSocial_Profile();
 			$prof->id = $user_profile['id'];
 			$prof->name = $user_profile['name'];
-			$prof->username = $user_profile['username'];
+			$prof->username = isset($user_profile['username']) ? $user_profile['username'] : null;
 			$prof->firstName = $user_profile['first_name'];
 			$prof->lastName = $user_profile['last_name'];
 			$prof->link = $user_profile['link'];

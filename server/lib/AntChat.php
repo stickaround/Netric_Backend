@@ -364,7 +364,7 @@ class AntChat
 		
 		$message = $args['message'];            
 		$friendName = $args['friendName'];
-		$friendServer = $args['friendServer'];
+		$friendServer = isset($args['friendServer']) ? $args['friendServer'] : null;
 		$messageTimestamp = time();
 		
 		$result = $dbh->Query("insert into chat_server(user_id, user_name, friend_name, friend_server, message, ts_last_message, message_timestamp) 
@@ -410,6 +410,7 @@ class AntChat
 				array_unshift($threadData, $cacheData); // add to beginning
 			else
 				$threadData = array($cacheData);
+			
 			$this->cache->set($this->dbh->dbname."/chat/$userName/threads/$friendName", $threadData, 60*60*2);
 
 			// Cache the new message for the friend 2 hours
