@@ -35,7 +35,7 @@ function email_send_bulk($job)
     // Instantiate Campaign Object
     $campaignObj = CAntObject::factory($dbh, "email_campaign", $data['object_id'], $user);
     
-    if($data['test_mode']==1)
+    if(isset($data['test_mode']) && $data['test_mode']==1)
         $campaignObj->testMode = true;
         
     $result = $campaignObj->processEmailCampaign();

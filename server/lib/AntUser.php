@@ -1081,7 +1081,7 @@ class AntUser
 			$cal->setValue("name", "My Calendar");
 			$cal->setValue("f_view", "t");
 			$cal->setValue("def_cal", "t");
-			$cal->setValue("color", "2A4BD7");
+			// $cal->setValue("color", "2A4BD7"); // Note: Field color no longer exists and is throwing an exception.
 			$cid = $cal->save();
 		}
 

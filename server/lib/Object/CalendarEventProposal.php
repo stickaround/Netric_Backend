@@ -114,7 +114,7 @@ class CAntObject_CalendarEventProposal extends CAntObject
 			}
 
 			// Email address was found, send invitation
-			if ($email_address)
+			if (isset($email_address))
 			{
 				$evname = $this->getName();
 				$headers['From']  = $this->user->getEmail();

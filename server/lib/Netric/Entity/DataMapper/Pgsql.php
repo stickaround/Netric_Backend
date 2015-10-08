@@ -165,7 +165,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 			$fkeyValueName = (isset($row[$fname."_fval"])) ? $this->decodeFval($row[$fname."_fval"]) : null;
 
 			// Set entity value
-			if ($row[$fname])
+			if (isset($row[$fname]))
 				$entity->setValue($fname, $row[$fname], $fkeyValueName);
 		}
 		

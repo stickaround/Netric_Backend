@@ -105,6 +105,13 @@ class CAntObject_EmailMessage extends CAntObject
 	 * @var int
 	 */
 	public $smtpPort = null;
+	
+	/**
+	 * Contains the instance of the service ANT
+	 *
+	 * @var Ant Service
+	 */
+	private $ant = null;
 
 	/**
 	 * Initialize CAntObject with correct type
@@ -116,6 +123,9 @@ class CAntObject_EmailMessage extends CAntObject
 	function __construct($dbh, $mid=null, $user=null)
 	{
 		parent::__construct($dbh, "email_message", $mid, $user);
+		
+		// Get the ANT service
+		$this->ant = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->getAnt();
 	}
 	
 	/**
@@ -1648,41 +1658,43 @@ class CAntObject_EmailMessage extends CAntObject
 			// Check for bulk system settings
 			if ($bulk)
 			{
-				$host = Ant::settingsGet("email/smtp_bulk_host", $this->dbh);
+				$host = $this->ant->settingsGet("email/smtp_bulk_host", $this->dbh);
 				if ($host)
 				{
 					$this->smtpHost = $host;
-					$this->smtpUser = Ant::settingsGet("email/smtp_bulk_user", $this->dbh);
-					$this->smtpPassword = Ant::settingsGet("email/smtp_bulk_password", $this->dbh);
-					$this->smtpPort = Ant::settingsGet("email/smtp_bulk_port", $this->dbh);
+					$this->smtpUser = $this->ant->settingsGet("email/smtp_bulk_user", $this->dbh);
+					$this->smtpPassword = $this->ant->settingsGet("email/smtp_bulk_password", $this->dbh);
+					$this->smtpPort = $this->ant->settingsGet("email/smtp_bulk_port", $this->dbh);
 				}
 				else
 				{
+					$emailConf = AntConfig::getInstance()->email;
+					
 					// Use config settings if they exist
-					$this->smtpHost = AntConfig::getInstance()->email['bulk_server'];
-					$this->smtpUser = AntConfig::getInstance()->email['bulk_user'];
-					$this->smtpPassword = AntConfig::getInstance()->email['bulk_password'];
-					$this->smtpPort = AntConfig::getInstance()->email['bulk_port'];
+					$this->smtpHost = isset($emailConf['bulk_server']) ? $emailConf['bulk_server'] : null;
+					$this->smtpUser = isset($emailConf['bulk_user']) ? $emailConf['bulk_user'] : null;
+					$this->smtpPassword = isset($emailConf['smtpPassword']) ? $emailConf['smtpPassword'] : null;
+					$this->smtpPort = isset($emailConf['bulk_port']) ? $emailConf['bulk_port'] : null;
 				}
 			}
 			else if ($account)
 			{
 				$this->smtpHost = $account->smtpHost;
-				$this->smtpUser = $account->smtpUser;
-				$this->smtpPassword = $account->smtpPassword;
-				$this->smtpPort = $account->smtpPort;
+				$this->smtpUser = isset($account->smtpUser) ? $account->smtpUser : null;
+				$this->smtpPassword = isset($account->smtpPassword) ? $account->smtpPassword : null;
+				$this->smtpPort = isset($account->smtpPort) ? $account->smtpPort : null;
 			}
 
 			// Check for global system settings
 			if (!$this->smtpHost)
-			{
-				$host = Ant::settingsGet("email/smtp_host", $this->dbh);
+			{	
+				$host = $this->ant->settingsGet("email/smtp_host", $this->dbh);
 				if ($host)
 				{
 					$this->smtpHost = $host;
-					$this->smtpUser = Ant::settingsGet("email/smtp_user", $this->dbh);
-					$this->smtpPassword = Ant::settingsGet("email/smtp_password", $this->dbh);
-					$this->smtpPort = Ant::settingsGet("email/smtp_port", $this->dbh);
+					$this->smtpUser = $this->ant->settingsGet("email/smtp_user", $this->dbh);
+					$this->smtpPassword = $this->ant->settingsGet("email/smtp_password", $this->dbh);
+					$this->smtpPort = $this->ant->settingsGet("email/smtp_port", $this->dbh);
 				}
 			}
 

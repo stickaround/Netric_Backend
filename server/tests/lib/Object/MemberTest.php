@@ -33,7 +33,7 @@ class CAntObject_MemberTest extends PHPUnit_Framework_TestCase
 		$email = "testDynamicCustomerCreation@testDynamicCustomerCreation.org";
 
 		// First cleanup
-		$list = new CAntObjectList($this->dbh, "customer", $user);
+		$list = new CAntObjectList($this->dbh, "customer", $this->user);
 		$list->addCondition("and", "email", "is_equal", $email);
 		$list->getObjects();
 		for ($i = 0; $i < $list->getNumObjects(); $i++)

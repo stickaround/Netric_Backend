@@ -121,7 +121,7 @@ class CAntObject_StatusUpdate extends CAntObject
 		if ($this->getValue('sent_by'))
 		{
 			$sentBy = CAntObject::decodeObjRef($this->getValue('sent_by'));
-			if ($sentBy['name'])
+			if (isset($sentBy['name']))
 				$from = $sentBy['name'];
 			else if ($sentBy)
 				$from = objGetName($this->dbh, $sentBy['obj_type'], $sentBy['id']);

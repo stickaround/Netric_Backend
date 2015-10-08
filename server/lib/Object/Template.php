@@ -230,7 +230,8 @@ class AntObject_Template
 	public function processValue($fieldName, $obj)
 	{
 		$field = $obj->fields->getField($fieldName);
-		if (!$field)
+		
+		if (!$field || !isset($this->fieldValues[$fieldName]))
 			return null;
 
 		$val = $this->fieldValues[$fieldName];

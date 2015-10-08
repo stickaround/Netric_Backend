@@ -45,7 +45,10 @@ class CAntObject_Folder extends CAntObject
 	 */
 	public function openFile($fname, $create=false)
 	{
-		$accPath = AntFs::getAccountDirectory($this->dbh);
+		
+		$antFs = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->get("AntFs");
+		
+		$accPath = $antFs->getAccountDirectory($this->dbh);
 		$file = null; 
 
 		if ($this->id && $accPath && $this->user)
@@ -137,8 +140,11 @@ class CAntObject_Folder extends CAntObject
 
 		if ($this->id && $this->user && file_exists($filePath))
 		{
-			if ($fid)
-				$file = AntFs::openFileById($fid, $this->dbh, $this->user);
+			if ($fid) {
+				$antFs = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->get("AntFs");
+				
+				$file = $antFs->openFileById($fid, $this->dbh, $this->user);
+			}	
 			else
 				$file = $this->openFile($fname, true);	
 

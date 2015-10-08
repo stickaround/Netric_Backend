@@ -88,13 +88,13 @@
 		}
 		
 		// 3 check get
-		if (!$ret && $_GET['account'])
+		if (!$ret && isset($_GET['account']))
 		{
 			$ret = $_GET['account'];
 		}
 
 		// 4 check post
-		if (!$ret && $_POST['account'])
+		if (!$ret && isset($_POST['account']))
 		{
 			$ret = $_POST['account'];
 		}

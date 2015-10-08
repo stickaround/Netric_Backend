@@ -71,8 +71,11 @@ class CAntObject_SalesOrderTest extends PHPUnit_Framework_TestCase
 	 */
 	function testPayWithCard()
 	{
+		// Get the payment gateway manager
+		$gatewayManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->get("PaymentGatewayManager");
+		
 		// Get gateway
-		$gw = PaymentGatewayManager::getGateway($this->dbh, PMTGW_TEST); // Force test type
+		$gw = $gatewayManager->getGateway($this->dbh, PMTGW_TEST); // Force test type
 
 		$inv = new CAntObject_SalesOrder($this->dbh, null, $this->user);
 		$invid = $inv->save();

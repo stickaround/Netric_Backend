@@ -2387,7 +2387,7 @@ class CAntObject
 
 		// Get old values
 		$oldvalraw = $this->getValue($name);
-		if ($field->type == 'fkey_multi' || $field->type == 'object_multi')
+		if (isset($field) && ($field->type == 'fkey_multi' || $field->type == 'object_multi'))
 			$oldval = $this->getForeignValue($name);
 		else
 			$oldval = $oldvalraw;
@@ -2421,7 +2421,7 @@ class CAntObject
 		// Log changes
 		if ($oldvalraw != $this->values[$name])
 		{
-			if ($field->type == 'fkey_multi' || $field->type == 'object_multi')
+			if (isset($field) && ($field->type == 'fkey_multi' || $field->type == 'object_multi'))
 				$newval = $this->getForeignValue($name, $value, false);
 			else
 				$newval = $this->values[$name];
@@ -4338,8 +4338,13 @@ class CAntObject
 	{
 		$data = array();
 		$field = $this->def->getField($fieldName);
+		
+		// If field is not found in the new EntityDefinition then no need to continue
+		if(!isset($field)) {
+			return false;
+		}
 
-		if ($field->type != "fkey" && $field->type != "fkey_multi")
+		if (isset($field->type) && $field->type != "fkey" && $field->type != "fkey_multi")
 			return false;
 
 		$dbh = $this->dbh;
@@ -4410,7 +4415,7 @@ class CAntObject
 			}
 		}
 
-		if ($field->fkeyTable['parent'])
+		if (isset($field->fkeyTable['parent']))
 		{
 			if ($parent)
 			{

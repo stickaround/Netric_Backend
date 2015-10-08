@@ -83,7 +83,7 @@ class AnsCLient
 
 		$size = filesize($localfile);
 
-		if ($_SERVER['SERVER_PORT'] == "443")
+		if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == "443")
 			$url = "https://";
 		else
 			$url = "http://";
@@ -98,7 +98,7 @@ class AnsCLient
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		//curl_setopt($ch, CURLOPT_INFILESIZE, $size);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, array("file"=>"@".$localfile));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => new CurlFile($localfile)));
 		$response = curl_exec($ch);
 		//echo "<pre>RESP: $url\n\n$response</pre>";
 		if (curl_errno($ch)) 
