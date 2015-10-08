@@ -141,7 +141,7 @@ class RpcSvr
             }
             
 			// Manually set output if passed as a param
-			if ($params['output'])
+			if (isset($params['output']))
 				$this->svrCls->output = $params['output'];
 
 			// Call class method and pass request params

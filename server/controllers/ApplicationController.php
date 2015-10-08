@@ -800,7 +800,8 @@ class ApplicationController extends Controller
     public function getWeather($params)
     {
         $dbh = $this->ant->dbh;
-		$zip = $params['zip'];
+		$zip = isset($params['zip']) ? $params['zip'] : null;
+		
 		if (!$zip)
 			$zip = $this->user->getSetting("zipcode");
 

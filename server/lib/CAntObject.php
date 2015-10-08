@@ -4352,7 +4352,7 @@ class CAntObject
 			$cnd = "";
 
 		// Check filters to refine the results - can filter by parent object like project id for cases or tasks
-		if ($field->fkeyTable['filter'])
+		if (isset($field->fkeyTable['filter']))
 		{
 			foreach ($field->fkeyTable['filter'] as $referenced_field=>$object_field)
 			{

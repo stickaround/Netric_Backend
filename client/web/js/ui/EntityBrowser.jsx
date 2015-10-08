@@ -52,10 +52,12 @@ var EntityBrowser = React.createClass({
           bodyContent = (<List
               onEntityListClick={this.props.onEntityListClick}
               onEntityListSelect={this.props.onEntityListSelect}
+              onLoadMoreEntities={this.props.onLoadMoreEntities}
               entities={this.props.entities}
               selectedEntities={this.props.selectedEntities}
               browserView={this.props.browserView}
-              layout={this.props.layout} />);
+              layout={this.props.layout}
+          	  collectionLoading={this.props.collectionLoading} />);
 
           if (this.props.collectionLoading) {
               // TODO: display loading indicator over the list

@@ -136,9 +136,10 @@ class AntUser
 			}
 			else if (function_exists("geoip_record_by_name") && function_exists("geoip_time_zone_by_country_and_region") && isset($_SERVER['REMOTE_ADDR']))
 			{
-				$region = geoip_record_by_name($_SERVER['REMOTE_ADDR']);
+				$region = @geoip_record_by_name($_SERVER['REMOTE_ADDR']);
+				
 				if ($region)
-					$this->timezoneName = geoip_time_zone_by_country_and_region($region['country_code'], $region['region']); 
+					$this->timezoneName = @geoip_time_zone_by_country_and_region($region['country_code'], $region['region']); 
 			}
 
 			if (!$this->timezoneName)
