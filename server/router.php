@@ -3,7 +3,6 @@
  * Router handles loading a controller from a URL route
  */
 require_once("init_application.php");
-
 $controller = $_GET['controller'];
 
 // Normalize the controller name to map to a class name

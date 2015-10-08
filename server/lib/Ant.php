@@ -611,6 +611,11 @@ class Ant
 		// Now that we know we have a valid user, lets create it
 		$user = new CAntObject($this->dbh, "user");
 		$user->setValue("name", $username);
+		// If it an email, then save to email as well as name
+		if (strpos($username, "@"))
+		{
+			$user->setValue("email", $username);
+		}
 		$user->setValue("full_name", $username);
 		$user->setValue("password", $password);
 		$user->setValue("active", 't');

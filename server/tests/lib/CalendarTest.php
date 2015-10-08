@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../lib/Calendar.php');
 require_once(dirname(__FILE__).'/../../lib/Object/CalendarEvent.php');
 require_once(dirname(__FILE__).'/../../lib/parsers/imc/CimcCalendar.php');
 
-class CalendarTest extends PHPUnit_Framework_TestCase
+class CalendarTest extends \PHPUnit_Framework_TestCase
 {
 	var $dbh = null;
 	var $user = null;

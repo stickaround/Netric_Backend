@@ -104,8 +104,8 @@ class Router
             if(isset($this->svrCls->testMode))
                 $this->svrCls->testMode = $this->testMode;
 		}
-        
-        $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
+
+		$requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
 		if (method_exists($this->svrCls, $fName) && $requestMethod!='OPTIONS')
 		{
 			/*

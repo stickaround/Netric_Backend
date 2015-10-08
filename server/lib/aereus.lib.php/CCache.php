@@ -244,7 +244,7 @@ class CCache
 
 		if ($this->memCached)
 		{
-			$this->memCached->set($key, $val, $expires);
+			$this->memCached->set($key, $val, false, $expires);
 		}
 		else
 		{

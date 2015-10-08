@@ -26,6 +26,19 @@ if (!Netric\Config::getInstance()->default_account)
 	die("The 'default_account' variable was not found in the current config. This variable is required. Please check your config and add it.");
 
 /**
+ * Make sure the data directory exists
+ */
+if (!file_exists(Netric\Config::getInstance()->data_path))
+{
+	if (!mkdir(Netric\Config::getInstance()->data_path, 0777))
+		die(
+			"Could not create data directory " .
+			Netric\Config::getInstance()->data_path .
+			"! Please create it manually, set permissions to 777, and re-run this script."
+		);
+}
+
+/**
  * Make sure that the system database exists
  */
 $dbh = new CDatabase(Netric\Config::getInstance()->db['syshost'], "template1");

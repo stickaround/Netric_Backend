@@ -5,11 +5,15 @@ We use a vagrant image for all local development. Follow the directions in this 
 ## 1. Install vagrant
 Go to http://www.vagrantup.com/downloads.html, download and install vagrant.
 
-## 2. Install vagrant hostupdater plugin
+## 2. Install vagrant plugins
 
 We use this plugin to automatically update your machines host file so that when you spin up the virtual machine, it will change your local host to point devel.awayable.com to your vm instance. Pretty cool huh?
 
 	vagrant plugin install vagrant-hostsupdater
+
+We use vagrant-git to pull the latest version of the configs down just before provision
+
+	vagrant plugin install vagrant-git
 
 ## 3. Add the vagrant box
 

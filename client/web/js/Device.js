@@ -8,6 +8,7 @@
 
 // Information about the current device
 var Device = function() {
+	
 	// Try to determine the current devices size
 	this.getDeviceSize_();
 
