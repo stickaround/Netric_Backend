@@ -552,7 +552,7 @@ class AntUser
 
 				if (!$dbh->GetNumberRows($dbh->Query("SELECT id FROM email_accounts WHERE address='$email' and user_id='".$this->id."'")))
 				{
-					$def = ($defDomain == $domain && !$defEmail) ? 't' : 'f'; // If no default is set
+					$def = (isset($defEmail) && $defDomain == $domain) ? 't' : 'f'; // If no default is set
 					$dbh->Query("INSERT INTO email_accounts(name, address, reply_to, user_id, f_default, f_system) 
 								 VALUES('".$dbh->Escape($this->fullName)."', '$email', '$email', '".$this->id."', '$def', 't');");
 
@@ -741,7 +741,7 @@ class AntUser
 	 * @param CDatabase $dbh This is required if function is called statically
 	 * @return integer The user id on success and = on failure
 	 */
-	public function authenticate($username, $password, $dbh=null)
+	public static function authenticate($username, $password, $dbh=null)
 	{
 		if (!$dbh && $this && $this->dbh)
 			$dbh = $this->dbh;

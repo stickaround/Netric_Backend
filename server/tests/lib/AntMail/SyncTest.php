@@ -84,6 +84,8 @@ class AntMail_SyncTest extends PHPUnit_Framework_TestCase
 		$this->emailAccount->host = $this->host;
         $this->emailAccount->userId = $this->user->id;
 		$this->aid = $this->emailAccount->save();
+		
+		$this->markTestSkipped('Cannot test since imap server is not setup.');
 	}
 
 	/**

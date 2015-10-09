@@ -312,7 +312,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 		$ret = $this->dbh->query($query);
 		if ($ret && !$def->getId())
 		{
-			$def->setId($this->dbh->getValue($result, 0, "id"));
+			$def->setId($this->dbh->getValue($ret, 0, "id"));
 		}
 
 		// Check to see if this dynamic object has yet to be initilized

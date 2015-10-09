@@ -4468,7 +4468,7 @@ class CAntObject
 			$item['parent_id'] = (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
                 ? $row[$field->fkeyTable['parent']] : null;
 			$item['viewname'] = $viewname;
-			$item['color'] = $row['color'];
+			$item['color'] = isset($row['color']) ? $row['color'] : null;
 			$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
             $item['system'] = (isset($row['f_system']) && $row['f_system']=='t') ? true : false;
             
@@ -4586,7 +4586,7 @@ class CAntObject
 			$values[] = $this->dbh->EscapeNumber($sortOrder);
 		}
 
-		if ($parentId && $field->fkeyTable['parent'])
+		if (isset($field->fkeyTable['parent']) && $parentId)
 		{
 			$fields[] = $field->fkeyTable['parent'];
 			$values[] = $this->dbh->EscapeNumber($parentId);
@@ -4646,7 +4646,7 @@ class CAntObject
 				$item = array();
 				$item['id'] = $eid;
 				$item['title'] = $title;
-				$item['heiarch'] = ($field->fkeyTable['parent']) ? true : false;
+				$item['heiarch'] = isset($field->fkeyTable['parent']) ? true : false;
 				$item['parent_id'] = $parentId;
 				$item['viewname'] = $title;
 				$item['color'] = $color;
@@ -4770,7 +4770,7 @@ class CAntObject
 			return false;
 
 		// First delete child entries
-		if ($field->fkeyTable['parent'])
+		if (isset($field->fkeyTable['parent']) && $field->fkeyTable['parent'])
 		{
             $query = "SELECT id FROM ".$field->subtype." WHERE ".$field->fkeyTable['parent']."='$entryId'";
             

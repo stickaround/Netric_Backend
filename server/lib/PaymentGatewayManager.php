@@ -37,7 +37,7 @@ class PaymentGatewayManager
 	 * 
 	 * @param CDatabase $dbh reference to a account database
 	 */
-	public function hasGateway($dbh=null)
+	public static function hasGateway($dbh=null)
 	{
 		if (!$dbh && isset($this))
 			$dbh = $this->ant->dbh;
@@ -45,7 +45,7 @@ class PaymentGatewayManager
 		if (!$dbh)
 			return false;
 
-		$gwType = Ant::settingsGet("/general/paymentgateway", $dbh);
+		$gwType = $this->ant->settingsGet("/general/paymentgateway", $dbh);
 
 		return ($gwType) ? true : false;
 	}
@@ -56,7 +56,7 @@ class PaymentGatewayManager
 	 * @param CDatabase $dbh reference to a account database
 	 * @param int $type override the system setting
 	 */
-	public function getGateway($dbh=null, $type=null)
+	public static function getGateway($dbh=null, $type=null)
 	{
 		if (!$dbh && isset($this))
 			$dbh = $this->ant->dbh;
@@ -69,13 +69,13 @@ class PaymentGatewayManager
 		if ($type)
 			$gwType = $type;
 		else
-			$gwType = Ant::settingsGet("/general/paymentgateway", $dbh);
+			$gwType = $this->ant->settingsGet("/general/paymentgateway", $dbh);
 
 		switch ($gwType)
 		{
 		case PMTGW_AUTHDOTNET:
-			$login = Ant::settingsGet("/general/paymentgateway/authdotnet/login", $dbh);
-			$key = Ant::settingsGet("/general/paymentgateway/authdotnet/key", $dbh);
+			$login = $this->ant->settingsGet("/general/paymentgateway/authdotnet/login", $dbh);
+			$key = $this->ant->settingsGet("/general/paymentgateway/authdotnet/key", $dbh);
 
 			if ($login && $key)
 			{
@@ -84,8 +84,8 @@ class PaymentGatewayManager
 			break;
 
 		case PMTGW_LINKPOINT:
-			$storeNumber = Ant::settingsGet("/general/paymentgateway/linkpoint/store", $dbh);
-			$pem = Ant::settingsGet("/general/paymentgateway/linkpoint/pem", $dbh);
+			$storeNumber = $this->ant->settingsGet("/general/paymentgateway/linkpoint/store", $dbh);
+			$pem = $this->ant->settingsGet("/general/paymentgateway/linkpoint/pem", $dbh);
 
 			if ($storeNumber && $pem)
 			{

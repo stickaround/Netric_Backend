@@ -113,7 +113,7 @@ class Dacl
 	 * @param string $name The unique name of this DACL
 	 * @param CDatabase $dbh If called statically this is required
 	 */
-	public function exists($name, $dbh=null)
+	public static function exists($name, $dbh=null)
 	{
         $cache = null;
         

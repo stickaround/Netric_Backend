@@ -88,8 +88,11 @@ class WorkFlow_Action_AssignRR extends WorkFlow_Action_Abstract
 	{
 		if (empty($userName))
 			return false;
+		
+		// Get Ant user
+		$ant = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->getAnt();
 
-		$olist = new CAntObjectList($this->dbh, "user", $this->user);
+		$olist = new CAntObjectList($this->dbh, "user", $ant->getUser());
 		$olist->addCondition("and", "name", "is_equal", strtolower($userName));
 		$olist->getObjects();
 		if ($olist->getNumObjects()<1)

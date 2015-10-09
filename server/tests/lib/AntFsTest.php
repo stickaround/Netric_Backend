@@ -20,6 +20,8 @@ class AntFsTest extends PHPUnit_Framework_TestCase
 		$this->dbh = $this->ant->dbh;
 		$this->user = new AntUser($this->dbh, -1); // -1 = administrator
 		$this->antfs = new AntFs($this->dbh, $this->user); // -1 = administrator
+		
+		$this->markTestSkipped('ANS Test server is not yet ready.');
 	}
 	
 	/**

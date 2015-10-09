@@ -54,7 +54,7 @@ class ServiceLocatorTest extends PHPUnit_Framework_TestCase
 
 		// Get config service
 		$config = $sl->get("Entity_DataMapper");
-		$this->assertInstanceOf("Entity_DataMapper_Pgsql", $config);
+		$this->assertInstanceOf("Netric\Entity\DataMapper\Pgsql", $config);
 	}
 
 	/**
@@ -66,6 +66,6 @@ class ServiceLocatorTest extends PHPUnit_Framework_TestCase
 
 		// Get config service
 		$config = $sl->get("EntityDefinition_DataMapper");
-		$this->assertInstanceOf("EntityDefinition_DataMapper_Pgsql", $config);
+		$this->assertInstanceOf("Netric\EntityDefinition\DataMapper\Pgsql", $config);
 	}
 }

@@ -24,6 +24,8 @@ class Olap_Cube_AdhockTest extends PHPUnit_Framework_TestCase
         $this->dbh = $this->ant->dbh;
         $this->user = $this->ant->getUser(USER_ADMINISTRATOR);        
         $this->checkQuarter = array("Q1", "Q2", "Q3", "Q4");
+        
+        $this->markTestSkipped('Depricated.');
     }
     
     function tearDown() 

@@ -141,7 +141,7 @@ class WorkFlow_Action_Invoice extends WorkFlow_Action_Abstract
 				$this->pmtResult = $invobj->payWithCard($gw, $cardData, $custData, $billSuccessStatus, $billFailStatus);
 
 
-				if ($this->pmtResult && $ovals['billing_success_notify'])
+				if (isset($ovals['billing_success_notify']) && $this->pmtResult)
 				{
 					// Create new email object
 					$headers['From'] = AntConfig::getInstance()->email['noreply'];
@@ -157,7 +157,7 @@ class WorkFlow_Action_Invoice extends WorkFlow_Action_Abstract
 					$status = $email->send($headers['To'], $headers, $body);
 					unset($email);
 				}
-				else if ($ovals['billing_fail_notify'])
+				else if (isset($ovals['billing_fail_notify']))
 				{
                     // Create new email object
 					$headers['From'] = AntConfig::getInstance()->email['noreply'];

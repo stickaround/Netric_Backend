@@ -54,19 +54,19 @@ class WorkFlowTest extends PHPUnit_Framework_TestCase
 		// Add a current user condition
 		$cond = $wf->addCondition();
 		$cond->blogic = "and";
-		$cond->fieldName = "owner_id";
+		$cond->fieldName = "company";
 		$cond->operator = "is_equal";
-		$cond->condValue = USER_CURRENT;
+		$cond->condValue = "utest wf company";
 
 		$wid = $wf->save();
 		$this->assertTrue(is_numeric($wid));
 
 		// Crate test object
-		$cust = new CAntObject($this->dbh, "customer", null, $this->user);
+		$cust = new CAntObject($this->dbh, "customer", null);
 		$cust->setValue("name", "utest wf cust");
-		$cust->setValue("owner_id", $this->user->id);
+		$cust->setValue("company", "utest wf company");
 		$custid = $cust->save(false);
-        
+		
 		// Test current user launch condition
 		$this->assertTrue($wf->conditionsMatch($cust));
 
@@ -76,17 +76,18 @@ class WorkFlowTest extends PHPUnit_Framework_TestCase
         // Test unmet condition
         // Should not fire, since the workflow condition already met
         $wf->fConditionUnmet = true;
-        $this->assertFalse($wf->conditionsMatch($cust));
+        $custTestCondition = new CAntObject($this->dbh, "customer", $custid);
+        $this->assertFalse($wf->conditionsMatch($custTestCondition));
         
         // Change the condition so it wont meet the required condition of workflow
-        $cust->setValue("owner_id", -6);
+        $cust->setValue("company", "new utest wf company");
         $custid = $cust->save(false);
         
         // Should be false, since condition is unmet
         $this->assertFalse($wf->conditionsMatch($cust));
         
         // Change the condition so it wont meet the required condition of workflow
-        $cust->setValue("owner_id", $this->user->id);
+        $cust->setValue("company", "utest wf company");
         $custid = $cust->save(false);
         
         // Should be true, since the last condition was unmet
