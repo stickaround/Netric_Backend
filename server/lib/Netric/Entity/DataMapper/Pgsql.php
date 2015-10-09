@@ -731,7 +731,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 								}
 							}
 
-							if ($subtype)
+							if (isset($subtype))
 							{
 								$assocDef = $defLoader->get($subtype);
 								if ($assocDef->getId() && $objid)

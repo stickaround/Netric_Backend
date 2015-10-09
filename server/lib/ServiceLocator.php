@@ -289,14 +289,4 @@ class ServiceLocator
 	
 		return $antfs;
 	}
-	
-	/**
-	 * Get PaymentGatewayManager class
-	 *
-	 * @return \AntFs
-	 */
-	private function factoryPaymentGatewayManager()
-	{
-		return new PaymentGatewayManager($this->getAnt());
-	}
 }
