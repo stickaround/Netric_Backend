@@ -48,7 +48,7 @@ class AntUser
 	var $groups = null; // Array of groups this user belongs to. Initializes to null but set to array once getGroups is called
     var $emailUserNames = null;
     
-    private static $dbh_static;
+    private static $dbh_static; // This is used for static function e.g. public static authenticate();
 
 	/**
 	 * Class constructor

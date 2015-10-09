@@ -32,6 +32,13 @@ class CAntObject_File extends CAntObject
 	 */
 	private $ansClient = null;
 	
+	/**
+	 * AntFs instance
+	 *
+	 * This will contain the AntFs instance
+	 *
+	 * @var antFs
+	 */
 	private $antFs = null;
 
 	/**
