@@ -80,28 +80,29 @@ class AntTest extends PHPUnit_Framework_TestCase
 		$testName = "unittest$rand";
 		$user = $this->ant->createUser($testName, $testName);
 		
-		if ($user === false)
-		{
-			echo "<pre>Create Account Error: ".$antsys->lastError."</pre>";
+		if ($user->getId()) {
+			$this->assertTrue($user->id > 0);
+			
+			// Make sure we can authenticate
+			$this->assertTrue($user->authenticate($testName, $testName) > 0);
+			
+			// Now try to create the same user and expect error
+			$baduser = $this->ant->createUser($testName, $testName);
+			$this->assertFalse($baduser);
+			
+			// Now try to create a user without a password (should return fail)
+			$baduser = $this->ant->createUser($testName, "");
+			$this->assertFalse($baduser);
+			
+			// Cleanup
+			$user->removeHard();
+		}
+		else {
+			echo "<pre>Create Account Error: ".$this->ant->lastError."</pre>";
 			$this->assertTrue($ret);
 			return;
 		}
-
-		$this->assertTrue($user->id > 0);
-
-		// Make sure we can authenticate
-		$this->assertTrue($user->authenticate($testName, $testName) > 0);
-
-		// Now try to create the same user and expect error
-		$baduser = $this->ant->createUser($testName, $testName);
-		$this->assertFalse($baduser);
-
-		// Now try to create a user without a password (should return fail)
-		$baduser = $this->ant->createUser($testName, "");
-		$this->assertFalse($baduser);
-
-		// Cleanup
-		$user->removeHard();
+		
 	}
 
 	/**

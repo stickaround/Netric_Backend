@@ -460,7 +460,7 @@ class AntChat
 		else
 		{
 			// Filter out only new messages
-			if ($args['lastMessageTs'])
+			if (isset($args['lastMessageTs']))
 			{
 				$tmpBuf = array();
 				foreach ($messages as $msg)

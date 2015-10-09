@@ -47,6 +47,8 @@ class AntUser
 	var $email = null;
 	var $groups = null; // Array of groups this user belongs to. Initializes to null but set to array once getGroups is called
     var $emailUserNames = null;
+    
+    private static $dbh_static;
 
 	/**
 	 * Class constructor
@@ -62,6 +64,7 @@ class AntUser
 		$antObj = ($ant) ? $ant : $ANT;
 
 		$this->dbh = $dbh;
+		self::$dbh_static = $dbh;
 
 		// Eventually Ant will be required before loading AntUser, for now we can still pull from session 'aid'
 		// variable if needed.
@@ -534,7 +537,8 @@ class AntUser
 	{
 		$dbh = $this->dbh;
 
-		$defDomain = Ant::getEmailDefaultDomain($this->accountName, $dbh);
+		$ant = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->getAnt();
+		$defDomain = $ant->getEmailDefaultDomain($this->accountName, $dbh);
 
 		// Get the current default email address
 		$result = $dbh->Query("SELECT address from email_accounts WHERE user_id='".$this->id."' AND f_default='t'");
@@ -743,8 +747,8 @@ class AntUser
 	 */
 	public static function authenticate($username, $password, $dbh=null)
 	{
-		if (!$dbh && $this && $this->dbh)
-			$dbh = $this->dbh;
+		if (!$dbh && self::$dbh_static)
+			$dbh = self::$dbh_static;
 		else if (!$dbh)
 			return 0;
 

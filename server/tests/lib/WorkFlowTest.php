@@ -456,7 +456,7 @@ class WorkFlowTest extends PHPUnit_Framework_TestCase
 	 * Test WorkFlow_Action_UpdateField execution
 	 */
 	public function testActionAsssignRR()
-	{
+	{	
 		$cust = new CAntObject($this->dbh, "lead", null, $this->user);
 		$cust->setValue("name", "testActionAsssignRR");
 		$cust->setValue("owner_id", $this->user->id); // first assign to administrator
