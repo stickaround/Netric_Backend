@@ -40,7 +40,7 @@ module.exports = function(config){
     browserify: {
       debug: true,
       es6: true,
-      transform: [ ['reactify', {"harmony": true}] ],
+      transform: [ ['babelify', {loose: "all", nonStandard: true}] ],
       configure: function(bundle) {
         bundle.on('prebundle', function() {
           bundle.external('netric');

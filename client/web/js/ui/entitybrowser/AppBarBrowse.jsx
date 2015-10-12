@@ -7,10 +7,13 @@
 
 var React = require('react');
 var IconButton = require("../IconButton.jsx");
-var AppBar = require("../AppBar.jsx");
+
 var AppBarSearch = require("./AppBarSearch.jsx");
 var AppBarSelect = require("./AppBarSelect.jsx");
 var actionModes = require("../../entity/actions/actionModes");
+
+var Chamel = require("chamel");
+var AppBar = Chamel.AppBar;
 
 /**
  * Module shell
