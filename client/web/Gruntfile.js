@@ -8,7 +8,7 @@ module.exports = function(grunt) {
             options: {
                 debug: true,
                 transform: [
-                    ['reactify', {"harmony": true}] 
+                    ['babelify', {loose: "all", nonStandard: true}]
                 ],
                 extensions: ['.jsx'],
                 browserifyOptions : {
@@ -152,6 +152,9 @@ module.exports = function(grunt) {
                     // Copy fonts
                     {expand: true, cwd: '.', src: ['fonts/**'], dest: 'dist/'},
 
+                    // Copy chamel ui css
+                    {expand: true, cwd: './node_modules/chamel/dist', src: ['css/**'], dest: 'dist/'},
+
                     // Copy react - no longer needed because we now use requirejs for this
                     //{expand: true, cwd: '.', src: ['vendor/react/react-with-addons.min.js'], dest: 'dist/js/'},
 
@@ -165,6 +168,9 @@ module.exports = function(grunt) {
                 files: [
                     // Copy all js to build dir so we can merge with jsx
                     {expand: true, cwd: '.', src: ['js/**'], dest: 'build/'},
+
+                    // Copy chamel ui css
+                    {expand: true, cwd: './node_modules/chamel/dist', src: ['css/**'], dest: 'build/'},
                 ]
             }
         },
