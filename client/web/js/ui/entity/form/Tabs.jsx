@@ -6,7 +6,8 @@
 'use strict';
 
 var React = require('react');
-var Tabs = require("../../tabs/Tabs.jsx");
+var Chamel = require('chamel');
+var Tabs = Chamel.Tabs;
 
 /**
  * Top level element for tabs

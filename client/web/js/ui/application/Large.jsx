@@ -6,8 +6,10 @@
 'use strict';
 
 var React = require('react');
-var Paper = require("../Paper.jsx");
 var netric = require("../../main.js");
+var Chamel = require('chamel');
+var Paper = Chamel.Paper;
+
 
 /**
  * Large application component

@@ -6,8 +6,9 @@
 'use strict';
 
 var React = require('react');
-var DropDownMenu = require("../DropDownMenu.jsx");
 var groupingLoader = require("../../entity/groupingLoader");
+var Chamel = require('chamel');
+var DropDownMenu = Chamel.DropDownMenu;
 
 /**
  * Groupings object

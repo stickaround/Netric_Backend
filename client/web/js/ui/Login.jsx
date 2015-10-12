@@ -6,14 +6,15 @@
 'use strict';
 
 var React = require('react');
-var Paper = require("./Paper.jsx");
-var TextField = require("./TextField.jsx");
-var RaisedButton = require("./RaisedButton.jsx");
-var FontIcon = require("./FontIcon.jsx");
-var Snackbar = require("./Snackbar.jsx");
-var RadioButton = require("./RadioButton.jsx");
-var RadioButtonGroup = require("./RadioButtonGroup.jsx");
-var location = require("../location/location")
+var location = require("../location/location");
+var Chamel = require('chamel');
+var Paper = Chamel.Paper;
+var TextField = Chamel.TextField;
+var RaisedButton = Chamel.RaisedButton;
+var FontIcon = Chamel.FontIcon;
+var Snackbar = Chamel.Snackbar;
+var RadioButton = Chamel.RadioButton;
+var RadioButtonGroup = Chamel.RadioButtonGroup;
 
 /**
  * Large application component

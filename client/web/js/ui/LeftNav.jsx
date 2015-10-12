@@ -6,9 +6,9 @@
 'use strict';
 
 var React = require('react');
-var Paper = require("./Paper.jsx");
-var Overlay = require("./Overlay.jsx");
-var Menu = require("./menu/Menu.jsx");
+var Chamel = require('chamel');
+var Overlay = Chamel.Overlay;
+var Menu = Chamel.Menu;
 
 /**
  * Small application component

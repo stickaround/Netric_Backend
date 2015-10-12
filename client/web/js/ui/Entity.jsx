@@ -6,11 +6,12 @@
 'use strict';
 
 var React = require('react');
-var AppBar = require("./AppBar.jsx");
 var UiXmlElement = require("./entity/UiXmlElement.jsx");
-var IconButton = require("./IconButton.jsx");
-var Dialog = require("./Dialog.jsx");
 var Loading = require("./Loading.jsx");
+var Chamel = require('chamel');
+var AppBar = Chamel.AppBar;
+var IconButton = Chamel.IconButton;
+var Dialog = Chamel.Dialog;
 
 /**
  * Module shell

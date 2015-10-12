@@ -7,9 +7,10 @@
 
 var React = require('react');
 var List = require("./entitybrowser/List.jsx");
-var IconButton = require("./IconButton.jsx");
 var AppBarBrowse = require("./entitybrowser/AppBarBrowse.jsx");
 var Loading = require("./Loading.jsx");
+var Chamel = require('chamel');
+var IconButton = Chamel.IconButton;
 
 /**
  * Module shell

@@ -6,8 +6,9 @@
 'use strict';
 
 var React = require('react');
-var TextFieldComponent = require('../../../TextField.jsx');
-var TextFieldRichComponent = require('../../../TextFieldRich.jsx');
+var Chamel = require('chamel');
+var TextFieldComponent = Chamel.TextField;
+var TextFieldRichComponent = Chamel.TextFieldRich;
 
 /**
  * Base level element for enetity forms

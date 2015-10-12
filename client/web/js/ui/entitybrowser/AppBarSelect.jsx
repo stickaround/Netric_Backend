@@ -6,7 +6,8 @@
 'use strict';
 
 var React = require('react');
-var IconButton = require("../IconButton.jsx");
+var Chamel = require('chamel');
+var IconButton = Chamel.IconButton;
 
 /**
  * Module shell
