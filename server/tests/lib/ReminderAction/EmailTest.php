@@ -47,6 +47,7 @@ class ReminderAction_EmailTest extends PHPUnit_Framework_TestCase
 		$rem->setValue("ts_execute", date("Y-m-d h:i:s A", (time() - 10)));
 		$rem->setValue("f_executed", 'f');
 		$rem->setValue("action_type", 'email');
+		$rem->setValue("send_to", "test@phpunit.com");
 		$remId = $rem->save();
 		$this->assertNotEquals($remId, false);
 
@@ -56,7 +57,7 @@ class ReminderAction_EmailTest extends PHPUnit_Framework_TestCase
         $emailVars = $act->execute();
 
 		// Send to should have come from the current user
-		$this->assertEquals($emailVars['headers']['To'], $this->user->getEmail());
+		$this->assertEquals($emailVars['headers']['To'], "test@phpunit.com");
 		$this->assertEquals($emailVars['headers']['Subject'], "Reminder: " . $event->getValue("name"));
 
 		// Cleanup

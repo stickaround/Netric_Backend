@@ -1,5 +1,8 @@
 <?php
 	require_once('lib/File/IMC.php');
+	require_once('lib/File/IMC/Parse.php');
+	require_once('lib/File/IMC/Exception.php');
+	require_once('lib/File/IMC/Parse/Vcalendar.php');
 
 	class CImcCalendar
 	{
@@ -82,7 +85,7 @@
 				$this->class = $arr_evnt['CLASS'][0]['value'][0][0];
 				$this->priority = $arr_evnt['PRIORITY'][0]['value'][0][0];
 				$this->dtstamp = $arr_evnt['DTSTAMP'][0]['value'][0][0];
-				$this->status = $arr_evnt['STATUS'][0]['value'][0][0];
+				$this->status = isset($arr_evnt['STATUS']) ? $arr_evnt['STATUS'][0]['value'][0][0] : null;
 				$this->sequence = $arr_evnt['SEQUENCE'][0]['value'][0][0];
 				$this->location = $arr_evnt['LOCATION'][0]['value'][0][0];
 

@@ -27,6 +27,8 @@ class AntObjectSync_PartnerTest_DEPRICATED  extends PHPUnit_Framework_TestCase
 		$this->ant = new Ant();
 		$this->dbh = $this->ant->dbh;
 		$this->user = new AntUser($this->dbh, -1); // -1 = administrator
+		
+		$this->markTestSkipped('Depricated.');
 	}
 
 	/**

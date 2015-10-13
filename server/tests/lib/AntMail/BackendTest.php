@@ -24,6 +24,8 @@ class AntMail_BackendTest extends PHPUnit_Framework_TestCase
 		$this->host = AntConfig::getInstance()->email['backend_host'];
 		$this->username = "administrator@test.netricos.com";
 		$this->password = "Password1";
+		
+		$this->markTestSkipped('Cannot test since imap server is not setup.');
 	}
 	
 	/**

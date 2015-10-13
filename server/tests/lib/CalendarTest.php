@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');
 require_once(dirname(__FILE__).'/../../lib/Calendar.php');
 require_once(dirname(__FILE__).'/../../lib/Object/CalendarEvent.php');
-require_once(dirname(__FILE__).'/../../lib/parsers/imc/CimcCalendar.php');
+//require_once(dirname(__FILE__).'/../../lib/parsers/imc/CimcCalendar.php');
 
 class CalendarTest extends \PHPUnit_Framework_TestCase
 {

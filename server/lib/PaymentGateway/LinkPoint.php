@@ -101,7 +101,7 @@ class PaymentGateway_LinkPoint extends PaymentGateway
 			$this->respReason = $result['r_message'];
 
 		// Transaction ikeyfiled
-		$this->respTransId = $result['r_ordernum'];
+		$this->respTransId = isset($result['r_ordernum']) ? $result['r_ordernum'] : null;
 
 		if ($result['r_approved'] == "APPROVED") // 1 = success
 		{
@@ -232,7 +232,7 @@ class PaymentGateway_LinkPoint extends PaymentGateway
 
 		curl_close($ch);
 
-		if ($this->debug)
+		if (isset($this->debug))
 			echo "RESP: " . $result;
 
 		if ($this->testMode)

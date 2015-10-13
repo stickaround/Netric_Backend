@@ -89,7 +89,7 @@ class CAntObject_Customer extends CAntObject
 		{
 			foreach ($this->creditCards as $card)
 			{
-				if (!$card['id'])
+				if (isset($card['id']))
 				{
 					// Insert new card into database
 					$result = $dbh->Query("insert into customer_ccards(ccard_name, ccard_number, ccard_exp_month, ccard_exp_year, 

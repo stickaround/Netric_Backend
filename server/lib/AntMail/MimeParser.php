@@ -68,7 +68,7 @@ class AntMail_MimeParser
 		if ($filePath)
 			$this->setPath($filePath);
 
-		if ($parsert)
+		if ($parser)
 			$this->parser = $parser;
 	}
 

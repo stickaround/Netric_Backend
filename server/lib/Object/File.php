@@ -31,6 +31,15 @@ class CAntObject_File extends CAntObject
 	 * @var AnsClient
 	 */
 	private $ansClient = null;
+	
+	/**
+	 * AntFs instance
+	 *
+	 * This will contain the AntFs instance
+	 *
+	 * @var antFs
+	 */
+	private $antFs = null;
 
 	/**
 	 * Initialize CAntObject with correct type
@@ -47,6 +56,8 @@ class CAntObject_File extends CAntObject
 			$this->ansClient = new AnsClient(); // settings are gathered automatically
 
 		parent::__construct($dbh, "file", $eid, $user);
+		
+		$this->antFs = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator()->get("AntFs");
 	}
 
 	/**
@@ -282,7 +293,7 @@ class CAntObject_File extends CAntObject
 			return $ret;
 
 		// Get the local account root directory
-		$accPath = AntFs::getAccountDirectory($this->dbh);
+		$accPath = $this->antFs->getAccountDirectory($this->dbh);
 		$localPath = $this->getLocalPath();
 		$fullPath = $accPath . '/' . $localPath;
 
@@ -338,7 +349,7 @@ class CAntObject_File extends CAntObject
 		}
 
 		// Get the local account root directory
-		$accPath = AntFs::getAccountDirectory($this->dbh);
+		$accPath = $this->antFs->getAccountDirectory($this->dbh);
 		$localPath = $this->getLocalPath();
 		$fullPath = $accPath . '/' . $localPath;
 
@@ -435,7 +446,7 @@ class CAntObject_File extends CAntObject
 		if (!$this->id)
 			return false;
 
-		$antfsRoot = AntFs::getAccountDirectory($this->dbh);
+		$antfsRoot = $this->antFs->getAccountDirectory($this->dbh);
 
 		$this->close();
 
@@ -475,7 +486,7 @@ class CAntObject_File extends CAntObject
 	 */
 	public function getFullLocalPath()
 	{
-		$ansRoot = AntFs::getAccountDirectory($this->dbh);
+		$ansRoot = $this->antFs->getAccountDirectory($this->dbh);
 		if ($this->getValue("dat_local_path"))
 			return $ansRoot . "/" . $this->getValue("dat_local_path");
 		else
@@ -534,7 +545,7 @@ class CAntObject_File extends CAntObject
 	 */
 	private function verifyPathTree($path)
 	{
-		$base = AntFs::getAccountDirectory($this->dbh);
+		$base = $this->antFs->getAccountDirectory($this->dbh);
 
 		if (file_exists($base . "/" . $path))
 			return true;

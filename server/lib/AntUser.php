@@ -47,6 +47,8 @@ class AntUser
 	var $email = null;
 	var $groups = null; // Array of groups this user belongs to. Initializes to null but set to array once getGroups is called
     var $emailUserNames = null;
+    
+    private static $dbh_static; // This is used for static function e.g. public static authenticate();
 
 	/**
 	 * Class constructor
@@ -62,6 +64,7 @@ class AntUser
 		$antObj = ($ant) ? $ant : $ANT;
 
 		$this->dbh = $dbh;
+		self::$dbh_static = $dbh;
 
 		// Eventually Ant will be required before loading AntUser, for now we can still pull from session 'aid'
 		// variable if needed.
@@ -534,7 +537,8 @@ class AntUser
 	{
 		$dbh = $this->dbh;
 
-		$defDomain = Ant::getEmailDefaultDomain($this->accountName, $dbh);
+		$ant = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->getAnt();
+		$defDomain = $ant->getEmailDefaultDomain($this->accountName, $dbh);
 
 		// Get the current default email address
 		$result = $dbh->Query("SELECT address from email_accounts WHERE user_id='".$this->id."' AND f_default='t'");
@@ -552,7 +556,7 @@ class AntUser
 
 				if (!$dbh->GetNumberRows($dbh->Query("SELECT id FROM email_accounts WHERE address='$email' and user_id='".$this->id."'")))
 				{
-					$def = ($defDomain == $domain && !$defEmail) ? 't' : 'f'; // If no default is set
+					$def = (isset($defEmail) && $defDomain == $domain) ? 't' : 'f'; // If no default is set
 					$dbh->Query("INSERT INTO email_accounts(name, address, reply_to, user_id, f_default, f_system) 
 								 VALUES('".$dbh->Escape($this->fullName)."', '$email', '$email', '".$this->id."', '$def', 't');");
 
@@ -741,10 +745,10 @@ class AntUser
 	 * @param CDatabase $dbh This is required if function is called statically
 	 * @return integer The user id on success and = on failure
 	 */
-	public function authenticate($username, $password, $dbh=null)
+	public static function authenticate($username, $password, $dbh=null)
 	{
-		if (!$dbh && $this && $this->dbh)
-			$dbh = $this->dbh;
+		if (!$dbh && self::$dbh_static)
+			$dbh = self::$dbh_static;
 		else if (!$dbh)
 			return 0;
 
@@ -1081,7 +1085,7 @@ class AntUser
 			$cal->setValue("name", "My Calendar");
 			$cal->setValue("f_view", "t");
 			$cal->setValue("def_cal", "t");
-			$cal->setValue("color", "2A4BD7");
+			// $cal->setValue("color", "2A4BD7"); // Note: Field color no longer exists and is throwing an exception.
 			$cid = $cal->save();
 		}
 

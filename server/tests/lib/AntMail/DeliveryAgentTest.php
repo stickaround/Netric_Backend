@@ -19,6 +19,8 @@ class AntMail_DeliveryAgentTest extends PHPUnit_Framework_TestCase
 		$this->ant = new ANT();
 		$this->user = new AntUser($this->ant->dbh, -1); // -1 = administrator
 		$this->dbh = $this->ant->dbh;
+		
+		$this->markTestSkipped('Cannot test since imap server is not setup.');
 	}
 	
 	/**

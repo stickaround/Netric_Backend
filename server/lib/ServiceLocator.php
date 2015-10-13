@@ -272,4 +272,21 @@ class ServiceLocator
 	{
 		return new Help();
 	}
+	
+	/**
+	 * Get AntFs class
+	 *
+	 * @return \AntFs
+	 */
+	private function factoryAntFs()
+	{	
+		$user = $this->getAnt()->getUser();
+		if (!$user)
+			$user = $this->getAnt()->getUser(\Netric\User::USER_ANONYMOUS);
+		
+		$user = new AntUser($this->getAnt()->dbh, $user->getId(), $this->getAnt());
+		$antfs = new AntFs($this->getAnt()->dbh, $user);
+	
+		return $antfs;
+	}
 }

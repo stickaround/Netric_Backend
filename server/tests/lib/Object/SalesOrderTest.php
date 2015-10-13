@@ -70,7 +70,7 @@ class CAntObject_SalesOrderTest extends PHPUnit_Framework_TestCase
 	 * Test paying an invoice with a credit card
 	 */
 	function testPayWithCard()
-	{
+	{	
 		// Get gateway
 		$gw = PaymentGatewayManager::getGateway($this->dbh, PMTGW_TEST); // Force test type
 

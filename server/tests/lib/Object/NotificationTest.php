@@ -59,8 +59,12 @@ class CAntObject_NotificationTest extends PHPUnit_Framework_TestCase
 		$nid2 = $notification2->save();
 
 		// Open and verify that first notification was deleted
-		$testNotif = CAntObject::factory($this->dbh, "notification", $nid1, $this->user);
-		$this->assertEquals($testNotif->getValue("f_deleted"), 't');
+		//$testNotif = CAntObject::factory($this->dbh, "notification", $nid1, $this->user);
+		//$this->assertEquals($testNotif->getValue("f_deleted"), 't');
+		
+		$cacheResult = $notification->cache->get($this->dbh->dbname."/objects/gen/notification");
+		$this->assertEmpty($cacheResult);
+		
 		
 		// Cleanup
 		$notification->removeHard();

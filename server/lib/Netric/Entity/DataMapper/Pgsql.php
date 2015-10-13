@@ -165,7 +165,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 			$fkeyValueName = (isset($row[$fname."_fval"])) ? $this->decodeFval($row[$fname."_fval"]) : null;
 
 			// Set entity value
-			if ($row[$fname])
+			if (isset($row[$fname]))
 				$entity->setValue($fname, $row[$fname], $fkeyValueName);
 		}
 		
@@ -715,6 +715,8 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 					{
 						foreach ($mvalues as $val)
 						{
+							$subtype = null; // Set the initial value of subtype to null
+							
 							$otid = -1;
 							if ($fdef->subtype)
 							{

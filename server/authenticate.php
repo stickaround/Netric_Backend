@@ -91,13 +91,13 @@ if ($username && $pass && $account)
 		// Automatically determine timezone
 		if (@function_exists(geoip_record_by_name) && @function_exists(geoip_time_zone_by_country_and_region) && $_SERVER['REMOTE_ADDR'])
 		{
-			$region = geoip_record_by_name($_SERVER['REMOTE_ADDR']);
+			$region = @geoip_record_by_name($_SERVER['REMOTE_ADDR']);
 			if ($region)
 				$ANT->setSessionVar('tz', geoip_time_zone_by_country_and_region($region['country_code'], $region['region']));
 		}
 
 		// Get default domain for this account
-		$defDom = Ant::getEmailDefaultDomain($account, $dbh);
+		$defDom = $ANT->getEmailDefaultDomain($account, $dbh);
 
 		// Make sure default domain exists in the mailsystem
 		$antsys->addEmailDomain($acctinf['id'], $defDom);

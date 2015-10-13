@@ -461,7 +461,7 @@ class WorkFlow_Action
 		case WF_ATYPE_SENDEMAIL:
 			$email = CAntObject::factory($this->dbh, "email_message", null, $this->getWorkflowUser());
             
-			if ($ovals["fid"])
+			if (isset($ovals["fid"]))
 			{
                 $templateObj = CAntObject::factory($this->dbh, "html_template", $ovals["fid"], $this->getWorkflowUser());
                 $templateBody = $templateObj->getValue("body_html");
@@ -480,7 +480,7 @@ class WorkFlow_Action
             
 			// To
 			$to = "";
-			if (is_array($ovals['to']))
+			if (isset($ovals['to']) && is_array($ovals['to']))
 			{
 				foreach ($ovals['to'] as $rec)
 				{
@@ -488,7 +488,7 @@ class WorkFlow_Action
 					$to .= $rec;
 				}
 			}
-			if ($ovals['to_other'])
+			if (isset($ovals['to_other']))
 			{
 				if ($to) $to .= ", ";
 				$to .= $ovals['to_other'];
@@ -498,7 +498,7 @@ class WorkFlow_Action
 
 			// Cc
 			$to = "";
-			if (is_array($ovals['cc']))
+			if (isset($ovals['cc']) && is_array($ovals['cc']))
 			{
 				foreach ($ovals['cc'] as $rec)
 				{
@@ -506,7 +506,7 @@ class WorkFlow_Action
 					$to .= $rec;
 				}
 			}
-			if ($ovals['cc_other'])
+			if (isset($ovals['cc_other']))
 			{
 				if ($to) $to .= ", ";
 				$to .= $ovals['cc_other'];
@@ -516,7 +516,7 @@ class WorkFlow_Action
 			// Bcc
 			//$ovals['bcc'][] = 'sky.stebnicki@aereus.com';
 			$to = "";
-			if (is_array($ovals['bcc']))
+			if (isset($ovals['bcc']) && is_array($ovals['bcc']))
 			{
 				foreach ($ovals['bcc'] as $rec)
 				{
@@ -524,14 +524,14 @@ class WorkFlow_Action
 					$to .= $rec;
 				}
 			}
-			if ($ovals['bcc_other'])
+			if (isset($ovals['bcc_other']))
 			{
 				if ($to) $to .= ", ";
 				$to .= $ovals['bcc_other'];
 			}
 			$email->setHeader("Bcc", $to);
 			
-			if ($account)
+			if (isset($account))
 			{
 				/* TODO: investigate how to make this work better for associations
 				$email->setHeader("X-ANT-ACCOUNT-NAME", $account);
@@ -549,7 +549,7 @@ class WorkFlow_Action
 					$send = false;
 			}
             
-			if ($send)
+			if (isset($send))
 			{
 				$email->send();
 
@@ -934,7 +934,7 @@ class WorkFlow_Action
 		}
 
 		// Put merged value back for UpdateField actions
-		$this->update_to = $ovars['update_to'];
+		$this->update_to = isset($ovars['update_to']) ? $ovars['update_to'] : null;
 	}
 
 	function scheduleAction($instnace_id)

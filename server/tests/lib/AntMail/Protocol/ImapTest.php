@@ -17,6 +17,8 @@ class AntMail_Protocol_ImapTest extends PHPUnit_Framework_TestCase
 		$this->username = "administrator@test.netricos.com";
 		$this->password = "Password1";
 		$this->port = 465;
+		
+		$this->markTestSkipped('Cannot test since imap server is not setup.');
 	}
 	
 	/**

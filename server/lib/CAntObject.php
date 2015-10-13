@@ -2387,7 +2387,7 @@ class CAntObject
 
 		// Get old values
 		$oldvalraw = $this->getValue($name);
-		if ($field->type == 'fkey_multi' || $field->type == 'object_multi')
+		if (isset($field) && ($field->type == 'fkey_multi' || $field->type == 'object_multi'))
 			$oldval = $this->getForeignValue($name);
 		else
 			$oldval = $oldvalraw;
@@ -2421,7 +2421,7 @@ class CAntObject
 		// Log changes
 		if ($oldvalraw != $this->values[$name])
 		{
-			if ($field->type == 'fkey_multi' || $field->type == 'object_multi')
+			if (isset($field) && ($field->type == 'fkey_multi' || $field->type == 'object_multi'))
 				$newval = $this->getForeignValue($name, $value, false);
 			else
 				$newval = $this->values[$name];
@@ -4338,8 +4338,13 @@ class CAntObject
 	{
 		$data = array();
 		$field = $this->def->getField($fieldName);
+		
+		// If field is not found in the new EntityDefinition then no need to continue
+		if(!isset($field)) {
+			return false;
+		}
 
-		if ($field->type != "fkey" && $field->type != "fkey_multi")
+		if (isset($field->type) && $field->type != "fkey" && $field->type != "fkey_multi")
 			return false;
 
 		$dbh = $this->dbh;
@@ -4410,7 +4415,7 @@ class CAntObject
 			}
 		}
 
-		if ($field->fkeyTable['parent'])
+		if (isset($field->fkeyTable['parent']))
 		{
 			if ($parent)
 			{
@@ -4463,7 +4468,7 @@ class CAntObject
 			$item['parent_id'] = (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
                 ? $row[$field->fkeyTable['parent']] : null;
 			$item['viewname'] = $viewname;
-			$item['color'] = $row['color'];
+			$item['color'] = isset($row['color']) ? $row['color'] : null;
 			$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
             $item['system'] = (isset($row['f_system']) && $row['f_system']=='t') ? true : false;
             
@@ -4581,7 +4586,7 @@ class CAntObject
 			$values[] = $this->dbh->EscapeNumber($sortOrder);
 		}
 
-		if ($parentId && $field->fkeyTable['parent'])
+		if (isset($field->fkeyTable['parent']) && $parentId)
 		{
 			$fields[] = $field->fkeyTable['parent'];
 			$values[] = $this->dbh->EscapeNumber($parentId);
@@ -4641,7 +4646,7 @@ class CAntObject
 				$item = array();
 				$item['id'] = $eid;
 				$item['title'] = $title;
-				$item['heiarch'] = ($field->fkeyTable['parent']) ? true : false;
+				$item['heiarch'] = isset($field->fkeyTable['parent']) ? true : false;
 				$item['parent_id'] = $parentId;
 				$item['viewname'] = $title;
 				$item['color'] = $color;
@@ -4765,7 +4770,7 @@ class CAntObject
 			return false;
 
 		// First delete child entries
-		if ($field->fkeyTable['parent'])
+		if (isset($field->fkeyTable['parent']) && $field->fkeyTable['parent'])
 		{
             $query = "SELECT id FROM ".$field->subtype." WHERE ".$field->fkeyTable['parent']."='$entryId'";
             

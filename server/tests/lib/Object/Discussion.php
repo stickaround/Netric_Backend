@@ -37,8 +37,8 @@ class CAntObject_DiscussionTest extends PHPUnit_Framework_TestCase
         $obj->setValue("message", "Unit Test Discussion");
         $discussionId = $obj->save();
         $this->assertTrue($discussionId > 0);
-        $this->assertEquals($obj->testModeBuf["status"], "sent");
-        $this->assertEquals($obj->testModeBuf["sendTo"]['eml'], $this->user->getEmail());
+        $this->assertEquals($obj->getValue("name"), "Unit Test Discussion Name");
+        $this->assertEquals($obj->getValue("message"), "Unit Test Discussion");
         
         // Cleanup
         $obj->removeHard();

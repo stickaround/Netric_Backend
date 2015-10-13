@@ -185,7 +185,7 @@ class WorkerMan
 			
 			$job = new WorkerJob($this->dbh, $jobId);
 			$job->workload = $row['workload'];
-			$job->tsRun = $row['ts_run'];
+			$job->tsRun = isset($row['ts_run']) ? $row['ts_run'] : null;
 		}
 
 		return $job;

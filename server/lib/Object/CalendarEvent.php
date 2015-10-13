@@ -225,7 +225,7 @@ class CAntObject_CalendarEvent extends CAntObject
 			}
 
 			// Email address was found, send invitation
-			if ($email_address)
+			if (isset($email_address))
 			{
 				$evname = $this->getName();
 				$headers['From']  = $this->user->getEmail();
@@ -269,7 +269,7 @@ class CAntObject_CalendarEvent extends CAntObject
 	 * @param int $memid	The id of the member we are sending this invitation to
 	 * @mara bool $isupdate	Set this to true if the invitation has already been sent
 	 */
-	public function getInvitationMessageBody($memid, $isupdate=false) 
+	public function getInvitationMessageBody($memId, $isupdate=false) 
 	{
 		$start = $this->getValue("ts_start");
 		$end = $this->getValue("ts_end");
@@ -298,7 +298,7 @@ class CAntObject_CalendarEvent extends CAntObject
 		$message .= "Date & Time: $times\r\n";
 
 		$message .= "\r\n\r\nClick the link below to respond.\r\n";
-		$message .= $this->getAccBaseUrl()."/public/calendar/invresp.php?memid=".$memid."&eid=".$this->id;
+		$message .= $this->getAccBaseUrl()."/public/calendar/invresp.php?memid=".$memId."&eid=".$this->id;
 		if ($this->getValue("notes"))
 		{
 			$message .= "\r\n\r\n-------------------- NOTES --------------------\r\n";
@@ -379,6 +379,7 @@ class CAntObject_CalendarEvent extends CAntObject
 		$dbh = $this->dbh;
 
 		$ical = "";
+		$to = "";
 
 		$start = $this->getValue("ts_start");
 		$end = $this->getValue("ts_end");
