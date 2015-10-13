@@ -715,6 +715,8 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 					{
 						foreach ($mvalues as $val)
 						{
+							$subtype = null; // Set the initial value of subtype to null
+							
 							$otid = -1;
 							if ($fdef->subtype)
 							{
@@ -731,7 +733,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 								}
 							}
 
-							if (isset($subtype))
+							if ($subtype)
 							{
 								$assocDef = $defLoader->get($subtype);
 								if ($assocDef->getId() && $objid)

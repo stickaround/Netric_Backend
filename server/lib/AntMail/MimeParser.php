@@ -373,7 +373,7 @@ class AntMail_MimeParser
 			throw new Exception("Path to mime file has not been set!");
 
 		// Check if already initialized
-		if (isset($this->mailMimeParser) && $this->mailMimeParser)
+		if ($this->mailMimeParser)
 			return $this->mailMimeParser;
 
 		// Check if extension is installed

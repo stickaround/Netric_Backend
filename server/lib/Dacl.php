@@ -47,6 +47,13 @@ class Dacl
 	 * @var CDatabase
 	 */
 	private $dbh = null;
+	
+	/**
+	 * Handle to account database (Static Variable)
+	 *
+	 * @var CDatabase
+	 */
+	private static $dbh_static = null;
 
 	/**
 	 * Saved DACLs will all have a unique id
@@ -68,6 +75,13 @@ class Dacl
 	 * @var CCache
 	 */
 	private $cache = null;
+	
+	/**
+	 * Cache class to make loading entries and permissions faster (Static Variable)
+	 *
+	 * @var CCache
+	 */
+	private static $cache_static = null;
 
 	/**
 	 * Used in debugging only
@@ -102,6 +116,9 @@ class Dacl
 		$this->users = array();
 		$this->groups = array();
 		$this->cache = CCache::getInstance();
+		
+		self::$dbh_static = $this->dbh;
+		self::$cache_static =  $this->cache;
 
 		if ($name)
 			$this->loadByName($name);
@@ -117,15 +134,12 @@ class Dacl
 	{
         $cache = null;
         
-		if (isset($this))
-		{
-			if (!$dbh)
-				$dbh = $this->dbh;
+		if (!self::$dbh_static)
+			$dbh = self::$dbh_static;
 
-			if (isset($this->cache) && $this->cache)
-				$cache = $this->cache;
-		}
-
+		if (isset(self::$cache_static) && self::$cache_static)
+			$cache = self::$cache_static;
+		
 		if (!$dbh) // required if called statically
 			return false;
 
