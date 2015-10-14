@@ -6,8 +6,9 @@
 'use strict';
 
 var React = require('react');
-var Checkbox = require("../Checkbox.jsx");
 var EntityField = require("../../entity/definition/Field");
+var Chamel = require('chamel');
+var Checkbox = Chamel.Checkbox;
 
 /**
  * Module shell

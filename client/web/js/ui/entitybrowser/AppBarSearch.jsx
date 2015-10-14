@@ -6,9 +6,10 @@
 'use strict';
 
 var React = require('react');
-var IconButton = require("../IconButton.jsx");
 var KeyCodes = require("../utils/KeyCode.jsx");
-var TextField = require("../TextField.jsx");
+var Chamel = require('chamel');
+var IconButton = Chamel.IconButton;
+var TextField = Chamel.TextField;
 
 /**
  * Module shell

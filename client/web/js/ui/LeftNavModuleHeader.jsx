@@ -6,8 +6,10 @@
 'use strict';
 var React = require('react');
 var Classable = require("./mixins/classable.jsx");
-var Paper = require("./Paper.jsx");
-var Menu = require("./menu/Menu.jsx");
+var Chamel = require('chamel');
+var Paper = Chamel.Paper;
+var Menu = Chamel.Menu;
+
 
 /**
  * Module shell

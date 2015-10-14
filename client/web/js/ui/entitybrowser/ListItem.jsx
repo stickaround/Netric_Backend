@@ -6,7 +6,8 @@
 'use strict';
 
 var React = require('react');
-var Checkbox = require("../Checkbox.jsx");
+var Chamel = require('chamel');
+var Checkbox = Chamel.Checkbox;
 
 /**
  * Module shell
