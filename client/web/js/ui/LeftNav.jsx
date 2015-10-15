@@ -9,6 +9,7 @@ var React = require('react');
 var Chamel = require('chamel');
 var Overlay = Chamel.Overlay;
 var Menu = Chamel.Menu;
+var Paper = Chamel.Paper;
 
 /**
  * Small application component
