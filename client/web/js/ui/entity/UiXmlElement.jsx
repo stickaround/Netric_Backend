@@ -47,7 +47,7 @@ var UiXmlElement = React.createClass({
         for (var i = 0; i < xmlChildNodes.length; i++) {
             var childNode = xmlChildNodes[i];
             if (childNode.nodeType == 1) {
-                childElements.push(<UiXmlElement 
+                childElements.push(<UiXmlElement
                                     xmlNode={childNode} 
                                     entity={this.props.entity}
                                     eventsObj={this.props.eventsObj}

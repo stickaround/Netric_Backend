@@ -59,6 +59,7 @@ var Field = React.createClass({
         	break;
         }
 
+
         var hr = (!this.props.editMode && this.props.entity.getValue(fieldName)) ? <hr /> : null;
         /*
         case 'object':

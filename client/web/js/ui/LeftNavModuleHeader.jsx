@@ -45,8 +45,8 @@ var LeftNavModuleHeader = React.createClass({
 
         var headerTitle = this.props.title;
 
-        var menuClass = this.getClasses('left-nav-header-menu', { 
-          'is-closed': (this.state.open) ? false : true
+        var menuClass = this.getClasses('chamel-left-nav-header-menu', {
+          'chamel-is-closed': (this.state.open) ? false : true
         });
 
         var headerIcon = null;
@@ -78,7 +78,7 @@ var LeftNavModuleHeader = React.createClass({
         }
 
         return (
-            <div className="left-nav-header">
+            <div className="chamel-left-nav-header">
                 <h2 onClick={this._handleMenuClick}>
                     {headerIcon}{headerTitle} 
                 </h2>

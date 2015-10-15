@@ -6,7 +6,8 @@
 'use strict';
 var React = require('react');
 
-var LeftNav = require("./LeftNav.jsx");
+var Chamel = require("chamel");
+var LeftNav = Chamel.LeftNav;
 var LeftNavModuleHeader = require("./LeftNavModuleHeader.jsx");
 
 /**
@@ -48,7 +49,13 @@ var Module = React.createClass({
 
     return (
         <div>
-            <LeftNav onChange={this.onLeftNavChange_} ref="leftNav" menuItems={this.props.leftNavItems} docked={this.props.leftNavDocked} header={leftNavHeader} />
+            <LeftNav
+                onChange={this.onLeftNavChange_}
+                ref="leftNav"
+                menuItems={this.props.leftNavItems}
+                docked={this.props.leftNavDocked}
+                header={leftNavHeader}
+            />
             <div ref="moduleMain" className={moduleMainClass}></div>
         </div>
     );

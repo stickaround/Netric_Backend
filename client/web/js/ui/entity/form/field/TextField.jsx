@@ -41,7 +41,7 @@ var TextField = React.createClass({
             
             return (
               <TextFieldRichComponent
-                value={fieldValue} 
+                value={fieldValue}
                 onChange={this._handleInputChange} />
             );
 
@@ -50,7 +50,7 @@ var TextField = React.createClass({
             return (
               <TextFieldComponent
                 floatingLabelText={field.title}
-                value={fieldValue} 
+                value={fieldValue}
                 multiLine={multiline}
                 onChange={this._handleInputChange} />
             );
