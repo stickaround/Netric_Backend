@@ -19,7 +19,9 @@ var formElements = {
     Tab: require("./form/Tab.jsx"),
     Tabs: require("./form/Tabs.jsx"),
     Helptour: require("./form/Helptour.jsx"),
-    AllAdditional: require("./form/AllAdditional.jsx")
+    AllAdditional: require("./form/AllAdditional.jsx"),
+    Recurrence: require("./form/Recurrence.jsx"),
+    Plugin: require("./form/Plugin.jsx")
 };
 
 /**

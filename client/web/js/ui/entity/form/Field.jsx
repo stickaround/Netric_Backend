@@ -10,6 +10,7 @@ var React = require('react');
 // Form elements used in the UIML
 var TextField = require("./field/TextField.jsx");
 var GroupingField = require("./field/GroupingField.jsx");
+var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 
 /**
  * Base level element for enetity forms

@@ -32,7 +32,9 @@ Device.sizes = {
 	// Tablets
 	medium : 3,
 	// Desktops
-	large : 5
+	large : 5,
+	// Big Desktops
+	xlarge : 7
 };
 
 /**
