@@ -16,7 +16,7 @@ var definitionLoader = require("../entity/definitionLoader");
 /**
  * Controller that loads an entity browser
  */
-var EntityBrowserController = function() {}
+var EntityBrowserController = function() { }
 
 /**
  * Extend base controller class
