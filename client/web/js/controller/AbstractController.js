@@ -16,7 +16,8 @@
  */
 'use strict';
 
- var controller = require("./controller.js");
+var controller = require("./controller.js");
+var netric = require("../base");
 
 /**
  * Abstract controller
@@ -97,6 +98,12 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 	// Setup the type
 	this.type_ = data.type || controller.types.PAGE;
 
+	// Override dialogs to pages if device is small
+	if (this.type_ == controller.types.DIALOG &&
+		netric.getApplication().device.size === netric.Device.sizes.small) {
+		this.type_ = controller.types.PAGE;
+	}
+
 	// Set reference to the parent router
 	this.router_ = opt_router || null;
 
@@ -107,7 +114,7 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 	this.onLoad(function(){
 		
 		// Set the root dom node for this controller
-		this.setupDomNode_(parentDomNode)
+		this.setupDomNode_(parentDomNode);
 
 		// Pause parent controller (if a page)
 		if (this.getParentController() && this.type_ == controller.types.PAGE) {
@@ -204,7 +211,7 @@ AbstractController.prototype.pause = function() {
  * @return {bool} true if route added, false if it failed
  */
 AbstractController.prototype.addSubRoute = function(path, controllerClass, data, domNode) {
-	if (this.getChildRouter()) {
+	if (this.getChildRouter() && this.getChildRouter().addRoute) {
 		this.getChildRouter().addRoute(path, controllerClass, data, domNode);
 		return true;
 	} else {
@@ -233,7 +240,7 @@ AbstractController.prototype.getParentController = function() {
 			if (activeRoute) {
 				return activeRoute.getController();
 			} else {
-				throw "Problem! Could not find an active route from withing a controller.";
+				throw "Problem! Could not find an active route from within a controller.";
 			}	
 		}
 	}
@@ -322,7 +329,7 @@ AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
 		}
 	}
 
-	// This must be a new root page controller because we cound't find any parent DOM elements
+	// This must be a new root page controller because we couldn't find any parent DOM elements
 	if (opt_rootDomNode) {
 		return opt_rootDomNode;
 	} else {

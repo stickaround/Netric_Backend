@@ -9,7 +9,9 @@ var React = require('react');
 
 // Form elements used in the UIML
 var TextField = require("./field/TextField.jsx");
+var BoolField = require("./field/BoolField.jsx");
 var GroupingField = require("./field/GroupingField.jsx");
+var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 
 /**
@@ -47,6 +49,9 @@ var Field = React.createClass({
 
         switch (field.type)
         {
+        case field.types.bool:
+            fieldContent = <BoolField {...this.props} />
+            break;
         case field.types.fkey:
         case field.types.fkeyMulti:
        		fieldContent = <GroupingField {...this.props} />
@@ -54,9 +59,12 @@ var Field = React.createClass({
         case field.types.text:
         	fieldContent = <TextField {...this.props} />
         	break;
+        case field.types.object:
+            fieldContent = <ObjectField {...this.props} />
+            break;
         default:
         	var fieldValue = this.props.entity.getValue(fieldName);
-        	fieldContent = <div>Field ToDo: {fieldName}:{fieldValue}</div>;
+        	fieldContent = <div>Field ToDo: {field.type} - {fieldName}:{fieldValue}</div>;
         	break;
         }
 

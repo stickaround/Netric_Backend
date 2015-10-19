@@ -89,6 +89,13 @@ EntityController.prototype.onLoad = function(opt_callback) {
         
     }.bind(this));
 
+    // Capture an entity click and handle browsing for a referenced entity
+    alib.events.listen(this.eventsObj_, "set_object_field", function(evt) {
+
+        this.setObjectField(evt.data.fieldName);
+
+    }.bind(this));
+
     // Get the entity definition then call the loaded callback (if set)
     definitionLoader.get(this.props.objType, function(def){
 
@@ -229,6 +236,28 @@ EntityController.prototype.revertChanges = function() {
 
     if (!this.entity_.id)
         this.close();
+}
+
+/**
+ * Set the value of an object field
+ *
+ * @param {string} fname The name of the field
+ */
+EntityController.prototype.setObjectField = function(fname) {
+
+    /*
+     * We require it here to avoid a circular dependency where the
+     * controller requires the view and the view requires the controller
+     */
+    var BrowserController = require("./EntityBrowserController");
+    var browser = new BrowserController();
+    browser.load({
+        type: controller.types.DIALOG,
+        objType: "user",
+        onSelect: function(oid, title) {
+            this.entity_.setValue(fname, oid, title);
+        }.bind(this)
+    }, null, this); // Third param set this as the parent controller
 }
 
 module.exports = EntityController;
