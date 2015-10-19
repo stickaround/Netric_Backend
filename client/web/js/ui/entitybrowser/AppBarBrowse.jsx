@@ -7,6 +7,7 @@
 
 var React = require('react');
 var AppBarSearch = require("./AppBarSearch.jsx");
+var AdvanceSearch = require("./AdvanceSearch.jsx");
 var AppBarSelect = require("./AppBarSelect.jsx");
 var actionModes = require("../../entity/actions/actionModes");
 var Chamel = require('chamel');
@@ -27,19 +28,24 @@ var AppBarBrowse = React.createClass({
         deviceSize: React.PropTypes.number,
         selectedEntities: React.PropTypes.array,
         actionHandler: React.PropTypes.object,
+        entityFields: React.PropTypes.array,
+        objType: React.PropTypes.string
     },
 
     /**
      * Set initial state for the browser
      */
     getInitialState: function() {
-        return { searchMode: false };
+        return { 
+        	searchMode: false,
+        	};
     },
 
     render: function() {
 
         var elementRight = null;
         var elemmentLeft = null;
+        var advanceSearch = null;
         var title = this.props.title;
 
         if (this.props.selectedEntities && this.props.selectedEntities.length) {
@@ -67,7 +73,19 @@ var AppBarBrowse = React.createClass({
             );
 
             // Create AppBar with search form
-            elementRight = <AppBarSearch onSearch={this.handleSearchChange_}  />;
+            elementRight = (<AppBarSearch 
+            					onSearch={this.handleSearchChange_}
+            					onAdvanceSearch={this.handleAdvanceSearch_} />
+            				
+            );
+            
+            // Create Advanse search
+            advanceSearch = ( 
+					<AdvanceSearch 
+    					ref="advanceSearch"
+    					entityFields={this.props.entityFields}
+						objType={this.props.objType} />
+    			);
 
             // Clear the title
             title = null;
@@ -85,13 +103,14 @@ var AppBarBrowse = React.createClass({
             );
 
         }
-
+        
         return (
             <AppBar 
                 iconElementLeft={elemmentLeft}
                 title={title} 
                 onNavBtnClick={this.props.onNavBtnClick}>
                 {elementRight}
+                {advanceSearch}
             </AppBar>
             
         );
@@ -128,6 +147,10 @@ var AppBarBrowse = React.createClass({
         if (this.props.onSelectAll) {
             this.props.onSelectAll(false);
         }
+    },
+    
+    handleAdvanceSearch_: function() {
+        this.refs.advanceSearch.show();
     }
 
 });

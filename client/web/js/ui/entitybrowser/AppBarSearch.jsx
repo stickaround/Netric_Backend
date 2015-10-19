@@ -18,6 +18,7 @@ var AppBarBrowse = React.createClass({
 
     propTypes: {
         onSearch: React.PropTypes.func,
+        onAdvanceSearch: React.PropTypes.func,
         title : React.PropTypes.string,
     },
 
@@ -41,6 +42,11 @@ var AppBarBrowse = React.createClass({
                         hintText="Search" 
                         ref='searchInput' 
                         onKeyDown={this.handleKeyUp_} />
+                
+                    <IconButton
+                    	iconClassName="fa fa-search-plus"
+                    	onClick={this.handleAdvanceSearch_}>
+                    </IconButton>
                 </div>
                 
                 <IconButton
@@ -64,6 +70,10 @@ var AppBarBrowse = React.createClass({
 
     handleDoSearch_: function() {
         this.props.onSearch(this.refs.searchInput.getValue());
+    },
+    
+    handleAdvanceSearch_: function() {
+    	if(this.props.onAdvanceSearch) this.props.onAdvanceSearch();
     }
 });
 

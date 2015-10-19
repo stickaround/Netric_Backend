@@ -107,7 +107,7 @@ EntityBrowserController.prototype.render = function() {
     // Define the data
 	var data = {
 		title: this.props.browsebytitle ||this.props.title,
-        entities: new Array(),
+        entityDefinition: new Array(),
         deviceSize: netric.getApplication().device.size,
         layout: (netric.getApplication().device.size === netric.Device.sizes.small)
             ? "compact" : "table",
@@ -310,7 +310,14 @@ EntityBrowserController.prototype.performActionOnSelected = function(actionName)
  */
 EntityBrowserController.prototype.onCollectionChange = function() {
     var entities = this.collection_.getEntities();
-    this.rootReactNode_.setProps({entities: entities});
+    var entityDefinition = this.collection_.entityDefinition();
+    
+    entityDefinition.objType = this.props.objType;
+    
+    this.rootReactNode_.setProps({
+    								entities: entities,
+    								entityDefinition: entityDefinition
+    							});
 }
 
 /**
