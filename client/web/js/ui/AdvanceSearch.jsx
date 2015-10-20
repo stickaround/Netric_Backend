@@ -53,7 +53,7 @@ var AdvanceSearch = React.createClass({
     			// Push the search condition component to the array for display
     			searchCondition.push( <SearchCondition key={cIndex}
     									objType={this.props.objType}
-						    			entityFields={this.props.entityFields} 
+						    			conditionFields={this._getEntityFields()} 
 						    			onRemove={this._handleRemoveCondition}
 						    			conditionIndex={cIndex} /> );
     		}
@@ -91,7 +91,34 @@ var AdvanceSearch = React.createClass({
     	this.setState({
     		conditionCount: this.state.conditionCount+1
     	});
-    }
+    },
+    
+    /**
+     * Gets the fields to be used in search criteria
+     *
+     * @private
+     */
+    _getEntityFields: function() {
+    	if(this.props.entityFields == null) {
+    		return null;
+    	}
+    	
+    	var initialTest = {payload: -1, name: 'groups', text: 'Groups', type: 'fkey'};
+    	
+    	var fields = [initialTest];
+    	
+    	this.props.entityFields.map(function(field) {
+    		fields.push({
+    						payload: field.id,
+    						name: field.name,
+    						text: field.title, 
+    						type: field.type
+    					});
+    	});
+    	
+    	
+    	return fields;
+    },
 
 });
 

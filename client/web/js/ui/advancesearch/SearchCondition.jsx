@@ -30,7 +30,7 @@ var SearchCondition = React.createClass({
 
     propTypes: {
     	onRemove: React.PropTypes.func,
-        entityFields: React.PropTypes.array,
+        conditionFields: React.PropTypes.array,
         conditionIndex: React.PropTypes.number,
         objType: React.PropTypes.string.isRequired,
     },
@@ -44,7 +44,7 @@ var SearchCondition = React.createClass({
 
     componentDidMount: function() {
     	
-    	var searchFields = this._getConditionFields();
+    	var searchFields = this.props.conditionFields;
     	
     	// Get the conditions input type if the initial field type is fkey/object
     	if(searchFields[0].type == 'fkey') {
@@ -56,7 +56,7 @@ var SearchCondition = React.createClass({
     	
     	var operators = this.state.operators;
     	var inputType = this.state.inputType;
-    	var searchFields = this._getConditionFields();
+    	var searchFields = this.props.conditionFields;
     	var field = null;
     	
     	// Get the first entry of the condition field
@@ -129,34 +129,6 @@ var SearchCondition = React.createClass({
     _handleRemoveCondition: function (conditionIndex) {
     	if(this.props.onRemove) this.props.onRemove(conditionIndex);
     },
-    
-    /**
-     * Gets the fields to be used in search criteria
-     *
-     * @private
-     */
-    _getConditionFields: function() {
-    	if(this.props.entityFields == null) {
-    		return null;
-    	}
-    	
-    	var initialTest = {payload: -1, name: 'groups', text: 'Groups', type: 'fkey'};
-    	
-    	var fields = [initialTest];
-    	
-    	this.props.entityFields.map(function(field) {
-    		fields.push({
-    						payload: field.id,
-    						name: field.name,
-    						text: field.title, 
-    						type: field.type
-    					});
-    	});
-    	
-    	
-    	return fields;
-    },
-    
     
     
     /**
