@@ -82,20 +82,20 @@ var AdvanceSearch = React.createClass({
 		return (
 				<div>
 					<div>
-						<div>Search Conditions: </div>
+						<span className='advance-search-title'>Search Conditions: </span>
 						{criteriaDisplay['conditions']}
 						<IconButton onClick={this._handleAddCriteria.bind(this, 'conditions')} className="fa fa-plus" />
 					</div>
 					<div>
-						<div>Sort By: </div>
+						<span className='advance-search-title'>Sort By: </span>
 						{criteriaDisplay['sortOrder']}
 						<IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
 					</div>
 					<div>
-					<div>Column View: </div>
-					{criteriaDisplay['columnView']}
-					<IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
-				</div>
+						<span className='advance-search-title'>Column View: </span>
+						{criteriaDisplay['columnView']}
+						<IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
+					</div>
 				</div>
 		);
 	},
