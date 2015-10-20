@@ -32,7 +32,7 @@ var SearchCondition = React.createClass({
     	onRemove: React.PropTypes.func,
         entityFields: React.PropTypes.array,
         conditionIndex: React.PropTypes.number,
-        objType: React.PropTypes.string.required,
+        objType: React.PropTypes.string.isRequired,
     },
 
     getInitialState: function() {
@@ -140,7 +140,7 @@ var SearchCondition = React.createClass({
     		return null;
     	}
     	
-    	var initialTest = {payload: -1, name: 'groups', text: 'groups', type: 'fkey'};
+    	var initialTest = {payload: -1, name: 'groups', text: 'Groups', type: 'fkey'};
     	
     	var fields = [initialTest];
     	
@@ -204,13 +204,12 @@ var SearchCondition = React.createClass({
              * will be calling this function any time a change is made to the
              * groupings and we do not want to add additional listeners.
              */
-        	var cls = this;
             groupingLoader.get(this.props.objType, fieldName, function(groupings) {
-            	cls._createGroupingsMenu(groupings, field);
+            	this._createGroupingsMenu(groupings, field);
             	
             	// Cache grouping so we do not try to set it up again with listeners
-            	cls._groupingLoaders[fieldName] = groupings;
-            });            
+            	this._groupingLoaders[fieldName] = groupings;
+            }.bind(this));            
         }
     },
     

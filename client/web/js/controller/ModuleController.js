@@ -10,6 +10,7 @@ var AbstractController = require("./AbstractController");
 var TestController = require("./TestController");
 var EntityController = require("./EntityController");
 var EntityBrowserController = require("./EntityBrowserController");
+var AdvanceSearchController = require("./AdvanceSearchController");
 var UiModule = require("../ui/Module.jsx");
 var moduleLoader = require("../module/loader");
 var groupingLoader = require("../entity/groupingLoader");
@@ -281,6 +282,5 @@ ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 		this.rootReactNode_.refs.moduleMain.getDOMNode()
 	);
 }
-
 
 module.exports = ModuleController;

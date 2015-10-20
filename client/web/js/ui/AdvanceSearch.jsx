@@ -1,5 +1,5 @@
 /**
- * Advance Search used for browse mode
+ * Render an advance search
  *
  * @jsx React.DOM
  */
@@ -7,7 +7,7 @@
 
 var React = require('react');
 var Chamel = require('chamel');
-var SearchCondition = require('./SearchCondition.jsx');
+var SearchCondition = require('./advancesearch/SearchCondition.jsx');
 var Dialog = Chamel.Dialog;
 var IconButton = Chamel.IconButton;
 
@@ -16,38 +16,33 @@ var IconButton = Chamel.IconButton;
  */
 var AdvanceSearch = React.createClass({
 
-    propTypes: {
-        title : React.PropTypes.string,
-        entityFields: React.PropTypes.array,
-        objType: React.PropTypes.string.required,
-    },
+	propTypes: {
+		onPerformAction: React.PropTypes.func,
+		layout : React.PropTypes.string,
+		title : React.PropTypes.string,
+		actionHandler : React.PropTypes.object,
+		deviceSize: React.PropTypes.number,
+		entityFields: React.PropTypes.array,
+		objType: React.PropTypes.string,
+	},
 
-    getDefaultProps: function() {
-        return {
-            title: "Advance Search",
-        }
-    },
-    
-    getInitialState: function() {
+	getDefaultProps: function() {
+		return {
+			layout: '',
+			title: "Browser",
+		}
+	},
+	
+	getInitialState: function() {
         return { 
         	conditionCount: 1,
         	removedConditions: new Array(),
         	};
     },
 
-    componentDidMount: function() {
-    },
-    
-
-    render: function() {
-    	
-    	// Buttons for dialog window
-    	var dialogActions = [
-    	                     { text: 'Cancel' },
-    	                     { text: 'Search', onClick: this._handleDialogSubmit, ref: 'search' }
-    	                 ];
-    	
-    	var removedConditions = this.state.removedConditions; // Get the removed conditions
+	render: function() {
+		
+		var removedConditions = this.state.removedConditions; // Get the removed conditions
     	var searchCondition = []; // Search Conditions will be stored in an array for additional conditions
     	
     	for(var cIndex=0; cIndex<this.state.conditionCount; cIndex++) {
@@ -64,23 +59,13 @@ var AdvanceSearch = React.createClass({
     		}
     	}	
     	
-        return (
-            	<Dialog ref="linkDialog" title={this.props.title} actions={dialogActions} modal={false} >
-        			{searchCondition}
-        			<IconButton onClick={this._handleAddCondition} className="fa fa-plus" />
-            	</Dialog>
-        );
-    },
-    
-    /**
-     * Shows the advance search dialog
-     *
-     * @param {Integer} conditionIndex		The index of the condition to be removed
-     * @public
-     */
-    show: function() {
-    	this.refs.linkDialog.show();
-    },
+		return (
+				<div>
+					{searchCondition}
+					<IconButton onClick={this._handleAddCondition} className="fa fa-plus" />
+				</div>
+		);
+	},
     
     /**
      * Removes the selected condition
@@ -107,6 +92,7 @@ var AdvanceSearch = React.createClass({
     		conditionCount: this.state.conditionCount+1
     	});
     }
+
 });
 
 module.exports = AdvanceSearch;

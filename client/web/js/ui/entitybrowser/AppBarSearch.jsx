@@ -14,7 +14,7 @@ var TextField = Chamel.TextField;
 /**
  * Module shell
  */
-var AppBarBrowse = React.createClass({
+var AppBarSearch = React.createClass({
 
     propTypes: {
         onSearch: React.PropTypes.func,
@@ -45,7 +45,7 @@ var AppBarBrowse = React.createClass({
                 
                     <IconButton
                     	iconClassName="fa fa-search-plus"
-                    	onClick={this.handleAdvanceSearch_}>
+                    	onClick={this.props.onAdvanceSearch}>
                     </IconButton>
                 </div>
                 
@@ -71,10 +71,6 @@ var AppBarBrowse = React.createClass({
     handleDoSearch_: function() {
         this.props.onSearch(this.refs.searchInput.getValue());
     },
-    
-    handleAdvanceSearch_: function() {
-    	if(this.props.onAdvanceSearch) this.props.onAdvanceSearch();
-    }
 });
 
-module.exports = AppBarBrowse;
+module.exports = AppBarSearch;

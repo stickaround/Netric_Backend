@@ -383,15 +383,6 @@ Collection.prototype.setLimit = function(limit) {
  */
 Collection.prototype.getLimit = function() {
     return this.limit_;
-},
-
-/**
- * Get the defintion of the object
- *
- * @return {int}
- */
-Collection.prototype.entityDefinition = function() {
-	return this.entityDefinition_;
 }
 
 module.exports = Collection;

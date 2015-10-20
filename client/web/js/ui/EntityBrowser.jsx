@@ -29,7 +29,7 @@ var EntityBrowser = React.createClass({
       selectedEntities: React.PropTypes.array,
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
-      entityDefinition: React.PropTypes.array,
+      onAdvanceSearch: React.PropTypes.func,
   },
 
   getDefaultProps: function() {
@@ -37,7 +37,6 @@ var EntityBrowser = React.createClass({
           layout: '',
           title: "Browser",
           entities: [],
-          entityDefinition: [],
           selectedEntities: [],
           collectionLoading: false
       }
@@ -46,8 +45,6 @@ var EntityBrowser = React.createClass({
   render: function() {
 
       var bodyContent = null;
-      var entityFields = null;
-      var objType = null;
 
       if (this.props.entities.length == 0 && this.props.collectionLoading) {
           bodyContent = <Loading />;
@@ -64,9 +61,6 @@ var EntityBrowser = React.createClass({
               layout={this.props.layout}
           	  collectionLoading={this.props.collectionLoading} />);
 
-          	  entityFields = this.props.entityDefinition.fields;
-          	  objType = this.props.entityDefinition.objType;
-          
           if (this.props.collectionLoading) {
               // TODO: display loading indicator over the list
           }
@@ -83,9 +77,8 @@ var EntityBrowser = React.createClass({
             onSearchChange={this.props.onSearchChange}
             onPerformAction={this.props.onPerformAction}
             onSelectAll={this.handleSeelctAll_}
-            selectedEntities={this.props.selectedEntities} 
-          	entityFields={entityFields}
-          	objType={objType} />
+            selectedEntities={this.props.selectedEntities}
+            onAdvanceSearch={this.props.onAdvanceSearch} />
         </div>
         <div ref="moduleMain">
             {bodyContent}
