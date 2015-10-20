@@ -103,9 +103,9 @@ var AdvanceSearch = React.createClass({
     		return null;
     	}
     	
-    	var initialTest = {payload: -1, name: 'groups', text: 'Groups', type: 'fkey'};
+    	//var initialTest = {payload: -1, name: 'groups', text: 'Groups', type: 'fkey'};
     	
-    	var fields = [initialTest];
+    	var fields = [];
     	
     	this.props.entityFields.map(function(field) {
     		fields.push({
