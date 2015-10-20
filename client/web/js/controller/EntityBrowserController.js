@@ -8,6 +8,7 @@ var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var EntityController = require("./EntityController");
+var AdvanceSearchController = require("./AdvanceSearchController");
 var UiEntityBrowser = require("../ui/EntityBrowser.jsx");
 var EntityCollection = require("../entity/Collection");
 var actionsLoader = require("../entity/actionsLoader");
@@ -107,7 +108,6 @@ EntityBrowserController.prototype.render = function() {
     // Define the data
 	var data = {
 		title: this.props.browsebytitle ||this.props.title,
-        entityDefinition: new Array(),
         deviceSize: netric.getApplication().device.size,
         layout: (netric.getApplication().device.size === netric.Device.sizes.small)
             ? "compact" : "table",
@@ -131,6 +131,9 @@ EntityBrowserController.prototype.render = function() {
         }.bind(this),
         onPerformAction: function(actionName) {
             this.performActionOnSelected(actionName);
+        }.bind(this),
+        onAdvanceSearch: function() {
+            this.onAdvanceSearch();
         }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null
 	}
@@ -168,6 +171,14 @@ EntityBrowserController.prototype.render = function() {
         }
     );
 
+    // Add route to display advance search
+	this.addSubRoute("advancesearch",
+		AdvanceSearchController, {
+            type: controller.types.PAGE,
+            objType: this.props.objType
+        }
+	);
+    
 	// Add route to compose a new entity
 	this.addSubRoute(":eid",
 		EntityController, {
@@ -310,14 +321,7 @@ EntityBrowserController.prototype.performActionOnSelected = function(actionName)
  */
 EntityBrowserController.prototype.onCollectionChange = function() {
     var entities = this.collection_.getEntities();
-    var entityDefinition = this.collection_.entityDefinition();
-    
-    entityDefinition.objType = this.props.objType;
-    
-    this.rootReactNode_.setProps({
-    								entities: entities,
-    								entityDefinition: entityDefinition
-    							});
+    this.rootReactNode_.setProps({entities: entities});
 }
 
 /**
@@ -374,6 +378,13 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 		this.collection_.setLimit(newLimit);
 		this.collection_.refresh();
 	}
+}
+
+/**
+ * Display Advance search
+ */
+EntityBrowserController.prototype.onAdvanceSearch = function() {
+	netric.location.go(this.getRoutePath() + "/advancesearch");
 }
 
 module.exports = EntityBrowserController;
