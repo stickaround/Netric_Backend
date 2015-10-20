@@ -8,7 +8,6 @@
 var React = require('react');
 var Chamel = require('chamel');
 var groupingLoader = require("../../entity/groupingLoader");
-var Dialog = Chamel.Dialog;
 var DropDownMenu = Chamel.DropDownMenu;
 var TextField = Chamel.TextField;
 var IconButton = Chamel.IconButton;
@@ -77,8 +76,7 @@ var SearchCondition = React.createClass({
         return (
         		<div className="row" key={this.props.conditionIndex}>
 					<div className="col-small-1">
-	    				<DropDownMenu  
-	                    	menuItems={bLogic} />
+	    				<DropDownMenu menuItems={bLogic} />
 					</div>
 	    			<div className="col-small-4">
 	    				<DropDownMenu menuItems={searchFields} onChange={this._handleFieldClick} />
@@ -101,7 +99,7 @@ var SearchCondition = React.createClass({
      *
      * @param {DOMEvent} e 		Reference to the DOM event being sent
      * @param {Integer} key		The index of the menu clicked
-     * @param {Object} field	The object value of the menu clicked
+     * @param {array} field	The object value of the menu clicked
      * @private
      */
     _handleFieldClick: function(e, key, field) {
@@ -127,14 +125,14 @@ var SearchCondition = React.createClass({
      * @private
      */
     _handleRemoveCondition: function (conditionIndex) {
-    	if(this.props.onRemove) this.props.onRemove(conditionIndex);
+    	if(this.props.onRemove) this.props.onRemove('conditions', conditionIndex);
     },
     
     
     /**
      * Get the search condition input input type based on the field type selected
      *
-     * @param {object} field	Collection of the field selected information
+     * @param {array} field	Collection of the field selected information
      * @private
      */
     _getConditionInputType: function(field) {
@@ -156,7 +154,7 @@ var SearchCondition = React.createClass({
     /**
      * Get the groupings data of the field selected
      *
-     * @param {object} field	Collection of the field selected information
+     * @param {array} field	Collection of the field selected information
      * @private
      */
     _getGroupingsInputType: function(field) {
@@ -189,7 +187,7 @@ var SearchCondition = React.createClass({
      * Get the groupings data of the field selected
      *
      * @param {array} groupings		Groupings data based on the selected conditions field and current object type
-     * @param {object} field		Collection of the field selected information
+     * @param {array} field		Collection of the field selected information
      * @private
      */
     _createGroupingsMenu: function(groupings, field)
@@ -212,7 +210,7 @@ var SearchCondition = React.createClass({
     /**
      * Get the search condition operator based on the field type selected
      *
-     * @param {object} field	Collection of the field selected information
+     * @param {array} field	Collection of the field selected information
      * @private
      */
     _getConditionOperators: function(field) {

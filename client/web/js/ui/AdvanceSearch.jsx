@@ -8,8 +8,12 @@
 var React = require('react');
 var Chamel = require('chamel');
 var SearchCondition = require('./advancesearch/SearchCondition.jsx');
+var SortOrder = require('./advancesearch/SortOrder.jsx');
+var ColumnView = require('./advancesearch/ColumnView.jsx');
 var Dialog = Chamel.Dialog;
 var IconButton = Chamel.IconButton;
+
+var searchCriteria = ['conditions', 'sortOrder', 'columnView'];
 
 /**
  * Module shell
@@ -35,61 +39,97 @@ var AdvanceSearch = React.createClass({
 	
 	getInitialState: function() {
         return { 
-        	conditionCount: 1,
-        	removedConditions: new Array(),
+        	criteriaCount: [],
+        	removedCriteria: []
         	};
     },
 
 	render: function() {
 		
-		var removedConditions = this.state.removedConditions; // Get the removed conditions
-    	var searchCondition = []; // Search Conditions will be stored in an array for additional conditions
+		var fields = this._getEntityFields();
+    	var criteriaDisplay = [];
     	
-    	for(var cIndex=0; cIndex<this.state.conditionCount; cIndex++) {
+    	for(var idx in searchCriteria)
+    	{	
+    		// Get the current criteria
+    		var criteria = searchCriteria[idx];
     		
-    		// Check if the current index condition is already removed
-    		if(removedConditions.indexOf(cIndex) == -1) {
-    			
-    			// Push the search condition component to the array for display
-    			searchCondition.push( <SearchCondition key={cIndex}
-    									objType={this.props.objType}
-						    			conditionFields={this._getEntityFields()} 
-						    			onRemove={this._handleRemoveCondition}
-						    			conditionIndex={cIndex} /> );
+    		// Check if the current criteria has the default values for count and removed entries
+    		if(!this.state.criteriaCount[criteria] || !this.state.removedCriteria[criteria]) {
+    			this.state.criteriaCount[criteria] = 1;
+    			this.state.removedCriteria[criteria] = [];
     		}
-    	}	
+    		
+    		// Check if the current criteria has the initial value for display
+    		if(!criteriaDisplay[criteria]) {
+    			criteriaDisplay[criteria] = [];
+    		}
+    		
+    		var removedCriteria = this.state.removedCriteria[criteria];
+    		var count = this.state.criteriaCount[criteria];
+    		
+    		for(var index=0; index<count; index++) {
+        		
+        		// Check if the current index criteria is already removed
+        		if(removedCriteria.indexOf(index) == -1) {
+        			criteriaDisplay[criteria].push(
+        											this._getCriteriaDisplay(criteria, fields, index)
+        										);
+        		}
+        	}	
+    	}
     	
 		return (
 				<div>
-					{searchCondition}
-					<IconButton onClick={this._handleAddCondition} className="fa fa-plus" />
+					<div>
+						<div>Search Conditions: </div>
+						{criteriaDisplay['conditions']}
+						<IconButton onClick={this._handleAddCriteria.bind(this, 'conditions')} className="fa fa-plus" />
+					</div>
+					<div>
+						<div>Sort By: </div>
+						{criteriaDisplay['sortOrder']}
+						<IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
+					</div>
+					<div>
+					<div>Column View: </div>
+					{criteriaDisplay['columnView']}
+					<IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
+				</div>
 				</div>
 		);
 	},
     
     /**
-     * Removes the selected condition
+     * Removes the selected criteria
      *
+     * @param {string} criteria		Type of criteria to be removed
+     * @param {integer} index		The index to be removed
      * @private
      */
-    _handleRemoveCondition: function(conditionIndex) {
-    	var removedConditions = this.state.removedConditions;
+    _handleRemoveCriteria: function(criteria, index) {
+    	var removedCriteria = this.state.removedCriteria;
     	
-    	removedConditions.push(conditionIndex);
+    	removedCriteria[criteria].push(index);
     	
     	this.setState({
-    		removedConditions: removedConditions
+    		removedCriteria: removedCriteria
     	});
     },
     
     /**
      * Adds a new search condition
      *
+     * @param {string} criteria		Type of criteria to be added
      * @private
      */
-    _handleAddCondition: function() {
+    _handleAddCriteria: function(criteria) {
+    	var conditionCount = this.state.criteriaCount;
+    	
+    	conditionCount[criteria] = conditionCount[criteria]+1; 
+    	
     	this.setState({
-    		conditionCount: this.state.conditionCount+1
+    		conditionCount: conditionCount
     	});
     },
     
@@ -119,6 +159,47 @@ var AdvanceSearch = React.createClass({
     	
     	return fields;
     },
+    
+    /**
+     * Get the criteria to be displayed. Either Conditions, SortOrder or ColumnView
+     *
+     * @param {string} criteria		Type of criteria to be removed
+     * @param {array} field			Collection of the field selected information
+     * @param {integer} index		The index to be removed
+     * @private
+     */
+    _getCriteriaDisplay: function(criteria, fields, index) {
+    	
+    	var display = null;
+    	switch(criteria) {
+    		case 'conditions':
+    			// Push the search condition component to the array for display
+    			display = ( <SearchCondition key={index}
+    									objType={this.props.objType}
+    					    			conditionFields={fields} 
+    					    			onRemove={this._handleRemoveCriteria}
+    					    			conditionIndex={index} /> );
+    			break;
+			case 'sortOrder':
+    			// Push the sort by component to the array for display
+    			display = ( <SortOrder 	key={index}
+										objType={this.props.objType}
+					    				sortFields={fields} 
+					    				onRemove={this._handleRemoveCriteria}
+					    				conditionIndex={index} /> );
+    			break;
+			case 'columnView':
+    			// Push the sort by component to the array for display
+    			display = ( <ColumnView key={index}
+										objType={this.props.objType}
+					    				viewFields={fields} 
+					    				onRemove={this._handleRemoveCriteria}
+					    				viewIndex={index} /> );
+    			break;
+    	}
+    	
+    	return display;
+    }
 
 });
 
