@@ -1,11 +1,6 @@
 /**
 * @fileOverview Load instance of netric application
 *
-* TODO:
-*	1. Heartbeat to determine connection status through device
-* 	2. Session checker to make sure it is still valid and redirect to login if needed
-*	3. Universal login to get instance URL from an email address (requires key)
-*
 * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
 * 			Copyright (c) 2014-2015 Aereus Corporation. All rights reserved.
 */
@@ -50,6 +45,14 @@ var Application = function() {
 	 * @var {DOMNode}
 	 */
 	this.appDomNode_ = null;
+
+	/**
+	 * Main router mapping paths to controllers
+	 *
+	 * @private
+	 * @var {location.Router}
+	 */
+	this.router_ = null;
 };
 
 /**
@@ -179,8 +182,20 @@ Application.prototype.run = function(domCon) {
 	// Setup location change listener
 	location.setupRouter(router);
 
+	// Save router for later use
+	this.router_ = router;
+
 	// Queue heartbeat
 	this.queueHeartBeat();
+}
+
+/**
+ * Get the base application router
+ *
+ * @return location.Router
+ */
+Application.prototype.getRouter = function() {
+	return this.router_;
 }
 
 /**
@@ -234,7 +249,7 @@ Application.prototype.heartBeat = function() {
 		alib.events.listen(request, "error", function(evt) {
 			
 			// Unable to contact the server!
-			console.log(request);
+			console.error(request);
 
 			// Set flag to let the rest of the application know we are offline
 			server.online = false;

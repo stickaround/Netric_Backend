@@ -18,6 +18,8 @@
 
 var controller = require("./controller.js");
 var netric = require("../base");
+var React = require("react");
+var ControllerDialog = require("../ui/ControllerDialog.jsx");
 
 /**
  * Abstract controller
@@ -75,6 +77,22 @@ AbstractController.prototype.router_ = null;
 AbstractController.prototype.isPaused_ = false;
 
 /**
+ * If this controller is a child of another controller then this will be set
+ *
+ * @type {Controller}
+ * @private
+ */
+AbstractController.prototype.parentController_ = null;
+
+/**
+ * If this is a dialog then it will have a reference to the dialog window component
+ *
+ * @type {ReactElement}
+ * @private
+ */
+AbstractController.prototype.dialogComponent_ = null;
+
+/**
  * All child classes should extend this base class with:
  */
 //netric.inherits(ModuleController, AbstractController);
@@ -102,6 +120,9 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 	if (this.type_ == controller.types.DIALOG &&
 		netric.getApplication().device.size === netric.Device.sizes.small) {
 		this.type_ = controller.types.PAGE;
+
+		// If not set, then make nav back button unload like a dialog
+		this.props.onNavBackBtnClick = function() { this.unload(); }.bind(this);
 	}
 
 	// Set reference to the parent router
@@ -124,6 +145,11 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 		// Render the controller
 		this.render();
 
+		// If we are rendered in a dialog then show it
+		if (this.dialogComponent_) {
+			this.dialogComponent_.show();
+		}
+
 		if (opt_callback) {
 			opt_callback();
 		}
@@ -139,6 +165,11 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 AbstractController.prototype.unload = function() {
 	// The onUnload callback for child classes needs to be called first
 	this.onUnload();
+
+	// Hide dialog if set
+	if (this.dialogComponent_) {
+		this.dialogComponent_.dismiss();
+	}
 
 	// Remove the elements from the page
 	if (this.domNode_) {
@@ -223,13 +254,28 @@ AbstractController.prototype.addSubRoute = function(path, controllerClass, data,
 /**
  * Get my parent controller
  *
- * @return {netric.location.Router} Router than owns the route tha rendered this controller
+ * @return {Controller} Router than owns the route tha rendered this controller
  */
 AbstractController.prototype.getParentController = function() {
 
+	// First try to dynamically set the parent with the router if not set
+	if (this.parentController_ === null) {
+		this.parentController_ = this.getParentControllerFromRouter();
+	}
+
+	// Return the parent controller (may be null)
+	return this.parentController_;
+}
+
+/**
+ * Get my parent controller
+ *
+ * @return {Controller} Router than owns the route tha rendered this controller
+ */
+AbstractController.prototype.getParentControllerFromRouter = function() {
+
 	// Get the parent router of this controller
 	var parentRouter = this.getParentRouter();
-	
 	if (parentRouter) {
 		// Get the parent router to my parent
 		var grandparentRouter = parentRouter.getParentRouter();
@@ -241,11 +287,73 @@ AbstractController.prototype.getParentController = function() {
 				return activeRoute.getController();
 			} else {
 				throw "Problem! Could not find an active route from within a controller.";
-			}	
+			}
+		}
+	} else {
+		// Try to get the last active route from the root router (if set in netric.Application)
+		var lastActiveControler = this.getParentControllerFromRootRouter_();
+		if (lastActiveControler) {
+			return lastActiveControler;
 		}
 	}
 
 	return null;
+}
+
+/**
+ * Traverse through all active routes in search for the last open page
+ *
+ * This is used to find the last (and if device is small, only active)
+ * controller of type=PAGE so that we can dynamically set un-routed controllers
+ * to it as the parent.
+ *
+ * If code invokes load on a controller with type=PAGE without providing a route
+ * we need some way hide (pause) the current active paged controller when displaying this
+ * controller, and then to show (resume) the last open controller once this controller
+ * has been unloaded.
+ *
+ * @private
+ * @return {Controller} This could be null if now active routes are found - assume nothing!
+ */
+AbstractController.prototype.getParentControllerFromRootRouter_ = function() {
+
+	var rootRouter = null;
+	var lastActiveController = null;
+
+	// Get the root router from the application
+	var app = netric.getApplication();
+	if (app) {
+		rootRouter = app.getRouter();
+	}
+
+	if (rootRouter) {
+		var activeRoute = rootRouter.getActiveRoute();
+		lastActiveController = activeRoute.getController();
+
+		// Now traverse through child routers for last active route
+		if (activeRoute !== null) {
+			while (activeRoute != null) {
+
+				// If the current active route has active children then get it
+				if (activeRoute.getChildRouter().getActiveRoute()) {
+					activeRoute = activeRoute.getChildRouter().getActiveRoute();
+				} else {
+					activeRoute = null;
+				}
+
+				// If the route has a controller than get it
+				if (activeRoute !== null && activeRoute.getController()) {
+					lastActiveController = activeRoute.getController();
+				} else {
+					// Make sure activeRoute is null if we can't find a controller
+					activeRoute = null;
+				}
+			}
+		}
+	}
+
+	// May be null
+	return lastActiveController;
 }
 
 /**
@@ -292,10 +400,14 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
 		 * If this is a dialog then render a new dialog into the dom and get the inner container to render controller
 		 */
     	case controller.types.DIALOG:
-    		// TODO: create dialog
+			// Render dialog component component
+			this.dialogComponent_ = React.render(
+				React.createElement(ControllerDialog, {}),
+				alib.dom.createElement("div", document.body)
+			);
+			parentNode = this.dialogComponent_.refs.dialogContent.getDOMNode();
     		break;
     }
-	
 
     var id = (this.getParentRouter()) ? this.getParentRouter().getActiveRoute().getPath() : null;
 	this.domNode_ = alib.dom.createElement("div", parentNode, null, {id:id});
@@ -387,7 +499,6 @@ AbstractController.prototype.getRoutePath = function() {
 AbstractController.prototype.getType = function() {
 	return this.type_;
 }
-
 
 /**
  * Get the dom node this controller is rendered into

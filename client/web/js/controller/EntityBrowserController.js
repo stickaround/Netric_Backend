@@ -113,8 +113,8 @@ EntityBrowserController.prototype.render = function() {
             ? "compact" : "table",
         actionHandler: this.actions_,
         browserView:this.browserView_,
-        onEntityListClick: function(objType, oid) {
-            this.onEntityListClick(objType, oid);
+        onEntityListClick: function(objType, oid, title) {
+            this.onEntityListClick(objType, oid, title);
         }.bind(this),
         onEntityListSelect: function(oid) {
             if (oid) {
@@ -132,7 +132,8 @@ EntityBrowserController.prototype.render = function() {
         onPerformAction: function(actionName) {
             this.performActionOnSelected(actionName);
         }.bind(this),
-        onNavBtnClick: this.props.onNavBtnClick || null
+        onNavBtnClick: this.props.onNavBtnClick || null,
+        onNavBackBtnClick: this.props.onNavBackBtnClick || null
 	}
 
 	// Render browser component
@@ -179,8 +180,12 @@ EntityBrowserController.prototype.render = function() {
 
 /**
  * User clicked/touched an entity in the list
+ *
+ * @param {string} objType
+ * @param {string} oid
+ * @param {string} title The textual name or title of the entity
  */
-EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
+EntityBrowserController.prototype.onEntityListClick = function(objType, oid, title) {
     if (objType && oid) {
         // Mark the entity as selected
         if (this.props.objType == objType) {
@@ -192,8 +197,14 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
         // Check to see if we have an onEntityClick callback registered
         if (this.props.onEntityClick) {
             this.props.onEntityClick(objType, oid);
+        } else if (this.props.onSelect) {
+            // Check to see if we are running in a browser select mode (like select user)
+            this.props.onSelect(objType, oid, title);
+            this.unload();
         } else if (this.getRoutePath()) {
             netric.location.go(this.getRoutePath() + "/" + oid);
+        } else {
+            console.error("User clicked on an entity but there are no handlers");
         }
     }
 }
