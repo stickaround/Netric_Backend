@@ -59,7 +59,7 @@ var ObjectSelect = React.createClass({
      */
     render: function () {
         var label = this.state.label || "None";
-        return (<div onClick={this._handleBrowseClick}>{label}</div>);
+        return (<span onClick={this._handleBrowseClick}>{label}</span>);
     },
 
     /**

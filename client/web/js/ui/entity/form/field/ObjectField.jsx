@@ -36,10 +36,12 @@ var ObjectField = React.createClass({
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
+        var valueLabel = this.props.entity.getValueName(fieldName);
+        if (!valueLabel) {
+            valueLabel = "Not Set";
+        }
 
         if (this.props.editMode) {
-            return (<div>Edit Mode Object</div>);
-        } else {
             return (
                 <ObjectSelect
                     onChange={this._handleSetValue}
@@ -47,8 +49,10 @@ var ObjectField = React.createClass({
                     fieldName={fieldName}
                     value={fieldValue}
                     label={this.props.entity.getValue(fieldName)}
-                />
+                    />
             );
+        } else {
+            return (<div>{valueLabel}</div>);
         }
 
     },
@@ -68,7 +72,7 @@ var ObjectField = React.createClass({
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('name');
 
-        this.props.entity_.setValue(fieldName, oid, title);
+        this.props.entity.setValue(fieldName, oid, title);
     }
 });
 
