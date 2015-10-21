@@ -89,13 +89,6 @@ EntityController.prototype.onLoad = function(opt_callback) {
         
     }.bind(this));
 
-    // Capture an entity click and handle browsing for a referenced entity
-    alib.events.listen(this.eventsObj_, "set_object_field", function(evt) {
-
-        this.setObjectField(evt.data.fieldName);
-
-    }.bind(this));
-
     // Get the entity definition then call the loaded callback (if set)
     definitionLoader.get(this.props.objType, function(def){
 
@@ -188,6 +181,11 @@ EntityController.prototype.render = function() {
         case netric.Device.sizes.large:
             data.form = this.entityDefinition_.forms.large;
             break;
+        case netric.Device.sizes.xlarge:
+            data.form = this.entityDefinition_.forms.xlarge;
+            break;
+        default:
+            throw "Device size " + netric.getApplication().device.size + " not supported";
     }
 
     // Render component

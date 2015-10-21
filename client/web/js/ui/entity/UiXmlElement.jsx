@@ -21,6 +21,7 @@ var formElements = {
     Helptour: require("./form/Helptour.jsx"),
     AllAdditional: require("./form/AllAdditional.jsx"),
     Recurrence: require("./form/Recurrence.jsx"),
+    Attachments: require("./form/Attachments.jsx"),
     Plugin: require("./form/Plugin.jsx")
 };
 

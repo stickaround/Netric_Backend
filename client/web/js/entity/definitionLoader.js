@@ -34,7 +34,11 @@ definitionLoader.definitions_ = new Array();
  * @return {Definition|void} If no callback is provded then force a return
  */
 definitionLoader.get = function(objType, cbLoaded) {
-	
+
+	if (!objType) {
+		throw "The first param {objType} is required and cannot be blank or null";
+	}
+
 	// Return (or callback callback) cached definition if already loaded
 	if (this.definitions_[objType] != null) {
 		
@@ -51,6 +55,10 @@ definitionLoader.get = function(objType, cbLoaded) {
 		alib.events.listen(request, "load", function(evt) {
 			var def = definitionLoader.createFromData(this.getResponse());
 			cbLoaded(def);
+		});
+
+		alib.events.listen(request, "error", function(evt) {
+			console.error("Failed to load request", evt);
 		});
 	} else {
 		// Set request to be synchronous if no callback is set	

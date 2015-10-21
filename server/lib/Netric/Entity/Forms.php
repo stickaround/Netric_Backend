@@ -56,17 +56,27 @@ class Forms
         $dbh = $this->dbh;
 
         /*
-         * We are translating the new form names 'small|medium|large'
+         * We are translating the new form names 'small|medium|large|xlarge'
          * to the old 'mobile|default' names for the time being
          * because these scopes are accessed all throughout the
          * old code base. Once we replace the entire UI then it should be
          * pretty easy to remove all old references to mobile/default
          * and then just do an SQL update to rename exsiting custom forms.
          */
+
+        $default = $this->getFormUiXml($def, $user, "default");
+        $small = $this->getFormUiXml($def, $user, "mobile");
+        if (!$small)
+            $small = $default;
+        $medium = $this->getFormUiXml($def, $user, "mobile");
+        if (!$medium)
+            $medium = $default;
+
         $forms = array(
-            'small' => $this->getFormUiXml($def, $user, "mobile"),
-            'medium' => "",
-            'large' => $this->getFormUiXml($def, $user, "default"),
+            'small' => $small,
+            'medium' => $medium,
+            'large' => $default,
+            'xlarge' => $default,
             'infobox' => $this->getFormUiXml($def, $user, "infobox"),
         );
 

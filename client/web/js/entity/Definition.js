@@ -153,6 +153,7 @@ var Definition = function(opt_data) {
      * @type {Object}
      */
     this.forms = {
+		xlarge: data.forms.xlarge || "",
         large: data.forms.large || "",
         medium: data.forms.medium || "",
         small: data.forms.small || "",
