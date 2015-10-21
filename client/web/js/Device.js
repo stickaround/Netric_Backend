@@ -27,11 +27,11 @@ var Device = function() {
  * @public
  */
 Device.sizes = {
-	// Phones and small devices
+	// Phones and small devices < 768px wide
 	small : 1,
-	// Tablets
+	// Tablets >768px but <1200px wide
 	medium : 3,
-	// Desktops
+	// Desktops >=1200px but <1200px wide
 	large : 5,
 	// Big Desktops
 	xlarge : 7
@@ -70,11 +70,13 @@ Device.prototype.size = Device.sizes.large;
  	
  	if (width <= 768) {
  		this.size = Device.sizes.small;
- 	} else if (width > 768 && width < 1200) {
+ 	} else if (width >= 768 && width < 1080) {
  		this.size = Device.sizes.medium;
- 	} else if (width >= 1200) {
+ 	} else if (width >= 1080 && width < 1200) {
  		this.size = Device.sizes.large;
- 	}
+	} else if (width >= 1200) {
+		this.size = Device.sizes.xlarge;
+	}
  }
 
  /**

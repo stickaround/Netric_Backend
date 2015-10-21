@@ -89,13 +89,6 @@ EntityController.prototype.onLoad = function(opt_callback) {
         
     }.bind(this));
 
-    // Capture an entity click and handle browsing for a referenced entity
-    alib.events.listen(this.eventsObj_, "set_object_field", function(evt) {
-
-        this.setObjectField(evt.data.fieldName);
-
-    }.bind(this));
-
     // Get the entity definition then call the loaded callback (if set)
     definitionLoader.get(this.props.objType, function(def){
 

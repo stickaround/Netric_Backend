@@ -69,7 +69,6 @@ var ListItemTableRow = React.createClass({
             var fieldDef = this.props.entity.def.getField(fields[i]);
             var cellContents = null;
 
-
             switch (fieldDef.type) {
                 case EntityField.types.fkey:
                 case EntityField.types.fkeyMulti:
@@ -86,7 +85,10 @@ var ListItemTableRow = React.createClass({
             }
 
             // Truncate long strings
-            cellContents = (cellContents.length>20) ? cellContents.substr(0,100)+'...' : cellContents;
+            if (cellContents) {
+                cellContents = (cellContents.length>20)
+                    ? cellContents.substr(0,100)+'...' : cellContents;
+            }
 
             // Add the column
             columns.push(

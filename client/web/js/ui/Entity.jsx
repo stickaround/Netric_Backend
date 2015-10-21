@@ -62,7 +62,7 @@ var Entity = React.createClass({
         
         var appBar = "";
         var appBarClassName = (this.state.editMode) ? "edit" : "detail";
-        var appBarZDepth = (this.state.editMode) ? 1 : 0;
+        var appBarZDepth = (this.state.editMode) ? 0 : 1;
 
         if (this.props.onNavBtnClick) {
             appBar = (<AppBar
