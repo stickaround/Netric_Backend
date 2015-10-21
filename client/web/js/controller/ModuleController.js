@@ -62,6 +62,8 @@ ModuleController.prototype.onLoad = function(opt_callback) {
 		break;
     case netric.Device.sizes.medium:
 	case netric.Device.sizes.large:
+	case netric.Device.sizes.xlarge:
+	default:
 		this.type_ = controller.types.FRAGMENT;
 		break;
 	}
@@ -90,7 +92,7 @@ ModuleController.prototype.render = function() {
 		name: this.module_.name,
         title: this.module_.title,
         deviceIsSmall: netric.getApplication().device.size == netric.Device.sizes.small,
-		leftNavDocked: (netric.getApplication().device.size == netric.Device.sizes.large),
+		leftNavDocked: (netric.getApplication().device.size >= netric.Device.sizes.large),
 		leftNavItems: [],
         modules: moduleLoader.getModules(),
         user: netric.getApplication().getAccount().getUser(),

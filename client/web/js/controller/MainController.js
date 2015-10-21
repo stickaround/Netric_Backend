@@ -54,7 +54,11 @@ MainController.prototype.render = function() {
 		this.appComponent_ = UiAppSmall;
 		break;
 	case netric.Device.sizes.large:
+	case netric.Device.sizes.xlarge:
 		this.appComponent_ = UiAppLarge;
+		break;
+	default:
+		throw "Device size it not supported with a view";
 		break;
 	}
 

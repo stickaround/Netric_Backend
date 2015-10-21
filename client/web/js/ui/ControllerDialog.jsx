@@ -13,6 +13,22 @@ var Dialog = Chamel.Dialog;
  */
 var ControllerDialog = React.createClass({
 
+    /**
+     * Expected props
+     */
+    propTypes: {
+        title: React.PropTypes.string
+    },
+
+    /**
+     * Set defaults
+     */
+    getDefaultProps: function() {
+        return {
+            title: 'Browse',
+        };
+    },
+
     render: function() {
 
         var standardActions = [
@@ -22,7 +38,7 @@ var ControllerDialog = React.createClass({
         return (
             <Dialog
                 ref="dialog"
-                title="Controller"
+                title={this.props.title}
                 actions={standardActions}
                 modal={true}>
                 <div ref="dialogContent" />

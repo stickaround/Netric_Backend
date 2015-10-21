@@ -181,6 +181,11 @@ EntityController.prototype.render = function() {
         case netric.Device.sizes.large:
             data.form = this.entityDefinition_.forms.large;
             break;
+        case netric.Device.sizes.xlarge:
+            data.form = this.entityDefinition_.forms.xlarge;
+            break;
+        default:
+            throw "Device size " + netric.getApplication().device.size + " not supported";
     }
 
     // Render component
