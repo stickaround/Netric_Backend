@@ -1,5 +1,5 @@
 /**
- * @fileoverview Advance Search
+ * @fileoverview Advanced Search
  */
 'use strict';
 
@@ -8,11 +8,11 @@ var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiAdvanceSearch = require("../ui/AdvanceSearch.jsx");
-var actionsLoader = require("../entity/actionsLoader");
+var EntityCollection = require("../entity/Collection");
 var definitionLoader = require("../entity/definitionLoader");
 
 /**
- * Controller that loads an Advance Search
+ * Controller that loads an Advanced Search
  */
 var AdvanceSearchController = function() {}
 
@@ -30,11 +30,20 @@ netric.inherits(AdvanceSearchController, AbstractController);
 AdvanceSearchController.prototype.rootReactNode_ = null;
 
 /**
- * A collection of field definition
+ * A collection of entities
+ *
+ * @public
+ * @type {netric.entity.Collection}
+ */
+AdvanceSearchController.prototype.collection = null;
+
+/**
+ * Object used for handling custom events through the advance search
  *
  * @private
+ * @type {Object}
  */
-AdvanceSearchController.prototype.entityFields_ = null;
+AdvanceSearchController.prototype.eventsObj_ = null;
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -42,22 +51,21 @@ AdvanceSearchController.prototype.entityFields_ = null;
  * @param {function} opt_callback If set call this function when we are finished loading
  */
 AdvanceSearchController.prototype.onLoad = function(opt_callback) {
-	
-	this.actions_ = actionsLoader.get(this.props.objType);
+    
+    var callbackWhenLoaded = opt_callback || null;
+    
+    // Create object to subscribe to events in the UI form
+    this.eventsObj_ = {};
 
-    if (this.props.objType) {
-        // Get the default view from the object definition
-        definitionLoader.get(this.props.objType, function(def){
-            this.entityFields_ = def.fields;
-            if (opt_callback) {
-                opt_callback();
-            }
-        }.bind(this));
-    } else if (opt_callback) {
-        // By default just immediately execute the callback because nothing needs to be done
-        opt_callback();
+    // Capture if in advance search the condition field type is an object
+    alib.events.listen(this.eventsObj_, "set_object_field", function(evt) {
+        this.setObjectField(evt.data.fieldName);
+    }.bind(this));
+    
+    
+    if(callbackWhenLoaded) {
+        callbackWhenLoaded();
     }
-
 }
 
 /**
@@ -66,22 +74,86 @@ AdvanceSearchController.prototype.onLoad = function(opt_callback) {
 AdvanceSearchController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
+	var entities = new Array();
+	var entityFields = new Array();
+	
+	// If collection is already loaded, then we just need to get the entities and the fields
+	if(this.collection != null) {
+	    entities = this.collection.getEntities();
+	    entityFields = this.collection.getEntityFields();
+	}
 	
     // Define the data
 	var data = {
-		title: this.props.browsebytitle ||this.props.title,
-		entityFields: this.entityFields_,
-        objType: this.props.objType,
-        deviceSize: netric.getApplication().device.size,
-        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
-            ? "compact" : "table",
+	        eventsObj: this.eventsObj_,
+	        title: this.props.title || "Advanced Search",
+	        entities: entities,
+	        entityFields: entityFields,
+	        objType: this.props.objType,
+	        deviceSize: netric.getApplication().device.size,
+	        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
+	        ? "compact" : "table",
 	}
-
+	
 	// Render browser component
-	this.rootReactNode_ = React.render(
-		React.createElement(UiAdvanceSearch, data),
-		domCon
-	);
+    this.rootReactNode_ = React.render(
+            React.createElement(UiAdvanceSearch, data),
+            domCon
+    );
+	
+	// Check if collection is null or is already loaded from parent call
+	if(this.collection == null) {
+	    // Load the entity list
+	    this.collection = new EntityCollection(this.props.objType);
+	    
+	    alib.events.listen(this.collection, "loading", function() {
+	        this.onCollectionLoading();
+	    }.bind(this));
+
+	    alib.events.listen(this.collection, "loaded", function() {
+	        this.onCollectionLoaded();
+	    }.bind(this));
+	    
+	    // Load the colleciton
+	    this.collection.load();
+	}
+}
+
+/**
+ * The collection is attempting to get results from the backend
+ * 
+ */
+AdvanceSearchController.prototype.onCollectionLoading = function() {
+    this.rootReactNode_.setProps({collectionLoading: true});
+}
+
+/**
+ * The collection has finished requesting results from the backend
+ * 
+ */
+AdvanceSearchController.prototype.onCollectionLoaded = function() {
+    var entities = this.collection.getEntities();
+    this.rootReactNode_.setProps({collectionLoading: false, entities: entities});
+}
+
+/**
+ * Set the value of an object field
+ *
+ * @param {string} fname The name of the field
+ */
+AdvanceSearchController.prototype.setObjectField = function(fname) {
+
+    /*
+     * We require it here to avoid a circular dependency where the
+     * controller requires the view and the view requires the controller
+     */
+    var BrowserController = require("./EntityBrowserController");
+    var browser = new BrowserController();
+    browser.load({
+        type: controller.types.DIALOG,
+        title: "Select",
+        objType: fname, // This is set statically for now
+    });
 }
 
 

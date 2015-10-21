@@ -21,13 +21,13 @@ var searchCriteria = ['conditions', 'sortOrder', 'columnView'];
 var AdvanceSearch = React.createClass({
 
 	propTypes: {
-		onPerformAction: React.PropTypes.func,
 		layout : React.PropTypes.string,
 		title : React.PropTypes.string,
-		actionHandler : React.PropTypes.object,
 		deviceSize: React.PropTypes.number,
 		entityFields: React.PropTypes.array,
 		objType: React.PropTypes.string,
+		collectionLoading: React.PropTypes.bool,
+		eventsObj: React.PropTypes.object,
 	},
 
 	getDefaultProps: function() {
@@ -175,6 +175,7 @@ var AdvanceSearch = React.createClass({
     		case 'conditions':
     			// Push the search condition component to the array for display
     			display = ( <SearchCondition key={index}
+    									eventsObj={this.props.eventsObj}
     									objType={this.props.objType}
     					    			conditionFields={fields} 
     					    			onRemove={this._handleRemoveCriteria}

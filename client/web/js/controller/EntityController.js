@@ -253,11 +253,12 @@ EntityController.prototype.setObjectField = function(fname) {
     var browser = new BrowserController();
     browser.load({
         type: controller.types.DIALOG,
-        objType: "user",
-        onSelect: function(oid, title) {
+        title: "Select",
+        objType: "note", // This is set statically for now
+        onSelect: function(objType, oid, title) {
             this.entity_.setValue(fname, oid, title);
         }.bind(this)
-    }, null, this); // Third param set this as the parent controller
+    });
 }
 
 module.exports = EntityController;

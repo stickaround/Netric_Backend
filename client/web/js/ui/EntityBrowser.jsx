@@ -21,6 +21,10 @@ var EntityBrowser = React.createClass({
       onEntityListClick: React.PropTypes.func,
       onEntityListSelect: React.PropTypes.func,
       onPerformAction: React.PropTypes.func,
+      // Navigation button action - hamburger to the left of the title
+      onNavBtnClick: React.PropTypes.func,
+      // Navigation back button - left arrow to the eft of the title
+      onNavBackBtnClick: React.PropTypes.func,
       layout : React.PropTypes.string,
       title : React.PropTypes.string,
       actionHandler : React.PropTypes.object,
@@ -29,7 +33,7 @@ var EntityBrowser = React.createClass({
       selectedEntities: React.PropTypes.array,
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
-      onAdvanceSearch: React.PropTypes.func,
+      eventsObj: React.PropTypes.object,
   },
 
   getDefaultProps: function() {
@@ -74,11 +78,12 @@ var EntityBrowser = React.createClass({
             actionHandler={this.props.actionHandler}
             deviceSize={this.props.deviceSize}
             onNavBtnClick={this.props.onNavBtnClick}
+            onNavBackBtnClick={this.props.onNavBackBtnClick}
             onSearchChange={this.props.onSearchChange}
             onPerformAction={this.props.onPerformAction}
             onSelectAll={this.handleSeelctAll_}
             selectedEntities={this.props.selectedEntities}
-            onAdvanceSearch={this.props.onAdvanceSearch} />
+          	eventsObj={this.props.eventsObj} />
         </div>
         <div ref="moduleMain">
             {bodyContent}

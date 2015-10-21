@@ -8,7 +8,6 @@ var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var EntityController = require("./EntityController");
-var AdvanceSearchController = require("./AdvanceSearchController");
 var UiEntityBrowser = require("../ui/EntityBrowser.jsx");
 var EntityCollection = require("../entity/Collection");
 var actionsLoader = require("../entity/actionsLoader");
@@ -74,6 +73,14 @@ EntityBrowserController.prototype.actions_ = null;
 EntityBrowserController.prototype.browserView_ = null;
 
 /**
+ * Object used for handling custom events through the entity browser
+ *
+ * @private
+ * @type {Object}
+ */
+EntityBrowserController.prototype.eventsObj_ = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -81,7 +88,10 @@ EntityBrowserController.prototype.browserView_ = null;
 EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
-
+    
+    // Create object to subscribe to events in the UI form
+    this.eventsObj_ = {};
+    
     if (this.props.objType) {
         // Get the default view from the object definition
         definitionLoader.get(this.props.objType, function(def){
@@ -94,6 +104,11 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
         // By default just immediately execute the callback because nothing needs to be done
         opt_callback();
     }
+    
+    // Capture an advance search click and handle browsing for a referenced entity
+    alib.events.listen(this.eventsObj_, "display_advance_search", function(evt) {
+        this.displayAdvanceSearch();
+    }.bind(this));
 
 }
 
@@ -107,14 +122,16 @@ EntityBrowserController.prototype.render = function() {
 
     // Define the data
 	var data = {
+		eventsObj: this.eventsObj_,
 		title: this.props.browsebytitle ||this.props.title,
+        entities: new Array(),
         deviceSize: netric.getApplication().device.size,
         layout: (netric.getApplication().device.size === netric.Device.sizes.small)
             ? "compact" : "table",
         actionHandler: this.actions_,
         browserView:this.browserView_,
-        onEntityListClick: function(objType, oid) {
-            this.onEntityListClick(objType, oid);
+        onEntityListClick: function(objType, oid, title) {
+            this.onEntityListClick(objType, oid, title);
         }.bind(this),
         onEntityListSelect: function(oid) {
             if (oid) {
@@ -132,10 +149,8 @@ EntityBrowserController.prototype.render = function() {
         onPerformAction: function(actionName) {
             this.performActionOnSelected(actionName);
         }.bind(this),
-        onAdvanceSearch: function() {
-            this.onAdvanceSearch();
-        }.bind(this),
-        onNavBtnClick: this.props.onNavBtnClick || null
+        onNavBtnClick: this.props.onNavBtnClick || null,
+        onNavBackBtnClick: this.props.onNavBackBtnClick || null
 	}
 
 	// Render browser component
@@ -171,14 +186,6 @@ EntityBrowserController.prototype.render = function() {
         }
     );
 
-    // Add route to display advance search
-	this.addSubRoute("advancesearch",
-		AdvanceSearchController, {
-            type: controller.types.PAGE,
-            objType: this.props.objType
-        }
-	);
-    
 	// Add route to compose a new entity
 	this.addSubRoute(":eid",
 		EntityController, {
@@ -190,8 +197,12 @@ EntityBrowserController.prototype.render = function() {
 
 /**
  * User clicked/touched an entity in the list
+ *
+ * @param {string} objType
+ * @param {string} oid
+ * @param {string} title The textual name or title of the entity
  */
-EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
+EntityBrowserController.prototype.onEntityListClick = function(objType, oid, title) {
     if (objType && oid) {
         // Mark the entity as selected
         if (this.props.objType == objType) {
@@ -203,8 +214,14 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid) {
         // Check to see if we have an onEntityClick callback registered
         if (this.props.onEntityClick) {
             this.props.onEntityClick(objType, oid);
+        } else if (this.props.onSelect) {
+            // Check to see if we are running in a browser select mode (like select user)
+            this.props.onSelect(objType, oid, title);
+            this.unload();
         } else if (this.getRoutePath()) {
             netric.location.go(this.getRoutePath() + "/" + oid);
+        } else {
+            console.error("User clicked on an entity but there are no handlers");
         }
     }
 }
@@ -380,11 +397,26 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 	}
 }
 
+
 /**
  * Display Advance search
+ *
  */
-EntityBrowserController.prototype.onAdvanceSearch = function() {
-	netric.location.go(this.getRoutePath() + "/advancesearch");
+EntityBrowserController.prototype.displayAdvanceSearch = function() {
+
+    /*
+     * We require it here to avoid a circular dependency where the
+     * controller requires the view and the view requires the controller
+     */
+    var AdvanceSearchController = require("./AdvanceSearchController");
+    var advanceSearch = new AdvanceSearchController();
+    
+    advanceSearch.collection = this.collection_; // Pass the collection of entities in the advance search
+    advanceSearch.load({
+        type: controller.types.DIALOG,
+        title: "Advance Search",
+        objType: "note", // This is set statically for now
+    }); 
 }
 
 module.exports = EntityBrowserController;

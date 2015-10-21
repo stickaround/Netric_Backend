@@ -104,14 +104,14 @@ var List = React.createClass({
                             selected={selected}
                             entity={entity}
                             browserView={this.props.browserView}
-                            onClick={this._sendClick.bind(null, entity.objType, entity.id)}
+                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
                             onSelect={this._sendSelect.bind(null, entity.id)} />;
                     } else {
                         item = <ListItem
                             key={entity.id}
                             selected={selected}
                             entity={entity}
-                            onClick={this._sendClick.bind(null, entity.objType, entity.id)}
+                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
                             onSelect={this._sendSelect.bind(null, entity.id)} />;
                     }
 
@@ -155,10 +155,11 @@ var List = React.createClass({
      *
      * @param {string} objType
      * @param {string} oid
+     * @param {string} title The textual name or title of the entity
      */
-    _sendClick: function(objType, oid) {
+    _sendClick: function(objType, oid, title) {
         if (this.props.onEntityListClick) {
-            this.props.onEntityListClick(objType, oid);
+            this.props.onEntityListClick(objType, oid, title);
         }
     },
 

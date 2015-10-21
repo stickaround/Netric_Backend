@@ -385,4 +385,13 @@ Collection.prototype.getLimit = function() {
     return this.limit_;
 }
 
+/**
+ * Get the entity definition
+ *
+ * @return {array}
+ */
+Collection.prototype.getEntityFields = function() {
+    return this.entityDefinition_.fields;
+}
+
 module.exports = Collection;

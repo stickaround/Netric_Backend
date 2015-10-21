@@ -32,6 +32,7 @@ var SearchCondition = React.createClass({
         conditionFields: React.PropTypes.array,
         conditionIndex: React.PropTypes.number,
         objType: React.PropTypes.string.isRequired,
+        eventsObj: React.PropTypes.object,
     },
 
     getInitialState: function() {
@@ -109,6 +110,18 @@ var SearchCondition = React.createClass({
     		case 'fkey_multi':
     			this._getGroupingsInputType(field);
     			break;
+    		case 'object':
+    			var xmlNode = "<field name='" + field.name + "'></field>";
+    			var inputType = (<TextField 
+    									eventsObj={this.props.eventsObj}
+    									xmlNode={xmlNode} 
+    			/>)
+    			
+    			
+    			this.setState({
+    	    		inputType: inputType
+    	    	});
+    			break;
     		default:
     			this.setState({
     	    		operators: this._getConditionOperators(field),
@@ -126,6 +139,38 @@ var SearchCondition = React.createClass({
      */
     _handleRemoveCondition: function (conditionIndex) {
     	if(this.props.onRemove) this.props.onRemove('conditions', conditionIndex);
+    },
+    
+    /**
+     * Get the groupings data of the field selected
+     *
+     * @param {array} field	Collection of the field selected information
+     * @private
+     */
+    _getGroupingsInputType: function(field) {
+    	var fieldName = field.name;
+    	
+    	// Make sure the groupings cache object is initialized for this object
+        if (!this._groupingLoaders) {
+            this._groupingLoaders = {};
+        }
+        
+        if (this._groupingLoaders[fieldName]) {
+            var groupings = this._groupingLoaders[fieldName];
+            this._createGroupingsMenu(groupings, field);
+        }
+        else {
+            /* We really only want to setup the groupings once because we
+             * will be calling this function any time a change is made to the
+             * groupings and we do not want to add additional listeners.
+             */
+            groupingLoader.get(this.props.objType, fieldName, function(groupings) {
+            	this._createGroupingsMenu(groupings, field);
+            	
+            	// Cache grouping so we do not try to set it up again with listeners
+            	this._groupingLoaders[fieldName] = groupings;
+            }.bind(this));            
+        }
     },
     
     

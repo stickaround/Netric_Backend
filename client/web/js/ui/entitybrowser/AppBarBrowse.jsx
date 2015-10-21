@@ -20,7 +20,10 @@ var AppBarBrowse = React.createClass({
 
     propTypes: {
         title : React.PropTypes.string,
+        // Navigation button action - hamburger to the left of the title
         onNavBtnClick: React.PropTypes.func,
+        // Navigation back button - left arrow to the eft of the title
+        onNavBackBtnClick: React.PropTypes.func,
         onSearchChange: React.PropTypes.func,
         onPerformAction: React.PropTypes.func,
         onSelectAll: React.PropTypes.func,
@@ -28,6 +31,7 @@ var AppBarBrowse = React.createClass({
         selectedEntities: React.PropTypes.array,
         actionHandler: React.PropTypes.object,
         onAdvanceSearch: React.PropTypes.func,
+        eventsObj: React.PropTypes.object,
     },
 
     /**
@@ -68,12 +72,20 @@ var AppBarBrowse = React.createClass({
             );
 
             // Create AppBar with search form
-            elementRight = <AppBarSearch onSearch={this.handleSearchChange_} onAdvanceSearch={this.props.onAdvanceSearch} />;
+            elementRight = <AppBarSearch onSearch={this.handleSearchChange_} eventsObj={this.props.eventsObj} />;
 
             // Clear the title
             title = null;
 
         } else {
+
+            if (this.props.onNavBackBtnClick) {
+                elemmentLeft = (
+                    <IconButton
+                        iconClassName="fa fa-arrow-left"
+                        onClick={this.handleBackClick_} />
+                );
+            }
 
             // Show default AppBar with nothing selected and no search
             elementRight = (
@@ -128,6 +140,18 @@ var AppBarBrowse = React.createClass({
     deSelectAll_: function(evt) {
         if (this.props.onSelectAll) {
             this.props.onSelectAll(false);
+        }
+    },
+
+    /**
+     * The user clicked back in the toolbar/appbar
+     *
+     * @param {DOMEvent} evt
+     * @private
+     */
+    handleBackClick_: function(evt) {
+        if (this.props.onNavBackBtnClick) {
+            this.props.onNavBackBtnClick();
         }
     }
 
