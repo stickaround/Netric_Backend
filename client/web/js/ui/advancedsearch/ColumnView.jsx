@@ -30,7 +30,7 @@ var ColumnView = React.createClass({
     		
         return (
         		<div className="row" key={this.props.viewIndex}>
-					<div className="col-small-2">
+					<div className="col-small-3">
 						<DropDownMenu menuItems={this.props.viewFields} />
 					</div>
 	    			<div className="col-small-1">
@@ -49,6 +49,15 @@ var ColumnView = React.createClass({
     _handleRemoveOrder: function (viewIndex) {
     	if(this.props.onRemove) this.props.onRemove('columnView', viewIndex);
     },
+    
+    /**
+     * Returns the Sort Order set
+     *
+     * @public
+     */
+    getCriteria: function() {
+        return null;
+    }
 });
 
 module.exports = ColumnView;

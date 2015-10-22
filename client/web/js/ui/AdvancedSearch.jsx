@@ -7,24 +7,25 @@
 
 var React = require('react');
 var Chamel = require('chamel');
-var SearchCondition = require('./advancesearch/SearchCondition.jsx');
-var SortOrder = require('./advancesearch/SortOrder.jsx');
-var ColumnView = require('./advancesearch/ColumnView.jsx');
+var SearchCondition = require('./advancedsearch/SearchCondition.jsx');
+var SortOrder = require('./advancedsearch/SortOrder.jsx');
+var ColumnView = require('./advancedsearch/ColumnView.jsx');
 var Dialog = Chamel.Dialog;
 var IconButton = Chamel.IconButton;
+var FlatButton = Chamel.FlatButton;
 
 var searchCriteria = ['conditions', 'sortOrder', 'columnView'];
 
 /**
  * Module shell
  */
-var AdvanceSearch = React.createClass({
+var AdvancedSearch = React.createClass({
 
 	propTypes: {
 		layout : React.PropTypes.string,
 		title : React.PropTypes.string,
 		deviceSize: React.PropTypes.number,
-		entityFields: React.PropTypes.array,
+		entity: React.PropTypes.object,
 		objType: React.PropTypes.string,
 		collectionLoading: React.PropTypes.bool,
 		eventsObj: React.PropTypes.object,
@@ -47,7 +48,7 @@ var AdvanceSearch = React.createClass({
 	render: function() {
 		
 		var fields = this._getEntityFields();
-    	var criteriaDisplay = [];
+		var criteriaDisplay = [];
     	
     	for(var idx in searchCriteria)
     	{	
@@ -62,7 +63,7 @@ var AdvanceSearch = React.createClass({
     		
     		// Check if the current criteria has the initial value for display
     		if(!criteriaDisplay[criteria]) {
-    			criteriaDisplay[criteria] = [];
+    		    criteriaDisplay[criteria] = [];
     		}
     		
     		var removedCriteria = this.state.removedCriteria[criteria];
@@ -72,7 +73,7 @@ var AdvanceSearch = React.createClass({
         		
         		// Check if the current index criteria is already removed
         		if(removedCriteria.indexOf(index) == -1) {
-        			criteriaDisplay[criteria].push(
+        		    criteriaDisplay[criteria].push(
         											this._getCriteriaDisplay(criteria, fields, index)
         										);
         		}
@@ -95,6 +96,9 @@ var AdvanceSearch = React.createClass({
 						<span className='advance-search-title'>Column View: </span>
 						{criteriaDisplay['columnView']}
 						<IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
+					</div>
+					<div>
+					    <FlatButton label="Apply" onClick={this._handleAdvancedSearch} />
 					</div>
 				</div>
 		);
@@ -134,20 +138,60 @@ var AdvanceSearch = React.createClass({
     },
     
     /**
+     * Executes the advanced search
+     *
+     * @private
+     */
+    _handleAdvancedSearch: function() {
+        
+        var advanceSearchCriteria = [];
+        
+        for(var idx in searchCriteria)
+        {   
+            // Get the current criteria
+            var criteria = searchCriteria[idx];
+            
+            var removedCriteria = this.state.removedCriteria[criteria];
+            var count = this.state.criteriaCount[criteria];
+            
+            if(!advanceSearchCriteria[criteria]) {
+                advanceSearchCriteria[criteria] = [];
+            }
+            
+            for(var index=0; index<count; index++) {
+                var ref = criteria + index.toString();
+                var currentCriteria = this.refs[ref];
+                
+                // Check if the current index criteria is already removed
+                if(removedCriteria.indexOf(index) == -1 && currentCriteria) {
+                    advanceSearchCriteria[criteria].push(currentCriteria.getCriteria());
+                }
+            }   
+        }
+        
+        
+        alib.events.triggerEvent(
+                this.props.eventsObj,
+                "apply_advance_search",
+                {criteria: advanceSearchCriteria}
+            );
+    },
+    
+    /**
      * Gets the fields to be used in search criteria
      *
      * @private
      */
     _getEntityFields: function() {
-    	if(this.props.entityFields == null) {
+    	if(this.props.entity == null) {
     		return null;
     	}
     	
-    	//var initialTest = {payload: -1, name: 'groups', text: 'Groups', type: 'fkey'};
+    	//var initialTest = {payload: -1, name: 'note', text: 'Note', type: 'object'};
     	
     	var fields = [];
     	
-    	this.props.entityFields.map(function(field) {
+    	this.props.entity.def.fields.map(function(field) {
     		fields.push({
     						payload: field.id,
     						name: field.name,
@@ -171,11 +215,15 @@ var AdvanceSearch = React.createClass({
     _getCriteriaDisplay: function(criteria, fields, index) {
     	
     	var display = null;
+    	var ref = criteria + index.toString();
+    	
     	switch(criteria) {
     		case 'conditions':
+    		    
     			// Push the search condition component to the array for display
     			display = ( <SearchCondition key={index}
-    									eventsObj={this.props.eventsObj}
+    			                        ref={ref}
+    			                        entity={this.props.entity}
     									objType={this.props.objType}
     					    			conditionFields={fields} 
     					    			onRemove={this._handleRemoveCriteria}
@@ -187,7 +235,7 @@ var AdvanceSearch = React.createClass({
 										objType={this.props.objType}
 					    				sortFields={fields} 
 					    				onRemove={this._handleRemoveCriteria}
-					    				conditionIndex={index} /> );
+					    				sortIndex={index} /> );
     			break;
 			case 'columnView':
     			// Push the sort by component to the array for display
@@ -204,4 +252,4 @@ var AdvanceSearch = React.createClass({
 
 });
 
-module.exports = AdvanceSearch;
+module.exports = AdvancedSearch;

@@ -48,7 +48,7 @@ var ObjectField = React.createClass({
                     objType={this.props.entity.def.objType}
                     fieldName={fieldName}
                     value={fieldValue}
-                    label={this.props.entity.getValue(fieldName)}
+                    label={fieldValue}
                     />
             );
         } else {

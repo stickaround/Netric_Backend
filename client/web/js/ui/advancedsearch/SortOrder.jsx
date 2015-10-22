@@ -57,6 +57,15 @@ var SortOrder = React.createClass({
     _handleRemoveOrder: function (sortIndex) {
     	if(this.props.onRemove) this.props.onRemove('sortOrder', sortIndex);
     },
+    
+    /**
+     * Returns the Sort Order set
+     *
+     * @public
+     */
+    getCriteria: function() {
+        return null;
+    }
 });
 
 module.exports = SortOrder;

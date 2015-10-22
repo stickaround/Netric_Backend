@@ -81,6 +81,15 @@ EntityBrowserController.prototype.browserView_ = null;
 EntityBrowserController.prototype.eventsObj_ = null;
 
 /**
+ * A collection of advanced search criteria that contains data for conditions, sort by and column view
+ *
+ * @private
+ * @type {Array}
+ */
+EntityBrowserController.prototype.advancedSearchCriteria_ = null;
+
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -107,7 +116,12 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
     
     // Capture an advance search click and handle browsing for a referenced entity
     alib.events.listen(this.eventsObj_, "display_advance_search", function(evt) {
-        this.displayAdvanceSearch();
+        this.displayAdvancedSearch();
+    }.bind(this));
+    
+    // Capture an advance search click and handle browsing for a referenced entity
+    alib.events.listen(this.eventsObj_, "apply_advance_search", function(evt) {
+        this.onAdvancedSearch(evt.data.criteria);
     }.bind(this));
 
 }
@@ -227,6 +241,17 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
 }
 
 /**
+ * Fired if the user applies the advanced search conditions
+ * 
+ * @param {netric/entity/Where[]} criteria  Array of advanced search criteria that contains data for conditions, sort by and column view
+ */
+EntityBrowserController.prototype.onAdvancedSearch = function(criteria) {
+    this.advancedSearchCriteria_ = criteria;
+    
+    this.loadCollection();
+}
+
+/**
  * Fired if the user changes search conditions in the UI
  * 
  * @param {string} fullText Search string
@@ -234,11 +259,9 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
  */
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
-
     this.userSearchString_ = fullText;
 
     this.loadCollection();
-
 }
 
 /**
@@ -259,8 +282,15 @@ EntityBrowserController.prototype.loadCollection = function() {
     if (this.userSearchString_) {
         this.collection_.where("*").equalTo(this.userSearchString_);
     }
-
-    if (this.browserView_) {
+    
+    
+    if(this.advancedSearchCriteria_) { // If advanced search conditions are set, it will override the browserView's conditions
+        var conditions = this.advancedSearchCriteria_.conditions;
+        for (var i in conditions) {
+            this.collection_.addWhere(conditions[i]);
+        }
+    }
+    else if (this.browserView_) {
         var viewConditions = this.browserView_.getConditions();
         for (var i in viewConditions) {
             this.collection_.addWhere(viewConditions[i]);
@@ -402,19 +432,19 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
  * Display Advance search
  *
  */
-EntityBrowserController.prototype.displayAdvanceSearch = function() {
+EntityBrowserController.prototype.displayAdvancedSearch = function() {
 
     /*
      * We require it here to avoid a circular dependency where the
      * controller requires the view and the view requires the controller
      */
-    var AdvanceSearchController = require("./AdvanceSearchController");
-    var advanceSearch = new AdvanceSearchController();
+    var AdvancedSearchController = require("./AdvancedSearchController");
+    var advancedSearch = new AdvancedSearchController();
     
-    advanceSearch.collection = this.collection_; // Pass the collection of entities in the advance search
-    advanceSearch.load({
+    advancedSearch.eventsObj = this.eventsObj_;
+    advancedSearch.load({
         type: controller.types.DIALOG,
-        title: "Advance Search",
+        title: "Advanced Search",
         objType: "note", // This is set statically for now
     }); 
 }

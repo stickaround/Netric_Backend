@@ -19,7 +19,7 @@ var AppBarSearch = React.createClass({
 	
 	propTypes: {
 		onSearch: React.PropTypes.func,
-		onAdvanceSearch: React.PropTypes.func,
+		onAdvancedSearch: React.PropTypes.func,
 		title : React.PropTypes.string,
 		eventsObj: React.PropTypes.object,
 	},
@@ -47,7 +47,7 @@ var AppBarSearch = React.createClass({
 				
 				<IconButton
 				iconClassName="fa fa-search-plus"
-					onClick={this.handleAdvanceSearch_}>
+					onClick={this.handleAdvancedSearch_}>
 				</IconButton>
 				</div>
 				
@@ -74,11 +74,10 @@ var AppBarSearch = React.createClass({
 		this.props.onSearch(this.refs.searchInput.getValue());
 	},
 	
-	handleAdvanceSearch_: function() {
+	handleAdvancedSearch_: function() {
 		alib.events.triggerEvent(
 	            this.props.eventsObj,
-	            "display_advance_search",
-	            {fieldName: 'user_id'}
+	            "display_advance_search"
 	        );
 	}
 });

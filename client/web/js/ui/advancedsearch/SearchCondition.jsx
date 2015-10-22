@@ -8,13 +8,14 @@
 var React = require('react');
 var Chamel = require('chamel');
 var groupingLoader = require("../../entity/groupingLoader");
+var ObjectSelect = require("../entity/ObjectSelect.jsx");
 var DropDownMenu = Chamel.DropDownMenu;
 var TextField = Chamel.TextField;
 var IconButton = Chamel.IconButton;
 
 var bLogic = [
-                { payload: '&&', text: 'And' },
-                { payload: '||', text: 'Or' },
+                { payload: 'and', text: 'And' },
+                { payload: 'or', text: 'Or' },
             ];
 
 var boolInputType = [
@@ -32,7 +33,7 @@ var SearchCondition = React.createClass({
         conditionFields: React.PropTypes.array,
         conditionIndex: React.PropTypes.number,
         objType: React.PropTypes.string.isRequired,
-        eventsObj: React.PropTypes.object,
+        entity: React.PropTypes.object,
     },
 
     getInitialState: function() {
@@ -72,18 +73,28 @@ var SearchCondition = React.createClass({
     	// If inputTypes are not set, then get the condition inputTypes based on the initial value of field condition
     	if(inputType == null && searchFields) {
     		inputType = this._getConditionInputType(field);
-    	}	
+    	}
+    	
+    	// Set the default condition values
+    	if(!this._condition) {
+    	    this._condition = {
+    	                        bLogic: bLogic[0].payload, 
+    	                        fieldName: field.name, 
+    	                        operator: operators[0].payload, 
+    	                        value: null
+    	                        };
+    	}
     		
         return (
         		<div className="row" key={this.props.conditionIndex}>
 					<div className="col-small-1">
-	    				<DropDownMenu menuItems={bLogic} />
+	    				<DropDownMenu menuItems={bLogic} onChange={this._handleCriteriaClick.bind(this, 'bLogic')} />
 					</div>
 	    			<div className="col-small-4">
 	    				<DropDownMenu menuItems={searchFields} onChange={this._handleFieldClick} />
 					</div>
 					<div className="col-small-4" >
-						<DropDownMenu menuItems={operators} />
+						<DropDownMenu menuItems={operators} onChange={this._handleCriteriaClick.bind(this, 'operator')} />
 					</div>
 					<div className="col-small-2">
 						{inputType}
@@ -93,6 +104,21 @@ var SearchCondition = React.createClass({
 					</div>
 				</div>
         );
+    },
+    
+    /**
+     * Callback used to handle commands when user selects the blogic dropdown
+     *
+     * @param {string} type     Type of criteria that was changed
+     * @param {DOMEvent} e      Reference to the DOM event being sent
+     * @param {Integer} key     The index of the menu clicked
+     * @param {array} field     The object value of the menu clicked
+     * @private
+     */
+    _handleCriteriaClick: function(type, e, key, field) {
+        this._condition[type] = field.payload;
+        
+        console.log(this._condition);
     },
 
     /**
@@ -104,6 +130,10 @@ var SearchCondition = React.createClass({
      * @private
      */
     _handleFieldClick: function(e, key, field) {
+        
+        // Update the condition fieldname
+        this._condition.fieldName = field.name;
+        
     	switch(field.type)
     	{
     		case 'fkey':
@@ -111,11 +141,15 @@ var SearchCondition = React.createClass({
     			this._getGroupingsInputType(field);
     			break;
     		case 'object':
-    			var xmlNode = "<field name='" + field.name + "'></field>";
-    			var inputType = (<TextField 
-    									eventsObj={this.props.eventsObj}
-    									xmlNode={xmlNode} 
-    			/>)
+    			var fieldValue = this.props.entity.getValue(field.name);
+    	        
+    			var inputType = (<ObjectSelect
+                                    onChange={this._handleSetValue}
+                                    objType={this.props.objType}
+                                    fieldName={field.name}
+                                    value={fieldValue}
+                                    label={fieldValue}
+                                    />)
     			
     			
     			this.setState({
@@ -139,6 +173,10 @@ var SearchCondition = React.createClass({
      */
     _handleRemoveCondition: function (conditionIndex) {
     	if(this.props.onRemove) this.props.onRemove('conditions', conditionIndex);
+    },
+    
+    _handleInputText: function(e) {
+        console.log(e);
     },
     
     /**
@@ -189,7 +227,7 @@ var SearchCondition = React.createClass({
     			inputType = ( <DropDownMenu menuItems={boolInputType} /> )
     			break;
     		default:
-    			inputType = ( <TextField hintText="Search" /> )
+    		    inputType = ( <TextField ref="inputType" hintText="Search" /> )
     			break;
     	}
     	
@@ -266,62 +304,84 @@ var SearchCondition = React.createClass({
 	        case 'fkey_multi':
 	        case 'fkey':
 	            var operators = [
-	                                {paylod: "is_equal", text: "is equal to"},
-	                                {paylod: "is_not_equal", text: "is not equal to"}
+	                                {payload: "is_equal", text: "is equal to"},
+	                                {payload: "is_not_equal", text: "is not equal to"}
 	                            ];    
 	            break;
 	        case 'number':
 	        case 'real':
 	        case 'integer':
 	            var operators = [
-	                                {paylod: "is_equal", text: "is equal to"},
-	                                {paylod: "is_not_equal", text: "is not equal to"},
-	                                {paylod: "is_greater", text: "is greater than"},
-	                                {paylod: "is_less", text: "is less than"},
-	                                {paylod: "is_greater_or_equal", text: "is greater than or equal to"},
-	                                {paylod: "is_less_or_equal", text: "is less than or equal to"},
-	                                {paylod: "begins_with", text: "begins with"}
+	                                {payload: "is_equal", text: "is equal to"},
+	                                {payload: "is_not_equal", text: "is not equal to"},
+	                                {payload: "is_greater", text: "is greater than"},
+	                                {payload: "is_less", text: "is less than"},
+	                                {payload: "is_greater_or_equal", text: "is greater than or equal to"},
+	                                {payload: "is_less_or_equal", text: "is less than or equal to"},
+	                                {payload: "begins_with", text: "begins with"}
 	                            ];
 	            break;
 	        case 'date':
 	        case 'timestamp':
 	            var operators = [
-	                                {paylod: "is_equal", text: "is equal to"},
-	                                {paylod: "is_not_equal", text: "is not equal to"},
-	                                {paylod: "is_greater", text: "is greater than"},
-	                                {paylod: "is_less", text: "is less than"},
-	                                {paylod: "day_is_equal", text: "day is equal to"},
-	                                {paylod: "month_is_equal", text: "month is equal to"},
-	                                {paylod: "year_is_equal", text: "year is equal to"},
-	                                {paylod: "is_greater_or_equal", text: "is greater than or equal to"},
-	                                {paylod: "is_less_or_equal", text: "is less than or equal to"},
-	                                {paylod: "last_x_days", text: "within last (x) days"},
-	                                {paylod: "last_x_weeks", text: "within last (x) weeks"},
-	                                {paylod: "last_x_months", text: "within last (x) months"},
-	                                {paylod: "last_x_years", text: "within last (x) years"},
-	                                {paylod: "next_x_days", text: "within next (x) days"},
-	                                {paylod: "next_x_weeks", text: "within next (x) weeks"},
-	                                {paylod: "next_x_months", text: "within next (x) months"},
-	                                {paylod: "next_x_years", text: "within next (x) years"}
+	                                {payload: "is_equal", text: "is equal to"},
+	                                {payload: "is_not_equal", text: "is not equal to"},
+	                                {payload: "is_greater", text: "is greater than"},
+	                                {payload: "is_less", text: "is less than"},
+	                                {payload: "day_is_equal", text: "day is equal to"},
+	                                {payload: "month_is_equal", text: "month is equal to"},
+	                                {payload: "year_is_equal", text: "year is equal to"},
+	                                {payload: "is_greater_or_equal", text: "is greater than or equal to"},
+	                                {payload: "is_less_or_equal", text: "is less than or equal to"},
+	                                {payload: "last_x_days", text: "within last (x) days"},
+	                                {payload: "last_x_weeks", text: "within last (x) weeks"},
+	                                {payload: "last_x_months", text: "within last (x) months"},
+	                                {payload: "last_x_years", text: "within last (x) years"},
+	                                {payload: "next_x_days", text: "within next (x) days"},
+	                                {payload: "next_x_weeks", text: "within next (x) weeks"},
+	                                {payload: "next_x_months", text: "within next (x) months"},
+	                                {payload: "next_x_years", text: "within next (x) years"}
 	                            ];
 	            break;
 	        case 'bool':
 	            var operators = [
-	                                {paylod: "is_equal", text: "is equal to"},
-	                                {paylod: "is_not_equal", text: "is not equal to"}
+	                                {payload: "is_equal", text: "is equal to"},
+	                                {payload: "is_not_equal", text: "is not equal to"}
 	                            ];
 	            break;
 	        default: // Text
 	            var operators = [
-	                                {paylod: "is_equal", text: "is equal to"},
-	                                {paylod: "is_not_equal", text: "is not equal to"},
-	                                {paylod: "begins_with", text: "begins with"},
-	                                {paylod: "contains", text: "contains"}
+	                                {payload: "is_equal", text: "is equal to"},
+	                                {payload: "is_not_equal", text: "is not equal to"},
+	                                {payload: "begins_with", text: "begins with"},
+	                                {payload: "contains", text: "contains"}
 	                            ];
 	            break;
     	}
     	
     	return operators;
+    },
+    
+    /**
+     * Returns the condition set
+     *
+     * @public
+     */
+    getCriteria: function() {
+        var value = null;
+        switch(this.state.type) {
+            case 'bool':
+                break;
+            default:
+                //value = this.state.inputType.type.prototype.getValue();
+                value = this.refs.inputType.getValue();
+                break;
+        }
+        
+        // Set the value of the condition
+        this._condition.value = value;
+        
+        return this._condition;
     }
 });
 
