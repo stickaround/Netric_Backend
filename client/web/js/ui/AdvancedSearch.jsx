@@ -52,11 +52,11 @@ var AdvancedSearch = React.createClass({
 	                         { text: 'Save', onClick: this._handleSaveView, ref: 'save' }
 	                     ]; 
 	    
-		var criteriaDisplay = [];
+	    var criteriaDisplay = [];
     	
-    	for(var idx in searchCriteria)
-    	{	
-    		// Get the current criteria
+	    for(var idx in searchCriteria)
+	    {	
+	        // Get the current criteria
     		var criteria = searchCriteria[idx];
     		
     		// Check if the current criteria has the default values for count and removed entries
@@ -294,7 +294,7 @@ var AdvancedSearch = React.createClass({
     					    			index={index}
     			                        savedCondition={savedData} /> );
     			break;
-			case 'sortOrder':
+    		case 'sortOrder':
     			// Push the sort by component to the array for display
     			display = ( <SortOrder 	key={index}
     			                        ref={ref}
@@ -304,7 +304,7 @@ var AdvancedSearch = React.createClass({
 					    				index={index}
     			                        savedOrder={savedData} /> );
     			break;
-			case 'columnView':
+    		case 'columnView':
     			// Push the sort by component to the array for display
     			display = ( <ColumnView key={index}
     			                        ref={ref}
