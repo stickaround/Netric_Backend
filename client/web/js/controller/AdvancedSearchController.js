@@ -45,6 +45,23 @@ AdvancedSearchController.prototype.entity_ = null;
 AdvancedSearchController.prototype.eventsObj = null;
 
 /**
+ * A collection of advanced search criteria that contains data for conditions, sort by and column view that were already set
+ *
+ * @public
+ * @type {Object}
+ */
+AdvancedSearchController.prototype.savedCriteria = null;
+
+/**
+ * View being used to filter and order the collection.
+ * This will be used to get the initial data for Advanced Search if there is no search view set.
+ *
+ * @type {BrowserView}
+ * @public
+ */
+AdvancedSearchController.prototype.browserView = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -70,6 +87,11 @@ AdvancedSearchController.prototype.onLoad = function(opt_callback) {
     if(callbackWhenLoaded) {
         callbackWhenLoaded();
     }
+    
+    // Capture an advance search save
+    alib.events.listen(this.eventsObj, "save_advance_search", function(evt) {
+        this.saveAdvancedSearch(evt.data);
+    }.bind(this));
 }
 
 /**
@@ -81,12 +103,48 @@ AdvancedSearchController.prototype.render = function() {
 	var entities = new Array();
 	var entityFields = new Array();
 	
+	// If saved criteria is not set, then we need to get the initial values from the browser view
+	if(this.savedCriteria == null && this.browserView) {
+	    this.savedCriteria = [];
+	    
+	    // Get the Conditions from browser view
+	    var conditions = this.browserView.getConditions();
+	    if(conditions) {
+	        this.savedCriteria['conditions'] = [];
+	        for (var idx in conditions) {
+	            this.savedCriteria['conditions'].push(conditions[idx]);
+	        }
+	    }
+	    
+	    // Get the order by from the browser view
+        var sortOrder = this.browserView.getOrderBy()
+        if(sortOrder) {
+            this.savedCriteria['sortOrder'] = [];
+            for (var idx in sortOrder) {
+                this.savedCriteria['sortOrder'].push({
+                                                        fieldName: sortOrder[idx].field,
+                                                        direction: sortOrder[idx].direction,
+                                                    });
+            }
+        }
+	    
+	    // Get the columns from the browser view
+	    var columns = this.browserView.getTableColumns()
+	    if(columns) {
+	        this.savedCriteria['columnView'] = [];
+            for (var idx in columns) {
+                this.savedCriteria['columnView'].push({fieldName: columns[idx]});
+            }
+	    }
+	}
+	
     // Define the data
 	var data = {
 	        eventsObj: this.eventsObj,
 	        title: this.props.title || "Advanced Search",
 	        entity: this.entity_,
 	        objType: this.props.objType,
+	        savedCriteria: this.savedCriteria,
 	        deviceSize: netric.getApplication().device.size,
 	        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
 	        ? "compact" : "table",
@@ -97,6 +155,28 @@ AdvancedSearchController.prototype.render = function() {
             React.createElement(UiAdvancedSearch, data),
             domCon
     );
+}
+
+/**
+ * TODO
+ * Save the current advanced search settings
+ */
+AdvancedSearchController.prototype.saveAdvancedSearch = function(searchData) {
+    
+    var data = [['obj_type', this.props.objType], ['name', searchData.name], ['description', searchData.description]];
+    
+    for(var criteria in searchData.criteria) {
+        var criteriaData = searchData.criteria[idx];
+        
+        switch(criteria) {
+            case 'conditions':
+                break;
+            case 'sortOrder':
+                break;
+            case 'columnView':
+                break;
+        }
+    }
 }
 
 module.exports = AdvancedSearchController;

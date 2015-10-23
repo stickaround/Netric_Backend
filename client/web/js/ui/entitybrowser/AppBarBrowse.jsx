@@ -30,7 +30,6 @@ var AppBarBrowse = React.createClass({
         deviceSize: React.PropTypes.number,
         selectedEntities: React.PropTypes.array,
         actionHandler: React.PropTypes.object,
-        onAdvancedSearch: React.PropTypes.func,
         eventsObj: React.PropTypes.object,
     },
 

@@ -195,19 +195,31 @@ Collection.prototype.load = function(opt_callback) {
      */
 
     var whereConditions = this.getConditions();
+    var sortOrder = this.getOrderBy();
 
     // If there are where conditions then initialize the param in the request object
     if (whereConditions.length > 0) {
         requestParams.where = [];
-    }
-
-    for (var i in whereConditions) {
-        requestParams.where.push(
-            whereConditions[i].bLogic + "," +
-            whereConditions[i].fieldName + "," +
-            whereConditions[i].operator + "," +
-            '"' + whereConditions[i].value + '"' // Escape for csv quotes
-        );
+        
+        for (var i in whereConditions) {
+            requestParams.where.push(
+                whereConditions[i].bLogic + "," +
+                whereConditions[i].fieldName + "," +
+                whereConditions[i].operator + "," +
+                '"' + whereConditions[i].value + '"' // Escape for csv quotes
+            );
+        }
+    }    
+    
+    if(sortOrder.length > 0) {
+        requestParams.order_by = [];
+        
+        for (var i in sortOrder) {
+            requestParams.order_by.push(
+                    sortOrder[i].field + "," +
+                    sortOrder[i].direction  + ","
+            );
+        }
     }
 
     // Send request to the server (listeners attached above will handle onload or error)

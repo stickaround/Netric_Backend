@@ -43,7 +43,19 @@ var ListItemTableRow = React.createClass({
          *
          * @var {netric/entity/BrowserView}
          */
-        browserView: React.PropTypes.object
+        browserView: React.PropTypes.object,
+        
+        /**
+         * Contains settings from Advanced Search to determine which columns to be displayed
+         *
+         */
+        columnView: React.PropTypes.array,
+    },
+    
+    getDefaultProps: function() {
+        return {
+            columnView: null
+        }
     },
 
     /**
@@ -125,15 +137,26 @@ var ListItemTableRow = React.createClass({
      * @return {string[]}
      */
     getFieldsToRender_: function() {
-        var fields = (this.props.browserView) ? this.props.browserView.getTableColumns() : [];
-
-        // If no table columns are defined in the view, then guess
-        if (fields.length < 1) {
-            if (this.props.entity.def.getNameField()) {
-                fields.push(this.props.entity.def.getNameField());
+        
+        var fields = [];
+        
+        // Check if column view from advanced search is set. 
+        if(this.props.columnView) {
+            for(var idx in this.props.columnView) {
+                fields.push(this.props.columnView[idx].fieldName);
             }
+        }
+        else {
+            fields = (this.props.browserView) ? this.props.browserView.getTableColumns() : [];
+            
+            // If no table columns are defined in the view, then guess
+            if (fields.length < 1) {
+                if (this.props.entity.def.getNameField()) {
+                    fields.push(this.props.entity.def.getNameField());
+                }
 
-            // TODO: Add more common fields here
+                // TODO: Add more common fields here
+            }
         }
 
         return fields;

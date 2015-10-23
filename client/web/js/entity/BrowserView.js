@@ -174,6 +174,15 @@ BrowserView.prototype.getConditions = function() {
 }
 
 /**
+ * Get the sort order
+ *
+ * @return {string[]}
+ */
+BrowserView.prototype.getOrderBy = function() {
+    return this.orderBy_;
+}
+
+/**
  * Get the table columns to view
  *
  * @return {string[]}

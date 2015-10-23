@@ -13,12 +13,12 @@ var DropDownMenu = Chamel.DropDownMenu;
 var TextField = Chamel.TextField;
 var IconButton = Chamel.IconButton;
 
-var bLogic = [
+var bLogicMenu = [
                 { payload: 'and', text: 'And' },
                 { payload: 'or', text: 'Or' },
             ];
 
-var boolInputType = [
+var boolInputMenu = [
               { payload: 'true', text: 'true' },
               { payload: 'false', text: 'false' },
           ];
@@ -29,85 +29,94 @@ var boolInputType = [
 var SearchCondition = React.createClass({
 
     propTypes: {
-    	onRemove: React.PropTypes.func,
-        conditionFields: React.PropTypes.array,
-        conditionIndex: React.PropTypes.number,
+        onRemove: React.PropTypes.func,
+        fieldData: React.PropTypes.object,
+        index: React.PropTypes.number,
         objType: React.PropTypes.string.isRequired,
         entity: React.PropTypes.object,
+        savedCondition: React.PropTypes.object,
     },
 
     getInitialState: function() {
-        return { 
-        	operators: null,
-        	inputType: null
+        var searchFields = this.props.fieldData.fields;
+        var field = null;
+        
+        // Set the default field entry based on the selected index
+        if(searchFields) {
+            field = searchFields[this.props.fieldData.selectedIndex];
+        }
+        
+        // Set the condition operators based on the initial value of field condition
+        if(searchFields) {
+            this._getConditionOperators(field)
+        }
+        
+        // Set the default value for search condition
+        var bLogic = bLogicMenu[0].payload;
+        var fieldName = field.name
+        var operator = this.operators[0].payload;
+        var value = null;
+        
+        // if savedCondition is set, then we will override the default search condition
+        if(this.props.savedCondition) {
+            bLogic = this.props.savedCondition.bLogic;
+            fieldName = this.props.savedCondition.fieldName;
+            operator = this.props.savedCondition.operator;
+            value = this.props.savedCondition.value;
+        }
+        
+        // Get the condition valueInput based on the initial value of field condition
+        if(searchFields) {
+            this._getConditionValueInput(field, this.props.fieldData.selectedIndex, value);
+        }
+        
+        // Return the initial state
+        return {
+            bLogic: bLogic, 
+            fieldName: fieldName, 
+            operator: operator, 
+            value: value,
+            selectedField: this.props.fieldData.selectedIndex,
+            selectedbLogic: this._getSelectedIndex(bLogicMenu, bLogic),
+            selectedOperator: this._getSelectedIndex(this.operators, operator),
         	};
     },
 
-    componentDidMount: function() {
-    	
-    	var searchFields = this.props.conditionFields;
-    	
-    	// Get the conditions input type if the initial field type is fkey/object
-    	if(searchFields[0].type == 'fkey') {
-    		this._getGroupingsInputType(searchFields[0]);
-    	}
-    },
-
     render: function() {
-    	
-    	var operators = this.state.operators;
-    	var inputType = this.state.inputType;
-    	var searchFields = this.props.conditionFields;
-    	var field = null;
-    	
-    	// Get the first entry of the condition field
-    	if(searchFields) {
-    		field = searchFields[0];
-    	}
-    	
-    	// If operators are not set, then get the condition operators based on the initial value of field condition
-    	if(operators == null && searchFields) {
-    		operators = this._getConditionOperators(field)
-    	}
-    	
-    	// If inputTypes are not set, then get the condition inputTypes based on the initial value of field condition
-    	if(inputType == null && searchFields) {
-    		inputType = this._getConditionInputType(field);
-    	}
-    	
-    	// Set the default condition values
-    	if(!this._condition) {
-    	    this._condition = {
-    	                        bLogic: bLogic[0].payload, 
-    	                        fieldName: field.name, 
-    	                        operator: operators[0].payload, 
-    	                        value: null
-    	                        };
-    	}
-    		
         return (
-        		<div className="row" key={this.props.conditionIndex}>
+        		<div className="row" key={this.props.index}>
 					<div className="col-small-1">
-	    				<DropDownMenu menuItems={bLogic} onChange={this._handleCriteriaClick.bind(this, 'bLogic')} />
+	    				<DropDownMenu 
+	    				        menuItems={bLogicMenu} 
+	    				        selectedIndex={parseInt(this.state.selectedbLogic)} 
+	    				        onChange={this._handleCriteriaClick.bind(this, 'bLogic')} />
 					</div>
 	    			<div className="col-small-4">
-	    				<DropDownMenu menuItems={searchFields} onChange={this._handleFieldClick} />
+	    				<DropDownMenu 
+	    				        menuItems={this.props.fieldData.fields} 
+	    				        selectedIndex={parseInt(this.state.selectedField)} 
+	    				        onChange={this._handleFieldClick} />
 					</div>
 					<div className="col-small-4" >
-						<DropDownMenu menuItems={operators} onChange={this._handleCriteriaClick.bind(this, 'operator')} />
+						<DropDownMenu 
+						        menuItems={this.operators} 
+						        selectedIndex={parseInt(this.state.selectedOperator)} 
+						        onChange={this._handleCriteriaClick.bind(this, 'operator')} />
 					</div>
 					<div className="col-small-2">
-						{inputType}
+						{this.valueInput}
 					</div>
 					<div className="col-small-1">
-						<IconButton onClick={this._handleRemoveCondition.bind(this, this.props.conditionIndex)} className="fa fa-times" />
+						<IconButton 
+						        onClick={this._handleRemoveCondition.bind(this, this.props.index)} 
+						        className="fa fa-times" />
 					</div>
 				</div>
         );
     },
     
     /**
-     * Callback used to handle commands when user selects the blogic dropdown
+     * Callback used to handle commands when user selects the blogic/operator dropdown
      *
      * @param {string} type     Type of criteria that was changed
      * @param {DOMEvent} e      Reference to the DOM event being sent
@@ -116,9 +125,46 @@ var SearchCondition = React.createClass({
      * @private
      */
     _handleCriteriaClick: function(type, e, key, field) {
-        this._condition[type] = field.payload;
-        
-        console.log(this._condition);
+        switch(type) {
+            case 'bLogic':
+                this.setState({
+                    bLogic: field.payload,
+                    selectedbLogic: key
+                });
+                break;
+            case 'operator':
+                this.setState({
+                    operator: field.payload,
+                    selectedOperator: key
+                });
+                break;
+        }
+    },
+    
+    /**
+     * Callback used to handle commands when user blurs on the input text
+     *
+     * @param {DOMEvent} e      Reference to the DOM event being sent
+     * @private
+     */
+    _handleInputBlur: function(e) {
+        this.setState({
+            value: e.target.value
+        });
+    },
+    
+    /**
+     * Callback used to handle commands when user selects a value in the dropdown input value
+     *
+     * @param {DOMEvent} e      Reference to the DOM event being sent
+     * @param {Integer} key     The index of the menu clicked
+     * @param {array} field The object value of the menu clicked
+     * @private
+     */
+    _handleValueSelect: function(e, key, field) {
+        this.setState({
+            value: field.payload
+        });
     },
 
     /**
@@ -130,53 +176,17 @@ var SearchCondition = React.createClass({
      * @private
      */
     _handleFieldClick: function(e, key, field) {
-        
-        // Update the condition fieldname
-        this._condition.fieldName = field.name;
-        
-    	switch(field.type)
-    	{
-    		case 'fkey':
-    		case 'fkey_multi':
-    			this._getGroupingsInputType(field);
-    			break;
-    		case 'object':
-    			var fieldValue = this.props.entity.getValue(field.name);
-    	        
-    			var inputType = (<ObjectSelect
-                                    onChange={this._handleSetValue}
-                                    objType={this.props.objType}
-                                    fieldName={field.name}
-                                    value={fieldValue}
-                                    label={fieldValue}
-                                    />)
-    			
-    			
-    			this.setState({
-    	    		inputType: inputType
-    	    	});
-    			break;
-    		default:
-    			this.setState({
-    	    		operators: this._getConditionOperators(field),
-    	    		inputType: this._getConditionInputType(field)
-    	    	});
-    			break;
-    	}
+    	this._getConditionValueInput(field, key, null);
     },
 
     /**
      * Removes the search criteria
      *
-     * @param {Integer} conditionIndex		The index of the condition to be removed
+     * @param {Integer} index		The index of the condition to be removed
      * @private
      */
-    _handleRemoveCondition: function (conditionIndex) {
-    	if(this.props.onRemove) this.props.onRemove('conditions', conditionIndex);
-    },
-    
-    _handleInputText: function(e) {
-        console.log(e);
+    _handleRemoveCondition: function (index) {
+    	if(this.props.onRemove) this.props.onRemove('conditions', index);
     },
     
     /**
@@ -185,7 +195,7 @@ var SearchCondition = React.createClass({
      * @param {array} field	Collection of the field selected information
      * @private
      */
-    _getGroupingsInputType: function(field) {
+    _getGroupingsValueInput: function(field) {
     	var fieldName = field.name;
     	
     	// Make sure the groupings cache object is initialized for this object
@@ -193,6 +203,7 @@ var SearchCondition = React.createClass({
             this._groupingLoaders = {};
         }
         
+        // If the groups is already saved in the cache
         if (this._groupingLoaders[fieldName]) {
             var groupings = this._groupingLoaders[fieldName];
             this._createGroupingsMenu(groupings, field);
@@ -215,23 +226,64 @@ var SearchCondition = React.createClass({
     /**
      * Get the search condition input input type based on the field type selected
      *
-     * @param {array} field	Collection of the field selected information
+     * @param {array} field	            Collection of the field selected information
+     * @param {Integer} fieldIndex      The index of the menu field clicked
+     * @param {string} value            The default value or initial value
      * @private
      */
-    _getConditionInputType: function(field) {
-    	var inputType = null;
+    _getConditionValueInput: function(field, fieldIndex, value) {
+    	var valueInput = null;
     	var fieldType = field.type;
+    	var updateState = true; // Determine if we need to update the state.
     	
     	switch(fieldType) {
+        	case 'fkey':
+            case 'fkey_multi':
+                updateState = false; // We do not need to update the state since it will be handled in _getGroupingsValueInput() function
+                
+                this._getGroupingsValueInput(field);
+                break;
+                
+            case 'object':
+                var fieldValue = this.props.entity.getValue(field.name);
+                
+                var valueInput = (<ObjectSelect
+                                    onChange={this._handleSetValue}
+                                    objType={this.props.objType}
+                                    fieldName={field.name}
+                                    value={fieldValue}
+                                    label={fieldValue}
+                                    />)
+                break;
+                
     		case 'bool':
-    			inputType = ( <DropDownMenu menuItems={boolInputType} /> )
+    		    if(value == null) {
+    		        value = boolInputMenu[0].payload;
+    		    }
+    		    
+    			valueInput = ( <DropDownMenu onChange={this._handleValueSelect} selectedIndex={ ( value.toString() === 'true' ? 0 : 1 )} menuItems={boolInputMenu} /> )
     			break;
+    			
     		default:
-    		    inputType = ( <TextField ref="inputType" hintText="Search" /> )
+    		    valueInput = ( <TextField onBlur={this._handleInputBlur} hintText="Search" value={value} /> )
     			break;
     	}
     	
-    	return inputType;
+    	if(valueInput) {
+    	    this.valueInput = valueInput;
+    	}   
+    	
+    	// Update the state if the component is already mounted
+    	if(this.isMounted() && updateState) {
+    	    this._getConditionOperators(field); // Update the operators dropdown
+    	    
+    	    this.setState({
+                fieldName: field.name,
+                value: value,
+                selectedField: fieldIndex,
+                selectedOperator: 0, // Set the operator's index to 0
+            });
+    	}
     },
     
     /**
@@ -240,7 +292,7 @@ var SearchCondition = React.createClass({
      * @param {array} field	Collection of the field selected information
      * @private
      */
-    _getGroupingsInputType: function(field) {
+    _getGroupingsValueInput: function(field) {
     	var fieldName = field.name;
     	
     	// Make sure the groupings cache object is initialized for this object
@@ -284,10 +336,14 @@ var SearchCondition = React.createClass({
 						});
     	});
     	
-		this.setState({
-			operators: this._getConditionOperators(field),
-    		inputType: ( <DropDownMenu menuItems={groups} /> )
-    	});
+    	this._getConditionOperators(field);
+    	this.valueInput = ( <DropDownMenu onChange={this._handleValueSelect} selectedIndex={0} menuItems={groups} /> );
+    	
+    	this.setState({
+            fieldName: field.name,
+            operator: this.operators[0].payload,
+            value: groups[0].payload
+        });
     },
     
     /**
@@ -359,7 +415,26 @@ var SearchCondition = React.createClass({
 	            break;
     	}
     	
-    	return operators;
+    	this.operators = operators;
+    },
+    
+    /**
+     * Gets the index of the saved field/operator/blogic value
+     *
+     * @param {array} data      Array of data that will be mapped to get the index of the saved field/operator/blogic value
+     * @param {array} value     The value that will be used to get the index
+     * @private
+     */
+    _getSelectedIndex: function(data, value) {
+        var index = 0;
+        for(var idx in data) {
+            if(data[idx].payload == value) {
+                index = idx;
+                break;
+            }
+        }
+        
+        return index;
     },
     
     /**
@@ -368,20 +443,14 @@ var SearchCondition = React.createClass({
      * @public
      */
     getCriteria: function() {
-        var value = null;
-        switch(this.state.type) {
-            case 'bool':
-                break;
-            default:
-                //value = this.state.inputType.type.prototype.getValue();
-                value = this.refs.inputType.getValue();
-                break;
+        var condition = {
+                bLogic: this.state.bLogic, 
+                fieldName: this.state.fieldName,
+                operator: this.state.operator, 
+                value: this.state.value
         }
         
-        // Set the value of the condition
-        this._condition.value = value;
-        
-        return this._condition;
+        return condition;
     }
 });
 
