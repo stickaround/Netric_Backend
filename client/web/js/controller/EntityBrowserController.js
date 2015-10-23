@@ -144,49 +144,49 @@ EntityBrowserController.prototype.render = function() {
 
     // Define the data
 	var data = {
-		eventsObj: this.eventsObj_,
-		title: this.props.browsebytitle ||this.props.title,
-        entities: new Array(),
-        deviceSize: netric.getApplication().device.size,
-        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
-            ? "compact" : "table",
-        actionHandler: this.actions_,
-        browserView:this.browserView_,
-        columnView: this.columnView_,
-        onEntityListClick: function(objType, oid, title) {
-            this.onEntityListClick(objType, oid, title);
-        }.bind(this),
-        onEntityListSelect: function(oid) {
-            if (oid) {
-                this.toggleEntitySelect(oid);
-            } else {
-                this.toggleSelectAll(false);
-            }
-        }.bind(this),
-        onLoadMoreEntities: function(limitIncrease){
-        	return this.getMoreEntities(limitIncrease);
-        }.bind(this),
-        onSearchChange: function(fullText, conditions) {
-            this.onSearchChange(fullText, conditions);
-        }.bind(this),
-        onPerformAction: function(actionName) {
-            this.performActionOnSelected(actionName);
-        }.bind(this),
-        onNavBtnClick: this.props.onNavBtnClick || null,
-        onNavBackBtnClick: this.props.onNavBackBtnClick || null
+	        eventsObj: this.eventsObj_,
+	        title: this.props.browsebytitle ||this.props.title,
+	        entities: new Array(),
+	        deviceSize: netric.getApplication().device.size,
+	        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
+	            ? "compact" : "table",
+	        actionHandler: this.actions_,
+	        browserView:this.browserView_,
+	        columnView: this.columnView_,
+	        onEntityListClick: function(objType, oid, title) {
+	            this.onEntityListClick(objType, oid, title);
+	        }.bind(this),
+	        onEntityListSelect: function(oid) {
+	            if (oid) {
+	                this.toggleEntitySelect(oid);
+	            } else {
+	                this.toggleSelectAll(false);
+	            }
+	        }.bind(this),
+	        onLoadMoreEntities: function(limitIncrease){
+	            return this.getMoreEntities(limitIncrease);
+	        }.bind(this),
+	        onSearchChange: function(fullText, conditions) {
+	            this.onSearchChange(fullText, conditions);
+	        }.bind(this),
+	        onPerformAction: function(actionName) {
+	            this.performActionOnSelected(actionName);
+	        }.bind(this),
+	        onNavBtnClick: this.props.onNavBtnClick || null,
+	        onNavBackBtnClick: this.props.onNavBackBtnClick || null
 	}
 
 	// Render browser component
 	this.rootReactNode_ = React.render(
-		React.createElement(UiEntityBrowser, data),
-		domCon
+	        React.createElement(UiEntityBrowser, data),
+	        domCon
 	);
 
-    // Load the entity list
-    this.collection_ = new EntityCollection(this.props.objType);
-    alib.events.listen(this.collection_, "change", function() {
-        this.onCollectionChange();
-    }.bind(this));
+	// Load the entity list
+	this.collection_ = new EntityCollection(this.props.objType);
+	alib.events.listen(this.collection_, "change", function() {
+	    this.onCollectionChange();
+	}.bind(this));
 
     alib.events.listen(this.collection_, "loading", function() {
         this.onCollectionLoading();

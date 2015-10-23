@@ -22,8 +22,8 @@ var directionMenu = [
 var SortOrder = React.createClass({
 
     propTypes: {
-    	onRemove: React.PropTypes.func,
-    	fieldData: React.PropTypes.object,
+        onRemove: React.PropTypes.func,
+        fieldData: React.PropTypes.object,
         index: React.PropTypes.number,
         objType: React.PropTypes.string.isRequired,
         savedOrder: React.PropTypes.object,
