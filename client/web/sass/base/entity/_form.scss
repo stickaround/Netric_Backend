@@ -27,7 +27,45 @@
 		*/
 	}
 
+    .entity-form-column {
+
+    }
+
 	.entity-form-field {
+	  margin: 0 $gutter-less 0 $gutter-less;
+
+	  @media #{$device-medium} {
+		margin: 0 $gutter 0 $gutter;
+	  }
+
+	  @media #{$device-large} {
+		margin: 0 $gutter 0 $gutter;
+	  }
+
+	  .entity-form-field-label {
+        color: rgba(0, 0, 0, 0.5);
+
+		@media #{$device-medium} {
+		  float: left;
+		  width: 20%;
+		}
+
+		@media #{$device-large} {
+		  float: left;
+		  width: 20%;
+		}
+	  }
+
+	  .entity-form-field-value {
+		@media #{$device-medium} {
+		  margin-left: 22%;
+		}
+
+		@media #{$device-large} {
+		  margin-left: 22%;
+		}
+
+	  }
 		/*
 		display: -webkit-box;
 		display: -moz-box;
@@ -52,5 +90,10 @@
 	hr {
 		margin-bottom: 7px;
 	}
+
+    /* Set text fields to 100% width */
+    .chamel-text-field {
+      width: 100%;
+    }
 
 }

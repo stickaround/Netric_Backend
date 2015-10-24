@@ -7,10 +7,10 @@
 'use strict';
 
 /**
- * Represents a collection of entities
+ * Represents a filtering condition for a collection of entities
  *
  * @constructor
- * @param {string} objType The name of the object type we are collecting
+ * @param {string} fieldName The name of a field we are filtering
  */
 var Where = function(fieldName) {
 
@@ -66,14 +66,13 @@ Where.boolOperators = {
  */
 Where.operators = {
     EQUALTO : "is_equal",
-    DOESNOTEQUAL : "!=",
-    LIKE : "like",
-    ISGREATERTHAN : ">",
-    ISGREATEROREQUALTO : ">=",
-    ISLESSTHAN : "<",
-    ISLESSOREQUALTO : "<="
+    DOESNOTEQUAL : "is_not_equal",
+    LIKE : "begins_with",
+    ISGREATERTHAN : "is_greater",
+    ISGREATEROREQUALTO : "is_greater_or_equal",
+    ISLESSTHAN : "is_less",
+    ISLESSOREQUALTO : "is_less_or_equal"
 }
-
 
 /**
  * Set condition to match where field equals value

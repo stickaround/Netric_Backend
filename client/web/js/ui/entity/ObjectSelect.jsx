@@ -9,6 +9,8 @@
 var React = require('react');
 var Chamel = require("chamel");
 var Dialog = Chamel.Dialog;
+var FlatButton = Chamel.FlatButton;
+var IconButton = Chamel.IconButton;
 var controller = require("../../controller/controller");
 var definitionLoader = require("../../entity/definitionLoader");
 
@@ -31,7 +33,9 @@ var ObjectSelect = React.createClass({
         // The current value
         value: React.PropTypes.string,
         // The current label - entity title
-        label: React.PropTypes.string
+        label: React.PropTypes.string,
+        // Boolean to indicate an object MUST be selected
+        required: React.PropTypes.bool,
     },
 
     /**
@@ -41,6 +45,7 @@ var ObjectSelect = React.createClass({
         return {
             label: 'None',
             value: null,
+            required: false
         };
     },
 
@@ -59,7 +64,20 @@ var ObjectSelect = React.createClass({
      */
     render: function () {
         var label = this.state.label || "None";
-        return (<span onClick={this._handleBrowseClick}>{label}</span>);
+
+        // Add clear button
+        var clearValue = null;
+        if (this.state.value && !this.props.required) {
+            clearValue = (
+              <IconButton onClick={this._clearValue} tooltip="Clear Value" className="cfi cfi-close" />
+            );
+        }
+
+        return (
+            <span>
+                <FlatButton onClick={this._handleBrowseClick}>{label}</FlatButton>
+                {clearValue}
+            </span>);
     },
 
     /**
@@ -122,6 +140,19 @@ var ObjectSelect = React.createClass({
         if (this.props.onChange) {
             this.props.onChange(oid, title);
         }
+    },
+
+    /**
+     * Trigger a value change
+     *
+     * @param {int} oid The unique id of the entity selected
+     * @param {string} title The human readable title of the entity selected
+     * @private
+     */
+    _clearValue: function(oid, title) {
+
+        this.setState({value: null, label: ""});
+        this._handleChange(null, null);
     }
 });
 

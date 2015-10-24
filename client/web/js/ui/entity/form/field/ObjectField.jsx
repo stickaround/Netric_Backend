@@ -36,25 +36,41 @@ var ObjectField = React.createClass({
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
-        var valueLabel = this.props.entity.getValueName(fieldName);
+        var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
+        console.log("Calling getValueName got me", valueLabel);
         if (!valueLabel) {
             valueLabel = "Not Set";
         }
 
         if (this.props.editMode) {
             return (
-                <ObjectSelect
-                    onChange={this._handleSetValue}
-                    objType={this.props.entity.def.objType}
-                    fieldName={fieldName}
-                    value={fieldValue}
-                    label={this.props.entity.getValue(fieldName)}
-                    />
+                <div>
+                    <div className="entity-form-field-label">
+                        {field.title}
+                    </div>
+                    <div className="entity-form-field-value">
+                        <ObjectSelect
+                            onChange={this._handleSetValue}
+                            objType={this.props.entity.def.objType}
+                            fieldName={fieldName}
+                            value={fieldValue}
+                            label={valueLabel}
+                        />
+                    </div>
+                </div>
             );
         } else {
-            return (<div>{valueLabel}</div>);
+            return (
+                <div>
+                    <div className="entity-form-field-label">
+                        {field.title}
+                    </div>
+                    <div className="entity-form-field-value">
+                        {valueLabel}
+                    </div>
+                </div>
+            );
         }
-
     },
 
 
@@ -71,7 +87,6 @@ var ObjectField = React.createClass({
 
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('name');
-
         this.props.entity.setValue(fieldName, oid, title);
     }
 });

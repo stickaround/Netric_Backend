@@ -56,6 +56,22 @@ class Forms
         $dbh = $this->dbh;
 
         /*
+         * First look for the new form names: small, medium, large, xlarge
+         */
+        $small = $this->getFormUiXml($def, $user, "small");
+        $medium = $this->getFormUiXml($def, $user, "medium");
+        $large = $this->getFormUiXml($def, $user, "large");
+        $xlarge = $this->getFormUiXml($def, $user, "xlarge");
+
+        // Use nearest match if all forms have not been applied
+        if (!$xlarge && $large)
+            $xlarge = $large;
+        if (!$medium && $large)
+            $medium = $large;
+        if (!$large && $medium)
+            $large = $medium;
+
+        /*
          * We are translating the new form names 'small|medium|large|xlarge'
          * to the old 'mobile|default' names for the time being
          * because these scopes are accessed all throughout the
@@ -63,20 +79,33 @@ class Forms
          * pretty easy to remove all old references to mobile/default
          * and then just do an SQL update to rename exsiting custom forms.
          */
-
         $default = $this->getFormUiXml($def, $user, "default");
-        $small = $this->getFormUiXml($def, $user, "mobile");
         if (!$small)
-            $small = $default;
-        $medium = $this->getFormUiXml($def, $user, "mobile");
+        {
+            $small = $this->getFormUiXml($def, $user, "mobile");
+            if (!$small)
+                $small = $default;
+        }
         if (!$medium)
-            $medium = $default;
+        {
+            $medium = $this->getFormUiXml($def, $user, "mobile");
+            if (!$medium)
+                $medium = $default;
+        }
+        if (!$large)
+        {
+            $large = $default;
+        }
+        if (!$xlarge)
+        {
+            $xlarge = $default;
+        }
 
         $forms = array(
             'small' => $small,
             'medium' => $medium,
-            'large' => $default,
-            'xlarge' => $default,
+            'large' => $large,
+            'xlarge' => $xlarge,
             'infobox' => $this->getFormUiXml($def, $user, "infobox"),
         );
 

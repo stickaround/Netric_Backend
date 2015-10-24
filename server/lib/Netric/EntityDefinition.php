@@ -128,7 +128,7 @@ class EntityDefinition
 	/**
 	 * System forms for UIXML forms
 	 *
-	 * @var array('desktop', 'mobile', 'infobox')
+	 * @var array('desktop', 'mobile', 'infobox', 'small', 'medium', 'large', 'xlarge')
 	 */
 	private $forms = array();
 
