@@ -7,10 +7,10 @@
 'use strict';
 
 /**
- * Represents a collection of entities
+ * Represents a filtering condition for a collection of entities
  *
  * @constructor
- * @param {string} objType The name of the object type we are collecting
+ * @param {string} fieldName The name of a field we are filtering
  */
 var Where = function(fieldName) {
 
@@ -33,12 +33,12 @@ var Where = function(fieldName) {
     this.operator = Where.operators.EQUALTO;
 
     /**
-     * Boolean operator for combining with previous
+     * Boolean operator for combining with another (preceding) Where
      *
      * @public
-     * @type {Where.boolOperator}
+     * @type {Where.conjunctives}
      */
-    this.bLogic = Where.boolOperators.AND;
+    this.bLogic = Where.conjunctives.AND;
 
     /**
      * The value to check against
@@ -49,31 +49,41 @@ var Where = function(fieldName) {
     this.value = null;
 }
 
+
+
 /**
- * Static order by direction
+ * Conjunctive operators for combining Where conditions
  *
  * @const
  */
-Where.boolOperators = {
+Where.conjunctives = {
     AND : "and",
     OR : "or"
 }
 
 /**
- * Static order by direction
+ * Conditional operators for comparing field values against input
  *
  * @const
  */
 Where.operators = {
     EQUALTO : "is_equal",
-    DOESNOTEQUAL : "!=",
-    LIKE : "like",
-    ISGREATERTHAN : ">",
-    ISGREATEROREQUALTO : ">=",
-    ISLESSTHAN : "<",
-    ISLESSOREQUALTO : "<="
+    DOESNOTEQUAL : "is_not_equal",
+    LIKE : "begins_with",
+    ISGREATERTHAN : "is_greater",
+    ISGREATEROREQUALTO : "is_greater_or_equal",
+    ISLESSTHAN : "is_less",
+    ISLESSOREQUALTO : "is_less_or_equal"
 }
 
+/**
+ * Static function to get list of operators by a type
+ *
+ * @param {string} type The field type
+ */
+Where.getOperatorsForFieldType = function(type) {
+    // TODO: define opertators for field types here
+}
 
 /**
  * Set condition to match where field equals value
@@ -91,7 +101,8 @@ Where.prototype.equalTo = function(value) {
  * @param {string} value The value to check quality against
  */
 Where.prototype.doesNotEqual = function(value) {
-
+    this.operator = Where.operators.DOESNOTEQUAL;
+    this.value = value;
 }
 
 /**
@@ -100,7 +111,8 @@ Where.prototype.doesNotEqual = function(value) {
  * @param {string} value The value to check quality against
  */
 Where.prototype.like = function(value) {
-
+    this.operator = Where.operators.LIKE;
+    this.value = value;
 }
 
 
@@ -110,7 +122,8 @@ Where.prototype.like = function(value) {
  * @param {string} value The value to check quality against
  */
 Where.prototype.isGreaterThan = function(value) {
-
+    this.operator = Where.operators.ISGREATERTHAN;
+    this.value = value;
 }
 
 
@@ -120,7 +133,8 @@ Where.prototype.isGreaterThan = function(value) {
  * @param {string} value The value to check quality against
  */
 Where.prototype.isGreaterorEqualTo = function(value) {
-
+    this.operator = Where.operators.ISGREATEROREQUALTO;
+    this.value = value;
 }
 
 /**
@@ -129,7 +143,8 @@ Where.prototype.isGreaterorEqualTo = function(value) {
  * @param {string} value The value to check quality against
  */
 Where.prototype.isLessThan = function(value) {
-
+    this.operator = Where.operators.ISLESSTHAN;
+    this.value = value;
 }
 
 /**
@@ -138,7 +153,8 @@ Where.prototype.isLessThan = function(value) {
  * @param {string} value The value to check quality against
  */
 Where.prototype.isLessOrEqaulTo = function(value) {
-
+    this.operator = Where.operators.ISLESSOREQUALTO;
+    this.value = value;
 }
 
 module.exports = Where;

@@ -44,7 +44,12 @@ var BoolField = React.createClass({
             );
         } else {
             var valLabel = (fieldValue) ? "Yes" : "No";
-            return (<div><span>{field.title}:</span> <span>{valLabel}</span></div>);
+            return (
+                <div>
+                    <div className="entity-form-field-label">{field.title}</div>
+                    <div className="entity-form-field-value">{valLabel}</div>
+                </div>
+            );
         }
 
     },
