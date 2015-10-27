@@ -44,7 +44,7 @@ var ColumnView = React.createClass({
                             onChange={this._handleMenuClick} />
                     </div>
                     <div className="col-small-1">
-                        <IconButton onClick={this._handleRemoveColumnToView.bind(this)} className="fa fa-times" />
+                        <IconButton onClick={this._handleRemoveColumnToView} className="fa fa-times" />
                     </div>
 				</div>
         );

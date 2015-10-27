@@ -58,8 +58,8 @@ var SearchCondition = React.createClass({
             operators: operators,
             selectedField: this.props.fieldData.selectedIndex,
             selectedbLogic: this._getSelectedIndex(bLogicMenu, this.props.condition.bLogic),
-            selectedOperator: this._getSelectedIndex(this._operators, this.props.condition.operator),
-        	};
+            selectedOperator: this._getSelectedIndex(operators, this.props.condition.operator),
+        };
     },
 
     render: function() {
@@ -140,13 +140,24 @@ var SearchCondition = React.createClass({
     /**
      * Callback used to handle commands when user selects a value in the dropdown groupings input
      *
-     * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @param {int} key     The index of the menu clicked
-     * @param {array} field The object value of the menu clicked
+     * @param {string} payload  The value of the selected menu
+     * @param {string} text     The text of the selected menu
      * @private
      */
     _handleGroupingSelect: function(payload, text) {
-        this.props.condition.value = e.target.value;
+        this.props.condition.value = payload;
+    },
+    
+    /**
+     * Callback used to handle commands when user selects a value in the dropdown if the value input is a boolean type
+     *
+     * @param {DOMEvent} e          Reference to the DOM event being sent
+     * @param {int} key             The index of the menu clicked
+     * @param {array} menuItem      The object value of the menu clicked
+     * @private
+     */
+    _handleValueSelect: function(e, key, menuItem) {
+        this.props.condition.value = menuItem.payload;
     },
 
     /**
