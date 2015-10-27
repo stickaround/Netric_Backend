@@ -32,7 +32,8 @@ var EntityBrowser = React.createClass({
       deviceSize: React.PropTypes.number,
       selectedEntities: React.PropTypes.array,
       browserView: React.PropTypes.object,
-      collectionLoading: React.PropTypes.bool
+      collectionLoading: React.PropTypes.bool,
+      hideToolbar: React.PropTypes.bool,
   },
 
   getDefaultProps: function() {
@@ -69,19 +70,27 @@ var EntityBrowser = React.createClass({
           }
       }
 
+      var toolbar = null;
+      if (!this.props.hideToolbar) {
+          toolbar = (
+              <AppBarBrowse
+                  title={this.props.title}
+                  actionHandler={this.props.actionHandler}
+                  deviceSize={this.props.deviceSize}
+                  onNavBtnClick={this.props.onNavBtnClick}
+                  onNavBackBtnClick={this.props.onNavBackBtnClick}
+                  onSearchChange={this.props.onSearchChange}
+                  onPerformAction={this.props.onPerformAction}
+                  onSelectAll={this.handleSeelctAll_}
+                  selectedEntities={this.props.selectedEntities}
+               />
+          );
+      }
+
     return (
       <div>
         <div>
-          <AppBarBrowse 
-            title={this.props.title}
-            actionHandler={this.props.actionHandler}
-            deviceSize={this.props.deviceSize}
-            onNavBtnClick={this.props.onNavBtnClick}
-            onNavBackBtnClick={this.props.onNavBackBtnClick}
-            onSearchChange={this.props.onSearchChange}
-            onPerformAction={this.props.onPerformAction}
-            onSelectAll={this.handleSeelctAll_}
-            selectedEntities={this.props.selectedEntities} />
+            {toolbar}
         </div>
         <div ref="moduleMain">
             {bodyContent}

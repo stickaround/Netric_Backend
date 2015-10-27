@@ -5,6 +5,7 @@
  * TODO: this is a work in progress
  */
 namespace Netric;
+use Netric\EntityQuery\OrderBy;
 use Netric\EntityQuery\Where;
 
 /**
@@ -137,7 +138,7 @@ class EntityQuery
         if ($operator)
             $where->operator = $operator;
         $where->value = $value;
-        $this->wheres[] = $where;
+        $this->addCondition($where);
         return $where;
     }
     
@@ -165,8 +166,18 @@ class EntityQuery
         if ($operator)
             $where->operator = $operator;
         $where->value = $value;
-        $this->wheres[] = $where;
+        $this->addCondition($where);
         return $where;
+    }
+
+    /**
+     * Add where condition with where object
+     *
+     * @param Where $where
+     */
+    private function addCondition(Where $where)
+    {
+        $this->wheres[] = $where;
     }
     
     /**
@@ -186,14 +197,20 @@ class EntityQuery
      * @param string $direction
      * @return Netric/EntityQuery
      */
-    public function orderBy($fieldName, $direction="ASC")
+    public function orderBy($fieldName, $direction = OrderBy::ASCENDING)
     {
-        $this->orderBy[] = array(
-            "field" => $fieldName,
-            "direction" => $direction,
-        );
-        
+        $this->addOrderBy(new OrderBy($fieldName, $direction));
         return $this;
+    }
+
+    /**
+     * Private function for adding an order by object to this query
+     *
+     * @param OrderBy $orderBy
+     */
+    private function addOrderBy(OrderBy $orderBy)
+    {
+        $this->orderBy[] = $orderBy;
     }
     
     /**
@@ -430,5 +447,80 @@ class EntityQuery
             return $this->dataMapper->loadCollection($this);
         else
             return false;
+    }
+
+    /**
+     * Convert this query to an array
+     *
+     * @return array ('conditions'=>Wheres[]->toArray, 'order_by'=>
+     */
+    public function toArray()
+    {
+        $ret = array(
+            "obj_type" => $this->objType,
+            "limit" => $this->limitPerPage,
+            "offset" => $this->offset,
+        );
+
+        // Add all where conditions
+        $ret['conditions'] = array();
+        $wheres = $this->getWheres();
+        foreach ($wheres as $whereCondition)
+        {
+            $ret['conditions'][] = $whereCondition->toArray();
+        }
+
+        // Add order by
+        $ret['order_by'] = array();
+        $orderBy = $this->getOrderBy();
+        foreach ($orderBy as $sortDef)
+        {
+            $ret['order_by'][] = $sortDef->toArray();
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Load in a query from an array
+     *
+     * @param array $data The query to load
+     * @throws \InvalidArgumentException if the data query is invalid
+     */
+    public function fromArray(array $data)
+    {
+        // Basic level validation
+        if (!isset($data['obj_type']))
+            throw new \InvalidArgumentException("obj_type is a required query index");
+
+        $this->objType = $data['obj_type'];
+
+        if (isset($data['limit']))
+            $this->setLimit($data['limit']);
+
+        if (isset($data['offset']))
+            $this->setOffset($data['offset']);
+
+        // Add conditions if they were passed
+        if (isset($data['conditions']) && is_array($data['conditions']))
+        {
+            foreach ($data['conditions'] as $condData)
+            {
+                $where = new Where();
+                $where->fromArray($condData);
+                $this->addCondition($where);
+            }
+        }
+
+        // Add order_by if they were passed
+        if (isset($data['order_by']) && is_array($data['order_by']))
+        {
+            foreach ($data['order_by'] as $sortData)
+            {
+                $order = new OrderBy();
+                $order->fromArray($sortData);
+                $this->addOrderBy($order);
+            }
+        }
     }
 }

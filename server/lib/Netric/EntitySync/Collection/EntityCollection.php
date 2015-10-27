@@ -130,8 +130,16 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                         "id" => $ent->getId(),
                         "action" => (($ent->isDeleted()) ? 'delete' : 'change'),
                     );
-                }
 
+					// Sanity check, make sure we do not return the last commit id for change again
+					if ($ent->getValue("commit_id") == $lastCollectionCommit)
+					{
+						throw new \Exception(
+							"ERROR: Trying to return the commit previously returned: " .
+							$lastCollectionCommit
+						);
+					}
+                }
 
 	        	if (($autoFastForward || $skipStat) && $ent->getValue("commit_id"))
 				{

@@ -66,6 +66,10 @@ class EntityController extends Mvc\AbstractController
 		$entityForms = $serviceManager->get("Netric/Entity/Forms");
 		$ret['forms'] = $entityForms->getDeviceForms($def, $user);
 
+        // Get views
+        // TODO: We should probably use a collection view service similar to the
+        // TODO: form service above. We are not saving the views in the def DataMapper
+
         return $this->sendOutput($ret);
 	}
 

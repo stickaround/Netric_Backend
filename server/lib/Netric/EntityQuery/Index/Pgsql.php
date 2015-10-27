@@ -128,9 +128,8 @@ class Pgsql extends IndexAbstract implements IndexInterface
 				//if ($def->parentField && $def->getField("path"))
 					//$order_fld = str_replace($this->obj->fields->listTitle, $this->obj->fields->listTitle."_full", $sortObj->fieldName);
 
-				$order_cnd .= $sort["field"];
-				if ($sort["direction"])
-					$order_cnd .= " " . $sort["direction"];
+				$order_cnd .= $sort->fieldName;
+				$order_cnd .= " " . $sort->direction;
 			}
 		}
 		if ($order_cnd)

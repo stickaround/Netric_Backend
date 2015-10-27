@@ -61,7 +61,7 @@ class FormParser
             {
                 $orderVals = str_getcsv($orderData);
                 if (!isset($orderVals[1]))
-                    $orderVals[1] = "ASC";
+                    $orderVals[1] = OrderBy::ASCENDING;
                 
                 $query->orderBy($orderVals[0], $orderVals[1]);
             }

@@ -104,13 +104,20 @@ EntityBrowserController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
+    // The default layout is a compact detailed list view
+    var listLayout = "compact";
+
+    // If we are not in a preview and on larger (than small) device, then show table
+    if (netric.getApplication().device.size > netric.Device.sizes.small)
+        listLayout = "table";
+
     // Define the data
 	var data = {
-		title: this.props.browsebytitle ||this.props.title,
+		title: this.props.browsebytitle || this.props.title,
         entities: new Array(),
+        hideToolbar: this.props.hideToolbar || false,
         deviceSize: netric.getApplication().device.size,
-        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
-            ? "compact" : "table",
+        layout: listLayout,
         actionHandler: this.actions_,
         browserView:this.browserView_,
         onEntityListClick: function(objType, oid, title) {

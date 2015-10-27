@@ -22,6 +22,7 @@ var formElements = {
     AllAdditional: require("./form/AllAdditional.jsx"),
     Recurrence: require("./form/Recurrence.jsx"),
     Attachments: require("./form/Attachments.jsx"),
+    Comments: require("./form/Comments.jsx"),
     Plugin: require("./form/Plugin.jsx")
 };
 

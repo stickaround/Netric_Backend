@@ -133,7 +133,9 @@ class EntityDefinitionLoader
 		// Load system views
 		$this->setSysViews($def);
 
-		// Load system views
+		// Load system forms
+		// FIXME: We are removing forms from the definition to clean-up
+		// 		  And now we should use the Entity\Form service
 		$this->setSysForms($def);
 
 		// Load system aggregates

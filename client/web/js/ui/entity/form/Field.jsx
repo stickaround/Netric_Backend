@@ -13,6 +13,8 @@ var BoolField = require("./field/BoolField.jsx");
 var GroupingField = require("./field/GroupingField.jsx");
 var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
+var Comments = require("./Comments.jsx");
+var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 
 /**
  * Base level element for enetity forms
@@ -50,17 +52,30 @@ var Field = React.createClass({
         switch (field.type)
         {
         case field.types.bool:
-            fieldContent = <BoolField {...this.props} />
+            fieldContent = <BoolField {...this.props} />;
             break;
         case field.types.fkey:
         case field.types.fkeyMulti:
-       		fieldContent = <GroupingField {...this.props} />
+       		fieldContent = <GroupingField {...this.props} />;
         	break;
         case field.types.text:
-        	fieldContent = <TextField {...this.props} />
+        	fieldContent = <TextField {...this.props} />;
         	break;
         case field.types.object:
-            fieldContent = <ObjectField {...this.props} />
+            fieldContent = <ObjectField {...this.props} />;
+            break;
+        case field.types.objectMulti:
+
+            // Print object browser based on subtype
+            switch (field.subtype)
+            {
+            case "comment":
+                fieldContent = <Comments {...this.props} />;
+                break;
+            default:
+                fieldContent = <ObjectMultiField {...this.props} />;
+            }
+
             break;
         default:
         	var fieldValue = this.props.entity.getValue(fieldName);

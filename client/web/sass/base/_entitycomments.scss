@@ -1,0 +1,28 @@
+/**
+ * EntityCommentsController styles
+ */
+.entity-comments {
+  .entity-comments-form {
+    display: -webkit-flex;
+    display: flex;
+    align-items: stretch;
+    -webkit-align-items: stretch;
+
+
+    .entity-comments-form-left {
+      -webkit-flex: initial;
+      flex: initial;
+      width: $thumb-size;
+    }
+
+    .entity-comments-form-center {
+      -webkit-flex: 1;
+      flex: 1;
+    }
+
+    .entity-comments-form-right {
+      width: $icon-button-size;
+    }
+
+  }
+}

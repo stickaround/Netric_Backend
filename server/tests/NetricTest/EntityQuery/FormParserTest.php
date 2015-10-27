@@ -61,11 +61,11 @@ class FormParserTest extends PHPUnit_Framework_TestCase
         $orders = $query->getOrderBy();
         $this->assertEquals(2, count($orders));
         
-        $this->assertEquals("last_name", $orders[0]["field"]);
-        $this->assertEquals("ASC", $orders[0]["direction"]);
+        $this->assertEquals("last_name", $orders[0]->fieldName);
+        $this->assertEquals("ASC", $orders[0]->direction);
         
-        $this->assertEquals("first_name", $orders[1]["field"]);
-        $this->assertEquals("DESC", $orders[1]["direction"]);
+        $this->assertEquals("first_name", $orders[1]->fieldName);
+        $this->assertEquals("DESC", $orders[1]->direction);
         
     }
     
