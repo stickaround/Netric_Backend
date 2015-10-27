@@ -98,10 +98,18 @@ var GroupingSelect = React.createClass({
      */
 	render: function() {
 
-        // TODO: use the groupingLoader to load up groups
-		var menuItems = [
-		   { payload: '', text: this.props.label }
-		];
+	    // TODO: use the groupingLoader to load up groups
+	    var menuItems = [];
+	    
+        /*
+         * Check first if props.label is not set to null before pushing it to menuItems
+         * There are some instances that we dont want to have to display the label just like in Advanced Search condition
+         */  
+	    if(this.props.label != null) {
+	        menuItems.push({ 
+	            payload: '', text: this.props.label 
+	        });
+	    }
 
         this._addGroupingOption(this.state.groupings, menuItems);
 

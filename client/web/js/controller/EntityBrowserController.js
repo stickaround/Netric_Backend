@@ -81,20 +81,12 @@ EntityBrowserController.prototype.browserView_ = null;
 EntityBrowserController.prototype.eventsObj_ = null;
 
 /**
- * A collection of advanced search criteria that contains data for conditions, sort by and column view
+ * Contains the entity definition of current object type.
  *
- * @private
+ * @public
  * @type {Array}
  */
-EntityBrowserController.prototype.advancedSearchCriteria_ = null;
-
-/**
- * Collection of fields that is set by Advanced Search to determine which columns to be displayed
- *
- * @type {Array}
- * @private
- */
-EntityBrowserController.prototype.columnView_ = null;
+EntityBrowserController.prototype.entityDefinition_ = null;
 
 
 /**
@@ -112,6 +104,7 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
     if (this.props.objType) {
         // Get the default view from the object definition
         definitionLoader.get(this.props.objType, function(def){
+            this.entityDefinition_ = def;
             this.browserView_ = def.getDefaultView();
             if (opt_callback) {
                 opt_callback();
@@ -129,7 +122,7 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
     
     // Capture an advance search click and handle browsing for a referenced entity
     alib.events.listen(this.eventsObj_, "apply_advance_search", function(evt) {
-        this.onAdvancedSearch(evt.data.criteria);
+        this.loadCollection();
     }.bind(this));
 
 }
@@ -249,18 +242,6 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
     }
 }
 
-/**
- * Fired if the user applies the advanced search conditions
- * 
- * @param {netric/entity/Where[]} criteria  Array of advanced search criteria that contains data for conditions, sort by and column view
- */
-EntityBrowserController.prototype.onAdvancedSearch = function(criteria) {
-    this.advancedSearchCriteria_ = criteria;
-    this.columnView_ = criteria.columnView;
-    
-    this.rootReactNode_.setProps({columnView: this.columnView_});
-    this.loadCollection();
-}
 
 /**
  * Fired if the user changes search conditions in the UI
@@ -297,11 +278,23 @@ EntityBrowserController.prototype.loadCollection = function() {
     }
     
     // Set Sort Order
-    this.setupSortOrder();
+    var orderBy = this.browserView_.getOrderBy();
     
+    if(orderBy) {
+        for (var idx in orderBy) {
+            this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
+        }
+    }
     
     // Set Conditions
-    this.setupConditions();
+    var conditions = this.browserView_.getConditions();
+    
+    // If there is a condition set, then we will push the where clase to the collection
+    if(conditions) {
+        for (var i in conditions) {
+            this.collection_.addWhere(conditions[i]);
+        }
+    }
     
 
     // Load (we depend on 'onload' events for triggering UI rendering in this.render)
@@ -414,7 +407,7 @@ EntityBrowserController.prototype.onResume = function() {
 /**
  * The collection is updated with new limits to display
  *
- * @param {integer} limitIncrease	Optional of entities to increment the limit by. Default is 50.
+ * @param {int} limitIncrease	Optional of entities to increment the limit by. Default is 50.
  */
 EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 	
@@ -433,7 +426,6 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 	}
 }
 
-
 /**
  * Display Advance search
  *
@@ -449,6 +441,7 @@ EntityBrowserController.prototype.displayAdvancedSearch = function() {
     
     advancedSearch.eventsObj = this.eventsObj_;
     advancedSearch.browserView = this.browserView_;
+    advancedSearch.entityDefinition = this.entityDefinition_;
     
     advancedSearch.savedCriteria = this.advancedSearchCriteria_;
     
@@ -456,56 +449,8 @@ EntityBrowserController.prototype.displayAdvancedSearch = function() {
     advancedSearch.load({
         type: controller.types.DIALOG,
         title: "Advanced Search",
-        objType: "note", // This is set statically for now
+        objType: this.props.objType
     }); 
 }
-
-/**
- * Set up entity browser's Sort Order
- *
- */
-EntityBrowserController.prototype.setupSortOrder = function() {
-    
-    // If advance search is set, then we will overwrite the sort order from browse view
-    if(this.advancedSearchCriteria_) {
-        orderBy = this.advancedSearchCriteria_.sortOrder;
-        indexName = 'fieldName';
-    }
-    else if (this.browserView_) {
-        // Get the browser's view sort order data
-        var orderBy = this.browserView_.getOrderBy();
-        var indexName = 'field'; // Since browser view and advanced search have different field names
-    }
-    
-    if(orderBy) {
-        for (var idx in orderBy) {
-            this.collection_.setOrderBy(orderBy[idx][indexName], orderBy[idx].direction);
-        }
-    }   
-}
-
-/**
- * Set up entity browser's Conditions
- *
- */
-EntityBrowserController.prototype.setupConditions = function() {
-    
-    // If advanced search conditions are set, it will override the browserView's conditions
-    if(this.advancedSearchCriteria_) {
-        var conditions = this.advancedSearchCriteria_.conditions;
-    }
-    else if (this.browserView_) {
-        var conditions = this.browserView_.getConditions();
-        // TODO: Add anything else from this.browserView_ to the conditions and order
-    }
-    
-    // If there is a condition set, then we will push the where clase to the collection
-    if(conditions) {
-        for (var i in conditions) {
-            this.collection_.addWhere(conditions[i]);
-        }
-    }
-}
-
 
 module.exports = EntityBrowserController;

@@ -49,12 +49,12 @@ var ListItemTableRow = React.createClass({
          * Contains settings from Advanced Search to determine which columns to be displayed
          *
          */
-        columnView: React.PropTypes.array,
+        columnsToView: React.PropTypes.array,
     },
     
     getDefaultProps: function() {
         return {
-            columnView: null
+            columnsToView: null
         }
     },
 
@@ -141,9 +141,9 @@ var ListItemTableRow = React.createClass({
         var fields = [];
         
         // Check if column view from advanced search is set. 
-        if(this.props.columnView) {
-            for(var idx in this.props.columnView) {
-                fields.push(this.props.columnView[idx].fieldName);
+        if(this.props.columnsToView) {
+            for(var idx in this.props.columnsToView) {
+                fields.push(this.props.columnsToView[idx].fieldName);
             }
         }
         else {

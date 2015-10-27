@@ -34,7 +34,7 @@ var EntityBrowser = React.createClass({
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
       eventsObj: React.PropTypes.object,
-      columnView: React.PropTypes.array,
+      columnsToView: React.PropTypes.array,
   },
 
   getDefaultProps: function() {
@@ -44,7 +44,7 @@ var EntityBrowser = React.createClass({
           entities: [],
           selectedEntities: [],
           collectionLoading: false,
-          columnView: null
+          columnsToView: null
       }
   },
 
@@ -66,7 +66,7 @@ var EntityBrowser = React.createClass({
               browserView={this.props.browserView}
               layout={this.props.layout}
           	  collectionLoading={this.props.collectionLoading}
-              columnView={this.props.columnView} />);
+              columnsToView={this.props.columnsToView} />);
 
           if (this.props.collectionLoading) {
               // TODO: display loading indicator over the list

@@ -31,6 +31,15 @@ var BrowserView = function(objType) {
      * @private
      */
     this.conditions_ = [];
+    
+    /**
+     * Array of temporary where conditions. This is used in Advanced Search.
+     * We need to use temp conditions because we dont want to update directly the conditions_
+     *
+     * @type {Where[]}
+     * @private
+     */
+    this.tempConditions_ = [];
 
     /**
      * Description of this view
@@ -70,6 +79,15 @@ var BrowserView = function(objType) {
      * @private
      */
     this.orderBy_ = [];
+    
+    /**
+     * Array of temporary sort order objects. This is used in Advanced Search
+     * We need to use temp sort order because we dont want to update directly the orderBy_
+     *
+     * @type {Array}
+     * @private
+     */
+    this.tempOrderBy_ = [];
 
     /**
      * Which fields to display in a table view
@@ -78,6 +96,15 @@ var BrowserView = function(objType) {
      * @private
      */
     this.tableColumns_ = [];
+    
+    /**
+     * Temporary fields that will be in advanced search.
+     * We need to use temp columns because we dont want to update directly the tableColumns_ 
+     *
+     * @type {string[]}
+     * @private
+     */
+    this.tempTableColumns_ = [];
 
     /**
      * The scope of the view
@@ -148,10 +175,7 @@ BrowserView.prototype.fromData = function(data) {
     }
 
     for (var i in data.conditions) {
-        var where = new Where(data.conditions[i].field_name);
-        where.bLogic = data.conditions[i].blogic;
-        this.operator = data.conditions[i].operator;
-        where.value = data.conditions[i].value;
+        var where = this.applyAdvancedSearch_(data.conditions[i]);
         this.conditions_.push(where);
     }
 
@@ -165,9 +189,113 @@ BrowserView.prototype.fromData = function(data) {
 }
 
 /**
+ * Creates an instance of Where Object using the condition data provided
+ * 
+ * @param {object} condition    Object data that has the info of the saved condition
+ * @private
+ */
+BrowserView.prototype.applyAdvancedSearch_ = function(condition) {
+    var where = new Where(condition.field_name || condition.fieldName);
+    
+    where.bLogic = condition.blogic;
+    where.operator = condition.operator;
+    where.value = condition.value;
+    
+    return where;
+}
+
+/**
+ * Applies the temp conditions, sort order, and column view to the browserView actual data
+ * This function is executed in Advanced Search.
+ *  
+ * @public
+ */
+BrowserView.prototype.applyAdvancedSearch = function() {
+    this.conditions_ = this.tempConditions_;
+    this.orderBy_ = this.tempOrderBy_;
+    
+    // We need to loop thru the table columns since it has different structure
+    this.tableColumns_ =[];
+    
+    for(var idx in this.tempTableColumns_) {
+        this.tableColumns_.push(this.tempTableColumns_[idx].fieldName);
+    }
+}
+
+/**
+ * Applies the temp conditions, sort order, and column view to the actual browserView and updates the display list
+ * This function is executed in Advanced Search.
+ *  
+ * @public
+ */
+BrowserView.prototype.populateTempData = function() {
+    // Clear out temp data
+    this.tempConditions_ = [];
+    this.tempOrderBy_ = [];
+    this.tempTableColumns_ = [];
+    
+    // Copy the current conditions.
+    for(var idx in this.conditions_) {
+        var where = this.applyAdvancedSearch_(this.conditions_[idx]);
+        this.tempConditions_.push(where);
+    }
+    
+    // Copy the current sort order.
+    for(var idx in this.orderBy_) {
+        this.tempOrderBy_.push({
+                field: this.orderBy_[idx].field,
+                direction: this.orderBy_[idx].direction
+        });
+    }
+    
+    // Copy the current table columns.
+    for(var idx in this.tableColumns_) {
+        var fieldName = this.tableColumns_[idx];
+        this.tempTableColumns_.push({
+            fieldName: fieldName
+        });
+    }
+}
+
+/**
+ * Gets the temp conditions.
+ * 
+ * @return {Where[]}
+ * @public
+ */
+BrowserView.prototype.getTempConditions = function() {
+    return this.tempConditions_;
+}
+
+/**
+ * Creates a new where object instance and stores it in tempConditions_
+ *
+ * @param {string} fieldName    The fieldName of the condition we want to create and store in tempConditions_
+ * @public
+ */
+BrowserView.prototype.addTempCondition = function(fieldName) {
+    
+    // We do not need to specify the bLogic, operator and value since this will be set by the user in the Advanced Search
+    var condition = new Where(fieldName);
+    this.tempConditions_.push(condition);
+}
+
+/**
+ * Removes the condition based on the index provided
+ *
+ * @param {int} index       The index of the condition that will be removed
+ * @return {Where[]}  
+ * @public
+ */
+BrowserView.prototype.removeTempCondition = function(index) {
+    this.tempConditions_.splice(index, 1);
+}
+
+/**
  * Get where conditions
  *
  * @return {Where[]}
+ * @public
  */
 BrowserView.prototype.getConditions = function() {
     return this.conditions_;
@@ -177,18 +305,86 @@ BrowserView.prototype.getConditions = function() {
  * Get the sort order
  *
  * @return {string[]}
+ * @public
  */
 BrowserView.prototype.getOrderBy = function() {
     return this.orderBy_;
 }
 
 /**
+ * Gets the temp conditions.
+ * 
+ * @return {string[]}
+ * @public
+ */
+BrowserView.prototype.getTempOrderBy = function() {
+    return this.tempOrderBy_;
+}
+
+/**
+ * Pushes a new sort order object in tempConditions_
+ *
+ * @param {string} fieldName    The fieldName of sort order we want to create
+ * @param {string} direction    The direction of the sort order we want to create
+ * @public
+ */
+BrowserView.prototype.addTempOrderBy = function(fieldName, direction) {
+    this.tempOrderBy_.push({
+        field : fieldName,
+        direction : direction
+    });
+}
+
+/**
+ * Removes the sort order based on the index provided
+ *
+ * @param {int} index       The index of the sort order that will be removed  
+ * @public
+ */
+BrowserView.prototype.removeTempOrderBy = function(index) {
+    this.tempOrderBy_.splice(index, 1);
+}
+
+/**
  * Get the table columns to view
  *
  * @return {string[]}
+ * @public
  */
 BrowserView.prototype.getTableColumns = function() {
     return this.tableColumns_;
+}
+
+/**
+ * Get the table columns to view
+ *
+ * @return {string[]}
+ * @public
+ */
+BrowserView.prototype.getTempColumns = function() {
+    return this.tempTableColumns_;
+}
+
+/**
+ * Pushes a new column in tempTableColumns_
+ *
+ * @param {string} fieldName    The fieldName of sort order we want to create
+ * @public
+ */
+BrowserView.prototype.addTempColumn = function(fieldName) {
+    this.tempTableColumns_.push({
+        fieldName: fieldName
+    });
+}
+
+/**
+ * Removes the column based on the index provided
+ *
+ * @param {int} index       The index of the sort order that will be removed  
+ * @public
+ */
+BrowserView.prototype.removeTempColumn = function(index) {
+    this.tempTableColumns_.splice(index, 1);
 }
 
 module.exports = BrowserView;

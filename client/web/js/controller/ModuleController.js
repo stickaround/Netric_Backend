@@ -10,7 +10,6 @@ var AbstractController = require("./AbstractController");
 var TestController = require("./TestController");
 var EntityController = require("./EntityController");
 var EntityBrowserController = require("./EntityBrowserController");
-var AdvancedSearchController = require("./AdvancedSearchController");
 var UiModule = require("../ui/Module.jsx"); 
 var moduleLoader = require("../module/loader");
 var groupingLoader = require("../entity/groupingLoader");

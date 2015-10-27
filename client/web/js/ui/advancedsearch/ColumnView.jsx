@@ -1,5 +1,6 @@
 /**
- * Column View used for advance search
+ * Column View used for advanced search.
+ * Pass the column object in the props and should contain the fieldName index
  *
  * @jsx React.DOM
  */
@@ -12,7 +13,7 @@ var IconButton = Chamel.IconButton;
 
 
 /**
- * Module shell
+ * Displays the columns to view used in advanced search
  */
 var ColumnView = React.createClass({
 
@@ -20,47 +21,42 @@ var ColumnView = React.createClass({
         onRemove: React.PropTypes.func,
         fieldData: React.PropTypes.object,
         index: React.PropTypes.number,
-        objType: React.PropTypes.string.isRequired,
-        savedColumn: React.PropTypes.object,
+        column: React.PropTypes.object,
+        objType: React.PropTypes.string,
     },
     
     getInitialState: function() {
-        var selectedFieldIndex = 0;
-        
-        // if column view is set, then we will override the default sort order
-        if(this.props.savedColumn) { 
-            selectedFieldIndex = this.props.fieldData.selectedIndex;
-        }
-        
         // Return the initial state
         return { 
-            fieldName: this.props.fieldData.fields[selectedFieldIndex].name,
-            selectedFieldIndex: selectedFieldIndex,
-            };
+            fieldName: this.props.column.fieldName,
+            selectedFieldIndex: this.props.fieldData.selectedIndex,
+        };
     },
 
     render: function() {
     		
         return (
-        		<div className="row" key={this.props.index}>
-					<div className="col-small-3">
-						<DropDownMenu menuItems={this.props.fieldData.fields} selectedIndex={this.state.selectedFieldIndex} onChange={this._handleMenuClick} />
-					</div>
-	    			<div className="col-small-1">
-						<IconButton onClick={this._handleRemoveOrder.bind(this, this.props.index)} className="fa fa-times" />
-					</div>
+                <div className="row" key={this.props.index}>
+                    <div className="col-small-3">
+                        <DropDownMenu 
+                            menuItems={this.props.fieldData.fields} 
+                            selectedIndex={this.state.selectedFieldIndex} 
+                            onChange={this._handleMenuClick} />
+                    </div>
+                    <div className="col-small-1">
+                        <IconButton onClick={this._handleRemoveColumnToView.bind(this)} className="fa fa-times" />
+                    </div>
 				</div>
-        	);
+        );
     },
     
     /**
-     * Removes the view Order
+     * Removes the column to view
      *
-     * @param {Integer} conditionIndex		The index of the condition to be removed
      * @private
      */
-    _handleRemoveOrder: function (index) {
-    	if(this.props.onRemove) this.props.onRemove('columnView', index);
+    _handleRemoveColumnToView: function () {
+    	if(this.props.onRemove) this.props.onRemove('columnView', this.props.index);
     },
     
     /**
@@ -68,29 +64,17 @@ var ColumnView = React.createClass({
      *
      * @param {string} type     Type of criteria that was changed
      * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @param {Integer} key     The index of the menu clicked
+     * @param {int} key     The index of the menu clicked
      * @param {array} field     The object value of the menu clicked
      * @private
      */
     _handleMenuClick: function(e, key, field) {
-        this.setState({
-                        fieldName: field.name,
-                        selectedFieldIndex: key
-                    });
-    },
-    
-    /**
-     * Returns the Column View set
-     *
-     * @public
-     */
-    getCriteria: function() {
-        var columnView = { 
-                fieldName: this.state.fieldName,
-        }
+        this.props.column.fieldName = field.name;
         
-        return columnView;
-    }
+        this.setState({ 
+            selectedFieldIndex: key
+        });
+    },
 });
 
 module.exports = ColumnView;

@@ -28,7 +28,7 @@ var List = React.createClass({
         selectedEntities: React.PropTypes.array, 
         
         // This will be set by the Advanced Search to determine which columns to display
-        columnView: React.PropTypes.array,
+        columnsToView: React.PropTypes.array,
     },
 
     getDefaultProps: function() {
@@ -37,7 +37,7 @@ var List = React.createClass({
             entities: [],
             collectionLoading: false,
             selectedEntities: [],
-            columnView: null
+            columnsToView: null
         }
     },
     
@@ -110,7 +110,7 @@ var List = React.createClass({
                             browserView={this.props.browserView}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
                             onSelect={this._sendSelect.bind(null, entity.id)}
-                            columnView={this.props.columnView} />;
+                            columnsToView={this.props.columnsToView} />;
                     } else {
                         item = <ListItem
                             key={entity.id}
@@ -118,7 +118,7 @@ var List = React.createClass({
                             entity={entity}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
                             onSelect={this._sendSelect.bind(null, entity.id)}
-                            columnView={this.props.columnView} />;
+                            columnsToView={this.props.columnsToView} />;
                     }
 
                     break;

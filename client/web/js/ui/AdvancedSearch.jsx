@@ -1,5 +1,5 @@
 /**
- * Render an advance search
+ * Render an advanced search
  *
  * @jsx React.DOM
  */
@@ -14,97 +14,72 @@ var Dialog = Chamel.Dialog;
 var IconButton = Chamel.IconButton;
 var FlatButton = Chamel.FlatButton;
 
-var searchCriteria = ['conditions', 'sortOrder', 'columnView'];
-
 /**
- * Module shell
+ * Displays the advanced search to filter the results list using conditions. It can also set the sort order and columns to view.
  */
 var AdvancedSearch = React.createClass({
 
 	propTypes: {
-		layout : React.PropTypes.string,
 		title : React.PropTypes.string,
-		deviceSize: React.PropTypes.number,
-		entity: React.PropTypes.object,
 		objType: React.PropTypes.string,
-		collectionLoading: React.PropTypes.bool,
 		eventsObj: React.PropTypes.object,
-		savedCriteria: React.PropTypes.array,
+		browserView: React.PropTypes.object,
+		entityDefinition: React.PropTypes.object,
 	},
 
 	getDefaultProps: function() {
 		return {
-			layout: '',
-			title: "Browser",
+			title: "Advanced Search",
 		}
 	},
 	
 	getInitialState: function() {
-        return { 
-        	criteriaCount: [],
-        	removedCriteria: []
-        	};
-    },
-
-	render: function() {
-	    var dialogActions = [
-	                         { text: 'Cancel' },
-	                         { text: 'Save', onClick: this._handleSaveView, ref: 'save' }
-	                     ]; 
+	    this.props.browserView.populateTempData();
 	    
-	    var criteriaDisplay = [];
-    	
-	    for(var idx in searchCriteria)
-	    {	
-	        // Get the current criteria
-    		var criteria = searchCriteria[idx];
-    		
-    		// Check if the current criteria has the default values for count and removed entries
-    		if(!this.state.criteriaCount[criteria] || !this.state.removedCriteria[criteria]) {
-    		    var criteriaCount = 0;
-    		    
-    		    if(this.props.savedCriteria && this.props.savedCriteria[criteria]) {
-    		        criteriaCount = this.props.savedCriteria[criteria].length;
-    		    }
-    		    
-    			this.state.criteriaCount[criteria] = criteriaCount;
-    			this.state.removedCriteria[criteria] = [];
-    		}
-    		
-    		// Check if the current criteria has the initial value for display
-    		if(!criteriaDisplay[criteria]) {
-    		    criteriaDisplay[criteria] = [];
-    		}
-    		
-    		var removedCriteria = this.state.removedCriteria[criteria];
-    		var count = this.state.criteriaCount[criteria];
-    		
-    		for(var index=0; index<count; index++) {
-        		
-        		// Check if the current index criteria is already removed
-        		if(removedCriteria.indexOf(index) == -1) {
-        		    criteriaDisplay[criteria].push(
-        											this._getCriteriaDisplay(criteria, index)
-        										);
-        		}
-        	}	
-    	}
-    	
+        // Return the initial state
+        return { 
+            renderCount: 0
+            };
+    },
+	
+	render: function() {
+	    
+	    // Conditions Display
+	    var conditionsDiplay = [];
+	    var conditions = this.props.browserView.getTempConditions();
+	    for(var idx in conditions) {
+	        conditionsDiplay.push( this._getCriteriaDisplay('condition', conditions[idx], idx) );
+	    }
+	    
+	    // Sort Order Display
+	    var sortOrderDiplay = [];
+        var orderBy = this.props.browserView.getTempOrderBy();
+        for(var idx in orderBy) {
+            sortOrderDiplay.push( this._getCriteriaDisplay('sortOrder', orderBy[idx], idx) );
+        }
+        
+        // Columns to View Display
+        var columnViewDiplay = [];
+        var columnView = this.props.browserView.getTempColumns();
+        for(var idx in columnView) {
+            columnViewDiplay.push( this._getCriteriaDisplay('columnView', columnView[idx], idx) );
+        }
+	    
 		return (
 				<div>
 					<div>
 						<span className='advance-search-title'>Search Conditions: </span>
-						{criteriaDisplay['conditions']}
-						<IconButton onClick={this._handleAddCriteria.bind(this, 'conditions')} className="fa fa-plus" />
+						{conditionsDiplay}
+						<IconButton onClick={this._handleAddCriteria.bind(this, 'condition')} className="fa fa-plus" />
 					</div>
 					<div>
 						<span className='advance-search-title'>Sort By: </span>
-						{criteriaDisplay['sortOrder']}
+						{sortOrderDiplay}
 						<IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
 					</div>
 					<div>
 						<span className='advance-search-title'>Column View: </span>
-						{criteriaDisplay['columnView']}
+						{columnViewDiplay}
 						<IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
 					</div>
 					<div>
@@ -116,35 +91,56 @@ var AdvancedSearch = React.createClass({
     
     /**
      * Removes the selected criteria
-     *
-     * @param {string} criteria		Type of criteria to be removed
-     * @param {integer} index		The index to be removed
+     * 
+     * @param {string} type     Type of criteria to be removed
+     * @param {int} index       The index of the condition that will be removed
      * @private
      */
-    _handleRemoveCriteria: function(criteria, index) {
-    	var removedCriteria = this.state.removedCriteria;
-    	
-    	removedCriteria[criteria].push(index);
-    	
-    	this.setState({
-    		removedCriteria: removedCriteria
-    	});
+    _handleRemoveCondition: function(type, index) {
+        
+        switch(type) {
+            case 'condition':
+                this.props.browserView.removeTempCondition(index);
+                break;
+            case 'sortOrder':
+                this.props.browserView.removeTempOrderBy(index);
+                break;
+            case 'columnView':
+                this.props.browserView.removeTempColumn(index);
+                break;
+        }
+        
+        // Update the state so it will re-render the changes
+        this.setState({
+            renderCount: this.state.renderCount+1
+        });
     },
     
     /**
      * Adds a new search condition
      *
-     * @param {string} criteria		Type of criteria to be added
+     * @param {string} type		Type of criteria to be added
      * @private
      */
-    _handleAddCriteria: function(criteria) {
-    	var conditionCount = this.state.criteriaCount;
-    	
-    	conditionCount[criteria] = conditionCount[criteria]+1; 
-    	
-    	this.setState({
-    		conditionCount: conditionCount
-    	});
+    _handleAddCriteria: function(type) {
+        var field = this.props.entityDefinition.fields[0];
+        
+        switch(type) {
+            case 'condition':
+                this.props.browserView.addTempCondition(field.name);
+                break;
+            case 'sortOrder':
+                this.props.browserView.addTempOrderBy(field.name, 'asc');
+                break;
+            case 'columnView':
+                this.props.browserView.addTempColumn(field.name);
+                break;
+        }
+        
+        // Update the state so it will re-render the changes
+        this.setState({
+            renderCount: this.state.renderCount+1
+        });
     },
     
     /**
@@ -153,10 +149,11 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _handleAdvancedSearch: function() {
+        this.props.browserView.applyAdvancedSearch();
+        
         alib.events.triggerEvent(
                 this.props.eventsObj,
-                "apply_advance_search",
-                {criteria: this._buildSearchCriteria()}
+                "apply_advance_search"
             );
     },
     
@@ -177,64 +174,27 @@ var AdvancedSearch = React.createClass({
     _handleSaveView: function () {
         alib.events.triggerEvent(
                 this.props.eventsObj,
-                "save_advance_search",
-                {
-                    criteria: this._buildSearchCriteria(),
-                    name: this.refs.viewName.getValue()
-                }
+                "save_advance_search"
             );
-    },
-    
-    /**
-     * Builds the criteria for saving
-     *
-     * @private
-     */
-    _buildSearchCriteria: function() {
-        var advanceSearchCriteria = [];
-        
-        for(var idx in searchCriteria)
-        {   
-            
-            var criteria = searchCriteria[idx]; // Get the current criteria name
-            var removedCriteria = this.state.removedCriteria[criteria];
-            var count = this.state.criteriaCount[criteria];
-            
-            if(!advanceSearchCriteria[criteria]) {
-                advanceSearchCriteria[criteria] = [];
-            }
-            
-            for(var index=0; index<count; index++) {
-                var ref = criteria + index.toString();
-                var currentCriteria = this.refs[ref];
-                
-                // Check if the current index criteria is already removed
-                if(removedCriteria.indexOf(index) == -1 && currentCriteria) {
-                    advanceSearchCriteria[criteria].push(currentCriteria.getCriteria());
-                }
-            }   
-        }
-        
-        return advanceSearchCriteria;
     },
     
     /**
      * Gets the fields to be used in search criteria
      *
      * @param {string} selectedField      Field name that is currently selected
+     * @return {Array} Returns the field data that will be used to display in the field drop down
      * @private
      */
     _getEntityFieldData: function(selectedField) {
-    	if(this.props.entity == null) {
+    	if(this.props.browserView == null) {
     		return null;
     	}
     	
-    	//var initialTest = {payload: -1, name: 'note', text: 'Note', type: 'object'};
     	var fieldData = new Object();
     	
     	fieldData.fields = [];
     	fieldData.selectedIndex = 0;
-    	this.props.entity.def.fields.map(function(field, index) {
+    	this.props.entityDefinition.fields.map(function(field, index) {
     	    
     	    if(field.name == selectedField) {
     	        fieldData.selectedIndex = parseInt(index);
@@ -249,76 +209,66 @@ var AdvancedSearch = React.createClass({
     					});
     	});
     	
-    	
-    	
     	return fieldData;
     },
     
     /**
-     * Get the criteria to be displayed. Either Conditions, SortOrder or ColumnView
-     *
-     * @param {string} criteria		Type of criteria to be removed
-     * @param {array} field			Collection of the field selected information
-     * @param {integer} index		The index to be removed
+     * Get the criteria component to be displayed. This will display either condition, sort order, or columns to view
+     * 
+     * @param {string} type         Type of criteria to be displayed
+     * @param {object} data         Instance of the criteria object (condition, sort order, column view) that contains data to be displayed
+     * @param {int} index           Current index of the condition to be displayed
+     * @return {string} Returns the type of criteria to be displayed
      * @private
      */
-    _getCriteriaDisplay: function(criteria, index) {
+    _getCriteriaDisplay: function(type, data, index) {
+        var display = null;
+        var fieldName = data.fieldName || data.field;
+    	var fieldData = this._getEntityFieldData(fieldName); // Get the entity field data including the field name index (if available)
+    	var key = fieldName + index.toString();
+    	var index = parseInt(index);
     	
-    	var display = null;
-    	var savedData = null;
-    	var selectedField = null;
-    	var ref = criteria + index.toString();
-    	
-    	// Get the saved criteria
-    	if(this.props.savedCriteria && this.props.savedCriteria[criteria]) {
-    	    savedData = this.props.savedCriteria[criteria][index];
-    	    
-    	    // Check if saved data is already available or if the criteria is about to be added
-    	    if(savedData) {
-    	        selectedField = savedData.fieldName;
-    	    }
-    	}
-    	
-    	var fieldData = this._getEntityFieldData(selectedField); // Get the entity field data including the saved field index (if available)
-    	
-    	switch(criteria) {
-    		case 'conditions':
-    		    
-    			// Push the search condition component to the array for display
-    			display = ( <Condition key={index}
-    			                        ref={ref}
-    			                        entity={this.props.entity}
-    									objType={this.props.objType}
-    			                        fieldData={fieldData} 
-    					    			onRemove={this._handleRemoveCriteria}
-    					    			index={index}
-    			                        savedCondition={savedData} /> );
-    			break;
-    		case 'sortOrder':
-    			// Push the sort by component to the array for display
-    			display = ( <SortOrder 	key={index}
-    			                        ref={ref}
-										objType={this.props.objType}
-    			                        fieldData={fieldData} 
-					    				onRemove={this._handleRemoveCriteria}
-					    				index={index}
-    			                        savedOrder={savedData} /> );
-    			break;
-    		case 'columnView':
-    			// Push the sort by component to the array for display
-    			display = ( <ColumnView key={index}
-    			                        ref={ref}
-										objType={this.props.objType}
-    			                        fieldData={fieldData} 
-					    				onRemove={this._handleRemoveCriteria}
-					    				index={index}
-    			                        savedColumn={savedData} /> );
-    			break;
-    	}
+    	switch(type) {
+            case 'condition':
+                display = (
+                            <Condition
+                                key={key}
+                                index={index}
+                                fieldData={fieldData}
+                                objType={this.props.objType}
+                                condition={data}
+                                onRemove={this._handleRemoveCondition}
+                            /> 
+                );
+                break;
+            case 'sortOrder':
+                display = (
+                            <SortOrder
+                                key={key}
+                                index={index}
+                                fieldData={fieldData}
+                                objType={this.props.objType}
+                                orderBy={data}
+                                onRemove={this._handleRemoveCondition}
+                            /> 
+                ); 
+                break;
+            case 'columnView':
+                display = (
+                            <ColumnView
+                                key={key}
+                                index={index}
+                                fieldData={fieldData}
+                                objType={this.props.objType}
+                                column={data}
+                                onRemove={this._handleRemoveCondition}
+                            /> 
+                );
+                break;
+        }
     	
     	return display;
-    }
-
+    },
 });
 
 module.exports = AdvancedSearch;

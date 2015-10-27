@@ -8,7 +8,7 @@ var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiAdvancedSearch = require("../ui/AdvancedSearch.jsx");
-var entityLoader = require("../entity/loader");
+var definitionLoader = require("../entity/definitionLoader");
 
 /**
  * Controller that loads an Advanced Search
@@ -27,14 +27,6 @@ netric.inherits(AdvancedSearchController, AbstractController);
  * @type {ReactElement}
  */
 AdvancedSearchController.prototype.rootReactNode_ = null;
-
-/**
- * The entity that will be used to get object field data
- *
- * @private
- * @type {netric.entity.Entity}
- */
-AdvancedSearchController.prototype.entity_ = null;
 
 /**
  * Object used for handling custom events through the advance search
@@ -62,6 +54,14 @@ AdvancedSearchController.prototype.savedCriteria = null;
 AdvancedSearchController.prototype.browserView = null;
 
 /**
+ * Contains the entity definition of current object type. This will be used to display the fields for conditions, sorty order and column view.
+ *
+ * @public
+ * @type {Array}
+ */
+AdvancedSearchController.prototype.entityDefinition = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -75,23 +75,16 @@ AdvancedSearchController.prototype.onLoad = function(opt_callback) {
         this.eventsObj = {};
     }
     
-    // Setup an empty entity
-    this.entity_ = entityLoader.factory(this.props.objType);
-
-    // Set listener to call this.render when properties change
-    alib.events.listen(this.entity_, "change", function(evt){
-        // Re-render
-        this.render();
-    }.bind(this));
-    
-    if(callbackWhenLoaded) {
-        callbackWhenLoaded();
-    }
-    
     // Capture an advance search save
     alib.events.listen(this.eventsObj, "save_advance_search", function(evt) {
         this.saveAdvancedSearch(evt.data);
     }.bind(this));
+    
+    if (callbackWhenLoaded) {
+        callbackWhenLoaded();
+    } else {
+        this.render();
+    }
 }
 
 /**
@@ -106,6 +99,8 @@ AdvancedSearchController.prototype.render = function() {
 	// If saved criteria is not set, then we need to get the initial values from the browser view
 	if(this.savedCriteria == null && this.browserView) {
 	    this.savedCriteria = [];
+	    
+	    // UPDATET THIS CODE!!! - marl
 	    
 	    // Get the Conditions from browser view
 	    var conditions = this.browserView.getConditions();
@@ -140,14 +135,11 @@ AdvancedSearchController.prototype.render = function() {
 	
     // Define the data
 	var data = {
-	        eventsObj: this.eventsObj,
 	        title: this.props.title || "Advanced Search",
-	        entity: this.entity_,
+	        eventsObj: this.eventsObj,
 	        objType: this.props.objType,
-	        savedCriteria: this.savedCriteria,
-	        deviceSize: netric.getApplication().device.size,
-	        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
-	        ? "compact" : "table",
+	        browserView: this.browserView,
+	        entityDefinition: this.entityDefinition,
 	}
 	
 	// Render browser component

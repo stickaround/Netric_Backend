@@ -403,7 +403,7 @@ Collection.prototype.getLimit = function() {
  * @return {array}
  */
 Collection.prototype.getEntityFields = function() {
-    return this.entityDefinition_.fields;
+    return this.entityDefinition_.getFields();
 }
 
 module.exports = Collection;

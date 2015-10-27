@@ -1,5 +1,6 @@
 /**
- * Sort By used for advance search
+ * Sort By used for advance search.
+ * Pass the orderBy object in the props and should contains the fieldName and direction data
  *
  * @jsx React.DOM
  */
@@ -17,7 +18,7 @@ var directionMenu = [
 
 
 /**
- * Module shell
+ * Displays the sort order used in the advanced search.
  */
 var SortOrder = React.createClass({
 
@@ -26,26 +27,19 @@ var SortOrder = React.createClass({
         fieldData: React.PropTypes.object,
         index: React.PropTypes.number,
         objType: React.PropTypes.string.isRequired,
-        savedOrder: React.PropTypes.object,
+        orderBy: React.PropTypes.object,
     },
     
     getInitialState: function() {
-        var selectedFieldIndex = 0;
-        var selectedDirectionIndex = 0;
-        
-        // if savedOrder is set, then we will override the default sort order
-        if(this.props.savedOrder) {
-            selectedFieldIndex = this.props.fieldData.selectedIndex;
-            selectedDirectionIndex = ( this.props.savedOrder.direction == 'asc' ? 0 : 1 );
-        }
+        var selectedDirectionIndex = ( this.props.orderBy.direction == 'asc' ? 0 : 1 );
         
         // Return the initial state
         return { 
-            fieldName: this.props.fieldData.fields[selectedFieldIndex].name, 
-            direction: directionMenu[selectedDirectionIndex].name,
-            selectedFieldIndex: selectedFieldIndex,
+            fieldName: this.props.orderBy.field, 
+            direction: this.props.orderBy.direction,
+            selectedFieldIndex: this.props.fieldData.selectedIndex,
             selectedDirectionIndex: selectedDirectionIndex
-            };
+        };
     },
 
     render: function() {
@@ -56,18 +50,18 @@ var SortOrder = React.createClass({
 						<DropDownMenu 
 						        menuItems={this.props.fieldData.fields} 
 						        selectedIndex={this.state.selectedFieldIndex} 
-						        onChange={this._handleMenuClick.bind(this, 'fieldName')} />
+						        onChange={this._handleFieldNameClick} />
 					</div>
 	    			<div className="col-small-2">
 	    				<DropDownMenu 
 	    				        menuItems={directionMenu} 
 	    				        selectedIndex={this.state.selectedDirectionIndex} 
-	    				        onChange={this._handleMenuClick.bind(this, 'direction')} />
+	    				        onChange={this._handleDirectionClick } />
 					</div>
 	    			<div className="col-small-1">
 						<IconButton 
 						        className="fa fa-times"
-						        onClick={this._handleRemoveOrder.bind(this, this.props.index)} />
+						        onClick={this._handleRemoveOrder} />
 					</div>
 				</div>
         	);
@@ -76,51 +70,42 @@ var SortOrder = React.createClass({
     /**
      * Removes the Sort Order
      *
-     * @param {Integer} conditionIndex		The index of the condition to be removed
+     * @param {int} conditionIndex		The index of the condition to be removed
      * @private
      */
-    _handleRemoveOrder: function (index) {
-    	if(this.props.onRemove) this.props.onRemove('sortOrder', index);
+    _handleRemoveOrder: function () {
+    	if(this.props.onRemove) this.props.onRemove('sortOrder', this.props.index);
     },
     
     /**
-     * Callback used to handle commands when user selects the field name / sort by dropdown
+     * Callback used to handle commands when user selects the field name in the dropdown menu
      *
-     * @param {string} type     Type of criteria that was changed
      * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @param {Integer} key     The index of the menu clicked
+     * @param {int} key         The index of the menu clicked
      * @param {array} field     The object value of the menu clicked
      * @private
      */
-    _handleMenuClick: function(type, e, key, field) {
-        switch(type) {
-            case 'fieldName':
-                this.setState({
-                    fieldName: field.name,
-                    selectedFieldIndex: key
-                });
-                break;
-            case 'direction':
-                this.setState({
-                    direction: field.name,
-                    selectedDirectionIndex: key
-                });
-                break;
-        }
+    _handleFieldNameClick: function(e, key, field) {
+        this.props.orderBy.field = field.name;
+        this.setState({
+            selectedFieldIndex: key
+        });
     },
     
     /**
-     * Returns the Sort Order set
+     * Callback used to handle commands when user selects the sort direction in the dropdown menu
      *
-     * @public
+     * @param {DOMEvent} e      Reference to the DOM event being sent
+     * @param {int} key         The index of the menu clicked
+     * @param {array} field     The object value of the menu clicked
+     * @private
      */
-    getCriteria: function() {
-        var sortOrder = { 
-                fieldName: this.state.fieldName,
-                direction: this.state.direction
-        }
-        
-        return sortOrder;
+    _handleDirectionClick: function(e, key, field) {
+        this.props.orderBy.direction = field.name;
+        this.setState({
+            selectedDirectionIndex: key
+        });
+        console.log(this.props.orderBy);
     }
 });
 

@@ -157,4 +157,77 @@ Where.prototype.isLessOrEqaulTo = function(value) {
     this.value = value;
 }
 
+/**
+ * Get the condition operator based on the field type
+ *
+ * @param {string} fieldType    The type of the field
+ * @private
+ */
+Where.prototype.getOperatorsForFieldType = function(fieldType) {
+    var operators = null;
+    
+    switch(fieldType) {
+        case 'fkey_multi':
+        case 'fkey':
+            operators = {
+                is_equal: "is equal to",
+                is_not_equal: "is not equal to"
+            }    
+            break;
+        case 'number':
+        case 'real':
+        case 'integer':
+            operators = {
+                is_equal: "is equal to",
+                is_not_equal: "is not equal to",
+                is_greater: "is greater than",
+                is_less: "is less than",
+                is_greater_or_equal: "is greater than or equal to",
+                is_less_or_equal: "is less than or equal to",
+                begins_with: "begins with"
+            };
+            break;
+        case 'date':
+        case 'timestamp':
+            operators = {
+                is_equal: "is equal to",
+                is_not_equal: "is not equal to",
+                is_greater: "is greater than",
+                is_less: "is less than",
+                day_is_equal: "day is equal to",
+                month_is_equal: "month is equal to",
+                year_is_equal: "year is equal to",
+                is_greater_or_equal: "is greater than or equal to",
+                is_less_or_equal: "is less than or equal to",
+                last_x_days: "within last (x) days",
+                last_x_weeks: "within last (x) weeks",
+                last_x_months: "within last (x) months",
+                last_x_years: "within last (x) years",
+                next_x_days: "within next (x) days",
+                next_x_weeks: "within next (x) weeks",
+                next_x_months: "within next (x) months",
+                next_x_years: "within next (x) years"
+            };
+            break;
+        case 'bool':
+            operators = {
+                is_equal: "is equal to",
+                is_not_equal: "is not equal to"
+            };
+            break;
+        default: // Text
+            operators = {
+                is_equal: "is equal to",
+                is_not_equal: "is not equal to",
+                begins_with: "begins with",
+                contains: "contains"
+            };
+            break;
+    }
+    
+    return operators;
+}
+
+
+
 module.exports = Where;

@@ -28,6 +28,10 @@ var ControllerDialog = React.createClass({
             title: 'Browse',
         };
     },
+    
+    componentWillUnmount: function() {
+      console.log("asfs");  
+    },
 
     render: function() {
 
