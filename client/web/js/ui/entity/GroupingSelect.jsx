@@ -30,7 +30,11 @@ var GroupingSelect = React.createClass({
 		// List of groupings to exclude (already set in the entity)
 		ignore: React.PropTypes.array,
 		// Optional text label to use for the "add grouping" button/drop-down
-		label: React.PropTypes.string
+		label: React.PropTypes.string,
+		// Determine if grouping select is used in form editor
+		editMode: React.PropTypes.bool,
+		// Will contain a initial value if available
+		selectedValue: React.PropTypes.string
 	},
 
 	/**
@@ -40,6 +44,8 @@ var GroupingSelect = React.createClass({
 	    return {
             label: 'Add',
             ignore: new Array(),
+            editMode: true,
+            selectedValue: null
 	    };
   	},
 
@@ -47,14 +53,26 @@ var GroupingSelect = React.createClass({
   	 * Get the initial state of this componenet
   	 */
   	getInitialState: function() {
-		return {
-	    	ddSelectedIndex: 0,
-            groupings: this.getGroupingsFromModel()
-		}
+  	    var selectedIndex = 0;
+  	    var groupings = this.getGroupingsFromModel();
+      
+  	    if(this.props.selectedValue) {
+  	        for(var idx in groupings) {
+  	            if(groupings[idx].id == this.props.selectedValue) {
+  	                selectedIndex = idx;
+  	                break;
+  	            }
+  	        }
+  	    }
+      
+  	    return {
+  	        ddSelectedIndex: selectedIndex,
+  	        groupings: groupings
+  	    }
 	},
 
     /**
-     *
+     * Get the groupings from the model.
      */
     getGroupingsFromModel: function() {
 
@@ -101,11 +119,8 @@ var GroupingSelect = React.createClass({
 	    // TODO: use the groupingLoader to load up groups
 	    var menuItems = [];
 	    
-        /*
-         * Check first if props.label is not set to null before pushing it to menuItems
-         * There are some instances that we dont want to have to display the label just like in Advanced Search condition
-         */  
-	    if(this.props.label != null) {
+        // If grouping select is used in a form editor, then we will add the label in the menu items
+	    if(this.props.editMode) {
 	        menuItems.push({ 
 	            payload: '', text: this.props.label 
 	        });
@@ -185,8 +200,10 @@ var GroupingSelect = React.createClass({
             this.props.onChange(menuItem.payload, menuItem.text);
 		}
 
-		// Reset back to the first element
-		this.setState({ddSelectedIndex: 0});
+		// If grouping select is used in a form editor, then we need to reset back to the first element
+        if(this.props.editMode) {
+            this.setState({ddSelectedIndex: 0});
+        }
 	},
 
     /**

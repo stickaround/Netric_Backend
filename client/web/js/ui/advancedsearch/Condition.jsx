@@ -200,7 +200,8 @@ var SearchCondition = React.createClass({
                             onChange={this._handleGroupingSelect}
                             objType={this.props.objType}
                             fieldName={field.name}
-                            label={null}
+                            editMode={false}
+                            selectedValue={value}
                         />
                 );
                 break;
