@@ -97,7 +97,6 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _handleRemoveCondition: function(type, index) {
-        
         switch(type) {
             case 'condition':
                 this.props.browserView.removeTempCondition(index);

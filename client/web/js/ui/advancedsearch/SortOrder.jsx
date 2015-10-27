@@ -12,9 +12,9 @@ var DropDownMenu = Chamel.DropDownMenu;
 var IconButton = Chamel.IconButton;
 
 var directionMenu = [
-                     { name: 'asc', text: 'Ascending' },
-                     { name: 'desc', text: 'Descending' },
-                 ];
+    { payload: 'asc', text: 'Ascending' },
+    { payload: 'desc', text: 'Descending' },
+];
 
 
 /**
@@ -97,15 +97,14 @@ var SortOrder = React.createClass({
      *
      * @param {DOMEvent} e      Reference to the DOM event being sent
      * @param {int} key         The index of the menu clicked
-     * @param {array} field     The object value of the menu clicked
+     * @param {array} menuItem  The object value of the menu clicked
      * @private
      */
-    _handleDirectionClick: function(e, key, field) {
-        this.props.orderBy.direction = field.name;
+    _handleDirectionClick: function(e, key, menuItem) {
+        this.props.orderBy.direction = menuItem.payload;
         this.setState({
             selectedDirectionIndex: key
         });
-        console.log(this.props.orderBy);
     }
 });
 

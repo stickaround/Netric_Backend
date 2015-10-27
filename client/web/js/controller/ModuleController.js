@@ -284,4 +284,5 @@ ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 	);
 }
 
+
 module.exports = ModuleController;

@@ -37,14 +37,6 @@ AdvancedSearchController.prototype.rootReactNode_ = null;
 AdvancedSearchController.prototype.eventsObj = null;
 
 /**
- * A collection of advanced search criteria that contains data for conditions, sort by and column view that were already set
- *
- * @public
- * @type {Object}
- */
-AdvancedSearchController.prototype.savedCriteria = null;
-
-/**
  * View being used to filter and order the collection.
  * This will be used to get the initial data for Advanced Search if there is no search view set.
  *
@@ -95,43 +87,6 @@ AdvancedSearchController.prototype.render = function() {
 	var domCon = this.domNode_;
 	var entities = new Array();
 	var entityFields = new Array();
-	
-	// If saved criteria is not set, then we need to get the initial values from the browser view
-	if(this.savedCriteria == null && this.browserView) {
-	    this.savedCriteria = [];
-	    
-	    // UPDATET THIS CODE!!! - marl
-	    
-	    // Get the Conditions from browser view
-	    var conditions = this.browserView.getConditions();
-	    if(conditions) {
-	        this.savedCriteria['conditions'] = [];
-	        for (var idx in conditions) {
-	            this.savedCriteria['conditions'].push(conditions[idx]);
-	        }
-	    }
-	    
-	    // Get the order by from the browser view
-        var sortOrder = this.browserView.getOrderBy()
-        if(sortOrder) {
-            this.savedCriteria['sortOrder'] = [];
-            for (var idx in sortOrder) {
-                this.savedCriteria['sortOrder'].push({
-                                                        fieldName: sortOrder[idx].field,
-                                                        direction: sortOrder[idx].direction,
-                                                    });
-            }
-        }
-	    
-	    // Get the columns from the browser view
-	    var columns = this.browserView.getTableColumns()
-	    if(columns) {
-	        this.savedCriteria['columnView'] = [];
-            for (var idx in columns) {
-                this.savedCriteria['columnView'].push({fieldName: columns[idx]});
-            }
-	    }
-	}
 	
     // Define the data
 	var data = {

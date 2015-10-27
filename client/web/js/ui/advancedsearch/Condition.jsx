@@ -16,14 +16,14 @@ var TextField = Chamel.TextField;
 var IconButton = Chamel.IconButton;
 
 var bLogicMenu = [
-                { payload: 'and', text: 'And' },
-                { payload: 'or', text: 'Or' },
-            ];
+    { payload: 'and', text: 'And' },
+    { payload: 'or', text: 'Or' },
+];
 
 var boolInputMenu = [
-              { payload: 'true', text: 'true' },
-              { payload: 'false', text: 'false' },
-          ];
+    { payload: 'true', text: 'true' },
+    { payload: 'false', text: 'false' },
+];
 
 /**
  * Displays the search conditions used in advanced search
@@ -273,7 +273,7 @@ var SearchCondition = React.createClass({
      * Gets the index of the saved field/operator/blogic value
      *
      * @param {array} data      Array of data that will be mapped to get the index of the saved field/operator/blogic value
-     * @param {array} value     The value that will be used to get the index
+     * @param {string} value    The value that will be used to get the index
      * @private
      */
     _getSelectedIndex: function(data, value) {

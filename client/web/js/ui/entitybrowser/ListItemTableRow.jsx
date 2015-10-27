@@ -43,21 +43,9 @@ var ListItemTableRow = React.createClass({
          *
          * @var {netric/entity/BrowserView}
          */
-        browserView: React.PropTypes.object,
-        
-        /**
-         * Contains settings from Advanced Search to determine which columns to be displayed
-         *
-         */
-        columnsToView: React.PropTypes.array,
+        browserView: React.PropTypes.object
     },
     
-    getDefaultProps: function() {
-        return {
-            columnsToView: null
-        }
-    },
-
     /**
      * Render the entity table row
      *
@@ -137,31 +125,19 @@ var ListItemTableRow = React.createClass({
      * @return {string[]}
      */
     getFieldsToRender_: function() {
+        var fields = (this.props.browserView) ? this.props.browserView.getTableColumns() : [];
         
-        var fields = [];
+        // If no table columns are defined in the view, then guess
+        if (fields.length < 1) {
+            if (this.props.entity.def.getNameField()) {
+                fields.push(this.props.entity.def.getNameField());
+            }
+    
+            // TODO: Add more common fields here
+        }
         
-        // Check if column view from advanced search is set. 
-        if(this.props.columnsToView) {
-            for(var idx in this.props.columnsToView) {
-                fields.push(this.props.columnsToView[idx].fieldName);
-            }
-        }
-        else {
-            fields = (this.props.browserView) ? this.props.browserView.getTableColumns() : [];
-            
-            // If no table columns are defined in the view, then guess
-            if (fields.length < 1) {
-                if (this.props.entity.def.getNameField()) {
-                    fields.push(this.props.entity.def.getNameField());
-                }
-
-                // TODO: Add more common fields here
-            }
-        }
-
         return fields;
     }
-
 });
 
 module.exports = ListItemTableRow;

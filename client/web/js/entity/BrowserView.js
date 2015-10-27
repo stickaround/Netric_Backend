@@ -175,7 +175,7 @@ BrowserView.prototype.fromData = function(data) {
     }
 
     for (var i in data.conditions) {
-        var where = this.applyAdvancedSearch_(data.conditions[i]);
+        var where = this.createCondition_(data.conditions[i]);
         this.conditions_.push(where);
     }
 
@@ -194,7 +194,7 @@ BrowserView.prototype.fromData = function(data) {
  * @param {object} condition    Object data that has the info of the saved condition
  * @private
  */
-BrowserView.prototype.applyAdvancedSearch_ = function(condition) {
+BrowserView.prototype.createCondition_ = function(condition) {
     var where = new Where(condition.field_name || condition.fieldName);
     
     where.bLogic = condition.blogic;
@@ -223,8 +223,9 @@ BrowserView.prototype.applyAdvancedSearch = function() {
 }
 
 /**
- * Applies the temp conditions, sort order, and column view to the actual browserView and updates the display list
- * This function is executed in Advanced Search.
+ * Populates the temp data to be used in Advanced Search.
+ * Make sure that the data only is passed and not the instance.
+ * We want to avoid updating/removing the data that is saved in browserView until the user applies the advanced search.
  *  
  * @public
  */
@@ -236,7 +237,7 @@ BrowserView.prototype.populateTempData = function() {
     
     // Copy the current conditions.
     for(var idx in this.conditions_) {
-        var where = this.applyAdvancedSearch_(this.conditions_[idx]);
+        var where = this.createCondition_(this.conditions_[idx]);
         this.tempConditions_.push(where);
     }
     

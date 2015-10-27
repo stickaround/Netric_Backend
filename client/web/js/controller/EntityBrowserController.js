@@ -145,7 +145,6 @@ EntityBrowserController.prototype.render = function() {
 	            ? "compact" : "table",
 	        actionHandler: this.actions_,
 	        browserView:this.browserView_,
-	        columnView: this.columnView_,
 	        onEntityListClick: function(objType, oid, title) {
 	            this.onEntityListClick(objType, oid, title);
 	        }.bind(this),
@@ -242,7 +241,6 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
     }
 }
 
-
 /**
  * Fired if the user changes search conditions in the UI
  * 
@@ -260,8 +258,6 @@ EntityBrowserController.prototype.onSearchChange = function(fullText, opt_condit
  * Fill the collection for this browser
  */
 EntityBrowserController.prototype.loadCollection = function() {
-
-    var conditions = null;
     
     // Clear out conditions to remove stale wheres
     this.collection_.clearConditions();
@@ -295,7 +291,6 @@ EntityBrowserController.prototype.loadCollection = function() {
             this.collection_.addWhere(conditions[i]);
         }
     }
-    
 
     // Load (we depend on 'onload' events for triggering UI rendering in this.render)
     this.collection_.load();
@@ -442,9 +437,7 @@ EntityBrowserController.prototype.displayAdvancedSearch = function() {
     advancedSearch.eventsObj = this.eventsObj_;
     advancedSearch.browserView = this.browserView_;
     advancedSearch.entityDefinition = this.entityDefinition_;
-    
     advancedSearch.savedCriteria = this.advancedSearchCriteria_;
-    
     
     advancedSearch.load({
         type: controller.types.DIALOG,

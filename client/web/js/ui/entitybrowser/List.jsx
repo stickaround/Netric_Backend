@@ -25,10 +25,7 @@ var List = React.createClass({
 
         // Instance of Netric/Entity/BrowserView defining which columns a table show show
         browserView: React.PropTypes.object,
-        selectedEntities: React.PropTypes.array, 
-        
-        // This will be set by the Advanced Search to determine which columns to display
-        columnsToView: React.PropTypes.array,
+        selectedEntities: React.PropTypes.array,
     },
 
     getDefaultProps: function() {
@@ -36,8 +33,7 @@ var List = React.createClass({
             layout: '',
             entities: [],
             collectionLoading: false,
-            selectedEntities: [],
-            columnsToView: null
+            selectedEntities: []
         }
     },
     
@@ -109,16 +105,14 @@ var List = React.createClass({
                             entity={entity}
                             browserView={this.props.browserView}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
-                            columnsToView={this.props.columnsToView} />;
+                            onSelect={this._sendSelect.bind(null, entity.id)} />;
                     } else {
                         item = <ListItem
                             key={entity.id}
                             selected={selected}
                             entity={entity}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
-                            columnsToView={this.props.columnsToView} />;
+                            onSelect={this._sendSelect.bind(null, entity.id)} />;
                     }
 
                     break;
