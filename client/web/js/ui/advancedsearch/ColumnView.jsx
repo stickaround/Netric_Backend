@@ -19,6 +19,7 @@ var ColumnView = React.createClass({
 
     propTypes: {
         onRemove: React.PropTypes.func,
+        onUpdate: React.PropTypes.func,
         fieldData: React.PropTypes.object,
         index: React.PropTypes.number,
         column: React.PropTypes.object,
@@ -69,7 +70,7 @@ var ColumnView = React.createClass({
      * @private
      */
     _handleMenuClick: function(e, key, field) {
-        this.props.column.fieldName = field.name;
+        if(this.props.onUpdate) this.props.onUpdate(field.name, this.props.index);
         
         this.setState({ 
             selectedFieldIndex: key

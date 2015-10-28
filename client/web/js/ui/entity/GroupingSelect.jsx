@@ -31,8 +31,8 @@ var GroupingSelect = React.createClass({
 		ignore: React.PropTypes.array,
 		// Optional text label to use for the "add grouping" button/drop-down
 		label: React.PropTypes.string,
-		// Determine if grouping select is used in form editor
-		editMode: React.PropTypes.bool,
+		// Determine if we allow no selection in the dropdown
+		allowNoSelection: React.PropTypes.bool,
 		// Will contain a initial value if available
 		selectedValue: React.PropTypes.string
 	},
@@ -44,7 +44,7 @@ var GroupingSelect = React.createClass({
 	    return {
             label: 'Add',
             ignore: new Array(),
-            editMode: true,
+            allowNoSelection: true,
             selectedValue: null
 	    };
   	},
@@ -117,15 +117,8 @@ var GroupingSelect = React.createClass({
 	render: function() {
 
 	    // TODO: use the groupingLoader to load up groups
-	    var menuItems = [];
+	    var menuItems = [{payload: '', text: this.props.label}];
 	    
-        // If grouping select is used in a form editor, then we will add the label in the menu items
-	    if(this.props.editMode) {
-	        menuItems.push({ 
-	            payload: '', text: this.props.label 
-	        });
-	    }
-
         this._addGroupingOption(this.state.groupings, menuItems);
 
 		return (
@@ -200,8 +193,8 @@ var GroupingSelect = React.createClass({
             this.props.onChange(menuItem.payload, menuItem.text);
 		}
 
-		// If grouping select is used in a form editor, then we need to reset back to the first element
-        if(this.props.editMode) {
+		// If grouping select allows no selection, then we need to reset back to the first element
+        if(this.props.allowNoSelection) {
             this.setState({ddSelectedIndex: 0});
         }
 	},

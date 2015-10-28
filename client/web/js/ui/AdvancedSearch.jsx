@@ -20,9 +20,9 @@ var FlatButton = Chamel.FlatButton;
 var AdvancedSearch = React.createClass({
 
 	propTypes: {
-		title : React.PropTypes.string,
+	    onApplySearch: React.PropTypes.func,
+		title: React.PropTypes.string,
 		objType: React.PropTypes.string,
-		eventsObj: React.PropTypes.object,
 		browserView: React.PropTypes.object,
 		entityDefinition: React.PropTypes.object,
 	},
@@ -34,37 +34,38 @@ var AdvancedSearch = React.createClass({
 	},
 	
 	getInitialState: function() {
-	    this.props.browserView.populateTempData();
-	    
         // Return the initial state
         return { 
             renderCount: 0
-            };
+        };
     },
 	
 	render: function() {
 	    
 	    // Conditions Display
 	    var conditionsDiplay = [];
-	    var conditions = this.props.browserView.getTempConditions();
+	    var conditions = this.props.browserView.getConditions();
 	    for(var idx in conditions) {
 	        conditionsDiplay.push( this._getCriteriaDisplay('condition', conditions[idx], idx) );
 	    }
 	    
 	    // Sort Order Display
 	    var sortOrderDiplay = [];
-        var orderBy = this.props.browserView.getTempOrderBy();
+        var orderBy = this.props.browserView.getOrderBy();
         for(var idx in orderBy) {
             sortOrderDiplay.push( this._getCriteriaDisplay('sortOrder', orderBy[idx], idx) );
         }
         
         // Columns to View Display
         var columnViewDiplay = [];
-        var columnView = this.props.browserView.getTempColumns();
+        var columnView = this.props.browserView.getTableColumns();
         for(var idx in columnView) {
-            columnViewDiplay.push( this._getCriteriaDisplay('columnView', columnView[idx], idx) );
-        }
-	    
+            
+            // We need to create a column object since in browserView the columns are stored in an array
+            var column = {fieldName: columnView[idx]};
+            
+            columnViewDiplay.push( this._getCriteriaDisplay('columnView', column, idx) );
+        }	    
 		return (
 				<div>
 					<div>
@@ -99,13 +100,13 @@ var AdvancedSearch = React.createClass({
     _handleRemoveCondition: function(type, index) {
         switch(type) {
             case 'condition':
-                this.props.browserView.removeTempCondition(index);
+                this.props.browserView.removeCondition(index);
                 break;
             case 'sortOrder':
-                this.props.browserView.removeTempOrderBy(index);
+                this.props.browserView.removeOrderBy(index);
                 break;
             case 'columnView':
-                this.props.browserView.removeTempColumn(index);
+                this.props.browserView.removeColumn(index);
                 break;
         }
         
@@ -126,13 +127,13 @@ var AdvancedSearch = React.createClass({
         
         switch(type) {
             case 'condition':
-                this.props.browserView.addTempCondition(field.name);
+                this.props.browserView.addCondition(field.name);
                 break;
             case 'sortOrder':
-                this.props.browserView.addTempOrderBy(field.name, 'asc');
+                this.props.browserView.addOrderBy(field.name, 'asc');
                 break;
             case 'columnView':
-                this.props.browserView.addTempColumn(field.name);
+                this.props.browserView.addColumn(field.name);
                 break;
         }
         
@@ -148,21 +149,18 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _handleAdvancedSearch: function() {
-        this.props.browserView.applyAdvancedSearch();
-        
-        alib.events.triggerEvent(
-                this.props.eventsObj,
-                "apply_advance_search"
-            );
+        this.props.onApplySearch(this.props.browserView);
     },
     
     /**
      * Displays the save view dialog. 
      *
+     * @param {string} fieldName    Column name that will be saved based on the index provided
+     * @param {int} index           The index of column that will be removed
      * @private
      */
-    _handleShowViewDialog: function() {
-        this.refs.saveViewDialog.show()
+    _handleUpdateColumn: function(fieldName, index) {
+        this.props.browserView.updateColumn(fieldName, index);
     },
     
    /**
@@ -171,10 +169,6 @@ var AdvancedSearch = React.createClass({
     * @private
     */
     _handleSaveView: function () {
-        alib.events.triggerEvent(
-                this.props.eventsObj,
-                "save_advance_search"
-            );
     },
     
     /**
@@ -260,6 +254,7 @@ var AdvancedSearch = React.createClass({
                                 fieldData={fieldData}
                                 objType={this.props.objType}
                                 column={data}
+                                onUpdate={this._handleUpdateColumn}
                                 onRemove={this._handleRemoveCondition}
                             /> 
                 );

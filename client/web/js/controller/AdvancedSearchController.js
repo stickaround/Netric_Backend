@@ -29,31 +29,6 @@ netric.inherits(AdvancedSearchController, AbstractController);
 AdvancedSearchController.prototype.rootReactNode_ = null;
 
 /**
- * Object used for handling custom events through the advance search
- *
- * @public
- * @type {Object}
- */
-AdvancedSearchController.prototype.eventsObj = null;
-
-/**
- * View being used to filter and order the collection.
- * This will be used to get the initial data for Advanced Search if there is no search view set.
- *
- * @type {BrowserView}
- * @public
- */
-AdvancedSearchController.prototype.browserView = null;
-
-/**
- * Contains the entity definition of current object type. This will be used to display the fields for conditions, sorty order and column view.
- *
- * @public
- * @type {Array}
- */
-AdvancedSearchController.prototype.entityDefinition = null;
-
-/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -61,16 +36,6 @@ AdvancedSearchController.prototype.entityDefinition = null;
 AdvancedSearchController.prototype.onLoad = function(opt_callback) {
     
     var callbackWhenLoaded = opt_callback || null;
-    
-    // Create object to subscribe to events in the UI form if its not yet created
-    if(this.eventsObj == null) {
-        this.eventsObj = {};
-    }
-    
-    // Capture an advance search save
-    alib.events.listen(this.eventsObj, "save_advance_search", function(evt) {
-        this.saveAdvancedSearch(evt.data);
-    }.bind(this));
     
     if (callbackWhenLoaded) {
         callbackWhenLoaded();
@@ -91,10 +56,10 @@ AdvancedSearchController.prototype.render = function() {
     // Define the data
 	var data = {
 	        title: this.props.title || "Advanced Search",
-	        eventsObj: this.eventsObj,
 	        objType: this.props.objType,
-	        browserView: this.browserView,
-	        entityDefinition: this.entityDefinition,
+	        entityDefinition: this.props.entityDefinition,
+	        browserView: this.props.browserView,
+	        onApplySearch: this.props.onApplySearch,
 	}
 	
 	// Render browser component
@@ -108,7 +73,7 @@ AdvancedSearchController.prototype.render = function() {
  * TODO
  * Save the current advanced search settings
  */
-AdvancedSearchController.prototype.saveAdvancedSearch = function(searchData) {
+AdvancedSearchController.prototype._saveAdvancedSearch = function(searchData) {
     
     var data = [['obj_type', this.props.objType], ['name', searchData.name], ['description', searchData.description]];
     

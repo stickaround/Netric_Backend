@@ -21,7 +21,6 @@ var AppBarSearch = React.createClass({
 		onSearch: React.PropTypes.func,
 		onAdvancedSearch: React.PropTypes.func,
 		title : React.PropTypes.string,
-		eventsObj: React.PropTypes.object,
 	},
 	
 	getDefaultProps: function() {
@@ -75,10 +74,7 @@ var AppBarSearch = React.createClass({
 	},
 	
 	handleAdvancedSearch_: function() {
-		alib.events.triggerEvent(
-	            this.props.eventsObj,
-	            "display_advance_search"
-	        );
+	    if(this.props.onAdvancedSearch) this.props.onAdvancedSearch();
 	}
 });
 

@@ -73,14 +73,6 @@ EntityBrowserController.prototype.actions_ = null;
 EntityBrowserController.prototype.browserView_ = null;
 
 /**
- * Object used for handling custom events through the entity browser
- *
- * @private
- * @type {Object}
- */
-EntityBrowserController.prototype.eventsObj_ = null;
-
-/**
  * Contains the entity definition of current object type.
  *
  * @public
@@ -98,9 +90,6 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
     
-    // Create object to subscribe to events in the UI form
-    this.eventsObj_ = {};
-    
     if (this.props.objType) {
         // Get the default view from the object definition
         definitionLoader.get(this.props.objType, function(def){
@@ -114,17 +103,6 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
         // By default just immediately execute the callback because nothing needs to be done
         opt_callback();
     }
-    
-    // Capture an advance search click and handle browsing for a referenced entity
-    alib.events.listen(this.eventsObj_, "display_advance_search", function(evt) {
-        this.displayAdvancedSearch();
-    }.bind(this));
-    
-    // Capture an advance search click and handle browsing for a referenced entity
-    alib.events.listen(this.eventsObj_, "apply_advance_search", function(evt) {
-        this.loadCollection();
-    }.bind(this));
-
 }
 
 /**
@@ -137,7 +115,6 @@ EntityBrowserController.prototype.render = function() {
 
     // Define the data
 	var data = {
-	        eventsObj: this.eventsObj_,
 	        title: this.props.browsebytitle ||this.props.title,
 	        entities: new Array(),
 	        deviceSize: netric.getApplication().device.size,
@@ -161,6 +138,9 @@ EntityBrowserController.prototype.render = function() {
 	        onSearchChange: function(fullText, conditions) {
 	            this.onSearchChange(fullText, conditions);
 	        }.bind(this),
+	        onAdvancedSearch: function() {
+                this._displayAdvancedSearch();
+            }.bind(this),
 	        onPerformAction: function(actionName) {
 	            this.performActionOnSelected(actionName);
 	        }.bind(this),
@@ -422,10 +402,19 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 }
 
 /**
+ * Apply the advanced search
+ *
+ */
+EntityBrowserController.prototype._applyAdvancedSearch = function(browserView) {
+    this.browserView_ = browserView;
+    this. loadCollection();
+}
+
+/**
  * Display Advance search
  *
  */
-EntityBrowserController.prototype.displayAdvancedSearch = function() {
+EntityBrowserController.prototype._displayAdvancedSearch = function() {
 
     /*
      * We require it here to avoid a circular dependency where the
@@ -433,16 +422,16 @@ EntityBrowserController.prototype.displayAdvancedSearch = function() {
      */
     var AdvancedSearchController = require("./AdvancedSearchController");
     var advancedSearch = new AdvancedSearchController();
-    
-    advancedSearch.eventsObj = this.eventsObj_;
-    advancedSearch.browserView = this.browserView_;
-    advancedSearch.entityDefinition = this.entityDefinition_;
-    advancedSearch.savedCriteria = this.advancedSearchCriteria_;
-    
+        
     advancedSearch.load({
         type: controller.types.DIALOG,
         title: "Advanced Search",
-        objType: this.props.objType
+        objType: this.props.objType, 
+        entityDefinition: this.entityDefinition_,
+        browserView: Object.create(this.browserView_),
+        onApplySearch: function(browserView) { 
+            this._applyAdvancedSearch(browserView)
+        }.bind(this),
     }); 
 }
 
