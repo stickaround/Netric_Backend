@@ -138,7 +138,7 @@ var ListItemTableRow = React.createClass({
         
         return fields;
     }
+    
 });
-
 
 module.exports = ListItemTableRow;

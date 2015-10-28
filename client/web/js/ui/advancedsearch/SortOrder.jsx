@@ -64,7 +64,7 @@ var SortOrder = React.createClass({
 						        onClick={this._handleRemoveOrder} />
 					</div>
 				</div>
-        	);
+        );
     },
     
     /**

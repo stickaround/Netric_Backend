@@ -8,7 +8,6 @@
 var React = require('react');
 var Chamel = require('chamel');
 var KeyCodes = require("../utils/KeyCode.jsx");
-var controller = require("../../controller/controller");
 var IconButton = Chamel.IconButton;
 var TextField = Chamel.TextField;
 
@@ -79,4 +78,3 @@ var AppBarSearch = React.createClass({
 });
 
 module.exports = AppBarSearch;
-var Chamel = require('chamel');

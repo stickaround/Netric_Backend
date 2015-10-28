@@ -63,7 +63,6 @@ var ColumnView = React.createClass({
     /**
      * Callback used to handle commands when user selects the column field
      *
-     * @param {string} type     Type of criteria that was changed
      * @param {DOMEvent} e      Reference to the DOM event being sent
      * @param {int} key     The index of the menu clicked
      * @param {array} field     The object value of the menu clicked

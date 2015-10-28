@@ -21,10 +21,10 @@ var AdvancedSearch = React.createClass({
 
 	propTypes: {
 	    onApplySearch: React.PropTypes.func,
-		title: React.PropTypes.string,
-		objType: React.PropTypes.string,
-		browserView: React.PropTypes.object,
-		entityDefinition: React.PropTypes.object,
+	    title: React.PropTypes.string,
+	    objType: React.PropTypes.string,
+	    browserView: React.PropTypes.object,
+	    entityDefinition: React.PropTypes.object,
 	},
 
 	getDefaultProps: function() {
@@ -61,7 +61,7 @@ var AdvancedSearch = React.createClass({
         var columnView = this.props.browserView.getTableColumns();
         for(var idx in columnView) {
             
-            // We need to create a column object since in browserView the columns are stored in an array
+            // We need to create a column object since in browserView the columns are stored as a string in an array
             var column = {fieldName: columnView[idx]};
             
             columnViewDiplay.push( this._getCriteriaDisplay('columnView', column, idx) );
@@ -153,7 +153,8 @@ var AdvancedSearch = React.createClass({
     },
     
     /**
-     * Displays the save view dialog. 
+     * Updates the column view using a function in browserView.
+     * Only tableColumn has update functionality because columns are saved as a string in an array.
      *
      * @param {string} fieldName    Column name that will be saved based on the index provided
      * @param {int} index           The index of column that will be removed
@@ -169,6 +170,7 @@ var AdvancedSearch = React.createClass({
     * @private
     */
     _handleSaveView: function () {
+        // TODO
     },
     
     /**
@@ -179,7 +181,7 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _getEntityFieldData: function(selectedField) {
-    	if(this.props.browserView == null) {
+    	if(this.props.entityDefinition == null) {
     		return null;
     	}
     	
@@ -194,12 +196,12 @@ var AdvancedSearch = React.createClass({
     	    }
     	    
     	    fieldData.fields.push({
-    						payload: field.name,
-    						id: field.id,
-    						name: field.name,
-    						text: field.title, 
-    						type: field.type
-    					});
+    	        payload: field.name,
+    	        id: field.id,
+    	        name: field.name,
+    	        text: field.title, 
+    	        type: field.type
+    	    });
     	});
     	
     	return fieldData;
@@ -217,9 +219,9 @@ var AdvancedSearch = React.createClass({
     _getCriteriaDisplay: function(type, data, index) {
         var display = null;
         var fieldName = data.fieldName || data.field;
-    	var fieldData = this._getEntityFieldData(fieldName); // Get the entity field data including the field name index (if available)
-    	var key = fieldName + index.toString();
-    	var index = parseInt(index);
+        var fieldData = this._getEntityFieldData(fieldName); // Get the entity field data including the field name index (if available)
+        var key = fieldName + index.toString();
+        var index = parseInt(index);
     	
     	switch(type) {
             case 'condition':

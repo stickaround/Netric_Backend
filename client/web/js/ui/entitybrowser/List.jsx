@@ -26,7 +26,7 @@ var List = React.createClass({
 
         // Instance of Netric/Entity/BrowserView defining which columns a table show show
         browserView: React.PropTypes.object,
-        selectedEntities: React.PropTypes.array,
+        selectedEntities: React.PropTypes.array
     },
 
     getDefaultProps: function() {

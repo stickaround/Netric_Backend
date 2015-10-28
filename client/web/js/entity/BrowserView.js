@@ -198,7 +198,7 @@ BrowserView.prototype.getConditions = function() {
 }
 
 /**
- * Pushes a new sort order object in orderBy_
+ * Pushes a new orderBy object in orderBy_
  *
  * @param {string} fieldName    The fieldName of sort order we want to create
  * @param {string} direction    The direction of the sort order we want to create
@@ -212,9 +212,9 @@ BrowserView.prototype.addOrderBy = function(fieldName, direction) {
 }
 
 /**
- * Removes the sort order based on the index provided
+ * Removes the orderBy based on the index provided
  *
- * @param {int} index       The index of the sort order that will be removed  
+ * @param {int} index       The index of the orderBy that will be removed  
  * @public
  */
 BrowserView.prototype.removeOrderBy = function(index) {

@@ -229,9 +229,11 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
  */
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
+    
     this.userSearchString_ = fullText;
 
     this.loadCollection();
+    
 }
 
 /**
@@ -404,6 +406,7 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 /**
  * Apply the advanced search
  *
+ * @param {object} browserView   View that was cloned and used in Advanced Search
  */
 EntityBrowserController.prototype._applyAdvancedSearch = function(browserView) {
     this.browserView_ = browserView;
