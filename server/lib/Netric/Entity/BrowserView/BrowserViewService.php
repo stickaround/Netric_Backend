@@ -81,7 +81,21 @@ class BrowserViewService
         if (!isset($this->views[$objType]))
             $this->loadViewsFromDb($objType);
 
-        // TODO: Follow the logic in the comments above to return a merged list of views for this user
+        $systemViews = $this->getSystemViews($objType);
+
+        // Add account views
+        $accountViews = $this->getAccountViews($objType);
+
+        // Add team views if a user is a member of teams
+        $teamViews = array();
+        if (!empty($user->getValue("team_id")))
+            $teamViews = $this->getTeamViews($objType, $user->getValue("team_id"));
+
+        // Add user specific views
+        $userViews = $this->getUserViews($objType, $user->getId());
+
+        return array_merge($systemViews, $accountViews, $teamViews, $userViews);
+
     }
 
     /**
@@ -91,7 +105,7 @@ class BrowserViewService
      * @param string $id The unique id of the view
      * @return BrowserView
      */
-    public function getById($objType, $id)
+    public function getViewById($objType, $id)
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType]))
@@ -110,6 +124,7 @@ class BrowserViewService
      * Get team views that are saved to the database
      *
      * @param string $objType The object type to get browser views for
+     * @param int $userId the unique id of the user to get views for
      * @return BrowserView[]
      */
     public function getUserViews($objType, $userId)
@@ -122,7 +137,7 @@ class BrowserViewService
         $ret = array();
         foreach ($this->views[$objType] as $view)
         {
-            if ($view->getUserId() && $view->getUserId() == $userId)
+            if ($view->getUserId() == $userId)
                 $ret[] = $view;
         }
         return $ret;
@@ -134,7 +149,7 @@ class BrowserViewService
      * @param $objType The object type to get browser views for
      * @return BrowserView[]
      */
-    public function getTeamViews($obj, $teamId)
+    public function getTeamViews($objType, $teamId)
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType]))
@@ -166,7 +181,7 @@ class BrowserViewService
         $ret = array();
         foreach ($this->views[$objType] as $view)
         {
-            if (!$view->getTeamId() && !$view->getUserId())
+            if (empty($view->getTeamId()) && empty($view->getUserId()))
                 $ret[] = $view;
         }
         return $ret;
@@ -186,6 +201,7 @@ class BrowserViewService
         $views = array();
 
         // Check for system object
+        $basePath = $this->config->application_path . "/objects";
         if (file_exists($basePath . "/browser_views/" . $objType . ".php"))
         {
             $viewsData = include($basePath . "/browser_views/" . $objType . ".php");
@@ -217,7 +233,7 @@ class BrowserViewService
         $def = $this->definitionLoader->get($view->getObjType());
 
         if (!$def)
-            throw new \RuntimeException("Could not get entity definition for $objType");
+            throw new \RuntimeException("Could not get entity definition for: " . $view->getObjType());
 
         $data = $view->toArray();
 
@@ -268,12 +284,103 @@ class BrowserViewService
         if ($dbh->getNumRows($result))
         {
             $view->setId($dbh->getValue($result, 0, "id"));
+            $this->addViewToCache($view);
             return $view->getId();
         }
         else
         {
             throw new \RuntimeException("Could not save view:" . $dbh->getLastError());
         }
+    }
+
+    /**
+     * Delete a BrowserView
+     *
+     * @param BrowserView $view The view to delete
+     * @return bool true on success, false on failure
+     * @throws \RuntimeException if it cannot run the command on the backend database
+     */
+    public function deleteView(BrowserView $view)
+    {
+        if (!$view->getId())
+            return false;
+
+        // Remove from database
+        $sql = "DELETE FROM app_object_views WHERE id='" . $view->getId() . "'";
+        $result = $this->dbh->query($sql);
+        if (!$result)
+            throw new \RuntimeException("Could not delete BrowserView:" . $this->dbh->getLastError());
+
+        // Remove the view from the local views cache
+        $this->removeViewFromLocalCache($view->getObjType(), $view->getId());
+
+        // Clear the ID since it is not saved anymore
+        $view->setId(null);
+
+        return true;
+
+    }
+
+    /**
+     * Clear the views cache
+     */
+    public function clearViewsCache()
+    {
+        $this->views = array();
+    }
+
+    /**
+     * Add the view to cache
+     */
+    private function addViewToCache(BrowserView $view)
+    {
+        $found = false;
+
+        if (!isset($this->views[$view->getObjType()]))
+            $this->views[$view->getObjType()] = array();
+
+        // Make sure we do not add this view again
+        foreach ($this->views[$view->getObjType()] as $cachedView)
+        {
+            if ($cachedView->getId() == $view->getId())
+            {
+                $found = true;
+            }
+        }
+
+        if (!$found)
+            $this->views[$view->getObjType()][] = $view;
+    }
+
+    /**
+     * Remove a view from the local cached array
+     *
+     * @param string $objType The object type of the view to remove
+     * @param string $viewId The unique id of the view to remove
+     * @return bool true on success, false on failure
+     */
+    private function removeViewFromLocalCache($objType, $viewId)
+    {
+        if (empty($objType) || empty($viewId))
+            return false;
+
+        if (!isset($this->views[$objType]))
+            return false;
+
+        // Loop through each cached view for a match and remove it from the array if found
+        for ($i = 0; $i < count($this->views[$objType]); $i++)
+        {
+            $cachedView = $this->views[$objType][$i];
+            if ($cachedView->getId() === $viewId)
+            {
+                array_splice($this->views[$objType], $i, 1);
+
+                // Break the for loop now that we have decreased the bounds of the array
+                break;
+            }
+        }
+
+        return true;
     }
 
     /**
