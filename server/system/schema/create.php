@@ -11,7 +11,7 @@
  * Global variable is required. Must be incremented with every change to keep
  * scripts in ./updates from running if not needed
  */
-$schema_version = "3.1.141";
+$schema_version = "3.1.142";
 
 /* moved to object tables
 $schema['activity'] = array(
@@ -290,8 +290,11 @@ $schema['app_object_views'] = array(
 		'user_id'		=> array('type'=>'integer'),
 		'team_id'		=> array('type'=>'integer'),
 		'object_type_id'=> array('type'=>'integer'),
-        'report_id'        => array('type'=>'integer'),
+        'report_id'     => array('type'=>'integer'),
 		'owner_id'		=> array('type'=>'integer'),
+		'conditions_data'=> array('type'=>'text'),
+		'order_by_data'=> array('type'=>'text'),
+		'table_columns_data'=> array('type'=>'text'),
 	),
 	'PRIMARY_KEY'		=> 'id',
 	"KEYS" => array(

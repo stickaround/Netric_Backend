@@ -101,8 +101,8 @@ var TextField = React.createClass({
       fieldValue = this._activateLinks(fieldValue);
 
       /*
-       * Make sanitized hrml object. React requires this because 
-       * setting innherHTML is a pretty dangerous opetion in that it
+       * TODO: Make sanitized hrml object. React requires this because
+       * setting innherHTML is a pretty dangerous option in that it
        * is often used for cross script exploits.
        */
       return (fieldValue) ? { __html: fieldValue } : null;

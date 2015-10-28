@@ -9,6 +9,7 @@ var React = require('react');
 var ListItem = require("./ListItem.jsx");
 var ListItemTableRow = require("./ListItemTableRow.jsx");
 var Loading = require("../Loading.jsx");
+var CommentItem = require("./item/Comment.jsx");
 
 /**
  * Module shell
@@ -80,6 +81,8 @@ var List = React.createClass({
 	},
 
     render: function() {
+
+        var layout = this.props.layout;
     	
         var entityNodes = this.props.entities.map(function(entity) {
             var item = null;
@@ -92,6 +95,16 @@ var List = React.createClass({
                     break;
                 case "comment":
                     // TODO: add comment
+                    item = (
+                        <CommentItem
+                            key={entity.id}
+                            selected={selected}
+                            entity={entity}
+                            browserView={this.props.browserView}
+                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
+                            onSelect={this._sendSelect.bind(null, entity.id)}
+                         />
+                    );
                     break;
                 /*
                  * All other object types will either be displayed as a table row
@@ -130,7 +143,7 @@ var List = React.createClass({
         	className="scroll-loading" />;
         }
 
-        if (this.props.layout == 'table') {
+        if (layout === 'table') {
             return (
                 <div ref="entityContainer" className="entity-browser-list">
                     <table className="entity-browser-list-table">

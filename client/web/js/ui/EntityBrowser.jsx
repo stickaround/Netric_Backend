@@ -34,6 +34,7 @@ var EntityBrowser = React.createClass({
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
       eventsObj: React.PropTypes.object,
+	  hideToolbar: React.PropTypes.bool,
   },
 
   getDefaultProps: function() {
@@ -70,20 +71,27 @@ var EntityBrowser = React.createClass({
           }
       }
 
+      var toolbar = null;
+      if (!this.props.hideToolbar) {
+          toolbar = (
+              <AppBarBrowse
+                  title={this.props.title}
+                  actionHandler={this.props.actionHandler}
+                  deviceSize={this.props.deviceSize}
+                  onNavBtnClick={this.props.onNavBtnClick}
+                  onNavBackBtnClick={this.props.onNavBackBtnClick}
+                  onSearchChange={this.props.onSearchChange}
+                  onPerformAction={this.props.onPerformAction}
+                  onSelectAll={this.handleSeelctAll_}
+                  selectedEntities={this.props.selectedEntities}
+               />
+          );
+      }
+
     return (
       <div>
         <div>
-          <AppBarBrowse 
-            title={this.props.title}
-            actionHandler={this.props.actionHandler}
-            deviceSize={this.props.deviceSize}
-            onNavBtnClick={this.props.onNavBtnClick}
-            onNavBackBtnClick={this.props.onNavBackBtnClick}
-            onSearchChange={this.props.onSearchChange}
-            onPerformAction={this.props.onPerformAction}
-            onSelectAll={this.handleSeelctAll_}
-            selectedEntities={this.props.selectedEntities}
-          	eventsObj={this.props.eventsObj} />
+            {toolbar}
         </div>
         <div ref="moduleMain">
             {bodyContent}
