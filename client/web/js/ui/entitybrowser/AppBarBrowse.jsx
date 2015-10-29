@@ -25,6 +25,7 @@ var AppBarBrowse = React.createClass({
         // Navigation back button - left arrow to the eft of the title
         onNavBackBtnClick: React.PropTypes.func,
         onSearchChange: React.PropTypes.func,
+        onAdvancedSearch: React.PropTypes.func,
         onPerformAction: React.PropTypes.func,
         onSelectAll: React.PropTypes.func,
         deviceSize: React.PropTypes.number,
@@ -70,7 +71,7 @@ var AppBarBrowse = React.createClass({
             );
 
             // Create AppBar with search form
-            elementRight = <AppBarSearch onSearch={this.handleSearchChange_}  />;
+            elementRight = <AppBarSearch onSearch={this.handleSearchChange_} onAdvancedSearch={this.props.onAdvancedSearch}/>;
 
             // Clear the title
             title = null;

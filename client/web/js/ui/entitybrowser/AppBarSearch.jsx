@@ -18,6 +18,7 @@ var AppBarBrowse = React.createClass({
 
     propTypes: {
         onSearch: React.PropTypes.func,
+        onAdvancedSearch: React.PropTypes.func,
         title : React.PropTypes.string,
     },
 
@@ -40,7 +41,11 @@ var AppBarBrowse = React.createClass({
                     <TextField
                         hintText="Search" 
                         ref='searchInput' 
-                        onKeyDown={this.handleKeyUp_} />
+                        onKeyDown={this.handleKeyUp_}/>
+                    <IconButton
+                        iconClassName="fa fa-search-plus"
+                        onClick={this.handleAdvancedSearch_}>
+                    </IconButton>
                 </div>
                 
                 <IconButton
@@ -51,6 +56,12 @@ var AppBarBrowse = React.createClass({
         );
     },
 
+    /**
+     * Handles the key press of search text input
+     *
+     * @param {DOMEvent} evt      Reference to the DOM event being sent
+     * @private
+     */
     handleKeyUp_: function(evt) {
 
         if (!this.props.onSearch) {
@@ -62,8 +73,18 @@ var AppBarBrowse = React.createClass({
         }
     },
 
+    /**
+     * Executes the search functionality
+     */
     handleDoSearch_: function() {
         this.props.onSearch(this.refs.searchInput.getValue());
+    },
+    
+    /**
+     * Displays the advanced search
+     */
+    handleAdvancedSearch_: function() {
+        if(this.props.onAdvancedSearch) this.props.onAdvancedSearch();
     }
 });
 

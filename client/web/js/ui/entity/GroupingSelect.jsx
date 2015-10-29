@@ -30,7 +30,11 @@ var GroupingSelect = React.createClass({
 		// List of groupings to exclude (already set in the entity)
 		ignore: React.PropTypes.array,
 		// Optional text label to use for the "add grouping" button/drop-down
-		label: React.PropTypes.string
+		label: React.PropTypes.string,
+		// Determine if we allow no selection in the dropdown
+		allowNoSelection: React.PropTypes.bool,
+		// Will contain a initial value if available
+		selectedValue: React.PropTypes.string
 	},
 
 	/**
@@ -40,6 +44,8 @@ var GroupingSelect = React.createClass({
 	    return {
             label: 'Add',
             ignore: new Array(),
+            allowNoSelection: true,
+            selectedValue: null
 	    };
   	},
 
@@ -47,14 +53,26 @@ var GroupingSelect = React.createClass({
   	 * Get the initial state of this componenet
   	 */
   	getInitialState: function() {
-		return {
-	    	ddSelectedIndex: 0,
-            groupings: this.getGroupingsFromModel()
-		}
+  	    var selectedIndex = 0;
+  	    var groupings = this.getGroupingsFromModel();
+      
+  	    if(this.props.selectedValue) {
+  	        for(var idx in groupings) {
+  	            if(groupings[idx].id == this.props.selectedValue) {
+  	                selectedIndex = idx;
+  	                break;
+  	            }
+  	        }
+  	    }
+      
+  	    return {
+  	        ddSelectedIndex: selectedIndex,
+  	        groupings: groupings
+  	    }
 	},
 
     /**
-     *
+     * Get the groupings from the model.
      */
     getGroupingsFromModel: function() {
 
@@ -98,11 +116,9 @@ var GroupingSelect = React.createClass({
      */
 	render: function() {
 
-        // TODO: use the groupingLoader to load up groups
-		var menuItems = [
-		   { payload: '', text: this.props.label }
-		];
-
+	    // TODO: use the groupingLoader to load up groups
+	    var menuItems = [{payload: '', text: this.props.label}];
+	    
         this._addGroupingOption(this.state.groupings, menuItems);
 
 		return (
@@ -177,8 +193,10 @@ var GroupingSelect = React.createClass({
             this.props.onChange(menuItem.payload, menuItem.text);
 		}
 
-		// Reset back to the first element
-		this.setState({ddSelectedIndex: 0});
+		// If grouping select allows no selection, then we need to reset back to the first element
+        if(this.props.allowNoSelection) {
+            this.setState({ddSelectedIndex: 0});
+        }
 	},
 
     /**

@@ -195,19 +195,31 @@ Collection.prototype.load = function(opt_callback) {
      */
 
     var whereConditions = this.getConditions();
+    var sortOrder = this.getOrderBy();
 
     // If there are where conditions then initialize the param in the request object
     if (whereConditions.length > 0) {
         requestParams.where = [];
-    }
-
-    for (var i in whereConditions) {
-        requestParams.where.push(
-            whereConditions[i].bLogic + "," +
-            whereConditions[i].fieldName + "," +
-            whereConditions[i].operator + "," +
-            '"' + whereConditions[i].value + '"' // Escape for csv quotes
-        );
+        
+        for (var i in whereConditions) {
+            requestParams.where.push(
+                whereConditions[i].bLogic + "," +
+                whereConditions[i].fieldName + "," +
+                whereConditions[i].operator + "," +
+                '"' + whereConditions[i].value + '"' // Escape for csv quotes
+            );
+        }
+    }    
+    
+    if(sortOrder.length > 0) {
+        requestParams.order_by = [];
+        
+        for (var i in sortOrder) {
+            requestParams.order_by.push(
+                    sortOrder[i].field + "," +
+                    sortOrder[i].direction  + ","
+            );
+        }
     }
 
     // Send request to the server (listeners attached above will handle onload or error)
@@ -375,6 +387,7 @@ Collection.prototype.getOffset = function() {
 Collection.prototype.setLimit = function(limit) {
     this.limit_ = limit;
 }
+
 /**
  * Get the current limit
  *
@@ -382,6 +395,15 @@ Collection.prototype.setLimit = function(limit) {
  */
 Collection.prototype.getLimit = function() {
     return this.limit_;
+}
+
+/**
+ * Get the entity definition
+ *
+ * @return {array}
+ */
+Collection.prototype.getEntityFields = function() {
+    return this.entityDefinition_.getFields();
 }
 
 module.exports = Collection;

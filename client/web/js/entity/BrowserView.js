@@ -1,8 +1,8 @@
 /**
  * @fileOverview A view object used to define how a collection of entities is displayed to users
  *
- * @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
- * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
+ * @author: Sky Stebnicki, sky.stebnicki@aereus.com;
+ *          Copyright (c) 2015 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
@@ -44,7 +44,7 @@ var BrowserView = function(objType) {
      *
      * @type {string}
      */
-    this.id	= null;
+    this.id = null;
 
     /**
      * Short name or label for this view
@@ -119,7 +119,7 @@ var BrowserView = function(objType) {
     this.default = false;
 
     // TODO: Document
-    this.filterKey		= "";
+    this.filterKey      = "";
 }
 
 /**
@@ -150,7 +150,7 @@ BrowserView.prototype.fromData = function(data) {
     for (var i in data.conditions) {
         var where = new Where(data.conditions[i].field_name);
         where.bLogic = data.conditions[i].blogic;
-        this.operator = data.conditions[i].operator;
+        where.operator = data.conditions[i].operator;
         where.value = data.conditions[i].value;
         this.conditions_.push(where);
     }
@@ -165,12 +165,100 @@ BrowserView.prototype.fromData = function(data) {
 }
 
 /**
+ * Creates a new where object instance and stores it in conditions_
+ *
+ * @param {string} fieldName    The fieldName of the condition we want to create and store in Conditions_
+ * @public
+ */
+BrowserView.prototype.addCondition = function(fieldName) {
+    
+    // We do not need to specify the bLogic, operator and value since this will be set by the user in the Advanced Search
+    var condition = new Where(fieldName);
+    this.conditions_.push(condition);
+}
+
+/**
+ * Removes the condition based on the index provided
+ *
+ * @param {int} index       The index of the condition that will be removed
+ * @return {Where[]}  
+ * @public
+ */
+BrowserView.prototype.removeCondition = function(index) {
+    this.conditions_.splice(index, 1);
+}
+
+/**
  * Get where conditions
  *
  * @return {Where[]}
  */
 BrowserView.prototype.getConditions = function() {
     return this.conditions_;
+}
+
+/**
+ * Pushes a new orderBy object in orderBy_
+ *
+ * @param {string} fieldName    The fieldName of sort order we want to create
+ * @param {string} direction    The direction of the sort order we want to create
+ * @public
+ */
+BrowserView.prototype.addOrderBy = function(fieldName, direction) {
+    this.orderBy_.push({
+        field : fieldName,
+        direction : direction
+    });
+}
+
+/**
+ * Removes the orderBy based on the index provided
+ *
+ * @param {int} index       The index of the orderBy that will be removed  
+ * @public
+ */
+BrowserView.prototype.removeOrderBy = function(index) {
+    this.orderBy_.splice(index, 1);
+}
+
+/**
+ * Get the sort order
+ *
+ * @return {string[]}
+ */
+BrowserView.prototype.getOrderBy = function() {
+    return this.orderBy_;
+}
+
+/**
+ * Pushes a new column in tableColumns_
+ *
+ * @param {string} fieldName    The column name we want to create
+ * @public
+ */
+BrowserView.prototype.addTableColumn = function(fieldName) {
+    this.tableColumns_.push(fieldName);
+}
+
+/**
+ * Removes the column based on the index provided
+ *
+ * @param {string} fieldName    Column name that will be saved based on the index provided
+ * @param {int} index           The index of column that will be removed  
+ * @public
+ */
+BrowserView.prototype.updateTableColumn = function(fieldName, index) {
+    this.tableColumns_[index] = fieldName
+}
+
+/**
+ * Removes the column based on the index provided
+ *
+ * @param {int} index       The index of column that will be removed  
+ * @public
+ */
+BrowserView.prototype.removeTableColumn = function(index) {
+    this.tableColumns_.splice(index, 1);
 }
 
 /**

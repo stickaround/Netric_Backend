@@ -1,5 +1,5 @@
 /**
- * Text field compnent
+ * Object Multi field component
  *
  * @jsx React.DOM
  */

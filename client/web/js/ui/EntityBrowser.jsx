@@ -33,7 +33,7 @@ var EntityBrowser = React.createClass({
       selectedEntities: React.PropTypes.array,
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
-      hideToolbar: React.PropTypes.bool,
+	  hideToolbar: React.PropTypes.bool,
   },
 
   getDefaultProps: function() {
@@ -42,7 +42,7 @@ var EntityBrowser = React.createClass({
           title: "Browser",
           entities: [],
           selectedEntities: [],
-          collectionLoading: false
+          collectionLoading: false,
       }
   },
 
@@ -80,6 +80,7 @@ var EntityBrowser = React.createClass({
                   onNavBtnClick={this.props.onNavBtnClick}
                   onNavBackBtnClick={this.props.onNavBackBtnClick}
                   onSearchChange={this.props.onSearchChange}
+                  onAdvancedSearch={this.props.onAdvancedSearch}
                   onPerformAction={this.props.onPerformAction}
                   onSelectAll={this.handleSeelctAll_}
                   selectedEntities={this.props.selectedEntities}

@@ -73,6 +73,15 @@ EntityBrowserController.prototype.actions_ = null;
 EntityBrowserController.prototype.browserView_ = null;
 
 /**
+ * Contains the entity definition of current object type.
+ *
+ * @public
+ * @type {Array}
+ */
+EntityBrowserController.prototype.entityDefinition_ = null;
+
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -80,10 +89,11 @@ EntityBrowserController.prototype.browserView_ = null;
 EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
-
+    
     if (this.props.objType) {
         // Get the default view from the object definition
         definitionLoader.get(this.props.objType, function(def){
+            this.entityDefinition_ = def;
             this.browserView_ = def.getDefaultView();
             if (opt_callback) {
                 opt_callback();
@@ -93,7 +103,6 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
         // By default just immediately execute the callback because nothing needs to be done
         opt_callback();
     }
-
 }
 
 /**
@@ -104,56 +113,52 @@ EntityBrowserController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
-    // The default layout is a compact detailed list view
-    var listLayout = "compact";
-
-    // If we are not in a preview and on larger (than small) device, then show table
-    if (netric.getApplication().device.size > netric.Device.sizes.small)
-        listLayout = "table";
-
     // Define the data
 	var data = {
-		title: this.props.browsebytitle || this.props.title,
-        entities: new Array(),
-        hideToolbar: this.props.hideToolbar || false,
-        deviceSize: netric.getApplication().device.size,
-        layout: listLayout,
-        actionHandler: this.actions_,
-        browserView:this.browserView_,
-        onEntityListClick: function(objType, oid, title) {
-            this.onEntityListClick(objType, oid, title);
-        }.bind(this),
-        onEntityListSelect: function(oid) {
-            if (oid) {
-                this.toggleEntitySelect(oid);
-            } else {
-                this.toggleSelectAll(false);
-            }
-        }.bind(this),
-        onLoadMoreEntities: function(limitIncrease){
-        	return this.getMoreEntities(limitIncrease);
-        }.bind(this),
-        onSearchChange: function(fullText, conditions) {
-            this.onSearchChange(fullText, conditions);
-        }.bind(this),
-        onPerformAction: function(actionName) {
-            this.performActionOnSelected(actionName);
-        }.bind(this),
-        onNavBtnClick: this.props.onNavBtnClick || null,
-        onNavBackBtnClick: this.props.onNavBackBtnClick || null
+	        title: this.props.browsebytitle ||this.props.title,
+	        entities: new Array(),
+	        deviceSize: netric.getApplication().device.size,
+	        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
+	            ? "compact" : "table",
+	        actionHandler: this.actions_,
+	        browserView:this.browserView_,
+	        onEntityListClick: function(objType, oid, title) {
+	            this.onEntityListClick(objType, oid, title);
+	        }.bind(this),
+	        onEntityListSelect: function(oid) {
+	            if (oid) {
+	                this.toggleEntitySelect(oid);
+	            } else {
+	                this.toggleSelectAll(false);
+	            }
+	        }.bind(this),
+	        onLoadMoreEntities: function(limitIncrease){
+	            return this.getMoreEntities(limitIncrease);
+	        }.bind(this),
+	        onSearchChange: function(fullText, conditions) {
+	            this.onSearchChange(fullText, conditions);
+	        }.bind(this),
+	        onAdvancedSearch: function() {
+                this._displayAdvancedSearch();
+            }.bind(this),
+	        onPerformAction: function(actionName) {
+	            this.performActionOnSelected(actionName);
+	        }.bind(this),
+	        onNavBtnClick: this.props.onNavBtnClick || null,
+	        onNavBackBtnClick: this.props.onNavBackBtnClick || null
 	}
 
 	// Render browser component
 	this.rootReactNode_ = React.render(
-		React.createElement(UiEntityBrowser, data),
-		domCon
+	        React.createElement(UiEntityBrowser, data),
+	        domCon
 	);
 
-    // Load the entity list
-    this.collection_ = new EntityCollection(this.props.objType);
-    alib.events.listen(this.collection_, "change", function() {
-        this.onCollectionChange();
-    }.bind(this));
+	// Load the entity list
+	this.collection_ = new EntityCollection(this.props.objType);
+	alib.events.listen(this.collection_, "change", function() {
+	    this.onCollectionChange();
+	}.bind(this));
 
     alib.events.listen(this.collection_, "loading", function() {
         this.onCollectionLoading();
@@ -224,18 +229,18 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
  */
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
-
+    
     this.userSearchString_ = fullText;
 
     this.loadCollection();
-
+    
 }
 
 /**
  * Fill the collection for this browser
  */
 EntityBrowserController.prototype.loadCollection = function() {
-
+    
     // Clear out conditions to remove stale wheres
     this.collection_.clearConditions();
     this.collection_.clearOrderBy();
@@ -249,13 +254,24 @@ EntityBrowserController.prototype.loadCollection = function() {
     if (this.userSearchString_) {
         this.collection_.where("*").equalTo(this.userSearchString_);
     }
-
-    if (this.browserView_) {
-        var viewConditions = this.browserView_.getConditions();
-        for (var i in viewConditions) {
-            this.collection_.addWhere(viewConditions[i]);
+    
+    // Set Sort Order
+    var orderBy = this.browserView_.getOrderBy();
+    
+    if(orderBy) {
+        for (var idx in orderBy) {
+            this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
         }
-        // TODO: Add anything else from this.browserView_ to the conditions and order
+    }
+    
+    // Set Conditions
+    var conditions = this.browserView_.getConditions();
+    
+    // If there is a condition set, then we will push the where clase to the collection
+    if(conditions) {
+        for (var i in conditions) {
+            this.collection_.addWhere(conditions[i]);
+        }
     }
 
     // Load (we depend on 'onload' events for triggering UI rendering in this.render)
@@ -368,7 +384,7 @@ EntityBrowserController.prototype.onResume = function() {
 /**
  * The collection is updated with new limits to display
  *
- * @param {integer} limitIncrease	Optional of entities to increment the limit by. Default is 50.
+ * @param {int} limitIncrease	Optional of entities to increment the limit by. Default is 50.
  */
 EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 	
@@ -385,6 +401,41 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
 		this.collection_.setLimit(newLimit);
 		this.collection_.refresh();
 	}
+}
+
+/**
+ * Apply the advanced search
+ *
+ * @param {object} browserView   View that was cloned and used in Advanced Search
+ */
+EntityBrowserController.prototype._applyAdvancedSearch = function(browserView) {
+    this.browserView_ = browserView;
+    this. loadCollection();
+}
+
+/**
+ * Display Advance search
+ *
+ */
+EntityBrowserController.prototype._displayAdvancedSearch = function() {
+
+    /*
+     * We require it here to avoid a circular dependency where the
+     * controller requires the view and the view requires the controller
+     */
+    var AdvancedSearchController = require("./AdvancedSearchController");
+    var advancedSearch = new AdvancedSearchController();
+        
+    advancedSearch.load({
+        type: controller.types.DIALOG,
+        title: "Advanced Search",
+        objType: this.props.objType, 
+        entityDefinition: this.entityDefinition_,
+        browserView: Object.create(this.browserView_),
+        onApplySearch: function(browserView) { 
+            this._applyAdvancedSearch(browserView)
+        }.bind(this),
+    }); 
 }
 
 module.exports = EntityBrowserController;
