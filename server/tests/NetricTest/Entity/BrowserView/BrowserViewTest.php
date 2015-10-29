@@ -4,7 +4,8 @@
  */
 namespace NetricTest\Entity\BrowserView;
 
-use Netric\Entity\BrowserView;
+use Netric\Entity\BrowserView\BrowserView;
+use Netric\EntityQuery\Where;
 use PHPUnit_Framework_TestCase;
 
 class BrowserViewTest extends PHPUnit_Framework_TestCase
@@ -43,13 +44,29 @@ class BrowserViewTest extends PHPUnit_Framework_TestCase
         $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
     }
 
-    public function testToArray()
+    /**
+     * Make sure we can convert a query to an array
+     */
+    public function testToAndFromArray()
     {
-        // TODO: test
-    }
+        // Load the new view
+        $view = new BrowserView();
+        $viewData = array(
+            'obj_type' => 'note',
+            'conditions' => array(
+                array(
+                    'blogic' => Where::COMBINED_BY_AND,
+                    'field_name' => 'user_id',
+                    'operator' => Where::OPERATOR_EQUAL_TO,
+                    'value' => -3
+                ),
+            ),
+        );
+        $view->fromArray($viewData);
 
-    public function testFromArray()
-    {
-        // TODO: test
+        // Make sure toArray returns the same thing (remove null and empty first)
+        $viewArray = $view->toArray();
+        $viewArray = array_filter($viewArray, function($val) { return !empty($val); });
+        $this->assertEquals($viewData, $viewArray);
     }
 }
