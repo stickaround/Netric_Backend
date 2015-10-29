@@ -78,7 +78,7 @@ var AppBarBrowse = React.createClass({
      */
     handleDoSearch_: function() {
         this.props.onSearch(this.refs.searchInput.getValue());
-    }
+    },
     
     /**
      * Displays the advanced search
