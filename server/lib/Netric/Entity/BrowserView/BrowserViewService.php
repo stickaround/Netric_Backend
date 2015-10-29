@@ -48,7 +48,7 @@ class BrowserViewService
      *
      * @var Netric\EntityDefinitionLoader
      */
-    private $defLoader = null;
+    private $definitionLoader = null;
 
     /**
      * Class constructor to set up dependencies
