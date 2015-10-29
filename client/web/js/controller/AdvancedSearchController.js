@@ -9,6 +9,7 @@ var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiAdvancedSearch = require("../ui/AdvancedSearch.jsx");
 var definitionLoader = require("../entity/definitionLoader");
+var browserViewSaver = require("../entity/browserViewSaver");
 
 /**
  * Controller that loads an Advanced Search
@@ -60,6 +61,8 @@ AdvancedSearchController.prototype.render = function() {
 	        entityDefinition: this.props.entityDefinition,
 	        browserView: this.props.browserView,
 	        onApplySearch: this.props.onApplySearch,
+	        onSaveView: this._saveView,
+	        onChangeTitle: this.props.onChangeTitle,
 	}
 	
 	// Render browser component
@@ -70,25 +73,14 @@ AdvancedSearchController.prototype.render = function() {
 }
 
 /**
- * TODO
- * Save the current advanced search settings
+ * Save the browser view
+ * 
+ * @param {netric\entity\BrowserView} browserView   The browser view to save
  */
-AdvancedSearchController.prototype._saveAdvancedSearch = function(searchData) {
-    
-    var data = [['obj_type', this.props.objType], ['name', searchData.name], ['description', searchData.description]];
-    
-    for(var criteria in searchData.criteria) {
-        var criteriaData = searchData.criteria[idx];
-        
-        switch(criteria) {
-            case 'conditions':
-                break;
-            case 'sortOrder':
-                break;
-            case 'columnView':
-                break;
-        }
-    }
+AdvancedSearchController.prototype._saveView = function(browserView) {
+    browserViewSaver.save(browserView, function() {
+        console.log("View saved");
+    });
 }
 
 module.exports = AdvancedSearchController;

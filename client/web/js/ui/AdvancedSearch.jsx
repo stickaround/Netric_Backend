@@ -8,9 +8,9 @@
 var React = require('react');
 var Chamel = require('chamel');
 var Condition = require('./advancedsearch/Condition.jsx');
-var SortOrder = require('./advancedsearch/SortOrder.jsx');
 var ColumnView = require('./advancedsearch/ColumnView.jsx');
-var Dialog = Chamel.Dialog;
+var SaveView = require('./advancedsearch/SaveView.jsx');
+var SortOrder = require('./advancedsearch/SortOrder.jsx');
 var IconButton = Chamel.IconButton;
 var FlatButton = Chamel.FlatButton;
 
@@ -20,11 +20,14 @@ var FlatButton = Chamel.FlatButton;
 var AdvancedSearch = React.createClass({
 
 	propTypes: {
+	    onChangeTitle: React.PropTypes.func,
 	    onApplySearch: React.PropTypes.func,
+	    onSaveView: React.PropTypes.func,
+	    onSaveView: React.PropTypes.func,
 	    title: React.PropTypes.string,
 	    objType: React.PropTypes.string,
 	    browserView: React.PropTypes.object,
-	    entityDefinition: React.PropTypes.object,
+	    entityDefinition: React.PropTypes.object
 	},
 
 	getDefaultProps: function() {
@@ -36,56 +39,80 @@ var AdvancedSearch = React.createClass({
 	getInitialState: function() {
         // Return the initial state
         return { 
-            renderCount: 0
+            renderCount: 0,
+            displaySaveView: false
         };
     },
 	
 	render: function() {
 	    
-	    // Conditions Display
-	    var conditionsDiplay = [];
-	    var conditions = this.props.browserView.getConditions();
-	    for(var idx in conditions) {
-	        conditionsDiplay.push( this._getCriteriaDisplay('condition', conditions[idx], idx) );
+	    var display = null;
+	    
+	    if(this.state.displaySaveView) {
+	        
+	        // Display the save view component
+	        display = (
+	                <SaveView
+	                    browserView={this.props.browserView}
+	                    onSave={this._handleSaveView} 
+	                    onCancel={this._handleHideSaveDisplay} />
+	        );
+	    } else { // Display the advance search criteria
+	        // Conditions Display
+	        var conditionsDiplay = [];
+	        var conditions = this.props.browserView.getConditions();
+	        for(var idx in conditions) {
+	            conditionsDiplay.push( this._getCriteriaDisplay('condition', conditions[idx], idx) );
+	        }
+	        
+	        // Sort Order Display
+	        var sortOrderDiplay = [];
+	        var orderBy = this.props.browserView.getOrderBy();
+	        for(var idx in orderBy) {
+	            sortOrderDiplay.push( this._getCriteriaDisplay('sortOrder', orderBy[idx], idx) );
+	        }
+	        
+	        // Columns to View Display
+	        var columnViewDiplay = [];
+	        var columnView = this.props.browserView.getTableColumns();
+	        for(var idx in columnView) {
+	            
+	            // We need to create a column object since in browserView the columns are stored as a string in an array
+	            var column = {fieldName: columnView[idx]};
+	            
+	            columnViewDiplay.push( this._getCriteriaDisplay('columnView', column, idx) );
+	        }
+	        
+	        // Display the condition, sort by and columns to view
+	        display = (
+	                <div>
+    	                <div>
+                            <span className='advance-search-title'>Search Conditions: </span>
+                            {conditionsDiplay}
+                            <IconButton onClick={this._handleAddCriteria.bind(this, 'condition')} className="fa fa-plus" />
+                        </div>
+                        <div>
+                            <span className='advance-search-title'>Sort By: </span>
+                            {sortOrderDiplay}
+                            <IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
+                        </div>
+                        <div>
+                            <span className='advance-search-title'>Column View: </span>
+                            {columnViewDiplay}
+                            <IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
+                        </div>
+                        <div>
+                            <FlatButton label='Apply' onClick={this._handleAdvancedSearch} />
+                            <FlatButton label='Save Changes' onClick={this._handleShowSaveDisplay} />
+                        </div>
+                    </div>
+	        );
 	    }
 	    
-	    // Sort Order Display
-	    var sortOrderDiplay = [];
-        var orderBy = this.props.browserView.getOrderBy();
-        for(var idx in orderBy) {
-            sortOrderDiplay.push( this._getCriteriaDisplay('sortOrder', orderBy[idx], idx) );
-        }
         
-        // Columns to View Display
-        var columnViewDiplay = [];
-        var columnView = this.props.browserView.getTableColumns();
-        for(var idx in columnView) {
-            
-            // We need to create a column object since in browserView the columns are stored as a string in an array
-            var column = {fieldName: columnView[idx]};
-            
-            columnViewDiplay.push( this._getCriteriaDisplay('columnView', column, idx) );
-        }	    
 		return (
 				<div>
-					<div>
-						<span className='advance-search-title'>Search Conditions: </span>
-						{conditionsDiplay}
-						<IconButton onClick={this._handleAddCriteria.bind(this, 'condition')} className="fa fa-plus" />
-					</div>
-					<div>
-						<span className='advance-search-title'>Sort By: </span>
-						{sortOrderDiplay}
-						<IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
-					</div>
-					<div>
-						<span className='advance-search-title'>Column View: </span>
-						{columnViewDiplay}
-						<IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
-					</div>
-					<div>
-					    <FlatButton label="Apply" onClick={this._handleAdvancedSearch} />
-					</div>
+					{display}
 				</div>
 		);
 	},
@@ -149,7 +176,7 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _handleAdvancedSearch: function() {
-        this.props.onApplySearch(this.props.browserView);
+        if(this.props.onApplySearch) this.props.onApplySearch(this.props.browserView);
     },
     
     /**
@@ -164,13 +191,33 @@ var AdvancedSearch = React.createClass({
         this.props.browserView.updateTableColumn(fieldName, index);
     },
     
+    /**
+     * Hides the save view component
+     *
+     * @private
+     */
+    _handleHideSaveDisplay: function () {
+        this.setState({displaySaveView: false});
+     },
+    
+    /**
+     * Displays the save view component
+     *
+     * @private
+     */
+    _handleShowSaveDisplay: function () {
+         this.setState({displaySaveView: true});
+     },
+    
    /**
     * Saves the advanced search criteria 
     *
     * @private
     */
-    _handleSaveView: function () {
-        // TODO
+     _handleSaveView: function () {
+        if(this.props.onSaveView) this.props.onSaveView(this.props.browserView)
+        
+        if(this.props.onChangeTitle) this.props.onChangeTitle("Advanced Search - " + this.props.browserView.name)
     },
     
     /**

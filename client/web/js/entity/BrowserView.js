@@ -165,6 +165,56 @@ BrowserView.prototype.fromData = function(data) {
 }
 
 /**
+ * Get the object view data
+ *
+ * @return {Object} Data of Browser View
+ */
+BrowserView.prototype.getData = function() {
+
+    var data = {
+            id: this.id,
+            obj_type: this.objType,
+            name: this.name,
+            description: this.description,
+            f_system: this.system,
+            f_default: this.default,
+            user_id: this.userId,
+            team_id: this.teamId,
+            report_id: this.reportId,
+            scope: this.scope,    
+            filter_key: this.filterKey,
+    };
+    
+    // Table Columns data
+    data.table_columns = [];
+    for (var idx in this.tableColumns_) {
+        data.table_columns.push(this.tableColumns_[idx]);
+    }
+    
+    // Conditions data
+    data.conditions = [];
+    for (var idx in this.conditions_) {
+        data.conditions.push({
+            blogic: this.conditions_[idx].bLogic,
+            field_name: this.conditions_[idx].fieldName,
+            operator: this.conditions_[idx].operator,
+            value: this.conditions_[idx].value
+        });
+    }
+    
+    // Order By data
+    data.order_by = [];
+    for (var idx in this.orderBy_) {
+        data.order_by.push({
+            field_name: this.orderBy_[idx].field,
+            direction: this.orderBy_[idx].direction
+        });
+    }
+    
+    return data;
+}
+
+/**
  * Creates a new where object instance and stores it in conditions_
  *
  * @param {string} fieldName    The fieldName of the condition we want to create and store in Conditions_
@@ -268,6 +318,15 @@ BrowserView.prototype.removeTableColumn = function(index) {
  */
 BrowserView.prototype.getTableColumns = function() {
     return this.tableColumns_;
+}
+
+/**
+ * Set the Id of the browser view
+ *
+ * @param {int} id       Id of the browser view
+ */
+BrowserView.prototype.setId = function(id) {
+    this.id = id;
 }
 
 module.exports = BrowserView;
