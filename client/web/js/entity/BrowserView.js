@@ -236,7 +236,7 @@ BrowserView.prototype.getOrderBy = function() {
  * @param {string} fieldName    The column name we want to create
  * @public
  */
-BrowserView.prototype.addColumn = function(fieldName) {
+BrowserView.prototype.addTableColumn = function(fieldName) {
     this.tableColumns_.push(fieldName);
 }
 
@@ -247,7 +247,7 @@ BrowserView.prototype.addColumn = function(fieldName) {
  * @param {int} index           The index of column that will be removed  
  * @public
  */
-BrowserView.prototype.updateColumn = function(fieldName, index) {
+BrowserView.prototype.updateTableColumn = function(fieldName, index) {
     this.tableColumns_[index] = fieldName
 }
 
@@ -257,7 +257,7 @@ BrowserView.prototype.updateColumn = function(fieldName, index) {
  * @param {int} index       The index of column that will be removed  
  * @public
  */
-BrowserView.prototype.removeColumn = function(index) {
+BrowserView.prototype.removeTableColumn = function(index) {
     this.tableColumns_.splice(index, 1);
 }
 

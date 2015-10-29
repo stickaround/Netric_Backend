@@ -106,7 +106,7 @@ var AdvancedSearch = React.createClass({
                 this.props.browserView.removeOrderBy(index);
                 break;
             case 'columnView':
-                this.props.browserView.removeColumn(index);
+                this.props.browserView.removeTableColumn(index);
                 break;
         }
         
@@ -133,7 +133,7 @@ var AdvancedSearch = React.createClass({
                 this.props.browserView.addOrderBy(field.name, 'asc');
                 break;
             case 'columnView':
-                this.props.browserView.addColumn(field.name);
+                this.props.browserView.addTableColumn(field.name);
                 break;
         }
         
@@ -161,7 +161,7 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _handleUpdateColumn: function(fieldName, index) {
-        this.props.browserView.updateColumn(fieldName, index);
+        this.props.browserView.updateTableColumn(fieldName, index);
     },
     
    /**
