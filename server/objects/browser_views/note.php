@@ -17,5 +17,12 @@ return array(
                 'value' => -3
             ),
         ),
+		'order_by' => array(
+			'date' => array(
+    			'field_name' => 'date_entered',
+    			'direction' => 'desc',
+    		),
+		),
+		'table_columns' => array('name', 'ts_entered', 'body')
     ),
 );

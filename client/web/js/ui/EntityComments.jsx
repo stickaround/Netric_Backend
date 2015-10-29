@@ -22,7 +22,7 @@ var EntityComments = React.createClass({
         name: React.PropTypes.string,
         onAddComment: React.PropTypes.func,
         deviceSize: React.PropTypes.number,
-        commentsBrowser: React.PropTypes.obj
+        commentsBrowser: React.PropTypes.object
     },
 
     componentDidMount: function() {
