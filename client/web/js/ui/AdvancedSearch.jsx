@@ -23,7 +23,6 @@ var AdvancedSearch = React.createClass({
 	    onChangeTitle: React.PropTypes.func,
 	    onApplySearch: React.PropTypes.func,
 	    onSaveView: React.PropTypes.func,
-	    onSaveView: React.PropTypes.func,
 	    title: React.PropTypes.string,
 	    objType: React.PropTypes.string,
 	    browserView: React.PropTypes.object,

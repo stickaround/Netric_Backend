@@ -17,16 +17,14 @@ class BrowserViewController extends Mvc\AbstractController
 	public function save($params = array()) {
 		
 		$ret = array();
-		if (!isset($params['controller']))
-		{
+		if (!isset($params['controller'])) {
 			return $this->sendOutput(array("error"=>"Request input is not valid"));
 		}
 		
 		// Decode the json structure
 		$objData = json_decode($params['raw_body'], true);
 		
-		if (!isset($objData['obj_type']))
-		{
+		if (!isset($objData['obj_type'])) {
 			return $this->sendOutput(array("error"=>"obj_type is a required param"));
 		}
 		

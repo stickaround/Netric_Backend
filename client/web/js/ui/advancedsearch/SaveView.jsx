@@ -1,5 +1,5 @@
 /**
- * Provides the user to input details required for browser view 
+ * Provides user inputs required for browser view details 
  *
  * @jsx React.DOM
  */
