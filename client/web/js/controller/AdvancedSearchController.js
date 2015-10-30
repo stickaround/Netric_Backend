@@ -76,11 +76,15 @@ AdvancedSearchController.prototype.render = function() {
  * Save the browser view
  * 
  * @param {netric\entity\BrowserView} browserView   The browser view to save
+ * @param {object} data  Contains the user input details for additional browser view information
  */
-AdvancedSearchController.prototype._saveView = function(browserView) {
-    browserViewSaver.save(browserView, function() {
-        console.log("View saved");
-    });
+AdvancedSearchController.prototype._saveView = function(browserView, data) {
+    
+    browserView.name = data.name;
+    browserView.description = data.description;
+    browserView.default = data.default;
+    
+    browserViewSaver.save(browserView);
 }
 
 module.exports = AdvancedSearchController;

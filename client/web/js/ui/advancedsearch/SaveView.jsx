@@ -17,21 +17,15 @@ var Checkbox = Chamel.Checkbox;
 var SaveView = React.createClass({
     
     propTypes: {
-        browserView: React.PropTypes.object,
+        data: React.PropTypes.object,
         onSave: React.PropTypes.func,
         onCancel: React.PropTypes.func,
     },
     
     componentDidMount: function() {
-        var name = this.props.browserView.name;
-        
-        if(this.props.browserView.id == null) {
-            name = 'My Custom View';
-        }   
-        
-        this.refs.name.setValue(name);
-        this.refs.description.setValue(this.props.browserView.description);
-        this.refs.defaultView.setChecked(this.props.browserView.default);
+        this.refs.name.setValue(this.props.data.name);
+        this.refs.description.setValue(this.props.data.description);
+        this.refs.defaultView.setChecked(this.props.data.default);
     },
     
     render: function() { 
@@ -74,12 +68,11 @@ var SaveView = React.createClass({
         }
         
         if(this.props.onSave) {
-            this.props.browserView.name = name;
-            this.props.browserView.description = this.refs.description.getValue();
-            this.props.browserView.default = this.refs.defaultView.isChecked()
+            this.props.data.name = name;
+            this.props.data.description = this.refs.description.getValue();
+            this.props.data.default = this.refs.defaultView.isChecked()
             
-            this.props.onSave();
-            this._handleCancel();
+            this.props.onSave(this.props.data);
         }
     },
     

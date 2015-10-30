@@ -13,6 +13,7 @@ var SaveView = require('./advancedsearch/SaveView.jsx');
 var SortOrder = require('./advancedsearch/SortOrder.jsx');
 var IconButton = Chamel.IconButton;
 var FlatButton = Chamel.FlatButton;
+var Snackbar = Chamel.Snackbar;
 
 /**
  * Displays the advanced search to filter the results list using conditions. It can also set the sort order and columns to view.
@@ -38,9 +39,17 @@ var AdvancedSearch = React.createClass({
 	getInitialState: function() {
         // Return the initial state
         return { 
-            renderCount: 0,
-            displaySaveView: false
+            displaySaveView: false,
+            statusText: ''
         };
+    },
+    
+    componentDidUpdate: function() {
+        
+        // Hide the snackbar if the component did re-render
+        if(this.state.statusText == '') {
+            this.refs.snackbar.dismiss();
+        }
     },
 	
 	render: function() {
@@ -49,10 +58,24 @@ var AdvancedSearch = React.createClass({
 	    
 	    if(this.state.displaySaveView) {
 	        
+	        var name = this.props.browserView.name;
+	        
+	        // If the browser view is not yet saved, then set the default name to My Custom View
+	        if(this.props.browserView.id == null) {
+	            name = 'My Custom View';
+	        }   
+	        
+	        var data = {
+	                id: this.props.browserView.id,
+	                name: name,
+	                description: this.props.browserView.description,
+	                default: this.props.browserView.default,
+	        }
+	        
 	        // Display the save view component
 	        display = (
 	                <SaveView
-	                    browserView={this.props.browserView}
+	                    data={data}
 	                    onSave={this._handleSaveView} 
 	                    onCancel={this._handleHideSaveDisplay} />
 	        );
@@ -112,6 +135,7 @@ var AdvancedSearch = React.createClass({
 		return (
 				<div>
 					{display}
+					<Snackbar ref="snackbar" message={this.state.statusText} />
 				</div>
 		);
 	},
@@ -138,7 +162,7 @@ var AdvancedSearch = React.createClass({
         
         // Update the state so it will re-render the changes
         this.setState({
-            renderCount: this.state.renderCount+1
+            statusText: ''
         });
     },
     
@@ -165,7 +189,7 @@ var AdvancedSearch = React.createClass({
         
         // Update the state so it will re-render the changes
         this.setState({
-            renderCount: this.state.renderCount+1
+            statusText: ''
         });
     },
     
@@ -211,12 +235,21 @@ var AdvancedSearch = React.createClass({
    /**
     * Saves the advanced search criteria 
     *
+    * @param {object} data  Contains the user input details for additional browser view information
     * @private
     */
-     _handleSaveView: function () {
-        if(this.props.onSaveView) this.props.onSaveView(this.props.browserView)
+     _handleSaveView: function (data) {
+        if(this.props.onSaveView) this.props.onSaveView(this.props.browserView, data)
         
         if(this.props.onChangeTitle) this.props.onChangeTitle("Advanced Search - " + this.props.browserView.name)
+         
+        this.setState({
+            displaySaveView: false,
+            statusText: data.name + ' view is saved.'
+        });
+        
+        // Show the status that the view is successfully saved.
+        this.refs.snackbar.show();
     },
     
     /**
