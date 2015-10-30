@@ -1,21 +1,21 @@
 <?php
 /**
- * Return browser views for entity of object type 'note'
+ * Return browser views for entity of object type 'notification'
  */
 namespace objects\browser_views;
 
 use Netric\EntityQuery\Where;
 
 return array(
-    'default'=> array(
-        'obj_type' => 'note',
-    	'name' => 'Default View',
-		'description' => 'My Notes',
+    'my_notifications'=> array(
+        'obj_type' => 'notification',
+    	'name' => 'My Notifications',
+		'description' => 'Display all my reminders',
     	'default' => true,
         'conditions' => array(
-            'user' => array(
+            'owner' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'user_id',
+                'field_name' => 'owner_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => -3
             ),
@@ -26,6 +26,6 @@ return array(
     			'direction' => 'desc',
     		),
 		),
-		'table_columns' => array('name', 'ts_entered', 'body')
+		'table_columns' => array('name', 'ts_execute')
     ),
 );
