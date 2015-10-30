@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_activity'=> array(
-        'obj_type' => 'activity',
-    	'name' => 'All Activity',
-    	'description' => '',
-    	'default' => true,
-        'conditions' => array(
+		'obj_type' => 'activity',
+		'name' => 'All Activity',
+		'description' => '',
+		'default' => true,
+		'conditions' => array(
             'level' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'level',

@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'meeting_proposals'=> array(
-        'obj_type' => 'calendar_event_proposal',
-    	'name' => 'Meeting Proposals',
-    	'description' => 'Meeting proposals that are still in process',
-    	'default' => true,
-        'conditions' => array(
+		'obj_type' => 'calendar_event_proposal',
+		'name' => 'Meeting Proposals',
+		'description' => 'Meeting proposals that are still in process',
+		'default' => true,
+		'conditions' => array(
             'closed' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'f_closed',

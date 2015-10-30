@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_pages'=> array(
-        'obj_type' => 'phone_call',
-    	'name' => 'All Pages',
+		'obj_type' => 'phone_call',
+		'name' => 'All Pages',
 		'description' => 'Display all pages',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'name' => 'name',

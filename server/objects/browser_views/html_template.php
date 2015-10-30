@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_html_templates'=> array(
-        'obj_type' => 'html_template',
-    	'name' => 'All HTML Templates',
+		'obj_type' => 'html_template',
+		'name' => 'All HTML Templates',
 		'description' => 'Display all available HTML templates for all object types',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'obj_type' => array(
     			'field_name' => 'obj_type',

@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_open_cases'=> array(
-        'obj_type' => 'case',
-    	'name' => 'All Open Cases',
+		'obj_type' => 'case',
+		'name' => 'All Open Cases',
 		'description' => 'All that have not yet been closed',
-    	'default' => true,
-        'conditions' => array(
+		'default' => true,
+		'conditions' => array(
             'not_resolved' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'status_id',

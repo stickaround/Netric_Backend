@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'my_open_opportunities'=> array(
-        'obj_type' => 'opportunity',
-    	'name' => 'My Open Opportunities',
+		'obj_type' => 'opportunity',
+		'name' => 'My Open Opportunities',
 		'description' => 'Opportunities assigned to me that are not closed',
-    	'default' => true,
-        'conditions' => array(
+		'default' => true,
+		'conditions' => array(
             'owner' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'owner_id',

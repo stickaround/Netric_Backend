@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'upcoming_events'=> array(
-        'obj_type' => 'calendar_event',
-    	'name' => 'Upcoming Events',
+		'obj_type' => 'calendar_event',
+		'name' => 'Upcoming Events',
 		'description' => 'Events occurring in the future',
-    	'default' => true,
-        'conditions' => array(
+		'default' => true,
+		'conditions' => array(
             'start' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'ts_start',

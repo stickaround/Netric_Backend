@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_dashboards'=> array(
-        'obj_type' => 'dashboard',
-    	'name' => 'All Dashboards',
+		'obj_type' => 'dashboard',
+		'name' => 'All Dashboards',
 		'description' => 'Viewing All Dashboards',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'name' => array(
     			'field_name' => 'name',

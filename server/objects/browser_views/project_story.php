@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_stories'=> array(
-        'obj_type' => 'project_story',
-    	'name' => 'All Stories',
+		'obj_type' => 'project_story',
+		'name' => 'All Stories',
 		'description' => 'View all stories both in the backlog and those assigned to a milestone/sprint',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'ts_entered',

@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'invoices'=> array(
-        'obj_type' => 'invoice',
-    	'name' => 'Invoices',
+		'obj_type' => 'invoice',
+		'name' => 'Invoices',
 		'description' => 'Events occurring in the future',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'date_due',

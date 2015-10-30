@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'default'=> array(
-        'obj_type' => 'note',
-    	'name' => 'Default View',
+		'obj_type' => 'note',
+		'name' => 'Default View',
 		'description' => 'My Notes',
-    	'default' => true,
-        'conditions' => array(
+		'default' => true,
+		'conditions' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'user_id',

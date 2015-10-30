@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_orders'=> array(
-        'obj_type' => 'sales_order',
-    	'name' => 'All Orders',
+		'obj_type' => 'sales_order',
+		'name' => 'All Orders',
 		'description' => 'All Orders',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'ts_entered',

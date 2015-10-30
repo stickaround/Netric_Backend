@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_sites'=> array(
-        'obj_type' => 'cms_site',
-    	'name' => 'All Sites',
+		'obj_type' => 'cms_site',
+		'name' => 'All Sites',
 		'description' => 'Display all available sites',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'name' => array(
     			'field_name' => 'name',

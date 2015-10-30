@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_email_campaigns'=> array(
-        'obj_type' => 'email_campaign',
-    	'name' => 'All Email Campaigns',
+		'obj_type' => 'email_campaign',
+		'name' => 'All Email Campaigns',
 		'description' => 'Display all available HTML templates for all object types',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'name' => array(
     			'field_name' => 'name',

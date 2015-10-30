@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_calendars'=> array(
-        'obj_type' => 'calendar',
-    	'name' => 'All Calendars',
+		'obj_type' => 'calendar',
+		'name' => 'All Calendars',
 		'description' => 'Viewing All Calendars',
-    	'default' => true,
-        'public' => array(
+		'default' => true,
+		'public' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'f_public',

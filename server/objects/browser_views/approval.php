@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'awaiting_my_approval'=> array(
-        'obj_type' => 'approval',
-    	'name' => 'Awaiting My Approval',
+		'obj_type' => 'approval',
+		'name' => 'Awaiting My Approval',
 		'description' => '',
-    	'default' => false,
-        'conditions' => array(
+		'default' => false,
+		'conditions' => array(
             'owner' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'owner_id',

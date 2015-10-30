@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'my_tasks'=> array(
-        'obj_type' => 'task',
+		'obj_type' => 'task',
 		'name' => 'My Incomplete Tasks',
-    	'description' => 'Incomplete tasks assigned to me',
-    	'default' => true,
-        'conditions' => array(
+		'description' => 'Incomplete tasks assigned to me',
+		'default' => true,
+		'conditions' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'owner_id',

@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'default'=> array(
-        'obj_type' => 'folder',
-    	'name' => 'Default View',
+		'obj_type' => 'folder',
+		'name' => 'Default View',
 		'description' => '',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'ts_entered',

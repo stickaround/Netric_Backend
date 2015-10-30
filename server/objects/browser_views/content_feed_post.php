@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_posts'=> array(
-        'obj_type' => 'content_feed_post',
-    	'name' => 'All Posts',
+		'obj_type' => 'content_feed_post',
+		'name' => 'All Posts',
 		'description' => 'All Content Feed Posts',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'time_entered',

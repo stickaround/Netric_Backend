@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'email_messages'=> array(
-        'obj_type' => 'email_message',
-    	'name' => 'Email Messages',
+		'obj_type' => 'email_message',
+		'name' => 'Email Messages',
 		'description' => '',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'message_date',

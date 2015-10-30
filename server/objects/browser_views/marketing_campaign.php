@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'all_campaigns'=> array(
-        'obj_type' => 'marketing_campaign',
-    	'name' => 'All Campaigns',
+		'obj_type' => 'marketing_campaign',
+		'name' => 'All Campaigns',
 		'description' => 'View all campaigns both active and inactive',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'date_start',

@@ -8,10 +8,10 @@ use Netric\EntityQuery\Where;
 
 return array(
     'news_feed'=> array(
-        'obj_type' => 'status_update',
-    	'name' => 'News Feed',
+		'obj_type' => 'status_update',
+		'name' => 'News Feed',
 		'description' => '',
-    	'default' => true,
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
     			'field_name' => 'ts_entered',

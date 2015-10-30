@@ -8,11 +8,11 @@ use Netric\EntityQuery\Where;
 
 return array(
     'my_notifications'=> array(
-        'obj_type' => 'notification',
-    	'name' => 'My Notifications',
+		'obj_type' => 'notification',
+		'name' => 'My Notifications',
 		'description' => 'Display all my reminders',
-    	'default' => true,
-        'conditions' => array(
+		'default' => true,
+		'conditions' => array(
             'owner' => array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'owner_id',
