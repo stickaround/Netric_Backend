@@ -63,7 +63,7 @@ var SaveView = React.createClass({
         
         // Require the view name.
         if(name.length == 0) {
-            this.refs.nameInput.setErrorText('View Name is required.');
+            this.refs.name.setErrorText('View Name is required.');
             return;
         }
         
