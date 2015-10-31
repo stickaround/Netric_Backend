@@ -8,6 +8,7 @@
 
 var BackendRequest = require("../BackendRequest");
 var Definition = require("./Definition");
+var log = require("../log");
 
 /**
  * Entity definition loader
@@ -58,7 +59,7 @@ definitionLoader.get = function(objType, cbLoaded) {
 		});
 
 		alib.events.listen(request, "error", function(evt) {
-			console.error("Failed to load request", evt);
+			log.error("Failed to load request", evt);
 		});
 	} else {
 		// Set request to be synchronous if no callback is set	

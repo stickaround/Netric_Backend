@@ -5,9 +5,8 @@ module.exports = function(config){
 
     files : [
       'vendor/aereus/alib_full.js',
-      'vendor/react/react.js',
       'test/unit/**/*.js',
-      //'test/unit/entity/EntitySpec.js',
+      //'test/unit/logSpec.js',
 
       // fixtures
       {pattern: 'svr/**/*', watched: true, served: true, included: false}
@@ -40,7 +39,10 @@ module.exports = function(config){
     browserify: {
       debug: true,
       es6: true,
-      transform: [ ['babelify', {loose: "all", nonStandard: true}] ],
+      transform: [
+        ['babelify', {loose: "all", nonStandard: true}],
+        ['envify', {NODE_ENV: 'test'}]
+      ],
       configure: function(bundle) {
         bundle.on('prebundle', function() {
           bundle.external('netric');

@@ -107,7 +107,7 @@ var Collection = function(objType) {
      * @type {number}
      * @private
      */
-    this.totalNum = 0;
+    this.totalNum_ = 0;
 
     /**
      * Copy static order by direction to this so we can access through this.orderByDir
@@ -315,7 +315,7 @@ Collection.prototype.andWhere = function(fieldName) {
  */
 Collection.prototype.orWhere = function(fieldName) {
     var where = new Where(fieldName);
-    where.operator = Where.boolOperators.OR;
+    where.operator = Where.conjunctives.OR;
     this.conditions_.push(where);
     return where;
 }

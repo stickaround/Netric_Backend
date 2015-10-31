@@ -6,10 +6,6 @@ module.exports = function(grunt) {
 
         browserify: {
             options: {
-                debug: true,
-                transform: [
-                    ['babelify', {loose: "all", nonStandard: true}]
-                ],
                 extensions: ['.jsx'],
                 browserifyOptions : {
                     standalone: 'netric'
@@ -18,6 +14,11 @@ module.exports = function(grunt) {
             dev: {
                 options: {
                   //alias: ['react:']  // Make React available externally for dev tools
+                  debug: true,
+                  transform: [
+                      ['babelify', {loose: "all", nonStandard: true}],
+                      ['envify', {NODE_ENV: 'development'}]
+                  ]
                 },
                 //cwd: 'js',
                 src: ['js/main.js'],
@@ -25,7 +26,11 @@ module.exports = function(grunt) {
             },
             production: {
                 options: {
-                  debug: false
+                  debug: false,
+                  transform: [
+                    ['babelify', {loose: "all", nonStandard: true}]
+                    ['envify', {NODE_ENV: 'production'}]
+                  ]
                 },
                 //cwd: 'js',
                 //src: ['**/*.jsx'],

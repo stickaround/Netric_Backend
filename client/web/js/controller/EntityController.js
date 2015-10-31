@@ -11,6 +11,7 @@ var UiEntity = require("../ui/Entity.jsx");
 var definitionLoader = require("../entity/definitionLoader");
 var entityLoader = require("../entity/loader");
 var entitySaver = require("../entity/saver");
+var log = require("../log");
 
 /**
  * Controller that loads an entity browser
@@ -219,7 +220,7 @@ EntityController.prototype.saveEntity = function() {
 
     // Save the entity
     entitySaver.save(this.entity_, function() {
-        console.log("Entity saved");
+        log.info("Entity saved");
     });
     
 }
@@ -230,7 +231,8 @@ EntityController.prototype.saveEntity = function() {
 EntityController.prototype.revertChanges = function() {
 
     // TODO: save the entity
-    console.log("Undo changes");
+    //console.log("Undo changes");
+    log.info("Undo changes");
 
     if (!this.entity_.id)
         this.close();
