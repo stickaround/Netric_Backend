@@ -37,7 +37,7 @@ var ObjectField = React.createClass({
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
         var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
-        console.log("Calling getValueName got me", valueLabel);
+        log.info("Calling getValueName got me", valueLabel);
         if (!valueLabel) {
             valueLabel = "Not Set";
         }

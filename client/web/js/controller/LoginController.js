@@ -192,7 +192,7 @@ LoginController.prototype.getLoginAccounts = function(username, password) {
 	// Make a request to the universal login endpoint to get accounts
 	var url = server.universalLoginUri;
 	url += "/svr/authentication/get-accounts";
-	console.log("Sending:" + url);
+	log.info("Sending:" + url);
 	request.send(url, "POST", { "email": username });
 }
 

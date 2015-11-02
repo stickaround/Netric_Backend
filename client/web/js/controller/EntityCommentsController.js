@@ -130,7 +130,7 @@ EntityCommentsController.prototype.saveEntity = function() {
 
     // Save the entity
     entitySaver.save(this.entity_, function() {
-        console.log("Entity saved");
+        log.info("Entity saved");
     });
 
 }
@@ -141,7 +141,7 @@ EntityCommentsController.prototype.saveEntity = function() {
 EntityCommentsController.prototype.revertChanges = function() {
 
     // TODO: save the entity
-    console.log("Undo changes");
+    log.info("Undo changes");
 
     if (!this.entity_.id)
         this.close();
@@ -157,7 +157,7 @@ EntityCommentsController.prototype._handleAddComment = function(comment) {
     // Create a new comment and save it
     var ent = entityLoader.factory(this.COMMENT_OBJ_TYPE);
 
-    console.log("Add comment", comment);
+    log.info("Add comment", comment);
 }
 
 module.exports = EntityCommentsController;

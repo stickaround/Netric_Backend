@@ -59,7 +59,7 @@ var BoolField = React.createClass({
      */
     _handleCheck: function(evt, isInputChecked) {
         var val = evt.target.value;
-        console.log("Setting", this.props.xmlNode.getAttribute('name'), "to", isInputChecked);
+        log.info("Setting", this.props.xmlNode.getAttribute('name'), "to", isInputChecked);
         this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), isInputChecked);
     }
 });
