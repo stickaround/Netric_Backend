@@ -10,6 +10,7 @@ var Chamel = require("chamel");
 var Dialog = Chamel.Dialog;
 var controller = require("../../../../controller/controller");
 var ObjectSelect = require("../../ObjectSelect.jsx");
+var log = require("../../../../log");
 
 
 /**

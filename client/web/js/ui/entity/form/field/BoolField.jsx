@@ -8,6 +8,7 @@
 var React = require('react');
 var Chamel = require("chamel");
 var Checkbox = Chamel.Checkbox;
+var log = require("../../../../log");
 
 /**
  * Base level element for enetity forms
