@@ -172,17 +172,17 @@ BrowserView.prototype.fromData = function(data) {
 BrowserView.prototype.getData = function() {
 
     var data = {
-            id: this.id,
-            obj_type: this.objType,
-            name: this.name,
-            description: this.description,
-            f_system: this.system,
-            f_default: this.default,
-            user_id: this.userId,
-            team_id: this.teamId,
-            report_id: this.reportId,
-            scope: this.scope,    
-            filter_key: this.filterKey,
+        id: this.id,
+        obj_type: this.objType,
+        name: this.name,
+        description: this.description,
+        f_system: this.system,
+        f_default: this.default,
+        user_id: this.userId,
+        team_id: this.teamId,
+        report_id: this.reportId,
+        scope: this.scope,
+        filter_key: this.filterKey,
     };
     
     // Table Columns data
@@ -194,12 +194,7 @@ BrowserView.prototype.getData = function() {
     // Conditions data
     data.conditions = [];
     for (var idx in this.conditions_) {
-        data.conditions.push({
-            blogic: this.conditions_[idx].bLogic,
-            field_name: this.conditions_[idx].fieldName,
-            operator: this.conditions_[idx].operator,
-            value: this.conditions_[idx].value
-        });
+        data.conditions.push(this.conditions_[i].toData());
     }
     
     // Order By data

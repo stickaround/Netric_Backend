@@ -20,129 +20,129 @@ var Snackbar = Chamel.Snackbar;
  */
 var AdvancedSearch = React.createClass({
 
-	propTypes: {
-	    onChangeTitle: React.PropTypes.func,
-	    onApplySearch: React.PropTypes.func,
-	    onSaveView: React.PropTypes.func,
-	    title: React.PropTypes.string,
-	    objType: React.PropTypes.string,
-	    browserView: React.PropTypes.object,
-	    entityDefinition: React.PropTypes.object
-	},
+    propTypes: {
+        onChangeTitle: React.PropTypes.func,
+        onApplySearch: React.PropTypes.func,
+        onSaveView: React.PropTypes.func,
+        title: React.PropTypes.string,
+        objType: React.PropTypes.string,
+        browserView: React.PropTypes.object,
+        entityDefinition: React.PropTypes.object
+    },
 
-	getDefaultProps: function() {
-		return {
-			title: "Advanced Search",
-		}
-	},
-	
-	getInitialState: function() {
+    getDefaultProps: function() {
+        return {
+            title: "Advanced Search",
+        }
+    },
+
+    getInitialState: function() {
         // Return the initial state
-        return { 
+        return {
             displaySaveView: false,
             statusText: ''
         };
     },
-    
+
     componentDidUpdate: function() {
-        
+
         // Hide the snackbar if the component did re-render
         if(this.state.statusText == '') {
             this.refs.snackbar.dismiss();
         }
     },
-	
-	render: function() {
-	    
-	    var display = null;
-	    
-	    if(this.state.displaySaveView) {
-	        
-	        var name = this.props.browserView.name;
-	        
-	        // If the browser view is not yet saved, then set the default name to My Custom View
-	        if(this.props.browserView.id == null) {
-	            name = 'My Custom View';
-	        }   
-	        
-	        var data = {
-	                id: this.props.browserView.id,
-	                name: name,
-	                description: this.props.browserView.description,
-	                default: this.props.browserView.default,
-	        }
-	        
-	        // Display the save view component
-	        display = (
-	                <SaveView
-	                    data={data}
-	                    onSave={this._handleSaveView} 
-	                    onCancel={this._handleHideSaveDisplay} />
-	        );
-	    } else { // Display the advance search criteria
-	        // Conditions Display
-	        var conditionsDiplay = [];
-	        var conditions = this.props.browserView.getConditions();
-	        for(var idx in conditions) {
-	            conditionsDiplay.push( this._getCriteriaDisplay('condition', conditions[idx], idx) );
-	        }
-	        
-	        // Sort Order Display
-	        var sortOrderDiplay = [];
-	        var orderBy = this.props.browserView.getOrderBy();
-	        for(var idx in orderBy) {
-	            sortOrderDiplay.push( this._getCriteriaDisplay('sortOrder', orderBy[idx], idx) );
-	        }
-	        
-	        // Columns to View Display
-	        var columnViewDiplay = [];
-	        var columnView = this.props.browserView.getTableColumns();
-	        for(var idx in columnView) {
-	            
-	            // We need to create a column object since in browserView the columns are stored as a string in an array
-	            var column = {fieldName: columnView[idx]};
-	            
-	            columnViewDiplay.push( this._getCriteriaDisplay('columnView', column, idx) );
-	        }
-	        
-	        // Display the condition, sort by and columns to view
-	        display = (
-	                <div>
-    	                <div>
-                            <span className='advance-search-title'>Search Conditions: </span>
-                            {conditionsDiplay}
-                            <IconButton onClick={this._handleAddCriteria.bind(this, 'condition')} className="fa fa-plus" />
-                        </div>
-                        <div>
-                            <span className='advance-search-title'>Sort By: </span>
-                            {sortOrderDiplay}
-                            <IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
-                        </div>
-                        <div>
-                            <span className='advance-search-title'>Column View: </span>
-                            {columnViewDiplay}
-                            <IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
-                        </div>
-                        <div>
-                            <FlatButton label='Apply' onClick={this._handleAdvancedSearch} />
-                            <FlatButton label='Save Changes' onClick={this._handleShowSaveDisplay} />
-                        </div>
+
+    render: function() {
+
+        var display = null;
+
+        if(this.state.displaySaveView) {
+
+            var name = this.props.browserView.name;
+
+            // If the browser view is not yet saved, then set the default name to My Custom View
+            if(this.props.browserView.id == null) {
+                name = 'My Custom View';
+            }
+
+            var data = {
+                id: this.props.browserView.id,
+                name: name,
+                description: this.props.browserView.description,
+                default: this.props.browserView.default,
+            }
+
+            // Display the save view component
+            display = (
+                <SaveView
+                    data={data}
+                    onSave={this._handleSaveView}
+                    onCancel={this._handleHideSaveDisplay} />
+            );
+        } else { // Display the advance search criteria
+            // Conditions Display
+            var conditionsDiplay = [];
+            var conditions = this.props.browserView.getConditions();
+            for(var idx in conditions) {
+                conditionsDiplay.push( this._getCriteriaDisplay('condition', conditions[idx], idx) );
+            }
+
+            // Sort Order Display
+            var sortOrderDiplay = [];
+            var orderBy = this.props.browserView.getOrderBy();
+            for(var idx in orderBy) {
+                sortOrderDiplay.push( this._getCriteriaDisplay('sortOrder', orderBy[idx], idx) );
+            }
+
+            // Columns to View Display
+            var columnViewDiplay = [];
+            var columnView = this.props.browserView.getTableColumns();
+            for(var idx in columnView) {
+
+                // We need to create a column object since in browserView the columns are stored as a string in an array
+                var column = {fieldName: columnView[idx]};
+
+                columnViewDiplay.push( this._getCriteriaDisplay('columnView', column, idx) );
+            }
+
+            // Display the condition, sort by and columns to view
+            display = (
+                <div>
+                    <div>
+                        <span className='advance-search-title'>Search Conditions: </span>
+                        {conditionsDiplay}
+                        <IconButton onClick={this._handleAddCriteria.bind(this, 'condition')} className="fa fa-plus" />
                     </div>
-	        );
-	    }
-	    
-        
-		return (
-				<div>
-					{display}
-					<Snackbar ref="snackbar" message={this.state.statusText} />
-				</div>
-		);
-	},
-    
+                    <div>
+                        <span className='advance-search-title'>Sort By: </span>
+                        {sortOrderDiplay}
+                        <IconButton onClick={this._handleAddCriteria.bind(this, 'sortOrder')} className="fa fa-plus" />
+                    </div>
+                    <div>
+                        <span className='advance-search-title'>Column View: </span>
+                        {columnViewDiplay}
+                        <IconButton onClick={this._handleAddCriteria.bind(this, 'columnView')} className="fa fa-plus" />
+                    </div>
+                    <div>
+                        <FlatButton label='Apply' onClick={this._handleAdvancedSearch} />
+                        <FlatButton label='Save Changes' onClick={this._handleShowSaveDisplay} />
+                    </div>
+                </div>
+            );
+        }
+
+
+        return (
+            <div>
+                {display}
+                <Snackbar ref="snackbar" message={this.state.statusText} />
+            </div>
+        );
+    },
+
     /**
      * Removes the selected criteria
-     * 
+     *
      * @param {string} type     Type of criteria to be removed
      * @param {int} index       The index of the condition that will be removed
      * @private
@@ -159,13 +159,13 @@ var AdvancedSearch = React.createClass({
                 this.props.browserView.removeTableColumn(index);
                 break;
         }
-        
+
         // Update the state so it will re-render the changes
         this.setState({
             statusText: ''
         });
     },
-    
+
     /**
      * Adds a new search condition
      *
@@ -174,7 +174,7 @@ var AdvancedSearch = React.createClass({
      */
     _handleAddCriteria: function(type) {
         var field = this.props.entityDefinition.fields[0];
-        
+
         switch(type) {
             case 'condition':
                 this.props.browserView.addCondition(field.name);
@@ -186,22 +186,24 @@ var AdvancedSearch = React.createClass({
                 this.props.browserView.addTableColumn(field.name);
                 break;
         }
-        
+
         // Update the state so it will re-render the changes
         this.setState({
             statusText: ''
         });
     },
-    
+
     /**
      * Executes the advanced search
      *
      * @private
      */
     _handleAdvancedSearch: function() {
-        if(this.props.onApplySearch) this.props.onApplySearch(this.props.browserView);
+        if(this.props.onApplySearch) {
+            this.props.onApplySearch(this.props.browserView);
+        }
     },
-    
+
     /**
      * Updates the column view using a function in browserView.
      * Only tableColumn has update functionality because columns are saved as a string in an array.
@@ -213,7 +215,7 @@ var AdvancedSearch = React.createClass({
     _handleUpdateColumn: function(fieldName, index) {
         this.props.browserView.updateTableColumn(fieldName, index);
     },
-    
+
     /**
      * Hides the save view component
      *
@@ -221,37 +223,44 @@ var AdvancedSearch = React.createClass({
      */
     _handleHideSaveDisplay: function () {
         this.setState({displaySaveView: false});
-     },
-    
+    },
+
     /**
      * Displays the save view component
      *
      * @private
      */
     _handleShowSaveDisplay: function () {
-         this.setState({displaySaveView: true});
-     },
-    
-   /**
-    * Saves the advanced search criteria 
-    *
-    * @param {object} data  Contains the user input details for additional browser view information
-    * @private
-    */
-     _handleSaveView: function (data) {
-        if(this.props.onSaveView) this.props.onSaveView(this.props.browserView, data)
-        
-        if(this.props.onChangeTitle) this.props.onChangeTitle("Advanced Search - " + this.props.browserView.name)
-         
+        this.setState({displaySaveView: true});
+    },
+
+    /**
+     * Saves the advanced search criteria
+     *
+     * @param {object} data  Contains the user input details for additional browser view information
+     * @private
+     */
+    _handleSaveView: function (data) {
+
+        // Save the browserView details.
+        if(this.props.onSaveView) {
+            this.props.onSaveView(this.props.browserView, data)
+        }
+
+        // It will append the view's name to "Advanced Search" title
+        if(this.props.onChangeTitle) {
+            this.props.onChangeTitle("Advanced Search - " + this.props.browserView.name)
+        }
+
         this.setState({
             displaySaveView: false,
             statusText: data.name + ' view is saved.'
         });
-        
+
         // Show the status that the view is successfully saved.
         this.refs.snackbar.show();
     },
-    
+
     /**
      * Gets the fields to be used in search criteria
      *
@@ -260,35 +269,35 @@ var AdvancedSearch = React.createClass({
      * @private
      */
     _getEntityFieldData: function(selectedField) {
-    	if(this.props.entityDefinition == null) {
-    		return null;
-    	}
-    	
-    	var fieldData = new Object();
-    	
-    	fieldData.fields = [];
-    	fieldData.selectedIndex = 0;
-    	this.props.entityDefinition.fields.map(function(field, index) {
-    	    
-    	    if(field.name == selectedField) {
-    	        fieldData.selectedIndex = parseInt(index);
-    	    }
-    	    
-    	    fieldData.fields.push({
-    	        payload: field.name,
-    	        id: field.id,
-    	        name: field.name,
-    	        text: field.title, 
-    	        type: field.type
-    	    });
-    	});
-    	
-    	return fieldData;
+        if(this.props.entityDefinition == null) {
+            return null;
+        }
+
+        var fieldData = new Object();
+
+        fieldData.fields = [];
+        fieldData.selectedIndex = 0;
+        this.props.entityDefinition.fields.map(function(field, index) {
+
+            if(field.name == selectedField) {
+                fieldData.selectedIndex = parseInt(index);
+            }
+
+            fieldData.fields.push({
+                payload: field.name,
+                id: field.id,
+                name: field.name,
+                text: field.title,
+                type: field.type
+            });
+        });
+
+        return fieldData;
     },
-    
+
     /**
      * Get the criteria component to be displayed. This will display either condition, sort order, or columns to view
-     * 
+     *
      * @param {string} type         Type of criteria to be displayed
      * @param {object} data         Instance of the criteria object (condition, sort order, column view) that contains data to be displayed
      * @param {int} index           Current index of the condition to be displayed
@@ -301,48 +310,45 @@ var AdvancedSearch = React.createClass({
         var fieldData = this._getEntityFieldData(fieldName); // Get the entity field data including the field name index (if available)
         var key = fieldName + index.toString();
         var index = parseInt(index);
-    	
-    	switch(type) {
+
+        switch(type) {
             case 'condition':
                 display = (
-                            <Condition
-                                key={key}
-                                index={index}
-                                fieldData={fieldData}
-                                objType={this.props.objType}
-                                condition={data}
-                                onRemove={this._handleRemoveCondition}
-                            /> 
+                    <Condition
+                        key={key}
+                        index={index}
+                        fieldData={fieldData}
+                        objType={this.props.objType}
+                        condition={data}
+                        onRemove={this._handleRemoveCondition} />
                 );
                 break;
             case 'sortOrder':
                 display = (
-                            <SortOrder
-                                key={key}
-                                index={index}
-                                fieldData={fieldData}
-                                objType={this.props.objType}
-                                orderBy={data}
-                                onRemove={this._handleRemoveCondition}
-                            /> 
-                ); 
+                    <SortOrder
+                        key={key}
+                        index={index}
+                        fieldData={fieldData}
+                        objType={this.props.objType}
+                        orderBy={data}
+                        onRemove={this._handleRemoveCondition} />
+                );
                 break;
             case 'columnView':
                 display = (
-                            <ColumnView
-                                key={key}
-                                index={index}
-                                fieldData={fieldData}
-                                objType={this.props.objType}
-                                column={data}
-                                onUpdate={this._handleUpdateColumn}
-                                onRemove={this._handleRemoveCondition}
-                            /> 
+                    <ColumnView
+                        key={key}
+                        index={index}
+                        fieldData={fieldData}
+                        objType={this.props.objType}
+                        column={data}
+                        onUpdate={this._handleUpdateColumn}
+                        onRemove={this._handleRemoveCondition} />
                 );
                 break;
         }
-    	
-    	return display;
+
+        return display;
     },
 });
 

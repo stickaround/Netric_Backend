@@ -1,5 +1,6 @@
 /**
- * Provides user inputs required for browser view details 
+ * Provides user inputs required for browser view details
+ * Displays the inputs for View Name, Description and if this view will be the default view.
  *
  * @jsx React.DOM
  */
@@ -31,25 +32,25 @@ var SaveView = React.createClass({
     render: function() { 
         
         return (
+            <div>
                 <div>
-                    <div>
-                        <TextField floatingLabelText='Name:' ref='name'/>
-                    </div>
-                    <div>
-                        <TextField floatingLabelText='Description:' ref='description' />
-                    </div>
-                    <div>
-                        <Checkbox
-                            ref="defaultView"
-                            value="default"
-                            label="Default"
-                            defaultSwitched={false} />
-                    </div>
-                    <div>
-                        <FlatButton label='Save' onClick={this._handleSave} />
-                        <FlatButton label='Back' onClick={this._handleCancel} />
-                    </div>
+                    <TextField floatingLabelText='Name:' ref='name'/>
                 </div>
+                <div>
+                    <TextField floatingLabelText='Description:' ref='description' />
+                </div>
+                <div>
+                    <Checkbox
+                        ref="defaultView"
+                        value="default"
+                        label="Default"
+                        defaultSwitched={false} />
+                </div>
+                <div>
+                    <FlatButton label='Save' onClick={this._handleSave} />
+                    <FlatButton label='Back' onClick={this._handleCancel} />
+                </div>
+            </div>
         );
     },
     

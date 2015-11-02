@@ -49,26 +49,26 @@ AdvancedSearchController.prototype.onLoad = function(opt_callback) {
  * Render this controller into the dom tree
  */
 AdvancedSearchController.prototype.render = function() {
-	// Set outer application container
-	var domCon = this.domNode_;
-	var entities = new Array();
-	var entityFields = new Array();
+    // Set outer application container
+    var domCon = this.domNode_;
+    var entities = new Array();
+    var entityFields = new Array();
 	
     // Define the data
-	var data = {
-	        title: this.props.title || "Advanced Search",
-	        objType: this.props.objType,
-	        entityDefinition: this.props.entityDefinition,
-	        browserView: this.props.browserView,
-	        onApplySearch: this.props.onApplySearch,
-	        onSaveView: this._saveView,
-	        onChangeTitle: this.props.onChangeTitle,
-	}
+    var data = {
+        title: this.props.title || "Advanced Search",
+        objType: this.props.objType,
+        entityDefinition: this.props.entityDefinition,
+        browserView: this.props.browserView,
+        onApplySearch: this.props.onApplySearch,
+        onSaveView: this._saveView,
+        onChangeTitle: this.props.onChangeTitle,
+    }
 	
-	// Render browser component
+    // Render browser component
     this.rootReactNode_ = React.render(
-            React.createElement(UiAdvancedSearch, data),
-            domCon
+        React.createElement(UiAdvancedSearch, data),
+        domCon
     );
 }
 
