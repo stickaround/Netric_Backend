@@ -11,6 +11,7 @@ var UiEntityComments = require("../ui/EntityComments.jsx");
 var definitionLoader = require("../entity/definitionLoader");
 var entityLoader = require("../entity/loader");
 var entitySaver = require("../entity/saver");
+var log = require("../log");
 
 /**
  * Controller that loads an entity browser for comments and adds new comments

@@ -12,6 +12,7 @@ var sessionManager = require("../sessionManager");
 var accountLoader = require("../account/loader");
 var server = require("../server");
 var localData = require("../localData");
+var log = require("../log");
 
 /**
  * Test controller
