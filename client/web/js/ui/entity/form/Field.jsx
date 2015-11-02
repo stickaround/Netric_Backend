@@ -15,6 +15,7 @@ var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var Comments = require("./Comments.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
+var NumberField = require("./field/NumberField.jsx");
 
 /**
  * Base level element for enetity forms
@@ -61,6 +62,9 @@ var Field = React.createClass({
         case field.types.text:
         	fieldContent = <TextField {...this.props} />;
         	break;
+        case field.types.number:
+            fieldContent = <NumberField {...this.props} />;
+            break;
         case field.types.object:
             fieldContent = <ObjectField {...this.props} />;
             break;
@@ -84,28 +88,9 @@ var Field = React.createClass({
         }
 
 
-        var hr = (!this.props.editMode && this.props.entity.getValue(fieldName)) ? <hr /> : null;
-        /*
-        case 'object':
-            break;
-        case 'bool':
-            break;
-        case 'alias':
-            break;
-        case 'date':
-            break;
-        case 'timestamp':
-            break;
-        case 'number':
-        case 'numeric':
-        case 'integer':
-        case 'float':
-            break;
-        case 'text':
-        default:
-            this.input = new AntObject_FieldInput_Text(this, con, opts);
-            break;
-        */
+        // Print an HR after any field with a value
+        //var hr = (!this.props.editMode && this.props.entity.getValue(fieldName)) ? <hr /> : null;
+        var hr = null; // May not be needed anymore since we are using spacing better - Sky
 
         return (
             <div>

@@ -7,6 +7,7 @@
     display: flex;
     align-items: stretch;
     -webkit-align-items: stretch;
+    margin-top: 6px;
 
 
     .entity-comments-form-left {
@@ -22,7 +23,17 @@
 
     .entity-comments-form-right {
       width: $icon-button-size;
+
+      /* medium or bigger will use a button rather than icon */
+      @media #{$device-large} {
+        width: $button-min-width;
+      }
     }
 
+  }
+
+  /* Set text fields to 100% width */
+  .chamel-text-field {
+    width: 100%;
   }
 }

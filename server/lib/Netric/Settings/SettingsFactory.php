@@ -1,20 +1,20 @@
 <?php
 /**
- * Service factory for the Forms
+ * Construct the settings service
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
-namespace Netric\Entity\BrowserView;
+namespace Netric\Settings;
 
 use Netric\ServiceManager;
 
 /**
- * Create a new BrowserView service for getting and saving forms
+ * Create a new settings service
  *
  * @package Netric\FileSystem
  */
-class BrowserViewServiceFactory implements ServiceManager\ServiceFactoryInterface
+class SettingsFactory implements ServiceManager\ServiceFactoryInterface
 {
     /**
      * Service creation factory
@@ -25,9 +25,8 @@ class BrowserViewServiceFactory implements ServiceManager\ServiceFactoryInterfac
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
         $dbh = $sl->get("Db");
-        $config = $sl->get("Config");
-        $defLoader = $sl->get("EntityDefinitionLoader");
-        $settings = $sl->get('Netric\Settings\Settings');
-        return new BrowserViewService($dbh, $config, $defLoader, $settings);
+        $cache = $sl->get("Cache");
+        $account = $sl->getAccount();
+        return new Settings($dbh, $account, $cache);
     }
 }

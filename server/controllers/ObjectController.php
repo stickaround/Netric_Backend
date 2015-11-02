@@ -1885,7 +1885,7 @@ class ObjectController extends Controller
                 $this->user->setSetting("/objects/views/default/".$params['filter_key']."/".$params['obj_type'], $params['view_id']);
             else
 			 */
-                $this->user->setSetting("/objects/views/default/".$params['obj_type'], $params['view_id']);
+            $this->user->setSetting("/objects/views/default/".$params['obj_type'], $params['view_id']);
 
             $ret = 1;
         }

@@ -132,6 +132,16 @@ var Definition = function(opt_data) {
 	this.views = new Array();
 
 	/**
+	 * Default browser view for the current user
+	 *
+	 * This property is dynamically set on the server and not saved
+	 *
+	 * @private
+	 * @var {string}
+	 */
+	this._defaultBrowserViewId = data.default_view || "";
+
+	/**
 	 * Browser list blank state content
 	 *
 	 * This is used when there are no objects
@@ -246,7 +256,17 @@ Definition.prototype.getBrowserBlankContent = function() {
  */
 Definition.prototype.getDefaultView = function() {
 
-    // First check to see if there is a default view already setup
+	// First check to see if we were sent the default from the server
+	if (this._defaultBrowserViewId) {
+
+		for (var i in this.views) {
+			if (this.views[i].id === this._defaultBrowserViewId) {
+				return this.views[i];
+			}
+		}
+	}
+
+    // Not found! Ok check to see if there is a default view set by property
     for (var i in this.views) {
         if (this.views[i].default) {
             return this.views[i];
@@ -256,7 +276,7 @@ Definition.prototype.getDefaultView = function() {
     // No default was found, construct a default
     var view = new BrowserView(this.objType);
     view.tableColumns_.push("id");
-    // TODO: add a few more here
+    // TODO: add a few more field here
     return view;
 }
 

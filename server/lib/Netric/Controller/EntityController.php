@@ -68,7 +68,15 @@ class EntityController extends Mvc\AbstractController
 
         // Get views from browser view service
         $viewsService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
-        $ret['views'] = $viewsService->getViewsForUser($params['obj_type'], $user);
+        $browserViews = $viewsService->getViewsForUser($params['obj_type'], $user);
+        $ret['views'] = array();
+        foreach ($browserViews as $view)
+        {
+            $ret['views'][] = $view->toArray();
+        }
+
+        // Return the default view
+        $ret['default_view'] = $viewsService->getDefaultViewForUser($params['obj_type'], $user);
 
         return $this->sendOutput($ret);
 	}

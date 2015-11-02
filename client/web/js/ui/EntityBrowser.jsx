@@ -23,7 +23,7 @@ var EntityBrowser = React.createClass({
       onPerformAction: React.PropTypes.func,
       // Navigation button action - hamburger to the left of the title
       onNavBtnClick: React.PropTypes.func,
-      // Navigation back button - left arrow to the eft of the title
+      // Navigation back button - left arrow to the left of the title
       onNavBackBtnClick: React.PropTypes.func,
       layout : React.PropTypes.string,
       title : React.PropTypes.string,

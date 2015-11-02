@@ -133,7 +133,7 @@ BrowserView.prototype.fromData = function(data) {
     this.name = data.name;
     this.description = data.description;
     this.system = data.f_system;
-    this.default = (data.f_default === true || data.f_default == 't') ? true : false;
+    this.default = (data.default === true) ? true : false;
     this.userId = data.user_id || null;
     this.teamId = data.team_id || null;
     this.reportId = data.report_id || null;
@@ -143,8 +143,8 @@ BrowserView.prototype.fromData = function(data) {
         this.filterKey = data.filter_key;
 
     // Setup columns to display for a table view
-    for (var i in data.view_fields) {
-        this.tableColumns_.push(data.view_fields[i]);
+    for (var i in data.table_columns) {
+        this.tableColumns_.push(data.table_columns[i]);
     }
 
     for (var i in data.conditions) {

@@ -3,11 +3,9 @@
 
   padding: 0 $gutter-less 0 $gutter-less;
   @media #{$device-medium} {
-    padding: 0 $gutter 0 $gutter;
+    padding: 0;
   }
-  @media #{$device-large} {
-    padding: 0 $gutter 0 $gutter;
-  }
+
 
   display: -webkit-flex;
   display: flex;

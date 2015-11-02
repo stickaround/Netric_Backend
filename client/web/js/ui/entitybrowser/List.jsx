@@ -111,7 +111,7 @@ var List = React.createClass({
                  * for large devices or a regular detailed item for small or preview mode.
                  */
                 default:
-                    if (this.props.layout == 'table') {
+                    if (layout === 'table') {
                         item = <ListItemTableRow
                             key={entity.id}
                             selected={selected}

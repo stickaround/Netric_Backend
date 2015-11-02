@@ -11,6 +11,7 @@ var UiEntityComments = require("../ui/EntityComments.jsx");
 var definitionLoader = require("../entity/definitionLoader");
 var entityLoader = require("../entity/loader");
 var entitySaver = require("../entity/saver");
+var log = require("../log");
 
 /**
  * Controller that loads an entity browser for comments and adds new comments
@@ -88,8 +89,16 @@ EntityCommentsController.prototype.render = function() {
     // Set outer application container
     var domCon = this.domNode_;
 
+    // Unhide toolbars if we are in a page mode
+    var hideToolbar = this.props.hideToolbar || false;
+    if (this.getType() === controller.types.PAGE) {
+        hideToolbar = false;
+    }
+
     // Set data properties to forward to the view
     var data = {
+        objReference: this.props.objReference || null,
+        hideToolbar: hideToolbar,
         onNavBtnClick: function(evt) {
             this.close();
         }.bind(this),
@@ -106,47 +115,6 @@ EntityCommentsController.prototype.render = function() {
     );
 
 }
-
-/**
- * Render this controller into the dom tree
- */
-EntityCommentsController.prototype.close = function() {
-
-    if (this.getType() == controller.types.DIALOG) {
-        this.unload();
-    } else if (this.getParentController()) {
-        var path = this.getParentController().getRoutePath();
-        netric.location.go(path);
-    } else {
-        window.close();
-    }
-
-}
-
-/**
- * Save an entity
- */
-EntityCommentsController.prototype.saveEntity = function() {
-
-    // Save the entity
-    entitySaver.save(this.entity_, function() {
-        console.log("Entity saved");
-    });
-
-}
-
-/**
- * Undo changes to an entity
- */
-EntityCommentsController.prototype.revertChanges = function() {
-
-    // TODO: save the entity
-    console.log("Undo changes");
-
-    if (!this.entity_.id)
-        this.close();
-}
-
 /**
  * Add a new comment
  *
@@ -154,10 +122,55 @@ EntityCommentsController.prototype.revertChanges = function() {
  */
 EntityCommentsController.prototype._handleAddComment = function(comment) {
 
+    // Do not save an empty comment
+    if (!comment) {
+        return;
+    }
+
     // Create a new comment and save it
     var ent = entityLoader.factory(this.COMMENT_OBJ_TYPE);
+    ent.setValue("comment", comment);
 
-    console.log("Add comment", comment);
+    // Add the user
+    var userId = -3; // -3 is 'current_user' on the backend
+    if (netric.getApplication().getAccount().getUser()) {
+        userId = netric.getApplication().getAccount().getUser().id;
+    }
+    ent.setValue("owner_id", userId);
+
+    // Add an object reference
+    if (this.props.objReference) {
+
+        // This is how we associate comments with a specific entity object
+        ent.setValue("obj_reference", this.props.objReference);
+
+        // TODO: Not sure if we should do this here or on the backend?
+        //ent.addMultiValue("associations", this.props.objReference);
+    }
+
+    /*
+     // Check for adding customer reference
+     // Currently this is only used for cases and the reference is to customer_id field
+     // We may expand in the future, but this is working well for the time being - Sky Stebnicki
+     if (this.parentObject && sendToCust)
+     {
+     if (notify) notify += ",";
+     notify += "customer:" + this.parentObject.getValue("customer_id");
+     }
+
+     if (notify)
+     obj.setValue("notify", notify);
+
+     // Attachments
+     for (var i in attachments)
+     obj.setMultiValue("attachments", attachments[i]);
+     */
+
+    // Save the entity
+    entitySaver.save(ent, function() {
+        log.info("Saved comment on", this.props.objReference);
+        this.rootReactNode_.refreshComments();
+    }.bind(this));
 }
 
 module.exports = EntityCommentsController;

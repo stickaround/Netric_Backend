@@ -42,9 +42,7 @@
             <field name='notes' hidelabel='t' multiline='t'></field>
         </row>
         <row>
-            <fieldset name='Comments'>
-                <field name='comments'></field>
-            </fieldset>
+            <field name='comments'></field>
         </row>
     </tab>
 

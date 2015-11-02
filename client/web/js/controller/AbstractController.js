@@ -118,11 +118,12 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 
 	// Override dialogs to pages if device is small
 	if (this.type_ == controller.types.DIALOG &&
-		netric.getApplication().device.size === netric.Device.sizes.small) {
+		netric.getApplication().device.size <= netric.Device.sizes.small) {
+
 		this.type_ = controller.types.PAGE;
 
 		// If not set, then make nav back button unload like a dialog
-		this.props.onNavBackBtnClick = function() { this.unload(); }.bind(this);
+		this.props.onNavBackBtnClick = function() { this.close(); }.bind(this);
 	}
 
 	// Set reference to the parent router
@@ -540,6 +541,23 @@ AbstractController.prototype.onLoad = function(opt_callback) {
 	// By default just immediately execute the callback because nothing needs to be done
 	if (opt_callback)
 		opt_callback();
+}
+
+/**
+ * Close the controller
+ */
+AbstractController.prototype.close = function() {
+
+	if (this.getType() == controller.types.DIALOG) {
+		this.unload();
+	} else if (this.getParentController() && this.getParentRouter()) {
+		var path = this.getParentController().getRoutePath();
+		netric.location.go(path);
+	} else {
+		this.unload();
+		//window.close();
+	}
+
 }
 
 /**

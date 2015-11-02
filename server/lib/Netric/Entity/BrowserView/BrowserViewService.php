@@ -11,6 +11,7 @@ use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\User;
 use Netric\EntityDefinition;
 use Netric\Config;
+use Netric\Settings\Settings;
 use Netric;
 
 /**
@@ -51,17 +52,68 @@ class BrowserViewService
     private $definitionLoader = null;
 
     /**
+     * Account or user level settings service
+     *
+     * @var Settings|null
+     */
+    private $settings = null;
+
+    /**
      * Class constructor to set up dependencies
      *
      * @param \Netric\Db\DbInterface
      * @param Config $config The configuration object
      * @param \Netric\EntityDefinitionLoader $defLoader To get definitions of entities by $objType
+     * @param Settings $settings Account or user settings service
      */
-    public function __construct(DbInterface $dbh, Config $config, Netric\EntityDefinitionLoader $defLoader)
+    public function __construct(DbInterface $dbh, Config $config, Netric\EntityDefinitionLoader $defLoader, Settings $settings)
     {
         $this->dbh = $dbh;
         $this->config = $config;
         $this->definitionLoader = $defLoader;
+        $this->settings = $settings;
+    }
+
+    /**
+     * Get the user's default view for the given object type
+     *
+     * @param string $objType The object type
+     * @param User $user The user we are getting the default for
+     * @return string User's default view for the given object type
+     */
+    public function getDefaultViewForUser($objType, User $user)
+    {
+        $settingKey = "entity/browser-view/default/" . $objType;
+
+        // First check to see if they set their own default
+        $defaultViewId = $this->settings->getForUser($user, $settingKey);
+
+        // TODO: Check the user's team
+
+        // Check to see if there is an account default
+        if (!$defaultViewId)
+            $defaultViewId = $this->settings->get($settingKey);
+
+        // Now load the system default
+        if (!$defaultViewId)
+        {
+            $sysViews = $this->getSystemViews($objType);
+            foreach ($sysViews as $view)
+            {
+                if ($view->isDefault())
+                {
+                    $defaultViewId = $view->getId();
+                }
+            }
+
+            // If none were marked as default, then just grab the first one
+            if (!$defaultViewId && count($sysViews))
+            {
+                $defaultViewId = $sysViews[0]->getId();
+            }
+        }
+
+        return $defaultViewId;
     }
 
     /**
@@ -74,6 +126,7 @@ class BrowserViewService
      *  4. Then add user specific views for the user
      * @param $objType
      * @param $user
+     * @return array of BrowserView(s) for the user
      */
     public function getViewsForUser($objType, $user)
     {
@@ -209,8 +262,19 @@ class BrowserViewService
             // Initialize all the views from the returned array
             foreach ($viewsData as $key=>$vData)
             {
+                // System level views must only have a name for the key because it is used for the id
+                if (is_numeric($key))
+                {
+                    throw new \RuntimeException(
+                        "BrowserViews must be defined with assiciative and unique keyname " .
+                        "but " . $basePath . "/browser_views/" . $objType . ".php does not follow that rule"
+                    );
+                }
+
                 $view = new BrowserView();
                 $view->fromArray($vData);
+                $view->setId($key); // For saving the default in user settings
+                $view->setSystem(true);
                 $views[] = $view;
             }
 

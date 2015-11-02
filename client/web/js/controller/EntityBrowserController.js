@@ -12,11 +12,12 @@ var UiEntityBrowser = require("../ui/EntityBrowser.jsx");
 var EntityCollection = require("../entity/Collection");
 var actionsLoader = require("../entity/actionsLoader");
 var definitionLoader = require("../entity/definitionLoader");
+var Where = require("../entity/Where");
 
 /**
  * Controller that loads an entity browser
  */
-var EntityBrowserController = function() { }
+var EntityBrowserController = function() {}
 
 /**
  * Extend base controller class
@@ -113,15 +114,32 @@ EntityBrowserController.prototype.render = function() {
 	// Set outer application container
 	var domCon = this.domNode_;
 
+    var layout = (netric.getApplication().device.size === netric.Device.sizes.small)
+        ? "compact" : "table";
+
+    // Set custom layouts for different types
+    switch (this.entityDefinition_.objType) {
+        case 'activity':
+        case 'comment':
+            layout = "compact";
+            break
+    }
+
+    // Unhide toolbars if we are in a page mode
+    var hideToolbar = this.props.hideToolbar || false;
+    if (this.getType() === controller.types.PAGE) {
+        hideToolbar = false;
+    }
+
     // Define the data
 	var data = {
 	        title: this.props.browsebytitle ||this.props.title,
 	        entities: new Array(),
 	        deviceSize: netric.getApplication().device.size,
-	        layout: (netric.getApplication().device.size === netric.Device.sizes.small)
-	            ? "compact" : "table",
+	        layout: layout,
 	        actionHandler: this.actions_,
 	        browserView:this.browserView_,
+            hideToolbar: hideToolbar,
 	        onEntityListClick: function(objType, oid, title) {
 	            this.onEntityListClick(objType, oid, title);
 	        }.bind(this),
@@ -263,6 +281,14 @@ EntityBrowserController.prototype.loadCollection = function() {
             this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
         }
     }
+
+    // Add filters that are set in the controller to limit what this browser can search
+    if (this.props.filters) {
+        for (var i in this.props.filters) {
+            this.collection_.addWhere(this.props.filters[i]);
+        }
+    }
+
     
     // Set Conditions
     var conditions = this.browserView_.getConditions();
@@ -382,6 +408,13 @@ EntityBrowserController.prototype.onResume = function() {
 }
 
 /**
+ * Refresh public interface refreshes the colleciton
+ */
+EntityBrowserController.prototype.refresh = function() {
+    this.collection_.refresh();
+}
+
+/**
  * The collection is updated with new limits to display
  *
  * @param {int} limitIncrease	Optional of entities to increment the limit by. Default is 50.
@@ -410,7 +443,7 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
  */
 EntityBrowserController.prototype._applyAdvancedSearch = function(browserView) {
     this.browserView_ = browserView;
-    this. loadCollection();
+    this.loadCollection();
 }
 
 /**

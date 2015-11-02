@@ -123,6 +123,9 @@ $checkbox-checked-color: $primary-1-color !default;
 $checkbox-required-color: $primary-1-color !default;
 $checkbox-disabled-color: $disabled-color !default;
 
+// icon button
+$icon-button-size: ($icon-size * 2);
+
 // toast
 $mui-toast-color: white !default;
 $mui-toast-background-color: #323232 !default;

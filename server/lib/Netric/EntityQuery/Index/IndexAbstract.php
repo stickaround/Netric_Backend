@@ -234,6 +234,19 @@ abstract class IndexAbstract
     {
         $user = $this->account->getUser();
 
+        // Cleanup bool
+        if ($field->type == "bool" && is_string($value))
+        {
+            switch ($value)
+            {
+                case 'true':
+                case 't':
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         // Replace user vars
         if ($user)
         {

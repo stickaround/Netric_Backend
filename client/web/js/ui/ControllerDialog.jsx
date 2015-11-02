@@ -40,6 +40,8 @@ var ControllerDialog = React.createClass({
                 ref="dialog"
                 title={this.props.title}
                 actions={standardActions}
+                autoDetectWindowHeight={true}
+                autoScrollBodyContent={true}
                 modal={true}>
                 <div ref="dialogContent" />
             </Dialog>
@@ -62,6 +64,14 @@ var ControllerDialog = React.createClass({
      */
     show: function() {
         this.refs.dialog.show();
+        this.reposition();
+    },
+
+    /**
+     * Reposition the dialog
+     */
+    reposition: function() {
+        this.dialog.reposition();
     }
 
 

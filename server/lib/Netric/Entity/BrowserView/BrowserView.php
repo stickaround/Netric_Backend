@@ -347,6 +347,16 @@ class BrowserView
     }
 
     /**
+     * Set this to a system view which means it cannot be saved or changed
+     *
+     * @param bool $isSystem
+     */
+    public function setSystem($isSystem = false)
+    {
+        $this->system = $isSystem;
+    }
+
+    /**
      * Get conditions array
      *
      * @return EntityQuery\Where[]

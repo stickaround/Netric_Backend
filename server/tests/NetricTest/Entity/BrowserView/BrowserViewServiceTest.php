@@ -324,4 +324,12 @@ class BrowserViewServiceTest extends PHPUnit_Framework_TestCase
         $this->browserViewService->deleteView($accountView);
     }
 
+    /**
+     * Make sure we can get the default view for a user
+     */
+    public function testGetDefaultViewForUser()
+    {
+        $defId = $this->browserViewService->getDefaultViewForUser("note", $this->user);
+        $this->assertNotNull($defId);
+    }
 }

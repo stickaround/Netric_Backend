@@ -77,15 +77,6 @@ Where.operators = {
 }
 
 /**
- * Static function to get list of operators by a type
- *
- * @param {string} type The field type
- */
-Where.getOperatorsForFieldType = function(type) {
-    // TODO: define opertators for field types here
-}
-
-/**
  * Set condition to match where field equals value
  *
  * @param {string} value The value to check quality against
