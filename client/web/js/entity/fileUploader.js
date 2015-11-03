@@ -1,6 +1,6 @@
 /**
- * @fileOverview Browser View Saver.
- * @Use: Pass the browserView object in the ::save() first argument
+ * @fileOverview File Uploader.
+ * Uploads the files to the server
  *
  * @author:  Marl Tumulak, marl.tumulak@aereus.com;
  *           Copyright (c) 2015 Aereus Corporation. All rights reserved.
@@ -10,42 +10,39 @@
 var BackendRequest = require("../BackendRequest");
 var nertic = require("../base");
 
-var browserViewSaver = {
+var FileUploader = {
     /**
-     * Save a browser view
+     * Uploads multiple files
      *
-     * @param {netric\entity\BrowserView} browserView   The browser view to save
+     * @param {Object} files   The files to be uploaded
      * @param {function} opt_finishedCallback Optional callback to call when saved
      * @public
      */
-    save: function(browserView, opt_finishedCallback) {
-        
-        if (!browserView) {
-            throw "entity/browserViewSaver: First param must be a browserView";
+    upload: function(data, opt_finishedCallback) {
+
+        if (!data) {
+            throw "File data should be defined";
         }
-            
-        var data = browserView.getData();
-            
+
         // If we are connected
         if (netric.server.online) {
             // Save the data remotely
-            BackendRequest.send("svr/browserview/save", function(resp) {
-        
+            BackendRequest.send("controller/AntFs/upload", function(resp) {
+
                 // First check to see if there was an error
                 if (resp.error) {
-                    throw "Error saving view: " + resp.error;
+                    throw "Error uploading files: " + resp.error;
                 }
-        
-                // Update the id of the browserView
-                browserView.setId(resp);
-        
+
+                console.log(resp);
+
                 // Invoke callback if set
                 if (opt_finishedCallback) {
                     opt_finishedCallback();
                 }
-        
+
             }, 'POST', JSON.stringify(data));
-                
+
         } else {
             // TODO: Save the data locally into an "outbox"
             // to be saved on the next connection
@@ -53,4 +50,4 @@ var browserViewSaver = {
     }
 }
 
-module.exports = browserViewSaver;
+module.exports = FileUploader;
