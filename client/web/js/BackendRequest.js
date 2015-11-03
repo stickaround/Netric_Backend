@@ -24,6 +24,8 @@
 
 var netric = require("./base");
 var sessionManager = require("./sessionManager");
+var Xhr = require("./util/Xhr");
+var events = require("./util/events")
 
 /**
  * Class for handling XMLHttpRequests
@@ -37,7 +39,7 @@ var BackendRequest = function() {
 	 * @private
 	 * @type {alib.net.Xhr}
 	 */
-	this.netXhr_ = new alib.net.Xhr();
+	this.netXhr_ = new Xhr();
 }
 
 /**
@@ -76,6 +78,7 @@ BackendRequest.prototype.timeoutInterval_ = 0;
  */
 BackendRequest.prototype.response_ = null;
 
+
 /**
  * Static send that creates a short lived instance.
  *
@@ -98,12 +101,12 @@ BackendRequest.send = function(url, opt_callback, opt_method, opt_content, opt_t
 	if (opt_callback) {
 
 		// Success callback
-		alib.events.listen(request, "load", function(evt) { 
+		events.listen(request, "load", function(evt) {
 			evt.data.cb(this.getResponse());
 		}, {cb:opt_callback});
 
 		// Error callback
-		alib.events.listen(request, "error", function(evt) {
+		events.listen(request, "error", function(evt) {
 			evt.data.cb({error: "There was a problem contacting the server"});
 		}, {cb:opt_callback});
 	}
@@ -144,14 +147,14 @@ BackendRequest.prototype.send = function(urlPath, opt_method, opt_content) {
 	var request = this;
 	
 	// Fire load event
-	alib.events.listen(xhr, "load", function(evt) {
-		alib.events.triggerEvent(request, "load");
+	events.listen(xhr, "load", function(evt) {
+		events.triggerEvent(request, "load");
 	});
 
 	// Fire error event
-	alib.events.listen(xhr, "error", function(evt) {
+	events.listen(xhr, "error", function(evt) {
 		// There was a problem loading the data
-		alib.events.triggerEvent(request, "error");
+		events.triggerEvent(request, "error");
 	});
 
 	// Send session token
@@ -180,6 +183,24 @@ BackendRequest.prototype.setReturnType = function(type) {
  */
 BackendRequest.prototype.setAsync = function(async) {
 	this.netXhr_.setAsync(async);
+}
+
+/**
+ * Flag to indicate we are sending form data
+ *
+ * @param {bool} isFormData true if we do not want to send raw form data
+ */
+BackendRequest.prototype.setDataIsForm = function(isFormData) {
+	this.netXhr_.setDataIsForm(isFormData);
+}
+
+/**
+ * Set the type of content we are sending
+ *
+ * @param {string} ctype
+ */
+BackendRequest.prototype.setContentType = function(ctype) {
+	this._contentType = ctype;
 }
 
 /**
