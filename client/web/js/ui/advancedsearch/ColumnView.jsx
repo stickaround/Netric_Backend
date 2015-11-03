@@ -37,17 +37,17 @@ var ColumnView = React.createClass({
     render: function() {
     		
         return (
-                <div className="row" key={this.props.index}>
-                    <div className="col-small-3">
-                        <DropDownMenu 
-                            menuItems={this.props.fieldData.fields} 
-                            selectedIndex={this.state.selectedFieldIndex} 
-                            onChange={this._handleMenuClick} />
-                    </div>
-                    <div className="col-small-1">
-                        <IconButton onClick={this._handleRemoveColumnToView} className="fa fa-times" />
-                    </div>
-				</div>
+            <div className="row" key={this.props.index}>
+                <div className="col-small-3">
+                    <DropDownMenu
+                        menuItems={this.props.fieldData.fields}
+                        selectedIndex={this.state.selectedFieldIndex}
+                        onChange={this._handleMenuClick} />
+                </div>
+                <div className="col-small-1">
+                    <IconButton onClick={this._handleRemoveColumnToView} className="fa fa-times" />
+                </div>
+            </div>
         );
     },
     
@@ -57,7 +57,7 @@ var ColumnView = React.createClass({
      * @private
      */
     _handleRemoveColumnToView: function () {
-    	if(this.props.onRemove) this.props.onRemove('columnView', this.props.index);
+        if(this.props.onRemove) this.props.onRemove('columnView', this.props.index);
     },
     
     /**

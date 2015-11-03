@@ -45,25 +45,25 @@ var SortOrder = React.createClass({
     render: function() {
     		
         return (
-        		<div className="row" key={this.props.index}>
-					<div className="col-small-3">
-						<DropDownMenu 
-						        menuItems={this.props.fieldData.fields} 
-						        selectedIndex={this.state.selectedFieldIndex} 
-						        onChange={this._handleFieldNameClick} />
-					</div>
-	    			<div className="col-small-2">
-	    				<DropDownMenu 
-	    				        menuItems={directionMenu} 
-	    				        selectedIndex={this.state.selectedDirectionIndex} 
-	    				        onChange={this._handleDirectionClick } />
-					</div>
-	    			<div className="col-small-1">
-						<IconButton 
-						        className="fa fa-times"
-						        onClick={this._handleRemoveOrder} />
-					</div>
-				</div>
+            <div className="row" key={this.props.index}>
+                <div className="col-small-3">
+                    <DropDownMenu
+                        menuItems={this.props.fieldData.fields}
+                        selectedIndex={this.state.selectedFieldIndex}
+                        onChange={this._handleFieldNameClick} />
+                </div>
+                <div className="col-small-2">
+                    <DropDownMenu
+                        menuItems={directionMenu}
+                        selectedIndex={this.state.selectedDirectionIndex}
+                        onChange={this._handleDirectionClick } />
+                </div>
+                <div className="col-small-1">
+                    <IconButton
+                        className="fa fa-times"
+                        onClick={this._handleRemoveOrder} />
+                </div>
+            </div>
         );
     },
     
@@ -74,7 +74,7 @@ var SortOrder = React.createClass({
      * @private
      */
     _handleRemoveOrder: function () {
-    	if(this.props.onRemove) this.props.onRemove('sortOrder', this.props.index);
+        if(this.props.onRemove) this.props.onRemove('sortOrder', this.props.index);
     },
     
     /**

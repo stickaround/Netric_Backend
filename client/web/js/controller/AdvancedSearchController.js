@@ -9,6 +9,7 @@ var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiAdvancedSearch = require("../ui/AdvancedSearch.jsx");
 var definitionLoader = require("../entity/definitionLoader");
+var browserViewSaver = require("../entity/browserViewSaver");
 
 /**
  * Controller that loads an Advanced Search
@@ -48,47 +49,42 @@ AdvancedSearchController.prototype.onLoad = function(opt_callback) {
  * Render this controller into the dom tree
  */
 AdvancedSearchController.prototype.render = function() {
-	// Set outer application container
-	var domCon = this.domNode_;
-	var entities = new Array();
-	var entityFields = new Array();
+    // Set outer application container
+    var domCon = this.domNode_;
+    var entities = new Array();
+    var entityFields = new Array();
 	
     // Define the data
-	var data = {
-	        title: this.props.title || "Advanced Search",
-	        objType: this.props.objType,
-	        entityDefinition: this.props.entityDefinition,
-	        browserView: this.props.browserView,
-	        onApplySearch: this.props.onApplySearch,
-	}
+    var data = {
+        title: this.props.title || "Advanced Search",
+        objType: this.props.objType,
+        entityDefinition: this.props.entityDefinition,
+        browserView: this.props.browserView,
+        onApplySearch: this.props.onApplySearch,
+        onSaveView: this._saveView,
+        onChangeTitle: this.props.onChangeTitle,
+    }
 	
-	// Render browser component
+    // Render browser component
     this.rootReactNode_ = React.render(
-            React.createElement(UiAdvancedSearch, data),
-            domCon
+        React.createElement(UiAdvancedSearch, data),
+        domCon
     );
 }
 
 /**
- * TODO
- * Save the current advanced search settings
+ * Save the browser view
+ * 
+ * @param {netric\entity\BrowserView} browserView   The browser view to save
+ * @param {object} data  Contains the user input details for additional browser view information
  */
-AdvancedSearchController.prototype._saveAdvancedSearch = function(searchData) {
+AdvancedSearchController.prototype._saveView = function(browserView, data) {
     
-    var data = [['obj_type', this.props.objType], ['name', searchData.name], ['description', searchData.description]];
+    browserView.name = data.name;
+    browserView.description = data.description;
+    browserView.default = data.default;
     
-    for(var criteria in searchData.criteria) {
-        var criteriaData = searchData.criteria[idx];
-        
-        switch(criteria) {
-            case 'conditions':
-                break;
-            case 'sortOrder':
-                break;
-            case 'columnView':
-                break;
-        }
-    }
+    browserViewSaver.save(browserView);
 }
 
 module.exports = AdvancedSearchController;

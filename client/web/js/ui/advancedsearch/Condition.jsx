@@ -64,34 +64,34 @@ var SearchCondition = React.createClass({
 
     render: function() {
         return (
-                <div className="row" key={this.props.index}>
-                    <div className="col-small-1">
-                        <DropDownMenu 
-                            menuItems={bLogicMenu} 
-                            selectedIndex={parseInt(this.state.selectedbLogic)} 
-                            onChange={this._handleBlogicClick} />
-                    </div>
-                    <div className="col-small-4">
-                        <DropDownMenu 
-                            menuItems={this.props.fieldData.fields} 
-                            selectedIndex={parseInt(this.state.selectedField)} 
-                            onChange={this._handleFieldClick} />
-                    </div>
-                    <div className="col-small-4" >
-                        <DropDownMenu 
-                            menuItems={this.state.operators} 
-                            selectedIndex={parseInt(this.state.selectedOperator)} 
-                            onChange={this._handleOperatorClick} />      
-                    </div>
-                    <div className="col-small-2">
-                        {this.state.valueInput}
-                    </div>
-                    <div className="col-small-1">
-                        <IconButton 
-                            onClick={this._handleRemoveCondition} 
-                            className="fa fa-times" />  
-                    </div>    
+            <div className="row" key={this.props.index}>
+                <div className="col-small-1">
+                    <DropDownMenu
+                        menuItems={bLogicMenu}
+                        selectedIndex={parseInt(this.state.selectedbLogic)}
+                        onChange={this._handleBlogicClick} />
                 </div>
+                <div className="col-small-4">
+                    <DropDownMenu
+                        menuItems={this.props.fieldData.fields}
+                        selectedIndex={parseInt(this.state.selectedField)}
+                        onChange={this._handleFieldClick} />
+                </div>
+                <div className="col-small-4" >
+                    <DropDownMenu
+                        menuItems={this.state.operators}
+                        selectedIndex={parseInt(this.state.selectedOperator)}
+                        onChange={this._handleOperatorClick} />
+                </div>
+                <div className="col-small-2">
+                    {this.state.valueInput}
+                </div>
+                <div className="col-small-1">
+                    <IconButton
+                        onClick={this._handleRemoveCondition}
+                        className="fa fa-times" />
+                </div>
+            </div>
         );
     },
     
@@ -169,7 +169,7 @@ var SearchCondition = React.createClass({
      * @private
      */
     _handleFieldClick: function(e, key, field) {
-    	this._getConditionValueInput(field, key, null);
+        this._getConditionValueInput(field, key, null);
     },
 
     /**
@@ -190,76 +190,72 @@ var SearchCondition = React.createClass({
      * @private
      */
     _getConditionValueInput: function(field, fieldIndex, value) {
-    	var valueInput = null;
+        var valueInput = null;
     	
-    	switch(field.type) {
-        	case 'fkey':
+        switch(field.type) {
+            case 'fkey':
             case 'fkey_multi':
                 valueInput = (
-                        <GroupingSelect
-                            onChange={this._handleGroupingSelect}
-                            objType={this.props.objType}
-                            fieldName={field.name}
-                            allowNoSelection={false}
-                            label={'none'}
-                            selectedValue={value}
-                        />
+                    <GroupingSelect
+                        onChange={this._handleGroupingSelect}
+                        objType={this.props.objType}
+                        fieldName={field.name}
+                        allowNoSelection={false}
+                        label={'none'}
+                        selectedValue={value} />
                 );
                 break;
                 
             case 'object':
                 valueInput = (
-                        <ObjectSelect
-                            onChange={this._handleSetValue}
-                            objType={this.props.objType}
-                            fieldName={field.name}
-                            value={null}
-                        />
+                    <ObjectSelect
+                        onChange={this._handleSetValue}
+                        objType={this.props.objType}
+                        fieldName={field.name}
+                        value={null} />
                 );
                 break;
                 
-    		case 'bool':
-    		    if(null === value) {
-    		        value = boolInputMenu[0].payload;
-    		    }
+            case 'bool':
+                if(null === value) {
+                    value = boolInputMenu[0].payload;
+                }
     		    
-    			valueInput = (
-    			        <DropDownMenu 
-    			            onChange={this._handleValueSelect}
-    			            selectedIndex={ ( value.toString() === 'true' ? 0 : 1 )}
-    			            menuItems={boolInputMenu}
-    			        />
-    			);
-    			break;
+                valueInput = (
+                    <DropDownMenu
+                        onChange={this._handleValueSelect}
+                        selectedIndex={ ( value.toString() === 'true' ? 0 : 1 )}
+                        menuItems={boolInputMenu} />
+                );
+                break;
     			
-    		default:
-    		    valueInput = (
-    		            <TextField 
-    		                onBlur={this._handleValueInputBlur} 
-    		                hintText="Search" value={value} 
-    		            />
-    		    );
-    			break;
-    	}  
+            default:
+                valueInput = (
+                    <TextField
+                        onBlur={this._handleValueInputBlur}
+                        hintText="Search" value={value} />
+                );
+                break;
+        }
     	
-    	// Update the state if the component is already mounted
-    	if(this.isMounted()) {
-    	    var operators = this._getConditionOperators(field.type); // get the operators based on the field type
+        // Update the state if the component is already mounted
+        if(this.isMounted()) {
+            var operators = this._getConditionOperators(field.type); // get the operators based on the field type
     	    
-    	    // Update the condition data
-    	    this.props.condition.fieldName = field.name;
-    	    this.props.condition.operator = operators[0].payload;
-    	    this.props.condition.value = value;
+            // Update the condition data
+            this.props.condition.fieldName = field.name;
+            this.props.condition.operator = operators[0].payload;
+            this.props.condition.value = value;
     	    
-    	    this.setState({
-    	        valueInput: valueInput,
-    	        operators: operators,
+            this.setState({
+                valueInput: valueInput,
+                operators: operators,
                 selectedField: fieldIndex,
                 selectedOperator: 0, // Set the operator's index to 0
             });
-    	}
+        }
     	
-    	return valueInput;
+        return valueInput;
     },
     
     /**
@@ -269,17 +265,17 @@ var SearchCondition = React.createClass({
      * @private
      */
     _getConditionOperators: function(fieldType) {
-    	var fieldOperators = this.props.condition.getOperatorsForFieldType(fieldType)
-    	var operators = [];
+        var fieldOperators = this.props.condition.getOperatorsForFieldType(fieldType)
+        var operators = [];
     	
-    	for(var idx in fieldOperators) {
-    	    operators.push({
-    	        payload: idx,
-    	        text: fieldOperators[idx]
-    	    });
-    	}
+        for(var idx in fieldOperators) {
+            operators.push({
+                payload: idx,
+                text: fieldOperators[idx]
+            });
+        }
     	
-    	return operators;
+        return operators;
     },
     
     /**

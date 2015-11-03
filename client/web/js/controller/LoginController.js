@@ -12,6 +12,7 @@ var sessionManager = require("../sessionManager");
 var accountLoader = require("../account/loader");
 var server = require("../server");
 var localData = require("../localData");
+var log = require("../log");
 
 /**
  * Test controller
@@ -192,7 +193,7 @@ LoginController.prototype.getLoginAccounts = function(username, password) {
 	// Make a request to the universal login endpoint to get accounts
 	var url = server.universalLoginUri;
 	url += "/svr/authentication/get-accounts";
-	console.log("Sending:" + url);
+	log.info("Sending:" + url);
 	request.send(url, "POST", { "email": username });
 }
 
