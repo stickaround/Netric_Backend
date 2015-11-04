@@ -146,11 +146,7 @@ module.exports = function(grunt) {
      */
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-concat-in-order');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-file-blocks');
-    grunt.loadNpmTasks('grunt-wiredep');
-    grunt.loadNpmTasks('grunt-svn-fetch');
 
     /*
      * Now register callable tasks
