@@ -27,7 +27,6 @@
     "object-hash": "^0.8.0",
     "protractor": "~1.0.0",
     "react": "^0.13.1",
-    "react-tap-event-plugin": "^0.1.6",
     "shelljs": "^0.2.6",
     "tmp": "0.0.23"
   },
