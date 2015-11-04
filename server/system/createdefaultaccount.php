@@ -68,6 +68,19 @@ if (!$dbh->GetNumberRows($result))
 }
 
 /**
+ * Make sure that the default account database exists
+ */
+$dbh = new CDatabase(Netric\Config::getInstance()->db['syshost'], "template1");
+$result = $dbh->Query("select * from pg_database where datname='".Netric\Config::getInstance()->db['accdb']."'");
+if (!$dbh->GetNumberRows($result)) {
+	// create account database
+	$res = $dbh->Query("CREATE DATABASE ".Netric\Config::getInstance()->db['accdb'].";");
+	if ($res === false) {
+		die("Could not create ansystem database: " . $dbh->getLastError());
+	}
+}
+
+/**
  * Create local ant database using settings local host
  */
 $antsys = new AntSystem();
