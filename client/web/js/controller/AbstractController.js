@@ -20,7 +20,6 @@ var controller = require("./controller.js");
 var ReactDOM = require("react-dom")
 var netric = require("../base");
 var React = require("react");
-var ReactDOM = require("react-dom");
 var ControllerDialog = require("../ui/ControllerDialog.jsx");
 
 /**

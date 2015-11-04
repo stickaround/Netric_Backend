@@ -66,26 +66,26 @@ ModuleController.prototype.onLoad = function(opt_callback) {
 	// Change the type based on the device size
 	switch (netric.getApplication().device.size)
 	{
-	case netric.Device.sizes.small:
-		this.type_ = controller.types.PAGE;
-		break;
-    case netric.Device.sizes.medium:
-	case netric.Device.sizes.large:
-	case netric.Device.sizes.xlarge:
-	default:
-		this.type_ = controller.types.FRAGMENT;
-		break;
+		case netric.Device.sizes.small:
+			this.type_ = controller.types.PAGE;
+			break;
+		case netric.Device.sizes.medium:
+		case netric.Device.sizes.large:
+		case netric.Device.sizes.xlarge:
+		default:
+			this.type_ = controller.types.FRAGMENT;
+			break;
 	}
 
 	// By default just immediately execute the callback because nothing needs to be done
 	if (opt_callback) {
-        moduleLoader.get(this.props.module, function(module) {
-            this.module_ = module;
-            opt_callback();
-        }.bind(this));
-    } else {
-        opt_callback();
-    }
+		moduleLoader.get(this.props.module, function(module) {
+			this.module_ = module;
+			opt_callback();
+		}.bind(this));
+	} else {
+		opt_callback();
+	}
 }
 
 /**
@@ -96,8 +96,8 @@ ModuleController.prototype.render = function() {
 	// Render the react components
 	this.reactRender_();
 
-    // Setup navigation items
-    this.setNavigationItems_();
+	// Setup navigation items
+	this.setNavigationItems_();
 
 	// Setup navigation routes
 	this.setupNavigation_();
@@ -166,57 +166,57 @@ ModuleController.prototype.onModuleChange_ = function(evt, moduleName) {
  */
 ModuleController.prototype.setNavigationItems_ = function() {
 
-    // Set left navigation
-    var leftNavigation = [];
-    for (var i = 0; i < this.module_.navigation.length; i++) {
+	// Set left navigation
+	var leftNavigation = [];
+	for (var i = 0; i < this.module_.navigation.length; i++) {
 
-        var navItem = this.module_.navigation[i];
+		var navItem = this.module_.navigation[i];
 
-        leftNavigation.push({
-            text: navItem.title,
-            route: navItem.route,
-            iconClassName: "fa fa-" + navItem.icon
-        });
+		leftNavigation.push({
+			text: navItem.title,
+			route: navItem.route,
+			iconClassName: "fa fa-" + navItem.icon
+		});
 
-        // Populate browseby groupings
-        if (navItem.objType && navItem.browseby) {
-            var groupings = null;
+		// Populate browseby groupings
+		if (navItem.objType && navItem.browseby) {
+			var groupings = null;
 
-            // Make sure the groupings cache object is initialized for this object
-            if (!this.groupingLoaders_[navItem.objType]) {
-                this.groupingLoaders_[navItem.objType] = {};
-            }
+			// Make sure the groupings cache object is initialized for this object
+			if (!this.groupingLoaders_[navItem.objType]) {
+				this.groupingLoaders_[navItem.objType] = {};
+			}
 
-            if (this.groupingLoaders_[navItem.objType][navItem.browseby]) {
-                groupings = this.groupingLoaders_[navItem.objType][navItem.browseby];
-            } else {
-                /* We really only want to setup the groupings once because we
+			if (this.groupingLoaders_[navItem.objType][navItem.browseby]) {
+				groupings = this.groupingLoaders_[navItem.objType][navItem.browseby];
+			} else {
+				/* We really only want to setup the groupings once because we
                  * will be calling this function any time a change is made to the
                  * groupings and we do not want to add additional listeners.
                  */
-                var groupings = groupingLoader.get(navItem.objType, navItem.browseby, function() {
-                    // Do nothing, let the onchange event listener handle freshly loaded groupings
-                });
+				var groupings = groupingLoader.get(navItem.objType, navItem.browseby, function() {
+					// Do nothing, let the onchange event listener handle freshly loaded groupings
+				});
 
-                alib.events.listen(groupings, "change", this.setNavigationItems_.bind(this));
+				alib.events.listen(groupings, "change", this.setNavigationItems_.bind(this));
 
-                // Cache grouping so we do not try to set it up again with listeners
-                this.groupingLoaders_[navItem.objType][navItem.browseby] = groupings;
-            }
+				// Cache grouping so we do not try to set it up again with listeners
+				this.groupingLoaders_[navItem.objType][navItem.browseby] = groupings;
+			}
 
-            // Get first level groupings
-            if (groupings) {
-                var groups = groupings.getGroupsHierarch();
+			// Get first level groupings
+			if (groupings) {
+				var groups = groupings.getGroupsHierarch();
 
-                this.setBrowseByItems_(groups, leftNavigation, 1, navItem.route, navItem.browseby);
-            }
+				this.setBrowseByItems_(groups, leftNavigation, 1, navItem.route, navItem.browseby);
+			}
 
-        }
-    }
+		}
+	}
 
 	// Update the UI to display the left navigation items
 	this.leftNavItems_ = leftNavigation;
-    this.reactRender_();
+	this.reactRender_();
 }
 
 /**
@@ -226,20 +226,20 @@ ModuleController.prototype.setNavigationItems_ = function() {
  */
 ModuleController.prototype.setBrowseByItems_ = function(groups, leftNavigation, indentLevel, route, browseby) {
 
-    // Loop through all groups and add to the navigation
-    for (var j in groups) {
-        leftNavigation.push({
-            text: groups[j].name,
-            route: route + "/browse/" + browseby + "/" + groups[j].id + "/" + groups[j].name,
-            iconClassName: "fa fa-chevron-right",
-            indent: indentLevel
-        });
+	// Loop through all groups and add to the navigation
+	for (var j in groups) {
+		leftNavigation.push({
+			text: groups[j].name,
+			route: route + "/browse/" + browseby + "/" + groups[j].id + "/" + groups[j].name,
+			iconClassName: "fa fa-chevron-right",
+			indent: indentLevel
+		});
 
-        // Add children
-        if (groups[j].children && groups[j].children.length) {
-            this.setBrowseByItems_(groups[j].children, leftNavigation, (indentLevel + 1), route, browseby)
-        }
-    }
+		// Add children
+		if (groups[j].children && groups[j].children.length) {
+			this.setBrowseByItems_(groups[j].children, leftNavigation, (indentLevel + 1), route, browseby)
+		}
+	}
 }
 
 /**
@@ -277,11 +277,11 @@ ModuleController.prototype.setupEntityRoute_ = function(navItem) {
 	// Add route to compose a new entity
 	this.addSubRoute(navItem.route,
 		EntityController,
-        {
+		{
 			type: controller.types.FRAGMENT,
-            objType: navItem.objType,
+			objType: navItem.objType,
 			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
-                null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
+				null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
 		},
 		ReactDOM.findDOMNode(this.rootReactNode_.refs.moduleMain)
 	);
@@ -297,10 +297,10 @@ ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 	this.addSubRoute(navItem.route, 
 		EntityBrowserController, {
 			type: controller.types.FRAGMENT,
-            objType: navItem.objType,
-            title: navItem.title,
+			objType: navItem.objType,
+			title: navItem.title,
 			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
-                null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
+				null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
 		},
 		ReactDOM.findDOMNode(this.rootReactNode_.refs.moduleMain)
 	);
