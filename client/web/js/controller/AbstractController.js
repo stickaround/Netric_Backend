@@ -17,8 +17,10 @@
 'use strict';
 
 var controller = require("./controller.js");
+var ReactDOM = require("react-dom")
 var netric = require("../base");
 var React = require("react");
+var ReactDOM = require("react-dom");
 var ControllerDialog = require("../ui/ControllerDialog.jsx");
 
 /**
@@ -403,11 +405,11 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
     	case controller.types.DIALOG:
 			// Render dialog component component
 			var title = this.props.title || "Browse";
-			this.dialogComponent_ = React.render(
+			this.dialogComponent_ = ReactDOM.render(
 				React.createElement(ControllerDialog, {title:title}),
 				alib.dom.createElement("div", document.body)
 			);
-			parentNode = this.dialogComponent_.refs.dialogContent.getDOMNode();
+			parentNode = ReactDOM.findDOMNode(this.dialogComponent_.refs.dialogContent);
     		break;
     }
 
@@ -431,8 +433,8 @@ AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
 	if (this.getParentController()) {
 		if (this.getParentController().getType() == controller.types.PAGE) {
 			return this.getParentController().getTopPageNode();
-		} else if (this.getParentController().getDOMNode().parentNode) {
-            return this.getParentController().getDOMNode().parentNode;
+		} else if (ReactDOM.findDOMNode(this.getParentController()).parentNode) {
+            return ReactDOM.findDOMNode(this.getParentController()).parentNode;
         }
 	}
 

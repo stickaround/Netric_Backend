@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var AbstractController = require("./AbstractController");
 var UiLogin = require("../ui/Login.jsx");
@@ -33,12 +34,36 @@ netric.inherits(LoginController, AbstractController);
 LoginController.prototype.rootReactNode_ = null;
 
 /**
+ * Determine if the login request is being processed
+ *
+ * @private
+ * @type {bool}
+ */
+LoginController.prototype.processing_ = false;
+
+/**
+ * Displays the error message
+ *
+ * @private
+ * @type {object}
+ */
+LoginController.prototype.errorText_ = '';
+
+/**
+ * Contains the details of the logged in account
+ *
+ * @private
+ * @type {object}
+ */
+LoginController.prototype.accounts_ = null;
+
+/**
  * Function called when controller is first loaded
  */
-LoginController.prototype.onLoad = function(opt_callback) { 
-	if (opt_callback) {
-		opt_callback();
-	}
+LoginController.prototype.onLoad = function(opt_callback) {
+    if (opt_callback) {
+        opt_callback();
+    }
 }
 
 /**
@@ -46,36 +71,54 @@ LoginController.prototype.onLoad = function(opt_callback) {
  */
 LoginController.prototype.render = function() {
 
-	if (this.props.resetSession) {
+    if (this.props.resetSession) {
 
-		// Get rid of the session
-		sessionManager.clearSessionToken();
+        // Get rid of the session
+        sessionManager.clearSessionToken();
 
-		// Clear the instanceUri
-		localData.setSetting("server.host", null);
-		server.host = null;
+        // Clear the instanceUri
+        localData.setSetting("server.host", null);
+        server.host = null;
 
-		// TODO: Should we just clear all settings?
-	}
+        // TODO: Should we just clear all settings?
+    }
 
-	// Set outer application container
-	var domCon = this.domNode_;
+    // Render the react components
+    this.reactRender_();
+}
 
-	// Setup application data
-	var data = {
-		onLogin: function(username, password) {
-			this.login(username, password)
-		}.bind(this),
-		onSetAccount: function(instanceUri) {
-			this.setAccountUri(instanceUri);
-		}.bind(this)
-	}
+/**
+ * Render the react UI
+ * This function will be called everytime we need to send new props or update props into react
+ *
+ * @private
+ */
+LoginController.prototype.reactRender_ = function() {
 
-	// Render application component
-	this.rootReactNode_= React.render(
-		React.createElement(UiLogin, data),
-		domCon
-	);
+    // Set outer application container
+    var domCon = this.domNode_;
+
+    // Setup application data
+    var data = {
+        processing: this.processing_,
+        errorText: this.errorText_,
+        accounts: this.accounts_,
+        onLogin: function(username, password) {
+            this.login(username, password)
+        }.bind(this),
+        onSetAccount: function(instanceUri) {
+            this.setAccountUri(instanceUri);
+        }.bind(this),
+        onInputChange: function() {
+            this.handleInputChange_();
+        }.bind(this)
+    }
+
+    // Render application component
+    this.rootReactNode_= ReactDOM.render(
+        React.createElement(UiLogin, data),
+        domCon
+    );
 }
 
 /**
@@ -84,8 +127,8 @@ LoginController.prototype.render = function() {
  * @param {string} instanceUri The server URI to connect to for account instance
  */
 LoginController.prototype.setAccountUri = function(instanceUri) {
-	server.host = instanceUri;
-	localData.setSetting("server.host", instanceUri);
+    server.host = instanceUri;
+    localData.setSetting("server.host", instanceUri);
 }
 
 /**
@@ -96,50 +139,56 @@ LoginController.prototype.setAccountUri = function(instanceUri) {
  */
 LoginController.prototype.login = function(username, password) {
 
-	this.rootReactNode_.setProps({processing: true});
+    // Update the processing prop in the UI
+    this.processing_ = true;
+    this.reactRender_();
 
-	if (!server.host) {
+    if (!server.host) {
 
-		// Call the universal login with the email address to get available accounts
-		this.getLoginAccounts(username, password);
+        // Call the universal login with the email address to get available accounts
+        this.getLoginAccounts(username, password);
 
-		// This will be called again by the UI once the user selects an account
-		return;
-	}
+        // This will be called again by the UI once the user selects an account
+        return;
+    }
 
-	// Setup callback reference
-	var loginController = this;
-	var credentials = {"username": username, "password": password};
+    // Setup callback reference
+    var loginController = this;
+    var credentials = {"username": username, "password": password};
 
-	var request = new BackendRequest();
-	alib.events.listen(request, "load", function(evt) {
-		var response = this.getResponse();
-		var viewProps = {processing: false };
-		switch (response.result) {
-			case "SUCCESS":
-				// If the server returns success it will also send a session token
-				loginController.accessAccepted(response.session_token, username);
-				break;
-			case "FAIL":
-			default:
-				viewProps.errorText = (response.reason)
-					? response.reason : "Invalid username and/or password";
-				break;
-		}
+    var request = new BackendRequest();
+    alib.events.listen(request, "load", function(evt) {
+        var response = this.getResponse();
 
-		// Update UI to display any errors
-		loginController.rootReactNode_.setProps(viewProps);
-	});
+        switch (response.result) {
+            case "SUCCESS":
+                // If the server returns success it will also send a session token
+                loginController.accessAccepted(response.session_token, username);
+                break;
+            case "FAIL":
+            default:
+                loginController.errorText_ = (response.reason)
+                    ? response.reason : "Invalid username and/or password";
+                break;
+        }
 
-	alib.events.listen(request, "error", function(evt) {
-		// TODO: Unable to contact the server. Handle gracefully.
-		loginController.rootReactNode_.setProps({processing: false});
-		var response = this.getResponse();
-		console.error(response);
-		// TODO: we should log this
-	});
+        // Update UI to display any errors
+        loginController.processing_ = false;
+        loginController.reactRender_();
+    });
 
-	request.send("svr/authentication/authenticate", "POST", credentials);
+    alib.events.listen(request, "error", function(evt) {
+        // TODO: Unable to contact the server. Handle gracefully.
+        var response = this.getResponse();
+        log.error(response);
+
+        // Update the processing prop in the UI
+        loginController.processing_ = false;
+        loginController.reactRender_();
+        // TODO: we should log this
+    });
+
+    request.send("svr/authentication/authenticate", "POST", credentials);
 }
 
 /**
@@ -150,51 +199,53 @@ LoginController.prototype.login = function(username, password) {
  */
 LoginController.prototype.getLoginAccounts = function(username, password) {
 
-	if (!server.universalLoginUri) {
-		throw "A critical param server.universalLoginUri was not set";
-	}
+    if (!server.universalLoginUri) {
+        throw "A critical param server.universalLoginUri was not set";
+    }
 
-	// Setup callback reference
-	var loginController = this;
+    // Setup callback reference
+    var loginController = this;
 
-	var request = new BackendRequest();
-	alib.events.listen(request, "load", function(evt) {
-		var response = this.getResponse();
+    var request = new BackendRequest();
+    alib.events.listen(request, "load", function(evt) {
+        var response = this.getResponse();
 
-		// If there is only one account then just call login again
-		if (1 == response.length) {
-			loginController.setAccountUri(response[0].instanceUri);
-			loginController.login(username, password);
-		} else {
-			// Update the view with accounts to select from
-			var viewProps = {
-				processing: false, 
-				accounts: response
-			};
+        // If there is only one account then just call login again
+        if (1 == response.length) {
+            loginController.setAccountUri(response[0].instanceUri);
+            loginController.login(username, password);
+        } else {
+            // Update the view with accounts to select from
+            loginController.accounts_ = response;
 
-			if (response.length == 0) {
-				viewProps.errorText =  "Invalid username and/or password";
-				viewProps.accounts = null;
-			}
+            if (response.length == 0) {
+                loginController.errorText_ =  "Invalid username and/or password";
+                loginController.accounts_ = null;
+            }
 
-			// Update UI to display any errors
-			loginController.rootReactNode_.setProps(viewProps);
-		}	
-	});
+            // Update UI to display any errors
+            loginController.processing_ = false;
+            loginController.reactRender_();
+        }
+    });
 
-	alib.events.listen(request, "error", function(evt) {
-		// TODO: Unable to contact the server. Handle gracefully.
-		loginController.rootReactNode_.setProps({processing: false});
-		var response = this.getResponse();
-		console.error(response);
-		// TODO: we should definitely log this
-	});
+    alib.events.listen(request, "error", function(evt) {
+        // TODO: Unable to contact the server. Handle gracefully.
+        var response = this.getResponse();
+        log.error(response);
 
-	// Make a request to the universal login endpoint to get accounts
-	var url = server.universalLoginUri;
-	url += "/svr/authentication/get-accounts";
-	log.info("Sending:" + url);
-	request.send(url, "POST", { "email": username });
+        // Update the processing prop in the UI
+        loginController.processing_ = false;
+        loginController.reactRender_();
+
+        // TODO: we should definitely log this
+    });
+
+    // Make a request to the universal login endpoint to get accounts
+    var url = server.universalLoginUri;
+    url += "/svr/authentication/get-accounts";
+    log.info("Sending:" + url);
+    request.send(url, "POST", { "email": username });
 }
 
 /**
@@ -204,38 +255,50 @@ LoginController.prototype.getLoginAccounts = function(username, password) {
  * @param {string} userName The name/email of the user who just logged in
  */
 LoginController.prototype.accessAccepted = function(sessionToken, userName) {
-	
-	// If this is a new user or account then we should clear the old cached data
-	if (server.host != localData.setSetting("lastAccountUri") 
-		|| userName != localData.setSetting("lastUsername")) {
 
-		// Clear the localdb cached data since it will be for
-		// a different user or account.
-		localData.dbClear();
-	}
+    // If this is a new user or account then we should clear the old cached data
+    if (server.host != localData.setSetting("lastAccountUri")
+        || userName != localData.setSetting("lastUsername")) {
 
-	// Set the server session token
-	sessionManager.setSessionToken(sessionToken);
+        // Clear the localdb cached data since it will be for
+        // a different user or account.
+        localData.dbClear();
+    }
 
-	// Save last logged in data
-	localData.setSetting("lastUsername", userName);
-	localData.setSetting("lastAccountUri", server.host);
+    // Set the server session token
+    sessionManager.setSessionToken(sessionToken);
 
-	/*
+    // Save last logged in data
+    localData.setSetting("lastUsername", userName);
+    localData.setSetting("lastAccountUri", server.host);
+
+    /*
 	 * Now that the user is authenticated we need to load/reload
 	 * the account so any changes to the application definition
 	 * can be applied.
 	 */
-	this.props.application.loadAccount(function(acct){
+    this.props.application.loadAccount(function(acct){
 
-		// If the application redirected us here there should be a return param
-		if (this.props.ret) {
-			netric.location.go(this.props.ret);
-		} else {
-			netric.location.go("/"); // Or just start over			
-		}
-	}.bind(this));
+        // If the application redirected us here there should be a return param
+        if (this.props.ret) {
+            netric.location.go(this.props.ret);
+        } else {
+            netric.location.go("/"); // Or just start over
+        }
+    }.bind(this));
 
+}
+
+/**
+ * Handles the the onChange event of user name and password input boxes
+ *
+ * @private
+ */
+LoginController.prototype.handleInputChange_ = function() {
+
+    // Empty the error text and update the UI.
+    this.errorText_ = ''
+    this.reactRender_();
 }
 
 module.exports = LoginController;

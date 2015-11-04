@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var controller = require("./controller")
 var AbstractController = require("./AbstractController");
@@ -48,6 +49,14 @@ ModuleController.prototype.module_ = null;
 ModuleController.prototype.groupingLoaders_ = {};
 
 /**
+ * Contains the navigation items
+ *
+ * @private
+ * @type {array}
+ */
+ModuleController.prototype.leftNavItems_ = [];
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -82,29 +91,10 @@ ModuleController.prototype.onLoad = function(opt_callback) {
 /**
  * Render this controller into the dom tree
  */
-ModuleController.prototype.render = function() { 
+ModuleController.prototype.render = function() {
 
-	// Set outer application container
-	var domCon = this.domNode_;
-
-    // Initialize properties to send to the netric.ui.Module view
-	var data = {
-		name: this.module_.name,
-        title: this.module_.title,
-        deviceIsSmall: netric.getApplication().device.size == netric.Device.sizes.small,
-		leftNavDocked: (netric.getApplication().device.size >= netric.Device.sizes.large),
-		leftNavItems: [],
-        modules: moduleLoader.getModules(),
-        user: netric.getApplication().getAccount().getUser(),
-		onLeftNavChange: this.onLeftNavChange_.bind(this),
-		onModuleChange: this.onModuleChange_.bind(this)
-	};
-
-	// Render application component
-	this.rootReactNode_ = React.render(
-		React.createElement(UiModule, data),
-		domCon
-	);
+	// Render the react components
+	this.reactRender_();
 
     // Setup navigation items
     this.setNavigationItems_();
@@ -118,6 +108,36 @@ ModuleController.prototype.render = function() {
 			this.rootReactNode_.refs.leftNav.setState({ selected: evt.data.relativePath });
 		}.bind(this));
 	}
+}
+
+/**
+ * Render the react UI
+ * This function will be called everytime we need to send new props or update props into react
+ *
+ * @private
+ */
+ModuleController.prototype.reactRender_ = function() {
+	// Set outer application container
+	var domCon = this.domNode_;
+
+	// Initialize properties to send to the netric.ui.Module view
+	var data = {
+		name: this.module_.name,
+		title: this.module_.title,
+		deviceIsSmall: netric.getApplication().device.size == netric.Device.sizes.small,
+		leftNavDocked: (netric.getApplication().device.size >= netric.Device.sizes.large),
+		leftNavItems: this.leftNavItems_,
+		modules: moduleLoader.getModules(),
+		user: netric.getApplication().getAccount().getUser(),
+		onLeftNavChange: this.onLeftNavChange_.bind(this),
+		onModuleChange: this.onModuleChange_.bind(this)
+	};
+
+	// Render application component
+	this.rootReactNode_ = ReactDOM.render(
+		React.createElement(UiModule, data),
+		domCon
+	);
 }
 
 /**
@@ -194,7 +214,9 @@ ModuleController.prototype.setNavigationItems_ = function() {
         }
     }
 
-    this.rootReactNode_.setProps({leftNavItems: leftNavigation});
+	// Update the UI to display the left navigation items
+	this.leftNavItems_ = leftNavigation;
+    this.reactRender_();
 }
 
 /**
@@ -260,8 +282,8 @@ ModuleController.prototype.setupEntityRoute_ = function(navItem) {
             objType: navItem.objType,
 			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
                 null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
-		}, 
-		this.rootReactNode_.refs.moduleMain.getDOMNode()
+		},
+		ReactDOM.findDOMNode(this.rootReactNode_.refs.moduleMain)
 	);
 }
 
@@ -279,8 +301,8 @@ ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
             title: navItem.title,
 			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
                 null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
-		}, 
-		this.rootReactNode_.refs.moduleMain.getDOMNode()
+		},
+		ReactDOM.findDOMNode(this.rootReactNode_.refs.moduleMain)
 	);
 }
 
