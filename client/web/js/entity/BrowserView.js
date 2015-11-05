@@ -157,7 +157,6 @@ BrowserView.prototype.fromData = function(data) {
     }
 
     var orderBy = data.sort_order || data.order_by;
-
     for (var i in orderBy)
     {
         this.orderBy_.push({

@@ -113,7 +113,9 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
         definitionLoader.get(this.props.objType, function(def){
             this.entityDefinition_ = def;
             this.browserView_ = def.getDefaultView();
-            this.browserView_.setObjType(this.props.objType); // make sure we have set the objType of the browsesrView
+
+            // make sure we have set the objType of the browserView
+            this.browserView_.setObjType(this.props.objType);
 
             if (opt_callback) {
                 opt_callback();
