@@ -222,7 +222,7 @@ Xhr.prototype.setTimeoutInterval = function(seconds)
  * @param {bool} isFormData true if we do not want to send raw form data
  */
 Xhr.prototype.setDataIsForm = function(isFormData) {
-    this._dataIsForm = true;
+    this._dataIsForm = isFormData;
 }
 
 /**
