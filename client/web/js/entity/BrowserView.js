@@ -139,8 +139,14 @@ BrowserView.prototype.fromData = function(data) {
     this.reportId = data.report_id || null;
     this.scope = data.scope || "";
 
-    if (data.filter_key)
+    // Check if objType is set in the data argument
+    if(data.objType) {
+        this.objType = data.objType;
+    }
+
+    if (data.filter_key) {
         this.filterKey = data.filter_key;
+    }
 
     // Setup columns to display for a table view
     for (var i in data.table_columns) {
@@ -155,11 +161,13 @@ BrowserView.prototype.fromData = function(data) {
         this.conditions_.push(where);
     }
 
-    for (var i in data.sort_order)
+    var orderBy = data.sort_order || data.order_by;
+
+    for (var i in orderBy)
     {
         this.orderBy_.push({
-            field : data.sort_order[i].field_name,
-            direction : data.sort_order[i].order
+            field : orderBy[i].field_name,
+            direction : orderBy[i].order || orderBy[i].direction
         });
     }
 }

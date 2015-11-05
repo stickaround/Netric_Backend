@@ -309,7 +309,6 @@ EntityBrowserController.prototype.loadCollection = function() {
     
     // Set Sort Order
     var orderBy = this.browserView_.getOrderBy();
-    
     if(orderBy) {
         for (var idx in orderBy) {
             this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
