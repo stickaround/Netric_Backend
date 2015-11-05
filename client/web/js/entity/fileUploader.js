@@ -29,8 +29,8 @@ var FileUploader = {
             var request = new BackendRequest();
             // Save the data remotely
             request.setDataIsForm(true);
-            //request.send("controller/AntFs/upload", function(resp) {
-            request.send("svr/antfs/upload", function(resp) {
+            request.send("controller/AntFs/upload", function(resp) {
+            //request.send("svr/antfs/upload", function(resp) {
 
                 // First check to see if there was an error
                 if (resp.error) {
