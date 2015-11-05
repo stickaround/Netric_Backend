@@ -82,6 +82,7 @@ class AntUser
 			$this->accountId = Ant::getSessionVar("aid");
 			$this->accountName = $antsys->getAccountInfoByUId($this->accountId);
 		}
+
 		$this->account = $this->accountId;
 
 		if(isset($_GET['auth']))

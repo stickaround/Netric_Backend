@@ -981,6 +981,17 @@ class Ant
 	 */
 	public function getUser($id=null)
 	{
+		global $_REQUEST;
+
+		if ($id === null && $_REQUEST["Authentication"]) {
+			// Get the authentication service
+			$sm = $this->getNetricAccount()->getServiceManager();
+			$auth = $sm->get("Netric/Authentication/AuthenticationService");
+
+			// Check if the current session is authenticated
+			$id = $auth->getIdentity();
+		}
+
 		return new AntUser($this->dbh, $id, $this);
 	}
 
