@@ -19,7 +19,7 @@ return array(
         ),
 		'order_by' => array(
 			'date' => array(
-    			'field_name' => 'date_entered',
+    			'field_name' => 'ts_entered',
     			'direction' => 'desc',
     		),
 		),

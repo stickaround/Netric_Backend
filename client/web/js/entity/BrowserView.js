@@ -132,15 +132,16 @@ BrowserView.prototype.fromData = function(data) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
-    this.system = data.f_system;
+    this.system = data.system || data.f_system;
     this.default = (data.default === true) ? true : false;
     this.userId = data.user_id || null;
     this.teamId = data.team_id || null;
     this.reportId = data.report_id || null;
     this.scope = data.scope || "";
 
-    if (data.filter_key)
+    if (data.filter_key) {
         this.filterKey = data.filter_key;
+    }
 
     // Setup columns to display for a table view
     for (var i in data.table_columns) {
@@ -155,11 +156,12 @@ BrowserView.prototype.fromData = function(data) {
         this.conditions_.push(where);
     }
 
-    for (var i in data.sort_order)
+    var orderBy = data.sort_order || data.order_by;
+    for (var i in orderBy)
     {
         this.orderBy_.push({
-            field : data.sort_order[i].field_name,
-            direction : data.sort_order[i].order
+            field : orderBy[i].field_name,
+            direction : orderBy[i].order || orderBy[i].direction
         });
     }
 }
@@ -322,6 +324,15 @@ BrowserView.prototype.getTableColumns = function() {
  */
 BrowserView.prototype.setId = function(id) {
     this.id = id;
+}
+
+/**
+ * Set the objType of the browser view
+ *
+ * @param {string} objType       The name of the object type
+ */
+BrowserView.prototype.setObjType = function(objType) {
+    this.objType = objType;
 }
 
 module.exports = BrowserView;

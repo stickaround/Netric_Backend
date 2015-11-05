@@ -113,6 +113,10 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
         definitionLoader.get(this.props.objType, function(def){
             this.entityDefinition_ = def;
             this.browserView_ = def.getDefaultView();
+
+            // make sure we have set the objType of the browserView
+            this.browserView_.setObjType(this.props.objType);
+
             if (opt_callback) {
                 opt_callback();
             }
@@ -309,7 +313,6 @@ EntityBrowserController.prototype.loadCollection = function() {
     
     // Set Sort Order
     var orderBy = this.browserView_.getOrderBy();
-    
     if(orderBy) {
         for (var idx in orderBy) {
             this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
