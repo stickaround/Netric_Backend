@@ -39,9 +39,9 @@ var AbstractController = function() {
 
 }
 
-/** 
+/**
  * Define properties forwarded to this controller
- * 
+ *
  * @protected
  * @type {Object}
  */
@@ -57,22 +57,22 @@ AbstractController.prototype.domNode_ = null;
 
 /**
  * The type of controller this is.
- * 
+ *
  * @see comments on netric.location.controller.types property
  */
 AbstractController.prototype.type_ = null;
 
 /**
  * Handle to the parent router of this controller
- * 
+ *
  * @type {netric.location.Router}
  */
 AbstractController.prototype.router_ = null;
 
-/** 
+/**
  * Flag to indicate if it is paused
  *
- * @private 
+ * @private
  * @type {bool}
  */
 AbstractController.prototype.isPaused_ = false;
@@ -135,7 +135,7 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 
 	// onLoad may be over-ridden by child classes for additional processing
 	this.onLoad(function(){
-		
+
 		// Set the root dom node for this controller
 		this.setupDomNode_(parentDomNode);
 
@@ -214,24 +214,24 @@ AbstractController.prototype.resume = function() {
  */
 AbstractController.prototype.pause = function() {
 
-    // Hide me
-    if (this.domNode_) {
-        alib.dom.styleSet(this.domNode_, "display", "none");
-    }
+	// Hide me
+	if (this.domNode_) {
+		alib.dom.styleSet(this.domNode_, "display", "none");
+	}
 
-    // Set paused flag for resuming later
-    this.isPaused_ = true;
+	// Set paused flag for resuming later
+	this.isPaused_ = true;
 
-    // Get the parent controller of this controller
-    if (this.getType() == controller.types.PAGE) {
-        var parentController = this.getParentController();
-        if (parentController && parentController.getType() == controller.types.PAGE) {
-            // Pause/hide parent controller before we render this controller
-            parentController.pause();
-        }
-    }
+	// Get the parent controller of this controller
+	if (this.getType() == controller.types.PAGE) {
+		var parentController = this.getParentController();
+		if (parentController && parentController.getType() == controller.types.PAGE) {
+			// Pause/hide parent controller before we render this controller
+			parentController.pause();
+		}
+	}
 
-    this.onPause();
+	this.onPause();
 }
 
 /**
@@ -367,41 +367,41 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
 
 	var parentNode = null;
 
-    switch (this.type_) {
-    	/*
+	switch (this.type_) {
+		/*
 		 * If this is of type page then we need to walk up the tree of
 		 * controllers to get the top page controller's dom parent because
 		 * pages will hide their parents so a child page cannot be a child dom
 		 * element.
 		 */
-    	case controller.types.PAGE:
-    		
-    		/* 
-    		 * We can set a default root node to use if no parent nodes exists.
-    		 * If no default is defined and there are no parent pages the new controller
-    		 * pages will be rendered into document.body.
-    		 */
-    		var defaultRootNode = opt_domNode || null;
-    		parentNode = this.getTopPageNode(defaultRootNode);
-    		break;
+		case controller.types.PAGE:
 
-    	/*
-    	 * A fragment is a controller that loads in a child DOM of another controler.
-    	 * It is unique in that it cannot hide its parent so the contianing controller
-    	 * will always be visible.
-    	 */
-    	case controller.types.FRAGMENT:
-    		if (opt_domNode) {
-    			parentNode = opt_domNode;	
-    		} else {
-    			throw "Cannot render a fragment controller without passing a valid DOM element";
-    		}
-    		break;
+			/*
+			 * We can set a default root node to use if no parent nodes exists.
+			 * If no default is defined and there are no parent pages the new controller
+			 * pages will be rendered into document.body.
+			 */
+			var defaultRootNode = opt_domNode || null;
+			parentNode = this.getTopPageNode(defaultRootNode);
+			break;
 
-    	/*
+		/*
+		 * A fragment is a controller that loads in a child DOM of another controler.
+		 * It is unique in that it cannot hide its parent so the contianing controller
+		 * will always be visible.
+		 */
+		case controller.types.FRAGMENT:
+			if (opt_domNode) {
+				parentNode = opt_domNode;
+			} else {
+				throw "Cannot render a fragment controller without passing a valid DOM element";
+			}
+			break;
+
+		/*
 		 * If this is a dialog then render a new dialog into the dom and get the inner container to render controller
 		 */
-    	case controller.types.DIALOG:
+		case controller.types.DIALOG:
 			// Render dialog component component
 			var title = this.props.title || "Browse";
 			this.dialogComponent_ = ReactDOM.render(
@@ -409,16 +409,16 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
 				alib.dom.createElement("div", document.body)
 			);
 			parentNode = ReactDOM.findDOMNode(this.dialogComponent_.refs.dialogContent);
-    		break;
-    }
+			break;
+	}
 
-    var id = (this.getParentRouter()) ? this.getParentRouter().getActiveRoute().getPath() : null;
+	var id = (this.getParentRouter()) ? this.getParentRouter().getActiveRoute().getPath() : null;
 	this.domNode_ = alib.dom.createElement("div", parentNode, null, {id:id});
 }
 
 /**
  * Get the topmost page node for rendering child pages
- * 
+ *
  * This is important because child pages can hide their parent
  * so child controllers of type PAGE cannot be in a child in the DOM tree
  * or they will disappear along with the parent when we pause/hide the parent.
@@ -428,13 +428,13 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
  * @return {DOMElement} The parent of the topmost page in this tree (will stop at a fragment or top)
  */
 AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
-	
+	// See if we can get the node of our parent if it is a page controller
 	if (this.getParentController()) {
 		if (this.getParentController().getType() == controller.types.PAGE) {
 			return this.getParentController().getTopPageNode();
-		} else if (ReactDOM.findDOMNode(this.getParentController()).parentNode) {
-            return ReactDOM.findDOMNode(this.getParentController()).parentNode;
-        }
+		} else if (this.getParentController().getDOMNode().parentNode) {
+			return this.getParentController().getDOMNode().parentNode;
+		}
 	}
 
 	// No parent pages were found so simply return my parent node
@@ -509,7 +509,7 @@ AbstractController.prototype.getType = function() {
  * @returns {RactElement|DOMElement}
  */
 AbstractController.prototype.getDOMNode = function() {
-    return this.domNode_;
+	return this.domNode_;
 }
 
 /**
@@ -523,7 +523,7 @@ AbstractController.prototype.isPaused = function() {
 
 /**
  * Render is called to enter the controller into the Dom
- * 
+ *
  * @abstract
  * @param {ReactElement|DomElement} ele The element to render into
  * @param {Object} data Optiona forwarded data
