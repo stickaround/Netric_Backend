@@ -432,8 +432,8 @@ AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
 	if (this.getParentController()) {
 		if (this.getParentController().getType() == controller.types.PAGE) {
 			return this.getParentController().getTopPageNode();
-		} else if (ReactDOM.findDOMNode(this.getParentController()).parentNode) {
-            return ReactDOM.findDOMNode(this.getParentController()).parentNode;
+		} else if (this.getParentController().getDOMNode().parentNode) {
+            return this.getParentController().getDOMNode().parentNode;
         }
 	}
 
