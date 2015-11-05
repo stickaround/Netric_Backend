@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom")
 var ListItem = require("./ListItem.jsx");
 var ListItemTableRow = require("./ListItemTableRow.jsx");
 var Loading = require("../Loading.jsx");
@@ -53,7 +54,7 @@ var List = React.createClass({
 	componentDidMount: function() {
 		
 		// Get the current container of the object
-		var container = React.findDOMNode(this.refs.entityContainer);
+		var container = ReactDOM.findDOMNode(this.refs.entityContainer);
 		
 		/*
 		 * Uncomment this to test the div container scrolling

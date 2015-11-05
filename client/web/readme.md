@@ -12,15 +12,15 @@ Then, use NPM to install grunt client
 
 Install react command line tools
 
-	npm install -g react-tools
+	sudo npm install -g react-tools
 
 And then install the remaining build dependencies locally:
 
     npm install
 	
-Now install bowser dependencies:
+Now install bower dependencies:
 
-    bowser install
+    bower install
 
 This will read the dependencies and the devDependencies (which contains our build requirements) from package.json and install everything needed into a folder called node_modules/.
 

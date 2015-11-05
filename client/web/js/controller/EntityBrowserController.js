@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
@@ -56,6 +57,22 @@ EntityBrowserController.prototype.userSearchString_ = null;
  * @type {int[]}
  */
 EntityBrowserController.prototype.selected_ = new Array();
+
+/**
+ * Entities that will be displayed
+ *
+ * @private
+ * @type {Array}
+ */
+EntityBrowserController.prototype.entities_ = new Array();
+
+/**
+ * Determine if the entity browser is still loading the entities
+ *
+ * @private
+ * @type {bool}
+ */
+EntityBrowserController.prototype.collectionLoading_ = true;
 
 /**
  * Entity actions object
@@ -111,66 +128,8 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
  */
 EntityBrowserController.prototype.render = function() {
 
-	// Set outer application container
-	var domCon = this.domNode_;
-
-    var layout = (netric.getApplication().device.size === netric.Device.sizes.small)
-        ? "compact" : "table";
-
-    // Set custom layouts for different types
-    switch (this.entityDefinition_.objType) {
-        case 'activity':
-        case 'comment':
-            layout = "compact";
-            break
-    }
-
-    // Unhide toolbars if we are in a page mode
-    var hideToolbar = this.props.hideToolbar || false;
-    if (this.getType() === controller.types.PAGE) {
-        hideToolbar = false;
-    }
-
-    // Define the data
-	var data = {
-	        title: this.props.browsebytitle ||this.props.title,
-	        entities: new Array(),
-	        deviceSize: netric.getApplication().device.size,
-	        layout: layout,
-	        actionHandler: this.actions_,
-	        browserView:this.browserView_,
-            hideToolbar: hideToolbar,
-	        onEntityListClick: function(objType, oid, title) {
-	            this.onEntityListClick(objType, oid, title);
-	        }.bind(this),
-	        onEntityListSelect: function(oid) {
-	            if (oid) {
-	                this.toggleEntitySelect(oid);
-	            } else {
-	                this.toggleSelectAll(false);
-	            }
-	        }.bind(this),
-	        onLoadMoreEntities: function(limitIncrease){
-	            return this.getMoreEntities(limitIncrease);
-	        }.bind(this),
-	        onSearchChange: function(fullText, conditions) {
-	            this.onSearchChange(fullText, conditions);
-	        }.bind(this),
-	        onAdvancedSearch: function() {
-                this._displayAdvancedSearch();
-            }.bind(this),
-	        onPerformAction: function(actionName) {
-	            this.performActionOnSelected(actionName);
-	        }.bind(this),
-	        onNavBtnClick: this.props.onNavBtnClick || null,
-	        onNavBackBtnClick: this.props.onNavBackBtnClick || null
-	}
-
-	// Render browser component
-	this.rootReactNode_ = React.render(
-	        React.createElement(UiEntityBrowser, data),
-	        domCon
-	);
+    // Render the react components
+    this.reactRender_();
 
 	// Load the entity list
 	this.collection_ = new EntityCollection(this.props.objType);
@@ -209,6 +168,79 @@ EntityBrowserController.prototype.render = function() {
 }
 
 /**
+ * Render the react UI
+ * This function will be called everytime we need to send new props or update props into react
+ *
+ * @private
+ */
+EntityBrowserController.prototype.reactRender_ = function() {
+
+    // Set outer application container
+    var domCon = this.domNode_;
+
+    var layout = (netric.getApplication().device.size === netric.Device.sizes.small)
+        ? "compact" : "table";
+
+    // Set custom layouts for different types
+    switch (this.entityDefinition_.objType) {
+        case 'activity':
+        case 'comment':
+            layout = "compact";
+            break
+    }
+
+    // Unhide toolbars if we are in a page mode
+    var hideToolbar = this.props.hideToolbar || false;
+    if (this.getType() === controller.types.PAGE) {
+        hideToolbar = false;
+    }
+
+    // Define the data
+    var data = {
+        title: this.props.browsebytitle ||this.props.title,
+        entities: new Array(),
+        deviceSize: netric.getApplication().device.size,
+        layout: layout,
+        actionHandler: this.actions_,
+        browserView:this.browserView_,
+        hideToolbar: hideToolbar,
+        onEntityListClick: function(objType, oid, title) {
+            this.onEntityListClick(objType, oid, title);
+        }.bind(this),
+        onEntityListSelect: function(oid) {
+            if (oid) {
+                this.toggleEntitySelect(oid);
+            } else {
+                this.toggleSelectAll(false);
+            }
+        }.bind(this),
+        onLoadMoreEntities: function(limitIncrease){
+            return this.getMoreEntities(limitIncrease);
+        }.bind(this),
+        onSearchChange: function(fullText, conditions) {
+            this.onSearchChange(fullText, conditions);
+        }.bind(this),
+        onAdvancedSearch: function() {
+            this._displayAdvancedSearch();
+        }.bind(this),
+        onPerformAction: function(actionName) {
+            this.performActionOnSelected(actionName);
+        }.bind(this),
+        onNavBtnClick: this.props.onNavBtnClick || null,
+        onNavBackBtnClick: this.props.onNavBackBtnClick || null,
+        selectedEntities: this.selected_,
+        entities: this.entities_,
+        collectionLoading: this.collectionLoading_
+    }
+
+    // Render browser component
+    this.rootReactNode_ = ReactDOM.render(
+        React.createElement(UiEntityBrowser, data),
+        domCon
+    );
+}
+
+/**
  * User clicked/touched an entity in the list
  *
  * @param {string} objType
@@ -221,7 +253,9 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
         if (this.props.objType == objType) {
             this.selected_ = new Array();
             this.selected_.push(oid);
-            this.rootReactNode_.setProps({selectedEntities: this.selected_});
+
+            // Need to re-render to display changes
+            this.reactRender_();
         }
 
         // Check to see if we have an onEntityClick callback registered
@@ -300,7 +334,7 @@ EntityBrowserController.prototype.loadCollection = function() {
         }
     }
 
-    // Load (we depend on 'onload' events for triggering UI rendering in this.render)
+    // Load (we depend on 'onload' events for triggering UI rendering in this.reactRender_)
     this.collection_.load();
 }
 
@@ -317,7 +351,8 @@ EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
             this.selected_.splice(selectedAt, 1);
         }
 
-        this.rootReactNode_.setProps({selectedEntities: this.selected_});
+        // Need to re-render to display selected entity
+        this.reactRender_();
     }
 }
 
@@ -338,7 +373,8 @@ EntityBrowserController.prototype.toggleSelectAll = function(selected) {
         this.selected_ = new Array();
     }
 
-    this.rootReactNode_.setProps({selectedEntities: this.selected_});
+    // Need to re-render to display the toggle
+    this.reactRender_();
 }
 
 /**
@@ -369,23 +405,30 @@ EntityBrowserController.prototype.performActionOnSelected = function(actionName)
  * User selected an alternate menu item in the left navigation
  */
 EntityBrowserController.prototype.onCollectionChange = function() {
-    var entities = this.collection_.getEntities();
-    this.rootReactNode_.setProps({entities: entities});
+
+    // Need to re-render to display the entities
+    this.entities_ = this.collection_.getEntities();
+    this.reactRender_();
 }
 
 /**
  * The collection is attempting to get results from the backend
  */
 EntityBrowserController.prototype.onCollectionLoading = function() {
-    var entities = this.collection_.getEntities();
-    this.rootReactNode_.setProps({collectionLoading: true});
+
+    // Need to re-render to display the loading gif
+    this.collectionLoading_ = true;
+    this.reactRender_();
 }
 
 /**
  * The collection has finished requesting results from the backend
  */
 EntityBrowserController.prototype.onCollectionLoaded = function() {
-    this.rootReactNode_.setProps({collectionLoading: false});
+
+    // Need to re-render to hide the loading gif
+    this.collectionLoading_ = false;
+    this.reactRender_();
 }
 
 /**
@@ -404,7 +447,9 @@ EntityBrowserController.prototype.onResume = function() {
      * be selected when a user closes the previously selected entity controller.
      */
     this.selected_ = new Array();
-    this.rootReactNode_.setProps({selectedEntities: this.selected_});
+
+    // Need to re-render to display changes
+    this.reactRender_();
 }
 
 /**

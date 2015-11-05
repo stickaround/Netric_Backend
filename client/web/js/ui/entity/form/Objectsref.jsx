@@ -39,7 +39,7 @@ var Objectsref = React.createClass({
 
         // Create browser and render
         var browser = new EntityBrowserController();
-        browser.load(data, this.refs.bcon.getDOMNode(), null, function() {
+        browser.load(data, ReactDOM.findDOMNode(this.refs.bcon), null, function() {
             browser.render();
         });
     },

@@ -89,7 +89,7 @@ var Comments = React.createClass({
         // If we are on a larger device then print inline
         if (netric.getApplication().device.size >= _minimumInlineDeviceSize) {
             controllerType = controller.types.FRAGMENT;
-            inlineCon = this.refs.comcon.getDOMNode();
+            inlineCon = ReactDOM.findDOMNode(this.refs.comcon);
             hideToolbar = true;
         }
 

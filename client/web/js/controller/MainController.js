@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var AbstractController = require("./AbstractController");
 var ModuleController = require("./ModuleController");
@@ -71,15 +72,15 @@ MainController.prototype.render = function() {
 	}
 
 	// Render application component
-	var view = React.render(
+	var view = ReactDOM.render(
 		React.createElement(this.appComponent_, data),
 		domCon
 	);
 
 	// Add dynamic route to the module
 	this.addSubRoute(":module", 
-		ModuleController, {}, 
-		view.refs.appMain.getDOMNode()
+		ModuleController, {},
+		ReactDOM.findDOMNode(view.refs.appMain)
 	);
 
 	// Set a default route

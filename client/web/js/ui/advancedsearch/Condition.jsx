@@ -48,7 +48,7 @@ var SearchCondition = React.createClass({
         if(searchFields) {
             field = searchFields[this.props.fieldData.selectedIndex];
             
-            valueInput = this._getConditionValueInput(field, this.props.fieldData.selectedIndex, this.props.condition.value);
+            valueInput = this._getConditionValueInput(field, this.props.fieldData.selectedIndex, this.props.condition.value, false);
             operators = this._getConditionOperators(field.type)
         }
         
@@ -169,7 +169,7 @@ var SearchCondition = React.createClass({
      * @private
      */
     _handleFieldClick: function(e, key, field) {
-        this._getConditionValueInput(field, key, null);
+        this._getConditionValueInput(field, key, null, true);
     },
 
     /**
@@ -186,10 +186,11 @@ var SearchCondition = React.createClass({
      *
      * @param {array} field	            Collection of the field selected information
      * @param {int} fieldIndex      The index of the menu field clicked
-     * @param {string} value            The default value or initial value
+     * @param {string} value           The default value or initial value
+     * @param {bool} updateState    Determine if we need to update the state values
      * @private
      */
-    _getConditionValueInput: function(field, fieldIndex, value) {
+    _getConditionValueInput: function(field, fieldIndex, value, updateState) {
         var valueInput = null;
     	
         switch(field.type) {
@@ -239,7 +240,7 @@ var SearchCondition = React.createClass({
         }
     	
         // Update the state if the component is already mounted
-        if(this.isMounted()) {
+        if(this.updateState) {
             var operators = this._getConditionOperators(field.type); // get the operators based on the field type
     	    
             // Update the condition data
