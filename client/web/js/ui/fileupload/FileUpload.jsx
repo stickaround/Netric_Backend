@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var Chamel = require('chamel');
 var IconButton = Chamel.IconButton;
 var FlatButton = Chamel.FlatButton;
@@ -33,7 +34,7 @@ var FileUpload = React.createClass({
     },
 
     componentDidMount: function() {
-        this.refs.inputFile.getDOMNode().click();
+        ReactDOM.findDOMNode(this.refs.inputFile).click();
     },
 
     render: function() {

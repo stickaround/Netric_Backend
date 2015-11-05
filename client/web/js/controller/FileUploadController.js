@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
@@ -74,15 +75,27 @@ FileUploadController.prototype.render = function() {
     );
 }
 
+/**
+ * Handles the uploading of files.
+ *
+ * @param {DOMEvent} e          Reference to the DOM event being sent
+ * @param {array} data          Collection of data used to save the files
+ */
 FileUploadController.prototype._handleUploadButton = function(e, data) {
 
-    var data = {
-        folderid: data.folderid,
-        path: data.path,
-        files: []
-    };
+    var formData = new FormData();
+    var files = e.target.files;
 
-    fileUploader.upload(data);
+    for(var idx in files) {
+        if(idx < files.length) {
+            formData.append('files[]', files[idx], files[idx].name);
+        }
+    }
+
+    formData.append('folderid', data.folderid);
+    formData.append('path', data.path);
+
+    fileUploader.upload(formData);
 }
 
 module.exports = FileUploadController;

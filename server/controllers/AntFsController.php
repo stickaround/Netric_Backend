@@ -149,6 +149,9 @@ class AntFsController extends Controller
     */
     public function upload($params)
 	{
+		print_r($params);
+		echo "test";
+		return;
 		// Make sure we have the resources to upload this file
 		ini_set("max_execution_time", "7200");	
 		ini_set("max_input_time", "7200");	

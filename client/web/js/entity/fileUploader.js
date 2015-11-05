@@ -14,7 +14,7 @@ var FileUploader = {
     /**
      * Uploads multiple files
      *
-     * @param {Object} files   The files to be uploaded
+     * @param {FormData} data   The form data to be saved. This will include the files to be uploaded
      * @param {function} opt_finishedCallback Optional callback to call when saved
      * @public
      */
@@ -26,8 +26,11 @@ var FileUploader = {
 
         // If we are connected
         if (netric.server.online) {
+            var request = new BackendRequest();
             // Save the data remotely
-            BackendRequest.send("controller/AntFs/upload", function(resp) {
+            request.setDataIsForm(true);
+            //request.send("controller/AntFs/upload", function(resp) {
+            request.send("svr/antfs/upload", function(resp) {
 
                 // First check to see if there was an error
                 if (resp.error) {
@@ -41,7 +44,7 @@ var FileUploader = {
                     opt_finishedCallback();
                 }
 
-            }, 'POST', JSON.stringify(data));
+            }, 'POST', data);
 
         } else {
             // TODO: Save the data locally into an "outbox"
