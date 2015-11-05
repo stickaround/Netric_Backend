@@ -1,6 +1,7 @@
 'use strict';
 
 var BrowserView = require("../../../js/entity/BrowserView");
+var Where = require("../../../js/entity/Where");
 var netric = require("../../../js/main");
 
 /**
@@ -12,22 +13,23 @@ describe("Setup browserView data", function() {
             name: 'browserViewTest',
             conditions: [],
             sort_order: [],
-            view_fields: [],
+            table_columns: [],
     }
-    
-    data.conditions.push({
-        blogic: 'and',
-        field_name: 'id',
-        operator: 'is_equal',
-        value: -3,
-    });
+
+    // Setup where object
+    var where = new Where('id');
+    where.bLogic = 'and';
+    where.operator = Where.operators.EQUALTO;
+    where.value = -3;
+
+    data.conditions.push(where);
     
     data.sort_order.push({
         field_name: 'id',
         order: 'asc'
     });
     
-    data.view_fields.push("id");
+    data.table_columns.push("id");
     
     var browserViewObject = new BrowserView("note");
     browserViewObject.fromData(data);

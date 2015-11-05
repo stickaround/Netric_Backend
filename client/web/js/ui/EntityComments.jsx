@@ -23,7 +23,7 @@ var EntityComments = React.createClass({
     propTypes: {
         name: React.PropTypes.string,
         // Navigation back button - left arrow to the left of the title
-        onNavBtnClick: React.PropTypes.func.required,
+        onNavBtnClick: React.PropTypes.func.isRequired,
         onAddComment: React.PropTypes.func,
         deviceSize: React.PropTypes.number,
         commentsBrowser: React.PropTypes.object,
@@ -136,7 +136,7 @@ var EntityComments = React.createClass({
             objType: "comment",
             hideToolbar: true,
             filters: [filterWhere]
-        }, this.refs.commCon.getDOMNode());
+        }, ReactDOM.findDOMNode(this.refs.commCon));
 
         this.setState({commBrowser: browser});
     },

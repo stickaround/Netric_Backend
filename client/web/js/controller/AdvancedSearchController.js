@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var controller = require("./controller");
 var AbstractController = require("./AbstractController");
@@ -66,7 +67,7 @@ AdvancedSearchController.prototype.render = function() {
     }
 	
     // Render browser component
-    this.rootReactNode_ = React.render(
+    this.rootReactNode_ = ReactDOM.render(
         React.createElement(UiAdvancedSearch, data),
         domCon
     );

@@ -4,6 +4,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require("react-dom");
 var netric = require("../base");
 var controller = require("./controller")
 var AbstractController = require("./AbstractController");
@@ -190,7 +191,7 @@ EntityController.prototype.render = function() {
     }
 
     // Render component
-    this.rootReactNode_ = React.render(
+    this.rootReactNode_ = ReactDOM.render(
         React.createElement(UiEntity, data),
         domCon
     );

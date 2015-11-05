@@ -194,7 +194,7 @@ BrowserView.prototype.getData = function() {
     // Conditions data
     data.conditions = [];
     for (var idx in this.conditions_) {
-        data.conditions.push(this.conditions_[i].toData());
+        data.conditions.push(this.conditions_[idx].toData());
     }
     
     // Order By data

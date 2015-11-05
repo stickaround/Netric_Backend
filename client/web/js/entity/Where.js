@@ -152,7 +152,7 @@ Where.prototype.isLessOrEqaulTo = function(value) {
  * Get the condition operator based on the field type
  *
  * @param {string} fieldType    The type of the field
- * @private
+ * @public
  */
 Where.prototype.getOperatorsForFieldType = function(fieldType) {
     var operators = null;
@@ -217,6 +217,23 @@ Where.prototype.getOperatorsForFieldType = function(fieldType) {
     }
     
     return operators;
+}
+
+/**
+ * Get the where data object
+ *
+ * @return {object}
+ * @public
+ */
+Where.prototype.toData = function() {
+    var data = {
+        blogic: this.bLogic,
+        field_name: this.fieldName,
+        operator: this.operator,
+        value: this.value
+    }
+
+    return data;
 }
 
 
