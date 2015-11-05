@@ -61,12 +61,11 @@ var AdvancedSearch = React.createClass({
             var name = this.props.browserView.name;
 
             // If the browser view is not yet saved, then set the default name to My Custom View
-            if(this.props.browserView.id == null) {
+            if(this.props.browserView.id == null || this.props.browserView.system) {
                 name = 'My Custom View';
             }
 
             var data = {
-                id: this.props.browserView.id,
                 name: name,
                 description: this.props.browserView.description,
                 default: this.props.browserView.default,

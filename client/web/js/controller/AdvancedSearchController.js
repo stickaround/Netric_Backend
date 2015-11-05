@@ -84,7 +84,14 @@ AdvancedSearchController.prototype._saveView = function(browserView, data) {
     browserView.name = data.name;
     browserView.description = data.description;
     browserView.default = data.default;
-    
+
+    // Check if the browserView is system generated, then we will set the id to null to generate a new id for the custom view
+    if(browserView.system) {
+
+        // Set the browserView.id to null so we can set a new id value after saving.
+        browserView.setId(null);
+    }
+
     browserViewSaver.save(browserView);
 }
 
