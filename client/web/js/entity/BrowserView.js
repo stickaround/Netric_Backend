@@ -132,17 +132,12 @@ BrowserView.prototype.fromData = function(data) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;
-    this.system = data.f_system;
+    this.system = data.system || data.f_system;
     this.default = (data.default === true) ? true : false;
     this.userId = data.user_id || null;
     this.teamId = data.team_id || null;
     this.reportId = data.report_id || null;
     this.scope = data.scope || "";
-
-    // Check if objType is set in the data argument
-    if(data.objType) {
-        this.objType = data.objType;
-    }
 
     if (data.filter_key) {
         this.filterKey = data.filter_key;
@@ -330,6 +325,15 @@ BrowserView.prototype.getTableColumns = function() {
  */
 BrowserView.prototype.setId = function(id) {
     this.id = id;
+}
+
+/**
+ * Set the objType of the browser view
+ *
+ * @param {string} objType       The name of the object type
+ */
+BrowserView.prototype.setObjType = function(objType) {
+    this.objType = objType;
 }
 
 module.exports = BrowserView;

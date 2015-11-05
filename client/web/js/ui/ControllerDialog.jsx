@@ -71,7 +71,7 @@ var ControllerDialog = React.createClass({
      * Reposition the dialog
      */
     reposition: function() {
-        this.dialog.reposition();
+        this.refs.dialog.reposition();
     }
 
 

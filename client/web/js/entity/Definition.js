@@ -261,10 +261,6 @@ Definition.prototype.getDefaultView = function() {
 
 		for (var i in this.views) {
 			if (this.views[i].id === this._defaultBrowserViewId) {
-
-				// Make sure we set the objType of the browserView
-				this.views[i].objType = this.objType;
-
 				return this.views[i];
 			}
 		}
@@ -273,10 +269,6 @@ Definition.prototype.getDefaultView = function() {
     // Not found! Ok check to see if there is a default view set by property
     for (var i in this.views) {
         if (this.views[i].default) {
-
-			// Make sure we set the objType of the browserView
-			this.views[i].objType = this.objType;
-
             return this.views[i];
         }
     }

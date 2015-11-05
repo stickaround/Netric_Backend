@@ -85,8 +85,8 @@ AdvancedSearchController.prototype._saveView = function(browserView, data) {
     browserView.description = data.description;
     browserView.default = data.default;
 
-    // check if browserView.id is a string, then the id set is an index name which means that the view is a system's default view.
-    if(isNaN(browserView.id)) {
+    // Check if the browserView is system generated, then we will set the id to null to generate a new id for the custom view
+    if(browserView.system) {
 
         // Set the browserView.id to null so we can set a new id value after saving.
         browserView.setId(null);
