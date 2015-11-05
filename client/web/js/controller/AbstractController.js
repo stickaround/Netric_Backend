@@ -428,7 +428,7 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
  * @return {DOMElement} The parent of the topmost page in this tree (will stop at a fragment or top)
  */
 AbstractController.prototype.getTopPageNode = function(opt_rootDomNode) {
-	
+	// See if we can get the node of our parent if it is a page controller
 	if (this.getParentController()) {
 		if (this.getParentController().getType() == controller.types.PAGE) {
 			return this.getParentController().getTopPageNode();
