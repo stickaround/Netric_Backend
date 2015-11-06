@@ -24,6 +24,7 @@ class FolderFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("folder");
-        return new Folder($def);
+        $entityloader = $sl->get("EntityLoader");
+        return new Folder($def, $entityloader);
     }
 }

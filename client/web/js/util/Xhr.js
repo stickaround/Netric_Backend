@@ -9,6 +9,7 @@
  * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
  */
 var events = require("./events");
+var log = require("../log");
 
 /**
  * Class for handling XMLHttpRequests
@@ -161,6 +162,27 @@ Xhr.prototype.send = function(urlPath, opt_method, opt_content)
 
             // No longer in progress of course
             xhr.isInProgress_ = false;
+        },
+        xhr: function() {
+            // This is a hacky workaround since jquery does not support progress
+            var myXhr = $.ajaxSettings.xhr();
+
+            if(myXhr.upload){
+                events.listen(myXhr, "progress", function(evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = (evt.loaded / evt.total) * 100;
+                        // Trigger load events for any listeners
+                        events.triggerEvent(xhr, "progress", {
+                            percentComplete: percentComplete,
+                            loaded: evt.loaded,
+                            total: evt.total
+                        });
+                    }
+                });
+            } else {
+                log.warning("Uploadress is not supported.")
+            }
+            return myXhr;
         }
     };
 
