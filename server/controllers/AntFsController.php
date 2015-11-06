@@ -156,8 +156,6 @@ class AntFsController extends Controller
 		$folder = null;
 		$ret = array();
 
-		die(var_export($_FILES,true));
-
 		// If folderid has been passed the override the text path
 		if ($params['folderid'])
 			$folder = $this->antfs->openFolderById($params['folderid']);
