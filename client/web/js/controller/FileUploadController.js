@@ -92,8 +92,13 @@ FileUploadController.prototype._handleUploadButton = function(e, data) {
         }
     }
 
-    formData.append('folderid', data.folderid);
-    formData.append('path', data.path);
+    if(data.folderid) {
+        formData.append('folderid', data.folderid);
+    }
+
+    if(data.path) {
+        formData.append('path', escape(data.path));
+    }
 
     fileUploader.upload(formData);
 }

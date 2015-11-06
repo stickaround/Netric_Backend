@@ -981,9 +981,9 @@ class Ant
 	 */
 	public function getUser($id=null)
 	{
-		global $_REQUEST;
+		global $_COOKIE;
 
-		if ($id === null && $_REQUEST["Authentication"]) {
+		if ($id === null) {
 			// Get the authentication service
 			$sm = $this->getNetricAccount()->getServiceManager();
 			$auth = $sm->get("Netric/Authentication/AuthenticationService");
