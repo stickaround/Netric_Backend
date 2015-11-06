@@ -149,9 +149,6 @@ class AntFsController extends Controller
     */
     public function upload($params)
 	{
-		print_r($params);
-		echo "test";
-		return;
 		// Make sure we have the resources to upload this file
 		ini_set("max_execution_time", "7200");	
 		ini_set("max_input_time", "7200");	
@@ -180,10 +177,10 @@ class AntFsController extends Controller
 				if (!file_exists($tmpFolder))
 					@mkdir($tmpFolder, 0777);
 				$tmpFile = tempnam($tmpFolder, "up");
-				move_uploaded_file($file['tmp_name'], $tmpFile);
+				move_uploaded_file($file['tmp_name'][0], $tmpFile);
 
 				// Import into AntFs
-				$file = $folder->importFile($tmpFile, $file["name"], $params['fileid']);
+				$file = $folder->importFile($tmpFile, $file["name"][0], $params['fileid']);
 				if ($file)
 					$ret[] = array("id"=>$file->id, "name"=>$file->getValue("name"), "ts_updated"=>$file->getValue("ts_updated"));
 				else
