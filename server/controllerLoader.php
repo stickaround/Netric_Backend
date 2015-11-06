@@ -1,4 +1,10 @@
 <?php
+	// Set headers to allow CORS since we are using /svr resources in multiple clients
+	// @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
+	header("Access-Control-Allow-Origin: *");
+	header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+	header("Access-Control-Allow-Headers: Authentication");
+
     //require_once("lib/AntConfig.php");
     require_once("lib/AntConfig.php");
     require_once("ant.php");
@@ -11,11 +17,7 @@
     $controller = $_GET['controller'];
     $apimodule = isset($_GET['apim']) ? $_GET['apim'] : null;
 
-	// Set headers to allow CORS since we are using /svr resources in multiple clients
-	// @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
-	header("Access-Control-Allow-Origin: *");
-	header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-	header("Access-Control-Allow-Headers: Authentication");
+
 
 	if ($apimodule)
 	{
