@@ -13,7 +13,7 @@ use Netric\Entity;
 /**
  * Create a new folder entity
  */
-class File implements Entity\EntityFactoryInterface
+class FileFactory implements Entity\EntityFactoryInterface
 {
     /**
      * Entity creation factory
