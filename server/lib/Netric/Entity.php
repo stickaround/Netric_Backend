@@ -4,6 +4,8 @@
  */
 namespace Netric;
 
+use Netric\ServiceManager\ServiceLocatorInterface;
+
 class Entity implements \Netric\Entity\EntityInterface
 {
 	/**
@@ -549,16 +551,30 @@ class Entity implements \Netric\Entity\EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm) { }
+	public function onBeforeSave(ServiceLocatorInterface $sm) { }
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param E\Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm) { }
+	public function onAfterSave(ServiceLocatorInterface $sm) { }
+
+	/**
+	 * Callback function used for derrived subclasses
+	 *
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 */
+	public function onBeforeDeleteHard(ServiceLocatorInterface $sm) { }
+
+	/**
+	 * Callback function used for derrived subclasses
+	 *
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 */
+	public function onAfterDeleteHard(ServiceLocatorInterface $sm) { }
 
 	/**
 	 * Check if a field value changed since created or opened

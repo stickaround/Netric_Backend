@@ -841,14 +841,14 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 				$setVal = $dbh->escapeNumber($val);
 				break;
 			case 'date':
-				if ($val > 0)
+				if (is_numeric($val) && $val > 0)
 				{
 					$strDate = date("Y-m-d", $val);
 					$setVal = $dbh->escapeDate($strDate);
 				}
 				break;
 			case 'timestamp':
-				if ($val > 0)
+				if (is_numeric($val) && $val > 0)
 				{
 					$strTs = date("Y-m-d h:i:s A e", $val);
 					$setVal = $dbh->escapeTimestamp($strTs);

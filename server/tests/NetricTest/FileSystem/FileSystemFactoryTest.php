@@ -13,6 +13,9 @@ class FileSystemFactoryTest extends PHPUnit_Framework_TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $this->assertInstanceOf('Netric\FileSystem\FileSystem', $sm->get('Netric\FileSystem\FileSystem'));
+        $this->assertInstanceOf(
+            'Netric\FileSystem\FileSystem',
+            $sm->get('Netric\FileSystem\FileSystem')
+        );
     }
 }

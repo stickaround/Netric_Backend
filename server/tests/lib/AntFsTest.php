@@ -173,6 +173,66 @@ class AntFsTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * Test get files list
+	public function testGetFiles()
+	{
+		$fldr = $this->antfs->openFolder("/test/mytest", true);
+		$this->assertNotNull($fldr);
+
+		$file = $fldr->openFile("test", true);
+		$this->assertNotNull($file);
+		$fid = $file->id;
+
+		$size = $file->write("test contents");
+		$this->assertNotEquals($size, -1);
+
+		// Now query files
+		$this->assertTrue($fldr->getNumFiles() > 0);
+
+		// Make sure the file exists in the list of files
+		$bfound = false;
+		for ($i = 0; $i < $fldr->getNumFiles(); $i++)
+		{
+			$file = $fldr->getFile($i);
+
+			if ($file->id == $fid)
+				$bfound = true;
+		}
+		$this->assertTrue($bfound);
+
+		// Cleanup
+		$file = $this->antfs->openFileById($fid);
+		$file->removeHard();
+	}
+	 */
+
+	/**
+	 * Test get folders list
+	public function testGetFolders()
+	{
+		$fldr = $this->antfs->openFolder("/test/mytest", true);
+		$this->assertNotNull($fldr);
+
+		$fldr2 = $this->antfs->openFolder("/test/mytest/subfolder", true);
+		$this->assertNotNull($fldr2);
+
+		// Now get folders
+		$this->assertTrue($fldr->getNumFolders() > 0);
+
+		// Make sure the folder exists in the list of folders
+		$bfound = false;
+		for ($i = 0; $i < $fldr->getNumFolders(); $i++)
+		{
+			$subfolder = $fldr->getFolder($i);
+
+			if ($subfolder->id == $fldr2->id)
+				$bfound = true;
+		}
+		$this->assertTrue($bfound);
+	}
+	 */
+
+	/**
 	 * Test temp file functionality
 	 */
 	public function testTemp()

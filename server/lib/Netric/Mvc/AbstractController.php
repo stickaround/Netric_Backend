@@ -65,7 +65,7 @@ abstract class AbstractController
 	/**
 	 * Empty method to be optionally overridden by controller implementations
 	 */
-	public function init() {}
+	protected function init() {}
 
 	/**
 	 * Get the request object

@@ -240,7 +240,15 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// Determine if we are flagging the entity as deleted or actually purging
 		if ($entity->getValue("f_deleted") || $forceHard)
 		{
+			// Call onBeforeDeleteHard so the entity can do any pre-purge operations
+			if ($this->getAccount()->getServiceManager())
+				$entity->onBeforeDeleteHard($this->getAccount()->getServiceManager());
+
 			$ret = $this->deleteHard($entity);
+
+			// Call onBeforeDeleteHard so the entity can do any post-purge operations
+			if ($this->getAccount()->getServiceManager())
+				$entity->onAfterDeleteHard($this->getAccount()->getServiceManager());
 
 			// Delete from EntityCollection_Index
 			//if ($this->getServiceLocator())

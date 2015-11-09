@@ -7,18 +7,21 @@
  */
 namespace Netric\FileSystem;
 
+use Netric\Error;
 use Netric\EntityQuery;
 use Netric\Entity\ObjType\User;
 use Netric\Entity\ObjType\Folder;
+use Netric\Entity\ObjType\File;
 use Netric\EntityLoader;
 use Netric\Entity\DataMapperInterface;
+use Netric\FileSystem\FileStore\FileStoreInterface;
 
 /**
  * Create a file system service
  *
  * @package Netric\FileSystem
  */
-class FileSystem
+class FileSystem implements Error\ErrorAwareInterface
 {
     /**
      * Index to query entities
@@ -55,14 +58,113 @@ class FileSystem
      */
     private $rootFolder = null;
 
-    public function importFile($localPath, $remotePath)
-    {
+    /**
+     * Handles reading, writing, and deleting file data
+     *
+     * @var FileStoreInterface
+     */
+    private $fileStore = null;
 
+    /**
+     * Errors
+     *
+     * @var Error[]
+     */
+    private $errors = array();
+
+    /**
+     * Class constructor
+     *
+     * @param FileStoreInterface $fileStore Default fileStore for file data
+     * @param User $user Current user
+     * @param EntityLoader $entityLoader Used to load foldes and files
+     * @param DataMapperInterface $dataMapper DataMapper for account
+     */
+    public function __construct(
+        FileStoreInterface $fileStore,
+        User $user,
+        EntityLoader $entityLoader,
+        DataMapperInterface $dataMapper,
+        EntityQuery\Index\IndexInterface $entityQueryIndex)
+    {
+        $this->fileStore = $fileStore;
+        $this->user = $user;
+        $this->entityDataMapper = $dataMapper;
+        $this->entityLoader = $entityLoader;
+        $this->entityIndex = $entityQueryIndex;
+
+        $this->setRootFolder();
+    }
+
+    /**
+     * Import a local file into the FileSystem
+     *
+     * @param string $localFilePath Path to a local file to import
+     * @param string $remoteFolderPath The folder to import the new file into
+     * @param string $fileNameOverride Optional alternate name to use other than the imported file name
+     * @return File The imported file
+     * @throws \RuntimeException if it cannot open the folder path specified
+     */
+    public function importFile($localFilePath, $remoteFolderPath, $fileNameOverride = "")
+    {
+        // Open FileSystem folder - second param creates it if not exists
+        $parentFolder = $this->openFolder($remoteFolderPath, true);
+        if (!$parentFolder)
+        {
+            throw new \RuntimeException("Could not open " . $remoteFolderPath);
+        }
+
+        /*
+         * Create a new file that will represent the file data
+         */
+        $file = $this->entityLoader->create("file");
+        $file->setValue("owner_id", $this->user->getId());
+        $file->setValue("folder_id", $parentFolder->getId());
+        // In some cases you may want to name the file something other than the local file name
+        // such as when importing randomly named temp files.
+        if ($fileNameOverride)
+            $file->setValue("name", $fileNameOverride);
+        $this->entityDataMapper->save($file);
+
+        // Upload the file to the FileStore
+        $result = $this->fileStore->uploadFile($file, $localFilePath);
+
+        // If it fails then try to get the last error
+        if (!$result && $this->fileStore->getLastError())
+        {
+            $this->errors[] = $this->fileStore->getLastError();
+        }
+
+        return ($result) ? $file : null;
     }
 
     public function openFile($path)
     {
 
+    }
+
+    /**
+     * Delete a file
+     *
+     * @param File $file The file to delete
+     * @param bool|false $purge If true the permanently purge the file
+     * @return bool True on success, false on failure.
+     */
+    public function deleteFile(File $file, $purge = false)
+    {
+        return $this->entityDataMapper->delete($file, $purge);
+    }
+
+    /**
+     * Delete a folder
+     *
+     * @param Folder $folder The folder to delee
+     * @param bool|false $purge If true the permanently purge the file
+     * @return bool True on success, false on failure.
+     */
+    public function deleteFolder(Folder $folder, $purge = false)
+    {
+        return $this->entityDataMapper->delete($folder, $purge);
     }
 
     /**
@@ -73,7 +175,8 @@ class FileSystem
      */
     public function openFileById($fid)
     {
-        return $this->entityLoader->get("file", $fid);
+        $file = $this->entityLoader->get("file", $fid);
+        return ($file && $file->getId()) ? $file : null;
     }
 
     /**
@@ -133,7 +236,7 @@ class FileSystem
     public function getHumanSize($size)
     {
         if ($size >= 1000000000000)
-            return round($size/1000000000000, 1) . "TB";
+            return round($size/1000000000000, 1) . "T";
         if ($size >= 1000000000)
             return round($size/1000000000, 1) . "G";
         if ($size >= 1000000)
@@ -141,7 +244,37 @@ class FileSystem
         if ($size >= 1000)
             return round($size/1000, 0) . "K";
         if ($size < 1000)
-            return $size + "B";
+            return $size . "B";
+    }
+
+    /**
+     * Get the root folder for this account
+     *
+     * @return Folder
+     */
+    public function getRootFolder()
+    {
+        return $this->rootFolder;
+    }
+
+    /**
+     * Return the last logged error
+     *
+     * @return Error
+     */
+    public function getLastError()
+    {
+        return $this->errors[count($this->errors) - 1];
+    }
+
+    /**
+     * Return all logged errors
+     *
+     * @return Error[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 
     /**
@@ -154,11 +287,19 @@ class FileSystem
     private function splitPathToFolderArray($path, $createIfMissing = false)
     {
         /*
-         * Translate any variables in path like %tmp% and %userdir% to actual paths
-         * and also normalize everything relative to root so /my/path will return:
-         * my/path since root is always implied.
+         * Translate any variables in path like %tmp% and %userdir% to actual path
          */
         $path = $this->substituteVariables($path);
+
+        /*
+         * Normalize everything relative to root so /my/path will return:
+         * my/path since root is always implied.
+         */
+        if (strlen($path) > 1 && $path[0] === '/')
+        {
+            // Skip over first '/'
+            $path = substr($path, 1);
+        }
 
         // Parse folder path
         $folderNames = explode("/", $path);
@@ -169,9 +310,9 @@ class FileSystem
             $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
 
             // If the folder exists add it and continue
-            if ($nextFolder->getId())
+            if ($nextFolder && $nextFolder->getId())
             {
-                $folders[] = $lastFolder;
+                $folders[] = $nextFolder;
             }
             else if ($createIfMissing)
             {
@@ -215,7 +356,7 @@ class FileSystem
         // Get email attechments directory for a user
         $retval = str_replace(
             "%emailattachments%",
-            "/System/Users/".$this->user->getId() . "/System/Email Attachments",
+            "/System/Users/" . $this->user->getId() . "/System/Email Attachments",
             $retval
         );
 

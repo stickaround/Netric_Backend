@@ -23,6 +23,20 @@ class FileTest extends PHPUnit_Framework_TestCase
      */
     private $user = null;
 
+    /**
+     * Test files
+     *
+     * @var Entity\ObjType\File[]
+     */
+    private $testFiles = array();
+
+    /**
+     * Entity DataMapper for creating, updating, and deleting files entities
+     *
+     * @var Entity\DataMapperInterface
+     */
+    private $entityDataMapper = null;
+
 
     /**
      * Setup each test
@@ -30,7 +44,20 @@ class FileTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->entityDataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
         $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+    }
+
+    /**
+     * Clean-up and test files
+     */
+    protected function tearDown()
+    {
+        foreach ($this->testFiles as $file)
+        {
+            if ($file->getId())
+                $this->entityDataMapper->delete($file, true);
+        }
     }
 
     /**
@@ -41,4 +68,34 @@ class FileTest extends PHPUnit_Framework_TestCase
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("file");
         $this->assertInstanceOf('\Netric\Entity\ObjType\File', $entity);
     }
+
+    /**
+     * Verity that hard deleting a file purges from the file store
+     */
+    public function testOnDeleteHard()
+    {
+        $fileStore = $this->account->getServiceManager()->get("Netric/FileSystem/FileStore/FileStore");
+
+        // Create a new file & upload data
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $file = $loader->create("file");
+        $file->setValue("name", "test.txt");
+        $this->entityDataMapper->save($file);
+        $this->testFiles[] = $file;;
+
+        // Write data to the file
+        $fileStore->writeFile($file, "my test data");
+        $this->assertTrue($fileStore->fileExists($file));
+
+        // Open a copy to check the store later since the DataMapper will zero out $file
+        $fileCopy = $loader->create("file");
+        $this->entityDataMapper->getById($fileCopy, $file->getId());
+
+        // Purge the file -- second param is a delete hard param
+        $this->entityDataMapper->delete($file, true);
+
+        // Test to make sure the data was deleted
+        $this->assertFalse($fileStore->fileExists($fileCopy));
+    }
+
 }
