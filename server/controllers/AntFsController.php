@@ -168,7 +168,29 @@ class AntFsController extends Controller
 
 		if ($folder)
 		{
-			foreach($_FILES as $tagname=>$file)
+			// Check if the posted files are coming from the new client/web which uses the FormData
+			if(isset($_FILES['uploadedFiles']))
+			{
+				$uploadedFiles = array();
+
+				// Map the uploadedFiles and mimic the structure of the normal $_FILES
+				foreach($_FILES['uploadedFiles'] as $type=>$fileData)
+				{
+					// Get the actual data of the uploaded files.
+					foreach($fileData as $idx=>$data)
+					{
+						$uploadedFiles[$idx][$type] = $data;
+					}
+				}
+			}
+			else
+			{
+
+				// If data is posted from the old flash uploader, then just pass the $_FILES to the $uploadedFiles variable
+				$uploadedFiles = $_FILES;
+			}
+
+			foreach($uploadedFiles as $tagname=>$file)
 			{
 				// First move to ANT tmp.
 				// This is mostly for security to this function always handles uploaded files
@@ -177,10 +199,10 @@ class AntFsController extends Controller
 				if (!file_exists($tmpFolder))
 					@mkdir($tmpFolder, 0777);
 				$tmpFile = tempnam($tmpFolder, "up");
-				move_uploaded_file($file['tmp_name'][0], $tmpFile);
+				move_uploaded_file($file['tmp_name'], $tmpFile);
 
 				// Import into AntFs
-				$file = $folder->importFile($tmpFile, $file["name"][0], $params['fileid']);
+				$file = $folder->importFile($tmpFile, $file["name"], $params['fileid']);
 				if ($file)
 					$ret[] = array("id"=>$file->id, "name"=>$file->getValue("name"), "ts_updated"=>$file->getValue("ts_updated"));
 				else
