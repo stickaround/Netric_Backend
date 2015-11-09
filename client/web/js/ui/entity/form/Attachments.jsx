@@ -29,7 +29,19 @@ var Attachments = React.createClass({
          * controller requires the view and the view requires the controller
          */
         var FileUploadController = require("../../../controller/FileUploadController");
+        var File = require("../../../entity/definition/File");
         var fileUpload = new FileUploadController();
+
+        /*
+         * sample code to include existing files in the file upload component
+        var sampleFile = new File({
+            id: 30,
+            name: 'composer_phar_error.png'
+        })
+        */
+
+        fileUpload.addFile(sampleFile);
+
         fileUpload.load({
             type: controller.types.DIALOG,
             title: "Attach Files"

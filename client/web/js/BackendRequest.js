@@ -154,7 +154,12 @@ BackendRequest.prototype.send = function(urlPath, opt_method, opt_content) {
 	// Fire error event
 	events.listen(xhr, "error", function(evt) {
 		// There was a problem loading the data
-		events.triggerEvent(request, "error");
+		events.triggerEvent(request, "error", evt.data);
+	});
+
+	// Fire error event
+	events.listen(xhr, "progress", function(evt) {
+		events.triggerEvent(request, "progress", evt.data);
 	});
 
 	// Send session token
