@@ -38,10 +38,11 @@ var Attachments = React.createClass({
             id: 30,
             name: 'composer_phar_error.png'
         })
-        */
+
 
         fileUpload.addFile(sampleFile);
-
+         */
+        
         fileUpload.load({
             type: controller.types.DIALOG,
             title: "Attach Files"

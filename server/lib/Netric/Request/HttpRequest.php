@@ -35,11 +35,14 @@ class HttpRequest implements RequestInterface
 	 */
 	public function __construct()
 	{
-		if (function_exists("apache_request_headers"))
-			$headers = \apache_request_headers();
-		else
-			$headers = array();
+		$headers = (function_exists("apache_request_headers"))
+			 ? \apache_request_headers()
+			 : $headers = array();
 
+		// Add uploaded files
+		$this->params['files'] = (isset($_FILES) && count($_FILES)) ? $_FILES : array();
+
+		// Combine all sources of request data
 		$this->httpStores = array(
 			$headers, $_COOKIE, $_POST, $_GET, $this->params,
 		);
@@ -51,6 +54,7 @@ class HttpRequest implements RequestInterface
 	 * Get a request param by name
 	 *
 	 * @param string $name The name of the param to get
+	 * @return string|array The value of the named param
 	 */
 	public function getParam($name)
 	{

@@ -4,18 +4,59 @@
  *
  * Name: file
  */
-$obj_revision = 20;
+$obj_revision = 21;
 $icon = "file";
 $parentField = "folder_id";
 
-$obj_fields = array();
-$obj_fields['name']	= array('title'=>'Name', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false);
-$obj_fields['file_size'] = array('title'=>'Size', 'type'=>'number', 'subtype'=>'', 'readonly'=>true);
-$obj_fields['filetype']	= array('title'=>'Name', 'type'=>'text', 'subtype'=>'32', 'readonly'=>true);
+$obj_fields = array(
+	'name' => array(
+		'title'=>'Name',
+		'type'=>'text',
+		'subtype'=>'512',
+		'readonly'=>false,
+	),
 
-// Data storage fields
-$obj_fields['dat_local_path'] = array('title'=>'Lcl Path', 'type'=>'text', 'subtype'=>'', 'readonly'=>true);
-$obj_fields['dat_ans_key'] = array('title'=>'ANS Key', 'type'=>'text', 'subtype'=>'', 'readonly'=>true);
+	// Size in bytes
+	'file_size' => array(
+		'title'=>'Size',
+		'type'=>'number',
+		'subtype'=>'',
+		'readonly'=>true,
+	),
+
+	// The filetype extension
+	'filetype' => array(
+		'title'=>'Name',
+		'type'=>'text',
+		'subtype'=>'32',
+		'readonly'=>true,
+	),
+
+	// where the file is stored in the storage engine
+	'storage_path' => array(
+		'title'=>'Storage Path',
+		'type'=>'text',
+		'subtype'=>'',
+		'readonly'=>true,
+	),
+
+	// Deprecated - path to local file on server
+	'dat_local_path' => array(
+		'title'=>'Lcl Path',
+		'type'=>'text',
+		'subtype'=>'',
+		'readonly'=>true,
+	),
+
+	// Deprecated - key used on ANS server
+	'dat_ans_key' => array(
+		'title'=>'ANS Key',
+		'type'=>'text',
+		'subtype'=>'',
+		'readonly'=>true,
+	),
+
+);
 
 // Timestamps
 $default = array("value"=>"now", "on"=>"update");

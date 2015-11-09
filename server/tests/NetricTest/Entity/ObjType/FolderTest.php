@@ -33,6 +33,21 @@ class FolderTest extends PHPUnit_Framework_TestCase
         $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
     }
 
+    private function createTestFile()
+    {
+        $account = \NetricTest\Bootstrap::getAccount();
+        $loader = $account->getServiceManager()->get("EntityLoader");
+        $dataMapper = $this->getEntityDataMapper();
+
+        $file = $loader->create("file");
+        $file->setValue("name", "test.txt");
+        $dataMapper->save($file);
+
+        $this->testFiles[] = $file;
+
+        return $file;
+    }
+
     /**
      * Test dynamic factory of entity
      */

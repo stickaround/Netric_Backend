@@ -23,6 +23,12 @@ class FileSystemFactory implements ServiceManager\ServiceFactoryInterface
      */
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
-        return new FileSystem();
+        $fileStore = $sl->get('Netric\FileSystem\FileStore\FileStore');
+        $user = $sl->getAccount()->getUser();
+        $entityLoader = $sl->get("EntityLoader");
+        $dataMapper = $sl->get("Entity_DataMapper");
+        $entityIndex = $sl->get("EntityQuery_Index");
+
+        return new FileSystem($fileStore, $user, $entityLoader, $dataMapper, $entityIndex);
     }
 }
