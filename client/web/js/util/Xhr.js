@@ -157,8 +157,13 @@ Xhr.prototype.send = function(urlPath, opt_method, opt_content)
             // Clear response
             xhr.response_ = null;
 
+            var error = {
+                textStatus: textStatus,
+                errorThrown: errorThrown,
+            }
+
             // Trigger load events for any listeners
-            events.triggerEvent(xhr, "error");
+            events.triggerEvent(xhr, "error", error);
 
             // No longer in progress of course
             xhr.isInProgress_ = false;
@@ -168,12 +173,13 @@ Xhr.prototype.send = function(urlPath, opt_method, opt_content)
             var myXhr = $.ajaxSettings.xhr();
 
             if(myXhr.upload){
-                events.listen(myXhr, "progress", function(evt) {
+                events.listen(myXhr.upload, "progress", function(evt) {
                     if (evt.lengthComputable) {
                         var percentComplete = (evt.loaded / evt.total) * 100;
+
                         // Trigger load events for any listeners
                         events.triggerEvent(xhr, "progress", {
-                            percentComplete: percentComplete,
+                            percentComplete: Math.round(percentComplete),
                             loaded: evt.loaded,
                             total: evt.total
                         });

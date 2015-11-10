@@ -25,7 +25,6 @@ var browserViewSaver = {
         }
             
         var data = browserView.getData();
-        var saverObj = this; // Create a reference to this for tricky callbacks
             
         // If we are connected
         if (netric.server.online) {
