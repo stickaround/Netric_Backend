@@ -5,6 +5,7 @@
 namespace Netric;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\FileSystem\FileSystem;
 
 class Entity implements \Netric\Entity\EntityInterface
 {
@@ -549,11 +550,36 @@ class Entity implements \Netric\Entity\EntityInterface
 	}
 
 	/**
+	 * The datamapper will call this just before the entity is saved
+	 *
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 */
+	public function beforeSave(ServiceLocatorInterface $sm)
+	{
+		// Call derived extensions
+		$this->onBeforeSave($sm);
+	}
+
+	/**
 	 * Callback function used for derrived subclasses
 	 *
 	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
 	public function onBeforeSave(ServiceLocatorInterface $sm) { }
+
+	/**
+	 * The datamapper will call this just after the entity is saved
+	 *
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 */
+	public function afterSave(ServiceLocatorInterface $sm)
+	{
+		// Process any temp files or attachments associated with this entity
+		$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
+
+		// Call derived extensions
+		$this->onAfterSave($sm);
+	}
 
 	/**
 	 * Callback function used for derrived subclasses
@@ -563,11 +589,33 @@ class Entity implements \Netric\Entity\EntityInterface
 	public function onAfterSave(ServiceLocatorInterface $sm) { }
 
 	/**
+	 * The datamapper will call this just before an entity is purged -- hard delete
+	 *
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 */
+	public function beforeDeleteHard(ServiceLocatorInterface $sm)
+	{
+		// Call derived extensions
+		$this->onBeforeDeleteHard($sm);
+	}
+
+	/**
 	 * Callback function used for derrived subclasses
 	 *
 	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
 	 */
 	public function onBeforeDeleteHard(ServiceLocatorInterface $sm) { }
+
+	/**
+	 * The datamapper will call this just after an entity is purged -- hard delete
+	 *
+	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 */
+	public function afterDeleteHard(ServiceLocatorInterface $sm)
+	{
+		// Call derived extensions
+		$this->onAfterDeleteHard($sm);
+	}
 
 	/**
 	 * Callback function used for derrived subclasses
@@ -784,6 +832,59 @@ class Entity implements \Netric\Entity\EntityInterface
 		}
 		else
 			return false;
+	}
+
+	/**
+	 * Process temporary file uploads and move them into the object folder
+	 *
+	 * Files are initially uploaded by users into the temp directory and then
+	 * the fileId is set in the field. When we save we need to check if any of
+	 * the referenced files are in temp and move them to the object directory
+	 * because everything in temp get's purged after a period of time.
+	 *
+	 * @param FileSystem $fileSystem Handle to the netric filesystem service
+	 */
+	public function processTempFiles(FileSystem $fileSystem)
+	{
+		$fields = $this->def->getFields();
+		foreach ($fields as $field)
+		{
+			if (($field->type === "object" || $field->type === "object_multi") &&
+				$field->subtype === "file")
+			{
+				// Only process if the value has changed since last time
+				if ($this->fieldValueChanged($field->name))
+				{
+					// Make a files array - if it's an object than an array of one
+					$files = ($field->type == "object") ?
+						array($this->getValue($field->name)) :
+						$this->getValue($field->name);
+
+					if (is_array($files))
+					{
+						foreach ($files as $fid)
+						{
+							$file = $fileSystem->openFileById($fid);
+
+							// Check to see if the file is a temp file
+							if ($file)
+							{
+								if ($fileSystem->fileIsTemp($file))
+								{
+									// Move file to a permanent directory
+									$objDir = "/System/objects/" . $this->def->getObjType() . "/" . $this->getId();
+									$fldr = $fileSystem->openFolder($objDir, true);
+									if ($fldr->getId())
+									{
+										$fileSystem->moveFile($file, $fldr);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 }

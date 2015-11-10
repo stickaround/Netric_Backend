@@ -217,6 +217,11 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         $this->testFolders[] = $this->fileSystem->openFolder("/testOpenFileById");
     }
 
+    public function testOpenFile()
+    {
+
+    }
+
     /**
      * Make sure we can convert bytes to human readable text like 1,000 to 1k
      */
@@ -253,6 +258,18 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->fileSystem->folderExists($testPath));
     }
 
+    public function testFileExists()
+    {
+        $file = $this->fileSystem->fileExists("/", "missingfile.txt");
+        $this->assertFalse($file);
+
+        // Create the missing file
+        $file = $this->fileSystem->createFile("/", "presentfile.txt", true);
+        $this->testFiles[] = $file; // Cleanup
+        $this->assertNotNull($file);
+        $this->assertFalse(empty($file->getId()));
+    }
+
     public function testDeleteFile()
     {
         $testFile = $this->entityLoader->create("file");
@@ -283,5 +300,67 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
         // Make sure this does not exist any more
         $this->assertFalse($this->fileSystem->folderExists("/testDeleteFolder"));
+    }
+
+    public function testFileIsTemp()
+    {
+        $fldr = $this->fileSystem->openFolder("%tmp%", true);
+        $this->assertNotNull($fldr->getId());
+
+        // Third param is overwrite = true
+        $file = $this->fileSystem->createFile("%tmp%", "test", true);
+        $this->testFiles[] = $file;
+
+        // Test
+        $this->assertTrue($this->fileSystem->fileIsTemp($file));
+
+        // Move then test again
+        $fldr = $this->fileSystem->openFolder("/testFileIsTemp", true);
+        $this->testFolders[] = $fldr; // For cleanup
+        $this->fileSystem->moveFile($file, $fldr);
+        $this->assertFalse($this->fileSystem->fileIsTemp($file));
+    }
+
+    public function testCreateFile()
+    {
+        // Try making a new file
+        $file = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", true);
+        $this->testFiles[] = $file; // For cleanup
+        $this->assertNotNull($file->getId());
+
+        // Now try creating same file without overwrite - causes an error
+        $file2 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", false);
+        $this->assertNull($file2);
+        $this->assertNotNull($this->fileSystem->getLastError());
+
+        // Overwrite the old file with a new one
+        $file3 = $this->fileSystem->createFile("%tmp%", "testCreateFile.txt", true);
+        $this->testFiles[] = $file3;
+        $this->assertNotNull($file3->getId());
+        $this->assertNotEquals($file->getId(), $file3->getId());
+    }
+
+    public function testMoveFile()
+    {
+        // Try making a new file
+        $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
+        $this->testFiles[] = $file; // For cleanup
+        $this->assertNotNull($file->getId());
+
+        $fldr = $this->fileSystem->openFolder("/testFileMove", true);
+        $this->testFolders[] = $fldr;
+        $this->fileSystem->moveFile($file, $fldr);
+
+        // Test to make sure it has moved
+        $this->assertEquals($fldr->getId(), $file->getValue("folder_id"));
+    }
+
+    public function testWriteAndReadFile()
+    {
+        $testData = "test data";
+
+        $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
+        $this->fileSystem->writeFile($file, $testData);
+        $this->assertEquals($testData, $this->fileSystem->readFile($file));
     }
 }

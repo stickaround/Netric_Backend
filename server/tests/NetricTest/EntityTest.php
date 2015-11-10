@@ -107,4 +107,12 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($cust->getValueName("owner_id"), $data["owner_id_fval"][$data["owner_id"]]);
 		$this->assertEquals($cust->getValue("f_nocall"), $data["f_nocall"]);
 	}
+
+	/**
+	 * Test processing temp files
+	 */
+	public function testProcessTempFiles()
+	{
+		// TODO: set a file field to a temp file and see if it moves
+	}
 }

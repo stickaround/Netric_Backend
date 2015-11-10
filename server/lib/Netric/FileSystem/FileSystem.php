@@ -138,9 +138,20 @@ class FileSystem implements Error\ErrorAwareInterface
         return ($result) ? $file : null;
     }
 
-    public function openFile($path)
+    /**
+     * Open a file by fileName and path
+     *
+     * @param $folderPath
+     * @param $fileName
+     * @return File|null
+     */
+    public function openFile($folderPath, $fileName)
     {
-
+        $folder = $this->openFolder($folderPath);
+        if ($folder)
+            return $this->getChildFileByName($fileName, $folder);
+        else
+            return null;
     }
 
     /**
@@ -192,6 +203,10 @@ class FileSystem implements Error\ErrorAwareInterface
         if (!$createIfMissing && ($path == "%tmp%" || $path == "%userdir%" || $path == "%home%"))
             $createIfMissing = true;
 
+        // Check if we are just trying to get root
+        if ($path === "/")
+            return $this->rootFolder;
+
         $folders = $this->splitPathToFolderArray($path, $createIfMissing);
 
         if ($folders)
@@ -225,6 +240,18 @@ class FileSystem implements Error\ErrorAwareInterface
     {
         $folders = $this->splitPathToFolderArray($path, false);
         return ($folders) ? true : false;
+    }
+
+    /**
+     * Check to see if a file exists in a given path
+     *
+     * @param string $folderPath The full path of the folder to look in
+     * @param string $fileName The name of the file in the folder path
+     * @return bool true if exists, otherwise false
+     */
+    public function fileExists($folderPath, $fileName)
+    {
+        return ($this->openFile($folderPath, $fileName)) ? true : false;
     }
 
     /**
@@ -275,6 +302,114 @@ class FileSystem implements Error\ErrorAwareInterface
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     * Determine if file is a temp file
+     *
+     * @param File $file The file to check
+     * @return bool true if a temp file, false if it is note in the temp directory
+     */
+    public function fileIsTemp(File $file)
+    {
+        if (!$file->getId())
+            return false;
+
+        $tempFolder = $this->openFolder("%tmp%");
+
+        if ($file->getValue("folder_id") == $tempFolder->getId())
+            return true;
+        else
+            return false;
+    }
+
+    /**
+     * Move a file to a new folder
+     *
+     * @param File $file The file to move
+     * @param Folder $toFolder The folder to move to
+     * @return bool true on success, false if failed
+     */
+    public function moveFile(File $file, Folder $toFolder)
+    {
+        if (!$file || !$toFolder || !$toFolder->getId())
+            return false;
+
+        // Change file to new folder
+        $file->setValue("folder_id", $toFolder->getId());
+        $this->entityDataMapper->save($file);
+
+        return true;
+    }
+
+    /**
+     * Easy way to create a new empty file in a directory
+     *
+     * Example:
+     *  $fileSystem->createFile('myfilename.txt', '/my/full/path');
+     *
+     * @param string $fileName
+     * @param string $folderPath Defaults to temp directory initially if not set
+     * @param bool $overwriteIfExists If the file already exists overwrite
+     * @return File The created file or null if there was a problem -- call getLastError for details
+     */
+    public function createFile($folderPath, $fileName, $overwriteIfExists = false)
+    {
+        $folder = $this->openFolder($folderPath);
+        $fullFolderPath = $folder->getFullPath();
+
+        // First check to see if the file already exists
+        $existingFile = $this->openFile($fullFolderPath, $fileName);
+        if ($existingFile)
+        {
+            if ($overwriteIfExists)
+            {
+                $this->deleteFile($existingFile);
+            }
+            else
+            {
+                $this->errors[] = new Error\Error("File $fileName already exists in $folderPath");
+                return null;
+            }
+        }
+
+        // Create the new empty file
+        $file = $this->entityLoader->create("file");
+        $file->setValue("name", $fileName);
+        $file->setValue("folder_id", $folder->getId());
+        $file->setValue("name", $this->escapeFilename($fileName));
+        $file->setValue("owner_id", $this->user->getId());
+        $file->setValue("file_size", 0);
+        $this->entityDataMapper->save($file);
+
+        return $file;
+    }
+
+    /**
+     * Write data to a file
+     *
+     * @param File $file The meta-data Entity for this file
+     * @param mixed $data Binary data to write
+     * @param bool $append If false then file will be overwritten
+     * @return int number of bytes written
+     */
+    public function writeFile($file, $data, $append = true)
+    {
+        // TODO: add append to fileStore->writeFile
+        $this->fileStore->writeFile($file, $data);
+    }
+
+    /**
+     * Read and return numBypes (or all) of a file
+     *
+     * @param File $file The meta-data Entity for this file
+     * @param null $numBytes Number of bytes, if null then return while file
+     * @param null $offset Starting offset, defaults to current pointer
+     * @return mixed
+     */
+    public function readFile(File $file, $numBytes = null, $offset = null)
+    {
+        return $this->fileStore->readFile($file, $numBytes, $offset);
     }
 
     /**
@@ -400,6 +535,27 @@ class FileSystem implements Error\ErrorAwareInterface
     }
 
     /**
+     * Get a child file by name
+     *
+     * @param string $fileName The name of the file to look for
+     * @param Folder $parentFolder The folder that contains a child folder named $name
+     * @return Folder|null
+     */
+    private function getChildFileByName($fileName, Folder $parentFolder)
+    {
+        $query = new EntityQuery("file");
+        $query->where("folder_id")->equals($parentFolder->getId());
+        $query->andWhere("name")->equals($fileName);
+        $result = $this->entityIndex->executeQuery($query);
+        if ($result->getNum())
+        {
+            return $result->getEntity();
+        }
+
+        return null;
+    }
+
+    /**
      * Get the root folder entity for this account
      */
     private function setRootFolder()
@@ -426,5 +582,16 @@ class FileSystem implements Error\ErrorAwareInterface
             // Now set it for later reference
             $this->rootFolder = $rootFolder;
         }
+    }
+
+    /**
+     * Replaces the special characters with blank
+     *
+     * @param string $filename Name of the file to escape
+     * @return string Escaped file name
+     */
+    private function escapeFilename($filename)
+    {
+        return  preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $filename);
     }
 }

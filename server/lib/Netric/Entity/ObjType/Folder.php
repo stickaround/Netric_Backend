@@ -70,7 +70,7 @@ class Folder extends \Netric\Entity implements \Netric\Entity\EntityInterface
         {
             return $path;
         }
-        else if ($this->getValue("parent_id"))
+        else if (!$this->getValue("parent_id"))
         {
             // This condition should never happen, but just in case
             // TODO: throw exception?

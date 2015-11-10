@@ -164,9 +164,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $user = $this->getAccount()->getUser();
         $entity->setFieldsDefault($event, $user);
 
-		// Call onBeforeSave
+		// Call beforeSave
 		if ($this->getAccount()->getServiceManager())
-			$entity->onBeforeSave($this->getAccount()->getServiceManager());
+			$entity->beforeSave($this->getAccount()->getServiceManager());
 
 		// Save data to DataMapper implementation
 		$ret = $this->saveData($entity);
@@ -193,7 +193,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 		// Call onAfterSave
 		if ($this->getAccount()->getServiceManager())
-			$entity->onAfterSave($this->getAccount()->getServiceManager());
+			$entity->afterSave($this->getAccount()->getServiceManager());
 
 		// Reset dirty flag and changelog
 		$entity->resetIsDirty();
@@ -240,15 +240,15 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// Determine if we are flagging the entity as deleted or actually purging
 		if ($entity->getValue("f_deleted") || $forceHard)
 		{
-			// Call onBeforeDeleteHard so the entity can do any pre-purge operations
+			// Call beforeDeleteHard so the entity can do any pre-purge operations
 			if ($this->getAccount()->getServiceManager())
-				$entity->onBeforeDeleteHard($this->getAccount()->getServiceManager());
+				$entity->beforeDeleteHard($this->getAccount()->getServiceManager());
 
 			$ret = $this->deleteHard($entity);
 
 			// Call onBeforeDeleteHard so the entity can do any post-purge operations
 			if ($this->getAccount()->getServiceManager())
-				$entity->onAfterDeleteHard($this->getAccount()->getServiceManager());
+				$entity->afterDeleteHard($this->getAccount()->getServiceManager());
 
 			// Delete from EntityCollection_Index
 			//if ($this->getServiceLocator())
