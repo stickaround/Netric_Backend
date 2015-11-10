@@ -67,7 +67,7 @@ FileUploadController.prototype.objType = 'file';
  * @private
  * @type {Array}
  */
-FileUploadController.prototype.fileEntity = null;
+FileUploadController.prototype._entity = null;
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -155,6 +155,7 @@ FileUploadController.prototype._handleUploadFile = function (files, index, folde
             formData.append('path', escape(folder.path));
         }
 
+        // Create a new instance of the file object with the file entity defined
         var file = new File(this._entity);
         file.setValue('name', fileName);
 
