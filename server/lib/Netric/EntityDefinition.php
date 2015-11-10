@@ -570,6 +570,13 @@ class EntityDefinition
 				'readonly'=>true, 
 				'system'=>true, 
 			),
+			'attachments' => array(
+				'title'=>'Attachments',
+				'type'=>'object_multi',
+				'subtype'=>'file',
+				'readonly'=>true,
+				'system'=>true,
+			),
 			'activity' => array(
 				'title'=>'Activity', 
 				'type'=>'object_multi', 
