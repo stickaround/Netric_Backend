@@ -12,6 +12,7 @@
 var BackendRequest = require("../BackendRequest");
 var events = require("../util/events")
 var nertic = require("../base");
+var log = require("../log");
 
 var FileUploader = {
     /**
@@ -29,6 +30,8 @@ var FileUploader = {
             throw "File data should be defined";
         }
 
+        var errorText = "Error on uploading the file: There was a problem contacting the server";
+
         // If we are connected
         if (netric.server.online) {
             var request = new BackendRequest();
@@ -42,9 +45,6 @@ var FileUploader = {
 
             // Error callback
             events.listen(request, "error", function(evt) {
-
-                var errorText = "Error on uploading the file: There was a problem contacting the server";
-
                 if(opt_errorCallback) {
                     evt.errorText = errorText;
                     opt_errorCallback(evt);
@@ -64,42 +64,14 @@ var FileUploader = {
             request.setDataIsForm(true);
             request.send("controller/AntFs/upload", 'POST', data);
 
-        }
-    },
+        } else {
+            var error = {errorText: errorText}
 
-    /**
-     * Removes file to the server
-     *
-     * @param {int} fileId                      The id of the file to be removed
-     * @param {function} opt_finishedCallback   Optional callback to call when the file is already removed from the server
-     * @public
-     */
-    remove: function(fileId, opt_finishedCallback) {
-        if (!fileId) {
-            throw "FileId should be defined";
-        }
+            if(opt_errorCallback) {
+                opt_errorCallback(error);
+            }
 
-        var data = new FormData();
-        data.append('fid', fileId);
-
-        // If we are connected
-        if (netric.server.online) {
-            var request = new BackendRequest();
-
-            // Success callback
-            events.listen(request, "load", function(evt) {
-                if(opt_finishedCallback) {
-                    opt_finishedCallback(this.getResponse());
-                }
-            });
-
-            // Error callback
-            events.listen(request, "error", function(evt) {
-                throw "Error removing the file: There was a problem contacting the server";
-            });
-
-            request.setDataIsForm(true);
-            request.send("controller/UserFile/deleteFileId", 'POST', data);
+            log.notice(error);
         }
     },
 

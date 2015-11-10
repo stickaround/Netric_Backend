@@ -11,7 +11,7 @@
 /**
  * Creates an instance of File
  *
- * @param {entity/Enity} entity     The entity definition of the file object
+ * @param {entity/Entity} entity     The entity definition of the file object
  * @constructor
  */
 var File = function (entity) {
@@ -22,7 +22,7 @@ var File = function (entity) {
      * @private
      * @type {netric.entity.Entity}
      */
-    this._entity = entity;
+    this._fileEntity = entity;
 
     /**
      * The download url link of the file
@@ -61,7 +61,7 @@ var File = function (entity) {
  * @param {mixed} value The value to set the field to
  */
 File.prototype.setValue = function (name, value) {
-    this._entity.setValue(name, value);
+    this._fileEntity.setValue(name, value);
 }
 
 /**
@@ -71,7 +71,7 @@ File.prototype.setValue = function (name, value) {
  * @param {string} name The unique name of the field to get the value for
  */
 File.prototype.getValue = function (name) {
-    return this._entity.getValue(name);
+    return this._fileEntity.getValue(name);
 }
 
 module.exports = File;

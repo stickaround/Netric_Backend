@@ -34,12 +34,6 @@ var FileUpload = React.createClass({
         }
     },
 
-    componentDidMount: function () {
-        if (this.props.uploadedFiles.length == 0) {
-            this._handleShowUpload();
-        }
-    },
-
     render: function () {
         var displayFiles = [];
 

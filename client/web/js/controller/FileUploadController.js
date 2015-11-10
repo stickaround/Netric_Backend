@@ -36,14 +36,6 @@ netric.inherits(FileUploadController, AbstractController);
 FileUploadController.prototype._rootReactNode = null;
 
 /**
- * The entity of the file object
- *
- * @private
- * @type {netric.entity.Entity}
- */
-File.prototype._entity = null;
-
-/**
  * The files that are already uploded
  * Should contain the collection of File instances (entity/definition/File)
  *
@@ -61,13 +53,12 @@ FileUploadController.prototype._uploadedFiles = [];
 FileUploadController.prototype.objType = 'file';
 
 /**
- * The files that are already uploded
- * Should contain the collection of File instances (entity/definition/File)
+ * The entity of the file object
  *
  * @private
  * @type {Array}
  */
-FileUploadController.prototype._entity = null;
+FileUploadController.prototype._fileEntity = null;
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -78,10 +69,10 @@ FileUploadController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
-    // Load the entity and get a promised entity back
+    // Create an empty file entity
     entityLoader.factory(this.objType, function (ent) {
 
-        this._entity = ent;
+        this._fileEntity = ent;
 
         if (callbackWhenLoaded) {
             callbackWhenLoaded();
@@ -128,24 +119,24 @@ FileUploadController.prototype.render = function () {
 /**
  * Handles the uploading of files.
  *
- * @param {object} file     File to be uploaded
- * @param {int} index       Index of the current file to be uploaded
- * @param {array} folder    Collection of folder data used to save the files
+ * @param {array} queuedFiles      Collection of files to be uploaded
+ * @param {int} index              Index of the current file to be uploaded
+ * @param {object} folder          Data of the folder to be used to save the files
  *
  * @private
  */
-FileUploadController.prototype._handleUploadFile = function (files, index, folder) {
+FileUploadController.prototype._handleUploadFile = function (queuedFiles, index, folder) {
 
     // Check if the index is existing in the files collection
-    if (files[index]) {
+    if (queuedFiles[index]) {
 
         // Get the File Instance
         var fileIndex = this._uploadedFiles.length;
-        var fileName = files[index].name;
+        var fileName = queuedFiles[index].name;
 
         // Set the formData to be posted in the server
         var formData = new FormData();
-        formData.append('uploadedFiles[]', files[index], fileName);
+        formData.append('uploadedFiles[]', queuedFiles[index], fileName);
 
         if (folder.id) {
             formData.append('folderid', folder.id);
@@ -156,7 +147,7 @@ FileUploadController.prototype._handleUploadFile = function (files, index, folde
         }
 
         // Create a new instance of the file object with the file entity defined
-        var file = new File(this._entity);
+        var file = new File(this._fileEntity);
         file.setValue('name', fileName);
 
         // Add the file in the uploadedFiles[] array
@@ -176,7 +167,7 @@ FileUploadController.prototype._handleUploadFile = function (files, index, folde
             this.render();
 
             // Continue to the next upload file if there's any
-            this._handleUploadFile(files, index + 1, folder);
+            this._handleUploadFile(queuedFiles, index + 1, folder);
         }.bind(this);
 
         // Re render the fileupload and display the error
@@ -185,7 +176,7 @@ FileUploadController.prototype._handleUploadFile = function (files, index, folde
             this.render();
 
             // Continue to the next upload file if there's any
-            this._handleUploadFile(files, index + 1, folder);
+            this._handleUploadFile(queuedFiles, index + 1, folder);
         }.bind(this);
 
         // Upload the file to the server
