@@ -26,7 +26,7 @@ var FileUpload = React.createClass({
         getFileUrl: React.PropTypes.func
     },
 
-    getDefaultProps: function() {
+    getDefaultProps: function () {
         return {
             folderId: null,
             currentPath: '%tmp%',
@@ -34,21 +34,21 @@ var FileUpload = React.createClass({
         }
     },
 
-    componentDidMount: function() {
-        if(this.props.uploadedFiles.length == 0) {
+    componentDidMount: function () {
+        if (this.props.uploadedFiles.length == 0) {
             this._handleShowUpload();
         }
     },
 
-    render: function() {
+    render: function () {
         var displayFiles = [];
 
-        for(var idx in this.props.uploadedFiles) {
+        for (var idx in this.props.uploadedFiles) {
             var file = this.props.uploadedFiles[idx];
 
             // If file is already existing in the server and url is not then lets try to get it from the server
-            if(!file.url && !file.urlLoaded && file.id) {
-                if(this.props.getFileUrl) this.props.getFileUrl(idx);
+            if (!file.url && !file.urlLoaded && file.getValue('id')) {
+                if (this.props.getFileUrl) this.props.getFileUrl(idx);
             }
 
             displayFiles.push(<File
@@ -61,13 +61,13 @@ var FileUpload = React.createClass({
 
         return (
             <div>
-                <FlatButton label={this.props.title} onClick={this._handleShowUpload} />
+                <FlatButton label={this.props.title} onClick={this._handleShowUpload}/>
                 <input
                     type='file'
                     ref='inputFile'
                     onChange={this._handleFileUpload}
                     multiple
-                    style={{display: 'none'}} />
+                    style={{display: 'none'}}/>
                 {displayFiles}
             </div>
         );
@@ -79,7 +79,7 @@ var FileUpload = React.createClass({
      * @param {DOMEvent} e      Reference to the DOM event being sent
      * @private
      */
-    _handleShowUpload: function(e) {
+    _handleShowUpload: function (e) {
         ReactDOM.findDOMNode(this.refs.inputFile).click();
     },
 
@@ -89,8 +89,8 @@ var FileUpload = React.createClass({
      * @param {DOMEvent} e      Reference to the DOM event being sent
      * @private
      */
-    _handleFileUpload: function(e) {
-        if(this.props.onUpload) {
+    _handleFileUpload: function (e) {
+        if (this.props.onUpload) {
             var folder = {
                 id: this.props.folderId,
                 path: this.props.currentPath

@@ -12,12 +12,15 @@ var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiFileUpload = require("../ui/fileupload/FileUpload.jsx");
 var fileUploader = require("../entity/fileUploader");
-var File = require("../entity/definition/File");
+var entityLoader = require("../entity/loader");
+var entitySaver = require("../entity/saver");
+var File = require("../entity/fileupload/File");
 
 /**
  * Controller that loads a File Upload Component
  */
-var FileUploadController = function() {}
+var FileUploadController = function () {
+}
 
 /**
  * Extend base controller class
@@ -30,7 +33,15 @@ netric.inherits(FileUploadController, AbstractController);
  * @private
  * @type {ReactElement}
  */
-FileUploadController.prototype.rootReactNode_ = null;
+FileUploadController.prototype._rootReactNode = null;
+
+/**
+ * The entity of the file object
+ *
+ * @private
+ * @type {netric.entity.Entity}
+ */
+File.prototype._entity = null;
 
 /**
  * The files that are already uploded
@@ -42,25 +53,50 @@ FileUploadController.prototype.rootReactNode_ = null;
 FileUploadController.prototype._uploadedFiles = [];
 
 /**
+ * The name of the object type we are working with
+ *
+ * @public
+ * @type {string}
+ */
+FileUploadController.prototype.objType = 'file';
+
+/**
+ * The files that are already uploded
+ * Should contain the collection of File instances (entity/definition/File)
+ *
+ * @private
+ * @type {Array}
+ */
+FileUploadController.prototype.fileEntity = null;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-FileUploadController.prototype.onLoad = function(opt_callback) {
+FileUploadController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
-    if (callbackWhenLoaded) {
-        callbackWhenLoaded();
-    } else {
-        this.render();
-    }
+    // Load the entity and get a promised entity back
+    entityLoader.factory(this.objType, function (ent) {
+
+        this._entity = ent;
+
+        if (callbackWhenLoaded) {
+            callbackWhenLoaded();
+        } else {
+            this.render();
+        }
+    }.bind(this));
+
+
 }
 
 /**
  * Render this controller into the dom tree
  */
-FileUploadController.prototype.render = function() {
+FileUploadController.prototype.render = function () {
 
     // Set outer application container
     var domCon = this.domNode_;
@@ -71,19 +107,19 @@ FileUploadController.prototype.render = function() {
         currentPath: this.props.currentPath,
         folderId: this.props.folderId,
         uploadedFiles: this._uploadedFiles,
-        onUpload: function(file, index, folder) {
+        onUpload: function (file, index, folder) {
             this._handleUploadFile(file, index, folder)
         }.bind(this),
-        onRemove: function(index) {
+        onRemove: function (index) {
             this._handleRemoveFile(index)
         }.bind(this),
-        getFileUrl: function(index) {
+        getFileUrl: function (index) {
             this._getFileUrl(index)
         }.bind(this)
     }
 
     // Render browser component
-    this.rootReactNode_ = ReactDOM.render(
+    this._rootReactNode = ReactDOM.render(
         React.createElement(UiFileUpload, data),
         domCon
     );
@@ -98,54 +134,57 @@ FileUploadController.prototype.render = function() {
  *
  * @private
  */
-FileUploadController.prototype._handleUploadFile = function(files, index, folder) {
+FileUploadController.prototype._handleUploadFile = function (files, index, folder) {
 
     // Check if the index is existing in the files collection
-    if(files[index]) {
+    if (files[index]) {
 
         // Get the File Instance
-        var file = new File(files[index]);
         var fileIndex = this._uploadedFiles.length;
+        var fileName = files[index].name;
 
         // Set the formData to be posted in the server
         var formData = new FormData();
-        formData.append('uploadedFiles[]', files[index], file.name);
+        formData.append('uploadedFiles[]', files[index], fileName);
 
-        if(folder.id) {
+        if (folder.id) {
             formData.append('folderid', folder.id);
         }
 
-        if(folder.path) {
+        if (folder.path) {
             formData.append('path', escape(folder.path));
         }
+
+        var file = new File(this._entity);
+        file.setValue('name', fileName);
 
         // Add the file in the uploadedFiles[] array
         this._uploadedFiles[fileIndex] = file;
         this.render();
 
         // Re render the fileupload and display the progress of the upload
-        var funcProgress = function(evt) {
+        var funcProgress = function (evt) {
             this._uploadedFiles[fileIndex].progress = evt.data;
             this.render();
         }.bind(this);
 
         // Re render the fileUpload with the result of the uploaded files
-        var funcCompleted = function(result) {
-            this._uploadedFiles[fileIndex].id = result[0].id
+        var funcCompleted = function (result) {
+            this._uploadedFiles[fileIndex].setValue('id', result[0].id);
             this._getFileUrl(fileIndex);
             this.render();
 
             // Continue to the next upload file if there's any
-            this._handleUploadFile(files, index+1, folder);
+            this._handleUploadFile(files, index + 1, folder);
         }.bind(this);
 
         // Re render the fileupload and display the error
-        var funcError = function(evt) {
+        var funcError = function (evt) {
             this._uploadedFiles[fileIndex].progress.errorText = evt.errorText;
             this.render();
 
             // Continue to the next upload file if there's any
-            this._handleUploadFile(files, index+1, folder);
+            this._handleUploadFile(files, index + 1, folder);
         }.bind(this);
 
         // Upload the file to the server
@@ -160,15 +199,15 @@ FileUploadController.prototype._handleUploadFile = function(files, index, folder
  *
  * @private
  */
-FileUploadController.prototype._handleRemoveFile = function(index) {
+FileUploadController.prototype._handleRemoveFile = function (index) {
 
-    var funcCompleted = function(result) {
+    var funcCompleted = function (result) {
         this._uploadedFiles.splice(index, 1);
         this.render();
     }.bind(this);
 
     // Remove the file from the server
-    fileUploader.remove(this._uploadedFiles[index].id, funcCompleted);
+    entitySaver.remove(this.objType, this._uploadedFiles[index].getValue('id'), funcCompleted);
 }
 
 /**
@@ -178,8 +217,8 @@ FileUploadController.prototype._handleRemoveFile = function(index) {
  *
  * @private
  */
-FileUploadController.prototype._getFileUrl = function(index) {
-    var funcCompleted = function(result) {
+FileUploadController.prototype._getFileUrl = function (index) {
+    var funcCompleted = function (result) {
         this._uploadedFiles[index].url = result.urlDownload;
         this.render();
     }.bind(this);
@@ -188,17 +227,17 @@ FileUploadController.prototype._getFileUrl = function(index) {
     this._uploadedFiles[index].urlLoaded = true;
 
     // Get the file url preview
-    fileUploader.view(this._uploadedFiles[index].id, funcCompleted);
+    fileUploader.view(this._uploadedFiles[index].getValue('id'), funcCompleted);
 }
 
 /**
- * Handles the uploading of files.
+ * Handles the adding of files in the uploadedFiles collection.
  *
- * @param {entity/definition/file} file     The file object to be added in the collection
+ * @param {entity/fileupload/file} file     The file object to be added in the collection
  *
  * @public
  */
-FileUploadController.prototype.addFile = function(file) {
+FileUploadController.prototype.addFile = function (file) {
     this._uploadedFiles.push(file);
 }
 
