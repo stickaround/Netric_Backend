@@ -680,6 +680,8 @@ class Entity implements \Netric\Entity\EntityInterface
 							// Check to see if the file is a temp file
 							if ($file)
 							{
+                                $fileFolder = $fileSystem->openFolderById($file->getValue("folder_id"));
+                                $tempFolder = $fileSystem->openFolder("%tmp%");
 								if ($fileSystem->fileIsTemp($file))
 								{
 									// Move file to a permanent directory

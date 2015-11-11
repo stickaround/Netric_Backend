@@ -37,12 +37,15 @@ class LoaderTest extends PHPUnit_Framework_TestCase
         $newGroup->name = "uttest-eg-loader-get";
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
+
         
         // Load through loader
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
+        $loader->clearCache("customer", "groups");
         
-		// Use the laoder to get the object
+		// Use the loader to get the object
 		$grp = $loader->get("customer", "groups")->getByName($newGroup->name);
+        $this->assertNotNull($grp);
 		$this->assertEquals($newGroup->name, $grp->name);
 
 		// Test to see if the isLoaded function indicates the entity has been loaded and cached locally

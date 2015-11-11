@@ -7,6 +7,7 @@ include("../init_autoloader.php");
 use Zend\Loader\StandardAutoloader;
 use RuntimeException;
 use Netric;
+use Netric\Entity\ObjType\User;
 
 error_reporting(E_ALL | E_STRICT);
 chdir(__DIR__);
@@ -32,9 +33,10 @@ class Bootstrap
         // Initialize account
         static::$account = $application->getAccount();
 
-        // Initialize the current user (if set)
-        // if ($_SESSION['user'])
-        //      $user = new Netric\User($account);
+        // Set the current user to administrator so permissions are not limiting
+        $loader = static::$account->getServiceManager()->get("EntityLoader");
+        $user = $loader->get("user", User::USER_ADMINISTRATOR);
+        static::$account->setCurrentUser($user);
     }
 
     public static function getAccount()

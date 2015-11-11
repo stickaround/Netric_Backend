@@ -42,6 +42,10 @@ class Folder extends \Netric\Entity implements \Netric\Entity\EntityInterface
      */
     public function onBeforeSave(ServiceManager\ServiceLocatorInterface $sm)
     {
+        // Check to see if they are trying to delete a system directory - should never happen
+        if ($this->getValue("f_system") === true && $this->getValue("f_deleted") === true) {
+            throw new \RuntimeException("A system folder cannot be deleted: " . $this->getFullPath());
+        }
     }
 
     /**
@@ -53,9 +57,16 @@ class Folder extends \Netric\Entity implements \Netric\Entity\EntityInterface
     {
     }
 
-    public function getFolders()
+    /**
+     * Checks before a hard delete
+     *
+     * @param ServiceManager\ServiceLocatorInterface $sm
+     */
+    public function onBeforeDeleteHard(ServiceManager\ServiceLocatorInterface $sm)
     {
-
+        if ($this->getValue("f_system") === true) {
+            throw new \RuntimeException("A system folder cannot be deleted: " . $this->getFullPath());
+        }
     }
 
     /**

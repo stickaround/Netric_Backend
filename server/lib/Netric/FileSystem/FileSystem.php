@@ -458,6 +458,8 @@ class FileSystem implements Error\ErrorAwareInterface
                 $nextFolder->setValue("parent_id", $lastFolder->getId());
                 $nextFolder->setValue("owner_id", $this->user->getId());
                 $this->entityDataMapper->save($nextFolder);
+
+                $folders[] = $nextFolder;
             }
             else
             {

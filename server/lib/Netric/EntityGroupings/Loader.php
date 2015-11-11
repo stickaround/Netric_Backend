@@ -57,12 +57,14 @@ class Loader
 			
         if ($this->isLoaded($objType, $fieldName, $filters)) 
         {
-            return $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
+            $ret = $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
         }
         else
         {
-			return $this->loadGroupings($objType, $fieldName, $filters);
+			$ret = $this->loadGroupings($objType, $fieldName, $filters);
         }
+
+        return $ret;
     }
     
     /**

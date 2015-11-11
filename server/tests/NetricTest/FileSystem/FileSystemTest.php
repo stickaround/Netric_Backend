@@ -79,15 +79,23 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         // Clean-up test files
         foreach ($this->testFiles as $file)
         {
-            $this->dataMapper->delete($file);
+            $this->fileSystem->deleteFile($file, true);
         }
 
         // Delete all test folders in reverse order - in case they are children of each other
         $folders = array_reverse($this->testFolders);
         foreach ($folders as $folder)
         {
-            $this->dataMapper->delete($folder);
+            $this->fileSystem->deleteFolder($folder, true);
         }
+    }
+
+    private function queueFolderForCleanup($folder)
+    {
+        if ($folder->getValue('name') == '/')
+            throw new \Exception("You cannot delete root");
+
+        $this->testFolders[] = $folder;
     }
 
     /**
@@ -105,18 +113,20 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
     {
         // Create some test folders
         $rootFolder = $this->fileSystem->getRootFolder();
+
         // Create /testOpenSub
         $subFolder = $this->entityLoader->create("folder");
         $subFolder->setValue("name", "testOpenSub");
         $subFolder->setValue("parent_id", $rootFolder->getId());
         $this->dataMapper->save($subFolder);
-        $this->testFolders[] = $subFolder;
+        $this->queueFolderForCleanup($subFolder);
+
         // Create /testOpenSub/Child
         $childFolder = $this->entityLoader->create("folder");
         $childFolder->setValue("name", "Child");
         $childFolder->setValue("parent_id", $subFolder->getId());
         $this->dataMapper->save($childFolder);
-        $this->testFolders[] = $childFolder;
+        $this->queueFolderForCleanup($childFolder);
 
         // Try opening /testOpenSub
         $openedFolder = $this->fileSystem->openFolder("/testOpenSub");
@@ -161,8 +171,8 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         $this->assertNotEquals($origChildId, $openedFolder->getId());
 
         // Stash for cleanup
-        $this->testFolders[] = $this->fileSystem->openFolder("/testOpenSubCreate");
-        $this->testFolders[] = $this->fileSystem->openFolder("/testOpenSubCreate/Child");
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate"));
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenSubCreate/Child"));
     }
 
     /**
@@ -171,7 +181,7 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
     public function testOpenFolderById()
     {
         $testFolder = $this->fileSystem->openFolder("/testOpenFolderById", true);
-        $this->testFolders[] = $testFolder;
+        $this->queueFolderForCleanup($testFolder);
         $folderId = $testFolder->getId();
 
         // Try to re-open the above folder by id
@@ -195,7 +205,7 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
-        $this->testFolders[] = $this->fileSystem->openFolder("/testImportFile");
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testImportFile"));
     }
 
     /**
@@ -214,7 +224,7 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
-        $this->testFolders[] = $this->fileSystem->openFolder("/testOpenFileById");
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenFileById"));
     }
 
     public function testOpenFile()
@@ -252,7 +262,7 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
         // Create the file now
         $folder = $this->fileSystem->openFolder($testPath, true);
-        $this->testFolders[] = $folder;
+        $this->queueFolderForCleanup($folder);
 
         // Test a existent folder
         $this->assertTrue($this->fileSystem->folderExists($testPath));
@@ -316,7 +326,7 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
 
         // Move then test again
         $fldr = $this->fileSystem->openFolder("/testFileIsTemp", true);
-        $this->testFolders[] = $fldr; // For cleanup
+        $this->queueFolderForCleanup($fldr);
         $this->fileSystem->moveFile($file, $fldr);
         $this->assertFalse($this->fileSystem->fileIsTemp($file));
     }
@@ -348,7 +358,7 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         $this->assertNotNull($file->getId());
 
         $fldr = $this->fileSystem->openFolder("/testFileMove", true);
-        $this->testFolders[] = $fldr;
+        $this->queueFolderForCleanup($fldr);
         $this->fileSystem->moveFile($file, $fldr);
 
         // Test to make sure it has moved

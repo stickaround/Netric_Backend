@@ -159,7 +159,8 @@ class Router
 			else
 			{
 				// TODO: return 401	Authorization Required
-				echo "Authorization Required";
+				if (!$this->svrCls->testMode)
+					echo "Authorization Required";
 				return false;
 			}
 
