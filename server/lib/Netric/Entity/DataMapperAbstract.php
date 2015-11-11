@@ -8,6 +8,8 @@
  */
 namespace Netric\Entity;
 
+use Netric\EntityDefinition\Exception\DefinitionStaleException;
+
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
     /**
@@ -169,7 +171,29 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			$entity->beforeSave($this->getAccount()->getServiceManager());
 
 		// Save data to DataMapper implementation
-		$ret = $this->saveData($entity);
+		$ret = null;
+		try
+		{
+			$ret = $this->saveData($entity);
+		}
+		catch (DefinitionStaleException $ex)
+		{
+			/*
+			 * We tried to save but there was something wrong with the definition (field not added?)
+			 * Sometimes we need to force the system fields to reset in order to update
+			 * the entity database -- especially if a new field was added to system fields.
+			 */
+
+			// Try to update the definition in case it is out of sync
+			if ($this->getAccount()->getServiceManager())
+			{
+				$entityDefLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+				$entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
+
+				// Try saving again
+				$ret = $this->saveData($entity);
+			}
+		}
 
 		// Save revision for historical reference
 		if ($entity->getDefinition()->storeRevisions)
@@ -261,7 +285,30 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		else
 		{
 			$entity->setValue('commit_id', $commitId);
-			$ret = $this->deleteSoft($entity);
+
+			$ret = null;
+			try
+			{
+				$ret = $this->deleteSoft($entity);
+			}
+			catch (DefinitionStaleException $ex)
+			{
+				/*
+                 * We tried to save but there was something wrong with the definition (field not added?)
+                 * Sometimes we need to force the system fields to reset in order to update
+                 * the entity database -- especially if a new field was added to system fields.
+                 */
+
+				// Try to update the definition in case it is out of sync
+				if ($this->getAccount()->getServiceManager())
+				{
+					$entityDefLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+					$entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
+
+					// Try deleting again
+					$ret = $this->deleteSoft($entity);
+				}
+			}
 
 			// Delete from EntityCollection_Index
 			//if ($this->getServiceLocator())

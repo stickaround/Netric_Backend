@@ -910,7 +910,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 	 * Save a field
 	 *
 	 * @param EntityDefintionn $def The EntityDefinition we are saving
-	 * @param EntityDefinition_Field $field The field definition to save
+	 * @param EntityDefinition\Field $field The field definition to save
 	 * @param int $sort_order The order id of this field
 	 */
 	private function saveField(&$def, $field, $sort_order)

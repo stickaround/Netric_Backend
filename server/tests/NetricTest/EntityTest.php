@@ -113,6 +113,29 @@ class EntityTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testProcessTempFiles()
 	{
-		// TODO: set a file field to a temp file and see if it moves
+		$sm = $this->account->getServiceManager();
+
+		$fileSystem = $sm->get("Netric/FileSystem/FileSystem");
+		$entityLoader = $sm->get("EntityLoader");
+		$dataMapper = $sm->get("Entity_DataMapper");
+
+		// Temp file
+		$file = $fileSystem->createFile("%tmp%", "testfile.txt", true);
+		$tempFolderId = $file->getValue("folder_id");
+
+		// Create a customer
+		$cust = $entityLoader->create("customer");
+		$cust->setValue("name", "Aereus Corp");
+		$cust->addMultiValue("attachments", $file->getId(), $file->getValue("name"));
+		$dataMapper->save($cust);
+
+		// Test to see if file was moved
+		$testFile = $fileSystem->openFileById($file->getId());
+		$this->assertNotEquals($tempFolderId, $testFile->getValue("folder_id"));
+
+		// Cleanup
+		$fileSystem->deleteFile($file, true);
+
+
 	}
 }

@@ -166,7 +166,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             {
                 if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi")
                 {
-                    if ($row[$fname])
+                    if (isset($row[$fname]))
                     {
                         $dec = json_decode($row[$fname]);
                         if ($dec !== false)
@@ -177,7 +177,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 if ($fdef->type == "fkey" || $fdef->type == "object" 
                         || $fdef->type == "fkey_multi" || $fdef->type == "object_multi")
                 {
-                    if ($row[$fname . "_fval"])
+                    if (isset($row[$fname . "_fval"]))
                     {
                         $dec = json_decode($row[$fname . "_fval"], true);
                         if ($dec !== false)

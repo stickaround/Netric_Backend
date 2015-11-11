@@ -198,28 +198,8 @@ class Entity implements \Netric\Entity\EntityInterface
             	$this->fkeysValues[$strName] = array($value=>$valueName);
 		}
 
-		// Log changes
-		if ($oldval != $value)
-		{
-			$oldvalraw = $oldval;
-			$newvalraw = $value;
-
-			if ($oldvalName)
-				$oldval = $oldvalName;
-
-			if ($this->getValueNames($strName))
-				$newval = $this->getValueNames($strName);
-			else
-				$newval = $value;
-
-			$this->changelog[$strName] = array(
-				"field"=>$strName, 
-				"oldval"=>$oldval, 
-				"newval"=>$newval, 
-				"oldvalraw"=>$oldvalraw, 
-				"newvalraw"=>$newvalraw
-			);
-		}
+        // Log changes
+        $this->logFieldChanges($strName, $value, $oldval, $oldvalName);
     }
     
     /**
@@ -231,6 +211,9 @@ class Entity implements \Netric\Entity\EntityInterface
      */
     public function addMultiValue($strName, $value, $valueName="")
     {
+        $oldval = $this->getValue($strName);
+        $oldvalName = $this->getValueNames($strName);
+
         if (!isset($this->values[$strName]))
             $this->values[$strName] = array();
 
@@ -255,6 +238,43 @@ class Entity implements \Netric\Entity\EntityInterface
 
         if ($valueName)
             $this->fkeysValues[$strName][$value] = $valueName;
+
+        // Log changes
+        $this->logFieldChanges($strName, $this->values[$strName], $oldval, $oldvalName);
+    }
+
+    /**
+     * Record changes to the local changelog
+     *
+     * @param $strName
+     * @param $value
+     * @param $oldval
+     * @param string $oldvalName
+     */
+    private function logFieldChanges($strName, $value, $oldval, $oldvalName="")
+    {
+        // Log changes
+        if ($oldval != $value)
+        {
+            $oldvalraw = $oldval;
+            $newvalraw = $value;
+
+            if ($oldvalName)
+                $oldval = $oldvalName;
+
+            if ($this->getValueNames($strName))
+                $newval = $this->getValueNames($strName);
+            else
+                $newval = $value;
+
+            $this->changelog[$strName] = array(
+                "field"=>$strName,
+                "oldval"=>$oldval,
+                "newval"=>$newval,
+                "oldvalraw"=>$oldvalraw,
+                "newvalraw"=>$newvalraw
+            );
+        }
     }
     
     /**
@@ -338,215 +358,6 @@ class Entity implements \Netric\Entity\EntityInterface
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Save this object to a datamapper
-	 *
-	 * @param Entity_DataMapperInterface $dm The datamapper for saving data
-	 * @param AntUser $user The user who is saving this object
-	 */
-	public function save(Entity_DataMapperInterface $dm, $user)
-	{
-		throw new \Exception("Save is not yet implemented");
-
-		$dbh = $this->dbh;
-		$all_fields = $this->def->getFields();
-
-		// Set all null defaults
-		$this->setFieldsDefault("null", $user);
-
-		// Set all update defaults
-		$this->setFieldsDefault("update", $user);
-
-		// Set all create defaults if this is a new object
-		if (!$this->getId())
-			$this->setFieldsDefault("create", $user);
-
-		// First check for and set security
-		$daclLoader = $dm->getServiceLocator()->get("DaclLoader");
-		if ($user && $daclLoader)
-		{
-			// Get owner for GROUP_CREATOROWNER
-			$ownerId = null;
-			$fdef = $this->def->getField("owner_id");
-			if ($fdef)
-			{
-				$userId = $this->getValue("owner_id");
-			}
-			else
-			{
-				// Some older objects used user_id rather than owner_id
-				// This is provided for backwards compatibility only and should
-				// eventually be deleted
-				$fdef = $this->def->getField("user_id");
-				if ($fdef)
-					$userId = $this->getValue("user_id");
-			}
-
-			// Load Discretionary Access Control List
-			if ($this->getValue("dacl"))
-			{
-				$daclDat = json_decode($this->getValue("dacl"), true);
-				$dacl = $daclLoader->byData("/objects/" . $this->def->getObjType(), $daclDat);
-			}
-			else
-			{
-				// Get default generic DACL for all objects of this type, using the loader will cache it
-				// if the object has a specific DACL then it will be pulled in the load function or when
-				// a variable is set to a parent object to inherit from
-				$dacl = $daclLoader->byName("/objects/" . $this->def->getObjType());
-				if (!$dacl->id)
-				{
-					// Create if it does not exist
-					$dacl->grantGroupAccess(GROUP_ADMINISTRATORS);
-					$dacl->grantUserAccess(GROUP_CREATOROWNER);
-					$dacl->save();
-				}
-			}
-
-			// Check to see if the current user has edit access to this object
-			if (!$dacl->checkAccess($user, "Edit", ($user->id==$userId)?true:false))
-			{
-				return false;
-			}
-		}
-
-		// Derrived classes can define before save event
-		$this->onBeforeSave($dm);
-
-		// Increment revision
-		$revision = $this->getValue("revision");
-		$revision = (is_numeric($revision)) ? $revision+1 : 1;
-		$this->setValue("revision", $revision);
-
-		// Make sure that a parent field is not referening itself causing an endless loop
-		// So far this only goes one level deep, deeper loops need to be checked in updateHeiarchPath
-		if ($this->def->parentField)
-		{
-			$pfield = $this->def->getField($this->def->parentField);
-			if ($pfield->subtype == $this->def->getObjType() && $this->getValue($this->def->parentField) == $this->getId())
-				$this->setValue($this->def->parentField, ""); // set to null
-		}
-
-		// Deal with unique names - do not create unique names for activities
-		if (!$this->getValue("uname") && $this->def->getObjType()!="activity")
-		{
-			$this->setValue("uname", $this->createUniqueName($dm));
-		}
-		else if ($this->fieldValueChanged($this->getValue("uname")) && $this->def->getObjType()!="activity") 
-		{
-			// Safe guard against duplicate unames if the uname was manually set since last load
-			if (!$dm->verifyUniqueName($this, $this->getValue("uname")))
-				$this->setValue("uname", $this->createUniqueName($dm)); // Reset with new unique name
-		}
-
-		// TODO: Sky Stebnicki - stopped here... everything below is from CAntObject and needs to be modified 
-
-		// Get recurrence pattern ID
-		if (!$this->recurrenceException && $this->def->recurRules!=null)
-		{
-			// If this event had recur_id saved in field, then load, otherwise leave null
-			if ($this->recurrencePattern == null)
-			{
-				$rid = $this->getValue($this->def->recurRules['field_recur_id']);
-				if ($rid)
-					$this->getRecurrencePattern($rid);
-			}
-
-			if ($this->recurrencePattern != null)
-			{
-				if (!isset($rid))
-					$rid = $this->recurrencePattern->getNextId();
-
-				if (!$this->getValue($this->def->recurRules['field_recur_id']))
-					$this->setValue($this->def->recurRules['field_recur_id'], $rid);
-			}
-		}	
-
-		// Save values to the datamapper
-		// ------------------------------------------------------------------
-		$dm->save($this, $user);
-		
-
-		// Continue editing below
-		// ------------------------------------------
-		
-
-			// Call saved for derrived class callbacks
-			$this->saved();
-
-			// Clear object values cache - will not clear definition
-			$this->clearCache();
-
-			// Save revision history
-			$this->saveRevision();
-
-			// Set and save recurrence pattern
-			if (!$this->recurrenceException && $this->def->recurRules!=null && $this->recurrencePattern!=null)
-				$rid = $this->recurrencePattern->saveFromObj($this);
-
-			// Load inserted data for defaults
-			if ($performed == "create")
-				$this->load();
-
-			// Index this object
-			$this->index();
-
-			// Comments on activities should be excluded from activities
-			if ($this->object_type == "comment")
-			{
-				$obj_ref = $this->getValue("obj_reference");
-				if ($obj_ref)
-				{
-					$parts = explode(":", $obj_ref);
-					if ($parts[0] == "activity")
-					{
-						$logact = false;
-					}
-				}
-			}
-
-			// Update path
-			if ($this->def->parentField)
-			{
-				$this->updateHeiarchPath();
-			}
-
-			// Update uname index table
-			//if ($this->getValue("uname"))
-				//$this->setUniqueName($this->getValue("uname"));
-
-			// Process workflow
-			$this->processWorkflow($performed);
-
-			// Process temp file uploads
-			$this->processTempFiles();
-
-		if ($logact)
-		{
-			$this->updateObjectSyncStat('c');
-
-			if ($performed == "create" && $this->object_type != "activity")
-			{
-				$desc = $this->getDesc();
-				$this->addActivity("created", $this->getName(), ($desc)?$desc:"New object created", null, null, 't');
-
-			}
-
-			if ($performed == "update" && $this->object_type != "activity")
-			{
-				$desc = $this->getChangeLogDesc();
-				$this->addActivity("updated", $this->getName(), ($desc)?$desc:"Object Updated", null, null, 't');
-			}
-		}
-
-		if (count($this->def->aggregates))
-		{
-			$this->saveAggregates($this->def->aggregates);
-		}
-
-		return $this->id;
 	}
 
 	/**

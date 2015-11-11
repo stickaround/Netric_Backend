@@ -10,6 +10,7 @@
 namespace Netric\Entity\DataMapper;
 
 use \Netric\Entity;
+use Netric\EntityDefinition\Exception\DefinitionStaleException;
 
 class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterface
 {
@@ -620,6 +621,11 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
             
 			$result = $dbh->query($query);
 
+			if (!$result)
+			{
+				throw new DefinitionStaleException("Could not save entity" . $dbh->getLastError());
+			}
+
 			// Set event
 			$performed = (!$entity->getId()) ? "create" : "update";
 
@@ -639,13 +645,12 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 					&& !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename))
 				{
 					// We should use the service locator to load this service
-					$antfs = $this->account->getServiceManager()->get("AntFs");
-					$fldr = $antfs->openFolder($fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename), true);
-					$varval = $fldr->id;
-					if ($fldr->id)
+					$fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+					$fldr = $fileSystem->openFolder($fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename), true);
+					if ($fldr->getId())
 					{
-						$entity->setValue($fname, $fldr->id);
-						$dbh->query("update " . $targetTable . " set $fname='" . $fldr->id . "' where id='" . $entity->getId() . "'");
+						$entity->setValue($fname, $fldr->getId());
+						$dbh->query("update " . $targetTable . " set $fname='" . $fldr->getId() . "' where id='" . $entity->getId() . "'");
 					}
 				}
 			}
@@ -655,7 +660,7 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 			foreach ($all_fields as $fname=>$fdef)
 			{
 				if (!$fdef->id)
-					throw new \Exception("For some reason there is not ID for $fname of object type " . $def->getObjType());
+					throw new DefinitionStaleException("For some reason there is no ID for field $fname of object type " . $def->getObjType());
 
 				if ($fdef->type == "fkey_multi")
 				{
