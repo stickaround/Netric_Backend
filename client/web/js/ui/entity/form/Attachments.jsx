@@ -51,7 +51,7 @@ var Attachments = React.createClass({
         var xmlNode = this.props.xmlNode;
         var displayFiles = []
 
-        // Loop the attached files and create a File component to display the file details
+        // Loop thru the attachedFiles and create the display for the file details using the File Component
         for (var idx in this.state.attachedFiles) {
             var file = this.state.attachedFiles[idx];
 
@@ -98,7 +98,7 @@ var Attachments = React.createClass({
     },
 
     /**
-     * Saves the fileId and fileName of the file uploaded to the entity field 'attachments'
+     * Saves the fileId and fileName of the uploaded file to the entity field 'attachments'
      *
      * @param {int} fileId          The id of the file uploaded
      * @param {string} fileName     The name of the file uploaded
@@ -123,7 +123,7 @@ var Attachments = React.createClass({
     },
 
     /**
-     * Removes the file saved in the entity
+     * Removes the file uploaded in the entity object
      *
      * @param {int} fileId          The id of the file uploaded
      *
@@ -144,7 +144,7 @@ var Attachments = React.createClass({
     },
 
     /**
-     * Handles the deleting of files.
+     * Handles the removing of file in the entity object.
      *
      * @param {int} index      The index of the file to be deleted
      *

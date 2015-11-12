@@ -17,7 +17,7 @@ var File = React.createClass({
 
     propTypes: {
         index: React.PropTypes.string.isRequired,
-        file: React.PropTypes.object,
+        file: React.PropTypes.object.isRequired,
         onRemove: React.PropTypes.func
     },
 
@@ -60,7 +60,6 @@ var File = React.createClass({
         if (this.props.file.url) {
             fileView = <a href={this.props.file.url} target='_blank'>View File</a>;
         }
-
 
         return (
             <div className='file-upload file-upload-container'>

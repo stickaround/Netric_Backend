@@ -203,7 +203,7 @@ FileUploadController.prototype._handleRemoveFile = function (index) {
     var funcCompleted = function (result) {
         this._uploadedFiles.splice(index, 1);
 
-        // If callback is set, then lets pass file id to remove the file to the object entity
+        // If callback is set, then lets pass file id
         if (this.props.onRemoveFilesUploaded) {
             this.props.onRemoveFilesUploaded(fileId);
         }
@@ -216,7 +216,7 @@ FileUploadController.prototype._handleRemoveFile = function (index) {
 }
 
 /**
- * Gets the url of the file
+ * Gets the url of the file from the server
  *
  * @param {int} index      The index of the file that we want to get the url link
  *
