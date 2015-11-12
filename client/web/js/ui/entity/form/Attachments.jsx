@@ -11,7 +11,7 @@ var FlatButton = Chamel.FlatButton;
 
 var controller = require("../../../controller/controller");
 var File = require("../../../ui/fileupload/File.jsx");
-
+var netric = require("../../../base");
 var fileUrl = netric.server.host + '/files/';
 
 
@@ -28,17 +28,23 @@ var Attachments = React.createClass({
 
         // Get the attachments from the entity and save it in the initial state
         var attachedFiles = [];
-        var files = this.props.entity.getValueName('attachments');
 
-        for (var idx in files) {
-            var file = files[idx];
+        // Check if this is an existing entity, before we load the attachments
+        if (this.props.entity.id) {
+            var files = this.props.entity.getValueName('attachments');
 
-            // Create a file object
-            attachedFiles[idx] = {
-                id: file.key,
-                name: file.value,
-                url: fileUrl + file.key
-            };
+            for (var idx in files) {
+                var file = files[idx];
+
+                // Create a file object
+                if (file.key) {
+                    attachedFiles[idx] = {
+                        id: file.key,
+                        name: file.value,
+                        url: fileUrl + file.key
+                    };
+                }
+            }
         }
 
         // Return the initial state
@@ -133,8 +139,8 @@ var Attachments = React.createClass({
 
         // Loop thru the attachedFiles state variable and look for the removed fileId
         var attachedFiles = this.state.attachedFiles;
-        for(var idx in attachedFiles) {
-            if(fileId == attachedFiles[idx].id) {
+        for (var idx in attachedFiles) {
+            if (fileId == attachedFiles[idx].id) {
 
                 // Remove the file from the entity object using the index of the file
                 this._handleRemoveFiles(idx);
