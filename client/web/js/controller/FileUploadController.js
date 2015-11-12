@@ -80,8 +80,6 @@ FileUploadController.prototype.onLoad = function (opt_callback) {
             this.render();
         }
     }.bind(this));
-
-
 }
 
 /**
@@ -162,9 +160,16 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
 
         // Re render the fileUpload with the result of the uploaded files
         var funcCompleted = function (result) {
-            this._uploadedFiles[fileIndex].setValue('id', result[0].id);
+            var fileId = result[0].id;
+
+            this._uploadedFiles[fileIndex].setValue('id', fileId);
             this._getFileUrl(fileIndex);
             this.render();
+
+            // If callback is set, then lets pass the file id and file name
+            if (this.props.onFilesUploaded) {
+                this.props.onFilesUploaded(fileId, fileName);
+            }
 
             // Continue to the next upload file if there's any
             this._handleUploadFile(queuedFiles, index + 1, folder);
@@ -185,7 +190,7 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
 }
 
 /**
- * Handles the uploading of files.
+ * Handles the deleting of files.
  *
  * @param {int} index      The index of the file to be deleted
  *
@@ -193,19 +198,27 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
  */
 FileUploadController.prototype._handleRemoveFile = function (index) {
 
+    var fileId = this._uploadedFiles[index].getValue('id');
+
     var funcCompleted = function (result) {
         this._uploadedFiles.splice(index, 1);
+
+        // If callback is set, then lets pass file id
+        if (this.props.onRemoveFilesUploaded) {
+            this.props.onRemoveFilesUploaded(fileId);
+        }
+
         this.render();
     }.bind(this);
 
     // Remove the file from the server
-    entitySaver.remove(this.objType, this._uploadedFiles[index].getValue('id'), funcCompleted);
+    entitySaver.remove(this.objType, fileId, funcCompleted);
 }
 
 /**
  * Gets the url of the file from the server
  *
- * @param {int} index      The index of the file to be deleted
+ * @param {int} index      The index of the file that we want to get the url link
  *
  * @private
  */
@@ -220,17 +233,6 @@ FileUploadController.prototype._getFileUrl = function (index) {
 
     // Get the file url preview
     fileUploader.view(this._uploadedFiles[index].getValue('id'), funcCompleted);
-}
-
-/**
- * Handles the adding of files in the uploadedFiles collection.
- *
- * @param {entity/fileupload/file} file     The file object to be added in the collection
- *
- * @public
- */
-FileUploadController.prototype.addFile = function (file) {
-    this._uploadedFiles.push(file);
 }
 
 module.exports = FileUploadController;

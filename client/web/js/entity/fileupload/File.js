@@ -25,6 +25,14 @@ var File = function (entity) {
     this._fileEntity = entity;
 
     /**
+     * The name of the file
+     *
+     * @public
+     * @type {string}
+     */
+    this.name = this._fileEntity.getValue('name') || null;
+
+    /**
      * The download url link of the file
      *
      * @public
@@ -61,6 +69,10 @@ var File = function (entity) {
  * @param {mixed} value The value to set the field to
  */
 File.prototype.setValue = function (name, value) {
+    if(name == "name") {
+        this.name = value;
+    }
+
     this._fileEntity.setValue(name, value);
 }
 
