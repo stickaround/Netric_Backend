@@ -17,38 +17,43 @@ var File = React.createClass({
 
     propTypes: {
         index: React.PropTypes.string.isRequired,
-        file: React.PropTypes.object.isRequired,
+        file: React.PropTypes.object,
         onRemove: React.PropTypes.func
     },
 
     render: function () {
+        var statusClass = 'file-upload-status';
         var status = null;
         var displayProgress = null;
         var percentComplete = null;
         var fileView = null;
         var progress = this.props.file.progress;
-        var statusClass = 'file-upload-status';
 
-        if (progress.errorText) {
-            status = progress.errorText;
-            statusClass = 'file-upload-status-error';
+        // Check if we have progress event
+        if(progress) {
+            if (progress.errorText) {
+                status = progress.errorText;
+                statusClass = 'file-upload-status-error';
 
-        } else if (progress.percentComplete == 100) {
-            status = 'Completed - ';
+            } else if (progress.percentComplete == 100) {
+                status = 'Completed - ';
 
-            // Let the user know that the file link is still loading.
-            if (!this.props.file.url) {
-                fileView = 'Loading the file link...';
+                // Let the user know that the file link is still loading.
+                if (!this.props.file.url) {
+                    fileView = 'Loading the file link...';
+                }
+
+            } else if (progress.percentComplete > 0 && progress.percentComplete < 100) {
+                status = 'Uploading - ' + progress.percentComplete + '%';
+
+                displayProgress = <LinearProgress mode="determinate" min={0} max={progress.total} value={progress.loaded}/>;
+
+            } else if (this.props.file.getValue('id') == null) {
+                status = 'Uploading';
+                displayProgress = <LinearProgress mode="indeterminate"/>;
             }
-
-        } else if (progress.percentComplete > 0 && progress.percentComplete < 100) {
-            status = 'Uploading - ' + progress.percentComplete + '%';
-
-            displayProgress = <LinearProgress mode="determinate" min={0} max={progress.total} value={progress.loaded}/>;
-
-        } else if (this.props.file.id == null) {
-            status = 'Uploading';
-            displayProgress = <LinearProgress mode="indeterminate"/>;
+        } else {
+            fileView = 'Loading the file link...';
         }
 
         // If file preview url is available then lets display it.
@@ -56,10 +61,11 @@ var File = React.createClass({
             fileView = <a href={this.props.file.url} target='_blank'>View File</a>;
         }
 
+
         return (
             <div className='file-upload file-upload-container'>
                 <div>
-                    <div className='file-upload-name'>{this.props.file.getValue('name')}</div>
+                    <div className='file-upload-name'>{this.props.file.name}</div>
                     <div className='file-upload-remove'>
                         <IconButton
                             onClick={this._handleRemoveFile}
