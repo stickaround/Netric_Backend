@@ -9,6 +9,7 @@
 var definitionLoader = require("./definitionLoader");
 var BackendRequest = require("../BackendRequest");
 var Entity = require("./Entity");
+var events = require('../util/events');
 
 /**
  * Global entity loader namespace
@@ -60,7 +61,7 @@ loader.get = function(objType, entId, cbLoaded, force) {
 	var request = new BackendRequest();
 
 	if (cbLoaded) {
-		alib.events.listen(request, "load", function(evt) {
+		events.listen(request, "load", function(evt) {
 			var entity = loader.createFromData(this.getResponse());
 			cbLoaded(entity);
 		});
@@ -145,9 +146,10 @@ loader.createFromData = function(data) {
 	if (entDef == null) {
 		throw "Could not load a definition for " + data.obj_type;
 	}
-	
+
 	// Check to see if we have previously already loaded this object
 	var ent = this.getCached(entDef.objType, data.id);
+
 	if (ent != null) {
         // Clean any loading flags that were set
         ent.isLoading = false;
@@ -160,6 +162,7 @@ loader.createFromData = function(data) {
 			this.cacheEntity(ent);	
 		}
 	}
+
 	
 	return ent;
 }

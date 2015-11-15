@@ -75,7 +75,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
 
 		$data = $cust->toArray();
 		$this->assertEquals($cust->getValue("name"), $data["name"]);
-		$this->assertEquals($cust->getValue("last_contacted"), $data["last_contacted"]);
+		$this->assertEquals($cust->getValue("last_contacted"), strtotime($data["last_contacted"]));
 		$this->assertEquals($cust->getValue("owner_id"), $data["owner_id"]);
 		$this->assertEquals($cust->getValueName("owner_id"), $data["owner_id_fval"][$data["owner_id"]]);
 		$this->assertEquals($cust->getValue("f_nocall"), $data["f_nocall"]);
@@ -106,6 +106,29 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($cust->getValue("owner_id"), $data["owner_id"]);
 		$this->assertEquals($cust->getValueName("owner_id"), $data["owner_id_fval"][$data["owner_id"]]);
 		$this->assertEquals($cust->getValue("f_nocall"), $data["f_nocall"]);
+	}
+
+	/**
+	 * Make sure we can empty a multi-value field when loading from an array
+	 */
+	public function testFromArrayEmptyMval()
+	{
+		$cust = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+
+		// Preset attachments
+		$cust->addMultiValue("attachments", 1, "fakefile.txt");
+
+		// This should unset the attachments property set above
+		$data = array(
+			"attachments" => array(),
+			"attachments_fval" => array(),
+		);
+
+		// Load data into entity
+		$cust->fromArray($data);
+
+		// Test values
+		$this->assertEquals(0, count($cust->getValue("attachments")));
 	}
 
 	/**

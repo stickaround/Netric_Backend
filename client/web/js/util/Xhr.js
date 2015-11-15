@@ -16,9 +16,7 @@ var log = require("../log");
  *
  * @constructor
  */
-var Xhr = function()
-{
-}
+var Xhr = function() {}
 
 /**
  * Handle to ajax xhr
@@ -98,8 +96,7 @@ Xhr.prototype._dataIsForm = false;
  * @param {number=} opt_timeoutInterval Number of milliseconds after which an
  *     incomplete request will be aborted; 0 means no timeout is set.
  */
-Xhr.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInterval)
-{
+Xhr.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInterval) {
     // Set defaults
     if (typeof opt_method == "undefined")
         opt_method = "GET";
@@ -123,8 +120,7 @@ Xhr.send = function(url, opt_callback, opt_method, opt_content, opt_timeoutInter
  * @param {string=} opt_method Send method, default: GET.
  * @param {Array|Object|string=} opt_content Body data.
  */
-Xhr.prototype.send = function(urlPath, opt_method, opt_content)
-{
+Xhr.prototype.send = function(urlPath, opt_method, opt_content) {
     var method = opt_method || "GET";
     var xhr = this;
 
@@ -206,8 +202,7 @@ Xhr.prototype.send = function(urlPath, opt_method, opt_content)
  *
  * @param {string} type Can be "xml", "json", "script", "text", or "html"
  */
-Xhr.prototype.setReturnType = function(type)
-{
+Xhr.prototype.setReturnType = function(type) {
     this.returnType_ = type;
 }
 
@@ -217,8 +212,7 @@ Xhr.prototype.setReturnType = function(type)
  * @param {string} Name of the header to set
  * @param {string} Value of the header
  */
-Xhr.prototype.setHeader = function(name, value)
-{
+Xhr.prototype.setHeader = function(name, value) {
     this.headers_[name] = value;
 }
 
@@ -229,8 +223,7 @@ Xhr.prototype.setHeader = function(name, value)
  *
  * @param {bool} asyc If true then set request to async
  */
-Xhr.prototype.setAsync = function(async)
-{
+Xhr.prototype.setAsync = function(async) {
     this.isAsync_ = async;
 }
 
@@ -239,8 +232,7 @@ Xhr.prototype.setAsync = function(async)
  *
  * @param {int} seconds Number of seconds
  */
-Xhr.prototype.setTimeoutInterval = function(seconds)
-{
+Xhr.prototype.setTimeoutInterval = function(seconds) {
     this.timeoutInterval_ = seconds;
 }
 
@@ -256,8 +248,7 @@ Xhr.prototype.setDataIsForm = function(isFormData) {
 /**
  * Abort the request
  */
-Xhr.prototype.abort = function()
-{
+Xhr.prototype.abort = function() {
     if (this.ajax_)
         this.ajax_.abort();
 }
@@ -267,32 +258,28 @@ Xhr.prototype.abort = function()
  *
  * @return bool True if a request is in progress
  */
-Xhr.prototype.isInProgress = function()
-{
+Xhr.prototype.isInProgress = function() {
     return this.isInProgress_;
 }
 
 /**
  * Get response text from xhr object
  */
-Xhr.prototype.getResponseText = function()
-{
+Xhr.prototype.getResponseText = function() {
     return this.ajax_.responseText;
 }
 
 /**
  * Get response text from xhr object
  */
-Xhr.prototype.getResponseXML = function()
-{
+Xhr.prototype.getResponseXML = function() {
     return this.ajax_.responseXML;
 }
 
 /**
  * Get the parsed response
  */
-Xhr.prototype.getResponse = function()
-{
+Xhr.prototype.getResponse = function() {
     return this.response_;
 }
 

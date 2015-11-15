@@ -75,7 +75,15 @@ var ListItemTableRow = React.createClass({
                 case EntityField.types.object:
                 case EntityField.types.objectMulti:
                     cellContents = this.props.entity.getValueName(fields[i]);
+                    if (cellContents instanceof Object) {
+                        var buf = "";
+                        for (var prop in cellContents) {
+                            buf += (buf) ? ", " + cellContents[prop] : cellContents[prop];
+                        }
+                        cellContents = buf;
+                    }
                     break;
+                case EntityField.types.date:
                 case EntityField.types.timestamp:
                     cellContents = this.props.entity.getTime(fields[i], true);
                     break;

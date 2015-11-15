@@ -6,6 +6,7 @@ namespace Netric;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\FileSystem\FileSystem;
+use Netric\EntityDefinition\Field;
 
 class Entity implements \Netric\Entity\EntityInterface
 {
@@ -152,10 +153,32 @@ class Entity implements \Netric\Entity\EntityInterface
      */
     public function getValueNames($strName)
     {
-		if (isset($this->fkeysValues[$strName]))
-			return $this->fkeysValues[$strName];
+        $values = $this->getValue($strName);
 
-        return null;
+		if (isset($this->fkeysValues[$strName]))
+        {
+            // Only return value name data for peoperites in $values
+            if (is_array($values))
+            {
+                $ret = array();
+                foreach ($values as $val)
+                {
+                    $ret[$val] = $this->fkeysValues[$strName][$val];
+                }
+                return $ret;
+            }
+            else if ($values && isset($this->fkeysValues[$strName][$values]))
+            {
+                return $this->fkeysValues[$strName][$values];
+            }
+            else
+            {
+                return array();
+            }
+
+        }
+
+        return array();
     }
     
     /**
@@ -182,6 +205,13 @@ class Entity implements \Netric\Entity\EntityInterface
                         $value = ($value == 't') ? true : false;
                     }
                     break;
+				case 'date':
+				case 'timestamp':
+					if ($value && !is_numeric($value))
+					{
+						$value = strtotime($value);
+					}
+					break;
             }
         }
 
@@ -241,6 +271,16 @@ class Entity implements \Netric\Entity\EntityInterface
 
         // Log changes
         $this->logFieldChanges($strName, $this->values[$strName], $oldval, $oldvalName);
+    }
+
+    /**
+     * Clear all values in a multi-value field
+     *
+     * @param string $fieldName The name of the field to clear
+     */
+    public function clearMultiValues($fieldName)
+    {
+        $this->setValue($fieldName, array(), array());
     }
 
     /**
@@ -315,6 +355,9 @@ class Entity implements \Netric\Entity\EntityInterface
 
 			if (is_array($value))
 			{
+                // Clear existing value
+                $this->clearMultiValues($fname);
+
 				foreach ($value as $mval)
 				{
 					if (is_array($mval) || is_object($mval))
@@ -330,6 +373,9 @@ class Entity implements \Netric\Entity\EntityInterface
 			}
 			else
 			{
+                if (($field->type === "object_multi" || $field->type === "fkey_multi"))
+                    $this->clearMultiValues($fname);
+
 				$valName = (isset($valNames[$value])) ? $valNames[$value] : null;
 				$this->setValue($fname, $value, $valName);
 			}
@@ -351,10 +397,43 @@ class Entity implements \Netric\Entity\EntityInterface
 
 		foreach ($fields as $fname=>$field)
 		{
-			$data[$fname] = $this->getValue($fname);
+			$val = $this->getValue($fname);
 
-			if ($this->getValueNames($fname))
-				$data[$fname . "_fval"] = $this->getValueNames($fname);
+			if ($val)
+			{
+				switch ($field->type)
+				{
+					case 'date':
+						$val = date('Y-m-d T', $val);
+						break;
+					case 'timestamp':
+						$val = date('Y-m-d G:i:s T', $val);
+						break;
+					default:
+
+				}
+			}
+
+			$data[$fname] = $val;
+
+            $valueNames = $this->getValueNames($fname);
+			if ($valueNames)
+            {
+                $data[$fname . "_fval"] = array();
+
+                // Send the value name for each id
+                if (is_array($val))
+                {
+                    foreach ($val as $id)
+                    {
+                        $data[$fname . "_fval"]["$id"] = $this->getValueName($fname, $id);
+                    }
+                }
+                else if ($val)
+                {
+                    $data[$fname . "_fval"]["$val"] = $this->getValueName($fname, $val);
+                }
+            }
 		}
 
 		return $data;

@@ -526,7 +526,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
                 $item['sort_order'] = $row['sort_order'];
 
 			if(isset($field->fkeyTable['parent']) && $field->fkeyTable['parent'])
-				$item['children'] = $this->getGroupingData($fieldName, $conditions, $filter, $limit, $row[$field->fkeyTable['key']], null, $prefix."&nbsp;&nbsp;&nbsp;");
+				$item['children'] = $this->getGroupingData($field->name, $conditions, $filter, $limit, $row[$field->fkeyTable['key']], null, $prefix."&nbsp;&nbsp;&nbsp;");
 			else
 				$item['children'] = array();
 
@@ -542,7 +542,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
         
 		// Make sure that default groupings exist (if any)
 		if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
-			$ret = $this->verifyDefaultGroupings($fieldName, $data, $nameValue);
+			$ret = $this->verifyDefaultGroupings($field->name, $data, $nameValue);
 		else
 			$ret = $data;
             

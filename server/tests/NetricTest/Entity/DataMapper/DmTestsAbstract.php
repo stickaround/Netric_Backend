@@ -193,6 +193,56 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$dm->delete($ent, true);
 	}
 
+	public function testSaveClearMultiVal()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+		{
+			// Do not run if we don't have a datamapper to work with
+			$this->assertTrue(true);
+			return;
+		}
+
+		// Create a few test groups
+		$groupingsStat = $dm->getGroupings("customer", "status_id");
+		$statGrp = $groupingsStat->create("Unit Test Status");
+		$groupingsStat->add($statGrp);
+		$dm->saveGroupings($groupingsStat);
+
+		$groupingsGroups = $dm->getGroupings("customer", "groups");
+		$groupsGrp = $groupingsGroups->create("Unit Test Group");
+		$groupingsGroups->add($groupsGrp);
+		$dm->saveGroupings($groupingsGroups);
+
+		// Create an entity and initialize values
+		$customer = $this->createCustomer();
+		$customer->addMultiValue("groups", $groupsGrp->id, $groupsGrp->name);
+		// Cache returned time
+		$cid = $dm->save($customer, $this->user);
+		$this->assertNotEquals(false, $cid);
+
+		// Now clear multi-vals
+		$customer->clearMultiValues("groups");
+		$cid = $dm->save($customer, $this->user);
+
+		// Create new entity
+		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
+
+		// Load the object through the loader which should cache it
+		$ret = $dm->getById($ent, $cid);
+		$this->assertTrue($ret);
+		$this->assertEquals(array(), $ent->getValue("groups"));
+		$this->assertEquals(array(), $ent->getValueNames("groups"));
+		$this->assertEquals('', $ent->getValueName("groups"));
+
+		// Cleanup
+		$groupingsStat->delete($statGrp->id);
+		$dm->saveGroupings($groupingsStat);
+		$groupingsGroups->delete($groupsGrp->id);
+		$dm->saveGroupings($groupingsGroups);
+		$dm->delete($ent, true);
+	}
+
 	/**
 	 * Test delete
 	 */
@@ -560,7 +610,5 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	 */
 	public function testVerifyUniqueName()
 	{
-		// We need to test verifyUniqueName here for all datamappers
-		$this->assertTrue(true);
 	}
 }

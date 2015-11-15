@@ -29,20 +29,21 @@
                     <field name='obj_reference'></field>
                 </column>
             </row>
-            <row>
-                <all_additional></all_additional>
-            </row>
         </fieldset>
         <row>
-            <fieldset name='Attachments'>
+            <column>
                 <attachments></attachments>
-            </fieldset>
+            </column>
         </row>
         <row>
-            <field name='notes' hidelabel='t' multiline='t'></field>
+            <column>
+                <field name='notes' hidelabel='t' multiline='t'></field>
+            </column>
         </row>
         <row>
-            <field name='comments'></field>
+            <column>
+                <field name='comments'></field>
+            </column>
         </row>
     </tab>
 

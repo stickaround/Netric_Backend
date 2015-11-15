@@ -818,6 +818,8 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
                 $fvals = $entity->getValueNames($fname);
 				if ($val)
 					$setVal = "'".$dbh->escape(json_encode($val))."'";
+				else
+					$setVal = "'".$dbh->escape(json_encode(array()))."'";
 				break;
 			case 'object':
 				if ($fdef->subtype)
@@ -826,9 +828,10 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 					$setVal = "'".$dbh->escape($val)."'";
 				break;
 			case 'object_multi':
-				$fvals = $entity->getValueNames($fname);
                 if ($val)
 					$setVal = "'".$dbh->escape(json_encode($val))."'";
+				else
+					$setVal = "'".$dbh->escape(json_encode(array()))."'";
 				break;
 			case 'fkey':
 				$setVal = $dbh->escapeNumber($val);
@@ -884,7 +887,14 @@ class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterf
 			if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" || $fdef->type == "object" || $fdef->type == "object_multi")
 			{
 				$fvals = $entity->getValueNames($fname);
-				$ret[$fname . "_fval"] = ($fvals) ? "'".$dbh->escape(json_encode($fvals))."'" : "'".$dbh->escape(json_encode(array()))."'";
+				if (is_array($fvals) && count($fvals))
+				{
+					$ret[$fname . "_fval"] = "'" . $dbh->escape(json_encode($fvals)) . "'";
+				}
+				else
+				{
+					$ret[$fname . "_fval"] = "'" . $dbh->escape(json_encode(array())) . "'";
+				}
 			}
 		}
 

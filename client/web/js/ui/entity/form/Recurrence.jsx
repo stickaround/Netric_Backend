@@ -6,33 +6,39 @@
 'use strict';
 
 var React = require('react');
-var controller = require("../../../controller/controller");
 
 var Recurrence = React.createClass({
 
     render: function() {
 
         var xmlNode = this.props.xmlNode;
-        return (
-            <div>
-                <a href='javascript: void(0)' onClick={this._handleShowRecurrence}>Does Not Repeat</a>
-            </div>
-        );
-    },
+        var fieldName = xmlNode.getAttribute('name');
+        var field = this.props.entity.def.getField(fieldName);
+        var fieldValue = this.props.entity.getValue(fieldName);
 
-    _handleShowRecurrence: function() {
+        // TODO: We have to load the recurrence plugin here and handle updating this.props.entity
 
-        /*
-         * We require it here to avoid a circular dependency where the
-         * controller requires the view and the view requires the controller
-         */
-        var RecurrenceController = require("../../../controller/RecurrenceController");
-        var recurrence = new RecurrenceController();
+        if (this.props.editMode) {
 
-        recurrence.load({
-            type: controller.types.DIALOG,
-            title: "Recurrence",
-        });
+            return (
+                <div>Put recurrence plugin here</div>
+            );
+
+
+        } else {
+
+            // If there is no value then we don't need to show this field at all
+            if (!fieldValue) {
+                return (<div />);
+            } else {
+                return (
+                    <div>
+                        <div className="entity-form-field-label">Repeats</div>
+                        <div className="entity-form-field-value">Human Description Here</div>
+                    </div>
+                );
+            }
+        }
     }
 
 });

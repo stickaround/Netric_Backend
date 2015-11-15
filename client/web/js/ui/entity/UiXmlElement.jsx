@@ -7,6 +7,8 @@
 
 var React = require('react');
 var netric = require("../../base.js");
+var Chamel = require('chamel');
+var Tab = Chamel.Tab;
 
 // Form elements used in the UIML
 var formElements = {
@@ -51,11 +53,30 @@ var UiXmlElement = React.createClass({
         for (var i = 0; i < xmlChildNodes.length; i++) {
             var childNode = xmlChildNodes[i];
             if (childNode.nodeType == 1) {
-                childElements.push(<UiXmlElement
-                                    xmlNode={childNode} 
-                                    entity={this.props.entity}
-                                    eventsObj={this.props.eventsObj}
-                                    editMode={this.props.editMode} />);
+                /*
+                 * If we are in a 'tabs' elment, then children should be a tab and
+                 * not another UiXmlElement because Chamel tabs only support a chamel.Tab
+                 * as children of a chamel.Tabs container.
+                 */
+                if (xmlNode.nodeName === "tabs") {
+                    var label = childNode.getAttribute('name');
+
+                    childElements.push(
+                        <Tab label={label}>
+                            <UiXmlElement
+                            xmlNode={childNode}
+                            entity={this.props.entity}
+                            eventsObj={this.props.eventsObj}
+                            editMode={this.props.editMode} />
+                        </Tab>
+                    );
+                } else {
+                    childElements.push(<UiXmlElement
+                        xmlNode={childNode}
+                        entity={this.props.entity}
+                        eventsObj={this.props.eventsObj}
+                        editMode={this.props.editMode} />);
+                }
             }
         }
 

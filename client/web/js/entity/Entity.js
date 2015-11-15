@@ -7,6 +7,7 @@
 'use strict';
 
 var Definition = require("./Definition");
+var events = require('../util/events');
 
 /**
  * Entity represents a netric object
@@ -145,10 +146,11 @@ Entity.prototype.loadData = function (data) {
 		
 	}
 
+
 	// TODO: Handle recurrence
 
     // Trigger onload event to alert any observers that the data for this entity has loaded (batch)
-    alib.events.triggerEvent(this, "load");
+    events.triggerEvent(this, "load");
 }
 
 /**
@@ -239,8 +241,8 @@ Entity.prototype.setValue = function(name, value, opt_valueName) {
     }
 
     // Trigger onchange event to alert any observers that this value has changed
-	alib.events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
-    
+	events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
+
 }
 
 /**
@@ -292,7 +294,7 @@ Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
 	}
 
     // Trigger onchange event to alert any observers that this value has changed
-	alib.events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
+	events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
     
 }
 
@@ -336,14 +338,14 @@ Entity.prototype.remMultiValue = function(name, value) {
 
     		// Remove the value name
     		for (var j in this.fieldValues_[name].valueName) {
-    			if (this.fieldValues_[name].valueName[j].key == value) {
-    				this.fieldValues_[name].valueName.splice(j, 1);
-    				break;
-    			}
-    		}
+                if (this.fieldValues_[name].valueName[j].key == value) {
+                    this.fieldValues_[name].valueName.splice(j, 1);
+                    break;
+                }
+            }
 
     		// Trigger onchange event to alert any observers that this value has changed
-			alib.events.triggerEvent(this, "change", {
+			events.triggerEvent(this, "change", {
 				fieldName: name, value: this.getValue(name), valueName: null
 			});
 
@@ -382,13 +384,17 @@ Entity.prototype.getValue = function(name) {
 Entity.prototype.getValueName = function(name, opt_val) {
 	// Get value from fieldValue
     if (this.fieldValues_[name]) {
-    	if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
-    		for (var i in this.fieldValues_[name].valueName) {
-    			if (this.fieldValues_[name].valueName[i].key == opt_val) {
-    				return this.fieldValues_[name].valueName[i].value;
-    			}
-    		}
-    	} else {
+    	if (opt_val && this.fieldValues_[name].valueName instanceof Object) {
+			if (this.fieldValues_[name].valueName[opt_val]) {
+				return this.fieldValues_[name].valueName[opt_val];
+			}
+    	} else if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
+			for (var i in this.fieldValues_[name].valueName) {
+				if (this.fieldValues_[name].valueName[i].key == opt_val) {
+					return this.fieldValues_[name].valueName[i].value[opt_val];
+				}
+			}
+		} else {
     		return this.fieldValues_[name].valueName;    		
     	}
     }
@@ -460,6 +466,7 @@ Entity.prototype.getTime = function(field, compress) {
 
     var fieldName = field || null;
     var compressDate = compress || false;
+    var defField = this.def.getField(fieldName);
 
     var val = null;
 
@@ -471,8 +478,8 @@ Entity.prototype.getTime = function(field, compress) {
         val = this.getValue("ts_entered");
     }
 
-    // Check to see if we should compess the date
-    if (compressDate) {
+    // Check to see if we should compress the date
+    if (val && compressDate) {
         var dtVal = new Date(val);
         var today = new Date();
 
@@ -480,19 +487,24 @@ Entity.prototype.getTime = function(field, compress) {
             dtVal.getMonth() == today.getMonth() &&
             dtVal.getDate() == today.getDate()) {
 
-            // Show only the time
-            var hours = dtVal.getHours();
-            var minutes = dtVal.getMinutes();
-            var ampm = hours >= 12 ? 'pm' : 'am';
-            hours = hours % 12;
-            hours = hours ? hours : 12; // the hour '0' should be '12'
-            minutes = minutes < 10 ? '0'+minutes : minutes;
-            val = hours + ':' + minutes + ' ' + ampm;
+            // Show only the time if this is a timezone
+            if (defField.type === "timestamp") {
+                var hours = dtVal.getHours();
+                var minutes = dtVal.getMinutes();
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0'+minutes : minutes;
+                val = hours + ':' + minutes + ' ' + ampm;
+            } else {
+                val = "Today";
+            }
+
 
         } else {
 
             // Show only the date
-            val = dtVal.getMonth() + "/" + (dtVal.getDate() + 1) + "/" + dtVal.getFullYear();
+            val = (dtVal.getMonth() + 1) + "/" + dtVal.getDate() + "/" + dtVal.getFullYear();
         }
     }
 
