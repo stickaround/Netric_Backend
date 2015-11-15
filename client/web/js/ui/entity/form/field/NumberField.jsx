@@ -50,13 +50,17 @@ var NumberField = React.createClass({
 
         } else {
 
-            return (
-                <div>
-                    <div className="entity-form-field-label">{field.title}</div>
-                    <div className="entity-form-field-value">{fieldValue}</div>
-                </div>
-            );
-
+            // If there is no value then we don't need to show this field at all
+            if (!fieldValue) {
+                return (<div />);
+            } else {
+                return (
+                    <div>
+                        <div className="entity-form-field-label">{field.title}</div>
+                        <div className="entity-form-field-value">{fieldValue}</div>
+                    </div>
+                );
+            }
         }
     },
 

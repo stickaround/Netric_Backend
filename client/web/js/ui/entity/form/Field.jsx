@@ -16,6 +16,7 @@ var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var Comments = require("./Comments.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var NumberField = require("./field/NumberField.jsx");
+var DateField = require("./field/DateField.jsx");
 
 /**
  * Base level element for enetity forms
@@ -62,6 +63,9 @@ var Field = React.createClass({
         case field.types.text:
         	fieldContent = <TextField {...this.props} />;
         	break;
+        case field.types.date:
+            fieldContent = <DateField {...this.props} />;
+            break;
         case field.types.number:
             fieldContent = <NumberField {...this.props} />;
             break;

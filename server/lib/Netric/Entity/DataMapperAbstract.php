@@ -147,6 +147,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function save($entity, $user=null)
 	{
+        $serviceManager = $this->getAccount()->getServiceManager();
+
+        // First validate that this entity is ok to be written
+        $entityValidator = $serviceManager->get('Netric\Entity\Validator\EntityValidator');
+        if (!$entityValidator->isValid($entity))
+        {
+            $this->errors = array_merge($this->errors, $entityValidator->getErrors());
+            return false;
+        }
+
 		// Increment revision for this save
 		$revision = $entity->getValue("revision");
 		if (!$revision)
@@ -396,6 +406,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// If we are not using unique names with this object just succeed
 		if (!$def->unameSettings)
 			return true;
+
+        /*
+         * TODO: this needs to be fixed
+         */
+        //$this->getAccount()->getServiceManager()->get("EntityLoader");
 
 		// TODO: we need to move this to collections but collections are not yet built
 		// Search objects to see if the uname exists

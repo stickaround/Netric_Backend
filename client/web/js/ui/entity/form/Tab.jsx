@@ -19,6 +19,12 @@ var FormTab = React.createClass({
         var xmlNode = this.props.xmlNode;
         var label = xmlNode.getAttribute('name');
 
+		return (
+			<div>
+				{this.props.children}
+			</div>
+		);
+		/*
         if (this.props.renderChildren) {
         	return (
         		<div>
@@ -32,6 +38,7 @@ var FormTab = React.createClass({
 	            </Tab>
 	        );
         }
+        */
         
     }
 });

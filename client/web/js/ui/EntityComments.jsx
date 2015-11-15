@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var controller = require("../controller/controller");
 var Device = require("../Device");
 var Where = require("../entity/Where");

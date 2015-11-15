@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var EntityCommentsController = require('../../../controller/EntityCommentsController');
 var controller = require("../../../controller/controller");
 var netric = require("../../../base");

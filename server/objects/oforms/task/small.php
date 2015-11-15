@@ -10,7 +10,6 @@
 <field name='depends_task_id'></field>
 <field name='cost_estimated'></field>
 <field name='cost_actual'></field>
-<all_additional></all_additional>
 <field name='notes' hidelabel='t' multiline='t'></field>
 <field name='comments'></field>
 <plugin name='logtime'></plugin>

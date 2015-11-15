@@ -59,16 +59,21 @@ var ObjectField = React.createClass({
                 </div>
             );
         } else {
-            return (
-                <div>
-                    <div className="entity-form-field-label">
-                        {field.title}
+            // Only display the field if a value exists
+            if (valueLabel != 'Not Set') {
+                return (
+                    <div>
+                        <div className="entity-form-field-label">
+                            {field.title}
+                        </div>
+                        <div className="entity-form-field-value">
+                            {valueLabel}
+                        </div>
                     </div>
-                    <div className="entity-form-field-value">
-                        {valueLabel}
-                    </div>
-                </div>
-            );
+                );
+            } else {
+                return (<div />);
+            }
         }
     },
 

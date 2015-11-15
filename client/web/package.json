@@ -27,6 +27,7 @@
     "object-hash": "^0.8.0",
     "protractor": "~1.0.0",
     "react": "^0.14.1g",
+    "react-addons-css-transition-group": "^0.14.2",
     "react-dom": "^0.14.1",
     "shelljs": "^0.2.6",
     "tmp": "0.0.23",

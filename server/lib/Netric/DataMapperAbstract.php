@@ -8,7 +8,9 @@
  */
 namespace Netric;
 
-abstract class DataMapperAbstract
+use Netric\Error;
+
+abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 {
 	/**
 	 * Handle to current account we are mapping data for
@@ -72,6 +74,7 @@ abstract class DataMapperAbstract
 	 */
 	public function getLastError()
 	{
+		// TODO: we should move this to returning an Error
 		$numErrors = count($this->errors);
 		if ($numErrors > 0)
 		{
@@ -79,5 +82,13 @@ abstract class DataMapperAbstract
 		}
 
 		return "";
+	}
+
+	/**
+	 * Get all errors sent through the system
+	 */
+	public function getErrors()
+	{
+		return $this->errors;
 	}
 }
