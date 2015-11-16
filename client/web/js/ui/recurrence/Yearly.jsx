@@ -28,11 +28,11 @@ var Yearly = React.createClass({
     getDefaultProps: function () {
         var data = {
             type: typeYearly,
-            month: 1,
-            day: 1,
-            nthInstance: 1,
-            nthDayOfWeek: 1,
-            nthInterval: 1
+            monthOfYear: 1,
+            dayOfMonth: 1,
+            instance: 1,
+            monthOfYearNth: 1,
+            dayOfWeek: 1
         };
 
         return {
@@ -68,13 +68,13 @@ var Yearly = React.createClass({
                     <div className="col-small-3">
                         <DropDownMenu
                             selectedIndex={this.props.data.month - 1}
-                            onChange={this._handleDropDownChange.bind(this, 'month')}
+                            onChange={this._handleDropDownChange.bind(this, 'monthOfYear')}
                             menuItems={this.props.months}/>
                     </div>
                     <div className="col-small-1">
                         <TextField
                             className='recurrence-input'
-                            ref='inputDay'/>
+                            ref='inputDayOfMonth'/>
                     </div>
                 </div>
             );
@@ -83,20 +83,22 @@ var Yearly = React.createClass({
                 <div className='row'>
                     <div className="col-small-6">
                         <DropDownMenu
-                            selectedIndex={this.props.data.nthInstance - 1}
-                            onChange={this._handleDropDownChange.bind(this, 'nthInstance')}
+                            selectedIndex={this.props.data.instance - 1}
+                            onChange={this._handleDropDownChange.bind(this, 'instance')}
                             menuItems={this.props.instance}/>
                         <DropDownMenu
-                            selectedIndex={this.props.data.nthDayOfWeek - 1}
-                            onChange={this._handleDropDownChange.bind(this, 'nthDayOfWeek')}
+                            selectedIndex={this.props.data.dayOfWeek - 1}
+                            onChange={this._handleDropDownChange.bind(this, 'dayOfWeek')}
                             menuItems={this.props.dayOfWeek}/>
                     </div>
-                    <div className="col-small-4">
-                        <label>of every </label>
-                        <TextField
-                            className='recurrence-input'
-                            ref='inputNthInterval'/>
-                        <label> Year(s)</label>
+                    <div className="col-small-1 recurrence-label">
+                        <label>of</label>
+                    </div>
+                    <div className="col-small-3">
+                        <DropDownMenu
+                            selectedIndex={this.props.data.monthOfYearNth - 1}
+                            onChange={this._handleDropDownChange.bind(this, 'monthOfYearNth')}
+                            menuItems={this.props.months}/>
                     </div>
                 </div>
             );
@@ -166,10 +168,8 @@ var Yearly = React.createClass({
          * Lets save the input values in the state to be retrieved later.
          * If the user changes the type of yearly recurrence, the state values are retrieved
          */
-        if (this.refs.inputDay) {
-            data.day = this.refs.inputDay.getValue();
-        } else if (this.refs.inputNthInterval) {
-            data.nthInterval = this.refs.inputNthInterval.getValue();
+        if (this.refs.inputDayOfMonth) {
+            data.inputDayOfMonth = this.refs.inputDayOfMonth.getValue();
         }
 
         this.setState({data: data});
@@ -181,10 +181,8 @@ var Yearly = React.createClass({
      * @private
      */
     _setInputValues: function () {
-        if (this.refs.inputDay) {
-            this.refs.inputDay.setValue(this.state.data.day);
-        } else if (this.refs.inputNthInterval) {
-            this.refs.inputNthInterval.setValue(this.state.data.nthInterval);
+        if (this.refs.inputDayOfMonth) {
+            this.refs.inputDayOfMonth.setValue(this.state.data.dayOfMonth);
         }
     },
 
@@ -194,16 +192,22 @@ var Yearly = React.createClass({
      * @return {object}
      * @public
      */
-    getData: function () {
-        var data = {type: this.state.data.type};
+    getData: function (isState) {
+        var data = {};
 
-        if (data.type == typeYearly) {
-            data.day = this.refs.inputDay.getValue();
-            data.month = this.state.data.month;
+        if (isState) {
+            data.type = this.state.data.type;
+
+            if (data.type == typeYearly) {
+                data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
+                data.monthOfYear = this.state.data.monthOfYear;
+            } else {
+                data.instance = this.state.data.instance;
+                data.monthOfYear = this.state.data.monthOfYearNth;
+                data['day' + this.state.data.dayOfWeek] = 't';
+            }
         } else {
-            data.nthInstance = this.state.data.nthInstance;
-            data.nthDayOfWeek = this.state.data.nthDayOfWeek;
-            data.nthInterval = this.refs.inputNthInterval.getValue();
+            data = this.state.data;
         }
 
         return data;

@@ -17,12 +17,12 @@ var Daily = React.createClass({
 
     getDefaultProps: function () {
         return {
-            data: {daily: 1}
+            data: {interval: 1}
         }
     },
 
     componentDidMount: function () {
-        this.refs.inputDaily.setValue(this.props.data.daily);
+        this.refs.inputInterval.setValue(this.props.data.interval);
     },
 
     render: function () {
@@ -31,7 +31,7 @@ var Daily = React.createClass({
                 <label>Every </label>
                 <TextField
                     className='recurrence-input'
-                    ref='inputDaily'/>
+                    ref='inputInterval'/>
                 <label> days</label>
             </div>
         );
@@ -46,7 +46,7 @@ var Daily = React.createClass({
     getData: function () {
         var data = {
             type: 1,
-            daily: this.refs.inputDaily.getValue()
+            interval: this.refs.inputInterval.getValue()
         }
 
         return data;

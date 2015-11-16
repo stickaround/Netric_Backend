@@ -139,8 +139,8 @@ RecurrenceController.prototype.render = function () {
         instance: this._instance,
         months: this._months,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
-        onGetData: function (data) {
-            this._getData(data);
+        onSave: function (data) {
+            this._handleSave(data);
         }.bind(this)
     }
 
@@ -151,8 +151,8 @@ RecurrenceController.prototype.render = function () {
     );
 }
 
-RecurrenceController.prototype._getData = function (data) {
-    console.log('getdata');
+RecurrenceController.prototype._handleSave = function (data) {
+    if (this.props.onSetRecurrence) this.props.onSetRecurrence(data);
 }
 
 module.exports = RecurrenceController;

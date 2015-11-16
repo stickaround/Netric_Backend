@@ -13,6 +13,7 @@ var FlatButton = Chamel.FlatButton;
 var DropDownMenu = Chamel.DropDownMenu;
 var TextField = Chamel.TextField;
 var Checkbox = Chamel.Checkbox;
+var DatePicker = Chamel.DatePicker;
 
 // Recurrence Types
 var Daily = require('./Daily.jsx');
@@ -34,12 +35,21 @@ var Recurrence = React.createClass({
         displayType: React.PropTypes.string,
         dayOfWeek: React.PropTypes.array.isRequired,
         instance: React.PropTypes.array.isRequired,
-        onGetData: React.PropTypes.func,
-        _handleBackButton: React.PropTypes.func
+        onSave: React.PropTypes.func,
+        onNavBackBtnClick: React.PropTypes.func
     },
 
     getDefaultProps: function () {
-        displayType: 'page'
+        var data = {
+            neverEnds: true,
+            dateEnd: '11/16/2015',
+            dateStart: '11/16/2015',
+        }
+
+        return {
+            displayType: 'page',
+            data: data
+        }
     },
 
     getInitialState: function () {
@@ -48,7 +58,8 @@ var Recurrence = React.createClass({
         return {
             recurrenceType: 0,
             recurrenceIndex: 0,
-            recurrenceData: []
+            patternData: [],
+            data: this.props.data
         };
     },
 
@@ -60,10 +71,17 @@ var Recurrence = React.createClass({
 
     render: function () {
         var displayCancel = null;
+        var displayEndDate = null;
         var displayPattern = this._handleDisplayRecurrenceType(this.state.recurrenceType);
 
         if (this.props.displayType != 'dialog') {
             displayCancel = (<FlatButton label='Cancel' onClick={this._handleBackButton}/>);
+        }
+
+        if (!this.state.data.neverEnds) {
+            displayEndDate = (<TextField
+                ref='inputEndDate'
+                hintText="End Date"/>);
         }
 
         return (
@@ -86,16 +104,14 @@ var Recurrence = React.createClass({
                             ref='inputStartDate'
                             hintText="Start Date"/>
 
-                        <TextField
-                            ref='inputEndDate'
-                            hintText="End Date"/>
+                        {displayEndDate}
 
                         <Checkbox
                             ref="neverEnds"
                             value="default"
                             label="Never Ends"
-                            defaultSwitched={true}/>
-
+                            defaultSwitched={true}
+                            onCheck={this._handleNeverEnds}/>
                     </fieldset>
                 </div>
                 <div>
@@ -115,15 +131,32 @@ var Recurrence = React.createClass({
         if (this.props.onNavBackBtnClick) this.props.onNavBackBtnClick();
     },
 
+    _handleNeverEnds: function (e, isChecked) {
+        var data = this.state.data;
+        data.neverEnds = isChecked;
+
+        this.setState({data: data})
+    },
+
     /**
      * Handles the save button. Passes the recurrence data to the entity object
      *
      * @private
      */
     _handleSaveButton: function () {
-        var data = this._getRecurrenceData();
+        var data = this._getPatternData(true);
 
-        console.log(data);
+        data.dateStart = this.refs.inputStartDate.getValue();
+
+        if (this.state.data.neverEnds) {
+            data.dateEnd = '';
+        } else {
+            data.dateEnd = this.refs.inputEndDate.getValue();
+        }
+
+        if (this.props.onSave) {
+            this.props.onSave(data);
+        }
     },
 
     /**
@@ -142,13 +175,13 @@ var Recurrence = React.createClass({
          * So if the user decides to select back this recurrence type
          * We can just display its saved data instead of using the default values
          */
-        var data = this.state.recurrenceData;
-        data[this.state.recurrenceType] = this._getRecurrenceData();
+        var data = this.state.patternData;
+        data[this.state.recurrenceType] = this._getPatternData(false);
 
         this.setState({
             recurrenceType: menuItem.value,
             recurrenceIndex: key,
-            recurrenceData: data
+            patternData: data
         });
     },
 
@@ -165,11 +198,9 @@ var Recurrence = React.createClass({
         var displayPattern = null;
         var ref = 'recurrence' + type;
 
-        console.log(this.state.recurrenceData)
-
         // If recurrence data is set, then lets use that data to set the default values
-        if (this.state.recurrenceData[type]) {
-            data = this.state.recurrenceData[type];
+        if (this.state.patternData[type]) {
+            data = this.state.patternData[type];
         }
 
         switch (type.toString()) {
@@ -212,13 +243,13 @@ var Recurrence = React.createClass({
         return displayPattern;
     },
 
-    _getRecurrenceData: function () {
+    _getPatternData: function (forSaving) {
         var data = null;
         var ref = 'recurrence' + this.state.recurrenceType;
 
         // Check first we have already rendered the recurrence type before we try to get its data
-        if(this.refs[ref]) {
-            data = this.refs[ref].getData();
+        if (this.refs[ref]) {
+            data = this.refs[ref].getData(forSaving);
         }
 
         return data;

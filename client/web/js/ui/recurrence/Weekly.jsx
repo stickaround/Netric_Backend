@@ -20,14 +20,13 @@ var Weekly = React.createClass({
     getDefaultProps: function () {
         return {
             data: {
-                weekly: 1,
-                day: []
+                interval: 1
             }
         }
     },
 
     componentDidMount: function () {
-        this.refs.inputWeekly.setValue(this.props.data.weekly);
+        this.refs.inputInterval.setValue(this.props.data.interval);
     },
 
     render: function () {
@@ -35,10 +34,10 @@ var Weekly = React.createClass({
 
         for (var idx in this.props.dayOfWeek) {
             var day = this.props.dayOfWeek[idx];
-            var ref = 'weeklyDay' + day.key;
+            var ref = 'dayOfWeek' + day.key;
             var checked = false;
 
-            if (this.props.data.day[day.key]) {
+            if (this.props.data['day' + day.key] && this.props.data['day' + day.key] == 't') {
                 checked = true;
             }
 
@@ -56,7 +55,7 @@ var Weekly = React.createClass({
                     <label>Every </label>
                     <TextField
                         className='recurrence-input'
-                        ref='inputWeekly'/>
+                        ref='inputInterval'/>
                     <label> week(s) on:</label>
                 </div>
                 <div>
@@ -75,16 +74,15 @@ var Weekly = React.createClass({
     getData: function () {
         var data = {
             type: 2,
-            weekly: this.refs.inputWeekly.getValue(),
-            day: []
+            interval: this.refs.inputInterval.getValue()
         }
 
         for (var idx in this.props.dayOfWeek) {
             var dayIndex = this.props.dayOfWeek[idx].key;
-            var ref = 'weeklyDay' + dayIndex;
-            var checked = this.refs[ref].isChecked();
+            var ref = 'dayOfWeek' + dayIndex;
+            var checked = this.refs[ref].isChecked() ? 't' : 'f';
 
-            data.day[dayIndex] = checked;
+            data['day' + dayIndex] = checked;
         }
 
         return data;

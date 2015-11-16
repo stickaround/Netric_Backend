@@ -35,11 +35,11 @@ var Monthly = React.createClass({
     getDefaultProps: function () {
         var data = {
             type: typeMonthly,
-            day: 1,
-            interval: 1,
-            nthOccurrence: 1,
-            nthDayOfWeek: 1,
-            nthInterval: 1
+            dayOfMonth: 1,
+            intervalMonth: 1,
+            dayOfWeek: 1,
+            intervalNth: 1,
+            instance: 1
         };
 
         return {
@@ -49,9 +49,25 @@ var Monthly = React.createClass({
 
     getInitialState: function () {
 
+        var data = this.props.data;
+
+        if (data.interval && data.type == typeMonthly) {
+            data.intervalMonth = data.interval;
+        } else if (data.interval) {
+            data.intervalNth = data.interval;
+        }
+
+        for (var idx in this.props.dayOfWeek) {
+            var dayOfWeek = this.props.dayOfWeek[idx];
+
+            if (data['day' + dayOfWeek.key] && data['day' + dayOfWeek.key] == 't') {
+                data.nthDayOfWeek = dayOfWeek.key;
+            }
+        }
+
         // Return the initial state
         return {
-            data: this.props.data
+            data: data
         };
     },
 
@@ -73,11 +89,11 @@ var Monthly = React.createClass({
                         <label>Day</label>
                         <TextField
                             className='recurrence-input'
-                            ref='inputDay'/>
+                            ref='inputDayOfMonth'/>
                         <label>of every</label>
                         <TextField
                             className='recurrence-input'
-                            ref='inputDayInterval'/>
+                            ref='inputIntervalMonth'/>
                         <label>Month(s)</label>
                     </div>
                 </div>
@@ -87,19 +103,19 @@ var Monthly = React.createClass({
                 <div className="row">
                     <div className="col-small-6">
                         <DropDownMenu
-                            onChange={this._handleDropDownChange.bind(this, 'nthOccurrence')}
-                            selectedIndex={this.props.data.nthOccurrence - 1}
+                            onChange={this._handleDropDownChange.bind(this, 'instance')}
+                            selectedIndex={this.props.data.instance - 1}
                             menuItems={this.props.instance}/>
                         <DropDownMenu
-                            onChange={this._handleDropDownChange.bind(this, 'nthDayOfWeek')}
-                            selectedIndex={this.props.data.nthDayOfWeek - 1}
+                            onChange={this._handleDropDownChange.bind(this, 'dayOfWeek')}
+                            selectedIndex={this.props.data.dayOfWeek - 1}
                             menuItems={this.props.dayOfWeek}/>
                     </div>
                     <div>
                         <label>of every</label>
                         <TextField
                             className='recurrence-input'
-                            ref='inputNthInterval'/>
+                            ref='inputIntervalNth'/>
                         <label>Month(s)</label>
                     </div>
                 </div>
@@ -173,11 +189,11 @@ var Monthly = React.createClass({
          * Lets save the input values in the state to be retrieved later.
          * If the user changes the type of monthly recurrence, the state values are retrieved
          */
-        if (this.refs.inputDay) {
-            data.day = this.refs.inputDay.getValue();
-            data.interval = this.refs.inputDayInterval.getValue();
-        } else if (this.refs.inputMonthInterval) {
-            data.nthInterval = this.refs.inputNthInterval.getValue();
+        if (this.refs.inputDayOfMonth) {
+            data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
+            data.intervalMonth = this.refs.inputIntervalMonth.getValue();
+        } else if (this.refs.inputIntervalNth) {
+            data.intervalNth = this.refs.inputIntervalNth.getValue();
         }
 
         this.setState({data: data});
@@ -189,11 +205,11 @@ var Monthly = React.createClass({
      * @private
      */
     _setInputValues: function () {
-        if (this.refs.inputDay) {
-            this.refs.inputDay.setValue(this.state.data.day);
-            this.refs.inputDayInterval.setValue(this.state.data.interval);
-        } else if (this.refs.inputMonthInterval) {
-            this.refs.inputNthInterval.setValue(this.state.data.nthInterval);
+        if (this.refs.inputDayOfMonth) {
+            this.refs.inputDayOfMonth.setValue(this.state.data.dayOfMonth);
+            this.refs.inputIntervalMonth.setValue(this.state.data.intervalMonth);
+        } else if (this.refs.inputIntervalNth) {
+            this.refs.inputIntervalNth.setValue(this.state.data.intervalNth);
         }
     },
 
@@ -203,16 +219,22 @@ var Monthly = React.createClass({
      * @return {object}
      * @public
      */
-    getData: function () {
-        var data = {type: this.state.data.type};
+    getData: function (isState) {
+        var data = {};
 
-        if (data.type == typeMonthly) {
-            data.day = this.refs.inputDay.getValue();
-            data.interval = this.refs.inputDayInterval.getValue();
+        if (isState) {
+            data.type = this.state.data.type;
+
+            if (data.type == typeMonthly) {
+                data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
+                data.interval = this.refs.inputIntervalMonth.getValue();
+            } else {
+                data.interval = this.refs.inputIntervalNth.getValue();
+                data.instance = this.state.data.instance;
+                data['day' + this.state.data.dayOfWeek] = 't';
+            }
         } else {
-            data.nthDayOfWeek = this.state.data.nthDayOfWeek;
-            data.nthOccurrence = this.state.data.nthOccurrence;
-            data.nthInterval = this.refs.inputNthInterval.getValue();
+            data = this.state.data;
         }
 
         return data;
