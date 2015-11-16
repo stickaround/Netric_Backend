@@ -12,6 +12,7 @@ var UiEntity = require("../ui/Entity.jsx");
 var definitionLoader = require("../entity/definitionLoader");
 var entityLoader = require("../entity/loader");
 var entitySaver = require("../entity/saver");
+var actionsLoader = require("../entity/actionsLoader");
 var log = require("../log");
 
 /**
@@ -58,6 +59,16 @@ EntityController.prototype.entity_ = null;
 EntityController.prototype.eventsObj_ = null;
 
 /**
+ * Entity actions object
+ *
+ * @private
+ * @type {netric.entity.actions.*}
+ */
+EntityController.prototype.actions_ = null;
+
+
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -65,6 +76,8 @@ EntityController.prototype.eventsObj_ = null;
 EntityController.prototype.onLoad = function(opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
+
+    this.actions_ = actionsLoader.get(this.props.objType);
 
     if (!this.props.objType) {
         throw "objType is a required property to load an entity";
@@ -128,6 +141,11 @@ EntityController.prototype.onLoad = function(opt_callback) {
             // Setup an empty entity
             this.entity_ = entityLoader.factory(this.props.objType);
 
+            // Check if we have default data for the new entity
+            if (this.props.entityData) {
+                this._initEntityData(this.props.entityData);
+            }
+
             // Set listener to call this.render when properties change
             alib.events.listen(this.entity_, "change", function(evt){
                 // Re-render
@@ -154,6 +172,7 @@ EntityController.prototype.render = function() {
     var data = {
         objType: this.props.objType,
         oid: this.props.oid,
+        actionHandler: this.actions_,
         eventsObj: this.eventsObj_,
         entity: this.entity_,
         onNavBtnClick: function(evt) {
@@ -164,6 +183,9 @@ EntityController.prototype.render = function() {
         }.bind(this),
         onCancelChanges: function(evt) {
             this.revertChanges();
+        }.bind(this),
+        onPerformAction: function(actionName) {
+            this._performAction(actionName);
         }.bind(this)
     }
 
@@ -223,6 +245,10 @@ EntityController.prototype.saveEntity = function() {
     entitySaver.save(this.entity_, function() {
         log.info("Entity saved");
     });
+
+    if (this.props.onSave) {
+        this.props.onSave(this.entity_);
+    }
     
 }
 
@@ -261,5 +287,55 @@ EntityController.prototype.setObjectField = function(fname) {
         }.bind(this)
     });
 }
+
+/**
+ * Set entity values from a data array
+ *
+ * This is usually used when values are forwarded to the controller
+ * from the calling function for setting default values.
+ *
+ * @param {Object} data
+ * @private
+ */
+EntityController.prototype._initEntityData = function(data) {
+
+    for (var prop in data) {
+        var val = data[prop];
+        if (val instanceof Array) {
+            // TODO: Not yet implemented
+            //this.entity_.addMultiValue(prop, val);
+        } else if (val instanceof Object) {
+            this.entity_.setValue(prop, val.key, val.value);
+        } else {
+
+            this.entity_.setValue(prop, val);
+        }
+    }
+};
+
+/**
+ * Perform an action on this entity
+ *
+ * @private
+ * @param {string} actionName
+ */
+EntityController.prototype._performAction = function(actionName) {
+
+    var selected = [this.entity_.id];
+    var objType = this.entity_.def.objType;
+
+    var workingText = this.actions_.performAction(actionName, objType, selected, function(error, message) {
+
+        if (error) {
+            log.error(message);
+        }
+
+        // TODO: clear workingText notification
+
+    }.bind(this));
+
+    // TODO: display working notification(workingText) only if the function has not already finished
+}
+
 
 module.exports = EntityController;

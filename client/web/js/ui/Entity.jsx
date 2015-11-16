@@ -12,6 +12,8 @@ var Chamel = require('chamel');
 var AppBar = Chamel.AppBar;
 var IconButton = Chamel.IconButton;
 var Dialog = Chamel.Dialog;
+var netric = require('../base');
+var actionModes = require("../entity/actions/actionModes");
 
 /**
  * Module shell
@@ -49,14 +51,20 @@ var Entity = React.createClass({
     render: function() {
 
         var rightIcons = [];
+        var actions = null;
 
         if (this.state.editMode) {
-            rightIcons.push(
-                <IconButton iconClassName="fa fa-check" onClick={this.saveClick_}></IconButton>
-            );
+            actions = this.props.actionHandler.getActions(actionModes.EDIT, [this.props.entity.id]);
         } else {
+            actions = this.props.actionHandler.getActions(actionModes.VIEW, [this.props.entity.id]);
+        }
+
+        for (var i in actions) {
             rightIcons.push(
-                <IconButton iconClassName="fa fa-pencil" onClick={this.editModeClick_}></IconButton>
+                <IconButton
+                    iconClassName={actions[i].iconClassName}
+                    onClick={this.handleActionClick_.bind(this, actions[i].name)}>
+                </IconButton>
             );
         }
         
@@ -64,16 +72,29 @@ var Entity = React.createClass({
         var appBarClassName = (this.state.editMode) ? "edit" : "detail";
         var appBarZDepth = (this.state.editMode) ? 0 : 1;
 
+        var appBarTitle = (netric.getApplication().device.size <= netric.Device.sizes.small) ?
+            null : this.props.entity.def.title.toUpperCase() + "-" + this.props.entity.id;
+
         if (this.props.onNavBtnClick) {
-            appBar = (<AppBar
-                className={appBarClassName}
-                iconClassNameLeft="fa fa-times"
-                zDepth={appBarZDepth}
-                onNavBtnClick={this.navigationClick_}>
-                {rightIcons}
-            </AppBar>);
+            appBar = (
+                <AppBar
+                    title={appBarTitle}
+                    className={appBarClassName}
+                    iconClassNameLeft="fa fa-times"
+                    zDepth={appBarZDepth}
+                    onNavBtnClick={this.navigationClick_}>
+                    {rightIcons}
+                </AppBar>
+            );
         } else {
-            appBar = (<AppBar zDepth={appBarZDepth} className={appBarClassName}>{rightIcons}</AppBar>);
+            appBar = (
+                <AppBar
+                    title={appBarTitle}
+                    zDepth={appBarZDepth}
+                    className={appBarClassName}>
+                    {rightIcons}
+                </AppBar>
+            );
         }
 
         // Get the form
@@ -187,6 +208,31 @@ var Entity = React.createClass({
 
         if (this.props.onSaveClick) {
             this.props.onSaveClick();
+        }
+    },
+
+    /**
+     * Handle when an action is clicked from the app/tool bar
+     *
+     * @param actionName
+     * @private
+     */
+    handleActionClick_: function(actionName) {
+
+        switch (actionName) {
+            /*
+             * If the action is to move into edit mode then there's no need call
+             * the controller since it's only a UI change.
+             */
+            case "edit":
+                this.editModeClick_(null);
+                break;
+            case "save":
+                this.saveClick_(null);
+                break;
+            default:
+                this.props.onPerformAction(actionName);
+                break;
         }
     }
 

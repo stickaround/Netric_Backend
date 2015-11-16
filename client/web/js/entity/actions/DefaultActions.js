@@ -20,9 +20,9 @@ var DefaultActions = function() {
 }
 
 /**
- * Extend base controller class
+ * Example of any derrived classes extending this
  */
-//netric.inherits(EntityBrowserController, DefaultActions);
+//netric.inherits(TaskActions, DefaultActions);
 
 /**
  * Default actions when in browse mode
@@ -172,6 +172,23 @@ DefaultActions.prototype.remove = function(objType, selectedEntities, finishedFu
 	});
 
 	return "Deleting";
+}
+
+/**
+ * Entity delete action
+ *
+ * @param {string} objType The type of object to perform the action on
+ * @param {int[]} selectedEntities The entities to perform the action on
+ * @param {function} finishedFunction A funciton to call when finished
+ * @return {string} Working text like "Deleting" or "Saving"
+ */
+DefaultActions.prototype.print = function(objType, selectedEntities, finishedFunction) {
+
+    log.notice("Printing " + selectedEntities.length + " " + objType);
+
+    // TODO: still not implemented
+
+    return "";
 }
 
 module.exports = DefaultActions;

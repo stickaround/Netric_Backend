@@ -20,7 +20,7 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 	 *
 	 * @var \Netric\Db\DbInterface
 	 */
-	private function $dbh = null;
+	private $dbh = null;
 
 	/**
 	 * Class constructor to set up dependencies
@@ -38,7 +38,7 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 	
 	/**
 	 * TODO: The below code used to be inside CRecurrencePattern but
-	 * we have moved it into a datamapper to separate persistence logic 
+	 * we have moved it into a datamapper to separate persistence logic
 	 * from business logic.
 	 *
 	 * We need to use public get and set functions in the recurrence pattern
@@ -49,15 +49,14 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 	 */
 	public function save(RecurrencePattern $recurPattern)
 	{
-		if (!$this->validatePattern())
-		{
+		if (!$this->validatePattern()) {
 			return false;
 		}
 
 		$dbh = $this->dbh;
 		$toUpdate = array();
 		$toupdate['object_type_id'] = $dbh->escapeNumber($this->object_type_id);
-		$toupdate['object_type'] = "'".$dbh->escape($this->object_type)."'";
+		$toupdate['object_type'] = "'" . $dbh->escape($this->object_type) . "'";
 		$toupdate['date_processed_to'] = $dbh->escapeDate($this->dateProcessedTo);
 		$toupdate['parent_object_id'] = $dbh->escapeNumber($this->parentId);
 
@@ -74,37 +73,31 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 		$toupdate['f_active'] = ($this->fActive) ? "'t'" : "'f'";
 		$toupdate['ep_locked'] = $this->epLocked;
 
-		if ($this->id && $dbh->getNumRows($dbh->query("select id from object_recurrence WHERE id=".$dbh->escapeNumber($this->id))))
-		{
+		if ($this->id && $dbh->getNumRows($dbh->query("select id from object_recurrence WHERE id=" . $dbh->escapeNumber($this->id)))) {
 			$upd = "";
-			foreach ($toupdate as $fname=>$fval)
-			{
+			foreach ($toupdate as $fname => $fval) {
 				if ($upd) $upd .= ", ";
-				$upd .= $fname."=".$fval;
+				$upd .= $fname . "=" . $fval;
 			}
 
 			if ($upd) $upd .= ", ";
-			$upd .= "dayofweekmask[1]='".(($this->dayOfWeekMask & WEEKDAY_SUNDAY) ? 't' : 'f')."', ";
-			$upd .= "dayofweekmask[2]='".(($this->dayOfWeekMask & WEEKDAY_MONDAY) ? 't' : 'f')."', ";
-			$upd .= "dayofweekmask[3]='".(($this->dayOfWeekMask & WEEKDAY_TUESDAY) ? 't' : 'f')."', ";
-			$upd .= "dayofweekmask[4]='".(($this->dayOfWeekMask & WEEKDAY_WEDNESDAY) ? 't' : 'f')."', ";
-			$upd .= "dayofweekmask[5]='".(($this->dayOfWeekMask & WEEKDAY_THURSDAY) ? 't' : 'f')."', ";
-			$upd .= "dayofweekmask[6]='".(($this->dayOfWeekMask & WEEKDAY_FRIDAY) ? 't' : 'f')."', ";
-			$upd .= "dayofweekmask[7]='".(($this->dayOfWeekMask & WEEKDAY_SATURDAY) ? 't' : 'f')."'";
+			$upd .= "dayofweekmask[1]='" . (($this->dayOfWeekMask & WEEKDAY_SUNDAY) ? 't' : 'f') . "', ";
+			$upd .= "dayofweekmask[2]='" . (($this->dayOfWeekMask & WEEKDAY_MONDAY) ? 't' : 'f') . "', ";
+			$upd .= "dayofweekmask[3]='" . (($this->dayOfWeekMask & WEEKDAY_TUESDAY) ? 't' : 'f') . "', ";
+			$upd .= "dayofweekmask[4]='" . (($this->dayOfWeekMask & WEEKDAY_WEDNESDAY) ? 't' : 'f') . "', ";
+			$upd .= "dayofweekmask[5]='" . (($this->dayOfWeekMask & WEEKDAY_THURSDAY) ? 't' : 'f') . "', ";
+			$upd .= "dayofweekmask[6]='" . (($this->dayOfWeekMask & WEEKDAY_FRIDAY) ? 't' : 'f') . "', ";
+			$upd .= "dayofweekmask[7]='" . (($this->dayOfWeekMask & WEEKDAY_SATURDAY) ? 't' : 'f') . "'";
 
-			$query = "UPDATE object_recurrence SET $upd where id='".$this->id."'; select '".$this->id."' as id;";
-		}
-		else
-		{
+			$query = "UPDATE object_recurrence SET $upd where id='" . $this->id . "'; select '" . $this->id . "' as id;";
+		} else {
 			if ($this->useId)
 				$toupdate['id'] = $this->useId;
 
 			$flds = "";
 			$vls = "";
-			foreach ($toupdate as $fname=>$fval)
-			{
-				if ($flds) 
-				{	
+			foreach ($toupdate as $fname => $fval) {
+				if ($flds) {
 					$flds .= ", ";
 					$vls .= ", ";
 				}
@@ -113,47 +106,44 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 				$vls .= $fval;
 			}
 
-			if ($flds) 
-			{	
+			if ($flds) {
 				$flds .= ", ";
 				$vls .= ", ";
 			}
 
-			$flds	.= "dayofweekmask[1],";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_SUNDAY) ? 't' : 'f')."', ";
-			$flds	.= "dayofweekmask[2],";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_MONDAY) ? 't' : 'f')."', ";
-			$flds	.= "dayofweekmask[3],";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_TUESDAY) ? 't' : 'f')."', ";
-			$flds	.= "dayofweekmask[4],";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_WEDNESDAY) ? 't' : 'f')."', ";
-			$flds	.= "dayofweekmask[5],";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_THURSDAY) ? 't' : 'f')."', ";
-			$flds	.= "dayofweekmask[6],";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_FRIDAY) ? 't' : 'f')."', ";
-			$flds	.= "dayofweekmask[7]";
-			$vls	.="'".(($this->dayOfWeekMask & WEEKDAY_SATURDAY) ? 't' : 'f')."'";
+			$flds .= "dayofweekmask[1],";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_SUNDAY) ? 't' : 'f') . "', ";
+			$flds .= "dayofweekmask[2],";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_MONDAY) ? 't' : 'f') . "', ";
+			$flds .= "dayofweekmask[3],";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_TUESDAY) ? 't' : 'f') . "', ";
+			$flds .= "dayofweekmask[4],";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_WEDNESDAY) ? 't' : 'f') . "', ";
+			$flds .= "dayofweekmask[5],";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_THURSDAY) ? 't' : 'f') . "', ";
+			$flds .= "dayofweekmask[6],";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_FRIDAY) ? 't' : 'f') . "', ";
+			$flds .= "dayofweekmask[7]";
+			$vls .= "'" . (($this->dayOfWeekMask & WEEKDAY_SATURDAY) ? 't' : 'f') . "'";
 
 			$query = "INSERT INTO object_recurrence($flds) VALUES($vls); ";
-			
+
 			if ($this->useId)
-				$query .= "select '".$this->useId."' as id;";
+				$query .= "select '" . $this->useId . "' as id;";
 			else
 				$query .= "select currval('object_recurrence_id_seq') as id;";
 		}
 
 		//echo $query;
 		$result = $dbh->query($query);
-		if (!$this->id)
-		{
-			if ($dbh->getNumRows($result))
-			{
+		if (!$this->id) {
+			if ($dbh->getNumRows($result)) {
 				$this->id = $dbh->getValue($result, 0, "id");
 			}
 		}
 
 		if ($this->debug)
-			echo "<pre>SAVE: ".var_export($toupdate,true)."</pre>";
+			echo "<pre>SAVE: " . var_export($toupdate, true) . "</pre>";
 
 		return $this->id;
 	}
@@ -172,8 +162,7 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 
 		$query = "select nextval('object_recurrence_id_seq') as id;";
 		$result = $dbh->query($query);
-		if ($dbh->getNumRows($result))
-		{
+		if ($dbh->getNumRows($result)) {
 			$ret = $dbh->getValue($result, 0, "id");
 			$this->useId = $ret;
 		}
@@ -198,14 +187,13 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 					date_end, dayofmonth, instance, monthofyear, ep_locked,
 					dayofweekmask[1] as day1, dayofweekmask[2] as day2, dayofweekmask[3] as day3, dayofweekmask[4] as day4,
 					dayofweekmask[5] as day5, dayofweekmask[6] as day6, dayofweekmask[7] as day7
-					from object_recurrence where id='".$id."'";
+					from object_recurrence where id='" . $id . "'";
 		//echo "<pre>$query</pre>";
 		$result = $dbh->query($query);
-		if ($dbh->getNumRows($result))
-		{
+		if ($dbh->getNumRows($result)) {
 			$row = $dbh->GetRow($result, 0);
 
-			foreach ($row as $name=>$val)
+			foreach ($row as $name => $val)
 				$this->arrChangeLog[$name] = $val;
 
 			$this->object_type_id = $row['object_type_id'];
@@ -216,33 +204,33 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 			$this->interval = $row['interval'];
 			$this->dateStart = $row['date_start'];
 			$this->dateEnd = $row['date_end'];
-            
-            if(isset($row['calendar_id']))
-			    $this->calendarId = $row['calendar_id'];
-                
-            if(isset($row['t_start']))
-			    $this->timeStart = $row['t_start'];
-                
-            if(isset($row['t_end']))
-			    $this->timeEnd = $row['t_end'];
-            
-            if(isset($row['dayofmonth']))
-			    $this->dayOfMonth = $row['dayofmonth'];
-                
-            if(isset($row['duration']))
-			    $this->duration = $row['duration'];
-                
-            if(isset($row['instance']))
-			    $this->instance = $row['instance'];
-                
-            if(isset($row['monthofyear']))
-			    $this->monthOfYear = $row['monthofyear'];
 
-            if(isset($row['ep_locked']))
-			    $this->epLocked = $row['ep_locked'];
+			if (isset($row['calendar_id']))
+				$this->calendarId = $row['calendar_id'];
 
-            $this->fAllDay = (isset($row['all_day']) && $row['all_day']=='t') ? true : false;
-            
+			if (isset($row['t_start']))
+				$this->timeStart = $row['t_start'];
+
+			if (isset($row['t_end']))
+				$this->timeEnd = $row['t_end'];
+
+			if (isset($row['dayofmonth']))
+				$this->dayOfMonth = $row['dayofmonth'];
+
+			if (isset($row['duration']))
+				$this->duration = $row['duration'];
+
+			if (isset($row['instance']))
+				$this->instance = $row['instance'];
+
+			if (isset($row['monthofyear']))
+				$this->monthOfYear = $row['monthofyear'];
+
+			if (isset($row['ep_locked']))
+				$this->epLocked = $row['ep_locked'];
+
+			$this->fAllDay = (isset($row['all_day']) && $row['all_day'] == 't') ? true : false;
+
 			if ($row['day1'] == 't')
 				$this->dayOfWeekMask = $this->dayOfWeekMask | WEEKDAY_SUNDAY;
 			if ($row['day2'] == 't')
@@ -261,8 +249,7 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 			$dbh->FreeResults($result);
 
 			// Load recurrence rules
-			if ($row['object_type'])
-			{
+			if ($row['object_type']) {
 				$odef = new CAntObject($dbh, $row['object_type']);
 				$this->fieldDateStart = $odef->def->recurRules['field_date_start'];
 				$this->fieldTimeStart = $odef->def->recurRules['field_time_start'];
@@ -288,13 +275,11 @@ class RecurrenceDataMapperDb extends \Netric\DataMapperAbstract
 		if (!is_numeric($id))
 			return false;
 
-		if ($this->dbh->query("delete from object_recurrence where id='" . $id . "'"))
-		{
+		if ($this->dbh->query("delete from object_recurrence where id='" . $id . "'")) {
 			return true;
-		}
-		else
-		{
+		} else {
 			$this->lastError = $this->dbh->getLastError();
 			return false;
 		}
 	}
+}

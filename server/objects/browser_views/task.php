@@ -15,7 +15,7 @@ return array(
 		'conditions' => array(
             'user' => array(
                 'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'owner_id',
+                'field_name' => 'user_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
                 'value' => -3
             ),
@@ -47,7 +47,7 @@ return array(
 		'conditions' => array(
 				'user' => array(
 						'blogic' => Where::COMBINED_BY_AND,
-						'field_name' => 'owner_id',
+						'field_name' => 'user_id',
 						'operator' => Where::OPERATOR_EQUAL_TO,
 						'value' => -3
 				),
@@ -85,7 +85,7 @@ return array(
 		'conditions' => array(
 				'user' => array(
 						'blogic' => Where::COMBINED_BY_AND,
-						'field_name' => 'owner_id',
+						'field_name' => 'user_id',
 						'operator' => Where::OPERATOR_EQUAL_TO,
 						'value' => -3
 				),

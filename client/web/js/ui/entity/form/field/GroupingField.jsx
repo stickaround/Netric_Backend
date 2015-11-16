@@ -50,11 +50,19 @@ var GroupingField = React.createClass({
         var selectElement = null;
 
         if (this.props.editMode) {
+
+          var addLabel = "Set " + field.title;
+          if (field.type == field.types.fkeyMulti) {
+              addLabel = "Add " + field.title;
+          }
+
           selectElement = (
             <GroupingSelect 
               objType={this.props.entity.def.objType}
-                fieldName={fieldName}
-              onChange={this._handleGroupAdd} />
+              fieldName={fieldName}
+              onChange={this._handleGroupAdd}
+              label={addLabel}
+            />
           );
         }
 

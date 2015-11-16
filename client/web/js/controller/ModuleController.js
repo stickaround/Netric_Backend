@@ -280,7 +280,7 @@ ModuleController.prototype.setupEntityRoute_ = function(navItem) {
 		{
 			type: controller.types.FRAGMENT,
 			objType: navItem.objType,
-			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
+			onNavBtnClick: (netric.getApplication().device.size >= netric.Device.sizes.large) ?
 				null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
 		},
 		ReactDOM.findDOMNode(this.rootReactNode_.refs.moduleMain)
@@ -299,7 +299,7 @@ ModuleController.prototype.setupEntityBrowseRoute_ = function(navItem) {
 			type: controller.types.FRAGMENT,
 			objType: navItem.objType,
 			title: navItem.title,
-			onNavBtnClick: (netric.getApplication().device.size == netric.Device.sizes.large) ?
+			onNavBtnClick: (netric.getApplication().device.size >= netric.Device.sizes.large) ?
 				null : function(e) { this.rootReactNode_.refs.leftNav.toggle(); }.bind(this)
 		},
 		ReactDOM.findDOMNode(this.rootReactNode_.refs.moduleMain)

@@ -117,6 +117,9 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
             // make sure we have set the objType of the browserView
             this.browserView_.setObjType(this.props.objType);
 
+            // Setup the controller
+            this._setupCollection();
+
             if (opt_callback) {
                 opt_callback();
             }
@@ -135,19 +138,6 @@ EntityBrowserController.prototype.render = function() {
     // Render the react components
     this.reactRender_();
 
-	// Load the entity list
-	this.collection_ = new EntityCollection(this.props.objType);
-	alib.events.listen(this.collection_, "change", function() {
-	    this.onCollectionChange();
-	}.bind(this));
-
-    alib.events.listen(this.collection_, "loading", function() {
-        this.onCollectionLoading();
-    }.bind(this));
-
-    alib.events.listen(this.collection_, "loaded", function() {
-        this.onCollectionLoaded();
-    }.bind(this));
 
     // Load the colleciton
     this.loadCollection();
@@ -202,7 +192,6 @@ EntityBrowserController.prototype.reactRender_ = function() {
     // Define the data
     var data = {
         title: this.props.browsebytitle ||this.props.title,
-        entities: new Array(),
         deviceSize: netric.getApplication().device.size,
         layout: layout,
         actionHandler: this.actions_,
@@ -255,7 +244,7 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
     if (objType && oid) {
         // Mark the entity as selected
         if (this.props.objType == objType) {
-            this.selected_ = new Array();
+            this.selected_ = [];
             this.selected_.push(oid);
 
             // Need to re-render to display changes
@@ -296,7 +285,10 @@ EntityBrowserController.prototype.onSearchChange = function(fullText, opt_condit
  * Fill the collection for this browser
  */
 EntityBrowserController.prototype.loadCollection = function() {
-    
+
+    // Setup the controller in case it was not setup before
+    this._setupCollection();
+
     // Clear out conditions to remove stale wheres
     this.collection_.clearConditions();
     this.collection_.clearOrderBy();
@@ -517,6 +509,33 @@ EntityBrowserController.prototype._displayAdvancedSearch = function() {
             this._applyAdvancedSearch(browserView)
         }.bind(this),
     }); 
+}
+
+/**
+ * Make sure the entity collection is setup for this browser
+ *
+ * @private
+ */
+EntityBrowserController.prototype._setupCollection = function() {
+
+    // Only setup the entity controller the first time
+    if (this.collection_) {
+        return;
+    }
+
+    // Load the entity list
+    this.collection_ = new EntityCollection(this.props.objType);
+    alib.events.listen(this.collection_, "change", function() {
+        this.onCollectionChange();
+    }.bind(this));
+
+    alib.events.listen(this.collection_, "loading", function() {
+        this.onCollectionLoading();
+    }.bind(this));
+
+    alib.events.listen(this.collection_, "loaded", function() {
+        this.onCollectionLoaded();
+    }.bind(this));
 }
 
 module.exports = EntityBrowserController;

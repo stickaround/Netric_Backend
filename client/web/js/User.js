@@ -39,6 +39,6 @@ var User = function(opt_data)
 	 * @type {string}
 	 */
 	this.fullName = initData.fullName || "";
-}
+};
 
 module.exports = User;
