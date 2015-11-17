@@ -7,10 +7,13 @@
  */
 namespace Netric\Entity\Recurrence;
 
+use Netric\Error\Error;
+use Netric\Error\ErrorAwareInterface;
+
 /**
  * Pattern used to recur entities
  */
-class RecurrencePattern
+class RecurrencePattern implements ErrorAwareInterface
 {
 	/**
 	 * Type of recurrence applied to this pattern
@@ -82,13 +85,6 @@ class RecurrencePattern
 	const WEEKDAY_SATURDAY = 64;
 
 	/**
-	 * The duration of the pattern in minutes
-	 * 
-	 * @var int
-	 */
-	private $duration = null;
-
-	/**
 	 * The 1st-5th(last) RECUR_MONTHNTH and RECUR_YEARNTH
 	 *
 	 * Instance of a weekday within in month such as 1st Sunday or last thirsday.
@@ -110,27 +106,18 @@ class RecurrencePattern
 	private $fActive = true;
 
 	/**
-	 * The object type id that is associated with this recurrence pattern
-	 *
-	 * @var int unique id of EntityDefinition
-	 */
-	private $object_type_id = null;
-
-	/**
-	 * Name of the object type assoicated with this recurrence
+	 * Name of the object type associated with this recurrence
 	 *
 	 * @var string Name of EntityDefintion
 	 */
-	private $object_type = 0;
+	private $objType = 0;
 
 	/**
-	 * ID of originating object - orginal event or task where recur was started
+	 * ID of originating entity - orginal event or task where recur was started
 	 * 
 	 * @var int
 	 */
-	private $parentId = null;
-
-	//var $calendarId;		// (optional) calnedar id of this recurrence instance
+	private $firstEntityId = null;
 
 	/**
 	 * The last date this recurrence processsed to.
@@ -151,18 +138,6 @@ class RecurrencePattern
 	private $id = null;
 
 	/**
-	 * We can reserve an ID to use when creating a new instace via getNextId()
-	 *
-	 * When the pattern is saved for the first time, it will check this field
-	 * to see if it should be using a reserved ID or request a new one. This is
-	 * sometimes used when we need to save a reference to a recurrence in an entity
-	 * before saving the details of said recurrence.
-	 *
-	 * @var int
-	 */
-	private $useId = null;
-
-	/**
 	 * The entity field name used set the start for each instance
 	 * 
 	 * This is required for all recurring entities.
@@ -179,7 +154,6 @@ class RecurrencePattern
 	 * @var string
 	 */
 	private $fieldTimeStart = null;
-
 
 	/**
 	 * Entity field name used to set the end date for each instance
@@ -206,10 +180,174 @@ class RecurrencePattern
 
 	/**
 	 * Locked timestamp
-	 *
-	 * @var int (epoch)
+     *
+     * @var int (epoch)
+     */
+    public $epLocked = 0;
+
+    /**
+     * Set or load this pattern from an associative array
+     *
+     * @param array $data
+     */
+    public function fromArray(array $data)
+    {
+        /*
+         * Set properties with public setters
+         */
+        if (isset($data['id']))
+            $this->setId($data['id']);
+
+        if (isset($data['recur_type']))
+            $this->setRecurType($data['recur_type']);
+
+        if (isset($data['interval']))
+            $this->setInterval($data['interval']);
+
+        if (isset($data['instance']))
+            $this->setInstance($data['instance']);
+
+        if (isset($data['day_of_month']))
+            $this->setDayOfMonth($data['day_of_month']);
+
+        if (isset($data['month_of_year']))
+            $this->setMonthOfYear($data['month_of_year']);
+
+        // In this case we are not setting individual bits with $this->setDayOfWeek
+        if (isset($data['day_of_week_mask']))
+            $this->dayOfWeekMask = $data['day_of_week_mask'];
+
+        if (isset($data['date_start']))
+            $this->setDateStart(new \DateTime($data['date_start']));
+
+        if (isset($data['date_end']))
+            $this->setDateEnd(new \DateTime($data['date_end']));
+
+        if (isset($data['date_processed_to']))
+            $this->setDateProcessedTo(new \DateTime($data['date_processed_to']));
+
+        /*
+         * Private properties mostly related to the entity that are used mostly
+         * for saving and loading and are not exposed through getters and setters.
+         */
+        if (isset($data['f_active']))
+            $this->fAllDay = $data['f_active'];
+
+        if (isset($data['obj_type']))
+            $this->objType = $data['obj_type'];
+
+        if (isset($data['first_entity_id']))
+            $this->firstEntityId = $data['first_entity_id'];
+
+        if (isset($data['field_date_start']))
+            $this->fieldDateStart = $data['field_date_start'];
+
+        if (isset($data['field_date_end']))
+            $this->fieldDateEnd = $data['field_date_end'];
+
+        if (isset($data['field_time_start']))
+            $this->fieldTimeStart = $data['field_time_start'];
+
+        if (isset($data['field_time_end']))
+            $this->fieldTimeEnd = $data['field_time_end'];
+
+        if (isset($data['ep_locked']))
+            $this->epLocked = $data['ep_locked'];
+    }
+
+    /**
+     * Convert this recurrence pattern to an associative array
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        // Format dates for export
+        $dateStart = ($this->dateStart) ? $this->dateStart->format("Y-m-d") : null;
+        $dateEnd = ($this->dateEnd) ? $this->dateEnd->format("Y-m-d") : null;
+        $dateProcessedTo =($this->dateProcessedTo) ? $this->dateProcessedTo->format("Y-m-d") : null;
+
+        return array(
+            "id" => $this->id,
+            "recur_type" => $this->recurType,
+            "interval" => $this->interval,
+            "instance" => $this->instance,
+            "day_of_month" => $this->dayOfMonth,
+            "month_of_year" => $this->monthOfYear,
+            "day_of_week_mask" => $this->dayOfWeekMask,
+            "date_start" => $dateStart,
+            "date_end" => $dateEnd,
+            "f_active" => $this->fActive,
+            "obj_type" => $this->objType,
+            "first_entity_id" => $this->firstEntityId,
+            "date_processed_to" => $dateProcessedTo,
+            "field_date_start" => $this->fieldDateStart,
+            "field_date_end" => $this->fieldDateEnd,
+            "field_time_start" => $this->fieldTimeStart,
+            "field_time_end" => $this->fieldTimeEnd,
+            "ep_locked" => $this->epLocked,
+        );
+    }
+
+    /**
+     * Get the last error reported
+     *
+     * @return Error
+     */
+    public function getLastError()
+    {
+        return new Error($this->lastError);
+    }
+
+    /**
+     * Required for ErrorAwareInterface but we really only return one last error for now
+     *
+     * @return Error[]
+     */
+    public function getErrors()
+    {
+        return array(new Error($this->lastError));
+    }
+
+    /**
+     * Set the id of this recurrence pattern
+     *
+     * @param int $id
 	 */
-	public $epLocked = 0;
+	public function setId($id)
+	{
+		$this->id = $id;
+	}
+
+	/**
+	 * Get the id of this recurrence pattern
+	 *
+	 * @return int
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+    /**
+     * Set the object type we are working with
+     *
+     * @param string $objType
+     */
+    public function setObjType($objType)
+    {
+        $this->objType = $objType;
+    }
+
+    /**
+     * Get the object type we are working with
+     *
+     * @return string
+     */
+    public function getObjType()
+    {
+        return $this->objType;
+    }
 
 	/**
 	 * Set the recurrence type
@@ -221,6 +359,16 @@ class RecurrencePattern
 		$this->recurType = $typeId;
 	}
 
+    /**
+     * Get tyep type of recurrance
+     *
+     * @return const
+     */
+    public function getRecurType()
+    {
+        return $this->recurType;
+    }
+
 	/**
 	 * Set the interval
 	 *
@@ -230,6 +378,16 @@ class RecurrencePattern
 	{
 		$this->interval = $interval;
 	}
+
+    /**
+     * Get the interval
+     *
+     * @return int
+     */
+    public function getInterval()
+    {
+        return $this->interval;
+    }
 
 	/**
 	 * Set the start date
@@ -241,6 +399,16 @@ class RecurrencePattern
 		$this->dateStart = $dateStart;
 	}
 
+    /**
+     * Get the start date for this pattern
+     *
+     * @return \DateTime
+     */
+    public function getDateStart()
+    {
+        return $this->dateStart;
+    }
+
 	/**
 	 * Set the end date
 	 *
@@ -250,6 +418,16 @@ class RecurrencePattern
 	{
 		$this->dateEnd = $dateEnd;
 	}
+
+    /**
+     * Get the end date for this pattern
+     *
+     * @return \DateTime
+     */
+    public function getDateEnd()
+    {
+        return $this->dateEnd;
+    }
 
 	/**
 	 * Update the processed to date
@@ -302,7 +480,7 @@ class RecurrencePattern
 	/**
 	 * Set the nth instance for all nth type recurring patterns
 	 *
-	 * @param int $dayOfMonth
+	 * @param int $instance
 	 */
 	public function setInstance($instance)
 	{
@@ -346,37 +524,25 @@ class RecurrencePattern
 			return true;
 		else if ($this->arrChangeLog['instance'] != $this->instance)
 			return true;
-		else if ($this->arrChangeLog['day1']=='t' && !($this->dayOfWeekMask & WEEKDAY_SUNDAY))
-			return true;
-		else if ($this->arrChangeLog['day1']=='f' && ($this->dayOfWeekMask & WEEKDAY_SUNDAY))
-			return true;
-		else if ($this->arrChangeLog['day2']=='t' && !($this->dayOfWeekMask & WEEKDAY_MONDAY))
-			return true;
-		else if ($this->arrChangeLog['day2']=='f' && ($this->dayOfWeekMask & WEEKDAY_MONDAY))
-			return true;
-		else if ($this->arrChangeLog['day3']=='t' && !($this->dayOfWeekMask & WEEKDAY_TUESDAY))
-			return true;
-		else if ($this->arrChangeLog['day3']=='f' && ($this->dayOfWeekMask & WEEKDAY_TUESDAY))
-			return true;
-		else if ($this->arrChangeLog['day4']=='t' && !($this->dayOfWeekMask & WEEKDAY_WEDNESDAY))
-			return true;
-		else if ($this->arrChangeLog['day4']=='f' && ($this->dayOfWeekMask & WEEKDAY_WEDNESDAY))
-			return true;
-		else if ($this->arrChangeLog['day5']=='t' && !($this->dayOfWeekMask & WEEKDAY_THURSDAY))
-			return true;
-		else if ($this->arrChangeLog['day5']=='f' && ($this->dayOfWeekMask & WEEKDAY_THURSDAY))
-			return true;
-		else if ($this->arrChangeLog['day6']=='t' && !($this->dayOfWeekMask & WEEKDAY_FRIDAY))
-			return true;
-		else if ($this->arrChangeLog['day6']=='f' && ($this->dayOfWeekMask & WEEKDAY_FRIDAY))
-			return true;
-		else if ($this->arrChangeLog['day7']=='t' && !($this->dayOfWeekMask & WEEKDAY_SATURDAY))
-			return true;
-		else if ($this->arrChangeLog['day7']=='f' && ($this->dayOfWeekMask & WEEKDAY_SATURDAY))
+		else if ($this->arrChangeLog['dayofweekmask'] != $this->dayOfWeekMask)
 			return true;
 
 		return false;
 	}
+
+    public function resetIsChanged()
+    {
+        $this->arrChangeLog = array(
+            "interval" => $this->interval,
+            "type" => $this->recurType,
+            "date_start" => $this->dateStart,
+            "date_end" => $this->dateEnd,
+            "dayofmonth" => $this->dayOfMonth,
+            "monthofyear" => $this->monthOfYear,
+            "instance" => $this->instance,
+            "dayofweekmask" =>$this->dayOfWeekMask
+        );
+    }
 
 	
 	/**
@@ -1005,37 +1171,37 @@ class RecurrencePattern
 
 		switch ($this->recurType)
 		{
-		case RECUR_DAILY:
+		case self::RECUR_DAILY:
 			if ($this->interval)
 				return true;
 			else
 				$this->lastError = "interval is a required param for daily recurrence";
 			break;
-		case RECUR_WEEKLY:
+		case self::RECUR_WEEKLY:
 			if ($this->dayOfWeekMask && $this->interval)
 				return true;
 			else
 				$this->lastError = "Weekly recurrence requires a dayOfWeekMask to be set with interval";
 			break;
-		case RECUR_MONTHLY:
+		case self::RECUR_MONTHLY:
 			if ($this->dayOfMonth && $this->interval)
 				return true;
 			else
 				$this->lastError = "Monthly recurrence requires dayOfMonth and interval params to be set";
 			break;
-		case RECUR_MONTHNTH:
+		case self::RECUR_MONTHNTH:
 			if ($this->dayOfWeekMask && $this->instance && $this->interval)
 				return true;
 			else
 				$this->lastError = "Monthnth requires dayOfWeekMask, instance and interval";
 			break;
-		case RECUR_YEARLY:
+		case self::RECUR_YEARLY:
 			if ($this->monthOfYear && !$this->dayOfMonth && $this->interval)
 				return true;
 			else
 				$this->lastError = "Yearly requires monthOfYear, dayofMonth, and interval params";
 			break;
-		case RECUR_YEARNTH:
+		case self::RECUR_YEARNTH:
 			if ($this->monthOfYear && $this->instance && $this->interval)
 				return true;
 			else

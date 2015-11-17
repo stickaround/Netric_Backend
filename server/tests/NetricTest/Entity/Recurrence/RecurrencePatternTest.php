@@ -39,38 +39,6 @@ class RecurrencePatternTest extends PHPUnit_Framework_TestCase
 		$this->assertInstanceof('\Netric\Entity\Recurrence\RecurrencePattern', $pattern);
 	}
 
-	/**
-	 * This appears to be more of a datamapper test
-	 */
-	/*
-	function testRecurWeeklyBitwise() 
-	{
-		$rp = new CRecurrencePattern($this->dbh);
-		$rp->type = RECUR_WEEKLY;
-		$rp->interval = 1;
-		$rp->dateStart = "1/2/2011"; // First sunday
-		$rp->dateEnd = "1/15/2011";
-		$rp->dayOfWeekMask = $rp->dayOfWeekMask | WEEKDAY_MONDAY;
-		$rp->dayOfWeekMask = $rp->dayOfWeekMask | WEEKDAY_WEDNESDAY;
-		// Test before save
-		$this->assertNotNull($rp->dayOfWeekMask & WEEKDAY_MONDAY);
-		$this->assertNotNull($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY);
-
-		// Save and unset for reloading
-		$rid = $rp->save();
-		unset($rp);
-
-		// Open and test
-		$rp = new CRecurrencePattern($this->dbh, $rid);
-		$this->assertEquals($rp->type, RECUR_WEEKLY);
-		$this->assertNotNull($rp->dayOfWeekMask & WEEKDAY_MONDAY);
-		$this->assertNotNull($rp->dayOfWeekMask & WEEKDAY_WEDNESDAY);
-
-		// Cleanup
-		$rp->remove();
-	}
-	*/
-
 	public function testSetDayOfWeek()
 	{
 		$rp = new RecurrencePattern();
@@ -236,65 +204,54 @@ class RecurrencePatternTest extends PHPUnit_Framework_TestCase
 		$this->assertFalse($tsNext); // Past the dateEnd
 	}
 
-	/**************************************************************************
-	 * Function: 	testRecurInternalFunctions
-	 *
-	 * Purpose:		Test internal functions like save, ischanged, etc...
-	 **************************************************************************/
-	/*
-	function testRecurInternalFunctions() 
+	public function testToAndFromArray()
 	{
-		$dbh = $this->dbh;
+		$import = array(
+			"id" => 123,
+            "recur_type" => RecurrencePattern::RECUR_MONTHLY,
+			"interval" => 2,
+			"instance" => RecurrencePattern::NTH_1ST,
+			"day_of_month" => 1, // 1st
+			"month_of_year" => 1, // 1-12 = January
+			"day_of_week_mask" => RecurrencePattern::WEEKDAY_FRIDAY | RecurrencePattern::WEEKDAY_MONDAY,
+			"date_start" => "2015-01-01",
+			"date_end" => "2015-02-01",
+			"f_active" => true,
+			"obj_type" => "task",
+			"first_entity_id" => 444,
+			"date_processed_to" => "2015-03-01",
+			"field_date_start" => "deadline",
+			"field_date_end" => "deadline",
+			"field_time_start" => "ts_start",
+			"field_time_end" => "ts_end",
+			"ep_locked" => time(),
+		);
 
-		// Create calendar event for testing
-		$obj = new CAntObject($dbh, "calendar_event", null, $this->user);
-		$obj->setValue("name", "testRecurInternalFunctions");
-		$obj->setValue("ts_start", "1/2/2011 12:00 PM PST");
-		$obj->setValue("ts_end", "1/2/2011 12:30 PM PST");
-		$eid = $obj->save();
+		$recur = new RecurrencePattern();
+		$recur->fromArray($import);
 
-		// Test save & open
-		$rp = new CRecurrencePattern($dbh);
-		$rp->type = RECUR_WEEKLY;
-		$rp->interval = 1;
-		$rp->dateStart = "1/1/2011";
-		$rp->dateEnd = "1/30/2011";
-		$rp->dayOfWeekMask = $rp->dayOfWeekMask | WEEKDAY_SUNDAY;
-		$rp->object_type_id = $obj->object_type_id;
-		$rp->object_type = $obj->object_type;
-		$rp->parentId = $eid;
-		$rp->fieldDateStart = "ts_start";
-		$rp->fieldTimeStart = "ts_start";
-		$rp->fieldDateEnd = "ts_end";
-		$rp->fieldTimeEnd = "ts_end";
-		$rpid = $rp->save();
-		unset($rp);
+		// Convert back to an array and test
+		$exported = $recur->toArray();
 
-		// Test open
-		$rp = new CRecurrencePattern($dbh, $rpid);
-		$this->assertEquals($rp->type, RECUR_WEEKLY);
-		$this->assertEquals($rp->interval, 1);
-		$this->assertEquals(strtotime($rp->dateStart), strtotime("1/1/2011"));
-		$this->assertEquals(strtotime($rp->dateEnd), strtotime("1/30/2011"));
-
-		// Test isChanged with above opened rp
-		$this->assertFalse($rp->isChanged());
-		$rp->interval = 2;
-		$this->assertTrue($rp->isChanged());
-		unset($rp);
-		
-		// Test isChanged with weekdaymask
-		$rp = new CRecurrencePattern($dbh, $rpid);
-		$rp->dayOfWeekMask = $rp->dayOfWeekMask | WEEKDAY_WEDNESDAY; // Add wednesday
-		$this->assertTrue($rp->isChanged());
-
-		// Test delete
-		$this->assertTrue($rp->remove());
-
-		$obj->remove();
-		$obj->remove();
+		$this->assertEquals($import['id'], $exported['id']);
+		$this->assertEquals($import['recur_type'], $exported['recur_type']);
+        $this->assertEquals($import['interval'], $exported['interval']);
+		$this->assertEquals($import['instance'], $exported['instance']);
+		$this->assertEquals($import['day_of_month'], $exported['day_of_month']);
+		$this->assertEquals($import['month_of_year'], $exported['month_of_year']);
+		$this->assertEquals($import['day_of_week_mask'], $exported['day_of_week_mask']);
+		$this->assertEquals($import['date_start'], $exported['date_start']);
+		$this->assertEquals($import['date_end'], $exported['date_end']);
+		$this->assertEquals($import['f_active'], $exported['f_active']);
+		$this->assertEquals($import['obj_type'], $exported['obj_type']);
+		$this->assertEquals($import['first_entity_id'], $exported['first_entity_id']);
+		$this->assertEquals($import['date_processed_to'], $exported['date_processed_to']);
+		$this->assertEquals($import['field_date_start'], $exported['field_date_start']);
+		$this->assertEquals($import['field_date_end'], $exported['field_date_end']);
+		$this->assertEquals($import['field_time_start'], $exported['field_time_start']);
+		$this->assertEquals($import['field_time_end'], $exported['field_time_end']);
+		$this->assertEquals($import['ep_locked'], $exported['ep_locked']);
 	}
-	*/
 
 	/**
 	 * @group recur

@@ -13,7 +13,7 @@
 namespace Netric\Entity\Recurrence;
 
 /**
- * Class creates entities from a pattern
+ * Class creates entities from a RecurrencePattern
  */
 class EntitySeriesWriter
 {
@@ -22,7 +22,7 @@ class EntitySeriesWriter
 	*
 	*	Purpose: 	Loop through and created recurring object until $toDate
 	***************************************************************************/
-	punlic function createInstances($toDate, $debug=false)
+	public function createInstances($toDate, $debug=false)
 	{
 		// Make sure we are working with a valid pattern
 		if (!$this->validatePattern())
