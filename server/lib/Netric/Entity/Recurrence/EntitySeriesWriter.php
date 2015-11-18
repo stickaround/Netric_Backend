@@ -1,11 +1,6 @@
 <?php
 /**
- * Create a series of entities from a recurrence pattern.
- * 
- * This class is a complete work in progress! All the functions below
- * were pasted from the old CRecurrencePattern class. This class will be
- * used at the entity or entity DataMapper level for applying recurrence
- * series logic to entities on save and delete.
+ * Handle a series of recurring entities based on a recurrence pattern
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014-2015 Aereus
@@ -13,7 +8,7 @@
 namespace Netric\Entity\Recurrence;
 
 /**
- * Class creates entities from a pattern
+ * Class creates entities from a RecurrencePattern
  */
 class EntitySeriesWriter
 {
@@ -22,10 +17,18 @@ class EntitySeriesWriter
 	*
 	*	Purpose: 	Loop through and created recurring object until $toDate
 	***************************************************************************/
-	punlic function createInstances($toDate, $debug=false)
+
+	/**
+	 * Create all entities in a recurrence pattern up to a specified date
+	 *
+	 * @param RecurrencePattern $pattern
+	 * @param \DateTime $toDate
+	 * @return int number of entities created
+	 */
+	public function createInstances(RecurrencePattern $pattern, \DateTime $toDate)
 	{
 		// Make sure we are working with a valid pattern
-		if (!$this->validatePattern())
+		if (!$pattern->validatePattern())
 			return 0;
 
 		// Make sure we are not locked by another process within the last 2 minutes

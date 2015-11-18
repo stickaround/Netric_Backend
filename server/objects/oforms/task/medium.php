@@ -1,9 +1,11 @@
 <tabs>
     <tab name='General'>
+        <row>
+            <column>
+                <field name='name' class='headline'></field>
+            </column>
+        </row>
         <fieldset name='Details'>
-            <row>
-                <field name='name'></field>
-            </row>
             <row>
                 <column>
                     <field name='done'></field>
@@ -60,4 +62,4 @@
     </tab>
 </tabs>
 
-<plugin name='logtime'></plugin>
+<plugin name='LogTime'></plugin>

@@ -18,5 +18,42 @@ namespace Netric\Db;
  */
 interface DbInterface 
 {
-    //put your code here
+    /**
+     * Escape a string
+     *
+     * @param string $value
+     * @return string Escaped string
+     */
+    public function escape($value);
+
+    /**
+     * Escape a number
+     *
+     * @param int $number
+     * @return string Escaped string
+     */
+    public function escapeNumber($number);
+
+    /**
+     * Escape a date string
+     *
+     * @param string $date
+     * @return string Escaped string
+     */
+    public function escapeDate($date);
+
+    /**
+     * Return number of rows for a given result
+     *
+     * @return int
+     */
+    public function getNumRows($result);
+
+    /**
+     * Execute an SQL query
+     *
+     * @param $sql The sql to run
+     * @return result
+     */
+    public function query($sql);
 }

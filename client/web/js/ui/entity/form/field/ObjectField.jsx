@@ -10,6 +10,7 @@ var Chamel = require("chamel");
 var Dialog = Chamel.Dialog;
 var controller = require("../../../../controller/controller");
 var ObjectSelect = require("../../ObjectSelect.jsx");
+var entityLoader = require("../../../../entity/loader");
 
 
 /**
@@ -27,6 +28,27 @@ var ObjectField = React.createClass({
         editMode: React.PropTypes.bool
     },
 
+    getInitialState: function() {
+      return ({
+          // Used if valueName was not set for the field value
+          valueLabel: ""
+      });
+    },
+
+    componentDidMount: function() {
+        // Make sure we have the field value label set
+        var fieldName = this.props.xmlNode.getAttribute('name');
+        var field = this.props.entity.def.getField(fieldName);
+        var fieldValue = this.props.entity.getValue(fieldName);
+        var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
+
+        if (fieldValue && !valueLabel && !this.state.valueLabel) {
+            entityLoader.get(field.subtype, fieldValue, function(ent) {
+                this.setState({valueLabel: ent.getName()});
+            }.bind(this));
+        }
+    },
+
     /**
      * Render the component
      */
@@ -34,11 +56,21 @@ var ObjectField = React.createClass({
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('name');
 
+        if (fieldName == "task_id")
+            console.log("Entered Objectfield with state", this.state.valueLabel);
+
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
         var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
-        if (!valueLabel) {
+
+        // Handle blank labels
+        if (!valueLabel && !fieldValue) {
             valueLabel = "Not Set";
+        } else if (!valueLabel && this.state.valueLabel) {
+            valueLabel = this.state.valueLabel;
+        } else {
+            // We will set this.state.valueLabel after mounting
+            valueLabel = "Loading...";
         }
 
         if (this.props.editMode) {

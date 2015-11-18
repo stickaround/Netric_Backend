@@ -180,9 +180,7 @@ log.error = function() {
  * NOTE: This overrides the above function completely.
  */
 if (process.env.NODE_ENV === "development") {
-    if (log.level < log.levels.error) {
-        log.error = console.error.bind(window.console);
-    }
+    log.error = console.error.bind(window.console);
 }
 
 
@@ -228,9 +226,7 @@ log.warning = function(message) {
  * NOTE: This overrides the above function completely.
  */
 if (process.env.NODE_ENV === "development") {
-    if (log.level < log.levels.warning) {
-        log.warning = console.warn.bind(window.console);
-    }
+    log.warning = console.warn.bind(window.console);
 }
 
 /**
@@ -263,9 +259,7 @@ log.notice = function() {
  * NOTE: This overrides the above function completely.
  */
 if (process.env.NODE_ENV === "development") {
-    if (log.level < log.levels.notice) {
-        log.notice = console.log.bind(window.console);
-    }
+    log.notice = console.log.bind(window.console);
 }
 
 /**
@@ -298,9 +292,7 @@ log.info = function(message) {
  * NOTE: This overrides the above function completely.
  */
 if (process.env.NODE_ENV === "development") {
-    if (log.level < log.levels.info) {
-        log.info = console.log.bind(window.console);
-    }
+    log.info = console.log.bind(window.console);
 }
 
 module.exports = log;
