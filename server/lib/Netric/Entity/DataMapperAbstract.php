@@ -9,6 +9,7 @@
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
+use Netric\Entity\Recurrence\RecurrenceDataMapper;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
@@ -34,6 +35,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 protected $commitManager = null;
 
 	/**
+	 * Recurrence Pattern Data Mapper
+	 *
+	 * @var RecurrenceDataMapper
+	 */
+	private $recurDataMapper = null;
+
+	/**
 	 * Class constructor
 	 * 
 	 * @param ServiceLocator $sl The ServiceLocator container
@@ -44,6 +52,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$this->setAccount($account);
 		$this->setUp();
 
+        $this->recurDataMapper = $account->getServiceManager()->get("RecurrenceDataMapper");
 		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
 		$this->entitySync = $account->getServiceManager()->get("EntitySync");
 	}
@@ -159,11 +168,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 		// Increment revision for this save
 		$revision = $entity->getValue("revision");
-		if (!$revision)
-			$revision = 1;
-		else
-			$revision++;
-
+		$revision = (!$revision) ? 1 : ++$revision;
 		$entity->setValue("revision", $revision);
 
 		// Create new global commit revision
@@ -176,9 +181,21 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $user = $this->getAccount()->getUser();
         $entity->setFieldsDefault($event, $user);
 
+		// If this is a new recurrence pattern, then we need to get the next recurring id
+		// so we can save it to the entity before saving the recurrence pattern itself.
+		$useRecurId = null;
+		if ($entity->getRecurrencePattern() && $entity->getDefinition()->recurRules)
+		{
+			if (!$entity->getValue($this->def->recurRules['field_recur_id']))
+			{
+				$useRecurId = $this->recurDataMapper->getNextId();
+				$entity->setValue($this->def->recurRules['field_recur_id'], $useRecurId);
+			}
+		}
+
 		// Call beforeSave
-		if ($this->getAccount()->getServiceManager())
-			$entity->beforeSave($this->getAccount()->getServiceManager());
+		if ($serviceManager)
+			$entity->beforeSave($serviceManager);
 
 		// Save data to DataMapper implementation
 		$ret = null;
@@ -192,12 +209,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			 * We tried to save but there was something wrong with the definition (field not added?)
 			 * Sometimes we need to force the system fields to reset in order to update
 			 * the entity database -- especially if a new field was added to system fields.
+			 * Try to update the definition in case it is out of sync
 			 */
-
-			// Try to update the definition in case it is out of sync
-			if ($this->getAccount()->getServiceManager())
+			if ($serviceManager)
 			{
-				$entityDefLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+				$entityDefLoader = $serviceManager->get("EntityDefinitionLoader");
 				$entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
 
 				// Try saving again
@@ -214,8 +230,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			//$this->getServiceLocator()->get("EntityCollection_Index")->save($entity);
 		
 		// Clear cache in the EntityLoader
-		if ($this->getAccount()->getServiceManager())
-			$this->getAccount()->getServiceManager()->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
+		if ($serviceManager)
+			$serviceManager->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
 		
 		// Log the change in entity sync
 		if ($ret && $lastCommitId && $commitId)
@@ -226,11 +242,23 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Call onAfterSave
-		if ($this->getAccount()->getServiceManager())
-			$entity->afterSave($this->getAccount()->getServiceManager());
+		if ($serviceManager)
+			$entity->afterSave($serviceManager);
 
 		// Reset dirty flag and changelog
 		$entity->resetIsDirty();
+
+		// Save the recurrence pattern
+		if (!$entity->isRecurrenceException() && $entity->getRecurrencePattern())
+		{
+			$recurrencePattern = $entity->getRecurrencePattern();
+			if (!$recurrencePattern->getObjType())
+				$recurrencePattern->setObjType($entity->getDefinition()->getObjType());
+
+			// $useRecurId may be set before save if this is a new pattern so we
+			// saved the unique id of the recurrence pattern to the entity
+			$this->recurDataMapper->save($recurrencePattern, $useRecurId);
+		}
 
 		return $ret;
 	}
@@ -251,6 +279,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			if ($movedToId && $movedToId != $id)
 				$ret = $this->fetchById($entity, $movedToId);
 		}
+
+        // Load a recurrence pattern if set
+        if ($entity->getDefinition()->recurRules)
+        {
+            // If we have a recurrence pattern id then load it
+            $recurId = $entity->getValue($this->def->recurRules['field_recur_id']);
+            if ($recurId)
+            {
+                $recurPattern = $this->recurDataMapper->load($recurId);
+                $entity->setRecurrencePattern($recurPattern);
+            }
+        }
 
         // Reset dirty flag and changelog since we just loaded
         $entity->resetIsDirty();

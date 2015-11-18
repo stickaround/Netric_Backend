@@ -12,4 +12,11 @@ namespace Netric\ServiceManager;
  */
 interface ServiceLocatorInterface
 {
+    /**
+     * Get a service by name
+     *
+     * @param string $serviceName
+     * @return mixed The service object and false on failure
+     */
+    public function get($serviceName);
 }

@@ -7,6 +7,7 @@ namespace Netric;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\Field;
+use Netric\Entity\Recurrence\RecurrencePattern;
 
 class Entity implements \Netric\Entity\EntityInterface
 {
@@ -51,6 +52,20 @@ class Entity implements \Netric\Entity\EntityInterface
 	 * @var array
 	 */
 	private $changelog = array();
+
+	/**
+	 * Recurrence pattern if this entity is part of a series
+	 *
+	 * @var RecurrencePattern
+	 */
+	private $recurrencePattern = null;
+
+    /**
+     * Flag to indicate if this is a recurrence exception in the serices
+     *
+     * @var bool
+     */
+    private $isRecurrenceException = false;
     
     /**
      * Class constructor
@@ -283,6 +298,38 @@ class Entity implements \Netric\Entity\EntityInterface
         $this->setValue($fieldName, array(), array());
     }
 
+	/**
+	 * Get the local recurrence pattern
+	 *
+	 * @return RecurrencePattern
+	 */
+	public function getRecurrencePattern()
+	{
+		return $this->recurrencePattern;
+	}
+
+    /**
+     * Check if this entity is an exception to a recurrence series
+     *
+     * @return bool
+     */
+    public function isRecurrenceException()
+    {
+        return $this->isRecurrenceException;
+    }
+
+	/**
+	 * Set the recurrence pattern
+	 *
+	 * @param RecurrencePattern $recurrencePattern
+	 */
+	public function setRecurrencePattern(RecurrencePattern $recurrencePattern)
+	{
+		if ($recurrencePattern->getObjType() != $this->getDefinition()->getObjType())
+			$recurrencePattern->setObjType($this->getDefinition()->getObjType());
+		$this->recurrencePattern = $recurrencePattern;
+	}
+
     /**
      * Record changes to the local changelog
      *
@@ -380,6 +427,17 @@ class Entity implements \Netric\Entity\EntityInterface
 				$this->setValue($fname, $value, $valName);
 			}
 		}
+
+		// If the recurrence pattern data was passed then load it
+		if (isset($data['recurrence_pattern']))
+		{
+			$this->recurrencePattern = new RecurrencePattern();
+			$this->recurrencePattern->fromArray($data['recurrence_pattern']);
+			$this->recurrencePattern->setObjType($this->getDefinition()->getObjType());
+		}
+
+        if (isset($data['recurrence_exception']))
+            $this->isRecurrenceException = $data['recurrence_exception'];
 	}
 
 	/**
@@ -392,7 +450,17 @@ class Entity implements \Netric\Entity\EntityInterface
 		$data = array(
 			"obj_type" => $this->objType,
 		);
-		
+
+        // If this is a recurring object, indicate if this is an exception
+        if ($this->def->recurRules)
+        {
+            // If the field_recur_id is set then this is part of a series
+            if ($this->getValue($this->def->recurRules['field_recur_id']))
+            {
+                $data['recurrence_exception'] = $this->isRecurrenceException;
+            }
+        }
+
 		$fields = $this->def->getFields();
 
 		foreach ($fields as $fname=>$field)
@@ -434,6 +502,12 @@ class Entity implements \Netric\Entity\EntityInterface
                     $data[$fname . "_fval"]["$val"] = $this->getValueName($fname, $val);
                 }
             }
+		}
+
+		// Send the recurrence pattern if it is set
+		if ($this->recurrencePattern)
+		{
+			$data['recurrence_pattern'] = $this->recurrencePattern->toArray();
 		}
 
 		return $data;

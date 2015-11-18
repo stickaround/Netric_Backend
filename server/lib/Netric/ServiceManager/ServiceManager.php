@@ -248,12 +248,24 @@ class ServiceManager implements ServiceLocatorInterface
 	 * @return DataMapper
 	 */ 
 	private function factoryEntity_DataMapper()
-	{
+    {
 		// For now all we support is pgsql
 		$dm = new Netric\Entity\DataMapper\Pgsql($this->getAccount(), $this->get("Db"));
 		return $dm;
 	}
-    
+
+    /**
+     * Get the recurrence datamapper
+     *
+     * @return RecurrenceDataMapper
+     */
+    private function factoryRecurrenceDataMapper()
+    {
+        $entDefLoader = $this->get("EntityDefinitionLoader");
+        $dbh = $this->get("Db");
+        return new \Netric\Entity\Recurrence\RecurrenceDataMapper($this->getAccount(), $dbh, $entDefLoader);
+    }
+
     /**
 	 * Construct and get handle to account database
 	 *

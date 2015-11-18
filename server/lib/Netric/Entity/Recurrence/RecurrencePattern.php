@@ -530,6 +530,9 @@ class RecurrencePattern implements ErrorAwareInterface
 		return false;
 	}
 
+    /**
+     * Clear isChanged to start tracking from this point forward
+     */
     public function resetIsChanged()
     {
         $this->arrChangeLog = array(
@@ -737,6 +740,7 @@ class RecurrencePattern implements ErrorAwareInterface
 	 * Step through to the next start date for monthly recurrence
 	 *
 	 * @return \DateTime
+     * @throws \InvalidParamsException if required properties were not yet set
 	 */
 	private function getNextStartMonthly()
 	{
