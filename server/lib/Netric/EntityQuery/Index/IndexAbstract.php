@@ -47,10 +47,10 @@ abstract class IndexAbstract
     /**
 	 * Save an object to the index
 	 *
-     * @param \Netric\Entity $entity Entity to save
+     * @param \Netric\Entity\Entity $entity Entity to save
 	 * @return bool true on success, false on failure
 	 */
-	abstract public function save(\Netric\Entity $entity);
+	abstract public function save(\Netric\Entity\Entity $entity);
     
     /**
 	 * Delete an object from the index

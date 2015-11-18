@@ -2,7 +2,7 @@
 /**
  * Test entity/object class
  */
-namespace NetricTest;
+namespace NetricTest\Entity;
 
 use Netric;
 use PHPUnit_Framework_TestCase;

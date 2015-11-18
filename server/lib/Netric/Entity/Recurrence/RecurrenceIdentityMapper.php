@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity\Recurrence;
 
-use Netric\Entity;
+use Netric\Entity\Entity;
 
 class RecurrenceIdentityMapper
 {

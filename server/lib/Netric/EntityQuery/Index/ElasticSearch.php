@@ -22,10 +22,10 @@ class ElasticSearch extends IndexAbstract
     /**
 	 * Save an object to the index
 	 *
-     * @param \Netric\Entity $entity Entity to save
+     * @param \Netric\Entity\Entity $entity Entity to save
 	 * @return bool true on success, false on failure
 	 */
-	public function save(\Netric\Entity $entity)
+	public function save(\Netric\Entity\Entity $entity)
     {
         // TODO: build
         return true;

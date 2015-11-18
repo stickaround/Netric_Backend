@@ -11,11 +11,13 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager;
 use Netric\EntityDefinition;
 use Netric\EntityLoader;
+use Netric\Entity\Entity;
+use Netric\Entity\EntityInterface;
 
 /**
  * Folder for entity
  */
-class Folder extends \Netric\Entity implements \Netric\Entity\EntityInterface
+class Folder extends Entity implements EntityInterface
 {
     /**
      * Entity loader for getting files and folders by id

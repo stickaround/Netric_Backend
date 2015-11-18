@@ -10,13 +10,15 @@ namespace Netric\Entity\ObjType;
 
 use DoctrineTest\InstantiatorTestAsset\ExceptionAsset;
 use Netric\Authentication\AuthenticationService;
+use Netric\Entity\Entity;
+use Netric\Entity\EntityInterface;
 
 /**
  * Description of User
  *
  * @author Sky Stebnicki
  */
-class User extends \Netric\Entity implements \Netric\Entity\EntityInterface
+class User extends Entity implements EntityInterface
 {
     /**
      * System users

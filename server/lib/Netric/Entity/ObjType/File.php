@@ -7,14 +7,14 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\Entity;
-
 use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Entity\Entity;
+use Netric\Entity\EntityInterface;
 
 /**
  * Folder for entity
  */
-class File extends Entity implements \Netric\Entity\EntityInterface
+class File extends Entity implements EntityInterface
 {
     /**
      * File handle reference

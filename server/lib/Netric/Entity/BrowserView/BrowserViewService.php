@@ -17,7 +17,7 @@ use Netric;
 /**
  * Class for managing entity forms
  *
- * @package Netric\Entity
+ * @package Netric\Entity\Entity
  */
 class BrowserViewService
 {

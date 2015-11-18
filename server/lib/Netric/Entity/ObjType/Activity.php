@@ -8,12 +8,15 @@
 
 namespace Netric\Entity\ObjType;
 
+use Netric\Entity\Entity;
+use Netric\Entity\EntityInterface;
+
 /**
  * Description of User
  *
  * @author Sky Stebnicki
  */
-class Activity extends \Netric\Entity implements \Netric\Entity\EntityInterface
+class Activity extends Entity implements EntityInterface
 {
     /**
      * Callback function used for derrived subclasses
