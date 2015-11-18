@@ -283,13 +283,26 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 		return null;
 	}
 
+    /**
+     * Delete a recurrence pattern
+     *
+     * @param RecurrencePattern $recurrencePattern
+     * @return bool
+     */
+    public function delete(RecurrencePattern $recurrencePattern)
+    {
+        if (!$recurrencePattern->getId())
+            throw new \InvalidArgumentException("You cannot delete a pattern that has not been saved");
+        return $this->deleteById($recurrencePattern->getId());
+    }
+
 	/**
 	 * Delete recurrence pattern by id
 	 *
 	 * @param int $id The unique id of the recurring pattern to delete
      * @return bool true on success, false on failure
 	 */
-	public function removeById($id)
+	public function deleteById($id)
 	{
 		if (!is_numeric($id))
 			return false;

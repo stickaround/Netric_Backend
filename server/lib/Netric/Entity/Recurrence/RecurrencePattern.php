@@ -7,6 +7,7 @@
  */
 namespace Netric\Entity\Recurrence;
 
+use Netric\Entity;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
 
@@ -310,6 +311,17 @@ class RecurrencePattern implements ErrorAwareInterface
     }
 
     /**
+     * Check to see if an entity is the first entity in a series
+     *
+     * @param Entity $entity The entity to check
+     * @return bool
+     */
+    public function entityIsFirst(Entity $entity)
+    {
+        return ($entity->getId() && $entity->getId() == $this->firstEntityId);
+    }
+
+    /**
      * Set the id of this recurrence pattern
      *
      * @param int $id
@@ -367,6 +379,26 @@ class RecurrencePattern implements ErrorAwareInterface
     public function getRecurType()
     {
         return $this->recurType;
+    }
+
+    /**
+     * Get the first entity id in this series
+     *
+     * @return int
+     */
+    public function getFirstEntityId()
+    {
+        return $this->firstEntityId;
+    }
+
+    /**
+     * Set the first entity id in this series
+     *
+     * @param int $entityId
+     */
+    public function setFirstEntityId($entityId)
+    {
+        $this->firstEntityId = $entityId;
     }
 
 	/**
