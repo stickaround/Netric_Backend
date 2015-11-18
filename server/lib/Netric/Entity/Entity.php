@@ -2,7 +2,7 @@
 /**
  * Entities will replace objects eventually. The reason for the rename is simply because Object is not a good name given reserved ns.
  */
-namespace Netric;
+namespace Netric\Entity;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\FileSystem\FileSystem;

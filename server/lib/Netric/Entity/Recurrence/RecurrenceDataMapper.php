@@ -13,6 +13,7 @@ namespace Netric\Entity\Recurrence;
 
 use Netric\Db;
 use Netric\EntityDefinitionLoader;
+use Netric\Error;
 
 class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 {
@@ -66,6 +67,7 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
      * @param int $useId We can reserve an ID to use when creating a new instace via getNextId()
 	 * @return int Unique id of the pattern on success or null on failure this $this->lastError set
 	 * @throws \InvalidArgumentException in the instance that the pattern is not valid
+     * @throws \RuntimeException if saving failed for some reason
      */
 	public function save(RecurrencePattern $recurPattern, $useId = null)
 	{
@@ -97,6 +99,17 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
             'f_active' => (($data['f_active']) ? "'t'" : "'f'"),
             'ep_locked' => $data['ep_locked'],
         );
+
+        /*
+         * It is possible that the id of the recurrence pattern was pre-set with the
+         * next unique id prior to it having been saved in the database. If this is the
+         * case we will need to make sure we include the id in the insert statement
+         * because we cannot ever assume that if it already has an id that it was previously saved.
+         */
+        if ($recurPattern->getId())
+        {
+            $toUpdate['id'] = $recurPattern->getId();
+        }
 
         $sql = "select id from object_recurrence WHERE id=" . $dbh->escapeNumber($recurPattern->getId());
 		if ($recurPattern->getId() && $dbh->getNumRows($dbh->query($sql)))
@@ -166,8 +179,11 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 				$query .= "select currval('object_recurrence_id_seq') as id;";
 		}
 
-		//echo $query;
+		//echo "\n-----\n" . $query . "\n-----\n";
 		$result = $dbh->query($query);
+        if (!$result)
+            throw new \RuntimeException("Error saving recurrence: " . $dbh->getLastError());
+
 		if (!$recurPattern->getId())
         {
 			if ($dbh->getNumRows($result))
@@ -317,4 +333,17 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 			return false;
 		}
 	}
+
+    /**
+     * Return the last error that occurred
+     *
+     * @return Error\Error
+     */
+    public function getLastError()
+    {
+        if ($this->lastError)
+            return new Error\Error($this->lastError);
+        else
+            return null;
+    }
 }

@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity\Recurrence;
 
-use Netric\Entity;
+use Netric\Entity\Entity;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
 
@@ -111,7 +111,7 @@ class RecurrencePattern implements ErrorAwareInterface
 	 *
 	 * @var string Name of EntityDefintion
 	 */
-	private $objType = 0;
+	private $objType = null;
 
 	/**
 	 * ID of originating entity - orginal event or task where recur was started

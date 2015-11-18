@@ -9,10 +9,13 @@
  */
 namespace Netric\Entity\DataMapper;
 
-use \Netric\Entity;
+use Netric\Entity;
+use Netric\Entity\DataMapperAbstract;
+use Netric\Entity\DataMapperInterface;
+
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 
-class Pgsql extends Entity\DataMapperAbstract implements Entity\DataMapperInterface
+class Pgsql extends DataMapperAbstract implements DataMapperInterface
 {
 	/**
 	 * The database host

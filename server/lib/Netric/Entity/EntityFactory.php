@@ -62,7 +62,7 @@ class EntityFactory
         {
             $def = $this->serviceManager->get("EntityDefinitionLoader")->get($objType);
             // TODO: if !$def then throw an exception
-            $obj = new \Netric\Entity($def);
+            $obj = new \Netric\Entity\Entity($def);
         }
 
         return $obj;

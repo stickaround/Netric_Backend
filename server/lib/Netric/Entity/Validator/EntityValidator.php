@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity\Validator;
 
-use Netric\Entity;
+use Netric\Entity\Entity;
 use Netric\Error;
 
 /**

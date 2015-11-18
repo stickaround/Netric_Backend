@@ -32,10 +32,10 @@ class Pgsql extends IndexAbstract implements IndexInterface
     /**
 	 * Save an object to the index
 	 *
-     * @param \Netric\Entity $entity Entity to save
+     * @param \Netric\Entity\Entity $entity Entity to save
 	 * @return bool true on success, false on failure
 	 */
-	public function save(\Netric\Entity $entity)
+	public function save(\Netric\Entity\Entity $entity)
     {
         // Nothing need be done because we are currently storing data in pgsql
         return true;
@@ -866,7 +866,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             }
             else
             {
-                $objRef = \Netric\Entity::decodeObjRef($condValue);
+                $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
                 if ($objRef)
                 {
                     $refDef = $this->getDefinition($objRef['obj_type']);
@@ -1061,7 +1061,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             }
             else
             {
-                $objRef = \Netric\Entity::decodeObjRef($condValue);
+                $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
                 if ($objRef)
                 {
                     $refDef = $this->getDefinition($objRef['obj_type']);

@@ -7,11 +7,44 @@
  */
 namespace Netric\Entity\Recurrence;
 
+use Netric\Entity;
+
 /**
  * Class creates entities from a RecurrencePattern
  */
 class EntitySeriesWriter
 {
+	/**
+	 * Recurrence Pattern Data Mapper
+	 *
+	 * @var RecurrenceDataMapper
+	 */
+	private $recurDataMapper = null;
+
+	/**
+	 * Identity mapper for loading/saving/caching recurrence patterns
+	 *
+	 * @var RecurrenceIdentityMapper
+	 */
+	private $recurIdentityMapper = null;
+
+	/**
+	 * Setup the class
+	 *
+	 * @param RecurrenceDataMapper $recurrenceDataMapper
+	 * @param RecurrenceIdentityMapper $identityMapper For loading/saving/caching patterns
+	 */
+	public function __construct(RecurrenceDataMapper $recurrenceDataMapper, RecurrenceIdentityMapper $identityMapper)
+	{
+		$this->recurDataMapper = $recurrenceDataMapper;
+		$this->recurIdentityMapper = $identityMapper;
+	}
+
+	public function prepareForEntitySave(Entity $entity)
+	{
+
+	}
+
 	/**************************************************************************
 	*	Function: 	createInstances
 	*
@@ -207,56 +240,5 @@ class EntitySeriesWriter
 			$obj->recurrenceException = true; // Prevent loops
 			$obj->remove(); // series of objects
 		}
-	}
-
-	/**************************************************************************
-	*	Function: 	saveFromObj
-	*
-	*	Purpose: 	Save called from recurring object
-	***************************************************************************/
-	function saveFromObj($obj)
-	{
-		$dbh = $this->dbh;
-		
-		if ($obj->id)
-		{
-			$workingObj = $obj;
-
-			// Move current object ask parent
-			if ($this->parentId != $obj->id)
-				$this->parentId = $obj->id;
-
-			$curStart = $workingObj->getValue($obj->def->recurRules['field_date_start']);
-
-			if (!$curStart)
-				return false; // should never happen but just in case, start_field value of cur obj is required for recurrence
-
-			$tsStart = @strtotime($curStart);
-			if ($tsStart === false)
-				return false; // make sure we are dealing with a valid date
-
-			$this->dateProcessedTo = date("m/d/Y", $tsStart);
-
-			// Delete all future objects in this series if event is pre-existing
-			if ($this->id)
-			{
-				$objList = new CAntObjectList($dbh, $obj->object_type, $obj->user);
-				$objList->addCondition("and", $obj->def->recurRules['field_recur_id'], "is_equal", $this->id);
-				$objList->addCondition("and", $obj->def->recurRules['field_date_start'], "is_greater", $this->dateProcessedTo);
-				$objList->addCondition("and", "id", "is_not_equal", $this->parentId); // just to be safe, never delete parent object
-				$objList->getObjects();
-				for ($i = 0; $i < $objList->getNumObjects(); $i++)
-				{
-					$objInst = $objList->getObject($i);
-					//echo "<pre>Deleting future event ".$objInst->id."</pre>";
-					$objInst->recurrenceException = true; // Prevent loops
-					$objInst->removeHard(); // purge objects
-				}
-			}
-
-			$this->save();
-		}
-
-		return $this->id;
 	}
 }
