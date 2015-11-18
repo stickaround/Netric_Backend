@@ -100,7 +100,7 @@ class RecurrenceDataMapperTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(++$lastId, $nextId);
     }
 
-    public function testRemoveById()
+    public function testDelete()
     {
         // Create
         $data = array(
@@ -115,7 +115,28 @@ class RecurrenceDataMapperTest extends PHPUnit_Framework_TestCase
         $rid = $this->dataMapper->save($rp);
 
         // Delete
-        $this->dataMapper->removeById($rid);
+        $this->dataMapper->delete($rp);
+
+        // Assure we cannot load it
+        $this->assertNull($this->dataMapper->load($rid));
+    }
+
+    public function testDeleteById()
+    {
+        // Create
+        $data = array(
+            "recur_type" => RecurrencePattern::RECUR_DAILY,
+            "obj_type" => "task",
+            "interval" => 1,
+            "date_start" => "2015-01-01",
+            "date_end" => "2015-03-01"
+        );
+        $rp = new RecurrencePattern();
+        $rp->fromArray($data);
+        $rid = $this->dataMapper->save($rp);
+
+        // Delete
+        $this->dataMapper->deleteById($rid);
 
         // Assure we cannot load it
         $this->assertNull($this->dataMapper->load($rid));

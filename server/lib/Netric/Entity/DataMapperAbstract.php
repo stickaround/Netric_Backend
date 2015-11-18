@@ -157,6 +157,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	public function save($entity, $user=null)
 	{
         $serviceManager = $this->getAccount()->getServiceManager();
+        $def = $entity->getDefinition();
 
         // First validate that this entity is ok to be written
         $entityValidator = $serviceManager->get('Netric\Entity\Validator\EntityValidator');
@@ -173,7 +174,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 		// Create new global commit revision
 		$lastCommitId = $entity->getValue('commit_id');
-		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
+		$commitId = $this->commitManager->createCommit("entities/" . $def->getObjType());
 		$entity->setValue('commit_id', $commitId);
 
         // Set defaults
@@ -184,12 +185,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// If this is a new recurrence pattern, then we need to get the next recurring id
 		// so we can save it to the entity before saving the recurrence pattern itself.
 		$useRecurId = null;
-		if ($entity->getRecurrencePattern() && $entity->getDefinition()->recurRules)
+		if ($entity->getRecurrencePattern() && $def->recurRules)
 		{
-			if (!$entity->getValue($this->def->recurRules['field_recur_id']))
+			if (!$entity->getValue($def->recurRules['field_recur_id']))
 			{
 				$useRecurId = $this->recurDataMapper->getNextId();
-				$entity->setValue($this->def->recurRules['field_recur_id'], $useRecurId);
+				$entity->setValue($def->recurRules['field_recur_id'], $useRecurId);
 			}
 		}
 
@@ -214,7 +215,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			if ($serviceManager)
 			{
 				$entityDefLoader = $serviceManager->get("EntityDefinitionLoader");
-				$entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
+				$entityDefLoader->forceSystemReset($def->getObjType());
 
 				// Try saving again
 				$ret = $this->saveData($entity);
@@ -222,7 +223,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Save revision for historical reference
-		if ($entity->getDefinition()->storeRevisions)
+		if ($def->storeRevisions)
 			$this->saveRevision($entity);
 
 		// Save data to EntityCollection_Index
@@ -231,7 +232,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		
 		// Clear cache in the EntityLoader
 		if ($serviceManager)
-			$serviceManager->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
+			$serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
 		
 		// Log the change in entity sync
 		if ($ret && $lastCommitId && $commitId)
@@ -253,7 +254,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		{
 			$recurrencePattern = $entity->getRecurrencePattern();
 			if (!$recurrencePattern->getObjType())
-				$recurrencePattern->setObjType($entity->getDefinition()->getObjType());
+				$recurrencePattern->setObjType($def->getObjType());
+
+            if (!$recurrencePattern->getFirstEntityId())
+                $recurrencePattern->setFirstEntityId($entity->getId());
 
 			// $useRecurId may be set before save if this is a new pattern so we
 			// saved the unique id of the recurrence pattern to the entity
@@ -284,7 +288,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         if ($entity->getDefinition()->recurRules)
         {
             // If we have a recurrence pattern id then load it
-            $recurId = $entity->getValue($this->def->recurRules['field_recur_id']);
+            $recurId = $entity->getValue($entity->getDefinition()->recurRules['field_recur_id']);
             if ($recurId)
             {
                 $recurPattern = $this->recurDataMapper->load($recurId);
@@ -318,6 +322,17 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			if ($this->getAccount()->getServiceManager())
 				$entity->beforeDeleteHard($this->getAccount()->getServiceManager());
 
+            // Purge the recurrence pattern if set
+            if ($entity->getRecurrencePattern())
+            {
+                // Only delete the recurrence pattern if this is the original
+                if ($entity->getRecurrencePattern()->entityIsFirst($entity))
+                {
+                    $this->recurDataMapper->delete($entity->getRecurrencePattern());
+                }
+            }
+
+            // Perform the delete from the data store
 			$ret = $this->deleteHard($entity);
 
 			// Call onBeforeDeleteHard so the entity can do any post-purge operations

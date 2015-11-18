@@ -9,6 +9,7 @@
 namespace NetricTest\Entity\DataMapper;
 
 use Netric;
+use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit_Framework_TestCase;
 
 abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase 
@@ -604,6 +605,67 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		// Cleanup
 		$dm->delete($ent, true);
 	}
+
+	/**
+	 * Test to make sure that saving an entity with recurrence works in the datamapper
+	 */
+	public function testSaveAndLoadRecurrence()
+	{
+		$dm = $this->getDataMapper();
+
+		// Create a simple recurrence pattern
+		$recurrencePattern = new RecurrencePattern();
+		$recurrencePattern->setRecurType(RecurrencePattern::RECUR_DAILY);
+		$recurrencePattern->setDateStart(new \DateTime("2015-12-01"));
+		$recurrencePattern->setDateEnd(new \DateTime("2015-12-02"));
+
+		// Now save a task with this pattern and make sure it is given an id
+		$task = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task->setValue("name", "A test task");
+		$task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
+		$task->setRecurrencePattern($recurrencePattern);
+		$tid = $dm->save($task, $this->user);
+		$this->assertNotNull($recurrencePattern->getId());
+
+		// Now close the task and reload it to make sure recurrence is still set
+		$task2 = $this->account->getServiceManager()->get("EntityLoader")->get("task", $tid);
+		$this->assertNotNull($task2->getRecurrencePattern());
+
+		// Cleanup
+		$dm->delete($task2, true);
+	}
+
+    /**
+     * Make sure that when we delete the parent object it deletes its recurrence pattern
+     */
+    public function testDeleteRecurrence()
+    {
+        $dm = $this->getDataMapper();
+
+        // Create a simple recurrence pattern
+        $recurrencePattern = new RecurrencePattern();
+        $recurrencePattern->setRecurType(RecurrencePattern::RECUR_DAILY);
+        $recurrencePattern->setDateStart(new \DateTime("2015-12-01"));
+        $recurrencePattern->setDateEnd(new \DateTime("2015-12-02"));
+
+        // Now save a task with this pattern
+        $task = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+        $task->setValue("name", "A test task");
+        $task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
+        $task->setRecurrencePattern($recurrencePattern);
+        $tid = $dm->save($task, $this->user);
+
+        $recurId = $recurrencePattern->getId();
+        $this->assertTrue($recurId > 0);
+
+        // Delete the object and make sure the pattern cannot be loaded
+        $dm->delete($task, true);
+
+        // Try to load recurId which should result in null
+        $recurDm = $this->account->getServiceManager()->get("RecurrenceDataMapper");
+        $loadedPattern = $recurDm->load($recurId);
+        $this->assertNull($loadedPattern);
+    }
 
 	/**
 	 * TODO: Test verifyUniqueName
