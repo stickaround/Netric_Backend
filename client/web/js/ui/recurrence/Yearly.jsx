@@ -67,7 +67,7 @@ var Yearly = React.createClass({
                     </div>
                     <div className="col-small-3">
                         <DropDownMenu
-                            selectedIndex={this.props.data.month - 1}
+                            selectedIndex={this.props.data.monthOfYear - 1}
                             onChange={this._handleDropDownChange.bind(this, 'monthOfYear')}
                             menuItems={this.props.months}/>
                     </div>
@@ -203,7 +203,7 @@ var Yearly = React.createClass({
                 data.monthOfYear = this.state.data.monthOfYear;
             } else {
                 data.instance = this.state.data.instance;
-                data.monthOfYear = this.state.data.monthOfYearNth;
+                data.monthOfYearNth = this.state.data.monthOfYearNth;
                 data['day' + this.state.data.dayOfWeek] = 't';
             }
         } else {

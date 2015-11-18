@@ -12,6 +12,7 @@ var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiRecurrence = require("../ui/recurrence/Recurrence.jsx");
 var entityLoader = require("../entity/loader");
+var DateTime = require('../ui/utils/DateTime.jsx');
 
 /**
  * Controller that loads a File Upload Component
@@ -19,12 +20,12 @@ var entityLoader = require("../entity/loader");
 var RecurrenceController = function () {
 
     this._recurrenceTypes = [
-        {id: '1', type: 'Daily'},
-        {id: '2', type: 'Weekly'},
-        {id: '3', type: 'Monthly'},
-        {id: '4', type: 'Month-nth'},
-        {id: '5', type: 'Yearly'},
-        {id: '6', type: 'Year-nth'},
+        {id: '1', text: 'Daily'},
+        {id: '2', text: 'Weekly'},
+        {id: '3', text: 'Monthly'},
+        {id: '4', text: 'Month-nth'},
+        {id: '5', text: 'Yearly'},
+        {id: '6', text: 'Year-nth'},
     ];
 
     this._dayOfWeek = [
@@ -128,13 +129,10 @@ RecurrenceController.prototype.render = function () {
     // Set outer application container
     var domCon = this.domNode_;
 
-    console.log(this._instance);
-
     // Define the data
     var data = {
         title: this.props.title || "Recurrence",
         displayType: this.getType(),
-        recurrenceTypes: this._recurrenceTypes,
         dayOfWeek: this._dayOfWeek,
         instance: this._instance,
         months: this._months,
@@ -142,6 +140,10 @@ RecurrenceController.prototype.render = function () {
         onSave: function (data) {
             this._handleSave(data);
         }.bind(this)
+    }
+
+    if (this.props.data) {
+        data.data = this.props.data;
     }
 
     // Render browser component
@@ -152,7 +154,127 @@ RecurrenceController.prototype.render = function () {
 }
 
 RecurrenceController.prototype._handleSave = function (data) {
-    if (this.props.onSetRecurrence) this.props.onSetRecurrence(data);
+    var humanDesc = this.getHumanDesc(data);
+
+    if (this.props.onSetRecurrence) this.props.onSetRecurrence(data, humanDesc);
+}
+
+RecurrenceController.prototype.getHumanDesc = function (data) {
+    var humanDesc = null;
+    var dayOfMonth = null;
+
+    // Convert the day of the month
+    if (data.dayOfMonth) {
+        var n = parseInt(data.dayOfMonth) % 100;
+        var suff = ["th", "st", "nd", "rd", "th"];
+        var ord = n < 21 ? (n < 4 ? suff[n] : suff[0]) : (n % 10 > 4 ? suff[0] : suff[n % 10]);
+        dayOfMonth = 'Every ' + data.dayOfMonth + ord + ' day of ';
+    }
+
+
+    switch (parseInt(data.type)) {
+        case 1: // Daily
+
+            // interval
+            if (data.interval > 1) {
+                humanDesc = ' Every ' + data.interval + ' days';
+            }
+            else {
+                humanDesc = 'Every day ';
+            }
+            break;
+
+        case 2: // Weekly
+
+            // interval
+            if (data.interval > 1) {
+                humanDesc = 'Every ' + data.interval + ' weeks on ';
+            }
+            else {
+                humanDesc = 'Every ';
+            }
+
+            // day of week
+            for (var idx in this._dayOfWeek) {
+                if (data['day' + this._dayOfWeek[idx].key] == 't') {
+                    humanDesc += this._dayOfWeek[idx].text + ', ';
+                }
+            }
+
+            humanDesc = humanDesc.replace(/, $/, "");
+            break;
+
+        case 3: // Monthly
+
+            humanDesc = dayOfMonth;
+
+            if (parseInt(data.interval) > 1) {
+                humanDesc += data.interval + ' months';
+            }
+            else {
+                humanDesc += data.interval + ' month';
+            }
+            break;
+
+        case 4: // Monthnth
+
+            humanDesc = this._instance[parseInt(data.instance) - 1].text;
+
+            // day of week
+            for (var idx in this._dayOfWeek) {
+                if (data['day' + this._dayOfWeek[idx].key] == 't') {
+                    humanDesc += ' ' + this._dayOfWeek[idx].text + ' ';
+                }
+            }
+
+            if (parseInt(data.interval) > 1) {
+                humanDesc += ' of every ' + data.interval + ' months';
+            }
+            else {
+                humanDesc += ' of every month';
+            }
+            break;
+
+        case 5: // Yearly
+
+            humanDesc = dayOfMonth + ' ' + this._months[parseInt(data.monthOfYear) - 1].text;
+            break;
+
+        case 6: // Yearnth
+
+            humanDesc = this._instance[parseInt(data.instance) - 1].text;
+
+            // day of week
+            for (var idx in this._dayOfWeek) {
+                if (data['day' + this._dayOfWeek[idx].key] == 't') {
+                    humanDesc += ' ' + this._dayOfWeek[idx].text + ' ';
+                }
+            }
+
+            humanDesc += 'of ' + this._months[parseInt(data.monthOfYear) - 1].text;
+
+            break;
+        default:
+            humanDesc = "Does not repeat";
+            return this.humanDesc;
+    }
+
+    // date
+    var dateStart = new Date(data.dateStart);
+    humanDesc += ' effective ' + DateTime.format(dateStart, "MM/dd/yyyy");
+
+    // end date
+    if (this.dateEnd) {
+        var dateEnd = new Date(data.dateEnd);
+        humanDesc += ' until ' + DateTime.format(dateEnd, "MM/dd/yyyy");
+    }
+
+    // time
+    if (data.fAllDay == 'f') {
+        humanDesc += ' at ' + data.timeStart + ' to ' + data.timeEnd;
+    }
+
+    return humanDesc;
 }
 
 module.exports = RecurrenceController;

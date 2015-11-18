@@ -32,6 +32,7 @@ var recurrenceType = [
 var Recurrence = React.createClass({
 
     propTypes: {
+        data: React.PropTypes.object,
         displayType: React.PropTypes.string,
         dayOfWeek: React.PropTypes.array.isRequired,
         instance: React.PropTypes.array.isRequired,
@@ -41,6 +42,8 @@ var Recurrence = React.createClass({
 
     getDefaultProps: function () {
         var data = {
+            type: 0,
+            typeIndex: 0,
             neverEnds: true,
             dateEnd: '11/16/2015',
             dateStart: '11/16/2015',
@@ -56,8 +59,8 @@ var Recurrence = React.createClass({
 
         // Return the initial state
         return {
-            recurrenceType: 0,
-            recurrenceIndex: 0,
+            recurrenceType: this.props.data.type,
+            recurrenceIndex: this.props.data.typeIndex,
             patternData: [],
             data: this.props.data
         };
@@ -201,6 +204,8 @@ var Recurrence = React.createClass({
         // If recurrence data is set, then lets use that data to set the default values
         if (this.state.patternData[type]) {
             data = this.state.patternData[type];
+        } else if (this.state.data) {
+            data = this.state.data;
         }
 
         switch (type.toString()) {
@@ -219,6 +224,8 @@ var Recurrence = React.createClass({
                         data={data}/>
                 );
                 break;
+            case '3':
+            case '4':
             case 'm':
                 displayPattern = (
                     <Monthly
@@ -228,6 +235,8 @@ var Recurrence = React.createClass({
                         data={data}/>
                 );
                 break;
+            case '5':
+            case '6':
             case 'y':
                 displayPattern = (<Yearly
                     ref={ref}
