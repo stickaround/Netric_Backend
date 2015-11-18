@@ -10,6 +10,7 @@ namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\Entity\Recurrence\RecurrenceDataMapper;
+use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
@@ -30,16 +31,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 /**
 	  * Commit manager used to crate global commits for sync
 	  *
-	  * @var \Netric\Entity\Commit\Manager
+	  * @var \Netric\EntityDefinition\Commit\Manager
 	  */
 	 protected $commitManager = null;
 
-	/**
-	 * Recurrence Pattern Data Mapper
-	 *
-	 * @var RecurrenceDataMapper
-	 */
-	private $recurDataMapper = null;
+    /**
+     * Recurrence Identity Mapper
+     *
+     * @var RecurrenceIdentityMapper
+     */
+    private $recurIdentityMapper = null;
 
 	/**
 	 * Class constructor
@@ -52,7 +53,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$this->setAccount($account);
 		$this->setUp();
 
-        $this->recurDataMapper = $account->getServiceManager()->get("RecurrenceDataMapper");
+        $this->recurIdentityMapper = $account->getServiceManager()->get("RecurrenceIdentityMapper");
 		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
 		$this->entitySync = $account->getServiceManager()->get("EntitySync");
 	}
@@ -182,14 +183,20 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $user = $this->getAccount()->getUser();
         $entity->setFieldsDefault($event, $user);
 
-		// If this is a new recurrence pattern, then we need to get the next recurring id
-		// so we can save it to the entity before saving the recurrence pattern itself.
+        /*
+         * If the entity has a new recurrence pattern, then we need to get the next recurring id
+         * now so we can save it to the entity before saving the recurring patterns itself.
+         * This is the result of a circular reference where the recurrence pattern has a
+         * reference to the first entity id, and the entity has a reference to the recurrence
+         * pattern. We might want to come up with a better overall solution. - Sky Stebnicki
+         */
 		$useRecurId = null;
 		if ($entity->getRecurrencePattern() && $def->recurRules)
 		{
 			if (!$entity->getValue($def->recurRules['field_recur_id']))
 			{
-				$useRecurId = $this->recurDataMapper->getNextId();
+				$useRecurId = $this->recurIdentityMapper->getNextId();
+                $entity->getRecurrencePattern()->setId($useRecurId);
 				$entity->setValue($def->recurRules['field_recur_id'], $useRecurId);
 			}
 		}
@@ -249,19 +256,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// Reset dirty flag and changelog
 		$entity->resetIsDirty();
 
-		// Save the recurrence pattern
+        /*
+         * If this is part of a recurring series - which means it has a recurrence pattern -
+         * and not an exception, then save the recurrence pattern.
+         */
 		if (!$entity->isRecurrenceException() && $entity->getRecurrencePattern())
 		{
-			$recurrencePattern = $entity->getRecurrencePattern();
-			if (!$recurrencePattern->getObjType())
-				$recurrencePattern->setObjType($def->getObjType());
-
-            if (!$recurrencePattern->getFirstEntityId())
-                $recurrencePattern->setFirstEntityId($entity->getId());
-
-			// $useRecurId may be set before save if this is a new pattern so we
-			// saved the unique id of the recurrence pattern to the entity
-			$this->recurDataMapper->save($recurrencePattern, $useRecurId);
+            $this->recurIdentityMapper->saveFromEntity($entity);
 		}
 
 		return $ret;
@@ -291,7 +292,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             $recurId = $entity->getValue($entity->getDefinition()->recurRules['field_recur_id']);
             if ($recurId)
             {
-                $recurPattern = $this->recurDataMapper->load($recurId);
+                $recurPattern = $this->recurIdentityMapper->getById($recurId);
                 $entity->setRecurrencePattern($recurPattern);
             }
         }
@@ -328,7 +329,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                 // Only delete the recurrence pattern if this is the original
                 if ($entity->getRecurrencePattern()->entityIsFirst($entity))
                 {
-                    $this->recurDataMapper->delete($entity->getRecurrencePattern());
+                    $this->recurIdentityMapper->delete($entity->getRecurrencePattern());
                 }
             }
 

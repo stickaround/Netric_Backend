@@ -41,6 +41,10 @@ class ServiceManager implements ServiceLocatorInterface
         "test" => "Netric/ServiceManager/Test/Service",
         // The entity factory service will initialize new entities with injected dependencies
         "EntityFactory" => "Netric/Entity/EntityFactory",
+        // The service required for saving recurring patterns
+        "RecurrenceDataMapper" => "Netric/Entity/Recurrence/RecurrenceDataMapper",
+        // IdentityMapper for loading/saving/caching RecurrencePatterns
+        "RecurrenceIdentityMapper" => "Netric/Entity/Recurrence/RecurrenceIdentityMapper",
     );
 
     /**
@@ -253,18 +257,6 @@ class ServiceManager implements ServiceLocatorInterface
 		$dm = new Netric\Entity\DataMapper\Pgsql($this->getAccount(), $this->get("Db"));
 		return $dm;
 	}
-
-    /**
-     * Get the recurrence datamapper
-     *
-     * @return RecurrenceDataMapper
-     */
-    private function factoryRecurrenceDataMapper()
-    {
-        $entDefLoader = $this->get("EntityDefinitionLoader");
-        $dbh = $this->get("Db");
-        return new \Netric\Entity\Recurrence\RecurrenceDataMapper($this->getAccount(), $dbh, $entDefLoader);
-    }
 
     /**
 	 * Construct and get handle to account database

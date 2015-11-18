@@ -622,7 +622,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		// Now save a task with this pattern and make sure it is given an id
 		$task = $this->account->getServiceManager()->get("EntityLoader")->create("task");
 		$task->setValue("name", "A test task");
-		$task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
+		$task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
 		$task->setRecurrencePattern($recurrencePattern);
 		$tid = $dm->save($task, $this->user);
 		$this->assertNotNull($recurrencePattern->getId());
@@ -651,7 +651,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
         // Now save a task with this pattern
         $task = $this->account->getServiceManager()->get("EntityLoader")->create("task");
         $task->setValue("name", "A test task");
-        $task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
+        $task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
         $task->setRecurrencePattern($recurrencePattern);
         $tid = $dm->save($task, $this->user);
 
