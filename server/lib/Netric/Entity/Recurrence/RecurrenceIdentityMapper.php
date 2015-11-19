@@ -19,6 +19,13 @@ class RecurrenceIdentityMapper
     private $recurDataMapper = null;
 
     /**
+     * Cache loaded recurrence patterns
+     *
+     * @var array
+     */
+    private $cachedPatterns = array();
+
+    /**
      * Construct the identity mapper and set all dependencies
      *
      * @param RecurrenceDataMapper $dataMapper To save and load patterns from the datastore
@@ -53,7 +60,17 @@ class RecurrenceIdentityMapper
      */
     public function getById($id)
     {
-        return $this->recurDataMapper->load($id);
+        // First check to see if the pattern was already loaded and cached
+        $pattern = $this->getLoadedPattern($id);
+
+        // If we have not yet loaded it then load from db and cache locally
+        if (!$pattern)
+        {
+            $pattern = $this->recurDataMapper->load($id);
+            $this->cachedPatterns[$id] = $pattern;
+        }
+
+        return $pattern;
     }
 
     /**
@@ -137,5 +154,19 @@ class RecurrenceIdentityMapper
     public function getNextId()
     {
         return $this->recurDataMapper->getNextId();
+    }
+
+    /**
+     * Get recurring pattern if loaded locally
+     *
+     * @param int $id The unique id of the pattern to load
+     * @return RecurrencePattern
+     */
+    private function getLoadedPattern($id)
+    {
+        if (isset($this->cachedPatterns[$id]))
+            return $this->cachedPatterns[$id];
+        else
+            return null;
     }
 }
