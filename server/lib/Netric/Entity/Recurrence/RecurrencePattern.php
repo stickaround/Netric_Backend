@@ -361,6 +361,31 @@ class RecurrencePattern implements ErrorAwareInterface
         return $this->objType;
     }
 
+    /**
+     * Set a locked timestamp to keep two threads from processing series
+     *
+     * @param bool $locked If true then lock, otherwise unlock
+     */
+    public function setSeriesLocked($locked = true)
+    {
+        $this->epLocked = ($locked) ? time() : null;
+    }
+
+    /**
+     * Check to see if the series is locked
+     *
+     * @return bool true if the series is being processed, or false
+     */
+    public function isSeriesLocked()
+    {
+        // Make sure we are not locked by another process within the last 2 minutes
+        // so we don't duplicate recurring events
+        if ($this->epLocked &&  $this->epLocked >= (time() - 120))
+            return true;
+        else
+            return false;
+    }
+
 	/**
 	 * Set the recurrence type
 	 *
@@ -772,12 +797,12 @@ class RecurrencePattern implements ErrorAwareInterface
 	 * Step through to the next start date for monthly recurrence
 	 *
 	 * @return \DateTime
-     * @throws \InvalidParamsException if required properties were not yet set
+     * @throws \InvalidArgumentException if required properties were not yet set
 	 */
 	private function getNextStartMonthly()
 	{
 		if (!$this->dateStart)
-			throw new \InvalidParamsException("dateStart must be set first");
+			throw new \InvalidArgumentException("dateStart must be set first");
 
 		// Check if this is the first time we have processed this recurrence
 		if (!$this->dateProcessedTo)

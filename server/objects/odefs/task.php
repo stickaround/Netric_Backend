@@ -9,12 +9,12 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 41;
+$obj_revision = 42;
 
 $inheritDaclRef = "project";
 $recurRules = array("field_time_start"=>"", "field_time_end"=>"", 
 					  "field_date_start"=>"start_date", "field_date_end"=>"deadline", 
-					  "field_recur_id"=>"recurrence_pattern");
+					  "field_recur_id"=>"recur_id");
 
 $obj_fields = array();
 $obj_fields['name']				= array('title'=>'Name', 'type'=>'text', 'subtype'=>'', 'readonly'=>false, 'required'=>true);
@@ -136,7 +136,7 @@ $obj_fields['recur_id'] = array('title'=>'Recurrence Parent',
 								   'fkey_table'=>array("key"=>"id", "title"=>"name"));
 */
 
-$obj_fields['recurrence_pattern'] = array('title'=>'Recurrence',
+$obj_fields['recur_id'] = array('title'=>'Recurrence',
 										   'readonly'=>true,
 										   'type'=>'integer');
 
