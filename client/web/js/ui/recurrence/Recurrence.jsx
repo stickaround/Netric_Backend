@@ -1,6 +1,12 @@
 /**
  * Recurrence component.
  *
+ * This will display the different recurrence pattern types.
+ * The pattern display will depend on what type is currently selected.
+ * The props data will be stored in the state.data while the pattern data will be stored in state.patternData
+ * To get the pattern data, we will be calling the private function _getPatternData().
+ * Each recurrence pattern sub component will have a public function ::getData().
+ *
  * @jsx React.DOM
  */
 'use strict';
@@ -33,6 +39,7 @@ var Recurrence = React.createClass({
 
     propTypes: {
         data: React.PropTypes.object,
+        dateToday: React.PropTypes.string,
         displayType: React.PropTypes.string,
         dayOfWeek: React.PropTypes.array.isRequired,
         instance: React.PropTypes.array.isRequired,
@@ -43,10 +50,8 @@ var Recurrence = React.createClass({
     getDefaultProps: function () {
         var data = {
             type: 0,
-            typeIndex: 0,
-            neverEnds: true,
-            dateEnd: '11/16/2015',
-            dateStart: '11/16/2015',
+            dateEnd: null,
+            typeIndex: 0
         }
 
         return {
@@ -66,24 +71,36 @@ var Recurrence = React.createClass({
         };
     },
 
+    componentDidMount: function () {
+        this._setDateData();
+    },
+
     componentDidUpdate: function () {
         if (this.props.getData) {
             this.props.onGetData('data');
         }
+
+        this._setDateData();
     },
 
     render: function () {
+        var neverEnds = true;
         var displayCancel = null;
         var displayEndDate = null;
         var displayPattern = this._handleDisplayRecurrenceType(this.state.recurrenceType);
 
+        // If the display if NOT from dialog, then lets display the cancel button
         if (this.props.displayType != 'dialog') {
             displayCancel = (<FlatButton label='Cancel' onClick={this._handleBackButton}/>);
         }
 
-        if (!this.state.data.neverEnds) {
+        // Display the end date input
+        if (this.state.data.dateEnd) {
+
+            neverEnds = false;
+
             displayEndDate = (<TextField
-                ref='inputEndDate'
+                ref='inputDateEnd'
                 hintText="End Date"/>);
         }
 
@@ -93,7 +110,7 @@ var Recurrence = React.createClass({
                     <fieldset>
                         <legend>Recurrence Pattern</legend>
                         <DropDownMenu
-                            selectedIndex={this.state.recurrenceIndex}
+                            selectedIndex={parseInt(this.state.recurrenceIndex)}
                             menuItems={recurrenceType}
                             onChange={this._handleRecurrenceChange}/>
 
@@ -104,7 +121,7 @@ var Recurrence = React.createClass({
                     <fieldset>
                         <legend>Range of Recurrence</legend>
                         <TextField
-                            ref='inputStartDate'
+                            ref='inputDateStart'
                             hintText="Start Date"/>
 
                         {displayEndDate}
@@ -113,7 +130,7 @@ var Recurrence = React.createClass({
                             ref="neverEnds"
                             value="default"
                             label="Never Ends"
-                            defaultSwitched={true}
+                            defaultSwitched={neverEnds}
                             onCheck={this._handleNeverEnds}/>
                     </fieldset>
                 </div>
@@ -134,9 +151,17 @@ var Recurrence = React.createClass({
         if (this.props.onNavBackBtnClick) this.props.onNavBackBtnClick();
     },
 
+    /**
+     * Handles the never ends check box and updates the state with the changes
+     *
+     * @param {DOMEvent} e          Reference to the DOM event being sent
+     * @param {bool} isChecked      The current state of the checkbox
+     *
+     * @private
+     */
     _handleNeverEnds: function (e, isChecked) {
         var data = this.state.data;
-        data.neverEnds = isChecked;
+        data.dateEnd = isChecked ? null : this.props.dateToday;
 
         this.setState({data: data})
     },
@@ -147,14 +172,14 @@ var Recurrence = React.createClass({
      * @private
      */
     _handleSaveButton: function () {
-        var data = this._getPatternData(true);
+        var data = this._getPatternData() || this.state.data;
 
-        data.dateStart = this.refs.inputStartDate.getValue();
+        data.dateStart = this.refs.inputDateStart.getValue();
 
-        if (this.state.data.neverEnds) {
-            data.dateEnd = '';
+        if (this.refs.inputDateEnd) {
+            data.dateEnd = this.refs.inputDateEnd.getValue();
         } else {
-            data.dateEnd = this.refs.inputEndDate.getValue();
+            data.dateEnd = '';
         }
 
         if (this.props.onSave) {
@@ -177,14 +202,18 @@ var Recurrence = React.createClass({
          * When changing the type of recurrence, lets save the current recurrence type data to the state
          * So if the user decides to select back this recurrence type
          * We can just display its saved data instead of using the default values
+         * This will only apply to Daily and Weekly since they are not using state data
          */
-        var data = this.state.patternData;
-        data[this.state.recurrenceType] = this._getPatternData(false);
+        var patternData = this.state.patternData;
+
+        if (this.state.recurrenceType <= 2) {
+            patternData[this.state.recurrenceType] = this._getPatternData();
+        }
 
         this.setState({
             recurrenceType: menuItem.value,
             recurrenceIndex: key,
-            patternData: data
+            patternData: patternData
         });
     },
 
@@ -202,10 +231,10 @@ var Recurrence = React.createClass({
         var ref = 'recurrence' + type;
 
         // If recurrence data is set, then lets use that data to set the default values
-        if (this.state.patternData[type]) {
+        if (this.state.data && this.state.data.type == type) {
+            data = Object.create(this.state.data);
+        } else if (this.state.patternData[type]) {
             data = this.state.patternData[type];
-        } else if (this.state.data) {
-            data = this.state.data;
         }
 
         switch (type.toString()) {
@@ -224,8 +253,8 @@ var Recurrence = React.createClass({
                         data={data}/>
                 );
                 break;
-            case '3':
-            case '4':
+            case '3': // Monthly
+            case '4': // Monthly Nth
             case 'm':
                 displayPattern = (
                     <Monthly
@@ -235,8 +264,8 @@ var Recurrence = React.createClass({
                         data={data}/>
                 );
                 break;
-            case '5':
-            case '6':
+            case '5': // Yearly
+            case '6': // Yearly Nth
             case 'y':
                 displayPattern = (<Yearly
                     ref={ref}
@@ -252,16 +281,38 @@ var Recurrence = React.createClass({
         return displayPattern;
     },
 
-    _getPatternData: function (forSaving) {
+    /**
+     * Get the recurrence pattern data
+     *
+     * @private
+     */
+    _getPatternData: function () {
         var data = null;
         var ref = 'recurrence' + this.state.recurrenceType;
 
         // Check first we have already rendered the recurrence type before we try to get its data
         if (this.refs[ref]) {
-            data = this.refs[ref].getData(forSaving);
+            data = this.refs[ref].getData();
         }
 
         return data;
+    },
+
+    /**
+     * Set the input date data.
+     *
+     * @private
+     */
+    _setDateData: function () {
+        if (this.refs.inputDateStart) {
+            var dateStart = this.state.data.dateStart || this.props.dateToday;
+            this.refs.inputDateStart.setValue(dateStart);
+        }
+
+        if (this.refs.inputDateEnd) {
+            var dateEnd = this.state.data.dateEnd || this.props.dateToday;
+            this.refs.inputDateEnd.setValue(dateEnd);
+        }
     }
 
 

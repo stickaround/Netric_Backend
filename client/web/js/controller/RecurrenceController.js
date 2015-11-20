@@ -1,7 +1,7 @@
 /**
- * @fileoverview File Upload
+ * @fileoverview Recurrence Controller
  *
- * Manages the file uploading to the server.
+ * Manages the the processing of the recurrence pattern
  */
 'use strict';
 
@@ -42,7 +42,7 @@ var RecurrenceController = function () {
         {key: '1', text: 'The First'},
         {key: '2', text: 'The Second'},
         {key: '3', text: 'The Third'},
-        {key: '4', text: 'The Fourt'},
+        {key: '4', text: 'The Fourth'},
         {key: '5', text: 'The Last'},
     ];
 
@@ -133,6 +133,7 @@ RecurrenceController.prototype.render = function () {
     var data = {
         title: this.props.title || "Recurrence",
         displayType: this.getType(),
+        dateToday: DateTime.getDateToday(),
         dayOfWeek: this._dayOfWeek,
         instance: this._instance,
         months: this._months,
@@ -142,8 +143,21 @@ RecurrenceController.prototype.render = function () {
         }.bind(this)
     }
 
+    // If we have saved data, then lets pass it in the props
     if (this.props.data) {
-        data.data = this.props.data;
+
+        var patternData = this.props.data;
+
+        // Lets evaluate the recurrence type and determine the selected index
+        if (this.props.data.type == 4) { // Month Nth
+            patternData.typeIndex = 3;
+        } else if (this.props.data.type >= 5) { // Year Nth
+            patternData.typeIndex = 4;
+        } else {
+            patternData.typeIndex = this.props.data.type;
+        }
+
+        data.data = patternData;
     }
 
     // Render browser component
@@ -153,12 +167,24 @@ RecurrenceController.prototype.render = function () {
     );
 }
 
+/**
+ * Render this controller into the dom tree
+ *
+ * @param {object} data     The pattern data that will be saved
+ * @private
+ */
 RecurrenceController.prototype._handleSave = function (data) {
     var humanDesc = this.getHumanDesc(data);
 
     if (this.props.onSetRecurrence) this.props.onSetRecurrence(data, humanDesc);
 }
 
+/**
+ * Get the human description to be displayed
+ *
+ * @param {object} data     The pattern data that will be used to generate the human description
+ * @private
+ */
 RecurrenceController.prototype.getHumanDesc = function (data) {
     var humanDesc = null;
     var dayOfMonth = null;
@@ -196,7 +222,7 @@ RecurrenceController.prototype.getHumanDesc = function (data) {
 
             // day of week
             for (var idx in this._dayOfWeek) {
-                if (data['day' + this._dayOfWeek[idx].key] == 't') {
+                if (data.dayOfWeekly[this._dayOfWeek[idx].key] == 't') {
                     humanDesc += this._dayOfWeek[idx].text + ', ';
                 }
             }
@@ -220,12 +246,8 @@ RecurrenceController.prototype.getHumanDesc = function (data) {
 
             humanDesc = this._instance[parseInt(data.instance) - 1].text;
 
-            // day of week
-            for (var idx in this._dayOfWeek) {
-                if (data['day' + this._dayOfWeek[idx].key] == 't') {
-                    humanDesc += ' ' + this._dayOfWeek[idx].text + ' ';
-                }
-            }
+            // Day of week
+            humanDesc += ' ' + this._dayOfWeek[(data.dayOfWeek) - 1].text;
 
             if (parseInt(data.interval) > 1) {
                 humanDesc += ' of every ' + data.interval + ' months';
@@ -244,14 +266,11 @@ RecurrenceController.prototype.getHumanDesc = function (data) {
 
             humanDesc = this._instance[parseInt(data.instance) - 1].text;
 
-            // day of week
-            for (var idx in this._dayOfWeek) {
-                if (data['day' + this._dayOfWeek[idx].key] == 't') {
-                    humanDesc += ' ' + this._dayOfWeek[idx].text + ' ';
-                }
-            }
+            // Day of week
+            humanDesc += ' ' + this._dayOfWeek[(data.dayOfWeek) - 1].text;
 
-            humanDesc += 'of ' + this._months[parseInt(data.monthOfYear) - 1].text;
+            // Month of year
+            humanDesc += ' of ' + this._months[parseInt(data.monthOfYear) - 1].text;
 
             break;
         default:
@@ -264,7 +283,7 @@ RecurrenceController.prototype.getHumanDesc = function (data) {
     humanDesc += ' effective ' + DateTime.format(dateStart, "MM/dd/yyyy");
 
     // end date
-    if (this.dateEnd) {
+    if (data.dateEnd) {
         var dateEnd = new Date(data.dateEnd);
         humanDesc += ' until ' + DateTime.format(dateEnd, "MM/dd/yyyy");
     }

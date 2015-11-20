@@ -1,5 +1,8 @@
 /**
- * Monthly component.
+ * Monthly recurrence pattern.
+ * This will display the Monthly and MonthNth type.
+ * Monthly will accept dayOfMonth and interval input values.
+ * MonthlyNth will accept instance, dayOfWeek, and interval input values.
  *
  * @jsx React.DOM
  */
@@ -51,18 +54,11 @@ var Monthly = React.createClass({
 
         var data = this.props.data;
 
-        if (data.interval && data.type == typeMonthly) {
-            data.intervalMonth = data.interval;
+        // Since we have 2 different inputs for interval, lets assign the correct interval variable depending on which monthly type is set.
+        if (data.type == typeMonthly) {
+            data.intervalMonth = data.interval || 1;
         } else if (data.interval) {
-            data.intervalNth = data.interval;
-        }
-
-        for (var idx in this.props.dayOfWeek) {
-            var dayOfWeek = this.props.dayOfWeek[idx];
-
-            if (data['day' + dayOfWeek.key] && data['day' + dayOfWeek.key] == 't') {
-                data.nthDayOfWeek = dayOfWeek.key;
-            }
+            data.intervalNth = data.interval || 1;
         }
 
         // Return the initial state
@@ -99,16 +95,19 @@ var Monthly = React.createClass({
                 </div>
             );
         } else {
+            var instance = this.state.data.instance || 1;
+            var dayOfWeek = this.state.data.dayOfWeek || 1;
+
             displayType = (
                 <div className="row">
                     <div className="col-small-6">
                         <DropDownMenu
                             onChange={this._handleDropDownChange.bind(this, 'instance')}
-                            selectedIndex={this.props.data.instance - 1}
+                            selectedIndex={instance - 1}
                             menuItems={this.props.instance}/>
                         <DropDownMenu
                             onChange={this._handleDropDownChange.bind(this, 'dayOfWeek')}
-                            selectedIndex={this.props.data.dayOfWeek - 1}
+                            selectedIndex={dayOfWeek - 1}
                             menuItems={this.props.dayOfWeek}/>
                     </div>
                     <div>
@@ -196,6 +195,16 @@ var Monthly = React.createClass({
             data.intervalNth = this.refs.inputIntervalNth.getValue();
         }
 
+        // Check if we have a value for instance
+        if (!data.instance) {
+            data.instance = 1;
+        }
+
+        // Check if we have a value for dayOfWeek
+        if (!data.dayOfWeek) {
+            data.dayOfWeek = 1;
+        }
+
         this.setState({data: data});
     },
 
@@ -206,10 +215,15 @@ var Monthly = React.createClass({
      */
     _setInputValues: function () {
         if (this.refs.inputDayOfMonth) {
-            this.refs.inputDayOfMonth.setValue(this.state.data.dayOfMonth);
-            this.refs.inputIntervalMonth.setValue(this.state.data.intervalMonth);
+            var dayOfMonth = this.state.data.dayOfMonth || 1;
+            var interval = this.state.data.intervalMonth || 1;
+
+            this.refs.inputDayOfMonth.setValue(dayOfMonth);
+            this.refs.inputIntervalMonth.setValue(interval);
         } else if (this.refs.inputIntervalNth) {
-            this.refs.inputIntervalNth.setValue(this.state.data.intervalNth);
+            var interval = this.state.data.intervalNth || 1;
+
+            this.refs.inputIntervalNth.setValue(interval);
         }
     },
 
@@ -219,22 +233,17 @@ var Monthly = React.createClass({
      * @return {object}
      * @public
      */
-    getData: function (isState) {
+    getData: function () {
         var data = {};
+        data.type = this.state.data.type;
 
-        if (isState) {
-            data.type = this.state.data.type;
-
-            if (data.type == typeMonthly) {
-                data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
-                data.interval = this.refs.inputIntervalMonth.getValue();
-            } else {
-                data.interval = this.refs.inputIntervalNth.getValue();
-                data.instance = this.state.data.instance;
-                data['day' + this.state.data.dayOfWeek] = 't';
-            }
+        if (data.type == typeMonthly) {
+            data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
+            data.interval = this.refs.inputIntervalMonth.getValue();
         } else {
-            data = this.state.data;
+            data.interval = this.refs.inputIntervalNth.getValue();
+            data.instance = this.state.data.instance;
+            data.dayOfWeek = this.state.data.dayOfWeek;
         }
 
         return data;

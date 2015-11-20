@@ -1,5 +1,6 @@
 /**
- * Weekly component.
+ * Weekly recurrence pattern.
+ * This will display the interval and days of week.
  *
  * @jsx React.DOM
  */
@@ -20,7 +21,8 @@ var Weekly = React.createClass({
     getDefaultProps: function () {
         return {
             data: {
-                interval: 1
+                interval: 1,
+                dayOfWeekly: []
             }
         }
     },
@@ -37,7 +39,7 @@ var Weekly = React.createClass({
             var ref = 'dayOfWeek' + day.key;
             var checked = false;
 
-            if (this.props.data['day' + day.key] && this.props.data['day' + day.key] == 't') {
+            if (this.props.data.dayOfWeekly[day.key] && this.props.data.dayOfWeekly[day.key] == 't') {
                 checked = true;
             }
 
@@ -74,7 +76,8 @@ var Weekly = React.createClass({
     getData: function () {
         var data = {
             type: 2,
-            interval: this.refs.inputInterval.getValue()
+            interval: this.refs.inputInterval.getValue(),
+            dayOfWeekly: []
         }
 
         for (var idx in this.props.dayOfWeek) {
@@ -82,7 +85,7 @@ var Weekly = React.createClass({
             var ref = 'dayOfWeek' + dayIndex;
             var checked = this.refs[ref].isChecked() ? 't' : 'f';
 
-            data['day' + dayIndex] = checked;
+            data.dayOfWeekly[dayIndex] = checked;
         }
 
         return data;

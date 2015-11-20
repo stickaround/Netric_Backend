@@ -1,22 +1,22 @@
 module.exports = {
 
-    addDays: function(d, days) {
+    addDays: function (d, days) {
         var newDate = this.clone(d);
         newDate.setDate(d.getDate() + days);
         return newDate;
     },
 
-    addMonths: function(d, months) {
+    addMonths: function (d, months) {
         var newDate = this.clone(d);
         newDate.setMonth(d.getMonth() + months);
         return newDate;
     },
 
-    clone: function(d) {
+    clone: function (d) {
         return new Date(d.getTime());
     },
 
-    getDaysInMonth: function(d) {
+    getDaysInMonth: function (d) {
         var resultDate = this.getFirstDayOfMonth(d);
 
         resultDate.setMonth(resultDate.getMonth() + 1);
@@ -25,60 +25,91 @@ module.exports = {
         return resultDate.getDate();
     },
 
-    getFirstDayOfMonth: function(d) {
+    getFirstDayOfMonth: function (d) {
         return new Date(d.getFullYear(), d.getMonth(), 1);
     },
 
-    getFullMonth: function(d) {
+    getFullMonth: function (d) {
         var month = d.getMonth();
         switch (month) {
-            case 0: return 'January';
-            case 1: return 'February';
-            case 2: return 'March';
-            case 3: return 'April';
-            case 4: return 'May';
-            case 5: return 'June';
-            case 6: return 'July';
-            case 7: return 'August';
-            case 8: return 'September';
-            case 9: return 'October';
-            case 10: return 'November';
-            case 11: return 'December';
+            case 0:
+                return 'January';
+            case 1:
+                return 'February';
+            case 2:
+                return 'March';
+            case 3:
+                return 'April';
+            case 4:
+                return 'May';
+            case 5:
+                return 'June';
+            case 6:
+                return 'July';
+            case 7:
+                return 'August';
+            case 8:
+                return 'September';
+            case 9:
+                return 'October';
+            case 10:
+                return 'November';
+            case 11:
+                return 'December';
         }
     },
 
-    getShortMonth: function(d) {
+    getShortMonth: function (d) {
         var month = d.getMonth();
         switch (month) {
-            case 0: return 'Jan';
-            case 1: return 'Feb';
-            case 2: return 'Mar';
-            case 3: return 'Apr';
-            case 4: return 'May';
-            case 5: return 'Jun';
-            case 6: return 'Jul';
-            case 7: return 'Aug';
-            case 8: return 'Sep';
-            case 9: return 'Oct';
-            case 10: return 'Nov';
-            case 11: return 'Dec';
+            case 0:
+                return 'Jan';
+            case 1:
+                return 'Feb';
+            case 2:
+                return 'Mar';
+            case 3:
+                return 'Apr';
+            case 4:
+                return 'May';
+            case 5:
+                return 'Jun';
+            case 6:
+                return 'Jul';
+            case 7:
+                return 'Aug';
+            case 8:
+                return 'Sep';
+            case 9:
+                return 'Oct';
+            case 10:
+                return 'Nov';
+            case 11:
+                return 'Dec';
         }
     },
 
-    getDayOfWeek: function(d) {
+    getDayOfWeek: function (d) {
         var dow = d.getDay();
         switch (dow) {
-            case 0: return 'Sunday';
-            case 1: return 'Monday';
-            case 2: return 'Tuesday';
-            case 3: return 'Wednesday';
-            case 4: return 'Thursday';
-            case 5: return 'Friday';
-            case 6: return 'Saturday';
+            case 0:
+                return 'Sunday';
+            case 1:
+                return 'Monday';
+            case 2:
+                return 'Tuesday';
+            case 3:
+                return 'Wednesday';
+            case 4:
+                return 'Thursday';
+            case 5:
+                return 'Friday';
+            case 6:
+                return 'Saturday';
         }
     },
 
-    getWeekArray: function(d) {
+    getWeekArray: function (d) {
         var dayArray = [];
         var daysInMonth = this.getDaysInMonth(d);
         var daysInWeek;
@@ -89,7 +120,8 @@ module.exports = {
 
         for (var i = 1; i <= daysInMonth; i++) {
             dayArray.push(new Date(d.getFullYear(), d.getMonth(), i));
-        };
+        }
+        ;
 
         while (dayArray.length) {
             firstDayOfWeek = dayArray[0].getDay();
@@ -99,7 +131,8 @@ module.exports = {
 
             for (var i = 0; i < emptyDays; i++) {
                 week.unshift(null);
-            };
+            }
+            ;
 
             weekArray.push(week);
         }
@@ -107,7 +140,7 @@ module.exports = {
         return weekArray;
     },
 
-    format: function(date, format) {
+    format: function (date, format) {
         var day = date.getDate(),
             month = date.getMonth() + 1,
             year = date.getFullYear(),
@@ -163,14 +196,14 @@ module.exports = {
         return format;
     },
 
-    isEqualDate: function(d1, d2) {
+    isEqualDate: function (d1, d2) {
         return d1 && d2 &&
             (d1.getFullYear() === d2.getFullYear()) &&
             (d1.getMonth() === d2.getMonth()) &&
             (d1.getDate() === d2.getDate());
     },
 
-    monthDiff: function(d1, d2) {
+    monthDiff: function (d1, d2) {
         var m;
         m = (d1.getFullYear() - d2.getFullYear()) * 12;
         m += d1.getMonth();
@@ -183,11 +216,22 @@ module.exports = {
      *
      * @return {bool} true if the string can be converted to a Date
      */
-    validateDate: function(dateString) {
+    validateDate: function (dateString) {
 
         var invalid = isNaN(Date.parse(dateString));
 
         return (invalid === true) ? false : true;
+    },
+
+    getDateToday: function () {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1;
+        var yyyy = today.getFullYear();
+
+        var date = mm + '/' + dd + '/' + yyyy;
+
+        return date;
     }
 
 }
