@@ -1,5 +1,6 @@
 /**
- * Daily component.
+ * Daily recurrence pattern.
+ * This will display the input text for the interval value.
  *
  * @jsx React.DOM
  */

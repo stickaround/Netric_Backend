@@ -227,6 +227,14 @@ class RecurrencePattern implements ErrorAwareInterface
         if (isset($data['date_processed_to']))
             $this->setDateProcessedTo(new \DateTime($data['date_processed_to']));
 
+        if (isset($data['day_of_weekly_mask'])) {
+            foreach($data['day_of_weekly_mask'] as $key=>$value)
+            {
+                if($value == 't')
+                    $this->setDayOfWeek($key);
+            }
+        }
+
         /*
          * Private properties mostly related to the entity that are used mostly
          * for saving and loading and are not exposed through getters and setters.
@@ -1257,10 +1265,10 @@ class RecurrencePattern implements ErrorAwareInterface
 				$this->lastError = "Monthnth requires dayOfWeekMask, instance and interval";
 			break;
 		case self::RECUR_YEARLY:
-			if ($this->monthOfYear && !$this->dayOfMonth && $this->interval)
+			if ($this->monthOfYear && $this->dayOfMonth)
 				return true;
 			else
-				$this->lastError = "Yearly requires monthOfYear, dayofMonth, and interval params";
+				$this->lastError = "Yearly requires monthOfYear and dayofMonth params";
 			break;
 		case self::RECUR_YEARNTH:
 			if ($this->monthOfYear && $this->instance && $this->interval)

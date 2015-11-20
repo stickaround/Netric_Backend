@@ -92,6 +92,14 @@ var Entity = function (entityDef, opt_data) {
      */
     this.isLoading = false;
 
+    /**
+     * Determine if we have an updated recurrence pattern
+     *
+     * @public
+     * @type {bool}
+     */
+    this.recurrenceDirty_ = false;
+
     // If data has been passed then load it into this entity
     if (opt_data) {
         this.loadData(opt_data);
@@ -157,7 +165,6 @@ Entity.prototype.loadData = function (data) {
     if (data['recurrence_pattern']) {
         this.recurrencePattern_ = data['recurrence_pattern'];
     }
-
 
     // Trigger onload event to alert any observers that the data for this entity has loaded (batch)
     events.triggerEvent(this, "load");
@@ -564,6 +571,8 @@ Entity.prototype.setRecurrence = function (data) {
         id: data.id || null,
         obj_type: this.objType,
         recur_type: data.type,
+        day_of_week_mask: data.dayOfWeek || null,
+        day_of_weekly_mask: data.dayOfWeekly || null,
         interval: data.interval || null,
         instance: data.instance || null,
         day_of_month: data.dayOfMonth || null,
@@ -572,10 +581,22 @@ Entity.prototype.setRecurrence = function (data) {
         date_end: data.dateEnd || null
     }
 
+    // Determine if pattern is already existing
+    if (data.id != null) {
+        this.recurrenceDirty_ = true;
+
+        // TODO: popup the option if we will update all the future events or just this recurrence
+    }
 
     this.recurrencePattern_ = pattern;
 }
 
+/**
+ * Get the recurrence pattern for this entity
+ *
+ * @return {object}
+ * @public
+ */
 Entity.prototype.getRecurrence = function () {
     var pattern = null;
 
@@ -584,20 +605,13 @@ Entity.prototype.getRecurrence = function () {
             id: this.recurrencePattern_.id || null,
             objType: this.recurrencePattern_.obj_type || this.objType,
             type: this.recurrencePattern_.recur_type,
+            dayOfWeek: this.recurrencePattern_.day_of_week_mask,
             interval: this.recurrencePattern_.interval || null,
             instance: this.recurrencePattern_.instance || null,
             dayOfMonth: this.recurrencePattern_.day_of_month || null,
             monthOfYear: this.recurrencePattern_.month_of_year || null,
             dateStart: this.recurrencePattern_.date_start || null,
             dateEnd: this.recurrencePattern_.date_end || null
-        }
-
-        if(this.recurrencePattern_.recur_type == 4) { // Month Nth
-            pattern.typeIndex = 3;
-        } else if(this.recurrencePattern_.recur_type == 6) { // Year Nth
-            pattern.typeIndex = 5;
-        } else {
-            pattern.typeIndex = this.recurrencePattern_.recur_type;
         }
     }
 

@@ -12,16 +12,16 @@ var Recurrence = React.createClass({
 
     getInitialState: function () {
         var humanDesc = 'Does not repeat';
-        var pattern = this.props.entity.getRecurrence() || null;
+        var data = this.props.entity.getRecurrence() || null;
 
-        if(pattern) {
-            humanDesc = this._getHumanDesc(pattern);
+        if (data) {
+            humanDesc = this._getHumanDesc(data);
         }
 
         // Return the initial state
         return {
             humanDesc: humanDesc,
-            pattern: pattern
+            data: data
         };
     },
 
@@ -62,7 +62,7 @@ var Recurrence = React.createClass({
         recurrence.load({
             type: controller.types.DIALOG,
             title: "Recurrence",
-            data: this.state.pattern,
+            data: this.state.data,
             onSetRecurrence: function (data, humanDesc) {
                 this._handleSetRecurrence(data, humanDesc);
             }.bind(this)
@@ -79,7 +79,10 @@ var Recurrence = React.createClass({
      */
     _handleSetRecurrence: function (data, humanDesc) {
         this.props.entity.setRecurrence(data);
-        this.setState({humanDesc: humanDesc});
+        this.setState({
+            humanDesc: humanDesc,
+            data: data
+        });
     },
 
     _getHumanDesc: function (data) {
