@@ -14,40 +14,31 @@ var Checkbox = Chamel.Checkbox;
 var Weekly = React.createClass({
 
     propTypes: {
-        data: React.PropTypes.object,
-        dayOfWeek: React.PropTypes.array.isRequired
-    },
-
-    getDefaultProps: function () {
-        return {
-            data: {
-                interval: 1,
-                dayOfWeekly: []
-            }
-        }
+        recurrencePattern: React.PropTypes.object.isRequired,
     },
 
     componentDidMount: function () {
-        this.refs.inputInterval.setValue(this.props.data.interval);
+        this.refs.inputInterval.setValue(this.props.recurrencePattern.interval);
     },
 
     render: function () {
-        var displayDays = []
+        var displayDays = [];
+        var dayOfWeek = this.props.recurrencePattern.getDayOfWeek();
 
-        for (var idx in this.props.dayOfWeek) {
-            var day = this.props.dayOfWeek[idx];
-            var ref = 'dayOfWeek' + day.key;
+        for (var idx in dayOfWeek) {
+            var day = dayOfWeek[idx];
+            var ref = 'dayOfWeek' + idx;
             var checked = false;
-
-            if (this.props.data.dayOfWeekly[day.key] && this.props.data.dayOfWeekly[day.key] == 't') {
+            if (this.props.recurrencePattern.dayOfWeek[idx]) {
                 checked = true;
             }
 
             displayDays.push(<Checkbox
-                key={day.key}
-                value={day.key}
+                key={idx}
+                value={day.value}
                 ref={ref}
                 label={day.text}
+                onCheck={this._handleOnCheck.bind(this, idx)}
                 defaultSwitched={checked}/>)
         }
 
@@ -57,7 +48,8 @@ var Weekly = React.createClass({
                     <label>Every </label>
                     <TextField
                         className='recurrence-input'
-                        ref='inputInterval'/>
+                        ref='inputInterval'
+                        onBlur={this._handleInputBlur}/>
                     <label> week(s) on:</label>
                 </div>
                 <div>
@@ -68,27 +60,31 @@ var Weekly = React.createClass({
     },
 
     /**
-     * Gets the recurrence pattern data set by the user
+     * Handles the clicking of checkbox for weekOfDay
      *
-     * @return {object}
-     * @public
+     * @param {int} indes           The index of the weekOfDay
+     * @param {DOMEvent} e          Reference to the DOM event being sent
+     * @param {bool} isChecked      The current state of the checkbox
+     *
+     * @private
      */
-    getData: function () {
-        var data = {
-            type: 2,
-            interval: this.refs.inputInterval.getValue(),
-            dayOfWeekly: []
+    _handleOnCheck: function (index, e, isInputChecked) {
+
+        if(isInputChecked) {
+            this.props.recurrencePattern.dayOfWeek[index] = e.target.value;
+        } else {
+            this.props.recurrencePattern.dayOfWeek.splice(index, 1);
         }
+    },
 
-        for (var idx in this.props.dayOfWeek) {
-            var dayIndex = this.props.dayOfWeek[idx].key;
-            var ref = 'dayOfWeek' + dayIndex;
-            var checked = this.refs[ref].isChecked() ? 't' : 'f';
-
-            data.dayOfWeekly[dayIndex] = checked;
-        }
-
-        return data;
+    /**
+     * Handles the blur event on the interval input
+     *
+     * @param {DOMEvent} e      Reference to the DOM event being sent
+     * @private
+     */
+    _handleInputBlur: function (e) {
+        this.props.recurrencePattern.interval = e.target.value;
     }
 });
 

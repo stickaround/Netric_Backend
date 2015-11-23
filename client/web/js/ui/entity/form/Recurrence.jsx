@@ -12,16 +12,15 @@ var Recurrence = React.createClass({
 
     getInitialState: function () {
         var humanDesc = 'Does not repeat';
-        var data = this.props.entity.getRecurrence() || null;
+        var recurrencePatten = this.props.entity.getRecurrence();
 
-        if (data) {
-            humanDesc = this._getHumanDesc(data);
+        if (recurrencePatten.type > 0) {
+            humanDesc = recurrencePatten.getHumanDesc();
         }
 
         // Return the initial state
         return {
-            humanDesc: humanDesc,
-            data: data
+            humanDesc: humanDesc
         };
     },
 
@@ -50,6 +49,11 @@ var Recurrence = React.createClass({
         }
     },
 
+    /**
+     * Handles the showing of recurrence
+     *
+     * @private
+     */
     _handleShowRecurrence: function () {
 
         /*
@@ -62,7 +66,7 @@ var Recurrence = React.createClass({
         recurrence.load({
             type: controller.types.DIALOG,
             title: "Recurrence",
-            data: this.state.data,
+            recurrencePattern: this.props.entity.getRecurrence(),
             onSetRecurrence: function (data, humanDesc) {
                 this._handleSetRecurrence(data, humanDesc);
             }.bind(this)
@@ -70,33 +74,19 @@ var Recurrence = React.createClass({
     },
 
     /**
-     * Saves the fileId and fileName of the uploaded file to the entity field 'attachments'
+     * Sets the recurrence data
      *
-     * @param {int} fileId          The id of the file uploaded
-     * @param {string} fileName     The name of the file uploaded
+     * @param {object} data          Recurrence pattern data
+     * @param {string} humanDesc     The human description of the pattern data
      *
      * @private
      */
     _handleSetRecurrence: function (data, humanDesc) {
         this.props.entity.setRecurrence(data);
         this.setState({
-            humanDesc: humanDesc,
-            data: data
-        });
-    },
-
-    _getHumanDesc: function (data) {
-
-        /*
-         * We require it here to avoid a circular dependency where the
-         * controller requires the view and the view requires the controller
-         */
-        var RecurrenceController = require("../../../controller/RecurrenceController");
-        var recurrence = new RecurrenceController();
-
-        return recurrence.getHumanDesc(data);
+            humanDesc: this.props.entity.getRecurrence().getHumanDesc()
+        })
     }
-
 });
 
 module.exports = Recurrence;

@@ -6,7 +6,8 @@
  */
 'use strict';
 
-var Definition = require("./Definition");
+var Definition = require('./Definition');
+var Recurrence = require('./Recurrence');
 var events = require('../util/events');
 
 /**
@@ -62,9 +63,9 @@ var Entity = function (entityDef, opt_data) {
      * This will be used to save or load the recurrence pattern
      *
      * @private
-     * @type {Object}
+     * @type {Entity/Recurrence}
      */
-    this.recurrencePattern_ = null;
+    this.recurrencePattern_ = new Recurrence(this.objType);
 
     /**
      * Security
@@ -91,14 +92,6 @@ var Entity = function (entityDef, opt_data) {
      * @type {bool}
      */
     this.isLoading = false;
-
-    /**
-     * Determine if we have an updated recurrence pattern
-     *
-     * @public
-     * @type {bool}
-     */
-    this.recurrenceDirty_ = false;
 
     // If data has been passed then load it into this entity
     if (opt_data) {
@@ -163,7 +156,7 @@ Entity.prototype.loadData = function (data) {
 
     // Handle Recurrence
     if (data['recurrence_pattern']) {
-        this.recurrencePattern_ = data['recurrence_pattern'];
+        this.recurrencePattern_.fromData(data['recurrence_pattern']);
     }
 
     // Trigger onload event to alert any observers that the data for this entity has loaded (batch)
@@ -205,8 +198,8 @@ Entity.prototype.getData = function () {
     }
 
     // Get the recurrence pattern data if available
-    if (this.recurrencePattern_) {
-        retObj.recurrence_pattern = this.recurrencePattern_;
+    if (this.recurrencePattern_ && this.recurrencePattern_.type > 0) {
+        retObj.recurrence_pattern = this.recurrencePattern_.toData();
     }
 
     return retObj;
@@ -560,62 +553,23 @@ Entity.prototype.normalizeFieldValue_ = function (field, value) {
 }
 
 /**
- * Set the recurrence pattern for this entity
+ * Returns the recurrence pattern instance
  *
- * @param {object} data   The recurrence pattern to be saved for this entity
  * @public
+ * @return {Entity/Recurrence}
  */
-Entity.prototype.setRecurrence = function (data) {
-
-    var pattern = {
-        id: data.id || null,
-        obj_type: this.objType,
-        recur_type: data.type,
-        day_of_week_mask: data.dayOfWeek || null,
-        day_of_weekly_mask: data.dayOfWeekly || null,
-        interval: data.interval || null,
-        instance: data.instance || null,
-        day_of_month: data.dayOfMonth || null,
-        month_of_year: data.monthOfYear || data.monthOfYearNth || null,
-        date_start: data.dateStart,
-        date_end: data.dateEnd || null
-    }
-
-    // Determine if pattern is already existing
-    if (data.id != null) {
-        this.recurrenceDirty_ = true;
-
-        // TODO: popup the option if we will update all the future events or just this recurrence
-    }
-
-    this.recurrencePattern_ = pattern;
+Entity.prototype.getRecurrence = function () {
+    return this.recurrencePattern_;
 }
 
 /**
- * Get the recurrence pattern for this entity
+ * Sets the recurrence pattern
  *
- * @return {object}
+ * @param {Entity/Recurrence}       Object instance of recurrence model
  * @public
  */
-Entity.prototype.getRecurrence = function () {
-    var pattern = null;
-
-    if (this.recurrencePattern_) {
-        pattern = {
-            id: this.recurrencePattern_.id || null,
-            objType: this.recurrencePattern_.obj_type || this.objType,
-            type: this.recurrencePattern_.recur_type,
-            dayOfWeek: this.recurrencePattern_.day_of_week_mask,
-            interval: this.recurrencePattern_.interval || null,
-            instance: this.recurrencePattern_.instance || null,
-            dayOfMonth: this.recurrencePattern_.day_of_month || null,
-            monthOfYear: this.recurrencePattern_.month_of_year || null,
-            dateStart: this.recurrencePattern_.date_start || null,
-            dateEnd: this.recurrencePattern_.date_end || null
-        }
-    }
-
-    return pattern;
+Entity.prototype.setRecurrence = function (recurrencePattern) {
+    this.recurrencePattern_ = recurrencePattern;
 }
 
 module.exports = Entity;

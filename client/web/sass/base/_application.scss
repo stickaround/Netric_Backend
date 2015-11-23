@@ -20,16 +20,12 @@
 @import 'entity/grouping-chip';
 @import 'entity/form';
 @import 'entitybrowser/entitybrowser';
+@import 'entity/recurrence';
 
 /**
  * File Uploader classes
  */
 @import 'fileupload/fileupload';
-
-/**
- * Recurrence classes
- */
-@import 'recurrence/base';
 
 /**
  * Import login style

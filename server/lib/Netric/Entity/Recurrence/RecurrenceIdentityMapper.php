@@ -98,10 +98,6 @@ class RecurrenceIdentityMapper
             // Get the start date which is required for all recurring patterns
             $curStart = $entity->getValue($def->recurRules['field_date_start']);
 
-            // If we did not get the start date in ::getValue, then lets try getting it from ::getDateStart() function
-            if(!$curStart)
-                $curStart = $entity->getRecurrencePattern()->getDateStart()->format('Y-m-d');
-
             // Epic fail! A start_field value of the entity is required for recurrence
             if (!$curStart)
                 throw new \RuntimeException($def->recurRules['field_date_start'] . " is required for saving recurrence");;

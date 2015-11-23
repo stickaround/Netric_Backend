@@ -2,10 +2,18 @@
  * Recurrence component.
  *
  * This will display the different recurrence pattern types.
- * The pattern display will depend on what type is currently selected.
- * The props data will be stored in the state.data while the pattern data will be stored in state.patternData
- * To get the pattern data, we will be calling the private function _getPatternData().
- * Each recurrence pattern sub component will have a public function ::getData().
+ * The recurrence pattern will depend on what type is currently selected.
+ *
+ * DailyComponent will display the input for interval per day.
+ * WeeklyComponent will display the input for interval per day and checkbox selection for days of week.
+ *
+ * MonthlyComponent will have 2 types (Monthly and MonthNth).
+ * Monthly will display the inputs for interval per month and the day of the month.
+ * MonthNth will display the dropdown for instance and day of week, and input for interval per month.
+ *
+ * YearlyComponent will have 2 types (Yearly and YearNth).
+ * Yearly will display the dropdowns for month of year and input for day of the month.
+ * YearNth will display the dropdowns for instance, day of the week, and  month of year.
  *
  * @jsx React.DOM
  */
@@ -21,53 +29,49 @@ var TextField = Chamel.TextField;
 var Checkbox = Chamel.Checkbox;
 var DatePicker = Chamel.DatePicker;
 
-// Recurrence Types
-var Daily = require('./Daily.jsx');
-var Weekly = require('./Weekly.jsx');
-var Monthly = require('./Monthly.jsx');
-var Yearly = require('./Yearly.jsx');
-
-var recurrenceType = [
-    {value: '0', text: 'Does Not Repeat'},
-    {value: '1', text: 'Daily'},
-    {value: '2', text: 'Weekly'},
-    {value: 'm', text: 'Monthly'},
-    {value: 'y', text: 'Yearly'},
-];
+// Recurrence Pattern Components
+var DailyComponent = require('./Daily.jsx');
+var WeeklyComponent = require('./Weekly.jsx');
+var MonthlyComponent = require('./Monthly.jsx');
+var YearlyComponent = require('./Yearly.jsx');
 
 var Recurrence = React.createClass({
 
     propTypes: {
-        data: React.PropTypes.object,
+        recurrencePattern: React.PropTypes.object.isRequired,
         dateToday: React.PropTypes.string,
         displayType: React.PropTypes.string,
-        dayOfWeek: React.PropTypes.array.isRequired,
-        instance: React.PropTypes.array.isRequired,
         onSave: React.PropTypes.func,
-        onNavBackBtnClick: React.PropTypes.func
+        onNavBackBtnClick: React.PropTypes.func,
     },
 
     getDefaultProps: function () {
-        var data = {
-            type: 0,
-            dateEnd: null,
-            typeIndex: 0
-        }
-
         return {
             displayType: 'page',
-            data: data
+            recurrenceIndex: 0
         }
     },
 
     getInitialState: function () {
 
+        var neverEnds = true;
+        var recurPatterns = [];
+        var recurrencePattern = this.props.recurrencePattern;
+        var recurrenceType = this.props.recurrencePattern.type;
+
+        recurPatterns[recurrenceType] = recurrencePattern;
+
+        if (recurrencePattern.dateEnds) {
+            neverEnds = false;
+        }
+
         // Return the initial state
         return {
-            recurrenceType: this.props.data.type,
-            recurrenceIndex: this.props.data.typeIndex,
-            patternData: [],
-            data: this.props.data
+            recurrenceType: recurrenceType,
+            recurrencePattern: recurrencePattern,
+            recurrenceIndex: recurrencePattern.getRecurrenceIndex(),
+            recurPatterns: recurPatterns,
+            neverEnds: neverEnds
         };
     },
 
@@ -76,15 +80,10 @@ var Recurrence = React.createClass({
     },
 
     componentDidUpdate: function () {
-        if (this.props.getData) {
-            this.props.onGetData('data');
-        }
-
         this._setDateData();
     },
 
     render: function () {
-        var neverEnds = true;
         var displayCancel = null;
         var displayEndDate = null;
         var displayPattern = this._handleDisplayRecurrenceType(this.state.recurrenceType);
@@ -95,13 +94,13 @@ var Recurrence = React.createClass({
         }
 
         // Display the end date input
-        if (this.state.data.dateEnd) {
-
-            neverEnds = false;
-
-            displayEndDate = (<TextField
-                ref='inputDateEnd'
-                hintText="End Date"/>);
+        if (!this.state.neverEnds) {
+            displayEndDate = (
+                <TextField
+                    ref='inputDateEnd'
+                    hintText="End Date"
+                    onBlur={this._handleDateBlur.bind(this, 'dateEnd')}/>
+            );
         }
 
         return (
@@ -110,8 +109,8 @@ var Recurrence = React.createClass({
                     <fieldset>
                         <legend>Recurrence Pattern</legend>
                         <DropDownMenu
-                            selectedIndex={parseInt(this.state.recurrenceIndex)}
-                            menuItems={recurrenceType}
+                            selectedIndex={this.state.recurrenceIndex}
+                            menuItems={this.props.recurrencePattern.getTypeMenu()}
                             onChange={this._handleRecurrenceChange}/>
 
                         <div className='recurrence-pattern'>
@@ -122,7 +121,8 @@ var Recurrence = React.createClass({
                         <legend>Range of Recurrence</legend>
                         <TextField
                             ref='inputDateStart'
-                            hintText="Start Date"/>
+                            hintText="Start Date"
+                            onBlur={this._handleDateBlur.bind(this, 'dateStart')}/>
 
                         {displayEndDate}
 
@@ -130,7 +130,7 @@ var Recurrence = React.createClass({
                             ref="neverEnds"
                             value="default"
                             label="Never Ends"
-                            defaultSwitched={neverEnds}
+                            defaultSwitched={this.state.neverEnds}
                             onCheck={this._handleNeverEnds}/>
                     </fieldset>
                 </div>
@@ -160,10 +160,7 @@ var Recurrence = React.createClass({
      * @private
      */
     _handleNeverEnds: function (e, isChecked) {
-        var data = this.state.data;
-        data.dateEnd = isChecked ? null : this.props.dateToday;
-
-        this.setState({data: data})
+        this.setState({neverEnds: isChecked})
     },
 
     /**
@@ -172,18 +169,18 @@ var Recurrence = React.createClass({
      * @private
      */
     _handleSaveButton: function () {
-        var data = this._getPatternData() || this.state.data;
+        var recurrencePattern = this.state.recurPatterns[this.state.recurrenceType];
 
-        data.dateStart = this.refs.inputDateStart.getValue();
+        recurrencePattern.dateStart = this.refs.inputDateStart.getValue();
 
         if (this.refs.inputDateEnd) {
-            data.dateEnd = this.refs.inputDateEnd.getValue();
+            recurrencePattern.dateEnd = this.refs.inputDateEnd.getValue();
         } else {
-            data.dateEnd = '';
+            recurrencePattern.dateEnd = '';
         }
 
         if (this.props.onSave) {
-            this.props.onSave(data);
+            this.props.onSave(recurrencePattern);
         }
     },
 
@@ -197,23 +194,13 @@ var Recurrence = React.createClass({
      * @private
      */
     _handleRecurrenceChange: function (e, key, menuItem) {
-
-        /*
-         * When changing the type of recurrence, lets save the current recurrence type data to the state
-         * So if the user decides to select back this recurrence type
-         * We can just display its saved data instead of using the default values
-         * This will only apply to Daily and Weekly since they are not using state data
-         */
-        var patternData = this.state.patternData;
-
-        if (this.state.recurrenceType <= 2) {
-            patternData[this.state.recurrenceType] = this._getPatternData();
+        if (!key) {
+            key = this.state.recurrenceIndex;
         }
 
         this.setState({
             recurrenceType: menuItem.value,
-            recurrenceIndex: key,
-            patternData: patternData
+            recurrenceIndex: key
         });
     },
 
@@ -226,53 +213,57 @@ var Recurrence = React.createClass({
      */
     _handleDisplayRecurrenceType: function (type) {
 
-        var data = undefined; // Lets set the data undefined as default, so sub types components can assign the default props
+        var recurrenceTypes = this.props.recurrencePattern.getRecurrenceTypes();
+        var recurrencePattern = null;
         var displayPattern = null;
         var ref = 'recurrence' + type;
 
-        // If recurrence data is set, then lets use that data to set the default values
-        if (this.state.data && this.state.data.type == type) {
-            data = Object.create(this.state.data);
-        } else if (this.state.patternData[type]) {
-            data = this.state.patternData[type];
+        // If recurrence data is set for this type, then lets use it to load the values for the pattern
+        if (this.state.recurPatterns[type]) {
+            recurrencePattern = this.state.recurPatterns[type];
+        } else {
+            recurrencePattern = Object.create(this.state.recurrencePattern);
+            recurrencePattern.type = type;
+            recurrencePattern.reset(); // Reset the existing values and set to default values
+            recurrencePattern.setDefaultValues(); // Set the default values based on the type of recurrence
+
+            this.state.recurPatterns[type] = recurrencePattern;
         }
 
         switch (type.toString()) {
-            case '1': // Daily
+            case recurrenceTypes.DAILY:
                 displayPattern = (
-                    <Daily
+                    <DailyComponent
                         ref={ref}
-                        data={data}/>
+                        recurrencePattern={recurrencePattern}/>
                 );
                 break;
-            case '2': // Weekly
+            case recurrenceTypes.WEEKLY:
                 displayPattern = (
-                    <Weekly
+                    <WeeklyComponent
                         ref={ref}
-                        dayOfWeek={this.props.dayOfWeek}
-                        data={data}/>
+                        recurrencePattern={recurrencePattern}/>
                 );
                 break;
-            case '3': // Monthly
-            case '4': // Monthly Nth
-            case 'm':
+            case recurrenceTypes.MONTHLY:
+            case recurrenceTypes.MONTHNTH:
                 displayPattern = (
-                    <Monthly
+                    <MonthlyComponent
                         ref={ref}
-                        dayOfWeek={this.props.dayOfWeek}
-                        instance={this.props.instance}
-                        data={data}/>
+                        recurrencePattern={recurrencePattern}
+                        recurrenceTypes={recurrenceTypes}
+                        onTypeChange={this._handleRecurrenceChange}/>
                 );
                 break;
-            case '5': // Yearly
-            case '6': // Yearly Nth
-            case 'y':
-                displayPattern = (<Yearly
-                    ref={ref}
-                    dayOfWeek={this.props.dayOfWeek}
-                    instance={this.props.instance}
-                    months={this.props.months}
-                    data={data}/>);
+            case recurrenceTypes.YEARLY:
+            case recurrenceTypes.YEARNTH:
+                displayPattern = (
+                    <YearlyComponent
+                        ref={ref}
+                        recurrencePattern={recurrencePattern}
+                        recurrenceTypes={recurrenceTypes}
+                        onTypeChange={this._handleRecurrenceChange}/>
+                );
                 break;
             default: // Does not repeat
                 break;
@@ -282,20 +273,13 @@ var Recurrence = React.createClass({
     },
 
     /**
-     * Get the recurrence pattern data
+     * Handles the blur event on the input dates
      *
+     * @param {DOMEvent} e      Reference to the DOM event being sent
      * @private
      */
-    _getPatternData: function () {
-        var data = null;
-        var ref = 'recurrence' + this.state.recurrenceType;
-
-        // Check first we have already rendered the recurrence type before we try to get its data
-        if (this.refs[ref]) {
-            data = this.refs[ref].getData();
-        }
-
-        return data;
+    _handleDateBlur: function (dateType, e) {
+        this.props.recurrencePattern[dateType] = e.target.value;
     },
 
     /**
@@ -305,13 +289,11 @@ var Recurrence = React.createClass({
      */
     _setDateData: function () {
         if (this.refs.inputDateStart) {
-            var dateStart = this.state.data.dateStart || this.props.dateToday;
-            this.refs.inputDateStart.setValue(dateStart);
+            this.refs.inputDateStart.setValue(this.props.recurrencePattern.getDateStart());
         }
 
         if (this.refs.inputDateEnd) {
-            var dateEnd = this.state.data.dateEnd || this.props.dateToday;
-            this.refs.inputDateEnd.setValue(dateEnd);
+            this.refs.inputDateEnd.setValue(this.props.recurrencePattern.getDateStart());
         }
     }
 

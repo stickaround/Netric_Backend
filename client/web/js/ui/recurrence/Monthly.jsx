@@ -15,56 +15,12 @@ var RadioButton = Chamel.RadioButton;
 var DropDownMenu = Chamel.DropDownMenu;
 var RadioButtonGroup = Chamel.RadioButtonGroup;
 
-var occurenceMenu = [
-    {key: '1', text: 'The First'},
-    {key: '2', text: 'The Second'},
-    {key: '3', text: 'The Third'},
-    {key: '4', text: 'The Fourt'},
-    {key: '5', text: 'The Last'},
-];
-
-var typeMonthly = '3';
-var typeMonthNth = '4';
-
-
 var Monthly = React.createClass({
 
     propTypes: {
-        data: React.PropTypes.object,
-        dayOfWeek: React.PropTypes.array.isRequired,
-        instance: React.PropTypes.array.isRequired
-    },
-
-    getDefaultProps: function () {
-        var data = {
-            type: typeMonthly,
-            dayOfMonth: 1,
-            intervalMonth: 1,
-            dayOfWeek: 1,
-            intervalNth: 1,
-            instance: 1
-        };
-
-        return {
-            data: data
-        }
-    },
-
-    getInitialState: function () {
-
-        var data = this.props.data;
-
-        // Since we have 2 different inputs for interval, lets assign the correct interval variable depending on which monthly type is set.
-        if (data.type == typeMonthly) {
-            data.intervalMonth = data.interval || 1;
-        } else if (data.interval) {
-            data.intervalNth = data.interval || 1;
-        }
-
-        // Return the initial state
-        return {
-            data: data
-        };
+        onTypeChange: React.PropTypes.func,
+        recurrenceTypes: React.PropTypes.object,
+        recurrencePattern: React.PropTypes.object.isRequired
     },
 
     componentDidMount: function () {
@@ -78,43 +34,45 @@ var Monthly = React.createClass({
     render: function () {
         var displayType = null;
 
-        if (this.state.data.type == typeMonthly) {
+        if (this.props.recurrencePattern.type == this.props.recurrenceTypes.MONTHLY) {
             displayType = (
                 <div className="row">
                     <div className="col-small-5">
                         <label>Day</label>
                         <TextField
                             className='recurrence-input'
-                            ref='inputDayOfMonth'/>
+                            ref='inputDayOfMonth'
+                            onBlur={this._handleInputBlur}/>
                         <label>of every</label>
                         <TextField
                             className='recurrence-input'
-                            ref='inputIntervalMonth'/>
+                            ref='inputIntervalMonth'
+                            onBlur={this._handleInputBlur}/>
                         <label>Month(s)</label>
                     </div>
                 </div>
             );
         } else {
-            var instance = this.state.data.instance || 1;
-            var dayOfWeek = this.state.data.dayOfWeek || 1;
-
+            var dayOfWeek = this.props.recurrencePattern.dayOfWeek;
+            var dayOfWeekIndex = this.props.recurrencePattern.getBitMaskIndex(dayOfWeek);
             displayType = (
                 <div className="row">
                     <div className="col-small-6">
                         <DropDownMenu
                             onChange={this._handleDropDownChange.bind(this, 'instance')}
-                            selectedIndex={instance - 1}
-                            menuItems={this.props.instance}/>
+                            selectedIndex={this.props.recurrencePattern.instance - 1}
+                            menuItems={this.props.recurrencePattern.getInstance()}/>
                         <DropDownMenu
                             onChange={this._handleDropDownChange.bind(this, 'dayOfWeek')}
-                            selectedIndex={dayOfWeek - 1}
-                            menuItems={this.props.dayOfWeek}/>
+                            selectedIndex={dayOfWeekIndex}
+                            menuItems={this.props.recurrencePattern.getDayOfWeek()}/>
                     </div>
                     <div>
                         <label>of every</label>
                         <TextField
                             className='recurrence-input'
-                            ref='inputIntervalNth'/>
+                            ref='inputIntervalNth'
+                            onBlur={this._handleInputBlur}/>
                         <label>Month(s)</label>
                     </div>
                 </div>
@@ -128,16 +86,16 @@ var Monthly = React.createClass({
                         className='row'
                         name='inputMonthly'
                         ref='radioType'
-                        defaultSelected={this.state.data.type}
+                        defaultSelected={this.props.recurrencePattern.type}
                         onChange={this._handleTypeChange}>
                         <RadioButton
                             className='col-small-2'
-                            value={typeMonthly}
+                            value={this.props.recurrenceTypes.MONTHLY}
                             label='Monthly'/>
 
                         <RadioButton
                             className='col-small-3'
-                            value={typeMonthNth}
+                            value={this.props.recurrenceTypes.MONTHNTH}
                             label='Month-nth'/>
                     </RadioButtonGroup>
                 </div>
@@ -154,10 +112,25 @@ var Monthly = React.createClass({
      * @private
      */
     _handleTypeChange: function (e, newSelection) {
-        var data = this.state.data;
-        data.type = newSelection;
+        if (this.props.onTypeChange) {
+            var objSelected = {value: newSelection};
+            this.props.onTypeChange(e, null, objSelected);
+        }
+    },
 
-        this._setStateData(data);
+    /**
+     * Handles the blur event on the input texts
+     *
+     * @param {DOMEvent} e      Reference to the DOM event being sent
+     * @private
+     */
+    _handleInputBlur: function (type, e) {
+        if (this.refs.inputDayOfMonth) {
+            this.props.recurrencePattern.dayOfMonth = this.refs.inputDayOfMonth.getValue();
+            this.props.recurrencePattern.interval = this.refs.inputIntervalMonth.getValue();
+        } else if (this.refs.inputIntervalNth) {
+            this.props.recurrencePattern.interval = this.refs.inputIntervalNth.getValue();
+        }
     },
 
     /**
@@ -170,42 +143,7 @@ var Monthly = React.createClass({
      * @private
      */
     _handleDropDownChange: function (type, e, key, menuItem) {
-        var data = this.state.data;
-        data[type] = menuItem.key;
-
-        this._setStateData(data);
-    },
-
-    /**
-     * Saves the data into the state
-     *
-     * @param {object} data     Collection of data that will be stored in the state
-     * @private
-     */
-    _setStateData: function (data) {
-
-        /*
-         * Lets save the input values in the state to be retrieved later.
-         * If the user changes the type of monthly recurrence, the state values are retrieved
-         */
-        if (this.refs.inputDayOfMonth) {
-            data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
-            data.intervalMonth = this.refs.inputIntervalMonth.getValue();
-        } else if (this.refs.inputIntervalNth) {
-            data.intervalNth = this.refs.inputIntervalNth.getValue();
-        }
-
-        // Check if we have a value for instance
-        if (!data.instance) {
-            data.instance = 1;
-        }
-
-        // Check if we have a value for dayOfWeek
-        if (!data.dayOfWeek) {
-            data.dayOfWeek = 1;
-        }
-
-        this.setState({data: data});
+        this.props.recurrencePattern[type] = menuItem.value;
     },
 
     /**
@@ -215,38 +153,11 @@ var Monthly = React.createClass({
      */
     _setInputValues: function () {
         if (this.refs.inputDayOfMonth) {
-            var dayOfMonth = this.state.data.dayOfMonth || 1;
-            var interval = this.state.data.intervalMonth || 1;
-
-            this.refs.inputDayOfMonth.setValue(dayOfMonth);
-            this.refs.inputIntervalMonth.setValue(interval);
+            this.refs.inputDayOfMonth.setValue(this.props.recurrencePattern.dayOfMonth);
+            this.refs.inputIntervalMonth.setValue(this.props.recurrencePattern.interval);
         } else if (this.refs.inputIntervalNth) {
-            var interval = this.state.data.intervalNth || 1;
-
-            this.refs.inputIntervalNth.setValue(interval);
+            this.refs.inputIntervalNth.setValue(this.props.recurrencePattern.interval);
         }
-    },
-
-    /**
-     * Gets the recurrence pattern data set by the user
-     *
-     * @return {object}
-     * @public
-     */
-    getData: function () {
-        var data = {};
-        data.type = this.state.data.type;
-
-        if (data.type == typeMonthly) {
-            data.dayOfMonth = this.refs.inputDayOfMonth.getValue();
-            data.interval = this.refs.inputIntervalMonth.getValue();
-        } else {
-            data.interval = this.refs.inputIntervalNth.getValue();
-            data.instance = this.state.data.instance;
-            data.dayOfWeek = this.state.data.dayOfWeek;
-        }
-
-        return data;
     }
 });
 

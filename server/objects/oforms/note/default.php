@@ -8,9 +8,6 @@
 	<field name='website'></field>
 </row>
 <row>
-	<recurrence />
-</row>
-<row>
 	<attachments />
 </row>
 <row>
