@@ -8,21 +8,25 @@
  */
 'use strict';
 
+var netric = require("../../base");
+
 /**
  * Creates an instance of File
  *
  * @param {entity/Entity} entity     The entity definition of the file object
  * @constructor
  */
-var File = function (entity) {
+var File = function (opt_data) {
+
+    var data = opt_data || new Object();
 
     /**
-     * The entity of the file object
+     * The id of the file
      *
-     * @private
-     * @type {netric.entity.Entity}
+     * @public
+     * @type {int}
      */
-    this._fileEntity = entity;
+    this.id = data.id || data.key || null;
 
     /**
      * The name of the file
@@ -30,23 +34,15 @@ var File = function (entity) {
      * @public
      * @type {string}
      */
-    this.name = this._fileEntity.getValue('name') || null;
+    this.name = data.name || data.value || null;
 
     /**
-     * The download url link of the file
+     * The filetype of the file
      *
      * @public
      * @type {string}
      */
-    this.url = null;
-
-    /**
-     * Determine if the file has tried getting the url
-     *
-     * @public
-     * @type {bool}
-     */
-    this.urlLoaded = false;
+    this.filetype = data.filetype || null;
 
     /**
      * Progress data that is used when uploading a file
@@ -63,27 +59,36 @@ var File = function (entity) {
 }
 
 /**
- * Set the value of a field of the file entity
+ * Gets the url of the file
  *
- * @param {string} name The name of the field to set
- * @param {mixed} value The value to set the field to
+ * @return {string}
+ * @public
  */
-File.prototype.setValue = function (name, value) {
-    if(name == "name") {
-        this.name = value;
+File.prototype.getFileUrl = function () {
+    var fileUrl = null;
+
+    if (this.id) {
+        fileUrl = netric.server.host + '/files/' + this.id
     }
 
-    this._fileEntity.setValue(name, value);
+    return fileUrl;
 }
 
 /**
- * Get the value for an file entity field
+ * Gets the url of the file
  *
+ * @return {string}
  * @public
- * @param {string} name The unique name of the field to get the value for
  */
-File.prototype.getValue = function (name) {
-    return this._fileEntity.getValue(name);
+File.prototype.isImage = function () {
+    var result = false;
+
+    // Check if file is an image via file name extension
+    if (this.name && this.name.match(/\.(jpg|jpeg|png|gif)$/)) {
+        result = true;
+    }
+
+    return result;
 }
 
 module.exports = File;

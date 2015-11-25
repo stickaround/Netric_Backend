@@ -74,42 +74,6 @@ var FileUploader = {
             log.notice(error);
         }
     },
-
-    /**
-     * Get the file preview url from the server
-     *
-     * @param {int} fileId                      The id of the file to be removed
-     * @param {function} opt_finishedCallback   Optional callback to call when successfully getting the file url
-     * @public
-     */
-    view: function(fileId, opt_finishedCallback) {
-        if (!fileId) {
-            throw "FileId should be defined";
-        }
-
-        var data = new FormData();
-        data.append('fid', fileId);
-
-        // If we are connected
-        if (netric.server.online) {
-            var request = new BackendRequest();
-
-            // Success callback
-            events.listen(request, "load", function(evt) {
-                if(opt_finishedCallback) {
-                    opt_finishedCallback(this.getResponse());
-                }
-            });
-
-            // Error callback
-            events.listen(request, "error", function(evt) {
-                throw "Error removing the file: There was a problem contacting the server";
-            });
-
-            request.setDataIsForm(true);
-            request.send("controller/AntFs/getFilePreview", 'POST', data);
-        }
-    }
 }
 
 module.exports = FileUploader;
