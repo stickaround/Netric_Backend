@@ -40,17 +40,15 @@ var FileUpload = React.createClass({
         for (var idx in this.props.uploadedFiles) {
             var file = this.props.uploadedFiles[idx];
 
-            // If file is already existing in the server and url is not then lets try to get it from the server
-            if (!file.url && !file.urlLoaded && file.getValue('id')) {
-                if (this.props.getFileUrl) this.props.getFileUrl(idx);
-            }
-
-            displayFiles.push(<File
-                key={idx}
-                index={idx}
-                file={file}
-                onRemove={this.props.onRemove}
-                />);
+            displayFiles.push(
+                <File
+                    key={idx}
+                    index={idx}
+                    file={file}
+                    displayProgress={true}
+                    onRemove={this.props.onRemove}
+                    />
+            );
         }
 
         return (
