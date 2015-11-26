@@ -1,13 +1,14 @@
 /**
  * @fileOverview Base entity may be extended
  *
- * @author:    Sky Stebnicki, sky.stebnicki@aereus.com;
- *            Copyright (c) 2014 Aereus Corporation. All rights reserved.
+ * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
+ * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
 var Definition = require('./Definition');
 var Recurrence = require('./Recurrence');
+var File = require('./fileupload/File');
 var events = require('../util/events');
 
 /**
@@ -522,6 +523,28 @@ Entity.prototype.getTime = function (field, compress) {
 
     return val;
 
+}
+
+/**
+ * Get the attachments saved in this entity
+ *
+ * @return {array}
+ */
+Entity.prototype.getAttachments = function () {
+
+	var attachedFiles = [];
+
+	// Check if this is an existing entity, before we load the attachments
+	var files = this.getValueName('attachments');
+
+	for (var idx in files) {
+		// Create a file object
+		if (files[idx].key) {
+			attachedFiles[idx] = new File(files[idx])
+		}
+	}
+
+	return attachedFiles;
 }
 
 /**

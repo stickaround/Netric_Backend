@@ -12,7 +12,6 @@ var controller = require("./controller");
 var AbstractController = require("./AbstractController");
 var UiFileUpload = require("../ui/fileupload/FileUpload.jsx");
 var fileUploader = require("../entity/fileUploader");
-var entityLoader = require("../entity/loader");
 var entitySaver = require("../entity/saver");
 var File = require("../entity/fileupload/File");
 
@@ -53,14 +52,6 @@ FileUploadController.prototype._uploadedFiles = [];
 FileUploadController.prototype.objType = 'file';
 
 /**
- * The entity of the file object
- *
- * @private
- * @type {Array}
- */
-FileUploadController.prototype._fileEntity = null;
-
-/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -69,17 +60,11 @@ FileUploadController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
-    // Create an empty file entity
-    entityLoader.factory(this.objType, function (ent) {
-
-        this._fileEntity = ent;
-
-        if (callbackWhenLoaded) {
-            callbackWhenLoaded();
-        } else {
-            this.render();
-        }
-    }.bind(this));
+    if (callbackWhenLoaded) {
+        callbackWhenLoaded();
+    } else {
+        this.render();
+    }
 }
 
 /**
@@ -145,8 +130,8 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
         }
 
         // Create a new instance of the file object with the file entity defined
-        var file = new File(this._fileEntity);
-        file.setValue('name', fileName);
+        var file = new File();
+        file.name = fileName;
 
         // Add the file in the uploadedFiles[] array
         this._uploadedFiles[fileIndex] = file;
@@ -160,15 +145,12 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
 
         // Re render the fileUpload with the result of the uploaded files
         var funcCompleted = function (result) {
-            var fileId = result[0].id;
-
-            this._uploadedFiles[fileIndex].setValue('id', fileId);
-            this._getFileUrl(fileIndex);
+            this._uploadedFiles[fileIndex].id = result[0].id;
             this.render();
 
             // If callback is set, then lets pass the file id and file name
             if (this.props.onFilesUploaded) {
-                this.props.onFilesUploaded(fileId, fileName);
+                this.props.onFilesUploaded(file);
             }
 
             // Continue to the next upload file if there's any
@@ -198,14 +180,14 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
  */
 FileUploadController.prototype._handleRemoveFile = function (index) {
 
-    var fileId = this._uploadedFiles[index].getValue('id');
+    var fileId = this._uploadedFiles[index].id;
 
     var funcCompleted = function (result) {
         this._uploadedFiles.splice(index, 1);
 
         // If callback is set, then lets pass file id
         if (this.props.onRemoveFilesUploaded) {
-            this.props.onRemoveFilesUploaded(fileId);
+            this.props.onRemoveFilesUploaded(fileId, index);
         }
 
         this.render();
@@ -213,26 +195,6 @@ FileUploadController.prototype._handleRemoveFile = function (index) {
 
     // Remove the file from the server
     entitySaver.remove(this.objType, fileId, funcCompleted);
-}
-
-/**
- * Gets the url of the file from the server
- *
- * @param {int} index      The index of the file that we want to get the url link
- *
- * @private
- */
-FileUploadController.prototype._getFileUrl = function (index) {
-    var funcCompleted = function (result) {
-        this._uploadedFiles[index].url = result.urlDownload;
-        this.render();
-    }.bind(this);
-
-    // Set the flag that we have tried loading the url for this file
-    this._uploadedFiles[index].urlLoaded = true;
-
-    // Get the file url preview
-    fileUploader.view(this._uploadedFiles[index].getValue('id'), funcCompleted);
 }
 
 module.exports = FileUploadController;

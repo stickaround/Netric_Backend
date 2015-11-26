@@ -10,6 +10,7 @@ var ReactDOM = require('react-dom');
 var controller = require("../controller/controller");
 var Device = require("../Device");
 var Where = require("../entity/Where");
+var File = require("./fileupload/File.jsx");
 var Chamel = require("chamel");
 var TextField = Chamel.TextField;
 var FlatButton = Chamel.FlatButton;
@@ -26,24 +27,27 @@ var EntityComments = React.createClass({
         // Navigation back button - left arrow to the left of the title
         onNavBtnClick: React.PropTypes.func.isRequired,
         onAddComment: React.PropTypes.func,
+        onAttachFiles: React.PropTypes.func,
+        onRemoveFiles: React.PropTypes.func,
         deviceSize: React.PropTypes.number,
         commentsBrowser: React.PropTypes.object,
         // Get the objReference - the object for which we are displaying/adding comments
         objReference: React.PropTypes.string,
-        hideToolbar: React.PropTypes.bool
+        hideToolbar: React.PropTypes.bool,
+        attachedFiles: React.PropTypes.array,
     },
 
-    componentDidMount: function() {
+    componentDidMount: function () {
         this._loadCommentsBrowser();
     },
 
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             commBrowser: null
         };
     },
 
-    render: function() {
+    render: function () {
 
         var toolBar = null;
 
@@ -52,7 +56,7 @@ var EntityComments = React.createClass({
                 <IconButton
                     iconClassName="fa fa-arrow-left"
                     onClick={this._handleBackButtonClicked}
-                />
+                    />
             );
             var elementRight = null;
 
@@ -72,14 +76,21 @@ var EntityComments = React.createClass({
             addCommentForm = (
                 <div className="entity-comments-form">
                     <div className="entity-comments-form-center">
-                        <TextField ref="commInput" hintText="Add Comment" multiLine={true} />
+                        <TextField ref="commInput" hintText="Add Comment" multiLine={true}/>
+                    </div>
+                    <div className="entity-comments-attachment-right">
+                        <IconButton
+                            label="Attach Files"
+                            iconClassName="fa fa-paperclip"
+                            onClick={this._handleFileUpload}
+                            />
                     </div>
                     <div className="entity-comments-form-right">
                         <FlatButton
                             label="Send"
                             iconClassName="fa fa-paper-plane"
                             onClick={this._handleCommentSend}
-                        />
+                            />
                     </div>
                 </div>
             );
@@ -87,19 +98,40 @@ var EntityComments = React.createClass({
             // Small devices show the comments form as a floating toolbar
             // TODO: Add - <div className="entity-comments-form-left">[i]</div>
             addCommentForm = (
-              <div className="entity-comments-form">
-                  <div className="entity-comments-form-center">
-                    <TextField ref="commInput" hintText="Add Comment" multiLine={true} />
-                  </div>
-                  <div className="entity-comments-form-right">
-                    <IconButton
-                        tooltip="Send Comment"
-                        iconClassName="fa fa-paper-plane"
-                        onClick={this._handleCommentSend}
-                    />
-                  </div>
-              </div>
+                <div className="entity-comments-form">
+                    <div className="entity-comments-form-center">
+                        <TextField ref="commInput" hintText="Add Comment" multiLine={true}/>
+                    </div>
+                    <div className="entity-comments-attachment-right">
+                        <IconButton
+                            label="Attach Files"
+                            iconClassName="fa fa-paperclip"
+                            onClick={this._handleFileUpload}
+                            />
+                    </div>
+                    <div className="entity-comments-form-right">
+                        <IconButton
+                            tooltip="Send Comment"
+                            iconClassName="fa fa-paper-plane"
+                            onClick={this._handleCommentSend}
+                            />
+                    </div>
+                </div>
             );
+        }
+
+        var displayAttachedFiles = [];
+
+        // Loop thru the attachedFiles and create the display for the file details using the File Component
+        for (var idx in this.props.attachedFiles) {
+            var file = this.props.attachedFiles[idx];
+
+            displayAttachedFiles.push(<File
+                key={idx}
+                index={idx}
+                file={file}
+                onRemove={this._handleRemoveFiles}
+                />);
         }
 
         return (
@@ -108,6 +140,7 @@ var EntityComments = React.createClass({
                 <div className="entity-comments">
                     <div ref="commCon"></div>
                     {addCommentForm}
+                    {displayAttachedFiles}
                 </div>
             </div>
         );
@@ -118,7 +151,7 @@ var EntityComments = React.createClass({
      *
      * @private
      */
-    _loadCommentsBrowser: function() {
+    _loadCommentsBrowser: function () {
 
         /*
          * We require it here to avoid a circular dependency where the
@@ -148,7 +181,7 @@ var EntityComments = React.createClass({
      * @param {DOMEvent} evt
      * @private
      */
-    _handleCommentSend: function(evt) {
+    _handleCommentSend: function (evt) {
         var value = this.refs.commInput.getValue();
         if (this.props.onAddComment) {
             this.props.onAddComment(value);
@@ -164,10 +197,60 @@ var EntityComments = React.createClass({
      * @param evt
      * @private
      */
-    _handleBackButtonClicked: function(evt) {
+    _handleBackButtonClicked: function (evt) {
         if (this.props.onNavBtnClick) {
             this.props.onNavBtnClick();
         }
+    },
+
+    /**
+     * Handles the uploading of attached files
+     *
+     * @param evt
+     * @private
+     */
+    _handleFileUpload: function (evt) {
+
+        /*
+         * We require it here to avoid a circular dependency where the
+         * controller requires the view and the view requires the controller
+         */
+        var FileUploadController = require("../controller/FileUploadController");
+        var fileUpload = new FileUploadController();
+
+        fileUpload.load({
+            type: controller.types.DIALOG,
+            title: "Attach Files",
+            onFilesUploaded: function (fileId, fileName) {
+                this._handleAttachFiles(fileId, fileName)
+            }.bind(this),
+            onRemoveFilesUploaded: function (fileId, index) {
+                this._handleRemoveFiles(index);
+            }.bind(this)
+        });
+    },
+
+    /**
+     * Handle the attachment of uploaded file
+     *
+     * @param {int} fileId          The id of the file uploaded
+     * @param {string} fileName     The name of the file uploaded
+     *
+     * @private
+     */
+    _handleAttachFiles: function (fileId, fileName) {
+        if (this.props.onAttachFiles) this.props.onAttachFiles(fileId, fileName);
+    },
+
+    /**
+     * Handles the removing of uploaded file
+     *
+     * @param {int} index       Index of the file to be removed
+     *
+     * @private
+     */
+    _handleRemoveFiles: function (index) {
+        if (this.props.onRemoveFiles) this.props.onRemoveFiles(index);
     },
 
     /**
@@ -175,7 +258,7 @@ var EntityComments = React.createClass({
      *
      * @public
      */
-    refreshComments: function() {
+    refreshComments: function () {
         if (this.state.commBrowser) {
             this.state.commBrowser.refresh();
         }

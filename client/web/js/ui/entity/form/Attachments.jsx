@@ -11,9 +11,6 @@ var FlatButton = Chamel.FlatButton;
 
 var controller = require("../../../controller/controller");
 var File = require("../../../ui/fileupload/File.jsx");
-var netric = require("../../../base");
-var fileUrl = netric.server.host + '/files/';
-
 
 var Attachments = React.createClass({
 
@@ -26,36 +23,15 @@ var Attachments = React.createClass({
 
     getInitialState: function () {
 
-        // Get the attachments from the entity and save it in the initial state
-        var attachedFiles = [];
-
-        // Check if this is an existing entity, before we load the attachments
-        if (this.props.entity.id) {
-            var files = this.props.entity.getValueName('attachments');
-
-            for (var idx in files) {
-                var file = files[idx];
-
-                // Create a file object
-                if (file.key) {
-                    attachedFiles[idx] = {
-                        id: file.key,
-                        name: file.value,
-                        url: fileUrl + file.key
-                    };
-                }
-            }
-        }
-
         // Return the initial state
         return {
-            attachedFiles: attachedFiles
+            attachedFiles: this.props.entity.getAttachments()
         };
     },
 
     render: function () {
         var xmlNode = this.props.xmlNode;
-        var displayFiles = []
+        var displayFiles = [];
 
         // Loop thru the attachedFiles and create the display for the file details using the File Component
         for (var idx in this.state.attachedFiles) {
@@ -106,23 +82,18 @@ var Attachments = React.createClass({
     /**
      * Saves the fileId and fileName of the uploaded file to the entity field 'attachments'
      *
-     * @param {int} fileId          The id of the file uploaded
-     * @param {string} fileName     The name of the file uploaded
+     * @param {entity/fileupload/file} file     Instance of the file model
      *
      * @private
      */
-    _handleFilesUploaded: function (fileId, fileName) {
+    _handleFilesUploaded: function (file) {
 
         // Add the file in the entity object
-        this.props.entity.addMultiValue('attachments', fileId, fileName);
+        this.props.entity.addMultiValue('attachments', file.id, file.name);
 
         // Push the added file in the state to update the attached files display
         var attachedFiles = this.state.attachedFiles;
-        attachedFiles.push({
-            id: fileId,
-            name: fileName,
-            url: fileUrl + fileId
-        });
+        attachedFiles.push(file);
 
         // Update the state and this will re-render the attachments
         this.setState({attachedFiles: attachedFiles});
