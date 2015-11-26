@@ -33,16 +33,24 @@ var Recurrence = function (objType) {
 
     /**
      * Type of the recurrence pattern
-     * Default value will be 0 which is "Do Not Repeat"
+     *
+     * This will contain one of the values of the Recurrence._types
+     * Please refer to Recurrence._types object
      *
      * @public
      * @type {int}
      */
-    this.type = 0;
+    this.type = Recurrence._types.DONOTREPEAT;
 
     /**
      * dayOfWeek value of the recurrence pattern
+     *
      * If the pattern type is weekly, this will be an array. Else it will only have integer value.
+     * Weekly Array will contain the bitmask value of the selected day.
+     * Example of weekly array:
+     * If Monday is selected: this.dayOfWeek[1] = 2;
+     * If Friday is selected: this.dayOfWeek[5] = 32;
+     * If Saturday is selected: this.dayOfWeek[6] = 64;
      *
      * @public
      * @type {int|array}
@@ -52,6 +60,10 @@ var Recurrence = function (objType) {
     /**
      * Interval value of the recurrence pattern
      *
+     * Example:
+     * 1 = every day/week/month/year
+     * 2 = every other day/week/month/year
+     *
      * @public
      * @type {int}
      */
@@ -59,8 +71,9 @@ var Recurrence = function (objType) {
 
     /**
      * Instance value of the recurrence pattern
+     *
      * This will contain either First, Second, Third, Fourth, or Last integer values.
-     * Please refer to Recurrence._instance array variable
+     * Please refer to Recurrence._instance object
      *
      * @public
      * @type {int}
@@ -77,8 +90,9 @@ var Recurrence = function (objType) {
 
     /**
      * monthOfYear value of the recurrence pattern
+     *
      * This will contain the index of correspondign month selected by the user
-     * Please refer to Recurrence._months array variable
+     * Please refer to Recurrence._months object
      *
      * @public
      * @type {int}
@@ -171,7 +185,7 @@ Recurrence._months = [
  * @public
  * @return {array}
  */
-Recurrence.prototype.getTypeMenu = function () {
+Recurrence.prototype.getTypeMenuData = function () {
     var recurrenceTypeMenu = [
         {value: Recurrence._types.DONOTREPEAT, text: 'Does Not Repeat'},
         {value: Recurrence._types.DAILY, text: 'Daily'},
@@ -260,12 +274,13 @@ Recurrence.prototype.toData = function () {
 }
 
 /**
- * Get the recurrence index
+ * Get the offset of the current recurrence type
+ * This will determine what index to use in the Recurrence Type Menu Dropdown
  *
  * @return {int}
  * @public
  */
-Recurrence.prototype.getRecurrenceIndex = function () {
+Recurrence.prototype.getRecurrenceTypeOffset = function () {
 
     var recurrIndex = 0;
 

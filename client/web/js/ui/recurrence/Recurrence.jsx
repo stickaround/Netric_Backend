@@ -28,6 +28,7 @@ var DropDownMenu = Chamel.DropDownMenu;
 var TextField = Chamel.TextField;
 var Checkbox = Chamel.Checkbox;
 var DatePicker = Chamel.DatePicker;
+var AppBar = Chamel.AppBar;
 
 // Recurrence Pattern Components
 var DailyComponent = require('./Daily.jsx');
@@ -40,14 +41,13 @@ var Recurrence = React.createClass({
     propTypes: {
         recurrencePattern: React.PropTypes.object.isRequired,
         dateToday: React.PropTypes.string,
-        displayType: React.PropTypes.string,
         onSave: React.PropTypes.func,
-        onNavBackBtnClick: React.PropTypes.func,
+        onNavBtnClick: React.PropTypes.func,
+        hideToolbar: React.PropTypes.bool
     },
 
     getDefaultProps: function () {
         return {
-            displayType: 'page',
             recurrenceIndex: 0
         }
     },
@@ -69,7 +69,7 @@ var Recurrence = React.createClass({
         return {
             recurrenceType: recurrenceType,
             recurrencePattern: recurrencePattern,
-            recurrenceIndex: recurrencePattern.getRecurrenceIndex(),
+            recurrenceIndex: recurrencePattern.getRecurrenceTypeOffset(),
             recurPatterns: recurPatterns,
             neverEnds: neverEnds
         };
@@ -88,11 +88,6 @@ var Recurrence = React.createClass({
         var displayEndDate = null;
         var displayPattern = this._handleDisplayRecurrenceType(this.state.recurrenceType);
 
-        // If the display if NOT from dialog, then lets display the cancel button
-        if (this.props.displayType != 'dialog') {
-            displayCancel = (<FlatButton label='Cancel' onClick={this._handleBackButton}/>);
-        }
-
         // Display the end date input
         if (!this.state.neverEnds) {
             displayEndDate = (
@@ -103,14 +98,32 @@ var Recurrence = React.createClass({
             );
         }
 
+        var toolBar = null;
+        if (!this.props.hideToolbar) {
+            var elementLeft = (
+                <IconButton
+                    iconClassName="fa fa-arrow-left"
+                    onClick={this._handleBackButtonClicked}
+                    />
+            );
+
+            toolBar = (
+                <AppBar
+                    iconElementLeft={elementLeft}
+                    title="Recurrence">
+                </AppBar>
+            );
+        }
+
         return (
             <div>
+                {toolBar}
                 <div className='recurrence'>
                     <fieldset>
                         <legend>Recurrence Pattern</legend>
                         <DropDownMenu
                             selectedIndex={this.state.recurrenceIndex}
-                            menuItems={this.props.recurrencePattern.getTypeMenu()}
+                            menuItems={this.props.recurrencePattern.getTypeMenuData()}
                             onChange={this._handleRecurrenceChange}/>
 
                         <div className='recurrence-pattern'>
@@ -143,12 +156,13 @@ var Recurrence = React.createClass({
     },
 
     /**
-     * Closes the dialog window or goes back to the previous page
+     * Respond when the user clicks the back button
      *
+     * @param evt
      * @private
      */
-    _handleBackButton: function () {
-        if (this.props.onNavBackBtnClick) this.props.onNavBackBtnClick();
+    _handleBackButtonClicked: function (evt) {
+        if (this.props.onNavBtnClick) this.props.onNavBtnClick();
     },
 
     /**

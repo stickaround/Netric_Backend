@@ -55,16 +55,24 @@ RecurrenceController.prototype.render = function () {
     // Set outer application container
     var domCon = this.domNode_;
 
+    // Unhide toolbars if we are in a page mode
+    var hideToolbar = this.props.hideToolbar || true;
+    if (this.getType() === controller.types.PAGE) {
+        hideToolbar = false;
+    }
+
     // Define the data
     var data = {
         title: this.props.title || "Recurrence",
         recurrencePattern: this.props.recurrencePattern,
-        recurrenceIndex: this.props.recurrencePattern.getRecurrenceIndex(),
-        displayType: this.getType(),
+        recurrenceIndex: this.props.recurrencePattern.getRecurrenceTypeOffset(),
+        hideToolbar: hideToolbar,
         dayOfWeek: this.props.recurrencePattern.getDayOfWeek(),
         instance: this.props.recurrencePattern.getInstance(),
         months: this.props.recurrencePattern.getMonths(),
-        onNavBackBtnClick: this.props.onNavBackBtnClick || null,
+        onNavBtnClick: function (evt) {
+            this.close();
+        }.bind(this),
         onSave: function (data) {
             this._handleSave(data);
         }.bind(this)
