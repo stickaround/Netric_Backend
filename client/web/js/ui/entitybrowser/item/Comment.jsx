@@ -1,5 +1,5 @@
 /**
- * Lit Item used where object type is 'comment'
+ * List Item used where object type is 'comment'
  *
  * @jsx React.DOM
  */
@@ -9,6 +9,7 @@ var React = require('react');
 var Chamel = require('chamel');
 var Checkbox = Chamel.Checkbox;
 var UserProfileImage = require("../../UserProfileImage.jsx");
+var File = require("../../fileupload/File.jsx");
 
 /**
  * List item for a comment
@@ -24,10 +25,33 @@ var CommentItem = React.createClass({
         var actors = entity.getActors();
         var comment = this._processCommentText(entity.getValue("comment"));
 
+        // Get the attached files
+        var attachedFiles = [];
+        var attachedFilesImage = [];
+        var attachedImageClass = null;
+        var files = entity.getAttachments();
+        for (var idx in files) {
+            var file = files[idx];
+
+            // Check if file is an image
+            if (file.isImage()) {
+                attachedImageClass = "entity-browser-comment-image";
+                attachedFilesImage.push(<img key={idx} src={file.getFileUrl()}/>);
+            } else {
+                attachedFiles.push(
+                    <File
+                        key={idx}
+                        index={idx}
+                        file={file}
+                        />
+                );
+            }
+        }
+
         return (
             <div className="entity-browser-comment">
                 <div className="entity-browser-comment-img">
-                    <UserProfileImage width={32} userId={userId} />
+                    <UserProfileImage width={32} userId={userId}/>
                 </div>
                 <div className="entity-browser-comment-details">
                     <div className="entity-browser-comment-header">
@@ -37,7 +61,11 @@ var CommentItem = React.createClass({
                         </div>
                     </div>
                     <div className="entity-browser-comment-body">
-                        <div dangerouslySetInnerHTML={comment} />
+                        <div dangerouslySetInnerHTML={comment}/>
+                        <div className={attachedImageClass}>
+                            {attachedFilesImage}
+                        </div>
+                        {attachedFiles}
                     </div>
                 </div>
             </div>
@@ -51,11 +79,11 @@ var CommentItem = React.createClass({
      * @param {bool} multiline If true allow new lines
      * @param {bool} rich If true allow html/rich text
      */
-    _processCommentText: function(comment) {
+    _processCommentText: function (comment) {
 
         // Convert new lines to line breaks
         if (comment) {
-            var re = new RegExp ("\n", 'gi') ;
+            var re = new RegExp("\n", 'gi');
             comment = comment.replace(re, "<br />");
         }
 
@@ -67,7 +95,7 @@ var CommentItem = React.createClass({
          * setting innherHTML is a pretty dangerous option in that it
          * is often used for cross script exploits.
          */
-        return (comment) ? { __html: comment } : null;
+        return (comment) ? {__html: comment} : null;
     },
 
 });
