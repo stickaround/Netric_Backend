@@ -1,5 +1,5 @@
 /**
- * Lit Item used where object type is 'comment'
+ * List Item used where object type is 'comment'
  *
  * @jsx React.DOM
  */
@@ -28,13 +28,15 @@ var CommentItem = React.createClass({
         // Get the attached files
         var attachedFiles = [];
         var attachedFilesImage = [];
+        var attachedImageClass = null;
         var files = entity.getAttachments();
         for (var idx in files) {
             var file = files[idx];
 
             // Check if file is an image
-            if(file.isImage()) {
-                attachedFilesImage.push(<img key={idx} src={file.getFileUrl()} />);
+            if (file.isImage()) {
+                attachedImageClass = "entity-browser-comment-image";
+                attachedFilesImage.push(<img key={idx} src={file.getFileUrl()}/>);
             } else {
                 attachedFiles.push(
                     <File
@@ -60,7 +62,9 @@ var CommentItem = React.createClass({
                     </div>
                     <div className="entity-browser-comment-body">
                         <div dangerouslySetInnerHTML={comment}/>
-                        {attachedFilesImage}
+                        <div className={attachedImageClass}>
+                            {attachedFilesImage}
+                        </div>
                         {attachedFiles}
                     </div>
                 </div>

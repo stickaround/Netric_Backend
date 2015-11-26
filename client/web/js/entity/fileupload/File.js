@@ -23,6 +23,8 @@ var File = function (opt_data) {
     /**
      * The id of the file
      *
+     * data.key is sometimes used to get the id of file when constructing this from a grouping field rather than entity data.
+     *
      * @public
      * @type {int}
      */
@@ -30,6 +32,8 @@ var File = function (opt_data) {
 
     /**
      * The name of the file
+     *
+     * data.value is sometimes used to get the name of file when constructing from a grouping field rather than entity data.
      *
      * @public
      * @type {string}
@@ -75,7 +79,7 @@ File.prototype.getFileUrl = function () {
 }
 
 /**
- * Gets the url of the file
+ * Check if the file is an image
  *
  * @return {string}
  * @public
@@ -84,7 +88,7 @@ File.prototype.isImage = function () {
     var result = false;
 
     // Check if file is an image via file name extension
-    if (this.name && this.name.match(/\.(jpg|jpeg|png|gif)$/)) {
+    if (this.name && this.name.toLowerCase().match(/\.(jpg|jpeg|png|gif)$/)) {
         result = true;
     }
 
