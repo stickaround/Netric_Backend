@@ -253,6 +253,34 @@ class RecurrencePatternTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($import['ep_locked'], $exported['ep_locked']);
 	}
 
+	public function testToArrayWeeklyMask()
+	{
+		$import = array(
+			"id" => 123,
+			"recur_type" => RecurrencePattern::RECUR_WEEKLY,
+			"interval" => 2,
+			// Set this to array, since weekly will be passing an array variable that contains the days of week mask
+			"day_of_week_mask" => array(
+				RecurrencePattern::WEEKDAY_FRIDAY,
+				RecurrencePattern::WEEKDAY_MONDAY,
+				RecurrencePattern::WEEKDAY_SATURDAY
+			),
+			"date_start" => "2015-01-01",
+			"date_end" => "2015-02-01",
+			"f_active" => true,
+			"obj_type" => "task",
+		);
+
+		$recur = new RecurrencePattern();
+		$recur->fromArray($import);
+
+		// Create the week mask
+		$dayOfWeekMask = RecurrencePattern::WEEKDAY_FRIDAY | RecurrencePattern::WEEKDAY_MONDAY | RecurrencePattern::WEEKDAY_SATURDAY;
+
+		// Lets check if the dayOfWeek mask was properly set using the array set above
+		$this->assertEquals($dayOfWeekMask, $recur->getDayOfWeekMask());
+	}
+
 	/**
 	 * @group recur
 	 */
