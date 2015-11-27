@@ -119,6 +119,7 @@ var Recurrence = function (objType) {
 /**
  * Recurrence Types
  *
+ * @constant
  * @private
  */
 Recurrence._types = {
@@ -133,6 +134,7 @@ Recurrence._types = {
 
 /**
  * Day of week array
+ *
  *
  * @private
  */
@@ -267,6 +269,7 @@ Recurrence.prototype.toData = function () {
         day_of_month: this.dayOfMonth,
         month_of_year: this.monthOfYear,
         date_start: this.dateStart,
+        field_date_start: this.dateStart,
         date_end: this.dateEnd
     }
 
