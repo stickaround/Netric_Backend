@@ -269,8 +269,15 @@ Recurrence.prototype.toData = function () {
         day_of_month: this.dayOfMonth,
         month_of_year: this.monthOfYear,
         date_start: this.dateStart,
-        field_date_start: this.dateStart,
         date_end: this.dateEnd
+    }
+    
+    switch(this.objType) {
+        case 'calendar_event':
+            data.ts_start = this.dateStart;
+            break;
+        default:
+            data.field_start_date = this.dateStart;
     }
 
     return data;
