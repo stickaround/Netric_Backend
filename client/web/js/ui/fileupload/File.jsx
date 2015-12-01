@@ -18,19 +18,28 @@ var File = React.createClass({
     propTypes: {
         index: React.PropTypes.string.isRequired,
         file: React.PropTypes.object.isRequired,
+        displayProgress: React.PropTypes.bool,
         onRemove: React.PropTypes.func
+    },
+
+    getDefaultProps: function () {
+        return {
+            displayProgress: false
+        }
     },
 
     render: function () {
         var statusClass = 'file-upload-status';
         var status = null;
+        var displayRemoveBtn = null;
         var displayProgress = null;
         var percentComplete = null;
         var fileView = null;
-        var progress = this.props.file.progress;
 
         // Check if we have progress event
-        if(progress) {
+        if (this.props.displayProgress) {
+            var progress = this.props.file.progress;
+
             if (progress.errorText) {
                 status = progress.errorText;
                 statusClass = 'file-upload-status-error';
@@ -38,27 +47,28 @@ var File = React.createClass({
             } else if (progress.percentComplete == 100) {
                 status = 'Completed - ';
 
-                // Let the user know that the file link is still loading.
-                if (!this.props.file.url) {
-                    fileView = 'Loading the file link...';
-                }
-
             } else if (progress.percentComplete > 0 && progress.percentComplete < 100) {
                 status = 'Uploading - ' + progress.percentComplete + '%';
 
-                displayProgress = <LinearProgress mode="determinate" min={0} max={progress.total} value={progress.loaded}/>;
-
-            } else if (this.props.file.getValue('id') == null) {
+                displayProgress =
+                    <LinearProgress mode="determinate" min={0} max={progress.total} value={progress.loaded}/>;
+                
+            } else if (!this.props.file.id) {
                 status = 'Uploading';
                 displayProgress = <LinearProgress mode="indeterminate"/>;
             }
-        } else {
-            fileView = 'Loading the file link...';
         }
 
         // If file preview url is available then lets display it.
-        if (this.props.file.url) {
-            fileView = <a href={this.props.file.url} target='_blank'>View File</a>;
+        if (this.props.file.getFileUrl()) {
+            fileView = <a href={this.props.file.getFileUrl()} target='_blank'>View File</a>;
+        }
+
+        // Check if we have a remove function set in the props
+        if (this.props.onRemove) {
+            displayRemoveBtn = (<IconButton
+                onClick={this._handleRemoveFile}
+                className="fa fa-times"/>);
         }
 
         return (
@@ -66,9 +76,7 @@ var File = React.createClass({
                 <div>
                     <div className='file-upload-name'>{this.props.file.name}</div>
                     <div className='file-upload-remove'>
-                        <IconButton
-                            onClick={this._handleRemoveFile}
-                            className="fa fa-times"/>
+                        {displayRemoveBtn}
                     </div>
                     <div className='clearFix clear'></div>
                 </div>
