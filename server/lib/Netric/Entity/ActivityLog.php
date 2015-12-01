@@ -7,6 +7,7 @@
  */
 namespace Netric\Entity;
 
+use Netric\Entity\ObjType\Activity;
 use Netric\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityGroupings;
@@ -108,8 +109,17 @@ class ActivityLog
         if (!$name)
             $name = $object->getName();
 
-        $actEntity = $this->entityLoader->create("activity");
+        // Get notes
+        if (!$notes)
+        {
+            $notes = "TODO: Get notes from entity here";
+            /*
+            if ($verb == Activity::VERB_UPDATED)
+                $notes = $object->getChangeLogDesc();
+            */
+        }
 
+        $actEntity = $this->entityLoader->create("activity");
         $actEntity->setValue("name", $name);
         $actEntity->setValue("notes", $notes);
         $actEntity->setValue("verb", $verb);
