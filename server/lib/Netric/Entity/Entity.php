@@ -4,10 +4,12 @@
  */
 namespace Netric\Entity;
 
+use My\Space\ExceptionNamespaceTest;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\EntityDefinition;
 
 class Entity implements \Netric\Entity\EntityInterface
 {
@@ -178,7 +180,10 @@ class Entity implements \Netric\Entity\EntityInterface
                 $ret = array();
                 foreach ($values as $val)
                 {
-                    $ret[$val] = $this->fkeysValues[$strName][$val];
+                    if (isset($this->fkeysValues[$strName][$val]))
+                    {
+                        $ret[$val] = $this->fkeysValues[$strName][$val];
+                    }
                 }
                 return $ret;
             }
@@ -289,6 +294,17 @@ class Entity implements \Netric\Entity\EntityInterface
     }
 
     /**
+     * Remove a value from a *_multi type field
+     *
+     * @param string $strName
+     * @param string|int $value
+     */
+    public function removeMultiValue($strName, $value)
+    {
+        // TODO: remove the value from the multi-value array
+    }
+
+    /**
      * Clear all values in a multi-value field
      *
      * @param string $fieldName The name of the field to clear
@@ -363,17 +379,6 @@ class Entity implements \Netric\Entity\EntityInterface
             );
         }
     }
-    
-    /**
-     * Remove a value from a *_multi type field
-     * 
-     * @param string $strName
-     * @param string|int $value
-     */
-    public function removeMultiValue($strName, $value)
-    {
-        // TODO: remove the value from the multi-value array
-    }
    
 	/**
 	 * Set values from array
@@ -429,7 +434,7 @@ class Entity implements \Netric\Entity\EntityInterface
 		}
 
 		// If the recurrence pattern data was passed then load it
-		if (isset($data['recurrence_pattern']))
+		if (isset($data['recurrence_pattern']) && !empty($data['recurrence_pattern']))
 		{
 			$this->recurrencePattern = new RecurrencePattern();
 			$this->recurrencePattern->fromArray($data['recurrence_pattern']);
@@ -646,69 +651,6 @@ class Entity implements \Netric\Entity\EntityInterface
 	}
 
 	/**
-	 * Create a unique name for this object given the values of the object
-	 *
-	 * Unique names may only have alphanum chars, no spaces, no special
-	 *
-	 * @param Entity_DataMapperInterface $dm Datamapper used to verify uname
-	 */
-	private function createUniqueName($dm)
-	{
-		$dbh = $this->dbh;
-
-		// If already set then return current value
-		if ($this->getValue("uname") || !$create)
-			return $this->getValue("uname");
-
-		$uname = "";
-
-		// Get unique name conditions
-		$settings = $this->def->unameSettings;
-
-		if ($settings)
-		{
-			$alreadyExists = false;
-
-			$uriParts = explode(":", $settings);
-
-			// Create desired uname from the right field
-			if ($uriParts[count($uriParts)-1] == "name")
-				$uname = $this->getName();
-			else
-				$uname = $this->getValue($uriParts[count($uriParts)-1]); // last one is the uname field
-
-			// The uname must be populated before we try to save anything
-			if (!$uname)
-				return "";
-
-			// Now escape the uname field to a uri fiendly name
-			$uname = strtolower($uname);
-			$uname = str_replace(" ", "-", $uname);
-			$uname = str_replace("?", "", $uname);
-			$uname = str_replace("&", "_and_", $uname);
-			$uname = str_replace("---", "-", $uname);
-			$uname = str_replace("--", "-", $uname);
-			$uname = preg_replace('/[^A-Za-z0-9_-]/', '', $uname);
-
-			$isUnique = $dm->verifyUniqueName($this, $uname); // Do not reset because that would create a loop
-
-			// If the unique name already exists, then append with id or a random number
-			if (!$isUnique)
-			{
-				$uname .= "-";
-				$uname .= ($this->getId()) ? $this->getId() : uniqid(); 
-			}
-		}
-		else if ($this->getId())
-		{
-			// uname is required but we are working with objects that do not need unique uri names then just use the id
-			$uname = $this->getId();
-		}
-
-		return $uname;
-	}	
-
-	/**
 	 * Get name of this object based on common name fields
 	 *
 	 * @return string The name/label of this object
@@ -764,7 +706,7 @@ class Entity implements \Netric\Entity\EntityInterface
 	}
     
     /**
-	 * Static funciton used to decode object reference string
+	 * Static function used to decode object reference string
 	 *
 	 * @param string $value The object ref string - [obj_type]:[obj_id]:[name] (last param is optional)
 	 * @return array Assoc array with the following keys: obj_type, id, name
@@ -780,23 +722,62 @@ class Entity implements \Netric\Entity\EntityInterface
 				'name' => null,
 			);
 
-			// Check for full name added after bar '|'
-			$parts2 = explode("|", $parts[1]);
-			if (count($parts2)>1)
-			{
-				$ret['id'] = $parts2[0];
-				$ret['name'] = $parts2[1];
-			}
-			else
-			{
-				$ret['id'] = $parts[1];
-			}
+            // Was encoded with obj_type:id:name (new)
+            if (count($parts) === 3)
+            {
+                $ret['id'] = $parts[1];
+                $ret['name'] = $parts[2];
+            }
+            else
+            {
+                // Check for full name added after bar '|' (old)
+                $parts2 = explode("|", $parts[1]);
+                if (count($parts2)>1)
+                {
+                    $ret['id'] = $parts2[0];
+                    $ret['name'] = $parts2[1];
+                }
+                else
+                {
+                    $ret['id'] = $parts[1];
+                }
+            }
 
 			return $ret;
 		}
 		else
 			return false;
 	}
+
+    /**
+     * Statfic function used to encode an object reference string
+     *
+     * @param string $objType The type of entity being referenced
+     * @param string $id The id of the entity being referenced
+     * @param string $name The human readable name of the entity being referenced
+     * @return string Encoded object reference
+     */
+    static public function encodeObjRef($objType, $id, $name = null)
+    {
+        $ret = $objType . ":" . $id;
+
+        if ($name)
+            $ret .= ":" . $name;
+
+        return $ret;
+    }
+
+    /**
+     * Get the encoded object reference for this entity
+     *
+     * @param bool $includeName If true then name will be encoded with the reference
+     * @return string [obj_type]:[id]:[name]
+     */
+    public function getObjRef($includeName = false)
+    {
+        $name = ($includeName) ? $this->getName() : null;
+        return self::encodeObjRef($this->def->getObjType(), $this->getId(), $name);
+    }
 
 	/**
 	 * Process temporary file uploads and move them into the object folder
@@ -853,4 +834,21 @@ class Entity implements \Netric\Entity\EntityInterface
 		}
 	}
 
+
+    /**
+     * Perform a clone of this entity to another
+     *
+     * This essentially does a shallow copy of all values
+     * from this entity into $toEntity, with the exception of
+     * ID which will be left blank for saving.
+     *
+     * @param Entity $toEntity
+     * @return Entity
+     */
+    public function cloneTo(Entity $toEntity)
+    {
+        $thisData = $this->toArray();
+        $thisData['id'] = null;
+        $toEntity->fromArray($thisData);
+    }
 }

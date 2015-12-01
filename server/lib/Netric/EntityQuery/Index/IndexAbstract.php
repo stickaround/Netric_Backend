@@ -6,6 +6,9 @@ namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition;
 use Netric\Entity\ObjType\User;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Results;
+use Netric\Entity\Recurrence;
 
 abstract class IndexAbstract
 {
@@ -22,7 +25,14 @@ abstract class IndexAbstract
      * @var \Netric\Entity\EntityFactory
      */
     protected $entityFactory = null;
-    
+
+    /**
+     * Recurrence series manager to test
+     *
+     * @var Recurrence\RecurrenceSeriesManager
+     */
+    private $recurSeriesManager = null;
+
     /**
      * Setup this index for the given account
      * 
@@ -32,6 +42,8 @@ abstract class IndexAbstract
     {
         $this->account = $account;
         $this->entityFactory = $account->getServiceManager()->get("EntityFactory");
+        $seriesManagerName = "Netric/Entity/Recurrence/RecurrenceSeriesManager";
+        //$this->recurSeriesManager = $account->getServiceManager()->get($seriesManagerName);
         
         // Setup the index
         $this->setUp($account);
@@ -59,14 +71,31 @@ abstract class IndexAbstract
 	 * @return bool true on success, false on failure
 	 */
 	abstract public function delete($id);
-    
+
     /**
-	 * Execute a query and return the results
-	 *
-     * @param string $id Unique id of object to delete
-	 * @return \Netric\EntityQuery\Results
-	 */
-	//abstract public function executeQuery(\Netric\EntityQuery &$query);
+     * Execute a query and return the results
+     *
+     * @param EntityQuery &$query The query to execute
+     * @param Results $results Optional results set to use. Otherwise create new.
+     * @return \Netric\EntityQuery\Results
+     */
+    //abstract protected function queryIndex(EntityQuery $query, Results $results = null);
+
+    /**
+     * Execute a query and return the results
+     *
+     * @param EntityQuery $query A query to execute
+     * @param Results $results Optional results set to use. Otherwise create new.
+     * @return \Netric\EntityQuery\Results
+     */
+    //public function executeQuery(EntityQuery &$query, Results $results = null)
+    //{
+        // First check to see if we have any recurring patterns to update
+        //$this->recurSeriesManager->createInstancesFromQuery($query, $results);
+
+        // Get results form the index for a query
+        //return $this->queryIndex($query);
+    //}
     
     /**
 	 * Split a full text string into an array of terms

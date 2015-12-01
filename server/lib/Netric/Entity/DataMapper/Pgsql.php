@@ -332,7 +332,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
             if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
                 $group->parentId = $row[$field->fkeyTable['parent']];
-            $group->color = $row['color'];
+            $group->color = (isset($row['color']) )? $row['color'] : "";
             if(isset($row['sort_order']))
                 $group->sortOrder = $row['sort_order'];
             $group->isSystem = (isset($row['f_system']) && $row['f_system']=='t') ? true : false;

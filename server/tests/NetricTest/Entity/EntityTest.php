@@ -68,7 +68,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		// object
 		$cust->setValue("owner_id", $this->user->getId(), $this->user->getValue("name"));
 		// object_multi
-		// fkey  
+		// fkey
 		// fkey_multi
 		// timestamp
 		$cust->setValue("last_contacted", time());
@@ -158,7 +158,40 @@ class EntityTest extends PHPUnit_Framework_TestCase
 
 		// Cleanup
 		$fileSystem->deleteFile($file, true);
+	}
 
+	/**
+	 * Test shallow cloning an entity
+	 */
+	public function testClone()
+	{
+		$cust = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$cust->setValue("name", "Entity_DataMapperTests");
 
+		// bool
+		$cust->setValue("f_nocall", true);
+
+		// object
+		$cust->setValue("owner_id", $this->user->getId(), $this->user->getValue("name"));
+
+		// TODO: object_multi
+		// TODO: fkey
+		// TODO: fkey_multi
+
+		// timestamp
+		$cust->setValue("last_contacted", time());
+		// Set a fake id just to make sure it does not get copied
+		$cust->setId(1);
+
+		// Clone it
+		$cloned = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$cust->cloneTo($cloned);
+
+		$this->assertEmpty($cloned->getId());
+		$this->assertEquals($cust->getValue("name"), $cloned->getValue("name"));
+		$this->assertEquals($cust->getValue("f_nocall"), $cloned->getValue("f_nocall"));
+		$this->assertEquals($cust->getValue("owner_id"), $cloned->getValue("owner_id"));
+		$this->assertEquals($cust->getValueName("owner_id"), $cloned->getValueName("owner_id"));
+		$this->assertEquals($cust->getValue("last_contacted"), $cloned->getValue("last_contacted"));
 	}
 }
