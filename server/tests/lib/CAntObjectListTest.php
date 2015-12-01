@@ -27,8 +27,6 @@ class CAntObjectListTest extends PHPUnit_Framework_TestCase
 		// Make sure the full-text only option is disabled for indexes
 		// so we can test the entire filter capabilities of the index
 		AntConfig::getInstance()->setValue("object_index", "fulltext_only", 0);
-		
-		$this->markTestSkipped('Cannot test since elastic search was not setup.');
 	}
 	
 	/**************************************************************************
@@ -77,17 +75,23 @@ class CAntObjectListTest extends PHPUnit_Framework_TestCase
 		$this->runTestObjectListSearch("db");
 	}
 
+	/*
 	function testObjectListSearchSolr()
 	{
+		$this->markTestSkipped('Cannot test since elastic search was not setup.');
+
 		if (index_is_available("solr"))
 			$this->runTestObjectListSearch("solr");
 	}
 
 	function testObjectListSearchElastic()
 	{
+		$this->markTestSkipped('Cannot test since elastic search was not setup.');
+
 		if (index_is_available("elastic"))
 			$this->runTestObjectListSearch("elastic");
 	}
+	*/
 
 	/**
 	 * Run all search types for a given index

@@ -4,6 +4,8 @@
  */
 namespace Netric;
 
+use Netric\Entity\Entity;
+use Netric\Entity\DataMapperInterface;
 use Netric\Stats\StatsPublisher;
 
 class EntityLoader
@@ -21,7 +23,7 @@ class EntityLoader
 	/**
 	 * Datamapper for entities
 	 *
-	 * @var Entity_DataMapper
+	 * @var DataMapperInterface
 	 */
 	private $dataMapper = null;
 
@@ -52,7 +54,7 @@ class EntityLoader
 	 * @param Entity_DataMapper $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
 	 */
-	private function __construct(Entity\DataMapperInterface $dm, EntityDefinitionLoader $defLoader)
+	private function __construct(DataMapperInterface $dm, EntityDefinitionLoader $defLoader)
 	{
 		$this->dataMapper = $dm;
 		$this->definitionLoader = $defLoader;
@@ -67,7 +69,7 @@ class EntityLoader
 	 * @param Entity_DataMapperInterface $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
 	 */
-	public static function getInstance(Entity\DataMapperInterface $dm, $defLoader) 
+	public static function getInstance(DataMapperInterface $dm, $defLoader)
 	{ 
 		if (!self::$m_pInstance) 
 			self::$m_pInstance = new EntityLoader($dm, $defLoader); 
@@ -172,6 +174,29 @@ class EntityLoader
 	{
         return $this->entityFactory->create($objType);
 	}
+
+	/**
+	 * Delete an entity
+	 *
+	 * @param Entity $entity The entity to save
+	 * @return \Netric\Entity\Entity
+	 */
+	public function save(Entity $entity)
+	{
+		return $this->dataMapper->save($entity);
+	}
+
+    /**
+     * Save an entity
+     *
+     * @param Entity $entity The entity to delete
+     * @param bool $forceHard If true the force a hard delete - purge!
+     * @return \Netric\Entity\Entity
+     */
+    public function delete(Entity $entity, $forceHard = false)
+    {
+        return $this->dataMapper->delete($entity, $forceHard);
+    }
 
 	/**
 	 * Clear cache

@@ -3,6 +3,7 @@
  * Identity mapper for entity groupings
  */
 namespace Netric\EntityGroupings;
+use Netric\EntityGroupings;
 
 /**
  * Class to handle to loading of object definitions
@@ -66,7 +67,18 @@ class Loader
 
         return $ret;
     }
-    
+
+    /**
+     * Save changes to groupings
+     *
+     * @param EntityGroupings $groupings
+     * @return mixed
+     */
+    public function save(EntityGroupings $groupings)
+    {
+        return $this->dataMapper->saveGroupings($groupings);
+    }
+
     /**
      * Get unique filters hash
      */
