@@ -1,12 +1,13 @@
 /**
  * @fileOverview Base entity may be extended
  *
- * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
+ * @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
  * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
 var Definition = require("./Definition");
+var Activity = require("./Activity");
 var File = require('./fileupload/File');
 var events = require('../util/events');
 
@@ -19,7 +20,7 @@ var events = require('../util/events');
  */
 var Entity = function(entityDef, opt_data) {
 
-	/** 
+	/**
 	 * Unique id of this object entity
 	 *
 	 * @public
@@ -27,7 +28,7 @@ var Entity = function(entityDef, opt_data) {
 	 */
 	this.id = "";
 
-	/** 
+	/**
 	 * The object type of this entity
 	 *
 	 * @public
@@ -53,7 +54,7 @@ var Entity = function(entityDef, opt_data) {
 
 	/**
 	 * Field values
-	 * 
+	 *
 	 * @private
 	 * @type {Object}
 	 */
@@ -61,7 +62,7 @@ var Entity = function(entityDef, opt_data) {
 
 	/**
 	 * Security
-	 * 
+	 *
 	 * @public
 	 * @type {Object}
 	 */
@@ -93,13 +94,13 @@ var Entity = function(entityDef, opt_data) {
 
 /**
  * Load data from a data object in array form
- * 
+ *
  * If we are loading in array form that means that properties are not camel case
- * 
+ *
  * @param {Object} data
  */
 Entity.prototype.loadData = function (data) {
-	
+
 	// Data is a required param and we should fail if called without it
 	if (!data) {
 		throw "'data' is a required param to loadData into an entity";
@@ -121,7 +122,7 @@ Entity.prototype.loadData = function (data) {
 
 		var field = this.def.getField(i);
 		var value = data[i];
-		
+
 		// Skip over non existent fields
 		if (!field) {
 			continue;
@@ -144,7 +145,7 @@ Entity.prototype.loadData = function (data) {
 		} else {
 			this.setValue(i, value, valueName);
 		}
-		
+
 	}
 
 
@@ -160,7 +161,7 @@ Entity.prototype.loadData = function (data) {
  * @return {}
  */
 Entity.prototype.getData = function() {
-	
+
 	// Set the object type
 	var retObj = { obj_type: this.objType };
 
@@ -174,7 +175,7 @@ Entity.prototype.getData = function() {
 		retObj[field.name] = value;
 
 		if (valueNames instanceof Array) {
-			
+
 			retObj[field.name + "_fval"] = {};
 			for (var i in valueNames) {
 				retObj[field.name + "_fval"][valueNames[i].key] = valueNames[i].value;
@@ -203,7 +204,7 @@ Entity.prototype.getData = function() {
  * @return {bool} true on success, false on failure
  */
 Entity.prototype.setValue = function(name, value, opt_valueName) {
-    
+
     // Can't set a field without a name
     if(typeof name == "undefined")
         return;
@@ -221,7 +222,7 @@ Entity.prototype.setValue = function(name, value, opt_valueName) {
 
 	// Handle type conversion
 	value = this.normalizeFieldValue_(field, value);
-    
+
     // Referenced object fields cannot be updated
     if (name.indexOf(".")!=-1) {
         return;
@@ -254,7 +255,7 @@ Entity.prototype.setValue = function(name, value, opt_valueName) {
  * @param {string} opt_valueName The label if setting an fkey/object value
  */
 Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
-    
+
     // Can't set a field without a name
     if(typeof name == "undefined")
         return;
@@ -267,7 +268,7 @@ Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
 
 	// Handle type conversion
 	value = this.normalizeFieldValue_(field, value);
-    
+
     // Referenced object fields cannot be updated
     if (name.indexOf(".")!=-1) {
         return;
@@ -296,7 +297,7 @@ Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
 
     // Trigger onchange event to alert any observers that this value has changed
 	events.triggerEvent(this, "change", {fieldName: name, value:value, valueName:valueName});
-    
+
 }
 
 /**
@@ -306,7 +307,7 @@ Entity.prototype.addMultiValue = function(name, value, opt_valueName) {
  * @param {mixed} value The value to set the field to
  */
 Entity.prototype.remMultiValue = function(name, value) {
-    
+
     // Can't set a field without a name
     if(typeof name == "undefined")
         return;
@@ -317,7 +318,7 @@ Entity.prototype.remMultiValue = function(name, value) {
 
 	// Handle type conversion
 	value = this.normalizeFieldValue_(field, value);
-    
+
     // Referenced object fields cannot be updated
     if (name.indexOf(".")!=-1) {
         return;
@@ -359,7 +360,7 @@ Entity.prototype.remMultiValue = function(name, value) {
 
 /**
  * Get the value for an object entity field
- * 
+ *
  * @public
  * @param {string} name The unique name of the field to get the value for
  */
@@ -370,14 +371,14 @@ Entity.prototype.getValue = function(name) {
     // Get value from fieldValue
     if (this.fieldValues_[name]) {
     	return this.fieldValues_[name].value;
-    }  
-    
+    }
+
     return null;
 }
 
 /**
  * Get the name/lable of a key value
- * 
+ *
  * @param {string} name The name of the field
  * @param {val} opt_val If querying *_multi type values the get the label for a specifc key
  * @reutrn {string} the textual representation of the key value
@@ -396,10 +397,10 @@ Entity.prototype.getValueName = function(name, opt_val) {
 				}
 			}
 		} else {
-    		return this.fieldValues_[name].valueName;    		
+    		return this.fieldValues_[name].valueName;
     	}
     }
-    
+
     return "";
 }
 
@@ -416,7 +417,7 @@ Entity.prototype.getName = function() {
     } else if (this.getValue("subject")) {
         return this.getValue("subject");
     } else if (this.getValue("first_name") || this.getValue("last_name")) {
-    	return (this.getValue("first_name")) 
+    	return (this.getValue("first_name"))
     		? this.getValue("first_name") + " " + this.getValue("last_name")
     		: this.getValue("last_name");
     } else if (this.getValue("id")) {
@@ -533,6 +534,62 @@ Entity.prototype.getAttachments = function () {
 	}
 
 	return attachedFiles;
+}
+
+/**
+ * Get the activity in this entity
+ *
+ * @return {object}
+ */
+Entity.prototype.getActivity = function () {
+
+	var direction = this.getValue('direction');
+    var typeId = this.getValue('type_id');
+	var activityType = this.getValueName('type_id', typeId).toLower();;
+
+    // Create the activity object with a name index
+    var activity = {
+        name: this.getValue('name')
+    };
+
+
+	switch(activityType){
+		case 'email':
+			if (direction == 'i') {
+                activity.name = 'received an email ';
+            } else {
+                activity.name = 'sent an email ';
+            }
+
+			break;
+		case 'phone call':
+			if (direction == 'i') {
+                activity.description = 'logged an innbound call ';
+            } else {
+                activity.description = 'logged an outbound call ';
+            }
+		case 'comment':
+            activity.typeDesc = 'commented on ';
+
+			break;
+		case 'status update':
+            activity.description = 'added a ';
+            activity.name = activityType;
+
+			break;
+		default:
+            var verb = this.getValue('verb');
+
+			if(verb == 'create' || verb == 'created') {
+                activity.description = 'created a new ' + activityType + ' ';
+            } else {
+                activity.description = verb + ' ';
+            }
+
+			break;
+	}
+
+    return activity;
 }
 
 /**
