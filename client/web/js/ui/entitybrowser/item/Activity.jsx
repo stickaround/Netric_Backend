@@ -8,6 +8,7 @@
 var React = require('react');
 var Chamel = require('chamel');
 var UserProfileImage = require('../../UserProfileImage.jsx');
+var File = require("../../fileupload/File.jsx");
 
 /**
  * List item for an activity
@@ -21,10 +22,36 @@ var ActivityItem = React.createClass({
 
         var headerTime = entity.getTime(null, true);
         var userId = entity.getValue('user_id');
+        var entityId = entity.getValue('id');
         var owner = entity.getValueName('user_id', userId);
-        var notes = this._processNotes(entity.getValue(notes));
         var activity = entity.getActivity();
-        
+
+        // Get the attached files
+        var attachedFiles = [];
+        var files = entity.getAttachments();
+        for (var idx in files) {
+            var file = files[idx];
+
+            // Check if file is an image
+            attachedFiles.push(
+                <File
+                    key={idx}
+                    index={idx}
+                    file={file}
+                    />
+            );
+        }
+
+        var displayNotes = null;
+
+        if(activity.notes) {
+            var notes = this._processNotes(activity.notes);
+
+            displayNotes = (
+                <div dangerouslySetInnerHTML={notes}/>
+            )
+        }
+
         return (
             <div className='entity-browser-activity'>
                 <div className='entity-browser-activity-img'>
@@ -35,10 +62,11 @@ var ActivityItem = React.createClass({
                         {headerTime}
                     </div>
                     <div className='entity-browser-activity-title'>
-                        {owner} {activity.description} {activity.name}
+                        {entityId} {owner} {activity.description} {activity.name}
                     </div>
                     <div className='entity-browser-activity-body'>
-                        <div dangerouslySetInnerHTML={notes}/>
+                        {displayNotes}
+                        {attachedFiles}
                     </div>
                 </div>
             </div>
@@ -50,12 +78,12 @@ var ActivityItem = React.createClass({
      *
      * @param {string} val The value to process
      */
-    _processNotes: function (activity) {
+    _processNotes: function (val) {
 
         // Convert new lines to line breaks
-        if (activity) {
+        if (val) {
             var re = new RegExp('\n', 'gi');
-            activity = activity.replace(re, '<br />');
+            val = val.replace(re, '<br />');
         }
 
         // Convert email addresses into mailto links?
@@ -66,7 +94,7 @@ var ActivityItem = React.createClass({
          * setting innherHTML is a pretty dangerous option in that it
          * is often used for cross script exploits.
          */
-        return (activity) ? {__html: activity} : null;
+        return (val) ? {__html: val} : null;
     },
 
 });

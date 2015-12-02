@@ -7,7 +7,6 @@
 'use strict';
 
 var Definition = require("./Definition");
-var Activity = require("./Activity");
 var File = require('./fileupload/File');
 var events = require('../util/events');
 
@@ -545,11 +544,16 @@ Entity.prototype.getActivity = function () {
 
 	var direction = this.getValue('direction');
     var typeId = this.getValue('type_id');
-	var activityType = this.getValueName('type_id', typeId).toLower();;
+	var activityType = this.getValueName('type_id', typeId);
+
+	if(!activityType) {
+		activityType = typeId;
+	}
 
     // Create the activity object with a name index
     var activity = {
-        name: this.getValue('name')
+        name: this.getValue('name'),
+		notes: this.getValue('notes')
     };
 
 
@@ -568,8 +572,9 @@ Entity.prototype.getActivity = function () {
             } else {
                 activity.description = 'logged an outbound call ';
             }
+		case '12':
 		case 'comment':
-            activity.typeDesc = 'commented on ';
+            activity.description = 'commented on ';
 
 			break;
 		case 'status update':
@@ -579,12 +584,13 @@ Entity.prototype.getActivity = function () {
 			break;
 		default:
             var verb = this.getValue('verb');
-
 			if(verb == 'create' || verb == 'created') {
                 activity.description = 'created a new ' + activityType + ' ';
             } else {
                 activity.description = verb + ' ';
             }
+
+			activity.notes = null;
 
 			break;
 	}
