@@ -63,11 +63,12 @@ class ActivityLogTest extends PHPUnit_Framework_TestCase
 
         // Log the activity
         $act = $this->activityLog->log($this->user, Activity::VERB_CREATED, $customerEntity);
+        $openedAct = $this->entityLoader->get("activity", $act->getId());
 
         // Test activity
-        $this->assertNotNull($act);
-        $this->assertNotEmpty($act->getValueName("type_id"));
-        $this->assertNotEmpty($act->getValueName("subject"));
+        $this->assertNotNull($openedAct);
+        $this->assertNotEmpty($openedAct->getValueName("type_id"));
+        $this->assertNotEmpty($openedAct->getValueName("subject"));
 
         // Cleanup
         $this->entityLoader->delete($customerEntity, true);
