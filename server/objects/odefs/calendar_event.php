@@ -9,13 +9,13 @@
 *                Copyright (c) 2010 Aereus Corporation, All Rights Reserved. 
 *
 **************************************************************************************/
-$obj_revision = 29;
+$obj_revision = 30;
 
 $isPrivate = false;
 $defaultActivityLevel = 1;
 $recurRules= array("field_time_start"=>"ts_start", "field_time_end"=>"ts_end", 
                           "field_date_start"=>"ts_start", "field_date_end"=>"ts_end", 
-                          "field_recur_id"=>"recurrence_pattern");
+                          "field_recur_id"=>"recur_id");
 
 $obj_fields = array();
 $obj_fields['name'] = array('title'=>'Name', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false);

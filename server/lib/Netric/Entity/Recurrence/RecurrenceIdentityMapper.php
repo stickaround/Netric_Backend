@@ -143,7 +143,14 @@ class RecurrenceIdentityMapper
      */
     public function delete(RecurrencePattern $recurrencePattern)
     {
-        return $this->recurDataMapper->delete($recurrencePattern);
+        $toDelete = $recurrencePattern->getId();
+        if ($this->recurDataMapper->delete($recurrencePattern))
+        {
+            unset($this->cachedPatterns[$toDelete]);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -154,6 +161,27 @@ class RecurrenceIdentityMapper
     public function getNextId()
     {
         return $this->recurDataMapper->getNextId();
+    }
+
+    /**
+     * Select patterns that have not been processed to a specified date
+     *
+     * @param string $objType The object type to select patterns for
+     * @param \DateTime $dateTo The date to indicate if a pattern is stale
+     * @return array RecurrencePattern[]
+     */
+    public function getStalePatterns($objType, \DateTime $dateTo)
+    {
+        $recurrencePatterns = array();
+        $stalePatternIds = $this->recurDataMapper->getStalePatternIds($objType, $dateTo);
+
+        // Load each through this identity mapper - which caches them - and return
+        foreach ($stalePatternIds as $pid)
+        {
+            $recurrencePatterns[] = $this->getById($pid);
+        }
+
+        return $recurrencePatterns;
     }
 
     /**

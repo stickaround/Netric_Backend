@@ -142,6 +142,8 @@ class RecurrencePattern implements ErrorAwareInterface
 	 * The entity field name used set the start for each instance
 	 * 
 	 * This is required for all recurring entities.
+     *
+     * TODO: I think we can remove this since it is in the recurRules from the entity definition
 	 *
 	 * @var string
 	 */
@@ -151,6 +153,8 @@ class RecurrencePattern implements ErrorAwareInterface
 	 * Optional field name used to trigger the start time for each instance
 	 *
 	 * If blank then we only care about the date and not the time.
+     *
+     * TODO: I think we can remove this since it is in the recurRules from the entity definition
 	 *
 	 * @var string
 	 */
@@ -160,6 +164,8 @@ class RecurrencePattern implements ErrorAwareInterface
 	 * Entity field name used to set the end date for each instance
 	 *
 	 * This is required for all recurring entities.
+     *
+     * TODO: I think we can remove this since it is in the recurRules from the entity definition
 	 *
 	 * @var string
 	 */
@@ -167,6 +173,8 @@ class RecurrencePattern implements ErrorAwareInterface
 
 	/**
 	 * Optional fiele name used to trigger the end time for each instance
+     *
+     * TODO: I think we can remove this since it is in the recurRules from the entity definition
 	 *
 	 * @var string
 	 */
@@ -240,6 +248,10 @@ class RecurrencePattern implements ErrorAwareInterface
         if (isset($data['first_entity_id']))
             $this->firstEntityId = $data['first_entity_id'];
 
+        if (isset($data['ep_locked']))
+            $this->epLocked = $data['ep_locked'];
+
+        // TODO: we may not need the below since it is in recurRules for entity definition
         if (isset($data['field_date_start']))
             $this->fieldDateStart = $data['field_date_start'];
 
@@ -251,9 +263,6 @@ class RecurrencePattern implements ErrorAwareInterface
 
         if (isset($data['field_time_end']))
             $this->fieldTimeEnd = $data['field_time_end'];
-
-        if (isset($data['ep_locked']))
-            $this->epLocked = $data['ep_locked'];
     }
 
     /**
@@ -282,11 +291,12 @@ class RecurrencePattern implements ErrorAwareInterface
             "obj_type" => $this->objType,
             "first_entity_id" => $this->firstEntityId,
             "date_processed_to" => $dateProcessedTo,
+            "ep_locked" => $this->epLocked,
+            // TODO: we may not need the below since it is in recurRules for entity definition
             "field_date_start" => $this->fieldDateStart,
             "field_date_end" => $this->fieldDateEnd,
             "field_time_start" => $this->fieldTimeStart,
             "field_time_end" => $this->fieldTimeEnd,
-            "ep_locked" => $this->epLocked,
         );
     }
 
@@ -484,6 +494,16 @@ class RecurrencePattern implements ErrorAwareInterface
     public function getDateEnd()
     {
         return $this->dateEnd;
+    }
+
+    /**
+     * Get the date this patterns has been processed to
+     *
+     * @return \DateTime
+     */
+    public function getDateProcessedTo()
+    {
+        return $this->dateProcessedTo;
     }
 
 	/**

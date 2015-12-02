@@ -141,4 +141,49 @@ class RecurrenceDataMapperTest extends PHPUnit_Framework_TestCase
         // Assure we cannot load it
         $this->assertNull($this->dataMapper->load($rid));
     }
+
+    /**
+     * Test query to get a list of stale patterns compared to a specific date
+     *
+     * This basiclaly means the recurrencePattern processedTo is earlier
+     * than the challenge date specified.
+     */
+    public function testGetStalePatterns()
+    {
+        // Create
+        $data = array(
+            "recur_type" => RecurrencePattern::RECUR_DAILY,
+            "obj_type" => "task",
+            "interval" => 1,
+            "date_start" => "2015-02-01",
+            "date_end" => "2015-03-01",
+            "date_processed_to" => "2015-02-01",
+        );
+        $rp = new RecurrencePattern();
+        $rp->fromArray($data);
+        $rid = $this->dataMapper->save($rp);
+
+        // Check before date-start, $rid should not be returned
+        $dateTo = new \DateTime("2015-01-01");
+        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $this->assertFalse(in_array($rid, $staleIds));
+
+        // Check the day after start date which should create entities
+        $dateTo = new \DateTime("2015-02-02");
+        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $this->assertTrue(in_array($rid, $staleIds));
+
+        // Check a couple days out which should also return the above
+        $dateTo = new \DateTime("2015-02-20");
+        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $this->assertTrue(in_array($rid, $staleIds));
+
+        // Go beyond the end date which should NOT return the above pattern
+        $dateTo = new \DateTime("2015-05-01");
+        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $this->assertFalse(in_array($rid, $staleIds));
+
+        // Cleanup
+        $this->dataMapper->deleteById($rid);
+    }
 }
