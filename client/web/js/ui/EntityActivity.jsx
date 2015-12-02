@@ -19,7 +19,7 @@ var DropDownMenu = Chamel.DropDownMenu;
 var EntityActivity = React.createClass({
 
     propTypes: {
-        // Get the objReference - the object for which we are displaying/adding comments
+        // Get the objReference - the object for which we are displaying
         objReference: React.PropTypes.string,
         viewMenu: React.PropTypes.array
     },

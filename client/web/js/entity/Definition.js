@@ -113,7 +113,6 @@ var Definition = function (opt_data) {
      * @type {bool}
      */
     this.system = data.system || "";
-    ;
 
     /**
      * Fields associated with this object type

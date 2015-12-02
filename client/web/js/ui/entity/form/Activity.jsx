@@ -13,7 +13,7 @@ var netric = require('../../../base');
 var Device = require('../../../Device');
 
 /**
- * Render Activitys into an entity form
+ * Render Activity into an entity form
  */
 var Activity = React.createClass({
 

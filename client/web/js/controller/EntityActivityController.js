@@ -61,11 +61,10 @@ EntityActivityController.prototype.onLoad = function (opt_callback) {
     // Get the entity definition then call the loaded callback (if set)
     definitionLoader.get(this.ACTIVITY_OBJ_TYPE, function (def) {
         if (!def) {
-            throw "Could not get entity definition for " + this.COMMENT_OBJ_TYPE;
+            throw "Could not get entity definition for " + this.ACTIVITY_OBJ_TYPE;
         }
 
         this.entityDefinition_ = def;
-
 
         if (callbackWhenLoaded) {
 
