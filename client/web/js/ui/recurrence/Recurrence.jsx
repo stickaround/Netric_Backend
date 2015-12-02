@@ -61,7 +61,7 @@ var Recurrence = React.createClass({
 
         recurPatterns[recurrenceType] = recurrencePattern;
 
-        if (recurrencePattern.dateEnds) {
+        if (recurrencePattern.dateEnd) {
             neverEnds = false;
         }
 
@@ -75,14 +75,6 @@ var Recurrence = React.createClass({
         };
     },
 
-    componentDidMount: function () {
-        this._setDateData();
-    },
-
-    componentDidUpdate: function () {
-        this._setDateData();
-    },
-
     render: function () {
         var displayCancel = null;
         var displayEndDate = null;
@@ -91,10 +83,11 @@ var Recurrence = React.createClass({
         // Display the end date input
         if (!this.state.neverEnds) {
             displayEndDate = (
-                <TextField
-                    ref='inputDateEnd'
-                    hintText="End Date"
-                    onBlur={this._handleDateBlur.bind(this, 'dateEnd')}/>
+                <DatePicker
+                    floatingLabelText='End Date'
+                    value={this.props.recurrencePattern.getDateEnd()}
+                    type="date"
+                    onChange={this._handleDateChange.bind(this, 'dateEnd')}/>
             );
         }
 
@@ -132,10 +125,12 @@ var Recurrence = React.createClass({
                     </fieldset>
                     <fieldset>
                         <legend>Range of Recurrence</legend>
-                        <TextField
-                            ref='inputDateStart'
-                            hintText="Start Date"
-                            onBlur={this._handleDateBlur.bind(this, 'dateStart')}/>
+
+                        <DatePicker
+                            floatingLabelText='Start Date'
+                            value={this.props.recurrencePattern.getDateStart()}
+                            type="date"
+                            onChange={this._handleDateChange.bind(this, 'dateStart')}/>
 
                         {displayEndDate}
 
@@ -178,6 +173,18 @@ var Recurrence = React.createClass({
     },
 
     /**
+     * Handles the changing of dates
+     *
+     * @param {string} dateType     Type of date to be changed (either dateStart or dateEnd)
+     * @param {DOMEvent} evt        Reference to the DOM event being sent
+     * @param {date} date           The date that was set by the user
+     * @private
+     */
+    _handleDateChange: function (dateType, evt, date) {
+        this.state.recurPatterns[this.state.recurrenceType][dateType] = date;
+    },
+
+    /**
      * Handles the save button. Passes the recurrence data to the entity object
      *
      * @private
@@ -185,11 +192,7 @@ var Recurrence = React.createClass({
     _handleSaveButton: function () {
         var recurrencePattern = this.state.recurPatterns[this.state.recurrenceType];
 
-        recurrencePattern.dateStart = this.refs.inputDateStart.getValue();
-
-        if (this.refs.inputDateEnd) {
-            recurrencePattern.dateEnd = this.refs.inputDateEnd.getValue();
-        } else {
+        if (this.state.neverEnds) {
             recurrencePattern.dateEnd = '';
         }
 
@@ -285,33 +288,6 @@ var Recurrence = React.createClass({
 
         return displayPattern;
     },
-
-    /**
-     * Handles the blur event on the input dates
-     *
-     * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @private
-     */
-    _handleDateBlur: function (dateType, e) {
-        this.props.recurrencePattern[dateType] = e.target.value;
-    },
-
-    /**
-     * Set the input date data.
-     *
-     * @private
-     */
-    _setDateData: function () {
-        if (this.refs.inputDateStart) {
-            this.refs.inputDateStart.setValue(this.props.recurrencePattern.getDateStart());
-        }
-
-        if (this.refs.inputDateEnd) {
-            this.refs.inputDateEnd.setValue(this.props.recurrencePattern.getDateStart());
-        }
-    }
-
-
 });
 
 module.exports = Recurrence;
