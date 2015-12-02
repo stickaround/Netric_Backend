@@ -10,9 +10,10 @@
 var React = require('react');
 var ReactDOM = require("react-dom");
 var Chamel = require('chamel');
+var File = require('./File.jsx');
 var IconButton = Chamel.IconButton;
 var FlatButton = Chamel.FlatButton;
-var File = require('./File.jsx');
+var AppBar = Chamel.AppBar;
 
 var FileUpload = React.createClass({
 
@@ -23,7 +24,9 @@ var FileUpload = React.createClass({
         folderId: React.PropTypes.number,
         onUpload: React.PropTypes.func,
         onRemove: React.PropTypes.func,
-        getFileUrl: React.PropTypes.func
+        getFileUrl: React.PropTypes.func,
+        onNavBtnClick: React.PropTypes.func,
+        hideToolbar: React.PropTypes.bool
     },
 
     getDefaultProps: function () {
@@ -51,8 +54,26 @@ var FileUpload = React.createClass({
             );
         }
 
+        var toolBar = null;
+        if (!this.props.hideToolbar) {
+            var elementLeft = (
+                <IconButton
+                    iconClassName="fa fa-arrow-left"
+                    onClick={this._handleBackButtonClicked}
+                    />
+            );
+
+            toolBar = (
+                <AppBar
+                    iconElementLeft={elementLeft}
+                    title={this.props.title}>
+                </AppBar>
+            );
+        }
+
         return (
             <div>
+                {toolBar}
                 <FlatButton label={this.props.title} onClick={this._handleShowUpload}/>
                 <input
                     type='file'
@@ -92,6 +113,18 @@ var FileUpload = React.createClass({
         }
 
         e.preventDefault()
+    },
+
+    /**
+     * Respond when the user clicks the back button
+     *
+     * @param evt
+     * @private
+     */
+    _handleBackButtonClicked: function (evt) {
+        if (this.props.onNavBtnClick) {
+            this.props.onNavBtnClick();
+        }
     }
 
 });

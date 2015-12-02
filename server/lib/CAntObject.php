@@ -1487,14 +1487,14 @@ class CAntObject
 			if ($performed == "create" && $this->object_type != "activity")
 			{
 				$desc = $this->getDesc();
-				$this->addActivity("created", $this->getName(), ($desc)?$desc:"Created new " . $this->title, null, null, 't');
+				//$this->addActivity("created", $this->getName(), ($desc)?$desc:"Created new " . $this->title, null, null, 't');
 
 			}
 
 			if ($performed == "update" && $this->object_type != "activity")
 			{
 				$desc = $this->getChangeLogDesc();
-				$this->addActivity("updated", $this->getName(), ($desc)?$desc:"Updated " . $this->title, null, null, 't');
+				//$this->addActivity("updated", $this->getName(), ($desc)?$desc:"Updated " . $this->title, null, null, 't');
 			}
 		}
 

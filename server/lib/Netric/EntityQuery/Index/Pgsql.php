@@ -8,6 +8,7 @@
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityQuery;
+use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Aggregation;
 
 class Pgsql extends IndexAbstract implements IndexInterface
@@ -56,11 +57,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
     /**
 	 * Execute a query and return the results
 	 *
-     * @param \Netric\EntityQuery &$query The query to execute
-     * @param \Netric\EntityQuery\Results &$results Optional results set to use. Otherwise create new.
+     * @param EntityQuery &$query The query to execute
+     * @param Results $results Optional results set to use. Otherwise create new.
 	 * @return \Netric\EntityQuery\Results
 	 */
-	public function executeQuery(\Netric\EntityQuery &$query, \Netric\EntityQuery\Results &$results=null)
+	public function executeQuery(EntityQuery &$query, Results $results = null)
     {
         $condition_query = "";
         $def = $this->getDefinition($query->getObjType());

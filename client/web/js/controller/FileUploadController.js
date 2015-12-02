@@ -75,12 +75,22 @@ FileUploadController.prototype.render = function () {
     // Set outer application container
     var domCon = this.domNode_;
 
+    // Unhide toolbars if we are in a page mode
+    var hideToolbar = this.props.hideToolbar || true;
+    if (this.getType() === controller.types.PAGE) {
+        hideToolbar = false;
+    }
+
     // Define the data
     var data = {
         title: this.props.title || "Upload Files",
         currentPath: this.props.currentPath,
         folderId: this.props.folderId,
         uploadedFiles: this._uploadedFiles,
+        hideToolbar: hideToolbar,
+        onNavBtnClick: function (evt) {
+            this.close();
+        }.bind(this),
         onUpload: function (file, index, folder) {
             this._handleUploadFile(file, index, folder)
         }.bind(this),

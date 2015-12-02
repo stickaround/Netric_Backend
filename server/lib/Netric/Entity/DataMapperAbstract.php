@@ -154,6 +154,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 *
 	 * @param Entity $entity The enitity to save
      * @param \Netric\Entity\ObjType\User $user Optional user performing the save if other than current in $this->account
+     * @return int|bool If success the id of the saved entity will be returned, false if failure
 	 */
 	public function save($entity, $user=null)
 	{
@@ -202,8 +203,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Call beforeSave
-		if ($serviceManager)
-			$entity->beforeSave($serviceManager);
+        $entity->beforeSave($serviceManager);
 
 		// Save data to DataMapper implementation
 		$ret = null;
@@ -238,8 +238,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			//$this->getServiceLocator()->get("EntityCollection_Index")->save($entity);
 		
 		// Clear cache in the EntityLoader
-		if ($serviceManager)
-			$serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
+        $serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
 		
 		// Log the change in entity sync
 		if ($ret && $lastCommitId && $commitId)
@@ -250,8 +249,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Call onAfterSave
-		if ($serviceManager)
-			$entity->afterSave($serviceManager);
+        $entity->afterSave($serviceManager);
 
 		// Reset dirty flag and changelog
 		$entity->resetIsDirty();
@@ -264,6 +262,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		{
             $this->recurIdentityMapper->saveFromEntity($entity);
 		}
+
+        // Log the activity
+        $serviceManager->get("Netric/Entity/ActivityLog")->log($user, $event, $entity);
 
 		return $ret;
 	}
@@ -293,7 +294,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             if ($recurId)
             {
                 $recurPattern = $this->recurIdentityMapper->getById($recurId);
-                $entity->setRecurrencePattern($recurPattern);
+				if ($recurPattern)
+                	$entity->setRecurrencePattern($recurPattern);
             }
         }
 
@@ -312,6 +314,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function delete(&$entity, $forceHard=false)
 	{
+        $user = $this->getAccount()->getUser();
+
 		$lastCommitId = $entity->getValue("commit_id");
 		// Create new global commit revision
 		$commitId = $this->commitManager->createCommit("entities/" . $entity->getDefinition()->getObjType());
@@ -379,6 +383,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			// Delete from EntityCollection_Index
 			//if ($this->getServiceLocator())
 				//$this->getServiceLocator()->get("EntityCollection_Index")->delete($entity);
+
+            // Log the activity
+            $alog = $this->getAccount()->getServiceManager()->get("Netric/Entity/ActivityLog");
+            $alog->log($user, "delete", $entity);
 		}
 
 		// Log the change in entity sync

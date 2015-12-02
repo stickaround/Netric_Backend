@@ -144,4 +144,12 @@ class User extends Entity implements EntityInterface
     {
         return ($this->getId() == self::USER_ANONYMOUS);
     }
+
+    /**
+     * Determine if this is a system user
+     */
+    public function isSystem()
+    {
+        return ($this->getId() == self::USER_SYSTEM);
+    }
 }

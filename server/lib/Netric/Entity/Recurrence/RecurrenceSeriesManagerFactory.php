@@ -1,6 +1,6 @@
 <?php
 /**
- * Service factory for the entity series writer
+ * Service factory for the entity series manager
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -14,7 +14,7 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class EntitySeriesWriterFactory implements ServiceManager\ServiceFactoryInterface
+class RecurrenceSeriesManagerFactory implements ServiceManager\ServiceFactoryInterface
 {
     /**
      * Service creation factory
@@ -24,8 +24,17 @@ class EntitySeriesWriterFactory implements ServiceManager\ServiceFactoryInterfac
      */
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $recurDataMapper = $sl->get("RecurrenceDataMapper");
         $recurIdentityMapper = $sl->get("RecurrenceIdentityMapper");
-        return new EntitySeriesWriter($recurDataMapper, $recurIdentityMapper);
+        $entityLoader = $sl->get("EntityLoader");
+        $entityDataMapper = $sl->get("Entity_DataMapper");
+        $entityIndex = $sl->get("EntityQuery_Index");
+        $entityDefinitionLoader = $sl->get("EntityDefinitionLoader");
+        return new RecurrenceSeriesManager(
+            $recurIdentityMapper,
+            $entityLoader,
+            $entityDataMapper,
+            $entityIndex,
+            $entityDefinitionLoader
+        );
     }
 }

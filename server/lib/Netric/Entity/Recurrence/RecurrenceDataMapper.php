@@ -97,7 +97,7 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
             'instance' => $dbh->escapeNumber($data['instance']),
             'monthofyear' => $dbh->escapeNumber($data['month_of_year']),
             'f_active' => (($data['f_active']) ? "'t'" : "'f'"),
-            'ep_locked' => $data['ep_locked'],
+            'ep_locked' => $dbh->escapeNumber($data['ep_locked']),
         );
 
         /*
@@ -346,4 +346,36 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
         else
             return null;
     }
+
+	/**
+	 * Select patterns that have not been processed to a specified date
+	 *
+	 * This gets a list of pattern IDs that have not been processed to
+	 * the date specified and date end is after the date specified.
+	 *
+	 * @param string $objType The object type to select patterns for
+	 * @param \DateTime $dateTo The date to indicate if a pattern is stale
+	 * @return array of IDs of stale patterns
+	 */
+	public function getStalePatternIds($objType, \DateTime $dateTo)
+	{
+		$ret = array();
+
+		$def = $this->entityDefinitionLoader->get($objType);
+		$dateToString = $dateTo->format("Y-m-d");
+		$query = "SELECT id FROM object_recurrence
+				  WHERE f_active is true AND
+				  date_processed_to<'" . $dateToString . "'
+				  AND (date_end is null or date_end>='" . $dateToString . "')
+				  AND object_type_id='" . $def->getId(). "'";
+		$result = $this->dbh->query($query);
+		$num = $this->dbh->getNumRows($result);
+		for ($i = 0; $i < $num; $i++)
+		{
+			$ret[] = $this->dbh->getValue($result, $i, "id");
+		}
+		$this->dbh->freeResults($result);
+
+		return $ret;
+	}
 }
