@@ -13,28 +13,28 @@ class Entity implements \Netric\Entity\EntityInterface
 {
 	/**
      * The unique id of this object/entity
-     * 
+     *
      * @var string
      */
     protected $id;
-    
+
     /**
      * The values for the fields of this entity
-     * 
+     *
      * @var array
      */
     protected $values = array();
-    
+
     /**
      * Set object type
-     * 
+     *
      * @var string
      */
     protected $objType = "";
-    
+
     /**
      * The values for the fkey or object keys
-     * 
+     *
      * @var array
      */
     protected $fkeysValues = array();
@@ -66,21 +66,21 @@ class Entity implements \Netric\Entity\EntityInterface
      * @var bool
      */
     private $isRecurrenceException = false;
-    
+
     /**
      * Class constructor
-     * 
+     *
      * @param EntityDefinition $def The definition of this type of object
      */
-    public function __construct(&$def) 
+    public function __construct(&$def)
     {
 		$this->def = $def;
         $this->objType = $def->getObjType();
     }
-    
+
     /**
      * Get the object type of this object
-     * 
+     *
      * @return string
      */
     public function getObjType()
@@ -95,10 +95,10 @@ class Entity implements \Netric\Entity\EntityInterface
 	{
 		return $this->id;
 	}
-    
+
     /**
 	 * Set the unique id of this object
-     * 
+     *
      * @param string $id The unique id of this object instance
 	 */
 	public function setId($id)
@@ -115,10 +115,10 @@ class Entity implements \Netric\Entity\EntityInterface
 	{
 		return $this->def;
 	}
-    
+
     /**
      * Return either the string or an array of values if *_multi
-     * 
+     *
      * @param string $strname
      * @return string|array
      */
@@ -126,10 +126,10 @@ class Entity implements \Netric\Entity\EntityInterface
     {
         return (isset($this->values[$strname])) ? $this->values[$strname] : null;
     }
-    
+
     /**
      * Get fkey name for key/value field types like fkey and fkeyMulti
-     * 
+     *
      * @param string $strName The name of the field to pull
 	 * @param string $id If set, get the label for the id
      * @return string
@@ -162,7 +162,7 @@ class Entity implements \Netric\Entity\EntityInterface
 
     /**
      * Get fkey name array for key/value field types like fkey and fkeyMulti
-     * 
+     *
      * @param string $strName The name of the field to pull
      * @return array(array("id"=>"name"))
      */
@@ -195,10 +195,10 @@ class Entity implements \Netric\Entity\EntityInterface
 
         return array();
     }
-    
+
     /**
      * Set a field value for this object
-     * 
+     *
      * @param string $strName
      * @param mixed $value
      * @param string $valueName If this is an object or fkey then cache the foreign value
@@ -231,7 +231,7 @@ class Entity implements \Netric\Entity\EntityInterface
         }
 
         $this->values[$strName] = $value;
-        
+
         if ($strName == "id")
             $this->setId($value);
 
@@ -246,10 +246,10 @@ class Entity implements \Netric\Entity\EntityInterface
         // Log changes
         $this->logFieldChanges($strName, $value, $oldval, $oldvalName);
     }
-    
+
     /**
      * Add a multi-value entry to the *_multi type field
-     * 
+     *
      * @param string $strName
      * @param string|int $value
      * @param string $valueName Optional value name if $value is a key
@@ -277,7 +277,7 @@ class Entity implements \Netric\Entity\EntityInterface
         		return;
         	}
         }
-        
+
         // Set the value
         $this->values[$strName][] = $value;
 
@@ -363,10 +363,10 @@ class Entity implements \Netric\Entity\EntityInterface
             );
         }
     }
-    
+
     /**
      * Remove a value from a *_multi type field
-     * 
+     *
      * @param string $strName
      * @param string|int $value
      */
@@ -374,7 +374,7 @@ class Entity implements \Netric\Entity\EntityInterface
     {
         // TODO: remove the value from the multi-value array
     }
-   
+
 	/**
 	 * Set values from array
 	 *
@@ -383,11 +383,11 @@ class Entity implements \Netric\Entity\EntityInterface
 	public function fromArray($data)
 	{
 		$fields = $this->def->getFields();
-		foreach ($fields as $field)
-		{
-			$fname = $field->name;
-			$value = (isset($data[$fname])) ? $data[$fname] : "";
-			$valNames = array();
+        foreach ($fields as $field)
+        {
+            $fname = $field->name;
+            $value = (isset($data[$fname])) ? $data[$fname] : "";
+            $valNames = array();
 
             /**
              * We do not need to check the recurrence pattern here
@@ -398,16 +398,16 @@ class Entity implements \Netric\Entity\EntityInterface
                 continue;
             }
 
-			// Check for fvals
-			if (isset($data[$fname . "_fval"]))
-			{
-				if (!is_array($data[$fname . "_fval"]))
+            // Check for fvals
+            if (isset($data[$fname . "_fval"]))
+            {
+                if (!is_array($data[$fname . "_fval"]))
                 {
                     $data[$fname . "_fval"] = array($data[$fname . "_fval"]);
                 }
 
-				$valNames = $data[$fname . "_fval"];
-			}
+                $valNames = $data[$fname . "_fval"];
+            }
 
 			if (is_array($value))
 			{
@@ -618,7 +618,7 @@ class Entity implements \Netric\Entity\EntityInterface
 
 		return false;
 	}
-    
+
     /**
 	 * Get previous value of a changed field
 	 *
@@ -632,7 +632,7 @@ class Entity implements \Netric\Entity\EntityInterface
 
         if (isset($this->changelog[$checkfield]["oldvalraw"]))
             return $this->changelog[$checkfield]["oldvalraw"];
-        
+
 		return null;
 	}
 
@@ -705,7 +705,7 @@ class Entity implements \Netric\Entity\EntityInterface
 			if (!$isUnique)
 			{
 				$uname .= "-";
-				$uname .= ($this->getId()) ? $this->getId() : uniqid(); 
+				$uname .= ($this->getId()) ? $this->getId() : uniqid();
 			}
 		}
 		else if ($this->getId())
@@ -715,7 +715,7 @@ class Entity implements \Netric\Entity\EntityInterface
 		}
 
 		return $uname;
-	}	
+	}
 
 	/**
 	 * Get name of this object based on common name fields
@@ -771,7 +771,7 @@ class Entity implements \Netric\Entity\EntityInterface
 				$this->setValue($fname, $new);
 		}
 	}
-    
+
     /**
 	 * Static funciton used to decode object reference string
 	 *

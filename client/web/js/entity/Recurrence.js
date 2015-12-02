@@ -263,13 +263,19 @@ Recurrence.prototype.toData = function () {
         id: this.id,
         obj_type: this.objType,
         recur_type: this.type,
-        day_of_week_mask: this.dayOfWeek,
         interval: this.interval,
         instance: this.instance,
         day_of_month: this.dayOfMonth,
         month_of_year: this.monthOfYear,
         date_start: this.dateStart,
         date_end: this.dateEnd
+    }
+
+    // If the recurence type is weekly, then lets calculate the bitmask
+    if(this.type == Recurrence._types.WEEKLY) {
+        data.day_of_week_mask = this.weeklyBitMask(this.dayOfWeek);
+    } else {
+        data.day_of_week_mask = this.dayOfWeek;
     }
     
     switch(this.objType) {
@@ -579,6 +585,25 @@ Recurrence.prototype.getBitMaskIndex = function (bitmask) {
     }
 
     return index;
+}
+
+/**
+ * Calculate the bitmask for weekly
+ *
+ * @param {int} bitmask     Bitmask used to turn on and off days of the week
+ * @return {int}            Returns the index of the array
+ * @public
+ */
+Recurrence.prototype.weeklyBitMask = function (dayOfWeek) {
+    var bitMask = null;
+
+    for(var idx in dayOfWeek) {
+        var day = dayOfWeek[idx];
+
+        bitMask = bitMask | day;
+    }
+
+    return bitMask;
 }
 
 module.exports = Recurrence;

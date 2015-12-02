@@ -5,7 +5,7 @@ module.exports = {
      *
      * @param {date} date       The date to be formatted
      * @param {string} format   Type of format to be used.
-     * @return {date}
+     * @return {string}
      * @public
      */
     format: function (date, format) {
@@ -66,9 +66,9 @@ module.exports = {
 
 
     /**
-     * Returns the current date
+     * Returns the current date in a string format
      *
-     * @return {date}
+     * @return {string}
      * @public
      */
     getDateToday: function () {

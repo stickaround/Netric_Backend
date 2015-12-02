@@ -215,23 +215,8 @@ class RecurrencePattern implements ErrorAwareInterface
             $this->setMonthOfYear($data['month_of_year']);
 
         // In this case we are not setting individual bits with $this->setDayOfWeek
-        if (isset($data['day_of_week_mask'])) {
-
-            // day_of_week_mask will be in array if the recurrence pattern type is weekly
-            if(is_array($data['day_of_week_mask']))
-            {
-                foreach($data['day_of_week_mask'] as $key=>$value)
-                {
-                    if($value > 0)
-                        $this->setDayOfWeek($value);
-                }
-            }
-            else
-            {
-                $this->dayOfWeekMask = $data['day_of_week_mask'];
-            }
-        }
-
+        if (isset($data['day_of_week_mask']))
+            $this->dayOfWeekMask = $data['day_of_week_mask'];
 
         if (isset($data['date_start']))
             $this->setDateStart(new \DateTime($data['date_start']));

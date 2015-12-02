@@ -73,7 +73,7 @@ var Weekly = React.createClass({
         if(isInputChecked) {
             this.props.recurrencePattern.dayOfWeek[index] = e.target.value;
         } else {
-            this.props.recurrencePattern.dayOfWeek.splice(index, 1);
+            this.props.recurrencePattern.dayOfWeek[index] = null;
         }
     },
 

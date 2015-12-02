@@ -200,10 +200,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 				$entity->setValue($def->recurRules['field_recur_id'], $useRecurId);
 
 				// Set the start date and end date of recurrence to this entity
+				/*
 				$entity->setValue($def->recurRules['field_date_start'], $entity->getRecurrencePattern()->getDateStart()->format('Y-m-d'));
 
 				if($entity->getRecurrencePattern()->getDateEnd())
 					$entity->setValue($def->recurRules['field_date_end'], $entity->getRecurrencePattern()->getDateEnd()->format('Y-m-d'));
+				*/
 			}
 		}
 
