@@ -11,6 +11,7 @@ var controller = require("../controller/controller");
 var Where = require("../entity/Where");
 var Chamel = require('chamel');
 var AppBar = Chamel.AppBar;
+var DropDownMenu = Chamel.DropDownMenu;
 
 /**
  * Handle rendering activity browser inline
@@ -20,6 +21,7 @@ var EntityActivity = React.createClass({
     propTypes: {
         // Get the objReference - the object for which we are displaying/adding comments
         objReference: React.PropTypes.string,
+        viewMenu: React.PropTypes.array
     },
 
     componentDidMount: function () {
@@ -34,7 +36,14 @@ var EntityActivity = React.createClass({
 
     render: function () {
         return (
-            <div ref="activityContainer" className="entity-activity">
+            <div>
+                <DropDownMenu
+                    menuItems={this.props.viewMenu}
+                    selectedIndex={0}
+                    onChange={this._handleFilterChange}/>
+
+                <div ref="activityContainer" className="entity-activity">
+                </div>
             </div>
         );
     },
@@ -44,28 +53,54 @@ var EntityActivity = React.createClass({
      *
      * @private
      */
-    _loadActivityBrowser: function () {
+    _loadActivityBrowser: function (conditions) {
 
         /*
          * We require it here to avoid a circular dependency where the
          * controller requires the view and the view requires the controller
          */
         var BrowserController = require("../controller/EntityBrowserController");
-        var browser = new BrowserController();
+        var browser = this.state.activityBrowser;
 
         // Add filter to only show activities from the referenced object
-        var filterWhere = new Where("obj_reference");
-        filterWhere.equalTo(this.props.objReference);
+        var referenceFilter = new Where("obj_reference");
+        referenceFilter.equalTo(this.props.objReference);
 
-        browser.load({
-            type: controller.types.FRAGMENT,
-            title: "Activity",
-            objType: "activity",
-            hideToolbar: true,
-            filters: [filterWhere]
-        }, ReactDOM.findDOMNode(this.refs.activityContainer));
+        // If conditions is not set, then we create a blank conditions array
+        if (!conditions) {
+            conditions = [];
+        }
 
-        this.setState({activityBrowser: browser});
+        // Set the reference filter in the conditions
+        conditions.push(referenceFilter);
+
+        if (!browser) {
+            browser = new BrowserController();
+
+            browser.load({
+                type: controller.types.FRAGMENT,
+                title: "Activity",
+                objType: "activity",
+                hideToolbar: true,
+                filters: conditions
+            }, ReactDOM.findDOMNode(this.refs.activityContainer));
+
+            this.setState({activityBrowser: browser});
+        } else {
+            browser.updateFilters(conditions);
+        }
+    },
+
+    /**
+     * Callback used to handle the changing of filter dropdown
+     *
+     * @param {DOMEvent} e          Reference to the DOM event being sent
+     * @param {int} key             The index of the menu clicked
+     * @param {array} menuItem      The object value of the menu clicked
+     * @private
+     */
+    _handleFilterChange: function (e, key, menuItem) {
+        this._loadActivityBrowser(menuItem.conditions)
     },
 
     /**

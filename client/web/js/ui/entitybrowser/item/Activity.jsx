@@ -18,8 +18,6 @@ var ActivityItem = React.createClass({
     render: function () {
         var entity = this.props.entity;
 
-        console.log(entity);
-
         var headerTime = entity.getTime(null, true);
         var userId = entity.getValue('user_id');
         var entityId = entity.getValue('id');
@@ -62,7 +60,7 @@ var ActivityItem = React.createClass({
                         {headerTime}
                     </div>
                     <div className='entity-browser-activity-title'>
-                        {entityId} {owner} {activity.description} {activity.name}
+                        {owner} {activity.description} {activity.name}
                     </div>
                     <div className='entity-browser-activity-body'>
                         {displayNotes}

@@ -47,7 +47,7 @@ EntityActivityController.prototype.entityDefinition_ = null;
  * @const
  * @type {string}
  */
-EntityActivityController.prototype.COMMENT_OBJ_TYPE = "activity";
+EntityActivityController.prototype.ACTIVITY_OBJ_TYPE = "activity";
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -59,7 +59,7 @@ EntityActivityController.prototype.onLoad = function (opt_callback) {
     var callbackWhenLoaded = opt_callback || null;
 
     // Get the entity definition then call the loaded callback (if set)
-    definitionLoader.get(this.COMMENT_OBJ_TYPE, function (def) {
+    definitionLoader.get(this.ACTIVITY_OBJ_TYPE, function (def) {
         if (!def) {
             throw "Could not get entity definition for " + this.COMMENT_OBJ_TYPE;
         }
@@ -85,7 +85,8 @@ EntityActivityController.prototype.render = function () {
 
     // Set data properties to forward to the view
     var data = {
-        objReference: this.props.objReference || null
+        objReference: this.props.objReference || null,
+        viewMenu: this.entityDefinition_.getViewMenu()
     }
 
     // Render component
