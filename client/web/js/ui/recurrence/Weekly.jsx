@@ -23,22 +23,25 @@ var Weekly = React.createClass({
 
     render: function () {
         var displayDays = [];
-        var dayOfWeek = this.props.recurrencePattern.getDayOfWeek();
+        var dayOfWeekData = this.props.recurrencePattern.getDayOfWeek();
+        var dayOfWeek = this.props.recurrencePattern.dayOfWeek;
 
-        for (var idx in dayOfWeek) {
-            var day = dayOfWeek[idx];
-            var ref = 'dayOfWeek' + idx;
+        console.log(dayOfWeek);
+
+        for (var day in dayOfWeekData) {
+            var bitmask = dayOfWeekData[day];
+            var ref = 'dayOfWeek' + day;
             var checked = false;
-            if (this.props.recurrencePattern.dayOfWeek[idx]) {
+            if (dayOfWeek && dayOfWeek[day] == bitmask) {
                 checked = true;
             }
 
             displayDays.push(<Checkbox
-                key={idx}
-                value={day.value}
+                key={day}
+                value={bitmask}
                 ref={ref}
-                label={day.text}
-                onCheck={this._handleOnCheck.bind(this, idx)}
+                label={day}
+                onCheck={this._handleOnCheck.bind(this, day)}
                 defaultSwitched={checked}/>)
         }
 
@@ -62,18 +65,18 @@ var Weekly = React.createClass({
     /**
      * Handles the clicking of checkbox for weekOfDay
      *
-     * @param {int} indes           The index of the weekOfDay
+     * @param {string} day          The day that was checked. (e.g. Monday, Tuesday, Wednesday ... and so on ...)
      * @param {DOMEvent} e          Reference to the DOM event being sent
      * @param {bool} isChecked      The current state of the checkbox
      *
      * @private
      */
-    _handleOnCheck: function (index, e, isInputChecked) {
+    _handleOnCheck: function (day, e, isInputChecked) {
 
         if(isInputChecked) {
-            this.props.recurrencePattern.dayOfWeek[index] = e.target.value;
+            this.props.recurrencePattern.dayOfWeek[day] = e.target.value;
         } else {
-            this.props.recurrencePattern.dayOfWeek[index] = null;
+            this.props.recurrencePattern.dayOfWeek[day] = 0;
         }
     },
 

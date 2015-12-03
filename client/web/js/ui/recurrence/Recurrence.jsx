@@ -211,7 +211,7 @@ var Recurrence = React.createClass({
      * @private
      */
     _handleRecurrenceChange: function (e, key, menuItem) {
-        if (!key) {
+        if (key == null) {
             key = this.state.recurrenceIndex;
         }
 

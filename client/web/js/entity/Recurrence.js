@@ -45,17 +45,29 @@ var Recurrence = function (objType) {
     /**
      * dayOfWeek value of the recurrence pattern
      *
-     * If the pattern type is weekly, this will be an array. Else it will only have integer value.
-     * Weekly Array will contain the bitmask value of the selected day.
-     * Example of weekly array:
-     * If Monday is selected: this.dayOfWeek[1] = 2;
-     * If Friday is selected: this.dayOfWeek[5] = 32;
-     * If Saturday is selected: this.dayOfWeek[6] = 64;
+     * The bitmask value of day_of_week_mask is converted into object
+     * This will determine what day of week were selected
+     * If the day is not selected it will have a 0 value, otherwise it will have the bitmask value
+     * Sample data:
+     * this.dayOfWeek.Sunday = 1
+     * this.dayOfWeek.Monday = 2
+     * this.dayOfWeek.Tuesday = 0 // Tuesday is not selected
+     * this.dayOfWeek.Wednesday = 8
+     * this.dayOfWeek.Thursday = 0 // Thursday is not selected
+     * this.dayOfWeek.Friday = 32
      *
      * @public
-     * @type {int|array}
+     * @type {object}
      */
     this.dayOfWeek = null;
+
+    /**
+     * Bitmask used to turn on and off days of the week
+     *
+     * @public
+     * @type {int}
+     */
+    this.dayOfWeekMask = null;
 
     /**
      * Interval value of the recurrence pattern
@@ -133,20 +145,19 @@ Recurrence._types = {
 }
 
 /**
- * Day of week array
- *
+ * Bitmask used to turn on and off days of the week
  *
  * @private
  */
-Recurrence._dayOfWeek = [
-    {value: '1', text: 'Sunday'},
-    {value: '2', text: 'Monday'},
-    {value: '4', text: 'Tuesday'},
-    {value: '8', text: 'Wednesday'},
-    {value: '16', text: 'Thursday'},
-    {value: '32', text: 'Friday'},
-    {value: '64', text: 'Saturday'},
-];
+Recurrence._dayOfWeek = {
+    Sunday: '1',
+    Monday: '2',
+    Tuesday: '4',
+    Wednesday: '8',
+    Thursday: '16',
+    Friday: '32',
+    Saturday: '64'
+};
 
 /**
  * Instance array
@@ -200,6 +211,27 @@ Recurrence.prototype.getTypeMenuData = function () {
 }
 
 /**
+ * Get the day of week menu data
+ *
+ * @public
+ * @return {array}
+ */
+Recurrence.prototype.getDayOfWeekMenuData = function () {
+    var dayOfWeekMenu = [];
+
+    for(var day in Recurrence._dayOfWeek) {
+        var bitmask = Recurrence._dayOfWeek[day];
+
+        dayOfWeekMenu.push({
+            value: bitmask,
+            text: day
+        })
+    }
+
+    return dayOfWeekMenu;
+}
+
+/**
  * Set the recurrence pattern
  *
  * @param {object} data     Recurrence pattern data
@@ -210,21 +242,12 @@ Recurrence.prototype.fromData = function (data) {
     this.id = data.id;
     this.type = data.recur_type;
 
-    if (data.day_of_week_mask) {
+    if(data.day_of_week_mask) {
+        this.dayOfWeekMask = data.day_of_week_mask;
+    }
 
-        // If recurrence type is weekly, then lets convert the day_of_week_mask into array
-        if(data.recur_type == Recurrence._types.WEEKLY) {
-            var convertedBitMask = this.convertBitMask(data.day_of_week_mask);
-            this.dayOfWeek = [];
-
-            for (var idx in convertedBitMask) {
-                if (convertedBitMask[idx] > 0) {
-                    this.dayOfWeek[idx] = Recurrence._dayOfWeek[idx].value;
-                }
-            }
-        } else {
-            this.dayOfWeek = data.day_of_week_mask;
-        }
+    if(data.day_of_week) {
+        this.dayOfWeek = data.day_of_week;
     }
 
     if (data.interval) {
@@ -275,7 +298,7 @@ Recurrence.prototype.toData = function () {
     if(this.type == Recurrence._types.WEEKLY) {
         data.day_of_week_mask = this.weeklyBitMask(this.dayOfWeek);
     } else {
-        data.day_of_week_mask = this.dayOfWeek;
+        data.day_of_week_mask = this.dayOfWeekMask;
     }
     
     switch(this.objType) {
@@ -357,9 +380,9 @@ Recurrence.prototype.getHumanDesc = function () {
             }
 
             // day of week
-            for (var idx in this.dayOfWeek) {
-                if (this.dayOfWeek[idx] && this.dayOfWeek[idx] > 0) {
-                    humanDesc += Recurrence._dayOfWeek[idx].text + ', ';
+            for (var day in this.dayOfWeek) {
+                if (this.dayOfWeek[day] && this.dayOfWeek[day] > 0) {
+                    humanDesc += day + ', ';
                 }
             }
 
@@ -383,8 +406,9 @@ Recurrence.prototype.getHumanDesc = function () {
             humanDesc = Recurrence._instance[parseInt(this.instance) - 1].text;
 
             // Day of week
-            var dayOfWeekIndex = this.getBitMaskIndex(this.dayOfWeek);
-            humanDesc += ' ' + Recurrence._dayOfWeek[dayOfWeekIndex].text;
+            var dayOfWeekData = this.getDayOfWeekMenuData();
+            var maskIndex = this.getBitMaskIndex(this.dayOfWeekMask);
+            humanDesc += ' ' + dayOfWeekData[maskIndex].text;
 
             if (parseInt(this.interval) > 1) {
                 humanDesc += ' of every ' + this.interval + ' months';
@@ -404,8 +428,9 @@ Recurrence.prototype.getHumanDesc = function () {
             humanDesc = Recurrence._instance[parseInt(this.instance) - 1].text;
 
             // Day of week
-            var dayOfWeekIndex = this.getBitMaskIndex(this.dayOfWeek);
-            humanDesc += ' ' + Recurrence._dayOfWeek[dayOfWeekIndex].text;
+            var dayOfWeekData = this.getDayOfWeekMenuData();
+            var maskIndex = this.getBitMaskIndex(this.dayOfWeekMask);
+            humanDesc += ' ' + dayOfWeekData[maskIndex].text;
 
             // Month of year
             humanDesc += ' of ' + Recurrence._months[parseInt(this.monthOfYear) - 1].text;
@@ -525,6 +550,8 @@ Recurrence.prototype.reset = function () {
  * @public
  */
 Recurrence.prototype.setDefaultValues = function () {
+    this.getDateStart();
+
     switch (this.type.toString()) {
         case Recurrence._types.WEEKLY:
             this.dayOfWeek = [];
@@ -556,20 +583,6 @@ Recurrence.prototype.setDefaultValues = function () {
 }
 
 /**
- * Converts the bit mask
- *
- * @param {int} bitmask     Bitmask used to turn on and off days of the week
- * @return {array}
- * @public
- */
-Recurrence.prototype.convertBitMask = function (bitmask) {
-    var bit = Number(bitmask).toString(2);
-    var result = bit.toString(10).split("").map(Number).reverse();
-
-    return result;
-}
-
-/**
  * Gets the array index of the bit mask
  *
  * @param {int} bitmask     Bitmask used to turn on and off days of the week
@@ -577,8 +590,9 @@ Recurrence.prototype.convertBitMask = function (bitmask) {
  * @public
  */
 Recurrence.prototype.getBitMaskIndex = function (bitmask) {
-    var dayOfWeek = this.convertBitMask(bitmask);
-    var index = dayOfWeek.indexOf(1);
+    var bit = Number(bitmask).toString(2);
+    var result = bit.toString(10).split("").map(Number).reverse();
+    var index = result.indexOf(1);
 
     if (index < 0) {
         index = 0;
