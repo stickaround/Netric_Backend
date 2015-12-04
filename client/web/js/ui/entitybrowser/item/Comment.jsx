@@ -35,7 +35,7 @@ var CommentItem = React.createClass({
 
             // Check if file is an image
             if (file.isImage()) {
-                attachedImageClass = "entity-browser-comment-image";
+                attachedImageClass = "entity-browser-comment-att-img";
                 attachedFilesImage.push(<img key={idx} src={file.getFileUrl()}/>);
             } else {
                 attachedFiles.push(

@@ -4,12 +4,11 @@
  *
  * @category	DataMapper
  * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
+ * @copyright	Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
  */
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
-use Netric\Entity\Recurrence\RecurrenceDataMapper;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
@@ -184,6 +183,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $user = $this->getAccount()->getUser();
         $entity->setFieldsDefault($event, $user);
 
+        // Update foreign key names
+        $this->updateForeignKeyNames($entity);
+
         /*
          * If the entity has a new recurrence pattern, then we need to get the next recurring id
          * now so we can save it to the entity before saving the recurring patterns itself.
@@ -315,6 +317,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	public function delete(&$entity, $forceHard=false)
 	{
         $user = $this->getAccount()->getUser();
+        $serviceManager = $this->getAccount()->getServiceManager();
 
 		$lastCommitId = $entity->getValue("commit_id");
 		// Create new global commit revision
@@ -324,8 +327,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		if ($entity->getValue("f_deleted") || $forceHard)
 		{
 			// Call beforeDeleteHard so the entity can do any pre-purge operations
-			if ($this->getAccount()->getServiceManager())
-				$entity->beforeDeleteHard($this->getAccount()->getServiceManager());
+            $entity->beforeDeleteHard($serviceManager);
 
             // Purge the recurrence pattern if set
             if ($entity->getRecurrencePattern())
@@ -341,8 +343,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			$ret = $this->deleteHard($entity);
 
 			// Call onBeforeDeleteHard so the entity can do any post-purge operations
-			if ($this->getAccount()->getServiceManager())
-				$entity->afterDeleteHard($this->getAccount()->getServiceManager());
+            $entity->afterDeleteHard($serviceManager);
 
 			// Delete from EntityCollection_Index
 			//if ($this->getServiceLocator())
@@ -370,22 +371,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                  */
 
 				// Try to update the definition in case it is out of sync
-				if ($this->getAccount()->getServiceManager())
-				{
-					$entityDefLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
-					$entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
+                $entityDefLoader = $serviceManager->get("EntityDefinitionLoader");
+                $entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
 
-					// Try deleting again
-					$ret = $this->deleteSoft($entity);
-				}
+                // Try deleting again
+                $ret = $this->deleteSoft($entity);
 			}
 
 			// Delete from EntityCollection_Index
-			//if ($this->getServiceLocator())
-				//$this->getServiceLocator()->get("EntityCollection_Index")->delete($entity);
+			//$this->getServiceLocator()->get("EntityCollection_Index")->delete($entity);
 
             // Log the activity
-            $alog = $this->getAccount()->getServiceManager()->get("Netric/Entity/ActivityLog");
+            $alog = $serviceManager->get("Netric/Entity/ActivityLog");
             $alog->log($user, "delete", $entity);
 		}
 
@@ -398,8 +395,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Clear cache in the EntityLoader
-		if ($this->getAccount()->getServiceManager())
-			$this->getAccount()->getServiceManager()->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
+        $serviceManager->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
 		
 		return $ret;
 	}
@@ -447,6 +443,105 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 					\Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING, 
 					$lastCommitId, $nextCommit);
 			}
+        }
+    }
+
+    /**
+     * Update foreign key name cache
+     *
+     * All foreign key (fkey, fkey_multi, object, object_multi) fields
+     * cache the name of the foreign key for faster performance. The risk
+     * with this is that the cache gets out of date if a referenced object
+     * is updated. This function makes sure that all names for foreign references
+     * are refreshed any time the entity is saved.
+     *
+     * @param Entity $entity The entity to update
+     */
+    private function updateForeignKeyNames(Entity $entity)
+    {
+        $serviceManager = $this->getAccount()->getServiceManager();
+        $groupingsLoader = $serviceManager->get("EntityGroupings_Loader");
+        $entityLoader = $serviceManager->get("EntityLoader");
+
+        $fields = $entity->getDefinition()->getFields();
+        foreach ($fields as $field)
+        {
+            $value = $entity->getValue($field->name);
+
+            // Skip over null/empty fields
+            if (!$value)
+                continue;
+
+            switch ($field->type)
+            {
+                case 'object':
+                    $objType = $field->subtype;
+                    $id = $value;
+                    if (!$objType)
+                    {
+                        $refParts = Entity::decodeObjRef($value);
+                        $objType = $refParts['obj_type'];
+                        $id = $refParts['id'];
+                    }
+
+                    // Get referenced object name
+                    if ($objType && $id)
+                    {
+                        $ent = $entityLoader->get($objType, $id);
+                        $entity->setValue($field->name, $value, $ent->getName());
+                    }
+
+                    break;
+
+                case 'object_multi';
+                    $objType = $field->subtype;
+
+                    if (is_array($value))
+                    {
+                        foreach ($value as $valPart)
+                        {
+                            $id = $valPart;
+                            if (!$objType)
+                            {
+                                $refParts = Entity::decodeObjRef($valPart);
+                                $objType = $refParts['obj_type'];
+                                $id = $refParts['id'];
+                            }
+
+                            // Get referenced object name
+                            if ($objType && $id)
+                            {
+                                $ent = $entityLoader->get($objType, $id);
+                                $entity->addMultiValue($field->name, $valPart, $ent->getName());
+                            }
+                        }
+                    }
+
+                    break;
+
+                case 'fkey':
+                    $objType = $entity->getDefinition()->getObjType();
+                    $groups = $groupingsLoader->get($objType, $field->name);
+                    $group = $groups->getById($value);
+                    if ($group)
+                        $entity->setValue($field->name, $value, $group->name);
+                    break;
+
+                case 'fkey_multi':
+                    $objType = $entity->getDefinition()->getObjType();
+                    $groups = $groupingsLoader->get($objType, $field->name);
+                    if (is_array($value))
+                    {
+                        foreach ($value as $valPart)
+                        {
+                            $group = $groups->getById($valPart);
+                            if ($group)
+                                $entity->addMultiValue($field->name, $valPart, $group->name);
+                        }
+                    }
+
+                    break;
+            }
         }
     }
         

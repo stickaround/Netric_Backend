@@ -13,7 +13,7 @@ use PHPUnit_Framework_TestCase;
 class ActivityLogTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Tennant account
+     * Tenant account
      *
      * @var \Netric\Account
      */

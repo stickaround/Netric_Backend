@@ -56,19 +56,17 @@ var ObjectField = React.createClass({
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('name');
 
-        if (fieldName == "task_id")
-            console.log("Entered Objectfield with state", this.state.valueLabel);
-
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
         var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
+        
 
         // Handle blank labels
         if (!valueLabel && !fieldValue) {
             valueLabel = "Not Set";
         } else if (!valueLabel && this.state.valueLabel) {
             valueLabel = this.state.valueLabel;
-        } else {
+        } else if (!valueLabel) {
             // We will set this.state.valueLabel after mounting
             valueLabel = "Loading...";
         }

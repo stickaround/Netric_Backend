@@ -189,7 +189,7 @@ class Entity implements \Netric\Entity\EntityInterface
             }
             else if ($values && isset($this->fkeysValues[$strName][$values]))
             {
-                return array($this->fkeysValues[$strName][$values]);
+                return array($values=>$this->fkeysValues[$strName][$values]);
             }
 
         }
