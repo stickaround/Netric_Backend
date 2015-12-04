@@ -66,7 +66,7 @@ var Entity = function (entityDef, opt_data) {
      * @private
      * @type {Entity/Recurrence}
      */
-    this.recurrencePattern_ = new Recurrence(this.objType);
+    this.recurrencePattern_ = null;
 
     /**
      * Security
@@ -157,6 +157,7 @@ Entity.prototype.loadData = function (data) {
 
     // Handle Recurrence
     if (data['recurrence_pattern']) {
+        this.recurrencePattern_ = new Recurrence(this.objType);
         this.recurrencePattern_.fromData(data['recurrence_pattern']);
     }
 
@@ -576,12 +577,21 @@ Entity.prototype.normalizeFieldValue_ = function (field, value) {
 }
 
 /**
- * Returns the recurrence pattern instance
+ * Returns the recurrence pattern for this entity
  *
- * @public
+ * @param {bool} createIfNotExist       Determine if we need to create a new instance of recurrence or not if we dont have one
  * @return {Entity/Recurrence}
  */
-Entity.prototype.getRecurrence = function () {
+Entity.prototype.getRecurrence = function (createIfNotExist) {
+
+    /**
+     * If we do not have an instance of recurrence yet and we need to create one
+     * Then lets instantiate a new Recurrence entity model
+     */
+    if(!this.recurrencePattern_ && createIfNotExist) {
+        this.recurrencePattern_ = new Recurrence(this.objType);
+    }
+
     return this.recurrencePattern_;
 }
 

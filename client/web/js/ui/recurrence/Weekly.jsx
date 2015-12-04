@@ -26,19 +26,25 @@ var Weekly = React.createClass({
         var daysOfWeek = this.props.recurrencePattern.getDaysOfWeek();
 
         for (var day in daysOfWeek) {
-            var bitmask = this.props.recurrencePattern.weekdays[day.toUpperCase()].toString();
-            var dayLabel = day.replace(/^./, day[0].toUpperCase());
+
+            /**
+             * We are setting day.toUpperCase() because weekdays are set to as constants
+             * We are trying to get the value of each weekday to set it in the checkbox
+             * weekdays constants are: SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+             */
+            var weekday = this.props.recurrencePattern.weekdays[day.toUpperCase()].toString();
+
             var ref = 'dayOfWeek' + day;
             var checked = false;
-            if (daysOfWeek[day] && daysOfWeek[day] == bitmask) {
+            if (daysOfWeek[day] && daysOfWeek[day] == weekday) {
                 checked = true;
             }
 
             displayDays.push(<Checkbox
                 key={day}
-                value={bitmask}
+                value={weekday}
                 ref={ref}
-                label={dayLabel}
+                label={day}
                 onCheck={this._handleOnCheck.bind(this, day)}
                 defaultSwitched={checked}/>)
         }

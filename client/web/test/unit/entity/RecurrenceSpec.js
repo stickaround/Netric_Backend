@@ -102,8 +102,8 @@ describe("Setup Recurrence Month/Year Pattern", function() {
 
     var selectedDay = recurrenceObject.getSelectedDay();
     it("Should get the details of the selected day", function() {
-        expect(selectedDay.index).toEqual(5); // This is referring to the index value of the selected day
-        expect(selectedDay.label).toEqual('Friday');
+        expect(selectedDay[0].index).toEqual(5); // This is referring to the index value of the selected day
+        expect(selectedDay[0].label).toEqual('Friday');
     });
 
     // Lets try exporting the data from the recurrence entity

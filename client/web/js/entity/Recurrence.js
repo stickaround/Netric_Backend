@@ -201,11 +201,9 @@ Recurrence.prototype.getDayOfWeekMenuData = function () {
     var dayOfWeekMenuData = [];
 
     for (var day in this.weekdays) {
-        var text = day[0] + day.slice(1).toLowerCase();
-
         dayOfWeekMenuData.push({
             value: this.weekdays[day],
-            text:  text
+            text:  day[0] + day.slice(1).toLowerCase() // We need to capitalize the text label
         })
     }
 
@@ -331,8 +329,6 @@ Recurrence.prototype.getHumanDesc = function () {
 
     switch (this.type.toString()) {
         case Recurrence._types.DAILY:
-
-            // interval
             if (this.interval > 1) {
                 humanDesc = 'Every ' + this.interval + ' days';
             } else {
@@ -342,8 +338,6 @@ Recurrence.prototype.getHumanDesc = function () {
             break;
 
         case Recurrence._types.WEEKLY:
-
-            // interval
             if (this.interval > 1) {
                 humanDesc = 'Every ' + this.interval + ' weeks on ';
             } else {
@@ -354,7 +348,7 @@ Recurrence.prototype.getHumanDesc = function () {
             var daysOfWeek = this.getDaysOfWeek();
             for (var day in daysOfWeek) {
                 if (daysOfWeek[day] && daysOfWeek[day] > 0) {
-                    humanDesc += day.replace(/^./, day[0].toUpperCase()) + ', ';
+                    humanDesc += day + ', ';
                 }
             }
 
@@ -362,7 +356,6 @@ Recurrence.prototype.getHumanDesc = function () {
             break;
 
         case Recurrence._types.MONTHLY:
-
             humanDesc = dayOfMonth;
 
             if (parseInt(this.interval) > 1) {
@@ -374,12 +367,11 @@ Recurrence.prototype.getHumanDesc = function () {
             break;
 
         case Recurrence._types.MONTHNTH:
-
             humanDesc = Recurrence._instance[parseInt(this.instance) - 1].text;
 
             // Day of week
             var selectedDay = this.getSelectedDay();
-            humanDesc += ' ' + selectedDay.label;
+            humanDesc += ' ' + selectedDay[0].label;
 
             if (parseInt(this.interval) > 1) {
                 humanDesc += ' of every ' + this.interval + ' months';
@@ -390,17 +382,15 @@ Recurrence.prototype.getHumanDesc = function () {
             break;
 
         case Recurrence._types.YEARLY:
-
             humanDesc = dayOfMonth + ' ' + Recurrence._months[parseInt(this.monthOfYear) - 1].text;
             break;
 
         case Recurrence._types.YEARNTH:
-
             humanDesc = Recurrence._instance[parseInt(this.instance) - 1].text;
 
             // Day of week
             var selectedDay = this.getSelectedDay();
-            humanDesc += ' ' + selectedDay.label;
+            humanDesc += ' ' + selectedDay[0].label;
 
             // Month of year
             humanDesc += ' of ' + Recurrence._months[parseInt(this.monthOfYear) - 1].text;
@@ -408,7 +398,6 @@ Recurrence.prototype.getHumanDesc = function () {
             break;
 
         default:
-
             humanDesc = "Does not repeat";
             return humanDesc;
             break;
@@ -574,13 +563,13 @@ Recurrence.prototype.setDayOfWeek = function (day, selected) {
  */
 Recurrence.prototype.getDaysOfWeek = function () {
     return {
-        sunday: this.dayOfWeekMask & this.weekdays.SUNDAY,
-        monday: this.dayOfWeekMask & this.weekdays.MONDAY,
-        tuesday: this.dayOfWeekMask & this.weekdays.TUESDAY,
-        wednesday: this.dayOfWeekMask & this.weekdays.WEDNESDAY,
-        thursday: this.dayOfWeekMask & this.weekdays.THURSDAY,
-        friday: this.dayOfWeekMask & this.weekdays.FRIDAY,
-        saturday: this.dayOfWeekMask & this.weekdays.SATURDAY
+        Sunday: this.dayOfWeekMask & this.weekdays.SUNDAY,
+        Monday: this.dayOfWeekMask & this.weekdays.MONDAY,
+        Tuesday: this.dayOfWeekMask & this.weekdays.TUESDAY,
+        Wednesday: this.dayOfWeekMask & this.weekdays.WEDNESDAY,
+        Thursday: this.dayOfWeekMask & this.weekdays.THURSDAY,
+        Friday: this.dayOfWeekMask & this.weekdays.FRIDAY,
+        Saturday: this.dayOfWeekMask & this.weekdays.SATURDAY
     };
 };
 
@@ -588,18 +577,30 @@ Recurrence.prototype.getDaysOfWeek = function () {
  * Get the selected day details. This will return an object with the dayOfWeek selected index and its label.
  *
  * @public
- * return {object}  Selected day details.
+ * return {             Returns the selected day details with index and label as its object items.
+ *  [{
+ *      index: 1,
+ *      label: 'Monday'
+ *  },
+ *  {
+ *      index: 5,
+ *      label: 'Friday'
+ *  }]
+ * }
  */
 Recurrence.prototype.getSelectedDay = function() {
-    var selectedDay = {};
+    var selectedDay = [];
     var idx = 0;
     var daysOfWeek = this.getDaysOfWeek();
 
     for (var day in daysOfWeek) {
         if (daysOfWeek[day] && daysOfWeek[day] > 0) {
-            selectedDay.index = idx;
-            selectedDay.label = day.replace(/^./, day[0].toUpperCase());
-            break;
+
+            // We are setting the zero-based index to determine what index to use in the dayOfWeek Dropdown
+            selectedDay.push({
+                index: idx,
+                label: day
+            });
         }
         idx++;
     }

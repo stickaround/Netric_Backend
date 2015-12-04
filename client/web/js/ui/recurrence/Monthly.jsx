@@ -54,7 +54,16 @@ var Monthly = React.createClass({
             );
         } else {
 
+            var selectedIndex = 0;
             var selectedDay = this.props.recurrencePattern.getSelectedDay();
+
+            /**
+             * Since we only allow 1 dayOfWeek to be selected in Yearly
+             * We will always assume that the index 0 is the selected dayOfWeek
+             */
+            if(selectedDay && selectedDay[0]) {
+                selectedIndex = selectedDay[0].index;
+            }
 
             displayType = (
                 <div className="row">
@@ -65,7 +74,7 @@ var Monthly = React.createClass({
                             menuItems={this.props.recurrencePattern.getInstance()}/>
                         <DropDownMenu
                             onChange={this._handleDropDownChange.bind(this, 'dayOfWeekMask')}
-                            selectedIndex={selectedDay.index}
+                            selectedIndex={selectedIndex}
                             menuItems={this.props.recurrencePattern.getDayOfWeekMenuData()}/>
                     </div>
                     <div>
