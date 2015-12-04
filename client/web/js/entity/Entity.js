@@ -536,69 +536,6 @@ Entity.prototype.getAttachments = function () {
 }
 
 /**
- * Get the activity in this entity
- *
- * @return {object}
- */
-Entity.prototype.getActivity = function () {
-
-	var direction = this.getValue('direction');
-    var typeId = this.getValue('type_id');
-	var activityType = this.getValueName('type_id', typeId);
-
-	if(!activityType) {
-		activityType = typeId;
-	}
-
-    // Create the activity object with a name index
-    var activity = {
-        name: this.getValue('name'),
-		notes: this.getValue('notes')
-    };
-
-
-	switch(activityType){
-		case 'email':
-			if (direction == 'i') {
-                activity.name = 'received an email ';
-            } else {
-                activity.name = 'sent an email ';
-            }
-
-			break;
-		case 'phone call':
-			if (direction == 'i') {
-                activity.description = 'logged an innbound call ';
-            } else {
-                activity.description = 'logged an outbound call ';
-            }
-		case '12':
-		case 'comment':
-            activity.description = 'commented on ';
-
-			break;
-		case 'status update':
-            activity.description = 'added a ';
-            activity.name = activityType;
-
-			break;
-		default:
-            var verb = this.getValue('verb');
-			if(verb == 'create' || verb == 'created') {
-                activity.description = 'created a new ' + activityType + ' ';
-            } else {
-                activity.description = verb + ' ';
-            }
-
-			activity.notes = null;
-
-			break;
-	}
-
-    return activity;
-}
-
-/**
  * Normalize field values based on type
  *
  * @private

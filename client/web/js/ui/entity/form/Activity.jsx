@@ -7,8 +7,8 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var EntityActivityController = require('../../../controller/EntityActivityController');
 var controller = require('../../../controller/controller');
+var Where = require("../../../entity/Where");
 var netric = require('../../../base');
 var Device = require('../../../Device');
 
@@ -40,15 +40,20 @@ var Activity = React.createClass({
      * @private
      */
     _loadActivities: function () {
-
+        var BrowserController = require('../../../controller/EntityBrowserController');
         var inlineCon = ReactDOM.findDOMNode(this.refs.activityContainer);
 
-        var activity = new EntityActivityController();
-        activity.load({
+        // Add filter to only show activities from the referenced object
+        var referenceFilter = new Where("obj_reference");
+        referenceFilter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
+
+        var browser = new BrowserController();
+        browser.load({
             type: controller.types.FRAGMENT,
-            title: 'Activity',
-            objType: 'activity',
-            objReference: this.props.entity.objType + ':' + this.props.entity.id
+            title: "Activity",
+            objType: "activity",
+            hideToolbar: true,
+            filters: [referenceFilter]
         }, inlineCon);
     }
 });

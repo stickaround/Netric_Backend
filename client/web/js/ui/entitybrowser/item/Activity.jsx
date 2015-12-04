@@ -22,7 +22,7 @@ var ActivityItem = React.createClass({
         var userId = entity.getValue('user_id');
         var entityId = entity.getValue('id');
         var owner = entity.getValueName('user_id', userId);
-        var activity = entity.getActivity();
+        var activity = this._getActivityDetails(entity);
 
         // Get the attached files
         var attachedFiles = [];
@@ -42,7 +42,7 @@ var ActivityItem = React.createClass({
 
         var displayNotes = null;
 
-        if(activity.notes) {
+        if (activity.notes) {
             var notes = this._processNotes(activity.notes);
 
             displayNotes = (
@@ -94,6 +94,63 @@ var ActivityItem = React.createClass({
          */
         return (val) ? {__html: val} : null;
     },
+
+    /**
+     * Get the activity details of the entity
+     *
+     * @return {object}
+     */
+    _getActivityDetails: function (entity) {
+
+        var direction = entity.getValue('direction');
+        var typeId = entity.getValue('type_id');
+        var activityType = entity.getValueName('type_id', typeId);
+
+        // Create the activity object with a name index
+        var activity = {
+            name: entity.getValue('name'),
+            notes: entity.getValue('notes')
+        };
+
+        switch (activityType) {
+            case 'email':
+                if (direction == 'i') {
+                    activity.name = 'received an email ';
+                } else {
+                    activity.name = 'sent an email ';
+                }
+
+                break;
+            case 'phone call':
+                if (direction == 'i') {
+                    activity.description = 'logged an innbound call ';
+                } else {
+                    activity.description = 'logged an outbound call ';
+                }
+            case 'comment':
+                activity.description = 'commented on ';
+
+                break;
+            case 'status update':
+                activity.description = 'added a ';
+                activity.name = activityType;
+
+                break;
+            default:
+                var verb = entity.getValue('verb');
+                if (verb == 'create' || verb == 'created') {
+                    activity.description = 'created a new ' + activityType + ' ';
+                } else {
+                    activity.description = verb + ' ';
+                }
+
+                activity.notes = null;
+
+                break;
+        }
+
+        return activity;
+    }
 
 });
 
