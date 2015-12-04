@@ -112,7 +112,7 @@ var ActivityItem = React.createClass({
             notes: entity.getValue('notes')
         };
 
-        switch (activityType) {
+        switch (activityType.toLowerCase()) {
             case 'email':
                 if (direction == 'i') {
                     activity.name = 'received an email ';

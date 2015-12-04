@@ -29,7 +29,6 @@ var Definition = function (opt_data) {
      * @type {string}
      */
     this.objType = data.obj_type || "";
-    ;
 
     /**
      * The object type title
@@ -278,21 +277,6 @@ Definition.prototype.getDefaultView = function () {
     view.tableColumns_.push("id");
     // TODO: add a few more field here
     return view;
-}
-
-Definition.prototype.getViewMenu = function () {
-    var viewMenu = [];
-
-    for(var idx in this.views) {
-        var view = this.views[idx];
-
-        viewMenu.push({
-            text: view.name,
-            conditions: view.getConditions()
-        });
-    }
-
-    return viewMenu;
 }
 
 module.exports = Definition;

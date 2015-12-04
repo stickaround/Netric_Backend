@@ -551,12 +551,22 @@ EntityBrowserController.prototype._setupCollection = function() {
 /**
  * Update the filters and refresh the result based on the new conditions that were set
  *
- * @param {array} filters   These are the conditions that will limit what this browser can search
+ * @param {entity.Where[]} filters   These are the conditions that will limit what this browser can search
+ * @public
  */
 EntityBrowserController.prototype.updateFilters = function(filters) {
 
     this.setCollectionConditions(filters);
     this.collection_.refresh();
+}
+
+/**
+ * Get the entity definition of this entity
+ *
+ * @public
+ */
+EntityBrowserController.prototype.getEntityDefinition = function() {
+    return this.entityDefinition_;
 }
 
 module.exports = EntityBrowserController;

@@ -11,6 +11,8 @@ var controller = require('../../../controller/controller');
 var Where = require("../../../entity/Where");
 var netric = require('../../../base');
 var Device = require('../../../Device');
+var Chamel = require('chamel');
+var DropDownMenu = Chamel.DropDownMenu;
 
 /**
  * Render Activity into an entity form
@@ -18,20 +20,40 @@ var Device = require('../../../Device');
 var Activity = React.createClass({
 
     propTypes: {
-        xmlNode: React.PropTypes.object,
         entity: React.PropTypes.object,
-        eventsObj: React.PropTypes.object,
-        editMode: React.PropTypes.bool
     },
 
-    render: function () {
-        return (
-            <div ref='activityContainer'></div>
-        );
+    getInitialState: function () {
+
+        // Return the initial state
+        return {
+            viewMenuData: null
+        };
     },
 
     componentDidMount: function () {
         this._loadActivities();
+    },
+
+    render: function () {
+        var viewDropdown = null;
+
+        if (this.state.viewMenuData) {
+            viewDropdown = (
+                <DropDownMenu
+                    menuItems={this.state.viewMenuData}
+                    selectedIndex={0}
+                    onChange={this._handleFilterChange}/>
+            );
+        }
+
+        return (
+            <div>
+                {viewDropdown}
+
+                <div ref='activityContainer'></div>
+            </div>
+        );
     },
 
     /**
@@ -48,13 +70,43 @@ var Activity = React.createClass({
         referenceFilter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
 
         var browser = new BrowserController();
+
+        var callbackFunc = function () {
+
+            // We dont need to get activity views if it is already set.
+            if(!this.state.viewMenuData) {
+                this._setViewMenuData(browser.getEntityDefinition().getViews())
+            }
+        }
+
         browser.load({
             type: controller.types.FRAGMENT,
             title: "Activity",
             objType: "activity",
             hideToolbar: true,
             filters: [referenceFilter]
-        }, inlineCon);
+        }, inlineCon, null, callbackFunc.bind(this));
+    },
+
+    /**
+     * Set the view menu data in the state
+     *
+     * @param {array} views     The activity view data from entity definition
+     * @private
+     */
+    _setViewMenuData: function (views) {
+        var viewMenu = [];
+
+        for (var idx in views) {
+            var view = views[idx];
+
+            viewMenu.push({
+                text: view.name,
+                conditions: view.getConditions()
+            });
+        }
+
+        this.setState({viewMenuData: viewMenu});
     }
 });
 
