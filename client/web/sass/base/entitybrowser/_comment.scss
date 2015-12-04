@@ -12,21 +12,26 @@
   align-items: flex-start;
   -webkit-align-items: flex-start;
 
+  /* The users's image */
   .entity-browser-comment-img {
     -webkit-flex: initial;
     flex: initial;
     margin-right: $gutter-less;
     width: $thumb-size;
+    padding: $gutter-less 0 $gutter-less 0;
 
     @media #{$device-medium} {
       margin-right: $gutter;
+      padding: $gutter 0 $gutter 0;
     }
 
     @media #{$device-large} {
       margin-right: $gutter;
+      padding: $gutter 0 $gutter 0;
     }
   }
 
+  /* Comment details including body, date, and attachments */
   .entity-browser-comment-details {
     padding: $gutter-less 0 $gutter-less 0;
     @media #{$device-medium} {
@@ -53,18 +58,24 @@
       float: right;
     }
 
-    .entity-browser-comment-att-img {
-      margin-top: 10px;
-
-      img {
-        max-width: 100%;
-      }
-    }
-
     .entity-browser-comment-body {
       line-height: 14px;
       padding-top: 0px;
       margin: 3px 0;
+    }
+
+    .entity-browser-comment-attachments {
+      margin-top: $gutter-less;
+      @media #{$device-medium} {
+        margin-top: $gutter;
+      }
+      @media #{$device-large} {
+        margin-top: $gutter;
+      }
+
+      img {
+        max-width: 100%;
+      }
     }
   }
 
