@@ -95,7 +95,7 @@ class RecurrenceIdentityMapper
             if ($recurPattern->getObjType() != $def->getObjType())
                 $recurPattern->setObjType($def->getObjType());
 
-            // Gte the start date which is required for all recurring patterns
+            // Get the start date which is required for all recurring patterns
             $curStart = $entity->getValue($def->recurRules['field_date_start']);
 
             // Epic fail! A start_field value of the entity is required for recurrence
