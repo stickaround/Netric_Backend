@@ -20,9 +20,8 @@ var ActivityItem = React.createClass({
 
         var headerTime = entity.getTime(null, true);
         var userId = entity.getValue('user_id');
-        var entityId = entity.getValue('id');
-        var owner = entity.getValueName('user_id', userId);
-        var activity = this._getActivityDetails(entity);
+        var userName = entity.getValueName('user_id', userId);
+        var activity = this._getActivityDetails();
 
         // Get the attached files
         var attachedFiles = [];
@@ -60,7 +59,7 @@ var ActivityItem = React.createClass({
                         {headerTime}
                     </div>
                     <div className='entity-browser-activity-title'>
-                        {owner} {activity.description} {activity.name}
+                        {userName} {activity.description} {activity.name}
                     </div>
                     <div className='entity-browser-activity-body'>
                         {displayNotes}
@@ -100,8 +99,9 @@ var ActivityItem = React.createClass({
      *
      * @return {object}
      */
-    _getActivityDetails: function (entity) {
+    _getActivityDetails: function () {
 
+        var entity = this.props.entity;
         var direction = entity.getValue('direction');
         var typeId = entity.getValue('type_id');
         var activityType = entity.getValueName('type_id', typeId);

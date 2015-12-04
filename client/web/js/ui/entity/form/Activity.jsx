@@ -36,10 +36,10 @@ var Activity = React.createClass({
     },
 
     render: function () {
-        var viewDropdown = null;
+        var viewDropdownDisplay = null;
 
         if (this.state.viewMenuData) {
-            viewDropdown = (
+            viewDropdownDisplay = (
                 <DropDownMenu
                     menuItems={this.state.viewMenuData}
                     selectedIndex={0}
@@ -49,7 +49,7 @@ var Activity = React.createClass({
 
         return (
             <div>
-                {viewDropdown}
+                {viewDropdownDisplay}
 
                 <div ref='activityContainer'></div>
             </div>
@@ -101,7 +101,7 @@ var Activity = React.createClass({
                 // We dont need to get activity views if it is already set.
                 if(!this.state.viewMenuData) {
                     var activityViews = browser.getEntityDefinition().getViews();
-                    this._setViewMenuData(activityViews)
+                    this._setViewMenuData(activityViews);
                 }
             }
 
@@ -123,7 +123,7 @@ var Activity = React.createClass({
     },
 
     /**
-     * Set the view menu data in the state
+     * Set the activity view menu data in the state
      *
      * @param {array} activityViews     The activity view data from entity definition
      * @private
