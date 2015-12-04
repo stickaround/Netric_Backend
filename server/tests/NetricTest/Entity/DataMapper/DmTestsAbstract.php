@@ -9,6 +9,8 @@
 namespace NetricTest\Entity\DataMapper;
 
 use Netric;
+use Netric\Entity\Entity;
+use Netric\Entity\DataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit_Framework_TestCase;
 
@@ -666,6 +668,60 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
         $loadedPattern = $recurDm->load($recurId);
         $this->assertNull($loadedPattern);
     }
+
+	/**
+	 * Make sure that if we save an entity without fvals for fkey and object references
+	 * the datamapper will set them.
+	 */
+	public function testUpdateForeignKeyNames()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+		{
+			// Do not run if we don't have a datamapper to work with
+			$this->assertTrue(true);
+			return;
+		}
+
+		// Create a few test groups
+		$groupingsStat = $dm->getGroupings("customer", "status_id");
+		$statGrp = $groupingsStat->create("Unit Test Status");
+		$groupingsStat->add($statGrp);
+		$dm->saveGroupings($groupingsStat);
+
+		$groupingsGroups = $dm->getGroupings("customer", "groups");
+		$groupsGrp = $groupingsGroups->create("Unit Test Group");
+		$groupingsGroups->add($groupsGrp);
+		$dm->saveGroupings($groupingsGroups);
+
+		// Create an entity and initialize values
+		$customer = $this->createCustomer();
+		// fkey with no label (third param)
+		$customer->setValue("status_id", $statGrp->id);
+		// fkey_multi with no label (third param)
+		$customer->addMultiValue("groups", $groupsGrp->id);
+		// object with no label (third param)
+		$customer->setValue("owner_id", $this->user->getId());
+
+		// Save should call private updateForeignKeyNames in the DataMapperAbstract
+		$cid = $dm->save($customer, $this->user);
+
+		// Load the entity from the datamapper
+		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
+		$ret = $dm->getById($ent, $cid);
+
+		// Make sure the fvals for references are updated
+		$this->assertEquals($ent->getValueName("status_id", $statGrp->id), $statGrp->name);
+		$this->assertEquals($ent->getValueName("groups", $groupsGrp->id), $groupsGrp->name);
+		$this->assertEquals($ent->getValueName("owner_id", $this->user->getId()), $this->user->getName());
+
+		// Cleanup
+		$groupingsStat->delete($statGrp->id);
+		$dm->saveGroupings($groupingsStat);
+		$groupingsGroups->delete($groupsGrp->id);
+		$dm->saveGroupings($groupingsGroups);
+		$dm->delete($ent, true);
+	}
 
 	/**
 	 * TODO: Test verifyUniqueName

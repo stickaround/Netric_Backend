@@ -12,6 +12,7 @@ namespace Netric\Entity\DataMapper;
 use Netric\Entity;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
+use Netric\Db\DbInterface;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 
@@ -48,7 +49,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 	/**
 	 * Handle to database
 	 *
-	 * @var Netric\DatabaseInterface
+	 * @var DbInterface
 	 */
 	private $dbh = null;
 	

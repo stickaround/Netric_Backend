@@ -75,15 +75,15 @@ var EntityComments = React.createClass({
             // medium-xlarge devices will show the comments form inline after the browser
             addCommentForm = (
                 <div className="entity-comments-form">
-                    <div className="entity-comments-form-center">
-                        <TextField ref="commInput" hintText="Add Comment" multiLine={true}/>
-                    </div>
-                    <div className="entity-comments-attachment-right">
+                    <div className="entity-comments-form-left">
                         <IconButton
                             label="Attach Files"
                             iconClassName="fa fa-paperclip"
                             onClick={this._handleFileUpload}
                             />
+                    </div>
+                    <div className="entity-comments-form-center">
+                        <TextField ref="commInput" hintText="Add Comment" multiLine={true}/>
                     </div>
                     <div className="entity-comments-form-right">
                         <FlatButton
@@ -99,22 +99,22 @@ var EntityComments = React.createClass({
             // TODO: Add - <div className="entity-comments-form-left">[i]</div>
             addCommentForm = (
                 <div className="entity-comments-form">
-                    <div className="entity-comments-form-center">
-                        <TextField ref="commInput" hintText="Add Comment" multiLine={true}/>
-                    </div>
-                    <div className="entity-comments-attachment-right">
+                    <div className="entity-comments-form-left">
                         <IconButton
                             label="Attach Files"
                             iconClassName="fa fa-paperclip"
                             onClick={this._handleFileUpload}
-                            />
+                        />
+                    </div>
+                    <div className="entity-comments-form-center">
+                        <TextField ref="commInput" hintText="Add Comment" multiLine={true}/>
                     </div>
                     <div className="entity-comments-form-right">
                         <IconButton
                             tooltip="Send Comment"
                             iconClassName="fa fa-paper-plane"
                             onClick={this._handleCommentSend}
-                            />
+                        />
                     </div>
                 </div>
             );

@@ -35,7 +35,6 @@ var CommentItem = React.createClass({
 
             // Check if file is an image
             if (file.isImage()) {
-                attachedImageClass = "entity-browser-comment-image";
                 attachedFilesImage.push(<img key={idx} src={file.getFileUrl()}/>);
             } else {
                 attachedFiles.push(
@@ -62,10 +61,10 @@ var CommentItem = React.createClass({
                     </div>
                     <div className="entity-browser-comment-body">
                         <div dangerouslySetInnerHTML={comment}/>
-                        <div className={attachedImageClass}>
+                        <div className="entity-browser-comment-attachments">
                             {attachedFilesImage}
+                            {attachedFiles}
                         </div>
-                        {attachedFiles}
                     </div>
                 </div>
             </div>
