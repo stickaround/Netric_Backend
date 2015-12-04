@@ -9,8 +9,8 @@
 
   display: -webkit-flex;
   display: flex;
-  align-items: center;
-  -webkit-align-items: center;
+  align-items: flex-start;
+  -webkit-align-items: flex-start;
 
   .entity-browser-comment-img {
     -webkit-flex: initial;
@@ -53,8 +53,12 @@
       float: right;
     }
 
-    .entity-browser-comment-image {
+    .entity-browser-comment-att-img {
       margin-top: 10px;
+
+      img {
+        max-width: 100%;
+      }
     }
 
     .entity-browser-comment-body {
