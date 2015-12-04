@@ -43,25 +43,6 @@ var Recurrence = function (objType) {
     this.type = Recurrence._types.DONOTREPEAT;
 
     /**
-     * dayOfWeek value of the recurrence pattern
-     *
-     * The bitmask value of day_of_week_mask is converted into object
-     * This will determine what day of week were selected
-     * If the day is not selected it will have a 0 value, otherwise it will have the bitmask value
-     * Sample data:
-     * this.dayOfWeek.Sunday = 1
-     * this.dayOfWeek.Monday = 2
-     * this.dayOfWeek.Tuesday = 0 // Tuesday is not selected
-     * this.dayOfWeek.Wednesday = 8
-     * this.dayOfWeek.Thursday = 0 // Thursday is not selected
-     * this.dayOfWeek.Friday = 32
-     *
-     * @public
-     * @type {object}
-     */
-    this.dayOfWeek = null;
-
-    /**
      * Bitmask used to turn on and off days of the week
      *
      * @public
@@ -222,7 +203,7 @@ Recurrence.prototype.getDayOfWeekMenuData = function () {
     for (var day in this.weekdays) {
         var text = day[0] + day.slice(1).toLowerCase();
 
-        dayOfWeekMenu.push({
+        dayOfWeekMenuData.push({
             value: this.weekdays[day],
             text:  text
         })
@@ -353,7 +334,7 @@ Recurrence.prototype.getHumanDesc = function () {
 
             // interval
             if (this.interval > 1) {
-                humanDesc = ' Every ' + this.interval + ' days';
+                humanDesc = 'Every ' + this.interval + ' days';
             } else {
                 humanDesc = 'Every day ';
             }
@@ -514,13 +495,13 @@ Recurrence.prototype.getDateEnd = function () {
  */
 Recurrence.prototype.reset = function () {
     this.id = null;
-    this.dayOfWeek = null;
-    this.interval = 1; // Interval will always have a default value of 1
+    this.dayOfWeekMask = null;
     this.instance = null;
     this.dayOfMonth = null;
     this.monthOfYear = null;
     this.dateStart = null;
     this.dateEnd = null;
+    this.interval = 1; // Interval will always have a default value of 1
 }
 
 /**
@@ -538,19 +519,19 @@ Recurrence.prototype.setDefaultValues = function () {
             break;
 
         case Recurrence._types.MONTHNTH:
-            this.instance = 1;
-            this.dayOfWeek = 1;
+            this.instance = Recurrence._instance[0].value;
+            this.dayOfWeekMask = this.weekdays.SUNDAY;
             break;
 
         case Recurrence._types.YEARLY:
-            this.monthOfYear = 1;
+            this.monthOfYear = Recurrence._months[0].value;
             this.dayOfMonth = 1;
             break;
 
         case Recurrence._types.YEARNTH:
-            this.instance = 1;
-            this.dayOfWeek = 1;
-            this.monthOfYear = 1;
+            this.instance = Recurrence._instance[0].value;
+            this.dayOfWeekMask = this.weekdays.SUNDAY;
+            this.monthOfYear = Recurrence._months[0].value;
             break;
 
         default:
