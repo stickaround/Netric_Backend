@@ -23,16 +23,14 @@ var Weekly = React.createClass({
 
     render: function () {
         var displayDays = [];
-        var dayOfWeekData = this.props.recurrencePattern.getDayOfWeek();
-        var dayOfWeek = this.props.recurrencePattern.dayOfWeek;
+        var daysOfWeek = this.props.recurrencePattern.getDaysOfWeek();
 
-        console.log(dayOfWeek);
-
-        for (var day in dayOfWeekData) {
-            var bitmask = dayOfWeekData[day];
+        for (var day in daysOfWeek) {
+            var bitmask = this.props.recurrencePattern.weekdays[day.toUpperCase()].toString();
+            var dayLabel = day.replace(/^./, day[0].toUpperCase());
             var ref = 'dayOfWeek' + day;
             var checked = false;
-            if (dayOfWeek && dayOfWeek[day] == bitmask) {
+            if (daysOfWeek[day] && daysOfWeek[day] == bitmask) {
                 checked = true;
             }
 
@@ -40,7 +38,7 @@ var Weekly = React.createClass({
                 key={day}
                 value={bitmask}
                 ref={ref}
-                label={day}
+                label={dayLabel}
                 onCheck={this._handleOnCheck.bind(this, day)}
                 defaultSwitched={checked}/>)
         }
@@ -72,12 +70,8 @@ var Weekly = React.createClass({
      * @private
      */
     _handleOnCheck: function (day, e, isInputChecked) {
-
-        if(isInputChecked) {
-            this.props.recurrencePattern.dayOfWeek[day] = e.target.value;
-        } else {
-            this.props.recurrencePattern.dayOfWeek[day] = 0;
-        }
+        var bitmask = parseInt(e.target.value);
+        this.props.recurrencePattern.setDayOfWeek(bitmask, isInputChecked);
     },
 
     /**

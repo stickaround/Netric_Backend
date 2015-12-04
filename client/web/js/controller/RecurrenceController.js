@@ -65,11 +65,7 @@ RecurrenceController.prototype.render = function () {
     var data = {
         title: this.props.title || "Recurrence",
         recurrencePattern: this.props.recurrencePattern,
-        recurrenceIndex: this.props.recurrencePattern.getRecurrenceTypeOffset(),
         hideToolbar: hideToolbar,
-        dayOfWeek: this.props.recurrencePattern.getDayOfWeek(),
-        instance: this.props.recurrencePattern.getInstance(),
-        months: this.props.recurrencePattern.getMonths(),
         onNavBtnClick: function (evt) {
             this.close();
         }.bind(this),

@@ -253,35 +253,6 @@ class RecurrencePatternTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($import['ep_locked'], $exported['ep_locked']);
 	}
 
-	public function testToArrayWeeklyMask()
-	{
-		$import = array(
-			"id" => 123,
-			"recur_type" => RecurrencePattern::RECUR_WEEKLY,
-			"interval" => 2,
-			// Set this to array, since weekly will be passing an array variable that contains the days of week mask
-			"day_of_week_mask" => RecurrencePattern::WEEKDAY_MONDAY | RecurrencePattern::WEEKDAY_FRIDAY | RecurrencePattern::WEEKDAY_SATURDAY,
-			"date_start" => "2015-01-01",
-			"date_end" => "2015-02-01",
-			"f_active" => true,
-			"obj_type" => "task",
-		);
-
-		$recur = new RecurrencePattern();
-		$recur->fromArray($import);
-
-		// Convert back to an array and test
-		$exported = $recur->toArray();
-
-		$exported['day_of_week']['Sunday'] = 0; // Since we did not select the sunday, it should be zero
-
-		// We have specified that we selected Monday, Friday and Saturday. So it should have the bitmask values respectively
-		$exported['day_of_week']['Monday'] = RecurrencePattern::WEEKDAY_MONDAY;
-		$exported['day_of_week']['Friday'] = RecurrencePattern::WEEKDAY_FRIDAY;
-		$exported['day_of_week']['Saturday'] = RecurrencePattern::WEEKDAY_SATURDAY;
-
-	}
-
 	/**
 	 * @group recur
 	 */

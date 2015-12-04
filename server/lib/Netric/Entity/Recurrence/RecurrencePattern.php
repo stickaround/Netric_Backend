@@ -285,7 +285,6 @@ class RecurrencePattern implements ErrorAwareInterface
             "day_of_month" => $this->dayOfMonth,
             "month_of_year" => $this->monthOfYear,
             "day_of_week_mask" => $this->dayOfWeekMask,
-            "day_of_week" => $this->getDayOfWeek(),
             "date_start" => $dateStart,
             "date_end" => $dateEnd,
             "f_active" => $this->fActive,
@@ -299,26 +298,6 @@ class RecurrencePattern implements ErrorAwareInterface
             "field_time_start" => $this->fieldTimeStart,
             "field_time_end" => $this->fieldTimeEnd,
         );
-    }
-
-    /**
-     * Converts the dayOfWeekMask into array objects to determine what are the days were selected
-     *
-     * @return array
-     */
-    private function getDayOfWeek()
-    {
-        $dayOfWeek = array(
-            "Sunday" => $this->dayOfWeekMask & self::WEEKDAY_SUNDAY,
-            "Monday" => $this->dayOfWeekMask & self::WEEKDAY_MONDAY,
-            "Tuesday" => $this->dayOfWeekMask & self::WEEKDAY_TUESDAY,
-            "Wednesday" => $this->dayOfWeekMask & self::WEEKDAY_WEDNESDAY,
-            "Thursday" => $this->dayOfWeekMask & self::WEEKDAY_THURSDAY,
-            "Friday" => $this->dayOfWeekMask & self::WEEKDAY_FRIDAY,
-            "Saturday" => $this->dayOfWeekMask & self::WEEKDAY_SATURDAY
-        );
-
-        return $dayOfWeek;
     }
 
     /**

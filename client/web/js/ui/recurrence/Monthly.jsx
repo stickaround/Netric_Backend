@@ -54,8 +54,7 @@ var Monthly = React.createClass({
             );
         } else {
 
-            var dayOfWeekMask = this.props.recurrencePattern.dayOfWeekMask;
-            var maskIndex = this.props.recurrencePattern.getBitMaskIndex(dayOfWeekMask);
+            var selectedDay = this.props.recurrencePattern.getSelectedDay();
 
             displayType = (
                 <div className="row">
@@ -66,7 +65,7 @@ var Monthly = React.createClass({
                             menuItems={this.props.recurrencePattern.getInstance()}/>
                         <DropDownMenu
                             onChange={this._handleDropDownChange.bind(this, 'dayOfWeekMask')}
-                            selectedIndex={maskIndex}
+                            selectedIndex={selectedDay.index}
                             menuItems={this.props.recurrencePattern.getDayOfWeekMenuData()}/>
                     </div>
                     <div>

@@ -40,7 +40,6 @@ var Recurrence = React.createClass({
 
     propTypes: {
         recurrencePattern: React.PropTypes.object.isRequired,
-        dateToday: React.PropTypes.string,
         onSave: React.PropTypes.func,
         onNavBtnClick: React.PropTypes.func,
         hideToolbar: React.PropTypes.bool
@@ -53,7 +52,6 @@ var Recurrence = React.createClass({
     },
 
     getInitialState: function () {
-
         var neverEnds = true;
         var recurPatterns = [];
         var recurrencePattern = this.props.recurrencePattern;
