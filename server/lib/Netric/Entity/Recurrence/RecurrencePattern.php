@@ -1277,10 +1277,10 @@ class RecurrencePattern implements ErrorAwareInterface
 				$this->lastError = "Monthnth requires dayOfWeekMask, instance and interval";
 			break;
 		case self::RECUR_YEARLY:
-			if ($this->monthOfYear && !$this->dayOfMonth && $this->interval)
+            if ($this->monthOfYear && $this->dayOfMonth && $this->interval)
 				return true;
 			else
-				$this->lastError = "Yearly requires monthOfYear, dayofMonth, and interval params";
+                $this->lastError = "Yearly requires monthOfYear, dayofMonth, and interval params";
 			break;
 		case self::RECUR_YEARNTH:
 			if ($this->monthOfYear && $this->instance && $this->interval)

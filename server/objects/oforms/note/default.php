@@ -8,8 +8,5 @@
 	<field name='website'></field>
 </row>
 <row>
-	<attachments />
-</row>
-<row>
 	<field hidelabel='t' multiline='t' rich='t' name='body'></field>
 </row>

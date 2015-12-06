@@ -390,6 +390,10 @@ class Entity implements \Netric\Entity\EntityInterface
 			$value = (isset($data[$fname])) ? $data[$fname] : "";
 			$valNames = array();
 
+            // If the fieldname is recurrence pattern, let the RecurrencePattern Class handle the checking
+            if($fname == 'recurrence_pattern')
+                continue;
+
 			// Check for fvals
 			if (isset($data[$fname . "_fval"]))
 			{
