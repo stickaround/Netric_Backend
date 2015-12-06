@@ -37,12 +37,14 @@ var Comments = React.createClass({
         editMode: React.PropTypes.bool
     },
 
-    componentDidMount: function() {
-
-        // Only load comments if this device displays inline comments (size > medium)
-        if (netric.getApplication().device.size >= _minimumInlineDeviceSize) {
-            this._loadComments();
+    getInitialState: function() {
+        return {
+            commentsController: null
         }
+    },
+
+    componentDidMount: function() {
+        this._loadComments();
     },
 
     render: function() {
@@ -53,10 +55,11 @@ var Comments = React.createClass({
             numCommentsLabel = this.props.entity.getValue("num_comments") + " Comments";
         }
 
-        var actionButtons = null;
+        var content = null;
+
         // Smaller devices should print number of comments and a link
         if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
-            actionButtons = (
+            content = (
                 <div>
                     <IconButton
                         onClick={this._loadComments}
@@ -70,9 +73,24 @@ var Comments = React.createClass({
             );
         }
 
-        return (<div ref="comcon">{actionButtons}</div>);
+        // If this is a new entity display nothing
+        if (!this.props.entity.id) {
+            content = <div />;
+        }
+
+        return (<div ref="comcon">{content}</div>);
 
 
+    },
+
+    /**
+     * Invoked immediately after the component's updates are flushed to the DOM.
+     *
+     * This method is not called for the initial render and we use it to check if
+     * the id has changed - meaning a new entity was saved.
+     */
+    componentDidUpdate: function() {
+        this._loadComments();
     },
 
     /**
@@ -81,6 +99,23 @@ var Comments = React.createClass({
      * @private
      */
     _loadComments: function() {
+
+        // Only load comments if this device displays inline comments (size > medium)
+        if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
+            return;
+        }
+
+        // We only display comments if workign with an actual entity
+        if (!this.props.entity.id) {
+            return;
+        }
+
+        // Check if we have already loaded the controller
+        if (this.state.commentsController) {
+            // Just refresh the results and return
+            this.state.commentsController.refresh();
+            return;
+        }
 
         // Default to a dialog
         var controllerType = controller.types.DIALOG;
@@ -102,6 +137,8 @@ var Comments = React.createClass({
             hideToolbar: hideToolbar,
             objReference: this.props.entity.objType + ":" + this.props.entity.id
         }, inlineCon);
+
+        this.setState({commentsController: comments});
     }
 });
 

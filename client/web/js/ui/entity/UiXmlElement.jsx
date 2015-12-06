@@ -64,18 +64,21 @@ var UiXmlElement = React.createClass({
                     childElements.push(
                         <Tab label={label}>
                             <UiXmlElement
-                            xmlNode={childNode}
-                            entity={this.props.entity}
-                            eventsObj={this.props.eventsObj}
-                            editMode={this.props.editMode} />
+                                xmlNode={childNode}
+                                entity={this.props.entity}
+                                eventsObj={this.props.eventsObj}
+                                editMode={this.props.editMode} />
                         </Tab>
                     );
                 } else {
-                    childElements.push(<UiXmlElement
-                        xmlNode={childNode}
-                        entity={this.props.entity}
-                        eventsObj={this.props.eventsObj}
-                        editMode={this.props.editMode} />);
+                    childElements.push(
+                        <UiXmlElement
+                            xmlNode={childNode}
+                            entity={this.props.entity}
+                            eventsObj={this.props.eventsObj}
+                            editMode={this.props.editMode}
+                        />
+                    );
                 }
             }
         }

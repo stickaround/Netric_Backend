@@ -235,4 +235,13 @@ EntityCommentsController.prototype._handleRemoveFiles = function (index) {
     this.render();
 }
 
+/**
+ * Refresh the comments list
+ */
+EntityCommentsController.prototype.refresh = function () {
+    if (this.rootReactNode_) {
+        this.rootReactNode_.refreshComments();
+    }
+}
+
 module.exports = EntityCommentsController;

@@ -7,6 +7,7 @@
 
 // Load dependencies
 var React = require('react');
+var ReactDOM = require('react-dom');
 var CustomEventTrigger = require("../../mixins/CustomEventTrigger.jsx");
 var controller = require("../../../controller/controller");
 
@@ -18,7 +19,7 @@ var Objectsref = React.createClass({
     mixins: [CustomEventTrigger],
 
     /**
-     * Render the brwoser after the component mounts
+     * Render the browser after the component mounts
      */
     componentDidMount: function() {
         // Require EntityBrowserController here so we do not risk a circular dependency
@@ -31,17 +32,19 @@ var Objectsref = React.createClass({
 
         var data = {
             type: controller.types.FRAGMENT,
+            hideToolbar: true,
             objType: objType,
             onEntityClick: function(objType, oid) {
                 this.sendEntityClickEvent_(objType, oid);
             }.bind(this)
         }
 
+        // Add filter for to reference current entity
+        data[refField] = this.props.entity.getValue(refField);
+
         // Create browser and render
         var browser = new EntityBrowserController();
-        browser.load(data, ReactDOM.findDOMNode(this.refs.bcon), null, function() {
-            browser.render();
-        });
+        browser.load(data, ReactDOM.findDOMNode(this.refs.bcon));
     },
 
     /**

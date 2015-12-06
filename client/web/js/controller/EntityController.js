@@ -87,7 +87,7 @@ EntityController.prototype.onLoad = function(opt_callback) {
     this.eventsObj_ = {};
 
     // Add route to load entities
-    this.addSubRoute(":objType/:oid",
+    this.addSubRoute(":objType/:eid",
         EntityController, {
             type: controller.types.PAGE
         }

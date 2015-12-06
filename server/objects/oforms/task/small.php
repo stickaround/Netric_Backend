@@ -12,4 +12,3 @@
 <field name='cost_actual'></field>
 <field name='notes' hidelabel='t' multiline='t'></field>
 <field name='comments'></field>
-<plugin name='LogTime'></plugin>

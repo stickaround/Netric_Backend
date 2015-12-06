@@ -61,5 +61,3 @@
         <objectsref obj_type='time' ref_field='task_id'></objectsref>
     </tab>
 </tabs>
-
-<plugin name='LogTime'></plugin>

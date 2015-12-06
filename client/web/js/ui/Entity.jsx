@@ -152,11 +152,10 @@ var Entity = React.createClass({
      * @param {Event} evt Event fired
      */
     navigationClick_: function(evt) {
-        if (this.state.editMode) {
 
-            // Cromt user to make sure they want to undo their changes
+        if (this.state.editMode) {
+            // Prompt user to make sure they want to undo their changes
             this.refs.confirm.show();
-            
         }
         else if (this.props.onNavBtnClick) {
             this.props.onNavBtnClick(evt);

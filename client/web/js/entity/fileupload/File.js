@@ -4,7 +4,7 @@
  * This class is a client side mirror of /lib/EntityDefinition/File on the server side
  *
  * @author:    Marl Tumulak, marl.tumulak@aereus.com;
- *            Copyright (c) 2013 Aereus Corporation. All rights reserved.
+ *            Copyright (c) 2015 Aereus Corporation. All rights reserved.
  */
 'use strict';
 

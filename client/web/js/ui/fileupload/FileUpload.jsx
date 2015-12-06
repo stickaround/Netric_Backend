@@ -50,7 +50,7 @@ var FileUpload = React.createClass({
                     file={file}
                     displayProgress={true}
                     onRemove={this.props.onRemove}
-                    />
+                />
             );
         }
 

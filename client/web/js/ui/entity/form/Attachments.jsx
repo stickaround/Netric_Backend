@@ -46,7 +46,7 @@ var Attachments = React.createClass({
         }
 
         return (
-            <div>
+            <div className='entity-form-attachments'>
                 <FlatButton label='Attachment' onClick={this._handleAttachment}/>
                 {displayFiles}
             </div>
