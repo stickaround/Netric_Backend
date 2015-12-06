@@ -44,6 +44,11 @@
                 </row>
                 <row>
                     <column>
+                        <objectsref obj_type='task' ref_field='depends_task_id'></objectsref>
+                    </column>
+                </row>
+                <row>
+                    <column>
                         <field name='comments'></field>
                     </column>
                 </row>
@@ -59,13 +64,9 @@
         </tabs>
     </column>
     <column type="sidebar">
-        <fieldset name="Activity">
-            <row>
-                <field name='activity'></field>
-            </row>
-        </fieldset>
+        <header>Activity</header>
         <row>
-            <objectsref obj_type='task' ref_field='depends_task_id'></objectsref>
+            <field name='activity'></field>
         </row>
     </column>
 </row>

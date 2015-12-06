@@ -32,7 +32,6 @@ var Recurrence = React.createClass({
                 <a href='javascript: void(0)' onClick={this._handleShowRecurrence}>{this.state.humanDesc}</a>
             );
 
-
         } else {
 
             // If there is no value then we don't need to show this field at all
@@ -40,7 +39,7 @@ var Recurrence = React.createClass({
                 return (<div />);
             } else {
                 return (
-                    <div>
+                    <div className="entity-form-field">
                         <div className="entity-form-field-label">Repeats</div>
                         <div className="entity-form-field-value">{this.state.humanDesc}</div>
                     </div>

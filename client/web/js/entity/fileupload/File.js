@@ -95,4 +95,63 @@ File.prototype.isImage = function () {
     return result;
 }
 
+/**
+ * Get file type (extension)
+ *
+ * @returns {string}
+ */
+File.prototype.getType = function() {
+
+    if (this.filetype) {
+        return this.filetype;
+    }
+
+    // Try to parse from the fiel 'name'
+    if (!this.name) {
+        return "";
+    }
+
+    // Parse the name to get the extension
+    var re = /(?:\.([^.]+))?$/;
+    var ext = re.exec(this.name)[1];
+
+    if (ext) {
+        return ext;
+    } else {
+        return "";
+    }
+};
+
+/**
+ * Get the best icon class name for this file type
+ *
+ * @public
+ * @return string
+ */
+File.prototype.getIconClassName = function () {
+
+    // Font-awesome prefix
+    var iconPre = "fa ";
+
+    switch (this.getType().toLowerCase()) {
+        case 'doc':
+        case 'docx':
+            return iconPre + "fa-file-word-o";
+        case 'xls':
+        case 'xlsx':
+            return iconPre + "fa-file-excel-o";
+        case 'pdf':
+            return iconPre + "fa-file-pdf-o";
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif':
+            return iconPre + "fa-pdf-o";
+
+    }
+
+    // return default
+    return "fa fa-file-o";
+};
+
 module.exports = File;

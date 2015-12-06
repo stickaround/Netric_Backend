@@ -91,11 +91,12 @@ var File = React.createClass({
 
         // Set the thumb
         var thumb = null;
-        if (this.props.file.isImage() && file.id) {
+        if (file.isImage() && file.id) {
             let imageSource = server.host + "/antfs/images/" + file.id;
             thumb = (<img src={imageSource} />);
         } else {
-            thumb = (<i className="fa fa-file"></i>);
+            let fileTypeClassName = file.getIconClassName();
+            thumb = (<i className={fileTypeClassName} />);
         }
 
         return (

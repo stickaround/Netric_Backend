@@ -1109,6 +1109,8 @@ class CAntObject
 			$this->verifyUniqueName($this->getValue("uname"), true);
 		}
 
+		/*
+		 * FIXME: This is now handled in the Entity - we need to eventually delete - Sky
 		// Get recurrence pattern ID
 		if (!$this->recurrenceException && $this->def->recurRules!=null)
 		{
@@ -1128,11 +1130,12 @@ class CAntObject
 				if (!$this->getValue($this->def->recurRules['field_recur_id']))
 					$this->setValue($this->def->recurRules['field_recur_id'], $rid);
 			}
-		}	
+		}
 
 		// Reload fvals cache
 		// This will eventually move into the datamapper but for now just handle it here
 		$this->reloadFVals();
+		*/
 
 		// Save values to the database
 		// ------------------------------------------------------------------
@@ -1438,9 +1441,13 @@ class CAntObject
 			// Save revision history - now handled in the datamapper
 			//$this->saveRevision();
 
+			/*
+			 * FIXME: This is now managed in Entity - can eventually delete - Sky
+			 *
 			// Set and save recurrence pattern
 			if (!$this->recurrenceException && $this->def->recurRules!=null && $this->recurrencePattern!=null)
 				$rid = $this->recurrencePattern->saveFromObj($this);
+			*/
 
 			// Load inserted data for defaults
 			if ($performed == "create")
@@ -1449,6 +1456,9 @@ class CAntObject
 			// Index this object
 			$this->index();
 
+			/*
+			 * FIXME: This is now managed in Entity - can eventually delete - Sky
+			 *
 			// Comments on activities should be excluded from activities
 			if ($this->object_type == "comment")
 			{
@@ -1462,6 +1472,7 @@ class CAntObject
 					}
 				}
 			}
+			*/
 
 			// Update path
 			if ($this->def->parentField)
@@ -1474,16 +1485,20 @@ class CAntObject
 			// Process workflow
 			$this->processWorkflow($performed);
 
+			// FIXME: This is now managed in Entity - can eventually delete - Sky
 			// Process temp file uploads
-			$this->processTempFiles();
+			// $this->processTempFiles();
 
+			// FIXME: This is now managed in Entity - can eventually delete - Sky
 			// Update sync stats
-			if ($logact)
-				$this->updateObjectSyncStat('c');
+			//if ($logact)
+			//	$this->updateObjectSyncStat('c');
 		}
 
 		if ($logact)
 		{
+			// FIXME: This is now managed in Entity - can eventually delete - Sky
+			/*
 			if ($performed == "create" && $this->object_type != "activity")
 			{
 				$desc = $this->getDesc();
@@ -1496,6 +1511,7 @@ class CAntObject
 				$desc = $this->getChangeLogDesc();
 				//$this->addActivity("updated", $this->getName(), ($desc)?$desc:"Updated " . $this->title, null, null, 't');
 			}
+			*/
 		}
 
 		if (count($this->def->aggregates))

@@ -60,6 +60,9 @@ class CAntObject_Comment extends CAntObject
 	 */
 	protected function beforesaved()
 	{
+		/*
+		 * FIXME: The below is should be deleted since Netric\Entity\ObjType\Comment does the work
+		 *
 		// Set comments associations to all directly associated objects
 		if ($this->getValue('obj_reference'))
 		{
@@ -99,9 +102,11 @@ class CAntObject_Comment extends CAntObject
 		}
 
 		if (!$this->getValue('sent_by'))
-			$this->setValue("sent_by", "user:" . $this->user->id); 
+			$this->setValue("sent_by", "user:" . $this->user->id);
+		*/
 
 		// Send notifications if set - notify is not a field so it is just a temp buf
+		// FIXME: This will eventually be replaced when the new notification system is activated
 		if ($this->getValue("notify"))
 		{
 			$to = explode(",", $this->getValue("notify"));

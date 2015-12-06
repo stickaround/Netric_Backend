@@ -109,14 +109,14 @@ class ActivityLog
         if (!$name)
             $name = $object->getName();
 
-        // Get notes
+        // Get notes from the entity
         if (!$notes)
         {
-            $notes = "TODO: Get notes from entity here";
-            /*
+            $notes = "";
             if ($verb == Activity::VERB_UPDATED)
-                $notes = $object->getChangeLogDesc();
-            */
+                $notes = $object->getChangeLogDescription();
+            if ($verb == Activity::VERB_CREATED)
+                $notes = $object->getDescription();
         }
 
         $actEntity = $this->entityLoader->create("activity");

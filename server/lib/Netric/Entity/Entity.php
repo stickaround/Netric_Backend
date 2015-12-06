@@ -671,6 +671,78 @@ class Entity implements \Netric\Entity\EntityInterface
 		return $this->getId();
 	}
 
+    /**
+     * Try and get a textual description of this entity typically found in fileds named "notes" or "description"
+     *
+     * @return string The name of this object
+     */
+    public function getDescription()
+    {
+        $fields = $this->def->getFields();
+        foreach ($fields as $field)
+        {
+            if ($field->type == 'text')
+            {
+                if ($field->name == "description"
+                    || $field->name == "notes"
+                    || $field->name == "details"
+                    || $field->name == "comment")
+                {
+                    return $this->getValue($field->name);
+                }
+            }
+
+        }
+
+        return "";
+    }
+
+    /**
+     * Get a textual representation of what changed
+     */
+    public function getChangeLogDescription()
+    {
+        $hide = array(
+            "revision",
+            "uname",
+            "num_comments",
+            "num_attachments",
+        );
+        $buf = "";
+        foreach ($this->changelog as $fname=>$log)
+        {
+            $oldVal = $log['oldval'];
+            $newVal = $log['newval'];
+
+            $field = $this->def->getField($fname);
+
+            // Skip multi key arrays
+            if ($field->type == "object_multi" || $field->type == "fkey_multi")
+                continue;
+
+            if ($field->type == "bool")
+            {
+                if ($oldVal == 't') $oldVal = "Yes";
+                if ($oldVal == 'f') $oldVal = "No";
+                if ($newVal == 't') $newVal = "Yes";
+                if ($newVal == 'f') $newVal = "No";
+            }
+
+            if (!in_array($field->name, $hide))
+            {
+                $buf .= $field->title . " was changed ";
+                if ($oldVal)
+                    $buf .="from \"" . $oldVal . "\" ";
+                $buf .= "to \"" . $newVal . "\" \n";
+            }
+        }
+
+        if (!$buf)
+            $buf = "No changes were made";
+
+        return $buf;
+    }
+
 	/**
 	 * Check if the deleted flag is set for this object
 	 *
@@ -850,5 +922,31 @@ class Entity implements \Netric\Entity\EntityInterface
         $thisData = $this->toArray();
         $thisData['id'] = null;
         $toEntity->fromArray($thisData);
+    }
+
+    /**
+     * Increment the comments counter for this entity
+     *
+     * @param bool $added If true increment, if false then decrement for deleted comment
+     * @param int $numComments Optional manual override to set total number of comments
+     * @return bool true on success false on failure
+     */
+    public function setHasComments($added=true, $numComments=null)
+    {
+        // We used to store a flag in cache, but now we put comment counts in the actual object
+        if ($numComments == null)
+        {
+            $cur = ($this->getValue('num_comments')) ? (int) $this->getValue('num_comments') : 0;
+            if ($added)
+                $cur++;
+            else if ($cur > 0)
+                $cur--;
+        }
+        else
+        {
+            $cur = $numComments;
+        }
+
+        $this->setValue("num_comments", $cur);
     }
 }

@@ -7,6 +7,8 @@
  */
 namespace Netric\ServiceManager;
 
+use Netric\Account;
+
 /**
  * Service factories are classes that handle the construction of complex/cumbersome services
  */
@@ -19,4 +21,11 @@ interface ServiceLocatorInterface
      * @return mixed The service object and false on failure
      */
     public function get($serviceName);
+
+    /**
+     * Get the current account/tennant
+     *
+     * @return Account;
+     */
+    public function getAccount();
 }

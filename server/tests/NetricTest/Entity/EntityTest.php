@@ -194,4 +194,20 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($cust->getValueName("owner_id"), $cloned->getValueName("owner_id"));
 		$this->assertEquals($cust->getValue("last_contacted"), $cloned->getValue("last_contacted"));
 	}
+
+	/**
+	 * Test the comments counter for an entity
+	 */
+	public function testSetHasComments()
+	{
+		$cust = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+
+		// Should have incremented 'num_comments' to 1
+		$cust->setHasComments();
+		$this->assertEquals(1, $cust->getValue("num_comments"));
+
+		// The first param will decrement the counter
+		$cust->setHasComments(false);
+		$this->assertEquals(0, $cust->getValue("num_comments"));
+	}
 }
