@@ -107,7 +107,7 @@ EntityBrowserController.prototype.entityDefinition_ = null;
 EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
-    
+
     if (this.props.objType) {
         // Get the default view from the object definition
         definitionLoader.get(this.props.objType, function(def){
@@ -138,10 +138,9 @@ EntityBrowserController.prototype.render = function() {
     // Render the react components
     this.reactRender_();
 
-
     // Load the colleciton
     this.loadCollection();
-    
+
     // Add route to browseby
     this.addSubRoute("browse/:browseby/:browseval/:browsebytitle",
         EntityBrowserController, {
@@ -152,13 +151,13 @@ EntityBrowserController.prototype.render = function() {
         }
     );
 
-	// Add route to compose a new entity
-	this.addSubRoute(":eid",
-		EntityController, {
+    // Add route to compose a new entity
+    this.addSubRoute(":eid",
+        EntityController, {
             type: controller.types.PAGE,
             objType: this.props.objType
         }
-	);
+    );
 }
 
 /**
@@ -268,17 +267,16 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
 
 /**
  * Fired if the user changes search conditions in the UI
- * 
+ *
  * @param {string} fullText Search string
  * @param {netric/entity/Where[]} opt_conditions Array of filter conditions
  */
 EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
     var conditions = opt_conditions || null;
-    
+
     this.userSearchString_ = fullText;
 
     this.loadCollection();
-    
 }
 
 /**
@@ -302,7 +300,7 @@ EntityBrowserController.prototype.loadCollection = function() {
     if (this.userSearchString_) {
         this.collection_.where("*").equalTo(this.userSearchString_);
     }
-    
+
     // Set Sort Order
     var orderBy = this.browserView_.getOrderBy();
     if(orderBy) {
@@ -311,17 +309,26 @@ EntityBrowserController.prototype.loadCollection = function() {
         }
     }
 
-    // Add filters that are set in the controller to limit what this browser can search
-    if (this.props.filters) {
-        for (var i in this.props.filters) {
-            this.collection_.addWhere(this.props.filters[i]);
-        }
-    }
+    // Sets the conditions for this collection. The conditions are from the browserView conditions and/or from the filters (if they are set)
+    this.setCollectionConditions(this.props.filters)
 
-    
+    // Load (we depend on 'onload' events for triggering UI rendering in this.reactRender_)
+    this.collection_.load();
+}
+
+/**
+ * Set the conditions for the collection
+ *
+ * @param {array} filters   These are the conditions that will limit what this browser can search
+ */
+EntityBrowserController.prototype.setCollectionConditions = function(filters) {
+
+    // Removes the conditions set to this collection
+    this.collection_.clearConditions();
+
     // Set Conditions
     var conditions = this.browserView_.getConditions();
-    
+
     // If there is a condition set, then we will push the where clase to the collection
     if(conditions) {
         for (var i in conditions) {
@@ -329,8 +336,11 @@ EntityBrowserController.prototype.loadCollection = function() {
         }
     }
 
-    // Load (we depend on 'onload' events for triggering UI rendering in this.reactRender_)
-    this.collection_.load();
+    if(filters) {
+        for(var idx in filters) {
+            this.collection_.addWhere(filters[idx]);
+        }
+    }
 }
 
 /**
@@ -380,7 +390,7 @@ EntityBrowserController.prototype.toggleSelectAll = function(selected) {
 EntityBrowserController.prototype.performActionOnSelected = function(actionName) {
 
     var workingText = this.actions_.performAction(actionName, this.props.objType, this.selected_, function(error, message) {
-        
+
         if (error) {
             console.error(message);
             // TODO: we should probably log this
@@ -390,7 +400,7 @@ EntityBrowserController.prototype.performActionOnSelected = function(actionName)
 
         // Refresh the collection to display the changes
         this.collection_.refresh();
-    
+
     }.bind(this));
 
     // TODO: display working notification(workingText) only if the function has not already finished
@@ -460,20 +470,20 @@ EntityBrowserController.prototype.refresh = function() {
  * @param {int} limitIncrease	Optional of entities to increment the limit by. Default is 50.
  */
 EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
-	
-	// set new limit plus 50 if not set
-	if(typeof limitIncrease === 'undefined')
-		limitIncrease = 50; 
-	
-	var limit = this.collection_.getLimit();
-	var newLimit = limit + limitIncrease; // increase the limit
-	var totalNum = this.collection_.getTotalNum();
-	
-	// Check if maxed out already so no more actions needed
-	if(limit < totalNum) {
-		this.collection_.setLimit(newLimit);
-		this.collection_.refresh();
-	}
+
+    // set new limit plus 50 if not set
+    if(typeof limitIncrease === 'undefined')
+        limitIncrease = 50;
+
+    var limit = this.collection_.getLimit();
+    var newLimit = limit + limitIncrease; // increase the limit
+    var totalNum = this.collection_.getTotalNum();
+
+    // Check if maxed out already so no more actions needed
+    if(limit < totalNum) {
+        this.collection_.setLimit(newLimit);
+        this.collection_.refresh();
+    }
 }
 
 /**
@@ -498,17 +508,17 @@ EntityBrowserController.prototype._displayAdvancedSearch = function() {
      */
     var AdvancedSearchController = require("./AdvancedSearchController");
     var advancedSearch = new AdvancedSearchController();
-        
+
     advancedSearch.load({
         type: controller.types.DIALOG,
         title: "Advanced Search",
-        objType: this.props.objType, 
+        objType: this.props.objType,
         entityDefinition: this.entityDefinition_,
         browserView: Object.create(this.browserView_),
-        onApplySearch: function(browserView) { 
+        onApplySearch: function(browserView) {
             this._applyAdvancedSearch(browserView)
         }.bind(this),
-    }); 
+    });
 }
 
 /**
@@ -536,6 +546,27 @@ EntityBrowserController.prototype._setupCollection = function() {
     alib.events.listen(this.collection_, "loaded", function() {
         this.onCollectionLoaded();
     }.bind(this));
+}
+
+/**
+ * Update the filters and refresh the result based on the new conditions that were set
+ *
+ * @param {entity.Where[]} filters   These are the conditions that will limit what this browser can search
+ * @public
+ */
+EntityBrowserController.prototype.updateFilters = function(filters) {
+
+    this.setCollectionConditions(filters);
+    this.collection_.refresh();
+}
+
+/**
+ * Get the entity definition of this entity
+ *
+ * @public
+ */
+EntityBrowserController.prototype.getEntityDefinition = function() {
+    return this.entityDefinition_;
 }
 
 module.exports = EntityBrowserController;
