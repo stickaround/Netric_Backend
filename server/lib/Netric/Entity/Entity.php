@@ -525,6 +525,27 @@ class Entity implements \Netric\Entity\EntityInterface
 	 */
 	public function beforeSave(ServiceLocatorInterface $sm)
 	{
+        // Make sure we have associations added for any object reference
+        $fields = $this->getDefinition()->getFields();
+        foreach ($fields as $field)
+        {
+            if ($field->type === "object")
+            {
+                $fieldValue = $this->getValue($field->name);
+                if ($fieldValue && $field->subtype)
+                {
+                    $this->addMultiValue(
+                        "associations",
+                        Entity::encodeObjRef($field->subtype, $fieldValue)
+                    );
+                }
+                else if ($fieldValue)
+                {
+                    $this->addMultiValue("associations", $fieldValue);
+                }
+            }
+        }
+
 		// Call derived extensions
 		$this->onBeforeSave($sm);
 	}
