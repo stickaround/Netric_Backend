@@ -146,4 +146,60 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
         $this->assertEquals(\Netric\Entity\ObjType\User::USER_ADMINISTRATOR, $file->getValue("owner_id"));
     }
+
+    /**
+     * Try uploading a file into the FileSystem through the controller using the data from client side
+     */
+    public function testUploadFilesFromClient()
+    {
+        /*
+         * Add fake uploaded files. In normal execution this would fail since
+         * it would fail PHP's is_uploaded_file but whe controller->testMode is true
+         * it bypasses that test.
+         */
+
+        // First copy to a temp file since we'll delete the temp in the upload function
+        $sourceFile = __DIR__ . "/fixtures/files-upload-test.txt";
+        $tempFile = __DIR__ . "/fixtures/files-upload-test-tmp.txt";
+        copy($sourceFile, $tempFile);
+
+        $req = $this->controller->getRequest();
+
+        // We are using uploadedFiles array index, since this is the post data format sent by the client side
+        $testUploadedFiles['uploadedFiles'] = array(
+            "name" => array("files-upload-test.txt"),
+            "tmp_name" => array($tempFile)
+        );
+        $req->setParam("files", $testUploadedFiles);
+        $req->setParam("path", "/testUpload");
+
+        /*
+         * Now upload the file which should import the temp file,
+         * then delete it since it will normally be working with HTTP_POST uploads
+         * adn we want it to cleanup as it finishes processing each file.
+         */
+        $ret = $this->controller->upload();
+
+        // Results are returned in an array
+        $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
+        $this->assertNotEquals(-1, $ret[0]); // error
+        $this->assertTrue(isset($ret[0]['id']));
+        $this->assertTrue(isset($ret[0]['name']));
+        $this->assertTrue(isset($ret[0]['ts_updated']));
+
+        // Make sure we cleaned up the temp file
+        $this->assertFalse(file_exists($tempFile));
+
+        // Set created folder so we make sure we purge it
+        $this->testFolders[] = $this->fileSystem->openFolder("/testUpload");
+
+        // Open the file and make sure it was uploaded correctly
+        $file = $this->fileSystem->openFileById($ret[0]['id']);
+        $this->testFiles[] = $file; // For tearDown Cleanup
+
+        // Test file
+        $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
+        $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
+        $this->assertEquals(\Netric\Entity\ObjType\User::USER_ADMINISTRATOR, $file->getValue("owner_id"));
+    }
 }

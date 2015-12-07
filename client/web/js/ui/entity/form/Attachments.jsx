@@ -8,11 +8,14 @@
 var React = require('react');
 var Chamel = require('chamel');
 var FlatButton = Chamel.FlatButton;
-
+var IconButton = Chamel.IconButton;
 var controller = require("../../../controller/controller");
 var File = require("../../../ui/fileupload/File.jsx");
+var CustomEventTrigger = require("../../mixins/CustomEventTrigger.jsx");
 
 var Attachments = React.createClass({
+
+    mixins: [CustomEventTrigger],
 
     /**
      * Expected props
@@ -47,7 +50,12 @@ var Attachments = React.createClass({
 
         return (
             <div className='entity-form-attachments'>
-                <FlatButton label='Attachment' onClick={this._handleAttachment}/>
+                <IconButton
+                    label="Attach File(s)"
+                    iconClassName="fa fa-paperclip"
+                    onClick={this._handleAttachment}
+                    />
+                <FlatButton label='Attach File(s)' onClick={this._handleAttachment}/>
                 {displayFiles}
             </div>
         );
@@ -69,12 +77,15 @@ var Attachments = React.createClass({
 
         fileUpload.load({
             type: controller.types.DIALOG,
-            title: "Attach Files",
+            title: "Add Attachment",
             onFilesUploaded: function (fileId, fileName) {
                 this._handleFilesUploaded(fileId, fileName);
             }.bind(this),
             onRemoveFilesUploaded: function (fileId) {
                 this._handleRemoveFilesUploaded(fileId);
+            }.bind(this),
+            onEntitySave: function () {
+                this._sendEntitySaveEvent();
             }.bind(this)
         });
     },
@@ -137,8 +148,21 @@ var Attachments = React.createClass({
         // Remove the file from the attachedFiles state variable and update the state for re-rendering
         attachedFiles.splice(index, 1);
         this.setState({attachedFiles: attachedFiles});
-    }
 
+        // Trigger the save entity event when file is removed
+        this._sendEntitySaveEvent();
+    },
+
+    /**
+     * Trigger a custom event to save the entity's attached files
+     *
+     * @private
+     */
+    _sendEntitySaveEvent: function () {
+        if (this.props.entity.id > 0) {
+            this.triggerCustomEvent("entitysave");
+        }
+    }
 });
 
 module.exports = Attachments;

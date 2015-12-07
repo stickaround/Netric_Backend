@@ -83,7 +83,7 @@ FileUploadController.prototype.render = function () {
 
     // Define the data
     var data = {
-        title: this.props.title || "Upload Files",
+        title: this.props.title || "Add Attachment",
         currentPath: this.props.currentPath,
         folderId: this.props.folderId,
         uploadedFiles: this._uploadedFiles,
@@ -178,6 +178,12 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
 
         // Upload the file to the server
         fileUploader.upload(formData, funcProgress, funcCompleted, funcError);
+    } else {
+        // Trigger the save entity event.
+        this.props.onEntitySave();
+
+        // When all files are finished uploading, we will unload the fileupload component
+        this.unload();
     }
 }
 
@@ -206,6 +212,7 @@ FileUploadController.prototype._handleRemoveFile = function (index) {
     // Remove the file from the server
     entitySaver.remove(this.objType, fileId, funcCompleted);
 }
+
 
 module.exports = FileUploadController;
 
