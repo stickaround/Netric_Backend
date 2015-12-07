@@ -14,6 +14,7 @@ var GroupingField = require("./field/GroupingField.jsx");
 var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var Comments = require("./Comments.jsx");
+var Activity = require("./Activity.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var NumberField = require("./field/NumberField.jsx");
 var DateField = require("./field/DateField.jsx");
@@ -36,7 +37,7 @@ var Field = React.createClass({
     /**
      * Render this component
      */
-    render: function() {
+    render: function () {
 
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('name');
@@ -51,44 +52,45 @@ var Field = React.createClass({
 
         var field = this.props.entity.def.getField(fieldName);
 
-        switch (field.type)
-        {
-        case field.types.bool:
-            fieldContent = <BoolField {...this.props} />;
-            break;
-        case field.types.fkey:
-        case field.types.fkeyMulti:
-       		fieldContent = <GroupingField {...this.props} />;
-        	break;
-        case field.types.text:
-        	fieldContent = <TextField {...this.props} />;
-        	break;
-        case field.types.date:
-            fieldContent = <DateField {...this.props} />;
-            break;
-        case field.types.number:
-            fieldContent = <NumberField {...this.props} />;
-            break;
-        case field.types.object:
-            fieldContent = <ObjectField {...this.props} />;
-            break;
-        case field.types.objectMulti:
+        switch (field.type) {
+            case field.types.bool:
+                fieldContent = <BoolField {...this.props} />;
+                break;
+            case field.types.fkey:
+            case field.types.fkeyMulti:
+                fieldContent = <GroupingField {...this.props} />;
+                break;
+            case field.types.text:
+                fieldContent = <TextField {...this.props} />;
+                break;
+            case field.types.date:
+                fieldContent = <DateField {...this.props} />;
+                break;
+            case field.types.number:
+                fieldContent = <NumberField {...this.props} />;
+                break;
+            case field.types.object:
+                fieldContent = <ObjectField {...this.props} />;
+                break;
+            case field.types.objectMulti:
 
-            // Print object browser based on subtype
-            switch (field.subtype)
-            {
-            case "comment":
-                fieldContent = <Comments {...this.props} />;
+                // Print object browser based on subtype
+                switch (field.subtype) {
+                    case "comment":
+                        fieldContent = <Comments {...this.props} />;
+                        break;
+                    case "activity":
+                        fieldContent = <Activity {...this.props} />;
+                        break;
+                    default:
+                        fieldContent = <ObjectMultiField {...this.props} />;
+                }
+
                 break;
             default:
-                fieldContent = <ObjectMultiField {...this.props} />;
-            }
-
-            break;
-        default:
-        	var fieldValue = this.props.entity.getValue(fieldName);
-        	fieldContent = <div>Field ToDo: {field.type} - {fieldName}:{fieldValue}</div>;
-        	break;
+                var fieldValue = this.props.entity.getValue(fieldName);
+                fieldContent = <div>Field ToDo: {field.type} - {fieldName}:{fieldValue}</div>;
+                break;
         }
 
 
