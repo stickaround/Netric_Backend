@@ -15,6 +15,7 @@ var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var Comments = require("./Comments.jsx");
 var Activity = require("./Activity.jsx");
+var StatusUpdate = require("./StatusUpdate.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var NumberField = require("./field/NumberField.jsx");
 var DateField = require("./field/DateField.jsx");
@@ -80,7 +81,7 @@ var Field = React.createClass({
                         fieldContent = <Comments {...this.props} />;
                         break;
                     case "activity":
-                        fieldContent = <Activity {...this.props} />;
+                        fieldContent = <StatusUpdate {...this.props} />;
                         break;
                     default:
                         fieldContent = <ObjectMultiField {...this.props} />;

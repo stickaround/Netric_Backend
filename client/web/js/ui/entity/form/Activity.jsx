@@ -20,12 +20,14 @@ var Activity = React.createClass({
 
     propTypes: {
         entity: React.PropTypes.object,
+        refresh: React.PropTypes.bool,
     },
 
     getInitialState: function () {
 
         // Return the initial state
         return {
+            refresh: false,
             viewMenuData: null,
             browser: null
         };
@@ -109,7 +111,7 @@ var Activity = React.createClass({
             browser.load({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
-                objType: "activity",
+                objType: "status_update",
                 hideToolbar: true,
                 filters: conditions
             }, inlineCon, null, callbackFunc.bind(this));

@@ -1,13 +1,15 @@
 /**
  * @fileOverview Base entity may be extended
  *
- * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
- * 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
+ * @author:    Sky Stebnicki, sky.stebnicki@aereus.com;
+ *            Copyright (c) 2014 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
+var entityLoader = require("./loader");
 var Definition = require('./Definition');
 var Recurrence = require('./Recurrence');
+var StatusUpdate = require('./StatusUpdate');
 var File = require('./fileupload/File');
 var events = require('../util/events');
 
@@ -533,19 +535,19 @@ Entity.prototype.getTime = function (field, compress) {
  */
 Entity.prototype.getAttachments = function () {
 
-	var attachedFiles = [];
+    var attachedFiles = [];
 
-	// Check if this is an existing entity, before we load the attachments
-	var files = this.getValueName('attachments');
+    // Check if this is an existing entity, before we load the attachments
+    var files = this.getValueName('attachments');
 
-	for (var idx in files) {
-		// Create a file object
-		if (files[idx].key) {
-			attachedFiles[idx] = new File(files[idx])
-		}
-	}
+    for (var idx in files) {
+        // Create a file object
+        if (files[idx].key) {
+            attachedFiles[idx] = new File(files[idx])
+        }
+    }
 
-	return attachedFiles;
+    return attachedFiles;
 }
 
 /**
@@ -588,7 +590,7 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
      * If we do not have an instance of recurrence yet and we need to create one
      * Then lets instantiate a new Recurrence entity model
      */
-    if(!this.recurrencePattern_ && createIfNotExist) {
+    if (!this.recurrencePattern_ && createIfNotExist) {
         this.recurrencePattern_ = new Recurrence(this.objType);
     }
 
@@ -603,6 +605,23 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
  */
 Entity.prototype.setRecurrence = function (recurrencePattern) {
     this.recurrencePattern_ = recurrencePattern;
+}
+
+/**
+ * Add a status update
+ *
+ * @param {bool} createIfNotExist       Determine if we need to create a new instance of recurrence or not if we dont have one
+ * @return {Entity/Recurrence}
+ */
+Entity.prototype.addStatusUpdate = function (status, objReference, opt_callback) {
+
+    // Do not save an empty status update
+    if (!status) {
+        return;
+    }
+
+    var statusUpdate = new StatusUpdate(objReference);
+    statusUpdate.add(status, opt_callback);
 }
 
 module.exports = Entity;
