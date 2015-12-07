@@ -180,7 +180,9 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
         fileUploader.upload(formData, funcProgress, funcCompleted, funcError);
     } else {
         // Trigger the save entity event.
-        this.props.onEntitySave();
+        if (this.props.onEntitySave) {
+            this.props.onEntitySave();
+        }
 
         // When all files are finished uploading, we will unload the fileupload component
         this.unload();
