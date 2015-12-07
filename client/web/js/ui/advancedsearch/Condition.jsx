@@ -43,15 +43,15 @@ var SearchCondition = React.createClass({
         var field = null;
         var operators = null;
         var valueInput = null;
-        
+
         // Set the default field entry based on the selected index
         if(searchFields) {
             field = searchFields[this.props.fieldData.selectedIndex];
-            
+
             valueInput = this._getConditionValueInput(field, this.props.fieldData.selectedIndex, this.props.condition.value, false);
             operators = this._getConditionOperators(field.type)
         }
-        
+
         // Return the initial state
         return {
             valueInput: valueInput,
@@ -94,7 +94,7 @@ var SearchCondition = React.createClass({
             </div>
         );
     },
-    
+
     /**
      * Callback used to handle commands when user selects the a value in bLogic dropdown
      *
