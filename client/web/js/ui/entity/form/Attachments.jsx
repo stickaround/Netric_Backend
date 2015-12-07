@@ -78,13 +78,10 @@ var Attachments = React.createClass({
         fileUpload.load({
             type: controller.types.DIALOG,
             title: "Add Attachment",
-            onFilesUploaded: function (fileId, fileName) {
-                this._handleFilesUploaded(fileId, fileName);
+            onFilesUploaded: function (file) {
+                this._handleFilesUploaded(file);
             }.bind(this),
-            onRemoveFilesUploaded: function (fileId) {
-                this._handleRemoveFilesUploaded(fileId);
-            }.bind(this),
-            onEntitySave: function () {
+            onQueueUploadFinished: function () {
                 this._sendEntitySaveEvent();
             }.bind(this)
         });

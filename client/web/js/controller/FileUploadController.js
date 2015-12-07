@@ -129,7 +129,7 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
 
         // Set the formData to be posted in the server
         var formData = new FormData();
-        formData.append('uploadedFiles[]', queuedFiles[index], fileName);
+        formData.append('files[]', queuedFiles[index], fileName);
 
         if (folder.id) {
             formData.append('folderid', folder.id);
@@ -179,9 +179,10 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
         // Upload the file to the server
         fileUploader.upload(formData, funcProgress, funcCompleted, funcError);
     } else {
-        // Trigger the save entity event.
-        if (this.props.onEntitySave) {
-            this.props.onEntitySave();
+
+        // Trigger when all files are finished uploading
+        if (this.props.onQueueUploadFinished) {
+            this.props.onQueueUploadFinished();
         }
 
         // When all files are finished uploading, we will unload the fileupload component

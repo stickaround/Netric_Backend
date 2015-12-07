@@ -77,15 +77,24 @@ class FilesController extends Mvc\AbstractController
         // Process each file
         $files = $request->getParam('files');
 
-        // Check if the posted files are coming from the new client/web which uses the FormData
-        if(isset($files['uploadedFiles']))
+        /**
+         * Check to see if input multiple was set (or multiple files were uploaded with the same name).
+         * @see http://php.net/manual/en/features.file-upload.multiple.php for more information
+         */
+        if(isset($files['files']))
         {
             $uploadedFiles = array();
 
-            // Map the uploadedFiles and mimic the structure of the normal $_FILES
-            foreach($files['uploadedFiles'] as $type=>$fileData)
+            /**
+             * Map the files and mimic the structure of the normal $_FILES
+             * $type contains the 'name', 'type', 'tmp_name', 'size' indexes
+             */
+            foreach($files['files'] as $type=>$fileData)
             {
-                // Get the actual data of the uploaded files.
+                /**
+                 * Get the file uploaded data.
+                 * $data contains the value of filename, filetype, tmp_name, and filesize
+                 */
                 foreach($fileData as $idx=>$data)
                 {
                     $uploadedFiles[$idx][$type] = $data;

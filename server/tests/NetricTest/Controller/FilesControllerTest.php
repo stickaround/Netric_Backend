@@ -166,7 +166,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
         $req = $this->controller->getRequest();
 
         // We are using uploadedFiles array index, since this is the post data format sent by the client side
-        $testUploadedFiles['uploadedFiles'] = array(
+        $testUploadedFiles['files'] = array(
             "name" => array("files-upload-test.txt"),
             "tmp_name" => array($tempFile)
         );
