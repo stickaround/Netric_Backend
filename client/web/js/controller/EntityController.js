@@ -104,7 +104,7 @@ EntityController.prototype.onLoad = function(opt_callback) {
         
     }.bind(this));
 
-    // Capture an save entity and handle the saving of the entity
+    // Capture a save entity and handle the saving of the entity
     alib.events.listen(this.eventsObj_, "entitysave", function(evt) {
         this.saveEntity();
     }.bind(this));

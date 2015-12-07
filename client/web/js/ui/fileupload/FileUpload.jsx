@@ -41,7 +41,6 @@ var FileUpload = React.createClass({
         if (this.props.uploadedFiles.length == 0) {
             this._handleShowUpload();
         }
-
     },
 
     render: function () {
