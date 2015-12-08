@@ -8,7 +8,6 @@
 
 var Definition = require('./Definition');
 var Recurrence = require('./Recurrence');
-var StatusUpdate = require('./StatusUpdate');
 var File = require('./fileupload/File');
 var events = require('../util/events');
 
@@ -606,21 +605,5 @@ Entity.prototype.setRecurrence = function (recurrencePattern) {
     this.recurrencePattern_ = recurrencePattern;
 }
 
-/**
- * Send a status update
- *
- * @param {bool} createIfNotExist       Determine if we need to create a new instance of recurrence or not if we dont have one
- * @return {Entity/Recurrence}
- */
-Entity.prototype.sendStatusUpdate = function (status, objReference, opt_callback) {
-
-    // Do not save an empty status update
-    if (!status) {
-        return;
-    }
-
-    var statusUpdate = new StatusUpdate(objReference);
-    statusUpdate.send(status, opt_callback);
-}
 
 module.exports = Entity;

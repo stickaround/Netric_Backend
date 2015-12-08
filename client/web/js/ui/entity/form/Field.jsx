@@ -75,19 +75,23 @@ var Field = React.createClass({
                 break;
             case field.types.objectMulti:
 
-                // Print object browser based on subtype
-                switch (field.subtype) {
-                    case "comment":
-                        fieldContent = <Comments {...this.props} />;
-                        break;
-                    case "activity":
-                        fieldContent = <Activity {...this.props} />;
-                        break;
-                    case "status_update":
-                        fieldContent = <StatusUpdate {...this.props} />;
-                        break;
-                    default:
-                        fieldContent = <ObjectMultiField {...this.props} />;
+                // We do not need to display the objectMulti if we do not have an entity id yet
+                if(this.props.entity.id) {
+
+                    // Print object browser based on subtype
+                    switch (field.subtype) {
+                        case "comment":
+                            fieldContent = <Comments {...this.props} />;
+                            break;
+                        case "activity":
+                            fieldContent = <Activity {...this.props} />;
+                            break;
+                        case "status_update":
+                            fieldContent = <StatusUpdate {...this.props} />;
+                            break;
+                        default:
+                            fieldContent = <ObjectMultiField {...this.props} />;
+                    }
                 }
 
                 break;

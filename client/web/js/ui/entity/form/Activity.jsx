@@ -9,7 +9,6 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var controller = require('../../../controller/controller');
 var Where = require("../../../entity/Where");
-var netric = require('../../../base');
 var Chamel = require('chamel');
 var DropDownMenu = Chamel.DropDownMenu;
 
@@ -20,33 +19,6 @@ var Activity = React.createClass({
 
     propTypes: {
         entity: React.PropTypes.object,
-
-        /**
-         * Type of activity to be displayed
-         *
-         * Possible values are: activity, status_update
-         */
-        type: React.PropTypes.string,
-
-        /**
-         * Reference field to be filtered in the entity browser list
-         *
-         * Possible values are: obj_reference, associations
-         */
-        referenceField: React.PropTypes.string,
-
-        /**
-         * If true then it will reload the entity browser
-         */
-        refresh: React.PropTypes.bool,
-    },
-
-    getDefaultProps: function() {
-        return {
-            type: 'activity',
-            referenceField: 'obj_reference',
-            refresh: false,
-        };
     },
 
     getInitialState: function () {
@@ -60,12 +32,6 @@ var Activity = React.createClass({
 
     componentDidMount: function () {
         this._loadActivities();
-    },
-
-    componentDidUpdate: function () {
-        if (this.props.refresh) {
-            this._loadActivities();
-        }
     },
 
     render: function () {
@@ -102,7 +68,7 @@ var Activity = React.createClass({
     },
 
     /**
-     * Load the activityController to display the activities for this entity
+     * Load the EntityBrowserController to display the activities for this entity
      *
      * @param {entity.Where[]} conditions      These are the conditions that will limit/filter the activities
      * @private
@@ -113,7 +79,7 @@ var Activity = React.createClass({
         var browser = this.state.activityBrowser;
 
         // Add filter to only show activities from the referenced object
-        var filter = new Where(this.props.referenceField);
+        var filter = new Where('associations');
         filter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
 
         // If conditions is not set, then we create a blank conditions array
@@ -142,13 +108,14 @@ var Activity = React.createClass({
             browser.load({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
-                objType: this.props.type,
+                objType: 'activity',
                 hideToolbar: true,
                 filters: conditions
             }, inlineCon, null, callbackFunc.bind(this));
 
             this.setState({activityBrowser: browser});
         } else {
+
             // If entity browser is already set, then lets just update the filters and refresh the results
             browser.updateFilters(conditions);
         }
