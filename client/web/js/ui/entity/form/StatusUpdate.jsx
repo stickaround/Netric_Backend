@@ -1,5 +1,5 @@
 /**
- * Handles the rendering a status update form
+ * Handles the rendering a status update form and displaying the entity browser list for status update/activity
  *
  * @jsx React.DOM
  */
@@ -8,7 +8,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var controller = require('../../../controller/controller');
-var Where = require("../../../entity/Where");
+var Where = require('../../../entity/Where');
 var Chamel = require('chamel');
 var DropDownMenu = Chamel.DropDownMenu;
 var TextField = Chamel.TextField;
@@ -63,15 +63,15 @@ var StatusUpdate = React.createClass({
         }
 
         return (
-            <div className="entity-comments">
-                <div className="entity-comments-form">
-                    <div className="entity-comments-form-center">
-                        <TextField ref="statusInput" hintText="Add Status" multiLine={true}/>
+            <div className='entity-comments'>
+                <div className='entity-comments-form'>
+                    <div className='entity-comments-form-center'>
+                        <TextField ref='statusInput' hintText='Add Status' multiLine={true}/>
                     </div>
-                    <div className="entity-comments-form-right">
+                    <div className='entity-comments-form-right'>
                         <FlatButton
-                            label="Send"
-                            iconClassName="fa fa-paper-plane"
+                            label='Send'
+                            iconClassName='fa fa-paper-plane'
                             onClick={this._handleStatusSend}
                             />
                     </div>
@@ -91,10 +91,10 @@ var StatusUpdate = React.createClass({
      */
     _handleStatusSend: function () {
         var status = this.refs.statusInput.getValue();
-        var StatusUpdateManager = require("../../../entity/StatusUpdateManager");
+        var StatusUpdateManager = require('../../../entity/StatusUpdateManager');
 
         // Set the object reference
-        StatusUpdateManager.objReference = this.props.entity.objType + ":" + this.props.entity.id;
+        StatusUpdateManager.objReference = this.props.entity.objType + ':' + this.props.entity.id;
 
         // Send the status
         StatusUpdateManager.send(status, null, this._loadStatusUpdates);
@@ -128,7 +128,7 @@ var StatusUpdate = React.createClass({
 
         // Add filter to only show status updates from the referenced object
         var filter = new Where('associations');
-        filter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
+        filter.equalTo(this.props.entity.objType + ':' + this.props.entity.id);
 
         // If conditions is not set, then we create a blank conditions array
         if (!conditions) {
@@ -155,7 +155,7 @@ var StatusUpdate = React.createClass({
             // Load the entity browser
             browser.load({
                 type: controller.types.FRAGMENT,
-                title: "Status Update",
+                title: 'Status Update',
                 objType: this.props.objTypeList,
                 hideToolbar: true,
                 filters: conditions

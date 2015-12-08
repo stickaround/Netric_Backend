@@ -605,5 +605,4 @@ Entity.prototype.setRecurrence = function (recurrencePattern) {
     this.recurrencePattern_ = recurrencePattern;
 }
 
-
 module.exports = Entity;

@@ -108,7 +108,7 @@ var Activity = React.createClass({
             browser.load({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
-                objType: 'activity',
+                objType: "activity",
                 hideToolbar: true,
                 filters: conditions
             }, inlineCon, null, callbackFunc.bind(this));

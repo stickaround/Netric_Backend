@@ -15,6 +15,11 @@ var entitySaver = require("./saver");
  */
 var StatusUpdateManager = {};
 
+/**
+ * The object for which we are adding the status update
+ *
+ * @public
+ */
 StatusUpdateManager.objReference = null;
 
 /**
