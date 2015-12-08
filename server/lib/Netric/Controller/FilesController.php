@@ -96,7 +96,7 @@ class FilesController extends Mvc\AbstractController
                 );
             }
 
-            // Import into AntFs
+            // Import into netric file system
             $file = $this->fileSystem->importFile(
                 $uploadedFile['tmp_name'], $folderPath, $uploadedFile["name"]
             );
