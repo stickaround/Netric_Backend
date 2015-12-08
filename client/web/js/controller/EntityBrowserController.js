@@ -178,6 +178,7 @@ EntityBrowserController.prototype.reactRender_ = function() {
     switch (this.entityDefinition_.objType) {
         case 'activity':
         case 'comment':
+        case 'status_update':
             layout = "compact";
             break
     }

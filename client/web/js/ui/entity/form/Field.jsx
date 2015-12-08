@@ -81,6 +81,9 @@ var Field = React.createClass({
                         fieldContent = <Comments {...this.props} />;
                         break;
                     case "activity":
+                        fieldContent = <Activity {...this.props} />;
+                        break;
+                    case "status_update":
                         fieldContent = <StatusUpdate {...this.props} />;
                         break;
                     default:

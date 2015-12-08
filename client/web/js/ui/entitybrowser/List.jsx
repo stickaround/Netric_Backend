@@ -12,6 +12,7 @@ var ListItemTableRow = require("./ListItemTableRow.jsx");
 var Loading = require("../Loading.jsx");
 var CommentItem = require("./item/Comment.jsx");
 var ActivitytItem = require("./item/Activity.jsx");
+var StatusUpdateItem = require("./item/StatusUpdate.jsx");
 
 /**
  * Module shell
@@ -96,11 +97,7 @@ var List = React.createClass({
                     item = (
                         <ActivitytItem
                             key={entity.id}
-                            selected={selected}
                             entity={entity}
-                            browserView={this.props.browserView}
-                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
                             />
                     )
                     break;
@@ -115,6 +112,14 @@ var List = React.createClass({
                             onSelect={this._sendSelect.bind(null, entity.id)}
                             />
                     );
+                    break;
+                case "status_update":
+                    item = (
+                        <StatusUpdateItem
+                            key={entity.id}
+                            entity={entity}
+                            />
+                    )
                     break;
                 /*
                  * All other object types will either be displayed as a table row

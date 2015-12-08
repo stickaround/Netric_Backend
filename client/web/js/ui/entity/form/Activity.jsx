@@ -20,14 +20,31 @@ var Activity = React.createClass({
 
     propTypes: {
         entity: React.PropTypes.object,
+
+        /**
+         * Type of activity to be displayed
+         *
+         * Possible values are: activity, status_update
+         */
+        type: React.PropTypes.string,
+
+        /**
+         * If true then it will reload the entity browser
+         */
         refresh: React.PropTypes.bool,
+    },
+
+    getDefaultProps: function() {
+        return {
+            type: 'activity',
+            refresh: false,
+        };
     },
 
     getInitialState: function () {
 
         // Return the initial state
         return {
-            refresh: false,
             viewMenuData: null,
             browser: null
         };
@@ -35,6 +52,12 @@ var Activity = React.createClass({
 
     componentDidMount: function () {
         this._loadActivities();
+    },
+
+    componentDidUpdate: function () {
+        if (this.props.refresh) {
+            this._loadActivities();
+        }
     },
 
     render: function () {
@@ -101,7 +124,7 @@ var Activity = React.createClass({
             var callbackFunc = function () {
 
                 // We dont need to get activity views if it is already set.
-                if(!this.state.viewMenuData) {
+                if (!this.state.viewMenuData) {
                     var activityViews = browser.getEntityDefinition().getViews();
                     this._setViewMenuData(activityViews);
                 }
@@ -111,14 +134,13 @@ var Activity = React.createClass({
             browser.load({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
-                objType: "status_update",
+                objType: this.props.type,
                 hideToolbar: true,
                 filters: conditions
             }, inlineCon, null, callbackFunc.bind(this));
 
             this.setState({activityBrowser: browser});
         } else {
-
             // If entity browser is already set, then lets just update the filters and refresh the results
             browser.updateFilters(conditions);
         }

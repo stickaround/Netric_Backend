@@ -20,6 +20,19 @@ var StatusUpdate = React.createClass({
 
     propTypes: {
         entity: React.PropTypes.object,
+
+        /**
+         * Type of activity to be displayed
+         *
+         * Possible values are: activity, status_update
+         */
+        type: React.PropTypes.string
+    },
+
+    getDefaultProps: function () {
+        return {
+            type: 'status_update'
+        }
     },
 
     getInitialState: function () {
@@ -32,7 +45,7 @@ var StatusUpdate = React.createClass({
 
     render: function () {
         return (
-            <div>
+            <div className="entity-comments">
                 <div className="entity-comments-form">
                     <div className="entity-comments-form-center">
                         <TextField ref="statusInput" hintText="Add Status" multiLine={true}/>
@@ -45,19 +58,33 @@ var StatusUpdate = React.createClass({
                             />
                     </div>
                 </div>
-                <Activity entity={this.props.entity} refresh={this.state.refresh} />
+                <Activity
+                    {...this.props}
+                    refresh={this.state.refresh}
+                    />
             </div>
         );
     },
 
-    _handleStatusSend: function() {
+    /**
+     * Handles the sending of status updates
+     *
+     * @private
+     */
+    _handleStatusSend: function () {
         var status = this.refs.statusInput.getValue();
         var objRefeference = this.props.entity.objType + ":" + this.props.entity.id;
 
-        this.props.entity.addStatusUpdate(status, objRefeference, this._refreshActivity);
+        this.props.entity.addStatusUpdate(status, objRefeference, this._refreshStatusList);
     },
 
-    _refreshActivity: function() {
+    /**
+     * Refreshes the status update list
+     *
+     * @private
+     */
+    _refreshStatusList: function () {
+        this.refs.statusInput.clearValue();
         this.setState({refresh: true});
     }
 });
