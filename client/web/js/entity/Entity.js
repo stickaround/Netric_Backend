@@ -6,7 +6,6 @@
  */
 'use strict';
 
-var entityLoader = require("./loader");
 var Definition = require('./Definition');
 var Recurrence = require('./Recurrence');
 var StatusUpdate = require('./StatusUpdate');
@@ -590,7 +589,7 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
      * If we do not have an instance of recurrence yet and we need to create one
      * Then lets instantiate a new Recurrence entity model
      */
-    if (!this.recurrencePattern_ && createIfNotExist) {
+    if(!this.recurrencePattern_ && createIfNotExist) {
         this.recurrencePattern_ = new Recurrence(this.objType);
     }
 
@@ -608,12 +607,12 @@ Entity.prototype.setRecurrence = function (recurrencePattern) {
 }
 
 /**
- * Add a status update
+ * Send a status update
  *
  * @param {bool} createIfNotExist       Determine if we need to create a new instance of recurrence or not if we dont have one
  * @return {Entity/Recurrence}
  */
-Entity.prototype.addStatusUpdate = function (status, objReference, opt_callback) {
+Entity.prototype.sendStatusUpdate = function (status, objReference, opt_callback) {
 
     // Do not save an empty status update
     if (!status) {
@@ -621,7 +620,7 @@ Entity.prototype.addStatusUpdate = function (status, objReference, opt_callback)
     }
 
     var statusUpdate = new StatusUpdate(objReference);
-    statusUpdate.add(status, opt_callback);
+    statusUpdate.send(status, opt_callback);
 }
 
 module.exports = Entity;

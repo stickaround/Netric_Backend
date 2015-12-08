@@ -2,7 +2,7 @@
  * @fileOverview Entity for StatusUpdate
  *
  * @author =    Marl Tumulak; marl.tumulak@aereus.com;
- *            Copyright (c) 2014 Aereus Corporation. All rights reserved.
+ *            Copyright (c) 2015 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
@@ -37,14 +37,14 @@ var StatusUpdate = function (objReference) {
 }
 
 /**
- * Add a status update
+ * Send a status update
  *
  * @param {string} status           The status update from the user
  * @param {function} opt_callback   If set call this function when we are finished adding the status update
  *
  * @public
  */
-StatusUpdate.prototype.add = function(status, opt_callback) {
+StatusUpdate.prototype.send = function(status, opt_callback) {
 
     /**
      * We are setting the entity loader inside this function
