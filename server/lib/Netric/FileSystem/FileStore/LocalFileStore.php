@@ -317,7 +317,7 @@ class LocalFileStore implements FileStoreInterface
      */
     private function getAccountDirectory()
     {
-        $path = $this->dataPath . "/antfs";
+        $path = $this->dataPath . "/files";
 
         // Create antfs directory in the data if it does not yet exist
         if (!file_exists($path))
@@ -369,7 +369,7 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Explode id into directories
      *
-     * @param bigint $id The id to explode
+     * @param int $id The id to explode
      * @return string $path The full path of the file after exploding the id
      */
     private function explodeIdToPath($id)

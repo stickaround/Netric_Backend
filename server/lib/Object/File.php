@@ -487,10 +487,19 @@ class CAntObject_File extends CAntObject
 	public function getFullLocalPath()
 	{
 		$ansRoot = $this->antFs->getAccountDirectory($this->dbh);
-		if ($this->getValue("dat_local_path"))
-			return $ansRoot . "/" . $this->getValue("dat_local_path");
-		else
+
+		// The new FileSystem\FileStore\LocalFileStore puts files in a different directory
+		$newFileSystemRoot = $this->antFs->getAccountDirectoryNew($this->dbh);
+
+		if (!$this->getValue("dat_local_path"))
 			return false;
+
+
+		// First look in new account directory otherwise fall back to old
+		if (file_exists($newFileSystemRoot . "/" . $this->getValue("dat_local_path")))
+			return $newFileSystemRoot . "/" . $this->getValue("dat_local_path");
+		else
+			return $ansRoot . "/" . $this->getValue("dat_local_path");
 	}
 
 	/**
