@@ -458,6 +458,8 @@ class AntFs
 	 * May be called statically if dbh is passed as param
 	 *
 	 * @param CDatabase $dbh Optional handle to database to be used when called statically
+	 * @return string The full path of the old account directory
+	 * @throws \Exception if permission to directory is denied
 	 */
 	public function getAccountDirectory($dbh=null)
 	{
@@ -476,7 +478,7 @@ class AntFs
 			mkdir($path, 0775);
 
 			if (!chmod($path, 0775))
-				throw new \Exception("Permission denied chmod($curr)");
+				throw new \Exception("Permission denied chmod($path)");
 		}
 
 		// Now create namespace dir for dbname
@@ -487,7 +489,49 @@ class AntFs
 			mkdir($path, 0775);
 
 			if (!chmod($path, 0775))
-				throw new \Exception("Permission denied chmod($curr)");
+				throw new \Exception("Permission denied chmod($path)");
+
+		}
+
+		return $path;
+	}
+
+	/**
+	 * This is the new version which stores files in a folder named after the account it
+	 *
+	 * @param CDatabase $dbh Optional handle to database to be used when called statically
+	 * @return string The full path of the new account directory
+	 * @throws \Exception if permission to directory is denied
+	 */
+	public function getAccountDirectoryNew($dbh=null)
+	{
+		if (!$dbh && isset($this) && get_class($this) == __CLASS__)
+			$dbh = $this->dbh;
+
+		// Make sure dbh is set
+		if (!$dbh)
+			return false;
+
+		$path = AntConfig::getInstance()->data_path . "/files";
+
+		// Create antfs directory in the data if it does not yet exist
+		if (!file_exists($path))
+		{
+			mkdir($path, 0775);
+
+			if (!chmod($path, 0775))
+				throw new \Exception("Permission denied chmod($path)");
+		}
+
+		// Now create a namespace for the account id
+		$path .=  "/" . $dbh->accountId;
+
+		if (!file_exists($path))
+		{
+			mkdir($path, 0775);
+
+			if (!chmod($path, 0775))
+				throw new \Exception("Permission denied chmod($path)");
 
 		}
 
