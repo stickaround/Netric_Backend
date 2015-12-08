@@ -29,6 +29,13 @@ var Activity = React.createClass({
         type: React.PropTypes.string,
 
         /**
+         * Reference field to be filtered in the entity browser list
+         *
+         * Possible values are: obj_reference, associations
+         */
+        referenceField: React.PropTypes.string,
+
+        /**
          * If true then it will reload the entity browser
          */
         refresh: React.PropTypes.bool,
@@ -37,6 +44,7 @@ var Activity = React.createClass({
     getDefaultProps: function() {
         return {
             type: 'activity',
+            referenceField: 'obj_reference',
             refresh: false,
         };
     },
@@ -105,8 +113,8 @@ var Activity = React.createClass({
         var browser = this.state.activityBrowser;
 
         // Add filter to only show activities from the referenced object
-        var referenceFilter = new Where("obj_reference");
-        referenceFilter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
+        var filter = new Where(this.props.referenceField);
+        filter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
 
         // If conditions is not set, then we create a blank conditions array
         if (!conditions) {
@@ -114,7 +122,7 @@ var Activity = React.createClass({
         }
 
         // Set the reference filter in the conditions
-        conditions.push(referenceFilter);
+        conditions.push(filter);
 
         // Check if entity browser is not yet set
         if (!browser) {

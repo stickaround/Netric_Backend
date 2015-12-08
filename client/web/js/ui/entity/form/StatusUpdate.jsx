@@ -26,12 +26,20 @@ var StatusUpdate = React.createClass({
          *
          * Possible values are: activity, status_update
          */
-        type: React.PropTypes.string
+        type: React.PropTypes.string,
+
+        /**
+         * Reference field to be filtered in the entity browser list
+         *
+         * Possible values are: obj_reference, associations
+         */
+        referenceField: React.PropTypes.string,
     },
 
     getDefaultProps: function () {
         return {
-            type: 'status_update'
+            type: 'status_update',
+            referenceField: 'associations'
         }
     },
 
