@@ -52,6 +52,14 @@ FileUploadController.prototype._uploadedFiles = [];
 FileUploadController.prototype.objType = 'file';
 
 /**
+ * Flag that will determine if we have an error uploading the files
+ *
+ * @private
+ * @type {bool}
+ */
+FileUploadController.prototype._fileUploadError = false;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -169,6 +177,10 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
 
         // Re render the fileupload and display the error
         var funcError = function (evt) {
+
+            // Notifiy this controller that we have an error uploading a file
+            this._fileUploadError = true;
+
             this._uploadedFiles[fileIndex].progress.errorText = evt.errorText;
             this.render();
 
@@ -185,8 +197,20 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
             this.props.onQueueUploadFinished();
         }
 
-        // When all files are finished uploading, we will unload the fileupload component
-        this.unload();
+        /**
+         * Do not unload this controller if we have an error uploading a file
+         * The error message will be displayed in fileuploader
+         * And will let the user know what is the error
+         */
+        if(this._fileUploadError) {
+
+            // Reset the flag to false
+            this._fileUploadError = false;
+        } else {
+
+            // When all files are finished uploading, we will unload the fileupload component
+            this.unload();
+        }
     }
 }
 
@@ -201,19 +225,25 @@ FileUploadController.prototype._handleRemoveFile = function (index) {
 
     var fileId = this._uploadedFiles[index].id;
 
-    var funcCompleted = function (result) {
+    // Check if the file has id before we try to remove it from the entity
+    if (fileId) {
+        var funcCompleted = function (result) {
+            this._uploadedFiles.splice(index, 1);
+
+            // If callback is set, then lets pass file id
+            if (this.props.onRemoveFilesUploaded) {
+                this.props.onRemoveFilesUploaded(fileId, index);
+            }
+
+            this.render();
+        }.bind(this);
+
+        // Remove the file from the server
+        entitySaver.remove(this.objType, fileId, funcCompleted);
+    } else {
         this._uploadedFiles.splice(index, 1);
-
-        // If callback is set, then lets pass file id
-        if (this.props.onRemoveFilesUploaded) {
-            this.props.onRemoveFilesUploaded(fileId, index);
-        }
-
         this.render();
-    }.bind(this);
-
-    // Remove the file from the server
-    entitySaver.remove(this.objType, fileId, funcCompleted);
+    }
 }
 
 

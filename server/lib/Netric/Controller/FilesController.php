@@ -77,34 +77,51 @@ class FilesController extends Mvc\AbstractController
         // Process each file
         $files = $request->getParam('files');
 
-        /**
-         * Check to see if input multiple was set (or multiple files were uploaded with the same name).
-         * @see http://php.net/manual/en/features.file-upload.multiple.php for more information
-         */
-        if(isset($files['files']))
-        {
-            $uploadedFiles = array();
+        // List of files that just got uploaded
+        $uploadeFiles = array();
 
+        /**
+         * When a file is uploaded it can be sent as 'input_name' or as 'input_name'
+         */
+        foreach ($files as $file)
+        {
             /**
-             * Map the files and mimic the structure of the normal $_FILES
-             * $type contains the 'name', 'type', 'tmp_name', 'size' indexes
+             * Check to see if input multiple was set (or multiple files were uploaded with the
+             * same name) which will be represented as:
+             * array(
+             *	'filename' => array('file1name', 'file2name'),
+             *	'filetype' => array('file1type', 'file2type'),
+             * 	'tmp_name' => array('file1tmp', 'file2tmp'),
+             *  'filesize' => array('100', '200'),
+             * );
+             *
+             * This is really a poor design, but unfortunately it's how PHP handles multiple file
+             * updates. We just convert it to a more sane format below where each file is it's own []
+             * and the below code does not care what the form name is for the uplaoded file.
+             *
+             * @see http://php.net/manual/en/features.file-upload.multiple.php for more information
              */
-            foreach($files['files'] as $type=>$fileData)
+            if (is_array($file['name']))
             {
-                /**
-                 * Get the file uploaded data.
-                 * $data contains the value of filename, filetype, tmp_name, and filesize
-                 */
-                foreach($fileData as $idx=>$data)
+                foreach ($file['name'] as $idx=>$filename)
                 {
-                    $uploadedFiles[$idx][$type] = $data;
+                    $uploadedFiles[] = array(
+                        'name' => $file['name'][$idx],
+                        'type' => $file['type'][$idx],
+                        'tmp_name' => $file['tmp_name'][$idx],
+                        'error' => $file['error'][$idx],
+                        'size' => $file['size'][$idx],
+                    );
                 }
             }
-
-            $files = $uploadedFiles;
+            else
+            {
+                // Standard single file upload
+                $uploadedFiles[] = $file;
+            }
         }
 
-        foreach($files as $uploadedFile)
+        foreach($uploadedFiles as $uploadedFile)
         {
             /*
              * Make sure that the file was uploaded via HTTP_POST. This is useful to help
