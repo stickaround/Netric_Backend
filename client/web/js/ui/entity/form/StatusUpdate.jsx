@@ -75,7 +75,7 @@ var StatusUpdate = React.createClass({
         var status = this.refs.statusInput.getValue();
         var objRefeference = this.props.entity.objType + ":" + this.props.entity.id;
 
-        this.props.entity.addStatusUpdate(status, objRefeference, this._refreshStatusList);
+        this.props.entity.sendStatusUpdate(status, objRefeference, this._refreshStatusList);
     },
 
     /**
