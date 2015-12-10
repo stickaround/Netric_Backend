@@ -13,6 +13,17 @@ var UserProfileImage = require('../../UserProfileImage.jsx');
  */
 var StatusUpdateItem = React.createClass({
 
+    propTypes: {
+        entity: React.PropTypes.object,
+
+        /**
+         * Function that will handle the clicking of object reference link
+         *
+         * @var {func}
+         */
+        onObjReferenceClick: React.PropTypes.func
+    },
+
     render: function () {
         var entity = this.props.entity;
 
@@ -30,11 +41,14 @@ var StatusUpdateItem = React.createClass({
                     <div className='entity-browser-activity-header'>
                         {ownerName}
                     </div>
-                    <div className='entity-browser-activity-title'>
-                        {timestamp}
-                    </div>
                     <div className='entity-browser-activity-body'>
                         <div dangerouslySetInnerHTML={notes}/>
+                    </div>
+                    <div className='entity-browser-activity-title'>
+                        {timestamp}
+                        <div>
+                            <a href='javascript: void(0);' onClick={this._handleObjReferenceClick}>Details</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,6 +77,17 @@ var StatusUpdateItem = React.createClass({
          * is often used for cross script exploits.
          */
         return (val) ? {__html: val} : null;
+    },
+
+    /**
+     * Handles the clicking of object reference link
+     *
+     * @private
+     */
+    _handleObjReferenceClick: function () {
+        if (this.props.onObjReferenceClick) {
+            this.props.onObjReferenceClick('status_update', this.props.entity.id, 'Status Update');
+        }
     }
 });
 

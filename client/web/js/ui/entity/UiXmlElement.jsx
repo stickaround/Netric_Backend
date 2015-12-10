@@ -26,7 +26,8 @@ var formElements = {
     Attachments: require("./form/Attachments.jsx"),
     Comments: require("./form/Comments.jsx"),
     Plugin: require("./form/Plugin.jsx"),
-    Header: require("./form/Header.jsx")
+    Header: require("./form/Header.jsx"),
+    StatusUpdate: require("./form/StatusUpdate.jsx")
 };
 
 /**

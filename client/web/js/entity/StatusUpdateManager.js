@@ -13,14 +13,7 @@ var entitySaver = require("./saver");
 /**
  * Global Status Update Manager namespace
  */
-var StatusUpdateManager = {};
-
-/**
- * The object for which we are adding the status update
- *
- * @public
- */
-StatusUpdateManager.objReference = null;
+var statusUpdateManager = {};
 
 /**
  * Send a status update
@@ -31,7 +24,7 @@ StatusUpdateManager.objReference = null;
  *
  * @public
  */
-StatusUpdateManager.send = function (comment, opt_entity, opt_finishedCallback) {
+statusUpdateManager.send = function (comment, opt_entity, opt_finishedCallback) {
 
     // Do not save an empty status update/comment
     if (!comment) {
@@ -40,23 +33,18 @@ StatusUpdateManager.send = function (comment, opt_entity, opt_finishedCallback) 
 
     var entity = opt_entity || null;
 
-    // If entity is not provided, then we will create a blank entity
-    if (!entity) {
+    /**
+     * We are setting the entity loader inside this function
+     * Since need the main entity to finish loading
+     * And set the definition of the main objType (not this status update objType)
+     */
+    var entityLoader = require("./loader");
 
-        /**
-         * We are setting the entity loader inside this function
-         * Since need the main entity to finish loading
-         * And set the definition of the main objType (not this status update objType)
-         */
-        var entityLoader = require("./loader");
-
-        // Create a new comment and save it
-        var entity = entityLoader.factory('status_update');
-    }
-
+    // Create a new comment and save it
+    var statusReferenceEntity = entityLoader.factory('status_update');
 
     if (comment) {
-        entity.setValue("comment", comment);
+        statusReferenceEntity.setValue("comment", comment);
     }
 
     // Add the user
@@ -64,18 +52,19 @@ StatusUpdateManager.send = function (comment, opt_entity, opt_finishedCallback) 
     if (netric.getApplication().getAccount().getUser()) {
         userId = netric.getApplication().getAccount().getUser().id;
     }
-    entity.setValue("owner_id", userId);
+    statusReferenceEntity.setValue("owner_id", userId);
 
     // Add an object reference
-    if (this.objReference) {
+    var objReference = null;
+    if (entity && entity.id) {
+        objReference = entity.objType + ":" + entity.id;
 
-        // This is how we associate comments with a specific entity object
-        entity.setValue("obj_reference", this.objReference);
+        statusReferenceEntity.setValue('obj_reference', objReference);
     }
 
     // Save the entity
-    entitySaver.save(entity, function () {
-        log.info("Saved status update on", this.objReference);
+    entitySaver.save(statusReferenceEntity, function () {
+        log.info("Saved status update on", objReference);
 
         if (opt_finishedCallback) {
             opt_finishedCallback();
@@ -83,4 +72,4 @@ StatusUpdateManager.send = function (comment, opt_entity, opt_finishedCallback) 
     }.bind(this));
 }
 
-module.exports = StatusUpdateManager;
+module.exports = statusUpdateManager;

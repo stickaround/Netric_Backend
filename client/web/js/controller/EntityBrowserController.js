@@ -98,7 +98,6 @@ EntityBrowserController.prototype.browserView_ = null;
  */
 EntityBrowserController.prototype.entityDefinition_ = null;
 
-
 /**
  * Function called when controller is first loaded but before the dom ready to render
  *
@@ -107,6 +106,15 @@ EntityBrowserController.prototype.entityDefinition_ = null;
 EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
+
+    // Capture a status update activity and refresh the list
+    if(this.props.eventsObj) {
+        alib.events.listen(this.props.eventsObj, "statusActivityRefresh", function(evt) {
+            if(this.props.objType == 'status_update' || this.props.objType == 'activity') {
+                this.collection_.refresh();
+            }
+        }.bind(this));
+    }
 
     if (this.props.objType) {
         // Get the default view from the object definition
@@ -223,7 +231,8 @@ EntityBrowserController.prototype.reactRender_ = function() {
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
         selectedEntities: this.selected_,
         entities: this.entities_,
-        collectionLoading: this.collectionLoading_
+        collectionLoading: this.collectionLoading_,
+        objReference: this.props.objReference
     }
 
     // Render browser component

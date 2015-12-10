@@ -109,6 +109,8 @@ var Activity = React.createClass({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
                 objType: "activity",
+                objReference: this.props.entity.objType + ":" + this.props.entity.id,
+                eventsObj: this.props.eventsObj,
                 hideToolbar: true,
                 filters: conditions
             }, inlineCon, null, callbackFunc.bind(this));

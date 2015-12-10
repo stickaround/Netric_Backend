@@ -13,6 +13,7 @@ var Loading = require("../Loading.jsx");
 var CommentItem = require("./item/Comment.jsx");
 var ActivitytItem = require("./item/Activity.jsx");
 var StatusUpdateItem = require("./item/StatusUpdate.jsx");
+var controller = require("../../controller/controller");
 
 /**
  * Module shell
@@ -26,6 +27,7 @@ var List = React.createClass({
         layout: React.PropTypes.string,
         entities: React.PropTypes.array,
         collectionLoading: React.PropTypes.bool,
+        objReference: React.PropTypes.string,
 
         // Instance of Netric/Entity/BrowserView defining which columns a table show show
         browserView: React.PropTypes.object,
@@ -98,6 +100,8 @@ var List = React.createClass({
                         <ActivitytItem
                             key={entity.id}
                             entity={entity}
+                            objReference={this.props.objReference}
+                            onObjReferenceClick={this._handleObjReferenceClick}
                             />
                     )
                     break;
@@ -118,6 +122,7 @@ var List = React.createClass({
                         <StatusUpdateItem
                             key={entity.id}
                             entity={entity}
+                            onObjReferenceClick={this._handleObjReferenceClick}
                             />
                     )
                     break;
@@ -245,6 +250,31 @@ var List = React.createClass({
 
             this._loadMoreEntities(); // calls the function that will load additional entities
         }
+    },
+
+    /**
+     * Handles the clicking of object reference link
+     *
+     * @param {string} objType      The object type of the object reference we are loading
+     * @param {int} eid             The entity id of the object reference we are loading
+     * @param {string} title        Title of the object reference
+     * @private
+     */
+    _handleObjReferenceClick: function (objType, eid, title) {
+
+        /*
+         * We require it here to avoid a circular dependency where the
+         * controller requires the view and the view requires the controller
+         */
+        var EntityController = require("../../controller/EntityController");
+        var entityController = new EntityController();
+
+        entityController.load({
+            type: controller.types.DIALOG,
+            objType: objType,
+            title: title || null,
+            eid: eid || null,
+        });
     }
 });
 

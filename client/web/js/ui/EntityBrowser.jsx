@@ -34,6 +34,7 @@ var EntityBrowser = React.createClass({
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
 	  hideToolbar: React.PropTypes.bool,
+      objReference: React.PropTypes.string
   },
 
   getDefaultProps: function() {
@@ -63,7 +64,8 @@ var EntityBrowser = React.createClass({
               selectedEntities={this.props.selectedEntities}
               browserView={this.props.browserView}
               layout={this.props.layout}
-          	  collectionLoading={this.props.collectionLoading} />);
+          	  collectionLoading={this.props.collectionLoading}
+              objReference={this.props.objReference}/>);
 
           if (this.props.collectionLoading) {
               // TODO: display loading indicator over the list
@@ -100,7 +102,7 @@ var EntityBrowser = React.createClass({
     );
   },
 
-  /** 
+  /**
    * Select/Deselect all
    */
   handleSeelctAll_: function(selected) {

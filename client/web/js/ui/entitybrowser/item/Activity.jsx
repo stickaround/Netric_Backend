@@ -8,12 +8,30 @@
 var React = require('react');
 var Chamel = require('chamel');
 var UserProfileImage = require('../../UserProfileImage.jsx');
-var File = require("../../fileupload/File.jsx");
+var File = require('../../fileupload/File.jsx');
 
 /**
  * List item for an activity
  */
 var ActivityItem = React.createClass({
+
+    propTypes: {
+        entity: React.PropTypes.object,
+
+        /**
+         * The main entity's object reference
+         *
+         * @var {string objType:eid}
+         */
+        objReference: React.PropTypes.string,
+
+        /**
+         * Function that will handle the clicking of object reference link
+         *
+         * @var {func}
+         */
+        onObjReferenceClick: React.PropTypes.func
+    },
 
     render: function () {
         var entity = this.props.entity;
@@ -49,6 +67,16 @@ var ActivityItem = React.createClass({
             )
         }
 
+        var activityName = activity.name;
+
+        /**
+         * We need to check if main entity's object reference and this activity's object reference is the same
+         * If they are the same, then we do not to create a href link for this activity's object reference
+         */
+        if (activity.objReference && this.props.objReference != activity.objReference) {
+            activityName = (<a href='javascript: void(0);' onClick={this._handleObjReferenceClick.bind(this, activity.objReference, activity.name)}>{activity.name}</a>);
+        }
+
         return (
             <div className='entity-browser-activity'>
                 <div className='entity-browser-activity-img'>
@@ -59,7 +87,8 @@ var ActivityItem = React.createClass({
                         {headerTime}
                     </div>
                     <div className='entity-browser-activity-title'>
-                        {userName} {activity.description} {activity.name}
+                        {userName} {activity.description} {activityName}
+
                     </div>
                     <div className='entity-browser-activity-body'>
                         {displayNotes}
@@ -109,15 +138,16 @@ var ActivityItem = React.createClass({
         // Create the activity object with a name index
         var activity = {
             name: entity.getValue('name'),
-            notes: entity.getValue('notes')
+            notes: entity.getValue('notes'),
+            objReference: entity.getValue('obj_reference')
         };
 
         switch (activityType.toLowerCase()) {
             case 'email':
                 if (direction == 'i') {
-                    activity.name = 'received an email ';
+                    activity.description = 'received an email ';
                 } else {
-                    activity.name = 'sent an email ';
+                    activity.description = 'sent an email ';
                 }
 
                 break;
@@ -150,8 +180,24 @@ var ActivityItem = React.createClass({
         }
 
         return activity;
-    }
+    },
 
+    /**
+     * Handles the clicking of object reference link
+     *
+     * @param {string objType:eid} string   The object reference of this activity
+     * @param {string} title                Title of the object reference
+     * @private
+     */
+    _handleObjReferenceClick: function (objReference, title) {
+        var parts = objReference.split(':');
+        var objType = parts[0];
+        var eid = parts[1] || null;
+
+        if(this.props.onObjReferenceClick) {
+            this.props.onObjReferenceClick(objType, eid, title);
+        }
+    }
 });
 
 module.exports = ActivityItem;
