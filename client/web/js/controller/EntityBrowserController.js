@@ -98,7 +98,6 @@ EntityBrowserController.prototype.browserView_ = null;
  */
 EntityBrowserController.prototype.entityDefinition_ = null;
 
-
 /**
  * Function called when controller is first loaded but before the dom ready to render
  *
@@ -107,6 +106,15 @@ EntityBrowserController.prototype.entityDefinition_ = null;
 EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
+
+    // Capture a status update activity and refresh the list
+    if(this.props.eventsObj) {
+        alib.events.listen(this.props.eventsObj, "statusActivityRefresh", function(evt) {
+            if(this.props.objType == 'status_update' || this.props.objType == 'activity') {
+                this.collection_.refresh();
+            }
+        }.bind(this));
+    }
 
     if (this.props.objType) {
         // Get the default view from the object definition
@@ -178,6 +186,7 @@ EntityBrowserController.prototype.reactRender_ = function() {
     switch (this.entityDefinition_.objType) {
         case 'activity':
         case 'comment':
+        case 'status_update':
             layout = "compact";
             break
     }
@@ -222,7 +231,8 @@ EntityBrowserController.prototype.reactRender_ = function() {
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
         selectedEntities: this.selected_,
         entities: this.entities_,
-        collectionLoading: this.collectionLoading_
+        collectionLoading: this.collectionLoading_,
+        filters: this.props.filters
     }
 
     // Render browser component
@@ -241,6 +251,7 @@ EntityBrowserController.prototype.reactRender_ = function() {
  */
 EntityBrowserController.prototype.onEntityListClick = function(objType, oid, title) {
     if (objType && oid) {
+
         // Mark the entity as selected
         if (this.props.objType == objType) {
             this.selected_ = [];
@@ -254,6 +265,7 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
         if (this.props.onEntityClick) {
             this.props.onEntityClick(objType, oid);
         } else if (this.props.onSelect) {
+
             // Check to see if we are running in a browser select mode (like select user)
             this.props.onSelect(objType, oid, title);
             this.unload();

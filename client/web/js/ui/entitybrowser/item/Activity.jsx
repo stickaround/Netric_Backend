@@ -8,12 +8,30 @@
 var React = require('react');
 var Chamel = require('chamel');
 var UserProfileImage = require('../../UserProfileImage.jsx');
-var File = require("../../fileupload/File.jsx");
+var File = require('../../fileupload/File.jsx');
 
 /**
  * List item for an activity
  */
 var ActivityItem = React.createClass({
+
+    propTypes: {
+        entity: React.PropTypes.object,
+
+        /**
+         * The filters used to display this activity list item
+         *
+         * @var {array}
+         */
+        filters: React.PropTypes.array,
+
+        /**
+         * Function that will handle the clicking of object reference link
+         *
+         * @var {func}
+         */
+        onEntityListClick: React.PropTypes.func
+    },
 
     render: function () {
         var entity = this.props.entity;
@@ -49,6 +67,14 @@ var ActivityItem = React.createClass({
             )
         }
 
+        var activityName = activity.name;
+
+        // Check if this activity has object reference, then we will set the entity onclick
+        if (activity.objectLinkReference) {
+            activityName = (<a href='javascript: void(0);'
+                               onClick={this._handleObjReferenceClick.bind(this, activity.objReference, activity.name)}>{activity.name}</a>);
+        }
+
         return (
             <div className='entity-browser-activity'>
                 <div className='entity-browser-activity-img'>
@@ -59,7 +85,8 @@ var ActivityItem = React.createClass({
                         {headerTime}
                     </div>
                     <div className='entity-browser-activity-title'>
-                        {userName} {activity.description} {activity.name}
+                        {userName} {activity.description} {activityName}
+
                     </div>
                     <div className='entity-browser-activity-body'>
                         {displayNotes}
@@ -109,15 +136,17 @@ var ActivityItem = React.createClass({
         // Create the activity object with a name index
         var activity = {
             name: entity.getValue('name'),
-            notes: entity.getValue('notes')
+            notes: entity.getValue('notes'),
+            objReference: entity.getValue('obj_reference'),
+            objectLinkReference: this._getObjLinkReference()
         };
 
         switch (activityType.toLowerCase()) {
             case 'email':
                 if (direction == 'i') {
-                    activity.name = 'received an email ';
+                    activity.description = 'received an email ';
                 } else {
-                    activity.name = 'sent an email ';
+                    activity.description = 'sent an email ';
                 }
 
                 break;
@@ -150,8 +179,64 @@ var ActivityItem = React.createClass({
         }
 
         return activity;
-    }
+    },
 
+    /**
+     * Get the object reference for a link
+     *
+     * Each activity has a reference to an object the activity was performed on.
+     * If this browser has been filtered by one specific object, it can be assumed
+     * that the calling code already knows about the obj_reference in question
+     * and we do not need to display the link. A good example of this is in an
+     * activity component for an entity form. The user is already viewing a specific
+     * task so there is no need to add a link to that same talk in all activities.
+     *
+     * @private
+     * @return {string} Object reference that should be linked to
+     */
+    _getObjLinkReference: function () {
+        var entity = this.props.entity;
+        var objReference = entity.getValue('obj_reference') || null;
+        var filters = this.props.filters || null;
+
+        // We do not need to check if ther is no filters or objReference set
+        if (filters && objReference) {
+
+            // Loop thru the filters passed from the props
+            for (var idx in filters) {
+                var value = filters[idx]['value'];
+                var fieldName = filters[idx]['fieldName'];
+
+                /**
+                 * If the filter value from obj_reference or associations is the same as the activity's objReference
+                 * Then we need to set the object reference to null.
+                 * Because this activity's objReference is the same entity we are currently viewing
+                 */
+                if (value == objReference && (fieldName == 'obj_reference' || fieldName == 'associations')) {
+                    objReference = null;
+                }
+            }
+        }
+
+        return objReference;
+    },
+
+    /**
+     * Handles the clicking of object reference link
+     *
+     * @param {string objType:eid} string   The object reference of this activity
+     * @param {string} title                Title of the object reference
+     * @private
+     */
+    _handleObjReferenceClick: function (objReference, title) {
+        var parts = objReference.split(':');
+        var objType = parts[0];
+        var eid = parts[1] || null;
+
+        if (this.props.onEntityListClick) {
+            this.props.onEntityListClick(objType, eid, title);
+        }
+    }
 });
 
 module.exports = ActivityItem;
