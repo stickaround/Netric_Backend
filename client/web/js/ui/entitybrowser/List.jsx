@@ -27,11 +27,17 @@ var List = React.createClass({
         layout: React.PropTypes.string,
         entities: React.PropTypes.array,
         collectionLoading: React.PropTypes.bool,
-        objReference: React.PropTypes.string,
 
         // Instance of Netric/Entity/BrowserView defining which columns a table show show
         browserView: React.PropTypes.object,
-        selectedEntities: React.PropTypes.array
+        selectedEntities: React.PropTypes.array,
+
+        /**
+         * The filters used to display this entity browser list
+         *
+         * @var {array}
+         */
+        filters: React.PropTypes.array,
     },
 
     getDefaultProps: function () {
@@ -100,8 +106,8 @@ var List = React.createClass({
                         <ActivitytItem
                             key={entity.id}
                             entity={entity}
-                            objReference={this.props.objReference}
-                            onObjReferenceClick={this._handleObjReferenceClick}
+                            filters={this.props.filters}
+                            onEntityListClick={this.props.onEntityListClick}
                             />
                     )
                     break;
@@ -122,7 +128,7 @@ var List = React.createClass({
                         <StatusUpdateItem
                             key={entity.id}
                             entity={entity}
-                            onObjReferenceClick={this._handleObjReferenceClick}
+                            onEntityListClick={this.props.onEntityListClick}
                             />
                     )
                     break;
@@ -251,31 +257,6 @@ var List = React.createClass({
             this._loadMoreEntities(); // calls the function that will load additional entities
         }
     },
-
-    /**
-     * Handles the clicking of object reference link
-     *
-     * @param {string} objType      The object type of the object reference we are loading
-     * @param {int} eid             The entity id of the object reference we are loading
-     * @param {string} title        Title of the object reference
-     * @private
-     */
-    _handleObjReferenceClick: function (objType, eid, title) {
-
-        /*
-         * We require it here to avoid a circular dependency where the
-         * controller requires the view and the view requires the controller
-         */
-        var EntityController = require("../../controller/EntityController");
-        var entityController = new EntityController();
-
-        entityController.load({
-            type: controller.types.DIALOG,
-            objType: objType,
-            title: title || null,
-            eid: eid || null,
-        });
-    }
 });
 
 module.exports = List;

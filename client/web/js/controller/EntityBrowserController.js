@@ -232,7 +232,7 @@ EntityBrowserController.prototype.reactRender_ = function() {
         selectedEntities: this.selected_,
         entities: this.entities_,
         collectionLoading: this.collectionLoading_,
-        objReference: this.props.objReference
+        filters: this.props.filters
     }
 
     // Render browser component
@@ -251,6 +251,7 @@ EntityBrowserController.prototype.reactRender_ = function() {
  */
 EntityBrowserController.prototype.onEntityListClick = function(objType, oid, title) {
     if (objType && oid) {
+
         // Mark the entity as selected
         if (this.props.objType == objType) {
             this.selected_ = [];
@@ -264,6 +265,7 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
         if (this.props.onEntityClick) {
             this.props.onEntityClick(objType, oid);
         } else if (this.props.onSelect) {
+
             // Check to see if we are running in a browser select mode (like select user)
             this.props.onSelect(objType, oid, title);
             this.unload();

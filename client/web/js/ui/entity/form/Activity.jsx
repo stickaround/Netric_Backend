@@ -8,6 +8,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var controller = require('../../../controller/controller');
+var CustomEventTrigger = require("../../mixins/CustomEventTrigger.jsx");
 var Where = require("../../../entity/Where");
 var Chamel = require('chamel');
 var DropDownMenu = Chamel.DropDownMenu;
@@ -16,6 +17,8 @@ var DropDownMenu = Chamel.DropDownMenu;
  * Render Activity into an entity form
  */
 var Activity = React.createClass({
+
+    mixins: [CustomEventTrigger],
 
     propTypes: {
         entity: React.PropTypes.object,
@@ -109,10 +112,12 @@ var Activity = React.createClass({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
                 objType: "activity",
-                objReference: this.props.entity.objType + ":" + this.props.entity.id,
                 eventsObj: this.props.eventsObj,
                 hideToolbar: true,
-                filters: conditions
+                filters: conditions,
+                onEntityClick: function(objType, oid) {
+                    this._sendEntityClickEvent(objType, oid);
+                }.bind(this)
             }, inlineCon, null, callbackFunc.bind(this));
 
             this.setState({activityBrowser: browser});
@@ -142,6 +147,17 @@ var Activity = React.createClass({
         }
 
         this.setState({viewMenuData: viewMenu});
+    },
+
+    /**
+     * Trigger a custom event to send back to the entity controller
+     *
+     * @param {string} objType      The object type of the entity we are loading
+     * @param {int} oid             The entity id we are loading
+     * @private
+     */
+    _sendEntityClickEvent: function(objType, oid) {
+        this.triggerCustomEvent("entityclick", {objType:objType, id:oid});
     }
 });
 

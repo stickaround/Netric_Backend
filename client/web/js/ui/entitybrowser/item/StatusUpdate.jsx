@@ -21,7 +21,7 @@ var StatusUpdateItem = React.createClass({
          *
          * @var {func}
          */
-        onObjReferenceClick: React.PropTypes.func
+        onEntityListClick: React.PropTypes.func
     },
 
     render: function () {
@@ -85,8 +85,8 @@ var StatusUpdateItem = React.createClass({
      * @private
      */
     _handleObjReferenceClick: function () {
-        if (this.props.onObjReferenceClick) {
-            this.props.onObjReferenceClick('status_update', this.props.entity.id, 'Status Update');
+        if (this.props.onEntityListClick) {
+            this.props.onEntityListClick('status_update', this.props.entity.id);
         }
     }
 });

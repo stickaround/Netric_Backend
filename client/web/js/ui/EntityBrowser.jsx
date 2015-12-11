@@ -65,7 +65,7 @@ var EntityBrowser = React.createClass({
               browserView={this.props.browserView}
               layout={this.props.layout}
           	  collectionLoading={this.props.collectionLoading}
-              objReference={this.props.objReference}/>);
+              filters={this.props.filters}/>);
 
           if (this.props.collectionLoading) {
               // TODO: display loading indicator over the list

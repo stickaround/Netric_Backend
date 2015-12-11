@@ -19,18 +19,18 @@ var ActivityItem = React.createClass({
         entity: React.PropTypes.object,
 
         /**
-         * The main entity's object reference
+         * The filters used to display this activity list item
          *
-         * @var {string objType:eid}
+         * @var {array}
          */
-        objReference: React.PropTypes.string,
+        filters: React.PropTypes.array,
 
         /**
          * Function that will handle the clicking of object reference link
          *
          * @var {func}
          */
-        onObjReferenceClick: React.PropTypes.func
+        onEntityListClick: React.PropTypes.func
     },
 
     render: function () {
@@ -69,12 +69,10 @@ var ActivityItem = React.createClass({
 
         var activityName = activity.name;
 
-        /**
-         * We need to check if main entity's object reference and this activity's object reference is the same
-         * If they are the same, then we do not to create a href link for this activity's object reference
-         */
-        if (activity.objReference && this.props.objReference != activity.objReference) {
-            activityName = (<a href='javascript: void(0);' onClick={this._handleObjReferenceClick.bind(this, activity.objReference, activity.name)}>{activity.name}</a>);
+        // Check if this activity has object reference, then we will set the entity onclick
+        if (activity.objReference) {
+            activityName = (<a href='javascript: void(0);'
+                               onClick={this._handleObjReferenceClick.bind(this, activity.objReference, activity.name)}>{activity.name}</a>);
         }
 
         return (
@@ -139,7 +137,7 @@ var ActivityItem = React.createClass({
         var activity = {
             name: entity.getValue('name'),
             notes: entity.getValue('notes'),
-            objReference: entity.getValue('obj_reference')
+            objReference: this._getObjReference()
         };
 
         switch (activityType.toLowerCase()) {
@@ -183,6 +181,39 @@ var ActivityItem = React.createClass({
     },
 
     /**
+     * Gets the activity's object reference
+     * And if the activity's object reference is the same as the obj_reference or associations from the this.props.filters
+     *
+     * @return {string objReference}        Object Reference of the current activity list item
+     */
+    _getObjReference: function () {
+        var entity = this.props.entity;
+        var objReference = entity.getValue('obj_reference') || null;
+        var filters = this.props.filters || null;
+
+        // We do not need to check if ther is no filters or objReference set
+        if (filters && objReference) {
+
+            // Loop thru the filters passed from the props
+            for (var idx in filters) {
+                var value = filters[idx]['value'];
+                var fieldName = filters[idx]['fieldName'];
+
+                /**
+                 * If the filter value from obj_reference or associations is the same as the activity's objReference
+                 * Then we need to set the object reference to null.
+                 * Because this activity's objReference is the same entity we are currently viewing
+                 */
+                if (value == objReference && (fieldName == 'obj_reference' || fieldName == 'associations')) {
+                    objReference = null;
+                }
+            }
+        }
+
+        return objReference;
+    },
+
+    /**
      * Handles the clicking of object reference link
      *
      * @param {string objType:eid} string   The object reference of this activity
@@ -194,8 +225,8 @@ var ActivityItem = React.createClass({
         var objType = parts[0];
         var eid = parts[1] || null;
 
-        if(this.props.onObjReferenceClick) {
-            this.props.onObjReferenceClick(objType, eid, title);
+        if (this.props.onEntityListClick) {
+            this.props.onEntityListClick(objType, eid, title);
         }
     }
 });
