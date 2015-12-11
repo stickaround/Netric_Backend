@@ -34,6 +34,7 @@ var Objectsref = React.createClass({
             type: controller.types.FRAGMENT,
             hideToolbar: true,
             objType: objType,
+            eventsObj: this.props.eventsObj,
             onEntityClick: function(objType, oid) {
                 this.sendEntityClickEvent_(objType, oid);
             }.bind(this)

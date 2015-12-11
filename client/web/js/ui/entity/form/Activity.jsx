@@ -8,8 +8,8 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var controller = require('../../../controller/controller');
+var CustomEventTrigger = require("../../mixins/CustomEventTrigger.jsx");
 var Where = require("../../../entity/Where");
-var netric = require('../../../base');
 var Chamel = require('chamel');
 var DropDownMenu = Chamel.DropDownMenu;
 
@@ -17,6 +17,8 @@ var DropDownMenu = Chamel.DropDownMenu;
  * Render Activity into an entity form
  */
 var Activity = React.createClass({
+
+    mixins: [CustomEventTrigger],
 
     propTypes: {
         entity: React.PropTypes.object,
@@ -69,7 +71,7 @@ var Activity = React.createClass({
     },
 
     /**
-     * Load the activityController to display the activities for this entity
+     * Load the EntityBrowserController to display the activities for this entity
      *
      * @param {entity.Where[]} conditions      These are the conditions that will limit/filter the activities
      * @private
@@ -80,8 +82,8 @@ var Activity = React.createClass({
         var browser = this.state.activityBrowser;
 
         // Add filter to only show activities from the referenced object
-        var referenceFilter = new Where("obj_reference");
-        referenceFilter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
+        var filter = new Where('associations');
+        filter.equalTo(this.props.entity.objType + ":" + this.props.entity.id);
 
         // If conditions is not set, then we create a blank conditions array
         if (!conditions) {
@@ -89,7 +91,7 @@ var Activity = React.createClass({
         }
 
         // Set the reference filter in the conditions
-        conditions.push(referenceFilter);
+        conditions.push(filter);
 
         // Check if entity browser is not yet set
         if (!browser) {
@@ -99,7 +101,7 @@ var Activity = React.createClass({
             var callbackFunc = function () {
 
                 // We dont need to get activity views if it is already set.
-                if(!this.state.viewMenuData) {
+                if (!this.state.viewMenuData) {
                     var activityViews = browser.getEntityDefinition().getViews();
                     this._setViewMenuData(activityViews);
                 }
@@ -110,8 +112,12 @@ var Activity = React.createClass({
                 type: controller.types.FRAGMENT,
                 title: "Activity",
                 objType: "activity",
+                eventsObj: this.props.eventsObj,
                 hideToolbar: true,
-                filters: conditions
+                filters: conditions,
+                onEntityClick: function(objType, oid) {
+                    this._sendEntityClickEvent(objType, oid);
+                }.bind(this)
             }, inlineCon, null, callbackFunc.bind(this));
 
             this.setState({activityBrowser: browser});
@@ -141,6 +147,17 @@ var Activity = React.createClass({
         }
 
         this.setState({viewMenuData: viewMenu});
+    },
+
+    /**
+     * Trigger a custom event to send back to the entity controller
+     *
+     * @param {string} objType      The object type of the entity we are loading
+     * @param {int} oid             The entity id we are loading
+     * @private
+     */
+    _sendEntityClickEvent: function(objType, oid) {
+        this.triggerCustomEvent("entityclick", {objType:objType, id:oid});
     }
 });
 

@@ -62,7 +62,7 @@ var FileUploader = {
 
             // Save the data remotely
             request.setDataIsForm(true);
-            request.send("controller/AntFs/upload", 'POST', data);
+            request.send("/svr/files/upload", 'POST', data);
 
         } else {
             var error = {errorText: errorText}

@@ -12,6 +12,8 @@ var ListItemTableRow = require("./ListItemTableRow.jsx");
 var Loading = require("../Loading.jsx");
 var CommentItem = require("./item/Comment.jsx");
 var ActivitytItem = require("./item/Activity.jsx");
+var StatusUpdateItem = require("./item/StatusUpdate.jsx");
+var controller = require("../../controller/controller");
 
 /**
  * Module shell
@@ -28,7 +30,14 @@ var List = React.createClass({
 
         // Instance of Netric/Entity/BrowserView defining which columns a table show show
         browserView: React.PropTypes.object,
-        selectedEntities: React.PropTypes.array
+        selectedEntities: React.PropTypes.array,
+
+        /**
+         * The filters used to display this entity browser list
+         *
+         * @var {array}
+         */
+        filters: React.PropTypes.array,
     },
 
     getDefaultProps: function () {
@@ -96,11 +105,9 @@ var List = React.createClass({
                     item = (
                         <ActivitytItem
                             key={entity.id}
-                            selected={selected}
                             entity={entity}
-                            browserView={this.props.browserView}
-                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
+                            filters={this.props.filters}
+                            onEntityListClick={this.props.onEntityListClick}
                             />
                     )
                     break;
@@ -115,6 +122,15 @@ var List = React.createClass({
                             onSelect={this._sendSelect.bind(null, entity.id)}
                             />
                     );
+                    break;
+                case "status_update":
+                    item = (
+                        <StatusUpdateItem
+                            key={entity.id}
+                            entity={entity}
+                            onEntityListClick={this.props.onEntityListClick}
+                            />
+                    )
                     break;
                 /*
                  * All other object types will either be displayed as a table row
@@ -240,7 +256,7 @@ var List = React.createClass({
 
             this._loadMoreEntities(); // calls the function that will load additional entities
         }
-    }
+    },
 });
 
 module.exports = List;

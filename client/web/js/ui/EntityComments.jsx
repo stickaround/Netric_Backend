@@ -101,7 +101,7 @@ var EntityComments = React.createClass({
                 <div className="entity-comments-form">
                     <div className="entity-comments-form-left">
                         <IconButton
-                            label="Attach Files"
+                            label="Attach File(s)"
                             iconClassName="fa fa-paperclip"
                             onClick={this._handleFileUpload}
                         />
@@ -220,7 +220,7 @@ var EntityComments = React.createClass({
 
         fileUpload.load({
             type: controller.types.DIALOG,
-            title: "Attach Files",
+            title: "Attach File(s)",
             onFilesUploaded: function (fileId, fileName) {
                 this._handleAttachFiles(fileId, fileName)
             }.bind(this),

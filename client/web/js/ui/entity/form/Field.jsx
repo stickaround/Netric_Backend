@@ -15,6 +15,7 @@ var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var Comments = require("./Comments.jsx");
 var Activity = require("./Activity.jsx");
+var StatusUpdate = require("./StatusUpdate.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var NumberField = require("./field/NumberField.jsx");
 var DateField = require("./field/DateField.jsx");
@@ -74,16 +75,23 @@ var Field = React.createClass({
                 break;
             case field.types.objectMulti:
 
-                // Print object browser based on subtype
-                switch (field.subtype) {
-                    case "comment":
-                        fieldContent = <Comments {...this.props} />;
-                        break;
-                    case "activity":
-                        fieldContent = <Activity {...this.props} />;
-                        break;
-                    default:
-                        fieldContent = <ObjectMultiField {...this.props} />;
+                // We do not need to display the objectMulti if we do not have an entity id yet
+                if(this.props.entity.id) {
+
+                    // Print object browser based on subtype
+                    switch (field.subtype) {
+                        case "comment":
+                            fieldContent = <Comments {...this.props} />;
+                            break;
+                        case "activity":
+                            fieldContent = <Activity {...this.props} />;
+                            break;
+                        case "status_update":
+                            fieldContent = <StatusUpdate {...this.props} />;
+                            break;
+                        default:
+                            fieldContent = <ObjectMultiField {...this.props} />;
+                    }
                 }
 
                 break;

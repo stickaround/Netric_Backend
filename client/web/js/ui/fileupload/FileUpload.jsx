@@ -8,7 +8,7 @@
 'use strict';
 
 var React = require('react');
-var ReactDOM = require("react-dom");
+var ReactDOM = require('react-dom');
 var Chamel = require('chamel');
 var File = require('./File.jsx');
 var IconButton = Chamel.IconButton;
@@ -33,7 +33,13 @@ var FileUpload = React.createClass({
         return {
             folderId: null,
             currentPath: '%tmp%',
-            title: 'Upload Files',
+            title: 'Add Attachment',
+        }
+    },
+
+    componentDidMount: function () {
+        if (this.props.uploadedFiles.length == 0) {
+            this._handleShowUpload();
         }
     },
 
@@ -50,7 +56,7 @@ var FileUpload = React.createClass({
                     file={file}
                     displayProgress={true}
                     onRemove={this.props.onRemove}
-                />
+                    />
             );
         }
 
@@ -58,7 +64,7 @@ var FileUpload = React.createClass({
         if (!this.props.hideToolbar) {
             var elementLeft = (
                 <IconButton
-                    iconClassName="fa fa-arrow-left"
+                    iconClassName='fa fa-arrow-left'
                     onClick={this._handleBackButtonClicked}
                     />
             );
@@ -74,7 +80,12 @@ var FileUpload = React.createClass({
         return (
             <div>
                 {toolBar}
-                <FlatButton label={this.props.title} onClick={this._handleShowUpload}/>
+                <IconButton
+                    label='Attach File(s)'
+                    iconClassName='fa fa-paperclip'
+                    onClick={this._handleShowUpload}
+                    />
+                <FlatButton label='Attach File(s)' onClick={this._handleShowUpload}/>
                 <input
                     type='file'
                     ref='inputFile'
