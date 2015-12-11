@@ -70,7 +70,7 @@ var ActivityItem = React.createClass({
         var activityName = activity.name;
 
         // Check if this activity has object reference, then we will set the entity onclick
-        if (activity.objReference) {
+        if (activity.objectLinkReference) {
             activityName = (<a href='javascript: void(0);'
                                onClick={this._handleObjReferenceClick.bind(this, activity.objReference, activity.name)}>{activity.name}</a>);
         }
@@ -137,7 +137,8 @@ var ActivityItem = React.createClass({
         var activity = {
             name: entity.getValue('name'),
             notes: entity.getValue('notes'),
-            objReference: this._getObjReference()
+            objReference: entity.getValue('obj_reference'),
+            objectLinkReference: this._getObjLinkReference()
         };
 
         switch (activityType.toLowerCase()) {
@@ -181,12 +182,19 @@ var ActivityItem = React.createClass({
     },
 
     /**
-     * Gets the activity's object reference
-     * And if the activity's object reference is the same as the obj_reference or associations from the this.props.filters
+     * Get the object reference for a link
      *
-     * @return {string objReference}        Object Reference of the current activity list item
+     * Each activity has a reference to an object the activity was performed on.
+     * If this browser has been filtered by one specific object, it can be assumed
+     * that the calling code already knows about the obj_reference in question
+     * and we do not need to display the link. A good example of this is in an
+     * activity component for an entity form. The user is already viewing a specific
+     * task so there is no need to add a link to that same talk in all activities.
+     *
+     * @private
+     * @return {string} Object reference that should be linked to
      */
-    _getObjReference: function () {
+    _getObjLinkReference: function () {
         var entity = this.props.entity;
         var objReference = entity.getValue('obj_reference') || null;
         var filters = this.props.filters || null;

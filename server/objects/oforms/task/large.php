@@ -44,11 +44,6 @@
                 </row>
                 <row>
                     <column>
-                        <objectsref obj_type='task' ref_field='depends_task_id'></objectsref>
-                    </column>
-                </row>
-                <row>
-                    <column>
                         <field name='comments'></field>
                     </column>
                 </row>
@@ -65,8 +60,9 @@
     </column>
     <column type="sidebar">
         <header>Activity</header>
+        <status_update />
         <row>
-            <field name='activity'></field>
+            <objectsref obj_type='status_update' ref_field='obj_reference' />
         </row>
     </column>
 </row>

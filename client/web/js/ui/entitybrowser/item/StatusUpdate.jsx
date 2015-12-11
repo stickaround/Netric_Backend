@@ -31,6 +31,23 @@ var StatusUpdateItem = React.createClass({
         var ownerId = entity.getValue('owner_id');
         var ownerName = entity.getValueName('owner_id', ownerId);
         var notes = this._processNotes(entity.getValue('comment'));
+        var objReference = entity.getValue('obj_reference');
+        var objectLinkReference = null;
+
+        // Check if this status update has object reference, then we will set the entity onclick
+        if (objReference) {
+
+            // Get the object type of this status update
+            var objType = objReference.split(':')[0];
+            var objType = objType[0].toUpperCase() + objType.slice(1);
+
+            objectLinkReference = (
+                <div>
+                    {objType}: <a href='javascript: void(0);'
+                                 onClick={this._handleObjReferenceClick}>{entity.getValueName('obj_reference', objReference)}</a>
+                </div>
+            );
+        }
 
         return (
             <div className='entity-browser-activity'>
@@ -40,15 +57,13 @@ var StatusUpdateItem = React.createClass({
                 <div className='entity-browser-activity-details'>
                     <div className='entity-browser-activity-header'>
                         {ownerName}
+                        {objectLinkReference}
                     </div>
                     <div className='entity-browser-activity-body'>
                         <div dangerouslySetInnerHTML={notes}/>
                     </div>
                     <div className='entity-browser-activity-title'>
                         {timestamp}
-                        <div>
-                            <a href='javascript: void(0);' onClick={this._handleObjReferenceClick}>Details</a>
-                        </div>
                     </div>
                 </div>
             </div>

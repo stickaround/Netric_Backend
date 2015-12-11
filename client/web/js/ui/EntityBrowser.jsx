@@ -33,8 +33,7 @@ var EntityBrowser = React.createClass({
       selectedEntities: React.PropTypes.array,
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
-	  hideToolbar: React.PropTypes.bool,
-      objReference: React.PropTypes.string
+      hideToolbar: React.PropTypes.bool,
   },
 
   getDefaultProps: function() {
