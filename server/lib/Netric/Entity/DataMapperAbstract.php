@@ -10,6 +10,7 @@ namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
+use Netric\Entity\EntityAggregator;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
@@ -54,7 +55,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         $this->recurIdentityMapper = $account->getServiceManager()->get("RecurrenceIdentityMapper");
 		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
-		$this->entitySync = $account->getServiceManager()->get("EntitySync");
+		$this->entitySync = $account->getServiceManager()->get("EntitySync");;
 	}
 
     /**
@@ -252,6 +253,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 		// Call onAfterSave
         $entity->afterSave($serviceManager);
+
+		// Update any aggregates that could be impacted by saving $entity
+        $this->getAccount()
+            ->getServiceManager()
+            ->get("Netric/Entity/EntityAggregator")
+            ->updateAggregates($entity);
 
 		// Reset dirty flag and changelog
 		$entity->resetIsDirty();

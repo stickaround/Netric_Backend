@@ -48,10 +48,12 @@ $obj_views[] = $view;
 unset($view);
 
 // Aggregate to auto update product rating
+$aggregates = array();
 $agg = new stdClass();
 $agg->field = "product";
 $agg->refField = "rating";
 $agg->type = "avg";
 $agg->calcField = "rating";
 $aggregates = array($agg);
+$aggregates[] = $agg;
 ?>

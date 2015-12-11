@@ -67,6 +67,7 @@ class LocalFileStore implements FileStoreInterface
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
+     * @throws exception\FileNotFoundException if you try to read from a file that is not there
      */
     public function readFile(File $file, $numBytes = null, $offset = null)
     {
@@ -79,7 +80,13 @@ class LocalFileStore implements FileStoreInterface
                 return false;
 
             if (file_exists($path))
+            {
                 $file->setFileHandle(fopen($path, 'rb'));
+            }
+            else
+            {
+                throw new exception\FileNotFoundException("File '$path' does not exist");
+            }
         }
 
         if ($offset)

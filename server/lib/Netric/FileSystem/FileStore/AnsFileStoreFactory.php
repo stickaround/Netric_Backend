@@ -10,9 +10,9 @@ namespace Netric\FileSystem\FileStore;
 use Netric\ServiceManager;
 
 /**
- * Create a file system storage service
+ * Create a file system storage service that uses aereus network storage
  */
-class LocalFileStoreFactory implements ServiceManager\ServiceFactoryInterface
+class AnsFileStoreFactory implements ServiceManager\ServiceFactoryInterface
 {
     /**
      * Service creation factory
@@ -22,11 +22,16 @@ class LocalFileStoreFactory implements ServiceManager\ServiceFactoryInterface
      */
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $config = $sl->get("Config");
-        $dataPath = $config->data_path;
         $accountId = $sl->getAccount()->getId();
         $dataMapper = $sl->get("Entity_DataMapper");
 
-        return new LocalFileStore($accountId, $dataPath, $dataMapper);
+        $config = $sl->get("Config");
+        $ansServer = $config->alib['ans_server'];
+        $ansAccount = $config->alib['ans_account'];
+        $ansPassword = $config->alib['ans_password'];
+
+        $tmpPath = $config->data_path . "/" . "tmp";
+
+        return new AnsFileStore($accountId, $dataMapper, $ansServer, $ansAccount, $ansPassword, $tmpPath);
     }
 }

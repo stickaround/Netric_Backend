@@ -50,14 +50,23 @@ class EntityAggregator
      */
     private $entityIndex = null;
 
+    /**
+     * Constructor
+     *
+     * @param EntityLoader $entityLoader To load and save entities
+     * @param IndexInterface $entityIndex The query entities
+     */
     public function __construct(EntityLoader $entityLoader, IndexInterface $entityIndex)
     {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
-
     }
 
-
+    /**
+     * Update any aggregates related to this entity
+     *
+     * @param Entity $entity
+     */
     public function updateAggregates(Entity $entity)
     {
         $def = $entity->getDefinition();
@@ -85,28 +94,28 @@ class EntityAggregator
                 $query->where($agg->field)->equals($entity->getValue($agg->field));
 
                 // Initialize an aggregate
-                $agg = null;
+                $queryAgg = null;
 
                 // Create new aggregate based on type
                 switch ($agg->type)
                 {
                     case 'sum':
-                        $agg = new Aggregation\Sum("update");
+                        $queryAgg = new Aggregation\Sum("update");
                         break;
 
                     case 'avg':
-                        $agg = new Aggregation\Avg("update");
+                        $queryAgg = new Aggregation\Avg("update");
                         break;
                 }
 
                 // If aggregate was valid (and created), then update referenced entity
-                if ($agg)
+                if ($queryAgg)
                 {
                     // Set the field we are calculating on
-                    $agg->setField($agg->calcField);
+                    $queryAgg->setField($agg->calcField);
 
                     // Add the aggregate to the quer
-                    $query->addAggregation($agg);
+                    $query->addAggregation($queryAgg);
 
                     // Get value of aggregate
                     $aggValue = $this->entityIndex->executeQuery($query)->getAggregation("update");
@@ -114,7 +123,7 @@ class EntityAggregator
                     // Update $agg['refField'] of referenced entity
                     $entityToUpdate = $this->entityLoader->get($field->subtype, $referencedId);
                     $entityToUpdate->setValue($agg->refField, $aggValue);
-                    $this->entityLoader->save($entity);
+                    $this->entityLoader->save($entityToUpdate);
                 }
             }
         }

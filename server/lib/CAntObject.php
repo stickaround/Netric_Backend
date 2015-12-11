@@ -1514,10 +1514,11 @@ class CAntObject
 			*/
 		}
 
-		if (count($this->def->aggregates))
-		{
-			$this->saveAggregates($this->def->aggregates);
-		}
+		// FIXME: This is now handled inside the new Netric\Entity\DataMapperAbstract class
+		//if (count($this->def->aggregates))
+		//{
+		//	$this->saveAggregates($this->def->aggregates);
+		//}
 
 		return $this->id;
 	}

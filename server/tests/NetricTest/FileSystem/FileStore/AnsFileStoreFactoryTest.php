@@ -1,13 +1,13 @@
 <?php
 /**
- * Test the LocalFileStoreFactory service
+ * Test the AnsFileStoreFactory service
  */
 namespace NetricTest\FileSystem;
 
 use Netric;
 use PHPUnit_Framework_TestCase;
 
-class LocalFileStoreFactoryTest extends PHPUnit_Framework_TestCase
+class AnsFileStoreFactoryTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Reference to account running for unit tests
@@ -27,7 +27,7 @@ class LocalFileStoreFactoryTest extends PHPUnit_Framework_TestCase
         $sl = $this->account->getServiceManager();
         $this->assertInstanceOf(
             'Netric\FileSystem\FileStore\FileStoreInterface',
-            $sl->get('Netric/FileSystem/FileStore/LocalFileStore')
+            $sl->get('Netric/FileSystem/FileStore/AnsFileStore')
         );
     }
 }

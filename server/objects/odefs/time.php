@@ -80,10 +80,11 @@ $obj_views[] = $view;
 unset($view);
 
 // Aggregates
+$aggregates = array();
 $agg = new stdClass();
 $agg->field = "task_id";
 $agg->refField = "cost_actual";
 $agg->calcField = "hours";
 $agg->type = "sum";
-$this->aggregates[] = $agg;
+$aggregates[] = $agg;
 ?>

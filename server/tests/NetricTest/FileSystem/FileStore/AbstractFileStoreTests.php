@@ -56,9 +56,16 @@ abstract class AbstractFileStoreTests extends PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
+        $fileStore = $this->getFileStore();
         $dataMapper = $this->getEntityDataMapper();
         foreach ($this->testFiles as $file)
         {
+            // Delete with this filestore since it may not
+            if ($fileStore->fileExists($file))
+            {
+                $fileStore->deleteFile($file);
+            }
+
             $dataMapper->delete($file, true);
         }
     }
@@ -138,7 +145,7 @@ abstract class AbstractFileStoreTests extends PHPUnit_Framework_TestCase
         $this->assertTrue($ret);
 
         /*
-         * Try reading the file ato make sure data was imported
+         * Try reading the file to make sure data was imported
          * The contents of ./fixtures/file-to-upload-2.txt is: FileHasContent2
          */
         $buf = $fileStore->readFile($testFile);
@@ -174,9 +181,9 @@ abstract class AbstractFileStoreTests extends PHPUnit_Framework_TestCase
         $fileStore->uploadFile($testFile, $uploadFile2Path);
 
         // Delete the file - which will purge all revisions
-        $fileStore->deleteFile($testFile);
+        $this->assertTrue($fileStore->deleteFile($testFile));
 
-        // Now loop through all revisions and check if the file exists
+        // Now loop through all revisions and make sure we purged them
         $dataMapper = $this->getEntityDataMapper();
         $files = $dataMapper->getRevisions("file", $testFile->getId());
         foreach ($files as $rev=>$file)

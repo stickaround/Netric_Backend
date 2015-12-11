@@ -225,10 +225,12 @@ $obj_views[] = $view;
 unset($view);
 
 // Aggregates
+$aggregates = array();
 $agg = new stdClass();
 $agg->field = "story_id";
 $agg->refField = "cost_actual";
 $agg->calcField = "cost_actual";
 $agg->type = "sum";
 $aggregates = array($agg);
+$aggregates[] = $agg;
 ?>
