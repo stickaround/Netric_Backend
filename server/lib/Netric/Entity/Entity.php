@@ -266,7 +266,7 @@ class Entity implements \Netric\Entity\EntityInterface
         // Check to make sure we do not already have this value added
         for ($i = 0; $i < count($this->values[$strName]); $i++)
         {
-        	if ($value == $this->values[$strName][$i])
+        	if (!empty($this->values[$strName][$i]) && $value === $this->values[$strName][$i])
         	{
         		// The value was already added and they need to be unique
 
