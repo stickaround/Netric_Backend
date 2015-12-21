@@ -10,11 +10,19 @@ var Chamel = require('chamel');
 var TextFieldComponent = Chamel.TextField;
 var TextFieldRichComponent = Chamel.TextFieldRich;
 var EditorComponent = Chamel.Editor;
+var EntityCollection = require("../../../../entity/Collection");
 
 /**
  * Base level element for enetity forms
  */
 var TextField = React.createClass({
+
+    /**
+     * This will contain the instance of EntityCollection
+     *
+     * @object {entity/collection EntityCollection}
+     */
+    _entityCollection: null,
 
     /**
      * Expected props
@@ -24,6 +32,15 @@ var TextField = React.createClass({
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
+    },
+
+    componentDidMount: function () {
+        if (this.refs.textFieldComponent) {
+            var fieldName = this.props.xmlNode.getAttribute('name');
+            var fieldValue = this.props.entity.getValue(fieldName);
+
+            this.refs.textFieldComponent.setValue(fieldValue);
+        }
     },
 
     render: function () {
@@ -46,16 +63,30 @@ var TextField = React.createClass({
 
             } else {
 
+                // AutoComplete function that will transform the selected data to something else
+                var funcTransform = function (data) {
+                    return "[" + data.payload + ":" + data.text + "]";
+                }
+
+                var autoCompleteAttributes = {
+                    autoComplete: true,
+                    autoCompleteDelimiter: '',
+                    autoCompleteTrigger: '@',
+                    autoCompleteTransform: funcTransform,
+                    autoCompleteGetData: this._getAutoCompleteData
+                }
+
                 return (
                     <TextFieldComponent
+                        {... autoCompleteAttributes}
+                        ref='textFieldComponent'
                         floatingLabelText={field.title}
-                        value={fieldValue}
                         multiLine={multiline}
-                        onChange={this._handleInputChange}/>
+                        onChange={this._handleInputChange}
+                        />
                 );
 
             }
-
         } else {
 
             // Display view mode text as innerhtml
@@ -63,9 +94,40 @@ var TextField = React.createClass({
             return (
                 <div dangerouslySetInnerHTML={innerHtml}/>
             );
-
         }
 
+    },
+
+    /**
+     * Get the users data to be used in autocomplete list
+     *
+     * @params {string} keyword         The search keyword used to filter the user entities
+     * @params {func} doneCallback      This doneCallback function is called one collection has loaded the data
+     * @private
+     */
+    _getAutoCompleteData: function (keyword, doneCallback) {
+
+        if (!this._entityCollection) {
+            this._entityCollection = new EntityCollection('user');
+        }
+
+        this._entityCollection.clearConditions();
+        this._entityCollection.where("*").equalTo(keyword);
+
+        var collectionDoneCallback = function () {
+            var entities = this._entityCollection.getEntities();
+
+            var autoCompleteData = entities.map(function (entity) {
+                return {
+                    payload: entity.id,
+                    text: entity.getValue('full_name')
+                };
+            });
+
+            doneCallback(autoCompleteData);
+        }.bind(this);
+
+        this._entityCollection.load(collectionDoneCallback);
     },
 
     /**
