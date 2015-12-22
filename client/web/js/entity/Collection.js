@@ -3,40 +3,40 @@
  *
  * Example:
  *
- * 	var collection = new entity.Collection("customer");
- *	collection.where("first_name").isEqaulTo("sky");
- *	collection.setLimit(100);
- *	alib.events.listen(collection, "change", function(collection) {
+ *    var collection = new entity.Collection("customer");
+ *    collection.where("first_name").isEqaulTo("sky");
+ *    collection.setLimit(100);
+ *    alib.events.listen(collection, "change", function(collection) {
  *		// Load entities into the view
  *		this.loadEntities(collection);
  *	}.bind(this));
  *
- *	// This will trigger a 'change' event if any entities are loaded
- *	collection.load();
+ *    // This will trigger a 'change' event if any entities are loaded
+ *    collection.load();
  *
- *	// To extend the limit, just go
- *	var lastLoadedOffset = collection.getLastLoadedOffset();
- *	if (lastLoadedOffset < collection.getTotalNum())
- *	{
+ *    // To extend the limit, just go
+ *    var lastLoadedOffset = collection.getLastLoadedOffset();
+ *    if (lastLoadedOffset < collection.getTotalNum())
+ *    {
  *	  var nextLimit = lastLoadedOffset + 100;
- *	
+ *
  *	  // If we are beyond the boundaries of the query, just point to the end
  *	  if (nextLimit >= collection.getTotalNum())
  *		nextLimit = collection.getTotalNum() - 1;
- *	
+ *
  *	  collection.setLimit(nextLimit);
  *	  collection.load();
  *	}
  *
- *	// Refresh will trigger change if needed
- *	collection.refresh(function() {  
+ *    // Refresh will trigger change if needed
+ *    collection.refresh(function() {
  *	 // Finished refresh
  *	});
  *
  *
  *
- * @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
- * 			Copyright (c) 2014-2015 Aereus Corporation. All rights reserved.
+ * @author:    Sky Stebnicki, sky.stebnicki@aereus.com;
+ *            Copyright (c) 2014-2015 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
@@ -51,7 +51,7 @@ var Where = require("./Where");
  * @constructor
  * @param {string} objType The name of the object type we are collecting
  */
-var Collection = function(objType) {
+var Collection = function (objType) {
 
     /**
      * Object type for this list
@@ -125,6 +125,17 @@ var Collection = function(objType) {
      */
     this.entities_ = new Array();
 
+    /**
+     * Instance of BackendRequest
+     *
+     * We have an option to use only one instance of backend request for this collection
+     *  if we want to abort any in-progress requests.
+     *
+     * @private
+     * @type {object /BackendRequest}
+     */
+    this.request_ = null;
+
 }
 
 /**
@@ -133,8 +144,8 @@ var Collection = function(objType) {
  * @const
  */
 Collection.orderByDir = {
-    ASC : "ASC",
-    DESC : "DESC"
+    ASC: "ASC",
+    DESC: "DESC"
 }
 
 /**
@@ -142,12 +153,12 @@ Collection.orderByDir = {
  *
  * @param {function} opt_callback Optional callback to be called when finished loading
  */
-Collection.prototype.load = function(opt_callback) {
+Collection.prototype.load = function (opt_callback) {
 
     // First get the entity definition
     if (null === this.entityDefinition_) {
 
-        definitionLoader.get(this.objType_, function(def){
+        definitionLoader.get(this.objType_, function (def) {
             this.entityDefinition_ = def;
 
             if (opt_callback) {
@@ -168,14 +179,21 @@ Collection.prototype.load = function(opt_callback) {
 
     // Setup the request
     var requestParams = {
-        obj_type:this.objType_,
-        limit:this.limit_
+        obj_type: this.objType_,
+        limit: this.limit_
     };
 
-    var request = new BackendRequest();
+
+    // Get the instance of BackEndRequest. Default value of this.request_ is null
+    var request = this.request_;
+
+    // If there is no this.request_ set, then we need to create a new instance of BackendRequest
+    if (!request) {
+        request = new BackendRequest();
+    }
 
     var collection = this;
-    alib.events.listen(request, "load", function(evt) {
+    alib.events.listen(request, "load", function (evt) {
         var resp = this.getResponse();
         collection.totalNum_ = resp.total_num;
         collection.setEntitiesData(resp.entities);
@@ -200,7 +218,7 @@ Collection.prototype.load = function(opt_callback) {
     // If there are where conditions then initialize the param in the request object
     if (whereConditions.length > 0) {
         requestParams.where = [];
-        
+
         for (var i in whereConditions) {
             requestParams.where.push(
                 whereConditions[i].bLogic + "," +
@@ -209,17 +227,24 @@ Collection.prototype.load = function(opt_callback) {
                 '"' + whereConditions[i].value + '"' // Escape for csv quotes
             );
         }
-    }    
-    
-    if(sortOrder.length > 0) {
+    }
+
+    if (sortOrder.length > 0) {
         requestParams.order_by = [];
-        
+
         for (var i in sortOrder) {
             requestParams.order_by.push(
-                    sortOrder[i].field + "," +
-                    sortOrder[i].direction  + ","
+                sortOrder[i].field + "," +
+                sortOrder[i].direction + ","
             );
         }
+    }
+
+    // Check if the current backend request is in progress
+    if(request.isInProgress()) {
+
+        // Abort a request if it is in progress, then send a new request with updated parameters
+        request.abort();
     }
 
     // Send request to the server (listeners attached above will handle onload or error)
@@ -231,7 +256,7 @@ Collection.prototype.load = function(opt_callback) {
  *
  * @param {Array} data
  */
-Collection.prototype.setEntitiesData = function(data) {
+Collection.prototype.setEntitiesData = function (data) {
 
     if (this.offset_ == 0) {
         // Cleanup
@@ -257,21 +282,21 @@ Collection.prototype.setEntitiesData = function(data) {
  *
  * @returns {integer}
  */
-Collection.prototype.getTotalNum = function() {
+Collection.prototype.getTotalNum = function () {
     return this.totalNum_;
 }
 
 /**
  * Get array of all entities in this collection
  */
-Collection.prototype.getEntities = function() {
+Collection.prototype.getEntities = function () {
     return this.entities_;
 }
 
 /**
  * Get updates from the backend and refresh the collection
  */
-Collection.prototype.refresh = function() {
+Collection.prototype.refresh = function () {
     // Reload which will trigger a load event
     this.load();
 }
@@ -281,7 +306,7 @@ Collection.prototype.refresh = function() {
  *
  * @param {Where} where The where objet to add to conditions
  */
-Collection.prototype.addWhere = function(where) {
+Collection.prototype.addWhere = function (where) {
     this.conditions_.push(where);
 }
 
@@ -291,7 +316,7 @@ Collection.prototype.addWhere = function(where) {
  * @param {string} fieldName The name of the field to query
  * @return {Where}
  */
-Collection.prototype.where = function(fieldName) {
+Collection.prototype.where = function (fieldName) {
     return this.andWhere(fieldName);
 }
 
@@ -301,7 +326,7 @@ Collection.prototype.where = function(fieldName) {
  * @param {string} fieldName The name of the field to query
  * @return {Where}
  */
-Collection.prototype.andWhere = function(fieldName) {
+Collection.prototype.andWhere = function (fieldName) {
     var where = new Where(fieldName);
     this.conditions_.push(where);
     return where;
@@ -313,7 +338,7 @@ Collection.prototype.andWhere = function(fieldName) {
  * @param {string} fieldName The name of the field to query
  * @return {Where}
  */
-Collection.prototype.orWhere = function(fieldName) {
+Collection.prototype.orWhere = function (fieldName) {
     var where = new Where(fieldName);
     where.operator = Where.conjunctives.OR;
     this.conditions_.push(where);
@@ -325,14 +350,14 @@ Collection.prototype.orWhere = function(fieldName) {
  *
  * @return {Array}
  */
-Collection.prototype.getConditions = function() {
+Collection.prototype.getConditions = function () {
     return this.conditions_;
 }
 
 /**
  * Clear all where conditions
  */
-Collection.prototype.clearConditions = function() {
+Collection.prototype.clearConditions = function () {
     this.conditions_ = [];
 }
 
@@ -342,8 +367,8 @@ Collection.prototype.clearConditions = function() {
  * @param {string} fieldName The name of the field to sort by
  * @param {Collection.orderByDir} The direction of the sort
  */
-Collection.prototype.setOrderBy = function(fieldName, direction) {
-   this.orderBy_.push({field:fieldName, direction:direction});
+Collection.prototype.setOrderBy = function (fieldName, direction) {
+    this.orderBy_.push({field: fieldName, direction: direction});
 }
 
 /**
@@ -351,14 +376,14 @@ Collection.prototype.setOrderBy = function(fieldName, direction) {
  *
  * @return {Array}
  */
-Collection.prototype.getOrderBy = function() {
+Collection.prototype.getOrderBy = function () {
     return this.orderBy_;
 }
 
 /**
  * Clear the order for this entity query
  */
-Collection.prototype.clearOrderBy = function() {
+Collection.prototype.clearOrderBy = function () {
     this.orderBy_ = [];
 }
 
@@ -367,7 +392,7 @@ Collection.prototype.clearOrderBy = function() {
  *
  * @param {int} offset
  */
-Collection.prototype.setOffset = function(offset) {
+Collection.prototype.setOffset = function (offset) {
     this.offset_ = offset;
 }
 /**
@@ -375,7 +400,7 @@ Collection.prototype.setOffset = function(offset) {
  *
  * @return {int}
  */
-Collection.prototype.getOffset = function() {
+Collection.prototype.getOffset = function () {
     return this.offset_;
 }
 
@@ -384,7 +409,7 @@ Collection.prototype.getOffset = function() {
  *
  * @param {int} limit
  */
-Collection.prototype.setLimit = function(limit) {
+Collection.prototype.setLimit = function (limit) {
     this.limit_ = limit;
 }
 
@@ -393,7 +418,7 @@ Collection.prototype.setLimit = function(limit) {
  *
  * @return {int}
  */
-Collection.prototype.getLimit = function() {
+Collection.prototype.getLimit = function () {
     return this.limit_;
 }
 
@@ -402,8 +427,19 @@ Collection.prototype.getLimit = function() {
  *
  * @return {array}
  */
-Collection.prototype.getEntityFields = function() {
+Collection.prototype.getEntityFields = function () {
     return this.entityDefinition_.getFields();
+}
+
+/**
+ * Force the collection to only have one instance of BackendRequest
+ *
+ * This will enable the collection to abort any in-progress request for this collection instance
+ *
+ * @public
+ */
+Collection.prototype.forceOneBackendRequest = function () {
+    this.request_ = new BackendRequest();
 }
 
 module.exports = Collection;

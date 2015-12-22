@@ -63,16 +63,11 @@ var TextField = React.createClass({
 
             } else {
 
-                // AutoComplete function that will transform the selected data to something else
-                var funcTransform = function (data) {
-                    return "[" + data.payload + ":" + data.text + "]";
-                }
-
                 var autoCompleteAttributes = {
                     autoComplete: true,
                     autoCompleteDelimiter: '',
                     autoCompleteTrigger: '@',
-                    autoCompleteTransform: funcTransform,
+                    autoCompleteTransform: this._transformAutoCompleteSelected,
                     autoCompleteGetData: this._getAutoCompleteData
                 }
 
@@ -109,14 +104,22 @@ var TextField = React.createClass({
 
         if (!this._entityCollection) {
             this._entityCollection = new EntityCollection('user');
+
+            /**
+             * Force the entity collection to only have one backend request
+             * This will enable us to abort other requests that are in-progress
+             */
+            this._entityCollection.forceOneBackendRequest();
         }
 
         this._entityCollection.clearConditions();
         this._entityCollection.where("*").equalTo(keyword);
 
         var collectionDoneCallback = function () {
+
             var entities = this._entityCollection.getEntities();
 
+            // We are setting the payload and text here to be displayed in the menu list
             var autoCompleteData = entities.map(function (entity) {
                 return {
                     payload: entity.id,
@@ -234,6 +237,22 @@ var TextField = React.createClass({
         //buf = buf.replace(regEx, "<a href=\"mailto:$1\">$1</a>");
 
         return buf;
+    },
+
+    /**
+     * AutoComplete function that will transform the selected data to something else
+     *
+     * @param {object} data     THe autocomplete selected data
+     * @returns {string}
+     * @private
+     */
+    _transformAutoCompleteSelected: function (data) {
+
+        /**
+         * The data contains payload and text as its object fields. These are set in ::_getAutoCompleteData()
+         * Payload contains the user id and text has the user's full name
+         */
+        return "[" + data.payload + ":" + data.text + "]";
     }
 });
 
