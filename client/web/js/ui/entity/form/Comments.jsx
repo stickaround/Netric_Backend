@@ -44,7 +44,24 @@ var Comments = React.createClass({
     },
 
     componentDidMount: function() {
+
         this._loadComments();
+    },
+
+    /**
+     * Invoked immediately after the component's updates are flushed to the DOM.
+     *
+     * This method is not called for the initial render and we use it to check if
+     * the id has changed - meaning a new entity was saved.
+     *
+     * @param {prevProps} object    Contains the preview props before the update
+     */
+    componentDidUpdate: function(prevProps) {
+        
+        // Only load the comments if the previous num_comments and current entity's num_comments are not equal
+        if(this.props.entity.getValue('num_comments') != prevProps.entity.getValue('num_comments')) {
+            this._loadComments();
+        }
     },
 
     render: function() {
@@ -81,16 +98,6 @@ var Comments = React.createClass({
         return (<div ref="comcon">{content}</div>);
 
 
-    },
-
-    /**
-     * Invoked immediately after the component's updates are flushed to the DOM.
-     *
-     * This method is not called for the initial render and we use it to check if
-     * the id has changed - meaning a new entity was saved.
-     */
-    componentDidUpdate: function() {
-        this._loadComments();
     },
 
     /**
