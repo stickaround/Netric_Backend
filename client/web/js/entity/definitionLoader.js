@@ -1,9 +1,9 @@
 /**
-* @fileOverview Definition loader
-*
-* @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
-* 			Copyright (c) 2014 Aereus Corporation. All rights reserved.
-*/
+ * @fileOverview Definition loader
+ *
+ * @author:    Sky Stebnicki, sky.stebnicki@aereus.com;
+ *            Copyright (c) 2014 Aereus Corporation. All rights reserved.
+ */
 'use strict';
 
 var BackendRequest = require("../BackendRequest");
@@ -24,6 +24,18 @@ var definitionLoader = {};
 definitionLoader.definitions_ = new Array();
 
 /**
+ * Keep the reference of the request per objType
+ *
+ * Every objType will only have one BackendRequest instance.
+ * With this, we can make sure that we do not have multiple requests for getting
+ *  the object's entity definition
+ *
+ * @private
+ * @param {Array}
+ */
+definitionLoader.requests_ = new Array();
+
+/**
  * Static function used to load an entity definition
  *
  * If no callback is set then this function will try to return the definition
@@ -34,44 +46,55 @@ definitionLoader.definitions_ = new Array();
  * @param {function} cbLoaded Callback function once definition is loaded
  * @return {Definition|void} If no callback is provded then force a return
  */
-definitionLoader.get = function(objType, cbLoaded) {
+definitionLoader.get = function (objType, cbLoaded) {
 
-	if (!objType) {
-		throw "The first param {objType} is required and cannot be blank or null";
-	}
+    if (!objType) {
+        throw "The first param {objType} is required and cannot be blank or null";
+    }
 
-	// Return (or callback callback) cached definition if already loaded
-	if (this.definitions_[objType] != null) {
-		
-		if (cbLoaded) {
-			cbLoaded(this.definitions_[objType]);
-		}
+    // Return (or callback callback) cached definition if already loaded
+    if (this.definitions_[objType] != null) {
 
-		return this.definitions_[objType];
-	}
+        if (cbLoaded) {
+            cbLoaded(this.definitions_[objType]);
+        }
 
-	var request = new BackendRequest();
+        return this.definitions_[objType];
+    }
 
-	if (cbLoaded) {
-		alib.events.listen(request, "load", function(evt) {
-			var def = definitionLoader.createFromData(this.getResponse());
-			cbLoaded(def);
-		});
+    // Check if we do not have a backend request for this type of object
+    if (!definitionLoader.requests_[objType]) {
 
-		alib.events.listen(request, "error", function(evt) {
-			log.error("Failed to load request", evt);
-		});
-	} else {
-		// Set request to be synchronous if no callback is set	
-		request.setAsync(false);
-	}
+        // Create a new backend request instance for this object
+        definitionLoader.requests_[objType] = new BackendRequest();
+    }
 
-	request.send("svr/entity/getDefinition", "GET", {obj_type:objType});
+    var request = definitionLoader.requests_[objType];
 
-	// If no callback then construct Definition from request date (synchronous)
-	if (!cbLoaded) {
-		return this.createFromData(request.getResponse());
-	}
+    // If ths object's backend request still in-progress, we do not need to send another request
+    if (!definitionLoader.requests_[objType].isInProgress()) {
+
+        if (cbLoaded) {
+            alib.events.listen(request, "load", function (evt) {
+                var def = definitionLoader.createFromData(this.getResponse());
+                cbLoaded(def);
+            });
+
+            alib.events.listen(request, "error", function (evt) {
+                log.error("Failed to load request", evt);
+            });
+        } else {
+            // Set request to be synchronous if no callback is set
+            request.setAsync(false);
+        }
+
+        request.send("svr/entity/getDefinition", "GET", {obj_type: objType});
+
+        // If no callback then construct Definition from request date (synchronous)
+        if (!cbLoaded) {
+            return this.createFromData(request.getResponse());
+        }
+    }
 }
 
 /**
@@ -79,15 +102,15 @@ definitionLoader.get = function(objType, cbLoaded) {
  *
  * @param {Object} data The data to create the definition from
  */
-definitionLoader.createFromData = function(data) {
+definitionLoader.createFromData = function (data) {
 
-	// Construct definition and initialize with data	
-	var def = new Definition(data);
-	
-	// Cache it for future requests
-	this.definitions_[def.objType] = def;
+    // Construct definition and initialize with data
+    var def = new Definition(data);
 
-	return this.definitions_[def.objType];
+    // Cache it for future requests
+    this.definitions_[def.objType] = def;
+
+    return this.definitions_[def.objType];
 }
 
 /**
@@ -96,12 +119,12 @@ definitionLoader.createFromData = function(data) {
  * @param {string} objType The uniqy name of the object entity type
  * @return {Definition} Entity defintion on success, null if not cached
  */
-definitionLoader.getCached = function(objType) {
-	if (this.definitions_[objType]) {
-		return this.definitions_[objType];
-	}
+definitionLoader.getCached = function (objType) {
+    if (this.definitions_[objType]) {
+        return this.definitions_[objType];
+    }
 
-	return null;
+    return null;
 }
 
 module.exports = definitionLoader;
