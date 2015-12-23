@@ -34,12 +34,29 @@ var TextField = React.createClass({
         editMode: React.PropTypes.bool
     },
 
-    componentDidMount: function () {
-        if (this.refs.textFieldComponent) {
-            var fieldName = this.props.xmlNode.getAttribute('name');
-            var fieldValue = this.props.entity.getValue(fieldName);
+    getInitialState: function() {
+        return {
+            shouldUpdateField: false
+        }
+    },
 
-            this.refs.textFieldComponent.setValue(fieldValue);
+    componentDidMount: function () {
+        this._updateFieldValue();
+    },
+
+    componentWillReceiveProps: function (nextProps) {
+
+        // If we are changing the edit mode, then we need to update the textfield value
+        if(this.props.editMode != nextProps.editMode) {
+            this.setState({shouldUpdateField: nextProps.editMode});
+        }
+    },
+
+    componentDidUpdate: function () {
+
+        if (this.state.shouldUpdateField) {
+            this._updateFieldValue();
+            this.setState({shouldUpdateField: false});
         }
     },
 
@@ -253,6 +270,20 @@ var TextField = React.createClass({
          * Payload contains the user id and text has the user's full name
          */
         return "[" + data.payload + ":" + data.text + "]";
+    },
+
+    /**
+     * Update the text field value with the entity's value
+     *
+     * @private
+     */
+    _updateFieldValue: function () {
+        if (this.refs.textFieldComponent) {
+            var fieldName = this.props.xmlNode.getAttribute('name');
+            var fieldValue = this.props.entity.getValue(fieldName);
+
+            this.refs.textFieldComponent.setValue(fieldValue);
+        }
     }
 });
 
