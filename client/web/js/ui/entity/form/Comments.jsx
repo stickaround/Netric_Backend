@@ -37,15 +37,48 @@ var Comments = React.createClass({
         editMode: React.PropTypes.bool
     },
 
-    getInitialState: function() {
+    getInitialState: function () {
         return {
-            commentsController: null
+            commentsController: null,
+            numComments: this.props.entity.getValue('num_comments'),
+            entityId: this.props.entity.id
         }
     },
 
-    componentDidMount: function() {
-
+    componentDidMount: function () {
         this._loadComments();
+    },
+
+
+    /**
+     * Determine if we should update the component or not
+     *
+     * @param {nextProps} object    Contains the next props for the update
+     * @param {nextState} object    Contains the next state for the update
+     *
+     * @return {bool}   True if we want to update the component and false if we dont want to update
+     */
+    shouldComponentUpdate: function (nextProps, nextState) {
+        var numComments = nextProps.entity.getValue('num_comments') || 0;
+
+        // If entity id is changed (entity was newly created) then we will load the comments section
+        if (this.state.entityId != nextProps.entity.id) {
+
+            // Update the state's entityId and numComments
+            this.setState({
+                entityId: nextProps.entity.id,
+                numComments: numComments
+            })
+            return true;
+        }
+
+        // Only load the comments if the previous num_comments and current entity's num_comments are not equal
+        if (this.state.numComments != numComments) {
+            this.setState({numComments: numComments})
+            return true;
+        }
+
+        return false;
     },
 
     /**
@@ -53,18 +86,12 @@ var Comments = React.createClass({
      *
      * This method is not called for the initial render and we use it to check if
      * the id has changed - meaning a new entity was saved.
-     *
-     * @param {prevProps} object    Contains the preview props before the update
      */
-    componentDidUpdate: function(prevProps) {
-        
-        // Only load the comments if the previous num_comments and current entity's num_comments are not equal
-        if(this.props.entity.getValue('num_comments') != prevProps.entity.getValue('num_comments')) {
-            this._loadComments();
-        }
+    componentDidUpdate: function () {
+        this._loadComments();
     },
 
-    render: function() {
+    render: function () {
 
         var numCommentsLabel = "0 Comments";
 
@@ -81,11 +108,11 @@ var Comments = React.createClass({
                     <IconButton
                         onClick={this._loadComments}
                         iconClassName="fa fa-comment-o"
-                    />
+                        />
                     <FlatButton
                         label={numCommentsLabel}
                         onClick={this._loadComments}
-                    />
+                        />
                 </div>
             );
         }
@@ -105,7 +132,7 @@ var Comments = React.createClass({
      *
      * @private
      */
-    _loadComments: function() {
+    _loadComments: function () {
 
         // Only load comments if this device displays inline comments (size > medium)
         if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
