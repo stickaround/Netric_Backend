@@ -8,7 +8,6 @@
 
 namespace Netric\Entity\ObjType;
 
-use DoctrineTest\InstantiatorTestAsset\ExceptionAsset;
 use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;

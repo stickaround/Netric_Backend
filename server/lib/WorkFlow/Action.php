@@ -83,7 +83,25 @@ class WorkFlow_Action
 	var $stop_wfid;			// Id of workflow to stop
 
 	// Child Actions
-	var $actions = array();		// child WorkFlow_Action(s) 
+	var $actions = array();		// child WorkFlow_Action(s)
+
+    /**
+     * Map for converting names to IDS
+     *
+     * @var array
+     */
+    static public $types = array(
+        'send_email' => WF_ATYPE_SENDEMAIL,
+        'create_entity' => WF_ATYPE_CREATEOBJ,
+        'update_field' => WF_ATYPE_UPDATEFLD,
+        'start_workflow' => WF_ATYPE_STARTCHLD,
+        'stop_workflow' => WF_ATYPE_STOPWF,
+        'custom_function' => WF_ATYPE_CUSTFUN, // May be depricated?
+        'test' => WF_ATYPE_TEST,
+        'approval' => WF_ATYPE_APPROVAL,
+        'webhook' => WF_ATYPE_CALLPAGE,
+        'assign' => WF_ATYPE_ASSIGNRR,
+    );
 
 	/**
 	 * Class constructor
@@ -113,7 +131,7 @@ class WorkFlow_Action
         
 		if ($aid)
 		{
-			$result = $dbh->Query("select name, when_interval, when_unit, send_email_fid, update_field, update_to, create_object, 
+			$result = $dbh->Query("select name, type_name, when_interval, when_unit, send_email_fid, update_field, update_to, create_object,
 									start_wfid, stop_wfid, workflow_id, type, parent_action_id, parent_action_event
 									from workflow_actions where id='".$this->id."'");
 			if ($dbh->GetNumberRows($result))
@@ -131,6 +149,10 @@ class WorkFlow_Action
 				$this->start_wfid = $row['start_wfid'];
 				$this->stop_wfid = $row['stop_wfid'];
 				$this->parentActionId = $row['parent_action_id'];
+
+                // The new actions types are names and not IDs, translate old code here
+                if ($row['type_name'] && !$row['type'])
+                    $this->type = self::getTypeIdFromName($row['type_name']);
 
 				if ($row['parent_action_event']) // We need to keep this null if not set
 					$this->parentActionEvent = $row['parent_action_event'];
@@ -201,7 +223,9 @@ class WorkFlow_Action
 
 		if ($this->id)
 		{
-			$this->dbh->Query("update workflow_actions set name='".$dbh->Escape($this->name)."', type='".$dbh->Escape($this->type)."', 
+			$this->dbh->Query("update workflow_actions set name='".$dbh->Escape($this->name)."',
+			                    type='".$dbh->Escape($this->type)."',
+			                    type_name='" . $dbh->Escape(self::getTypeNameFromId($this->type)) . "'
 								workflow_id=".$dbh->EscapeNumber($this->workflow_id).",
 								when_interval=".$dbh->EscapeNumber($this->when_interval).", when_unit=".$dbh->EscapeNumber($this->when_unit).",
 								send_email_fid=".$dbh->EscapeNumber($this->send_email_fid).", update_field='".$dbh->Escape($this->update_field)."',
@@ -215,13 +239,13 @@ class WorkFlow_Action
 		{
             $uname = $this->createUniqueName();
 			$result = $this->dbh->Query("insert into workflow_actions(name, when_interval, when_unit, send_email_fid, update_field, update_to, create_object, 
-                                        start_wfid, stop_wfid, workflow_id, type, parent_action_id, parent_action_event, uname) 
+                                        start_wfid, stop_wfid, workflow_id, type, type_name, parent_action_id, parent_action_event, uname)
 										 values('".$dbh->Escape($this->name)."', 
 											".$dbh->EscapeNumber($this->when_interval).", ".$dbh->EscapeNumber($this->when_unit).",
 											".$dbh->EscapeNumber($this->send_email_fid).", '".$dbh->Escape($this->update_field)."',
 											'".$dbh->Escape($this->update_to)."', '".$dbh->Escape($this->create_obj)."',
 											".$dbh->EscapeNumber($this->start_wfid).", ".$dbh->EscapeNumber($this->stop_wfid).",
-											".$dbh->EscapeNumber($this->workflow_id).", '".$this->type."',
+											".$dbh->EscapeNumber($this->workflow_id).", '".$this->type."', '" . self::getTypeNameFromId($this->type) . "',
 											".$dbh->EscapeNumber($this->parentActionId).", '".$dbh->Escape($this->parentActionEvent)."',
                                             '" . $dbh->Escape($uname) . "');
 											select currval('workflow_actions_id_seq') as id;");
@@ -1213,5 +1237,33 @@ class WorkFlow_Action
 			$this->ant = new Ant($this->dbh->accountId);
 		
 		return $this->ant->getAccBaseUrl();
+	}
+
+	/**
+	 * Get the old 'id' from a name
+	 *
+	 * @param string $name Get the old id from a name
+     * @return int
+	 */
+	static public function getTypeIdFromName($name)
+	{
+		return self::$types[$name];
+	}
+
+	/**
+	 * Get the new 'name' from the old 'id'
+	 *
+	 * @param int $id
+     * @return string
+	 */
+	static public function getTypeNameFromId($id)
+	{
+		foreach (self::$types as $aname=>$aid)
+        {
+            if ($aid === $id)
+                return $aname;
+        }
+
+        return null;
 	}
 }

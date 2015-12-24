@@ -2551,7 +2551,19 @@ return array(
 	        'f_on_daily'    => array('type'=>'boolean', "default"=>"false"),
 	        'f_condition_unmet'    => array('type'=>'boolean', "default"=>"false"),
 			'f_processed_cond_met'	=> array('type'=>'boolean', "default"=>"false"),
+
+			/*
+			 * This column is being depreciated with the V2 version of WorkFlow
+			 * and we will be using ts_lastrun below instead.
+			 */
 	        'ts_on_daily_lastrun'=> array('type'=>'timestamp with time zone'),
+
+			/*
+			 * When the workflow was last run. This is particularly useful
+			 * for keeping track of 'periodic' workflows that run at an interval
+			 * and look for all matching entities.
+			 */
+			'ts_lastrun'	=> array('type'=>'timestamp with time zone'),
 			'uname'         => array('type'=>'character varying(256)'),
 			'revision'		=> array('type'=>'integer'),
 		),
@@ -2575,10 +2587,12 @@ return array(
 			'start_wfid'	=> array('type'=>'integer'),
 			'stop_wfid'		=> array('type'=>'integer'),
 			'workflow_id'	=> array('type'=>'integer'),
-			'type'			=> array('type'=>'smallint', 'notnull'=>true),
+			'type'			=> array('type'=>'smallint'),
+            'type_name'		=> array('type'=>'character varying(256)'),
 			'parent_action_id'=> array('type'=>'bigint'),
 			'parent_action_event'=> array('type'=>'character varying(32)'),
 			'uname'         => array('type'=>'character varying(256)'),
+			'data'			=> array('type'=>'text'),
 		),
 		'PRIMARY_KEY'		=> 'id',
 		"KEYS" => array(
@@ -2625,6 +2639,7 @@ return array(
 		"COLUMNS" => array(
 			'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
 			'object_type_id'=> array('type'=>'integer', 'notnull'=>true),
+			'object_type'	=> array('type'=>'character varying(128)'),
 			'object_uid'	=> array('type'=>'bigint', 'notnull'=>true),
 			'workflow_id'	=> array('type'=>'integer'),
 			'ts_started'	=> array('type'=>'timestamp with time zone'),
@@ -2634,6 +2649,7 @@ return array(
 		'PRIMARY_KEY'		=> 'id',
 		"KEYS" => array(
 			'object_type_id'=> array("INDEX", "object_type_id", "app_object_types", "id"),
+			'object_type'	=> array("INDEX", "object_type"),
 			'object_uid'	=> array("INDEX", "object_uid"),
 			'workflow'		=> array("INDEX", "workflow_id", "workflows", "id"),
 		)

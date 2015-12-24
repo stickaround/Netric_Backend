@@ -558,8 +558,8 @@ class WorkFlow
 		if ($this->fSingleton && !$this->singletonOk($obj))
 			return;
 
-		$result = $dbh->Query("insert into workflow_instances(workflow_id, object_type_id, object_uid, ts_started, f_completed) 
-								 values('".$this->id."', '".$obj->object_type_id."', '".$obj->id."', 'now', 'f');
+		$result = $dbh->Query("insert into workflow_instances(workflow_id, object_type_id, object_type, object_uid, ts_started, f_completed)
+								 values('".$this->id."', '".$obj->object_type_id."', '" . $obj->object_type . "', '".$obj->id."', 'now', 'f');
 								 select currval('workflow_instances_id_seq') as id;");
 		if ($dbh->GetNumberRows($result))
 			$this->instance_id = $dbh->GetValue($result, 0, "id");

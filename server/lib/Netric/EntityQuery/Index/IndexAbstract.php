@@ -270,6 +270,7 @@ abstract class IndexAbstract
             {
                 case 'true':
                 case 't':
+                case true:
                     return true;
                 default:
                     return false;
