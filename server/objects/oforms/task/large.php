@@ -44,11 +44,6 @@
                 </row>
                 <row>
                     <column>
-                        <objectsref obj_type='task' ref_field='depends_task_id'></objectsref>
-                    </column>
-                </row>
-                <row>
-                    <column>
                         <field name='comments'></field>
                     </column>
                 </row>

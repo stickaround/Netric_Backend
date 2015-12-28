@@ -192,9 +192,9 @@ EntityBrowserController.prototype.reactRender_ = function() {
     }
 
     // Unhide toolbars if we are in a page mode
-    var hideToolbar = this.props.hideToolbar || false;
+    var hideAppBar = this.props.hideAppBar || false;
     if (this.getType() === controller.types.PAGE) {
-        hideToolbar = false;
+        hideAppBar = false;
     }
 
     // Define the data
@@ -204,7 +204,8 @@ EntityBrowserController.prototype.reactRender_ = function() {
         layout: layout,
         actionHandler: this.actions_,
         browserView:this.browserView_,
-        hideToolbar: hideToolbar,
+        hideToolbar: this.props.hideToolbar,
+        hideAppBar: hideAppBar,
         onEntityListClick: function(objType, oid, title) {
             this.onEntityListClick(objType, oid, title);
         }.bind(this),
@@ -226,6 +227,9 @@ EntityBrowserController.prototype.reactRender_ = function() {
         }.bind(this),
         onPerformAction: function(actionName) {
             this.performActionOnSelected(actionName);
+        }.bind(this),
+        onCreateNewEntity: function() {
+            this._createNewEntity();
         }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
@@ -579,6 +583,17 @@ EntityBrowserController.prototype.updateFilters = function(filters) {
  */
 EntityBrowserController.prototype.getEntityDefinition = function() {
     return this.entityDefinition_;
+}
+
+/**
+ * Create a new entity
+ *
+ * @private
+ */
+EntityBrowserController.prototype._createNewEntity = function() {
+    if (this.props.onEntityClick) {
+        this.props.onEntityClick(this.props.objType, 'new');
+    }
 }
 
 module.exports = EntityBrowserController;

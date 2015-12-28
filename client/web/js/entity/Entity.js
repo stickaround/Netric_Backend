@@ -94,6 +94,14 @@ var Entity = function (entityDef, opt_data) {
      */
     this.isLoading = false;
 
+    /**
+     * Object References that will be used for this entity
+     *
+     * public
+     * @type {Array}
+     */
+    this.objRefs = [];
+
     // If data has been passed then load it into this entity
     if (opt_data) {
         this.loadData(opt_data);
@@ -603,6 +611,10 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
  */
 Entity.prototype.setRecurrence = function (recurrencePattern) {
     this.recurrencePattern_ = recurrencePattern;
+}
+
+Entity.prototype.setObjRef = function (objType, oid) {
+    this.objRefs[objType] = oid;
 }
 
 module.exports = Entity;

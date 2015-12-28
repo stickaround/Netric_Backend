@@ -32,7 +32,8 @@ var Objectsref = React.createClass({
 
         var data = {
             type: controller.types.FRAGMENT,
-            hideToolbar: true,
+            hideAppBar: true,
+            hideToolbar: false,
             objType: objType,
             eventsObj: this.props.eventsObj,
             onEntityClick: function(objType, oid) {

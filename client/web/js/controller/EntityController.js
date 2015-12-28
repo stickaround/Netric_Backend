@@ -18,7 +18,7 @@ var log = require("../log");
 /**
  * Controller that loads an entity browser
  */
-var EntityController = function() {
+var EntityController = function () {
 }
 
 /**
@@ -67,13 +67,12 @@ EntityController.prototype.eventsObj_ = null;
 EntityController.prototype.actions_ = null;
 
 
-
 /**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-EntityController.prototype.onLoad = function(opt_callback) {
+EntityController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
@@ -86,6 +85,15 @@ EntityController.prototype.onLoad = function(opt_callback) {
     // Create object to subscribe to events in the UI form
     this.eventsObj_ = {};
 
+    // Add route to create new objects ref entities
+    this.addSubRoute(":objType/new",
+        EntityController, {
+            type: controller.types.PAGE,
+            objRefField: this.props.objType,
+            objRefId: this.props.eid
+        }
+    );
+
     // Add route to load entities
     this.addSubRoute(":objType/:eid",
         EntityController, {
@@ -94,23 +102,22 @@ EntityController.prototype.onLoad = function(opt_callback) {
     );
 
     // Capture an entity click and handle either loading a dialog or routing it
-    alib.events.listen(this.eventsObj_, "entityclick", function(evt) {
+    alib.events.listen(this.eventsObj_, "entityclick", function (evt) {
 
         if (this.getRoutePath()) {
             netric.location.go(this.getRoutePath() + "/" + evt.data.objType + "/" + evt.data.id);
         } else {
             // TODO: load a dialog
         }
-        
     }.bind(this));
 
     // Capture a save entity and handle the saving of the entity
-    alib.events.listen(this.eventsObj_, "entitysave", function(evt) {
+    alib.events.listen(this.eventsObj_, "entitysave", function (evt) {
         this.saveEntity();
     }.bind(this));
 
     // Get the entity definition then call the loaded callback (if set)
-    definitionLoader.get(this.props.objType, function(def){
+    definitionLoader.get(this.props.objType, function (def) {
 
         if (!def) {
             throw "Could not get entity definition for " + this.props.objType + " which is required";
@@ -122,13 +129,15 @@ EntityController.prototype.onLoad = function(opt_callback) {
         if (this.props.eid) {
 
             // Load the entity and get a promised entity back
-            this.entity_ = entityLoader.get(this.props.objType, this.props.eid, function(ent) {
+            this.entity_ = entityLoader.get(this.props.objType, this.props.eid, function (ent) {
+
                 /*
                  * Set listener to call this.render when properties change.
                  * This is save because the load has already set all properties so
                  * it should only call render if a property changes post-load
                  */
-                alib.events.listen(ent, "change", function(evt){
+                alib.events.listen(ent, "change", function (evt) {
+
                     // Re-render
                     this.render();
                 }.bind(this));
@@ -136,7 +145,8 @@ EntityController.prototype.onLoad = function(opt_callback) {
             }.bind(this));
 
             // Listen for initial load to re-render this entity
-            alib.events.listen(this.entity_, "load", function(evt){
+            alib.events.listen(this.entity_, "load", function (evt) {
+
                 // Re-render
                 this.render();
             }.bind(this));
@@ -152,7 +162,8 @@ EntityController.prototype.onLoad = function(opt_callback) {
             }
 
             // Set listener to call this.render when properties change
-            alib.events.listen(this.entity_, "change", function(evt){
+            alib.events.listen(this.entity_, "change", function (evt) {
+
                 // Re-render
                 this.render();
             }.bind(this));
@@ -168,10 +179,14 @@ EntityController.prototype.onLoad = function(opt_callback) {
 /**
  * Render this controller into the dom tree
  */
-EntityController.prototype.render = function() {
+EntityController.prototype.render = function () {
 
     // Set outer application container
     var domCon = this.domNode_;
+
+    if(this.props.objRefField && this.props.objRefId) {
+        this.entity_.setObjRef(this.props.objRefField, this.props.objRefId);
+    }
 
     // Set data properties to forward to the view
     var data = {
@@ -180,22 +195,22 @@ EntityController.prototype.render = function() {
         actionHandler: this.actions_,
         eventsObj: this.eventsObj_,
         entity: this.entity_,
-        onNavBtnClick: function(evt) {
+        onNavBtnClick: function (evt) {
             this.close();
         }.bind(this),
-        onSaveClick: function(evt) {
+        onSaveClick: function (evt) {
             this.saveEntity();
         }.bind(this),
-        onCancelChanges: function(evt) {
+        onCancelChanges: function (evt) {
             this.revertChanges();
         }.bind(this),
-        onPerformAction: function(actionName) {
+        onPerformAction: function (actionName) {
             this._performAction(actionName);
         }.bind(this)
     }
 
     // Load up the correct UIXML form based on the device size
-    switch(netric.getApplication().device.size) {
+    switch (netric.getApplication().device.size) {
         case netric.Device.sizes.small:
             data.form = this.entityDefinition_.forms.small;
             break;
@@ -228,7 +243,7 @@ EntityController.prototype.render = function() {
 /**
  * Render this controller into the dom tree
  */
-EntityController.prototype.close = function() {
+EntityController.prototype.close = function () {
 
     if (this.getType() == controller.types.DIALOG) {
         this.unload();
@@ -238,29 +253,29 @@ EntityController.prototype.close = function() {
     } else {
         window.close();
     }
-    
+
 }
 
 /**
  * Save an entity
  */
-EntityController.prototype.saveEntity = function() {
+EntityController.prototype.saveEntity = function () {
 
     // Save the entity
-    entitySaver.save(this.entity_, function() {
+    entitySaver.save(this.entity_, function () {
         log.info("Entity saved");
     });
 
     if (this.props.onSave) {
         this.props.onSave(this.entity_);
     }
-    
+
 }
 
 /**
  * Undo changes to an entity
  */
-EntityController.prototype.revertChanges = function() {
+EntityController.prototype.revertChanges = function () {
 
     // TODO: save the entity
     //console.log("Undo changes");
@@ -275,7 +290,7 @@ EntityController.prototype.revertChanges = function() {
  *
  * @param {string} fname The name of the field
  */
-EntityController.prototype.setObjectField = function(fname) {
+EntityController.prototype.setObjectField = function (fname) {
 
     /*
      * We require it here to avoid a circular dependency where the
@@ -287,7 +302,7 @@ EntityController.prototype.setObjectField = function(fname) {
         type: controller.types.DIALOG,
         title: "Select",
         objType: "note", // This is set statically for now
-        onSelect: function(objType, oid, title) {
+        onSelect: function (objType, oid, title) {
             this.entity_.setValue(fname, oid, title);
         }.bind(this)
     });
@@ -302,7 +317,7 @@ EntityController.prototype.setObjectField = function(fname) {
  * @param {Object} data
  * @private
  */
-EntityController.prototype._initEntityData = function(data) {
+EntityController.prototype._initEntityData = function (data) {
 
     for (var prop in data) {
         var val = data[prop];
@@ -324,12 +339,12 @@ EntityController.prototype._initEntityData = function(data) {
  * @private
  * @param {string} actionName
  */
-EntityController.prototype._performAction = function(actionName) {
+EntityController.prototype._performAction = function (actionName) {
 
     var selected = [this.entity_.id];
     var objType = this.entity_.def.objType;
 
-    var workingText = this.actions_.performAction(actionName, objType, selected, function(error, message) {
+    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message) {
 
         if (error) {
             log.error(message);

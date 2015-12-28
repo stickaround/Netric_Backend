@@ -10,6 +10,9 @@ var List = require("./entitybrowser/List.jsx");
 var AppBarBrowse = require("./entitybrowser/AppBarBrowse.jsx");
 var Loading = require("./Loading.jsx");
 var Chamel = require('chamel');
+var Toolbar = Chamel.Toolbar;
+var ToolbarGroup = Chamel.ToolbarGroup;
+var FontIcon = Chamel.FontIcon;
 var IconButton = Chamel.IconButton;
 
 /**
@@ -33,7 +36,7 @@ var EntityBrowser = React.createClass({
       selectedEntities: React.PropTypes.array,
       browserView: React.PropTypes.object,
       collectionLoading: React.PropTypes.bool,
-      hideToolbar: React.PropTypes.bool,
+      hideAppBar: React.PropTypes.bool
   },
 
   getDefaultProps: function() {
@@ -43,6 +46,7 @@ var EntityBrowser = React.createClass({
           entities: [],
           selectedEntities: [],
           collectionLoading: false,
+          hideToolbar: true
       }
   },
 
@@ -72,7 +76,7 @@ var EntityBrowser = React.createClass({
       }
 
       var toolbar = null;
-      if (!this.props.hideToolbar) {
+      if (!this.props.hideAppBar) {
           toolbar = (
               <AppBarBrowse
                   title={this.props.title}
@@ -85,7 +89,20 @@ var EntityBrowser = React.createClass({
                   onPerformAction={this.props.onPerformAction}
                   onSelectAll={this.handleSeelctAll_}
                   selectedEntities={this.props.selectedEntities}
+                  objType={this.props.objType}
                />
+          );
+      } else if (!this.props.hideToolbar) {
+          toolbar = (
+              <Toolbar>
+                  <ToolbarGroup key={1} float="left">
+                      <FontIcon
+                          tooltip='New'
+                          className="fa fa-plus-circle"
+                          onClick={this.props.onCreateNewEntity} />
+                      <FontIcon tooltip='refresh' className="fa fa-refresh" />
+                  </ToolbarGroup>
+              </Toolbar>
           );
       }
 

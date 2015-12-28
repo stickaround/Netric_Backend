@@ -113,7 +113,7 @@ var Activity = React.createClass({
                 title: "Activity",
                 objType: "activity",
                 eventsObj: this.props.eventsObj,
-                hideToolbar: true,
+                hideAppBar: true,
                 filters: conditions,
                 onEntityClick: function(objType, oid) {
                     this._sendEntityClickEvent(objType, oid);

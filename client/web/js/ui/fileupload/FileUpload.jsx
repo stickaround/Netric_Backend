@@ -26,7 +26,7 @@ var FileUpload = React.createClass({
         onRemove: React.PropTypes.func,
         getFileUrl: React.PropTypes.func,
         onNavBtnClick: React.PropTypes.func,
-        hideToolbar: React.PropTypes.bool
+        hideAppBar: React.PropTypes.bool
     },
 
     getDefaultProps: function () {
@@ -61,7 +61,7 @@ var FileUpload = React.createClass({
         }
 
         var toolBar = null;
-        if (!this.props.hideToolbar) {
+        if (!this.props.hideAppBar) {
             var elementLeft = (
                 <IconButton
                     iconClassName='fa fa-arrow-left'
