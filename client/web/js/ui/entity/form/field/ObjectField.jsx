@@ -60,9 +60,6 @@ var ObjectField = React.createClass({
         var fieldValue = this.props.entity.getValue(fieldName);
         var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
 
-        console.log(this.props.entity);
-
-
         // Handle blank labels
         if (!valueLabel && !fieldValue) {
             valueLabel = "Not Set";

@@ -14,15 +14,19 @@
                     </column>
                 </row>
                 <row>
-                    <status_update/>
+                    <column>
+                        <status_update/>
+                    </column>
                 </row>
                 <row>
-                    <field name='activity'></field>
+                    <column>
+                        <field name='activity'></field>
+                    </column>
                 </row>
             </tab>
 
             <tab name='Task'>
-                <objectsref obj_type='task' ref_field='project_id'></objectsref>
+                <objectsref obj_type='task' ref_field='project'></objectsref>
             </tab>
 
             <tab name='Cases'>

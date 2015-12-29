@@ -231,6 +231,9 @@ EntityBrowserController.prototype.reactRender_ = function() {
         onCreateNewEntity: function() {
             this._createNewEntity();
         }.bind(this),
+        onRefreshEntityList: function() {
+            this._refreshEntityList()
+        }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
         selectedEntities: this.selected_,
@@ -586,7 +589,7 @@ EntityBrowserController.prototype.getEntityDefinition = function() {
 }
 
 /**
- * Create a new entity
+ * Creates a new entity
  *
  * @private
  */
@@ -594,6 +597,15 @@ EntityBrowserController.prototype._createNewEntity = function() {
     if (this.props.onEntityClick) {
         this.props.onEntityClick(this.props.objType, 'new');
     }
+}
+
+/**
+ * Creates a new entity
+ *
+ * @private
+ */
+EntityBrowserController.prototype._refreshEntityList = function() {
+    this.collection_.refresh();
 }
 
 module.exports = EntityBrowserController;
