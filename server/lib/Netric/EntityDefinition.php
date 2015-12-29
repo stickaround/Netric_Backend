@@ -577,6 +577,13 @@ class EntityDefinition
 				'readonly'=>true,
 				'system'=>true,
 			),
+			'followers' => array(
+				'title'=>'Followers',
+				'type'=>'object_multi',
+				'subtype'=>'user',
+				'readonly'=>true,
+				'system'=>true,
+			),
 			'activity' => array(
 				'title'=>'Activity', 
 				'type'=>'object_multi', 
@@ -679,4 +686,39 @@ class EntityDefinition
 			$this->addField($field);
 		}
 	}
+
+    /**
+     * Get the title of this object type
+     *
+     * FIXME:
+     * Even though the title property is public right now,
+     * we intend on moving it to private in the near future so
+     * this function can be used in preparation for that change.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * Set the title of this object type
+     *
+     * The title is the human readable short description
+     * of the object type and always has an upper case first letter.
+     *
+     * FIXME:
+     * Right now $this->title is public, but as described in getTitle above,
+     * we plan on moving it to private in the near future so we are providing
+     * a getter and setter function for the property so code can begin using it
+     * to make the transition to a better design easier. It's always nice when
+     * we have less code to change.
+     *
+     * @param string $title The title of this object type
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
 }

@@ -805,10 +805,22 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface,
         {
             $row = $this->dbh->getRow($result, $i);
 
-            $actions[] = array(
-                "instance" => $this->getWorkFlowInstanceById($row['instance_id']),
-                "action" => $this->getActionById($row['action_id'])
-            );
+            $instance = $this->getWorkFlowInstanceById($row['instance_id']);
+            $action = $this->getActionById($row['action_id']);
+
+            // Only return the scheduled action if the instance and action are still valid
+            if ($instance && $action)
+            {
+                $actions[] = array(
+                    "instance" => $instance,
+                    "action" => $action,
+                );
+            }
+            else
+            {
+                // It looks like either the action was deleted or the instance was cancelled, cleanup
+                $this->deleteScheduledAction($row['instance_id'], $row['action_id']);
+            }
         }
 
         return $actions;

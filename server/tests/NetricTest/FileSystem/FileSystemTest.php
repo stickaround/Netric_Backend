@@ -114,6 +114,10 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         // Create some test folders
         $rootFolder = $this->fileSystem->getRootFolder();
 
+        // Cleanup first
+        if ($this->fileSystem->openFolder("/testOpenSub"))
+            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testOpenSub"), true);
+
         // Create /testOpenSub
         $subFolder = $this->entityLoader->create("folder");
         $subFolder->setValue("name", "testOpenSub");
@@ -298,6 +302,10 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
     {
         // Create some test folders
         $rootFolder = $this->fileSystem->getRootFolder();
+
+        // Cleanup first
+        if ($this->fileSystem->openFolder("/testDeleteFolder"))
+            $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testDeleteFolder"), true);
 
         // Create /testDeleteFolder
         $subFolder = $this->entityLoader->create("folder");

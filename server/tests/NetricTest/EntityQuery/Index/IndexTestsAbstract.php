@@ -9,6 +9,8 @@
 namespace NetricTest\EntityQuery\Index;
 
 use Netric;
+use Netric\EntityQuery;
+use Netric\Entity\EntityInterface;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -17,11 +19,25 @@ use PHPUnit_Framework_TestCase;
 abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase 
 {
     /**
-     * Tennant account
+     * Tenant account
      * 
      * @var \Netric\Account
      */
     protected $account = null;
+
+    /**
+     * Test entities to delete
+     *
+     * @var EntityInterface[]
+     */
+    private $testEntities = array();
+
+    /**
+     * Test groupings to delete
+     *
+     * @var array(array('obj_type', 'field', 'grouping_id'))
+     */
+    private $testGroupings = array();
 
 	/**
 	 * Setup each test
@@ -30,7 +46,25 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
 	}
-    
+
+    /**
+     * Cleanup
+     */
+    protected function tearDown()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        foreach ($this->testEntities as $entity)
+        {
+            $entityLoader->delete($entity, true);
+        }
+
+        // Cleanup Groupings
+        foreach ($this->testGroupings as $groupData)
+        {
+            $this->deleteGrouping($groupData['obj_type'], $groupData['field'], $groupData['id']);
+        }
+    }
+
     /**
      * Required by all derrieved classes
      * 
@@ -51,31 +85,20 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $obj->setValue("name", $uniName);
         $obj->setValue("f_nocall", true);
         $obj->setValue("type_id", 2); // Organization
+
         // Status id
         $statusG = $this->createGrouping("customer", "status_id", "Unit Test Status");
         $obj->setValue("status_id", $statusG['id'], $statusG['name']);
         $obj->setValue("last_contacted", time());
+
         // Groups
 		$groupsG = $this->createGrouping("customer", "groups", "Unit Test Group");
         $obj->addMultiValue("groups", $groupsG['id'], $groupsG['name']);
+
         $oid = $dm->save($obj);
+        $this->testEntities[] = $obj;
         
         return $obj;
-    }
-    
-    /**
-     * Delete a test customer
-     */
-    protected function deleteTestCustomer($ent)
-    {
-        // Clearn groupings
-        $this->deleteGrouping("customer", "status_id", $ent->getValue("status_id"));
-        $groupings = $ent->getValue("groups");
-        $this->deleteGrouping("customer", "groups", $groupings[0]);
-        
-        /// Save a test object
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-        $dm->delete($ent, true);
     }
     
     /**
@@ -96,6 +119,9 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $groupings->add($group);
         $dm->saveGroupings($groupings);
         $group = $groupings->getByName($name, $parent);
+
+        // Add to queue to cleanup on tearDown
+        $this->testGroupings[] = array("obj_type"=>$objType, "field"=>$field, "id"=>$group->id);
         
         return $group->toArray();
     }
@@ -131,15 +157,12 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query value
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('*')->fullText($testEnt->getValue("name"));
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -158,7 +181,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query value
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('name')->equals($testEnt->getValue("name"));
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -167,7 +190,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query null - first name is not set
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('first_name')->equals(null);
         $res = $index->executeQuery($query);
         $found = false;
@@ -181,9 +204,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -204,7 +224,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test with number
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->equals(2);
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum()>=1);
@@ -224,7 +244,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         // -------------------------------------------------
         $testEnt->setValue("type_id", null);
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->equals(null);
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum()>=1);
@@ -239,9 +259,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -264,7 +281,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test value is set
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals($testEnt->getValue("status_id"));
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum()>=1);
@@ -285,7 +302,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $cachedStatus = $testEnt->getValue("status_id");
         $testEnt->setValue("status_id", null);
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals(null);
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum()>=1);
@@ -303,7 +320,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Make sure query with old id does not return entity
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals($cachedStatus);
         $res = $index->executeQuery($query);
         $found = false;
@@ -317,9 +334,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertFalse($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -340,7 +354,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query collection for fkey_multi
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $groups = $testEnt->getValue("groups");
         $query->where('groups')->equals($groups[0]);
         $res = $index->executeQuery($query);
@@ -363,7 +377,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test null for groups
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $groups = $testEnt->getValue("groups");
         $query->where('groups')->equals(null);
         $res = $index->executeQuery($query);
@@ -381,7 +395,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Make sure object no longer returns on null query with old id
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $groups = $testEnt->getValue("groups");
         $query->where('groups')->equals($cachedGroups[0]);
         $res = $index->executeQuery($query);
@@ -396,9 +410,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertFalse($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -416,7 +427,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt = $this->createTestCustomer();
         
         // Query collection for boolean
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('f_nocall')->equals(true);
         $res = $index->executeQuery($query);
         $this->assertTrue($res->getTotalNum()>=1);
@@ -429,13 +440,10 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
                 $found = true;
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
-     * Run test of is equal conditions
+     * Check if we can query an object when a subtype is set
      */
     public function testWhereEqualsObject()
     {
@@ -447,7 +455,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
                 
-        // Save a test customer
+        // Create a test customer
         $testEnt = $this->createTestCustomer();
         
         // Create a test case attached to the customer
@@ -455,9 +463,12 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $case->setValue("name", "Unit Test Case");
         $case->setValue("customer_id", $testEnt->getId(), $testEnt->getName());
         $cid = $dm->save($case);
+
+        // Make sure this gets cleaned up
+        $this->testEntities[] = $case;
         
         // Query for customer id
-        $query = new \Netric\EntityQuery($case->getObjType());
+        $query = new EntityQuery($case->getObjType());
         $query->where('customer_id')->equals($testEnt->getId());
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
@@ -465,15 +476,54 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         // Query with null customer id
         $case->setValue("customer_id", "");
         $dm->save($case);
-        $query = new \Netric\EntityQuery($case->getObjType());
+        $query = new EntityQuery($case->getObjType());
         $query->where('id')->equals($case->getId());
         $query->where('customer_id')->equals("");
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
-               
-        // Cleanup
-        $dm->delete($case, true);
-        $this->deleteTestCustomer($testEnt);
+    }
+
+    /**
+     * Try to query an object reference where there is no subtype for the field
+     */
+    public function testWhereEqualsObjectReference()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index)
+            return;
+
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+
+        // Create a test customer
+        $testEnt = $this->createTestCustomer();
+
+        // Create a notification for this customer
+        $objReference = Netric\Entity\Entity::encodeObjRef($testEnt->getDefinition()->getObjType(), $testEnt->getId());
+        $notification = $entityLoader->create("notification");
+        $notification->setValue("name", "Unit Test Notification");
+        $notification->setValue("obj_reference", $objReference);
+        $entityLoader->save($notification);
+
+        // Make sure this gets cleaned up
+        $this->testEntities[] = $notification;
+
+        // Query for this notification
+        $query = new EntityQuery($notification->getDefinition()->getObjType());
+        $query->where('obj_reference')->equals($objReference);
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
+
+        // Now set the object reference to null for testing empty
+        $notification->setValue("obj_reference", "");
+        $entityLoader->save($notification);
+
+        // Query the null condition
+        $query = new EntityQuery($notification->getDefinition()->getObjType());
+        $query->where('id')->equals($notification->getId());
+        $query->where('obj_reference')->equals("");
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
     }
     
     /**
@@ -491,7 +541,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query value
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('name')->doesNotEqual($testEnt->getValue("name"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -508,7 +558,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Does not equal null
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('name')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
@@ -522,9 +572,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -542,7 +589,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query value
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->doesNotEqual(2);
         $res = $index->executeQuery($query);
         $found = false;
@@ -559,7 +606,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Does not equal null
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
@@ -573,9 +620,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -593,7 +637,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test value is set
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->doesNotEqual($testEnt->getValue("status_id"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -610,7 +654,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test null
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
@@ -624,9 +668,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-        
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -644,7 +685,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test value is set
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $groups = $testEnt->getValue("groups");
         $query->where('groups')->doesNotEqual($groups[0]);
         $res = $index->executeQuery($query);
@@ -662,7 +703,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Test null
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('groups')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
@@ -676,9 +717,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-        
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -697,7 +735,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isLessThan(3);
         $res = $index->executeQuery($query);
         $found = false;
@@ -714,7 +752,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isLessThan(2);
         $res = $index->executeQuery($query);
         $found = false;
@@ -731,7 +769,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isLessOrEqualTo(2);
         $res = $index->executeQuery($query);
         $found = false;
@@ -748,7 +786,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isLessOrEqualTo(1);
         $res = $index->executeQuery($query);
         $found = false;
@@ -762,10 +800,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertFalse($found);
-        
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -784,7 +818,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isLessThan(strtotime("+1 day"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -801,7 +835,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isLessThan(strtotime("-1 day"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -818,7 +852,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isLessOrEqualTo($testEnt->getValue("last_contacted"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -835,7 +869,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isLessOrEqualTo(strtotime("-1 day"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -849,10 +883,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertFalse($found);
-        
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -873,7 +903,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isGreaterThan(1);
         $res = $index->executeQuery($query);
         $found = false;
@@ -890,7 +920,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isGreaterThan(2);
         $res = $index->executeQuery($query);
         $found = false;
@@ -907,7 +937,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isGreaterOrEqualTo(2);
         $res = $index->executeQuery($query);
         $found = false;
@@ -924,7 +954,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->isGreaterOrEqualTo(3);
         $res = $index->executeQuery($query);
         $found = false;
@@ -938,10 +968,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertFalse($found);
-        
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -962,7 +988,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isGreaterThan(strtotime("-1 day"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -979,7 +1005,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isGreaterThan(strtotime("+1 day"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -996,7 +1022,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal inclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isGreaterOrEqualTo($testEnt->getValue("last_contacted"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1013,7 +1039,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Is greater or equal exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->isGreaterOrEqualTo(strtotime("+1 day"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1027,10 +1053,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertFalse($found);
-        
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -1048,7 +1070,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query null - first name is not set
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('name')->beginsWith(substr($testEnt->getValue("name"), 0, 10));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1062,9 +1084,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -1082,7 +1101,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Query null - first name is not set
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('name')->contains(substr($testEnt->getValue("name"), 4, 6));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1096,9 +1115,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     /**
@@ -1116,7 +1132,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Day is equal
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->dayIsEqual(date("j"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1133,7 +1149,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Month is equal
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->monthIsEqual(date("n"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1150,7 +1166,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Year is equal
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('last_contacted')->yearIsEqual(date("Y"));
         $res = $index->executeQuery($query);
         $found = false;
@@ -1164,9 +1180,6 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
             }
         }
         $this->assertTrue($found);
-               
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     public function testWithinLastXNum()
@@ -1184,7 +1197,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("-2 days"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumDays(3);
         $res = $index->executeQuery($query);
@@ -1194,7 +1207,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Day - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumDays(1);
         $res = $index->executeQuery($query);
@@ -1205,7 +1218,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("-2 weeks"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumWeeks(3);
         $res = $index->executeQuery($query);
@@ -1215,7 +1228,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Week - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumWeeks(1);
         $res = $index->executeQuery($query);
@@ -1226,7 +1239,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("-2 months"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumMonths(3);
         $res = $index->executeQuery($query);
@@ -1236,7 +1249,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Month - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumMonths(1);
         $res = $index->executeQuery($query);
@@ -1247,7 +1260,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("-2 years"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumYears(3);
         $res = $index->executeQuery($query);
@@ -1257,14 +1270,11 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Year - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumYears(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     public function testWithinNextXNum()
@@ -1282,7 +1292,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("+2 days"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumDays(3);
         $res = $index->executeQuery($query);
@@ -1292,7 +1302,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Day - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumDays(1);
         $res = $index->executeQuery($query);
@@ -1303,7 +1313,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("+2 weeks"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumWeeks(3);
         $res = $index->executeQuery($query);
@@ -1313,7 +1323,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Week - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumWeeks(1);
         $res = $index->executeQuery($query);
@@ -1324,7 +1334,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("+2 months"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumMonths(3);
         $res = $index->executeQuery($query);
@@ -1334,7 +1344,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Month - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumMonths(1);
         $res = $index->executeQuery($query);
@@ -1345,7 +1355,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $testEnt->setValue("last_contacted", strtotime("+2 years"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
         
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumYears(3);
         $res = $index->executeQuery($query);
@@ -1355,14 +1365,11 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         
         // Year - exclusive
         // -------------------------------------------------
-        $query = new \Netric\EntityQuery($testEnt->getObjType());
+        $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumYears(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
-        // Cleanup
-        $this->deleteTestCustomer($testEnt);
     }
     
     
@@ -1404,13 +1411,13 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $dm->delete($obj);
 
 		// First test regular query without f_deleted flag set
-        $query = new \Netric\EntityQuery("project_story");
+        $query = new EntityQuery("project_story");
         $query->where('id')->equals($oid);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
 
 		// Test deleted flag set should return with deleted customer
-        $query = new \Netric\EntityQuery("project_story");
+        $query = new EntityQuery("project_story");
         $query->where('id')->equals($oid);
         $query->where('f_deleted')->equals(true);
         $res = $index->executeQuery($query);

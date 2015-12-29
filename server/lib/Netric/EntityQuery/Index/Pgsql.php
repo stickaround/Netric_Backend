@@ -411,6 +411,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 	 * @param \Netric\EntityQuery $query
      * @param \Netric\EntityDefinition $def
      * @return string
+     * @throws \RuntimeException If a problem is encountered with the query
 	 */
 	public function buildAdvancedConditionString(\Netric\EntityQuery &$query, \Netric\EntityDefinition &$def=null)
 	{
@@ -441,6 +442,10 @@ class Pgsql extends IndexAbstract implements IndexInterface
 				$operator = $cond->operator;
 				$condValue = $cond->value;
 
+                // Should never happen, but just in case if operator is missing throw an exception
+                if (!$operator)
+                    throw new \RuntimeException("No operator provided for " . var_export($cond, true));
+
 				$buf = "";
                 
                 // Skip full text
@@ -455,7 +460,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 // Get field
 				$origField = $def->getField($parts[0]);
                 if (!$origField)
-                    throw new \Exception("Could not get field " . $query->getObjType() . ":" . $parts[0]);
+                    throw new \RuntimeException("Could not get field " . $query->getObjType() . ":" . $parts[0]);
                 
                 // Make a copy in case we need change the type to object_dereference
                 $field = clone $origField;
@@ -481,14 +486,15 @@ class Pgsql extends IndexAbstract implements IndexInterface
 				// Convert PHP bool to textual true or false
 				if ($field->type == "bool")
 					$condValue = ($condValue === true) ? 't' : 'f';
-                
-				if ($condValue!="" && $condValue!=null)
+
+				if ($condValue !== "" && $condValue !== null)
 				{
 					switch ($operator)
 					{
 					case 'is_equal':
                         $buf .= $this->buildIsEqual($field, $fieldName, $condValue, $objectTable, $def);
-						break;
+
+                        break;
 					case 'is_not_equal':
                         $buf .= $this->buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def);
 						break;
@@ -992,7 +998,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             else if ($field->type == "date")
                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
         default:
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
+            if ($condValue === "" || $condValue === "NULL" || $condValue === null)
                 $buf .= " $fieldName is null";
             else
                 $buf .= " $fieldName='".$this->dbh->escape($condValue)."' ";

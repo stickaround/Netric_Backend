@@ -131,4 +131,15 @@ class EntityDefinitionTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals("customers", $entDef->getTable());
 		$this->assertEquals(true, $entDef->useCustomTable);
 	}
+
+	/**
+	 * Test the setter and getter for the title property
+	 */
+	public function testSetAndGetTitle()
+	{
+		$title = "Test";
+		$definition = new Netric\EntityDefinition("customer");
+		$definition->setTitle($title);
+		$this->assertEquals($title, $definition->getTitle());
+	}
 }
