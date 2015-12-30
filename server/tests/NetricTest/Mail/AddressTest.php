@@ -15,22 +15,22 @@ class AddressTest extends \PHPUnit_Framework_TestCase
 {
     public function testDoesNotRequireNameForInstantiation()
     {
-        $address = new Address('zf-devteam@Netric.com');
-        $this->assertEquals('zf-devteam@Netric.com', $address->getEmail());
+        $address = new Address('devteam@netric.com');
+        $this->assertEquals('devteam@netric.com', $address->getEmail());
         $this->assertNull($address->getName());
     }
 
     public function testAcceptsNameViaConstructor()
     {
-        $address = new Address('zf-devteam@Netric.com', 'ZF DevTeam');
-        $this->assertEquals('zf-devteam@Netric.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $address = new Address('devteam@netric.com', 'Netric DevTeam');
+        $this->assertEquals('devteam@netric.com', $address->getEmail());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testToStringCreatesStringRepresentation()
     {
-        $address = new Address('zf-devteam@Netric.com', 'ZF DevTeam');
-        $this->assertEquals('ZF DevTeam <zf-devteam@Netric.com>', $address->toString());
+        $address = new Address('devteam@netric.com', 'Netric DevTeam');
+        $this->assertEquals('Netric DevTeam <devteam@netric.com>', $address->toString());
     }
 
     /**

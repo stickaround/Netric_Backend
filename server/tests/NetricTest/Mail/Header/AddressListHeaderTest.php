@@ -75,16 +75,16 @@ class AddressListHeaderTest extends \PHPUnit_Framework_TestCase
 
     public function populateAddressList(AddressList $list)
     {
-        $address = new Address('zf-devteam@zend.com', 'ZF DevTeam');
+        $address = new Address('devteam@netric.com', 'Netric DevTeam');
         $list->add($address);
-        $list->add('zf-contributors@lists.zend.com');
-        $list->add('fw-announce@lists.zend.com', 'ZF Announce List');
+        $list->add('contributors@lists.netric.com');
+        $list->add('fw-announce@lists.netric.com', 'Netric Announce List');
         $list->add('first@last.zend.com', 'Last, First');
     }
 
     public function getExpectedFieldValue()
     {
-        return "ZF DevTeam <zf-devteam@zend.com>,\r\n zf-contributors@lists.zend.com,\r\n ZF Announce List <fw-announce@lists.zend.com>,\r\n \"Last, First\" <first@last.zend.com>";
+        return "Netric DevTeam <devteam@netric.com>,\r\n contributors@lists.netric.com,\r\n Netric Announce List <fw-announce@lists.netric.com>,\r\n \"Last, First\" <first@last.zend.com>";
     }
 
     /**
@@ -119,16 +119,16 @@ class AddressListHeaderTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf($class, $header);
         $list = $header->getAddressList();
         $this->assertEquals(4, count($list));
-        $this->assertTrue($list->has('zf-devteam@zend.com'));
-        $this->assertTrue($list->has('zf-contributors@lists.zend.com'));
-        $this->assertTrue($list->has('fw-announce@lists.zend.com'));
+        $this->assertTrue($list->has('devteam@netric.com'));
+        $this->assertTrue($list->has('contributors@lists.netric.com'));
+        $this->assertTrue($list->has('fw-announce@lists.netric.com'));
         $this->assertTrue($list->has('first@last.zend.com'));
-        $address = $list->get('zf-devteam@zend.com');
-        $this->assertEquals('ZF DevTeam', $address->getName());
-        $address = $list->get('zf-contributors@lists.zend.com');
+        $address = $list->get('devteam@netric.com');
+        $this->assertEquals('Netric DevTeam', $address->getName());
+        $address = $list->get('contributors@lists.netric.com');
         $this->assertNull($address->getName());
-        $address = $list->get('fw-announce@lists.zend.com');
-        $this->assertEquals('ZF Announce List', $address->getName());
+        $address = $list->get('fw-announce@lists.netric.com');
+        $this->assertEquals('Netric Announce List', $address->getName());
         $address = $list->get('first@last.zend.com');
         $this->assertEquals('Last, First', $address->getName());
     }
@@ -176,16 +176,16 @@ class AddressListHeaderTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf($class, $header);
         $list = $header->getAddressList();
         $this->assertEquals(4, count($list));
-        $this->assertTrue($list->has('zf-devteam@zend.com'));
-        $this->assertTrue($list->has('zf-contributors@lists.zend.com'));
-        $this->assertTrue($list->has('fw-announce@lists.zend.com'));
+        $this->assertTrue($list->has('devteam@netric.com'));
+        $this->assertTrue($list->has('contributors@lists.netric.com'));
+        $this->assertTrue($list->has('fw-announce@lists.netric.com'));
         $this->assertTrue($list->has('first@last.zend.com'));
-        $address = $list->get('zf-devteam@zend.com');
-        $this->assertEquals('ZF DevTeam', $address->getName());
-        $address = $list->get('zf-contributors@lists.zend.com');
+        $address = $list->get('devteam@netric.com');
+        $this->assertEquals('Netric DevTeam', $address->getName());
+        $address = $list->get('contributors@lists.netric.com');
         $this->assertNull($address->getName());
-        $address = $list->get('fw-announce@lists.zend.com');
-        $this->assertEquals('ZF Announce List', $address->getName());
+        $address = $list->get('fw-announce@lists.netric.com');
+        $this->assertEquals('Netric Announce List', $address->getName());
         $address = $list->get('first@last.zend.com');
         $this->assertEquals('Last, First', $address->getName());
     }

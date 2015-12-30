@@ -19,28 +19,28 @@ class ImapTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        if (!getenv('TESTS_ZEND_MAIL_IMAP_ENABLED')) {
+        if (!getenv('TESTS_NETRIC_MAIL_IMAP_ENABLED')) {
             $this->markTestSkipped('Netric_Mail IMAP tests are not enabled');
         }
-        $this->params = ['host'     => getenv('TESTS_ZEND_MAIL_IMAP_HOST'),
-                               'user'     => getenv('TESTS_ZEND_MAIL_IMAP_USER'),
-                               'password' => getenv('TESTS_ZEND_MAIL_IMAP_PASSWORD')];
-        if (getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR') && getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR')) {
-            if (!file_exists(getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'inbox')
-                && !file_exists(getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'INBOX')
+        $this->params = ['host'     => getenv('TESTS_NETRIC_MAIL_IMAP_HOST'),
+                               'user'     => getenv('TESTS_NETRIC_MAIL_IMAP_USER'),
+                               'password' => getenv('TESTS_NETRIC_MAIL_IMAP_PASSWORD')];
+        if (getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') && getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')) {
+            if (!file_exists(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'inbox')
+                && !file_exists(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'INBOX')
             ) {
                 $this->markTestSkipped(
                      'There is no file name "inbox" or "INBOX" in '
-                     . getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR') . '. I won\'t use it for testing. '
+                     . getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . '. I won\'t use it for testing. '
                      . 'This is you safety net. If you think it is the right directory just '
                      . 'create an empty file named INBOX or remove/deactived this message.'
                  );
             }
 
-            $this->cleanDir(getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR'));
+            $this->cleanDir(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR'));
             $this->copyDir(
-                __DIR__ . '/../_files/test.' . getenv('TESTS_ZEND_MAIL_SERVER_FORMAT'),
-                getenv('TESTS_ZEND_MAIL_SERVER_TESTDIR')
+                __DIR__ . '/../_files/test.' . getenv('TESTS_NETRIC_MAIL_SERVER_FORMAT'),
+                getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')
             );
         }
     }
@@ -108,7 +108,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
 
     public function testConnectSSL()
     {
-        if (!getenv('TESTS_ZEND_MAIL_IMAP_SSL')) {
+        if (!getenv('TESTS_NETRIC_MAIL_IMAP_SSL')) {
             return;
         }
 
@@ -118,7 +118,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
 
     public function testConnectTLS()
     {
-        if (!getenv('TESTS_ZEND_MAIL_IMAP_TLS')) {
+        if (!getenv('TESTS_NETRIC_MAIL_IMAP_TLS')) {
             return;
         }
 
@@ -128,14 +128,14 @@ class ImapTest extends \PHPUnit_Framework_TestCase
 
     public function testInvalidService()
     {
-        $this->params['port'] = getenv('TESTS_ZEND_MAIL_IMAP_INVALID_PORT');
+        $this->params['port'] = getenv('TESTS_NETRIC_MAIL_IMAP_INVALID_PORT');
         $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
         new Storage\Imap($this->params);
     }
 
     public function testWrongService()
     {
-        $this->params['port'] = getenv('TESTS_ZEND_MAIL_IMAP_WRONG_PORT');
+        $this->params['port'] = getenv('TESTS_NETRIC_MAIL_IMAP_WRONG_PORT');
         $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
         new Storage\Imap($this->params);
     }

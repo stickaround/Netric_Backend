@@ -34,7 +34,7 @@ class AddressListTest extends \PHPUnit_Framework_TestCase
 
     public function testAddingEmailsIncreasesCount()
     {
-        $this->list->add('zf-devteam@Netric.com');
+        $this->list->add('devteam@netric.com');
         $this->assertEquals(1, count($this->list));
     }
 
@@ -50,8 +50,8 @@ class AddressListTest extends \PHPUnit_Framework_TestCase
 
     public function testHasReturnsTrueWhenAddressInList()
     {
-        $this->list->add('zf-devteam@Netric.com');
-        $this->assertTrue($this->list->has('zf-devteam@Netric.com'));
+        $this->list->add('devteam@netric.com');
+        $this->assertTrue($this->list->has('devteam@netric.com'));
     }
 
     public function testGetReturnsFalseWhenEmailNotFound()
@@ -61,45 +61,45 @@ class AddressListTest extends \PHPUnit_Framework_TestCase
 
     public function testGetReturnsAddressObjectWhenEmailFound()
     {
-        $this->list->add('zf-devteam@Netric.com');
-        $address = $this->list->get('zf-devteam@Netric.com');
+        $this->list->add('devteam@netric.com');
+        $address = $this->list->get('devteam@netric.com');
         $this->assertInstanceOf('Netric\Mail\Address', $address);
-        $this->assertEquals('zf-devteam@Netric.com', $address->getEmail());
+        $this->assertEquals('devteam@netric.com', $address->getEmail());
     }
 
     public function testCanAddAddressWithName()
     {
-        $this->list->add('zf-devteam@Netric.com', 'ZF DevTeam');
-        $address = $this->list->get('zf-devteam@Netric.com');
+        $this->list->add('devteam@netric.com', 'Netric DevTeam');
+        $address = $this->list->get('devteam@netric.com');
         $this->assertInstanceOf('Netric\Mail\Address', $address);
-        $this->assertEquals('zf-devteam@Netric.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $this->assertEquals('devteam@netric.com', $address->getEmail());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testCanAddManyAddressesAtOnce()
     {
         $addresses = [
-            'zf-devteam@Netric.com',
-            'zf-contributors@lists.Netric.com' => 'ZF Contributors List',
-            new Address('fw-announce@lists.Netric.com', 'ZF Announce List'),
+            'devteam@netric.com',
+            'contributors@lists.netric.com' => 'Netric Contributors List',
+            new Address('fw-announce@lists.netric.com', 'Netric Announce List'),
         ];
         $this->list->addMany($addresses);
         $this->assertEquals(3, count($this->list));
-        $this->assertTrue($this->list->has('zf-devteam@Netric.com'));
-        $this->assertTrue($this->list->has('zf-contributors@lists.Netric.com'));
-        $this->assertTrue($this->list->has('fw-announce@lists.Netric.com'));
+        $this->assertTrue($this->list->has('devteam@netric.com'));
+        $this->assertTrue($this->list->has('contributors@lists.netric.com'));
+        $this->assertTrue($this->list->has('fw-announce@lists.netric.com'));
     }
 
     public function testDoesNotStoreDuplicatesAndFirstWins()
     {
         $addresses = [
-            'zf-devteam@Netric.com',
-            new Address('zf-devteam@Netric.com', 'ZF DevTeam'),
+            'devteam@netric.com',
+            new Address('devteam@netric.com', 'Netric DevTeam'),
         ];
         $this->list->addMany($addresses);
         $this->assertEquals(1, count($this->list));
-        $this->assertTrue($this->list->has('zf-devteam@Netric.com'));
-        $address = $this->list->get('zf-devteam@Netric.com');
+        $this->assertTrue($this->list->has('devteam@netric.com'));
+        $address = $this->list->get('devteam@netric.com');
         $this->assertNull($address->getName());
     }
 }

@@ -49,11 +49,11 @@ class SendmailTest extends \PHPUnit_Framework_TestCase
     public function getMessage()
     {
         $message = new Message();
-        $message->addTo('zf-devteam@zend.com', 'ZF DevTeam')
+        $message->addTo('devteam@netric.com', 'Netric DevTeam')
                 ->addCc('matthew@zend.com')
                 ->addBcc('zf-crteam@lists.zend.com', 'CR-Team, ZF Project')
                 ->addFrom([
-                    'zf-devteam@zend.com',
+                    'devteam@netric.com',
                     'matthew@zend.com' => 'Matthew',
                 ])
                 ->setSender('ralph.schindler@zend.com', 'Ralph Schindler')
@@ -75,13 +75,13 @@ class SendmailTest extends \PHPUnit_Framework_TestCase
         $this->transport->setParameters('-R hdrs');
 
         $this->transport->send($message);
-        $this->assertEquals('ZF DevTeam <zf-devteam@zend.com>', $this->to);
+        $this->assertEquals('Netric DevTeam <devteam@netric.com>', $this->to);
         $this->assertEquals('Testing Netric\Mail\Transport\Sendmail', $this->subject);
         $this->assertEquals('This is only a test.', trim($this->message));
-        $this->assertNotContains("To: ZF DevTeam <zf-devteam@zend.com>\n", $this->additional_headers);
+        $this->assertNotContains("To: Netric DevTeam <devteam@netric.com>\n", $this->additional_headers);
         $this->assertContains("Cc: matthew@zend.com\n", $this->additional_headers);
         $this->assertContains("Bcc: \"CR-Team, ZF Project\" <zf-crteam@lists.zend.com>\n", $this->additional_headers);
-        $this->assertContains("From: zf-devteam@zend.com,\n Matthew <matthew@zend.com>\n", $this->additional_headers);
+        $this->assertContains("From: devteam@netric.com,\n Matthew <matthew@zend.com>\n", $this->additional_headers);
         $this->assertContains("X-Foo-Bar: Matthew\n", $this->additional_headers);
         $this->assertContains("Sender: Ralph Schindler <ralph.schindler@zend.com>\n", $this->additional_headers);
         $this->assertEquals('-R hdrs -fralph.schindler@zend.com', $this->additional_parameters);
@@ -96,13 +96,13 @@ class SendmailTest extends \PHPUnit_Framework_TestCase
         $message = $this->getMessage();
 
         $this->transport->send($message);
-        $this->assertEquals('zf-devteam@zend.com', $this->to);
+        $this->assertEquals('devteam@netric.com', $this->to);
         $this->assertEquals('Testing Netric\Mail\Transport\Sendmail', $this->subject);
         $this->assertEquals('This is only a test.', trim($this->message));
-        $this->assertContains("To: ZF DevTeam <zf-devteam@zend.com>\r\n", $this->additional_headers);
+        $this->assertContains("To: Netric DevTeam <devteam@netric.com>\r\n", $this->additional_headers);
         $this->assertContains("Cc: matthew@zend.com\r\n", $this->additional_headers);
         $this->assertContains("Bcc: \"CR-Team, ZF Project\" <zf-crteam@lists.zend.com>\r\n", $this->additional_headers);
-        $this->assertContains("From: zf-devteam@zend.com,\r\n Matthew <matthew@zend.com>\r\n", $this->additional_headers);
+        $this->assertContains("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $this->additional_headers);
         $this->assertContains("X-Foo-Bar: Matthew\r\n", $this->additional_headers);
         $this->assertContains("Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n", $this->additional_headers);
         $this->assertNull($this->additional_parameters);

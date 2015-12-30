@@ -36,11 +36,11 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
     public function getMessage()
     {
         $message = new Message();
-        $message->addTo('zf-devteam@zend.com', 'ZF DevTeam')
+        $message->addTo('devteam@netric.com', 'Netric DevTeam')
                 ->addCc('matthew@zend.com')
                 ->addBcc('zf-crteam@lists.zend.com', 'CR-Team, ZF Project')
                 ->addFrom([
-                    'zf-devteam@zend.com',
+                    'devteam@netric.com',
                     'matthew@zend.com' => 'Matthew',
                 ])
                 ->setSender('ralph.schindler@zend.com', 'Ralph Schindler')
@@ -93,7 +93,7 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('MAIL FROM:<mailer@lists.zend.com>', $data);
         $this->assertContains('RCPT TO:<matthew@zend.com>', $data);
         $this->assertContains('RCPT TO:<zf-crteam@lists.zend.com>', $data);
-        $this->assertContains("From: zf-devteam@zend.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
+        $this->assertContains("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
     }
 
     public function testSendMailWithEnvelopeTo()
@@ -108,7 +108,7 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
         $data = $this->connection->getLog();
         $this->assertContains('MAIL FROM:<ralph.schindler@zend.com>', $data);
         $this->assertContains('RCPT TO:<users@lists.zend.com>', $data);
-        $this->assertContains('To: ZF DevTeam <zf-devteam@zend.com>', $data);
+        $this->assertContains('To: Netric DevTeam <devteam@netric.com>', $data);
     }
 
     public function testSendMailWithEnvelope()
@@ -139,11 +139,11 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
             ->setHeaders($headers)
             ->setSender('ralph.schindler@zend.com', 'Ralph Schindler')
             ->setBody('testSendMailWithoutMinimalHeaders')
-            ->addTo('zf-devteam@zend.com', 'ZF DevTeam')
+            ->addTo('devteam@netric.com', 'Netric DevTeam')
         ;
         $expectedMessage = "Date: Sun, 10 Jun 2012 20:07:24 +0200\r\n"
                            . "Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n"
-                           . "To: ZF DevTeam <zf-devteam@zend.com>\r\n"
+                           . "To: Netric DevTeam <devteam@netric.com>\r\n"
                            . "\r\n"
                            . "testSendMailWithoutMinimalHeaders";
 
@@ -157,16 +157,16 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
         $message = $this->getMessage();
         $this->transport->send($message);
 
-        $expectedRecipients = ['zf-devteam@zend.com', 'matthew@zend.com', 'zf-crteam@lists.zend.com'];
+        $expectedRecipients = ['devteam@netric.com', 'matthew@zend.com', 'zf-crteam@lists.zend.com'];
         $this->assertEquals($expectedRecipients, $this->connection->getRecipients());
 
         $data = $this->connection->getLog();
         $this->assertContains('MAIL FROM:<ralph.schindler@zend.com>', $data);
-        $this->assertContains('To: ZF DevTeam <zf-devteam@zend.com>', $data);
+        $this->assertContains('To: Netric DevTeam <devteam@netric.com>', $data);
         $this->assertContains('Subject: Testing Netric\Mail\Transport\Sendmail', $data);
         $this->assertContains("Cc: matthew@zend.com\r\n", $data);
         $this->assertNotContains("Bcc: \"CR-Team, ZF Project\" <zf-crteam@lists.zend.com>\r\n", $data);
-        $this->assertContains("From: zf-devteam@zend.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
+        $this->assertContains("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
         $this->assertContains("X-Foo-Bar: Matthew\r\n", $data);
         $this->assertContains("Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n", $data);
         $this->assertContains("\r\n\r\nThis is only a test.", $data, $data);

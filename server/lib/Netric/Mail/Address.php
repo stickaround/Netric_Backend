@@ -1,10 +1,7 @@
 <?php
 /**
- * Netric Framework (http://framework.Netric.com/)
- *
- * @link      http://github.com/Netricframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Netric Technologies USA Inc. (http://www.Netric.com)
- * @license   http://framework.Netric.com/license/new-bsd New BSD License
+ * @author Sky Stebnicki <sky.stebnicki@aereus.com>
+ * @copyright 2015 Aereus
  */
 
 namespace Netric\Mail;

@@ -20,11 +20,11 @@ class InMemoryTest extends \PHPUnit_Framework_TestCase
     public function getMessage()
     {
         $message = new Message();
-        $message->addTo('zf-devteam@zend.com', 'ZF DevTeam')
+        $message->addTo('devteam@netric.com', 'Netric DevTeam')
                 ->addCc('matthew@zend.com')
                 ->addBcc('zf-crteam@lists.zend.com', 'CR-Team, ZF Project')
                 ->addFrom([
-                    'zf-devteam@zend.com',
+                    'devteam@netric.com',
                     'matthew@zend.com' => 'Matthew',
                 ])
                 ->setSender('ralph.schindler@zend.com', 'Ralph Schindler')

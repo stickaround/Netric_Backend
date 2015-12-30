@@ -156,10 +156,10 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     public function testCanSpecifyNameWhenSettingSender()
     {
-        $this->message->setSender('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->setSender('zf-devteam@example.com', 'Netric DevTeam');
         $sender = $this->message->getSender();
         $this->assertInstanceOf('Netric\Mail\Address', $sender);
-        $this->assertEquals('ZF DevTeam', $sender->getName());
+        $this->assertEquals('Netric DevTeam', $sender->getName());
     }
 
     public function testCanProvideAddressObjectWhenSettingSender()
@@ -174,34 +174,34 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     {
         $header = new Header\Sender();
         $this->message->getHeaders()->addHeader($header);
-        $address = new Address('zf-devteam@example.com', 'ZF DevTeam');
+        $address = new Address('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->setSender($address);
         $this->assertSame($address, $header->getAddress());
     }
 
     public function testCanAddFromAddressUsingName()
     {
-        $this->message->addFrom('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->addFrom('zf-devteam@example.com', 'Netric DevTeam');
         $addresses = $this->message->getFrom();
         $this->assertEquals(1, count($addresses));
         $address = $addresses->current();
         $this->assertEquals('zf-devteam@example.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testCanAddFromAddressUsingEmailAndNameAsString()
     {
-        $this->message->addFrom('ZF DevTeam <zf-devteam@example.com>');
+        $this->message->addFrom('Netric DevTeam <zf-devteam@example.com>');
         $addresses = $this->message->getFrom();
         $this->assertEquals(1, count($addresses));
         $address = $addresses->current();
         $this->assertEquals('zf-devteam@example.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testCanAddFromAddressUsingAddressObject()
     {
-        $address = new Address('zf-devteam@example.com', 'ZF DevTeam');
+        $address = new Address('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->addFrom($address);
 
         $addresses = $this->message->getFrom();
@@ -214,8 +214,8 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     {
         $addresses = [
             'zf-devteam@example.com',
-            'zf-contributors@example.com' => 'ZF Contributors List',
-            new Address('fw-announce@example.com', 'ZF Announce List'),
+            'zf-contributors@example.com' => 'Netric Contributors List',
+            new Address('fw-announce@example.com', 'Netric Announce List'),
         ];
         $this->message->addFrom($addresses);
 
@@ -255,17 +255,17 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     public function testCanAddCcAddressUsingName()
     {
-        $this->message->addCc('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->addCc('zf-devteam@example.com', 'Netric DevTeam');
         $addresses = $this->message->getCc();
         $this->assertEquals(1, count($addresses));
         $address = $addresses->current();
         $this->assertEquals('zf-devteam@example.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testCanAddCcAddressUsingAddressObject()
     {
-        $address = new Address('zf-devteam@example.com', 'ZF DevTeam');
+        $address = new Address('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->addCc($address);
 
         $addresses = $this->message->getCc();
@@ -278,8 +278,8 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     {
         $addresses = [
             'zf-devteam@example.com',
-            'zf-contributors@example.com' => 'ZF Contributors List',
-            new Address('fw-announce@example.com', 'ZF Announce List'),
+            'zf-contributors@example.com' => 'Netric Contributors List',
+            new Address('fw-announce@example.com', 'Netric Announce List'),
         ];
         $this->message->addCc($addresses);
 
@@ -319,17 +319,17 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     public function testCanAddBccAddressUsingName()
     {
-        $this->message->addBcc('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->addBcc('zf-devteam@example.com', 'Netric DevTeam');
         $addresses = $this->message->getBcc();
         $this->assertEquals(1, count($addresses));
         $address = $addresses->current();
         $this->assertEquals('zf-devteam@example.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testCanAddBccAddressUsingAddressObject()
     {
-        $address = new Address('zf-devteam@example.com', 'ZF DevTeam');
+        $address = new Address('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->addBcc($address);
 
         $addresses = $this->message->getBcc();
@@ -342,8 +342,8 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     {
         $addresses = [
             'zf-devteam@example.com',
-            'zf-contributors@example.com' => 'ZF Contributors List',
-            new Address('fw-announce@example.com', 'ZF Announce List'),
+            'zf-contributors@example.com' => 'Netric Contributors List',
+            new Address('fw-announce@example.com', 'Netric Announce List'),
         ];
         $this->message->addBcc($addresses);
 
@@ -383,17 +383,17 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     public function testCanAddReplyToAddressUsingName()
     {
-        $this->message->addReplyTo('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->addReplyTo('zf-devteam@example.com', 'Netric DevTeam');
         $addresses = $this->message->getReplyTo();
         $this->assertEquals(1, count($addresses));
         $address = $addresses->current();
         $this->assertEquals('zf-devteam@example.com', $address->getEmail());
-        $this->assertEquals('ZF DevTeam', $address->getName());
+        $this->assertEquals('Netric DevTeam', $address->getName());
     }
 
     public function testCanAddReplyToAddressUsingAddressObject()
     {
-        $address = new Address('zf-devteam@example.com', 'ZF DevTeam');
+        $address = new Address('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->addReplyTo($address);
 
         $addresses = $this->message->getReplyTo();
@@ -406,8 +406,8 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     {
         $addresses = [
             'zf-devteam@example.com',
-            'zf-contributors@example.com' => 'ZF Contributors List',
-            new Address('fw-announce@example.com', 'ZF Announce List'),
+            'zf-contributors@example.com' => 'Netric Contributors List',
+            new Address('fw-announce@example.com', 'Netric Announce List'),
         ];
         $this->message->addReplyTo($addresses);
 
@@ -628,16 +628,16 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     public function testSettingNonAsciiEncodingForcesMimeEncodingOfSomeHeaders()
     {
-        $this->message->addTo('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->addTo('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->addFrom('matthew@example.com', "Matthew Weier O'Phinney");
-        $this->message->addCc('zf-contributors@example.com', 'ZF Contributors List');
+        $this->message->addCc('zf-contributors@example.com', 'Netric Contributors List');
         $this->message->addBcc('zf-crteam@example.com', 'ZF CR Team');
         $this->message->setSubject('This is a subject');
         $this->message->setEncoding('UTF-8');
 
         $test = $this->message->getHeaders()->toString();
 
-        $expected = '=?UTF-8?Q?ZF=20DevTeam?=';
+        $expected = '=?UTF-8?Q?Netric=20DevTeam?=';
         $this->assertContains($expected, $test);
         $this->assertContains('<zf-devteam@example.com>', $test);
 
@@ -645,7 +645,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertContains($expected, $test, $test);
         $this->assertContains('<matthew@example.com>', $test);
 
-        $expected = '=?UTF-8?Q?ZF=20Contributors=20List?=';
+        $expected = '=?UTF-8?Q?Netric=20Contributors=20List?=';
         $this->assertContains($expected, $test);
         $this->assertContains('<zf-contributors@example.com>', $test);
 
@@ -674,9 +674,9 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     public function testRestoreFromSerializedString()
     {
-        $this->message->addTo('zf-devteam@example.com', 'ZF DevTeam');
+        $this->message->addTo('zf-devteam@example.com', 'Netric DevTeam');
         $this->message->addFrom('matthew@example.com', "Matthew Weier O'Phinney");
-        $this->message->addCc('zf-contributors@example.com', 'ZF Contributors List');
+        $this->message->addCc('zf-contributors@example.com', 'Netric Contributors List');
         $this->message->setSubject('This is a subject');
         $this->message->setBody('foo');
         $serialized      = $this->message->toString();

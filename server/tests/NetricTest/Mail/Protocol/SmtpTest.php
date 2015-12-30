@@ -40,15 +40,15 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
             ->setHeaders($headers)
             ->setSender('ralph.schindler@zend.com', 'Ralph Schindler')
             ->setBody('testSendMailWithoutMinimalHeaders')
-            ->addTo('zf-devteam@zend.com', 'ZF DevTeam')
+            ->addTo('devteam@netric.com', 'Netric DevTeam')
         ;
         $expectedMessage = "EHLO localhost\r\n"
                            . "MAIL FROM:<ralph.schindler@zend.com>\r\n"
-                           . "RCPT TO:<zf-devteam@zend.com>\r\n"
+                           . "RCPT TO:<devteam@netric.com>\r\n"
                            . "DATA\r\n"
                            . "Date: Sun, 10 Jun 2012 20:07:24 +0200\r\n"
                            . "Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n"
-                           . "To: ZF DevTeam <zf-devteam@zend.com>\r\n"
+                           . "To: Netric DevTeam <devteam@netric.com>\r\n"
                            . "\r\n"
                            . "testSendMailWithoutMinimalHeaders\r\n"
                            . ".\r\n";
@@ -67,15 +67,15 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
             ->setHeaders($headers)
             ->setSender('ralph.schindler@zend.com', 'Ralph Schindler')
             ->setBody("This is a test\n.")
-            ->addTo('zf-devteam@zend.com', 'ZF DevTeam')
+            ->addTo('devteam@netric.com', 'Netric DevTeam')
         ;
         $expectedMessage = "EHLO localhost\r\n"
             . "MAIL FROM:<ralph.schindler@zend.com>\r\n"
-            . "RCPT TO:<zf-devteam@zend.com>\r\n"
+            . "RCPT TO:<devteam@netric.com>\r\n"
             . "DATA\r\n"
             . "Date: Sun, 10 Jun 2012 20:07:24 +0200\r\n"
             . "Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n"
-            . "To: ZF DevTeam <zf-devteam@zend.com>\r\n"
+            . "To: Netric DevTeam <devteam@netric.com>\r\n"
             . "\r\n"
             . "This is a test\r\n"
             . "..\r\n"
