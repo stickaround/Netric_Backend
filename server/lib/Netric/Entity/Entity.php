@@ -1074,4 +1074,35 @@ class Entity implements \Netric\Entity\EntityInterface
             }
         }
     }
+
+    /**
+     * Synchronize followers between this entity and another
+     *
+     * Note, this does not save changes to either entity so that is something
+     * that needs to be done after calling this function.
+     *
+     * @param EntityInterface $otherEntity The entity we are synchronizing with
+     */
+    public function syncFollowers(EntityInterface $otherEntity)
+    {
+        // First copy all followers from the entity we've commented on
+        $entityFollowers = $otherEntity->getValue("followers");
+        foreach ($entityFollowers as $uid)
+        {
+            $userName = $otherEntity->getValueName("followers", $uid);
+
+            // Add value will prevent duplicates
+            $this->addMultiValue("followers", $uid, $userName);
+        }
+
+        // Now add any new followers from this comment to follow the entity we've commented on
+        $commentFollowers = $this->getValue("followers");
+        foreach ($commentFollowers as $uid)
+        {
+            $userName = $this->getValueName("followers", $uid);
+
+            // Add value will prevent duplicates
+            $otherEntity->addMultiValue("followers", $uid, $userName);
+        }
+    }
 }

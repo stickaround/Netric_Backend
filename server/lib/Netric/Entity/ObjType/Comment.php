@@ -40,7 +40,6 @@ class Comment extends Entity implements EntityInterface
                     // Determine if we should increment or decrement
                     $added =  ($this->isDeleted()) ? false : true;
                     $entityCommentedOn->setHasComments($added);
-                    $entityLoader->save($entityCommentedOn);
                 }
 
                 // Add object references to the list of associations
@@ -79,6 +78,15 @@ class Comment extends Entity implements EntityInterface
                         }
                     }
                 }
+
+                // Make sure followers of this comment are synchronized with the entity
+                $this->syncFollowers($entityCommentedOn);
+
+                // Save the entity we are commenting on if there were changes
+                if ($entityCommentedOn->isDirty())
+                {
+                    $entityLoader->save($entityCommentedOn);
+                }
             }
         }
 
@@ -87,8 +95,6 @@ class Comment extends Entity implements EntityInterface
         {
             $this->setValue("sent_by", "user:" . $currentUser->getId());
         }
-
-        // TODO: Send notifications if set
     }
 
     /**

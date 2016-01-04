@@ -260,6 +260,24 @@ class EntityTest extends PHPUnit_Framework_TestCase
 
         // Now make sure followers were set to the two references above
         $followers = $entity->getValue("followers");
-        $this->assertEquals(array(456, 123), $followers);
+        $this->assertEquals(array(123, 456), $followers);
+    }
+
+    /**
+     * Test synchronize followers function
+     */
+    public function testSyncFollowers()
+    {
+        // Add some fake users to a test task
+        $task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+        $task1->addMultiValue("followers", 123, "John");
+        $task1->addMultiValue("followers", 456, "Dave");
+
+        // Crete a second task and synchronize
+        $task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+        $task2->syncFollowers($task1);
+
+        $this->assertEquals(2, count($task1->getValue("followers")));
+        $this->assertEquals($task1->getValue("followers"), $task2->getValue("followers"));
     }
 }

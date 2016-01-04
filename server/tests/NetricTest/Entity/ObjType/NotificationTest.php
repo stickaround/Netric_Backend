@@ -131,7 +131,7 @@ class NotificationTest extends PHPUnit_Framework_TestCase
             $message->getTo()->current()->getEmail()
         );
 
-        // Check that we sent form the creator name
+        // Check that we sent from the creator name
         $this->assertEquals(
             $this->user->getName(),
             $message->getFrom()->current()->getName()
