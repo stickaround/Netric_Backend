@@ -12,6 +12,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\EntityDefinition;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
+use Netric\Mail\Address;
 
 /**
  * Notification entity
@@ -70,8 +71,8 @@ class Notification extends Entity implements EntityInterface
      */
     private function sendEmailNotification(ServiceLocatorInterface $sm)
     {
-        // Make sure the notification has an owner
-        if (!$this->getValue("owner_id"))
+        // Make sure the notification has an owner or a creator
+        if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id")))
             return;
 
         // If mail transport is not set, then set it here
@@ -80,6 +81,9 @@ class Notification extends Entity implements EntityInterface
 
         // Get the user that owns this notice
         $user = $sm->get("EntityLoader")->get("user", $this->getValue("owner_id"));
+
+        // Get the user that triggered this notice
+        $creator = $sm->get("EntityLoader")->get("user", $this->getValue("creator_id"));
 
         // Make sure the user has an email
         if (!$user || !$user->getValue("email"))
@@ -90,13 +94,36 @@ class Notification extends Entity implements EntityInterface
         $entity = $sm->get("EntityLoader")->get($objReference['obj_type'], $objReference['id']);
 
         // Set the body
-        $body = $entity->getDescription();
+        $body = $creator->getName() . " " . $this->getValue('name') . " on ";
+        $body .= date("m/d/Y") . " at " . date("h:iA T") . "\r\n";
+        $body .= "---------------------------------------\r\n\r\n";
+        $body .= $entity->getDescription();
+        $body .= "---------------------------------------\r\n\r\n";
 
-        // TODO: Clean this up and set a dynamic from if type=comment
+        // Add link to body
+        $body .= $sm->getAccount()->getAccountUrl() . "/obj/";
+        $body .= $objReference['obj_type'] . "/" . $objReference['id'];
+        $body .= "\n\n";
+        $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
+
+        // Set from
+        $config = $sm->get("Config");
+        $fromEmail = $config->email['noreply'];
+
+        // Add special dropbox that enables users to comment by just replying to an email
+        if ($config->email['dropbox_catchall'])
+        {
+            $fromEmail = $sm->getAccount()->getName() . "-com-";
+            $fromEmail .= $objReference['obj_type'] . "." . $objReference['id'];
+            $fromEmail .= $config->email['dropbox_catchall'];
+        }
+
+        // Create new Mail\Address object for the Message
+        $from = new Address($fromEmail, $creator->getName());
 
         // Create a new message
         $message = new Mail\Message();
-        $message->addFrom("noreply@netric.com");
+        $message->addFrom($from);
         $message->addTo($user->getValue("email"));
         $message->setBody($body);
         $message->setEncoding('UTF-8');

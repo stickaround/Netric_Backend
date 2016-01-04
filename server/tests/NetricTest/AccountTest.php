@@ -21,4 +21,18 @@ class AccountTest extends PHPUnit_Framework_TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $this->assertInstanceOf('Netric\Application', $account->getApplication());
     }
+
+    public function testGetAccountUrl()
+    {
+        $account = \NetricTest\Bootstrap::getAccount();
+        $config = $account->getServiceManager()->get("Config");
+
+        // Test without protocol
+        $url = $account->getAccountUrl(false);
+        $this->assertEquals($account->getName() . "." . $config->localhost_root, $url);
+
+        // Include the protocol
+        $url = $account->getAccountUrl();
+        $this->assertContains("http", $url);
+    }
 }
