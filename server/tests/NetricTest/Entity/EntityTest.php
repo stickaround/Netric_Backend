@@ -264,7 +264,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test synchronize followers function
+     * Test synchronize followers between two entities
      */
     public function testSyncFollowers()
     {

@@ -284,6 +284,7 @@ class Entity implements \Netric\Entity\EntityInterface
 
         if ($valueName)
         {
+            // Make sure we initialize the arrays if not already set
             if (!isset($this->fkeysValues[$strName]))
                 $this->fkeysValues[$strName] = array();
 
@@ -1078,6 +1079,11 @@ class Entity implements \Netric\Entity\EntityInterface
     /**
      * Synchronize followers between this entity and another
      *
+     * This is useful for entities such as comments where it is common to
+     * add new followers to the comment (through tagging like [user:123:Test])
+     * and then make sure the comment also notifies any followers of the entity
+     * being commented on (like a task).
+     *
      * Note, this does not save changes to either entity so that is something
      * that needs to be done after calling this function.
      *
@@ -1091,7 +1097,7 @@ class Entity implements \Netric\Entity\EntityInterface
         {
             $userName = $otherEntity->getValueName("followers", $uid);
 
-            // Add value will prevent duplicates
+            // addMultiValue will prevent duplicates so we just add them all
             $this->addMultiValue("followers", $uid, $userName);
         }
 
@@ -1101,7 +1107,6 @@ class Entity implements \Netric\Entity\EntityInterface
         {
             $userName = $this->getValueName("followers", $uid);
 
-            // Add value will prevent duplicates
             $otherEntity->addMultiValue("followers", $uid, $userName);
         }
     }

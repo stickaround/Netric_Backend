@@ -1,18 +1,18 @@
 # Mail
 
-Use the Mail module send email from netric.
+Use the Mail module work with mime emails from netric.
 
 ## Theory of Operation
 
 The Mail module utilizes the follow components to compose and send messages.
 
 ### Transport
-The transport is the actual transportation of the message from the local server to the destination.
+The transport is the actual transportation of the message from the code composing the message to the mail server.
 
-We use a factory to setup the factory based on the settings for the installation and for each account.
+We use a factory to setup the transport based on the settings for the installation and for each account.
 
 #### Regular Mail Transport
-This transport is used for sending notices to users of netric.
+This transport is used for sending notices to users of netric, and email on behalf of users.
 
     $serviceManager = $application->getAccount()->getServiceManager();
     $transport = $serviceManager->get("Netric/Mail/Transport/Transport");
@@ -32,7 +32,7 @@ In the future we may create an API based transport as well for clients to want t
 of some kind to queue message from their network.
 
 ### Message
-The Message class represents an indivial message to send via a transport.
+The Message class represents an individual message to send via a transport.
 
     $message = new \Netric\Mail\Message();
     $message->addFrom("noreply@netric.com");
@@ -57,8 +57,84 @@ The Message class represents an indivial message to send via a transport.
     $transport = $serviceManager->get("Netric/Mail/Transport/Transport");
     $transport->send($message);
     
+### Adding an Attachment with Mime
+
+    use Netric\Mime;
+
+    // First create the parts
+    $text = new Mime\Part("Body content Here");
+    $text->setType(Mime\Mime::TYPE_TEXT);
+    $text->setCharset('utf-8');
+    
+    $fileStreamHandle = fopen($somefilePath, 'r');
+    $attachment = new Mime\Part($fileStreamHandle);
+    $attachment->setType('image/jpg');
+    $attachment->setFileName('image-file-name.jpg');
+    $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
+    // Setting the encoding is recommended for binary data
+    $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
+    
+    // Add all the parts to the message
+    $mimeMessage = new Mime\Message();
+    $mimeMessage->setParts(array($text, $attachment));
+    
+    // Create the actual email
+    $message = new \Netric\Mail\Message();
+    $message->setBody($mimeMessage);
+
+### Creating a MultiPart/Alternative Message with Attachments
+
+    use Netric\Mime;
+    
+    $html = "<b>my body</b>";
+    $text = "*my body*";
+
+    // HTML part
+    $htmlPart = new Mime\Part($html);
+    $htmlPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
+    $htmlPart->setType(Mime\Mime::TYPE_HTML);
+    $htmlPart->setCharset("UTF-8");
+    
+    // Plain text part
+    $textPart = new Mime\Part($text);
+    $textPart->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
+    $textPart->setType(Mime\Mime::TYPE_TEXT);
+    $textPart->setCharset("UTF-8");
+    
+    // Create a content message for the parts
+    $content = new new Mime\Message();
+    $content->addPart($textPart);
+    $content->addPart($htmlPart);
+    
+    // Create mime message and add the content and the attachments as seperate parts
+    $mimeMessage = new Mime\Message();
+    
+    // Add text & html alternative
+    $contentPart = new Mime\Part($content->generateMessage());        
+    $contentPart->setType(Mime\Mime::MULTIPART_ALTERNATIVE);
+    $contentPart->setBoundary($content->getMime()->boundary());
+    $mimeMessage->addPart($contentPart);
+
+    // Add attachment
+    $fileStreamHandle = fopen($somefilePath, 'r');
+    $attachment = new Mime\Part($fileStreamHandle);
+    $attachment->setType('image/jpg');
+    $attachment->setFileName('image-file-name.jpg');
+    $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
+    // Setting the encoding is recommended for binary data
+    $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
+    $mimemessage->addPart($attachment);
+    
+    // Create the actual email
+    $message = new \Netric\Mail\Message();
+    $message->setBody($mimeMessage);
+
+    
 ### Unit Testing
 To make unit testing easier, there is an in memory transport that never actually sends the message.
+
+This is also used automatically by the transport factory if the system config has email.suppress = true
+ to keep the development environment (and unit tests) from sending any actual email messages.
 
     $transport = new \Netric\Mail\Transport\InMemory.php
     $transport->send($message); // This will not send anything
