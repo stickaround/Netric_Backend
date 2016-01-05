@@ -187,11 +187,10 @@ Route.prototype.matchesPath = function(path) {
 	var pathReq = this.getPathSegments(path, this.numPathSegments_);
 	if (pathReq != null) {
 
-		// Split the target string
+		// We need to split the pathReq so when extracting the location path it will not include the query params
 		var targetParts = pathReq.target.split("?");
 
-
-		// Now check for a match and parse params in the string
+		// Now check for a match and parse params in the string (not including the query params)
 		var params = locationPath.extractParams(this.name_, targetParts[0]);
 
 		// Get any query params

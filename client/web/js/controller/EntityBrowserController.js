@@ -109,10 +109,17 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
 
     // Capture a status update activity and refresh the list
     if(this.props.eventsObj) {
+
+        // Listener to refresh the entity specific only to activity/status_update
         alib.events.listen(this.props.eventsObj, "statusActivityRefresh", function(evt) {
             if(this.props.objType == 'status_update' || this.props.objType == 'activity') {
                 this.collection_.refresh();
             }
+        }.bind(this));
+
+        // Listener to refresh the entity list
+        alib.events.listen(this.props.eventsObj, "refreshEntityList", function(evt) {
+            this.collection_.refresh();
         }.bind(this));
     }
 

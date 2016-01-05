@@ -10,6 +10,7 @@ var Definition = require('./Definition');
 var Recurrence = require('./Recurrence');
 var File = require('./fileupload/File');
 var events = require('../util/events');
+var netric = require("../base");
 
 /**
  * Entity represents a netric object
@@ -603,6 +604,42 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
  */
 Entity.prototype.setRecurrence = function (recurrencePattern) {
     this.recurrencePattern_ = recurrencePattern;
+}
+
+/**
+ * Set the default value of this entity
+ *
+ * @param {Object} sourceData       The source data that will be used to set the default values
+ * @public
+ */
+Entity.prototype.setDefaultValues = function (sourceData) {
+
+    var userId = -3; // -3 is 'current_user' on the backend
+    var userName = 'Current User';
+    if (netric.getApplication().getAccount().getUser()) {
+        userId = netric.getApplication().getAccount().getUser().id;
+        userName = netric.getApplication().getAccount().getUser().name;
+    }
+
+    this.def.fields.map(function(field) {
+
+        // If this field is not yet set, then lets assign a default value
+        if(field.default == null
+            && field.type != field.types.fkeyMulti
+            && field.type != field.types.objectMulti) {
+
+            switch(field.subtype) {
+                case 'user':
+                    this.setValue(field.name, userId, userName);
+                    break;
+            }
+        }
+
+        if(sourceData && sourceData[field.name] && sourceData[field.name + '_val']) {
+            this.setValue(field.name, sourceData[field.name], sourceData[field.name + '_val'])
+        }
+
+    }.bind(this));
 }
 
 module.exports = Entity;

@@ -12,14 +12,25 @@ var React = require('react');
  */
 var Column = React.createClass({
 
-    render: function() {
+    render: function () {
 
         var xmlNode = this.props.xmlNode;
         var type = xmlNode.getAttribute('type');
-        var className = (type === "sidebar")
-            ? "entity-form-column-sidebar" : "entity-form-column";
+        var className = null;
 
-    	return (
+        switch (type) {
+            case 'sidebar':
+            case 'half':
+            case 'quarter':
+                className = 'entity-form-column-' + type;
+                break;
+
+            default:
+                className = 'entity-form-column';
+                break;
+        }
+
+        return (
             <div className={className}>
                 {this.props.children}
             </div>

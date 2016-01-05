@@ -70,6 +70,18 @@ var ObjectField = React.createClass({
             valueLabel = "Loading...";
         }
 
+        var objSelectDisplay = null;
+        if(field.subtype) {
+            objSelectDisplay = (<ObjectSelect
+                onChange={this._handleSetValue}
+                objType={this.props.entity.def.objType}
+                fieldName={fieldName}
+                value={fieldValue}
+                label={valueLabel}
+                field={field}
+                />);
+        }
+
         if (this.props.editMode) {
             return (
                 <div>
@@ -77,13 +89,7 @@ var ObjectField = React.createClass({
                         {field.title}
                     </div>
                     <div className="entity-form-field-value">
-                        <ObjectSelect
-                            onChange={this._handleSetValue}
-                            objType={this.props.entity.def.objType}
-                            fieldName={fieldName}
-                            value={fieldValue}
-                            label={valueLabel}
-                        />
+                        {objSelectDisplay}
                     </div>
                 </div>
             );

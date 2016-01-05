@@ -17,27 +17,33 @@ var Where = require("../../../entity/Where");
  */
 var Objectsref = React.createClass({
 
-    /**
-     * The reference field for this entity
-     *
-     * @type {string}
-     */
-    refField: null,
-
-    /**
-     * The reference value for reference field
-     *
-     * @type {string}
-     */
-    refFieldValue: null,
-    
     mixins: [CustomEventTrigger],
+
+    getInitialState: function () {
+
+        // Return the initial state
+        return {
+            /**
+             * The reference field for this entity
+             *
+             * @type {string}
+             */
+            refField: null,
+
+            /**
+             * The reference value for reference field
+             *
+             * @type {string}
+             */
+            refFieldValue: null,
+        };
+    },
 
     /**
      * Render the browser after the component mounts
      */
     componentDidMount: function () {
-        if(this.props.entity.id) {
+        if (this.props.entity.id) {
             this._displayObjectBrowser(this.props);
         }
     },
@@ -45,8 +51,8 @@ var Objectsref = React.createClass({
     /**
      * Render the entity browser after receiving new props
      */
-    componentWillReceiveProps: function(nextProps) {
-        if(nextProps.entity.id) {
+    componentWillReceiveProps: function (nextProps) {
+        if (nextProps.entity.id) {
             this._displayObjectBrowser(nextProps);
         }
     },
@@ -57,7 +63,7 @@ var Objectsref = React.createClass({
     render: function () {
 
         var note = null;
-        if(!this.props.entity.id) {
+        if (!this.props.entity.id) {
             note = "Please save changes to view more details.";
         }
 
@@ -71,10 +77,14 @@ var Objectsref = React.createClass({
      */
     _sendEntityClickEvent: function (objType, oid) {
 
-        if (this.refField && oid == 'new') {
-            oid += '?refField=' + this.refField;
-            oid += '&' + this.refField + '=' + this.refFieldValue;
-            oid += '&' + this.refField + '_val=' + encodeURIComponent(this.props.entity.getValue('name'));
+        if (oid == 'new') {
+
+            // If we have refField is set, then add it in the query parameters
+            if (this.state.refField) {
+                oid += '?' + this.state.refField + '=' + this.state.refFieldValue;
+                oid += '&' + this.state.refField + '_val=' + encodeURIComponent(this.state.entityName);
+
+            }
         }
 
         this.triggerCustomEvent("entityclick", {objType: objType, id: oid});
@@ -87,15 +97,15 @@ var Objectsref = React.createClass({
      * @private
      */
     _displayObjectBrowser: function (sourceProps) {
-        
+
         // Require EntityBrowserController here so we do not risk a circular dependency
         var EntityBrowserController = require("../../../controller/EntityBrowserController");
 
         // Get the objType that will be used for object browser
         var objType = sourceProps.xmlNode.getAttribute('obj_type');
-
-        this.refField = sourceProps.xmlNode.getAttribute('ref_field');
-        this.refFieldValue = sourceProps.entity.getValue(this.refField) || sourceProps.entity.id
+        var refField = sourceProps.xmlNode.getAttribute('ref_field');
+        var refFieldValue = sourceProps.entity.getValue(this.refField) || sourceProps.entity.id;
+        var entityName = sourceProps.entity.getValue('name');
 
         // Add filter for to reference current entity
         var filters = [];
@@ -123,6 +133,13 @@ var Objectsref = React.createClass({
         // Create browser and render
         var browser = new EntityBrowserController();
         browser.load(data, ReactDOM.findDOMNode(this.refs.bcon));
+
+        // Update the state
+        this.setState({
+            refField: refField,
+            refFieldValue: refFieldValue,
+            entityName: entityName
+        });
     }
 
 });

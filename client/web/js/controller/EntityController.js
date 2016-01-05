@@ -88,14 +88,16 @@ EntityController.prototype.onLoad = function (opt_callback) {
     // Add route to create new objects ref entities
     this.addSubRoute(":objType/new",
         EntityController, {
-            type: controller.types.PAGE
+            type: controller.types.PAGE,
+            eventsObj: this.eventsObj_
         }
     );
 
     // Add route to load entities
     this.addSubRoute(":objType/:eid",
         EntityController, {
-            type: controller.types.PAGE
+            type: controller.types.PAGE,
+            eventsObj: this.eventsObj_
         }
     );
 
@@ -153,15 +155,11 @@ EntityController.prototype.onLoad = function (opt_callback) {
 
             // Setup an empty entity
             this.entity_ = entityLoader.factory(this.props.objType);
-
-            var entityData = this.props.entityData || [];
-
-            // Set the default entity data
-            this._setDefaultEntityData(entityData);
+            this.entity_.setDefaultValues(this.props);
 
             // Check if we have default data for the new entity
-            if (entityData) {
-                this._initEntityData(entityData);
+            if (this.props.entityData) {
+                this._initEntityData(this.props.entityData);
             }
 
             // Set listener to call this.render when properties change
@@ -186,10 +184,6 @@ EntityController.prototype.render = function () {
 
     // Set outer application container
     var domCon = this.domNode_;
-
-    if (this.props.objRefField && this.props.objRefId) {
-        this.entity_.setObjRef(this.props.objRefField, this.props.objRefId);
-    }
 
     // Set data properties to forward to the view
     var data = {
@@ -247,7 +241,6 @@ EntityController.prototype.render = function () {
  * Render this controller into the dom tree
  */
 EntityController.prototype.close = function () {
-
     if (this.getType() == controller.types.DIALOG) {
         this.unload();
     } else if (this.getParentController()) {
@@ -257,6 +250,13 @@ EntityController.prototype.close = function () {
         window.close();
     }
 
+    /**
+     * If eventsObj is set in props, then lets refresh the entity list
+     * This scenario only applies if this entity is closed from a referenced entity.
+     */
+    if(this.props.eventsObj) {
+        alib.events.triggerEvent(this.props.eventsObj, 'refreshEntityList');
+    }
 }
 
 /**
@@ -324,56 +324,16 @@ EntityController.prototype._initEntityData = function (data) {
 
     for (var prop in data) {
         var val = data[prop];
+
         if (val instanceof Array) {
-            // TODO: Not yet implemented
-            //this.entity_.addMultiValue(prop, val);
+            this.entity_.addMultiValue(prop, val);
         } else if (val instanceof Object) {
             this.entity_.setValue(prop, val.key, val.value);
         } else {
-
             this.entity_.setValue(prop, val);
         }
     }
 };
-
-/**
- * Set the default entity data. Map the entity fields to check the subtype and assign appropriate values
- *
- * @param {array} entityData
- * @private
- */
-EntityController.prototype._setDefaultEntityData = function (entityData) {
-
-    var userId = -3; // -3 is 'current_user' on the backend
-    var userName = 'Current User';
-    if (netric.getApplication().getAccount().getUser()) {
-        userId = netric.getApplication().getAccount().getUser().id;
-        userName = netric.getApplication().getAccount().getUser().name;
-    }
-
-    this.entity_.def.fields.map(function(field) {
-
-        // If this field is not yet set, then lets assign a default value
-        if(!entityData[field.name]) {
-            switch(field.subtype) {
-                case 'user':
-                    entityData[field.name] = {
-                        key: userId,
-                        value: userName
-                    }
-                    break;
-            }
-        }
-    });
-
-    // If we have a reference field, then lets set it in the entityData
-    if (this.props.refField && !entityData[this.props.refField]) {
-        entityData[this.props.refField] = {
-            key: this.props[this.props.refField],
-            value: this.props[this.props.refField + '_val']
-        }
-    }
-}
 
 /**
  * Perform an action on this entity

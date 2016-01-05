@@ -45,7 +45,7 @@
             <tab name='Activity'>
                 <field name='activity'></field>
             </tab>
-            <tab name='Tasks &amp; Events'>
+            <tab name='Tasks'>
                 <objectsref obj_type='task' ref_field='story_id'></objectsref>
             </tab>
         </tabs>

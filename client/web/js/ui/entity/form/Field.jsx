@@ -76,7 +76,7 @@ var Field = React.createClass({
             case field.types.objectMulti:
 
                 // We do not need to display the objectMulti if we do not have an entity id yet
-                if(this.props.entity.id) {
+                if (this.props.entity.id) {
 
                     // Print object browser based on subtype
                     switch (field.subtype) {
@@ -92,6 +92,10 @@ var Field = React.createClass({
                         default:
                             fieldContent = <ObjectMultiField {...this.props} />;
                     }
+                } else if(field.subtype != 'comment') {
+
+                    // Display information for comment subtype if the entity is not yet saved.
+                    fieldContent = <div>Please save changes to view more details.</div>;
                 }
 
                 break;

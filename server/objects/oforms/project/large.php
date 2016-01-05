@@ -46,11 +46,7 @@
             </tab>
 
             <tab name='Files'>
-                <field hidelabel='t' name='folder_id'></field>
-            </tab>
-
-            <tab name='Members'>
-                <plugin name='Members'></plugin>
+                <attachments></attachments>
             </tab>
         </tabs>
     </column>
