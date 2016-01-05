@@ -281,7 +281,7 @@ abstract class IndexAbstract
         if ($user)
         {
             // Replace current user
-            if ($value === USER::USER_CURRENT && (
+            if (intval($value) === USER::USER_CURRENT && (
                     ($field->type == "object" && $field->subtype == "user") ||
                     (
                         ($field->type == "fkey" || $field->type == "fkey_multi")
