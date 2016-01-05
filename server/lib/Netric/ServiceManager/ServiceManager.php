@@ -29,14 +29,19 @@ class ServiceManager implements ServiceLocatorInterface
 	private $loadedServices = array();
 
     /**
-     * Name to classname maps for easier reference
+     * Map a name to a class factory
+     *
+     * The target will be appended with 'Factory' so
+     * "test" => "Netric/ServiceManager/Test/Service",
+     * will load
+     * Netric/ServiceManager/Test/ServiceFactory
      *
      * Use these sparingly because it does obfuscate from the
      * client what classes are being loaded.
      *
      * @var array
      */
-    private $invokableMaps = array(
+    private $invokableFactoryMaps = array(
         // Test service map
         "test" => "Netric/ServiceManager/Test/Service",
         // The entity factory service will initialize new entities with injected dependencies
@@ -221,9 +226,9 @@ class ServiceManager implements ServiceLocatorInterface
      */
     private function getInvokableTarget($sServiceName)
     {
-        if (isset($this->invokableMaps[$sServiceName]))
+        if (isset($this->invokableFactoryMaps[$sServiceName]))
         {
-            $sServiceName = $this->invokableMaps[$sServiceName];
+            $sServiceName = $this->invokableFactoryMaps[$sServiceName];
         }
 
         return $sServiceName;

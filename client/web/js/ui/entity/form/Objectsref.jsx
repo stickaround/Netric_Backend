@@ -10,7 +10,19 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var CustomEventTrigger = require("../../mixins/CustomEventTrigger.jsx");
 var controller = require("../../../controller/controller");
+var netric = require("../../../base");
+var Device = require("../../../Device");
 var Where = require("../../../entity/Where");
+
+/**
+ * Constant indicating the smallest device that we can print a browser in
+ *
+ * All other devices will open browsers in a dialog when clicked
+ *
+ * @type {number}
+ * @private
+ */
+var _minimumInlineDeviceSize = Device.sizes.large;
 
 /**
  * Objectsref/entityList element
@@ -23,6 +35,10 @@ var Objectsref = React.createClass({
 
         // Return the initial state
         return {
+            entityControllers: [],
+            entityId: this.props.entity.id,
+            entityName: this.props.entity.getValue('name'),
+
             /**
              * The reference field for this entity
              *
@@ -98,24 +114,39 @@ var Objectsref = React.createClass({
      */
     _displayObjectBrowser: function (sourceProps) {
 
-        // Require EntityBrowserController here so we do not risk a circular dependency
-        var EntityBrowserController = require("../../../controller/EntityBrowserController");
+        // Only load object reference if this device displays inline comments (size > medium)
+        if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
+            return;
+        }
+
+        // We only display comments if working with an actual entity
+        if (!this.props.entity.id) {
+            return;
+        }
 
         // Get the objType that will be used for object browser
         var objType = sourceProps.xmlNode.getAttribute('obj_type');
         var refField = sourceProps.xmlNode.getAttribute('ref_field');
-        var refFieldValue = sourceProps.entity.getValue(this.refField) || sourceProps.entity.id;
         var entityName = sourceProps.entity.getValue('name');
+        var entityControllers = this.state.entityControllers;
 
-        // Add filter for to reference current entity
+        // Check if we have already loaded the entity browser controller for this specific objType
+        if (entityControllers[objType]) {
+
+            // Just refresh the results and return
+            entityControllers[objType].refresh();
+            return;
+        }
+
+        // Add filter to reference the current entity
         var filters = [];
-        if (this.refField && this.refFieldValue) {
+        if (refField) {
 
             // Create a filter reference
-            var filter = new Where(this.refField);
+            var whereCond = new Where(refField);
+            whereCond.equalTo(this.props.entity.id);
 
-            filter.equalTo(this.refFieldValue);
-            filters.push(filter);
+            filters.push(whereCond);
         }
 
         var data = {
@@ -130,14 +161,27 @@ var Objectsref = React.createClass({
             }.bind(this)
         }
 
-        // Create browser and render
-        var browser = new EntityBrowserController();
-        browser.load(data, ReactDOM.findDOMNode(this.refs.bcon));
+        // Add filter to reference current entity
+        data[refField] = this.props.entity.getValue(refField) || this.props.entity.id;
 
-        // Update the state
+        // Require EntityBrowserController here so we do not risk a circular dependency
+        var EntityBrowserController = require("../../../controller/EntityBrowserController");
+
+        /**
+         * Create the entity browser for this specific objType.
+         * Each objType will have different entity browser controller.
+         * Lets store it in the entityControllers array so it will be re-used when refreshing the list.
+         */
+        entityControllers[objType] = new EntityBrowserController();
+
+        // Render the entity browser
+        entityControllers[objType].load(data, ReactDOM.findDOMNode(this.refs.bcon));
+
+        // Update the state objects
         this.setState({
+            entityControllers: entityControllers,
             refField: refField,
-            refFieldValue: refFieldValue,
+            refFieldValue: sourceProps.entity.id,
             entityName: entityName
         });
     }
