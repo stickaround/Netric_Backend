@@ -34,12 +34,6 @@ var TextField = React.createClass({
         editMode: React.PropTypes.bool
     },
 
-    getDefaultProps: function() {
-        return {
-            calloutObjType: 'user'
-        }
-    },
-
     getInitialState: function() {
         return {
             shouldUpdateField: false
