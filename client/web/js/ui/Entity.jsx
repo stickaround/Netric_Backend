@@ -62,6 +62,7 @@ var Entity = React.createClass({
         for (var i in actions) {
             rightIcons.push(
                 <IconButton
+                    key={i}
                     iconClassName={actions[i].iconClassName}
                     onClick={this.handleActionClick_.bind(this, actions[i].name)}>
                 </IconButton>
