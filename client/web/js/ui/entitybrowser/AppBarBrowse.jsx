@@ -101,7 +101,8 @@ var AppBarBrowse = React.createClass({
         return (
             <AppBar 
                 iconElementLeft={elemmentLeft}
-                title={title} 
+                title={title}
+                zDepth={0}
                 onNavBtnClick={this.props.onNavBtnClick}>
                 {elementRight}
             </AppBar>

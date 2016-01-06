@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * IdentityMapper for loading accounts
  * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
@@ -43,6 +43,7 @@ class AccountIdentityMapper
 	 *
 	 * @param \Netric\Application\DataMapperInterface $appDm Application DataMapper
      * @param \Netric\Cache\CacheInterface $cache
+     * @throws \Exception If all required dependencies were not passed
 	 */
 	public function __construct(Application\DataMapperInterface $appDm, Cache\CacheInterface $cache)
 	{

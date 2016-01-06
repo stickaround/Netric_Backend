@@ -30,6 +30,7 @@ class Application
 
     /**
      * Application cache
+     * \
      *
      * @var \Netric\Cache\CacheInterface
      */
@@ -45,7 +46,7 @@ class Application
     /**
      * Initialize application
      *
-     * @param \Netric\Netric\Config $config
+     * @param Config $config
      */
     public function __construct(Config $config)
     {

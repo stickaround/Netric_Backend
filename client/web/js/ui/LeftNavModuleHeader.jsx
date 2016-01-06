@@ -9,6 +9,7 @@ var Classable = require("./mixins/classable.jsx");
 var Chamel = require('chamel');
 var Paper = Chamel.Paper;
 var Menu = Chamel.Menu;
+var AppBar = Chamel.AppBar;
 
 
 /**
@@ -45,7 +46,7 @@ var LeftNavModuleHeader = React.createClass({
 
         var headerTitle = this.props.title;
 
-        var menuClass = this.getClasses('chamel-left-nav-header-menu', {
+        var menuClass = this.getClasses('left-nav-header-menu', {
           'chamel-is-closed': (this.state.open) ? false : true
         });
 
@@ -77,20 +78,24 @@ var LeftNavModuleHeader = React.createClass({
             }
         }
 
-        return (
-            <div className="chamel-left-nav-header">
-                <h2 onClick={this._handleMenuClick}>
-                    {headerIcon}{headerTitle} 
-                </h2>
-                <div className={menuClass}>
-                    <Menu 
-                        ref="menuItems"
-                        zDepth={0}
-                        menuItems={menuItems}
-                        selectedIndex={selectedIndex}
-                        onItemClick={this._handleModuleClick} />
-                </div>
+        /*
+        <div className="chamel-app-bar">
+            <h1 className="chamel-app-bar-title" onClick={this._handleMenuClick}>
+                {headerIcon}{headerTitle}
+            </h1>
+            <div className={menuClass}>
+                <Menu
+                    ref="menuItems"
+                    zDepth={0}
+                    menuItems={menuItems}
+                    selectedIndex={selectedIndex}
+                    onItemClick={this._handleModuleClick} />
             </div>
+        </div>
+        */
+
+        return (
+            <AppBar title={headerTitle} zDepth={1} />
         );
     },
 
