@@ -31,7 +31,14 @@ var TextField = React.createClass({
         xmlNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
-        editMode: React.PropTypes.bool
+        editMode: React.PropTypes.bool,
+        calloutObjType: React.PropTypes.string
+    },
+
+    getDefaultProps: function() {
+        return {
+            calloutObjType: 'user'
+        }
     },
 
     getInitialState: function() {
@@ -120,7 +127,7 @@ var TextField = React.createClass({
     _getAutoCompleteData: function (keyword, doneCallback) {
 
         if (!this._entityCollection) {
-            this._entityCollection = new EntityCollection('user');
+            this._entityCollection = new EntityCollection(this.props.calloutObjType);
 
             /**
              * Force the entity collection to only have one backend request
@@ -269,7 +276,7 @@ var TextField = React.createClass({
          * The data contains payload and text as its object fields. These are set in ::_getAutoCompleteData()
          * Payload contains the user id and text has the user's full name
          */
-        return "[" + data.payload + ":" + data.text + "]";
+        return "[" + this.props.calloutObjType + ":" + data.payload + ":" + data.text + "]";
     },
 
     /**
