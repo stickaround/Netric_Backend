@@ -34,6 +34,12 @@ var TextField = React.createClass({
         editMode: React.PropTypes.bool
     },
 
+    getDefaultProps: function() {
+        return {
+            calloutObjType: 'user'
+        }
+    },
+
     getInitialState: function() {
         return {
             shouldUpdateField: false
@@ -269,7 +275,7 @@ var TextField = React.createClass({
          * The data contains payload and text as its object fields. These are set in ::_getAutoCompleteData()
          * Payload contains the user id and text has the user's full name
          */
-        return "[" + data.payload + ":" + data.text + "]";
+        return "[user:" + data.payload + ":" + data.text + "]";
     },
 
     /**
