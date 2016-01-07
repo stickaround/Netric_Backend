@@ -71,6 +71,8 @@ var ObjectField = React.createClass({
         }
 
         var objSelectDisplay = null;
+
+        // Only display the select button if we have a field subtype
         if(field.subtype) {
             objSelectDisplay = (<ObjectSelect
                 onChange={this._handleSetValue}

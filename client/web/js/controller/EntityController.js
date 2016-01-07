@@ -155,6 +155,8 @@ EntityController.prototype.onLoad = function (opt_callback) {
 
             // Setup an empty entity
             this.entity_ = entityLoader.factory(this.props.objType);
+
+            // Since we are creating a new entity, let's set the default values
             this.entity_.setDefaultValues(this.props);
 
             // Check if we have default data for the new entity
@@ -255,7 +257,7 @@ EntityController.prototype.close = function () {
      * This scenario only applies if this entity is closed from a referenced entity.
      */
     if(this.props.eventsObj) {
-        alib.events.triggerEvent(this.props.eventsObj, 'refreshEntityList');
+        alib.events.triggerEvent(this.props.eventsObj, 'entityClose');
     }
 }
 

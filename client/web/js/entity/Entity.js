@@ -589,7 +589,7 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
      * If we do not have an instance of recurrence yet and we need to create one
      * Then lets instantiate a new Recurrence entity model
      */
-    if(!this.recurrencePattern_ && createIfNotExist) {
+    if (!this.recurrencePattern_ && createIfNotExist) {
         this.recurrencePattern_ = new Recurrence(this.objType);
     }
 
@@ -614,6 +614,14 @@ Entity.prototype.setRecurrence = function (recurrencePattern) {
  */
 Entity.prototype.setDefaultValues = function (sourceData) {
 
+    /*
+     * If entity already has an id, we do not need to set default values
+     * Setting default values are only used when creating a new entity
+     */
+    if(this.id && this.id.length > 0) {
+        return;
+    }
+
     var userId = -3; // -3 is 'current_user' on the backend
     var userName = 'Current User';
     if (netric.getApplication().getAccount().getUser()) {
@@ -621,21 +629,25 @@ Entity.prototype.setDefaultValues = function (sourceData) {
         userName = netric.getApplication().getAccount().getUser().name;
     }
 
-    this.def.fields.map(function(field) {
+    this.def.fields.map(function (field) {
 
-        // If this field is not yet set, then lets assign a default value
-        if(field.default == null
+        // If this field has no default value, then lets evaluate and store a default value
+        if (this.getValue(field.name) == null // Make sure this field has no stored value yet
+            && field.default == null
             && field.type != field.types.fkeyMulti
             && field.type != field.types.objectMulti) {
 
-            switch(field.subtype) {
+            switch (field.subtype) {
                 case 'user':
                     this.setValue(field.name, userId, userName);
                     break;
             }
         }
 
-        if(sourceData && sourceData[field.name] && sourceData[field.name + '_val']) {
+        if (this.getValue(field.name) == null // Make sure this field has no stored value yet
+            && sourceData
+            && sourceData[field.name]
+            && sourceData[field.name + '_val']) {
             this.setValue(field.name, sourceData[field.name], sourceData[field.name + '_val'])
         }
 

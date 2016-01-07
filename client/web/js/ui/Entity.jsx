@@ -62,6 +62,7 @@ var Entity = React.createClass({
         for (var i in actions) {
             rightIcons.push(
                 <IconButton
+                    key={i}
                     iconClassName={actions[i].iconClassName}
                     onClick={this.handleActionClick_.bind(this, actions[i].name)}>
                 </IconButton>
@@ -70,7 +71,10 @@ var Entity = React.createClass({
         
         var appBar = "";
         var appBarClassName = (this.state.editMode) ? "edit" : "detail";
-        var appBarZDepth = (this.state.editMode) ? 0 : 1;
+
+        // We are just keeping the z-depth flat/0 for now
+        //var appBarZDepth = (this.state.editMode) ? 0 : 1;
+        var appBarZDepth = 0;
 
         var appBarTitle = (netric.getApplication().device.size <= netric.Device.sizes.small) ?
             null : this.props.entity.def.title.toUpperCase() + "-" + this.props.entity.id;

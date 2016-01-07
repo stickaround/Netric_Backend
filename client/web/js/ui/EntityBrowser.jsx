@@ -38,17 +38,24 @@ var EntityBrowser = React.createClass({
         selectedEntities: React.PropTypes.array,
         browserView: React.PropTypes.object,
         collectionLoading: React.PropTypes.bool,
-        hideAppBar: React.PropTypes.bool
+        hideAppBar: React.PropTypes.bool,
+
+        /**
+         * Type of toolbar to be displayed.
+         *
+         * @type {string} appbar | toolbar
+         */
+        toolbarMode: React.PropTypes.string
     },
 
     getDefaultProps: function () {
         return {
+            toolbarMode: 'appbar',
             layout: '',
             title: "Browser",
             entities: [],
             selectedEntities: [],
-            collectionLoading: false,
-            hideToolbar: true
+            collectionLoading: false
         }
     },
 
@@ -77,44 +84,46 @@ var EntityBrowser = React.createClass({
             }
         }
 
-        var toolbar = null;
+        var appBar = null;
         if (!this.props.hideAppBar) {
-            toolbar = (
-                <AppBarBrowse
-                    title={this.props.title}
-                    actionHandler={this.props.actionHandler}
-                    deviceSize={this.props.deviceSize}
-                    onNavBtnClick={this.props.onNavBtnClick}
-                    onNavBackBtnClick={this.props.onNavBackBtnClick}
-                    onSearchChange={this.props.onSearchChange}
-                    onAdvancedSearch={this.props.onAdvancedSearch}
-                    onPerformAction={this.props.onPerformAction}
-                    onSelectAll={this.handleSeelctAll_}
-                    selectedEntities={this.props.selectedEntities}
-                    objType={this.props.objType}
-                    />
-            );
-        } else if (!this.props.hideToolbar) {
-            toolbar = (
-                <Toolbar>
-                    <ToolbarGroup key={1} float="left">
-                        <FontIcon
-                            tooltip='New'
-                            className="fa fa-plus-circle"
-                            onClick={this._handleCreateNewEntity}/>
-                        <FontIcon
-                            tooltip='Refresh'
-                            className="fa fa-refresh"
-                            onClick={this._handleRefreshEntityList}/>
-                    </ToolbarGroup>
-                </Toolbar>
-            );
+            if (this.props.toolbarMode == 'appbar') {
+                appBar = (
+                    <AppBarBrowse
+                        title={this.props.title}
+                        actionHandler={this.props.actionHandler}
+                        deviceSize={this.props.deviceSize}
+                        onNavBtnClick={this.props.onNavBtnClick}
+                        onNavBackBtnClick={this.props.onNavBackBtnClick}
+                        onSearchChange={this.props.onSearchChange}
+                        onAdvancedSearch={this.props.onAdvancedSearch}
+                        onPerformAction={this.props.onPerformAction}
+                        onSelectAll={this.handleSeelctAll_}
+                        selectedEntities={this.props.selectedEntities}
+                        objType={this.props.objType}
+                        />
+                );
+            } else {
+                appBar = (
+                    <Toolbar>
+                        <ToolbarGroup key={1} float="left">
+                            <FontIcon
+                                tooltip='New'
+                                className="fa fa-plus-circle"
+                                onClick={this._handleCreateNewEntity}/>
+                            <FontIcon
+                                tooltip='Refresh'
+                                className="fa fa-refresh"
+                                onClick={this._handleRefreshEntityList}/>
+                        </ToolbarGroup>
+                    </Toolbar>
+                );
+            }
         }
 
         return (
             <div>
                 <div>
-                    {toolbar}
+                    {appBar}
                 </div>
                 <div ref="moduleMain">
                     {bodyContent}
