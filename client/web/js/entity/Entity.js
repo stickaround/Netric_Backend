@@ -393,19 +393,24 @@ Entity.prototype.getValue = function (name) {
  *
  * @param {string} name The name of the field
  * @param {val} opt_val If querying *_multi type values the get the label for a specifc key
- * @reutrn {string} the textual representation of the key value
+ * @reutrn {Object|string} the textual representation of the key value
  */
 Entity.prototype.getValueName = function (name, opt_val) {
     // Get value from fieldValue
     if (this.fieldValues_[name]) {
-        if (opt_val && this.fieldValues_[name].valueName instanceof Object) {
-            if (this.fieldValues_[name].valueName[opt_val]) {
-                return this.fieldValues_[name].valueName[opt_val];
-            }
-        } else if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
+
+        /*
+         * If they passed opt_val then the client is attempting to get the label
+         * value for a specific key rather than an object describing all the
+         * key/value values of this fkey/fkey_multi/object/object_multi field.
+         */
+        if (opt_val && (
+          this.fieldValues_[name].valueName instanceof Array ||
+          this.fieldValues_[name].valueName instanceof Object
+        )) {
             for (var i in this.fieldValues_[name].valueName) {
                 if (this.fieldValues_[name].valueName[i].key == opt_val) {
-                    return this.fieldValues_[name].valueName[i].value[opt_val];
+                    return this.fieldValues_[name].valueName[i].value;
                 }
             }
         } else {

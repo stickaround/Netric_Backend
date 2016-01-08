@@ -62,16 +62,16 @@ describe("Setup Recurrence Weekly Pattern", function() {
 
     var daysOfWeek = recurrenceObject.getDaysOfWeek();
     it("Should get the selected day of week", function() {
-        expect(daysOfWeek.sunday).toEqual(0);
-        expect(daysOfWeek.friday).toEqual(recurrenceObject.weekdays.FRIDAY);
-        expect(daysOfWeek.saturday).toEqual(recurrenceObject.weekdays.SATURDAY);
+        expect(daysOfWeek.Sunday).toEqual(0);
+        expect(daysOfWeek.Friday).toEqual(recurrenceObject.weekdays.FRIDAY);
+        expect(daysOfWeek.Saturday).toEqual(recurrenceObject.weekdays.SATURDAY);
     });
 
     // Lets try adding a new dayOfWeek in the dayOfWeekMask
     recurrenceObject.setDayOfWeek(recurrenceObject.weekdays.MONDAY, true);
     var daysOfWeek = recurrenceObject.getDaysOfWeek();
     it("Should set the monday as selected", function() {
-        expect(daysOfWeek.monday).toEqual(recurrenceObject.weekdays.MONDAY);
+        expect(daysOfWeek.Monday).toEqual(recurrenceObject.weekdays.MONDAY);
     });
 });
 
