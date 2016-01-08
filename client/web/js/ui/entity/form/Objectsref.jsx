@@ -116,7 +116,7 @@ var Objectsref = React.createClass({
         if (this.state.entityController) {
 
             // Just refresh the results and return
-            entityController.refresh();
+            this.state.entityController.refresh();
             return;
         }
 
