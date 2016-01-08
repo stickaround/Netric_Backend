@@ -402,6 +402,14 @@ Entity.prototype.getValueName = function (name, opt_val) {
         if (opt_val && this.fieldValues_[name].valueName instanceof Object) {
             if (this.fieldValues_[name].valueName[opt_val]) {
                 return this.fieldValues_[name].valueName[opt_val];
+            } else { // If we cant find opt_val index in the valueName
+
+                // Lets try finding the opt_val by looping thru valueName and check its key
+                for (var i in this.fieldValues_[name].valueName) {
+                    if (this.fieldValues_[name].valueName[i].key == opt_val) {
+                        return this.fieldValues_[name].valueName[i].value;
+                    }
+                }
             }
         } else if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
             for (var i in this.fieldValues_[name].valueName) {

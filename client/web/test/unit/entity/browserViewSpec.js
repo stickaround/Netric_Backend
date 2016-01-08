@@ -13,7 +13,7 @@ describe("Setup browserView data", function() {
             name: 'browserViewTest',
             conditions: [],
             sort_order: [],
-            table_columns: [],
+            table_columns: ["id"],
     }
 
     // Setup where object
@@ -28,13 +28,11 @@ describe("Setup browserView data", function() {
         field_name: 'id',
         order: 'asc'
     });
-    
-    data.table_columns.push("id");
-    
-    var browserViewObject = new BrowserView("note");
-    browserViewObject.fromData(data);
-    
+
     it("Should have setup data for browserView", function() {
+        var browserViewObject = new BrowserView("note");
+        browserViewObject.fromData(data);
+
         expect(browserViewObject.name).toEqual("browserViewTest");
         expect(browserViewObject.getConditions().length).toEqual(1);
         expect(browserViewObject.getOrderBy().length).toEqual(1);
@@ -42,7 +40,11 @@ describe("Setup browserView data", function() {
     }); 
     
     it("Should get data for browserView", function() {
-        var browserViewData = browserViewObject.getData();        
+
+        var browserViewObject = new BrowserView("note");
+
+        browserViewObject.fromData(data);
+        var browserViewData = browserViewObject.getData();
         
         expect(browserViewData.name).toEqual("browserViewTest");
         expect(browserViewData.conditions.length).toEqual(1);
@@ -50,50 +52,50 @@ describe("Setup browserView data", function() {
         expect(browserViewData.table_columns.length).toEqual(1);
     });
     
-    it("Should add new condition", function() {
+    it("Should add/remove condition", function() {
+
+        var browserViewObject = new BrowserView("note");
         browserViewObject.addCondition("id");
-        
+        browserViewObject.addCondition("name");
+        browserViewObject.addCondition("website");
+        expect(browserViewObject.getConditions().length).toEqual(3);
+
+        // Remove Condition
+        browserViewObject.removeCondition(0);
         expect(browserViewObject.getConditions().length).toEqual(2);
     });
     
-    it("Should remove condition", function() {
-        browserViewObject.removeCondition(0);
-        
-        expect(browserViewObject.getConditions().length).toEqual(1);
-    });
-    
-    it("Should add order by", function() {
+    it("Should add/remove order by", function() {
+        var browserViewObject = new BrowserView("note");
         browserViewObject.addOrderBy("id", "asc");
-        
+        browserViewObject.addOrderBy("name", "asc");
+        browserViewObject.addOrderBy("website", "asc");
+        expect(browserViewObject.getOrderBy().length).toEqual(3);
+
+        // Remove Order By
+        browserViewObject.removeOrderBy(0);
         expect(browserViewObject.getOrderBy().length).toEqual(2);
     });
-    
-    it("Should remove order by", function() {
-        browserViewObject.removeOrderBy(0);
-        
-        expect(browserViewObject.getOrderBy().length).toEqual(1);
-    });
-    
-    it("Should add table column", function() {
+
+    it("Should add/update/remove table column", function() {
+        var browserViewObject = new BrowserView("note");
         browserViewObject.addTableColumn("id");
-        
+        browserViewObject.addTableColumn("name");
+        browserViewObject.addTableColumn("website");
+        expect(browserViewObject.getTableColumns().length).toEqual(3);
+
+        // Update table column
+        browserViewObject.updateTableColumn('note', 0);
+        var tableColumns = browserViewObject.getTableColumns();
+        expect(tableColumns[0]).toEqual('note');
+
+        // Remove table column
+        browserViewObject.removeTableColumn(0);
         expect(browserViewObject.getTableColumns().length).toEqual(2);
     });
     
-    it("Should update table column", function() {
-        browserViewObject.updateTableColumn('name', 0);
-        var tableColumns = browserViewObject.getTableColumns();
-        
-        expect(tableColumns[0]).toEqual('name');
-    });
-    
-    it("Should remove table column", function() {
-        browserViewObject.removeTableColumn(0);
-        
-        expect(browserViewObject.getTableColumns().length).toEqual(1);
-    });
-    
     it("Should set browserView Id", function() {
+        var browserViewObject = new BrowserView("note");
         browserViewObject.setId(1);
         
         expect(browserViewObject.id).toEqual(1);
