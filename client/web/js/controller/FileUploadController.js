@@ -84,9 +84,9 @@ FileUploadController.prototype.render = function () {
     var domCon = this.domNode_;
 
     // Unhide toolbars if we are in a page mode
-    var hideAppBar = this.props.hideAppBar || true;
+    var hideToolbar = this.props.hideToolbar || true;
     if (this.getType() === controller.types.PAGE) {
-        hideAppBar = false;
+        hideToolbar = false;
     }
 
     // Define the data
@@ -95,7 +95,7 @@ FileUploadController.prototype.render = function () {
         currentPath: this.props.currentPath,
         folderId: this.props.folderId,
         uploadedFiles: this._uploadedFiles,
-        hideAppBar: hideAppBar,
+        hideToolbar: hideToolbar,
         onNavBtnClick: function (evt) {
             this.close();
         }.bind(this),

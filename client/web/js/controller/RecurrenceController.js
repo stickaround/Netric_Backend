@@ -56,16 +56,16 @@ RecurrenceController.prototype.render = function () {
     var domCon = this.domNode_;
 
     // Unhide toolbars if we are in a page mode
-    var hideAppBar = this.props.hideAppBar || true;
+    var hideToolbar = this.props.hideToolbar || true;
     if (this.getType() === controller.types.PAGE) {
-        hideAppBar = false;
+        hideToolbar = false;
     }
 
     // Define the data
     var data = {
         title: this.props.title || "Recurrence",
         recurrencePattern: this.props.recurrencePattern,
-        hideAppBar: hideAppBar,
+        hideToolbar: hideToolbar,
         onNavBtnClick: function (evt) {
             this.close();
         }.bind(this),

@@ -133,7 +133,7 @@ var Objectsref = React.createClass({
 
         var data = {
             type: controller.types.FRAGMENT,
-            hideAppBar: false,
+            hideToolbar: false,
             toolbarMode: 'toolbar',
             objType: objType,
             eventsObj: this.props.eventsObj,

@@ -393,9 +393,6 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
 		case controller.types.FRAGMENT:
 			if (opt_domNode) {
 				parentNode = opt_domNode;
-
-				// Clear the current parentNode where we will display the child DOM
-				parentNode.innerHTML = "";
 			} else {
 				throw "Cannot render a fragment controller without passing a valid DOM element";
 			}

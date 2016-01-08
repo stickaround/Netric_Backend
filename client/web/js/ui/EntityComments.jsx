@@ -33,7 +33,7 @@ var EntityComments = React.createClass({
         commentsBrowser: React.PropTypes.object,
         // Get the objReference - the object for which we are displaying/adding comments
         objReference: React.PropTypes.string,
-        hideAppBar: React.PropTypes.bool,
+        hideToolbar: React.PropTypes.bool,
         attachedFiles: React.PropTypes.array,
     },
 
@@ -51,7 +51,7 @@ var EntityComments = React.createClass({
 
         var toolBar = null;
 
-        if (!this.props.hideAppBar) {
+        if (!this.props.hideToolbar) {
             var elementLeft = (
                 <IconButton
                     iconClassName="fa fa-arrow-left"
@@ -168,7 +168,7 @@ var EntityComments = React.createClass({
             type: controller.types.FRAGMENT,
             title: "Comments",
             objType: "comment",
-            hideAppBar: true,
+            hideToolbar: true,
             filters: [filterWhere]
         }, ReactDOM.findDOMNode(this.refs.commCon));
 

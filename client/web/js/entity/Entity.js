@@ -648,6 +648,7 @@ Entity.prototype.setDefaultValues = function (sourceData) {
             }
         }
 
+        // If we have source data available, lets store a default value to this field.
         if (this.getValue(field.name) == null // Make sure this field has no stored value yet
             && sourceData
             && sourceData[field.name]

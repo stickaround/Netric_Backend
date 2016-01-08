@@ -195,9 +195,9 @@ EntityBrowserController.prototype.reactRender_ = function () {
     }
 
     // Unhide toolbars if we are in a page mode
-    var hideAppBar = this.props.hideAppBar || false;
+    var hideToolbar = this.props.hideToolbar || false;
     if (this.getType() === controller.types.PAGE) {
-        hideAppBar = false;
+        hideToolbar = false;
     }
 
     // Define the data
@@ -207,7 +207,7 @@ EntityBrowserController.prototype.reactRender_ = function () {
         layout: layout,
         actionHandler: this.actions_,
         browserView: this.browserView_,
-        hideAppBar: hideAppBar,
+        hideToolbar: hideToolbar,
         toolbarMode: this.props.toolbarMode,
         onEntityListClick: function (objType, oid, title) {
             this.onEntityListClick(objType, oid, title);

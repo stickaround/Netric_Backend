@@ -38,7 +38,7 @@ var EntityBrowser = React.createClass({
         selectedEntities: React.PropTypes.array,
         browserView: React.PropTypes.object,
         collectionLoading: React.PropTypes.bool,
-        hideAppBar: React.PropTypes.bool,
+        hideToolbar: React.PropTypes.bool,
 
         /**
          * Type of toolbar to be displayed.
@@ -85,7 +85,7 @@ var EntityBrowser = React.createClass({
         }
 
         var appBar = null;
-        if (!this.props.hideAppBar) {
+        if (!this.props.hideToolbar) {
             if (this.props.toolbarMode == 'appbar') {
                 appBar = (
                     <AppBarBrowse

@@ -154,13 +154,13 @@ var Comments = React.createClass({
         // Default to a dialog
         var controllerType = controller.types.DIALOG;
         var inlineCon = null;
-        var hideAppBar = false;
+        var hideToolbar = false;
 
         // If we are on a larger device then print inline
         if (netric.getApplication().device.size >= _minimumInlineDeviceSize) {
             controllerType = controller.types.FRAGMENT;
             inlineCon = ReactDOM.findDOMNode(this.refs.comcon);
-            hideAppBar = true;
+            hideToolbar = true;
         }
 
         var comments = new EntityCommentsController();
@@ -168,7 +168,7 @@ var Comments = React.createClass({
             type: controllerType,
             title: "Comments",
             objType: "comment",
-            hideAppBar: hideAppBar,
+            hideToolbar: hideToolbar,
             objReference: this.props.entity.objType + ":" + this.props.entity.id
         }, inlineCon);
 

@@ -100,15 +100,15 @@ EntityCommentsController.prototype.render = function () {
     var domCon = this.domNode_;
 
     // Unhide toolbars if we are in a page mode
-    var hideAppBar = this.props.hideAppBar || false;
+    var hideToolbar = this.props.hideToolbar || false;
     if (this.getType() === controller.types.PAGE) {
-        hideAppBar = false;
+        hideToolbar = false;
     }
 
     // Set data properties to forward to the view
     var data = {
         objReference: this.props.objReference || null,
-        hideAppBar: hideAppBar,
+        hideToolbar: hideToolbar,
         deviceSize: netric.getApplication().device.size,
         attachedFiles: this.attachedFiles_,
         onNavBtnClick: function (evt) {
