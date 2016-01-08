@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var Definition = require("../../../js/entity/Definition");
 var Entity = require("../../../js/entity/Entity");
@@ -98,7 +98,7 @@ describe("Get and Set Entity Values", function() {
 
 	it("should be able to get and set fkey values with valueNames", function() {
 		var statusName = "My Test Value";
-		var statusId = 2; 
+		var statusId = 2;
 		entity.setValue("status", statusId, statusName);
 		expect(entity.getValue("status")).toEqual(statusId);
 		expect(entity.getValueName("status")).toEqual(statusName);
@@ -106,7 +106,7 @@ describe("Get and Set Entity Values", function() {
 
 	it("should be able to get and add fkey_multi values with valueNames", function() {
 		var catName = "My Test Value";
-		var catId = 2; 
+		var catId = 2;
 		entity.addMultiValue("categories", catId, catName);
 		expect(entity.getValue("categories")).toEqual([catId]);
 		expect(entity.getValueName("categories")).toEqual([{key: catId, value:catName}]);
@@ -115,7 +115,7 @@ describe("Get and Set Entity Values", function() {
 
 	it("should be able to remove fkey_multi fields", function() {
 		var catName = "My Third Test Value";
-		var catId = 3; 
+		var catId = 3;
 		entity.addMultiValue("categories", catId, catName);
 		expect(entity.getValue("categories")).toContain(catId);
 		expect(entity.remMultiValue("categories", catId)).toBeTruthy();
@@ -124,7 +124,7 @@ describe("Get and Set Entity Values", function() {
 
 	it("should loadData for *_multi fields", function() {
 		var catName = "My Test Value";
-		var catId = 2; 
+		var catId = 2;
 
 		var data = {
 			id: 1,
@@ -151,14 +151,14 @@ describe("Get and Set Entity Values", function() {
 	});
 
 	it("should getData for string fields", function() {
-		entity.setValue("name", "test");
+		entity.setValue('name', 'test');
 		var data = entity.getData();
-		expect(data.name).toEqual("test");
+		expect(data.name).toEqual('test');
 	});
 
 	it("should getData for *_multi fields", function() {
 		var catName = "My Test Value";
-		var catId = 2; 
+		var catId = 2;
 		entity.addMultiValue("categories", catId, catName);
 
 		var data = entity.getData();

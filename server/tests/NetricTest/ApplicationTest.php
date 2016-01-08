@@ -24,7 +24,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
 
     public function testGetConfig()
     {
-        $this->assertInstanceOf("Netric\Config", $this->application->getConfig());
+        $this->assertInstanceOf('Netric\Config', $this->application->getConfig());
     }
     
     /**
@@ -32,11 +32,26 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testGetAccount()
     {
-        $this->assertInstanceOf("Netric\Account", $this->application->getAccount());
+        $this->assertInstanceOf('Netric\Account', $this->application->getAccount());
     }
 
     public function testGetAccountsByEmail()
     {
+        // TODO: Add this test
+    }
 
+    public function testCreateAccount()
+    {
+        // TODO: Add this test
+    }
+
+    public function testUpdateAccount()
+    {
+        // TODO: Add this test
+    }
+
+    public function testDeleteAccount()
+    {
+        // TODO: Add this test
     }
 }

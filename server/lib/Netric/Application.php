@@ -201,6 +201,42 @@ class Application
 		// 6 get default account from the system settings
 		return $this->getConfig()->default_account;
 	}
+
+    /**
+     * Initialize a brand new account and create the admin user
+     *
+     * @param string $accountName A unique name for the new account
+     * @param string $adminUserName Required username for the admin/first user
+     * @param string $adminUserPassword Required password for the admin
+     * @return Account
+     */
+    public function createAccount($accountName, $adminUserName, $adminUserPassword)
+    {
+        // TODO: 1. Add to system db
+
+        // TODO: 2. Initialize with setup
+
+        // TODO: 3. Change status to active
+
+        // TODO: 4. Return new account and cache locally
+    }
+
+    /**
+     * Update an existing account version
+     *
+     * @param string $accountName The unique name of the account to upgrade
+     * @param string $toVersion Optional version to upgrade to if not latest
+     * @return string latest version
+     */
+    public function updateAccount($accountName, $toVersion = "")
+    {
+        // Get account by name
+        $account = $this->getAccount(null, $accountName);
+
+        // TODO: Use Setup class to update and get the revision
+
+        // TODO: Return the revision
+    }
     
     /**
 	 * Get session variable if exists

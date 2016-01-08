@@ -31,9 +31,9 @@ definitionLoader.definitions_ = new Array();
  *  the object's entity definition
  *
  * @private
- * @param {Array}
+ * @param {Object}
  */
-definitionLoader.requests_ = new Array();
+definitionLoader.requests_ = {};
 
 /**
  * Static function used to load an entity definition
@@ -62,38 +62,60 @@ definitionLoader.get = function (objType, cbLoaded) {
         return this.definitions_[objType];
     }
 
-    // Check if we do not have a backend request for this type of object
-    if (!definitionLoader.requests_[objType]) {
+    /*
+     * Setup the request
+     *
+     * If the request is synchronous, then we create a new one each time.
+     * If it is asynchronous then we only want one request for this object
+     * being sent at a time.
+     */
+    var request = null;
 
-        // Create a new backend request instance for this object
-        definitionLoader.requests_[objType] = new BackendRequest();
+    if (cbLoaded) {
+      // Check if we do not have a backend request for this type of object
+      if (!definitionLoader.requests_[objType]) {
+          // Create a new backend request instance for this object
+          definitionLoader.requests_[objType] = new BackendRequest();
+      }
+
+      request = definitionLoader.requests_[objType];
+    } else {
+      // Not an asynchronous request, just make a new one for each call
+      request = new BackendRequest();
     }
 
-    var request = definitionLoader.requests_[objType];
+    // Log errors
+    alib.events.listen(request, "error", function (evt) {
+        log.error("Failed to load request", evt);
+    });
 
-    // If ths object's backend request still in-progress, we do not need to send another request
-    if (!definitionLoader.requests_[objType].isInProgress()) {
+    if (cbLoaded) {
+        alib.events.listen(request, "load", function (evt) {
+            var def = definitionLoader.createFromData(this.getResponse());
+            cbLoaded(def);
+        });
+    } else {
+        // Set request to be synchronous if no callback is set
+        request.setAsync(false);
+    }
 
-        if (cbLoaded) {
-            alib.events.listen(request, "load", function (evt) {
-                var def = definitionLoader.createFromData(this.getResponse());
-                cbLoaded(def);
-            });
+    /*
+     * If this is an async request and there is already another request in
+     * progress for this object type, then we do not need to send another
+     * request. Instead piggy-back on the previous request but adding the
+     * callback above but just wait for the in-progress request previously
+     * running to return.
+     *
+     * If we are either (1) not asynchronous or (2) not in progress then send
+     */
+    if (!cbLoaded || !definitionLoader.requests_[objType].isInProgress()) {
+      request.send("svr/entity/getDefinition", "GET", {obj_type: objType});
+    }
 
-            alib.events.listen(request, "error", function (evt) {
-                log.error("Failed to load request", evt);
-            });
-        } else {
-            // Set request to be synchronous if no callback is set
-            request.setAsync(false);
-        }
 
-        request.send("svr/entity/getDefinition", "GET", {obj_type: objType});
-
-        // If no callback then construct Definition from request date (synchronous)
-        if (!cbLoaded) {
-            return this.createFromData(request.getResponse());
-        }
+    // If no callback then construct Definition from request date (synchronous)
+    if (!cbLoaded) {
+        return this.createFromData(request.getResponse());
     }
 }
 
