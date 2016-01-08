@@ -6,7 +6,7 @@ module.exports = function(config){
     files : [
       'vendor/aereus/alib_full.js',
       'test/unit/**/*.js',
-      //'test/unit/logSpec.js',
+      //'test/unit/entity/EntitySpec.js',
 
       // fixtures
       {pattern: 'svr/**/*', watched: true, served: true, included: false}
