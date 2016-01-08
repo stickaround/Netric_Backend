@@ -59,28 +59,14 @@ describe("Entity Collection", function() {
  * Test loading collections asynchronously
  */
 describe("Entity Collection Loading Asynchronously", function() {
-    var collection = new EntityCollection("customer");
 
-    beforeEach(function(done) {
-        // Set test base where karma unit tests are hosted
+    it("Should have loaded entities object", function(done) {
+        var collection = new EntityCollection("customer");
         netric.server.host = "base/";
         collection.load(function(collection){
-            done();
+            expect(collection.getTotalNum()).toEqual(3);
+            expect(collection.getEntities().length).toEqual(3);
         });
-    });
-
-    it("Should have loaded entities object", function(done) {
-
-        expect(collection.getTotalNum()).toEqual(3);
-        done();
-
-    });
-
-    it("Should have loaded entities object", function(done) {
-
-        expect(collection.getEntities().length).toEqual(3);
-        done();
-
     });
 
     /*
