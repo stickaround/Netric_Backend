@@ -51,6 +51,7 @@ var AppBarBrowse = React.createClass({
             // Create exit button for select mode
             elemmentLeft = (
                 <IconButton
+                    key="back"
                     iconClassName="fa fa-arrow-left"
                     onClick={this.deSelectAll_} />
             );
@@ -66,6 +67,7 @@ var AppBarBrowse = React.createClass({
             // Create exit search mode button
             elemmentLeft = (
                 <IconButton
+                    key="search"
                     iconClassName="fa fa-arrow-left"
                     onClick={this.toggleSearchMode} />
             );
@@ -81,6 +83,7 @@ var AppBarBrowse = React.createClass({
             if (this.props.onNavBackBtnClick) {
                 elemmentLeft = (
                     <IconButton
+                        key="back"
                         iconClassName="fa fa-arrow-left"
                         onClick={this.handleBackClick_} />
                 );
@@ -90,6 +93,7 @@ var AppBarBrowse = React.createClass({
             elementRight = (
                 <div>
                     <IconButton
+                        key="search"
                         iconClassName="fa fa-search"
                         onClick={this.toggleSearchMode}>
                     </IconButton>

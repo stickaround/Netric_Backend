@@ -84,10 +84,10 @@ var EntityBrowser = React.createClass({
             }
         }
 
-        var appBar = null;
+        var toolbar = null;
         if (!this.props.hideToolbar) {
             if (this.props.toolbarMode == 'appbar') {
-                appBar = (
+                toolbar = (
                     <AppBarBrowse
                         title={this.props.title}
                         actionHandler={this.props.actionHandler}
@@ -99,11 +99,10 @@ var EntityBrowser = React.createClass({
                         onPerformAction={this.props.onPerformAction}
                         onSelectAll={this.handleSeelctAll_}
                         selectedEntities={this.props.selectedEntities}
-                        objType={this.props.objType}
                         />
                 );
             } else {
-                appBar = (
+                toolbar = (
                     <Toolbar>
                         <ToolbarGroup key={1} float="left">
                             <FontIcon
@@ -123,7 +122,7 @@ var EntityBrowser = React.createClass({
         return (
             <div>
                 <div>
-                    {appBar}
+                    {toolbar}
                 </div>
                 <div ref="moduleMain">
                     {bodyContent}

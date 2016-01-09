@@ -252,7 +252,7 @@ EntityController.prototype.close = function () {
         window.close();
     }
 
-    /**
+    /*
      * If eventsObj is set in props, then lets refresh the entity list
      * This scenario only applies if this entity is closed from a referenced entity.
      */
