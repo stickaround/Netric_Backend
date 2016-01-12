@@ -85,27 +85,53 @@ EntityController.prototype.onLoad = function (opt_callback) {
     // Create object to subscribe to events in the UI form
     this.eventsObj_ = {};
 
+    // Data that will be passed in the sub route
+    var subRouteData = {
+        type: controller.types.PAGE,
+        onClose: function () {
+            alib.events.triggerEvent(this.eventsObj_, 'entityClose');
+        }.bind(this)
+    };
+
     // Add route to create new objects ref entities
-    this.addSubRoute(":objType/new",
-        EntityController, {
-            type: controller.types.PAGE,
-            eventsObj: this.eventsObj_
-        }
-    );
+    this.addSubRoute("new/:objType", EntityController, subRouteData);
 
     // Add route to load entities
-    this.addSubRoute(":objType/:eid",
-        EntityController, {
-            type: controller.types.PAGE,
-            eventsObj: this.eventsObj_
-        }
-    );
+    this.addSubRoute(":objType/:eid", EntityController, subRouteData);
 
     // Capture an entity click and handle either loading a dialog or routing it
     alib.events.listen(this.eventsObj_, "entityclick", function (evt) {
-
         if (this.getRoutePath()) {
             netric.location.go(this.getRoutePath() + "/" + evt.data.objType + "/" + evt.data.id);
+        } else {
+            // TODO: load a dialog
+        }
+    }.bind(this));
+
+    // Capture a create new entity event
+    alib.events.listen(this.eventsObj_, "entitycreatenew", function (evt) {
+        if (this.getRoutePath()) {
+            var params = null;
+
+            /*
+             * evt.data.params is an array that contains information that will be passed as url query string
+             *
+             * Sample Values:
+             * params[ref_field] = 1;
+             * params[ref_field_val] = 'testValue';
+             *
+             * Output url query string: ?ref_field=1&ref_field_val=testValue
+             */
+            if (evt.data.params) {
+                var evtParams = evt.data.params;
+
+                for (var idx in evtParams) {
+                    params = (params == null) ? "?" : params += "&";
+                    params += idx + "=" + evtParams[idx];
+                }
+            }
+
+            netric.location.go(this.getRoutePath() + "/new/" + evt.data.objType + params);
         } else {
             // TODO: load a dialog
         }
@@ -157,7 +183,7 @@ EntityController.prototype.onLoad = function (opt_callback) {
             this.entity_ = entityLoader.factory(this.props.objType);
 
             // Since we are creating a new entity, let's set the default values
-            this.entity_.setDefaultValues(this.props);
+            this.entity_.setDefaultValues("null", this.props);
 
             // Check if we have default data for the new entity
             if (this.props.entityData) {
@@ -173,6 +199,7 @@ EntityController.prototype.onLoad = function (opt_callback) {
         }
 
         if (callbackWhenLoaded) {
+
             // Let the application router know we're all loaded
             callbackWhenLoaded();
         }
@@ -252,12 +279,8 @@ EntityController.prototype.close = function () {
         window.close();
     }
 
-    /*
-     * If eventsObj is set in props, then lets refresh the entity list
-     * This scenario only applies if this entity is closed from a referenced entity.
-     */
-    if(this.props.eventsObj) {
-        alib.events.triggerEvent(this.props.eventsObj, 'entityClose');
+    if (this.props.onClose) {
+        this.props.onClose();
     }
 }
 
@@ -360,6 +383,5 @@ EntityController.prototype._performAction = function (actionName) {
 
     // TODO: display working notification(workingText) only if the function has not already finished
 }
-
 
 module.exports = EntityController;

@@ -112,10 +112,8 @@ EntityBrowserController.prototype.onLoad = function (opt_callback) {
     if (this.props.eventsObj) {
 
         // Listener to refresh the entity specific only to activity/status_update
-        alib.events.listen(this.props.eventsObj, "statusActivityRefresh", function (evt) {
-            if (this.props.objType == 'status_update' || this.props.objType == 'activity') {
-                this.collection_.refresh();
-            }
+        alib.events.listen(this.props.eventsObj, "entityBrowserRefresh", function (evt) {
+            this.collection_.refresh();
         }.bind(this));
     }
 
@@ -592,18 +590,16 @@ EntityBrowserController.prototype.getEntityDefinition = function () {
 }
 
 /**
- * Creates a new entity
+ * Handles the creating of new entity
  *
  * @private
  */
 EntityBrowserController.prototype._createNewEntity = function () {
-    if (this.props.onEntityClick) {
-        this.props.onEntityClick(this.props.objType, 'new');
-    }
+    if (this.props.onCreateNewEntity) this.props.onCreateNewEntity()
 }
 
 /**
- * Creates a new entity
+ * Refreshes the entity list
  *
  * @private
  */

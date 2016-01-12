@@ -45,7 +45,7 @@ var EntityBrowser = React.createClass({
          *
          * @type {string} appbar | toolbar
          */
-        toolbarMode: React.PropTypes.string
+        toolbarMode: React.PropTypes.oneOf(['appbar', 'toolbar']),
     },
 
     getDefaultProps: function () {

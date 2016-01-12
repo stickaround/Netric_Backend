@@ -55,6 +55,33 @@ describe("Route", function() {
 			var route = new Route(router, "obj/:objType/:oid", TestController);
 			expect(route.matchesPath("obj/customer/1001/edit")).toEqual({path:"obj/customer/1001",params:{objType:"customer", oid:"1001"}, nextHopPath:"edit"});
 		});
+
+		it("returns params when route matches on creating new entity", function() {
+			var route = new Route(router, "obj/new/:objType", TestController);
+			expect(route.matchesPath("obj/new/customer")).toEqual({path:"obj/new/customer", params:{objType:"customer"}, nextHopPath:""});
+		});
+
+		it("returns params when route matches on creating new entity with a query string", function() {
+			var route = new Route(router, "obj/new/:objType", TestController);
+			expect(route.matchesPath("obj/new/customer?ref_id=1")).toEqual(
+                {
+				    path: "obj/new/customer?ref_id=1",
+				    params: {objType:"customer", ref_id:"1"},
+				    nextHopPath: ""
+                }
+            );
+		});
+
+		it("returns params when route matches on creating new entity with multiple query string", function() {
+			var route = new Route(router, "obj/new/:objType", TestController);
+			expect(route.matchesPath("obj/new/customer?ref_id=1&ref_value=test")).toEqual(
+                {
+                    path: "obj/new/customer?ref_id=1&ref_value=test",
+                    params: {objType:"customer", ref_id:"1", ref_value:"test"},
+                    nextHopPath: ""
+                }
+            );
+		});
 	});
 
 	describe("getPathSegments", function() {
@@ -78,5 +105,5 @@ describe("Route", function() {
 			expect(route.getPathSegments("my/path/nexthop/", 2)).toEqual({target:"my/path", remainder:"nexthop/"});
 		});
 	});
-	
+    
 });

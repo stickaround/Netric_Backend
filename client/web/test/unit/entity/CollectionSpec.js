@@ -9,11 +9,11 @@ var netric = require("../../../js/main");
 describe("Entity Collection", function() {
 
     /*
-    // Setup test entity
-    beforeEach(function() {
+     // Setup test entity
+     beforeEach(function() {
 
-    });
-    */
+     });
+     */
 
     it("can take andWhere conditions", function() {
         var collection = new EntityCollection("customer");
@@ -59,25 +59,39 @@ describe("Entity Collection", function() {
  * Test loading collections asynchronously
  */
 describe("Entity Collection Loading Asynchronously", function() {
+    var collection = new EntityCollection("customer");
 
-    it("Should have loaded entities object", function(done) {
-        var collection = new EntityCollection("customer");
+    beforeEach(function(done) {
+        // Set test base where karma unit tests are hosted
         netric.server.host = "base/";
         collection.load(function(collection){
-            expect(collection.getTotalNum()).toEqual(3);
-            expect(collection.getEntities().length).toEqual(3);
+            done();
         });
     });
 
-    /*
-    it("Should have cached the definition object", function(done) {
+    it("Should have loaded entities object", function(done) {
 
-        // Check the private definitions_ property of the loader
-        expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
-        expect(netric.entity.definitionLoader.getCached("customer")).not.toBeNull();
+        expect(collection.getTotalNum()).toEqual(3);
         done();
 
     });
-    */
+
+    it("Should have loaded entities object", function(done) {
+
+        expect(collection.getEntities().length).toEqual(3);
+        done();
+
+    });
+
+    /*
+     it("Should have cached the definition object", function(done) {
+
+     // Check the private definitions_ property of the loader
+     expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
+     expect(netric.entity.definitionLoader.getCached("customer")).not.toBeNull();
+     done();
+
+     });
+     */
 
 });

@@ -593,7 +593,7 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
      * If we do not have an instance of recurrence yet and we need to create one
      * Then lets instantiate a new Recurrence entity model
      */
-    if(!this.recurrencePattern_ && createIfNotExist) {
+    if (!this.recurrencePattern_ && createIfNotExist) {
         this.recurrencePattern_ = new Recurrence(this.objType);
     }
 
@@ -611,49 +611,43 @@ Entity.prototype.setRecurrence = function (recurrencePattern) {
 }
 
 /**
- * Set the default value of this entity
+ * Set any default values for this entity
  *
- * @param {Object} sourceData       The source data that will be used to set the default values
+ * @param {string} onEventName The event name to get defaults for, either 'null', 'update' or 'create'
+ * @param {Object} opt_defaultData Optional data to use for defaults, if null use field.getDefault
  * @public
  */
-Entity.prototype.setDefaultValues = function (sourceData) {
+Entity.prototype.setDefaultValues = function (onEventName, opt_defaultData) {
 
-    /*
-     * If entity already has an id, we do not need to set default values
-     * Setting default values are only used when creating a new entity
-     */
-    if(this.id && this.id.length > 0) {
-        return;
-    }
+    var defaultData = opt_defaultData || {};
 
-    var userId = -3; // -3 is 'current_user' on the backend
-    var userName = 'Current User';
-    if (netric.getApplication().getAccount().getUser()) {
-        userId = netric.getApplication().getAccount().getUser().id;
-        userName = netric.getApplication().getAccount().getUser().name;
-    }
-
+    // Loop through each field and check if it has a default for the given event
     this.def.fields.map(function (field) {
 
-        // If this field has no default value, then lets evaluate and store a default value
-        if (this.getValue(field.name) == null // Make sure this field has no stored value yet
-            && field.default == null
-            && field.type != field.types.fkeyMulti
-            && field.type != field.types.objectMulti) {
+        // If the field has a defaultValue set - this comes from the entity definition
+        var defaultValue = field.getDefault(onEventName);
 
-            switch (field.subtype) {
-                case 'user':
-                    this.setValue(field.name, userId, userName);
-                    break;
-            }
+        // If null, then only use default if the value has not already been set
+        if (defaultValue
+            && (onEventName === 'null' || onEventName === 'create')
+            && !this.getValue(field.name)) {
+
+            this.setValue(field.name, defaultValue);
         }
 
-        // If we have source data available, lets store a default value to this field.
+        // Allow the backend to handle the 'update' event since it will return updated data after update
+
+        /*
+         * Now check for client side default data apart from the field defaults.
+         * This is used when a calling function wants to set defaults beyond what is
+         * defined in the field for the entity definition.
+         */
         if (this.getValue(field.name) == null // Make sure this field has no stored value yet
-            && sourceData
-            && sourceData[field.name]
-            && sourceData[field.name + '_val']) {
-            this.setValue(field.name, sourceData[field.name], sourceData[field.name + '_val'])
+            && defaultData[field.name]) {
+
+            // Check if a default value name was also passed
+            var valueName = defaultData[field.name + "_val"] || null;
+            this.setValue(field.name, defaultData[field.name], valueName);
         }
 
     }.bind(this));

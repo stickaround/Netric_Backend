@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 var Definition = require("../../../js/entity/Definition");
 var Entity = require("../../../js/entity/Entity");
@@ -151,9 +151,9 @@ describe("Get and Set Entity Values", function() {
 	});
 
 	it("should getData for string fields", function() {
-		entity.setValue('name', 'test');
+		entity.setValue("name", "test");
 		var data = entity.getData();
-		expect(data.name).toEqual('test');
+		expect(data.name).toEqual("test");
 	});
 
 	it("should getData for *_multi fields", function() {
@@ -175,23 +175,6 @@ describe("Get and Set Entity Values", function() {
 describe("Set default values for new entities", function() {
 	var entity = null;
 
-	var defaultUser = "Current User";
-	var defaultUserId = -3;
-
-	var creator = "testCreator";
-	var creatorId = 1;
-
-	var accountData = {
-		id: defaultUserId,
-		name: defaultUser,
-	}
-
-	// Setup application user account
-	var account = new Account(accountData);
-	var application = new Application();
-	application.setAccount(account);
-	netric.setApplication(application);
-
 	// Setup test entity
 	beforeEach(function() {
 		var definition = new Definition({
@@ -205,18 +188,24 @@ describe("Set default values for new entities", function() {
 					"title" : "Owner",
 					"type" : "object",
 					"subtype" : "user",
-					"default_val" : null,
+					"default_val" : {
+						on: "create",
+						value: -3
+					},
 				},
 				{
-					"id" : 2,
+					"id" : 1,
 					"name" : "creator_id",
 					"title" : "Creator",
 					"type" : "object",
 					"subtype" : "user",
-					"default_val" : null,
+					"default_val" : {
+						on: "null",
+						value: -3
+					},
 				},
 				{
-					"id" : 3,
+					"id" : 2,
 					"name" : "project_id",
 					"title" : "Project",
 					"type" : "object",
@@ -228,67 +217,66 @@ describe("Set default values for new entities", function() {
 		entity = new Entity(definition);
 	});
 
-	it("should be able to set default values for user subtypes", function() {
-
-		// Save value for creator so we can check later if the creator value is overwritten when setting default values
-		entity.setValue("creator_id", creatorId, creator);
+	it("should be able to set default values using the 'create' event name", function() {
 
 		// Set default values for the entity
-		entity.setDefaultValues(null);
+		entity.setDefaultValues("create");
 
-		// owner_id should be set as default user
-		expect(entity.getValue("owner_id")).toEqual(defaultUserId);
-		expect(entity.getValueName("owner_id")).toEqual(defaultUser);
-		expect(entity.getValueName("owner_id", defaultUserId)).toEqual(defaultUser);
+		// owner_id should have the default value
+		expect(entity.getValue("owner_id")).toEqual(-3);
 
-		// Should not be over written
-		expect(entity.getValue("creator_id")).toEqual(creatorId);
-		expect(entity.getValueName("creator_id")).toEqual(creator);
-		expect(entity.getValueName("creator_id", creatorId)).toEqual(creator);
+		// since the default.on for creator_id is null, then it cannot set the default value
+		expect(entity.getValue("creator_id")).toBe(null);
+
+		// since we did not specify a default value, this should be null
+		expect(entity.getValue("project_id")).toBe(null);
 	});
 
-	it("should be able to set default values from source", function() {
+	it("should be able to set default values using the 'null' event name", function() {
+
+		// Set default values for the entity
+		entity.setDefaultValues("null");
+
+		// since the default.on for owner_id is 'create', then it cannot set the default value
+		expect(entity.getValue("owner_id")).toBe(null);
+
+		// creator_id should have the default value
+		expect(entity.getValue("creator_id")).toEqual(-3);
+
+		// since we did not specify a default value, this should be null
+		expect(entity.getValue("project_id")).toBe(null);
+	});
+
+	it("should be able to set default values from defaultData source", function() {
 
 		var project = "Test Project";
 		var projectId = 1;
 
-		var sourceProps = {
+		var defaultData = {
 			project_id: projectId,
 			project_id_val: project,
-		}
-
-		// Save value for creator so we can check later if the creator value is overwritten when setting default values
-		entity.setValue("creator_id", creatorId, creator);
+		};
 
 		// Set default values for the entity from source
-		entity.setDefaultValues(sourceProps);
+		entity.setDefaultValues("create", defaultData);
 
-		// project_id should be updated
+		// project_id should be updated using the default data
 		expect(entity.getValue("project_id")).toEqual(projectId);
 		expect(entity.getValueName("project_id")).toEqual(project);
 		expect(entity.getValueName("project_id", projectId)).toEqual(project);
 
-		// owner_id will be set as default user
-		expect(entity.getValue("owner_id")).toEqual(defaultUserId);
-		expect(entity.getValueName("owner_id")).toEqual(defaultUser);
-		expect(entity.getValueName("owner_id", defaultUserId)).toEqual(defaultUser);
-
-		// Should not be over written
-		expect(entity.getValue("creator_id")).toEqual(creatorId);
-		expect(entity.getValueName("creator_id")).toEqual(creator);
-		expect(entity.getValueName("creator_id", creatorId)).toEqual(creator);
+		// owner_id should have the default value
+		expect(entity.getValue("owner_id")).toEqual(-3);
 	});
 
-	it("should NOT be able to set default values since entity will now have an id", function() {
+	it("should NOT be able to set default values", function() {
 
-		// Set an id for the entity
-		entity.setValue("id", 1);
+		entity.setValue("owner_id", 1);
 
-		// Try to set default values for the entity (but it should NOT update any fields since we have an entity id)
-		entity.setDefaultValues();
+		// Try to set default values for the entity using the 'update' event name
+		entity.setDefaultValues("update");
 
-		// project_id should NOT be updated
-		expect(entity.getValue("project_id")).toBe(null);
-		expect(entity.getValueName("project_id")).toBe('');
+		// since we set the value for owner_id, it should have 1 instead of the default value
+		expect(entity.getValue("owner_id")).toEqual(1);
 	});
 });

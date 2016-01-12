@@ -74,21 +74,26 @@ var Objectsref = React.createClass({
      * Trigger a custom event to send back to the entity controller
      */
     _sendEntityClickEvent: function (objType, oid) {
+        this.triggerCustomEvent("entityclick", {objType: objType, id: oid});
+    },
 
-        if (oid == 'new') {
+    /**
+     * Trigger a create new entity event to send back to the entity controller
+     */
+    _createNewEntity: function () {
+        var xmlNode = this.props.xmlNode;
+        var objType = xmlNode.getAttribute('obj_type');
+        var entityName = this.props.entity.getValue('name');
+        var refField = xmlNode.getAttribute('ref_field');
+        var params = [];
 
-            var xmlNode = this.props.xmlNode;
-            var entityName = this.props.entity.getValue('name');
-            var refField = xmlNode.getAttribute('ref_field');
-
-            // If we have refField is set, then add it in the query parameters
-            if (refField) {
-                oid += '?' + refField + '=' + this.props.entity.id;
-                oid += '&' + refField + '_val=' + encodeURIComponent(entityName);
-            }
+        // If we have refField is set, then add it in the query parameters
+        if (refField) {
+            params[refField] = this.props.entity.id;
+            params[refField + '_val'] = encodeURIComponent(entityName);
         }
 
-        this.triggerCustomEvent("entityclick", {objType: objType, id: oid});
+        this.triggerCustomEvent("entitycreatenew", {objType: objType, params: params});
     },
 
     /**
@@ -98,12 +103,12 @@ var Objectsref = React.createClass({
      */
     _loadEntities: function () {
 
-        // Only load object reference if this device displays inline comments (size > medium)
+        // Only load object reference if this device displays inline browsers (size > medium)
         if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
             return;
         }
 
-        // We only display comments if working with an actual entity
+        // We only referenced entities if working with an existing entity
         if (!this.props.entity.id) {
             return;
         }
@@ -136,10 +141,12 @@ var Objectsref = React.createClass({
             hideToolbar: false,
             toolbarMode: 'toolbar',
             objType: objType,
-            eventsObj: this.props.eventsObj,
             filters: filters,
             onEntityClick: function (objType, oid) {
                 this._sendEntityClickEvent(objType, oid);
+            }.bind(this),
+            onCreateNewEntity: function () {
+                this._createNewEntity();
             }.bind(this)
         }
 

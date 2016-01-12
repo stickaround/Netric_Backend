@@ -16,18 +16,10 @@ var Column = React.createClass({
 
         var xmlNode = this.props.xmlNode;
         var type = xmlNode.getAttribute('type');
-        var className = null;
+        var className = "entity-form-column";
 
-        switch (type) {
-            case 'sidebar':
-            case 'half':
-            case 'quarter':
-                className = 'entity-form-column-' + type;
-                break;
-
-            default:
-                className = 'entity-form-column';
-                break;
+        if (type) {
+            className += "-" + type;
         }
 
         return (

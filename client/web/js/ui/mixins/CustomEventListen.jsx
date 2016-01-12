@@ -10,6 +10,21 @@
  */
 var CustomEventListen = {
 
+    getInitialState: function () {
+
+        // Return the initial state
+        return {
+            eventListenerTypes: []
+        };
+    },
+
+    componentWillUnmount: function() {
+        for (var idx in this.state.eventListenerTypes) {
+            console.log(this.state.eventListenerTypes[idx]);
+            alib.events.listen(this.props.eventsObj, this.state.eventListenerTypes[idx], null);
+        }
+    },
+
     /**
      * Listen a custom event
      *
@@ -18,8 +33,14 @@ var CustomEventListen = {
      */
     listenCustomEvent: function(type, opt_func) {
         var evtFunc = opt_func || {};
+
         if (this.props.eventsObj) {
             alib.events.listen(this.props.eventsObj, type, evtFunc);
+
+            var eventListenerTypes = this.state.eventListenerTypes;
+            eventListenerTypes[type] = type;
+
+            this.setState({eventListenerTypes: eventListenerTypes})
         } else {
             throw 'An eventsObj has not been passed by the parent of this componenet.';
         }
