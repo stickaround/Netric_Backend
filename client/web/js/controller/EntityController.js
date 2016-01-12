@@ -111,7 +111,7 @@ EntityController.prototype.onLoad = function (opt_callback) {
     // Capture a create new entity event
     alib.events.listen(this.eventsObj_, "entitycreatenew", function (evt) {
         if (this.getRoutePath()) {
-            var params = null;
+            var params = "";
 
             /*
              * evt.data.params is an array that contains information that will be passed as url query string

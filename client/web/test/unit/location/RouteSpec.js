@@ -105,5 +105,5 @@ describe("Route", function() {
 			expect(route.getPathSegments("my/path/nexthop/", 2)).toEqual({target:"my/path", remainder:"nexthop/"});
 		});
 	});
-    
+
 });
