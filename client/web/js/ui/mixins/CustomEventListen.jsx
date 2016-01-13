@@ -20,7 +20,6 @@ var CustomEventListen = {
 
     componentWillUnmount: function() {
         for (var idx in this.state.eventListenerTypes) {
-            console.log(this.state.eventListenerTypes[idx]);
             alib.events.listen(this.props.eventsObj, this.state.eventListenerTypes[idx], null);
         }
     },

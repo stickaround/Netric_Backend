@@ -117,8 +117,8 @@ EntityController.prototype.onLoad = function (opt_callback) {
              * evt.data.params is an array that contains information that will be passed as url query string
              *
              * Sample Values:
-             * params[ref_field] = 1;
-             * params[ref_field_val] = 'testValue';
+             * params["ref_field"] = 1;
+             * params["ref_field_val"] = 'testValue';
              *
              * Output url query string: ?ref_field=1&ref_field_val=testValue
              */
