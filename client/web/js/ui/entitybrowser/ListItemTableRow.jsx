@@ -100,7 +100,7 @@ var ListItemTableRow = React.createClass({
 
             // Add the column
             columns.push(
-                <td className={cellClassName} onClick={this.props.onClick}>
+                <td key={i} className={cellClassName} onClick={this.props.onClick}>
                     <div>{cellContents}</div>
                 </td>
             );

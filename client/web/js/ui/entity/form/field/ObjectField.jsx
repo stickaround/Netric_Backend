@@ -59,7 +59,6 @@ var ObjectField = React.createClass({
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
         var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
-        
 
         // Handle blank labels
         if (!valueLabel && !fieldValue) {
@@ -71,6 +70,20 @@ var ObjectField = React.createClass({
             valueLabel = "Loading...";
         }
 
+        var objSelectDisplay = null;
+
+        // Only display the select button if we have a field subtype
+        if(field.subtype) {
+            objSelectDisplay = (<ObjectSelect
+                onChange={this._handleSetValue}
+                objType={this.props.entity.def.objType}
+                fieldName={fieldName}
+                value={fieldValue}
+                label={valueLabel}
+                field={field}
+                />);
+        }
+
         if (this.props.editMode) {
             return (
                 <div>
@@ -78,13 +91,7 @@ var ObjectField = React.createClass({
                         {field.title}
                     </div>
                     <div className="entity-form-field-value">
-                        <ObjectSelect
-                            onChange={this._handleSetValue}
-                            objType={this.props.entity.def.objType}
-                            fieldName={fieldName}
-                            value={fieldValue}
-                            label={valueLabel}
-                        />
+                        {objSelectDisplay}
                     </div>
                 </div>
             );

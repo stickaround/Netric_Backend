@@ -80,8 +80,8 @@ netric.getApplication = function() {
  *
  * @param {netric.Application}
  */
-netric.setApplication = function(applicaiton) {
-  this.application_ = applicaiton;
+netric.setApplication = function(application) {
+  this.application_ = application;
 }
 
 /**

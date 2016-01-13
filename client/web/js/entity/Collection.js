@@ -441,7 +441,7 @@ Collection.prototype.getLimit = function () {
 }
 
 /**
- * Get the entity definition
+ * Get the entity definition fields
  *
  * @return {array}
  */

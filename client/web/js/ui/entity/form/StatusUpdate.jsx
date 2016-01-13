@@ -59,7 +59,7 @@ var StatusUpdate = React.createClass({
         var refreshFunc = function() {
 
             // Refresh the activity list
-            this.triggerCustomEvent("statusActivityRefresh");
+            this.triggerCustomEvent("entityBrowserRefresh");
         }.bind(this);
 
         // Send the status
