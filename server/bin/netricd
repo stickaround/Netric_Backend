@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+/**
+ * This is the new daemon manager for all background processes in netric
+ *
+ * The daemon is designed so that it can be run from any server or all servers since
+ * it maintains no state except through the netric source allowing us to distribute
+ * it horizontially as more servers are needed.
+ */

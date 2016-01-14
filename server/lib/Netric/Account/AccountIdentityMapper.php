@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * IdentityMapper for loading accounts
  * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
@@ -8,9 +8,12 @@
 namespace Netric\Account;
 
 use Netric\Application;
+use Netric\Account;
 use Netric\Cache;
+use Netric\Error\Error;
+use Netric\Error\ErrorAwareInterface;
 
-class AccountIdentityMapper
+class AccountIdentityMapper implements ErrorAwareInterface
 {
 	/**
 	 * Application datamapper
@@ -31,18 +34,26 @@ class AccountIdentityMapper
      *
      * @var \Netric\Account[]
      */
-    private $loadedAccounts = array();
+    private $loadedAccounts = [];
 
     /**
      * In memory maps from name to id
      */
-    private $nameToIdMap = array();
+    private $nameToIdMap = [];
+
+    /**
+     * Array of errors
+     *
+     * @var Error[]
+     */
+    private $errors = [];
 
 	/**
 	 * Construct and setup dependencies
 	 *
 	 * @param \Netric\Application\DataMapperInterface $appDm Application DataMapper
      * @param \Netric\Cache\CacheInterface $cache
+     * @throws \Exception If all required dependencies were not passed
 	 */
 	public function __construct(Application\DataMapperInterface $appDm, Cache\CacheInterface $cache)
 	{
@@ -131,7 +142,79 @@ class AccountIdentityMapper
         {
             return null;
         }
+    }
 
+    /**
+     * Delete an account
+     *
+     * @param Account $account The account to delete
+     * @return bool true on success, false on failure
+     * @throws \RuntimeException If account is not a valid account with an ID
+     */
+    public function deleteAccount(Account $account)
+    {
+        // Make sure this account is valid with an ID
+        if (!$account->getId())
+            throw new \RuntimeException("Cannot delete an account that does not exist");
+
+        $accountId = $account->getId();
+        $accountName = $account->getName();
+        if ($this->appDm->deleteAccount($accountId))
+        {
+            // Clear cache
+            $this->cache->delete("netric/account/" . $accountId);
+
+            // Remove from in-memory cache
+            if (isset($this->loadedAccounts[$accountId]))
+            {
+                unset($this->loadedAccounts[$accountId]);
+            }
+
+            // Clear save the maps
+            $this->cache->delete("netric/account/nametoidmap/$accountName");
+
+            if (isset($this->nameToIdMap[$accountName]))
+            {
+                unset($this->nameToIdMap[$accountName]);
+            }
+
+            return true;
+        }
+
+        // Something failed
+        $this->errors[] = $this->appDm->getLastError();
+        return false;
+    }
+
+    /**
+     * Create a new account and return the ID
+     *
+     * @param string $name A unique name for this account
+     * @return int Unique id of the created account, 0 on failure
+     */
+    public function createAccount($name)
+    {
+        return $this->appDm->createAccount($name);
+    }
+
+    /**
+     * Get the last error
+     *
+     * @return Error|null
+     */
+    public function getLastError()
+    {
+        return (count($this->errors)) ? array_pop($this->errors) : null;
+    }
+
+    /**
+     * Get array of errors that have occurred
+     *
+     * @return \Netric\Error\Error[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 
     /**

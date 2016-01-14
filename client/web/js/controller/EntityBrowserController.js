@@ -18,7 +18,8 @@ var Where = require("../entity/Where");
 /**
  * Controller that loads an entity browser
  */
-var EntityBrowserController = function() {}
+var EntityBrowserController = function () {
+}
 
 /**
  * Extend base controller class
@@ -103,22 +104,22 @@ EntityBrowserController.prototype.entityDefinition_ = null;
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-EntityBrowserController.prototype.onLoad = function(opt_callback) {
+EntityBrowserController.prototype.onLoad = function (opt_callback) {
 
     this.actions_ = actionsLoader.get(this.props.objType);
 
     // Capture a status update activity and refresh the list
-    if(this.props.eventsObj) {
-        alib.events.listen(this.props.eventsObj, "statusActivityRefresh", function(evt) {
-            if(this.props.objType == 'status_update' || this.props.objType == 'activity') {
-                this.collection_.refresh();
-            }
+    if (this.props.eventsObj) {
+
+        // Listener to refresh the entity specific only to activity/status_update
+        alib.events.listen(this.props.eventsObj, "entityBrowserRefresh", function (evt) {
+            this.collection_.refresh();
         }.bind(this));
     }
 
     if (this.props.objType) {
         // Get the default view from the object definition
-        definitionLoader.get(this.props.objType, function(def){
+        definitionLoader.get(this.props.objType, function (def) {
             this.entityDefinition_ = def;
             this.browserView_ = def.getDefaultView();
 
@@ -141,7 +142,7 @@ EntityBrowserController.prototype.onLoad = function(opt_callback) {
 /**
  * Render this controller into the dom tree
  */
-EntityBrowserController.prototype.render = function() {
+EntityBrowserController.prototype.render = function () {
 
     // Render the react components
     this.reactRender_();
@@ -174,7 +175,7 @@ EntityBrowserController.prototype.render = function() {
  *
  * @private
  */
-EntityBrowserController.prototype.reactRender_ = function() {
+EntityBrowserController.prototype.reactRender_ = function () {
 
     // Set outer application container
     var domCon = this.domNode_;
@@ -199,33 +200,40 @@ EntityBrowserController.prototype.reactRender_ = function() {
 
     // Define the data
     var data = {
-        title: this.props.browsebytitle ||this.props.title,
+        title: this.props.browsebytitle || this.props.title,
         deviceSize: netric.getApplication().device.size,
         layout: layout,
         actionHandler: this.actions_,
-        browserView:this.browserView_,
+        browserView: this.browserView_,
         hideToolbar: hideToolbar,
-        onEntityListClick: function(objType, oid, title) {
+        toolbarMode: this.props.toolbarMode,
+        onEntityListClick: function (objType, oid, title) {
             this.onEntityListClick(objType, oid, title);
         }.bind(this),
-        onEntityListSelect: function(oid) {
+        onEntityListSelect: function (oid) {
             if (oid) {
                 this.toggleEntitySelect(oid);
             } else {
                 this.toggleSelectAll(false);
             }
         }.bind(this),
-        onLoadMoreEntities: function(limitIncrease){
+        onLoadMoreEntities: function (limitIncrease) {
             return this.getMoreEntities(limitIncrease);
         }.bind(this),
-        onSearchChange: function(fullText, conditions) {
+        onSearchChange: function (fullText, conditions) {
             this.onSearchChange(fullText, conditions);
         }.bind(this),
-        onAdvancedSearch: function() {
+        onAdvancedSearch: function () {
             this._displayAdvancedSearch();
         }.bind(this),
-        onPerformAction: function(actionName) {
+        onPerformAction: function (actionName) {
             this.performActionOnSelected(actionName);
+        }.bind(this),
+        onCreateNewEntity: function () {
+            this._createNewEntity();
+        }.bind(this),
+        onRefreshEntityList: function () {
+            this._refreshEntityList()
         }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
@@ -249,7 +257,7 @@ EntityBrowserController.prototype.reactRender_ = function() {
  * @param {string} oid
  * @param {string} title The textual name or title of the entity
  */
-EntityBrowserController.prototype.onEntityListClick = function(objType, oid, title) {
+EntityBrowserController.prototype.onEntityListClick = function (objType, oid, title) {
     if (objType && oid) {
 
         // Mark the entity as selected
@@ -283,7 +291,7 @@ EntityBrowserController.prototype.onEntityListClick = function(objType, oid, tit
  * @param {string} fullText Search string
  * @param {netric/entity/Where[]} opt_conditions Array of filter conditions
  */
-EntityBrowserController.prototype.onSearchChange = function(fullText, opt_conditions) {
+EntityBrowserController.prototype.onSearchChange = function (fullText, opt_conditions) {
     var conditions = opt_conditions || null;
 
     this.userSearchString_ = fullText;
@@ -294,7 +302,7 @@ EntityBrowserController.prototype.onSearchChange = function(fullText, opt_condit
 /**
  * Fill the collection for this browser
  */
-EntityBrowserController.prototype.loadCollection = function() {
+EntityBrowserController.prototype.loadCollection = function () {
 
     // Setup the controller in case it was not setup before
     this._setupCollection();
@@ -315,7 +323,7 @@ EntityBrowserController.prototype.loadCollection = function() {
 
     // Set Sort Order
     var orderBy = this.browserView_.getOrderBy();
-    if(orderBy) {
+    if (orderBy) {
         for (var idx in orderBy) {
             this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
         }
@@ -333,7 +341,7 @@ EntityBrowserController.prototype.loadCollection = function() {
  *
  * @param {array} filters   These are the conditions that will limit what this browser can search
  */
-EntityBrowserController.prototype.setCollectionConditions = function(filters) {
+EntityBrowserController.prototype.setCollectionConditions = function (filters) {
 
     // Removes the conditions set to this collection
     this.collection_.clearConditions();
@@ -342,14 +350,14 @@ EntityBrowserController.prototype.setCollectionConditions = function(filters) {
     var conditions = this.browserView_.getConditions();
 
     // If there is a condition set, then we will push the where clase to the collection
-    if(conditions) {
+    if (conditions) {
         for (var i in conditions) {
             this.collection_.addWhere(conditions[i]);
         }
     }
 
-    if(filters) {
-        for(var idx in filters) {
+    if (filters) {
+        for (var idx in filters) {
             this.collection_.addWhere(filters[idx]);
         }
     }
@@ -358,7 +366,7 @@ EntityBrowserController.prototype.setCollectionConditions = function(filters) {
 /**
  * User clicked/touched an entity in the list
  */
-EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
+EntityBrowserController.prototype.toggleEntitySelect = function (oid) {
     if (oid) {
         var selectedAt = this.selected_.indexOf(oid);
 
@@ -378,7 +386,7 @@ EntityBrowserController.prototype.toggleEntitySelect = function(oid) {
  *
  * @param {bool} selected If true select all, else deselect all
  */
-EntityBrowserController.prototype.toggleSelectAll = function(selected) {
+EntityBrowserController.prototype.toggleSelectAll = function (selected) {
     if (typeof selected == "undefined") {
         var selected = false;
     }
@@ -399,9 +407,9 @@ EntityBrowserController.prototype.toggleSelectAll = function(selected) {
  *
  * @param {string} actionName
  */
-EntityBrowserController.prototype.performActionOnSelected = function(actionName) {
+EntityBrowserController.prototype.performActionOnSelected = function (actionName) {
 
-    var workingText = this.actions_.performAction(actionName, this.props.objType, this.selected_, function(error, message) {
+    var workingText = this.actions_.performAction(actionName, this.props.objType, this.selected_, function (error, message) {
 
         if (error) {
             console.error(message);
@@ -421,7 +429,7 @@ EntityBrowserController.prototype.performActionOnSelected = function(actionName)
 /**
  * User selected an alternate menu item in the left navigation
  */
-EntityBrowserController.prototype.onCollectionChange = function() {
+EntityBrowserController.prototype.onCollectionChange = function () {
 
     // Need to re-render to display the entities
     this.entities_ = this.collection_.getEntities();
@@ -431,7 +439,7 @@ EntityBrowserController.prototype.onCollectionChange = function() {
 /**
  * The collection is attempting to get results from the backend
  */
-EntityBrowserController.prototype.onCollectionLoading = function() {
+EntityBrowserController.prototype.onCollectionLoading = function () {
 
     // Need to re-render to display the loading gif
     this.collectionLoading_ = true;
@@ -441,7 +449,7 @@ EntityBrowserController.prototype.onCollectionLoading = function() {
 /**
  * The collection has finished requesting results from the backend
  */
-EntityBrowserController.prototype.onCollectionLoaded = function() {
+EntityBrowserController.prototype.onCollectionLoaded = function () {
 
     // Need to re-render to hide the loading gif
     this.collectionLoading_ = false;
@@ -451,14 +459,14 @@ EntityBrowserController.prototype.onCollectionLoaded = function() {
 /**
  * Called when this controller is paused and moved to the background
  */
-EntityBrowserController.prototype.onPause = function() {
+EntityBrowserController.prototype.onPause = function () {
 
 }
 
 /**
  * Called when this function was paused but it has been resumed to the foreground
  */
-EntityBrowserController.prototype.onResume = function() {
+EntityBrowserController.prototype.onResume = function () {
     /*
      * Clear selected because we do not want the last selected entity to still
      * be selected when a user closes the previously selected entity controller.
@@ -472,19 +480,19 @@ EntityBrowserController.prototype.onResume = function() {
 /**
  * Refresh public interface refreshes the colleciton
  */
-EntityBrowserController.prototype.refresh = function() {
+EntityBrowserController.prototype.refresh = function () {
     this.collection_.refresh();
 }
 
 /**
  * The collection is updated with new limits to display
  *
- * @param {int} limitIncrease	Optional of entities to increment the limit by. Default is 50.
+ * @param {int} limitIncrease    Optional of entities to increment the limit by. Default is 50.
  */
-EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
+EntityBrowserController.prototype.getMoreEntities = function (limitIncrease) {
 
     // set new limit plus 50 if not set
-    if(typeof limitIncrease === 'undefined')
+    if (typeof limitIncrease === 'undefined')
         limitIncrease = 50;
 
     var limit = this.collection_.getLimit();
@@ -492,7 +500,7 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
     var totalNum = this.collection_.getTotalNum();
 
     // Check if maxed out already so no more actions needed
-    if(limit < totalNum) {
+    if (limit < totalNum) {
         this.collection_.setLimit(newLimit);
         this.collection_.refresh();
     }
@@ -503,7 +511,7 @@ EntityBrowserController.prototype.getMoreEntities = function(limitIncrease) {
  *
  * @param {object} browserView   View that was cloned and used in Advanced Search
  */
-EntityBrowserController.prototype._applyAdvancedSearch = function(browserView) {
+EntityBrowserController.prototype._applyAdvancedSearch = function (browserView) {
     this.browserView_ = browserView;
     this.loadCollection();
 }
@@ -512,7 +520,7 @@ EntityBrowserController.prototype._applyAdvancedSearch = function(browserView) {
  * Display Advance search
  *
  */
-EntityBrowserController.prototype._displayAdvancedSearch = function() {
+EntityBrowserController.prototype._displayAdvancedSearch = function () {
 
     /*
      * We require it here to avoid a circular dependency where the
@@ -527,7 +535,7 @@ EntityBrowserController.prototype._displayAdvancedSearch = function() {
         objType: this.props.objType,
         entityDefinition: this.entityDefinition_,
         browserView: Object.create(this.browserView_),
-        onApplySearch: function(browserView) {
+        onApplySearch: function (browserView) {
             this._applyAdvancedSearch(browserView)
         }.bind(this),
     });
@@ -538,7 +546,7 @@ EntityBrowserController.prototype._displayAdvancedSearch = function() {
  *
  * @private
  */
-EntityBrowserController.prototype._setupCollection = function() {
+EntityBrowserController.prototype._setupCollection = function () {
 
     // Only setup the entity controller the first time
     if (this.collection_) {
@@ -547,15 +555,15 @@ EntityBrowserController.prototype._setupCollection = function() {
 
     // Load the entity list
     this.collection_ = new EntityCollection(this.props.objType);
-    alib.events.listen(this.collection_, "change", function() {
+    alib.events.listen(this.collection_, "change", function () {
         this.onCollectionChange();
     }.bind(this));
 
-    alib.events.listen(this.collection_, "loading", function() {
+    alib.events.listen(this.collection_, "loading", function () {
         this.onCollectionLoading();
     }.bind(this));
 
-    alib.events.listen(this.collection_, "loaded", function() {
+    alib.events.listen(this.collection_, "loaded", function () {
         this.onCollectionLoaded();
     }.bind(this));
 }
@@ -566,7 +574,7 @@ EntityBrowserController.prototype._setupCollection = function() {
  * @param {entity.Where[]} filters   These are the conditions that will limit what this browser can search
  * @public
  */
-EntityBrowserController.prototype.updateFilters = function(filters) {
+EntityBrowserController.prototype.updateFilters = function (filters) {
 
     this.setCollectionConditions(filters);
     this.collection_.refresh();
@@ -577,8 +585,26 @@ EntityBrowserController.prototype.updateFilters = function(filters) {
  *
  * @public
  */
-EntityBrowserController.prototype.getEntityDefinition = function() {
+EntityBrowserController.prototype.getEntityDefinition = function () {
     return this.entityDefinition_;
+}
+
+/**
+ * Handles the creating of new entity
+ *
+ * @private
+ */
+EntityBrowserController.prototype._createNewEntity = function () {
+    if (this.props.onCreateNewEntity) this.props.onCreateNewEntity()
+}
+
+/**
+ * Refreshes the entity list
+ *
+ * @private
+ */
+EntityBrowserController.prototype._refreshEntityList = function () {
+    this.collection_.refresh();
 }
 
 module.exports = EntityBrowserController;

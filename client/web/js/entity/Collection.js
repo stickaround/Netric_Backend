@@ -44,6 +44,7 @@ var definitionLoader = require("./definitionLoader");
 var BackendRequest = require("../BackendRequest");
 var Entity = require("./Entity");
 var Where = require("./Where");
+var log = require("../log");
 
 /**
  * Represents a collection of entities
@@ -205,6 +206,23 @@ Collection.prototype.load = function (opt_callback) {
 
         // Triger loaded event
         alib.events.triggerEvent(collection, "loaded");
+    });
+
+    /*
+     * Listen for errors
+     */
+    alib.events.listen(request, "error", function (evt) {
+
+        // We should log this since we don't expect it to ever happen
+        log.error("There was a problem getting the collection", evt);
+
+        // Triger loaded event
+        alib.events.triggerEvent(collection, "error");
+
+        // Call the optional callback if set so we do not hang indefinitely
+        if (opt_callback) {
+            opt_callback(collection);
+        }
     });
 
     /*
@@ -423,7 +441,7 @@ Collection.prototype.getLimit = function () {
 }
 
 /**
- * Get the entity definition
+ * Get the entity definition fields
  *
  * @return {array}
  */

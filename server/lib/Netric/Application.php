@@ -4,6 +4,9 @@
  */
 namespace Netric;
 
+use Netric\Application\Exception;
+use Netric\Application\Setup\Setup;
+
 class Application
 {
     /**
@@ -30,6 +33,7 @@ class Application
 
     /**
      * Application cache
+     * \
      *
      * @var \Netric\Cache\CacheInterface
      */
@@ -45,7 +49,7 @@ class Application
     /**
      * Initialize application
      *
-     * @param \Netric\Netric\Config $config
+     * @param Config $config
      */
     public function __construct(Config $config)
     {
@@ -113,6 +117,25 @@ class Application
             $account = $this->accountsIdentityMapper->loadByName($accountName, $this);
 
         return $account;
+    }
+
+    /**
+     * Get all acounts for this application
+     *
+     * @return Account[]
+     */
+    public function getAccounts()
+    {
+        $config = $this->getConfig();
+        $accountsData = $this->dm->getAccounts($config->version);
+
+        $accounts = [];
+        foreach ($accountsData as $data)
+        {
+            $accounts[] = $this->accountsIdentityMapper->loadById($data['id'], $this);
+        }
+
+        return $accounts;
     }
 
 
@@ -200,6 +223,85 @@ class Application
 		// 6 get default account from the system settings
 		return $this->getConfig()->default_account;
 	}
+
+    /**
+     * Initialize a brand new account and create the admin user
+     *
+     * @param string $accountName A unique name for the new account
+     * @param string $adminUserName Required username for the admin/first user
+     * @param string $adminUserPassword Required password for the admin
+     * @return Account
+     */
+    public function createAccount($accountName, $adminUserName, $adminUserPassword)
+    {
+        // Make sure the account does not already exists
+        if ($this->accountsIdentityMapper->loadByName($accountName, $this))
+        {
+            throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
+        }
+
+        // TODO: Check the account name is valid
+
+        // Create new account
+        $accountId = $this->accountsIdentityMapper->createAccount($accountName);
+
+        // Make sure the created account is valid
+        if (!$accountId)
+        {
+            throw new Exception\CouldNotCreateAccountException(
+                "Failed creating account " . $this->accountsIdentityMapper->getLastError()->getMessage()
+            );
+        }
+
+        // Load the newly created account
+        $account = $this->accountsIdentityMapper->loadById($accountId, $this);
+
+        // Initialize with setup
+        $setup = new Setup();
+        $setup->setupAccount($account, $adminUserName, $adminUserPassword);
+
+        // TODO: 3. Change status to active
+
+        // Return the new account
+        return $account;
+    }
+
+    /**
+     * Update an existing account version
+     *
+     * @param string $accountName The unique name of the account to upgrade
+     * @param string $toVersion Optional version to upgrade to if not latest
+     * @return string latest version
+     */
+    public function updateAccount($accountName, $toVersion = "")
+    {
+        // Get account by name
+        $account = $this->getAccount(null, $accountName);
+
+        // TODO: Use Setup class to update and get the revision
+
+        // TODO: Return the revision
+    }
+
+    /**
+     * Delete an account by name
+     *
+     * @param string $accountName The unique name of the account to delete
+     * @return bool on success, false on failure
+     */
+    public function deleteAccount($accountName)
+    {
+        // Get account by name
+        $account = $this->getAccount(null, $accountName);
+
+        // Delete the account if it is valid
+        if ($account->getId())
+        {
+            return $this->accountsIdentityMapper->deleteAccount($account);
+        }
+
+        return false;
+    }
     
     /**
 	 * Get session variable if exists

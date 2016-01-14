@@ -393,19 +393,24 @@ Entity.prototype.getValue = function (name) {
  *
  * @param {string} name The name of the field
  * @param {val} opt_val If querying *_multi type values the get the label for a specifc key
- * @reutrn {string} the textual representation of the key value
+ * @reutrn {Object|string} the textual representation of the key value
  */
 Entity.prototype.getValueName = function (name, opt_val) {
     // Get value from fieldValue
     if (this.fieldValues_[name]) {
-        if (opt_val && this.fieldValues_[name].valueName instanceof Object) {
-            if (this.fieldValues_[name].valueName[opt_val]) {
-                return this.fieldValues_[name].valueName[opt_val];
-            }
-        } else if (opt_val && this.fieldValues_[name].valueName instanceof Array) {
+
+        /*
+         * If they passed opt_val then the client is attempting to get the label
+         * value for a specific key rather than an object describing all the
+         * key/value values of this fkey/fkey_multi/object/object_multi field.
+         */
+        if (opt_val && (
+                this.fieldValues_[name].valueName instanceof Array ||
+                this.fieldValues_[name].valueName instanceof Object
+            )) {
             for (var i in this.fieldValues_[name].valueName) {
                 if (this.fieldValues_[name].valueName[i].key == opt_val) {
-                    return this.fieldValues_[name].valueName[i].value[opt_val];
+                    return this.fieldValues_[name].valueName[i].value;
                 }
             }
         } else {
@@ -588,7 +593,7 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
      * If we do not have an instance of recurrence yet and we need to create one
      * Then lets instantiate a new Recurrence entity model
      */
-    if(!this.recurrencePattern_ && createIfNotExist) {
+    if (!this.recurrencePattern_ && createIfNotExist) {
         this.recurrencePattern_ = new Recurrence(this.objType);
     }
 
@@ -603,6 +608,49 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
  */
 Entity.prototype.setRecurrence = function (recurrencePattern) {
     this.recurrencePattern_ = recurrencePattern;
+}
+
+/**
+ * Set any default values for this entity
+ *
+ * @param {string} onEventName The event name to get defaults for, either 'null', 'update' or 'create'
+ * @param {Object} opt_defaultData Optional data to use for defaults, if null use field.getDefault
+ * @public
+ */
+Entity.prototype.setDefaultValues = function (onEventName, opt_defaultData) {
+
+    var defaultData = opt_defaultData || {};
+
+    // Loop through each field and check if it has a default for the given event
+    this.def.fields.map(function (field) {
+
+        // If the field has a defaultValue set - this comes from the entity definition
+        var defaultValue = field.getDefault(onEventName);
+
+        // If null, then only use default if the value has not already been set
+        if (defaultValue
+            && (onEventName === 'null' || onEventName === 'create')
+            && !this.getValue(field.name)) {
+
+            this.setValue(field.name, defaultValue);
+        }
+
+        // Allow the backend to handle the 'update' event since it will return updated data after update
+
+        /*
+         * Now check for client side default data apart from the field defaults.
+         * This is used when a calling function wants to set defaults beyond what is
+         * defined in the field for the entity definition.
+         */
+        if (this.getValue(field.name) == null // Make sure this field has no stored value yet
+            && defaultData[field.name]) {
+
+            // Check if a default value name was also passed
+            var valueName = defaultData[field.name + "_val"] || null;
+            this.setValue(field.name, defaultData[field.name], valueName);
+        }
+
+    }.bind(this));
 }
 
 module.exports = Entity;

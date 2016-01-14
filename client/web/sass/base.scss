@@ -72,9 +72,9 @@ body {
 @import 'base/application';
 
 /**
- * Add module layouts
+ * Add module layouts and support classes
  */
-@import 'base/module';
+@import 'base/module/module';
 
 /**
  * Add comments controller styles

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Short description for file
  * 
@@ -58,7 +57,7 @@ class Pgsql implements DbInterface
 	 *
 	 * @var string
 	 */
-	public $schema = "";
+	private $schema = "";
 
 	var $cache_query;
 	var $dbname;
@@ -174,9 +173,17 @@ class Pgsql implements DbInterface
 	public function setSchema($namespace)
 	{
 		$this->schema = $namespace;
+		return $this->query("SET search_path TO $namespace;");
+	}
 
-		//if ($dbh->getNumRows($dbh->query("SELECT schema_name FROM information_schema.schemata WHERE schema_name = '".$namespace."';")))
-		return $this->query("SET search_path TO $namespace;", false);
+	/**
+	 * Get the current schema
+	 *
+	 * @return string
+	 */
+	public function getSchema()
+	{
+		return $this->schema;
 	}
 
 	/**
@@ -312,6 +319,14 @@ class Pgsql implements DbInterface
 			$query = "SET datestyle='SQL';".$query;
 			$this->fDateStyleSet = true;
 		}
+
+		/*
+		 * Since postgresl manages this setting per connection, it is important that
+		 * we set it before every query because it's possible to do operations across multiple
+		 * accounts and it will only set the path on initial connection.
+		 */
+		if ($this->schema)
+			$query = "SET search_path=" . $this->schema . ";" . $query;
 
 		//print($query);
 		$result = @pg_query($this->dbHandle, $query);
@@ -488,8 +503,10 @@ class Pgsql implements DbInterface
 		else
 			return false;
 	}
+
 	function columnExists($table, $col)
 	{
+		// Check if we explictely passed the schema in dot notation schema.table
 		if (strpos($table, '.'))
 		{
 			$parts = explode(".", $table);
@@ -522,7 +539,16 @@ class Pgsql implements DbInterface
 		else
 			return false;
 	}
-	function isPrimaryKey($tbl, $col=null, $schema=null)
+
+	/**
+	 * Test if a column is a primary key
+	 *
+	 * @param $tbl
+	 * @param null $col
+	 * @param null $schema
+	 * @return bool
+	 */
+	public function isPrimaryKey($tbl, $col=null, $schema=null)
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -530,9 +556,13 @@ class Pgsql implements DbInterface
 		if (!$this->dbHandle)
 			return false;
 
+		// Set default schema of not explicitely passed
+		if (!$schema && $this->schema)
+			$schema = $this->schema;
+
 		$query = "select pg_class.relname, pg_attribute.attname 
 					from 
-					pg_class, pg_attribute, pg_namespace, pg_index
+					pg_class, pg_attribute, pg_namespace, pg_index, pg_constraint
 					where 
 					pg_class.oid = pg_attribute.attrelid
 					and pg_class.oid = pg_index.indrelid
@@ -560,8 +590,7 @@ class Pgsql implements DbInterface
 		$result = pg_query($this->dbHandle, $query);
 		if (pg_num_rows($result))
 		{
-			$row = pg_fetch_array($result);
-			return $row['attname'];
+			return true;
 		}
 		else
 		{

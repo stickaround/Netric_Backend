@@ -11,13 +11,15 @@
 namespace Netric\Application;
 
 use Netric\Db;
+use Netric\Error\ErrorAwareInterface;
+use Netric\Error\Error;
 
 /**
  * Description of DataMapperPgsql
  *
  * @author Sky Stebnicki
  */
-class DataMapperPgsql implements DataMapperInterface 
+class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 {
     /**
      * Host of db server
@@ -53,6 +55,24 @@ class DataMapperPgsql implements DataMapperInterface
      * @var \CDatabase
      */
     private $dbh = null;
+
+    /**
+     * The default database name used for accounts
+     *
+     * At some point we may want to use different databases for different account
+     * types or something like that, but for now we are putting everything in a common
+     * database and utilizing postgresql schemas for multi-tenancy.
+     *
+     * @var null
+     */
+    private $defaultAccountDatabase = null;
+
+    /**
+     * Errors array
+     *
+     * @var Error[]
+     */
+    private $errors = [];
     
     /**
      * Connect to the pgsql database
@@ -61,13 +81,15 @@ class DataMapperPgsql implements DataMapperInterface
      * @param string $database
      * @param string $username
      * @param string $password
+     * @param string $defaultAccountDatabase The database name used for new accounts
      */
-    public function __construct($host, $database, $username, $password) 
+    public function __construct($host, $database, $username, $password, $defaultAccountDatabase = 'netric')
     {
         $this->host = $host;
         $this->database = $database;
         $this->username = $username;
         $this->password = $password;
+        $this->defaultAccountDatabase = $defaultAccountDatabase;
         
         $this->dbh = new Db\Pgsql($host, $database, $username, $password);
     }
@@ -205,5 +227,68 @@ class DataMapperPgsql implements DataMapperInterface
         }
 
         return $ret;
+    }
+
+    /**
+     * Adds an account to the database
+     *
+     * @param string $name A unique name for this account
+     * @return int Unique id of the created account, 0 on failure
+     */
+    public function createAccount($name)
+    {
+        // Create account in antsystem
+        $ret = $this->dbh->query(
+            "INSERT INTO accounts(name, database)
+			 VALUES('".$this->dbh->escape($name)."', '".$this->dbh->escape($this->defaultAccountDatabase)."')
+			 RETURNING id;");
+        if ($this->dbh->getNumRows($ret))
+        {
+            return $this->dbh->getValue($ret, 0, "id");
+        }
+
+        $this->errors[] =  new Error("Could not create account in system database: " . $this->dbh->getLastError());
+        return 0;
+    }
+
+    /**
+     * Delete an account by id
+     *
+     * @param $accountId
+     * @return bool true on success, false on failure - call getLastError for details
+     */
+    public function deleteAccount($accountId)
+    {
+        if (!is_numeric($accountId))
+            throw new \RuntimeException("Account id must be a number");
+
+        $ret = $this->dbh->query("DELETE FROM accounts WHERE id=" . $this->dbh->escapeNumber($accountId));
+        if (!$ret)
+            $this->errors[] = new Error("Error deleting account", $this->dbh->getLastError());
+
+        return ($ret) ? true : false;
+    }
+
+    /**
+     * Get the last error (if any)
+     *
+     * @return Error | null
+     */
+    public function getLastError()
+    {
+        if (count($this->errors))
+            return $this->errors[count($this->errors) - 1];
+        else
+            return null;
+    }
+
+    /**
+     * Get all errors
+     *
+     * @return \Netric\Error\Error[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }

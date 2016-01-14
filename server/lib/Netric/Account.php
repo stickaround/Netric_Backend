@@ -47,6 +47,16 @@ class Account
      * @var Netric\Entity\ObjType\User
      */
     public $currentUserOverride = null;
+
+    /**
+     * The status of this account
+     *
+     * @var int
+     */
+    private $status = null;
+    const STATUS_ACTIVE = 1;
+    const STATUS_EXPIRED = 2;
+    const STATUS_DELETED = 3;
     
     /**
      * Initialize netric account
@@ -58,6 +68,9 @@ class Account
         $this->application = $app;
         
         $this->serviceManager = new \Netric\ServiceManager\ServiceManager($this);
+
+        // Set default status
+        $this->status = self::STATUS_ACTIVE;
     }
 
     /**
@@ -205,7 +218,8 @@ class Account
         }
         elseif ($username) 
         {
-            // TODO: query based on username    
+            // TODO: query based on username
+            throw new \RuntimeException("Loading a user by username is not yet supported");
         }
                 
         // Get anonymous user

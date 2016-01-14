@@ -3,7 +3,7 @@
  *
  * This class is a client side mirror of /lib/EntityDefinition/Field on the server side
  *
- * @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
+ * @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
  * 			Copyright (c) 2013 Aereus Corporation. All rights reserved.
  */
 'use strict';
@@ -157,7 +157,7 @@ var Field = function(opt_data) {
 	 */
 	this.autocreatename = data.autocreatename || "";
 
-	/** 
+	/**
 	 * Add static types to a variable in 'this'
 	 *
 	 * @public
@@ -189,8 +189,9 @@ Field.types = {
  */
 Field.prototype.getDefault = function(on)
 {
-	if (!this.defaultVal)
+	if (!this.defaultVal) {
 		return "";
+	}
 
 	if (this.defaultVal.on == on)
 	{

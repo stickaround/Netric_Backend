@@ -71,6 +71,8 @@ abstract class Controller
 	 */
 	protected function sendOutput($data)
 	{
+		$data = $this->utf8Converter($data);
+
 		if (!$this->debug)
 		{
 			switch ($this->output)
@@ -275,5 +277,22 @@ abstract class Controller
 	{
 		return str_replace(array("&", "<", ">", "\"", "'"),
 						   array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"), $string);
+	}
+
+	/**
+	 * Recursively convert strings in array to UTF-8
+	 *
+	 * @param array $array
+	 * @return array
+	 */
+	private function utf8Converter($array)
+	{
+		array_walk_recursive($array, function(&$item, $key){
+			if(!mb_detect_encoding($item, 'utf-8', true)){
+				$item = utf8_encode($item);
+			}
+		});
+
+		return $array;
 	}
 }

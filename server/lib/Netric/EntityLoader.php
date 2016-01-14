@@ -54,7 +54,7 @@ class EntityLoader
 	 * @param Entity_DataMapper $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
 	 */
-	private function __construct(DataMapperInterface $dm, EntityDefinitionLoader $defLoader)
+	public function __construct(DataMapperInterface $dm, EntityDefinitionLoader $defLoader)
 	{
 		$this->dataMapper = $dm;
 		$this->definitionLoader = $defLoader;

@@ -16,6 +16,11 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     private $application = null;
 
+    /**
+     * Name used for test accounts
+     */
+    const TEST_ACCT_NAME = "unit_test_application";
+
     protected function setUp()
     {
         $config = new Netric\Config();
@@ -24,7 +29,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
 
     public function testGetConfig()
     {
-        $this->assertInstanceOf("Netric\Config", $this->application->getConfig());
+        $this->assertInstanceOf('Netric\Config', $this->application->getConfig());
     }
     
     /**
@@ -32,11 +37,48 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testGetAccount()
     {
-        $this->assertInstanceOf("Netric\Account", $this->application->getAccount());
+        $this->assertInstanceOf('Netric\Account', $this->application->getAccount());
     }
 
     public function testGetAccountsByEmail()
     {
+        // TODO: Add this test
+    }
 
+    public function testCreateAccount()
+    {
+        // First cleanup in case we left an account around
+        $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
+        if ($cleanupAccount)
+            $this->application->deleteAccount(self::TEST_ACCT_NAME);
+
+        // Create a new test account
+        $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
+        $this->assertTrue($account->getId() > 0);
+
+        // Cleanup
+        $this->application->deleteAccount(self::TEST_ACCT_NAME);
+    }
+
+    public function testUpdateAccount()
+    {
+        // TODO: Add this test
+    }
+
+    public function testDeleteAccount()
+    {
+        // First cleanup in case we left an account around
+        $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
+        if ($cleanupAccount)
+            $this->application->deleteAccount(self::TEST_ACCT_NAME);
+
+        // Create account
+        $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
+
+        // Now delete the account
+        $this->assertTrue($this->application->deleteAccount(self::TEST_ACCT_NAME));
+
+        // Make sure we cannot open the account - it should be deleted
+        $this->assertNull($this->application->getAccount($account->getId()));
     }
 }
