@@ -106,11 +106,32 @@ class CAntObject_Comment extends CAntObject
 		*/
 
 		// Send notifications if set - notify is not a field so it is just a temp buf
-		// FIXME: This will eventually be replaced when the new notification system is activated
 		if ($this->getValue("notify"))
 		{
 			$to = explode(",", $this->getValue("notify"));
-			$this->sendNotifications($to);
+
+			/*
+			 * Once upon a time this would actually send the notifications, but now
+			 * we just update followers and let the new Entity notification system
+			 * (Netric/Entity/Notifier) handle creating and sending notifications.
+			 *
+			 * This will need to be in place until we remove the "notify" input box
+			 * from comments in the old V1 interface of netric. - Sky Stebnicki
+			 */
+			foreach ($to as $sendTo)
+			{
+				$sendTo = trim($sendTo);
+
+				if (!$sendTo || ($this->user && ($sendTo == ("user:" . $this->user->id))))
+					continue;
+
+				// Make sure this is an object reference to a user
+				if (substr($sendTo, 0, strlen("user:")) == "user:")
+				{
+					$sendToUser = CAntObject::decodeObjRef($sendTo);
+					$this->setMValue("followers", $sendToUser['id']);
+				}
+			}
 		}
 	}
 
@@ -123,10 +144,12 @@ class CAntObject_Comment extends CAntObject
 	}
 
 	/**
+	 * @deprecated This is now handled in Netric\Entity\ObjType\Comment - Sky Stebnicki
+	 *
 	 * Send notifications
 	 *
 	 * @param array $notify Array of objects or email addresses to send notifications to
-	 */
+	 *
 	public function sendNotifications($notify)
 	{
         if($this->testMode)
@@ -269,10 +292,6 @@ class CAntObject_Comment extends CAntObject
 				if ($this->user)
 					$headers['X-ANT-ACCOUNT-NAME'] = $this->user->accountName;
 
-				/*
-				if ($params['obj_reference'])
-					$headers["X-ANT-ASSOCIATIONS"] = $params['obj_reference'];
-				*/
 				$headers['To'] = $eml;
 				$headers['Subject'] = "Added Comment";
 				$body = "$from added a comment";
@@ -316,4 +335,5 @@ class CAntObject_Comment extends CAntObject
 			}
 		}
 	}
+	*/
 }

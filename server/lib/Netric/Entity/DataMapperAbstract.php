@@ -251,6 +251,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 				$lastCommitId, $commitId);
 		}
 
+		// Send notifications
+		$serviceManager->get("Netric/Entity/Notifier/Notifier")->send($entity, $event);
+
 		// Call onAfterSave
         $entity->afterSave($serviceManager);
 

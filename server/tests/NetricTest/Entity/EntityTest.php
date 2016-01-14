@@ -5,6 +5,7 @@
 namespace NetricTest\Entity;
 
 use Netric;
+use Netric\Entity\Entity;
 use PHPUnit_Framework_TestCase;
 
 class EntityTest extends PHPUnit_Framework_TestCase 
@@ -210,4 +211,73 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		$cust->setHasComments(false);
 		$this->assertEquals(0, $cust->getValue("num_comments"));
 	}
+
+	/**
+	 * Test getting tagged object references in text
+	 */
+	public function testGetTaggedObjRef()
+	{
+		$test1 = "Hey [user:123:Sky] this is my test";
+		$taggedReferences = Entity::getTaggedObjRef($test1);
+		$this->assertEquals(1, count($taggedReferences));
+		$this->assertEquals(array("obj_type"=>"user", "id"=>123, "name"=>"Sky"), $taggedReferences[0]);
+
+		$test2 = "This would test multiple [user:123:Sky] and [user:456:John]";
+		$taggedReferences = Entity::getTaggedObjRef($test2);
+		$this->assertEquals(2, count($taggedReferences));
+		$this->assertEquals(array("obj_type"=>"user", "id"=>123, "name"=>"Sky"), $taggedReferences[0]);
+		$this->assertEquals(array("obj_type"=>"user", "id"=>456, "name"=>"John"), $taggedReferences[1]);
+
+        // Test unicode = John in Chinese
+        $test1 = "Hey [user:123:约翰·] this is my test";
+        $taggedReferences = Entity::getTaggedObjRef($test1);
+        $this->assertEquals(1, count($taggedReferences));
+        $this->assertEquals(array("obj_type"=>"user", "id"=>123, "name"=>"约翰·"), $taggedReferences[0]);
+	}
+
+    /**
+     * Test update followers
+     *
+     * This is a private function but because it is so fundamental in its use, we test
+     * it separately from any public interface via a Reflection object. While this is
+     * generally not a good idea to always test functions this way, it makes sense
+     * in places like this that are small largely autonomous functions
+     * used to control critical functionality.
+     */
+    public function testUpdateFollowers()
+    {
+        $entity = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+        $entity->setValue("user_id", 123, "John");
+        $entity->setValue("notes", "Hey [user:456:Dave], check this out please.");
+
+        // Use reflection to access the private function
+        $refEntity = new \ReflectionObject($entity);
+        $updateFollowers = $refEntity->getMethod("updateFollowers");
+        $updateFollowers->setAccessible(true);
+
+        // Call update followers which should pull followers from user_id and notes
+        $updateFollowers->invoke($entity);
+
+        // Now make sure followers were set to the two references above
+        $followers = $entity->getValue("followers");
+        $this->assertEquals(array(123, 456), $followers);
+    }
+
+    /**
+     * Test synchronize followers between two entities
+     */
+    public function testSyncFollowers()
+    {
+        // Add some fake users to a test task
+        $task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+        $task1->addMultiValue("followers", 123, "John");
+        $task1->addMultiValue("followers", 456, "Dave");
+
+        // Crete a second task and synchronize
+        $task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+        $task2->syncFollowers($task1);
+
+        $this->assertEquals(2, count($task1->getValue("followers")));
+        $this->assertEquals($task1->getValue("followers"), $task2->getValue("followers"));
+    }
 }

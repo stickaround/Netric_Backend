@@ -69,6 +69,7 @@ class CAntObject_Task extends CAntObject
 			}
 
 			// Add notification for user
+			/*
 			$notification = CAntObject::factory($this->dbh, "notification", null, $this->user);
 			$notification->setValue("name", $name);
 			$notification->setValue("description", $desc);
@@ -77,6 +78,7 @@ class CAntObject_Task extends CAntObject
 			$notification->setValue("f_seen", 'f');
 			$notification->setValue("owner_id", $this->getValue("user_id"));
 			$nid = $notification->save();
+			*/
 		}
 	}
 

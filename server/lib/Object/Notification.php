@@ -36,6 +36,7 @@ class CAntObject_Notification extends CAntObject
 	 */
 	protected function beforesaved()
 	{
+		/*
 		if (!$this->id && $this->getValue("f_seen") == 'f')
 		{
 			// Look for unread notifications with the same user, obj_reference and name to merge
@@ -53,5 +54,6 @@ class CAntObject_Notification extends CAntObject
 				$notif->remove();
 			}
 		}
+		*/
 	}
 }

@@ -35,8 +35,10 @@ class CAntObject_CommentTest extends PHPUnit_Framework_TestCase
      */
     
     /**
-    * Test Comment Notify
-    */
+     * @deprecated We now use the new entity notifier system (Netric\Entity\Notifier)
+     *
+     * Test Comment Notify
+     *
     function testCommentNotify()
     {
 		// First cleanup if user already exists
@@ -88,6 +90,67 @@ class CAntObject_CommentTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($commentObj->testModeBuf["sendTo"]["eml"], "antunittest@gmail.com");
         $this->assertEquals($commentObj->testModeBuf["status"], "sent");
         
+        // Clean Data
+        $commentObj->removeHard();
+        $taskObj->removeHard();
+        $userObj->removeHard();
+    }
+    */
+
+    /**
+     * Make sure that users added to the 'notify' field are copied to followers (newer code)
+     *
+     * This is largely copied from above and not checked too carefully since we will be
+     * deleting this code completely pretty soon once we move all extended CAntObject(s)
+     * over to the new Entity system.
+     */
+    public function testNotifyMovedToFollowers()
+    {
+        // First cleanup if user already exists
+        $list = new CAntObjectList($this->dbh, "user", $this->user);
+        $list->addCondition("and", "name", "is_equal", "unitTestUser123");
+        $list->getObjects();
+        if ($list->getNumObjects()>0)
+        {
+            $usr = $list->getObject(0);
+            $usr->removeHard();
+        }
+
+        // Create Test User
+        $userObj = CAntObject::factory($this->dbh, "user", null, $this->user);
+        $userObj->setValue("name", "unitTestUser123");
+        $userObj->setValue("full_name", "unitTestFullName");
+        $userId = $userObj->save();
+        $this->assertTrue($userId > 0);
+
+        // Associate Email with the User
+        $emailController = new EmailController($this->ant, $this->user);
+        $emailController->debug = true;
+        $params = array("active" => "t", "displayName" => "Unit Test Email", "emailAddress" => "antunittest@gmail.com", "fullName" => "unitTestFullName", "uid" => $userId);
+        $result = $emailController->saveDefaultEmail($params);
+        $this->assertTrue($result > 0);
+        unset($result);
+
+        // Create Test Task
+        $taskObj = CAntObject::factory($this->dbh, "task", null, $this->user);
+        $taskObj->setValue("name", "unitTestTask");
+        $taskId = $taskObj->save();
+        $this->assertTrue($taskId > 0);
+
+        // Add Comments in task
+        $commentObj = CAntObject::factory($this->dbh, "comment", null, $this->user);
+        $commentObj->setMValue("associations", "task:$taskId");
+        $commentObj->setMValue("obj_reference", "task:$taskId");
+        $commentObj->setValue("notify", "user:$userId");
+        $commentObj->setValue("comment", "Unit Test Comment");
+        $commentObj->setValue("owner_id", $userId);
+        $commentObj->setValue("obj_reference", "task:$taskId");
+        $commentId = $commentObj->save();
+
+        // Make sure that followers is set to the test user
+        $followers = $commentObj->getValue("followers");
+        $this->assertTrue(in_array($userId, $followers));
+
         // Clean Data
         $commentObj->removeHard();
         $taskObj->removeHard();

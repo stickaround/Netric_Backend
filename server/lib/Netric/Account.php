@@ -218,7 +218,8 @@ class Account
         }
         elseif ($username) 
         {
-            // TODO: query based on username    
+            // TODO: query based on username
+            throw new \RuntimeException("Loading a user by username is not yet supported");
         }
                 
         // Get anonymous user
@@ -235,5 +236,32 @@ class Account
     public function setAccountUserEmail($username, $emailAddress)
     {
         return $this->application->setAccountUserEmail($this->getId(), $username, $emailAddress);
+    }
+
+    /**
+     * Get the url for this account
+     *
+     * @param bool $includeProtocol If true prepend the default protocol
+     * @return string A url like https://aereus.netric.com
+     */
+    public function getAccountUrl($includeProtocol = true)
+    {
+        // Get application config
+        $config = $this->getServiceManager()->get("Config");
+
+        // Initialize return value
+        $url = "";
+
+        // Prepend protocol
+        if ($includeProtocol)
+            $url .= ($config->force_https) ? "https://" : "http://";
+
+        // Add account third level
+        $url .= $this->name . ".";
+
+        // Add the rest of the domain name
+        $url .= $config->localhost_root;
+
+        return $url;
     }
 }

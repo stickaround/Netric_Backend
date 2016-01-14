@@ -283,7 +283,16 @@ class Entity implements \Netric\Entity\EntityInterface
         $this->values[$strName][] = $value;
 
         if ($valueName)
+        {
+            // Make sure we initialize the arrays if not already set
+            if (!isset($this->fkeysValues[$strName]))
+                $this->fkeysValues[$strName] = array();
+
+            if (!isset($this->fkeysValues[$strName][$value]))
+                $this->fkeysValues[$strName][$value] = array();
+
             $this->fkeysValues[$strName][$value] = $valueName;
+        }
 
         // Log changes
         $this->logFieldChanges($strName, $this->values[$strName], $oldval, $oldvalName);
@@ -545,6 +554,9 @@ class Entity implements \Netric\Entity\EntityInterface
                 }
             }
         }
+
+        // Update or add followers based on changes to fields
+        $this->updateFollowers();
 
 		// Call derived extensions
 		$this->onBeforeSave($sm);
@@ -861,6 +873,43 @@ class Entity implements \Netric\Entity\EntityInterface
     }
 
     /**
+     * Extract object references from text
+     *
+     * Object references are stored in the form [<obj_type>:<id>:<name>]
+     * and can be placed in any text.
+     *
+     * @param string $text The text to get refrence tags from
+     * @return array(array("obj_type"=>type, "id"=>id, "name"=>name))
+     */
+    static public function getTaggedObjRef($text)
+    {
+        $taggedReferences = array();
+
+        $matches = array();
+        // Extract all [<obj_type>:<id>:<name>] tags from string
+        preg_match_all('/\[([a-z_]+)\:(.*?)\:(.*?)\]/u', $text, $matches);
+
+        // $matches = array(array('full_matches'), array('obj_type'), array('id'), array('name'))
+        $numMatches = count($matches[0]);
+
+        // Loop through each match index and set the object reference
+        for ($i = 0; $i < $numMatches; $i++)
+        {
+            // Each variables is parsed into three parts above, 1=obj_type, 2=id, and 3=name
+            if ($matches[1][$i] && $matches[2][$i] && $matches[3][$i])
+            {
+                $taggedReferences[] = array(
+                    "obj_type" => $matches[1][$i],
+                    "id" => $matches[2][$i],
+                    "name" => $matches[3][$i],
+                );
+            }
+        }
+
+        return $taggedReferences;
+    }
+
+    /**
      * Get the encoded object reference for this entity
      *
      * @param bool $includeName If true then name will be encoded with the reference
@@ -907,8 +956,6 @@ class Entity implements \Netric\Entity\EntityInterface
 							// Check to see if the file is a temp file
 							if ($file)
 							{
-                                $fileFolder = $fileSystem->openFolderById($file->getValue("folder_id"));
-                                $tempFolder = $fileSystem->openFolder("%tmp%");
 								if ($fileSystem->fileIsTemp($file))
 								{
 									// Move file to a permanent directory
@@ -969,5 +1016,98 @@ class Entity implements \Netric\Entity\EntityInterface
         }
 
         $this->setValue("num_comments", $cur);
+    }
+
+    /**
+     * Add interested users to the list of followers for this entity
+     *
+     * Interested users are any users attached via a field where type='object'
+     * and subtype='user' or tagged in a text field with [user:<id>:<name>].
+     */
+    private function updateFollowers()
+    {
+        $fields = $this->getDefinition()->getfields();
+
+        foreach ($fields as $field)
+        {
+            switch ($field->type)
+            {
+            case 'text':
+                // Check if any text fields are tagging users
+                $tagged = self::getTaggedObjRef($this->getValue($field->name));
+                foreach ($tagged as $objRef)
+                {
+                    if ($objRef['obj_type'] === 'user' && $objRef['id'])
+                    {
+                        $this->addMultiValue("followers", (int)$objRef['id'], $objRef['name']);
+                    }
+                }
+                break;
+
+            case 'object':
+            case 'object_multi':
+                // Check if any fields are referencing users
+                if ($field->subtype === "user")
+                {
+                    $value = $this->getValue($field->name);
+
+                    if (is_array($value))
+                    {
+                        foreach ($value as $entityId)
+                        {
+                            $this->addMultiValue(
+                                "followers",
+                                $entityId,
+                                $this->getValueName($field->name, $entityId)
+                            );
+                        }
+                    }
+                    else if ($value)
+                    {
+                        $this->addMultiValue(
+                            "followers",
+                            $value,
+                            $this->getValueName($field->name, $value)
+                        );
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * Synchronize followers between this entity and another
+     *
+     * This is useful for entities such as comments where it is common to
+     * add new followers to the comment (through tagging like [user:123:Test])
+     * and then make sure the comment also notifies any followers of the entity
+     * being commented on (like a task).
+     *
+     * Note, this does not save changes to either entity so that is something
+     * that needs to be done after calling this function.
+     *
+     * @param EntityInterface $otherEntity The entity we are synchronizing with
+     */
+    public function syncFollowers(EntityInterface $otherEntity)
+    {
+        // First copy all followers from the entity we've commented on
+        $entityFollowers = $otherEntity->getValue("followers");
+        foreach ($entityFollowers as $uid)
+        {
+            $userName = $otherEntity->getValueName("followers", $uid);
+
+            // addMultiValue will prevent duplicates so we just add them all
+            $this->addMultiValue("followers", $uid, $userName);
+        }
+
+        // Now add any new followers from this comment to follow the entity we've commented on
+        $commentFollowers = $this->getValue("followers");
+        foreach ($commentFollowers as $uid)
+        {
+            $userName = $this->getValueName("followers", $uid);
+
+            $otherEntity->addMultiValue("followers", $uid, $userName);
+        }
     }
 }

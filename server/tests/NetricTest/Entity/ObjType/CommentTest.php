@@ -75,17 +75,33 @@ class CommentTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * When we add a comment to an entity, the referenced entity has a num_comments field that is updated
+     * Entity followers are synchronized with the comment followers
      *
-    public function testHasCommetsOnReferencedEntity()
+     * This makes sure that all interested parties are notified when we add
+     * a new comment to an entity.
+     */
+    public function testSyncFollowers()
     {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $customer = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
         $comment = $this->account->getServiceManager()->get("EntityFactory")->create("comment");
 
-        // onBeforeSave copies obj_reference to the 'associations' field
-        $entity->setValue("obj_reference", "customer:123", "Fake Customer Name");
-        $entity->onBeforeSave($this->account->getServiceManager());
+        // Save customer with a fake user callout for testing
+        $customer->setValue("name", "test sync followers");
+        $customer->setValue("notes", "Hey [user:456:Dave], check this out please.");
+        $cid = $entityLoader->save($customer);
 
-        $this->assertEquals("Fake Customer Name", $entity->getValueName("associations", "customer:123"));
-    }*/
+        // Now create a comment on the customer which should sync the followers
+        $comment->setValue("obj_reference", "customer:" . $cid, $customer->getName());
+        $comment->setValue("comment", "Test Comment");
+        $entityLoader->save($comment);
+
+        // Check to make sure the comment has user 456 as a follower copied from customer
+        $followers = $comment->getValue("followers");
+        $this->assertTrue(in_array(456, $followers));
+
+        // Cleanup
+        $entityLoader->delete($comment, true);
+        $entityLoader->delete($customer, true);
+    }
 }

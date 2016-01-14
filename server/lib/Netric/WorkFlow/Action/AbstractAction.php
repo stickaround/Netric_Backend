@@ -118,7 +118,7 @@ abstract class AbstractAction implements ErrorAwareInterface
     /**
      * Execute this action
      *
-     * @param WorkFlowInstance $workflowInstance The workflow instance we are executing in
+     * @param WorkFlowInstance $workFlowInstance The workflow instance we are executing in
      * @return bool true on success, false on failure
      */
     abstract public function execute(WorkFlowInstance $workFlowInstance);

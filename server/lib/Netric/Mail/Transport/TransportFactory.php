@@ -10,7 +10,7 @@ use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\ServiceManager\ServiceFactoryInterface;
 
 /**
- * Create a new Transport service based on account settings
+ * Create the default SMTP transport
  */
 class TransportFactory implements ServiceFactoryInterface
 {
@@ -19,9 +19,37 @@ class TransportFactory implements ServiceFactoryInterface
      *
      * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
      * @return TransportInterface
+     * @throws Exception\InvalidArgumentException if a transport could not be created
      */
     public function createService(ServiceLocatorInterface $serviceManager)
     {
-        // TODO: return type of transport to use for this account
+        // Get the required method
+        $config = $serviceManager->get("Config");
+        $transportMode = $config->email['mode'];
+
+        // Create transport variable to set
+        $transport = null;
+
+        /*
+         * If email is being suppressed via a config param, then return InMemory transport
+         * so we do not try to send out emails in a development/test environment.
+         */
+        if ($config->email['supress'])
+        {
+            return new InMemory();
+        }
+
+        // Call the factory to return simple transports
+        switch ($transportMode)
+        {
+            case 'smtp':
+                return $serviceManager->get("Netric/Mail/Transport/Smtp");
+            case 'in-memory':
+                return new InMemory();
+            case 'sendmail':
+                return new Sendmail();
+        }
+
+        throw new Exception\InvalidArgumentException("No transport for method " . $transportMode);
     }
 }
