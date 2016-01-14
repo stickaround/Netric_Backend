@@ -1,7 +1,10 @@
-'use strict';
+"use strict";
 
 var Definition = require("../../../js/entity/Definition");
 var Entity = require("../../../js/entity/Entity");
+var Account = require("../../../js/account/Account");
+var Application = require("../../../js/Application");
+var netric = require("../../../js/main");
 
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests
@@ -148,9 +151,9 @@ describe("Get and Set Entity Values", function() {
 	});
 
 	it("should getData for string fields", function() {
-		entity.setValue('name', 'test');
+		entity.setValue("name", "test");
 		var data = entity.getData();
-		expect(data.name).toEqual('test');
+		expect(data.name).toEqual("test");
 	});
 
 	it("should getData for *_multi fields", function() {
@@ -163,5 +166,117 @@ describe("Get and Set Entity Values", function() {
 		var expRet = {};
 		expRet[catId] = catName;
 		expect(data.categories_fval).toEqual(expRet);
+	});
+});
+
+/**
+ * Test setting of default values
+ */
+describe("Set default values for new entities", function() {
+	var entity = null;
+
+	// Setup test entity
+	beforeEach(function() {
+		var definition = new Definition({
+			obj_type: "test",
+			title: "Test Object",
+			id: "", // Id is blank to specify that we are creating a new entity
+			fields: [
+				{
+					"id" : 1,
+					"name" : "owner_id",
+					"title" : "Owner",
+					"type" : "object",
+					"subtype" : "user",
+					"default_val" : {
+						on: "create",
+						value: -3
+					},
+				},
+				{
+					"id" : 1,
+					"name" : "creator_id",
+					"title" : "Creator",
+					"type" : "object",
+					"subtype" : "user",
+					"default_val" : {
+						on: "null",
+						value: -3
+					},
+				},
+				{
+					"id" : 2,
+					"name" : "project_id",
+					"title" : "Project",
+					"type" : "object",
+					"subtype" : "project",
+					"default_val" : null,
+				}
+			]
+		});
+		entity = new Entity(definition);
+	});
+
+	it("should be able to set default values using the 'create' event name", function() {
+
+		// Set default values for the entity
+		entity.setDefaultValues("create");
+
+		// owner_id should have the default value
+		expect(entity.getValue("owner_id")).toEqual(-3);
+
+		// since the default.on for creator_id is null, then it cannot set the default value
+		expect(entity.getValue("creator_id")).toBe(null);
+
+		// since we did not specify a default value, this should be null
+		expect(entity.getValue("project_id")).toBe(null);
+	});
+
+	it("should be able to set default values using the 'null' event name", function() {
+
+		// Set default values for the entity
+		entity.setDefaultValues("null");
+
+		// since the default.on for owner_id is 'create', then it cannot set the default value
+		expect(entity.getValue("owner_id")).toBe(null);
+
+		// creator_id should have the default value
+		expect(entity.getValue("creator_id")).toEqual(-3);
+
+		// since we did not specify a default value, this should be null
+		expect(entity.getValue("project_id")).toBe(null);
+	});
+
+	it("should be able to set default values from defaultData source", function() {
+
+		var project = "Test Project";
+		var projectId = 1;
+
+		var defaultData = {
+			project_id: projectId,
+			project_id_val: project,
+		};
+
+		// Set default values for the entity from source
+		entity.setDefaultValues("create", defaultData);
+
+		// project_id should be updated using the default data
+		expect(entity.getValue("project_id")).toEqual(projectId);
+		expect(entity.getValueName("project_id")).toEqual(project);
+		expect(entity.getValueName("project_id", projectId)).toEqual(project);
+
+		// owner_id should have the default value
+		expect(entity.getValue("owner_id")).toEqual(-3);
+	});
+
+	it("should NOT be able to set default values", function() {
+
+		entity.setValue("owner_id", 1);
+
+		// Try to set default values for the entity using the 'update' event name
+		entity.setDefaultValues("update");
+
+		// since we set the value for owner_id, it should have 1 instead of the default value
+		expect(entity.getValue("owner_id")).toEqual(1);
 	});
 });

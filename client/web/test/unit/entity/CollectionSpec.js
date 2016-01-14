@@ -9,11 +9,11 @@ var netric = require("../../../js/main");
 describe("Entity Collection", function() {
 
     /*
-    // Setup test entity
-    beforeEach(function() {
+     // Setup test entity
+     beforeEach(function() {
 
-    });
-    */
+     });
+     */
 
     it("can take andWhere conditions", function() {
         var collection = new EntityCollection("customer");
@@ -84,14 +84,14 @@ describe("Entity Collection Loading Asynchronously", function() {
     });
 
     /*
-    it("Should have cached the definition object", function(done) {
+     it("Should have cached the definition object", function(done) {
 
-        // Check the private definitions_ property of the loader
-        expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
-        expect(netric.entity.definitionLoader.getCached("customer")).not.toBeNull();
-        done();
+     // Check the private definitions_ property of the loader
+     expect(netric.entity.definitionLoader.definitions_["customer"]).not.toBeNull();
+     expect(netric.entity.definitionLoader.getCached("customer")).not.toBeNull();
+     done();
 
-    });
-    */
+     });
+     */
 
 });

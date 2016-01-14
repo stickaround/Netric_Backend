@@ -9,7 +9,9 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var CustomEventTrigger = require("../../mixins/CustomEventTrigger.jsx");
+var CustomEventListen = require("../../mixins/CustomEventListen.jsx");
 var controller = require("../../../controller/controller");
+var netric = require("../../../base");
 var Device = require("../../../Device");
 var Where = require("../../../entity/Where");
 
@@ -28,48 +30,70 @@ var _minimumInlineDeviceSize = Device.sizes.large;
  */
 var Objectsref = React.createClass({
 
-    mixins: [CustomEventTrigger],
+    mixins: [CustomEventTrigger, CustomEventListen],
 
     getInitialState: function () {
+
+        // Return the initial state
         return {
-            entityController: null,
-            entityId: this.props.entity.id
-        }
+            entityController: null
+        };
     },
 
     /**
      * Render the browser after the component mounts
      */
-    componentDidMount: function() {
-        this._loadEntities();
-    },
+    componentDidMount: function () {
+        if (this.props.entity.id) {
+            this._loadEntities();
+        }
 
-    /**
-     * Invoked immediately after the component's updates are flushed to the DOM.
-     *
-     * This method is not called for the initial render and we use it to check if
-     * the id has changed - meaning a new entity was saved.
-     */
-    componentDidUpdate: function () {
-        this._loadEntities();
+        var func = function () {
+            this._loadEntities();
+        }.bind(this);
+
+        this.listenCustomEvent("entityClose", func);
     },
 
     /**
      * Render the component
      */
-    render: function() {
+    render: function () {
 
-    	return (
-            <div ref="bcon"></div>
+        var note = null;
+        if (!this.props.entity.id) {
+            note = "Please save changes to view more details.";
+        }
+
+        return (
+            <div ref="bcon">{note}</div>
         );
-        
     },
 
     /**
-     * Trigger a custom event to send back to the entity controller 
+     * Trigger a custom event to send back to the entity controller
      */
-    sendEntityClickEvent_: function(objType, oid) {
-        this.triggerCustomEvent("entityclick", {objType:objType, id:oid});
+    _sendEntityClickEvent: function (objType, oid) {
+        this.triggerCustomEvent("entityclick", {objType: objType, id: oid});
+    },
+
+    /**
+     * Trigger a create new entity event to send back to the entity controller
+     */
+    _createNewEntity: function () {
+        var xmlNode = this.props.xmlNode;
+        var objType = xmlNode.getAttribute('obj_type');
+        var entityName = this.props.entity.getValue('name');
+        var refField = xmlNode.getAttribute('ref_field');
+        var params = [];
+
+        // If we have refField is set, then add it in the query parameters
+        if (refField) {
+            params[refField] = this.props.entity.id;
+            params[refField + '_val'] = encodeURIComponent(entityName);
+        }
+
+        this.triggerCustomEvent("entitycreatenew", {objType: objType, params: params});
     },
 
     /**
@@ -79,53 +103,67 @@ var Objectsref = React.createClass({
      */
     _loadEntities: function () {
 
-        // Only load comments if this device displays inline comments (size > medium)
+        // Only load object reference if this device displays inline browsers (size > medium)
         if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
             return;
         }
 
-        // We only display comments if workign with an actual entity
+        // We only referenced entities if working with an existing entity
         if (!this.props.entity.id) {
             return;
         }
 
-        // Check if we have already loaded the controller
+        var xmlNode = this.props.xmlNode;
+        var objType = xmlNode.getAttribute('obj_type');
+        var refField = xmlNode.getAttribute('ref_field');
+
+        // Check if we have already loaded the entity browser controller for this specific objType
         if (this.state.entityController) {
+
             // Just refresh the results and return
             this.state.entityController.refresh();
             return;
         }
 
-        // Require EntityBrowserController here so we do not risk a circular dependency
-        var EntityBrowserController = require("../../../controller/EntityBrowserController");
+        // Add filter to reference the current entity
+        var filters = [];
+        if (refField) {
 
-        var xmlNode = this.props.xmlNode;
-        var name = xmlNode.getAttribute('name');
-        var objType = xmlNode.getAttribute('obj_type');
-        var refField = xmlNode.getAttribute('ref_field');
+            // Create a filter reference
+            var whereCond = new Where(refField);
+            whereCond.equalTo(this.props.entity.id);
 
-        var whereCond = new Where(refField);
-        whereCond.equalTo(this.props.entity.id);
+            filters.push(whereCond);
+        }
 
         var data = {
             type: controller.types.FRAGMENT,
-            hideToolbar: true,
+            hideToolbar: false,
+            toolbarMode: 'toolbar',
             objType: objType,
-            filters: [ whereCond ],
-            eventsObj: this.props.eventsObj,
-            onEntityClick: function(objType, oid) {
-                this.sendEntityClickEvent_(objType, oid);
+            filters: filters,
+            onEntityClick: function (objType, oid) {
+                this._sendEntityClickEvent(objType, oid);
+            }.bind(this),
+            onCreateNewEntity: function () {
+                this._createNewEntity();
             }.bind(this)
         }
 
-        // Add filter for to reference current entity
-        data[refField] = this.props.entity.getValue(refField);
+        // Add filter to reference current entity
+        data[refField] = this.props.entity.id;
+
+        // Require EntityBrowserController here so we do not risk a circular dependency
+        var EntityBrowserController = require("../../../controller/EntityBrowserController");
 
         // Create browser and render
         var browser = new EntityBrowserController();
         browser.load(data, ReactDOM.findDOMNode(this.refs.bcon));
 
-        this.setState({entityController: browser});
+        // Update the state objects
+        this.setState({
+            entityController: browser
+        });
     }
 
 });

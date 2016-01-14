@@ -189,8 +189,9 @@ Field.types = {
  */
 Field.prototype.getDefault = function(on)
 {
-	if (!this.defaultVal)
+	if (!this.defaultVal) {
 		return "";
+	}
 
 	if (this.defaultVal.on == on)
 	{

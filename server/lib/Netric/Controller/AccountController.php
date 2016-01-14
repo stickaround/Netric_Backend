@@ -67,6 +67,21 @@ class AccountController extends Mvc\AbstractController
 						"icon" => "list-ul",
 						"browseby" => "groups",
 					),
+					array(
+						"title" => "New Project",
+						"type" => "entity",
+						"route" => "new-project",
+						"objType" => "project",
+						"icon" => "plus",
+					),
+					array(
+						"title" => "All Projects",
+						"type" => "browse",
+						"route" => "all-projects",
+						"objType" => "project",
+						"icon" => "list-ul",
+						"browseby" => "groups",
+					),
 				),
 			),
 		);

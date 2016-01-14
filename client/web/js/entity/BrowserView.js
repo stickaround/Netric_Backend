@@ -186,19 +186,19 @@ BrowserView.prototype.getData = function() {
         scope: this.scope,
         filter_key: this.filterKey,
     };
-    
+
     // Table Columns data
     data.table_columns = [];
     for (var idx in this.tableColumns_) {
         data.table_columns.push(this.tableColumns_[idx]);
     }
-    
+
     // Conditions data
     data.conditions = [];
     for (var idx in this.conditions_) {
         data.conditions.push(this.conditions_[idx].toData());
     }
-    
+
     // Order By data
     data.order_by = [];
     for (var idx in this.orderBy_) {
@@ -207,7 +207,7 @@ BrowserView.prototype.getData = function() {
             direction: this.orderBy_[idx].direction
         });
     }
-    
+
     return data;
 }
 
@@ -218,7 +218,7 @@ BrowserView.prototype.getData = function() {
  * @public
  */
 BrowserView.prototype.addCondition = function(fieldName) {
-    
+
     // We do not need to specify the bLogic, operator and value since this will be set by the user in the Advanced Search
     var condition = new Where(fieldName);
     this.conditions_.push(condition);
@@ -228,7 +228,7 @@ BrowserView.prototype.addCondition = function(fieldName) {
  * Removes the condition based on the index provided
  *
  * @param {int} index       The index of the condition that will be removed
- * @return {Where[]}  
+ * @return {Where[]}
  * @public
  */
 BrowserView.prototype.removeCondition = function(index) {
@@ -261,7 +261,7 @@ BrowserView.prototype.addOrderBy = function(fieldName, direction) {
 /**
  * Removes the orderBy based on the index provided
  *
- * @param {int} index       The index of the orderBy that will be removed  
+ * @param {int} index       The index of the orderBy that will be removed
  * @public
  */
 BrowserView.prototype.removeOrderBy = function(index) {
@@ -291,7 +291,7 @@ BrowserView.prototype.addTableColumn = function(fieldName) {
  * Removes the column based on the index provided
  *
  * @param {string} fieldName    Column name that will be saved based on the index provided
- * @param {int} index           The index of column that will be removed  
+ * @param {int} index           The index of column that will be removed
  * @public
  */
 BrowserView.prototype.updateTableColumn = function(fieldName, index) {
@@ -301,7 +301,7 @@ BrowserView.prototype.updateTableColumn = function(fieldName, index) {
 /**
  * Removes the column based on the index provided
  *
- * @param {int} index       The index of column that will be removed  
+ * @param {int} index       The index of column that will be removed
  * @public
  */
 BrowserView.prototype.removeTableColumn = function(index) {

@@ -64,7 +64,7 @@ var UiXmlElement = React.createClass({
                     var label = childNode.getAttribute('name');
 
                     childElements.push(
-                        <Tab label={label}>
+                        <Tab key={i} label={label}>
                             <UiXmlElement
                                 key={i}
                                 xmlNode={childNode}
