@@ -36,8 +36,8 @@ var ObjectField = React.createClass({
             // Used if valueName was not set for the field value
             valueLabel: "",
             objects: null,
-            subType: null,
-            subTypeIndex: 0
+            subtype: null,
+            subtypeIndex: 0
         });
     },
 
@@ -85,6 +85,7 @@ var ObjectField = React.createClass({
             valueLabel = "Loading...";
         }
 
+        var fieldSubtype = field.subtype || this.state.subtype;
         var objectsDropdown = null;
 
         // If we have a loaded objects, then lets display it in a dropdown menu
@@ -99,8 +100,13 @@ var ObjectField = React.createClass({
 
             objectsDropdown = (<DropDownMenu
                 menuItems={objectMenu}
-                selectedIndex={this.state.subTypeIndex}
+                selectedIndex={this.state.subtypeIndex}
                 onChange={this._handleObjectsMenuSelect}/>);
+
+            // If we have a null subtype, then lets assign a default 1 (needed for the first loading)
+            if(!fieldSubtype) {
+                fieldSubtype = objectMenu[0].objType;
+            }
         }
 
         if (this.props.editMode) {
@@ -118,7 +124,7 @@ var ObjectField = React.createClass({
                             value={fieldValue}
                             label={valueLabel}
                             field={field}
-                            subtype={this.state.subType}
+                            subtype={fieldSubtype}
                             />
                     </div>
                 </div>
@@ -170,8 +176,8 @@ var ObjectField = React.createClass({
     _handleObjectsMenuSelect: function(e, key, menuItem) {
 
         this.setState({
-            subType: menuItem.objType,
-            subTypeIndex: key
+            subtype: menuItem.objType,
+            subtypeIndex: key
         });
     }
 });
