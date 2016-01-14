@@ -365,4 +365,26 @@ class EntityController extends Mvc\AbstractController
             return $this->sendOutput(array("error"=>"No groupings found for specified obj_type and field"));
         }
     }
+
+    /**
+     * Get the entity objects
+     *
+     */
+    public function getObjects()
+    {
+        // Get the service manager and current user
+        $serviceManager = $this->account->getServiceManager();
+        $user = $this->account->getUser();
+
+        // Load the entity definition
+        $loader = $serviceManager->get("EntityDefinitionLoader");
+        $objects = $loader->getObjects();
+
+        if (!$objects)
+        {
+            return $this->sendOutput(array("Objects could not be loaded"));
+        }
+
+        return $this->sendOutput($objects);
+    }
 }

@@ -1475,4 +1475,31 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 		if (!$dbh->getNumRows($dbh->query("select id from application_objects where application_id='$applicatoinId' and object_type_id='$otid'")))
 			$dbh->query("insert into application_objects(application_id, object_type_id) values('$applicatoinId', '$otid');");
 	}
+
+	/**
+	 * Get the entity objects
+	 *
+	 * @return array Collection of objects
+	 */
+	public function getObjects() {
+		$dbh = $this->dbh;
+		$result = $dbh->query("select name, title, object_table, f_system from app_object_types order by title");
+
+		$num = $dbh->getNumRows($result);
+		$ret = array();
+		for ($i = 0; $i < $num; $i++)
+		{
+			$row = $dbh->getRow($result, $i);
+
+			// Object Definition
+			$ret[] = array(
+				'obj_type' => $row['name'],
+				'title' => $row['title'],
+				'object_table' => $row['object_table'],
+				'f_system' => $row['f_system']
+			);
+		}
+
+		return $ret;
+	}
 }

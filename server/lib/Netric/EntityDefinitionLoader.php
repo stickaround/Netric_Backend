@@ -399,4 +399,26 @@ class EntityDefinitionLoader
 
 		return $html;
 	}
+
+	/**
+	 * Load Objects
+	 *
+	 * @return array	Collection of objects
+	 */
+	public function getObjects()
+	{
+		// First try to load the objects from cache
+		$objects = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/objects");
+
+		// No cache, then load objects from dataMapper
+		if (!$objects)
+		{
+			$objects = $this->dataMapper->getObjects();
+
+			// Cache the loaded objects for future requests
+			$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/objects", $objects);
+		}
+
+		return $objects;
+	}
 }
