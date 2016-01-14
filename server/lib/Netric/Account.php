@@ -218,7 +218,8 @@ class Account
         }
         elseif ($username) 
         {
-            // TODO: query based on username    
+            // TODO: query based on username
+            throw new \RuntimeException("Loading a user by username is not yet supported");
         }
                 
         // Get anonymous user

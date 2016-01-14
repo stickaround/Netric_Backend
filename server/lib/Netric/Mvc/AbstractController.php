@@ -102,6 +102,8 @@ abstract class AbstractController
 	 */
 	protected function sendOutput($data)
 	{
+		$data = $this->utf8Converter($data);
+
         switch ($this->output)
         {
         case 'xml':
@@ -289,5 +291,25 @@ abstract class AbstractController
 	{
 		return str_replace(array("&", "<", ">", "\"", "'"),
 						   array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"), $string);
+	}
+
+	/**
+	 * Recursively convert strings in array to UTF-8
+	 *
+	 * @param array $array
+	 * @return array
+	 */
+	private function utf8Converter($array)
+	{
+        if (!is_array($array))
+            return $array;
+
+		array_walk_recursive($array, function(&$item, $key){
+			if(!mb_detect_encoding($item, 'utf-8', true)){
+				$item = utf8_encode($item);
+			}
+		});
+
+		return $array;
 	}
 }

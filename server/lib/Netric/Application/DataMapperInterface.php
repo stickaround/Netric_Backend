@@ -61,4 +61,20 @@ interface DataMapperInterface
      * @return bool true on success, false on failure
      */
     public function setAccountUserEmail($accountId, $username, $emailAddress);
+
+    /**
+     * Adds an account to the database
+     *
+     * @param string $name A unique name for this account
+     * @return int Unique id of the created account
+     */
+    public function createAccount($name);
+
+    /**
+     * Delete an account by id
+     *
+     * @param $accountId
+     * @return bool true on success, false on failure - call getLastError for details
+     */
+    public function deleteAccount($accountId);
 }

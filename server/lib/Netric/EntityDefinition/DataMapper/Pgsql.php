@@ -81,6 +81,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 		$dbh = $this->dbh;
 		$def = new \Netric\EntityDefinition($objType);
 
+
 		// Get basic object definition
 		// ------------------------------------------------------
 		$result = $dbh->query("select id, object_table, revision, title, object_table, f_system
@@ -101,13 +102,18 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 				$this->save($def);
 		}
 
-		// Get field definitions
+        // Make sure this a valid definition
+        if (!$def->getId())
+            throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $dbh->getSchema() . " - " . $dbh->getValue($dbh->query("SHOW search_path;"), 0, "search_path"));
+
+
+        // Get field definitions
 		// ------------------------------------------------------
 		$sql = "select * from app_object_type_fields where " .
-               "type_id='" . $def->id . "' order by title";
+               "type_id='" . $def->getId() . "' order by title";
         $result = $dbh->query($sql);
 		if (!$result)
-			throw new \Exception('Could not pull type fields from db for ' . $objType . ":" . $dbh->getLastError());
+			throw new \Exception('Could not pull type fields from db for ' . $this->getAccount()->getName() . ":" . $objType . ":" . $dbh->getLastError());
 
 		for ($i = 0; $i < $dbh->getNumRows($result); $i++)
 		{

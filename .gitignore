@@ -36,9 +36,6 @@ Thumbs.db
 /.buildpath
 /.project
 
-# Ignore the server data directory
-server/data/
-
 
 # Vagrant files #
 ######################
@@ -47,4 +44,3 @@ server/data/
 # Composer *
 #################
 composer.lock
-

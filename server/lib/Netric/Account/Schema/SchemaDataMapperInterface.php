@@ -1,25 +1,22 @@
 <?php
 /**
- * Interface for DataMappers that will handle schema creation and updates
- *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
+ * @copyright Copyright (c) 2015-2016 Aereus Corporation (http://www.aereus.com)
  */
 namespace Netric\Account\Schema;
 
-interface SchemaDataMapperInterface
+use Netric\Error\ErrorAwareInterface;
+
+/**
+ * Interface for DataMappers that will handle schema creation and updates
+ */
+interface SchemaDataMapperInterface extends ErrorAwareInterface
 {
 	/**
-	 * Create the initial schema
-	 * 
-	 * @param array $schema The schema defintion array
-	 */
-	public function create(array $schemaDef);
-
-	/**
-	 * Update an existing schema to match the definition
+	 * Update or create a schema for an account
 	 *
-	 * @param array $schema The schema defintion array
+     * @param int $accountId The account ID we are creating
+     * @return bool true on success, false on failure
 	 */
-	public function update(array $schemaDef);
+	public function update($accountId);
 }

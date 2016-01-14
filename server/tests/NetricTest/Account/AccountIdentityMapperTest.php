@@ -6,6 +6,8 @@ namespace NetricTest\Account;
 
 use Netric;
 use PHPUnit_Framework_TestCase;
+use Netric\Application\DataMapperInterface;
+use Netric\Account;
 
 class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
 {
@@ -29,6 +31,13 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
     private $cache = null;
 
     /**
+     * Application datamapper
+     *
+     * @var DataMapperInterface
+     */
+    private $dataMapper = null;
+
+    /**
      * Setup each test
      */
     protected function setUp()
@@ -36,9 +45,9 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         $this->cache = $this->account->getServiceManager()->get("Cache");
-        $dataMapper = $this->account->getServiceManager()->get("Application_DataMapper");
+        $this->dataMapper = $this->account->getServiceManager()->get("Application_DataMapper");
 
-        $this->mapper = new Netric\Account\AccountIdentityMapper($dataMapper, $this->cache);
+        $this->mapper = new Netric\Account\AccountIdentityMapper($this->dataMapper, $this->cache);
     }
 
     public function testLoadById()
@@ -130,5 +139,61 @@ class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
         $propNameToIdMap->setValue($this->mapper, null);
         $testAccount = $this->mapper->loadByName($this->account->getName(), $application);
         $this->assertEquals($this->account->getId(), $testAccount->getId());
+    }
+
+    public function testDeleteAccount()
+    {
+        $application = $this->account->getApplication();
+
+        // Make sure we don't have a test account left over from past failures
+        $deleteAccount = new Account($application);
+        if ($this->dataMapper->getAccountByName("unit_test_im", $deleteAccount))
+            $this->mapper->deleteAccount($deleteAccount);
+
+        // Create a test account directly in the database
+        $accountId = $this->dataMapper->createAccount("unit_test_im");
+
+        // Load the test account (this will cache it)
+        $testAccount = $this->mapper->loadById($accountId, $application);
+
+        // Re-load by name which will cache the name-to-id maps
+        $testAccountAgain = $this->mapper->loadByName($testAccount->getName(), $application);
+
+        // Now delete the account which should purge all caches
+        $this->assertTrue($this->mapper->deleteAccount($testAccount));
+
+        // Make sure loadFromCache returns false
+        $loadFromCache = new \ReflectionMethod($this->mapper, "loadFromCache");
+        $loadFromCache->setAccessible(true);
+        $args = array($testAccount->getId(), &$this->account);
+        $this->assertFalse($loadFromCache->invokeArgs($this->mapper, $args));
+
+        // Make sure loadFromMemory returns false
+        $loadFromMemory = new \ReflectionMethod($this->mapper, "loadFromMemory");
+        $loadFromMemory->setAccessible(true);
+        $this->assertFalse($loadFromMemory->invokeArgs($this->mapper, array($testAccount->getId())));
+
+        // Check local memory map for id to name
+        $propNameToIdMap = new \ReflectionProperty($this->mapper, "nameToIdMap");
+        $propNameToIdMap->setAccessible(true);
+        $vals = $propNameToIdMap->getValue($this->mapper);
+        $this->assertFalse(isset($vals[$this->account->getName()]));
+    }
+
+    public function testCreateAccount()
+    {
+        $application = $this->account->getApplication();
+
+        // Make sure we don't have a test account left over from past failures
+        $deleteAccount = new Account($application);
+        if ($this->dataMapper->getAccountByName("unit_test_im", $deleteAccount))
+            $this->mapper->deleteAccount($deleteAccount);
+
+        // Test creating a new account
+        $accountId = $this->mapper->createAccount('unit_test_im');
+        $this->assertNotEquals(0, $accountId);
+
+        // Cleanup
+        $this->dataMapper->deleteAccount($accountId);
     }
 }

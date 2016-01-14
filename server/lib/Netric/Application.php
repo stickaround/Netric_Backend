@@ -4,6 +4,9 @@
  */
 namespace Netric;
 
+use Netric\Application\Exception;
+use Netric\Application\Setup\Setup;
+
 class Application
 {
     /**
@@ -116,6 +119,25 @@ class Application
         return $account;
     }
 
+    /**
+     * Get all acounts for this application
+     *
+     * @return Account[]
+     */
+    public function getAccounts()
+    {
+        $config = $this->getConfig();
+        $accountsData = $this->dm->getAccounts($config->version);
+
+        $accounts = [];
+        foreach ($accountsData as $data)
+        {
+            $accounts[] = $this->accountsIdentityMapper->loadById($data['id'], $this);
+        }
+
+        return $accounts;
+    }
+
 
     /**
      * Get account and username from email address
@@ -212,13 +234,36 @@ class Application
      */
     public function createAccount($accountName, $adminUserName, $adminUserPassword)
     {
-        // TODO: 1. Add to system db
+        // Make sure the account does not already exists
+        if ($this->accountsIdentityMapper->loadByName($accountName, $this))
+        {
+            throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
+        }
 
-        // TODO: 2. Initialize with setup
+        // TODO: Check the account name is valid
+
+        // Create new account
+        $accountId = $this->accountsIdentityMapper->createAccount($accountName);
+
+        // Make sure the created account is valid
+        if (!$accountId)
+        {
+            throw new Exception\CouldNotCreateAccountException(
+                "Failed creating account " . $this->accountsIdentityMapper->getLastError()->getMessage()
+            );
+        }
+
+        // Load the newly created account
+        $account = $this->accountsIdentityMapper->loadById($accountId, $this);
+
+        // Initialize with setup
+        $setup = new Setup();
+        $setup->setupAccount($account, $adminUserName, $adminUserPassword);
 
         // TODO: 3. Change status to active
 
-        // TODO: 4. Return new account and cache locally
+        // Return the new account
+        return $account;
     }
 
     /**
@@ -236,6 +281,26 @@ class Application
         // TODO: Use Setup class to update and get the revision
 
         // TODO: Return the revision
+    }
+
+    /**
+     * Delete an account by name
+     *
+     * @param string $accountName The unique name of the account to delete
+     * @return bool on success, false on failure
+     */
+    public function deleteAccount($accountName)
+    {
+        // Get account by name
+        $account = $this->getAccount(null, $accountName);
+
+        // Delete the account if it is valid
+        if ($account->getId())
+        {
+            return $this->accountsIdentityMapper->deleteAccount($account);
+        }
+
+        return false;
     }
     
     /**

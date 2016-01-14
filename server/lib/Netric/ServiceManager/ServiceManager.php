@@ -333,7 +333,8 @@ class ServiceManager implements ServiceLocatorInterface
 	{
 		$dm = $this->get("Entity_DataMapper");
 		$definitionLoader = $this->get("EntityDefinitionLoader");
-		$loader = Netric\EntityLoader::getInstance($dm, $definitionLoader);
+
+		$loader = new Netric\EntityLoader($dm, $definitionLoader);
 		return $loader;
 	}
 
