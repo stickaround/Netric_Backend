@@ -60,7 +60,7 @@ var ObjectField = React.createClass({
                 this.setState({objects: objects});
             }.bind(this);
 
-            objectsLoader.load(func);
+            objectsLoader.get(func);
         }
     },
 

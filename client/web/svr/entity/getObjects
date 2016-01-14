@@ -1,0 +1,12 @@
+[{
+    "obj_type":"activity",
+    "title":"Activity",
+    "object_table":null,
+    "f_system":"t"
+},
+{
+    "obj_type":"approval",
+    "title":"Approval Request",
+    "object_table":"workflow_approvals",
+    "f_system":"t"
+}]

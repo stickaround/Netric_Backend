@@ -66,7 +66,7 @@ describe("Get Definition Asynchronously", function() {
 });
 
 /**
- * Check to make sure expected public varibles are set
+ * Test loading definitions Non Asynchronously and make sure it gets cached for future requests
  */
 describe("Get Definition Non Async", function() {
 

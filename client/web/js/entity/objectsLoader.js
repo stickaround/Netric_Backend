@@ -15,6 +15,14 @@ var log = require("../log");
 var objectsLoader = {};
 
 /**
+ * Keep a reference to loaded objects to reduce requests
+ *
+ * @private
+ * @param {Array}
+ */
+objectsLoader._objects = null;
+
+/**
  * Load the entity objects
  *
  * @param {function} cbLoaded Callback function once definition is loaded
@@ -22,8 +30,19 @@ var objectsLoader = {};
  *
  * @public
  */
-objectsLoader.load = function (cbLoaded) {
+objectsLoader.get = function (cbLoaded) {
 
+    // Return (or callback callback) cached object if already loaded
+    if (objectsLoader._objects) {
+
+        if (cbLoaded) {
+            cbLoaded(objectsLoader._objects);
+        }
+
+        return objectsLoader._objects;
+    }
+
+    // Create an instance of BackendRequest
     var request = new BackendRequest();
 
     // Log errors
@@ -33,8 +52,8 @@ objectsLoader.load = function (cbLoaded) {
 
     if (cbLoaded) {
         alib.events.listen(request, "load", function (evt) {
-            var objects = this.getResponse();
-            cbLoaded(objects);
+            objectsLoader._objects = this.getResponse();
+            cbLoaded(objectsLoader._objects);
         });
     } else {
 
@@ -47,7 +66,8 @@ objectsLoader.load = function (cbLoaded) {
 
     // If no callback then construct Definition from request date (synchronous)
     if (!cbLoaded) {
-        return request.getResponse();
+        objectsLoader._objects = request.getResponse();
+        return objectsLoader._objects;
     }
 }
 
