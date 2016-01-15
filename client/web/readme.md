@@ -17,6 +17,10 @@ Install react command line tools
 And then install the remaining build dependencies locally:
 
     npm install
+
+Install bower using npm (if bower is not installed):
+
+    sudo npm install -g bower
 	
 Now install bower dependencies:
 
