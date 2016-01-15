@@ -14,7 +14,9 @@ Once both those are installed, perform the following:
 5. cd /var/www/html/netric
 6. php composer.phar install
 7. cd ./system
-8. php createdefaultaccount.php
+8. php schema_updates.php
+9. php createdefaultaccount.php
+10. sudo service memcached restart
 
 That's all there is to it, you should now be able to navigate to devel.netric.com on your workstation.
 
