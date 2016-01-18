@@ -16,3 +16,7 @@ $accountName = $_SERVER['argv'][1];
 // TODO: should we back this up?
 $sys = new AntSystem();
 $sys->deleteAccount($accountName);
+
+
+
+

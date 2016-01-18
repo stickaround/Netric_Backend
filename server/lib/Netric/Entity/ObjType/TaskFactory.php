@@ -1,9 +1,9 @@
 <?php
 /**
- * Comment entity type
+ * task entity type
  *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @author Marl Tumulak <marl.tumulak@aereus.com>
+ * @copyright 2016 Aereus
  */
 namespace Netric\Entity\ObjType;
 
@@ -11,9 +11,9 @@ use Netric\ServiceManager;
 use Netric\Entity;
 
 /**
- * Create a new customer entity
+ * Create a new task entity
  */
-class CustomerFactory implements Entity\EntityFactoryInterface
+class TaskFactory implements Entity\EntityFactoryInterface
 {
     /**
      * Entity creation factory
@@ -23,7 +23,7 @@ class CustomerFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("customer");
-        return new Customer($def);
+        $def = $sl->get("EntityDefinitionLoader")->get("task");
+        return new task($def);
     }
 }

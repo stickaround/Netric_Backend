@@ -107,7 +107,7 @@ class Comment extends Entity implements EntityInterface
     }
 
     /**
-     * Called right before the endity is purged (hard delete)
+     * Called right before the entity is purged (hard delete)
      *
      * @param ServiceLocatorInterface $sm Service manager used to load supporting services
      */

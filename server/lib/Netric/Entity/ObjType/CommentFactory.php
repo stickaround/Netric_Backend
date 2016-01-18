@@ -1,6 +1,6 @@
 <?php
 /**
- * Customer entity type
+ * Comment entity type
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
