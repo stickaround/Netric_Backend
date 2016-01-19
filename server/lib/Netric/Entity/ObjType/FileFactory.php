@@ -24,6 +24,6 @@ class FileFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("file");
-        return new File($def);
+        return new FileEntity($def);
     }
 }

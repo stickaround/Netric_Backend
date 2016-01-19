@@ -5,6 +5,6 @@ use Netric\ObjType;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 
-class Customer extends Entity implements EntityInterface
+class CustomerEntity extends Entity implements EntityInterface
 {
 }

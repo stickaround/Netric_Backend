@@ -1,9 +1,9 @@
 <?php
 /**
- * Provides extensions for the File object
+ * Provides extensions for the Task object
  *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @author Marl Tumulak <marl.tumulak@aereus.com>
+ * @copyright 2016 Aereus
  */
 namespace Netric\Entity\ObjType;
 
@@ -12,17 +12,10 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 
 /**
- * Folder for entity
+ * Task represents a single task entity
  */
-class File extends Entity implements EntityInterface
+class TaskEntity extends Entity implements EntityInterface
 {
-    /**
-     * File handle reference
-     *
-     * @var resource
-     */
-    private $fileHandle = null;
-
     /**
      * Callback function used for derrived subclasses
      *
@@ -42,35 +35,27 @@ class File extends Entity implements EntityInterface
     }
 
     /**
-     * Called right before the endity is purged (hard delete)
+     * Called right before the entity is purged (hard delete)
      *
      * @param ServiceLocatorInterface $sm Service manager used to load supporting services
      */
     public function onBeforeDeleteHard(ServiceLocatorInterface $sm)
     {
-        $fileStore = $sm->get("Netric/FileSystem/FileStore/FileStore");
-
-        // When this file gets purged we should delete the raw data from the fileStore
-        $fileStore->deleteFile($this);
     }
 
     /**
-     * Get a file handle if set
+     * Override the default because files can have different icons depending on whether or not this is completed
      *
-     * @return resource
+     * @return string The base name of the icon for this object if it exists
      */
-    public function getFileHandle()
+    public function getIconName()
     {
-        return $this->fileHandle;
-    }
+        $done = $this->getValue("done");
 
-    /**
-     * Set a file handle
-     *
-     * @var resource $fileHandle
-     */
-    public function setFileHandle($fileHandle)
-    {
-        $this->fileHandle = $fileHandle;
+        if ($done == 't' || $done === true)
+            return "task_on";
+        else
+            return "task";
     }
 }
+

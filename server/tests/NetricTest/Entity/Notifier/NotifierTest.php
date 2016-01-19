@@ -9,8 +9,8 @@ use PHPUnit_Framework_TestCase;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityLoader;
 use Netric\Account;
-use Netric\Entity\ObjType\Activity;
-use Netric\Entity\ObjType\User;
+use Netric\Entity\ObjType\ActivityEntity;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 
 class NotifierTest extends PHPUnit_Framework_TestCase
@@ -63,7 +63,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(User::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(UserEntity::USER_ADMINISTRATOR);
         $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $this->notifier = $this->account->getServiceManager()->get("Netric/Entity/Notifier/Notifier");
 
@@ -113,7 +113,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         $this->notifier->markNotificationsSeen($task);
 
         // Now re-create notifications
-        $notificationIds = $this->notifier->send($task, Activity::VERB_CREATED);
+        $notificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED);
 
         // Exactly one notification should have been created for the test user
         $this->assertEquals(1, count($notificationIds));
@@ -132,7 +132,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
          * Test private getNotification by re-creating entities,
          * this should just reuse the unseen notices created above.
          */
-        $newNotificationIds = $this->notifier->send($task, Activity::VERB_CREATED);
+        $newNotificationIds = $this->notifier->send($task, ActivityEntity::VERB_CREATED);
         $this->assertEquals($notificationIds, $newNotificationIds);
     }
 
@@ -152,7 +152,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         $this->testEntities[] = $task;
 
         // Now re-create notifications
-        $this->notifier->send($task, Activity::VERB_CREATED);
+        $this->notifier->send($task, ActivityEntity::VERB_CREATED);
 
         // Query to make sure we have an unseen notification for the test user
         $query = new EntityQuery("notification");

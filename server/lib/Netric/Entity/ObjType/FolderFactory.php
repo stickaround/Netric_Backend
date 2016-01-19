@@ -25,6 +25,6 @@ class FolderFactory implements Entity\EntityFactoryInterface
     {
         $def = $sl->get("EntityDefinitionLoader")->get("folder");
         $entityloader = $sl->get("EntityLoader");
-        return new Folder($def, $entityloader);
+        return new FolderEntity($def, $entityloader);
     }
 }

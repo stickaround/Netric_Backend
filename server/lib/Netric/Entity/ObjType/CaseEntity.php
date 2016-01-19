@@ -1,6 +1,6 @@
 <?php
 /**
- * Provides extensions for the Cases object
+ * Provides extensions for the Case object
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
@@ -12,17 +12,10 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 
 /**
- * Cases represents a single cases on any entity
+ * Case represents a single case on any entity
  */
-class Cases extends Entity implements EntityInterface
+class CaseEntity extends Entity implements EntityInterface
 {
-    /**
-     * Flag to indicate this was a newly created object
-     *
-     * @type {bool}
-     */
-    private $newlyCreated = false;
-
     /**
      * Callback function used for derrived subclasses
      *
@@ -30,8 +23,6 @@ class Cases extends Entity implements EntityInterface
      */
     public function onBeforeSave(ServiceLocatorInterface $sm)
     {
-        if (!$this->id)
-            $this->newlyCreated = true;
     }
 
     /**

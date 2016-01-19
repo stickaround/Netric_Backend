@@ -1,6 +1,6 @@
 <?php
 /**
- * Comment entity type
+ * Customer entity type
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -24,6 +24,6 @@ class CustomerFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("customer");
-        return new Customer($def);
+        return new CustomerEntity($def);
     }
 }

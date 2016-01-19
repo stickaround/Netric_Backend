@@ -19,7 +19,7 @@ class SettingsTest extends PHPUnit_Framework_TestCase
     /**
      * Test user
      *
-     * @var Netric\Entity\ObjType\User
+     * @var Netric\Entity\ObjType\UserEntity
      */
     private $user = null;
 

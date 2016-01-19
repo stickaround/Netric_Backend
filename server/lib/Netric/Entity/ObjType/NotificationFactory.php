@@ -22,6 +22,6 @@ class NotificationFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("notification");
-        return new Notification($def);
+        return new NotificationEntity($def);
     }
 }

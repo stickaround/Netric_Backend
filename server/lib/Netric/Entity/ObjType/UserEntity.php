@@ -17,7 +17,7 @@ use Netric\Entity\EntityInterface;
  *
  * @author Sky Stebnicki
  */
-class User extends Entity implements EntityInterface
+class UserEntity extends Entity implements EntityInterface
 {
     /**
      * System users

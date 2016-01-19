@@ -24,6 +24,6 @@ class CommentFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("comment");
-        return new Comment($def);
+        return new CommentEntity($def);
     }
 }

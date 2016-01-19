@@ -29,7 +29,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         // Setup a user for testing
         $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\User::USER_ADMINISTRATOR);
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         $this->account->setCurrentUser($user);
 
         // Create the controller

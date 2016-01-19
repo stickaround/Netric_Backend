@@ -23,7 +23,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         
         // Setup a user with permissions
         $loader = $account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\User::USER_ADMINISTRATOR);
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         $account->setCurrentUser($user);
 
         $svr = new Netric\Mvc\Router($account->getApplication());
@@ -39,7 +39,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         // Setup anonymous user which should be blocked
         $loader = $account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\User::USER_ANONYMOUS);
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
         $svr = new Netric\Mvc\Router($account->getApplication());

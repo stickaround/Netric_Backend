@@ -12,6 +12,6 @@ use Netric\Entity\EntityInterface;
 /**
  * Email entity extension
  */
-class EmailMessage extends Entity implements EntityInterface
+class EmailMessageEntity extends Entity implements EntityInterface
 {
 }

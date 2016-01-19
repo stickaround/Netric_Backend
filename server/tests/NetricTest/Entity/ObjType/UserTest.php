@@ -19,7 +19,7 @@ class UserTest extends PHPUnit_Framework_TestCase
     /**
      * Test user
      * 
-     * @var \Netric\Entity\ObjType\User
+     * @var \Netric\Entity\ObjType\UserEntity
      */
     private $user = null;
 
@@ -78,7 +78,7 @@ class UserTest extends PHPUnit_Framework_TestCase
     {
         $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("user");
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("user");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\User", $entity);
+        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\UserEntity", $entity);
     }
 
     public function testOnBeforeSave()
@@ -157,22 +157,22 @@ class UserTest extends PHPUnit_Framework_TestCase
 
     public function testGetGroups()
     {
-        $this->user->addMultiValue("groups", Entity\ObjType\User::GROUP_ADMINISTRATORS);
+        $this->user->addMultiValue("groups", Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS);
         
         $groups = $this->user->getGroups();
 
         // Make sure administrators was added
-        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_ADMINISTRATORS, $groups));
+        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS, $groups));
 
         // Make sure default users was also added
-        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_USERS, $groups));
+        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_USERS, $groups));
     }
 
     // Test before adding any groups that the default USERS groups was added
     public function testGetGroupsDefault()
     {
         $groups = $this->user->getGroups();
-        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_USERS, $groups));
-        $this->assertTrue(in_array(Entity\ObjType\User::GROUP_EVERYONE, $groups));
+        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_USERS, $groups));
+        $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_EVERYONE, $groups));
     }
 }

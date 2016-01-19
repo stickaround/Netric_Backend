@@ -44,7 +44,7 @@ class Account
     /**
      * Property to set the current user rather than using the auth service
      * 
-     * @var Netric\Entity\ObjType\User
+     * @var Netric\Entity\ObjType\UserEntity
      */
     public $currentUserOverride = null;
 
@@ -164,9 +164,9 @@ class Account
      * there is no current authenticated user but we need to setup one
      * manually for act on behalf of a user.
      *
-     * @param \Netric\Entity\ObjType\User $user
+     * @param \Netric\Entity\ObjType\UserEntity $user
      */
-    public function setCurrentUser(\Netric\Entity\ObjType\User $user)
+    public function setCurrentUser(\Netric\Entity\ObjType\UserEntity $user)
     {
         $this->currentUserOverride = $user;
     }
@@ -223,7 +223,7 @@ class Account
         }
                 
         // Get anonymous user
-        return $loader->get("user", \Netric\Entity\ObjType\User::USER_ANONYMOUS);
+        return $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
     }
 
     /**

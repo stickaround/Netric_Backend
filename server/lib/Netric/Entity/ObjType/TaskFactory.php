@@ -1,6 +1,6 @@
 <?php
 /**
- * task entity type
+ * Task entity type
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
@@ -24,6 +24,6 @@ class TaskFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("task");
-        return new task($def);
+        return new TaskEntity($def);
     }
 }

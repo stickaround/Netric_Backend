@@ -6,11 +6,11 @@
 namespace Netric\Entity\Notifier;
 
 use Netric\Entity\Entity;
-use Netric\Entity\ObjType\User;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery;
 use Netric\EntityLoader;
-use Netric\Entity\ObjType\Activity;
+use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 
 /**
@@ -54,11 +54,11 @@ class Notifier
     /**
      * Class constructor and dependency setter
      *
-     * @param User $user The current authenticated user
+     * @param UserEntity $user The current authenticated user
      * @param EntityLoader $entityLoader To create, find, and save entities
      * @param IndexInterface $index An entity index for querying existing notifications
      */
-    public function __construct(User $user, EntityLoader $entityLoader, IndexInterface $index)
+    public function __construct(UserEntity $user, EntityLoader $entityLoader, IndexInterface $index)
     {
         $this->user = $user;
         $this->entityLoader = $entityLoader;
@@ -69,7 +69,7 @@ class Notifier
      * Send notifications to followers of an entity
      *
      * @param EntityInterface $entity The entity that was just acted on
-     * @param string $event The event that is triggering from Activity::VERB_*
+     * @param string $event The event that is triggering from ActivityEntity::VERB_*
      * @return int[] List of notification entities created or updated
      */
     public function send(EntityInterface $entity, $event)
@@ -137,9 +137,9 @@ class Notifier
      * we sent them as read when they view the task.
      *
      * @param EntityInterface $entity The entity that was seen by a user
-     * @param User $user Optional user to set seen for, otherwise use current logged in user
+     * @param UserEntity $user Optional user to set seen for, otherwise use current logged in user
      */
-    public function markNotificationsSeen(EntityInterface $entity, User $user = null)
+    public function markNotificationsSeen(EntityInterface $entity, UserEntity $user = null)
     {
         // If we did not manually pass a user, then use the current user
         if (!$user)
@@ -217,7 +217,7 @@ class Notifier
      */
     private function getNameFromEventVerb($event, $objTypeTitle)
     {
-        if (Activity::VERB_CREATED == $event)
+        if (ActivityEntity::VERB_CREATED == $event)
         {
             return "Added " . $objTypeTitle;
         }

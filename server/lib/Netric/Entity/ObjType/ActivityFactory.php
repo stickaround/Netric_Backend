@@ -24,6 +24,6 @@ class ActivityFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("activity");
-        return new Activity($def);
+        return new ActivityEntity($def);
     }
 }

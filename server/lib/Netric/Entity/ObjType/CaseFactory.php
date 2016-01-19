@@ -1,6 +1,6 @@
 <?php
 /**
- * Cases entity type
+ * Case entity type
  *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
@@ -11,9 +11,9 @@ use Netric\ServiceManager;
 use Netric\Entity;
 
 /**
- * Create a new cases entity
+ * Create a new case entity
  */
-class CasesFactory implements Entity\EntityFactoryInterface
+class CaseFactory implements Entity\EntityFactoryInterface
 {
     /**
      * Entity creation factory
@@ -23,7 +23,7 @@ class CasesFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("cases");
-        return new Cases($def);
+        $def = $sl->get("EntityDefinitionLoader")->get("case");
+        return new CaseEntity($def);
     }
 }

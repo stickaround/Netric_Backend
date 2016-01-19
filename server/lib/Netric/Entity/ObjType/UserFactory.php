@@ -24,6 +24,6 @@ class UserFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("user");
-        return new User($def);
+        return new UserEntity($def);
     }
 }

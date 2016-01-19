@@ -90,7 +90,7 @@ abstract class AbstractController
 		$dacl = new \Netric\Permissions\Dacl();
 
 		// By default allow authenticated users to access a controller
-		$dacl->allowGroup(\Netric\Entity\ObjType\User::GROUP_USERS);
+		$dacl->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_USERS);
 
 		return $dacl;
 	}

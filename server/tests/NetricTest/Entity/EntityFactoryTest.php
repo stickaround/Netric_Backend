@@ -40,6 +40,6 @@ class EntityFactoryTest extends PHPUnit_Framework_TestCase
     public function testCreateUser()
     {
         $user = $this->entityFactory->create("user");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\User", $user);
+        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\UserEntity", $user);
     }
 }

@@ -472,7 +472,7 @@ class ServiceManager implements ServiceLocatorInterface
         $ant = new \Ant($this->getAccount()->getId());
         $user = $this->getAccount()->getUser();
         if (!$user)
-            $user = $this->getAccount()->getUser(\Netric\User::USER_ANONYMOUS);
+            $user = $this->getAccount()->getUser(\Netric\UserEntity::USER_ANONYMOUS);
         $user = new \AntUser($ant->dbh, $user->getId(), $ant);
         $antfs = new \AntFs($ant->dbh, $user);
         
