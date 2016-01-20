@@ -401,24 +401,24 @@ class EntityDefinitionLoader
 	}
 
 	/**
-	 * Load Objects
+	 * Load all the definitions
 	 *
 	 * @return array	Collection of objects
 	 */
-	public function getObjects()
+	public function loadDefinitions()
 	{
-		// First try to load the objects from cache
-		$objects = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/objects");
+		// First try to load the definitions from cache
+		$definitions = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/definitions");
 
 		// No cache, then load objects from dataMapper
-		if (!$objects)
+		if (!$definitions)
 		{
-			$objects = $this->dataMapper->getObjects();
+			$definitions = $this->dataMapper->getDefinitions();
 
 			// Cache the loaded objects for future requests
-			$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/objects", $objects);
+			$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/definitions", $definitions);
 		}
 
-		return $objects;
+		return $definitions;
 	}
 }

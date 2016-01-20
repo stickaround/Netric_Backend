@@ -21,7 +21,15 @@ var definitionLoader = {};
  * @private
  * @param {Array}
  */
-definitionLoader.definitions_ = new Array();
+definitionLoader._definitions = new Array();
+
+/**
+ * Flag that will determine if all definitions were already loaded
+ *
+ * @private
+ * @param {Array}
+ */
+definitionLoader._flagAllDefinitionsLoaded = false;
 
 /**
  * Keep the reference of the request per objType
@@ -33,7 +41,7 @@ definitionLoader.definitions_ = new Array();
  * @private
  * @param {Object}
  */
-definitionLoader.requests_ = {};
+definitionLoader._requests = {};
 
 /**
  * Static function used to load an entity definition
@@ -53,13 +61,13 @@ definitionLoader.get = function (objType, cbLoaded) {
     }
 
     // Return (or callback callback) cached definition if already loaded
-    if (this.definitions_[objType] != null) {
+    if (this._definitions[objType] != null) {
 
         if (cbLoaded) {
-            cbLoaded(this.definitions_[objType]);
+            cbLoaded(this._definitions[objType]);
         }
 
-        return this.definitions_[objType];
+        return this._definitions[objType];
     }
 
     /*
@@ -73,12 +81,12 @@ definitionLoader.get = function (objType, cbLoaded) {
 
     if (cbLoaded) {
       // Check if we do not have a backend request for this type of object
-      if (!definitionLoader.requests_[objType]) {
+      if (!definitionLoader._requests[objType]) {
           // Create a new backend request instance for this object
-          definitionLoader.requests_[objType] = new BackendRequest();
+          definitionLoader._requests[objType] = new BackendRequest();
       }
 
-      request = definitionLoader.requests_[objType];
+      request = definitionLoader._requests[objType];
     } else {
       // Not an asynchronous request, just make a new one for each call
       request = new BackendRequest();
@@ -108,7 +116,7 @@ definitionLoader.get = function (objType, cbLoaded) {
      *
      * If we are either (1) not asynchronous or (2) not in progress then send
      */
-    if (!cbLoaded || !definitionLoader.requests_[objType].isInProgress()) {
+    if (!cbLoaded || !definitionLoader._requests[objType].isInProgress()) {
       request.send("svr/entity/getDefinition", "GET", {obj_type: objType});
     }
 
@@ -130,9 +138,9 @@ definitionLoader.createFromData = function (data) {
     var def = new Definition(data);
 
     // Cache it for future requests
-    this.definitions_[def.objType] = def;
+    this._definitions[def.objType] = def;
 
-    return this.definitions_[def.objType];
+    return this._definitions[def.objType];
 }
 
 /**
@@ -142,11 +150,82 @@ definitionLoader.createFromData = function (data) {
  * @return {Definition} Entity defintion on success, null if not cached
  */
 definitionLoader.getCached = function (objType) {
-    if (this.definitions_[objType]) {
-        return this.definitions_[objType];
+    if (this._definitions[objType]) {
+        return this._definitions[objType];
     }
 
     return null;
+}
+
+/**
+ * Load all the entity definitions
+ *
+ * @param {function} cbLoaded Callback function once definition is loaded
+ * @return {Definition|void} If no callback is provded then force a return
+ *
+ * @public
+ */
+definitionLoader.getAll = function(cbLoaded) {
+
+    // Return (or callback callback) cached object if already loaded
+    if (definitionLoader._flagAllDefinitionsLoaded) {
+
+        if (cbLoaded) {
+            cbLoaded(definitionLoader._definitions);
+        }
+
+        return definitionLoader._definitions;
+    }
+
+    // Create an instance of BackendRequest
+    var request = new BackendRequest();
+
+    // Log errors
+    alib.events.listen(request, "error", function (evt) {
+        log.error("Failed to load request", evt);
+    });
+
+    if (cbLoaded) {
+        alib.events.listen(request, "load", function (evt) {
+            definitionLoader.mapDefinitions(this.getResponse());
+            cbLoaded(definitionLoader._definitions);
+        });
+    } else {
+
+        // Set request to be synchronous if no callback is set
+        request.setAsync(false);
+    }
+
+    // Send request
+    request.send("svr/entity/getDefinitions", "GET");
+
+    // If no callback then construct Definition from request date (synchronous)
+    if (!cbLoaded) {
+        definitionLoader.mapDefinitions(request.getResponse());
+        return definitionLoader._definitions;
+    }
+}
+
+/**
+ * Map all the definitions and create a entity/Definition for each definition
+ *
+ * @param {array} definitions Array of all definitions
+ *
+ * @public
+ */
+definitionLoader.mapDefinitions = function(definitions) {
+    if(definitions) {
+        definitions.map(function(definition){
+            var def = new Definition(definition);
+
+            // Cache it for future requests
+            if(!definitionLoader._definitions[def.objType]) {
+                definitionLoader._definitions[def.objType] = def;
+            }
+        })
+
+        definitionLoader._flagAllDefinitionsLoaded = true;
+    }
 }
 
 module.exports = definitionLoader;

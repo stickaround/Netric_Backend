@@ -367,10 +367,10 @@ class EntityController extends Mvc\AbstractController
     }
 
     /**
-     * Get the entity objects
+     * Get all the entity defintions
      *
      */
-    public function getObjects()
+    public function getDefinitions()
     {
         // Get the service manager and current user
         $serviceManager = $this->account->getServiceManager();
@@ -378,13 +378,13 @@ class EntityController extends Mvc\AbstractController
 
         // Load the entity definition
         $loader = $serviceManager->get("EntityDefinitionLoader");
-        $objects = $loader->getObjects();
+        $definitions = $loader->loadDefinitions();
 
-        if (!$objects)
+        if (!$definitions)
         {
-            return $this->sendOutput(array("Objects could not be loaded"));
+            return $this->sendOutput(array("Definitions could not be loaded"));
         }
 
-        return $this->sendOutput($objects);
+        return $this->sendOutput($definitions);
     }
 }

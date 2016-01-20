@@ -56,13 +56,12 @@ describe("Get Definition Asynchronously", function() {
 
 	it("Should have cached the definition object", function(done) {
 		
-		// Check the private definitions_ property of the loader
-		expect(definitionLoader.definitions_["customer"]).not.toBeNull();
+		// Check the private _definitions property of the loader
+		expect(definitionLoader._definitions["customer"]).not.toBeNull();
 		expect(definitionLoader.getCached("customer")).not.toBeNull();
 		done();
 
 	});
-
 });
 
 /**
@@ -78,7 +77,7 @@ describe("Get Definition Non Async", function() {
 	it("Can fallback to loading definition synchronously", function() {
 		
 		// Clear cache which forces the loader to get the definition through BackendRequest
-		definitionLoader.definitions_ = new Array();
+		definitionLoader._definitions = new Array();
 		var definition = definitionLoader.get("customer"); // No callback forces sync load
 		expect(definition).not.toBeNull();
 	});
@@ -86,7 +85,7 @@ describe("Get Definition Non Async", function() {
 	it("Should have loaded the right data", function() {
 		
 		// Clear cache which forces the loader to get the definition through BackendRequest
-		definitionLoader.definitions_ = new Array();
+		definitionLoader._definitions = new Array();
 		var definition = definitionLoader.get("customer"); // No callback forces sync load
 		expect(definition.objType).toEqual("customer");
 		expect(definition.title).toEqual("Customer");
@@ -94,11 +93,80 @@ describe("Get Definition Non Async", function() {
 
 	it("Should have cached the definition object", function() {
 		
-		// Check the private definitions_ property of the loader
-		definitionLoader.definitions_ = new Array();
+		// Check the private _definitions property of the loader
+		definitionLoader._definitions = new Array();
 		var definition = definitionLoader.get("customer"); // No callback forces sync load
-		expect(definitionLoader.definitions_["customer"]).not.toBeNull();
+		expect(definitionLoader._definitions["customer"]).not.toBeNull();
+
+	});
+});
+
+/**
+ * Test loading all definitions asynchronously and make sure it gets cached for future requests
+ */
+describe("Get All Definitions Asynchronously", function () {
+	var allDefinitions = null;
+
+	beforeEach(function (done) {
+		// Set test base where karma unit tests are hosted
+		netric.server.host = "base/";
+		definitionLoader.getAll(function (result) {
+			allDefinitions = result;
+			done();
+		});
+	});
+
+	it("Should have loaded the objects object", function (done) {
+		expect(allDefinitions).not.toBeNull();
+		done();
+	});
+
+	it("Should have cached the object", function (done) {
+		// Check the private _AllDefinitions property of the loader
+		expect(definitionLoader._flagAllDefinitionsLoaded).toBe(true);
+		expect(definitionLoader._definitions).not.toBeNull();
+		done();
 
 	});
 
+	it("Should have the objects specified in /svr/entity/getDefinitions", function (done) {
+		expect(definitionLoader._definitions).not.toBeNull();
+		expect(definitionLoader._definitions["customer"]).not.toBeNull();
+		expect(definitionLoader._definitions["projects"]).not.toBeNull();
+		expect(definitionLoader._definitions["task"]).not.toBeNull();
+		done();
+
+	});
+});
+
+
+/**
+ * Test loading of objects Non Asynchronously and make sure it gets cached for future requests
+ */
+describe("Get All Definitions Non Async", function() {
+
+	beforeEach(function() {
+		// Set test base where karma unit tests are hosted
+		netric.server.host = "base/";
+	});
+
+	it("Can fallback to loading objects synchronously", function() {
+		// Clear cache which forces the loader to get the objects through BackendRequest
+		definitionLoader._definitions = new Array();
+		definitionLoader._flagAllDefinitionsLoaded = false;
+		var allDefinitions = definitionLoader.getAll(); // No callback forces sync load
+		expect(allDefinitions).not.toBeNull();
+	});
+
+	it("Should have cached the objects", function() {
+
+		// Check the private _objects property of the loader
+		definitionLoader._definitions = new Array();
+		definitionLoader._flagAllDefinitionsLoaded = false;
+		var allDefinitions = definitionLoader.getAll(); // No callback forces sync load
+		expect(definitionLoader._definitions).not.toBeNull();
+		expect(definitionLoader._definitions["customer"]).not.toBeNull();
+		expect(definitionLoader._definitions["projects"]).not.toBeNull();
+		expect(definitionLoader._definitions["task"]).not.toBeNull();
+	});
 });

@@ -9,7 +9,7 @@ var React = require('react');
 var controller = require("../../../../controller/controller");
 var ObjectSelect = require("../../ObjectSelect.jsx");
 var entityLoader = require("../../../../entity/loader");
-var objectsLoader = require("../../../../entity/objectsLoader");
+var definitionLoader = require("../../../../entity/definitionLoader");
 var Chamel = require("chamel");
 var Dialog = Chamel.Dialog;
 var DropDownMenu = Chamel.DropDownMenu;
@@ -35,7 +35,7 @@ var ObjectField = React.createClass({
         return ({
             // Used if valueName was not set for the field value
             valueLabel: "",
-            objects: null,
+            definitions: null,
             subtype: null,
             subtypeIndex: 0
         });
@@ -54,13 +54,13 @@ var ObjectField = React.createClass({
             }.bind(this));
         }
 
-        // If this field do NOT have a subtype, then load the objects and let the user pick a subtype
+        // If this field do NOT have a subtype, then load the definitions and let the user pick a subtype
         if (!field.subtype) {
-            var func = function (objects) {
-                this.setState({objects: objects});
+            var func = function (definitions) {
+                this.setState({definitions: definitions});
             }.bind(this);
 
-            objectsLoader.get(func);
+            definitionLoader.getAll(func);
         }
     },
 
@@ -86,26 +86,35 @@ var ObjectField = React.createClass({
         }
 
         var fieldSubtype = field.subtype || this.state.subtype;
-        var objectsDropdown = null;
+        var definitionsDropDown = null;
 
-        // If we have a loaded objects, then lets display it in a dropdown menu
-        if (this.state.objects) {
-            var objectMenu = [];
-            this.state.objects.map(function (object) {
-                objectMenu.push({
-                    objType: object.obj_type,
-                    text: object.title
+        // If we have a loaded all the definitions, then lets display it in a dropdown menu
+        if (this.state.definitions) {
+            var definitionsMenuData = [];
+            for(var idx in this.state.definitions) {
+
+                var def = this.state.definitions[idx];
+                definitionsMenuData.push({
+                    objType: def.objType,
+                    text: def.title
                 })
-            });
+            }
 
-            objectsDropdown = (<DropDownMenu
-                menuItems={objectMenu}
+            // Arrange definitions alphabetically
+            definitionsMenuData.sort(function(a, b){
+                if(a.text < b.text) return -1;
+                if(a.text > b.text) return 1;
+                return 0;
+            })
+
+            definitionsDropDown = (<DropDownMenu
+                menuItems={definitionsMenuData}
                 selectedIndex={this.state.subtypeIndex}
-                onChange={this._handleObjectsMenuSelect}/>);
+                onChange={this._handleDefintionsMenuSelect}/>);
 
             // If we have a null subtype, then lets assign a default 1 (needed for the first loading)
             if(!fieldSubtype) {
-                fieldSubtype = objectMenu[0].objType;
+                fieldSubtype = definitionsMenuData[0].objType;
             }
         }
 
@@ -116,7 +125,7 @@ var ObjectField = React.createClass({
                         {field.title}
                     </div>
                     <div className="entity-form-field-value">
-                        {objectsDropdown}
+                        {definitionsDropDown}
                         <ObjectSelect
                             onChange={this._handleSetValue}
                             objType={this.props.entity.def.objType}
@@ -166,14 +175,14 @@ var ObjectField = React.createClass({
     },
 
     /**
-     * Callback used to handle the selecting of objects
+     * Callback used to handle the selecting of definition
      *
      * @param {DOMEvent} e          Reference to the DOM event being sent
      * @param {int} key             The index of the menu clicked
      * @param {array} menuItem      The object value of the menu clicked
      * @private
      */
-    _handleObjectsMenuSelect: function(e, key, menuItem) {
+    _handleDefintionsMenuSelect: function(e, key, menuItem) {
 
         this.setState({
             subtype: menuItem.objType,
