@@ -74,7 +74,7 @@ class Setup extends AbstractHasErrors
      */
     public function updateAccount(Account $account)
     {
-        $schemaDataMapper = $account->getServiceManager()->get('Netric/Account/Schema/SchemaDataMapper');
+        $schemaDataMapper = $account->getServiceManager()->get('Netric/Application/Schema/SchemaDataMapper');
 
         // Update or create the schema for this account
         if (!$schemaDataMapper->update($account->getId()))
@@ -108,7 +108,7 @@ class Setup extends AbstractHasErrors
         $config = $application->getConfig();
 
         // Get the application definition
-        $schemaDefinition = include(__DIR__ . "/../../../../data/schema/application.php");
+        $schemaDefinition = require(__DIR__ . "/../../../../data/schema/application.php");
 
         // Now get the system DataMapper
         switch ($config->db['type'])

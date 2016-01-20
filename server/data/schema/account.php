@@ -12,7 +12,7 @@
  */
 namespace data\schema;
 
-use Netric\Account\Schema\SchemaProperty;
+use Netric\Application\Schema\SchemaProperty;
 
 return array(
     /**
@@ -428,7 +428,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            )
         ),
         "INDEXES" => array(
             array('properties' => array("ts_updated")),
@@ -1368,7 +1372,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            )
         ),
         "INDEXES" => array(
         )
@@ -1761,7 +1769,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "product_id", "products", "id"),
+            array(
+                "property"=>'product_id',
+                'references_bucket'=>'products',
+                'references_property'=>'id',
+            )
         ),
         "INDEXES" => array(
         )
@@ -1831,12 +1843,36 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "related_bug", "project_bugs", "id"),
-            array("FKEY", "status_id", "project_bug_status", "id"),
-            array("FKEY", "severity_id", "project_bug_severity", "id"),
-            array("FKEY", "owner_id", "users", "id"),
-            array("FKEY", "type_id", "project_bug_types", "id"),
-            array("FKEY", "customer_id", "customers", "id"),
+            array(
+                "property"=>'related_bug',
+                'references_bucket'=>'project_bugs',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'status_id',
+                'references_bucket'=>'project_bug_status',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'severity_id',
+                'references_bucket'=>'project_bug_severity',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'type_id',
+                'references_bucket'=>'project_bug_types',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'customer_id',
+                'references_bucket'=>'customers',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -1876,7 +1912,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -1891,8 +1931,16 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "template_id", "project_templates", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'template_id',
+                'references_bucket'=>'project_templates',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -1907,8 +1955,16 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "template_id", "project_templates", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'template_id',
+                'references_bucket'=>'project_templates',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -1935,9 +1991,21 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "template_id", "project_templates", "id"),
-            array("FKEY", "position_id", "project_positions", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'template_id',
+                'references_bucket'=>'project_templates',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'position_id',
+                'references_bucket'=>'project_positions',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -1965,11 +2033,31 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "parent", "projects", "id"),
-            array("FKEY", "priority", "project_priorities", "id"),
-            array("FKEY", "customer_id", "customers", "id"),
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "template_id", "project_templates", "id"),
+            array(
+                "property"=>'parent',
+                'references_bucket'=>'projects',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'priority',
+                'references_bucket'=>'project_priorities',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'customer_id',
+                'references_bucket'=>'customers',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'template_id',
+                'references_bucket'=>'project_templates',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("date_completed")),
@@ -2075,10 +2163,26 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "project_id", "projects", "id"),
-            array("FKEY", "position_id", "project_positions", "id"),
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "creator_id", "users", "id"),
+            array(
+                "property"=>'project_id',
+                'references_bucket'=>'projects',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'position_id',
+                'references_bucket'=>'project_positions',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'creator_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2118,13 +2222,41 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "project", "projects", "id"),
-            array("FKEY", "customer_id", "customers", "id"),
-            array("FKEY", "position_id", "project_positions", "id"),
-            array("FKEY", "creator_id", "users", "id"),
-            array("FKEY", "milestone_id", "project_milestones", "id"),
-            array("FKEY", "depends_task_id", "project_tasks", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'project',
+                'references_bucket'=>'projects',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'customer_id',
+                'references_bucket'=>'customers',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'position_id',
+                'references_bucket'=>'project_positions',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'creator_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'milestone_id',
+                'references_bucket'=>'project_milestones',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'depends_task_id',
+                'references_bucket'=>'project_tasks',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("date_entered")),
@@ -2151,9 +2283,21 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
-            array("FKEY", "creator_id", "users", "id"),
-            array("FKEY", "task_id", "project_tasks", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'creator_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'task_id',
+                'references_bucket'=>'project_tasks',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2193,7 +2337,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2221,10 +2369,26 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
-            array("FKEY", "status_id", "sales_order_status", "id"),
-            array("FKEY", "customer_id", "customers", "id"),
-            array("FKEY", "invoice_id", "customer_invoices", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'status_id',
+                'references_bucket'=>'sales_order_status',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'customer_id',
+                'references_bucket'=>'customers',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'invoice_id',
+                'references_bucket'=>'customer_invoices',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2677,9 +2841,21 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
-            array("FKEY", "requested_by", "users", "id"),
-            array("FKEY", "workflow_action_id", "workflow_actions", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'requested_by',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'workflow_action_id',
+                'references_bucket'=>'workflow_actions',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2701,7 +2877,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2765,8 +2945,16 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "user_id", "users", "id"),
-            array("FKEY", "feed_id", "xml_feeds", "id"),
+            array(
+                "property"=>'user_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'feed_id',
+                'references_bucket'=>'xml_feeds',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2813,7 +3001,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "report_id", "reports", "id"),
+            array(
+                "property"=>'report_id',
+                'references_bucket'=>'reports',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2832,7 +3024,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "report_id", "reports", "id"),
+            array(
+                "property"=>'report_id',
+                'references_bucket'=>'reports',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2848,7 +3044,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "report_id", "reports", "id"),
+            array(
+                "property"=>'report_id',
+                'references_bucket'=>'reports',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2873,7 +3073,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2891,7 +3095,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "dashboard_id", "dashboard", "id"),
+            array(
+                "property"=>'dashboard_id',
+                'references_bucket'=>'dashboard',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("widget")),
@@ -2918,7 +3126,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "cube_id", "dataware_olap_cubes", "id"),
+            array(
+                "property"=>'cube_id',
+                'references_bucket'=>'dataware_olap_cubes',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2932,7 +3144,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "cube_id", "dataware_olap_cubes", "id"),
+            array(
+                "property"=>'cube_id',
+                'references_bucket'=>'dataware_olap_cubes',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2959,7 +3175,11 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "owner_id", "users", "id"),
+            array(
+                "property"=>'owner_id',
+                'references_bucket'=>'users',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("pid")),
@@ -2983,9 +3203,21 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "partner_id", "object_sync_partners", "id"),
-            array("FKEY", "field_id", "app_object_type_fields", "id"),
-            array("FKEY", "object_type_id", "app_object_types", "id"),
+            array(
+                "property"=>'partner_id',
+                'references_bucket'=>'object_sync_partners',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'field_id',
+                'references_bucket'=>'app_object_type_fields',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'object_type_id',
+                'references_bucket'=>'app_object_types',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
         )
@@ -2998,7 +3230,11 @@ return array(
             'ts_completed' => array('type' => SchemaProperty::TYPE_TIMESTAMP),
         ),
         "KEYS" => array(
-            array("FKEY", "collection_id", "object_sync_partner_collections", "id"),
+            array(
+                "property"=>'collection_id',
+                'references_bucket'=>'object_sync_partner_collections',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("parent_id")),
@@ -3022,8 +3258,16 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "collection_id", "object_sync_partner_collections", "id"),
-            array("FKEY", "object_type_id", "app_object_types", "id"),
+            array(
+                "property"=>'collection_id',
+                'references_bucket'=>'object_sync_partner_collections',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'object_type_id',
+                'references_bucket'=>'app_object_types',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("object_type_id", "object_id")),
@@ -3052,9 +3296,21 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array("FKEY", "collection_id", "object_sync_partner_collections", "id"),
-            array("FKEY", "object_type_id", "app_object_types", "id"),
-            array("FKEY", "field_id", "app_object_type_fields", "id"),
+            array(
+                "property"=>'collection_id',
+                'references_bucket'=>'object_sync_partner_collections',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'object_type_id',
+                'references_bucket'=>'app_object_types',
+                'references_property'=>'id',
+            ),
+            array(
+                "property"=>'field_id',
+                'references_bucket'=>'app_object_type_fields',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("object_type_id", "object_id")),
@@ -3072,7 +3328,11 @@ return array(
             'unique_id' => array('type' => SchemaProperty::TYPE_BIGINT),
         ),
         "KEYS" => array(
-            array("FKEY", "collection_id", "object_sync_partner_collections", "id"),
+            array(
+                "property"=>'collection_id',
+                'references_bucket'=>'object_sync_partner_collections',
+                'references_property'=>'id',
+            ),
         ),
         "INDEXES" => array(
             array('properties' => array("collection_id")),

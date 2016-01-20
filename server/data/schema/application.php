@@ -4,7 +4,7 @@
  */
 namespace data\schema;
 
-use Netric\Account\Schema\SchemaProperty;
+use Netric\Application\Schema\SchemaProperty;
 
 return array(
     /**
@@ -93,7 +93,7 @@ return array(
             'password' => array('type'=>SchemaProperty::TYPE_CHAR_128),
             'account_id' => array('type'=>SchemaProperty::TYPE_BIGINT),
         ),
-        'PRIMARY_KEY' => 'domain',
+        'PRIMARY_KEY' => 'id',
         "KEYS" => array(
             array(
                 "property"=>'account_id',
