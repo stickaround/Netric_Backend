@@ -54,10 +54,6 @@ class CaseTest extends PHPUnit_Framework_TestCase
         $case->setValue("owner_id", UserEntity::USER_CURRENT);
         $case->onAfterSave($sm);
 
-        $this->assertEquals($case->getValue('title'), 'Test Case');
-
-        //echo $message = $transport->getLastMessage();
-
         // Cleanup
         $entityLoader->delete($case, true);
     }
