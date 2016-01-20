@@ -212,7 +212,7 @@ var SearchCondition = React.createClass({
                     <ObjectSelect
                         onChange={this._handleSetValue}
                         objType={this.props.objType}
-                        fieldName={field.name}
+                        field={field}
                         value={null} />
                 );
                 break;

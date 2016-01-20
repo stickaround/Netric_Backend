@@ -19,7 +19,7 @@ var definitionLoader = {};
  * Keep a reference to loaded definitions to reduce requests
  *
  * @private
- * @param {Array}
+ * @param {Object}
  */
 definitionLoader._definitions = new Array();
 
@@ -27,7 +27,7 @@ definitionLoader._definitions = new Array();
  * Flag that will determine if all definitions were already loaded
  *
  * @private
- * @param {Array}
+ * @param {Bool}
  */
 definitionLoader._flagAllDefinitionsLoaded = false;
 
@@ -60,7 +60,7 @@ definitionLoader.get = function (objType, cbLoaded) {
         throw "The first param {objType} is required and cannot be blank or null";
     }
 
-    // Return (or callback callback) cached definition if already loaded
+    // Return (or call callback) cached definition if already loaded
     if (this._definitions[objType] != null) {
 
         if (cbLoaded) {
@@ -167,7 +167,7 @@ definitionLoader.getCached = function (objType) {
  */
 definitionLoader.getAll = function(cbLoaded) {
 
-    // Return (or callback callback) cached object if already loaded
+    // Return (or call callback) cached object if already loaded
     if (definitionLoader._flagAllDefinitionsLoaded) {
 
         if (cbLoaded) {
@@ -187,7 +187,7 @@ definitionLoader.getAll = function(cbLoaded) {
 
     if (cbLoaded) {
         alib.events.listen(request, "load", function (evt) {
-            definitionLoader.mapDefinitions(this.getResponse());
+            definitionLoader.preloadAllDefinitions(this.getResponse());
             cbLoaded(definitionLoader._definitions);
         });
     } else {
@@ -201,7 +201,7 @@ definitionLoader.getAll = function(cbLoaded) {
 
     // If no callback then construct Definition from request date (synchronous)
     if (!cbLoaded) {
-        definitionLoader.mapDefinitions(request.getResponse());
+        definitionLoader.preloadAllDefinitions(request.getResponse());
         return definitionLoader._definitions;
     }
 }
@@ -213,7 +213,7 @@ definitionLoader.getAll = function(cbLoaded) {
  *
  * @public
  */
-definitionLoader.mapDefinitions = function(definitions) {
+definitionLoader.preloadAllDefinitions = function(definitions) {
     if(definitions) {
         definitions.map(function(definition){
             var def = new Definition(definition);

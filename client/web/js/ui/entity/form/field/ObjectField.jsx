@@ -56,7 +56,7 @@ var ObjectField = React.createClass({
 
         // If this field do NOT have a subtype, then load the definitions and let the user pick a subtype
         if (!field.subtype) {
-            var func = function (definitions) {
+            var func = function ProcessReturnedDefinitions (definitions) {
                 this.setState({definitions: definitions});
             }.bind(this);
 
@@ -100,7 +100,7 @@ var ObjectField = React.createClass({
                 })
             }
 
-            // Arrange definitions alphabetically
+            // Sort definitions
             definitionsMenuData.sort(function(a, b){
                 if(a.text < b.text) return -1;
                 if(a.text > b.text) return 1;
@@ -129,11 +129,10 @@ var ObjectField = React.createClass({
                         <ObjectSelect
                             onChange={this._handleSetValue}
                             objType={this.props.entity.def.objType}
-                            fieldName={fieldName}
-                            value={fieldValue}
-                            label={valueLabel}
                             field={field}
                             subtype={fieldSubtype}
+                            value={fieldValue}
+                            label={valueLabel}
                             />
                     </div>
                 </div>

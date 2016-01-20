@@ -28,10 +28,8 @@ var ObjectSelect = React.createClass({
         onChange: React.PropTypes.func,
         // The object type we are working with
         objType: React.PropTypes.string.isRequired,
-        // The grouping field name
-        fieldName: React.PropTypes.string.isRequired,
         // The grouping field that we are working on
-        field: React.PropTypes.object,
+        field: React.PropTypes.object.isRequired,
         // The subtype of the field. This is usually set if props.field.subtype is empty.
         subtype: React.PropTypes.string,
         // The current value
@@ -89,31 +87,11 @@ var ObjectSelect = React.createClass({
     /**
      * The user has clicked browse to select an entity
      *
-     * @param {DOMEvent} evt
-     * @private
      */
-    _handleBrowseClick: function(evt) {
+    _handleBrowseClick: function(field) {
 
-        // If field is already provided in props, then we dont need to get the definition from the loader using the props.fieldName
-        if(this.props.field) {
-            this._displayBrowser(this.props.field);
-        } else {
-
-            // Get the field from the defition
-            definitionLoader.get(this.props.objType, function(def) {
-                var field = def.getField(this.props.fieldName);
-                this._displayBrowser(field);
-            }.bind(this));
-        }
-    },
-
-    /**
-     * Display entity browser for selection
-     */
-    _displayBrowser: function(field) {
-
-        if (!field) {
-            throw "Could not load field: " + this.props.fieldName;
+        if (!this.props.field) {
+            throw "Field is required.";
         }
 
         // Get the field subtype

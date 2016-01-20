@@ -43,7 +43,7 @@ class EntityController extends Mvc\AbstractController
 		/*
 		$browserMode = $user->getSetting("/objects/browse/mode/" . $params['obj_type']);
 		// Set default view modes
-		if (!$browserMode) 
+		if (!$browserMode)
 		{
 			switch ($params['obj_type'])
 			{
@@ -378,13 +378,58 @@ class EntityController extends Mvc\AbstractController
 
         // Load the entity definition
         $loader = $serviceManager->get("EntityDefinitionLoader");
-        $definitions = $loader->loadDefinitions();
+        $definitions = $loader->getAll();
 
-        if (!$definitions)
+        $ret = array();
+
+        foreach($definitions as $key=>$def) {
+            $ret[$key] = $def->toArray();
+
+            // TODO: Get browser mode preference (Netric/Entity/ObjectType/User has no getSetting)
+            /*
+            $browserMode = $user->getSetting("/objects/browse/mode/" . $params['obj_type']);
+            // Set default view modes
+            if (!$browserMode)
+            {
+                switch ($params['obj_type'])
+                {
+                case 'email_thread':
+                case 'note':
+                    $browserMode = "previewV";
+                    break;
+                default:
+                    $browserMode = "table";
+                    break;
+                }
+            }
+            $ret["browser_mode"] = $browserMode;
+            */
+            $ret[$key]["browser_mode"] = "table";
+
+            // TODO: Get browser blank content
+
+            // Get forms
+            $entityForms = $serviceManager->get("Netric/Entity/Forms");
+            $ret[$key]['forms'] = $entityForms->getDeviceForms($def, $user);
+
+            // Get views from browser view service
+            $viewsService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
+            $browserViews = $viewsService->getViewsForUser($ret[$key]['obj_type'], $user);
+            $ret[$key]['views'] = array();
+            foreach ($browserViews as $view)
+            {
+                $ret[$key]['views'][] = $view->toArray();
+            }
+
+            // Return the default view
+            $ret[$key]['default_view'] = $viewsService->getDefaultViewForUser($ret[$key]['obj_type'], $user);
+        }
+
+        if (sizeOf($ret) == 0)
         {
             return $this->sendOutput(array("Definitions could not be loaded"));
         }
 
-        return $this->sendOutput($definitions);
+        return $this->sendOutput($ret);
     }
 }
