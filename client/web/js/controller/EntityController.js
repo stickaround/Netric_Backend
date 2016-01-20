@@ -126,7 +126,7 @@ EntityController.prototype.onLoad = function (opt_callback) {
                 var evtParams = evt.data.params;
 
                 for (var idx in evtParams) {
-                    params = (params == null) ? "?" : params += "&";
+                    params = (params == "") ? "?" : params += "&";
                     params += idx + "=" + evtParams[idx];
                 }
             }
