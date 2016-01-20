@@ -16,7 +16,7 @@ use Netric\Entity\EntityInterface;
  *
  * @author Sky Stebnicki
  */
-class Activity extends Entity implements EntityInterface
+class ActivityEntity extends Entity implements EntityInterface
 {
     /**
      * Verbs

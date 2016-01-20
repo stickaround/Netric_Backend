@@ -17,7 +17,7 @@ use Netric\Entity\EntityInterface;
 /**
  * Folder for entity
  */
-class Folder extends Entity implements EntityInterface
+class FolderEntity extends Entity implements EntityInterface
 {
     /**
      * Entity loader for getting files and folders by id

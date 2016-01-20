@@ -54,6 +54,6 @@ class FolderTest extends PHPUnit_Framework_TestCase
     public function testFactory()
     {
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("folder");
-        $this->assertInstanceOf('\Netric\Entity\ObjType\Folder', $entity);
+        $this->assertInstanceOf('\Netric\Entity\ObjType\FolderEntity', $entity);
     }
 }

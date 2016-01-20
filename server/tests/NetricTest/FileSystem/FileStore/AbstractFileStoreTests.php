@@ -14,7 +14,7 @@ abstract class AbstractFileStoreTests extends PHPUnit_Framework_TestCase
     /**
      * Test files
      *
-     * @var Netric\Entity\ObjType\File[]
+     * @var Netric\Entity\ObjType\FileEntity[]
      */
     private $testFiles = array();
 

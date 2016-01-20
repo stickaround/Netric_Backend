@@ -1,9 +1,9 @@
 <?php
 /**
- * Activity entity type
+ * Case entity type
  *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @author Marl Tumulak <marl.tumulak@aereus.com>
+ * @copyright 2016 Aereus
  */
 namespace Netric\Entity\ObjType;
 
@@ -11,9 +11,9 @@ use Netric\ServiceManager;
 use Netric\Entity;
 
 /**
- * Create a new activity entity
+ * Create a new case entity
  */
-class ActivityFactory implements Entity\EntityFactoryInterface
+class CaseFactory implements Entity\EntityFactoryInterface
 {
     /**
      * Entity creation factory
@@ -23,7 +23,7 @@ class ActivityFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("activity");
-        return new ActivityEntity($def);
+        $def = $sl->get("EntityDefinitionLoader")->get("case");
+        return new CaseEntity($def);
     }
 }

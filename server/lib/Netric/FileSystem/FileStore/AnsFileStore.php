@@ -8,7 +8,7 @@
 namespace Netric\FileSystem\FileStore;
 
 use Netric\Error;
-use Netric\Entity\ObjType\File;
+use Netric\Entity\ObjType\FileEntity;
 use Netric\Entity\DataMapperInterface;
 use Netric\FileSystem\FileStore\exception;
 
@@ -121,13 +121,13 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Read and return numBypes (or all) of a file
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
      * @throws exception\FileNotFoundException if we try to read a file not in the store
      */
-    public function readFile(File $file, $numBytes = null, $offset = null)
+    public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         $url = $this->requestUrl;
         $url .= "&function=file_download&folder=".rawurlencode($this->ansFolder);
@@ -165,11 +165,11 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Write data to a file
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @param mixed $data Binary data to write
      * @return int number of bytes written
      */
-    public function writeFile(File $file, $data)
+    public function writeFile(FileEntity $file, $data)
     {
         // 1. Write to temp
         $tempName = $this->getTempName($file);
@@ -197,11 +197,11 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Upload a file to the data store
      *
-     * @param File $file Meta-data Entity for the file
+     * @param FileEntity $file Meta-data Entity for the file
      * @param $localPath Path of a local file
      * @return true on success, false on failure
      */
-    public function uploadFile(File $file, $localPath)
+    public function uploadFile(FileEntity $file, $localPath)
     {
         $retval = 0; // assume fail
 
@@ -268,11 +268,11 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Delete a file from the DataMapper
      *
-     * @param File $file The file to purge data for
+     * @param FileEntity $file The file to purge data for
      * @param int $revision If set then only delete data for a specific revision
      * @return mixed
      */
-    public function deleteFile(File $file, $revision = null)
+    public function deleteFile(FileEntity $file, $revision = null)
     {
         // Assume failure until we succeed
         $result = false;
@@ -331,10 +331,10 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Check to see if a file exists in the storeexit
      *
-     * @param File $file The file to purge data for
+     * @param FileEntity $file The file to purge data for
      * @return bool true if it exists, otherwise false
      */
-    public function fileExists(File $file)
+    public function fileExists(FileEntity $file)
     {
         // If we are missing a key then we know for sure it does not exist in the store
         if (!$file->getValue('dat_ans_key'))
@@ -387,10 +387,10 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Generate a temp name for this file so we can work with it autonomously in the tmp dir
      *
-     * @param File $file
+     * @param FileEntity $file
      * @return string unique temp name
      */
-    private function getTempName(File $file)
+    private function getTempName(FileEntity $file)
     {
         return "file-" . $this->accountId . "-" . $file->getId() . "-" . $file->getValue('revision');
     }

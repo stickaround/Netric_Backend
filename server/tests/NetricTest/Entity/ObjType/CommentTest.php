@@ -40,7 +40,7 @@ class CommentTest extends PHPUnit_Framework_TestCase
     {
         $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("comment");
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("comment");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\Comment", $entity);
+        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\CommentEntity", $entity);
     }
 
     /**

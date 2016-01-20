@@ -8,7 +8,7 @@
 namespace Netric\Entity\BrowserView;
 
 use Netric\Db\DbInterface;
-use Netric\Entity\ObjType\User;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition;
 use Netric\Config;
 use Netric\Settings\Settings;
@@ -78,10 +78,10 @@ class BrowserViewService
      * Get the user's default view for the given object type
      *
      * @param string $objType The object type
-     * @param User $user The user we are getting the default for
+     * @param UserEntity $user The user we are getting the default for
      * @return string User's default view for the given object type
      */
-    public function getDefaultViewForUser($objType, User $user)
+    public function getDefaultViewForUser($objType, UserEntity $user)
     {
         $settingKey = "entity/browser-view/default/" . $objType;
 

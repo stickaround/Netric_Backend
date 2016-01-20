@@ -26,7 +26,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     /**
      * Test files
      *
-     * @var Entity\ObjType\File[]
+     * @var Entity\ObjType\FileEntity[]
      */
     private $testFiles = array();
 
@@ -66,7 +66,7 @@ class FileTest extends PHPUnit_Framework_TestCase
     public function testFactory()
     {
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("file");
-        $this->assertInstanceOf('\Netric\Entity\ObjType\File', $entity);
+        $this->assertInstanceOf('\Netric\Entity\ObjType\FileEntity', $entity);
     }
 
     /**

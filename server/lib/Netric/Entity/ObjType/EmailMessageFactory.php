@@ -22,6 +22,6 @@ class EmailMessageFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("email_message");
-        return new EmailMessage($def);
+        return new EmailMessageEntity($def);
     }
 }

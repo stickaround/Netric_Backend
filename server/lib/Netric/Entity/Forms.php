@@ -8,7 +8,7 @@
 namespace Netric\Entity;
 
 use Netric\Db\DbInterface;
-use Netric\Entity\ObjType\User;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition;
 use Netric\Config;
 
@@ -51,7 +51,7 @@ class Forms
      * @param \Netric\EntityDefinition $def
      * @return array Associative array
      */
-    public function getDeviceForms(EntityDefinition $def, User $user)
+    public function getDeviceForms(EntityDefinition $def, UserEntity $user)
     {
         $dbh = $this->dbh;
 
@@ -124,11 +124,11 @@ class Forms
      * In all the above cases it will be checking
      *
      * @param \Netric\EntityDefinition $def The object type definition
-     * @param \Netric\Entity\ObjType\User $user User to get forms for
+     * @param \Netric\Entity\ObjType\UserEntity $user User to get forms for
      * @param string $device The device scope / size - 'small', 'medium', 'large', 'xlarge'
      * @return string
      */
-    public function getFormUiXml(EntityDefinition $def, User $user, $device)
+    public function getFormUiXml(EntityDefinition $def, UserEntity $user, $device)
     {
         $dbh = $this->dbh;
 

@@ -19,7 +19,7 @@ class AuthenticationController extends Mvc\AbstractController
 		$dacl = new \Netric\Permissions\Dacl();
 
 		// By default allow authenticated users to access a controller
-		$dacl->allowGroup(\Netric\Entity\ObjType\User::GROUP_EVERYONE);
+		$dacl->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_EVERYONE);
 
 		return $dacl;
 	}
