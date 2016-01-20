@@ -26,7 +26,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
     /**
      * Test user
      *
-     * @var \Netric\Entity\ObjType\User
+     * @var \Netric\Entity\ObjType\UserEntity
      */
     private $user = null;
 
@@ -44,7 +44,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
 
         // Setup a user for testing
         $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\User::USER_ADMINISTRATOR);
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         $this->account->setCurrentUser($user);
 
         // Create the controller

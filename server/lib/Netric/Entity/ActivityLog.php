@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity;
 
-use Netric\Entity\ObjType\Activity;
+use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityGroupings;
@@ -50,7 +50,7 @@ class ActivityLog
     public function __construct(
         EntityLoader $entityLoader,
         EntityGroupings\Loader $groupingsLoader,
-        ObjType\User $currentUser)
+        ObjType\UserEntity $currentUser)
     {
         $this->entityLoader = $entityLoader;
         $this->groupingsLoader = $groupingsLoader;
@@ -66,7 +66,7 @@ class ActivityLog
      *  object (what the verb was performed on), notes
      *
      * @param Entity $subject The entity performing the action - usually a user
-     * @param string $verb The action performed from Activity::VERB_*
+     * @param string $verb The action performed from ActivityEntity::VERB_*
      * @param Entity $object The entity being acted on
      * @param string $notes Details for the activity
      * @param int $level Optional log level
@@ -113,9 +113,9 @@ class ActivityLog
         if (!$notes)
         {
             $notes = "";
-            if ($verb == Activity::VERB_UPDATED)
+            if ($verb == ActivityEntity::VERB_UPDATED)
                 $notes = $object->getChangeLogDescription();
-            if ($verb == Activity::VERB_CREATED)
+            if ($verb == ActivityEntity::VERB_CREATED)
                 $notes = $object->getDescription();
         }
 

@@ -10,7 +10,7 @@ namespace Netric\FileSystem\FileStore;
 use Netric\Error\Error;
 use Netric\Entity\DataMapperInterface;
 use Netric\FileSystem\FileStore\exception;
-use Netric\Entity\ObjType\File;
+use Netric\Entity\ObjType\FileEntity;
 
 /**
  * Class LocalDataMapper
@@ -63,13 +63,13 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Read and return numBypes (or all) of a file
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
      * @throws exception\FileNotFoundException if you try to read from a file that is not there
      */
-    public function readFile(File $file, $numBytes = null, $offset = null)
+    public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         // If file has not yet been opened, then open it
         if (!$file->getFileHandle())
@@ -107,11 +107,11 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Write data to a file
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @param mixed $data Binary data to write
      * @return int number of bytes written and -1 if error (call getLastError for details)
      */
-    public function writeFile(File $file, $data)
+    public function writeFile(FileEntity $file, $data)
     {
         $ret = -1;
 
@@ -148,11 +148,11 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Upload a file to the data store
      *
-     * @param File $file Meta-data Entity for the file
+     * @param FileEntity $file Meta-data Entity for the file
      * @param string $sourcePath Path of a local file
      * @return true on success, false on failure
      */
-    public function uploadFile(File $file, $sourcePath)
+    public function uploadFile(FileEntity $file, $sourcePath)
     {
         $ret = true;
 
@@ -206,11 +206,11 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Delete a file from the DataMapper
      *
-     * @param File $file The file to purge data for
+     * @param FileEntity $file The file to purge data for
      * @param int $revision If set then only delete data for a specific revision
      * @return mixed
      */
-    public function deleteFile(File $file, $revision = null)
+    public function deleteFile(FileEntity $file, $revision = null)
     {
         if (!$file->getId())
             return false;
@@ -275,10 +275,10 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Check to see if a file exists in the store
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @return bool true if file is present, otherwise false
      */
-    public function fileExists(File $file)
+    public function fileExists(FileEntity $file)
     {
         try
         {
@@ -296,11 +296,11 @@ class LocalFileStore implements FileStoreInterface
     /**
      * Get the full path to the local file
      *
-     * @param File $file
+     * @param FileEntity $file
      * @return string
      * @throws exception\FileNotFoundException
      */
-    private function getFullLocalPath(File $file)
+    private function getFullLocalPath(FileEntity $file)
     {
         $ansRoot = $this->getAccountDirectory();
         if ($file->getValue("dat_local_path"))
@@ -363,7 +363,7 @@ class LocalFileStore implements FileStoreInterface
      *
      * @return string The local folder path for this file
      */
-    private function getRelativeFileDirectory(File $file)
+    private function getRelativeFileDirectory(FileEntity $file)
     {
         $localPath = $this->explodeIdToPath($file->getId());
 

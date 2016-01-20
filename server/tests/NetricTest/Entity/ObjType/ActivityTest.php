@@ -40,7 +40,7 @@ class ActivityTest extends PHPUnit_Framework_TestCase
     {
         $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("activity");
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("activity");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\Activity", $entity);
+        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\ActivityEntity", $entity);
     }
 
     public function testOnBeforeSave()

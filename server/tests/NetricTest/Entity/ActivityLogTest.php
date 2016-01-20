@@ -7,7 +7,7 @@ namespace NetricTest\Entity;
 use Netric;
 use Netric\Entity\ActivityLog;
 use Netric\EntityLoader;
-use Netric\Entity\ObjType\Activity;
+use Netric\Entity\ObjType\ActivityEntity;
 use PHPUnit_Framework_TestCase;
 
 class ActivityLogTest extends PHPUnit_Framework_TestCase
@@ -62,7 +62,7 @@ class ActivityLogTest extends PHPUnit_Framework_TestCase
         $this->entityLoader->save($customerEntity);
 
         // Log the activity
-        $act = $this->activityLog->log($this->user, Activity::VERB_CREATED, $customerEntity);
+        $act = $this->activityLog->log($this->user, ActivityEntity::VERB_CREATED, $customerEntity);
         $openedAct = $this->entityLoader->get("activity", $act->getId());
 
         // Test activity

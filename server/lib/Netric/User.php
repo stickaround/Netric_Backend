@@ -15,7 +15,7 @@ namespace Netric;
 /**
  * Netric user class is basically just a factory for Entity\User
  */
-class User extends Entity\ObjType\User
+class User extends Entity\ObjType\UserEntity
 {
     /**
      * Class constructor

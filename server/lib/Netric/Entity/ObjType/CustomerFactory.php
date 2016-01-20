@@ -24,6 +24,6 @@ class CustomerFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("customer");
-        return new Customer($def);
+        return new CustomerEntity($def);
     }
 }

@@ -11,7 +11,7 @@ use Netric\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Db\DbInterface;
 use Netric\ServiceManager;
-use Netric\Entity\ObjType\User;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Get and set account and user settings
@@ -104,11 +104,11 @@ class Settings
     /**
      * Get a setting for a user by name
      *
-     * @param User $user
+     * @param UserEntity $user
      * @param string $name
      * @return string
      */
-    public function getForUser(User $user, $name)
+    public function getForUser(UserEntity $user, $name)
     {
         // First try to get from cache (it's much faster that way)
         $ret = $this->getCached($name, $user->getId());
@@ -124,12 +124,12 @@ class Settings
     /**
      * Set a setting by name for a specific user
      *
-     * @param User $user
+     * @param UserEntity $user
      * @param string $name
      * @param mixed $value
      * @return bool true on success, false on failure
      */
-    public function setForUser(User $user, $name, $value)
+    public function setForUser(UserEntity $user, $name, $value)
     {
         // First save to the database and make sure it was a success
         $ret = $this->saveDb($name, $value, $user->getId());

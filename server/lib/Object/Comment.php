@@ -61,7 +61,7 @@ class CAntObject_Comment extends CAntObject
 	protected function beforesaved()
 	{
 		/*
-		 * FIXME: The below is should be deleted since Netric\Entity\ObjType\Comment does the work
+		 * FIXME: The below is should be deleted since Netric\Entity\ObjType\CommentEntity does the work
 		 *
 		// Set comments associations to all directly associated objects
 		if ($this->getValue('obj_reference'))

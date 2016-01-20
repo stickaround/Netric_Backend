@@ -153,7 +153,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 * Save main processor
 	 *
 	 * @param Entity $entity The enitity to save
-     * @param \Netric\Entity\ObjType\User $user Optional user performing the save if other than current in $this->account
+     * @param \Netric\Entity\ObjType\UserEntity $user Optional user performing the save if other than current in $this->account
      * @return int|bool If success the id of the saved entity will be returned, false if failure
 	 */
 	public function save($entity, $user=null)

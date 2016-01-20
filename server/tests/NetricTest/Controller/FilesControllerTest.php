@@ -28,7 +28,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
     /**
      * Test user
      *
-     * @var \Netric\Entity\ObjType\User
+     * @var \Netric\Entity\ObjType\UserEntity
      */
     private $user = null;
 
@@ -61,7 +61,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
 
         // Set the current user as administrator so permissions are not an issue
         $loader = $sl->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\User::USER_ADMINISTRATOR);
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         $this->account->setCurrentUser($user);
 
         // Create the controller
@@ -144,7 +144,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals(\Netric\Entity\ObjType\User::USER_ADMINISTRATOR, $file->getValue("owner_id"));
+        $this->assertEquals(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR, $file->getValue("owner_id"));
     }
 
     /**
@@ -204,7 +204,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals(\Netric\Entity\ObjType\User::USER_ADMINISTRATOR, $file->getValue("owner_id"));
+        $this->assertEquals(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR, $file->getValue("owner_id"));
     }
 
     /**
@@ -280,7 +280,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
         // Test file
         $this->assertEquals("files-upload-test.txt", $file->getValue("name"));
         $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
-        $this->assertEquals(\Netric\Entity\ObjType\User::USER_ADMINISTRATOR, $file->getValue("owner_id"));
+        $this->assertEquals(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR, $file->getValue("owner_id"));
 
         // Test the second file
         $this->assertEquals("files-upload-test2.txt", $file2->getValue("name"));

@@ -1,16 +1,17 @@
 <?php
 /**
- * Test entity email class
+ * Test entity task class
  */
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
+use Netric\Entity\ObjType\UserEntity;
 use PHPUnit_Framework_TestCase;
 
-class EmailMessageTest extends PHPUnit_Framework_TestCase
+class TaskTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Tenant account
+     * Tennant account
      *
      * @var \Netric\Account
      */
@@ -38,7 +39,8 @@ class EmailMessageTest extends PHPUnit_Framework_TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("email_message");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\EmailMessageEntity", $entity);
+        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("task");
+        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("task");
+        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\TaskEntity", $entity);
     }
 }

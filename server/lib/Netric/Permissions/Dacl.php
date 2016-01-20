@@ -93,9 +93,9 @@ class Dacl
 		// Make sure this DACL can be accessed by someone
 		if (count($this->entries) == 0)
 		{
-			$this->allowGroup(\Netric\Entity\ObjType\User::GROUP_USERS);
-			$this->allowGroup(\Netric\Entity\ObjType\User::GROUP_CREATOROWNER);
-			$this->allowGroup(\Netric\Entity\ObjType\User::GROUP_ADMINISTRATORS);
+			$this->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_USERS);
+			$this->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_CREATOROWNER);
+			$this->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS);
 		}
 	}	
 
@@ -321,7 +321,7 @@ class Dacl
 		$granted = false;
 		$groups = $user->getGroups();
 		if ($isowner)
-			$groups[] = User::GROUP_CREATOROWNER; // Add to Creator/Owner group
+			$groups[] = UserEntity::GROUP_CREATOROWNER; // Add to Creator/Owner group
 
 		// Sometimes used for user-specific objects like calendars
 		if ($ignoreadmin)
@@ -329,7 +329,7 @@ class Dacl
 			$tmp_groups = array();
 			foreach ($groups as $gid)
 			{
-				if ($gid != User::GROUP_ADMINISTRATORS) // Admin
+				if ($gid != UserEntity::GROUP_ADMINISTRATORS) // Admin
 					$tmp_groups[] = $gid;
 			}
 			unset($groups);

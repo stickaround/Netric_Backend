@@ -17,7 +17,7 @@ use Netric\Mail\Address;
 /**
  * Notification entity
  */
-class Notification extends Entity implements EntityInterface
+class NotificationEntity extends Entity implements EntityInterface
 {
     /**
      * Mail transport for sending messages

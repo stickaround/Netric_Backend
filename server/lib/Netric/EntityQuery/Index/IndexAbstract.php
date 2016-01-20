@@ -5,7 +5,7 @@
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition;
-use Netric\Entity\ObjType\User;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\Entity\Recurrence;
@@ -281,7 +281,7 @@ abstract class IndexAbstract
         if ($user)
         {
             // Replace current user
-            if (intval($value) === USER::USER_CURRENT && (
+            if (intval($value) === UserEntity::USER_CURRENT && (
                     ($field->type == "object" && $field->subtype == "user") ||
                     (
                         ($field->type == "fkey" || $field->type == "fkey_multi")
@@ -310,7 +310,7 @@ abstract class IndexAbstract
              */
             // Replace object reference with user variables
             if (($field->type == "object" || $field->type == "object_multi") && !$field->subtype
-                && $value == "user:" . USER::USER_CURRENT)
+                && $value == "user:" . UserEntity::USER_CURRENT)
                 $value = "user:" . $user->getId();
         }
 

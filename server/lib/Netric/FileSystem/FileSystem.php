@@ -9,9 +9,9 @@ namespace Netric\FileSystem;
 
 use Netric\Error;
 use Netric\EntityQuery;
-use Netric\Entity\ObjType\User;
-use Netric\Entity\ObjType\Folder;
-use Netric\Entity\ObjType\File;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\FolderEntity;
+use Netric\Entity\ObjType\FileEntity;
 use Netric\EntityLoader;
 use Netric\Entity\DataMapperInterface;
 use Netric\FileSystem\FileStore\FileStoreInterface;
@@ -76,13 +76,13 @@ class FileSystem implements Error\ErrorAwareInterface
      * Class constructor
      *
      * @param FileStoreInterface $fileStore Default fileStore for file data
-     * @param User $user Current user
+     * @param UserEntity $user Current user
      * @param EntityLoader $entityLoader Used to load foldes and files
      * @param DataMapperInterface $dataMapper DataMapper for account
      */
     public function __construct(
         FileStoreInterface $fileStore,
-        User $user,
+        UserEntity $user,
         EntityLoader $entityLoader,
         DataMapperInterface $dataMapper,
         EntityQuery\Index\IndexInterface $entityQueryIndex)
@@ -157,11 +157,11 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Delete a file
      *
-     * @param File $file The file to delete
+     * @param FileEntity $file The file to delete
      * @param bool|false $purge If true the permanently purge the file
      * @return bool True on success, false on failure.
      */
-    public function deleteFile(File $file, $purge = false)
+    public function deleteFile(FileEntity $file, $purge = false)
     {
         return $this->entityDataMapper->delete($file, $purge);
     }
@@ -173,7 +173,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param bool|false $purge If true the permanently purge the file
      * @return bool True on success, false on failure.
      */
-    public function deleteFolder(Folder $folder, $purge = false)
+    public function deleteFolder(FolderEntity $folder, $purge = false)
     {
         return $this->entityDataMapper->delete($folder, $purge);
     }
@@ -307,10 +307,10 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Determine if file is a temp file
      *
-     * @param File $file The file to check
+     * @param FileEntity $file The file to check
      * @return bool true if a temp file, false if it is note in the temp directory
      */
-    public function fileIsTemp(File $file)
+    public function fileIsTemp(FileEntity $file)
     {
         if (!$file->getId())
             return false;
@@ -326,11 +326,11 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Move a file to a new folder
      *
-     * @param File $file The file to move
-     * @param Folder $toFolder The folder to move to
+     * @param FileEntity $file The file to move
+     * @param FolderEntity $toFolder The folder to move to
      * @return bool true on success, false if failed
      */
-    public function moveFile(File $file, Folder $toFolder)
+    public function moveFile(FileEntity $file, FolderEntity $toFolder)
     {
         if (!$file || !$toFolder || !$toFolder->getId())
             return false;
@@ -388,7 +388,7 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Write data to a file
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @param mixed $data Binary data to write
      * @param bool $append If false then file will be overwritten
      * @return int number of bytes written
@@ -402,12 +402,12 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Read and return numBypes (or all) of a file
      *
-     * @param File $file The meta-data Entity for this file
+     * @param FileEntity $file The meta-data Entity for this file
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
      */
-    public function readFile(File $file, $numBytes = null, $offset = null)
+    public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         return $this->fileStore->readFile($file, $numBytes, $offset);
     }
@@ -519,10 +519,10 @@ class FileSystem implements Error\ErrorAwareInterface
      * Get a child folder by name
      *
      * @param $name
-     * @param Folder $parentFolder The folder that contains a child folder named $name
+     * @param FolderEntity $parentFolder The folder that contains a child folder named $name
      * @return Folder|null
      */
-    private function getChildFolderByName($name, Folder $parentFolder)
+    private function getChildFolderByName($name, FolderEntity $parentFolder)
     {
         $query = new EntityQuery("folder");
         $query->where("parent_id")->equals($parentFolder->getId());
@@ -540,10 +540,10 @@ class FileSystem implements Error\ErrorAwareInterface
      * Get a child file by name
      *
      * @param string $fileName The name of the file to look for
-     * @param Folder $parentFolder The folder that contains a child folder named $name
+     * @param FolderEntity $parentFolder The folder that contains a child folder named $name
      * @return Folder|null
      */
-    private function getChildFileByName($fileName, Folder $parentFolder)
+    private function getChildFileByName($fileName, FolderEntity $parentFolder)
     {
         $query = new EntityQuery("file");
         $query->where("folder_id")->equals($parentFolder->getId());
