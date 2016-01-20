@@ -53,7 +53,7 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
         $params = $this->getParams($entity);
 
         // Execute now if no interval is set or it's been set to 'execute immediately'
-        if (!isset($params['when_unit']) || $params['when_interval'] === 0)
+        if (!isset($params['when_unit']) || !isset($params['when_interval']) || $params['when_interval'] === 0)
             return true;
 
         // We cannot set future actions if we are not running in a workflow instance

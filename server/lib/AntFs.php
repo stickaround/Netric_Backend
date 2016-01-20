@@ -463,6 +463,9 @@ class AntFs
 	 */
 	public function getAccountDirectory($dbh=null)
 	{
+		// Now we have update the path in the new netric FileSystem
+		return $this->getAccountDirectoryNew($dbh);
+
 		if (!$dbh && isset($this) && get_class($this) == __CLASS__)
 			$dbh = $this->dbh;
 
@@ -482,7 +485,7 @@ class AntFs
 		}
 
 		// Now create namespace dir for dbname
-		$path .=  "/" . $dbh->dbname;		
+		$path .=  "/" . $dbh->dbname;
 
 		if (!file_exists($path))
 		{

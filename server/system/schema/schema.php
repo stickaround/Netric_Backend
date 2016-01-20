@@ -1,6 +1,6 @@
 <?php
 /**
- * This is the new schema file for netric. All changes to the schema will be entered here
+ * This is the legacy schema file for netric. All changes to the schema will be entered here
  * and each time schema update is run it will go through every table and make sure
  * every column exists and matches the type.
  *

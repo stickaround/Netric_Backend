@@ -105,4 +105,12 @@ class SetupTest extends PHPUnit_Framework_TestCase
         // Cleanup
         $this->mapper->deleteAccount($account);
     }
+
+    /**
+     * Test updating an application
+     */
+    public function testUpdateApplication()
+    {
+        $this->assertTrue($this->setup->updateApplication($this->application));
+    }
 }

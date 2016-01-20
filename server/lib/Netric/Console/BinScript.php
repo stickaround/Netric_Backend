@@ -96,6 +96,16 @@ class BinScript
     }
 
     /**
+     * Get the application instance we are running in
+     *
+     * @return Application
+     */
+    protected function getApplication()
+    {
+        return $this->application;
+    }
+
+    /**
      * Main execution function
      *
      * @param string $scriptPath Could be a directory name, in which case we will look for main.php

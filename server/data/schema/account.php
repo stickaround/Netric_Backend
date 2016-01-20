@@ -1,6 +1,14 @@
 <?php
 /**
  * Schema file for an account's database
+ *
+ * This is the new schema file for netric. All changes to the schema will be entered here
+ * and each time 'netric update' is run it will go through every table and make sure
+ * every column exists and matches the type.
+ *
+ * Column drops will need to be handled in the update deltas found in ../../bin/scripts/update/* but now
+ * all deltas must assume the newest schema so they will be used for post-update processing,
+ * to migrate data, and to clean-up after previous changes.
  */
 namespace data\schema;
 
@@ -341,8 +349,8 @@ return array(
     "async_states" => array(
         "PROPERTIES" => array(
             'id'			=> array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-            'key'			=> array(SchemaProperty::TYPE_CHAR_TEXT),
-            'value'			=> array(SchemaProperty::TYPE_CHAR_TEXT),
+            'key'			=> array('type'=>SchemaProperty::TYPE_CHAR_TEXT),
+            'value'			=> array('type'=>SchemaProperty::TYPE_CHAR_TEXT),
             'user_id'		=> array('type'=>SchemaProperty::TYPE_INT),
             'att_id'		=> array('type'=>SchemaProperty::TYPE_INT),
             'time_id'		=> array('type'=>SchemaProperty::TYPE_INT),

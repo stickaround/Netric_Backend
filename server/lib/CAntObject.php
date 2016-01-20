@@ -2438,9 +2438,11 @@ class CAntObject
 		// Log changes
 		if ($oldvalraw != $this->values[$name])
 		{
+			/* This was causing a circular load with files and users - Sky
 			if (isset($field) && ($field->type == 'fkey_multi' || $field->type == 'object_multi'))
 				$newval = $this->getForeignValue($name, $value, false);
 			else
+			*/
 				$newval = $this->values[$name];
 
 			$this->changelog[$name] = array(

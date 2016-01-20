@@ -7,7 +7,9 @@ namespace Netric\Application\Setup;
 
 use Netric\Application;
 use Netric\Account;
-use Netric\Account\Schema\SchemaDataMapperInterface;
+use Netric\Application\Schema\SchemaDataMapperInterface;
+use Netric\Application\Schema\SchemaDataMapperPgsql;
+use Netric\Db\Pgsql;
 use Netric\Error\AbstractHasErrors;
 
 /**
@@ -16,18 +18,23 @@ use Netric\Error\AbstractHasErrors;
 class Setup extends AbstractHasErrors
 {
     /**
-     * Initialize the account setup service
-     */
-    public function __construct()
-    {
-    }
-
-    /**
      * Install application on local server
+     *
+     * @param Application $application Instance of application we are updateing
+     * @return bool true on success, false on failure - call $this->getLastError for details
      */
-    public function install()
+    public function updateApplication(Application $application)
     {
-        // TODO: This will create the ansystem database and check the server
+        $schemaDataMapper = $this->getApplicationSchemaDataMapper($application);
+
+        // Update the schema for this application
+        if (!$schemaDataMapper->update())
+        {
+            // Die if we could not create the schema for the account
+            throw new \RuntimeException("Could not update application " . $schemaDataMapper->getLastError()->getMessage());
+        }
+
+        return true;
     }
 
     /**
@@ -42,7 +49,13 @@ class Setup extends AbstractHasErrors
     {
         $this->updateAccount($account);
 
-        // TODO: Create admin user
+        // Create admin user
+        $entityLoader = $account->getServiceManager()->get("EntityLoader");
+        $adminUser = $entityLoader->create("user");
+        $adminUser->setValue("name", $adminUserName);
+        $adminUser->setValue("password", $adminPassword);
+        $adminUser->setIsAdmin(true);
+        $entityLoader->save($adminUser);
 
         // TODO: Send new account registration to Aereus netric for admin
 
@@ -75,5 +88,51 @@ class Setup extends AbstractHasErrors
         $version = $updater->runUpdates();
 
         return $version;
+    }
+
+    /**
+     * When working with an application we have to construct the DataMapper
+     *
+     * With accounts we can use the account ServiceLocator to setup the DataMapper
+     * but with the Application there is no ServiceLocator so we have to setup the DataMapper
+     * here manually. This will cause duplicate connections to the system database but that
+     * should not be a problem since it will only be run once and is typically a background
+     * process that is run from the command-line.
+     *
+     * @param Application $application
+     * @return SchemaDataMapperInterface
+     */
+    private function getApplicationSchemaDataMapper(Application $application)
+    {
+        // Get application config
+        $config = $application->getConfig();
+
+        // Get the application definition
+        $schemaDefinition = include(__DIR__ . "/../../../../data/schema/application.php");
+
+        // Now get the system DataMapper
+        switch ($config->db['type'])
+        {
+            case 'pgsql':
+
+                // Get handle to system database
+                $dbh = new Pgsql(
+                    $config->db['syshost'],
+                    $config->db['sysdb'],
+                    $config->db['user'],
+                    $config->db['password']
+                );
+
+                // Return DataMapper for this database type
+                return new SchemaDataMapperPgsql($dbh, $schemaDefinition);
+
+                break;
+            default:
+
+                // Protect ourselves in the future to make sure new types are added here
+                throw new \RuntimeException("Database type not yet supported: " . $config->db['type']);
+        }
+
+
     }
 }

@@ -2,7 +2,13 @@
 /**
  * Main execution script for the update program
  */
-use Netric\Application\Setup;
+use Netric\Application\Setup\Setup;
+
+/*
+ * Update the application database
+ */
+$applicationSetup = new Setup();
+$applicationSetup->updateApplication($this->getApplication());
 
 /**
  * Loop through each account and update it

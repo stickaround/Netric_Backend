@@ -267,23 +267,6 @@ class Application
     }
 
     /**
-     * Update an existing account version
-     *
-     * @param string $accountName The unique name of the account to upgrade
-     * @param string $toVersion Optional version to upgrade to if not latest
-     * @return string latest version
-     */
-    public function updateAccount($accountName, $toVersion = "")
-    {
-        // Get account by name
-        $account = $this->getAccount(null, $accountName);
-
-        // TODO: Use Setup class to update and get the revision
-
-        // TODO: Return the revision
-    }
-
-    /**
      * Delete an account by name
      *
      * @param string $accountName The unique name of the account to delete

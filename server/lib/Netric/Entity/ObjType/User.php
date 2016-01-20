@@ -151,4 +151,36 @@ class User extends Entity implements EntityInterface
     {
         return ($this->getId() == self::USER_SYSTEM);
     }
+
+    /**
+     * Set whether or not this user is an administrator
+     *
+     * @param bool $isAdmin Flag to indicate if user is an administrator
+     */
+    public function setIsAdmin($isAdmin = true)
+    {
+        if ($isAdmin)
+            $this->addMultiValue("groups", self::GROUP_ADMINISTRATORS, "Administrators");
+        else
+            $this->removeMultiValue("groups", self::GROUP_ADMINISTRATORS);
+    }
+
+    /**
+     * Check if this is an admin account
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        $groups = $this->getGroups();
+        foreach ($groups as $group)
+        {
+            if ($group === self::GROUP_ADMINISTRATORS)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
