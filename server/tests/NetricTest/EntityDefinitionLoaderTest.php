@@ -76,7 +76,8 @@ class EntityDefinitionLoaderTest extends PHPUnit_Framework_TestCase
 	{
 		// Use pgsql datamapper for testing
 		$dm = $this->account->getServiceManager()->get("EntityDefinition_DataMapper");
-		$definitions = $dm->getDefinitions();
+		$allObjectTypes = $dm->getAllObjectTypes();
+		$this->assertTrue(sizeOf($allObjectTypes) > 0);
 
 		// Load all the definitions through the loader which should cache it
 		$loader = $this->account->getServiceManager()->get("EntityDefinitionLoader");

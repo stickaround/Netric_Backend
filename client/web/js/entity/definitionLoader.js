@@ -207,7 +207,7 @@ definitionLoader.getAll = function(cbLoaded) {
 }
 
 /**
- * Map all the definitions and create a entity/Definition for each definition
+ * Map the raw data for a list of definitions to entity/Definition objects
  *
  * @param {array} definitions Array of all definitions
  *

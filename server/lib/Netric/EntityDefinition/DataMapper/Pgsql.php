@@ -1477,35 +1477,20 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 	}
 
 	/**
-	 * Get all the entity definitions
+	 * Get all the entity object types
 	 *
 	 * @return array Collection of objects
 	 */
-	public function getDefinitions() {
+	public function getAllObjectTypes() {
 		$dbh = $this->dbh;
-		$result = $dbh->query("select id, name, object_table, revision, title, object_table, f_system from app_object_types order by title");
+		$result = $dbh->query("select name from app_object_types");
 
 		$num = $dbh->getNumRows($result);
 		$ret = array();
 		for ($i = 0; $i < $num; $i++)
 		{
 			$row = $dbh->getRow($result, $i);
-
-			$def = new \Netric\EntityDefinition($row['name']);
-
-			$def->title = $row["title"];
-			$def->revision = $row["revision"];
-			$def->system = ($row["f_system"] != 'f') ? true : false;
-			$def->setId($row["id"]);
-			if ($row['object_table'])
-				$def->setCustomTable($row['object_table']);
-
-			// If this is the first load of this object type and not a custom table
-			// then create the object table
-			if ($def->revision <= 0 && !$def->useCustomTable)
-				$this->save($def);
-
-			$ret[] = $def;
+			$ret[] = $row['name'];
 		}
 
 		return $ret;

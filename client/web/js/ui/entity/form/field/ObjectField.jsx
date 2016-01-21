@@ -54,7 +54,7 @@ var ObjectField = React.createClass({
             }.bind(this));
         }
 
-        // If this field do NOT have a subtype, then load the definitions and let the user pick a subtype
+        // If this field does NOT have a subtype, then load the definitions and let the user pick a subtype
         if (!field.subtype) {
             var func = function ProcessReturnedDefinitions (definitions) {
                 this.setState({definitions: definitions});
