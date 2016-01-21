@@ -82,43 +82,50 @@ class ProjectEntity extends Entity implements EntityInterface
      */
     public function cloneTo(Entity $toEntity)
     {
+        // Get data from the project entity we are cloning
+        $toEntityId = $toEntity->getId();
+        $startDate = $toEntity->getValue("ts_created");
+        $deadline = $toEntity->getValue("date_deadline");
+        $toFromTs = ($deadline) ? $deadline : $startDate;
+        $thisFromTs = ($this->getValue("date_deadline")) ? $this->getValue("date_deadline") : $this->getValue("ts_created");
+
         // Perform the shallow copy of fields
         parent::cloneTo($toEntity);
 
-        // Get the project details
-        $startDate = $toEntity->getValue("ts_created");
-        $deadline = $toEntity->getValue("date_deadline");
-        $keyFromTs = ($deadline) ? $deadline : $startDate;
-        $thisFromTs = ($this->getValue("date_deadline")) ? $this->getValue("date_deadline") : $this->getValue("ts_created");
+        // Override $toEntity Id and Dates
+        $toEntity->setId($toEntityId);
+        $toEntity->setValue("ts_created", $startDate);
+        $toEntity->setValue("date_deadline", $deadline);
 
-        // Copy Tasks
+        // Query the tasks of this project entity
         $query = new EntityQuery("task");
-        $query->where('project')->equals($fromPid);
+        $query->where('project')->equals($this->getId());
 
         // Execute query and get num results
-        $res = $this->entityIndex->executeQuery($query);
+        $res = $this->indexInterface->executeQuery($query);
         $num = $res->getNum();
 
-        // Loop through each task
+        // Loop through each task of this project entity
         for ($i = 0; $i < $num; $i++) {
             $task = $res->getEntity($i);
 
+            // Create a new task to be cloned
             $toTask = $this->entityLoader->create("task");
 
             $task->cloneTo($toTask);
 
-            // Move task to this project
-            $toTask->setValue("project", $this->getId());
+            // Move task to the project entity we are cloning
+            $toTask->setValue("project", $toEntityId);
 
             // Move due date
             if ($task->getValue("deadline"))
             {
                 $taskTime = $task->getValue("deadline");
-                $diff = $taskTime - $keyFromTs;
+                $diff = $taskTime - $thisFromTs;
 
                 // Calculate new time
-                $newTime = $diff + $thisFromTs;
-                $newTask->setValue("deadline", date("m/d/Y", $newTime));
+                $newTime = $diff + $toFromTs;
+                $toTask->setValue("deadline", date("m/d/Y", $newTime));
             }
 
             // Save the task

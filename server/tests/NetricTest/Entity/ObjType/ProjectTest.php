@@ -49,7 +49,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
     /**
      * Test the cloning of project
      */
-    public function cloneTo()
+    public function testCloneTo()
     {
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $proj1 = $this->account->getServiceManager()->get("EntityFactory")->create("project");
@@ -73,7 +73,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $pid_2 = $entityLoader->save($proj2);
 
         // Clone the task from the first
-        $proj2->cloneTo($proj2);
+        $proj1->cloneTo($proj2);
 
         // Get the new task
         $query = new EntityQuery("task");
