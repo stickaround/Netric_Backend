@@ -49,7 +49,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
     /**
      * Test the cloning of project
      */
-    public function testCloneObjectReference()
+    public function cloneTo()
     {
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $proj1 = $this->account->getServiceManager()->get("EntityFactory")->create("project");
@@ -73,13 +73,13 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $pid_2 = $entityLoader->save($proj2);
 
         // Clone the task from the first
-        $queryIndex = new Pgsql($this->account);
-        $proj2->cloneObjectReference($this->account->getServiceManager(), $queryIndex, $pid_1);
+        $proj2->cloneTo($proj2);
 
         // Get the new task
         $query = new EntityQuery("task");
         $query->where('project')->equals($pid_2);
 
+        $queryIndex = new Pgsql($this->account);
         $res = $queryIndex->executeQuery($query);
         $num = $res->getNum();
         $newTask = $res->getEntity(0);

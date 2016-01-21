@@ -9,6 +9,7 @@ namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager;
 use Netric\Entity;
+use Netric\EntityQuery\Index\Pgsql;
 
 /**
  * Create a new project entity
@@ -24,6 +25,8 @@ class ProjectFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("project");
-        return new ProjectEntity($def);
+        $indexInterface = new Pgsql($sl->getAccount());
+        $entityLoader = $sl->get("EntityLoader");
+        return new ProjectEntity($def, $entityLoader, $indexInterface);
     }
 }

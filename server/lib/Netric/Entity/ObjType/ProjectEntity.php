@@ -8,10 +8,11 @@
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\EntityQuery;
-use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\EntityLoader;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexInterface;
 
 /**
  * Project represents a single project entity
@@ -19,9 +20,38 @@ use Netric\Entity\EntityInterface;
 class ProjectEntity extends Entity implements EntityInterface
 {
     /**
+     * Entity index for running queries against
+     *
+     * @var IndexInterface
+     */
+    private $indexInterface = null;
+
+    /**
+     * The loader for a specific entity
+     *
+     * @var EntityLoader
+     */
+    private $entityLoader = null;
+
+    /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     * @param IndexInterface $index IndexInterface for running queries against
+     */
+    public function __construct(&$def, EntityLoader $entityLoader, IndexInterface $indexInterface)
+    {
+        parent::__construct($def);
+
+        $this->entityLoader = $entityLoader;
+        $this->indexInterface = $indexInterface;
+    }
+
+    /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
      */
     public function onBeforeSave(ServiceLocatorInterface $sm)
     {
@@ -46,23 +76,18 @@ class ProjectEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Clone object references from a project id
+     * Perform a clone of the project entity to another project
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
-     * @param Netric\EntityQuery\Index\IndexInterface $index for querying tasks from project
-     * @param int $fromPid The project to copy references from
+     * @param Entity $toEntity The entity that we are cloning to
      */
-    public function cloneObjectReference(ServiceLocatorInterface $sm, IndexInterface $index, $fromPid)
+    public function cloneTo(Entity $toEntity)
     {
-        $entityLoader = $sm->get("EntityLoader");
-        $entityFactory = $sm->get("EntityFactory");
-        $currentUser = $sm->getAccount()->getUser();
-
-        $project = $entityLoader->get("project", $fromPid);
+        // Perform the shallow copy of fields
+        parent::cloneTo($toEntity);
 
         // Get the project details
-        $startDate = $project->getValue("ts_created");
-        $deadline = $project->getValue("date_deadline");
+        $startDate = $toEntity->getValue("ts_created");
+        $deadline = $toEntity->getValue("date_deadline");
         $keyFromTs = ($deadline) ? $deadline : $startDate;
         $thisFromTs = ($this->getValue("date_deadline")) ? $this->getValue("date_deadline") : $this->getValue("ts_created");
 
@@ -71,19 +96,19 @@ class ProjectEntity extends Entity implements EntityInterface
         $query->where('project')->equals($fromPid);
 
         // Execute query and get num results
-        $res = $index->executeQuery($query);
+        $res = $this->entityIndex->executeQuery($query);
         $num = $res->getNum();
 
         // Loop through each task
         for ($i = 0; $i < $num; $i++) {
             $task = $res->getEntity($i);
 
-            $newTask = $entityFactory->create("task");
+            $toTask = $this->entityLoader->create("task");
 
-            $task->cloneTo($newTask);
+            $task->cloneTo($toTask);
 
             // Move task to this project
-            $newTask->setValue("project", $this->getId());
+            $toTask->setValue("project", $this->getId());
 
             // Move due date
             if ($task->getValue("deadline"))
@@ -97,7 +122,7 @@ class ProjectEntity extends Entity implements EntityInterface
             }
 
             // Save the task
-            $entityLoader->save($newTask);
+            $this->entityLoader->save($toTask);
         }
     }
 }
