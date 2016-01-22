@@ -359,7 +359,7 @@ class EntityController extends Mvc\AbstractController
      *
      * @return array Object Type defintion with all the additional info of the object type
      */
-    private function fillDefinitionArray(EntityDefinition $def)
+    private function fillDefinitionArray(\Netric\EntityDefinition $def)
     {
         $serviceManager = $this->account->getServiceManager();
         $user = $this->account->getUser();
