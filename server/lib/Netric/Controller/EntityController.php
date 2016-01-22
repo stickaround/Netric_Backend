@@ -36,7 +36,7 @@ class EntityController extends Mvc\AbstractController
 			return $this->sendOutput(array("error"=>$params['obj_type'] . " could not be loaded"));
 		}
 
-        $ret = $this->getFormViews($def);
+        $ret = $this->fillDefinitionArray($def);
 
         return $this->sendOutput($ret);
 	}
@@ -341,7 +341,7 @@ class EntityController extends Mvc\AbstractController
 
         $ret = array();
         foreach($definitions as $def) {
-            $ret[] = $this->getFormViews($def);
+            $ret[] = $this->fillDefinitionArray($def);
         }
 
         if (sizeOf($ret) == 0)
@@ -359,7 +359,7 @@ class EntityController extends Mvc\AbstractController
      *
      * @return array Object Type defintion with all the additional info of the object type
      */
-    private function getFormViews($def)
+    private function fillDefinitionArray(EntityDefinition $def)
     {
         $serviceManager = $this->account->getServiceManager();
         $user = $this->account->getUser();
