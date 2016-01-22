@@ -82,7 +82,7 @@ class ProjectEntity extends Entity implements EntityInterface
      */
     public function cloneTo(Entity $toEntity)
     {
-        // Get the id of $toEntity since ::cloneTo() will set the $toEntity's id. We assign it back later after cloning this project
+        // Get the id of $toEntity since ::cloneTo() will set the $toEntity's id to null. We assign it back later after cloning this project
         $toEntityId = $toEntity->getId();
 
         // Perform the shallow copy of fields
