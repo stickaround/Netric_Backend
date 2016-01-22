@@ -5,6 +5,7 @@
 namespace Netric\Controller;
 
 use \Netric\Mvc;
+use \Netric\EntityDefinition;
 
 class EntityController extends Mvc\AbstractController
 {
