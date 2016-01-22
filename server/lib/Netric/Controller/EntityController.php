@@ -5,6 +5,7 @@
 namespace Netric\Controller;
 
 use \Netric\Mvc;
+use \Netric\EntityDefinition;
 
 class EntityController extends Mvc\AbstractController
 {
@@ -359,7 +360,7 @@ class EntityController extends Mvc\AbstractController
      *
      * @return array Object Type defintion with all the additional info of the object type
      */
-    private function fillDefinitionArray(\Netric\EntityDefinition $def)
+    private function fillDefinitionArray(EntityDefinition $def)
     {
         $serviceManager = $this->account->getServiceManager();
         $user = $this->account->getUser();
