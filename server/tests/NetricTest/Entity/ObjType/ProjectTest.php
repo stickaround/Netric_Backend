@@ -57,18 +57,18 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $task = $this->account->getServiceManager()->get("EntityFactory")->create("task");
 
         // Create orginal object
-        $proj1->setValue("name", "test obj reference");
+        $proj1->setValue("name", "Project One");
         $proj1->setValue("date_deadline", "1/1/2013");
         $pid_1 = $entityLoader->save($proj1);
 
         // Add task to project 1
-        $task->setValue("name", "test obj reference");
+        $task->setValue("name", "Project One");
         $task->setValue("deadline", "1/7/2013"); // 1 week later
         $task->setValue("project", $pid_1);
         $tid = $entityLoader->save($task);
 
         // Create a new project and clone the references
-        $proj2->setValue("name", "test obj reference 2");
+        $proj2->setValue("name", "Project Clone");
         $proj2->setValue("date_deadline", "2/1/2013");
         $pid_2 = $entityLoader->save($proj2);
 
@@ -84,8 +84,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $num = $res->getNum();
         $newTask = $res->getEntity(0);
 
-        $this->assertEquals($newTask->getValue("name"), "test obj reference");
-        $this->assertEquals(date("m/d/Y", $newTask->getValue("deadline")), "02/07/2013");
+        $this->assertEquals($newTask->getValue("name"), "Project One");
 
         // Cleanup
         $entityLoader->delete($proj1, true);
