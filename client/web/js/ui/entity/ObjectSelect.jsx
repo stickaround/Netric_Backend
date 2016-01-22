@@ -28,8 +28,10 @@ var ObjectSelect = React.createClass({
         onChange: React.PropTypes.func,
         // The object type we are working with
         objType: React.PropTypes.string.isRequired,
-        // The grouping field name
-        fieldName: React.PropTypes.string.isRequired,
+        // The grouping field that we are working on
+        field: React.PropTypes.object.isRequired,
+        // The subtype of the field. This is usually set if props.field.subtype is empty.
+        subtype: React.PropTypes.string,
         // The current value
         value: React.PropTypes.string,
         // The current label - entity title
@@ -45,7 +47,9 @@ var ObjectSelect = React.createClass({
         return {
             label: 'None',
             value: null,
-            required: false
+            required: false,
+            field: null,
+            subType: null
         };
     },
 
@@ -83,30 +87,21 @@ var ObjectSelect = React.createClass({
     /**
      * The user has clicked browse to select an entity
      *
-     * @param {DOMEvent} evt
-     * @private
      */
-    _handleBrowseClick: function(evt) {
+    _handleBrowseClick: function(field) {
 
-        // Get the field from the defition
-        definitionLoader.get(this.props.objType, function(def) {
-            var field = def.getField(this.props.fieldName);
-            this._displayBrowser(field);
-        }.bind(this));
+        if (!this.props.field) {
+            throw "Field is required.";
+        }
 
-    },
-
-    /**
-     * Display entity browser for selection
-     */
-    _displayBrowser: function(field) {
-
-        if (!field) {
-            throw "Could not load field: " + this.props.fieldName;
+        // Get the field subtype
+        var subtype = field.subtype;
+        if(!subtype) {
+            subtype = this.props.subtype;
         }
 
         // Make sure the field is an object, otherwise fail
-        if (field.type != field.types.object && field.subtype) {
+        if (field.type != field.types.object && subtype) {
             throw "Field " + field.name + " is not an object/entity reference";
         }
 
@@ -119,7 +114,7 @@ var ObjectSelect = React.createClass({
         browser.load({
             type: controller.types.DIALOG,
             title: "Select " + field.title,
-            objType: field.subtype,
+            objType: subtype,
             onSelect: function(objType, oid, title) {
                 this._handleChange(oid, title);
             }.bind(this)

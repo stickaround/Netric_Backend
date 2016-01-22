@@ -1,0 +1,12 @@
+[{
+    "obj_type":"customer",
+    "title":"Customer"
+},
+{
+    "obj_type":"projects",
+    "title":"Projects"
+},
+{
+    "obj_type":"task",
+    "title":"Task"
+}]

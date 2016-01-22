@@ -27,7 +27,6 @@ class EntityController extends Mvc\AbstractController
 
 		// Get the service manager and current user
 		$serviceManager = $this->account->getServiceManager();
-		$user = $this->account->getUser();
 
 		// Load the entity definition
 		$defLoader = $serviceManager->get("EntityDefinitionLoader");
@@ -37,46 +36,7 @@ class EntityController extends Mvc\AbstractController
 			return $this->sendOutput(array("error"=>$params['obj_type'] . " could not be loaded"));
 		}
 
-		$ret = $def->toArray();
-
-		// TODO: Get browser mode preference (Netric/Entity/ObjectType/User has no getSetting)
-		/*
-		$browserMode = $user->getSetting("/objects/browse/mode/" . $params['obj_type']);
-		// Set default view modes
-		if (!$browserMode) 
-		{
-			switch ($params['obj_type'])
-			{
-			case 'email_thread':
-			case 'note':
-				$browserMode = "previewV";
-				break;
-			default:
-				$browserMode = "table";
-				break;
-			}
-		}
-		$ret["browser_mode"] = $browserMode;
-		*/
-		$ret["browser_mode"] = "table";
-
-		// TODO: Get browser blank content
-
-		// Get forms
-		$entityForms = $serviceManager->get("Netric/Entity/Forms");
-		$ret['forms'] = $entityForms->getDeviceForms($def, $user);
-
-        // Get views from browser view service
-        $viewsService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
-        $browserViews = $viewsService->getViewsForUser($params['obj_type'], $user);
-        $ret['views'] = array();
-        foreach ($browserViews as $view)
-        {
-            $ret['views'][] = $view->toArray();
-        }
-
-        // Return the default view
-        $ret['default_view'] = $viewsService->getDefaultViewForUser($params['obj_type'], $user);
+        $ret = $this->fillDefinitionArray($def);
 
         return $this->sendOutput($ret);
 	}
@@ -364,5 +324,87 @@ class EntityController extends Mvc\AbstractController
         {
             return $this->sendOutput(array("error"=>"No groupings found for specified obj_type and field"));
         }
+    }
+
+    /**
+     * Get all the entity defintions
+     *
+     */
+    public function getDefinitions()
+    {
+        // Get the service manager and current user
+        $serviceManager = $this->account->getServiceManager();
+
+        // Load the entity definition
+        $loader = $serviceManager->get("EntityDefinitionLoader");
+        $definitions = $loader->getAll();
+
+        $ret = array();
+        foreach($definitions as $def) {
+            $ret[] = $this->fillDefinitionArray($def);
+        }
+
+        if (sizeOf($ret) == 0)
+        {
+            return $this->sendOutput(array("Definitions could not be loaded"));
+        }
+
+        return $this->sendOutput($ret);
+    }
+
+    /**
+     * Get the additional info (browser_mode, forms, views, default_view) for the object definition.
+     *
+     * @param Netric\EntityDefinition $def Definition of the object type
+     *
+     * @return array Object Type defintion with all the additional info of the object type
+     */
+    private function fillDefinitionArray(EntityDefinition $def)
+    {
+        $serviceManager = $this->account->getServiceManager();
+        $user = $this->account->getUser();
+
+        $ret = $def->toArray();
+
+        // TODO: Get browser mode preference (Netric/Entity/ObjectType/User has no getSetting)
+        /*
+        $browserMode = $user->getSetting("/objects/browse/mode/" . $params['obj_type']);
+        // Set default view modes
+        if (!$browserMode)
+        {
+            switch ($params['obj_type'])
+            {
+            case 'email_thread':
+            case 'note':
+                $browserMode = "previewV";
+                break;
+            default:
+                $browserMode = "table";
+                break;
+            }
+        }
+        $ret["browser_mode"] = $browserMode;
+        */
+        $ret["browser_mode"] = "table";
+
+        // TODO: Get browser blank content
+
+        // Get forms
+        $entityForms = $serviceManager->get("Netric/Entity/Forms");
+        $ret['forms'] = $entityForms->getDeviceForms($def, $user);
+
+        // Get views from browser view service
+        $viewsService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
+        $browserViews = $viewsService->getViewsForUser($def->getObjType(), $user);
+        $ret['views'] = array();
+        foreach ($browserViews as $view)
+        {
+            $ret['views'][] = $view->toArray();
+        }
+
+        // Return the default view
+        $ret['default_view'] = $viewsService->getDefaultViewForUser($def->getObjType(), $user);
+
+        return $ret;
     }
 }
