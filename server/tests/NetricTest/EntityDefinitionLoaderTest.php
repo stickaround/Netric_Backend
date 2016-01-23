@@ -68,4 +68,21 @@ class EntityDefinitionLoaderTest extends PHPUnit_Framework_TestCase
 		$getCached->setAccessible(true);
 		$this->assertNotEquals(false, $getCached->invoke($loader, "task"));
 	}
+
+	/**
+	 * Test loading all entity definitions
+	 */
+	public function testGetAll()
+	{
+		// Use pgsql datamapper for testing
+		$dm = $this->account->getServiceManager()->get("EntityDefinition_DataMapper");
+		$allObjectTypes = $dm->getAllObjectTypes();
+		$this->assertTrue(sizeOf($allObjectTypes) > 0);
+
+		// Load all the definitions through the loader which should cache it
+		$loader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
+		$loadedDefinitions = $loader->getAll();
+		$this->assertTrue($loadedDefinitions[0]->getId() > 0);
+		$this->assertTrue(sizeOf($loadedDefinitions) > 0);
+	}
 }

@@ -377,6 +377,9 @@ class EntityDefinitionLoader
 	{
 		$this->loadedDefinitions[$objType] = null;
 		$ret = $this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/" . $objType);
+
+		// Remove cached all Object Types
+		$this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes");
 	}
 
 	/**
@@ -398,5 +401,35 @@ class EntityDefinitionLoader
 		}
 
 		return $html;
+	}
+
+	/**
+	 * Load all the definitions
+	 *
+	 * @return array	Collection of object definitions
+	 */
+	public function getAll()
+	{
+		// First try to load the definitions from cache
+		$allObjectTypes = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes");
+
+		// No cache, then load objects from dataMapper
+		if (!$allObjectTypes)
+		{
+			$allObjectTypes = $this->dataMapper->getAllObjectTypes();
+
+			// Cache the loaded objects for future requests
+			$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes", $allObjectTypes);
+		}
+
+		$ret = array();
+		foreach($allObjectTypes as $objType)
+		{
+
+			// Get the defintion of the current $objType
+			$ret[] = $this->get($objType);
+		}
+
+		return $ret;
 	}
 }
