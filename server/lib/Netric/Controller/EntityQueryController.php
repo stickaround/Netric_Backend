@@ -8,8 +8,14 @@ use \Netric\Mvc;
 
 class EntityQueryController extends Mvc\AbstractController
 {
-	public function execute($params=array())
+    /**
+     * Execute a query
+     *
+     * @return Response
+     */
+	public function postExecuteAction()
 	{
+        $params = $this->getRequest()->getParams();
         $ret = array();
         
         if (!isset($params["obj_type"]))

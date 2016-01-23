@@ -26,10 +26,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         $account->setCurrentUser($user);
 
+        $request = $account->getServiceManager()->get("Netric/Request/Request");
+        $request->setParam("controller", "test");
+        $request->setParam("function", "test");
+
         $svr = new Netric\Mvc\Router($account->getApplication());
         $svr->testMode = true;
-        $svr->setClass("Netric\\Controller\\TestController");
-        $ret = $svr->run('test');
+        $ret = $svr->run($request);
 		$this->assertEquals($ret, "test");
     }
 
@@ -42,10 +45,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
+        $request = $account->getServiceManager()->get("Netric/Request/Request");
+        $request->setParam("controller", "test");
+        $request->setParam("function", "test");
+
         $svr = new Netric\Mvc\Router($account->getApplication());
         $svr->testMode = true;
-        $svr->setClass("Netric\\Controller\\TestController");
-        $ret = $svr->run('test');
+        $ret = $svr->run($request);
         // Request should fail because test requires an authenticated user
         $this->assertEquals($ret, false);
     }

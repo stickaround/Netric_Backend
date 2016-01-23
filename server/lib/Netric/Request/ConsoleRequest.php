@@ -7,6 +7,8 @@
  */
 namespace Netric\Request;
 
+use Zend\Console\GetOpt;
+
 class ConsoleRequest implements RequestInterface
 {
 	/**
@@ -23,6 +25,13 @@ class ConsoleRequest implements RequestInterface
      * @var string
      */
     private $scriptName = null;
+
+    /**
+     * The path to the controller and action
+     *
+     * @var sring
+     */
+    private $path = null;
 
 	/**
 	 * Initialize request object variables
@@ -52,13 +61,19 @@ class ConsoleRequest implements RequestInterface
             $this->setScriptName(array_shift($args));
         }
 
-        /**
+        /*
+         * Extract the second parameter which is the path
+         */
+        if (count($args) >= 1) {
+            $this->path = array_shift($args);
+        }
+
+        /*
          * Store runtime params
          */
-        $this->params = $args;
-        //$this->setContent($args);
+        $this->params = $this->parseArgs($args);
 
-        /**
+        /*
          * Store environment data
          */
         $this->envParams = $env;
@@ -137,5 +152,88 @@ class ConsoleRequest implements RequestInterface
     public function getScriptName()
     {
         return $this->scriptName;
+    }
+
+    /**
+     * Convert arguments into named params
+     *
+     * @param array $args The arguments to parse into params
+     * @return array An associative array of params for each arg
+     */
+    private function parseArgs(array $args)
+    {
+        $options = $this->getOptionsFromArgs($args);
+
+        $getOpt = new GetOpt($options, $args);
+
+        return $getOpt->getArguments();
+    }
+
+    /**
+     * Loop through all args and extract options that start with - or -- for getopts
+     *
+     * @param array $args The arguments to parse
+     * @return \array
+     */
+    private function getOptionsFromArgs(array $args)
+    {
+        $options = [];
+
+        foreach ($args as $arg) {
+
+            // Skip malformed arguments
+            if (strlen($arg) < 2)
+                continue;
+
+            // Extract all options from the arguments
+            if ($arg[0] == '-') {
+                // If -- then jump 2, otherwise 1
+                $start = ($arg[1] == '-') ? 2 : 1;
+
+                $paramName = "";
+                $end = strlen($arg);
+                for ($i = $start; $i < $end; $i++) {
+
+                    // Finish when we see the delimiter
+                    if ($arg[$i] == '=' || $arg[$i] == ' ')
+                        break;
+
+                    $paramName .= $arg[$i];
+                }
+
+                if ($paramName && $start == 2) {
+                    // Add long option
+                    $options[$paramName . "=s"] = $paramName;
+                } else if ($paramName && $start == 1) {
+                    // Add short options
+                    $options[$paramName . "-s"] = $paramName;
+                }
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Get the path taht was requested after the server name
+     *
+     * For example, www.mysite.com/my/path would return
+     * 'my/path'.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Get the method/verb of the request type
+     *
+     * @return string Always returns 'CONSOLE'
+     */
+    public function getMethod()
+    {
+        return 'CONSOLE';
     }
 }

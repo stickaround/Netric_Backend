@@ -22,7 +22,7 @@ class TestControllerTest extends PHPUnit_Framework_TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $con = new Netric\Controller\TestController($account);
         $con->testMode = true;
-        $ret = $con->test();
+        $ret = $con->getTestAction();
         $this->assertEquals("test", $ret);
     }
 }

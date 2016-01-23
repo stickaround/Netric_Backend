@@ -459,7 +459,7 @@ class EntityDefinition
 		if (isset($data['revision']))
 			$this->revision = $data['revision'];
 
-		if (is_array($data['fields']))
+		if (isset($data['fields']))
 		{
 			foreach ($data['fields'] as $name=>$fdef)
 			{

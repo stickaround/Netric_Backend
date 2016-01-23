@@ -32,6 +32,9 @@
  */
 namespace Netric\Mvc;
 
+use Netric\Request\RequestInterface;
+use Netric\Application;
+
 /**
  * Expose public class methods to calling script
  */
@@ -49,12 +52,12 @@ class Router
      *
      * @var mixed
 	 */
-	private $svrCls = null;
+	private $controllerClass = null;
 
 	/**
-     * Reference to application calss
+     * Reference to application class
      *
-     * @var \Netric\Application 
+     * @var Application
 	 */
 	private $application = null;
 
@@ -68,9 +71,9 @@ class Router
 	/**
 	 * Class constructor
      * 
-     * @param Netric\Application $application Instance of application
+     * @param Application $application Instance of application
 	 */
-	function __construct($application)
+	function __construct(Application $application)
 	{
         $this->application = $application;
 	}
@@ -88,25 +91,31 @@ class Router
 	/**
 	 * Execute methods in server class
 	 *
-     * @param string $fname The function name to execute
+     * @param RequestInterface $request The request being made to run
 	 * @return true on success, false on failure
 	 */
-	public function run($fName)
+	public function run(RequestInterface $request)
 	{
 		global $_REQUEST;
+        $fName = $this->setControllerAndGetAction($request);
 
 		// Create new instance of class if it does not exist
-		if ($this->className && !$this->svrCls)
+		if ($this->className && !$this->controllerClass && class_exists($this->className))
 		{
 			$clsname = $this->className;
-			$this->svrCls = new $clsname($this->application->getAccount());
+			$this->controllerClass = new $clsname($this->application->getAccount());
             
-            if(isset($this->svrCls->testMode))
-                $this->svrCls->testMode = $this->testMode;
+            if(isset($this->controllerClass->testMode))
+                $this->controllerClass->testMode = $this->testMode;
 		}
+        else
+        {
+            // TODO: return 404	Not Found
+            die($this->className . "->" . $fName . " not found!");
+        }
 
 		$requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
-		if (method_exists($this->svrCls, $fName) && $requestMethod!='OPTIONS')
+		if (method_exists($this->controllerClass, $fName) && $requestMethod!='OPTIONS')
 		{
 			/*
 			 * TODO: $params are no longer needed for action functions
@@ -146,7 +155,7 @@ class Router
             
 			// Manually set output if passed as a param
 			if (isset($params['output']))
-				$this->svrCls->output = $params['output'];
+				$this->controllerClass->output = $params['output'];
 
 			// Check permissions to make sure the current user has access to the controller
 			$hasPermission = $this->currentUserHasPermission();
@@ -154,12 +163,12 @@ class Router
 			// Call class method and pass request params
 			if ($hasPermission)
 			{
-				return call_user_func(array($this->svrCls, $fName), $params);
+				return call_user_func(array($this->controllerClass, $fName), $params);
 			}
 			else
 			{
 				// TODO: return 401	Authorization Required
-				if (!$this->svrCls->testMode)
+				if (!$this->controllerClass->testMode)
 					echo "Authorization Required";
 				return false;
 			}
@@ -172,6 +181,56 @@ class Router
 		}
 	}
 
+    /**
+     * Set the controller and get the action name from the request
+     *
+     * This will set the classname with $this->setClass
+     *
+     * @return string The action name we should be loading
+     */
+    private function setControllerAndGetAction(RequestInterface $request)
+    {
+        $functionName = "default";
+
+        // Check if controller and action were set with .htaccess
+        if ($request->getParam("controller") && $request->getParam("function")) {
+            $controller = $this->normalizeSegment($request->getParam("controller"));
+            $functionName = $this->normalizeSegment($request->getParam("function"));
+        } else {
+            $parts = explode("/", $request->getPath());
+
+            if (count($parts) > 2) {
+                throw new \RuntimeException("Path must be controller/action and no more");
+            }
+
+            $controller = $this->normalizeSegment($parts[0]);
+            $functionName = (isset($parts[1])) ? $this->normalizeSegment($parts[1]) : "default";
+        }
+
+        // Prefix method to functionName and postfix with Action
+        $functionName = strtolower($request->getMethod()) . $functionName . "Action";
+
+        // Set controller class to load
+        $this->setClass("Netric\\Controller\\".$controller."Controller");
+
+        return $functionName;
+    }
+
+    /**
+     * Change a segment name in the form of my-path to MyPath
+     *
+     * @param string $pathSegment
+     * @return string
+     */
+    private function normalizeSegment($pathSegment)
+    {
+        $pathSegment = str_replace("_", " ", $pathSegment);
+        $pathSegment = str_replace("-", " ", $pathSegment);
+        $pathSegment = ucwords($pathSegment);
+        $pathSegment = str_replace(" ", "", $pathSegment);
+        return $pathSegment;
+    }
+
 	/**
 	 * Check permissions to verify that the current user has access to this resource
 	 *
@@ -180,7 +239,7 @@ class Router
 	private function currentUserHasPermission()
 	{
 		// Get the DACL for the selected controller
-		$dacl = $this->svrCls->getAccessControlList();
+		$dacl = $this->controllerClass->getAccessControlList();
 
 		// Get the currently authenticated user
 		$user = $this->application->getAccount()->getUser();

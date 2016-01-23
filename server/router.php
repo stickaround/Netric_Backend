@@ -2,7 +2,13 @@
 /**
  * Router handles loading a controller from a URL route
  */
-require_once("init_application.php");
+
+// Setup autoloader
+include(__DIR__ . "/init_autoloader.php");
+
+//require_once("init_application.php");
+
+/*
 $controller = $_GET['controller'];
 
 // Normalize the controller name to map to a class name
@@ -31,6 +37,7 @@ else
 {
     die("Invalid controller");
 }
+*/
 
 // Set headers to allow CORS since we are using /svr resources in multiple clients
 // @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
@@ -39,6 +46,15 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Authentication");
 
 // Lod up the router and run the $functionName
+/*
 $svr = new Netric\Mvc\Router($application);
-$svr->setClass("Netric\\Controller\\" . $controller . "Controller");
-$svr->run($functionName);
+$request = new Netric\Request\HttpRequest();
+$svr->run($request);
+*/
+
+
+// Get the system config
+$config = new Netric\Config();
+
+// Run the application
+\Netric\Application::init($config)->run();

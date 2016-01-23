@@ -13,8 +13,8 @@ class SchemaDataMapperFactoryTest extends PHPUnit_Framework_TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Account\Schema\SchemaDataMapperInterface',
-            $sm->get('Netric\Account\Schema\SchemaDataMapper')
+            'Netric\Application\Schema\SchemaDataMapperInterface',
+            $sm->get('Netric\Application\Schema\SchemaDataMapper')
         );
     }
 }

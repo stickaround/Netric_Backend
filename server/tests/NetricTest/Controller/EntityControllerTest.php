@@ -39,7 +39,11 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
     public function testGetDefinitionForms()
     {
-        $ret = $this->controller->getDefinition(array("obj_type"=>"customer"));
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('obj_type', "customer");
+
+        $ret = $this->controller->getGetDefinitionAction();
 
         // Make sure the small form was loaded
         $this->assertFalse(empty($ret['forms']['small']));
@@ -55,11 +59,12 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
             'first_name' => "Test",
             'last_name' => "User",
         );
-        $params = array(
-            'raw_body' => json_encode($data)
-        );
 
-        $ret = $this->controller->save($params);
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('raw_body', json_encode($data));
+
+        $ret = $this->controller->postSaveAction();
 
         $this->assertEquals($data['obj_type'], $ret['obj_type']);
         $this->assertEquals($data['first_name'], $ret['first_name']);
@@ -82,7 +87,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $req->setParam("id", $entityId);
 
         // Try to delete
-        $ret = $this->controller->remove();
+        $ret = $this->controller->postRemoveAction();
         $this->assertEquals($entityId, $ret[0]);
     }
 
@@ -92,7 +97,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $req->setParam("obj_type", "customer");
         $req->setParam("field_name", "groups");
 
-        $ret = $this->controller->getGroupings();
+        $ret = $this->controller->getGetGroupingsAction();
         $this->assertFalse(isset($ret['error']));
         $this->assertTrue(count($ret) > 0);
     }

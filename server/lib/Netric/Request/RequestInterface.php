@@ -34,4 +34,21 @@ interface RequestInterface
 	 * @return string
 	 */
 	public function getBody();
+
+	/**
+	 * Get the path taht was requested after the server name
+	 *
+	 * For example, www.mysite.com/my/path would return
+	 * 'my/path'.
+	 *
+	 * @return string
+	 */
+	public function getPath();
+
+    /**
+     * Get the method/verb of the request type
+     *
+     * @return string Usually a HTTP verb or console
+     */
+    public function getMethod();
 }

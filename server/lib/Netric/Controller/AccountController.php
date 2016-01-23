@@ -11,7 +11,7 @@ class AccountController extends Mvc\AbstractController
 	/**
 	 * Get the definition of an account
 	 */
-	public function get()
+	public function getGetAction()
 	{
 		$ret = array(
 			"id" => $this->account->getId(),
@@ -98,5 +98,13 @@ class AccountController extends Mvc\AbstractController
 		}
 
 		return $this->sendOutput($ret);
+	}
+
+	/**
+	 * Just in case they use POST
+	 */
+	public function postGetAction()
+	{
+		return $this->getGetAction();
 	}
 }

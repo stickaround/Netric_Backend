@@ -61,7 +61,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      *
      * At some point we may want to use different databases for different account
      * types or something like that, but for now we are putting everything in a common
-     * database and utilizing postgresql schemas for multi-tenancy.
+     * database and utilizing PostgreSQL's schemas for multi-tenancy.
      *
      * @var null
      */
@@ -146,10 +146,10 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     {
         $ret = array();
         
-        $sql = "SELECT * FROM accounts WHERE name='".$this->dbh->escape($name)."'";
+        $sql = "SELECT * FROM accounts WHERE active is not false";
         if ($version)
             $sql .= " AND version='" . $this->dbh->escape($version) . "'";
-                
+
         $result = $this->dbh->query($sql);
         $num = $this->dbh->getNumRows($result);
         
@@ -267,6 +267,29 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
             $this->errors[] = new Error("Error deleting account", $this->dbh->getLastError());
 
         return ($ret) ? true : false;
+    }
+
+    /**
+     * Create the local database if it does not already exist
+     *
+     * @return bool true if exists, false if not and could not create it with $this->getLastError set
+     */
+    public function createDatabase()
+    {
+        // First try to connect to this database to see if it exists
+        if ($this->dbh->connect())
+            return true;
+
+        // Try to create it by connecting to template1, then create the new db, and reconnect
+        $template1 = new Db\Pgsql($this->host, "template1", $this->username, $this->password);
+        if (!$template1->query("CREATE DATABASE " . $this->database))
+        {
+            $this->errors[] = new Error($this->dbh->getLastError());
+            return false;
+        }
+
+        // New database was crated, now try to reconnect and return the results
+        return ($this->dbh->connect()) ? true : false;
     }
 
     /**

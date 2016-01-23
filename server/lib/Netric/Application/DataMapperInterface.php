@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Short description for file
  * 
@@ -77,4 +76,11 @@ interface DataMapperInterface
      * @return bool true on success, false on failure - call getLastError for details
      */
     public function deleteAccount($accountId);
+
+    /**
+     * Create the application database if it does not already exist
+     *
+     * @return bool true if exists, false if not and could not create it with $this->getLastError set
+     */
+    public function createDatabase();
 }

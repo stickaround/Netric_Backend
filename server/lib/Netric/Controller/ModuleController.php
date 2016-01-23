@@ -10,10 +10,8 @@ class ModuleController extends Mvc\AbstractController
 {
 	/**
 	 * Get the definition of an account
-	 * 
-	 * @param array $params Array of params from get > post > cookie
 	 */
-	public function get($params=array())
+	public function getGetAction()
 	{
 		// TODO: this should be dynamic
 		$ret = array(

@@ -8,6 +8,7 @@ namespace Netric\Console;
 use Netric\Application;
 use Netric\Account;
 use Netric\Console\Exception;
+use Netric\Request\ConsoleRequest;
 
 /**
  * The BinScript is a wrapper to execute simple scripts found in ../bin/scrips
@@ -106,9 +107,20 @@ class BinScript
     }
 
     /**
+     * Get the console request
+     *
+     * @return ConsoleRequest
+     */
+    protected function getRequest()
+    {
+        return $this->application->getRequest();
+    }
+
+    /**
      * Main execution function
      *
      * @param string $scriptPath Could be a directory name, in which case we will look for main.php
+     * @return bool true on success (or throws an exception on failure)
      * @throws Exception\ScriptNotFoundException if the program script cannot be found
      */
     public function run($scriptPath)
@@ -125,6 +137,8 @@ class BinScript
 
         // Run the script within the context of $this function
         include($scriptPath);
+
+        return true;
     }
 
     /**

@@ -333,7 +333,7 @@ return array(
             'xml_navigation' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'f_system' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
-            'team_id		' => array('type' => SchemaProperty::TYPE_INT),
+            'team_id' => array('type' => SchemaProperty::TYPE_INT),
             'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT),
         ),
         'PRIMARY_KEY' => 'id',
@@ -1427,7 +1427,7 @@ return array(
     ),
 
     /**
-     * Table stores refrence of moved objects to another object (like when merged)
+     * Table stores reference of moved objects to another object (like when merged)
      */
     "objects_moved" => array(
         "PROPERTIES" => array(
@@ -1436,9 +1436,6 @@ return array(
             'moved_to' => array('type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true),
         ),
         'PRIMARY_KEY' => array("object_type_id", "object_id"),
-        "INDEXES" => array(
-            array('properties' => array("object_type_id", "moved_to")),
-        )
     ),
 
     /**

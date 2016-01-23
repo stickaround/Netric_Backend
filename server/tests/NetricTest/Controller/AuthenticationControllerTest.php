@@ -93,7 +93,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
 
 
         // Try to authenticate
-        $ret = $this->controller->authenticate();
+        $ret = $this->controller->postAuthenticateAction();
         $this->assertEquals("SUCCESS", $ret['result']);
     }
 
@@ -106,7 +106,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
 
 
         // Try to authenticate
-        $ret = $this->controller->authenticate();
+        $ret = $this->controller->postAuthenticateAction();
         $this->assertEquals("FAIL", $ret['result']);
     }
 
@@ -119,7 +119,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
 
 
         // Try to authenticate
-        $ret = $this->controller->authenticate();
+        $ret = $this->controller->postAuthenticateAction();
         $this->assertEquals("SUCCESS", $ret['result']);
         $this->assertNull($this->controller->getRequest()->getParam("Authentication"));
     }
@@ -130,12 +130,12 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", self::TEST_USER);
         $req->setParam("password", self::TEST_USER_PASS);
-        $ret = $this->controller->authenticate();
+        $ret = $this->controller->postAuthenticateAction();
         $sessionToken = $ret['session_token'];
 
         // Checkin with the valid token
         $this->controller->getRequest()->setParam("Authentication", $sessionToken);
-        $ret = $this->controller->checkin();
+        $ret = $this->controller->getCheckinAction();
         $this->assertEquals("OK", $ret['result']);
     }
 
@@ -145,7 +145,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
         $req = $this->controller->getRequest();
         $req->setParam("username", self::TEST_USER);
         $req->setParam("password", self::TEST_USER_PASS);
-        $ret = $this->controller->authenticate();
+        $ret = $this->controller->postAuthenticateAction();
 
         // Clear the identity to force rechecking
         $sm = $this->account->getServiceManager();
@@ -153,7 +153,7 @@ class AuthenticationControllerTest extends PHPUnit_Framework_TestCase
 
         // Checkin with the valid token
         $this->controller->getRequest()->setParam("Authentication", "BADTOKEN");
-        $ret = $this->controller->checkin();
+        $ret = $this->controller->getCheckinAction();
         $this->assertNotEquals("OK", $ret['result']);
     }
 }

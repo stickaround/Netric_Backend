@@ -974,7 +974,6 @@ class Entity implements \Netric\Entity\EntityInterface
 		}
 	}
 
-
     /**
      * Perform a clone of this entity to another
      *
@@ -983,6 +982,7 @@ class Entity implements \Netric\Entity\EntityInterface
      * ID which will be left blank for saving.
      *
      * @param Entity $toEntity
+     * @param bool $deep Flag to indicate if we should also clone object references
      * @return Entity
      */
     public function cloneTo(Entity $toEntity)

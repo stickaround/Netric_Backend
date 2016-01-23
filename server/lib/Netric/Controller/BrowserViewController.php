@@ -11,12 +11,10 @@ class BrowserViewController extends Mvc\AbstractController
 {
     /**
      * Save a browser view
-     *
-     * @param array $params Associative array of request params
      */
-    public function save($params = array())
+    public function postSaveAction()
     {
-
+        $params = $this->getRequest()->getParams();
         $ret = array();
 
         // Decode the json structure
@@ -36,5 +34,13 @@ class BrowserViewController extends Mvc\AbstractController
         $result = $browserViewService->saveView($view);
 
         return $this->sendOutput($result);
+    }
+
+    /**
+     * Put a browser view
+     */
+    public function putSaveAction()
+    {
+        return $this->postSaveAction();
     }
 }

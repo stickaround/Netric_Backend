@@ -26,10 +26,8 @@ class AuthenticationController extends Mvc\AbstractController
 
 	/**
 	 * Authenticate a new user
-	 * 
-	 * @param array $params Array of params from get > post > cookie
 	 */
-	public function authenticate($params=array())
+	public function getAuthenticateAction()
 	{
 		$username = $this->request->getParam("username");
 		$password = $this->request->getParam("password");
@@ -75,11 +73,17 @@ class AuthenticationController extends Mvc\AbstractController
 	}
 
 	/**
-	 * Clear an identity and log out
-	 * 
-	 * @param array $params Array of params from get > post > cookie
+	 * Authenticate a new user - POST version
 	 */
-	public function logout($params=array())
+	public function postAuthenticateAction($params=array())
+	{
+		return $this->getAuthenticateAction();
+	}
+
+	/**
+	 * Clear an identity and log out
+	 */
+	public function getLogoutAction()
 	{
 		// Destroy any cookies
 		$this->request->setParam("Authentication", null);
@@ -94,10 +98,8 @@ class AuthenticationController extends Mvc\AbstractController
 
 	/**
 	 * Check if a session is still valid
-	 * 
-	 * @param array $params Array of params from get > post > cookie
 	 */
-	public function checkin($params=array())
+	public function getCheckinAction()
 	{
 		$sm = $this->account->getServiceManager();
 		$authService = $sm->get("/Netric/Authentication/AuthenticationService");
@@ -111,10 +113,8 @@ class AuthenticationController extends Mvc\AbstractController
 
 	/**
 	 * Get all accounts associated with a domain and return the name and instance URL
-	 * 
-	 * @param array $params Array of params from get > post > cookie
 	 */
-	public function getAccounts($params=array())
+	public function getGetAccountsAction()
 	{
 		$email = $this->request->getParam("email");
 

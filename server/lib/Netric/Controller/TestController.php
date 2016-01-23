@@ -8,8 +8,19 @@ use \Netric\Mvc;
 
 class TestController extends Mvc\AbstractController
 {
-	public function test($params=array())
+	/**
+	 * For public tests
+	 */
+	public function getTestAction()
 	{
         return $this->sendOutput("test");
+	}
+
+	/**
+	 * For console requests
+	 */
+	public function consoleTestAction()
+	{
+		return $this->getTestAction();
 	}
 }

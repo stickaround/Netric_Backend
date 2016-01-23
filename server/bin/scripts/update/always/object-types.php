@@ -65,15 +65,15 @@ $entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefiniti
 // Loop through each type and add it if it does not exist
 foreach ($types as $objDefData)
 {
-    echo "Running for " . $objDefData['obj_type'] . "\n";
-    $existing = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
-    if (!$existing || !$existing->getId())
-    {
+    // First try loading to see if it already exists
+    try {
+        $existing = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
+    } catch (\Exception $ex) {
+        // If it fails, then we need to add it here
         $def = new EntityDefinition($objDefData['obj_type']);
         $def->fromArray($objDefData);
-        if (!$entityDefinitionDataMapper->save($def))
+        $entityDefinitionDataMapper->save($def);
+        if (!$def->getId())
             throw new \RuntimeException("Could not save " . $entityDefinitionDataMapper->getLastError());
-
-        $this->printLine("Added object type " . $objDefData['obj_type'] . ":" . $def->getId());
     }
 }

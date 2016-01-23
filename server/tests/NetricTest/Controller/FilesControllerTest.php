@@ -122,7 +122,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
          * then delete it since it will normally be working with HTTP_POST uploads
          * adn we want it to cleanup as it finishes processing each file.
          */
-        $ret = $this->controller->upload();
+        $ret = $this->controller->postUploadAction();
 
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
@@ -182,7 +182,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
          * then delete it since it will normally be working with HTTP_POST uploads
          * adn we want it to cleanup as it finishes processing each file.
          */
-        $ret = $this->controller->upload();
+        $ret = $this->controller->postUploadAction();
 
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
@@ -247,7 +247,7 @@ class FilesControllerTest extends PHPUnit_Framework_TestCase
          * then delete it since it will normally be working with HTTP_POST uploads
          * adn we want it to cleanup as it finishes processing each file.
          */
-        $ret = $this->controller->upload();
+        $ret = $this->controller->postUploadAction();
 
         // Results are returned in an array
         $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));

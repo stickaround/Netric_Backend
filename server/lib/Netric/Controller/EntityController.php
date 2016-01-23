@@ -8,18 +8,17 @@ use \Netric\Mvc;
 
 class EntityController extends Mvc\AbstractController
 {
-	public function test($params=array())
+	public function getTestAction($params=array())
 	{
         return $this->sendOutput("test");
 	}
 
 	/**
 	 * Get the definition (metadata) of an entity
-     *
-     * @param array $params Associative array of request params
 	 */
-	public function getDefinition($params=array())
+	public function getGetDefinitionAction()
 	{
+        $params = $this->getRequest()->getParams();
 		if (!$params['obj_type'])
 		{
 			return $this->sendOutput(array("error"=>"obj_type is a required param"));
@@ -83,12 +82,11 @@ class EntityController extends Mvc\AbstractController
 
 	/**
 	 * Query entities
-     *
-     * @param array $params Associative array of request params
 	 */
-	public function query($params=array())
+	public function postQueryAction()
 	{
         $ret = array();
+        $params = $this->getRequest()->getParams();
         
         if (!isset($params["obj_type"]))
             return $this->sendOutput(array("error"=>"obj_type must be set"));
@@ -198,13 +196,20 @@ class EntityController extends Mvc\AbstractController
 	}
 
     /**
-     * Retrieve a single entity
-     *
-     * @param array $params Associative array of request params
+     * GET pass-through for query
      */
-    public function get($params=array())
+    public function getQueryAction()
+    {
+        return $this->postQueryAction();
+    }
+
+    /**
+     * Retrieve a single entity
+     */
+    public function getGetAction()
     {
         $ret = array();
+        $params = $this->getRequest()->getParams();
 
         if (!$params['obj_type'] || !$params['id'])
         {
@@ -231,11 +236,10 @@ class EntityController extends Mvc\AbstractController
 
     /**
      * Save an entity
-     *
-     * @param array $params Associative array of request params
      */
-    public function save($params=array())
+    public function postSaveAction()
     {
+        $params = $this->getRequest()->getParams();
         $ret = array();
         if (!isset($params['raw_body']))
         {
@@ -277,11 +281,17 @@ class EntityController extends Mvc\AbstractController
     }
 
     /**
-     * Remove an entity (or a list of entities)
-     *
-     * @param array $params Associative array of request params
+     * PUT pass-through for save
      */
-    public function remove($params=array())
+    public function putSaveAction()
+    {
+        return $this->postSaveAction();
+    }
+
+    /**
+     * Remove an entity (or a list of entities)
+     */
+    public function getRemoveAction()
     {
         $ret = array();
         // objType is a required to determine what exactly we are deleting
@@ -320,11 +330,17 @@ class EntityController extends Mvc\AbstractController
     }
 
     /**
-     * Get groupings for an object
-     *
-     * @param array $params Associative array of request params
+     * POST pass-through for remove
      */
-    public function getGroupings($params=array())
+    public function postRemoveAction()
+    {
+        return $this->getRemoveAction();
+    }
+
+    /**
+     * Get groupings for an object
+     */
+    public function getGetGroupingsAction()
     {
         $objType = $this->request->getParam("obj_type");
         $fieldName = $this->request->getParam("field_name");

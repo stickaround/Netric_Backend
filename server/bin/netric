@@ -1,22 +1,22 @@
 #!/usr/bin/env php
 <?php
 /**
- * This is the netric routine runner. Use this to execute foreground processes
+ * This is the console interface for running foreground processes from the command line
  *
- * Common Commands:
+ * Commands are in the form controller/action and map to a url [controller]/[action]
  *
- *  # To install netric on a server
- *  netric install
+ *  # To install netric on a server and create the default account (with admin user)
+ *  netric setup/install --username=admin --password=password1
  *
- *  # To update netric to the latest version - this runs 'netric upgrade' when done
- *  netric update
+ *  # To update netric (application + all accounts) to the latest version
+ *  netric setup/update
  */
-require_once("../init_application.php");
 
-// Get the program/script name requested, it is the first param
-$consoleRequest = new Netric\Request\ConsoleRequest();
-$programName = $consoleRequest->getParam(0);
+// Setup autoloader
+include("../init_autoloader.php");
 
-// Run the script program just as you would an MVC application
-$consoleRouter = new Netric\Console\Router($application);
-$consoleRouter->run($programName);
+// Get system config
+$config = new Netric\Config();
+
+// Run the application
+Netric\Application::init($config)->run();

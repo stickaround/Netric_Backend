@@ -3,6 +3,9 @@
         <testsuite name="NetricTest">
             <directory>./NetricTest</directory>
         </testsuite>
+        <testsuite name="BinTest">
+            <directory>./BinTest</directory>
+        </testsuite>
         <!--
         <testsuite name="Library Test Suite">
             <directory>./lib</directory>

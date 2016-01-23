@@ -18,6 +18,7 @@ return array(
             'ts_started' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
             'server' => array('type'=>SchemaProperty::TYPE_CHAR_256),
             'version' => array('type'=>SchemaProperty::TYPE_CHAR_256),
+            'active' => array('type'=>SchemaProperty::TYPE_BOOL, 'default'=>'t'),
         ),
         'PRIMARY_KEY'		=> 'id',
         // TODO: constraints for unique name

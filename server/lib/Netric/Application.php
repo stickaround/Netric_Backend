@@ -6,6 +6,11 @@ namespace Netric;
 
 use Netric\Application\Exception;
 use Netric\Application\Setup\Setup;
+use Netric\Request\RequestInterface;
+use Netric\Console\Console;
+use Netric\Request\ConsoleRequest;
+use Netric\Request\HttpRequest;
+use Netric\Mvc\Router;
 
 class Application
 {
@@ -23,7 +28,6 @@ class Application
      */
     protected $log = null;
 
-    
     /**
      * Application DataMapper
      * 
@@ -45,6 +49,13 @@ class Application
      * @var \Netric\Account\AccountIdentityMapper
      */
     private $accountsIdentityMapper = null;
+
+    /**
+     * Request made when launching the application
+     *
+     * @var RequestInterface
+     */
+    private $request = null;
     
     /**
      * Initialize application
@@ -63,13 +74,15 @@ class Application
         {
             // Watch for error notices and log them
             set_error_handler(array($this->log, "phpErrorHandler"));
+
             // Log unhandled exceptions
             set_exception_handler(array($this->log, "phpUnhandledExceptionHandler"));
+
             // Watch for fatals which cause script execution to fail
             register_shutdown_function(array($this->log, "phpShutdownErrorChecker"));
         }
-                
-        // Setup antsystem datamapper
+
+        // Setup application datamapper
         $this->dm = new Application\DataMapperPgsql($config->db["host"], 
                                                     $config->db["sysdb"], 
                                                     $config->db["user"], 
@@ -81,11 +94,37 @@ class Application
         // Setup account identity mapper
         $this->accountsIdentityMapper = new Account\AccountIdentityMapper($this->dm, $this->cache);
     }
+
+    /**
+     * Initialize an instance of the application
+     *
+     * @param Config $config
+     * @return Application
+     */
+    static public function init(Config $config)
+    {
+        return new Application($config);
+    }
+
+    /**
+     * Run The application
+     */
+    public function run()
+    {
+        // Get the request
+        $request = Console::isConsole() ? new ConsoleRequest() : new HttpRequest();
+
+        // Get the router
+        $router = new Router($this);
+
+        // Execute through the router
+        $router->run($request);
+    }
     
     /**
      * Get initialized config
      * 
-     * @return Netric\Config
+     * @return Config
      */
     public function getConfig()
     {
@@ -98,7 +137,7 @@ class Application
      * @param string $accountId If set the pull an account by id, otherwise automatically get from url or config
      * @param string $name If set try to get an account by the unique name
      * @throws \Exception when an invalid account id or name is passed
-     * @return Netric\Account
+     * @return Account
      */
     public function getAccount($accountId="", $accountName="")
     {
@@ -285,9 +324,29 @@ class Application
 
         return false;
     }
+
+    /**
+     * Create the application database if it does not exist
+     */
+    public function initDb()
+    {
+        // Create database if it does not exist
+        if (!$this->dm->createDatabase()) {
+            throw new \RuntimeException(
+                "Could not create application database: " .
+                $this->dm->getLastError()->getMessage()
+            );
+        }
+
+        // Initialize with setup
+        $setup = new Setup();
+        return $setup->updateApplication($this);
+    }
     
     /**
-	 * Get session variable if exists
+	 * @deprecated We no longer use this, instead we use the Authentication service
+     *
+     * Get session variable if exists
 	 *
 	 * These functions can be called statically
 	 * This currently uses cookies for sessions
@@ -306,6 +365,8 @@ class Application
 	}
 
 	/**
+     * @deprecated We no longer use this, instead we use the Authentication service
+     *
 	 * Set session variable
 	 *
 	 * This function can be called statically
@@ -338,5 +399,15 @@ class Application
     public function getCache()
     {
         return $this->cache;
+    }
+
+    /**
+     * Get the request for this application
+     *
+     * @return RequestInterface
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 }

@@ -150,8 +150,9 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             throw new \RuntimeException("Auto increment column name '$columnName' on table '$tableName' is too long.");
 
         // Return true if the column already exists
-        if ($this->dbh->columnExists($tableName, $columnName))
+        if ($this->dbh->columnExists($tableName, $columnName)) {
             return true;
+        }
 
         // Determine the column type
         if (isset($columnDefinition['default']) && $columnDefinition['default'] == 'auto_increment')
@@ -168,7 +169,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         }
         else
         {
-            throw new \RuntimeException("Could not add $columnName to $tableName because missing type" . var_export($columnDefinition, true));
+            throw new \RuntimeException("Could not add $columnName to $tableName because missing type " . var_export($columnDefinition, true));
         }
 
         // Add column definition
@@ -197,17 +198,9 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             $columnNameOrNames = array($columnNameOrNames);
 
         // First check to see if the primary key already exists
-        $allSet = true;
-        foreach ($columnNameOrNames as $columnName)
-        {
-            $allSet = $this->dbh->isPrimaryKey($tableName, $columnName);
-            if (!$allSet)
-                break;
-        }
-
-        // Primary keys are already set, nothing to do
-        if ($allSet)
+        if ($this->dbh->isPrimaryKey($tableName, $columnNameOrNames)) {
             return true;
+        }
 
         // Run the SQL
         $sql = "ALTER TABLE $tableName ADD PRIMARY KEY (" . implode(', ', $columnNameOrNames) . ");";

@@ -51,7 +51,7 @@ class FilesController extends Mvc\AbstractController
      *
      * @return array Response
      */
-    public function upload()
+    public function postUploadAction()
     {
         $request = $this->getRequest();
 
@@ -164,5 +164,13 @@ class FilesController extends Mvc\AbstractController
         }
 
         return $this->sendOutput($ret);
+    }
+
+    /**
+     * PUT pass-through for uploading
+     */
+    public function putUploadAction()
+    {
+        return $this->postUploadAction();
     }
 }

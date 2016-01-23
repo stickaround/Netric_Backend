@@ -9,6 +9,9 @@
  */
 namespace Netric\Mvc;
 
+use Netric\Permissions\Dacl;
+use Netric\Entity\ObjType\UserEntity;
+
 /**
  * Main abstract class for controllers in netric
  */
@@ -78,19 +81,29 @@ abstract class AbstractController
 	}
 
 	/**
+	 * Get application instance this is working under
+	 *
+	 * @return \Netric\Application
+	 */
+	protected function getApplication()
+	{
+		return $this->account->getApplication();
+	}
+
+	/**
 	 * Determine what users can access actions in the concrete controller
 	 *
 	 * This can easily be overridden in derrived controllers to allow custom access per controller
 	 * or each action can handle its own access controll list if desired.
 	 *
-	 * @return \Netric\Permissions\Dacl
+	 * @return Dacl
 	 */
 	public function getAccessControlList()
 	{
-		$dacl = new \Netric\Permissions\Dacl();
+		$dacl = new Dacl();
 
 		// By default allow authenticated users to access a controller
-		$dacl->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_USERS);
+		$dacl->allowGroup(UserEntity::GROUP_USERS);
 
 		return $dacl;
 	}

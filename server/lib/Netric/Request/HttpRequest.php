@@ -28,7 +28,18 @@ class HttpRequest implements RequestInterface
 	 *
 	 * @var string
 	 */
-	private $method = null;
+	private $method = self::METHOD_GET;
+    const METHOD_POST = 'POST';
+    const METHOD_GET = 'GET';
+    const METHOD_PUT = 'PUT';
+    const METHOD_DELETE = 'DELETE';
+
+    /**
+     * Path to requested page/controller/action
+     *
+     * @var string
+     */
+    private $path = null;
 
 	/**
 	 * Initialize request object variables
@@ -48,6 +59,7 @@ class HttpRequest implements RequestInterface
 		);
 
 		$this->method = $_SERVER['REQUEST_METHOD'];
+        $this->path = $_SERVER['PATH_INFO'];
 	}
 
 	/**
@@ -114,4 +126,27 @@ class HttpRequest implements RequestInterface
 	{
 		$this->params[$name] = $value;
 	}
+
+	/**
+	 * Get the path taht was requested after the server name
+	 *
+	 * For example, www.mysite.com/my/path would return
+	 * 'my/path'.
+	 *
+	 * @return string
+	 */
+	public function getPath()
+	{
+        return $this->path;
+	}
+
+    /**
+     * Get the method/verb of the request type
+     *
+     * @return string The HTTP verb used for this request: POST, GET, PUT, DELETE
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
 }

@@ -54,9 +54,21 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
     /**
      * Get an implementation specific DataMapper
      *
+     * @param string $optDbName Optional different name to use for the database
      * @return DataMapperInterface
      */
-    abstract protected function getDataMapper();
+    abstract protected function getDataMapper($optDbName = null);
+
+    /**
+     * This is a cleanup method that we need done mantually in the datamapper driver
+     *
+     * We do not want to expose this in the application datamapper since the
+     * application database should NEVER be deleted. So we leave it up to each
+     * drive to manually delete or drop a temp/test database.
+     *
+     * @param string $dbName The name of the database to drop
+     */
+    abstract protected function deleteDatabase($dbName);
 
     public function testCreateAccount()
     {
@@ -80,5 +92,26 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
         $account = new Account($this->application);
         $this->assertFalse($dataMapper->getAccountById($aid, $account));
 
+    }
+
+    /**
+     * Make sure we can create an application database
+     */
+    public function testCreateDatabase()
+    {
+        $dataMapper = $this->getDataMapper("testsystemdb");
+        $this->assertTrue($dataMapper->createDatabase());
+
+        // Cleanup
+        $this->deleteDatabase("testsystemdb");
+    }
+
+    /**
+     * If we call create database on an existing database, it should return true
+     */
+    public function testCreateDatabase_Existing()
+    {
+        $dataMapper = $this->getDataMapper();
+        $this->assertTrue($dataMapper->createDatabase());
     }
 }

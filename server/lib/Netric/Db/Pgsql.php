@@ -548,7 +548,7 @@ class Pgsql implements DbInterface
 	 * @param null $schema
 	 * @return bool
 	 */
-	public function isPrimaryKey($tbl, $col=null, $schema=null)
+	public function isPrimaryKey($tbl, $col, $schema=null)
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -556,10 +556,38 @@ class Pgsql implements DbInterface
 		if (!$this->dbHandle)
 			return false;
 
-		// Set default schema of not explicitely passed
-		if (!$schema && $this->schema)
-			$schema = $this->schema;
+		if (!$col)
+			return false;
 
+		$sql = "";
+
+		// Set default schema of not explicitly passed - only for this query
+		if ($schema)
+			$sql = "SET search_path=$schema;";
+
+		$sql .= "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+				FROM   pg_index i
+				JOIN   pg_attribute a ON a.attrelid = i.indrelid
+									 AND a.attnum = ANY(i.indkey)
+				WHERE  i.indrelid = '{$tbl}'::regclass
+				AND    i.indisprimary ORDER BY attname;";
+		$result = pg_query($this->dbHandle, $sql);
+		$num = pg_num_rows($result);
+
+		// Get sorted array of column names
+		$actualPkeyName = "";
+		for ($i = 0; $i < $num; $i++)
+		{
+			if ($actualPkeyName) $actualPkeyName .= "_";
+			$actualPkeyName .= $this->getValue($result, $i, "attname");
+		}
+
+		// Check if the names are the same - have all the same columns
+		$colNames = (is_array($col)) ? $col : array($col);
+		asort($colNames);
+		return ($actualPkeyName == implode("_", $colNames));
+
+		/*
 		$query = "select pg_class.relname, pg_attribute.attname 
 					from 
 					pg_class, pg_attribute, pg_namespace, pg_index, pg_constraint
@@ -572,38 +600,13 @@ class Pgsql implements DbInterface
 					and relname = '$tbl' ";
 		if ($schema)
 			$query .= "and pg_namespace.nspname='$schema'";
-		if ($col)
-			$query .= "and attname='$col'";
+		if ($col) {
 
-		/*
-		$query = "select pg_class.relname, pg_constraint.conname, contype from 
-					pg_class, pg_constraint, pg_namespace
-					where 
-					pg_class.oid = pg_constraint.conrelid
-					and pg_namespace.oid = pg_constraint.connamespace
-					and contype='p' and relname = '$tbl' ";
-		if ($schema)
-			$query .= "and pg_namespace.nspname='$schema'";
-		if ($col)
-			$query .= "and conname='$col'";
-		*/
-		$result = pg_query($this->dbHandle, $query);
-		if (pg_num_rows($result))
-		{
-			return true;
+			$query .= "and (attname='" . implode("OR attname='", $colNames) . "')";
 		}
-		else
-		{
-			return false;
-		}
-		/*
-		SELECT  pg_class.relname, pg_attribute.attname
-		FROM pg_class, pg_attribute, pg_index
-		WHERE 
-		pg_class.oid = pg_attribute.attrelid AND
-		pg_class.oid = pg_index.indrelid AND
-		pg_index.indkey[0] = pg_attribute.attnum AND
-		pg_index.indisprimary = 't';
+
+		if (is_array($col))
+			echo $query . "\n";
 		*/
 	}
 
