@@ -33,7 +33,7 @@ class LocalFileStoreTest extends AbstractFileStoreTests
         $dataPath = __DIR__ . "/tmp";
         $dataMapper = $sm->get("Entity_DataMapper");
 
-        //$user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        //$user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         $this->localFileStore = new LocalFileStore($accId, $dataPath, $dataMapper);
 

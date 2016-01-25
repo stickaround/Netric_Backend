@@ -5,7 +5,7 @@
  */
 namespace Netric\Application\Setup;
 
-use Netric\Account;
+use Netric\Account\Account;
 use Netric\Error\AbstractHasErrors;
 use Netric\Console\BinScript;
 

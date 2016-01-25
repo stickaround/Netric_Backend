@@ -15,7 +15,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
     /**
      * Tennant account
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 
@@ -33,7 +33,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
     }
 
     /**

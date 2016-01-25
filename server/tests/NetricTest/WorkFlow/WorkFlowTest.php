@@ -14,7 +14,7 @@ class WorkFlowTest extends PHPUnit_Framework_TestCase
     /**
      * Reference to account running for unit tests
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 

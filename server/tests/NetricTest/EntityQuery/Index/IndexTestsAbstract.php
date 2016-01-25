@@ -21,7 +21,7 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
     /**
      * Tenant account
      * 
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     protected $account = null;
 

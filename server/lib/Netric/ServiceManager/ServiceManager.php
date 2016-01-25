@@ -60,7 +60,7 @@ class ServiceManager implements ServiceLocatorInterface
 	 *
 	 * @param Ant $ant The ant account we are loading services for
 	 */
-	public function __construct(\Netric\Account $account)
+	public function __construct(\Netric\Account\Account $account)
 	{
 		$this->account = $account;
 	}

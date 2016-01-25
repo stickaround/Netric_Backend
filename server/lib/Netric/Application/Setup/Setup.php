@@ -5,8 +5,8 @@
  */
 namespace Netric\Application\Setup;
 
-use Netric\Application;
-use Netric\Account;
+use Netric\Application\Application;
+use Netric\Account\Account;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaDataMapperPgsql;
 use Netric\Db\Pgsql;

@@ -23,7 +23,7 @@ class NetricApplicationLoader
 	private $application = null;
     
     private function __construct($config) {
-        $this->application = new Netric\Application($config);
+        $this->application = new Netric\Application\Application($config);
     }
     /**
 	 * Factory

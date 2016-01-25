@@ -2,8 +2,8 @@
 namespace NetricTest\Application;
 
 use Netric\Application\DataMapperInterface;
-use Netric\Account;
-use Netric\Application;
+use Netric\Account\Account;
+use Netric\Application\Application;
 use Netric\Config;
 use PHPUnit_Framework_TestCase;
 

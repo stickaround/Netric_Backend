@@ -179,7 +179,7 @@ class EntityLoader
 	 * Delete an entity
 	 *
 	 * @param Entity $entity The entity to save
-	 * @return \Netric\Entity\Entity
+	 * @return int|string|null Id of entity saved or null on failure
 	 */
 	public function save(Entity $entity)
 	{

@@ -4,10 +4,11 @@
  */
 namespace NetricTest\Application\Setup;
 
-use Netric\Account;
-use Netric\Application;
+use Netric\Account\Account;
+use Netric\Application\Application;
 use Netric\Account\AccountIdentityMapper;
 use Netric\Application\Setup\Setup;
+use Netric\Application\Setup\AccountUpdater;
 use PHPUnit_Framework_TestCase;
 
 class SetupTest extends PHPUnit_Framework_TestCase
@@ -99,7 +100,7 @@ class SetupTest extends PHPUnit_Framework_TestCase
         $account = $this->mapper->loadById($accountId, $this->application);
 
         // Run updates on the account
-        $updater = new Application\Setup\AccountUpdater($account);
+        $updater = new AccountUpdater($account);
         $this->assertEquals($updater->getLatestVersion(), $this->setup->updateAccount($account));
 
         // Cleanup

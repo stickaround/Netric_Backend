@@ -7,7 +7,7 @@
  */
 namespace Netric\ServiceManager;
 
-use Netric\Account;
+use Netric\Account\Account;
 
 /**
  * Service factories are classes that handle the construction of complex/cumbersome services

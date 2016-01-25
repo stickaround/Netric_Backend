@@ -5,8 +5,8 @@
  */
 namespace Netric\Console;
 
-use Netric\Application;
-use Netric\Account;
+use Netric\Application\Application;
+use Netric\Account\Account;
 use Netric\Console\Exception;
 use Netric\Request\ConsoleRequest;
 

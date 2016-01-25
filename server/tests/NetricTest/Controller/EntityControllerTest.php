@@ -12,7 +12,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
     /**
      * Account used for testing
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     protected $account = null;
 

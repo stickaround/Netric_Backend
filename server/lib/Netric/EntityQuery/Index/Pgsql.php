@@ -23,9 +23,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
     /**
      * Setup this index for the given account
      * 
-     * @param \Netric\Account $account
+     * @param \Netric\Account\Account $account
      */
-    protected function setUp(\Netric\Account $account)
+    protected function setUp(\Netric\Account\Account $account)
     {
         $this->dbh = $account->getServiceManager()->get("Db");
     }

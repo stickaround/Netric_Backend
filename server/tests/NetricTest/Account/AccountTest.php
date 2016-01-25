@@ -2,7 +2,7 @@
 /**
  * Test core netric application class
  */
-namespace ApplicationTest;
+namespace NetricTest\Account;
 
 use Netric;
 use PHPUnit_Framework_TestCase;

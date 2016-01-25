@@ -20,7 +20,7 @@ abstract class AbstractController
 	/**
      * Reference to current netric account
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
 	 */
 	public $account = null;
 
@@ -83,7 +83,7 @@ abstract class AbstractController
 	/**
 	 * Get application instance this is working under
 	 *
-	 * @return \Netric\Application
+	 * @return \Netric\Application\Application
 	 */
 	protected function getApplication()
 	{

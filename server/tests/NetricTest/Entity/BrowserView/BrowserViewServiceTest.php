@@ -13,7 +13,7 @@ class BrowserViewServiceTest extends PHPUnit_Framework_TestCase
     /**
      * Tennant account
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 
@@ -41,7 +41,7 @@ class BrowserViewServiceTest extends PHPUnit_Framework_TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->browserViewService = $sm->get("Netric/Entity/BrowserView/BrowserViewService");
-        $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
     }
 
     /**

@@ -8,7 +8,7 @@ use Netric\EntityQuery;
 use PHPUnit_Framework_TestCase;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityLoader;
-use Netric\Account;
+use Netric\Account\Account;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;

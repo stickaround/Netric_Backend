@@ -8,12 +8,47 @@ namespace Netric\WorkFlow\Action;
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 use Netric\WorkFlow\WorkFlowInstance;
+use Zend\Http\Client;
 
 /**
  * Action to call an external page - very useful for API integration
  */
 class WebhookAction extends AbstractAction implements ActionInterface
 {
+    /**
+     * Alternate adaptor
+     *
+     * @var Client\Adapter\AdapterInterface
+     */
+    private $adapeter = null;
+
+    /**
+     * Response from the server
+     *
+     * @var string
+     */
+    private $response = null;
+
+    /**
+     * Set an alternate adapter to use with the client
+     *
+     * @param Client\Adapter\AdapterInterface $adapter
+     */
+    public function setClientAdapter($adapter)
+    {
+        $this->adapeter = $adapter;
+    }
+
+    /**
+     * Get the response received from the last call
+     *
+     * @return string
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
     /**
      * Execute this action
      *
@@ -22,9 +57,40 @@ class WebhookAction extends AbstractAction implements ActionInterface
      */
     public function execute(WorkFlowInstance $workflowInstance)
     {
+        // Get the entity being acted on
+        $entity = $workflowInstance->getEntity();
+
         // Get merged params
         $params = $this->getParams($entity);
 
-        // TODO: Finish action
+        $search = array("(", ")", " ", "\"", "'");
+        $replace = array("%28", "%29", "%20", "%22", "%27");
+
+        $url = str_replace($search, $replace, $params["url"]);
+
+        /*
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $resultUrl = curl_exec($ch);
+        $ret = (curl_errno($ch)) ? false : true;
+        curl_close($ch);
+        */
+
+        $client = new Client($url, array(
+            'maxredirects' => 10,
+            'timeout'      => 30,
+        ));
+        if ($this->adapeter)
+            $client->setAdapter($this->adapeter);
+
+        try {
+            $this->response = $client->send();
+            // TODO: Log here
+            return ($client->getResponse()->getStatusCode() === 200) ? true : false;
+        } catch (\Zend\Http\Client\Adapter\Exception\RuntimeException $e) {
+            // TODO: Log here
+            return false;
+        }
     }
 }

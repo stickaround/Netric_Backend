@@ -4,8 +4,8 @@
  */
 namespace NetricTest\Console;
 
-use Netric\Account;
-use Netric\Application;
+use Netric\Account\Account;
+use Netric\Application\Application;
 use Netric\Console\BinScript;
 use PHPUnit_Framework_TestCase;
 
@@ -14,7 +14,7 @@ class BinScriptTest extends PHPUnit_Framework_TestCase
     /**
      * Reference to account running for unit tests
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 

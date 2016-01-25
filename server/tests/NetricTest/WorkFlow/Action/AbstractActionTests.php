@@ -17,7 +17,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     /**
      * Reference to account running for unit tests
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     protected $account = null;
 
@@ -122,7 +122,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testGetParamVariableFieldValue()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         // Create an entity
         $task = $this->entityLoader->create("task");
@@ -150,7 +150,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testReplaceParamVariables()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         // Create an entity
         $task = $this->entityLoader->create("task");
@@ -201,7 +201,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testGetParams()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         // Set params for action
         $action->setParam("subject", "Work on <%name%>");
@@ -229,6 +229,60 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetParamsObjType()
+    {
+        $action = $this->getAction();
+        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+
+        // Set params for action
+        $action->setParam("subject", "Work on <%obj_type%>");
+
+        // Create an entity
+        $task = $this->entityLoader->create("task");
+        $task->setValue("name", "ut-action-test-task");
+
+        // Setup reflection object to access protected function
+        $refAction = new \ReflectionObject($action);
+        $getParams = $refAction->getMethod("getParams");
+        $getParams->setAccessible(true);
+
+        // Check that params are processed
+        $params = $getParams->invoke($action, $task);
+        $this->assertEquals(
+            "Work on " . $task->getDefinition()->getObjType(),
+            $params['subject']
+        );
+    }
+
+    /**
+     * Legacy scripts used to use <%oid%> rather than just <%id%> so make sure it still works
+     */
+    public function testGetParamsOID()
+    {
+        $action = $this->getAction();
+        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+
+        // Set params for action
+        $action->setParam("subject", "Work on <%oid%>");
+
+        // Create an entity
+        $task = $this->entityLoader->create("task");
+        $task->setId(123);
+        $task->setValue("name", "ut-action-test-task");
+
+        // Setup reflection object to access protected function
+        $refAction = new \ReflectionObject($action);
+        $getParams = $refAction->getMethod("getParams");
+        $getParams->setAccessible(true);
+
+        // Check that params are processed
+        $params = $getParams->invoke($action, $task);
+        $this->assertEquals(
+            "Work on 123",
+            $params['subject']
+        );
+    }
+
     /**
      * We have some legacy features to support where a user may have
      * entered a object type = user field in an email param called 'to', 'cc', or 'bcc'
@@ -238,7 +292,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
         $action = $this->getAction();
 
         // Make sure the user has an email address
-        $user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         if (!$user->getValue("email"))
             $user->setValue("email", "test@test.com");
 

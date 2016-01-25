@@ -15,7 +15,7 @@ abstract class IndexAbstract
     /**
      * Handle to current account
      * 
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     protected $account = null;
 
@@ -36,9 +36,9 @@ abstract class IndexAbstract
     /**
      * Setup this index for the given account
      * 
-     * @param \Netric\Account $account
+     * @param \Netric\Account\Account $account
      */
-    public function __construct(\Netric\Account $account)
+    public function __construct(\Netric\Account\Account $account)
     {
         $this->account = $account;
         $this->entityFactory = $account->getServiceManager()->get("EntityFactory");
@@ -52,9 +52,9 @@ abstract class IndexAbstract
     /**
      * Setup this index for the given account
      * 
-     * @param \Netric\Account $account
+     * @param \Netric\Account\Account $account
      */
-    abstract protected function setUp(\Netric\Account $account);
+    abstract protected function setUp(\Netric\Account\Account $account);
     
     /**
 	 * Save an object to the index

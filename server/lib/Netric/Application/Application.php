@@ -2,7 +2,7 @@
 /**
  * This is the base netric system class
  */
-namespace Netric;
+namespace Netric\Application;
 
 use Netric\Application\Exception;
 use Netric\Application\Setup\Setup;
@@ -11,6 +11,10 @@ use Netric\Console\Console;
 use Netric\Request\ConsoleRequest;
 use Netric\Request\HttpRequest;
 use Netric\Mvc\Router;
+use Netric\Config;
+use Netric\Log;
+use Netric\Cache\AlibCache;
+use Netric\Account\AccountIdentityMapper;
 
 class Application
 {
@@ -46,7 +50,7 @@ class Application
     /**
      * Accounts identity mapper
      *
-     * @var \Netric\Account\AccountIdentityMapper
+     * @var \Netric\Account\Account\AccountIdentityMapper
      */
     private $accountsIdentityMapper = null;
 
@@ -83,16 +87,16 @@ class Application
         }
 
         // Setup application datamapper
-        $this->dm = new Application\DataMapperPgsql($config->db["host"], 
-                                                    $config->db["sysdb"], 
-                                                    $config->db["user"], 
-                                                    $config->db["password"]);
+        $this->dm = new DataMapperPgsql($config->db["host"],
+                                        $config->db["sysdb"],
+                                        $config->db["user"],
+                                        $config->db["password"]);
 
         // Setup application cache
-        $this->cache = new Cache\AlibCache();
+        $this->cache = new AlibCache();
 
         // Setup account identity mapper
-        $this->accountsIdentityMapper = new Account\AccountIdentityMapper($this->dm, $this->cache);
+        $this->accountsIdentityMapper = new AccountIdentityMapper($this->dm, $this->cache);
     }
 
     /**

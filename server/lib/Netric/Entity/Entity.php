@@ -11,7 +11,10 @@ use Netric\EntityDefinition\Field;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition;
 
-class Entity implements \Netric\Entity\EntityInterface
+/**
+ * Base class sharing common functionality of all stateful entities
+ */
+class Entity implements EntityInterface
 {
 	/**
      * The unique id of this object/entity

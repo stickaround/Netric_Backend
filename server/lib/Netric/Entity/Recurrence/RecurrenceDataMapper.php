@@ -43,11 +43,11 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 	/**
 	 * Class constructor to set up dependencies
 	 *
-	 * @param \Netric\Account $account The required account/tennant
+	 * @param \Netric\Account\Account $account The required account/tennant
 	 * @param \Netric\Db\DbInterface $dbh Handle to account database
      * @param EntityDefinitionLoader $entDefLoader Used to get the id of objType
 	 */
-	public function __construct(\Netric\Account $account, Db\DbInterface $dbh, EntityDefinitionLoader $entDefLoader)
+	public function __construct(\Netric\Account\Account $account, Db\DbInterface $dbh, EntityDefinitionLoader $entDefLoader)
 	{
 		// The base DataMapper always has a reference to account
 		$this->account = $account;

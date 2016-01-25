@@ -232,7 +232,7 @@ class CAntObject_EmailMessage extends CAntObject
 	}
 
 	/**
-	 * Function used for derrived classes to hook deletion event
+	 * Function used for derived classes to hook deletion event
 	 *
 	 * If this is the only message in a thread, then the thread will
 	 * also be removed. Otherwise, simply remove the thread from this folder_id/group.
@@ -905,29 +905,6 @@ class CAntObject_EmailMessage extends CAntObject
 		{
 			$attachments[] = $olist->getObject($i);
 		}
-
-		/*
-		$result = $dbh->Query("select id, content_type, encoding, filename, name, file_id, disposition,
-								size, content_id from email_message_attachments where 
-								message_id='".$this->id."'  and content_type not like 'multipart/%'
-								and (content_type not like 'text/%' or disposition='attachment')");
-		$num = $dbh->GetNumberRows($result);
-		for ($i = 0; $i < $num; $i++)
-		{
-			$row = $dbh->GetRow($result, $i);
-			$att = array();
-			$att['id'] = $row['id'];
-			$att['size'] = $row['size'];
-			$att['file_id'] = $row['file_id'];
-			$att['content_type'] = $row['content_type'];
-			$att['content_id'] = $row['content_id'];
-			$att['encoding'] = $row['encoding'];
-			$att['filename'] = $row['filename'];
-			$att['name'] = $row['name'];
-			$att['disposition'] = $row['disposition'];
-			$attachments[] = $att;
-		}
-		*/
 
 		return $attachments;
     }

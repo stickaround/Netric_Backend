@@ -7,7 +7,7 @@
  */
 namespace Netric\Settings;
 
-use Netric\Account;
+use Netric\Account\Account;
 use Netric\Cache\CacheInterface;
 use Netric\Db\DbInterface;
 use Netric\ServiceManager;

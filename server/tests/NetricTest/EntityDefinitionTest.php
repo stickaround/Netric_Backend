@@ -12,7 +12,7 @@ class EntityDefinitionTest extends PHPUnit_Framework_TestCase
 	/**
      * Handle to account
      * 
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
 	private $account = null;
 

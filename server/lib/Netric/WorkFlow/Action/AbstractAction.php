@@ -434,7 +434,7 @@ abstract class AbstractAction implements ErrorAwareInterface
      * @return string
      * @throws \RuntimeException if we end up in an infinite loop for any reason
      */
-    private function replaceParamVariables(EntityInterface $mergeWithEntity, $value)
+    protected function replaceParamVariables(EntityInterface $mergeWithEntity, $value)
     {
         // Only check strings
         if (!is_string($value))
@@ -466,6 +466,16 @@ abstract class AbstractAction implements ErrorAwareInterface
                         $value
                     );
 
+                    break;
+
+                // Legacy before we used <%id%>
+                case 'oid':
+                    $fieldValue = $mergeWithEntity->getId();
+                    $value = str_replace("<%$variableName%>", $fieldValue, $value);
+                    break;
+
+                case 'obj_type':
+                    $value = str_replace("<%$variableName%>", $mergeWithEntity->getDefinition()->getObjType(), $value);
                     break;
 
                 default:

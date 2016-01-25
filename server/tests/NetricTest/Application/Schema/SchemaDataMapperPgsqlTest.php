@@ -4,7 +4,7 @@
  */
 namespace NetricTest\Application\Schema;
 
-use Netric\Application;
+use Netric\Application\Application;
 use Netric\Config;
 use Netric\Db\Pgsql;
 use Netric\Application\Schema\SchemaDataMapperPgsql;

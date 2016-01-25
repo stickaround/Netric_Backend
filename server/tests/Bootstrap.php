@@ -28,7 +28,7 @@ class Bootstrap
         $config = new \Netric\Config();
 
         // Initialize application
-        $application = new \Netric\Application($config);
+        $application = new \Netric\Application\Application($config);
 
         // Initialize account
         static::$account = $application->getAccount();

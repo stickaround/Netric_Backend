@@ -2,7 +2,9 @@
 /**
  * Netric account instance
  */
-namespace Netric;
+namespace Netric\Account;
+
+use Netric\Application\Application;
 
 class Account
 {
@@ -61,7 +63,7 @@ class Account
     /**
      * Initialize netric account
      * 
-     * @param \Netric\Application $app
+     * @param \Netric\Application\Application $app
      */
     public function __construct(Application $app)
     {
@@ -150,7 +152,7 @@ class Account
     /**
      * Get application object
      * 
-     * @return \Netric\Application
+     * @return \Netric\Application\Application
      */
     public function getApplication()
     {
@@ -179,7 +181,7 @@ class Account
      * 
      * @param string $userId The userId of the user to get
      * @param string $username Get user by name
-     * @return \Netric\User|bool user on success, false on failure
+     * @return \Netric\Entity\ObjType\UserEntity|bool user on success, false on failure
      */
     public function getUser($userId=null, $username=null)
     {      

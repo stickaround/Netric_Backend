@@ -19,7 +19,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
     /**
      * Tennant account
      * 
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     protected $account = null;
 

@@ -23,6 +23,8 @@ class AssignActionFactory
         // Return a new TestAction
         $entityLoader = $serviceLocator->get("EntityLoader");
         $actionFactory = new ActionFactory($serviceLocator);
-        return new AssignAction($entityLoader, $actionFactory);
+        $groupingsLoader = $serviceLocator->get("EntityGroupings_Loader");
+        $queryIndex = $serviceLocator->get("EntityQuery_Index");
+        return new AssignAction($entityLoader, $actionFactory, $groupingsLoader, $queryIndex);
     }
 }

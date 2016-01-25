@@ -14,7 +14,7 @@ class EntityAggregatorTest extends PHPUnit_Framework_TestCase
     /**
      * Tenant account
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 
@@ -55,7 +55,7 @@ class EntityAggregatorTest extends PHPUnit_Framework_TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
-        $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
         $this->entityAggregator = $sm->get("Netric/Entity/EntityAggregator");
         $this->entityLoader = $sm->get("EntityLoader");
     }

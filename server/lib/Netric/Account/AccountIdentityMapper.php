@@ -7,8 +7,8 @@
  */
 namespace Netric\Account;
 
-use Netric\Application;
-use Netric\Account;
+use Netric\Application\DataMapperInterface;
+use Netric\Application\Application;
 use Netric\Cache;
 use Netric\Error\Error;
 use Netric\Error\ErrorAwareInterface;
@@ -32,7 +32,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
     /**
      * In memory cache of loaded accounts
      *
-     * @var \Netric\Account[]
+     * @var \Netric\Account\Account[]
      */
     private $loadedAccounts = [];
 
@@ -55,7 +55,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * @param \Netric\Cache\CacheInterface $cache
      * @throws \Exception If all required dependencies were not passed
 	 */
-	public function __construct(Application\DataMapperInterface $appDm, Cache\CacheInterface $cache)
+	public function __construct(DataMapperInterface $appDm, Cache\CacheInterface $cache)
 	{
         if (!$appDm)
             throw new \Exception("Application datamapper is required");
@@ -68,10 +68,10 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * Load an account by id
      * 
      * @param string $id The unique id of the account to get
-     * @param \Netric\Application $application Reference to Application instance
-     * @return \Netric\Account on success, null on failure
+     * @param \Netric\Application\Application $application Reference to Application instance
+     * @return \Netric\Account\Account on success, null on failure
      */
-    public function loadById($id, \Netric\Application $application)
+    public function loadById($id, \Netric\Application\Application $application)
     {
         // First check to see if we have it cached in local memory
         $account = $this->loadFromMemory($id);
@@ -81,7 +81,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
             return $account;
 
         // Account is not already loaded so create a new instance
-        $account = new \Netric\Account($application);
+        $account = new \Netric\Account\Account($application);
 
         // Try from cache if not loaded in memeory
         if ($this->loadFromCache($id, $account))
@@ -107,10 +107,10 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * Get an account by the unique name
      * 
      * @param string $name
-     * @param \Netric\Application $application Reference to Application instance
-     * @return \Netric\Account on success, null on failure
+     * @param \Netric\Application\Application $application Reference to Application instance
+     * @return \Netric\Account\Account on success, null on failure
      */
-    public function loadByName($name, \Netric\Application $application)
+    public function loadByName($name, Application $application)
     {
         // Try local memory first
         if (isset($this->nameToIdMap[$name]))
@@ -126,7 +126,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
         }
 
         // Load from the datamapper by name
-        $account = new \Netric\Account($application);
+        $account = new Account($application);
         if ($this->appDm->getAccountByName($name, $account))
         {
             // Save the data to cache and memory
@@ -221,10 +221,10 @@ class AccountIdentityMapper implements ErrorAwareInterface
      * Get an account details from cache and load
      *
      * @param string $id The unique id of the account to get
-     * @param \Netric\Account $account Account to load data into
+     * @param \Netric\Account\Account $account Account to load data into
      * @return bool true on success, false on failure/not found
      */
-    private function loadFromCache($id, \Netric\Account &$account)
+    private function loadFromCache($id, Account &$account)
     {
         $data = $this->cache->get("netric/account/" . $id);
         if ($data)
@@ -261,9 +261,9 @@ class AccountIdentityMapper implements ErrorAwareInterface
     /**
      * Cache an account in local memory
      *
-     * @param \Netric\Account $account Reference to Account object to initialize
+     * @param \Netric\Account\Account $account Reference to Account object to initialize
      */
-    private function setLocalMemory(\Netric\Account &$account)
+    private function setLocalMemory(Account &$account)
     {
         $this->loadedAccounts[$account->getId()] = $account;
     }
@@ -271,10 +271,10 @@ class AccountIdentityMapper implements ErrorAwareInterface
     /**
      * Cache an account
      *
-     * @param \Netric\Account $account Reference to Account object to initialize
+     * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure
      */
-    private function setCache(\Netric\Account &$account)
+    private function setCache(Account &$account)
     {
         return $this->cache->set("netric/account/" . $account->getId(), $account->toArray());
     }

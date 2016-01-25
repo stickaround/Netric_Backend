@@ -98,7 +98,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * Get an account by id
      * 
      * @param string $id The unique id of the account to get
-     * @param \Netric\Account $app Reference to Account object to initialize
+     * @param \Netric\Account\Account $app Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
     public function getAccountById($id, &$account) 
@@ -119,7 +119,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * Get an account by the unique name
      * 
      * @param string $name
-     * @param \Netric\Account $app Reference to Account object to initialize
+     * @param \Netric\Account\Account $app Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
     public function getAccountByName($name, &$account)

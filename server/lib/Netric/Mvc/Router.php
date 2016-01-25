@@ -33,7 +33,7 @@
 namespace Netric\Mvc;
 
 use Netric\Request\RequestInterface;
-use Netric\Application;
+use Netric\Application\Application;
 
 /**
  * Expose public class methods to calling script

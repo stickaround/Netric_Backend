@@ -8,6 +8,7 @@ use Netric;
 use Netric\Entity\ActivityLog;
 use Netric\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
+use Netric\Entity\ObjType\UserEntity;
 use PHPUnit_Framework_TestCase;
 
 class ActivityLogTest extends PHPUnit_Framework_TestCase
@@ -15,7 +16,7 @@ class ActivityLogTest extends PHPUnit_Framework_TestCase
     /**
      * Tenant account
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 
@@ -46,7 +47,7 @@ class ActivityLogTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\User::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(UserEntity::USER_ADMINISTRATOR);
         $this->activityLog = $this->account->getServiceManager()->get("Netric/Entity/ActivityLog");
         $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
     }

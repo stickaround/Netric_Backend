@@ -20,10 +20,10 @@
 	/**
 	 * Class constructor
 	 * 
-	 * @param \Netric\Account $account Account for tennant that we are mapping data for
+	 * @param \Netric\Account\Account $account Account for tennant that we are mapping data for
 	 * @param \Netric\Db\DbInterface $dbh Handle to database
 	 */
-	public function __construct(\Netric\Account $account, \Netric\Db\DbInterface $dbh)
+	public function __construct(\Netric\Account\Account $account, \Netric\Db\DbInterface $dbh)
 	{
 		$this->setAccount($account);
 

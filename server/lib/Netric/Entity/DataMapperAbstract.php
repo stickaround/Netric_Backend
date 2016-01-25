@@ -48,7 +48,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 * @param ServiceLocator $sl The ServiceLocator container
 	 * @param string $accountName The name of the ANT account that owns this data
 	 */
-	public function __construct(\Netric\Account $account)
+	public function __construct(\Netric\Account\Account $account)
 	{
 		$this->setAccount($account);
 		$this->setUp();

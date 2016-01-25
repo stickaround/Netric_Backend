@@ -54,7 +54,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 	/**
 	 * Class constructor
 	 * 
-	 * @param \Netric\Account $account Account for tennant that we are mapping data for
+	 * @param \Netric\Account\Account $account Account for tennant that we are mapping data for
 	 * @param \Netric\Db\Pgsql $dbh Handle to database
 	 */
 	public function __construct($account, $dbh)

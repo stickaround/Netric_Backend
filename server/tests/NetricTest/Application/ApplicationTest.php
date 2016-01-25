@@ -2,7 +2,7 @@
 /**
  * Test core netric application class
  */
-namespace NetricTest;
+namespace NetricTest\Application;
 
 use Netric;
 use PHPUnit_Framework_TestCase;
@@ -24,7 +24,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $config = new Netric\Config();
-        $this->application = new Netric\Application($config);
+        $this->application = new Netric\Application\Application($config);
     }
 
     public function testGetConfig()
@@ -37,7 +37,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
      */
     public function testGetAccount()
     {
-        $this->assertInstanceOf('Netric\Account', $this->application->getAccount());
+        $this->assertInstanceOf('Netric\Account\Account', $this->application->getAccount());
     }
 
     public function testGetAccountsByEmail()

@@ -4,8 +4,8 @@
  */
 namespace NetricTest\Application\Setup;
 
-use Netric\Account;
-use Netric\Application;
+use Netric\Account\Account;
+use Netric\Application\Application;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Account\AccountIdentityMapper;
 use Netric\Application\Setup\Setup;
@@ -16,7 +16,7 @@ class AccountUpdaterTest extends PHPUnit_Framework_TestCase
     /**
      * Reference to account running for unit tests
      *
-     * @var \Netric\Account
+     * @var \Netric\Account\Account
      */
     private $account = null;
 
