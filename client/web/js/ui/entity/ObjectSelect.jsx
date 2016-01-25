@@ -88,11 +88,13 @@ var ObjectSelect = React.createClass({
      * The user has clicked browse to select an entity
      *
      */
-    _handleBrowseClick: function(field) {
+    _handleBrowseClick: function() {
 
         if (!this.props.field) {
             throw "Field is required.";
         }
+
+        var field = this.props.field;
 
         // Get the field subtype
         var subtype = field.subtype;
