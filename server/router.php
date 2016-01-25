@@ -57,4 +57,4 @@ $svr->run($request);
 $config = new Netric\Config();
 
 // Run the application
-\Netric\Application::init($config)->run();
+\Netric\Application\Application::init($config)->run();

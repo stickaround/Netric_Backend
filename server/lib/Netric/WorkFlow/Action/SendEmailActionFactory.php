@@ -23,7 +23,7 @@ class SendEmailActionFactory
         // Return a new TestAction
         $entityLoader = $serviceLocator->get("EntityLoader");
         $actionFactory = new ActionFactory($serviceLocator);
-        $senderService = $serviceLocator->get("Entity/Mail/SenderService");
+        $senderService = $serviceLocator->get("Netric/Mail/SenderService");
         return new SendEmailAction($entityLoader, $actionFactory, $senderService);
     }
 }
