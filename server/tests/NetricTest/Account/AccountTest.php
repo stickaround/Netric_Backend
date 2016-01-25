@@ -19,7 +19,7 @@ class AccountTest extends PHPUnit_Framework_TestCase
     public function testGetApplication()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        $this->assertInstanceOf('Netric\Application', $account->getApplication());
+        $this->assertInstanceOf('Netric\Application\Application', $account->getApplication());
     }
 
     public function testGetAccountUrl()

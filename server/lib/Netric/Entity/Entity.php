@@ -82,6 +82,14 @@ class Entity implements EntityInterface
 		$this->def = $def;
         $this->objType = $def->getObjType();
     }
+
+    /**
+     * Clean-up the entity before closing
+     */
+    public function __destruct()
+    {
+        // Perform any clean-up here
+    }
     
     /**
      * Get the object type of this object

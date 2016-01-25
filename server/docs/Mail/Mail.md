@@ -102,11 +102,11 @@ The Message class represents an individual message to send via a transport.
     $textPart->setCharset("UTF-8");
     
     // Create a content message for the parts
-    $content = new new Mime\Message();
+    $content = new Mime\Message();
     $content->addPart($textPart);
     $content->addPart($htmlPart);
     
-    // Create mime message and add the content and the attachments as seperate parts
+    // Create mime message and add the content and the attachments as separate parts
     $mimeMessage = new Mime\Message();
     
     // Add text & html alternative
@@ -123,7 +123,7 @@ The Message class represents an individual message to send via a transport.
     $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
     // Setting the encoding is recommended for binary data
     $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
-    $mimemessage->addPart($attachment);
+    $mimeMessage->addPart($attachment);
     
     // Create the actual email
     $message = new \Netric\Mail\Message();

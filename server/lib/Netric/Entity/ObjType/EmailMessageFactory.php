@@ -22,6 +22,9 @@ class EmailMessageFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("email_message");
-        return new EmailMessageEntity($def);
+        $entityLoader = $sl->get("EntityLoader");
+        $entityQueryIndex = $sl->get("EntityQuery_Index");
+        $fileSystem = $sl->get("Netric/FileSystem/FileSystem");
+        return new EmailMessageEntity($def, $entityLoader, $entityQueryIndex, $fileSystem);
     }
 }

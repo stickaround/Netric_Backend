@@ -24,6 +24,17 @@ class FileEntity extends Entity implements EntityInterface
     private $fileHandle = null;
 
     /**
+     * Clean-up file handle if not closed
+     */
+    public function __destruct()
+    {
+        if ($this->fileHandle) {
+            @fclose($this->fileHandle);
+            $this->fileHandle = null;
+        }
+    }
+
+    /**
      * Callback function used for derrived subclasses
      *
      * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
@@ -72,5 +83,37 @@ class FileEntity extends Entity implements EntityInterface
     public function setFileHandle($fileHandle)
     {
         $this->fileHandle = $fileHandle;
+    }
+
+    /**
+     * Get the file type from the extension
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        $ext = substr($this->getValue("name"), strrpos($this->getValue("name"), '.') + 1);
+        return strtolower($ext);
+    }
+
+    /**
+     * Get a mime type from the extension
+     */
+    public function getMimeType()
+    {
+        $type = $this->getType();
+
+        switch ($type)
+        {
+            case 'jpg':
+            case 'jpeg':
+                return "image/jpeg";
+            case 'png':
+                return "image/png";
+
+            default:
+                return "application/octet-stream";
+        }
+
     }
 }

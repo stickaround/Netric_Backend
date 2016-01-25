@@ -181,13 +181,28 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Get a file by id
      *
-     * @param $fid Unique id of the file
-     * @return File
+     * @param int $fid Unique id of the file
+     * @return FileEntity
      */
     public function openFileById($fid)
     {
         $file = $this->entityLoader->get("file", $fid);
         return ($file && $file->getId()) ? $file : null;
+    }
+
+    /**
+     * Open a file and place it in a stream wrapper for standard PHP stream functions
+     *
+     * @param $fid
+     * @return resource|null Null if file not found
+     */
+    public function openFileStreamById($fid)
+    {
+        $file = $this->openFileById($fid);
+        if ($file)
+            return FileStreamWrapper::open($this, $file);
+        else
+            return null;
     }
 
     /**
@@ -223,7 +238,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * Get a folder by id
      *
      * @param $folderId
-     * @return Folder
+     * @return FilderEntity
      */
     public function openFolderById($folderId)
     {

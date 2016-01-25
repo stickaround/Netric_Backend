@@ -60,4 +60,12 @@ class EmailMessageTest extends PHPUnit_Framework_TestCase
         $addressList = $method->invoke($emailEntity, $addresses2);
         $this->assertEquals(2, $addressList->count());
     }
+
+    /**
+     * Test convert a EmailMessageEntity into a Mail/Message that is mime encoded
+     */
+    public function testToMailMimeMessage()
+    {
+
+    }
 }
