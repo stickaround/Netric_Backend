@@ -96,8 +96,20 @@ class AuthenticationController extends Mvc\AbstractController
 		return $this->sendOutput(array("result"=>"SUCCESS"));
 	}
 
+    /**
+     * POST pass-through for logout
+     *
+     *  @return array|string
+     */
+    public function postLogoutAction()
+    {
+        return $this->getLogoutAction();
+    }
+
 	/**
 	 * Check if a session is still valid
+     *
+     *  @return array|string
 	 */
 	public function getCheckinAction()
 	{
@@ -110,6 +122,16 @@ class AuthenticationController extends Mvc\AbstractController
 		
 		return $this->sendOutput($ret);
 	}
+
+    /**
+     * POST pass-through for checkin
+     *
+     * @return array|string
+     */
+    public function postCheckinAction()
+    {
+        return $this->getCheckinAction();
+    }
 
 	/**
 	 * Get all accounts associated with a domain and return the name and instance URL
