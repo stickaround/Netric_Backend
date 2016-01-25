@@ -114,7 +114,7 @@ class AuthenticationController extends Mvc\AbstractController
 	/**
 	 * Get all accounts associated with a domain and return the name and instance URL
 	 */
-	public function getGetAccountsAction()
+	public function postGetAccountsAction()
 	{
 		$email = $this->request->getParam("email");
 
