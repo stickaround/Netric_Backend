@@ -1,5 +1,5 @@
 /**
- * A row 
+ * A row
  *
  * @jsx React.DOM
  */
@@ -12,12 +12,27 @@ var React = require('react');
  */
 var Row = React.createClass({
 
-    render: function() {
+    render: function () {
 
-    	return (
+        var displayRow = (
             <div className="entity-form-row">
                 {this.props.children}
             </div>
+        );
+        var showif = this.props.xmlNode.getAttribute('showif');
+
+        if (showif) {
+            var parts = showif.split("=");
+            var refField = parts[0];
+            var refValue = parts[1];
+
+            if(this.props.entity.getValue(refField) != refValue) {
+                displayRow = null;
+            }
+        }
+
+        return (
+            displayRow
         );
     }
 

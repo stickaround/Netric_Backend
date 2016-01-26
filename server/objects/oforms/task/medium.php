@@ -2,7 +2,7 @@
     <tab name='General'>
         <row>
             <column>
-                <field name='name' class='headline'></field>
+                <field name='name' hidelabel="t" class='headline'></field>
             </column>
         </row>
         <fieldset name='Details'>

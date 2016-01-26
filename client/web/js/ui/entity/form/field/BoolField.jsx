@@ -1,5 +1,5 @@
 /**
- * Text field compnent
+ * Text field component
  *
  * @jsx React.DOM
  */
@@ -49,6 +49,7 @@ var BoolField = React.createClass({
                 <div>
                     <div className="entity-form-field-label">{field.title}</div>
                     <div className="entity-form-field-value">{valLabel}</div>
+                    <div className="clearfix"></div>
                 </div>
             );
         }

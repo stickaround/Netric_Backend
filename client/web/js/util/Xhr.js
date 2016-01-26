@@ -158,8 +158,13 @@ Xhr.prototype.send = function(urlPath, opt_method, opt_content) {
                 errorThrown: errorThrown,
             }
 
-            // Trigger load events for any listeners
-            events.triggerEvent(xhr, "error", error);
+            // Make sure that we will not send an error if the request was aborted by the user
+            if(errorThrown && !errorThrown.toLowerCase() === "abort") {
+
+                // Trigger load events for any listeners
+                events.triggerEvent(xhr, "error", error);
+            }
+
 
             // No longer in progress of course
             xhr.isInProgress_ = false;

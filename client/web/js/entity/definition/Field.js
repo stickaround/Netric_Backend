@@ -178,7 +178,8 @@ Field.types = {
 	bool : "bool",
 	date: "date",
 	timestamp: "timestamp",
-	number: "number"
+	number: "number",
+	integer: "integer"
 }
 
 /**

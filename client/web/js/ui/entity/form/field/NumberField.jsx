@@ -58,6 +58,7 @@ var NumberField = React.createClass({
                     <div>
                         <div className="entity-form-field-label">{field.title}</div>
                         <div className="entity-form-field-value">{fieldValue}</div>
+                        <div className="clearfix"></div>
                     </div>
                 );
             }
