@@ -1,5 +1,5 @@
 /**
- * Image field component
+ * Image component
  *
  * @jsx React.DOM
  */
@@ -14,7 +14,7 @@ var controller = require("../../../controller/controller");
 var server = require('../../../server');
 
 /**
- * Base level element for enetity forms
+ * Image Element
  */
 var Image = React.createClass({
 
@@ -48,7 +48,7 @@ var Image = React.createClass({
 
         // If we have a field value, then lets display the image
         if (fieldValue) {
-            let imageSource = server.host + "/antfs/images/" + this.props.entity.getValue(fieldName);
+            let imageSource = server.host + "/antfs/images/" + this.props.entity.getValue(fieldName) + "/48";
             imageDisplay = (
                 <img
                     src={imageSource}

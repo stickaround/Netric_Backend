@@ -70,6 +70,7 @@
 	  }
 
 	  .entity-form-field-value {
+
 		@media #{$device-medium} {
 		  margin-left: 40%;
 		}
@@ -78,7 +79,13 @@
 		  margin-left: 33%;
 		}
 
+        &:after{
+          content: "";
+          display: table;
+          clear:both;
+        }
 	  }
+
 		/*
 		display: -webkit-box;
 		display: -moz-box;
@@ -95,7 +102,7 @@
 		}
 
 		.entity-form-field-value {
-			
+
 		}
 		*/
 	}

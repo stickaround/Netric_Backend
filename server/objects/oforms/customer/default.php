@@ -7,10 +7,8 @@
                     <field name='type_id'></field>
                 </row>
                 <row showif='type_id=2'>
-                    <column>
-                        <field name='name'></field>
-                        <field ref_field='type_id' ref_value='1' name='primary_contact'></field>
-                    </column>
+                    <field name='name'></field>
+                    <field ref_field='type_id' ref_value='1' name='primary_contact'></field>
                 </row>
                 <row showif='type_id=1'>
                     <column>
@@ -49,15 +47,14 @@
                     <field name='image_id' hidelabel='t' profile_image='t' path='/System/Customer Files'></field>
                 </column>
                 <column padding='0px'>
-                    <header field='name'/>
-                    <text field='job_title'/>
-                    <text showif='primary_account=*'> at</text>
-                    <text field='primary_account'/>
+                    <header field='name' />
+                    <text field='job_title' />
+                    <text showif='primary_account=*'> at </text>
+                    <text field='primary_account' />
                 </column>
             </row>
             <row>
-                <field class='compact' icon='/images/icons/phone_mobile_12.png' label='Mobile'
-                       name='phone_cell'></field>
+                <field class='compact' icon='/images/icons/phone_mobile_12.png' label='Mobile' name='phone_cell'></field>
                 <field class='compact' icon='/images/icons/phone_home_12.png' label='Home' name='phone_home'></field>
                 <field class='compact' icon='/images/icons/phone_work_12.png' label='Work' name='phone_work'></field>
                 <field class='compact' icon='/images/icons/phone_ext_12.png' label='Ext' name='phone_ext'></field>
@@ -132,6 +129,10 @@
 
 <tab name='Cases'>
     <objectsref obj_type='case' ref_field='customer_id'></objectsref>
+</tab>
+
+<tab name='Relationships'>
+    <plugin name='relationships'></plugin>
 </tab>
 
 <tab name='Files'>

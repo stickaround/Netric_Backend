@@ -27,7 +27,7 @@ var FileUpload = React.createClass({
         getFileUrl: React.PropTypes.func,
         onNavBtnClick: React.PropTypes.func,
         hideToolbar: React.PropTypes.bool,
-        multipleSelect: React.PropTypes.bool,
+        allowMultipleSelect: React.PropTypes.bool,
         buttonLabel: React.PropTypes.string,
         iconClassName: React.PropTypes.string,
     },
@@ -38,7 +38,7 @@ var FileUpload = React.createClass({
             currentPath: '%tmp%',
             title: 'Add Attachment',
             buttonLabel: 'Attach File(s)',
-            multipleSelect: true,
+            allowMultipleSelect: true,
             iconClassName: 'fa fa-paperclip'
         }
     },
@@ -83,25 +83,9 @@ var FileUpload = React.createClass({
             );
         }
 
-        var fileUploadDisplay = null;
-
-        if(this.props.multipleSelect) {
-            fileUploadDisplay = (
-                <input
-                    type='file'
-                    ref='inputFile'
-                    onChange={this._handleFileUpload}
-                    multiple
-                    style={{display: 'none'}}/>
-            );
-        } else {
-            fileUploadDisplay = (
-                <input
-                    type='file'
-                    ref='inputFile'
-                    onChange={this._handleFileUpload}
-                    style={{display: 'none'}}/>
-            );
+        var multiple = null;
+        if(this.props.allowMultipleSelect) {
+            multiple = "multiple";
         }
 
         return (
@@ -113,7 +97,12 @@ var FileUpload = React.createClass({
                     onClick={this._handleShowUpload}
                 />
                 <FlatButton label={this.props.buttonLabel} onClick={this._handleShowUpload}/>
-                {fileUploadDisplay}
+                <input
+                    type='file'
+                    ref='inputFile'
+                    onChange={this._handleFileUpload}
+                    multiple={multiple}
+                    style={{display: 'none'}}/>
                 {displayFiles}
             </div>
         );

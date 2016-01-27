@@ -159,7 +159,7 @@ Xhr.prototype.send = function(urlPath, opt_method, opt_content) {
             }
 
             // Make sure that we will not send an error if the request was aborted by the user
-            if(errorThrown && !errorThrown.toLowerCase() === "abort") {
+            if(textStatus && !textStatus.toLowerCase() === "abort") {
 
                 // Trigger load events for any listeners
                 events.triggerEvent(xhr, "error", error);

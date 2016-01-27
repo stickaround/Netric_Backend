@@ -1,5 +1,5 @@
 /**
- * A row
+ * Text component
  *
  * @jsx React.DOM
  */
@@ -8,19 +8,30 @@
 var React = require('react');
 
 /**
- * Row element
+ * Text Element
  */
-var Row = React.createClass({
+var Text = React.createClass({
 
+    /**
+     * Expected props
+     */
+    propTypes: {
+        xmlNode: React.PropTypes.object,
+        entity: React.PropTypes.object,
+        eventsObj: React.PropTypes.object,
+        editMode: React.PropTypes.bool
+    },
+
+    /**
+     * Render the component
+     */
     render: function () {
-
-        var displayRow = (
-            <div className="entity-form-row">
-                {this.props.children}
-            </div>
-        );
+        var xmlNode = this.props.xmlNode;
+        var fieldName = xmlNode.getAttribute('field');
+        var fieldValue = this.props.entity.getValue(fieldName);
         var showif = this.props.xmlNode.getAttribute('showif');
 
+        var textDisplay = (<div className="entity-form-field-value">{this.props.children}{fieldValue}</div>);
         if (showif) {
 
             /*
@@ -34,21 +45,20 @@ var Row = React.createClass({
             var refValue = parts[1];
 
             // If refValue has a string value of null, then lets convert it to null value
-            if(refValue === "null") {
+            if (refValue === "null") {
                 refValue = null;
             }
 
             // If showif is provided and it did not match with the entity field value, then lets not display the row
-            if(this.props.entity.getValue(refField) != refValue) {
-                displayRow = null;
+            if (this.props.entity.getValue(refField) != refValue) {
+                textDisplay = null;
             }
         }
 
         return (
-            displayRow
+            textDisplay
         );
-    }
-
+    },
 });
 
-module.exports = Row;
+module.exports = Text;

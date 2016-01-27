@@ -17,7 +17,6 @@ var StatusUpdate = require("./StatusUpdate.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var NumberField = require("./field/NumberField.jsx");
 var DateField = require("./field/DateField.jsx");
-var IntegerField = require("./field/IntegerField.jsx");
 var Comments = require("./Comments.jsx");
 var Activity = require("./Activity.jsx");
 var Image = require("./Image.jsx");
@@ -66,6 +65,7 @@ var Field = React.createClass({
             case field.types.text:
                 fieldContent = <TextField {...this.props} />;
                 break;
+            case field.types.timestamp:
             case field.types.date:
                 fieldContent = <DateField {...this.props} />;
                 break;
@@ -108,9 +108,10 @@ var Field = React.createClass({
 
                 break;
             case field.types.integer:
-                fieldContent = <IntegerField {...this.props} />;
+                fieldContent = <NumberField {...this.props} />;
                 break;
             default:
+                console.log(field);
                 var fieldValue = this.props.entity.getValue(fieldName);
                 fieldContent = <div>Field ToDo: {field.type} - {fieldName}:{fieldValue}</div>;
                 break;

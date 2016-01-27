@@ -2,7 +2,7 @@
     <column>
         <tabs>
             <tab name='General'>
-                <row>
+                <row showif='id=null'>
                     <column>
                         <field name='type_id'></field>
                     </column>
@@ -67,6 +67,9 @@
         <row>
             <column>
                 <field name='image_id' hidelabel='t' profile_image='t'></field>
+                <text field='job_title'/>
+                <text showif='primary_account=*'> at</text>
+                <text field='primary_account'/>
             </column>
         </row>
         <row>
@@ -148,10 +151,12 @@
         </row>
         <header>Important Dates</header>
         <row>
-            <field name='birthday'></field>
-            <field name='birthday_spouse'></field>
-            <field name='anniversary'></field>
-            <field name='last_contacted'></field>
+            <column>
+                <field name='birthday'></field>
+                <field name='birthday_spouse'></field>
+                <field name='anniversary'></field>
+                <field name='last_contacted'></field>
+            </column>
         </row>
 
     </column>

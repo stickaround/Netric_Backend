@@ -104,21 +104,19 @@ var TextField = React.createClass({
 
             // Display view mode text as innerhtml
             var innerHtml = this._processViewModeText(fieldValue, multiline, rich);
-            var title = null;
+            var label = null;
 
             if (fieldValue && (!hidelabel || hidelabel == "f")) {
-                title = <div className="entity-form-field-label">{field.title}</div>;
+                label = <div className="entity-form-field-label">{field.title}</div>;
             }
 
             return (
                 <div>
-                    {title}
-                    <div dangerouslySetInnerHTML={innerHtml}/>
-                    <div className="clearfix"></div>
+                    {label}
+                    <div className="entity-form-field-value" dangerouslySetInnerHTML={innerHtml}/>
                 </div>
             );
         }
-
     },
 
     /**
