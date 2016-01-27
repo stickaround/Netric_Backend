@@ -4,7 +4,7 @@
             <tab name='General'>
                 <row>
                     <column>
-                        <field name='title' class='headline'></field>
+                        <field name='title' hidelabel="t" class='headline'></field>
                     </column>
                 </row>
                 <row>

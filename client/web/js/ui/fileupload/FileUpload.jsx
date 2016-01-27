@@ -26,7 +26,10 @@ var FileUpload = React.createClass({
         onRemove: React.PropTypes.func,
         getFileUrl: React.PropTypes.func,
         onNavBtnClick: React.PropTypes.func,
-        hideToolbar: React.PropTypes.bool
+        hideToolbar: React.PropTypes.bool,
+        allowMultipleSelect: React.PropTypes.bool,
+        buttonLabel: React.PropTypes.string,
+        iconClassName: React.PropTypes.string,
     },
 
     getDefaultProps: function () {
@@ -34,6 +37,9 @@ var FileUpload = React.createClass({
             folderId: null,
             currentPath: '%tmp%',
             title: 'Add Attachment',
+            buttonLabel: 'Attach File(s)',
+            allowMultipleSelect: true,
+            iconClassName: 'fa fa-paperclip'
         }
     },
 
@@ -56,7 +62,7 @@ var FileUpload = React.createClass({
                     file={file}
                     displayProgress={true}
                     onRemove={this.props.onRemove}
-                    />
+                />
             );
         }
 
@@ -66,7 +72,7 @@ var FileUpload = React.createClass({
                 <IconButton
                     iconClassName='fa fa-arrow-left'
                     onClick={this._handleBackButtonClicked}
-                    />
+                />
             );
 
             toolBar = (
@@ -77,20 +83,25 @@ var FileUpload = React.createClass({
             );
         }
 
+        var multiple = null;
+        if(this.props.allowMultipleSelect) {
+            multiple = "multiple";
+        }
+
         return (
             <div>
                 {toolBar}
                 <IconButton
-                    label='Attach File(s)'
-                    iconClassName='fa fa-paperclip'
+                    label={this.props.buttonLabel}
+                    iconClassName={this.props.iconClassName}
                     onClick={this._handleShowUpload}
-                    />
-                <FlatButton label='Attach File(s)' onClick={this._handleShowUpload}/>
+                />
+                <FlatButton label={this.props.buttonLabel} onClick={this._handleShowUpload}/>
                 <input
                     type='file'
                     ref='inputFile'
                     onChange={this._handleFileUpload}
-                    multiple
+                    multiple={multiple}
                     style={{display: 'none'}}/>
                 {displayFiles}
             </div>

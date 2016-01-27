@@ -1,5 +1,5 @@
 /**
- * Text field compnent
+ * Grouping field component
  *
  * @jsx React.DOM
  */

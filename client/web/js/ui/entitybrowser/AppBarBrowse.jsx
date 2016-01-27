@@ -67,13 +67,13 @@ var AppBarBrowse = React.createClass({
             // Create exit search mode button
             elemmentLeft = (
                 <IconButton
-                    key="search"
+                    key="searchLeft"
                     iconClassName="fa fa-arrow-left"
                     onClick={this.toggleSearchMode} />
             );
 
             // Create AppBar with search form
-            elementRight = <AppBarSearch onSearch={this.handleSearchChange_} onAdvancedSearch={this.props.onAdvancedSearch}/>;
+            elementRight = <AppBarSearch key="appBarSearch" onSearch={this.handleSearchChange_} onAdvancedSearch={this.props.onAdvancedSearch}/>;
 
             // Clear the title
             title = null;
@@ -93,7 +93,7 @@ var AppBarBrowse = React.createClass({
             elementRight = (
                 <div>
                     <IconButton
-                        key="search"
+                        key="searchRight"
                         iconClassName="fa fa-search"
                         onClick={this.toggleSearchMode}>
                     </IconButton>
@@ -103,7 +103,8 @@ var AppBarBrowse = React.createClass({
         }
 
         return (
-            <AppBar 
+            <AppBar
+                key="appBarBrowse"
                 iconElementLeft={elemmentLeft}
                 title={title}
                 zDepth={0}

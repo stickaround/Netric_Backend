@@ -13,12 +13,13 @@ var BoolField = require("./field/BoolField.jsx");
 var GroupingField = require("./field/GroupingField.jsx");
 var ObjectField = require("./field/ObjectField.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
-var Comments = require("./Comments.jsx");
-var Activity = require("./Activity.jsx");
 var StatusUpdate = require("./StatusUpdate.jsx");
 var ObjectMultiField = require("./field/ObjectMultiField.jsx");
 var NumberField = require("./field/NumberField.jsx");
 var DateField = require("./field/DateField.jsx");
+var Comments = require("./Comments.jsx");
+var Activity = require("./Activity.jsx");
+var Image = require("./Image.jsx");
 
 /**
  * Base level element for enetity forms
@@ -64,14 +65,22 @@ var Field = React.createClass({
             case field.types.text:
                 fieldContent = <TextField {...this.props} />;
                 break;
+            case field.types.timestamp:
             case field.types.date:
                 fieldContent = <DateField {...this.props} />;
                 break;
+            case field.types.integer:
             case field.types.number:
                 fieldContent = <NumberField {...this.props} />;
                 break;
             case field.types.object:
-                fieldContent = <ObjectField {...this.props} />;
+
+                // If the file object is used as profile image
+                if(field.subtype == "file" && xmlNode.getAttribute('profile_image') == "t") {
+                    fieldContent = <Image {...this.props} label="Profile Picture" />;
+                } else {
+                    fieldContent = <ObjectField {...this.props} />;
+                }
                 break;
             case field.types.objectMulti:
 
