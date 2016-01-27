@@ -6,7 +6,7 @@
 'use strict';
 
 var React = require('react');
-var ShowIfFilter = require("../../mixins/ShowIfFilter.jsx");
+var EntityFormShowFilter = require("../../mixins/EntityFormShowFilter.jsx");
 
 /**
  * Text Label Element
@@ -15,7 +15,7 @@ var ShowIfFilter = require("../../mixins/ShowIfFilter.jsx");
  */
 var Text = React.createClass({
 
-    mixins: [ShowIfFilter],
+    mixins: [EntityFormShowFilter],
 
     /**
      * Expected props

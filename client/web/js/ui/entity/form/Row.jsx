@@ -6,14 +6,14 @@
 'use strict';
 
 var React = require('react');
-var ShowIfFilter = require("../../mixins/ShowIfFilter.jsx");
+var EntityFormShowFilter = require("../../mixins/EntityFormShowFilter.jsx");
 
 /**
  * Row element
  */
 var Row = React.createClass({
 
-    mixins: [ShowIfFilter],
+    mixins: [EntityFormShowFilter],
 
     render: function () {
 

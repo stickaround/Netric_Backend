@@ -1,5 +1,7 @@
 /**
- * Handle the Showing of element by evaluating the ShowIf
+ * Handle the Showing of element by evaluating the ShowIf.
+ *
+ * This is only used in entity form elements since ShowIf Filters are only specified in Object Forms.
  *
  * @jsx React.DOM
  */
@@ -8,7 +10,7 @@
 /**
  * Handle showing of element
  */
-var ShowIfFilter = {
+var EntityFormShowFilter = {
 
     /**
      * Evaluate the showIf provided
@@ -35,4 +37,4 @@ var ShowIfFilter = {
 
 };
 
-module.exports = ShowIfFilter;
+module.exports = EntityFormShowFilter;

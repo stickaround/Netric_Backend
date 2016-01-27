@@ -109,7 +109,6 @@ var Field = React.createClass({
 
                 break;
             default:
-                console.log(field);
                 var fieldValue = this.props.entity.getValue(fieldName);
                 fieldContent = <div>Field ToDo: {field.type} - {fieldName}:{fieldValue}</div>;
                 break;
