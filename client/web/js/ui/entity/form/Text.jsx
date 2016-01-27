@@ -1,16 +1,21 @@
 /**
- * Text component
+ * Text Label component
  *
  * @jsx React.DOM
  */
 'use strict';
 
 var React = require('react');
+var ShowIfFilter = require("../../mixins/ShowIfFilter.jsx");
 
 /**
- * Text Element
+ * Text Label Element
+ *
+ * This will basically display the field value as label. There will be no input field displayed in this element
  */
 var Text = React.createClass({
+
+    mixins: [ShowIfFilter],
 
     /**
      * Expected props
@@ -31,26 +36,11 @@ var Text = React.createClass({
         var fieldValue = this.props.entity.getValue(fieldName);
         var showif = this.props.xmlNode.getAttribute('showif');
 
-        var textDisplay = (<div className="entity-form-field-value">{this.props.children}{fieldValue}</div>);
+        var textDisplay = (<div className="entity-form-field-text">{this.props.children}{fieldValue}</div>);
         if (showif) {
 
-            /*
-             * Evaluate the showif if it is provided.
-             * Lets split the show if using the "=" delimter.
-             * The first part will be the field and the second part will be its value.
-             * Sample showif: type=2
-             */
-            var parts = showif.split("=");
-            var refField = parts[0];
-            var refValue = parts[1];
-
-            // If refValue has a string value of null, then lets convert it to null value
-            if (refValue === "null") {
-                refValue = null;
-            }
-
-            // If showif is provided and it did not match with the entity field value, then lets not display the row
-            if (this.props.entity.getValue(refField) != refValue) {
+            // If ::evaluateShowIf() returns false, it means that the showif did not match the filter specified
+            if(!this.evaluateShowIf(showif)) {
                 textDisplay = null;
             }
         }

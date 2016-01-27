@@ -57,17 +57,19 @@ var NumberField = React.createClass({
 
             var fieldDisplay = null;
 
-            // If the field entity has optionalValues, then lets display it in a dropdown
+            // If the entity field has optionalValues, then lets display it in a dropdown
             if (optionalValues) {
                 fieldDisplay = (
                     <div>
                         <div className="entity-form-field-label">
                             {field.title}
                         </div>
-                        <DropDownMenu
-                            menuItems={this._getOptionalValues()}
-                            selectedIndex={this.state.selectedIndex}
-                            onChange={this._handleDropdownChange}/>
+                        <div className="entity-form-field-value">
+                            <DropDownMenu
+                                menuItems={this._getOptionalValues()}
+                                selectedIndex={this.state.selectedIndex}
+                                onChange={this._handleDropdownChange}/>
+                        </div>
                     </div>
                 );
             } else {
@@ -109,7 +111,6 @@ var NumberField = React.createClass({
                     <div>
                         <div className="entity-form-field-label">{field.title}</div>
                         <div className="entity-form-field-value">{fieldValue}</div>
-                        <div className="clearfix"></div>
                     </div>
                 );
             }

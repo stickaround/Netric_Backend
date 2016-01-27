@@ -6,11 +6,14 @@
 'use strict';
 
 var React = require('react');
+var ShowIfFilter = require("../../mixins/ShowIfFilter.jsx");
 
 /**
  * Row element
  */
 var Row = React.createClass({
+
+    mixins: [ShowIfFilter],
 
     render: function () {
 
@@ -23,23 +26,8 @@ var Row = React.createClass({
 
         if (showif) {
 
-            /*
-             * Evaluate the showif if it is provided.
-             * Lets split the show if using the "=" delimter.
-             * The first part will be the field and the second part will be its value.
-             * Sample showif: type=2
-             */
-            var parts = showif.split("=");
-            var refField = parts[0];
-            var refValue = parts[1];
-
-            // If refValue has a string value of null, then lets convert it to null value
-            if(refValue === "null") {
-                refValue = null;
-            }
-
-            // If showif is provided and it did not match with the entity field value, then lets not display the row
-            if(this.props.entity.getValue(refField) != refValue) {
+            // If ::evaluateShowIf() returns false, it means that the showif did not match the filter specified
+            if(!this.evaluateShowIf(showif)) {
                 displayRow = null;
             }
         }

@@ -69,6 +69,7 @@ var Field = React.createClass({
             case field.types.date:
                 fieldContent = <DateField {...this.props} />;
                 break;
+            case field.types.integer:
             case field.types.number:
                 fieldContent = <NumberField {...this.props} />;
                 break;
@@ -106,9 +107,6 @@ var Field = React.createClass({
                     fieldContent = <div>Please save changes to view more details.</div>;
                 }
 
-                break;
-            case field.types.integer:
-                fieldContent = <NumberField {...this.props} />;
                 break;
             default:
                 console.log(field);

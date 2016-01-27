@@ -48,7 +48,7 @@ var Image = React.createClass({
 
         // If we have a field value, then lets display the image
         if (fieldValue) {
-            let imageSource = server.host + "/antfs/images/" + this.props.entity.getValue(fieldName) + "/48";
+            let imageSource = server.host + "/files/images/" + this.props.entity.getValue(fieldName) + "/48";
             imageDisplay = (
                 <img
                     src={imageSource}
@@ -69,9 +69,9 @@ var Image = React.createClass({
                     <IconButton
                         label={this.props.label}
                         iconClassName='fa fa-picture-o'
-                        onClick={this._handleImageUpload}
+                        onClick={this._handleImageUploadClick}
                     />
-                    <FlatButton label={this.props.label} onClick={this._handleImageUpload}/>
+                    <FlatButton label={this.props.label} onClick={this._handleImageUploadClick}/>
                 </div>
             );
         }
@@ -89,7 +89,7 @@ var Image = React.createClass({
      *
      * @private
      */
-    _handleImageUpload: function () {
+    _handleImageUploadClick: function () {
 
         /*
          * We require it here to avoid a circular dependency where the
