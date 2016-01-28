@@ -10,19 +10,14 @@ var Chamel = require('chamel');
 var TextFieldComponent = Chamel.TextField;
 var TextFieldRichComponent = Chamel.TextFieldRich;
 var EditorComponent = Chamel.Editor;
-var EntityCollection = require("../../../../entity/Collection");
+var TextFieldAutoComplete = require("../../../mixins/TextFieldAutoComplete.jsx");
 
 /**
  * Base level element for enetity forms
  */
 var TextField = React.createClass({
 
-    /**
-     * This will contain the instance of EntityCollection
-     *
-     * @object {entity/collection EntityCollection}
-     */
-    _entityCollection: null,
+    mixins: [TextFieldAutoComplete],
 
     /**
      * Expected props
@@ -85,8 +80,8 @@ var TextField = React.createClass({
                     autoComplete: true,
                     autoCompleteDelimiter: '',
                     autoCompleteTrigger: '@',
-                    autoCompleteTransform: this._transformAutoCompleteSelected,
-                    autoCompleteGetData: this._getAutoCompleteData
+                    autoCompleteTransform: this.transformAutoCompleteSelected,
+                    autoCompleteGetData: this.getAutoCompleteData
                 }
 
                 return (
@@ -117,46 +112,6 @@ var TextField = React.createClass({
                 </div>
             );
         }
-    },
-
-    /**
-     * Get the users data to be used in autocomplete list
-     *
-     * @params {string} keyword         The search keyword used to filter the user entities
-     * @params {func} doneCallback      This doneCallback function is called one collection has loaded the data
-     * @private
-     */
-    _getAutoCompleteData: function (keyword, doneCallback) {
-
-        if (!this._entityCollection) {
-            this._entityCollection = new EntityCollection('user');
-
-            /**
-             * Force the entity collection to only have one backend request
-             * This will enable us to abort other requests that are in-progress
-             */
-            this._entityCollection.forceOneBackendRequest();
-        }
-
-        this._entityCollection.clearConditions();
-        this._entityCollection.where("*").equalTo(keyword);
-
-        var collectionDoneCallback = function () {
-
-            var entities = this._entityCollection.getEntities();
-
-            // We are setting the payload and text here to be displayed in the menu list
-            var autoCompleteData = entities.map(function (entity) {
-                return {
-                    payload: entity.id,
-                    text: entity.getValue('full_name')
-                };
-            });
-
-            doneCallback(autoCompleteData);
-        }.bind(this);
-
-        this._entityCollection.load(collectionDoneCallback);
     },
 
     /**
@@ -263,22 +218,6 @@ var TextField = React.createClass({
         //buf = buf.replace(regEx, "<a href=\"mailto:$1\">$1</a>");
 
         return buf;
-    },
-
-    /**
-     * AutoComplete function that will transform the selected data to something else
-     *
-     * @param {object} data     THe autocomplete selected data
-     * @returns {string}
-     * @private
-     */
-    _transformAutoCompleteSelected: function (data) {
-
-        /**
-         * The data contains payload and text as its object fields. These are set in ::_getAutoCompleteData()
-         * Payload contains the user id and text has the user's full name
-         */
-        return "[user:" + data.payload + ":" + data.text + "]";
     },
 
     /**

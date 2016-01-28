@@ -28,7 +28,9 @@ var formElements = {
     Plugin: require("./form/Plugin.jsx"),
     Header: require("./form/Header.jsx"),
     StatusUpdate: require("./form/StatusUpdate.jsx"),
-    Text: require("./form/Text.jsx")
+    Text: require("./form/Text.jsx"),
+    Label: require("./form/Label.jsx"),
+    Members: require("./form/Members.jsx")
 };
 
 /**
