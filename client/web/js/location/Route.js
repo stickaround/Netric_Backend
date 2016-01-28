@@ -1,7 +1,7 @@
 /**
 * @fileOverview Route represents a single route segment
 *
-* @author:	Sky Stebnicki, sky.stebnicki@aereus.com; 
+* @author:	Sky Stebnicki, sky.stebnicki@aereus.com;
 * 			Copyright (c) 2015 Aereus Corporation. All rights reserved.
 */
 'use strict';
@@ -23,12 +23,12 @@ var Route = function(parentRouter, segmentName, controller, opt_data, opt_elemen
 
 	/**
 	 * Path of this route segment
-	 * 
+	 *
 	 * @type {string}
 	 */
 	this.name_ = segmentName;
 
-	/** 
+	/**
 	 * Set and cache number of segments represented in this route
 	 *
 	 * @private
@@ -46,7 +46,7 @@ var Route = function(parentRouter, segmentName, controller, opt_data, opt_elemen
 
 	/**
 	 * Controller class that acts and the UI handler for this route
-	 * 
+	 *
 	 * This is just the class name, it has not yet been instantiated
 	 *
 	 * @type {classname: AbstractController}
@@ -103,14 +103,24 @@ Route.prototype.enterRoute = function(opt_params, opt_callback) {
 		this.controller_ = new this.controllerClass_;
 	}
 
-    if (opt_params) {
-        for (var name in opt_params) {
-            this.controllerData_[name] = opt_params[name];
-        }
-    }
+	/*
+	 * Make sure we will not overwrite the this.controllerData_
+	 * So it will not inherit the previous opt_params from the previous url
+	 * Lets clone the controllerData_ and add the opt_params
+	 * 	instead of directly updating the controllerData_
+     */
+	var controllerData = Object.create(this.controllerData_);
+
+	if (opt_params) {
+		for (var name in opt_params) {
+			controllerData[name] = opt_params[name];
+		}
+	}
+
+	console.log(controllerData);
 
 	// Load up the controller and pass the callback if set
-	this.controller_.load(this.controllerData_, this.domNode_, this.getChildRouter(), doneLoadingCB);
+	this.controller_.load(controllerData, this.domNode_, this.getChildRouter(), doneLoadingCB);
 }
 
 /**
@@ -159,7 +169,7 @@ Route.prototype.getChildRouter = function() {
 
 /**
  * Get the number of segments in this route path name
- * 
+ *
  * This is important paths like myroute/:varA/:varB
  * because we need to pull all three segmens from a path
  * in order to determine if the route matches any given path.
@@ -207,7 +217,7 @@ Route.prototype.matchesPath = function(path) {
 		} else if (queryParams !== null) {
 			params = queryParams;
 		}
-		
+
 
 		// If params is null then the path does not match at all
 		if (params !== null) {
@@ -255,16 +265,16 @@ Route.prototype.getPathSegments = function(path, numSegments) {
 	if (parts.length != numSegments) {
 		// Step over "/" if exists
 		var startPos = ("/" == path[targetPath.length]) ? targetPath.length + 1 : targetPath.length;
-		rem = path.substring(startPos); 
+		rem = path.substring(startPos);
 	}
 
 	return {target:targetPath, remainder:rem}
 
-} 
+}
 
 /**
  * Get the controller instance for this route
- * 
+ *
  * @return {AbstractController}
  */
 Route.prototype.getController = function() {
