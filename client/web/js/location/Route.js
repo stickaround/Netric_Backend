@@ -107,8 +107,8 @@ Route.prototype.enterRoute = function(opt_params, opt_callback) {
 	 * Make sure we will not overwrite the this.controllerData_
 	 * So it will not inherit the previous opt_params from the previous url
 	 * Lets clone the controllerData_ and add the opt_params
-	 * 	instead of directly updating the controllerData_
-     */
+	 * instead of directly updating the controllerData_
+	 */
 	var controllerData = Object.create(this.controllerData_);
 
 	if (opt_params) {
@@ -116,8 +116,6 @@ Route.prototype.enterRoute = function(opt_params, opt_callback) {
 			controllerData[name] = opt_params[name];
 		}
 	}
-
-	console.log(controllerData);
 
 	// Load up the controller and pass the callback if set
 	this.controller_.load(controllerData, this.domNode_, this.getChildRouter(), doneLoadingCB);
