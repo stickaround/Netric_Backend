@@ -233,7 +233,17 @@ class Message
                 $fieldValue = $header->getFieldValue();
                 switch (strtolower($fieldName)) {
                     case 'content-type':
-                        $properties['type'] = $fieldValue;
+                        $parts = explode(";", $fieldValue);
+                        $properties['type'] = $parts[0];
+
+                        // Check if charset was added like text/plain; charset=UTF-8
+                        if (count($parts) >= 2) {
+                            $charset = explode("=", trim($parts[1]));
+                            if (count($charset) > 1) {
+                                $properties['charset'] = $charset[1];
+                            }
+                        }
+
                         break;
                     case 'content-transfer-encoding':
                         $properties['encoding'] = $fieldValue;

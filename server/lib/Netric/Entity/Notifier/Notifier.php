@@ -33,7 +33,7 @@ class Notifier
     /**
      * Current user
      *
-     * @var User
+     * @var UserEntity
      */
     private $user = null;
 
@@ -217,13 +217,14 @@ class Notifier
      */
     private function getNameFromEventVerb($event, $objTypeTitle)
     {
-        if (ActivityEntity::VERB_CREATED == $event)
+        switch ($event)
         {
-            return "Added " . $objTypeTitle;
-        }
-        else
-        {
-            return ucfirst($event) . " " . $objTypeTitle;
+            case ActivityEntity::VERB_CREATED:
+                return "Added " . $objTypeTitle;
+            case ActivityEntity::VERB_SENT:
+                return "Sent " . $objTypeTitle;
+            default:
+                return ucfirst($event) . " " . $objTypeTitle;
         }
     }
 }

@@ -29,7 +29,7 @@ class ActivityLog
     /**
      * Currently logged in user
      * 
-     * @var ObjType\User
+     * @var ObjType\UserEntity
      */
     private $currentUser = null;
 
@@ -45,7 +45,7 @@ class ActivityLog
      *
      * @param EntityLoader $entityLoader Loader for getting referenced entities
      * @param EntityGroupings\Loader $groupingsLoader Loader for getting/setting groupings
-     * @param ObjType\User $currentUser
+     * @param ObjType\UserEntity $currentUser
      */
     public function __construct(
         EntityLoader $entityLoader,

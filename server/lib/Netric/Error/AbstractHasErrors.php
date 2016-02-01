@@ -4,6 +4,7 @@
  * @copyright 2015-206 Aereus
  */
 namespace Netric\Error;
+use Zend\Barcode\Object\Error;
 
 /**
  * Generic functions used for a class that has errors
@@ -45,5 +46,14 @@ abstract class AbstractHasErrors implements ErrorAwareInterface
     public function mergeErrors(array $errors)
     {
         $this->errors = array_merge($this->errors, $errors);
+    }
+
+    /**
+     * Construct and add a new Error from a message
+     * @param $message
+     */
+    public function addErrorFromMessage($message)
+    {
+        $this->errors[] = new Error($message);
     }
 }

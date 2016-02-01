@@ -498,7 +498,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                     if ($objType && $id)
                     {
                         $ent = $entityLoader->get($objType, $id);
-                        $entity->setValue($field->name, $value, $ent->getName());
+						if ($ent) {
+							$entity->setValue($field->name, $value, $ent->getName());
+						} else {
+							// Referenced entity was removed, so clear the value
+							$entity->setValue($field->name, null);
+						}
                     }
 
                     break;
@@ -522,7 +527,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                             if ($objType && $id)
                             {
                                 $ent = $entityLoader->get($objType, $id);
-                                $entity->addMultiValue($field->name, $valPart, $ent->getName());
+								if ($ent) {
+									$entity->addMultiValue($field->name, $valPart, $ent->getName());
+								} else {
+									// Referenced entity was removed, so clear the value
+									$entity->removeMultiValue($field->name, $valPart);
+								}
                             }
                         }
                     }

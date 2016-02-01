@@ -20,6 +20,9 @@ class SenderServiceFactory implements ServiceManager\ServiceFactoryInterface
      */
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
-        return new SenderService();
+        $transport = $sl->get("Netric/Mail/Transport/Transport");
+        $bulkTransport = $sl->get("Netric/Mail/Transport/BulkTransport");
+        $log = $sl->get("Log");
+        return new SenderService($transport, $bulkTransport, $log);
     }
 }

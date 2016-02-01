@@ -398,7 +398,7 @@ abstract class AbstractAction implements ErrorAwareInterface
              * This is legacy where some workflows would set these fields for sending email
              * but just provide a field with a user id and not the .email attribute appended
              */
-            if ($paramName === 'to' || $paramName === 'cc' || $paramName === 'bcc')
+            if (!is_array($paramValue) && ($paramName === 'to' || $paramName === 'cc' || $paramName === 'bcc'))
             {
                 $matches = array();
                 preg_match_all("/<%(.*?)%>/", $paramValue, $matches);
@@ -420,7 +420,17 @@ abstract class AbstractAction implements ErrorAwareInterface
              * End legacy hack:
              */
 
-            $data[$paramName] = $this->replaceParamVariables($mergeWithEntity, $paramValue);
+            if (is_array($paramValue))
+            {
+                foreach ($paramValue as $valueIndex=>$subValue)
+                {
+                    $data[$paramName][$valueIndex] = $this->replaceParamVariables($mergeWithEntity, $subValue);
+                }
+            }
+            else
+            {
+                $data[$paramName] = $this->replaceParamVariables($mergeWithEntity, $paramValue);
+            }
         }
 
         return $data;

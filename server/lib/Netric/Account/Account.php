@@ -5,6 +5,9 @@
 namespace Netric\Account;
 
 use Netric\Application\Application;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\ServiceManager;
+use Netric\Entity\ObjType\UserEntity;
 
 class Account
 {
@@ -39,14 +42,14 @@ class Account
     /**
      * Handle to service manager for this account
      * 
-     * @var Netric\ServiceManager\ServiceLocatorInterface
+     * @var ServiceLocatorInterface
      */
     private $serviceManager = null;
 
     /**
      * Property to set the current user rather than using the auth service
      * 
-     * @var Netric\Entity\ObjType\UserEntity
+     * @var UserEntity
      */
     public $currentUserOverride = null;
 
@@ -69,7 +72,7 @@ class Account
     {
         $this->application = $app;
         
-        $this->serviceManager = new \Netric\ServiceManager\ServiceManager($this);
+        $this->serviceManager = new ServiceManager($this);
 
         // Set default status
         $this->status = self::STATUS_ACTIVE;
@@ -142,7 +145,7 @@ class Account
     /**
      * Get ServiceManager for this account
      * 
-     * @return Netric\ServiceManager\ServiceLocatorInterface
+     * @return ServiceLocatorInterface
      */
     public function getServiceManager()
     {
@@ -166,9 +169,9 @@ class Account
      * there is no current authenticated user but we need to setup one
      * manually for act on behalf of a user.
      *
-     * @param \Netric\Entity\ObjType\UserEntity $user
+     * @param UserEntity $user
      */
-    public function setCurrentUser(\Netric\Entity\ObjType\UserEntity $user)
+    public function setCurrentUser(UserEntity $user)
     {
         $this->currentUserOverride = $user;
     }
@@ -181,7 +184,7 @@ class Account
      * 
      * @param string $userId The userId of the user to get
      * @param string $username Get user by name
-     * @return \Netric\Entity\ObjType\UserEntity|bool user on success, false on failure
+     * @return UserEntity|bool user on success, false on failure
      */
     public function getUser($userId=null, $username=null)
     {      
@@ -224,8 +227,11 @@ class Account
             throw new \RuntimeException("Loading a user by username is not yet supported");
         }
                 
-        // Get anonymous user
-        return $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
+        // Return anonymous user
+        $anon = $loader->create("user");
+        $anon->setId(UserEntity::USER_ANONYMOUS);
+        $anon->setValue("name", "anonymous");
+        return $anon;
     }
 
     /**

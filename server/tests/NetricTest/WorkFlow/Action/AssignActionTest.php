@@ -114,6 +114,12 @@ class AssignActionTest extends AbstractActionTests
         // Create a test team_id
         $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         $groupings = $groupingsLoader->get("user", "team_id");
+        $group = $groupings->getByName("Test");
+        if ($group)
+        {
+            $groupings->delete($group->id);
+            $groupingsLoader->save($groupings);
+        }
         $group = new Group();
         $group->name = "Test";
         $groupings->add($group);
@@ -158,7 +164,10 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue($action->execute($workFlowInstance));
 
         // Make sure the user was assigned to one of the users
-        $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
+        $this->assertTrue(
+            in_array($task->getValue("user_id"), $usersArray),
+            "Missing user " . $task->getValue("user_id") . " in " . var_export($usersArray, true)
+        );
 
         // Execute repeatedly and check the probability distribution
         $hits = [$user1Id=>0, $user2Id=>0, $user3Id=>0];
@@ -169,9 +178,9 @@ class AssignActionTest extends AbstractActionTests
         }
 
         // Make sure probabilities are in acceptable ranges ~10 to each
-        $this->assertGreaterThan(10, $hits[$user1Id]);
-        $this->assertGreaterThan(10, $hits[$user2Id]);
-        $this->assertGreaterThan(10, $hits[$user3Id]);
+        $this->assertGreaterThan(10, $hits[$user1Id], var_export($hits, true));
+        $this->assertGreaterThan(10, $hits[$user2Id], var_export($hits, true));
+        $this->assertGreaterThan(10, $hits[$user3Id], var_export($hits, true));
 
         // Cleanup
         $groupings->delete($group->id);
@@ -186,6 +195,12 @@ class AssignActionTest extends AbstractActionTests
         // Create a test team_id
         $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         $groupings = $groupingsLoader->get("user", "groups");
+        $group = $groupings->getByName("Test");
+        if ($group)
+        {
+            $groupings->delete($group->id);
+            $groupingsLoader->save($groupings);
+        }
         $group = new Group();
         $group->name = "Test";
         $groupings->add($group);

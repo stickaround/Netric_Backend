@@ -10,11 +10,13 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition;
 use Netric\EntityLoader;
+use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail;
 use Netric\Mime;
 use Netric\FileSystem\FileSystem;
+use Zend\Db\TableGateway\Exception\RuntimeException;
 
 /**
  * Email entity extension
@@ -27,7 +29,8 @@ use Netric\FileSystem\FileSystem;
  * 	$email->setValue("body", "Hello there");
  *  $email->setValue("body_type", "plain");
  * 	$email->addAttachment("/path/to/my/file.txt");
- * 	$email->send();
+ * 	$sender = $serviceManager->get("Netric\Mail\Sender");
+ *  $sender->send($email);
  * </code>
  */
 class EmailMessageEntity extends Entity implements EntityInterface
@@ -80,79 +83,25 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onBeforeSave(ServiceLocatorInterface $sm)
     {
-        /*
-        // Check message_id
-		$this->getMessageId(); // will set message_id property
+        // Make sure a unique message_id is set
+        if (!$this->getValue('message_id'))
+        {
+            $this->setValue('message_id', $this->generateMessageId());
+        }
 
-		// Get number of attachments and save
-		$numatt = $this->getValue("num_attachments");
-		if (!is_numeric($numatt))
-			$numatt = 0;
+        // Update num_attachments
+        $attachments = $this->getValue("attachments");
+        $this->setValue("num_attachments", (is_array($attachments)) ? count($attachments) : 0);
 
-		if (is_array($this->attachments))
-		{
-			// Do not count inline attachments
-			foreach ($this->attachments as $att)
-			{
-				if (!$att->contentId)
-					$numatt++;
-			}
-			//$numatt += count($this->attachments);
-		}
-
-		$this->setValue("num_attachments", $numatt);
-
-		// Update thread
-		// -------------------------------------------------
-		$thread = null;
-		if (!$this->getValue("thread"))
-		{
-			$thread = $this->createNewThread();
-
-			// Update fields in thread if this is a new one, otherwise data was previously set
-			$mcnt = $thread->getValue("num_messages");
-			if (!is_numeric($mcnt)) $mcnt = 0;
-			$thread->setValue("num_messages", ++$mcnt);
-
-			if ($this->getValue("num_attachments"))
-			{
-				$acnt = $thread->getValue("num_attachments");
-				if (!is_numeric($acnt)) $acnt = 0;
-				$thread->setValue("num_attachments", $acnt + $this->getValue("num_attachments"));
-			}
-			else
-			{
-				$thread->setValue("num_attachments", 0);
-			}
-
-			$thread->setValue("subject", $this->getValue("subject"));
-			$existingBody = $thread->getValue("body");
-			$thread->setValue("body", $this->getValue("body") . "\n\n" . $existingBody); // mostly for searching & snippets
-
-            $senders = $thread->updateSenders($this->getValue("sent_from"), $thread->getValue("senders"));
-			$thread->setValue("senders", $senders);
-
-            $receivers = $thread->updateSenders($this->getValue("send_to"), $thread->getValue("receivers"));
-			$thread->setValue("receivers", $receivers);
-
-			$thread->setValue("ts_delivered", $this->getValue("message_date"));
-		}
-		else // already part of a thread so no need to make too many modifications to the thread
-		{
-			$thread = CAntObject::factory($this->dbh, "email_thread", $this->getValue("thread"), $this->user);
-		}
-
-		if ($this->getValue("mailbox_id") && !$thread->getMValueExists("mailbox_id", $this->getValue("mailbox_id")))
-		{
-			$thread->setMValue("mailbox_id", $this->getValue("mailbox_id")); // Add to same mailbox as the message
-		}
-
-		$thread->setValue("f_seen", $this->getValue("flag_seen"));
-
-		$tid = $thread->save();
-		if (!$this->getValue("thread") && $tid)
-			$this->setValue("thread", $tid);
-         */
+        // If this email message is not part of a thread, create one
+        if (!$this->getValue("thread"))
+        {
+            $this->attachToThread();
+        }
+        else
+        {
+            $this->updateThreadFromMessage();
+        }
     }
 
     /**
@@ -164,17 +113,21 @@ class EmailMessageEntity extends Entity implements EntityInterface
     {
         if ($this->isDeleted())
         {
-            /*
-            // Remove all other messages and the tread
-            if ($this->getValue("thread") && !$this->skipProcessThread)
+            $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
+
+            // If this is the last message, then delete the thread
+            if (intval($thread->getValue("num_messages")) === 1)
             {
-                $thread = CAntObject::factory($this->dbh, "email_thread", $this->getValue("thread"), $this->user);
-                if ($hard)
-                    $thread->removeHard();
-                else
-                    $thread->remove();
+                $thread->setValue("num_messages", 0);
+                $this->entityLoader->delete($thread);
             }
-            */
+            else
+            {
+                // Otherwise reduce the number of messages
+                $numMessages = $thread->getValue("num_messages");
+                $thread->setValue("num_messages", --$numMessages);
+                $this->entityLoader->save($thread);
+            }
         }
     }
 
@@ -185,14 +138,20 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onBeforeDeleteHard(ServiceLocatorInterface $sm)
     {
-        /*
-        // Remove original (raw) message
-        if ($hard)
+        // If purging, then clear the raw file holding our message data
+        if ($this->getValue('file_id'))
         {
-            $this->dbh->Query("SELECT lo_unlink(lo_message) FROM email_message_original WHERE message_id='".$this->id."'");
-            $this->dbh->Query("DELETE FROM email_message_original WHERE message_id='".$this->id."'");
+            $file = $this->fileSystem->openFileById($this->getValue('file_id'));
+            $this->fileSystem->deleteFile($file, true);
         }
-        */
+
+        $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
+
+        // If this is the last message, then purge the thread
+        if ($thread && intval($thread->getValue("num_messages")) === 1)
+        {
+            $this->entityLoader->delete($thread, true);
+        }
     }
 
     /**
@@ -204,7 +163,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     {
         $message = new Mail\Message();
         $message->setEncoding('UTF-8');
-        $message->setSubject($this->getValue("name"));
+        $message->setSubject($this->getValue("subject"));
 
         // Set from
         $from = $this->getAddressListFromString($this->getValue("sent_from"));
@@ -227,6 +186,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $bcc = $this->getAddressListFromString($this->getValue("bcc"));
         if ($bcc) {
             $message->addBcc($bcc);
+        }
+
+        if ($this->getValue("in_reply_to")) {
+            $message->getHeaders()->addHeaderLine("in-reply-to", $this->getValue("in_reply_to"));
         }
 
         /*
@@ -259,29 +222,8 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $bodyPart->setBoundary($bodyMessage->getMime()->boundary());
         $mimeMessage->addPart($bodyPart);
 
-        // Add attachments to the mime message
-        $attachments = $this->getValue("attachments");
-        foreach ($attachments as $fileId)
-        {
-            $file = $this->fileSystem->openFileById($fileId);
-
-            // Get a stream to reduce memory footprint
-            $fileStream = $this->fileSystem->openFileStreamById($fileId);
-            $attachment = new Mime\Part($fileStream);
-
-            // Set meta-data
-            $attachment->setType($file->getMimeType());
-            $attachment->setFileName($file->getName());
-            $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
-
-            // Setting the encoding is recommended for binary data
-            $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
-            $mimeMessage->addPart($attachment);
-        }
-
-        /*
-         * Finished mime message
-         */
+        // Add attachments
+        $this->addMimeAttachments($mimeMessage);
 
         // Add the message to the mail/Message and return
         $message->setBody($mimeMessage);
@@ -290,7 +232,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     }
 
     /**
-     * Import entity from a mesage
+     * Import entity from a Mail\Message
      *
      * This is often used for importing new messages from a backend
      *
@@ -298,12 +240,120 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function fromMailMessage(Mail\Message $message)
     {
-        // TODO: Import - including temp messages
+        $this->setValue("subject", $message->getSubject());
+        $this->setValue("sent_from", $this->getAddressStringFromList($message->getFrom()));
+        $this->setValue("send_to", $this->getAddressStringFromList($message->getTo()));
+        $this->setValue("cc", $this->getAddressStringFromList($message->getCc()));
+        $this->setValue("bcc", $this->getAddressStringFromList($message->getBcc()));
+        $this->setValue("reply_to", $this->getAddressStringFromList($message->getReplyTo()));
+
+        $headers = $message->getHeaders();
+
+        // message_id
+        if ($headers->get("message-id"))
+            $this->setValue("message_id", $headers->get("message-id")->getFieldValue());
+
+        // priority
+        if ($headers->get("priority"))
+            $this->setValue("priority", $headers->get("priority")->getFieldValue());
+
+        // flag_spam
+        if ($headers->get("x-spam-flag")) {
+            if (strtolower(trim($headers->get("x-spam-flag")->getFieldValue())) == 'yes') {
+                $this->setValue("flag_spam", true);
+            }
+        }
+
+        // spam_report
+        if ($headers->get("x-spam-report"))
+            $this->setValue("spam_report", $headers->get("x-spam-report")->getFieldValue());
+
+        // content_type
+        if ($headers->get("content-type"))
+            $this->setValue("content_type", $headers->get("content-type")->getFieldValue());
+
+        // return_path
+        if ($headers->get("return-path"))
+            $this->setValue("return_path", $headers->get("return-path")->getFieldValue());
+
+        // in_reply_to
+        if ($headers->get("in-reply-to"))
+            $this->setValue("in_reply_to", $headers->get("in-reply-to")->getFieldValue());
+
+        // message_size
+
+        // orig_header
+        $this->setValue("orig_header", $headers->toString());
+
+        // Add attachments and body
+        $body = $message->getBody();
+        if (is_string($body)) {
+            $this->setValue("body", $body);
+            if ($this->getValue("content_type")) {
+                $ctypeParts = explode("/", $this->getValue("content_type"));
+                $bodyType = (isset($ctypeParts[1])) ? $ctypeParts[1] : 'plain';
+                $this->setValue("body_type", $bodyType);
+            } else {
+                $this->setValue("body_type", 'plain');
+            }
+        } else {
+            // Multi-part message
+            $parts = $message->getBody()->getParts();
+            $this->fromMailMessageMultiPart($parts);
+        }
+
+    }
+
+    /**
+     * Import body and attachments from Mime parts
+     *
+     * @param Mime\Part[] $parts
+     */
+    private function fromMailMessageMultiPart(array $parts)
+    {
+        foreach ($parts as $mimePart) {
+            // Add all attachments if they have a name
+            if ($mimePart->getFileName()) {
+                // This is an attachment - could either be inline or an attachment
+                $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
+                $this->fileSystem->writeFile($file, $mimePart->getRawContent());
+                $this->addMultiValue("attachments", $file->getId(), $file->getName());
+            } else if ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
+                // If multipart/aleternative then this will come after 'plain' and overwrite
+                $this->setValue("body", trim($mimePart->getRawContent()));
+                $this->setValue("body_type", "html");
+            } else if ($mimePart->getType() == Mime\Mime::TYPE_TEXT) {
+                // Plain text part
+                $this->setValue("body", trim($mimePart->getRawContent()));
+                $this->setValue("body_type", "plain");
+            } else if ($mimePart->getType() == Mime\Mime::MULTIPART_ALTERNATIVE) {
+                // Multipart alternative
+                $mimeMessage = Mime\Message::createFromMessage($mimePart->getRawContent(), $mimePart->getBoundary());
+                $altParts = $mimeMessage->getParts();
+                $this->fromMailMessageMultiPart($altParts);
+            }
+        }
+    }
+
+    /**
+     * Convert an address list to a comma separated string
+     *
+     * @param Mail\AddressList $addressList
+     * @return string Comma separated string of addresses
+     */
+    private function getAddressStringFromList($addressList)
+    {
+        $toArr = [];
+        foreach ($addressList as $emailAddress) {
+            $toArr[] = $emailAddress->toString();
+        }
+        return implode(",", $toArr);
     }
 
     /**
      * Get an address list from a comma separated list of addresses
      *
+     * @param string $addresses List of addresses to turn into a list
      * @return Mail\AddressList
      */
     private function getAddressListFromString($addresses)
@@ -368,5 +418,182 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // Convert an HTML message to plain
         return strip_tags(str_replace("<br>", "\n", $this->getValue("body")));
+    }
+
+    /**
+     * Add all attachments to a mimeMessage as parts (streams)
+     *
+     * @param Mime\Message $mimeMessage
+     */
+    private function addMimeAttachments(Mime\Message $mimeMessage)
+    {
+        // Add attachments to the mime message
+        $attachments = $this->getValue("attachments");
+        if (is_array($attachments) && count($attachments))
+        {
+            foreach ($attachments as $fileId)
+            {
+                $file = $this->fileSystem->openFileById($fileId);
+
+                // Get a stream to reduce memory footprint
+                $fileStream = $this->fileSystem->openFileStreamById($fileId);
+                $attachment = new Mime\Part($fileStream);
+
+                // Set meta-data
+                $attachment->setType($file->getMimeType());
+                $attachment->setFileName($file->getName());
+                $attachment->setDisposition(Mime\Mime::DISPOSITION_ATTACHMENT);
+
+                // Setting the encoding is recommended for binary data
+                $attachment->setEncoding(Mime\Mime::ENCODING_BASE64);
+                $mimeMessage->addPart($attachment);
+            }
+        }
+    }
+
+    /**
+     * Search email threads to see if this message should be part of an existing thread
+     *
+     * @return EmailThreadEntity If a suitable thread was found
+     */
+    public function discoverThread()
+    {
+        $thread = null;
+
+        /*
+         * The easiest way to link a thread is to check and see if the created
+         * message is in reply to a thread already created. We can probably do
+         * a better job of detecting other possible candidates, but this should work
+         * at least for cases where the sender includes in-reply-to in the header.
+         */
+        if (trim($this->getValue("in_reply_to")))
+        {
+            $query = new EntityQuery("email_message");
+            $query->where("message_id")->equals($this->getValue("in_reply_to"));
+            $query->andWhere("owner_id")->equals($this->getValue("owner_id"));
+            $results = $this->entityIndex->executeQuery($query);
+            if ($results->getNum())
+            {
+                $emailMessage = $results->getEntity(0);
+                $thread = $this->entityLoader->get("email_thread", $emailMessage->getValue("thread"));
+            }
+        }
+
+        return $thread;
+    }
+
+    /**
+     * Either find and attach this message to an existing thread, or create a new one
+     *
+     * This should only be called one time if no thread has yet been defined for
+     * an email message, once it's been set this funciton will never be called again.
+     *
+     * @throws \RuntimeException If this email message is already attached to a thread
+     */
+    private function attachToThread()
+    {
+        if ($this->getValue("thread"))
+        {
+            throw new \RuntimeException("Message is already attached to a thread");
+        }
+
+        // First check to see if we can find an existing thread we should attach to
+        $thread = $this->discoverThread();
+
+        // If we could not find a thread that already exists, then create a new one
+        if (!$thread)
+        {
+            $thread = $this->entityLoader->create("email_thread");
+            $thread->setValue("owner_id", $this->getValue("owner_id"));
+            $thread->setValue("num_messages", 0);
+        }
+
+        // Change subject of thread to the subject of this (last) message
+        $thread->setValue("subject", $this->getValue("subject"));
+
+        // Increment the number of messages in the thread
+        $numMessages = (int) $thread->getValue("num_messages");
+        $thread->setValue("num_messages", ++$numMessages);
+
+        // Update num_attachments in thread
+        if ($this->getValue("num_attachments")) {
+            $numAtt = $thread->getValue("num_attachments");
+            $thread->setValue("num_attachments", $numAtt + $this->getValue("num_attachments"));
+        }
+
+        // Add email message from to thread senders
+        $thread->addToSenders($this->getValue("sent_from"));
+
+        // Add email message to to thread receivers
+        $thread->addToReceivers($this->getValue("send_to"));
+
+        // Add message body to thread body - mostly for snippets and searching
+        $existingBody = $thread->getValue("body");
+        $thread->setValue("body", $this->getValue("body") . "\n\n" . $existingBody);
+
+        // Now update some common fields and save the thread
+        $this->updateThreadFromMessage($thread);
+
+        // Set the thread of this message to the discovered (or created) thread
+        $this->setValue("thread", $thread->getId());
+    }
+
+    /**
+     * Update the thread this message is attached to based on this message's field values
+     *
+     * These are values that should be updated every time the email message is saved.
+     *
+     * @param EmailThreadEntity $thread Optional reference to opened thread to update
+     * @throws \InvalidArgumentException if no thread has been set for this message
+     */
+    private function updateThreadFromMessage(EmailThreadEntity $thread = null)
+    {
+        if (!$this->getValue("thread") && !$thread)
+            throw new \InvalidArgumentException("Thread must be passed or set first");
+
+        // If a thread was not passed, the load it from value
+        if (!$thread) {
+            $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
+        }
+
+        /*
+         * If the seen flag of any single message is updated in the thread,
+         * the thread flag should be updated as well.
+         */
+        $thread->setValue("f_seen", $this->getValue("flag_seen"));
+
+        /*
+         * Add this mailbox to the thread if not already set.
+         * The 'mailbox_id' field in threads is a groupings (fkey_multi)
+         * type and in email messages it's a single fkey field because
+         * a message can only be in one mailbox but a thread can be in
+         * multiple mailboxes - groupings.
+         */
+        if ($this->getValue("mailbox_id")) {
+            // addMultiValue will not allow duplicates
+            $thread->addMultiValue("mailbox_id", $this->getValue("mailbox_id"));
+        }
+
+        // Update the delivered date
+        if ($this->getValue("message_date")) {
+            // Only update if this is newer than the last message added
+            if (!$thread->getValue("ts_delivered")
+                || $thread->getValue("ts_delivered") < $this->getValue("message_date")) {
+                // Set  the last delivered date of the thread to this message date
+                $thread->setValue("ts_delivered", $this->getValue("message_date"));
+            }
+        }
+
+        // Save the changes
+        if (!$this->entityLoader->save($thread))
+            throw new RuntimeException("Failed saving thread!");
+    }
+
+    /**
+     * Create a unique message id for this email message
+     */
+    private function generateMessageId()
+    {
+        return '<' . sha1(microtime()) . '@netric.com>';
     }
 }

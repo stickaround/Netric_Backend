@@ -6,6 +6,7 @@ namespace Netric;
 
 use Netric\Entity\Entity;
 use Netric\Entity\DataMapperInterface;
+use Netric\Entity\EntityInterface;
 use Netric\Stats\StatsPublisher;
 
 class EntityLoader
@@ -116,7 +117,7 @@ class EntityLoader
 	 *
 	 * @param string $objType The type of object we are getting
 	 * @param string $id The unique id of the object
-	 * @return Post
+	 * @return EntityInterface
 	 */
 	public function get($objType, $id)
 	{
@@ -158,10 +159,11 @@ class EntityLoader
 		}
 		else
 		{
-			// TODO: make sure it is deleted from the index
+			// TODO: make sure it is deleted from the index?
 		}
 
-		return $entity;
+		// Could not be loaded
+		return null;
 	}
 
 	/**
@@ -178,10 +180,10 @@ class EntityLoader
 	/**
 	 * Delete an entity
 	 *
-	 * @param Entity $entity The entity to save
+	 * @param EntityInterface $entity The entity to save
 	 * @return int|string|null Id of entity saved or null on failure
 	 */
-	public function save(Entity $entity)
+	public function save(EntityInterface $entity)
 	{
 		return $this->dataMapper->save($entity);
 	}
@@ -189,12 +191,13 @@ class EntityLoader
     /**
      * Save an entity
      *
-     * @param Entity $entity The entity to delete
+     * @param EntityInterface $entity The entity to delete
      * @param bool $forceHard If true the force a hard delete - purge!
      * @return \Netric\Entity\Entity
      */
-    public function delete(Entity $entity, $forceHard = false)
+    public function delete(EntityInterface $entity, $forceHard = false)
     {
+		$this->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
         return $this->dataMapper->delete($entity, $forceHard);
     }
 
@@ -202,6 +205,7 @@ class EntityLoader
 	 * Clear cache
 	 *
 	 * @param string $objType The object type name
+	 * @param int $id The id of the entity to clear
 	 */
 	public function clearCache($objType, $id)
 	{

@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 25;
+$obj_revision = 28;
 
 $listTitle = "subject";
 $isPrivate = true;
@@ -36,8 +36,12 @@ $obj_fields['ts_delivered']	= array('title'=>'Time Delivered', 'type'=>'timestam
 
 // References
 $default = array("value"=>"-3", "on"=>"null");
-$obj_fields['owner_id'] = array('title'=>'User', 'type'=>'object', 'subtype'=>'user', 'default'=>$default);
-
+$obj_fields['owner_id'] = array(
+    'title'=>'User',
+    'type'=>'object',
+    'subtype'=>'user',
+    'default'=>$default
+);
 /*
 $obj_fields['mailbox_id'] = array('title'=>'Groups',
 									  'type'=>'fkey_multi',

@@ -129,25 +129,11 @@ class SendEmailAction extends AbstractAction implements ActionInterface
         }
         $email->setValue("bcc", $to);
 
-        return $this->senderService->send($email);
-
-        /*
-        // Check for "No bulk mail"
-        $send = true;
-        if ($obj->object_type == "customer")
-        {
-            if ($obj->getValue("f_noemailspam") == 't' || $obj->getValue("f_nocontact") == 't')
-                $send = false;
+        if ($this->senderService->send($email)) {
+            return true;
+        } else {
+            $this->errors[] = $this->senderService->getLastError();
+            return false;
         }
-
-        if (isset($send))
-        {
-            $email->send();
-
-            // This is a temporary solution Log activity for object
-            $obj->addActivity("sent", "Workflow Email: ".$email->getHeader("subject"),
-                "To: " . $email->getHeader("To") . "\n" . $email->getBody(true), null, 'o', 't', USER_WORKFLOW);
-        }
-        */
     }
 }

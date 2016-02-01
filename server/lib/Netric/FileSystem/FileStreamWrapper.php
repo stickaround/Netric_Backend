@@ -164,6 +164,30 @@ class FileStreamWrapper
         return $this->position;
     }
 
+    /**
+     * Rewind this stream
+     *
+     * @return bool
+     */
+    public function stream_rewind()
+    {
+        $this->position = 0;
+        return true;
+    }
+
+    /**
+     * Set position to a byte offset
+     *
+     * @param int $offset
+     * @param int $whence = SEEK_SET
+     * @return bool
+     */
+    public function stream_seek($offset , $whence = SEEK_SET)
+    {
+        $this->position = $offset;
+        true;
+    }
+
     // Below are stream functions not yet implemented
     // ======================================================================================
 
@@ -260,14 +284,7 @@ class FileStreamWrapper
     public function stream_lock($operation);
      */
 
-    /**
-     * Not yet supported
-     *
-     * @param int $offset
-     * @param int $whence = SEEK_SET
-     * @return bool
-    public function stream_seek($offset , $whence = SEEK_SET);
-     */
+
 
     /**
      * Enter description here...

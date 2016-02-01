@@ -35,7 +35,7 @@ class Address implements Address\AddressInterface
 
         if (! $emailAddressValidator->isValid($email)) {
             $invalidMessages = $emailAddressValidator->getMessages();
-            throw new Exception\InvalidArgumentException(array_shift($invalidMessages));
+            throw new Exception\InvalidArgumentException($email . ":". array_shift($invalidMessages));
         }
 
         if (null !== $name) {

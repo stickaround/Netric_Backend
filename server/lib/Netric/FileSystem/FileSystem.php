@@ -47,14 +47,14 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Current user
      *
-     * @var User
+     * @var UserEntity
      */
     private $user = null;
 
     /**
      * The root folder for this account
      *
-     * @var Folder
+     * @var FolderEntity
      */
     private $rootFolder = null;
 
@@ -68,7 +68,7 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Errors
      *
-     * @var Error[]
+     * @var Error\Error[]
      */
     private $errors = array();
 
@@ -102,7 +102,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param string $localFilePath Path to a local file to import
      * @param string $remoteFolderPath The folder to import the new file into
      * @param string $fileNameOverride Optional alternate name to use other than the imported file name
-     * @return File The imported file
+     * @return FileEntity The imported file
      * @throws \RuntimeException if it cannot open the folder path specified
      */
     public function importFile($localFilePath, $remoteFolderPath, $fileNameOverride = "")
@@ -143,7 +143,7 @@ class FileSystem implements Error\ErrorAwareInterface
      *
      * @param $folderPath
      * @param $fileName
-     * @return File|null
+     * @return FileEntity|null
      */
     public function openFile($folderPath, $fileName)
     {
@@ -163,7 +163,11 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function deleteFile(FileEntity $file, $purge = false)
     {
-        return $this->entityDataMapper->delete($file, $purge);
+        $ret = $this->entityDataMapper->delete($file, $purge);
+        if ($ret) {
+            $this->entityLoader->clearCache("file", $file->getId());
+        }
+        return $ret;
     }
 
     /**
@@ -366,7 +370,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param string $fileName
      * @param string $folderPath Defaults to temp directory initially if not set
      * @param bool $overwriteIfExists If the file already exists overwrite
-     * @return File The created file or null if there was a problem -- call getLastError for details
+     * @return FileEntity The created file or null if there was a problem -- call getLastError for details
      */
     public function createFile($folderPath, $fileName, $overwriteIfExists = false)
     {
@@ -408,7 +412,7 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param bool $append If false then file will be overwritten
      * @return int number of bytes written
      */
-    public function writeFile($file, $data, $append = true)
+    public function writeFile(FileEntity $file, $data, $append = true)
     {
         // TODO: add append to fileStore->writeFile
         $this->fileStore->writeFile($file, $data);
