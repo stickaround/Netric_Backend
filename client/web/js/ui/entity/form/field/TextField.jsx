@@ -34,7 +34,7 @@ var TextField = React.createClass({
         editMode: React.PropTypes.bool
     },
 
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             shouldUpdateField: false
         }
@@ -47,7 +47,7 @@ var TextField = React.createClass({
     componentWillReceiveProps: function (nextProps) {
 
         // If we are changing the edit mode, then we need to update the textfield value
-        if(this.props.editMode != nextProps.editMode) {
+        if (this.props.editMode != nextProps.editMode) {
             this.setState({shouldUpdateField: nextProps.editMode});
         }
     },
@@ -63,6 +63,7 @@ var TextField = React.createClass({
     render: function () {
 
         var xmlNode = this.props.xmlNode;
+        var hidelabel = xmlNode.getAttribute('hidelabel');
         var fieldName = xmlNode.getAttribute('name');
         var multiline = (xmlNode.getAttribute('multiline') == 't') ? true : false;
         var rich = (xmlNode.getAttribute('rich') == 't') ? true : false;
@@ -95,7 +96,7 @@ var TextField = React.createClass({
                         floatingLabelText={field.title}
                         multiLine={multiline}
                         onChange={this._handleInputChange}
-                        />
+                    />
                 );
 
             }
@@ -103,11 +104,19 @@ var TextField = React.createClass({
 
             // Display view mode text as innerhtml
             var innerHtml = this._processViewModeText(fieldValue, multiline, rich);
+            var label = null;
+
+            if (fieldValue && (!hidelabel || hidelabel == "f")) {
+                label = <div className="entity-form-field-label">{field.title}</div>;
+            }
+
             return (
-                <div dangerouslySetInnerHTML={innerHtml}/>
+                <div>
+                    {label}
+                    <div className="entity-form-field-value" dangerouslySetInnerHTML={innerHtml}/>
+                </div>
             );
         }
-
     },
 
     /**

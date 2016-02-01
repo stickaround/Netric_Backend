@@ -1,4 +1,4 @@
-<field name='name' class='headline'></field>
+<field name='name' hidelabel="t" class='headline'></field>
 <field name='done'></field>
 <field name='deadline'></field>
 <recurrence></recurrence>

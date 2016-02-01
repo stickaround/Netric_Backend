@@ -84,6 +84,29 @@ class AccountController extends Mvc\AbstractController
 					),
 				),
 			),
+			array(
+				"name" => "crm",
+				"title" => "CRM",
+				"icon" => "check-square-o",
+				"defaultRoute" => "all-customers",
+				"navigation" => array(
+					array(
+						"title" => "New Customer",
+						"type" => "entity",
+						"route" => "new-customer",
+						"objType" => "customer",
+						"icon" => "plus",
+					),
+					array(
+						"title" => "All Customers",
+						"type" => "browse",
+						"route" => "all-customers",
+						"objType" => "customer",
+						"icon" => "list-ul",
+						"browseby" => "groups",
+					)
+				),
+			),
 		);
 
 		// Add the user if we have a currently authenticated user

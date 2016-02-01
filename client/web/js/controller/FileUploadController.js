@@ -68,6 +68,9 @@ FileUploadController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
+    // Clear the upload files before rendering
+    this._uploadedFiles = [];
+
     if (callbackWhenLoaded) {
         callbackWhenLoaded();
     } else {
@@ -96,6 +99,9 @@ FileUploadController.prototype.render = function () {
         folderId: this.props.folderId,
         uploadedFiles: this._uploadedFiles,
         hideToolbar: hideToolbar,
+        multipleSelect: this.props.multipleSelect,
+        buttonLabel: this.props.buttonLabel,
+        iconClassName: this.props.iconClassName,
         onNavBtnClick: function (evt) {
             this.close();
         }.bind(this),
@@ -202,7 +208,7 @@ FileUploadController.prototype._handleUploadFile = function (queuedFiles, index,
          * The error message will be displayed in fileuploader
          * And will let the user know what is the error
          */
-        if(this._fileUploadError) {
+        if (this._fileUploadError) {
 
             // Reset the flag to false
             this._fileUploadError = false;
