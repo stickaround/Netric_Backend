@@ -106,7 +106,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         $query->where("team_id")->equals($teamId);
         $result = $this->queryIndex->executeQuery($query);
         $num = $result->getTotalNum();
-        $getIndex = rand(0, ($num-1));
+        $getIndex = mt_rand(0, ($num-1));
         $user = $result->getEntity($getIndex);
         return $user->getId();
     }
@@ -123,7 +123,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         $query->where("groups")->equals($groupId);
         $result = $this->queryIndex->executeQuery($query);
         $num = $result->getTotalNum();
-        $getIndex = rand(0, ($num-1));
+        $getIndex = mt_rand(0, ($num-1));
         $user = $result->getEntity($getIndex);
         return $user->getId();
     }
@@ -141,6 +141,6 @@ class AssignAction extends AbstractAction implements ActionInterface
         if (!count($users))
             return null;
 
-        return $users[rand(0,(count($users)-1))];
+        return $users[mt_rand(0,(count($users)-1))];
     }
 }

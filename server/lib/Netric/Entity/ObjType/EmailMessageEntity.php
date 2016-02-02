@@ -142,7 +142,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
         if ($this->getValue('file_id'))
         {
             $file = $this->fileSystem->openFileById($this->getValue('file_id'));
-            $this->fileSystem->deleteFile($file, true);
+            if ($file)
+            {
+                $this->fileSystem->deleteFile($file, true);
+            }
         }
 
         $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
@@ -550,6 +553,11 @@ class EmailMessageEntity extends Entity implements EntityInterface
     {
         if (!$this->getValue("thread") && !$thread)
             throw new \InvalidArgumentException("Thread must be passed or set first");
+
+        // If the message is deleted then do not update the thread
+        if ($this->isDeleted()) {
+            return;
+        }
 
         // If a thread was not passed, the load it from value
         if (!$thread) {

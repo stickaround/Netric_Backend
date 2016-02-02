@@ -104,6 +104,30 @@ class WorkFlowManager
     }
 
     /**
+     * Force starting a WorkFlow against an entity
+     *
+     * @param EntityInterface $entity Entity to execute WorkFlow against
+     * @param int $wid The unique id of the WorkFlow to start
+     * @throws \RuntimeException if there are any problems
+     */
+    public function startWorkflowById(EntityInterface $entity, $wid)
+    {
+        $workFlow = $this->workFlowDataMapper->getById($wid);
+
+        if (!$workFlow)
+        {
+            throw new \RuntimeException("WorkFlow $wfid does not exist");
+        }
+
+        if (!$workFlow->getObjType() != $entity->getDefinition()->getObjType())
+        {
+            throw new \RuntimeException("WorkFlow id $wfid only runs against objType" . $workFlow->getObjType());
+        }
+
+        $this->startWorkFlowInstance($workFlow, $entity);
+    }
+
+    /**
      * Run actions that were scheduled by a workflow instance
      */
     public function runScheduledActions()

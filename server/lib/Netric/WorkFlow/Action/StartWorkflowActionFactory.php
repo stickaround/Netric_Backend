@@ -23,6 +23,7 @@ class StartWorkflowActionFactory
         // Return a new TestAction
         $entityLoader = $serviceLocator->get("EntityLoader");
         $actionFactory = new ActionFactory($serviceLocator);
-        return new StartWorkflowAction($entityLoader, $actionFactory);
+        $workflowManager = $serviceLocator->get("Netric/WorkFlow/WorkFlowManager");
+        return new StartWorkflowAction($entityLoader, $actionFactory, $workflowManager);
     }
 }

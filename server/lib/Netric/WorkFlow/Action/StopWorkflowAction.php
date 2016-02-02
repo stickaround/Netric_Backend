@@ -23,8 +23,9 @@ class StopWorkflowAction extends AbstractAction implements ActionInterface
     public function execute(WorkFlowInstance $workflowInstance)
     {
         // Get merged params
-        $params = $this->getParams($entity);
+        $params = $this->getParams($workflowInstance->getEntity());
 
-        // TODO: Finish action
+        // TODO: This is not yet implemented
+        throw new \RuntimeException("Stop workflow action not yet implemented");
     }
 }

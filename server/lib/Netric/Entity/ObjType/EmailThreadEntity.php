@@ -83,7 +83,6 @@ class EmailThreadEntity extends Entity implements EntityInterface
     public function onAfterDeleteHard(ServiceLocatorInterface $sm)
     {
         // Purge all messages that were in this thread
-        $this->removeMessages(); // Soft delete
         $this->removeMessages(true); // Now purge
     }
 
@@ -146,14 +145,27 @@ class EmailThreadEntity extends Entity implements EntityInterface
 
         $query = new EntityQuery("email_message");
         $query->where("thread")->equals($this->getId());
-        if ($hard)
-            $query->andWhere("f_deleted")->equals(true);
         $results = $this->entityIndex->executeQuery($query);
         $num = $results->getTotalNum();
         for ($i = 0; $i < $num; $i++)
         {
             $emailMessage = $results->getEntity($i);
             $this->entityLoader->delete($emailMessage, $hard);
+        }
+
+        // If we are doing a hard delete, then also get previously deleted
+        if ($hard)
+        {
+            $query = new EntityQuery("email_message");
+            $query->where("thread")->equals($this->getId());
+            $query->andWhere("f_deleted")->equals(true);
+            $results = $this->entityIndex->executeQuery($query);
+            $num = $results->getTotalNum();
+            for ($i = 0; $i < $num; $i++)
+            {
+                $emailMessage = $results->getEntity($i);
+                $this->entityLoader->delete($emailMessage, true);
+            }
         }
     }
 

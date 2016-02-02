@@ -4,6 +4,7 @@
  */
 namespace Netric\Controller;
 
+use Netric\Entity\EntityInterface;
 use \Netric\Mvc;
 use \Netric\EntityDefinition;
 
@@ -233,6 +234,10 @@ class EntityController extends Mvc\AbstractController
         $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
         if ($dataMapper->save($entity))
         {
+            // Check to see if any new object_multi objects were sent awaiting save
+            $this->savePendingObjectMultiObjects($entity, $objData);
+
+            // Return the saved entity
             return $this->sendOutput($entity->toArray());
         }
         else
@@ -423,5 +428,22 @@ class EntityController extends Mvc\AbstractController
         $ret['default_view'] = $viewsService->getDefaultViewForUser($def->getObjType(), $user);
 
         return $ret;
+    }
+
+    /**
+     * @param EntityInterface $entity
+     * @param array $objData
+     */
+    private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
+    {
+        /*
+         * TODO: handle new objects
+         * loop through each field looking type=object or object_multi with a subtype
+         * and check if there is a corresponding *_new array of objects waiting
+         * to be saved. We will need to check for a property called obj_reference
+         * and automatically set it to $entity.
+         * Once this is done be sure to update the fields in $entity to add the newly created
+         * references, then save the entity before returning.
+         */
     }
 }

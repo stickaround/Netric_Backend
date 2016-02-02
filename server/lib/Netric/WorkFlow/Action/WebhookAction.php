@@ -7,6 +7,7 @@ namespace Netric\WorkFlow\Action;
 
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
+use Netric\Error\Error;
 use Netric\WorkFlow\WorkFlowInstance;
 use Zend\Http\Client;
 
@@ -86,10 +87,9 @@ class WebhookAction extends AbstractAction implements ActionInterface
 
         try {
             $this->response = $client->send();
-            // TODO: Log here
             return ($client->getResponse()->getStatusCode() === 200) ? true : false;
-        } catch (\Zend\Http\Client\Adapter\Exception\RuntimeException $e) {
-            // TODO: Log here
+        } catch (Client\Adapter\Exception\RuntimeException $e) {
+            $this->errors[] = new Error($e->getMessage());
             return false;
         }
     }
