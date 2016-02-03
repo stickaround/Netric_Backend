@@ -30,13 +30,13 @@ var Members = React.createClass({
 
     getInitialState: function () {
 
-        // Setup the entity to accept members
-        this.props.entity.setupMembers();
-
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('field');
         var field = this.props.entity.def.getField(fieldName);
         var members = this.props.entity.getValueName(fieldName);
+
+        // Setup the entity to accept members
+        this.props.entity.setupMembers(fieldName);
 
         var stateMembers = [];
 

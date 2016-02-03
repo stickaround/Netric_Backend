@@ -445,5 +445,65 @@ class EntityController extends Mvc\AbstractController
          * Once this is done be sure to update the fields in $entity to add the newly created
          * references, then save the entity before returning.
          */
+
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $fields = $entity->getDefinition()->getFields();
+
+        $entityShouldUpdate = false; // Flag that will determine if we should save the $entity
+
+        // Loop thru fields to check if we have objects waiting to be saved
+        foreach($fields as $field)
+        {
+            switch($field->type)
+            {
+                case "object":
+                case "object_multi":
+
+                    // Check for the corresponding *_new object field
+                    $waitingObjectFieldName = $field->name . "_new";
+
+                    // Verify if this *_new field is existing in the object fields definition
+                    $waitingObjectData = $objData[$waitingFieldName];
+
+                    if($field->subtype
+                        && $entity->getDefinition()->getField($waitingObjectFieldName)
+                        && is_array($waitingData))
+                    {
+
+                        // Since we have found objects waiting to be saved, then we will loop thru the field's data
+                        foreach($waitingObjectData as $data) {
+                            $waitingObjectEntity = $loader->create($field->subtype);
+
+                            // Specify the object reference for the awaiting entity to be saved
+                            $data['obj_reference'] = $entity.getId() . ":" . $entity.getObjType();
+
+                            // Parse the awaiting entity data
+                            $waitingObjectEntity->fromArray($data);
+
+                            // Save the awaiting entity object
+                            if($dataMapper->save($waitingObjectEntity))
+                            {
+
+                                // Set the reference for the $entity
+                                $entity->addMultiValue($field->name, $waitingObjectEntity->getId(), $waitingObjectEntity->getName());
+
+                                // Lets flag this to true so $entity will be saved after the looping thru the fields
+                                $entityShouldUpdate = true;
+                            }
+                            else
+                            {
+                                return $this->sendOutput(array("error"=>"Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()));
+                            }
+                        }
+                    }
+                break;
+            }
+        }
+
+        if($entityShouldUpdate)
+        {
+            $dataMapper->save($entity);
+        }
     }
 }

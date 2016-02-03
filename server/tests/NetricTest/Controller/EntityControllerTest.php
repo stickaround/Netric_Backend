@@ -101,4 +101,24 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(isset($ret['error']));
         $this->assertTrue(count($ret) > 0);
     }
+
+    public function testSavePendingObjectMultiObjects()
+    {
+        $data = array(
+            'obj_type' => "calendar_event",
+            'name' => "Test",
+            'attendees_new' => [
+                ['name' => '[user:1:test]'],
+                ['name' => '[user:2:test2]']
+            ],
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('raw_body', json_encode($data));
+
+        $ret = $this->controller->postSaveAction();
+
+        print_r($ret);
+    }
 }
