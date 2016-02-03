@@ -10,6 +10,9 @@ var React = require('react');
 var _plugins = {
     task: {
         LogTime: require('../plugin/task/LogTime.jsx')
+    },
+    global: {
+        Members: require('../plugin/global/Members.jsx')
     }
 }
 
@@ -53,8 +56,10 @@ var Plugin = React.createClass({
         var xmlNode = this.props.xmlNode;
         var pluginName = xmlNode.getAttribute('name');;
         var componentName = this.props.entity.def.objType + "." + pluginName;
+        var componentGlobal = "global." + pluginName; // Try to get the plugin in the global folder
 
-        var component = netric.getObjectByName(componentName, null, _plugins);
+        var component = netric.getObjectByName(componentName, null, _plugins) || netric.getObjectByName(componentGlobal, null, _plugins);
+
         if (!component) {
             throw "Plugin named " + componentName + " does not exist";
         }
@@ -62,11 +67,13 @@ var Plugin = React.createClass({
         var reactElement;
         try {
             reactElement = React.createElement(component, {
+                xmlNode: this.props.xmlNode,
+                eventsObj: this.props.eventsObj,
                 entity: this.props.entity,
                 editMode: this.props.editMode
             });
         } catch (e) {
-            console.error("Could not create component: " + componentName + ":" + e);
+            console.error("Could not create plugin component: " + componentName + ":" + e);
         }
 
         return reactElement;

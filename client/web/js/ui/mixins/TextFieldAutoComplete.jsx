@@ -66,12 +66,21 @@ var TextFieldAutoComplete = {
      * @returns {string}
      * @public
      */
-    transformAutoCompleteSelected: function (data) {
+    transformAutoCompleteSelected: function (data, keyMap) {
 
         /**
          * The data contains payload and text as its object fields. These are set in ::_getAutoCompleteData()
          * Payload contains the user id and text has the user's full name
          */
+
+        if (!keyMap || typeof keyMap == "undefined") {
+            keyMap = {id: 'payload', text: 'text'}
+        }
+
+        var idKey = keyMap.id;
+        var textKey = keyMap.text;
+
+
         return "[user:" + data.payload + ":" + data.text + "]";
     },
 };

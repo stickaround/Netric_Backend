@@ -8,6 +8,7 @@
 
 var Definition = require('./Definition');
 var Recurrence = require('./Recurrence');
+var Members = require('./Members');
 var File = require('./fileupload/File');
 var events = require('../util/events');
 
@@ -66,7 +67,9 @@ var Entity = function (entityDef, opt_data) {
      * @private
      * @type {Entity/Recurrence}
      */
-    this.recurrencePattern_ = null;
+    this._recurrencePattern = null;
+
+    this.members = null;
 
     /**
      * Security
@@ -157,8 +160,8 @@ Entity.prototype.loadData = function (data) {
 
     // Handle Recurrence
     if (data['recurrence_pattern']) {
-        this.recurrencePattern_ = new Recurrence(this.objType);
-        this.recurrencePattern_.fromData(data['recurrence_pattern']);
+        this._recurrencePattern = new Recurrence(this.objType);
+        this._recurrencePattern.fromData(data['recurrence_pattern']);
     }
 
     // Trigger onload event to alert any observers that the data for this entity has loaded (batch)
@@ -200,8 +203,13 @@ Entity.prototype.getData = function () {
     }
 
     // Get the recurrence pattern data if available
-    if (this.recurrencePattern_ && this.recurrencePattern_.type > 0) {
-        retObj.recurrence_pattern = this.recurrencePattern_.toData();
+    if (this._recurrencePattern && this._recurrencePattern.type > 0) {
+        retObj.recurrence_pattern = this._recurrencePattern.toData();
+    }
+
+    // Process the members if there are any
+    if(this.members) {
+        retObj[this.members.field + '_new'] = this.members.getNewMembers();
     }
 
     return retObj;
@@ -593,11 +601,11 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
      * If we do not have an instance of recurrence yet and we need to create one
      * Then lets instantiate a new Recurrence entity model
      */
-    if (!this.recurrencePattern_ && createIfNotExist) {
-        this.recurrencePattern_ = new Recurrence(this.objType);
+    if (!this._recurrencePattern && createIfNotExist) {
+        this._recurrencePattern = new Recurrence(this.objType);
     }
 
-    return this.recurrencePattern_;
+    return this._recurrencePattern;
 }
 
 /**
@@ -607,7 +615,7 @@ Entity.prototype.getRecurrence = function (createIfNotExist) {
  * @public
  */
 Entity.prototype.setRecurrence = function (recurrencePattern) {
-    this.recurrencePattern_ = recurrencePattern;
+    this._recurrencePattern = recurrencePattern;
 }
 
 /**
@@ -651,6 +659,15 @@ Entity.prototype.setDefaultValues = function (onEventName, opt_defaultData) {
         }
 
     }.bind(this));
+}
+
+/**
+ * Create the instance of Entity/Members
+ *
+ * @param {string} fieldName The fieldName used for the member object
+ */
+Entity.prototype.setupMembers = function (fieldName) {
+    this.members = new Members(fieldName);
 }
 
 module.exports = Entity;
