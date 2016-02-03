@@ -1,26 +1,29 @@
 <?php
 /**
+ * Member entity type
+ *
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
-namespace Netric\Entity\Members;
+namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceFactoryInterface;
+use Netric\ServiceManager;
+use Netric\Entity;
 
 /**
- * Create a new Notifier service
+ * Create a new Member entity
  */
-class MembersFactory implements ServiceFactoryInterface
+class MemberFactory implements Entity\EntityFactoryInterface
 {
     /**
-     * Service creation factory
+     * Entity creation factory
      *
-     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
-     * @return Members
+     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @return new Entity\EntityInterface object
      */
-    public function createService(ServiceLocatorInterface $serviceManager)
+    public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $notifier = $serviceManager->get("Netric/Entity/Notifier/Notifier");
-        return new Members($notifier);
+        $def = $sl->get("EntityDefinitionLoader")->get("Member");
+        return new MemberEntity($def);
     }
 }

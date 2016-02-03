@@ -38,7 +38,7 @@ var Members = function (fieldName) {
  * @param {object} data Member data that will be created
  * @public
  */
-Members.prototype.add = function(data) {
+Members.prototype.add = function (data) {
     // TODO Before adding the member, make sure it is unique
 
     var member = new Member(data);
@@ -54,7 +54,7 @@ Members.prototype.add = function(data) {
  * @return Array Collection of Entity/Members
  * @public
  */
-Members.prototype.get = function() {
+Members.prototype.get = function () {
     return this._members;
 }
 
@@ -64,16 +64,49 @@ Members.prototype.get = function() {
  * @return Array Collection of new Entity/Members with id equals to null
  * @public
  */
-Members.prototype.getNewMembers = function() {
+Members.prototype.getNewMembers = function () {
     var newMembers = [];
 
-    this._members.map(function(member) {
-        if(member.id == null) {
+    this._members.map(function (member) {
+        if (member.id == null) {
             newMembers.push(member.toData())
         }
     })
 
     return newMembers;
+}
+
+/**
+ * Extract the name of member if it is being transformed to [user:userId:userName]
+ *
+ * @return Object Contains the extracted data of member
+ * @public
+ */
+Members.prototype.extractNameReference = function (name) {
+    var memberReference = null;
+
+    // Extract all [<obj_type>:<id>:<name>] tags from string
+    var matches = name.match(/\[([a-z_]+)\:(.*?)\:(.*?)\]/);
+
+    if (matches) {
+
+        // Get the member data if we have found a match
+        memberReference = {
+            objType: matches[1],
+            id: matches[2],
+            name: matches[3]
+        }
+    } else {
+
+        // Set the objType and Id to null if there is no match, then just set the provided name as member's name
+        memberReference = {
+            objType: null,
+            id: null,
+            name: name
+        }
+    }
+
+    return memberReference;
 }
 
 module.exports = Members;

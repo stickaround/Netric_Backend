@@ -119,6 +119,9 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         $ret = $this->controller->postSaveAction();
 
-        print_r($ret);
+        $this->assertNotNull($ret['attendees'][0]);
+        $this->assertNotNull($ret['attendees'][1]);
+        $this->assertEquals($data['attendees_new'][0]['name'], $ret['attendees_fval'][$ret['attendees'][0]]);
+        $this->assertEquals($data['attendees_new'][1]['name'], $ret['attendees_fval'][$ret['attendees'][1]]);
     }
 }

@@ -202,6 +202,13 @@ class EntityController extends Mvc\AbstractController
     public function postSaveAction()
     {
         $rawBody = $this->getRequest()->getBody();
+
+        // If we cant get the rawBody from ::getBody(), then try getting it from params
+        if(!$rawBody) {
+            $params = $this->getRequest()->getParams();
+            $rawBody = $params['raw_body'];
+        }
+
         $ret = array();
         if (!$rawBody)
         {
@@ -464,11 +471,10 @@ class EntityController extends Mvc\AbstractController
                     $waitingObjectFieldName = $field->name . "_new";
 
                     // Verify if this *_new field is existing in the object fields definition
-                    $waitingObjectData = $objData[$waitingFieldName];
+                    $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if($field->subtype
-                        && $entity->getDefinition()->getField($waitingObjectFieldName)
-                        && is_array($waitingData))
+                    if($field->subtype // Make sure that this field has a subtype
+                        && is_array($waitingObjectData))
                     {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
@@ -476,7 +482,7 @@ class EntityController extends Mvc\AbstractController
                             $waitingObjectEntity = $loader->create($field->subtype);
 
                             // Specify the object reference for the awaiting entity to be saved
-                            $data['obj_reference'] = $entity.getId() . ":" . $entity.getObjType();
+                            $data['obj_reference'] = $entity->getObjType() . ":" . $entity->getId();
 
                             // Parse the awaiting entity data
                             $waitingObjectEntity->fromArray($data);

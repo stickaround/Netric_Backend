@@ -64,7 +64,7 @@ var Members = React.createClass({
 
             membersDisplay.push(
                 <div key={idx} className="entity-form-field">
-                    <div className="entity-form-member-value">{member.name}</div>
+                    <div className="entity-form-member-value">{this.props.entity.members.extractNameReference(member.name).name}</div>
                     <div className="entity-form-member-remove">
                         <IconButton
                             onClick={this._removeMember.bind(this, member.id)}
@@ -114,7 +114,7 @@ var Members = React.createClass({
 
         var entityMember = this.props.entity.members.add(selectedMember);
 
-        // Override the member name with the transformed text so the member will be notified
+        // Override the member name with the transformed text ([user:userId:userName]) so the member will be notified
         entityMember.name = this.transformAutoCompleteSelected(selectedMember);
 
         var stateMember = this.state.members;

@@ -3,40 +3,43 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
-namespace Netric\Entity\Members;
+namespace Netric\Entity\ObjType;
 
-use Netric\Entity\Notifier\Notifier;
-use Netric\Entity\ObjType\ActivityEntity;
-use Netric\Entity;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Entity\Entity;
+use Netric\Entity\EntityInterface;
 
 /**
- * Manages the notifications for members
+ * Member represents a single member on any entity
  */
-class Members
+class MemberEntity extends Entity implements EntityInterface
 {
 
     /**
-     * The notifier that will send the notification to members
+     * Callback function used for derrived subclasses
      *
-     * @var Notifier
+     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
      */
-    private $notifier = null;
-
-    /**
-     * Class constructor and dependency setter
-     *
-     * @param UserEntity $user The current authenticated user
-     * @param EntityLoader $entityLoader To create, find, and save entities
-     * @param IndexInterface $index An entity index for querying existing notifications
-     */
-    public function __construct(Notifer $notifier)
+    public function onBeforeSave(ServiceLocatorInterface $sm)
     {
-        $this->notifier = $notifier;
     }
 
-    public function sendNotifications(Entity $entity) {
+    /**
+     * Callback function used for derrived subclasses
+     *
+     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     */
+    public function onAfterSave(ServiceLocatorInterface $sm)
+    {
+    }
 
-        $notificationIds = $this->notifier->send($entity, ActivityEntity::VERB_CREATED);
+    /**
+     * Called right before the entity is purged (hard delete)
+     *
+     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     */
+    public function onBeforeDeleteHard(ServiceLocatorInterface $sm)
+    {
 
     }
 }
