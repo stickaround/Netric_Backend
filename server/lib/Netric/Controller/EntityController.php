@@ -202,14 +202,15 @@ class EntityController extends Mvc\AbstractController
     public function postSaveAction()
     {
         $params = $this->getRequest()->getParams();
+        $rawBody = $this->getRequest()->getBody();
         $ret = array();
-        if (!isset($params['raw_body']))
+        if (!$rawBody)
         {
             return $this->sendOutput(array("error"=>"Request input is not valid"));
         }
 
         // Decode the json structure
-        $objData = json_decode($params['raw_body'], true);
+        $objData = json_decode($rawBody, true);
 
         if (!isset($objData['obj_type']))
         {

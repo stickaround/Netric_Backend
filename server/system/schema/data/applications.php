@@ -74,6 +74,21 @@ $data = array(
 		"sort_order"=>'9', 
 		"f_system"=>'t'
 	),
-	array("name"=>"infocenter", "short_title"=>'Infocenter', "title"=>"Infocenter Knowledge Base", "scope"=>'system', "sort_order"=>'10', "f_system"=>'t'),
-	array("name"=>"reports", "short_title"=>'Reports', "title"=>'Reporting &amp; BI', "scope"=>'system', "sort_order"=>'11', "f_system"=>'t'),
+	// Infocenter
+	array(
+		"name"=>"infocenter",
+		"short_title"=>'Infocenter',
+		"title"=>"Infocenter Knowledge Base",
+		"scope"=>'system', "sort_order"=>'10',
+		"f_system"=>'t'
+	),
+	// Reports
+	array(
+		"name"=>"reports",
+		"short_title"=>'Reports',
+		"title"=>'Reporting &amp; BI',
+		"scope"=>'system',
+		"sort_order"=>'11',
+		"f_system"=>'t'
+	),
 );

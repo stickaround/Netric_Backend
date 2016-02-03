@@ -302,7 +302,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		// Filter results to this user of the object is private
 		if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"]))
 		{
-            throw new \Exception("Private entity type called but grouping has no filter defined");
+            throw new \Exception("Private entity type called but grouping has no filter defined - " . $def->getObjType());
 		}
 
         $sql = "SELECT * FROM ". $field->subtype;
@@ -337,7 +337,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             if(isset($row['sort_order']))
                 $group->sortOrder = $row['sort_order'];
             $group->isSystem = (isset($row['f_system']) && $row['f_system']=='t') ? true : false;
-            $group->commitId = $row['commit_id'];
+            $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
             
 			//$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
             
