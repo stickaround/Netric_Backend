@@ -69,6 +69,12 @@ var Entity = function (entityDef, opt_data) {
      */
     this._recurrencePattern = null;
 
+    /**
+     * This will be used to handle the actions for members
+     *
+     * @public
+     * @type {Entity/Members}
+     */
     this.members = null;
 
     /**
@@ -209,6 +215,13 @@ Entity.prototype.getData = function () {
 
     // Process the members if there are any
     if(this.members) {
+
+        /*
+         * We will get all the new members from Entity/Members model.
+         * We are storing it to *_new field so it will be processed in the after saving this entity (post save)
+         * Since the new members are not yet saved and do not have an entity id, we cannot set it as an object reference to this entity
+         * The server will process first this entity and once it is saved, then *_new fields will be saved right after
+         */
         retObj[this.members.field + '_new'] = this.members.getNewMembers();
     }
 
@@ -670,4 +683,63 @@ Entity.prototype.setupMembers = function (fieldName) {
     this.members = new Members(fieldName);
 }
 
+/**
+ * Function used to decode object reference string
+ *
+ * @param string $value The object ref string - [obj_type]:[obj_id]:[name] (last param is optional)
+ * @return array Assoc object with the following keys: objType, id, name
+ * @public
+ */
+Entity.prototype.decodeObjRef = function(value) {
+
+    var result,
+        matches = null;
+
+    // Extract all [<obj_type>:<id>:<name>] tags from string
+    if(value) {
+        matches = value.match(/\[([a-z_]+)\:(.*?)\:(.*?)\]/);
+    }
+
+    if (matches) {
+
+        // Get the member data if we have found a match
+        result = {
+            objType: matches[1],
+            id: matches[2],
+            name: matches[3]
+        }
+    } else {
+
+        // Set the objType and Id to null if there is no match, then just set the provided name as member's name
+        result = {
+            objType: null,
+            id: null,
+            name: value
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Function used to encode an object reference string
+ *
+ * @param {string} objType The type of entity being referenced
+ * @param {string} id The id of the entity being referenced
+ * @param {string} name The human readable name of the entity being referenced
+ * @return {string} Encoded object reference
+ * @public
+ */
+Entity.prototype.encodeObjRef = function (objType, id, name)
+{
+    var value = objType + ':' + id;
+
+    if (name)
+        value += ':' + name;
+
+    return '[' + value + ']';
+}
+
+
 module.exports = Entity;
+

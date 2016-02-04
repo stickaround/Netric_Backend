@@ -7,8 +7,6 @@
  */
 'use strict';
 
-var Member = require('./definition/Member');
-
 /**
  * Creates an instance of Members
  *
@@ -35,17 +33,15 @@ var Members = function (fieldName) {
 /**
  * Adds a member into the entity
  *
- * @param {object} data Member data that will be created
+ * @param {Entity/Entity} member Instance of entity with member objType
  * @public
  */
-Members.prototype.add = function (data) {
-    // TODO Before adding the member, make sure it is unique
+Members.prototype.add = function (member) {
 
-    var member = new Member(data);
-
-    this._members.push(member);
-
-    return member;
+    // Make sure we are adding unique members in the entity
+    if(!this.checkIfExist(member.getValue("name"))) {
+        this._members.push(member);
+    }
 }
 
 /**
@@ -86,8 +82,7 @@ Members.prototype.getNewMembers = function () {
 Members.prototype.remove = function (id, name) {
     for(var idx in this._members) {
         var member = this._members[idx];
-        if (member.id == id || member.name == name) {
-            console.log(member);
+        if ((id && member.id == id) || (name && member.getValue("name") == name)) {
             this._members.splice(idx, 1);
             break;
         }
@@ -95,36 +90,24 @@ Members.prototype.remove = function (id, name) {
 }
 
 /**
- * Extract the name of member if it is being transformed to [user:userId:userName]
+ * Function that will check if member already exist for this entity
  *
- * @return Object Contains the extracted data of member
+ * @param {string} name The name of the member that will be checked if it already exists
+ * @return bool True if it already exist and False if not
  * @public
  */
-Members.prototype.extractNameReference = function (name) {
-    var memberReference = null;
+Members.prototype.checkIfExist = function (name) {
+    var result = false;
 
-    // Extract all [<obj_type>:<id>:<name>] tags from string
-    var matches = name.match(/\[([a-z_]+)\:(.*?)\:(.*?)\]/);
+    this._members.map(function (member) {
 
-    if (matches) {
-
-        // Get the member data if we have found a match
-        memberReference = {
-            objType: matches[1],
-            id: matches[2],
-            name: matches[3]
+        // Check if we have a match
+        if(member.getValue("name") == name) {
+            result = true; // member already exist
         }
-    } else {
+    })
 
-        // Set the objType and Id to null if there is no match, then just set the provided name as member's name
-        memberReference = {
-            objType: null,
-            id: null,
-            name: name
-        }
-    }
-
-    return memberReference;
+    return result;
 }
 
 module.exports = Members;

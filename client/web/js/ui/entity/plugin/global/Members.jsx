@@ -10,6 +10,7 @@ var Chamel = require('Chamel');
 var TextField = Chamel.TextField;
 var IconButton = Chamel.IconButton;
 var TextFieldAutoComplete = require("../../../mixins/TextFieldAutoComplete.jsx");
+var entityLoader = require("../../../../entity/loader");
 
 /**
  * Plugin that handles the membership field for an entity
@@ -41,7 +42,10 @@ var Members = React.createClass({
         // If we have existing members in the entity, then lets add it in the members model
         if (members) {
             members.map(function (member) {
-                var memberEntity = this.props.entity.members.add(member);
+                var memberEntity = entityLoader.factory("member");
+                memberEntity.setValue("id", member.key);
+                memberEntity.setValue("name", member.value);
+                this.props.entity.members.add(memberEntity);
             }.bind(this));
         }
 
@@ -58,13 +62,13 @@ var Members = React.createClass({
         var membersDisplay = []
         for(var idx in this.state.members) {
             var member = this.state.members[idx];
-
+            var memberName = member.getValue("name");
             membersDisplay.push(
                 <div key={idx} className="entity-form-field">
-                    <div className="entity-form-member-value">{this.props.entity.members.extractNameReference(member.name).name}</div>
+                    <div className="entity-form-member-value">{this.props.entity.decodeObjRef(memberName).name}</div>
                     <div className="entity-form-member-remove">
                         <IconButton
-                            onClick={this._removeMember.bind(this, member.id, member.name)}
+                            onClick={this._removeMember.bind(this, member)}
                             tooltip={"Remove"}
                             className="cfi cfi-close"
                         />
@@ -109,14 +113,15 @@ var Members = React.createClass({
      */
     _addMember: function (selectedMember) {
 
-        var entityMember = this.props.entity.members.add();
+        var memberEntity = entityLoader.factory("member");
 
         // Set the member name with the transformed text ([user:userId:userName]) so the member will be notified
-        entityMember.name = this.transformAutoCompleteSelected(selectedMember);
+        memberEntity.setValue("name", this.transformAutoCompleteSelected(selectedMember));
+        this.props.entity.members.add(memberEntity);
 
         // Update the state members
         this.setState({
-            member: this.props.entity.members.getAll()
+            members: this.props.entity.members.getAll()
         });
 
         this.refs.textFieldMembers.clearValue();
@@ -125,24 +130,23 @@ var Members = React.createClass({
     /**
      * Remove a member to the entity
      *
-     * @param {int} id The Id that will be removed
-     * @param {int} name The name that will be removed. if Id is null, then we will use the name to remove the member
+     * @param {Entity/Entity} member Instance of entity with member objType
      * @private
      */
-    _removeMember: function (id, name) {
+    _removeMember: function (member) {
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('field');
 
         // We will only remove the member in the entity if meber has an id
-        if(!id) {
-            this.props.entity.remMultiValue(fieldName, id);
+        if(!member.id) {
+            this.props.entity.remMultiValue(fieldName, member.id);
         }
 
-        this.props.entity.members.remove(id, name);
+        this.props.entity.members.remove(member.id, member.getValue("name"));
 
         // Update the state members
         this.setState({
-            member: this.props.entity.members.getAll()
+            members: this.props.entity.members.getAll()
         });
     },
 });
