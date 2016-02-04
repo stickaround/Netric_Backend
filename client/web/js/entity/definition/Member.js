@@ -21,12 +21,11 @@ var Member = function (opt_data) {
      * The id of the member
      *
      * data.key is sometimes used to get the id of file when constructing this from an entity data.
-     * data.payload is used as its key/id when the member is selected via autocomplete
      *
      * @public
      * @type {int}
      */
-    this.id = data.id || data.key || data.payload || null;
+    this.id = data.id || data.key || null;
 
     /**
      * The name of the member

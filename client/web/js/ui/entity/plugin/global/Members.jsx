@@ -38,19 +38,16 @@ var Members = React.createClass({
         // Setup the entity to accept members
         this.props.entity.setupMembers(fieldName);
 
-        var stateMembers = [];
-
-        // If we have members
+        // If we have existing members in the entity, then lets add it in the members model
         if (members) {
             members.map(function (member) {
                 var memberEntity = this.props.entity.members.add(member);
-                stateMembers.push(memberEntity);
             }.bind(this));
         }
 
         // Return the initial state
         return {
-            members: stateMembers
+            members: this.props.entity.members.getAll()
         };
     },
 
@@ -67,7 +64,7 @@ var Members = React.createClass({
                     <div className="entity-form-member-value">{this.props.entity.members.extractNameReference(member.name).name}</div>
                     <div className="entity-form-member-remove">
                         <IconButton
-                            onClick={this._removeMember.bind(this, member.id)}
+                            onClick={this._removeMember.bind(this, member.id, member.name)}
                             tooltip={"Remove"}
                             className="cfi cfi-close"
                         />
@@ -112,15 +109,15 @@ var Members = React.createClass({
      */
     _addMember: function (selectedMember) {
 
-        var entityMember = this.props.entity.members.add(selectedMember);
+        var entityMember = this.props.entity.members.add();
 
-        // Override the member name with the transformed text ([user:userId:userName]) so the member will be notified
+        // Set the member name with the transformed text ([user:userId:userName]) so the member will be notified
         entityMember.name = this.transformAutoCompleteSelected(selectedMember);
 
-        var stateMember = this.state.members;
-        stateMember.push(entityMember);
-
-        this.setState({member: stateMember});
+        // Update the state members
+        this.setState({
+            member: this.props.entity.members.getAll()
+        });
 
         this.refs.textFieldMembers.clearValue();
     },
@@ -128,16 +125,25 @@ var Members = React.createClass({
     /**
      * Remove a member to the entity
      *
-     * @param {int} memberId The memberId that will be removed
+     * @param {int} id The Id that will be removed
+     * @param {int} name The name that will be removed. if Id is null, then we will use the name to remove the member
      * @private
      */
-    _removeMember: function (memberId) {
+    _removeMember: function (id, name) {
         var xmlNode = this.props.xmlNode;
         var fieldName = xmlNode.getAttribute('field');
 
-        this.props.entity.remMultiValue(fieldName, memberId);
+        // We will only remove the member in the entity if meber has an id
+        if(!id) {
+            this.props.entity.remMultiValue(fieldName, id);
+        }
 
-        // TODO loop thru the memberstate and remove the member
+        this.props.entity.members.remove(id, name);
+
+        // Update the state members
+        this.setState({
+            member: this.props.entity.members.getAll()
+        });
     },
 });
 

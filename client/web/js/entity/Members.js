@@ -54,7 +54,7 @@ Members.prototype.add = function (data) {
  * @return Array Collection of Entity/Members
  * @public
  */
-Members.prototype.get = function () {
+Members.prototype.getAll = function () {
     return this._members;
 }
 
@@ -74,6 +74,24 @@ Members.prototype.getNewMembers = function () {
     })
 
     return newMembers;
+}
+
+/**
+ * Remove a member to the member list
+ *
+ * @param {int} id The Id that will be removed
+ * @param {int} name The name that will be removed. if Id is null, then we will use the name to remove the member
+ * @public
+ */
+Members.prototype.remove = function (id, name) {
+    for(var idx in this._members) {
+        var member = this._members[idx];
+        if (member.id == id || member.name == name) {
+            console.log(member);
+            this._members.splice(idx, 1);
+            break;
+        }
+    }
 }
 
 /**
