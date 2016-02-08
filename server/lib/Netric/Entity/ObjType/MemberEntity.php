@@ -18,7 +18,7 @@ class MemberEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
      */
     public function onBeforeSave(ServiceLocatorInterface $sm)
     {

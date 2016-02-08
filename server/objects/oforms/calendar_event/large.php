@@ -32,11 +32,9 @@
                     </column>
                 </row>
                 <row>
-                    <row>
-                        <column>
-                            <field name='sharing'></field>
-                        </column>
-                    </row>
+                    <column>
+                        <field name='sharing'></field>
+                    </column>
                 </row>
                 <row>
                     <column>

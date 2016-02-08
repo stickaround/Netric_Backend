@@ -58,8 +58,7 @@ Members.prototype.getNewMembers = function () {
     var newMembers = [];
 
     this._members.map(function (member) {
-        if ((!member.id && member.id == '') // If we have a member.id that is not null but has no value
-            || member.id == null) {
+        if (member.id === '' || member.id === null) {
             newMembers.push(member.getData())
         }
     })

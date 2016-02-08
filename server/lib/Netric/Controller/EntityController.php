@@ -437,16 +437,6 @@ class EntityController extends Mvc\AbstractController
      */
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
-        /*
-         * TODO: handle new objects
-         * loop through each field looking type=object or object_multi with a subtype
-         * and check if there is a corresponding *_new array of objects waiting
-         * to be saved. We will need to check for a property called obj_reference
-         * and automatically set it to $entity.
-         * Once this is done be sure to update the fields in $entity to add the newly created
-         * references, then save the entity before returning.
-         */
-
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
         $fields = $entity->getDefinition()->getFields();

@@ -194,7 +194,7 @@ describe("Set default values for new entities", function() {
 					},
 				},
 				{
-					"id" : 1,
+					"id" : 2,
 					"name" : "creator_id",
 					"title" : "Creator",
 					"type" : "object",
@@ -205,7 +205,7 @@ describe("Set default values for new entities", function() {
 					},
 				},
 				{
-					"id" : 2,
+					"id" : 3,
 					"name" : "project_id",
 					"title" : "Project",
 					"type" : "object",
@@ -307,7 +307,7 @@ describe("Test the Members Entity", function() {
 					},
 				},
 				{
-					"id" : 1,
+					"id" : 2,
 					"name" : "creator_id",
 					"title" : "Creator",
 					"type" : "object",
@@ -318,7 +318,7 @@ describe("Test the Members Entity", function() {
 					},
 				},
 				{
-					"id" : 2,
+					"id" : 3,
 					"name" : "project_id",
 					"title" : "Project",
 					"type" : "object",
