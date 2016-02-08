@@ -32,7 +32,7 @@ $entityLoader = $account->getServiceManager()->get("EntityLoader");
 foreach ($usersData as $userData) {
     if (!$entityLoader->get("user", $userData['id'])) {
         $user = $entityLoader->create("user");
-        $user->fromAdday($userData);
+        $user->fromArray($userData);
         $entityLoader->save($user);
     }
 }

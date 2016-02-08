@@ -52,7 +52,7 @@ class AssignActionTest extends AbstractActionTests
     /**
      * Test execution with a manual users list
      */
-    public function testExecute_UsersList()
+    public function testExecute()
     {
         // Create three users for assignment
         $user1 = $this->entityLoader->create("user");

@@ -59,6 +59,11 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     abstract protected function getAction();
 
     /**
+     * All action tests must test execution
+     */
+    abstract public function testExecute();
+
+    /**
      * Make sure we can convert a workflow to and from an array
      */
     public function testFromAndToArray()

@@ -1,6 +1,6 @@
 <?php
 /**
- * Make sure the bin/scripts/update/always/users-and-groups.php script works
+ * Make sure the bin/scripts/update/always/03-users-and-groups.php script works
  */
 namespace BinTest\Update\Always;
 
@@ -29,7 +29,7 @@ class UserAndGroupsTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/users-and-groups.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/03-users-and-groups.php";
     }
 
     /**

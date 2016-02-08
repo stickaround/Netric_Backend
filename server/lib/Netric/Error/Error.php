@@ -61,4 +61,14 @@ class Error
     {
         return $this->code;
     }
+
+    /**
+     * Get the message for this error
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getMessage();
+    }
 }

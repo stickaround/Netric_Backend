@@ -1,6 +1,6 @@
 <?php
 /**
- * Make sure the bin/scripts/update/always/modules.php script works
+ * Make sure the bin/scripts/update/always/04-modules.php script works
  */
 namespace BinTest\Update\Always;
 
@@ -29,7 +29,7 @@ class ModulesTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/modules.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/04-modules.php";
     }
 
     /**

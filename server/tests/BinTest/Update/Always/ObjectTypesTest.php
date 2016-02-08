@@ -1,6 +1,6 @@
 <?php
 /**
- * Make sure the bin/scripts/update/always/object-types.php script works
+ * Make sure the bin/scripts/update/always/01-object-types.php script works
  */
 namespace BinTest\Update\Always;
 
@@ -29,7 +29,7 @@ class ObjectTypesTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/object-types.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/01-object-types.php";
     }
 
     /**

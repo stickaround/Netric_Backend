@@ -201,7 +201,6 @@ class EntityController extends Mvc\AbstractController
      */
     public function postSaveAction()
     {
-        $params = $this->getRequest()->getParams();
         $rawBody = $this->getRequest()->getBody();
         $ret = array();
         if (!$rawBody)

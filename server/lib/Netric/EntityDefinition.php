@@ -193,7 +193,7 @@ class EntityDefinition
 	 */
 	public function __construct($objType)
 	{
-		$this->objType = $objType;
+		$this->objType = trim($objType);
 
 		// Set object table
 		$this->object_table = "objects_" . $objType;

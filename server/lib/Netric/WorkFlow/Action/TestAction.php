@@ -39,5 +39,7 @@ class TestAction extends AbstractAction implements ActionInterface
 
         // Get merged params
         $params = $this->getParams($entity);
+
+        return true;
     }
 }

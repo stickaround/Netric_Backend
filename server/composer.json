@@ -6,6 +6,7 @@
   "require": {
     "php": ">=5.4",
     "facebook/php-sdk-v4" : "4.0.*",
-    "zendframework/zendframework": "~2.5"
+    "zendframework/zendframework": "~2.5",
+    "zircote/swagger-php": "^2.0"
   }
 }

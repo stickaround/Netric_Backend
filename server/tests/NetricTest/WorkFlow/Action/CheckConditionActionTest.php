@@ -50,7 +50,7 @@ class CheckConditionActionTest extends AbstractActionTests
     /**
      * Check that an action only executes child actions if all conditions are met
      */
-    public function testExecute_Match()
+    public function testExecute()
     {
         // Get the ServiceManager
         $serviceManager = $this->account->getServiceManager();

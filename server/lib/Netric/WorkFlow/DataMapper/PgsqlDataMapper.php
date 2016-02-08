@@ -19,7 +19,7 @@ use Netric\WorkFlow\Action\ActionInterface;
 /**
  * Store data in postgresql
  */
-class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface, ErrorAwareInterface
+class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
 {
     /**
      * Handle to database

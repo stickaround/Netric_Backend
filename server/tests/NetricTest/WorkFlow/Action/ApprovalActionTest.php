@@ -14,4 +14,12 @@ class ApprovalActionTest extends AbstractActionTests
     {
         return $this->actionFactory->create("approval");
     }
+
+    /**
+     * Make sure we can execute this action type and it works as designed
+     */
+    public function testExecute()
+    {
+        // TODO: define test here
+    }
 }

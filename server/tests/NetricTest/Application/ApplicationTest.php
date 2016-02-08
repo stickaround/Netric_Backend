@@ -60,11 +60,6 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $this->application->deleteAccount(self::TEST_ACCT_NAME);
     }
 
-    public function testUpdateAccount()
-    {
-        // TODO: Add this test
-    }
-
     /**
      * Check that we can initialize a new database
      */

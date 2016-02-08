@@ -10,8 +10,9 @@ namespace Netric\WorkFlow\DataMapper;
 use Netric\Entity\EntityInterface;
 use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\Error\ErrorAwareInterface;
 
-interface DataMapperInterface
+interface DataMapperInterface extends ErrorAwareInterface
 {
     /**
      * Save a new or existing WorkFlow
@@ -70,7 +71,7 @@ interface DataMapperInterface
      * This is only for admin really because an instance will almost always be set to completed
      * but never deleted since we want to maintain a record of the instance run.
      *
-     * @param int WorkFlowInstanceId
+     * @param int $workFlowInstanceId
      * @throws \InvalidArgumentException if anything but a workFlowInstanceId is passed
      */
     public function deleteWorkFlowInstance($workFlowInstanceId);

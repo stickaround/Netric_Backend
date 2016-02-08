@@ -14,11 +14,12 @@ use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Entity\EntityInterface;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\Log;
+use Netric\Error\AbstractHasErrors;
 
 /**
  * Workflow service
  */
-class WorkFlowManager
+class WorkFlowManager extends AbstractHasErrors
 {
     /**
      * WorkFlow DataMapper
@@ -116,12 +117,15 @@ class WorkFlowManager
 
         if (!$workFlow)
         {
-            throw new \RuntimeException("WorkFlow $wfid does not exist");
+            throw new \RuntimeException("WorkFlow $wid does not exist");
         }
 
-        if (!$workFlow->getObjType() != $entity->getDefinition()->getObjType())
+        if ($workFlow->getObjType() != $entity->getDefinition()->getObjType())
         {
-            throw new \RuntimeException("WorkFlow id $wfid only runs against objType" . $workFlow->getObjType());
+            throw new \RuntimeException(
+                "WorkFlow id $wid only runs against objType '" . $workFlow->getObjType() . "'" .
+                " and '" . $entity->getDefinition()->getObjType() . "' was passed"
+            );
         }
 
         $this->startWorkFlowInstance($workFlow, $entity);
@@ -146,6 +150,45 @@ class WorkFlowManager
 
         // Log what just happened
         $this->log->info("Found and executed " . count($scheduled) . " scheduled actions");
+    }
+
+    /**
+     * Get a WorkFlow by id
+     *
+     * @param id $id
+     * @return WorkFlow
+     */
+    public function getWorkFlowById($id)
+    {
+        return $this->workFlowDataMapper->getById($id);
+    }
+
+    /**
+     * Get all workflows
+     *
+     * @param string $objType Get the object type
+     * @return WorkFlow[]
+     */
+    public function getWorkFlows($objType = null)
+    {
+        return $this->workFlowDataMapper->getWorkFlows($objType);
+    }
+
+    /**
+     * Save workflow
+     *
+     * @param WorkFlow $workFlow
+     * @return bool true on success, false on failure
+     */
+    public function saveWorkFlow(WorkFlow $workFlow)
+    {
+        $ret = $this->workFlowDataMapper->save($workFlow);
+
+        // Save error
+        if (!$ret)
+            $this->addErrorFromMessage($this->workFlowDataMapper->getLastError()->getMessage());
+
+        return $ret;
     }
 
     /**

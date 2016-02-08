@@ -136,7 +136,10 @@ class ConsoleRequest implements RequestInterface
 	 */
 	public function getBody()
 	{
-		return file_get_contents("php://input");
+        if (array_key_exists('raw_body', $this->params))
+            return $this->params['raw_body'];
+        else
+            return file_get_contents("php://input");
 	}
 
 	/**

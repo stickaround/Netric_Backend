@@ -4,7 +4,6 @@
  * @copyright 2015-206 Aereus
  */
 namespace Netric\Error;
-use Zend\Barcode\Object\Error;
 
 /**
  * Generic functions used for a class that has errors
