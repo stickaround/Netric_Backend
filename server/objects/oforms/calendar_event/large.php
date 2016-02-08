@@ -32,14 +32,11 @@
                     </column>
                 </row>
                 <row>
-                    <column width='95px'><label>Calendar</label></column>
-                    <column width='150px'>
-                        <label>Plugin: Calendar_Sel</label>
-                    </column>
-                    <column width='95px'><label>This event is</label></column>
-                    <column>
-                        <field name='sharing' hidelabel='t'></field>
-                    </column>
+                    <row>
+                        <column>
+                            <field name='sharing'></field>
+                        </column>
+                    </row>
                 </row>
                 <row>
                     <column>

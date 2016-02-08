@@ -203,12 +203,6 @@ class EntityController extends Mvc\AbstractController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        // If we cant get the rawBody from ::getBody(), then try getting it from params
-        if(!$rawBody) {
-            $params = $this->getRequest()->getParams();
-            $rawBody = $params['raw_body'];
-        }
-
         $ret = array();
         if (!$rawBody)
         {
@@ -457,7 +451,8 @@ class EntityController extends Mvc\AbstractController
         $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
         $fields = $entity->getDefinition()->getFields();
 
-        $entityShouldUpdate = false; // Flag that will determine if we should save the $entity
+        // Flag that will determine if we should save the $entity
+        $entityShouldUpdate = false;
 
         // Loop thru fields to check if we have objects waiting to be saved
         foreach($fields as $field)

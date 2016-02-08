@@ -72,10 +72,12 @@ var Entity = function (entityDef, opt_data) {
     /**
      * This will be used to handle the actions for members
      *
-     * @public
-     * @type {Entity/Members}
+     * Sample: this.members[attendees] = Entity/Members
+     *
+     * @private
+     * @type {Array[fieldName] Entity/Members}
      */
-    this.members = null;
+    this._members = [];
 
     /**
      * Security
@@ -213,16 +215,24 @@ Entity.prototype.getData = function () {
         retObj.recurrence_pattern = this._recurrencePattern.toData();
     }
 
-    // Process the members if there are any
-    if(this.members) {
+    /*
+     * Get all new members from the Members model.
+     *
+     * We buffer newly added members in a [field_name]_new property so they can be saved
+     * after the server finishes saving this entity. This allows users to add new members
+     * which are really just entities referencing this entity, without having to save this
+     * entity first. That is a difficult situation because an entity object knows which entity
+     * it belongs to through an obj_reference field, but if the main entity has not been saved
+     * yet there is no id to reference - hence we send these *_new member entities to be saved
+     * after the main entity is saved so the reference can be set.
+     *
+     * We will loop thru this._members[] array since we set the fieldName as its index
+     * for us to be able to set multiple members object type
+     */
+    for(var fieldName in this._members) {
+        var member = this._members[fieldName];
 
-        /*
-         * We will get all the new members from Entity/Members model.
-         * We are storing it to *_new field so it will be processed in the after saving this entity (post save)
-         * Since the new members are not yet saved and do not have an entity id, we cannot set it as an object reference to this entity
-         * The server will process first this entity and once it is saved, then *_new fields will be saved right after
-         */
-        retObj[this.members.field + '_new'] = this.members.getNewMembers();
+        retObj[fieldName + '_new'] = member.getNewMembers();
     }
 
     return retObj;
@@ -675,12 +685,23 @@ Entity.prototype.setDefaultValues = function (onEventName, opt_defaultData) {
 }
 
 /**
- * Create the instance of Entity/Members
+ * Create an instance of Entity/Members
  *
  * @param {string} fieldName The fieldName used for the member object
  */
-Entity.prototype.setupMembers = function (fieldName) {
-    this.members = new Members(fieldName);
+Entity.prototype.setMemberEntity = function (fieldName) {
+
+    // Set the fieldName as its index
+    this._members[fieldName] = new Members();
+}
+
+/**
+ * Get an instance of Entity/Members by fieldName
+ *
+ * @param {string} fieldName The fieldName of members that we want to get
+ */
+Entity.prototype.getMemberEntity = function (fieldName) {
+    return this._members[fieldName];
 }
 
 /**

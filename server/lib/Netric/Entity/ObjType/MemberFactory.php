@@ -23,7 +23,7 @@ class MemberFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("Member");
+        $def = $sl->get("EntityDefinitionLoader")->get("member");
         return new MemberEntity($def);
     }
 }

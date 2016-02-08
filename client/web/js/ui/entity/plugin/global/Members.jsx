@@ -37,7 +37,7 @@ var Members = React.createClass({
         var members = this.props.entity.getValueName(fieldName);
 
         // Setup the entity to accept members
-        this.props.entity.setupMembers(fieldName);
+        this.props.entity.setMemberEntity(fieldName);
 
         // If we have existing members in the entity, then lets add it in the members model
         if (members) {
@@ -45,13 +45,13 @@ var Members = React.createClass({
                 var memberEntity = entityLoader.factory("member");
                 memberEntity.setValue("id", member.key);
                 memberEntity.setValue("name", member.value);
-                this.props.entity.members.add(memberEntity);
+                this.props.entity.getMemberEntity(fieldName).add(memberEntity);
             }.bind(this));
         }
 
         // Return the initial state
         return {
-            members: this.props.entity.members.getAll()
+            members: this.props.entity.getMemberEntity(fieldName).getAll()
         };
     },
 
@@ -112,16 +112,17 @@ var Members = React.createClass({
      * @private
      */
     _addMember: function (selectedMember) {
-
+        var xmlNode = this.props.xmlNode;
+        var fieldName = xmlNode.getAttribute('field');
         var memberEntity = entityLoader.factory("member");
 
         // Set the member name with the transformed text ([user:userId:userName]) so the member will be notified
         memberEntity.setValue("name", this.transformAutoCompleteSelected(selectedMember));
-        this.props.entity.members.add(memberEntity);
+        this.props.entity.getMemberEntity(fieldName).add(memberEntity);
 
         // Update the state members
         this.setState({
-            members: this.props.entity.members.getAll()
+            members: this.props.entity.getMemberEntity(fieldName).getAll()
         });
 
         this.refs.textFieldMembers.clearValue();
@@ -142,11 +143,11 @@ var Members = React.createClass({
             this.props.entity.remMultiValue(fieldName, member.id);
         }
 
-        this.props.entity.members.remove(member.id, member.getValue("name"));
+        this.props.entity.getMemberEntity(fieldName).remove(member.id, member.getValue("name"));
 
         // Update the state members
         this.setState({
-            members: this.props.entity.members.getAll()
+            members: this.props.entity.getMemberEntity(fieldName).getAll()
         });
     },
 });

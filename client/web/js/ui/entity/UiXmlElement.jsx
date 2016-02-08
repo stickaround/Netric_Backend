@@ -29,7 +29,6 @@ var formElements = {
     Header: require("./form/Header.jsx"),
     StatusUpdate: require("./form/StatusUpdate.jsx"),
     Text: require("./form/Text.jsx"),
-    Label: require("./form/Label.jsx"),
 };
 
 /**

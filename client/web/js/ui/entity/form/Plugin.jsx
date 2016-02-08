@@ -58,6 +58,7 @@ var Plugin = React.createClass({
         var componentName = this.props.entity.def.objType + "." + pluginName;
         var componentGlobal = "global." + pluginName; // Try to get the plugin in the global folder
 
+        // Check if there is a specific plugin for objType or a global plugin for all entities
         var component = netric.getObjectByName(componentName, null, _plugins) || netric.getObjectByName(componentGlobal, null, _plugins);
 
         if (!component) {

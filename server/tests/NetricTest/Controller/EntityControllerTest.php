@@ -62,7 +62,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('raw_body', json_encode($data));
+        $req->setBody(json_encode($data));
 
         $ret = $this->controller->postSaveAction();
 
@@ -115,7 +115,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('raw_body', json_encode($data));
+        $req->setBody(json_encode($data));
 
         $ret = $this->controller->postSaveAction();
 

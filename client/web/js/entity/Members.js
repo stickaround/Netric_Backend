@@ -3,27 +3,21 @@
  *
  *
  * @author:    Marl Tumulak, marl.tumulak@aereus.com;
- *            Copyright (c) 2015 Aereus Corporation. All rights reserved.
+ *            Copyright (c) 2016 Aereus Corporation. All rights reserved.
  */
 'use strict';
 
 /**
- * Creates an instance of Members
+ * Creates an instance of Members.
  *
- * @param {object} fieldName The actual field name used for the member object
+ * This will handle the membership of an entity.
+ * Members model will enable an entity to add members and make sure it will have unique members.
+ *
  * @constructor
  */
-var Members = function (fieldName) {
-
+var Members = function () {
     /**
-     * The actual field name used for the member object
-     *
-     * @param {string} fieldName
-     */
-    this.fieldName = fieldName;
-
-    /**
-     * This will contain the instances of definition/Member
+     * This will contain the instances of Entity with objType:member
      *
      * @type {Array}
      */
@@ -33,13 +27,13 @@ var Members = function (fieldName) {
 /**
  * Adds a member into the entity
  *
- * @param {Entity/Entity} member Instance of entity with member objType
+ * @param {Entity} member Instance of entity with member objType
  * @public
  */
 Members.prototype.add = function (member) {
 
     // Make sure we are adding unique members in the entity
-    if(!this.checkIfExist(member.getValue("name"))) {
+    if(!this._checkIfExist(member.getValue("name"))) {
         this._members.push(member);
     }
 }
@@ -55,17 +49,18 @@ Members.prototype.getAll = function () {
 }
 
 /**
- * Get the new members by check if the member id is null
+ * Get the new members by checking if the member id is null
  *
- * @return Array Collection of new Entity/Members with id equals to null
+ * @return {Member[]} Collection of new Entity/Members with id equals to null
  * @public
  */
 Members.prototype.getNewMembers = function () {
     var newMembers = [];
 
     this._members.map(function (member) {
-        if (member.id == null) {
-            newMembers.push(member.toData())
+        if ((!member.id && member.id == '') // If we have a member.id that is not null but has no value
+            || member.id == null) {
+            newMembers.push(member.getData())
         }
     })
 
@@ -73,7 +68,7 @@ Members.prototype.getNewMembers = function () {
 }
 
 /**
- * Remove a member to the member list
+ * Remove a member from the list
  *
  * @param {int} id The Id that will be removed
  * @param {int} name The name that will be removed. if Id is null, then we will use the name to remove the member
@@ -94,9 +89,9 @@ Members.prototype.remove = function (id, name) {
  *
  * @param {string} name The name of the member that will be checked if it already exists
  * @return bool True if it already exist and False if not
- * @public
+ * @private
  */
-Members.prototype.checkIfExist = function (name) {
+Members.prototype._checkIfExist = function (name) {
     var result = false;
 
     this._members.map(function (member) {

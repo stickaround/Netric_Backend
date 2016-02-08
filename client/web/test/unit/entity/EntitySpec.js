@@ -280,3 +280,146 @@ describe("Set default values for new entities", function() {
 		expect(entity.getValue("owner_id")).toEqual(1);
 	});
 });
+
+/**
+ * Test setting of default values
+ */
+describe("Test the Members Entity", function() {
+	var entity = null;
+	var member = null;
+
+	// Setup test entity
+	beforeEach(function() {
+		var definition = new Definition({
+			obj_type: "test",
+			title: "Test Object",
+			id: "", // Id is blank to specify that we are creating a new entity
+			fields: [
+				{
+					"id" : 1,
+					"name" : "owner_id",
+					"title" : "Owner",
+					"type" : "object",
+					"subtype" : "user",
+					"default_val" : {
+						on: "create",
+						value: -3
+					},
+				},
+				{
+					"id" : 1,
+					"name" : "creator_id",
+					"title" : "Creator",
+					"type" : "object",
+					"subtype" : "user",
+					"default_val" : {
+						on: "null",
+						value: -3
+					},
+				},
+				{
+					"id" : 2,
+					"name" : "project_id",
+					"title" : "Project",
+					"type" : "object",
+					"subtype" : "project",
+					"default_val" : null,
+				}
+			]
+		});
+		entity = new Entity(definition);
+
+		var memberDef = new Definition({
+			obj_type: "member",
+			id: null,
+			fields: [
+				{
+					"id" : 1,
+					"name" : "id",
+					"title" : "id",
+					"type" : "text",
+				},
+				{
+					"id" : 2,
+					"name" : "name",
+					"title" : "name",
+					"type" : "text",
+				}
+			]
+		});
+		member = new Entity(memberDef);
+		member.setValue("name", "[user:1:test user]");
+
+		entity.setMemberEntity("attendees");
+		entity.getMemberEntity("attendees").add(member);
+	});
+
+	it("should add a member and not able to add duplicate member", function() {
+		expect(entity.getMemberEntity("attendees")).not.toBeNull();
+		expect(entity.getMemberEntity("attendees").getAll().length).toEqual(1);
+
+		// Lets try adding again the same member, it should not add again since we do not allow duplicates
+		entity.getMemberEntity("attendees").add(member);
+		expect(entity.getMemberEntity("attendees").getAll().length).toEqual(1);
+	});
+
+	it("should get all members", function() {
+		var members = entity.getMemberEntity("attendees").getAll();
+		expect(members.length).toEqual(1);
+	});
+
+	it("should get new members", function() {
+		var newMembers = entity.getMemberEntity("attendees").getNewMembers();
+		expect(newMembers.length).toEqual(1);
+		expect(newMembers[0].name).toEqual(member.getValue("name"));
+	});
+
+	it("should get all members", function() {
+		entity.getMemberEntity("attendees").remove(member.id, member.getValue("name"));
+		expect(entity.getMemberEntity("attendees").getAll().length).toEqual(0);
+	});
+});
+
+/**
+ * Test setting of default values
+ */
+describe("Test the encoding/decoding of object reference", function() {
+	var member = null;
+
+	// Setup test entity
+	beforeEach(function() {
+		var memberDef = new Definition({
+			obj_type: "member",
+			id: null,
+			fields: [
+				{
+					"id" : 1,
+					"name" : "id",
+					"title" : "id",
+					"type" : "text",
+				},
+				{
+					"id" : 2,
+					"name" : "name",
+					"title" : "name",
+					"type" : "text",
+				}
+			]
+		});
+		member = new Entity(memberDef);
+	});
+
+	it("should decode the object reference", function() {
+		var ref = member.encodeObjRef("user", 1, "user test");
+
+		expect(ref).toEqual("[user:1:user test]");
+	});
+
+	it("should encode the object reference", function() {
+		var ref = member.decodeObjRef("[user:1:user test]");
+
+		expect(ref.objType).toEqual('user');
+		expect(ref.id).toEqual('1');
+		expect(ref.name).toEqual('user test');
+	});
+});

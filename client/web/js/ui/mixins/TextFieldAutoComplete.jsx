@@ -4,14 +4,25 @@
  * @jsx React.DOM
  */
 
-var EntityCollection = require("../../entity/Collection");
-
 'use strict';
+
+var React = require('react');
+var EntityCollection = require("../../entity/Collection");
 
 /**
  * Handle processes for textfield autocomplete
  */
 var TextFieldAutoComplete = {
+
+    propTypes: {
+        autoCompleteObjType: React.PropTypes.string
+    },
+
+    getDefaultProps: function() {
+        return {
+            autoCompleteObjType: 'user',
+        }
+    },
 
     getInitialState: function () {
         return {
@@ -29,7 +40,7 @@ var TextFieldAutoComplete = {
     getAutoCompleteData: function (keyword, doneCallback) {
 
         if (!this.state.entityCollection) {
-            this.state.entityCollection = new EntityCollection('user');
+            this.state.entityCollection = new EntityCollection(this.props.autoCompleteObjType);
 
             /**
              * Force the entity collection to only have one backend request
@@ -72,8 +83,7 @@ var TextFieldAutoComplete = {
          * The data contains payload and text as its object fields.
          * Payload contains the user id and text has the user's full name
          */
-
-        return this.props.entity.encodeObjRef('user', data.payload, data.text);
+        return this.props.entity.encodeObjRef(this.props.autoCompleteObjType, data.payload, data.text);
     },
 };
 

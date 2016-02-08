@@ -34,6 +34,13 @@ class ConsoleRequest implements RequestInterface
     private $path = null;
 
 	/**
+     * Contains the request input data
+     *
+     * @var string
+     */
+    private $rawBody = null;
+
+	/**
 	 * Initialize request object variables
 	 */
 	public function __construct(array $args = null, array $env = null)
@@ -136,10 +143,10 @@ class ConsoleRequest implements RequestInterface
 	 */
 	public function getBody()
 	{
-        if (array_key_exists('raw_body', $this->params))
-            return $this->params['raw_body'];
-        else
-            return file_get_contents("php://input");
+        // If $rawBody is set then we will return it instead of php://input
+        $data = ($this->rawBody) ? $this->rawBody : file_get_contents("php://input");
+
+        return $data;
 	}
 
 	/**
@@ -238,5 +245,15 @@ class ConsoleRequest implements RequestInterface
     public function getMethod()
     {
         return 'CONSOLE';
+    }
+
+    /**
+     * Set the raw body with the request data
+     *
+     * @param {array} Request data that will be set as raw body
+     */
+    public function setBody($data)
+    {
+        $this->rawBody = $data;
     }
 }
