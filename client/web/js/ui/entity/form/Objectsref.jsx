@@ -129,9 +129,16 @@ var Objectsref = React.createClass({
         var filters = [];
         if (refField) {
 
+            var whereValue = this.props.entity.id;
+
+            // Since we have an obj_reference refField, then we should set the whereValue to [objType:oid]
+            if(refField === 'obj_reference') {
+                whereValue = this.props.entity.objType + ':' + this.props.entity.id;
+            }
+
             // Create a filter reference
             var whereCond = new Where(refField);
-            whereCond.equalTo(this.props.entity.id);
+            whereCond.equalTo(whereValue);
 
             filters.push(whereCond);
         }
