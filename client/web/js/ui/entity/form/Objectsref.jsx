@@ -89,7 +89,19 @@ var Objectsref = React.createClass({
 
         // If we have refField is set, then add it in the query parameters
         if (refField) {
-            params[refField] = this.props.entity.id;
+
+            var refValue = this.props.entity.id;
+
+            /**
+             * Since we have an obj_reference refField, then we should set the refValue to [objType:oid]
+             * This is necessary because when using the entity value of obj_reference
+             *  we want to know what objType is the value saved in the obj_reference field
+             */
+            if(refField === 'obj_reference') {
+                refValue = this.props.entity.objType + ':' + this.props.entity.id;
+            }
+
+            params[refField] = refValue;
             params[refField + '_val'] = encodeURIComponent(entityName);
         }
 
@@ -131,7 +143,11 @@ var Objectsref = React.createClass({
 
             var whereValue = this.props.entity.id;
 
-            // Since we have an obj_reference refField, then we should set the whereValue to [objType:oid]
+            /**
+             * Since we have an obj_reference refField, then we should set the whereValue to [objType:oid]
+             * This is necessary because when using the entity value of obj_reference
+             *  we want to know what objType is the value saved in the obj_reference field
+             */
             if(refField === 'obj_reference') {
                 whereValue = this.props.entity.objType + ':' + this.props.entity.id;
             }

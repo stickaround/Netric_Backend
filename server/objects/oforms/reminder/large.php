@@ -8,7 +8,11 @@
         <row>
             <column>
                 <field name='obj_reference'></field>
-                <field name='action_type'></field>
+            </column>
+        </row>
+        <row>
+            <column>
+                <plugin name='ExecuteTime'></plugin>
             </column>
         </row>
         <row>

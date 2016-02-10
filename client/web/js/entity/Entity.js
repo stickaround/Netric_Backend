@@ -439,9 +439,14 @@ Entity.prototype.getValueName = function (name, opt_val) {
                 this.fieldValues_[name].valueName instanceof Array ||
                 this.fieldValues_[name].valueName instanceof Object
             )) {
-            for (var i in this.fieldValues_[name].valueName) {
-                if (this.fieldValues_[name].valueName[i].key == opt_val) {
-                    return this.fieldValues_[name].valueName[i].value;
+            for (var idx in this.fieldValues_[name].valueName) {
+
+                // If the valuName is an object then we will get its .key but if its an array we consider the var idx as the index
+                var fieldKey = this.fieldValues_[name].valueName[idx].key || idx;
+                if (fieldKey == opt_val) {
+
+                    // If the valueName is an object then we will return its .value, but if its an array we will return the value based on the var idx index
+                    return this.fieldValues_[name].valueName[idx].value || this.fieldValues_[name].valueName[idx];
                 }
             }
         } else {

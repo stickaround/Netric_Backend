@@ -11,6 +11,9 @@ var _plugins = {
     task: {
         LogTime: require('../plugin/task/LogTime.jsx')
     },
+    reminder: {
+        ExecuteTime: require('../plugin/reminder/ExecuteTime.jsx')
+    },
     global: {
         Members: require('../plugin/global/Members.jsx')
     }
