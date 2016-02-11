@@ -721,18 +721,38 @@ Entity.prototype.decodeObjRef = function(value) {
     var result,
         matches = null;
 
-    // Extract all [<obj_type>:<id>:<name>] tags from string
-    if(value) {
-        matches = value.match(/\[([a-z_]+)\:(.*?)\:(.*?)\]/);
-    }
+    // Remove the closing brackets from the string before we get the matches
+    value = value.replace(/[\[\]']+/g,'');
 
-    if (matches) {
+    // Extract all [<obj_type>:<id>:<name>] tags from string
+    var parts = value.split(':');
+
+    if (parts.length > 1) {
 
         // Get the member data if we have found a match
         result = {
-            objType: matches[1],
-            id: matches[2],
-            name: matches[3]
+            objType: parts[0],
+            id: null,
+            name: null
+        }
+
+        // Was encoded with <obj_type>:<id>:<name> (new)
+        if(parts.length === 3) {
+            result.id = parts[1];
+            result.name = parts[2];
+        } else {
+
+            // Check for full name added after bar '|' (old)
+            var parts2 = parts[1].split('|');
+
+            if(parts2.length > 1) {
+                result.id = parts2[0];
+                result.name = parts2[1];
+            } else {
+
+                // Possible encoded value is <obj_type>:<id>
+                result.id = parts[1];
+            }
         }
     } else {
 

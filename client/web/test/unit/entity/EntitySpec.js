@@ -425,9 +425,12 @@ describe("Test the encoding/decoding of object reference", function() {
 
 	it("should encode the object reference", function() {
 		var ref = member.decodeObjRef("[user:1:user test]");
-
 		expect(ref.objType).toEqual('user');
 		expect(ref.id).toEqual('1');
 		expect(ref.name).toEqual('user test');
+
+		var ref = member.decodeObjRef("user:1");
+		expect(ref.objType).toEqual('user');
+		expect(ref.id).toEqual('1');
 	});
 });

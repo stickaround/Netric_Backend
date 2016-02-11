@@ -1,5 +1,5 @@
 /**
- * Plugin for reminder execute time manager
+ * Plugin that will allow the Reminder Object to speficy when to execute the reminder
  *
  * @jsx React.DOM
  */
@@ -69,28 +69,31 @@ var ExecuteTime = React.createClass({
             text: '@ a Specific Time'
         }];
 
-        /**
+        /*
          * We need to get the obj_reference value and get its objType so we can display the data/timestamp fields in the dropdown
          * The specific dropdown will determine how this reminder will be triggered
          */
         var objRefValue = this.props.entity.getValue('obj_reference');
-        var objRefParts = objRefValue.split(':');
 
-        // objRefParts[0] is the objType of the obj_reference. Sample value of obj_reference: customer:1
-        if (objRefParts[0]) {
+        // Decode the objRefValue so we can get its objType
+        var objRef = this.props.entity.decodeObjRef(objRefValue);
+
+        // If we have an objType in our objRefValue, then we will get its entity definition so we can get the field definitions
+        if (objRef.objType) {
 
             // Get the entity of the objtype reference
-            var objRefEntity = entityLoader.factory(objRefParts[0]);
+            var objRefEntity = entityLoader.factory(objRef.objType);
 
-            // Get the date fields
+            // Get all date fields
             var dateFields = objRefEntity.def.getFieldsByType(Field.types.date);
 
-            // Get the timestamp fields
+            // Get all timestamp fields
             var timestampFields = objRefEntity.def.getFieldsByType(Field.types.timestamp);
 
-            // Now we will merge the 2 fields and loop thru it to create the dropdown menu data
+            //  Merge both date and timestamp fields to use in a menu dropdown
             var fields = dateFields.concat(timestampFields);
 
+            // Loop through combined fields and pass to dropdown menu data
             for (var idx in fields) {
                 var field = fields[idx];
 
@@ -117,7 +120,7 @@ var ExecuteTime = React.createClass({
         var reminderDetailsDisplay = null;
 
         var displayTypeDropDown = (
-            <div className='col-small-2'>
+            <div className='col-small-3'>
                 <DropDownMenu
                     menuItems={reminderTypeMenuData}
                     selectedIndex={reminderTypeIndex}
