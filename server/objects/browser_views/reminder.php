@@ -28,12 +28,12 @@ return array(
 		),
 		'table_columns' => array('name', 'ts_execute')
     ),
-		
+
 	'all_reminders'=> array(
 		'obj_type' => 'reminder',
 		'name' => 'All Reminders',
 		'description' => 'Display all reminders',
-		'default' => true,
+		'default' => false,
 		'order_by' => array(
 			'date' => array(
 				'field_name' => 'ts_entered',

@@ -14,6 +14,7 @@ var controller = require("../../../controller/controller");
 var netric = require("../../../base");
 var Device = require("../../../Device");
 var Where = require("../../../entity/Where");
+var entityLoader = require('../../../entity/loader');
 
 /**
  * Constant indicating the smallest device that we can print a browser in
@@ -34,8 +35,13 @@ var Objectsref = React.createClass({
 
     getInitialState: function () {
 
+        var refObjType = this.props.xmlNode.getAttribute('obj_type');
+        var refField = this.props.xmlNode.getAttribute('ref_field');
+
         // Return the initial state
         return {
+            refObjType: refObjType,
+            refField: refField,
             entityController: null
         };
     },
@@ -81,19 +87,31 @@ var Objectsref = React.createClass({
      * Trigger a create new entity event to send back to the entity controller
      */
     _createNewEntity: function () {
-        var xmlNode = this.props.xmlNode;
-        var objType = xmlNode.getAttribute('obj_type');
+        var refField = this.state.refField;
         var entityName = this.props.entity.getValue('name');
-        var refField = xmlNode.getAttribute('ref_field');
         var params = [];
 
-        // If we have refField is set, then add it in the query parameters
+        // If refField is set, then add it in the query parameters
         if (refField) {
-            params[refField] = this.props.entity.id;
+
+            var refValue = this.props.entity.id;
+
+            /*
+             * If the referenced field is an object and does NOT have a subtype,
+             *  then the refField is an object reference field and NOT an object id field.
+             * Since we do not know what is the objType of this field,
+             *  we will include the entity's objType (this.props.entity.objType) in the query paramters
+             * Now the query param will have the value objType:objId (sample: customer:1)
+             */
+            if (!this._checkRefFieldHasSubType()) {
+                refValue = this.props.entity.objType + ':' + this.props.entity.id;
+            }
+
+            params[refField] = refValue;
             params[refField + '_val'] = encodeURIComponent(entityName);
         }
 
-        this.triggerCustomEvent("entitycreatenew", {objType: objType, params: params});
+        this.triggerCustomEvent("entitycreatenew", {objType: this.state.refObjType, params: params});
     },
 
     /**
@@ -113,10 +131,6 @@ var Objectsref = React.createClass({
             return;
         }
 
-        var xmlNode = this.props.xmlNode;
-        var objType = xmlNode.getAttribute('obj_type');
-        var refField = xmlNode.getAttribute('ref_field');
-
         // Check if we have already loaded the entity browser controller for this specific objType
         if (this.state.entityController) {
 
@@ -127,11 +141,24 @@ var Objectsref = React.createClass({
 
         // Add filter to reference the current entity
         var filters = [];
-        if (refField) {
+        if (this.state.refField) {
+
+            var whereValue = this.props.entity.id;
+
+            /*
+             * If the referenced field is an object and does NOT have a subtype,
+             *  then the refField is an object reference field and NOT an object id field.
+             * Since we do not know what is the objType of this field,
+             *  we will include the entity's objType (this.props.entity.objType) in the where value.
+             * Now the where value will be objType:objId (sample: customer:1)
+             */
+            if (!this._checkRefFieldHasSubType()) {
+                whereValue = this.props.entity.objType + ':' + this.props.entity.id;
+            }
 
             // Create a filter reference
-            var whereCond = new Where(refField);
-            whereCond.equalTo(this.props.entity.id);
+            var whereCond = new Where(this.state.refField);
+            whereCond.equalTo(whereValue);
 
             filters.push(whereCond);
         }
@@ -140,7 +167,7 @@ var Objectsref = React.createClass({
             type: controller.types.FRAGMENT,
             hideToolbar: false,
             toolbarMode: 'toolbar',
-            objType: objType,
+            objType: this.state.refObjType,
             filters: filters,
             onEntityClick: function (objType, oid) {
                 this._sendEntityClickEvent(objType, oid);
@@ -151,7 +178,7 @@ var Objectsref = React.createClass({
         }
 
         // Add filter to reference current entity
-        data[refField] = this.props.entity.id;
+        data[this.state.refField] = this.props.entity.id;
 
         // Require EntityBrowserController here so we do not risk a circular dependency
         var EntityBrowserController = require("../../../controller/EntityBrowserController");
@@ -164,6 +191,27 @@ var Objectsref = React.createClass({
         this.setState({
             entityController: browser
         });
+    },
+
+    /**
+     * Evaluate the referenced field if it is an object and whether or not it has a subtype
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _checkRefFieldHasSubType: function() {
+
+        // Get the entity definition of the referenced objType to access the field defintions
+        var objRefEntity = entityLoader.factory(this.state.refObjType);
+
+        // Get the field definition of the referenced field
+        var refFieldDef = objRefEntity.def.getField(this.state.refField);
+
+        if (refFieldDef.type == refFieldDef.types.object && refFieldDef.subtype) {
+            return true;
+        }
+
+        return false;
     }
 
 });

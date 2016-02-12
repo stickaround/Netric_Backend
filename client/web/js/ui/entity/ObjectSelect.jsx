@@ -12,7 +12,6 @@ var Dialog = Chamel.Dialog;
 var FlatButton = Chamel.FlatButton;
 var IconButton = Chamel.IconButton;
 var controller = require("../../controller/controller");
-var definitionLoader = require("../../entity/definitionLoader");
 
 
 /**

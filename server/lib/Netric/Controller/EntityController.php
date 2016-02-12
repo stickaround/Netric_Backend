@@ -353,7 +353,7 @@ class EntityController extends Mvc\AbstractController
      * Get all the entity defintions
      *
      */
-    public function getDefinitions()
+    public function getAllDefinitionsAction()
     {
         // Get the service manager and current user
         $serviceManager = $this->account->getServiceManager();

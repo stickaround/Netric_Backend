@@ -279,4 +279,25 @@ Definition.prototype.getDefaultView = function () {
     return view;
 }
 
+/**
+ * Get the fields using the field.type as the filter
+ *
+ * @params {string} type The field type that will be used as filter
+ * @public
+ * @return {array} Collection of fields that are filtered by type
+ */
+Definition.prototype.getFieldsByType = function (type) {
+    var result = [];
+
+    if (this.fields) {
+        this.fields.map(function (field) {
+            if (field.type == type) {
+                result.push(field);
+            }
+        });
+    }
+
+    return result;
+}
+
 module.exports = Definition;

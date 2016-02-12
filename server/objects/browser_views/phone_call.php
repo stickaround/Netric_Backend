@@ -14,7 +14,7 @@ return array(
 		'default' => true,
 		'order_by' => array(
 			'date' => array(
-    			'name' => 'name',
+    			'field_name' => 'name',
     			'direction' => 'desc',
     		),
 		),

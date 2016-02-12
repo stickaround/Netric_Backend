@@ -108,7 +108,7 @@ var TextField = React.createClass({
             return (
                 <div>
                     {label}
-                    <div className="entity-form-field-value" dangerouslySetInnerHTML={innerHtml}/>
+                    <div dangerouslySetInnerHTML={innerHtml}/>
                 </div>
             );
         }

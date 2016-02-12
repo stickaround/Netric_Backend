@@ -434,14 +434,22 @@ Entity.prototype.getValueName = function (name, opt_val) {
          * If they passed opt_val then the client is attempting to get the label
          * value for a specific key rather than an object describing all the
          * key/value values of this fkey/fkey_multi/object/object_multi field.
+         *
+         * If the field is fkey or object it'll have a .key sub property,
+         * if it's an object reference the value of the field is the subkey name
          */
         if (opt_val && (
                 this.fieldValues_[name].valueName instanceof Array ||
                 this.fieldValues_[name].valueName instanceof Object
             )) {
-            for (var i in this.fieldValues_[name].valueName) {
-                if (this.fieldValues_[name].valueName[i].key == opt_val) {
-                    return this.fieldValues_[name].valueName[i].value;
+            for (var idx in this.fieldValues_[name].valueName) {
+
+                // If the valuName is an object then we will get its .key but if its an array we consider the var idx as the index
+                var fieldKey = this.fieldValues_[name].valueName[idx].key || idx;
+                if (fieldKey == opt_val) {
+
+                    // If the valueName is an object then we will return its .value, but if its an array we will return the value based on the var idx index
+                    return this.fieldValues_[name].valueName[idx].value || this.fieldValues_[name].valueName[idx];
                 }
             }
         } else {
@@ -716,18 +724,38 @@ Entity.prototype.decodeObjRef = function(value) {
     var result,
         matches = null;
 
-    // Extract all [<obj_type>:<id>:<name>] tags from string
-    if(value) {
-        matches = value.match(/\[([a-z_]+)\:(.*?)\:(.*?)\]/);
-    }
+    // Remove the closing brackets from the string before we get the matches
+    value = value.replace(/[\[\]']+/g,'');
 
-    if (matches) {
+    // Extract all [<obj_type>:<id>:<name>] tags from string
+    var parts = value.split(':');
+
+    if (parts.length > 1) {
 
         // Get the member data if we have found a match
         result = {
-            objType: matches[1],
-            id: matches[2],
-            name: matches[3]
+            objType: parts[0],
+            id: null,
+            name: null
+        }
+
+        // Was encoded with <obj_type>:<id>:<name> (new)
+        if(parts.length === 3) {
+            result.id = parts[1];
+            result.name = parts[2];
+        } else {
+
+            // Check for full name added after bar '|' (old)
+            var parts2 = parts[1].split('|');
+
+            if(parts2.length > 1) {
+                result.id = parts2[0];
+                result.name = parts2[1];
+            } else {
+
+                // Possible encoded value is <obj_type>:<id>
+                result.id = parts[1];
+            }
         }
     } else {
 
