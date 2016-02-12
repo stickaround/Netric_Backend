@@ -50,6 +50,10 @@ describe("Get Definition Asynchronously", function() {
 		var views = definition.getViews();
 		expect(views.length).toBeGreaterThan(0);
 
+		// Get the fields by type
+		var filteredFields = definition.getFieldsByType("number");
+		expect(filteredFields.length).toBeGreaterThan(0);
+
 		done();
 
 	});

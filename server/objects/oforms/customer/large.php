@@ -42,6 +42,10 @@
                 </row>
             </tab>
 
+            <tab name='Reminders'>
+                <objectsref obj_type='reminder' ref_field='obj_reference'></objectsref>
+            </tab>
+
             <tab name='Task'>
                 <objectsref obj_type='task' ref_field='customer_id'></objectsref>
             </tab>

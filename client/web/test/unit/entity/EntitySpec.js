@@ -79,7 +79,7 @@ describe("Get and Set Entity Values", function() {
 				},
 				{
 					"id" : 8,
-					"name" : "reference",
+					"name" : "obj_reference",
 					"title" : "Reference",
 					"type" : "object",
 					"subtype" : "",
@@ -102,6 +102,14 @@ describe("Get and Set Entity Values", function() {
 		entity.setValue("status", statusId, statusName);
 		expect(entity.getValue("status")).toEqual(statusId);
 		expect(entity.getValueName("status")).toEqual(statusName);
+	});
+
+	it("should be able to get and set object values with valueNames", function() {
+		var objRefName = "Test Customer ObjRef";
+		var ObjRefValue = "customer:1";
+		entity.setValue("obj_reference", ObjRefValue, objRefName);
+		expect(entity.getValue("obj_reference")).toEqual(ObjRefValue);
+		expect(entity.getValueName("obj_reference", ObjRefValue)).toEqual(objRefName);
 	});
 
 	it("should be able to get and add fkey_multi values with valueNames", function() {
@@ -417,9 +425,12 @@ describe("Test the encoding/decoding of object reference", function() {
 
 	it("should encode the object reference", function() {
 		var ref = member.decodeObjRef("[user:1:user test]");
-
 		expect(ref.objType).toEqual('user');
 		expect(ref.id).toEqual('1');
 		expect(ref.name).toEqual('user test');
+
+		var ref = member.decodeObjRef("user:1");
+		expect(ref.objType).toEqual('user');
+		expect(ref.id).toEqual('1');
 	});
 });

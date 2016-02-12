@@ -197,7 +197,7 @@ definitionLoader.getAll = function(cbLoaded) {
     }
 
     // Send request
-    request.send("svr/entity/getDefinitions", "GET");
+    request.send("svr/entity/allDefinitions", "GET");
 
     // If no callback then construct Definition from request date (synchronous)
     if (!cbLoaded) {
