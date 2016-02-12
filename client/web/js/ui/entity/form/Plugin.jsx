@@ -8,6 +8,10 @@
 var React = require('react');
 
 var _plugins = {
+    workflow: {
+        Conditions: require('../plugin/workflow/Conditions.jsx'),
+        Actions: require('../plugin/workflow/Actions.jsx')
+    },
     task: {
         LogTime: require('../plugin/task/LogTime.jsx')
     },

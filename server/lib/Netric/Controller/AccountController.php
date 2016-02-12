@@ -107,6 +107,21 @@ class AccountController extends Mvc\AbstractController
 					)
 				),
 			),
+			array(
+				"name" => "settings",
+				"title" => "Settings",
+				"icon" => "wrench",
+				"defaultRoute" => "workflows",
+				"navigation" => array(
+					array(
+						"title" => "Automated Workflows",
+						"type" => "browse",
+                        "objType" => "workflow",
+						"route" => "workflows",
+						"icon" => "cogs",
+					)
+				),
+			),
 		);
 
 		// Add the user if we have a currently authenticated user

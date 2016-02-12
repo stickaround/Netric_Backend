@@ -156,14 +156,14 @@ Where.prototype.isLessOrEqaulTo = function(value) {
  */
 Where.prototype.getOperatorsForFieldType = function(fieldType) {
     var operators = null;
-    
+
     switch(fieldType) {
         case 'fkey_multi':
         case 'fkey':
             operators = {
                 is_equal: "is equal to",
                 is_not_equal: "is not equal to"
-            }    
+            }
             break;
         case 'number':
         case 'real':
@@ -215,7 +215,7 @@ Where.prototype.getOperatorsForFieldType = function(fieldType) {
             };
             break;
     }
-    
+
     return operators;
 }
 
@@ -226,9 +226,11 @@ Where.prototype.getOperatorsForFieldType = function(fieldType) {
  * @public
  */
 Where.prototype.toData = function() {
+
+    // We need to handle _ encoded fields if coming from the backend
     var data = {
-        blogic: this.bLogic,
-        field_name: this.fieldName,
+        blogic: this.bLogic || this.blogic,
+        field_name: this.fieldName || this.field_name,
         operator: this.operator,
         value: this.value
     }
@@ -236,6 +238,18 @@ Where.prototype.toData = function() {
     return data;
 }
 
+/**
+ * Set where class from data
+ *
+ * @param {object} data
+ * @public
+ */
+Where.prototype.fromData = function(data) {
+    this.bLogic = data.blogic || data.bLogic;
+    this.fieldName = data.field_name || data.fieldName;
+    this.operator = data.operator;
+    this.value = data.value || "";
+}
 
 
 module.exports = Where;

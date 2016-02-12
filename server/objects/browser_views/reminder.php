@@ -33,7 +33,7 @@ return array(
 		'obj_type' => 'reminder',
 		'name' => 'All Reminders',
 		'description' => 'Display all reminders',
-		'default' => all,		
+		'default' => true,
 		'order_by' => array(
 			'date' => array(
 				'field_name' => 'ts_entered',

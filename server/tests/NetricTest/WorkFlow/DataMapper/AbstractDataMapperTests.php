@@ -143,14 +143,15 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
                     {
                         $this->assertEquals(
                             $entryValue,
-                            $openedData[$key][$subValueKey][$entryKey]
+                            $openedData[$key][$subValueKey][$entryKey],
+                            "$key does not match"
                         );
                     }
                 }
             }
             else
             {
-                $this->assertEquals($value, $openedData[$key]);
+                $this->assertEquals($value, $openedData[$key], "$key does not match");
             }
         }
     }

@@ -245,6 +245,10 @@ class WorkFlow
             {
                 $where = new Where();
                 $where->fromArray($condData);
+
+                if (!$where->operator)
+                    throw new \RuntimeException("Tried to add a bad cond: " . var_export($data['conditions'], true));
+
                 $this->conditions[] = $where;
             }
         }

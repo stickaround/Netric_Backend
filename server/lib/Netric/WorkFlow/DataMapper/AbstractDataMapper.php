@@ -7,9 +7,11 @@
  */
 namespace Netric\WorkFlow\DataMapper;
 
+use Netric\Error\AbstractHasErrors;
+
 /**
  * Base DataMapper class
  */
-abstract class AbstractDataMapper
+abstract class AbstractDataMapper extends AbstractHasErrors
 {
 }

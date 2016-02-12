@@ -1007,7 +1007,10 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 				if ($oname)
 				{
 					$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
-					$ret[(string)$idval] = $entity->getName();
+
+					// Update if field is not referencing an entity that no longer exists
+					if ($entity)
+                        $ret[(string)$idval] = $entity->getName();
 				}
 			}
 		}

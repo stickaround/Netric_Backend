@@ -29,13 +29,6 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     private $dbh = null;
 
     /**
-     * List of errors that may have occurred
-     *
-     * @param Error[]
-     */
-    private $errors = null;
-
-    /**
      * Action factory needed to construct new WorkFlow objects
      *
      * @var ActionFactory|null
@@ -70,77 +63,44 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function save(WorkFlow $workFlow)
     {
-        $dbh = $this->dbh;
-
         $data = $workFlow->toArray();
-        $revisionToSave = $workFlow->getRevision() + 1;
 
-        $queryValues = array(
-            "name" => "'" . $dbh->escape($data['name']) . "'",
-            "notes" => "'" . $dbh->escape($data['notes']) . "'",
-            "object_type" => "'" . $dbh->escape($data['obj_type']) . "'",
-            "revision" => $dbh->escapeNumber($revisionToSave),
-            "f_active" => "'" . (($data['active']) ? 't' : 'f') . "'",
-            "f_on_create" => "'" . (($data['on_create']) ? 't' : 'f') . "'",
-            "f_on_update" => "'" . (($data['on_update']) ? 't' : 'f') . "'",
-            "f_on_delete" => "'" . (($data['on_delete']) ? 't' : 'f') . "'",
-            "f_on_daily" => "'" . (($data['on_daily']) ? 't' : 'f') . "'",
-            "f_singleton" => "'" . (($data['singleton']) ? 't' : 'f') . "'",
-            "f_allow_manual" => "'" . (($data['allow_manual']) ? 't' : 'f') . "'",
-            "ts_lastrun" => $dbh->escapeDate($data['last_run']),
-            "f_condition_unmet" => "'" . (($data['only_on_conditions_unmet']) ? 't' : 'f') . "'",
-        );
-
-        $sql = null;
+        $workflowEntity = null;
         if ($workFlow->getId())
-        {
-            $sqlUpdate = "";
-            foreach ($queryValues as $colName=>$colValue)
-            {
-                if ($sqlUpdate) $sqlUpdate .= ", ";
-
-                $sqlUpdate .= $colName . "=" . $colValue;
-            }
-
-            $sql = "UPDATE workflows SET " . $sqlUpdate . " WHERE id = '" . $workFlow->getId() . "';";
-            $sql .= "SELECT '" . $workFlow->getId() . "' as id;";
-        }
+            $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
         else
-        {
-            $sqlColumns = "";
-            $sqlValues = "";
-            foreach ($queryValues as $colName=>$colValue)
-            {
-                if ($sqlColumns) $sqlColumns .= ", ";
-                if ($sqlValues) $sqlValues .= ", ";
+            $workflowEntity = $this->entityLoader->create("workflow");
 
-                $sqlColumns .= $colName;
-                $sqlValues .= $colValue;
-            }
-            $sql = "INSERT INTO workflows($sqlColumns) VALUES($sqlValues) RETURNING id;";
-        }
+        // Set entity values
+        $workflowEntity->setValue("name", $data['name']);
+        $workflowEntity->setValue("notes", $data['notes']);
+        $workflowEntity->setValue("object_type", $data['obj_type']);
+        $workflowEntity->setValue("f_active", $data['active']);
+        $workflowEntity->setValue("f_on_create", $data['on_create']);
+        $workflowEntity->setValue("f_on_update", $data['on_update']);
+        $workflowEntity->setValue("f_on_delete", $data['on_delete']);
+        $workflowEntity->setValue("f_on_daily", $data['on_daily']);
+        $workflowEntity->setValue("f_singleton", $data['singleton']);
+        $workflowEntity->setValue("f_allow_manual", $data['allow_manual']);
+        $workflowEntity->setValue("f_condition_unmet", $data['only_on_conditions_unmet']);
+        $workflowEntity->setValue("ts_lastrun", $data['last_run']);
 
-        // Run the query and get the id
-        $result = $dbh->query($sql);
-        if (!$result)
-            throw new \RuntimeException($dbh->getLastError());
+        // Set conditions
+        if (count($data['conditions']))
+            $workflowEntity->setValue("conditions", json_encode($data['conditions']));
+        else
+            $workflowEntity->setValue("conditions", "");
 
-        if ($dbh->getNumRows($result))
-        {
-            $workFlow->setId($dbh->getValue($result, 0, "id"));
-            $workFlow->setRevision($revisionToSave);
+        // Save the entity
+        $id = $this->entityLoader->save($workflowEntity);
 
-            // Save conditions
-            $this->saveConditions($data['conditions'], $workFlow->getId());
+        // Set the id
+        $workFlow->setId($id);
 
-            // Save actions
-            $this->saveActions($workFlow->getActions(), $workFlow->getRemovedActions(), $workFlow->getId());
+        // Save actions
+        $this->saveActions($workFlow->getActions(), $workFlow->getRemovedActions(), $id);
 
-            return $workFlow->getId();
-        }
-
-        // Error
-        return null;
+        return $id;
     }
 
     /**
@@ -154,14 +114,18 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         if (!$workFlow->getId())
             throw new \InvalidArgumentException("Cannot delete a workflow that has not been saved");
 
-        // Delete conditions
-        $this->dbh->query("DELETE FROM workflow_conditions WHERE workflow_id='" . $workFlow->getId() . "'");
-
         // Delete actions
         $this->dbh->query("DELETE FROM workflow_actions WHERE workflow_id='" . $workFlow->getId() . "'");
 
         // Delete the workflow
-        $this->dbh->query("DELETE FROM workflows WHERE id='" . $workFlow->getId() . "'");
+        $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
+        if ($workflowEntity)
+        {
+            $this->entityLoader->delete($workflowEntity, true);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -177,17 +141,10 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         if (!is_numeric($id))
             return null;
 
-        $result = $dbh->query("SELECT
-                                id, name, uname, notes, object_type, f_on_create,
-                                f_on_update, f_on_delete, f_on_daily, f_singleton,
-                                f_allow_manual, f_active, f_condition_unmet, revision,
-                                ts_lastrun
-                               FROM workflows WHERE id='" . $id . "'");
-        if ($dbh->getNumRows($result))
-        {
-            $row = $dbh->getRow($result, 0);
-            return $this->constructWorkFlowFromRow($row);
-        }
+        $entityWorkflow = $this->entityLoader->get("workflow", $id);
+
+        if ($entityWorkflow)
+            return $this->constructWorkFlowFromRow($entityWorkflow->toArray());
 
         return null;
     }
@@ -298,16 +255,16 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
             "obj_type" => $row['object_type'],
             "notes" => $row['notes'],
             "revision" => $row['revision'],
-            "active" => ($row['f_active'] === 't') ? true : false,
-            "on_create" => ($row['f_on_create'] === 't') ? true : false,
-            "on_update" => ($row['f_on_update'] === 't') ? true : false,
-            "on_delete" => ($row['f_on_delete'] === 't') ? true : false,
-            "on_daily" => ($row['f_on_daily'] === 't') ? true : false,
-            "singleton" => ($row['f_singleton'] === 't') ? true : false,
-            "allow_manual" => ($row['f_allow_manual'] === 't') ? true : false,
+            "active" => $row['f_active'],
+            "on_create" => $row['f_on_create'],
+            "on_update" => $row['f_on_update'],
+            "on_delete" => $row['f_on_delete'],
+            "on_daily" => $row['f_on_daily'],
+            "singleton" => $row['f_singleton'],
+            "allow_manual" => $row['f_allow_manual'],
             "last_run" => $row['ts_lastrun'],
-            "only_on_conditions_unmet" => ($row['f_condition_unmet'] === 't') ? true : false,
-            "conditions" => $this->getConditionsArray($row['id']),
+            "only_on_conditions_unmet" => $row['f_condition_unmet'],
+            "conditions" => ($row['conditions']) ? json_decode($row['conditions'], true) : null,
             "actions" => $this->getActionsArray($row['id']),
         );
 
@@ -315,26 +272,6 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $workFlow->fromArray($importData);
 
         return $workFlow;
-    }
-
-    /**
-     * Get the last error thrown in an object or module
-     *
-     * @return Error
-     */
-    public function getLastError()
-    {
-        return (count($this->errors)) ? $this->errors[count($this->errors)-1] : null;
-    }
-
-    /**
-     * Get all errors
-     *
-     * @return Error[]
-     */
-    public function getErrors()
-    {
-        return $this->errors;
     }
 
     /**
@@ -457,57 +394,6 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     /**
      * Get conditions array for a workflow
      *
-     * @param int $workflowId Unique id of the workflow to get conditions for
-     * @return array
-     */
-    private function getConditionsArray($workflowId)
-    {
-        if (!is_numeric($workflowId))
-            throw new \InvalidArgumentException("A valid workflow id or action must be passed");
-
-        $sql = "SELECT blogic, field_name, operator, cond_value FROM workflow_conditions WHERE ";
-
-        // Add condition for this workflow id
-        $sql .= "workflow_id=" . $this->dbh->escapeNumber($workflowId);
-
-        // Get the results
-        $result = $this->dbh->query($sql);
-
-        if (!$result)
-            throw new \RuntimeException("Error getting conditions: " . $this->dbh->getLastError());
-
-        $returnArray = array();
-
-        // Get results and put into returnArray so the data can be imported
-        $num = $this->dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++)
-        {
-            $row = $this->dbh->getRow($result, $i);
-
-            $value = $row['cond_value'];
-
-            // Convert boolean value types from postgesql
-            if ($value === 't')
-                $value = true;
-
-            if ($value === 'f')
-                $value = false;
-
-            // EntityQuery\Where::fromArray uses 'value' as the last param rather than 'cond_value'
-            $returnArray[] = array(
-                "blogic" => $row['blogic'],
-                "field_name" => $row['field_name'],
-                "operator" => $row['operator'],
-                "value" => $value,
-            );
-        }
-
-        return $returnArray;
-    }
-
-    /**
-     * Get conditions array for a workflow
-     *
      * @param int $workflowId Unique id of the workflow to get actions for
      * @param int $parentActionid Get child actions for a parent action
      * @return array
@@ -574,9 +460,10 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         // First purge any actions queued to be deleted
         foreach ($actionsToRemove as $action)
         {
-            if (!$this->dbh->query("DELETE FROM workflow_actions WHERE id='" . $action->getId() . "'"))
+            $actionEntity = $this->entityLoader->get("workflow_action", $action->getId());
+            if (!$this->entityLoader->delete($actionEntity, true))
             {
-                throw new \RuntimeException("Could not delete action: " . $this->dbh->getLastError());
+                throw new \RuntimeException("Could not delete action");
             }
         }
 
@@ -596,108 +483,32 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     private function saveAction(ActionInterface $actionToSave, $workflowId, $parentActionId = null)
     {
-        $dbh = $this->dbh;
-
         $actionData = $actionToSave->toArray();
 
         if (!isset($actionData['type']) || !$actionData['type'])
             throw new \InvalidArgumentException("Type is required but not set in: " . var_export($actionData, true));
 
-        $queryValues = array(
-            "type" => "'0'", // legacy
-            "type_name" => "'" . $dbh->escape($actionData['type']) . "'",
-            "name" => "'" . $dbh->escape($actionData['name']) . "'",
-            "workflow_id" => $dbh->escapeNumber($workflowId),
-            "parent_action_id" => $dbh->escapeNumber($parentActionId),
-            "data" => "'" . $dbh->escape(json_encode($actionData['params'])) . "'",
+        $actionEntity = $this->entityLoader->create("workflow_action");
+        $actionEntity->setValue("type", 0); // for legacy code - can eventually delete when /lib/Workflow is deleted
+        $actionEntity->setValue("type_name", $actionData['type']);
+        $actionEntity->setValue("name", $actionData['name']);
+        $actionEntity->setValue("workflow_id", $workflowId);
+        $actionEntity->setValue("parent_action_id", $parentActionId);
+        $actionEntity->setValue("data", json_encode($actionData['params']));
+        if (!$this->entityLoader->save($actionEntity))
+            throw new \RuntimeException("Could not save action");
+
+        $actionToSave->setId($actionEntity->getId());
+
+        // Save child actions
+        $this->saveActions(
+            $actionToSave->getActions(),
+            $actionToSave->getRemovedActions(),
+            $workflowId,
+            $actionToSave->getId()
         );
 
-        if (is_numeric($actionToSave->getId()))
-        {
-            $sqlUpdate = "";
-            foreach ($queryValues as $colName=>$colValue)
-            {
-                if ($sqlUpdate) $sqlUpdate .= ", ";
-
-                $sqlUpdate .= $colName . "=" . $colValue;
-            }
-
-            $sql = "UPDATE workflow_actions SET " . $sqlUpdate . " WHERE id = '" . $actionToSave->getId() . "';";
-            $sql .= "SELECT '" . $actionToSave->getId()  . "' as id;";
-        }
-        else
-        {
-            $sqlColumns = "";
-            $sqlValues = "";
-            foreach ($queryValues as $colName=>$colValue)
-            {
-                if ($sqlColumns) $sqlColumns .= ", ";
-                if ($sqlValues) $sqlValues .= ", ";
-
-                $sqlColumns .= $colName;
-                $sqlValues .= $colValue;
-            }
-            $sql = "INSERT INTO workflow_actions($sqlColumns) VALUES($sqlValues) RETURNING id;";
-        }
-
-        $result = $dbh->query($sql);
-        if (!$result)
-            throw new \RuntimeException("Could not save action: " . $dbh->getLastError() . ":" . $sql);
-
-        if ($dbh->getNumRows($result))
-        {
-            $actionId = $dbh->getValue($result, 0, "id");
-            if (!$actionToSave->getId())
-                $actionToSave->setId((int) $actionId);
-
-            // Save child actions
-            $this->saveActions(
-                $actionToSave->getActions(),
-                $actionToSave->getRemovedActions(),
-                $workflowId,
-                $actionToSave->getId()
-            );
-
-            return true;
-        }
-
         return false;
-    }
-
-    /**
-     * Save conditions for a workflow
-     *
-     * @param array $conditions
-     * @param int $workflowId
-     */
-    private function saveConditions(array $conditions, $workflowId=null)
-    {
-        if (!is_numeric($workflowId))
-            throw new \InvalidArgumentException("Must pass a workflowId param");
-
-        // First clear existing conditions
-        $cleanupSql = "DELETE FROM workflow_conditions WHERE ";
-        $cleanupSql .= "workflow_id='$workflowId' AND wf_action_id IS NULL";
-        $this->dbh->query($cleanupSql);
-
-        // Now save all conditions (if any)
-        foreach ($conditions as $condition)
-        {
-            $sql = "INSERT INTO
-                  workflow_conditions(
-                    blogic, field_name, operator, cond_value, workflow_id
-                  )
-                VALUES (
-                  '" . $this->dbh->escape($condition['blogic']) . "',
-                  '" . $this->dbh->escape($condition['field_name']) . "',
-                  '" . $this->dbh->escape($condition['operator']) . "',
-                  '" . $this->dbh->escape($condition['value']) . "',
-                  " . $this->dbh->escapeNumber($workflowId) . "
-                )";
-            if (!$this->dbh->query($sql))
-                throw new \RuntimeException("Could not save condition: " . $this->dbh->getLastError());
-        }
-
     }
 
     /**

@@ -15,19 +15,19 @@ describe("Get Entity Asynchronously", function() {
 		netric.server.host = "base/";
 		entityLoader.get("customer", "1", function(ent){
 			entity = ent;
-			done(); 
+			done();
 		});
 	});
-	
+
 	it("should have loaded the entity object", function(done) {
-		
+
 		expect(entity).not.toBeNull();
 		done();
 
 	});
 
 	it("should have loaded and cached the entity definition", function(done) {
-		
+
 		expect(entity.def).not.toBeNull();
 		expect(definitionLoader.getCached("customer")).not.toBeNull();
 		done();
@@ -35,10 +35,10 @@ describe("Get Entity Asynchronously", function() {
 	});
 
 	it("should have loaded the right data", function(done) {
-		
-		expect(entity.id).toEqual(1);
+
+		expect(parseInt(entity.id)).toEqual(1);
 		expect(entity.objType).toEqual("customer");
-		
+
 		// TODO: views
 
 		done();
@@ -46,7 +46,7 @@ describe("Get Entity Asynchronously", function() {
 	});
 
 	it("should have cached the entity object", function(done) {
-		
+
 		expect(entityLoader.getCached("customer", "1")).not.toBeNull();
 		done();
 
@@ -63,9 +63,9 @@ describe("Get Entity Non Async", function() {
 		// Set test base where karma unit tests are hosted
 		netric.server.host = "base/";
 	});
-	
+
 	it("can fallback to loading entity synchronously", function() {
-		
+
 		// Clear cache which forces the loader to get the entity through BackendRequest
 		entityLoader.entities_ = new Object();
 		var entity = entityLoader.get("customer", "1"); // No callback forces sync load
@@ -73,16 +73,16 @@ describe("Get Entity Non Async", function() {
 	});
 
 	it("should have loaded the right data", function() {
-		
+
 		// Clear cache which forces the loader to get the entity through BackendRequest
 		entityLoader.entities_ = new Object();
 		var entity = entityLoader.get("customer", "1"); // No callback forces sync load
 		expect(entity.objType).toEqual("customer");
-		expect(entity.id).toEqual(1);
+		expect(parseInt(entity.id)).toEqual(1);
 	});
 
 	it("should have cached the entity object", function() {
-		
+
 		// Check the private definitions_ property of the loader
 		entityLoader.entities_ = new Object();
 		var entity = entityLoader.get("customer", "1"); // No callback forces sync load

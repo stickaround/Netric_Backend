@@ -105,12 +105,12 @@ var SearchCondition = React.createClass({
      */
     _handleBlogicClick: function(e, key, menuItem) {
         this.props.condition.bLogic = menuItem.payload;
-        
+
         this.setState({
             selectedbLogic: key
         });
     },
-    
+
     /**
      * Callback used to handle commands when user selects the a value in operator dropdown
      *
@@ -121,12 +121,12 @@ var SearchCondition = React.createClass({
      */
     _handleOperatorClick: function(e, key, menuItem) {
         this.props.condition.operator = menuItem.payload;
-        
+
         this.setState({
             selectedOperator: key
         });
     },
-    
+
     /**
      * Handles blur on the value input
      *
@@ -136,7 +136,7 @@ var SearchCondition = React.createClass({
     _handleValueInputBlur: function(e) {
         this.props.condition.value = e.target.value;
     },
-    
+
     /**
      * Callback used to handle commands when user selects a value in the dropdown groupings input
      *
@@ -147,7 +147,7 @@ var SearchCondition = React.createClass({
     _handleGroupingSelect: function(payload, text) {
         this.props.condition.value = payload;
     },
-    
+
     /**
      * Callback used to handle commands when user selects a value in the dropdown if the value input is a boolean type
      *
@@ -180,7 +180,7 @@ var SearchCondition = React.createClass({
     _handleRemoveCondition: function () {
         if(this.props.onRemove) this.props.onRemove('condition', this.props.index);
     },
-    
+
     /**
      * Get the search condition input type based on the field type selected
      *
@@ -192,7 +192,7 @@ var SearchCondition = React.createClass({
      */
     _getConditionValueInput: function(field, fieldIndex, value, updateState) {
         var valueInput = null;
-    	
+
         switch(field.type) {
             case 'fkey':
             case 'fkey_multi':
@@ -206,7 +206,7 @@ var SearchCondition = React.createClass({
                         selectedValue={value} />
                 );
                 break;
-                
+
             case 'object':
                 valueInput = (
                     <ObjectSelect
@@ -216,12 +216,12 @@ var SearchCondition = React.createClass({
                         value={null} />
                 );
                 break;
-                
+
             case 'bool':
                 if(null === value) {
                     value = boolInputMenu[0].payload;
                 }
-    		    
+
                 valueInput = (
                     <DropDownMenu
                         onChange={this._handleValueSelect}
@@ -229,7 +229,7 @@ var SearchCondition = React.createClass({
                         menuItems={boolInputMenu} />
                 );
                 break;
-    			
+
             default:
                 valueInput = (
                     <TextField
@@ -238,16 +238,16 @@ var SearchCondition = React.createClass({
                 );
                 break;
         }
-    	
+
         // Update the state if the component is already mounted
         if(this.updateState) {
             var operators = this._getConditionOperators(field.type); // get the operators based on the field type
-    	    
+
             // Update the condition data
             this.props.condition.fieldName = field.name;
             this.props.condition.operator = operators[0].payload;
             this.props.condition.value = value;
-    	    
+
             this.setState({
                 valueInput: valueInput,
                 operators: operators,
@@ -255,10 +255,10 @@ var SearchCondition = React.createClass({
                 selectedOperator: 0, // Set the operator's index to 0
             });
         }
-    	
+
         return valueInput;
     },
-    
+
     /**
      * Get the search condition operator based on the field type selected
      *
@@ -268,17 +268,17 @@ var SearchCondition = React.createClass({
     _getConditionOperators: function(fieldType) {
         var fieldOperators = this.props.condition.getOperatorsForFieldType(fieldType)
         var operators = [];
-    	
+
         for(var idx in fieldOperators) {
             operators.push({
                 payload: idx,
                 text: fieldOperators[idx]
             });
         }
-    	
+
         return operators;
     },
-    
+
     /**
      * Gets the index of the saved field/operator/blogic value
      *
@@ -294,7 +294,7 @@ var SearchCondition = React.createClass({
                 break;
             }
         }
-        
+
         return index;
     },
 });

@@ -12,9 +12,7 @@ use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 
 /**
- * Description of User
- *
- * @author Sky Stebnicki
+ * Activty entity used for logging activity logs
  */
 class ActivityEntity extends Entity implements EntityInterface
 {
