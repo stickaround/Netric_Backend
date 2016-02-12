@@ -434,6 +434,9 @@ Entity.prototype.getValueName = function (name, opt_val) {
          * If they passed opt_val then the client is attempting to get the label
          * value for a specific key rather than an object describing all the
          * key/value values of this fkey/fkey_multi/object/object_multi field.
+         *
+         * If the field is fkey or object it'll have a .key sub property,
+         * if it's an object reference the value of the field is the subkey name
          */
         if (opt_val && (
                 this.fieldValues_[name].valueName instanceof Array ||
