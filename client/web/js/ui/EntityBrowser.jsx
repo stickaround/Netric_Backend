@@ -46,6 +46,13 @@ var EntityBrowser = React.createClass({
          * @type {string} appbar | toolbar
          */
         toolbarMode: React.PropTypes.oneOf(['appbar', 'toolbar']),
+
+        /**
+         * The total number of entities
+         *
+         * @var {integer}
+         */
+        entitiesTotalNum: React.PropTypes.number
     },
 
     getDefaultProps: function () {
@@ -77,7 +84,8 @@ var EntityBrowser = React.createClass({
                 browserView={this.props.browserView}
                 layout={this.props.layout}
                 collectionLoading={this.props.collectionLoading}
-                filters={this.props.filters}/>);
+                filters={this.props.filters}
+                entitiesTotalNum={this.props.entitiesTotalNum}/>);
 
             if (this.props.collectionLoading) {
                 // TODO: display loading indicator over the list

@@ -12,5 +12,4 @@
        tooltip='Once the project has been completed, enter the date here.'></field>
 <field name='groups' hidelabel='t'></field>
 <field name='notes' multiline='t'></field>
-<all_additional></all_additional>
 <field name='activity'></field>

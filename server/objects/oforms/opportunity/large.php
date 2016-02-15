@@ -20,11 +20,6 @@
                 </row>
                 <row>
                     <column>
-                        <all_additional></all_additional>
-                    </column>
-                </row>
-                <row>
-                    <column>
                         <field name='notes' hidelabel='t' multiline='t'></field>
                     </column>
                 </row>

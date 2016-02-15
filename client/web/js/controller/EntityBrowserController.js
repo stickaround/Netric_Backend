@@ -218,8 +218,8 @@ EntityBrowserController.prototype.reactRender_ = function () {
                 this.toggleSelectAll(false);
             }
         }.bind(this),
-        onLoadMoreEntities: function (limitIncrease) {
-            return this.getMoreEntities(limitIncrease);
+        onLoadMoreEntities: function (limitIncrease, callback) {
+            return this.getMoreEntities(limitIncrease, callback);
         }.bind(this),
         onSearchChange: function (fullText, conditions) {
             this.onSearchChange(fullText, conditions);
@@ -242,7 +242,8 @@ EntityBrowserController.prototype.reactRender_ = function () {
         selectedEntities: this.selected_,
         entities: this.entities_,
         collectionLoading: this.collectionLoading_,
-        filters: this.props.filters
+        filters: this.props.filters,
+        entitiesTotalNum: parseInt(this.collection_.getTotalNum())
     }
 
     // Render browser component
@@ -489,9 +490,10 @@ EntityBrowserController.prototype.refresh = function () {
 /**
  * The collection is updated with new limits to display
  *
- * @param {int} limitIncrease    Optional of entities to increment the limit by. Default is 50.
+ * @param {int} limitIncrease Optional of entities to increment the limit by. Default is 50.
+ * @param {func} opt_callback Optional callback to be used after refreshing the collection
  */
-EntityBrowserController.prototype.getMoreEntities = function (limitIncrease) {
+EntityBrowserController.prototype.getMoreEntities = function (limitIncrease, opt_callback) {
 
     // set new limit plus 50 if not set
     if (typeof limitIncrease === 'undefined')
@@ -504,7 +506,12 @@ EntityBrowserController.prototype.getMoreEntities = function (limitIncrease) {
     // Check if maxed out already so no more actions needed
     if (limit < totalNum) {
         this.collection_.setLimit(newLimit);
-        this.collection_.refresh();
+
+        if(opt_callback) {
+            this.collection_.load(opt_callback);
+        } else {
+            this.collection_.refresh();
+        }
     }
 }
 
