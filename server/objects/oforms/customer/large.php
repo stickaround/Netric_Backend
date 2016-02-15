@@ -32,18 +32,17 @@
                 </row>
                 <row>
                     <column>
-                        <all_additional></all_additional>
-                    </column>
-                </row>
-                <row>
-                    <column>
                         <field hidelabel='t' name='activity'></field>
                     </column>
                 </row>
             </tab>
 
-            <tab name='Reminders'>
+            <tab name='Reminders' showif='type_id=1'>
                 <objectsref obj_type='reminder' ref_field='obj_reference'></objectsref>
+            </tab>
+
+            <tab name='Phone Call' showif='type_id=1'>
+                <objectsref obj_type='phone_call' ref_field='customer_id'></objectsref>
             </tab>
 
             <tab name='Task'>

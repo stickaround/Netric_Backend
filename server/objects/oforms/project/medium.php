@@ -29,7 +29,6 @@
             <row>
                 <column>
                     <field name='notes' multiline='t'></field>
-                    <all_additional></all_additional>
                 </column>
             </row>
         </fieldset>
