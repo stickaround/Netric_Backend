@@ -38,6 +38,13 @@ var List = React.createClass({
          * @var {array}
          */
         filters: React.PropTypes.array,
+
+        /**
+         * The total number of entities
+         *
+         * @var {integer}
+         */
+        entitiesTotalNum: React.PropTypes.number
     },
 
     getDefaultProps: function () {
@@ -46,18 +53,6 @@ var List = React.createClass({
             entities: [],
             collectionLoading: false,
             selectedEntities: []
-        }
-    },
-
-    _loadMoreEntities: function () {
-
-        // Function load more entities. The argument 50 will increment the current limit.
-        this.props.onLoadMoreEntities(50);
-
-        if (this.isMounted()) {
-            this.setState({
-                loadingFlag: false, // set to false to get new updates when reached at bottom
-            });
         }
     },
 
@@ -72,17 +67,16 @@ var List = React.createClass({
          * container.style.overflow = "auto";
          */
 
-        var offsetHeight = container.offsetHeight;
-
-        /**
-         * If the window container has the scroll bars
+        /*
+         * Determine whether the contaier has the scrollbar or if the window has the scrollbar
          *
          * We need to set a threshold when compairing the scrollHeight to offsetHeight
          * Sometimes, there's a slight difference between scroll and offset heights.
          * For example, in Google Chrome, the scrollHeight is higher than the offsetHeight by 2
          */
-        if (container.scrollHeight >= (offsetHeight-2) &&
-            container.scrollHeight <= (offsetHeight+2)) {
+        var offsetHeight = container.offsetHeight;
+        if (container.scrollHeight >= offsetHeight &&
+            container.scrollHeight <= (offsetHeight + 2)) {
             container = window;
         }
 
@@ -92,6 +86,11 @@ var List = React.createClass({
             loadingFlag: false, // set to false to get new updates when reached at bottom
             scrollContainer: container,
         })
+
+        var hasScrollbar = (window.innerWidth > document.documentElement.clientWidth);
+        if (!hasScrollbar) {
+            this._loadMoreEntitiesUntilScrollbar();
+        }
     },
 
     componentWillUnmount: function () {
@@ -117,7 +116,7 @@ var List = React.createClass({
                             entity={entity}
                             filters={this.props.filters}
                             onEntityListClick={this.props.onEntityListClick}
-                            />
+                        />
                     )
                     break;
                 case "comment":
@@ -129,7 +128,7 @@ var List = React.createClass({
                             browserView={this.props.browserView}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
                             onSelect={this._sendSelect.bind(null, entity.id)}
-                            />
+                        />
                     );
                     break;
                 case "status_update":
@@ -138,7 +137,7 @@ var List = React.createClass({
                             key={entity.id}
                             entity={entity}
                             onEntityListClick={this.props.onEntityListClick}
-                            />
+                        />
                     )
                     break;
                 /*
@@ -263,9 +262,53 @@ var List = React.createClass({
                 loadingFlag: true,
             });
 
-            this._loadMoreEntities(); // calls the function that will load additional entities
+            var totalEntitiesNum = this.props.entitiesTotalNum;
+            var entitiesNum = this.props.entities.length;
+
+            // Only load more entities if we still have entities to load
+            if(totalEntitiesNum > entitiesNum) {
+                this._loadMoreEntities(); // calls the function that will load additional entities
+            }
         }
     },
+
+    /**
+     * Function that will load more entities and set the loading flag state to false
+     *
+     * @param opt_callback Optional callback function that will be called after the collection is refreshed
+     * @private
+     */
+    _loadMoreEntities: function (opt_callback) {
+
+        // Function load more entities. The argument 50 will increment the current limit.
+        this.props.onLoadMoreEntities(50, opt_callback);
+
+        if (this.isMounted()) {
+            this.setState({
+                loadingFlag: false, // set to false to get new updates when reached at bottom
+            });
+        }
+    },
+
+    /**
+     * Function that will load more entities until scrollbar is displayed or if all entities are loaded
+     *
+     * @private
+     */
+    _loadMoreEntitiesUntilScrollbar: function() {
+        var func = function checkIfWillLoadMore() {
+            var totalEntitiesNum = this.props.entitiesTotalNum;
+            var entitiesNum = this.props.entities.length;
+            var hasScrollbar = window.innerWidth > document.documentElement.clientWidth;
+
+            // If scrollbar is still not yet displayed and we have more entities to load, then repeat this function
+            if(!hasScrollbar && totalEntitiesNum > entitiesNum) {
+                this._loadMoreEntitiesUntilScrollbar();
+            }
+        }.bind(this);
+
+        this._loadMoreEntities(func);
+    }
 });
 
 module.exports = List;
