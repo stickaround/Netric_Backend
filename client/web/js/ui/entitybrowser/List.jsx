@@ -286,7 +286,7 @@ var List = React.createClass({
         }
 
         // Function load more entities. The argument 50 will increment the current limit.
-        this.props.onLoadMoreEntities(1, opt_callback);
+        this.props.onLoadMoreEntities(50, opt_callback);
 
         if (this.isMounted()) {
             this.setState({
