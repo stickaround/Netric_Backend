@@ -67,16 +67,16 @@ var List = React.createClass({
          * container.style.overflow = "auto";
          */
 
-        /*
-         * Determine whether the contaier has the scrollbar or if the window has the scrollbar
-         *
-         * We need to set a threshold when compairing the scrollHeight to offsetHeight
-         * Sometimes, there's a slight difference between scroll and offset heights.
-         * For example, in Google Chrome, the scrollHeight is higher than the offsetHeight by 2
-         */
         var offsetHeight = container.offsetHeight;
-        if (container.scrollHeight >= offsetHeight &&
-            container.scrollHeight <= (offsetHeight + 2)) {
+        var chrome = /Chrome\//.test(navigator.userAgent);
+
+        // If we are browsing using the chrome browser, then we need to increment the offsetHeight by 2
+        if (chrome) {
+            offsetHeight += 2;
+        }
+
+        // Determine whether the container has the scrollbar or if the window has the scrollbar
+        if (container.scrollHeight == offsetHeight) {
             container = window;
         }
 
@@ -91,8 +91,7 @@ var List = React.createClass({
          * Check if we do not have a scrollbar, then we will try to load more entities
          *  or until the total number of entities has been loaded in the collection
          */
-        var hasScrollbar = (window.innerWidth > document.documentElement.clientWidth);
-        if (!hasScrollbar) {
+        if (!this._listDisplayHasScrollbar()) {
             this._loadMoreEntitiesUntilScrollbar();
         }
     },
@@ -287,7 +286,7 @@ var List = React.createClass({
         }
 
         // Function load more entities. The argument 50 will increment the current limit.
-        this.props.onLoadMoreEntities(50, opt_callback);
+        this.props.onLoadMoreEntities(1, opt_callback);
 
         if (this.isMounted()) {
             this.setState({
@@ -304,21 +303,46 @@ var List = React.createClass({
     _loadMoreEntitiesUntilScrollbar: function () {
         var func = function checkIfWillLoadMore() {
 
-            var totalEntitiesNum = this.props.entitiesTotalNum;
-            var entitiesNum = this.props.entities.length;
             var hasScrollbar = window.innerWidth > document.documentElement.clientWidth;
 
+            var totalEntitiesNum = this.props.entitiesTotalNum;
+            var entitiesNum = this.props.entities.length;
 
             // If scrollbar is still not yet displayed and we have more entities to load, then repeat this function
-            if (!hasScrollbar
-                && this.state.container.scrollHeight > this.state.container.offsetHeight
-                && totalEntitiesNum == entitiesNum) {
+            if (!this._listDisplayHasScrollbar()
+                && totalEntitiesNum > entitiesNum) {
                 this._loadMoreEntitiesUntilScrollbar();
             }
         }.bind(this);
 
         // Load more entities if we have more entities to load
         this._loadMoreEntities(func);
+    },
+
+    /**
+     * This function will evaluate the browser list container or the document.body if it has an scrollbar
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _listDisplayHasScrollbar: function () {
+
+        // Get the current container of the object
+        var container = ReactDOM.findDOMNode(this.refs.entityContainer);
+        var offsetHeight = container.offsetHeight;
+
+        // If we are browsing using the chrome browser, then we need to increment the offsetHeight by 2
+        var chrome = /Chrome\//.test(navigator.userAgent);
+        if (chrome) {
+            offsetHeight += 2;
+        }
+
+        if (container.scrollHeight > offsetHeight
+            || document.body.scrollHeight > document.body.offsetHeight) {
+            return true;
+        }
+
+        return false;
     }
 });
 
