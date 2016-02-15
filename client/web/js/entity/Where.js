@@ -22,7 +22,7 @@ var Where = function(fieldName) {
      * @public
      * @type {string}
      */
-    this.fieldName = fieldName;
+    this.fieldName = fieldName || "";
 
     /**
      * Operator

@@ -13,6 +13,7 @@ var Loading = require("../Loading.jsx");
 var CommentItem = require("./item/Comment.jsx");
 var ActivitytItem = require("./item/Activity.jsx");
 var StatusUpdateItem = require("./item/StatusUpdate.jsx");
+var WorkflowActionItem = require("./item/WorkflowAction.jsx");
 var controller = require("../../controller/controller");
 
 /**
@@ -129,8 +130,18 @@ var List = React.createClass({
                             key={entity.id}
                             entity={entity}
                             onEntityListClick={this.props.onEntityListClick}
-                            />
-                    )
+                        />
+                    );
+                    break;
+
+                case "workflow_action":
+                    item = (
+                        <WorkflowActionItem
+                            key={entity.id}
+                            entity={entity}
+                            onEntityListClick={this.props.onEntityListClick}
+                        />
+                    );
                     break;
                 /*
                  * All other object types will either be displayed as a table row

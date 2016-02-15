@@ -15,11 +15,15 @@
 </row>
 <row>
     <column>
-        <plugin name='Conditions'></plugin>
+        <fieldset name='Conditions'>
+            <plugin name='Conditions'></plugin>
+        </fieldset>
     </column>
 </row>
 <row>
     <column>
-        <plugin name='Actions'></plugin>
+        <fieldset name='Actions'>
+            <plugin name='Actions'></plugin>
+        </fieldset>
     </column>
 </row>

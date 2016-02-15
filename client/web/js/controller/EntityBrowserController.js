@@ -188,6 +188,7 @@ EntityBrowserController.prototype.reactRender_ = function () {
         case 'activity':
         case 'comment':
         case 'status_update':
+        case 'workflow_action':
             layout = "compact";
             break
     }
@@ -229,8 +230,9 @@ EntityBrowserController.prototype.reactRender_ = function () {
         onPerformAction: function (actionName) {
             this.performActionOnSelected(actionName);
         }.bind(this),
-        onCreateNewEntity: function () {
-            this._createNewEntity();
+        onCreateNewEntity: function (opt_data) {
+            var data = opt_data || null;
+            this._createNewEntity(data);
         }.bind(this),
         onRefreshEntityList: function () {
             this._refreshEntityList()
@@ -593,9 +595,14 @@ EntityBrowserController.prototype.getEntityDefinition = function () {
  * Handles the creating of new entity
  *
  * @private
+ * @param {Object} opt_data Optional params to pass to new entity form
  */
-EntityBrowserController.prototype._createNewEntity = function () {
-    if (this.props.onCreateNewEntity) this.props.onCreateNewEntity()
+EntityBrowserController.prototype._createNewEntity = function (opt_data) {
+    var data = opt_data || {};
+
+    if (this.props.onCreateNewEntity) {
+        this.props.onCreateNewEntity(this.entityDefinition_.objType, opt_data);
+    }
 }
 
 /**
