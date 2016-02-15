@@ -13,18 +13,7 @@ return array(
 		'description' => 'Opportunities assigned to me that are not closed',
 		'default' => true,
 		'conditions' => array(
-            'owner' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'owner_id',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => -3
-            ),
-        	'closed' => array(
-        		'blogic' => Where::COMBINED_BY_AND,
-        		'field_name' => 'f_closed',
-        		'operator' => Where::OPERATOR_NOT_EQUAL_TO,
-        		'value' => 't'
-        	),
+
         ),
 		'order_by' => array(
 			'date' => array(
