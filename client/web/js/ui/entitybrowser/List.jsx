@@ -72,8 +72,17 @@ var List = React.createClass({
          * container.style.overflow = "auto";
          */
 
-        // If the window container has the scroll bars
-        if (container.scrollHeight == container.offsetHeight) {
+        var offsetHeight = container.offsetHeight;
+
+        /**
+         * If the window container has the scroll bars
+         *
+         * We need to set a threshold when compairing the scrollHeight to offsetHeight
+         * Sometimes, there's a slight difference between scroll and offset heights.
+         * For example, in Google Chrome, the scrollHeight is higher than the offsetHeight by 2
+         */
+        if (container.scrollHeight >= (offsetHeight-2) &&
+            container.scrollHeight <= (offsetHeight+2)) {
             container = window;
         }
 
