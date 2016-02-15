@@ -87,6 +87,7 @@ var List = React.createClass({
             scrollContainer: container,
         })
 
+        // Check if we do not have a scrollbar, then we will try to load more entities until we have a scrollbar
         var hasScrollbar = (window.innerWidth > document.documentElement.clientWidth);
         if (!hasScrollbar) {
             this._loadMoreEntitiesUntilScrollbar();
@@ -262,13 +263,7 @@ var List = React.createClass({
                 loadingFlag: true,
             });
 
-            var totalEntitiesNum = this.props.entitiesTotalNum;
-            var entitiesNum = this.props.entities.length;
-
-            // Only load more entities if we still have entities to load
-            if(totalEntitiesNum > entitiesNum) {
-                this._loadMoreEntities(); // calls the function that will load additional entities
-            }
+            this._loadMoreEntities(); // calls the function that will load additional entities
         }
     },
 
@@ -279,6 +274,14 @@ var List = React.createClass({
      * @private
      */
     _loadMoreEntities: function (opt_callback) {
+
+        var totalEntitiesNum = this.props.entitiesTotalNum;
+        var entitiesNum = this.props.entities.length;
+
+        // If we have already loaded all the entities, then we do not need send a request to the server to load more entities
+        if(totalEntitiesNum == entitiesNum) {
+           return false;
+        }
 
         // Function load more entities. The argument 50 will increment the current limit.
         this.props.onLoadMoreEntities(50, opt_callback);
@@ -297,16 +300,16 @@ var List = React.createClass({
      */
     _loadMoreEntitiesUntilScrollbar: function() {
         var func = function checkIfWillLoadMore() {
-            var totalEntitiesNum = this.props.entitiesTotalNum;
-            var entitiesNum = this.props.entities.length;
+
             var hasScrollbar = window.innerWidth > document.documentElement.clientWidth;
 
             // If scrollbar is still not yet displayed and we have more entities to load, then repeat this function
-            if(!hasScrollbar && totalEntitiesNum > entitiesNum) {
+            if(!hasScrollbar) {
                 this._loadMoreEntitiesUntilScrollbar();
             }
         }.bind(this);
 
+        // Load more entities if we have more entities to load
         this._loadMoreEntities(func);
     }
 });
