@@ -87,7 +87,10 @@ var List = React.createClass({
             scrollContainer: container,
         })
 
-        // Check if we do not have a scrollbar, then we will try to load more entities until we have a scrollbar
+        /*
+         * Check if we do not have a scrollbar, then we will try to load more entities
+         *  or until the total number of entities has been loaded in the collection
+         */
         var hasScrollbar = (window.innerWidth > document.documentElement.clientWidth);
         if (!hasScrollbar) {
             this._loadMoreEntitiesUntilScrollbar();
@@ -279,8 +282,8 @@ var List = React.createClass({
         var entitiesNum = this.props.entities.length;
 
         // If we have already loaded all the entities, then we do not need send a request to the server to load more entities
-        if(totalEntitiesNum == entitiesNum) {
-           return false;
+        if (totalEntitiesNum == entitiesNum) {
+            return false;
         }
 
         // Function load more entities. The argument 50 will increment the current limit.
@@ -298,13 +301,18 @@ var List = React.createClass({
      *
      * @private
      */
-    _loadMoreEntitiesUntilScrollbar: function() {
+    _loadMoreEntitiesUntilScrollbar: function () {
         var func = function checkIfWillLoadMore() {
 
+            var totalEntitiesNum = this.props.entitiesTotalNum;
+            var entitiesNum = this.props.entities.length;
             var hasScrollbar = window.innerWidth > document.documentElement.clientWidth;
 
+
             // If scrollbar is still not yet displayed and we have more entities to load, then repeat this function
-            if(!hasScrollbar) {
+            if (!hasScrollbar
+                && this.state.container.scrollHeight > this.state.container.offsetHeight
+                && totalEntitiesNum == entitiesNum) {
                 this._loadMoreEntitiesUntilScrollbar();
             }
         }.bind(this);
