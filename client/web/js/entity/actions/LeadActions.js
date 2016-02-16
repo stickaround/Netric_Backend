@@ -52,33 +52,25 @@ LeadActions.prototype.defaultViewActions = [
  */
 LeadActions.prototype.convertlead = function(objType, selectedEntities, finishedFunction) {
 
-    log.notice("Action called: addtime");
+    log.notice("Action called: lead convert");
 
     var leadId = selectedEntities[0];
 
-    var EntityController = require("../../controller/EntityController");
-    var timeEntity = new EntityController();
-    timeEntity.load({
-        objType: "time",
+    var PluginController = require("../../controller/PluginController");
+    var plugin = new PluginController();
+    plugin.load({
         type: controller.types.DIALOG,
-        title: "Add Time",
+        pluginName: "lead.Convert",
+        title: "Convert Lead",
         entityData: {
             lead_id: leadId,
             owner_id: {key: "-3", value: "Me"},
             creator_id: {key: "-3", value: "Me"}
         },
-        onSave: function(timeEntity) {
+        onSave: function(plugin) {
             finishedFunction(false, "Time Added");
         }
     });
-
-    /*
-     entitySaver.remove(objType, selectedEntities, function(removedIds) {
-     finishedFunction(false, removedIds.length + " Items Deleted");
-     });
-
-     return "Deleting";
-     */
 
     // We do not want any working text since this displays a dialog
     return null;
