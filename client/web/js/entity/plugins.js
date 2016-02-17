@@ -1,6 +1,7 @@
 /**
- * @fileOverview Plugin model that will handle the actions for plugins
+ * @fileOverview Plugins
  *
+ * This contains the list of plugins that are used
  *
  * @author:    Marl Tumulak, marl.tumulak@aereus.com;
  *            Copyright (c) 2016 Aereus Corporation. All rights reserved.
@@ -8,14 +9,11 @@
 'use strict';
 
 /**
- * Creates an instance of Plugin.
- *
- * @constructor
+ * Global plugins namespace
  */
-var Plugin = function () {
-}
+var plugins = {}
 
-Plugin.List = {
+plugins.List = {
     task: {
         LogTime: require('../ui/entity/plugin/task/LogTime.jsx')
     },
@@ -30,4 +28,4 @@ Plugin.List = {
     }
 }
 
-module.exports = Plugin;
+module.exports = plugins;

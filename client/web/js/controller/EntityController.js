@@ -371,7 +371,11 @@ EntityController.prototype._performAction = function (actionName) {
     var selected = [this.entity_.id];
     var objType = this.entity_.def.objType;
 
-    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message) {
+    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message, renderEntity) {
+
+        if(renderEntity) {
+            this.render();
+        }
 
         if (error) {
             log.error(message);

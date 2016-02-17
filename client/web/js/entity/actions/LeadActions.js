@@ -14,7 +14,7 @@ var controller = require("../../controller/controller");
 /**
  * This is the base/default actions class that all other object types will inherit
  */
-var LeadActions = function() {
+var LeadActions = function () {
 
     /**
      * Optional setup local confirm messages
@@ -36,39 +36,39 @@ netric.inherits(LeadActions, DefaultActions);
  * @type {Array}
  */
 LeadActions.prototype.defaultViewActions = [
-    { name: "edit", title: "Edit", iconClassName: "fa fa-pencil" },
-    { name: "remove", title: "Delete", iconClassName: "fa fa-trash-o" },
-    { name: "print", title: "Print", iconClassName: "fa fa-print"},
-    { name: "convertlead", title: "Convert Lead", iconClassName: "fa fa-exchange" },
+    {name: "edit", title: "Edit", iconClassName: "fa fa-pencil"},
+    {name: "remove", title: "Delete", iconClassName: "fa fa-trash-o"},
+    {name: "print", title: "Print", iconClassName: "fa fa-print"},
+    {name: "convertlead", title: "Convert Lead", iconClassName: "fa fa-exchange", showif: "f_converted=0"},
 ];
 
 /**
- * Add time entity action
+ * Function that will enable the user to convert a lead
  *
  * @param {string} objType The type of object to perform the action on
  * @param {int[]} selectedEntities The entities to perform the action on
  * @param {function} finishedFunction A funciton to call when finished
  * @return {string} Working text like "Deleting" or "Saving"
  */
-LeadActions.prototype.convertlead = function(objType, selectedEntities, finishedFunction) {
+LeadActions.prototype.convertlead = function (objType, selectedEntities, finishedFunction) {
 
-    log.notice("Action called: lead convert");
+    if (selectedEntities.length > 1) {
+        throw "Converting a lead only requires one lead entity.";
+    }
 
     var leadId = selectedEntities[0];
 
-    var PluginController = require("../../controller/PluginController");
-    var plugin = new PluginController();
-    plugin.load({
+    var EntityPluginController = require("../../controller/EntityPluginController");
+    var entityPlugin = new EntityPluginController();
+
+    entityPlugin.load({
         type: controller.types.DIALOG,
         pluginName: "lead.Convert",
+        objType: "lead",
         title: "Convert Lead",
-        entityData: {
-            lead_id: leadId,
-            owner_id: {key: "-3", value: "Me"},
-            creator_id: {key: "-3", value: "Me"}
-        },
-        onSave: function(plugin) {
-            finishedFunction(false, "Time Added");
+        eid: leadId,
+        onFinishedAction: function () {
+            finishedFunction(false, "Lead Converted", true);
         }
     });
 
