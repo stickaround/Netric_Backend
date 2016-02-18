@@ -14,6 +14,13 @@
 var plugins = {}
 
 plugins.List = {
+    workflow: {
+        Conditions: require('../ui/entity/plugin/workflow/Conditions.jsx'),
+        Actions: require('../ui/entity/plugin/workflow/Actions.jsx')
+    },
+    workflow_action: {
+        ActionDetails: require('../ui/entity/plugin/workflow_action/ActionDetails.jsx')
+    },
     task: {
         LogTime: require('../ui/entity/plugin/task/LogTime.jsx')
     },

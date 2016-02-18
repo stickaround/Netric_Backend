@@ -6,25 +6,7 @@
 'use strict';
 
 var React = require('react');
-
-var _plugins = {
-    workflow: {
-        Conditions: require('../plugin/workflow/Conditions.jsx'),
-        Actions: require('../plugin/workflow/Actions.jsx')
-    },
-    workflow_action: {
-        ActionDetails: require('../plugin/workflow_action/ActionDetails.jsx')
-    },
-    task: {
-        LogTime: require('../plugin/task/LogTime.jsx')
-    },
-    reminder: {
-        ExecuteTime: require('../plugin/reminder/ExecuteTime.jsx')
-    },
-    global: {
-        Members: require('../plugin/global/Members.jsx')
-    }
-}
+var plugins = require('../../../entity/plugins');
 
 var Plugin = React.createClass({
 
@@ -61,15 +43,15 @@ var Plugin = React.createClass({
         editMode: React.PropTypes.bool
     },
 
-    render: function() {
+    render: function () {
 
         var xmlNode = this.props.xmlNode;
-        var pluginName = xmlNode.getAttribute('name');;
+        var pluginName = xmlNode.getAttribute('name');
         var componentName = this.props.entity.def.objType + "." + pluginName;
         var componentGlobal = "global." + pluginName; // Try to get the plugin in the global folder
 
         // Check if there is a specific plugin for objType or a global plugin for all entities
-        var component = netric.getObjectByName(componentName, null, _plugins) || netric.getObjectByName(componentGlobal, null, _plugins);
+        var component = netric.getObjectByName(componentName, null, plugins.List) || netric.getObjectByName(componentGlobal, null, plugins.List);
 
         if (!component) {
             throw "Plugin named " + componentName + " does not exist";
@@ -89,7 +71,6 @@ var Plugin = React.createClass({
 
         return reactElement;
     }
-
 });
 
 module.exports = Plugin;
