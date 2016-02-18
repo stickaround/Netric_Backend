@@ -299,8 +299,8 @@ var Convert = React.createClass({
     /**
      * Handles the toggling of sales opportunity checkbox
      *
-     * @param {DOMEvent} e          Reference to the DOM event being sent
-     * @param {bool} isChecked      The current state of the checkbox
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {bool} isChecked The current state of the checkbox
      * @private
      */
     _handleCheckboxToggle: function (e, isChecked) {
