@@ -12,6 +12,9 @@ var _plugins = {
         Conditions: require('../plugin/workflow/Conditions.jsx'),
         Actions: require('../plugin/workflow/Actions.jsx')
     },
+    workflow_action: {
+        ActionDetails: require('../plugin/workflow_action/ActionDetails.jsx')
+    },
     task: {
         LogTime: require('../plugin/task/LogTime.jsx')
     },

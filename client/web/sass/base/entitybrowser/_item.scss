@@ -75,6 +75,7 @@
       flex: initial;
       margin-right: $gutter-less;
       width: $thumb-size;
+      font-size: $thumb-size;
 
       @media #{$device-medium} {
         margin-right: $gutter;
@@ -128,6 +129,10 @@
         white-space: nowrap;
         overflow: hidden;
       }
+    }
+
+    .entity-browser-item-cmp-right {
+      width: $thumb-size;
     }
   }
 

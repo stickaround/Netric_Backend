@@ -230,6 +230,9 @@ EntityBrowserController.prototype.reactRender_ = function () {
         onPerformAction: function (actionName) {
             this.performActionOnSelected(actionName);
         }.bind(this),
+        onRemoveEntity: function (entityId) {
+            this._removeEntity(entityId);
+        }.bind(this),
         onCreateNewEntity: function (opt_data) {
             var data = opt_data || null;
             this._createNewEntity(data);
@@ -243,7 +246,8 @@ EntityBrowserController.prototype.reactRender_ = function () {
         entities: this.entities_,
         collectionLoading: this.collectionLoading_,
         filters: this.props.filters,
-        entitiesTotalNum: parseInt(this.collection_.getTotalNum())
+        entitiesTotalNum: parseInt(this.collection_.getTotalNum()),
+        hideNoItemsMessage: this.props.hideNoItemsMessage || false
     }
 
     // Render browser component
@@ -409,10 +413,13 @@ EntityBrowserController.prototype.toggleSelectAll = function (selected) {
  * Perform an action on selected messages
  *
  * @param {string} actionName
+ * @param {int[]} opt_selectedEntities Optional selected entities to use other than this.selected_
  */
-EntityBrowserController.prototype.performActionOnSelected = function (actionName) {
+EntityBrowserController.prototype.performActionOnSelected = function (actionName, opt_selectedEntities) {
 
-    var workingText = this.actions_.performAction(actionName, this.props.objType, this.selected_, function (error, message) {
+    var selectedEntities = opt_selectedEntities || this.selected_;
+
+    var workingText = this.actions_.performAction(actionName, this.props.objType, selectedEntities, function (error, message) {
 
         if (error) {
             console.error(message);
@@ -608,7 +615,22 @@ EntityBrowserController.prototype._createNewEntity = function (opt_data) {
     var data = opt_data || {};
 
     if (this.props.onCreateNewEntity) {
-        this.props.onCreateNewEntity(this.entityDefinition_.objType, opt_data);
+        this.props.onCreateNewEntity(this.entityDefinition_.objType, data);
+    }
+}
+
+/**
+ * Handles deleting a single entity
+ *
+ * @private
+ * @param {int} entityId Entity to delete
+ */
+EntityBrowserController.prototype._removeEntity = function (entityId) {
+    // Send delete action
+    this.performActionOnSelected("remove", [entityId]);
+
+    if (this.props.onCreateNewEntity) {
+        this.props.onRemoveEntity(this.entityDefinition_.objType, entityId);
     }
 }
 

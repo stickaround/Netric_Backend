@@ -160,6 +160,33 @@ margin: 0 $gutter-less 0 $gutter-less;
     width: 100%;
   }
 
+  fieldset {
+    margin: 0 $gutter-less $gutter-less $gutter-less;
+    padding: 0;
+
+
+    @media #{$device-medium} {
+      margin: 0 $gutter $gutter $gutter;
+    }
+
+    @media #{$device-large} {
+      margin: 0 $gutter $gutter $gutter;
+    }
+
+    legend {
+      margin-left: $gutter-less;
+      padding: 0;
+
+      @media #{$device-medium} {
+        margin-left: $gutter;
+      }
+
+      @media #{$device-large} {
+        margin-left: $gutter;
+      }
+    }
+  }
+
   /* Set headers */
   h1, h2, h3, h4, h5, h6 {
     margin: 14px $gutter-less 0 $gutter-less;

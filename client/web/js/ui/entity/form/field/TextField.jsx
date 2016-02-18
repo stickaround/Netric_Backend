@@ -10,6 +10,7 @@ var Chamel = require('chamel');
 var TextFieldComponent = Chamel.TextField;
 var TextFieldRichComponent = Chamel.TextFieldRich;
 var EditorComponent = Chamel.Editor;
+var DropDownMenu = Chamel.DropDownMenu;
 var TextFieldAutoComplete = require("../../../mixins/TextFieldAutoComplete.jsx");
 
 /**
@@ -66,6 +67,29 @@ var TextField = React.createClass({
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
 
+        /*
+         * Check if we should be limiting what the user can select
+         * with optional values - a DropDown menu
+         */
+        let optionalValuesData = null;
+        let optionalValuesSelectedIndex = 0;
+        if (field.optionalValues) {
+            optionalValuesData = [];
+            for (var optionValue in field.optionalValues) {
+                optionalValuesData.push({
+                    payload: optionValue,
+                    text: field.optionalValues[optionValue]
+                });
+            }
+
+            // Get the selected index
+            for (var i in optionalValuesData) {
+                if (optionalValuesData[i].payload === fieldValue) {
+                    optionalValuesSelectedIndex = i;
+                }
+            }
+        }
+
         if (this.props.editMode) {
             if (rich) {
                 return (
@@ -74,6 +98,23 @@ var TextField = React.createClass({
                         onBlur={this._handleInputChange}/>
                 );
 
+            } else if (optionalValuesData) {
+                let label = null;
+                if (!hidelabel || hidelabel === "f") {
+                    label = <div className="entity-form-field-label">{field.title}</div>;
+                }
+
+                return (
+                    <div>
+                      {label}
+                      <DropDownMenu
+                        menuItems={optionalValuesData}
+                        selectedIndex={parseInt(optionalValuesSelectedIndex)}
+                        onChange={this._handleDropDownInputChange}
+                      />
+                    </div>
+
+                );
             } else {
 
                 var autoCompleteAttributes = {
@@ -96,12 +137,18 @@ var TextField = React.createClass({
 
             }
         } else {
+            let displayText = fieldValue;
+
+            // If optional values then get the text of the field value
+            if (optionalValuesData) {
+                displayText = optionalValuesData[optionalValuesSelectedIndex].text;
+            }
 
             // Display view mode text as innerhtml
-            var innerHtml = this._processViewModeText(fieldValue, multiline, rich);
+            var innerHtml = this._processViewModeText(displayText, multiline, rich);
             var label = null;
 
-            if (fieldValue && (!hidelabel || hidelabel == "f")) {
+            if (displayText && (!hidelabel || hidelabel === "f")) {
                 label = <div className="entity-form-field-label">{field.title}</div>;
             }
 
@@ -112,6 +159,13 @@ var TextField = React.createClass({
                 </div>
             );
         }
+    },
+
+    /**
+     * Handle value change of dropdowm menu
+     */
+    _handleDropDownInputChange: function (evt, menuItem) {
+        this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), menuItem.payload);
     },
 
     /**

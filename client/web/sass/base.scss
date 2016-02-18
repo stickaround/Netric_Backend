@@ -46,7 +46,12 @@ body {
   clear: both;
 }
 
-/** 
+/**
+ * Common margins
+ */
+.mgb1 { margin-bottom: 15px; }
+
+/**
  * Common effects
  */
 @mixin border-radius($radius) {
@@ -80,5 +85,3 @@ body {
  * Add comments controller styles
  */
 @import 'base/entitycomments';
-
-

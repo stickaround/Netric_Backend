@@ -30,7 +30,14 @@ var ActivityItem = React.createClass({
          *
          * @var {func}
          */
-        onEntityListClick: React.PropTypes.func
+        onEntityListClick: React.PropTypes.func,
+
+        /**
+         * Callback used when an individual entity is removed
+         *
+         * @type {function}
+         */
+        onRemoveEntity: React.PropTypes.func
     },
 
     render: function () {

@@ -25,6 +25,8 @@ var List = React.createClass({
         onEntityListClick: React.PropTypes.func,
         onEntityListSelect: React.PropTypes.func,
         onLoadMoreEntities: React.PropTypes.func,
+        onCreateNewEntity: React.PropTypes.func,
+        onRemoveEntity: React.PropTypes.func,
         layout: React.PropTypes.string,
         entities: React.PropTypes.array,
         collectionLoading: React.PropTypes.bool,
@@ -53,7 +55,8 @@ var List = React.createClass({
             layout: '',
             entities: [],
             collectionLoading: false,
-            selectedEntities: []
+            selectedEntities: [],
+            onRemoveEntity: null
         }
     },
 
@@ -119,6 +122,7 @@ var List = React.createClass({
                             key={entity.id}
                             entity={entity}
                             filters={this.props.filters}
+                            onRemoveEntity={this.props.onRemoveEntity}
                             onEntityListClick={this.props.onEntityListClick}
                         />
                     )
@@ -130,6 +134,7 @@ var List = React.createClass({
                             selected={selected}
                             entity={entity}
                             browserView={this.props.browserView}
+                            onRemoveEntity={this.props.onRemoveEntity}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
                             onSelect={this._sendSelect.bind(null, entity.id)}
                         />
@@ -140,6 +145,7 @@ var List = React.createClass({
                         <StatusUpdateItem
                             key={entity.id}
                             entity={entity}
+                            onRemoveEntity={this.props.onRemoveEntity}
                             onEntityListClick={this.props.onEntityListClick}
                         />
                     );
@@ -150,6 +156,8 @@ var List = React.createClass({
                         <WorkflowActionItem
                             key={entity.id}
                             entity={entity}
+                            onCreateNewEntity={this.props.onCreateNewEntity}
+                            onRemoveEntity={this.props.onRemoveEntity}
                             onEntityListClick={this.props.onEntityListClick}
                         />
                     );
@@ -160,20 +168,28 @@ var List = React.createClass({
                  */
                 default:
                     if (layout === 'table') {
-                        item = <ListItemTableRow
+                        item = (
+                          <ListItemTableRow
                             key={entity.id}
                             selected={selected}
                             entity={entity}
                             browserView={this.props.browserView}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}/>;
+                            onSelect={this._sendSelect.bind(null, entity.id)}
+                            onRemoveEntity={this.props.onRemoveEntity}
+                          />
+                      );
                     } else {
-                        item = <ListItem
+                        item = (
+                          <ListItem
                             key={entity.id}
                             selected={selected}
                             entity={entity}
                             onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}/>;
+                            onSelect={this._sendSelect.bind(null, entity.id)}
+                            onRemoveEntity={this.props.onRemoveEntity}
+                          />
+                      );
                     }
 
                     break;

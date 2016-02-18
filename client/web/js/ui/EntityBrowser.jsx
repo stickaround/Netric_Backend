@@ -24,6 +24,7 @@ var EntityBrowser = React.createClass({
         onEntityListClick: React.PropTypes.func,
         onEntityListSelect: React.PropTypes.func,
         onPerformAction: React.PropTypes.func,
+        onRemoveEntity: React.PropTypes.func,
         // Navigation button action - hamburger to the left of the title
         onNavBtnClick: React.PropTypes.func,
         // Navigation back button - left arrow to the left of the title
@@ -52,7 +53,14 @@ var EntityBrowser = React.createClass({
          *
          * @var {integer}
          */
-        entitiesTotalNum: React.PropTypes.number
+        entitiesTotalNum: React.PropTypes.number,
+
+        /**
+         * If true do not show any text when no entities are found
+         *
+         * @type {bool}
+         */
+        hideNoItemsMessage: React.PropTypes.bool
     },
 
     getDefaultProps: function () {
@@ -62,7 +70,9 @@ var EntityBrowser = React.createClass({
             title: "Browser",
             entities: [],
             selectedEntities: [],
-            collectionLoading: false
+            collectionLoading: false,
+            hideNoItemsMessage: false,
+            onRemoveEntity: null
         }
     },
 
@@ -72,20 +82,25 @@ var EntityBrowser = React.createClass({
 
         if (this.props.entities.length == 0 && this.props.collectionLoading) {
             bodyContent = <Loading />;
-        } else if (this.props.entities.length == 0) {
+        } else if (this.props.entities.length == 0 && !this.props.hideNoItemsMessage) {
             bodyContent = <div className="entity-browser-blank">No items found.</div>;
         } else {
-            bodyContent = (<List
-                onEntityListClick={this.props.onEntityListClick}
-                onEntityListSelect={this.props.onEntityListSelect}
-                onLoadMoreEntities={this.props.onLoadMoreEntities}
-                entities={this.props.entities}
-                selectedEntities={this.props.selectedEntities}
-                browserView={this.props.browserView}
-                layout={this.props.layout}
-                collectionLoading={this.props.collectionLoading}
-                filters={this.props.filters}
-                entitiesTotalNum={this.props.entitiesTotalNum}/>);
+            bodyContent = (
+                <List
+                    onEntityListClick={this.props.onEntityListClick}
+                    onEntityListSelect={this.props.onEntityListSelect}
+                    onLoadMoreEntities={this.props.onLoadMoreEntities}
+                    onRemoveEntity={this.props.onRemoveEntity}
+                    onCreateNewEntity={this._handleCreateNewEntity}
+                    entities={this.props.entities}
+                    selectedEntities={this.props.selectedEntities}
+                    browserView={this.props.browserView}
+                    layout={this.props.layout}
+                    collectionLoading={this.props.collectionLoading}
+                    filters={this.props.filters}
+                    entitiesTotalNum={this.props.entitiesTotalNum}
+                />
+            );
 
             if (this.props.collectionLoading) {
                 // TODO: display loading indicator over the list
@@ -152,9 +167,13 @@ var EntityBrowser = React.createClass({
      * Handles the clicking of create new entity
      *
      * @private
+     * @param {Object} opt_data Optional params to send to the new entity form
      */
-    _handleCreateNewEntity: function () {
-        if (this.props.onCreateNewEntity) this.props.onCreateNewEntity();
+    _handleCreateNewEntity: function (opt_data) {
+        let data = opt_data || {};
+        if (this.props.onCreateNewEntity) {
+            this.props.onCreateNewEntity(data);
+        }
     },
 
     /**
