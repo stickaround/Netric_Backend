@@ -179,7 +179,7 @@ EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
     var callbackWhenLoaded = opt_callback || null;
 
     entitySaver.save(entity, function () {
-        log.info("Saved entity via plugin controller: ", entity.getName());
+        log.info("Saved " + entity.objType + " entity via plugin controller: ", entity.getName());
 
         if(callbackWhenLoaded) {
             callbackWhenLoaded();

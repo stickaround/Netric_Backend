@@ -81,17 +81,16 @@ var Convert = React.createClass({
     /**
      * We need to set the intial state values.
      *
-     * For customerType: since it is either PERSON or ORGANIZATION, we need to evaulate if the lead has a first/last name
+     * For customerType: since it is either PERSON or ORGANIZATION, we need to evaulate if the lead has a name
      */
     getInitialState: function () {
 
-        // Get the Lead's first/last name to so we can evaulate if we are setting the customerType as PERSON or ORGANIZATION
-        var firstName = this.props.entity.getValue('first_name');
-        var lastName = this.props.entity.getValue('last_name');
+        // Get the Lead's name so we can evaulate if we are setting the customerType as PERSON or ORGANIZATION
+        var name = this.props.entity.getName();
         var customerType = null;
 
         // Determine which customer type will be set as default.
-        if (firstName || lastName) {
+        if (name) {
             customerType = customerTypes.PERSON;
         } else {
             customerType = customerTypes.ORGANIZATION;
@@ -154,12 +153,11 @@ var Convert = React.createClass({
 
         var displayTypeDropDown = null;
         var customerType = this.state.customerType;
-        var firstName = this.props.entity.getValue('first_name');
-        var lastName = this.props.entity.getValue('last_name');
+        var name = this.props.entity.getName();
         var company = this.props.entity.getValue('company');
 
-        // If the lead has both first/lastname and a company name, then we need to let the user pick which info to use (organization or person)
-        if ((firstName || lastName) && company) {
+        // If the lead has both name and a company name, then we need to let the user pick which info to use (organization or person)
+        if (name && company) {
             var menuItems = [
                 {
                     type: customerTypes.PERSON,
@@ -319,7 +317,7 @@ var Convert = React.createClass({
         if (this.state.customerType === customerTypes.ORGANIZATION) {
             opportunityName = this.props.entity.getValue('company');
         } else {
-            opportunityName = this.props.entity.getValue('first_name') + ' ' + this.props.entity.getValue('last_name');
+            opportunityName = this.props.entity.getName();
         }
 
         if (this.refs.opportunityName) {
