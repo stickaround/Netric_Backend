@@ -18,9 +18,14 @@ var AppBar = Chamel.AppBar;
 var controller = require('../../../../controller/controller');
 var Where = require("../../../../entity/Where");
 
+/**
+ * Constants used to determine which customer type will be used as reference when converting the lead
+ *
+ * @type {Object}
+ */
 var customerTypes = {
-    PERSON: {type: 1, label: 'Person'},
-    ORGANIZATION: {type: 2, label: 'Organization'}
+    PERSON: {type: 1, label: 'Person', text: 'Person / Contact'},
+    ORGANIZATION: {type: 2, label: 'Organization', text: 'Organization / Account'}
 }
 
 var Convert = React.createClass({
@@ -31,20 +36,56 @@ var Convert = React.createClass({
     propTypes: {
 
         /**
-         * Entity being converted. This entity is the lead entity
+         * The lead entity being converted
          *
          * @type {Entity}
          */
         entity: React.PropTypes.object,
 
-        onLoadEntity: React.PropTypes.func,
-        onCreateEntity: React.PropTypes.func,
-        onSaveEntity: React.PropTypes.func,
+        /**
+         * Function that will get an existing entity using objType and entityId as arguments
+         *
+         * @type {function}
+         */
+        loadEntity: React.PropTypes.func,
+
+        /**
+         * Function that will create a new entity
+         *
+         * @type {function}
+         */
+        createEntity: React.PropTypes.func,
+
+        /**
+         * Function that will save an entity
+         *
+         * @type {function}
+         */
+        saveEntity: React.PropTypes.func,
+
+        /**
+         * Function that should be called when we are finished converting a lead
+         *
+         * @type {function}
+         */
         onActionFinished: React.PropTypes.func,
+
+        /**
+         * Function that is called when clicking the back button
+         *
+         * @type {function}
+         */
         onNavBtnClick: React.PropTypes.func
     },
 
+    /**
+     * We need to set the intial state values.
+     *
+     * For customerType: since it is either PERSON or ORGANIZATION, we need to evaulate if the lead has a first/last name
+     */
     getInitialState: function () {
+
+        // Get the Lead's first/last name to so we can evaulate if we are setting the customerType as PERSON or ORGANIZATION
         var firstName = this.props.entity.getValue('first_name');
         var lastName = this.props.entity.getValue('last_name');
         var customerType = null;
@@ -122,11 +163,11 @@ var Convert = React.createClass({
             var menuItems = [
                 {
                     type: customerTypes.PERSON,
-                    text: 'Person / Contact'
+                    text: customerTypes.PERSON.text
                 },
                 {
                     type: customerTypes.ORGANIZATION,
-                    text: 'Organization / Account'
+                    text: customerTypes.ORGANIZATION.text
                 }
             ];
 
@@ -146,7 +187,7 @@ var Convert = React.createClass({
 
         // Specify the labels of the radiobuttons depending on what covert type is selected
         var newLabel = null;
-        if (customerType == customerTypes.ORGANIZATION) {
+        if (customerType === customerTypes.ORGANIZATION) {
             newLabel = 'Create a new organization from from company name in lead';
         } else {
             newLabel = 'Create a new person from lead';
@@ -269,13 +310,13 @@ var Convert = React.createClass({
     },
 
     /**
-     * Set intial values for the input text
+     * Set intial values for the input text for opportunityName
      * @private
      */
     _setInputValues: function () {
         var opportunityName = null;
 
-        if (this.state.customerType == customerTypes.ORGANIZATION) {
+        if (this.state.customerType === customerTypes.ORGANIZATION) {
             opportunityName = this.props.entity.getValue('company');
         } else {
             opportunityName = this.props.entity.getValue('first_name') + ' ' + this.props.entity.getValue('last_name');
@@ -289,8 +330,8 @@ var Convert = React.createClass({
     /**
      * Callback used to handle the changing of radio button between create new and select existing
      *
-     * @param {DOMEvent} e              Reference to the DOM event being sent
-     * @param {string} newSelection     The new selected value
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {string} newSelection The new selected value
      * @private
      */
     _handleRadioChange: function (e, newSelection) {
@@ -346,6 +387,14 @@ var Convert = React.createClass({
     },
 
     /**
+     * Function that will be called when converting a lead is finished
+     * @private
+     */
+    _handleFinishedConvert: function() {
+        if(this.props.onActionFinished) this.props.onActionFinished();
+    },
+
+    /**
      * Handles the converting of lead
      *
      * @private
@@ -356,14 +405,14 @@ var Convert = React.createClass({
 
         // If the user has selected an existing customer then we will just load that customer entity using the customer id
         if (this.refs.radioActionType.getSelectedValue() === 'existing' && this.state.selectedExisting.id) {
-            customerEntity = this.props.onLoadEntity('customer', this.state.selectedExisting.id);
+            customerEntity = this.props.loadEntity('customer', this.state.selectedExisting.id);
         } else {
 
             // If the selected radio button is to create new customer, then we will create a new customer entity
-            customerEntity = this.props.onCreateEntity('customer');
+            customerEntity = this.props.createEntity('customer');
             customerEntity.setValue('type_id', this.state.customerType.type);
 
-            if (this.state.customerType == customerTypes.ORGANIZATION) {
+            if (this.state.customerType === customerTypes.ORGANIZATION) {
 
                 // Set the value of the company
                 customerEntity.setValue('company', this.props.entity.getValue('company'));
@@ -390,7 +439,7 @@ var Convert = React.createClass({
         }
 
         // Save the customer entity and set the callback to update the referenced objects
-        this.props.onSaveEntity(customerEntity, callbackFunction);
+        this.props.saveEntity(customerEntity, callbackFunction);
 
         // Set the customerEntity state to be used later when updating the lead entity (this.props.entity)
         this.setState({customerEntity: customerEntity});
@@ -403,7 +452,7 @@ var Convert = React.createClass({
      */
     _createOpportunityEntity: function () {
 
-        var opportunityEntity = this.props.onCreateEntity('opportunity');
+        var opportunityEntity = this.props.createEntity('opportunity');
         opportunityEntity.setValue('name', this.refs.opportunityName.getValue());
 
         var customer_id = null;
@@ -419,8 +468,7 @@ var Convert = React.createClass({
         }
 
         opportunityEntity.setValue('customer_id', customer_id);
-
-        this.props.onSaveEntity(opportunityEntity, this._updateLeadEntity);
+        this.props.saveEntity(opportunityEntity, this._updateLeadEntity);
 
         // Set the opportunityEntity state to be used later when updating the lead entity (this.props.entity)
         this.setState({opportunityEntity: opportunityEntity});
@@ -445,8 +493,8 @@ var Convert = React.createClass({
 
         this.props.entity.setValue('f_converted', true);
 
-        // Save the lead entity and then call the props.onActionFinished as the callback function
-        this.props.onSaveEntity(this.props.entity, this.props.onActionFinished);
+        // Save the lead entity and set the callback function
+        this.props.saveEntity(this.props.entity, this._handleFinishedConvert);
     }
 });
 

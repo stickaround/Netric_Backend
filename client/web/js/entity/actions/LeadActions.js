@@ -1,5 +1,5 @@
 /**
- * @fileoverview Default actions for Lead
+ * @fileoverview Actions for Lead
  */
 'use strict';
 
@@ -12,7 +12,7 @@ var log = require("../../log");
 var controller = require("../../controller/controller");
 
 /**
- * This is the base/default actions class that all other object types will inherit
+ * This is the lead actions class that will display edit, remove, print and convert lead action buttons
  */
 var LeadActions = function () {
 
@@ -43,7 +43,7 @@ LeadActions.prototype.defaultViewActions = [
 ];
 
 /**
- * Function that will enable the user to convert a lead
+ * Action that will enable the user to convert a lead
  *
  * @param {string} objType The type of object to perform the action on
  * @param {int[]} selectedEntities The entities to perform the action on
@@ -53,13 +53,14 @@ LeadActions.prototype.defaultViewActions = [
 LeadActions.prototype.convertlead = function (objType, selectedEntities, finishedFunction) {
 
     if (selectedEntities.length > 1) {
-        throw "Converting a lead only requires one lead entity.";
+        throw "Can only convert one lead entity at a time.";
     }
 
     var leadId = selectedEntities[0];
 
     var EntityPluginController = require("../../controller/EntityPluginController");
     var entityPlugin = new EntityPluginController();
+    
 
     entityPlugin.load({
         type: controller.types.DIALOG,
@@ -68,7 +69,7 @@ LeadActions.prototype.convertlead = function (objType, selectedEntities, finishe
         title: "Convert Lead",
         eid: leadId,
         onFinishedAction: function () {
-            finishedFunction(false, "Lead Converted", true);
+            finishedFunction(false, "Lead Converted");
         }
     });
 

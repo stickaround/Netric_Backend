@@ -292,7 +292,10 @@ EntityController.prototype.saveEntity = function () {
     // Save the entity
     entitySaver.save(this.entity_, function () {
         log.info("Entity saved");
-    });
+
+        // Let's cache the entity after it is being saved
+        entityLoader.cacheEntity(this.entity_);
+    }.bind(this));
 
     if (this.props.onSave) {
         this.props.onSave(this.entity_);
@@ -371,11 +374,7 @@ EntityController.prototype._performAction = function (actionName) {
     var selected = [this.entity_.id];
     var objType = this.entity_.def.objType;
 
-    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message, renderEntity) {
-
-        if(renderEntity) {
-            this.render();
-        }
+    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message) {
 
         if (error) {
             log.error(message);

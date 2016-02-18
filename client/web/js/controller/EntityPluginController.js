@@ -55,7 +55,7 @@ EntityPluginController.prototype.onLoad = function (opt_callback) {
     if (this.props.eid) {
 
         // Load the entity and get a promised entity back
-        this._entity = this.loadEntity(this.props.objType, this.props.eid);
+        this._entity = this._loadEntity(this.props.objType, this.props.eid);
 
         // Listen for initial load to re-render this entity
         alib.events.listen(this._entity, "load", function (evt) {
@@ -67,7 +67,7 @@ EntityPluginController.prototype.onLoad = function (opt_callback) {
     } else {
 
         // Setup an empty entity
-        this._entity = this.createEntity(this.props.objType);
+        this._entity = this._createEntity(this.props.objType);
 
         // Since we are creating a new entity, let's set the default values
         this._entity.setDefaultValues("null", this.props);
@@ -101,14 +101,14 @@ EntityPluginController.prototype.render = function () {
         title: this.props.title || "",
         entity: this._entity,
         hideToolbar: hideToolbar,
-        onLoadEntity: function(objType, eid, opt_callback) {
-            return this.loadEntity(objType, eid, opt_callback);
+        loadEntity: function(objType, eid, opt_callback) {
+            return this._loadEntity(objType, eid, opt_callback);
         }.bind(this),
-        onCreateEntity: function(objType) {
-            return this.createEntity(objType);
+        createEntity: function(objType) {
+            return this._createEntity(objType);
         }.bind(this),
-        onSaveEntity: function(entity, opt_callback) {
-            this.saveEntity(entity, opt_callback);
+        saveEntity: function(entity, opt_callback) {
+            this._saveEntity(entity, opt_callback);
         }.bind(this),
         onActionFinished:function () {
             if(this.props.onFinishedAction) {
@@ -132,7 +132,7 @@ EntityPluginController.prototype.render = function () {
             domCon
         );
     } catch (e) {
-        console.error("Could not create plugin component: " + this.props.pluginName + ":" + e);
+        log.error("Could not create plugin component: " + this.props.pluginName + ":" + e);
     }
 }
 
@@ -143,8 +143,10 @@ EntityPluginController.prototype.render = function () {
  * @param {int} eid The entity id we want to load
  * @param {function} opt_callback Optional callback function that is called once entity is loaded
  * @returns {Entity}
+ *
+ * @private
  */
-EntityPluginController.prototype.loadEntity = function (objType, eid, opt_callback) {
+EntityPluginController.prototype._loadEntity = function (objType, eid, opt_callback) {
 
     // Load the entity and get a promised entity back
     return entityLoader.get(objType, eid, opt_callback);
@@ -155,8 +157,10 @@ EntityPluginController.prototype.loadEntity = function (objType, eid, opt_callba
  *
  * @param {string} objType The objType of the entity we want to create
  * @returns {Entity}
+ *
+ * @private
  */
-EntityPluginController.prototype.createEntity = function (objType) {
+EntityPluginController.prototype._createEntity = function (objType) {
 
     // Load the entity and get a promised entity back
     return entityLoader.factory(objType);
@@ -167,8 +171,10 @@ EntityPluginController.prototype.createEntity = function (objType) {
  *
  * @param {Entity} entity The entity that we want to save
  * @param {function} opt_callback Optional callback function that is called once entity is saved
+ *
+ * @private
  */
-EntityPluginController.prototype.saveEntity = function (entity, opt_callback) {
+EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
