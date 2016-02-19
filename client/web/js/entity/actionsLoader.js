@@ -11,7 +11,9 @@ var BackendRequest = require("../BackendRequest");
 // Import all actions classes here for all object types
 var ActionClasses = {
 	base: require("./actions/DefaultActions"),
-	task: require("./actions/TaskActions")
+	task: require("./actions/TaskActions"),
+	lead: require("./actions/LeadActions"),
+	customer: require("./actions/CustomerActions"),
 }
 
 /**
