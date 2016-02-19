@@ -356,8 +356,6 @@ EntityController.prototype._performAction = function (actionName) {
             log.error(message);
         }
 
-        console.log(message);
-
         // Check if we have a postAction specified
         if(postAction && postAction.type === 'createNewEntity') {
 
