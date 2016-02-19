@@ -201,4 +201,22 @@ margin: 0 $gutter-less 0 $gutter-less;
     }
   }
 
+  .entity-form-header-label {
+    @media #{$device-small} {
+      margin-left: 5%;
+    }
+  }
+
+  .entity-form-group {
+    margin-top: 15px;
+
+    @media #{$device-small} {
+      margin-left: 5%;
+    }
+
+    .entity-form-group-label-selected {
+      color: rgba(0, 0, 0, 0.5);
+      margin-left: 6%;
+    }
+  }
 }

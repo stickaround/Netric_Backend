@@ -14,11 +14,14 @@ var IconButton = Chamel.IconButton;
 var Dialog = Chamel.Dialog;
 var netric = require('../base');
 var actionModes = require("../entity/actions/actionModes");
+var EntityFormShowFilter = require("./mixins/EntityFormShowFilter.jsx");
 
 /**
  * Module shell
  */
 var Entity = React.createClass({
+
+    mixins: [EntityFormShowFilter],
 
     propTypes: {
         xmlNode: React.PropTypes.object,
@@ -60,11 +63,26 @@ var Entity = React.createClass({
         }
 
         for (var i in actions) {
+
+            var action = actions[i];
+
+            /*
+             * Check if we have a showif object in the action.
+             * This will determine if we will display the action button based on the filter specified
+             */
+            if (action.showif) {
+
+                // If ::evaluateShowIf() returns false, it means that the showif did not match the filter specified
+                if(!this.evaluateShowIf(action.showif)) {
+                    continue;
+                }
+            }
+
             rightIcons.push(
                 <IconButton
                     key={i}
-                    iconClassName={actions[i].iconClassName}
-                    onClick={this.handleActionClick_.bind(this, actions[i].name)}>
+                    iconClassName={action.iconClassName}
+                    onClick={this.handleActionClick_.bind(this, action.name)}>
                 </IconButton>
             );
         }

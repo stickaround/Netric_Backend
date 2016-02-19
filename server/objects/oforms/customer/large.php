@@ -21,7 +21,7 @@
                 </row>
                 <row showif='type_id=2'>
                     <column>
-                        <field name='name'></field>
+                        <field name='name' hidelabel="t" class='headline'></field>
                         <field ref_field='type_id' ref_value='1' name='primary_contact'></field>
                     </column>
                 </row>

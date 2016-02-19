@@ -292,7 +292,10 @@ EntityController.prototype.saveEntity = function () {
     // Save the entity
     entitySaver.save(this.entity_, function () {
         log.info("Entity saved");
-    });
+
+        // Let's cache the entity after it is being saved
+        entityLoader.cacheEntity(this.entity_);
+    }.bind(this));
 
     if (this.props.onSave) {
         this.props.onSave(this.entity_);

@@ -279,6 +279,10 @@ var ExecuteTime = React.createClass({
         this._setExecuteTime(data);
     },
 
+    /**
+     * Set intial values for the input text
+     * @private
+     */
     _setInputValues: function () {
         if (this.refs.reminderTime && this.state.fieldName == 'specific_time') {
             this.refs.reminderTime.setValue(this.state.reminderTime);
