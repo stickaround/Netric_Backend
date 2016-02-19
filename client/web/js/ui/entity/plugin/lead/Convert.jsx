@@ -85,12 +85,13 @@ var Convert = React.createClass({
      */
     getInitialState: function () {
 
-        // Get the Lead's name so we can evaulate if we are setting the customerType as PERSON or ORGANIZATION
-        var name = this.props.entity.getName();
+        // Get the Lead's first/last name so we can evaulate if we are setting the customerType as PERSON or ORGANIZATION
+        var first_name = this.props.entity.getValue('first_name');
+        var last_name = this.props.entity.getValue('last_name');
         var customerType = null;
 
         // Determine which customer type will be set as default.
-        if (name) {
+        if (first_name || last_name) {
             customerType = customerTypes.PERSON;
         } else {
             customerType = customerTypes.ORGANIZATION;
@@ -153,11 +154,12 @@ var Convert = React.createClass({
 
         var displayTypeDropDown = null;
         var customerType = this.state.customerType;
-        var name = this.props.entity.getName();
+        var first_name = this.props.entity.getValue('first_name');
+        var last_name = this.props.entity.getValue('last_name');
         var company = this.props.entity.getValue('company');
 
-        // If the lead has both name and a company name, then we need to let the user pick which info to use (organization or person)
-        if (name && company) {
+        // If the lead has both first/last name and a company name, then we need to let the user pick which info to use (organization or person)
+        if ((first_name || last_name) && company) {
             var menuItems = [
                 {
                     type: customerTypes.PERSON,
