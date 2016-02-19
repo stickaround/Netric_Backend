@@ -1,5 +1,5 @@
 /**
- * Plugin for following up a customer
+ * Plugin for following up a customer or opportunity
  *
  * @jsx React.DOM
  */
@@ -19,7 +19,7 @@ var Followup = React.createClass({
     propTypes: {
 
         /**
-         * The customer entity that we want to follow-up
+         * The entity that we want to follow-up
          *
          * @type {Entity}
          */

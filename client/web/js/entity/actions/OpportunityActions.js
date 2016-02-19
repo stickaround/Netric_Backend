@@ -1,5 +1,5 @@
 /**
- * @fileoverview Actions for Customer
+ * @fileoverview Actions for Opportunity
  */
 'use strict';
 
@@ -12,9 +12,9 @@ var log = require("../../log");
 var controller = require("../../controller/controller");
 
 /**
- * This is the customer actions class that will display edit, remove, print and followup customer action buttons
+ * This is the opportunity actions class that will display edit, remove, print and followup opportunity action buttons
  */
-var CustomerActions = function () {
+var OpportunityActions = function () {
 
     /**
      * Optional setup local confirm messages
@@ -27,7 +27,7 @@ var CustomerActions = function () {
 /**
  * Extend base actions class
  */
-netric.inherits(CustomerActions, DefaultActions);
+netric.inherits(OpportunityActions, DefaultActions);
 
 /**
  * Default actions when in view mode
@@ -35,7 +35,7 @@ netric.inherits(CustomerActions, DefaultActions);
  * @protected
  * @type {Array}
  */
-CustomerActions.prototype.defaultViewActions = [
+OpportunityActions.prototype.defaultViewActions = [
     {name: "edit", title: "Edit", iconClassName: "fa fa-pencil"},
     {name: "remove", title: "Delete", iconClassName: "fa fa-trash-o"},
     {name: "print", title: "Print", iconClassName: "fa fa-print"},
@@ -43,20 +43,20 @@ CustomerActions.prototype.defaultViewActions = [
 ];
 
 /**
- * Action that will enable the user to followup a customer
+ * Action that will enable the user to followup an opportunity
  *
  * @param {string} objType The type of object to perform the action on
  * @param {int[]} selectedEntities The entities to perform the action on
  * @param {function} finishedFunction A funciton to call when finished
  * @return {string} Working text like "Deleting" or "Saving"
  */
-CustomerActions.prototype.followup = function (objType, selectedEntities, finishedFunction) {
+OpportunityActions.prototype.followup = function (objType, selectedEntities, finishedFunction) {
 
     if (selectedEntities.length > 1) {
-        throw "Can only convert one customer entity at a time.";
+        throw "Can only convert one opportunity entity at a time.";
     }
 
-    var customerId = selectedEntities[0];
+    var opportunityId = selectedEntities[0];
 
     var EntityPluginController = require("../../controller/EntityPluginController");
     var entityPlugin = new EntityPluginController();
@@ -64,12 +64,12 @@ CustomerActions.prototype.followup = function (objType, selectedEntities, finish
 
     entityPlugin.load({
         type: controller.types.DIALOG,
-        title: "Follow-up Customer",
+        title: "Follow-up Opportunity",
         pluginName: "crm.Followup",
-        objType: "customer",
-        eid: customerId,
+        objType: "opportunity",
+        eid: opportunityId,
         onFinishedAction: function (postAction) {
-            finishedFunction(false, "Followed up a customer by " + postAction.type + " " + postAction.data.objType, postAction);
+            finishedFunction(false, "Followed up a opportunity by " + postAction.type + " " + postAction.data.objType, postAction);
         }
     });
 
@@ -77,4 +77,4 @@ CustomerActions.prototype.followup = function (objType, selectedEntities, finish
     return null;
 }
 
-module.exports = CustomerActions;
+module.exports = OpportunityActions;

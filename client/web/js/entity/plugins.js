@@ -27,8 +27,8 @@ plugins.List = {
     reminder: {
         ExecuteTime: require('../ui/entity/plugin/reminder/ExecuteTime.jsx')
     },
-    customer: {
-        Followup: require('../ui/entity/plugin/customer/Followup.jsx')
+    crm: {
+        Followup: require('../ui/entity/plugin/crm/Followup.jsx')
     },
     lead: {
         Convert: require('../ui/entity/plugin/lead/Convert.jsx')
