@@ -68,8 +68,8 @@ CustomerActions.prototype.followup = function (objType, selectedEntities, finish
         pluginName: "crm.Followup",
         objType: "customer",
         eid: customerId,
-        onFinishedAction: function (postAction) {
-            finishedFunction(false, "Followed up a customer by " + postAction.type + " " + postAction.data.objType, postAction);
+        onFinishedAction: function () {
+            finishedFunction(false, "Followed up a customer");
         }
     });
 

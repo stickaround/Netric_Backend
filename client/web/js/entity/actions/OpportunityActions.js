@@ -69,7 +69,7 @@ OpportunityActions.prototype.followup = function (objType, selectedEntities, fin
         objType: "opportunity",
         eid: opportunityId,
         onFinishedAction: function (postAction) {
-            finishedFunction(false, "Followed up a opportunity by " + postAction.type + " " + postAction.data.objType, postAction);
+            finishedFunction(false, "Followed up an opportunity");
         }
     });
 

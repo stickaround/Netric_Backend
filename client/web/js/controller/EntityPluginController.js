@@ -83,7 +83,7 @@ EntityPluginController.prototype.onLoad = function (opt_callback) {
  */
 EntityPluginController.prototype.render = function () {
 
-    if(!this.props.pluginName) {
+    if (!this.props.pluginName) {
         throw "Plugin name is required.";
     }
 
@@ -101,18 +101,21 @@ EntityPluginController.prototype.render = function () {
         title: this.props.title || "",
         entity: this._entity,
         hideToolbar: hideToolbar,
-        loadEntity: function(objType, eid, opt_callback) {
+        loadEntity: function (objType, eid, opt_callback) {
             return this._loadEntity(objType, eid, opt_callback);
         }.bind(this),
-        createEntity: function(objType) {
+        createEntity: function (objType) {
             return this._createEntity(objType);
         }.bind(this),
-        saveEntity: function(entity, opt_callback) {
+        saveEntity: function (entity, opt_callback) {
             this._saveEntity(entity, opt_callback);
         }.bind(this),
-        onActionFinished:function (postAction) {
-            if(this.props.onFinishedAction) {
-                this.props.onFinishedAction(postAction);
+        displayNewEntity: function (data) {
+            this._displayNewEntity(data);
+        }.bind(this),
+        onActionFinished: function () {
+            if (this.props.onFinishedAction) {
+                this.props.onFinishedAction();
             }
             this.close();
         }.bind(this),
@@ -180,10 +183,27 @@ EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
     entitySaver.save(entity, function () {
         log.info("Saved " + entity.objType + " entity via plugin controller: ", entity.getName());
 
-        if(callbackWhenLoaded) {
+        if (callbackWhenLoaded) {
             callbackWhenLoaded();
         }
     }.bind(this));
+}
+
+/**
+ * Function that will display a new entity form using the data provided
+ *
+ * @param {Object} data Contains the information to display the new entity form
+ * data {
+ *  objType: customer
+ *  params['customer_id']: 1,
+ *  params['customer_id_val']: test customer
+ * }
+ *
+ * @private
+ */
+EntityPluginController.prototype._displayNewEntity = function (data) {
+    var parentConroller = this.getParentControllerFromRouter();
+    parentConroller._createNewEntity(data);
 }
 
 module.exports = EntityPluginController;

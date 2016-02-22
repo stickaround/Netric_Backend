@@ -26,6 +26,13 @@ var Followup = React.createClass({
         entity: React.PropTypes.object,
 
         /**
+         * Function that will display a new entity form
+         *
+         * @type {function}
+         */
+        displayNewEntity: React.PropTypes.func,
+
+        /**
          * Function that should be called when the user selects an action
          *
          * @type {function}
@@ -73,7 +80,8 @@ var Followup = React.createClass({
                 </div>
                 <div className="row entity-form-group">
                     <div className="col-small-3">
-                        <FlatButton label='Schedule Event' onClick={this._handleFollowupAction.bind(this, 'calendar_event')}/>
+                        <FlatButton label='Schedule Event'
+                                    onClick={this._handleFollowupAction.bind(this, 'calendar_event')}/>
                     </div>
                     <div className="col-small-7">
                         Create a future calendar event that is associated with this customer.
@@ -81,7 +89,8 @@ var Followup = React.createClass({
                 </div>
                 <div className="row entity-form-group">
                     <div className="col-small-3">
-                        <FlatButton label='Record Activity' onClick={this._handleFollowupAction.bind(this, 'activity')}/>
+                        <FlatButton label='Record Activity'
+                                    onClick={this._handleFollowupAction.bind(this, 'activity')}/>
                     </div>
                     <div className="col-small-7">
                         Record an activity like a "Phone Call" or "Sent a Letter."
@@ -109,21 +118,20 @@ var Followup = React.createClass({
      * @param objType The type of action that is clicked
      * @private
      */
-    _handleFollowupAction: function(objType) {
-        if(this.props.onActionFinished) {
+    _handleFollowupAction: function (objType) {
+        if (this.props.displayNewEntity) {
             var params = [];
             params['customer_id'] = this.props.entity.id;
             params['customer_id_val'] = encodeURIComponent(this.props.entity.getName());
 
-            var postAction = {
-                type: 'createNewEntity',
-                data: {
-                    objType: objType,
-                    params: params
-                }
+            var data = {
+                objType: objType,
+                params: params
             }
-            this.props.onActionFinished(postAction);
+            this.props.displayNewEntity(data);
         }
+
+        this.props.onActionFinished();
     }
 });
 
