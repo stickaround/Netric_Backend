@@ -57,7 +57,7 @@ var LeftNavModuleHeader = React.createClass({
             } else {
                 headerIcon = <i className="fa fa-chevron-left" />;
             }
-        } 
+        }
         
         // TODO: make this dynamic
         var menuItems = [];
@@ -95,8 +95,28 @@ var LeftNavModuleHeader = React.createClass({
         */
 
         return (
-            <AppBar title={headerTitle} zDepth={1} />
+            <div>
+                <AppBar
+                    title={headerTitle}
+                    onNavBtnClick={this._handleModuleMenuClick}
+                    iconClassNameLeft={"fa fa-bars"}
+                    zDepth={1}
+                />
+                <Menu
+                    ref="menuItems"
+                    zDepth={0}
+                    menuItems={menuItems}
+                    selectedIndex={selectedIndex}
+                    onItemClick={this._handleModuleClick}
+                />
+            </div>
         );
+    },
+
+    _handleModuleMenuClick: function(e) {
+        if (this.props.deviceIsSmall) {
+            this.setState({ open: (this.state.open) ? false : true });
+        }
     },
 
     _handleMenuClick:function(evt) {

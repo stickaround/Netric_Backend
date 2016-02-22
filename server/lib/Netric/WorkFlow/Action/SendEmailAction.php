@@ -12,6 +12,20 @@ use Netric\WorkFlow\WorkFlowInstance;
 
 /**
  * Action to send email messages
+ *
+ * Params in the 'data' field
+ *
+ *  fid     int OPTIONAL The id of an html_template entity (it's called fid because it used to be a file)
+ *  subject string The subject of the message to send (if not fid has been supplied)
+ *  body    string The body to send (if no fid has been supplied)
+ *  from    string Email address to be sent from
+ *  to      string[] Array of addresses to send to
+ *  to_other string Comma separated list of people to send to - appended to 'to'
+ *  cc      string[] Array of addresses to cc
+ *  cc_other string Comma separated list of people to cc - appended to 'cc'
+ *  bcc     string[] Array of addresses to bcc
+ *  bcc_other string Comma separated list of people to bcc - appended to 'bcc'
+ *
  */
 class SendEmailAction extends AbstractAction implements ActionInterface
 {

@@ -13,6 +13,17 @@ use Netric\WorkFlow\WorkFlowInstance;
 
 /**
  * Action used to check if conditions match for the entity being acted on
+ *
+ * Params in the 'data' field:
+ *
+ * 'conditions' => [
+ *      [
+ *          'blogic'=>EntityQuery\Where::COMBINED_BY_*,
+ *          'field_name'='name_of_entity_field',
+ *          'operator'=>EntityQuery\Where::OPERATOR_*
+ *          'value'=>'The value the operator is comparing with'
+ *      ]
+ * ]
  */
 class CheckConditionAction extends AbstractAction implements ActionInterface
 {

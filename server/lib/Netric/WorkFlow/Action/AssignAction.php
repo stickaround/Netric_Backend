@@ -13,6 +13,15 @@ use Netric\EntityGroupings\Loader as GroupingsLoader;
 
 /**
  * Action to assign an entity to a user
+ *
+ * Params in the 'data' field:
+ *
+ *  field       string REQUIRED The name of the user field we are updating.
+ *  team_id     int OPTIONAL if set, we will randomize users within this team
+ *  group_id    int OPTIONAL if set, we randomize users that are a member of this group
+ *  users       string OPTIONAL A comma separated list of user IDs
+ *
+ * One of the three optional params must be set to determine what users to assign
  */
 class AssignAction extends AbstractAction implements ActionInterface
 {
