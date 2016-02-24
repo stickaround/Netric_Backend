@@ -300,4 +300,25 @@ Definition.prototype.getFieldsByType = function (type) {
     return result;
 }
 
+/**
+ * Get the fields using the field.subtype as the filter
+ *
+ * @params {string} subtype The field subtype that will be used as filter
+ * @public
+ * @return {array} Collection of fields that are filtered by subtype
+ */
+Definition.prototype.getFieldsBySubtype = function (subtype) {
+    var result = [];
+
+    if (this.fields) {
+        this.fields.map(function (field) {
+            if (field.subtype == subtype) {
+                result.push(field);
+            }
+        });
+    }
+
+    return result;
+}
+
 module.exports = Definition;

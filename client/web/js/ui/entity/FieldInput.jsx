@@ -17,8 +17,13 @@ var DropDownMenu = Controls.DropDownMenu;
 var TextField = Controls.TextField;
 var IconButton = Controls.IconButton;
 
+var boolInputMenu = [
+    { payload: 'true', text: 'true' },
+    { payload: 'false', text: 'false' },
+];
+
 /**
- * Create a DropDown that shows all fields for an object type
+ * Create a entity field input based on the field type
  */
 var FieldsDropDown = React.createClass({
 
@@ -50,7 +55,28 @@ var FieldsDropDown = React.createClass({
          *
          * @var {mixed}
          */
-        value: React.PropTypes.any
+        value: React.PropTypes.any,
+
+        /**
+         * Optional. The entity definition of the object
+         *
+         * If we are trying to load more than one field input
+         *  then we might need to provide the entityDefinition to properly display all the input fields
+         *
+         * @var {object}
+         */
+        entityDefinition: React.PropTypes.object
+    },
+
+    /**
+     * Return the default props of this component
+     *
+     * @returns {{}}
+     */
+    getDefaultProps: function () {
+        return {
+            entityDefinition: null
+        }
     },
 
     /**
@@ -60,7 +86,7 @@ var FieldsDropDown = React.createClass({
      */
     getInitialState: function() {
         return {
-            entityDefinition: null
+            entityDefinition: this.props.entityDefinition
         };
     },
 
@@ -68,17 +94,21 @@ var FieldsDropDown = React.createClass({
      * We have entered the DOM
      */
     componentDidMount: function() {
-        // Get the definition so we can get field details
-        definitionLoader.get(this.props.objType, function(def) {
-            this._handleEntityDefinititionLoaded(def);
-        }.bind(this));
+
+        // If the entity definition is already provided, then we do not need to get the definition again
+        if(!this.state.entityDefinition) {
+            // Get the definition so we can get field details
+            definitionLoader.get(this.props.objType, function(def) {
+
+                this._handleEntityDefinititionLoaded(def);
+            }.bind(this));
+        }
     },
 
     /**
      * Render the dropdown containing all fields
      */
     render: function() {
-
         if (!this.state.entityDefinition) {
             // Entity definition is loading still so return an empty div
             return (<div />);
@@ -113,11 +143,10 @@ var FieldsDropDown = React.createClass({
                 );
 
             case Field.types.bool:
-
                 return (
                     <DropDownMenu
                         onChange={this._handleValueSelect}
-                        selectedIndex={ ( value.toString() === 'true' ? 0 : 1 )}
+                        selectedIndex={ ( (value && value.toString()) === 'true' ? 0 : 1 )}
                         menuItems={boolInputMenu}
                     />
                 );
