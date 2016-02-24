@@ -20,6 +20,7 @@ var netric = require("../../../../../base");
 var entityLoader = require('../../../../../entity/loader');
 var definitionLoader = require("../../../../../entity/definitionLoader");
 var FieldInput = require("../../../FieldInput.jsx");
+var ObjectTypeDropDown = require("../../../ObjectTypeDropDown.jsx");
 var Field = require('../../../../../entity/definition/Field.js');
 
 /**
@@ -53,21 +54,6 @@ var CreateEntity = React.createClass({
         data: React.PropTypes.object
     },
 
-    getInitialState: function () {
-        return ({
-            entityDefinition: null,
-        });
-    },
-
-    componentDidMount: function () {
-        let func = function ProcessReturnedDefinitions(definitions) {
-            this.setState({entityDefinition: definitions});
-        }.bind(this);
-
-        // Get all the object types
-        definitionLoader.getAll(func);
-    },
-
     /**
      * Render action type form
      *
@@ -79,91 +65,75 @@ var CreateEntity = React.createClass({
         let definitionsDropDown = null;
         let entityFieldsDisplay = [];
 
-        // If we have a loaded all the entityDefinition, then lets display it in a dropdown menu
-        if (this.state.entityDefinition) {
+        // If we are on editMode, then let's display the dropdown menu of object types
+        if (this.props.editMode) {
+            definitionsDropDown = (
+                <ObjectTypeDropDown
+                    objType={objType}
+                    onChange={this._handleDefintionsMenuSelect}
+                />
+            );
+        } else {
 
-            // If we are on editMode, then let's display the dropdown menu of object types
-            if (this.props.editMode) {
-
-                // Get the definition menu data
-                let definitionsMenuData = this._getDefinitionMenuData();
-
-                // Get the selected index of the objType
-                let selectedIndex = (objType) ?
-                    this._getSelectedIndex(definitionsMenuData, objType) : 0;
-
-                definitionsDropDown = (
-                    <div className="entity-form-field-value">
-                        <DropDownMenu
-                            menuItems={definitionsMenuData}
-                            selectedIndex={parseInt(selectedIndex)}
-                            onChange={this._handleDefintionsMenuSelect}/>
-                    </div>
-                );
-            } else {
-
-                // If we are NOT on editMode, then let's just display the objType text
-                definitionsDropDown = (
-                    <div>
-                        {objType}
-                    </div>
-                );
-            }
+            // If we are NOT on editMode, then let's just display the objType text
+            definitionsDropDown = (
+                <div>
+                    {objType}
+                </div>
+            );
+        }
 
 
-            // If we have an objType selected, then lets display the entity fields
-            if (objType) {
-                let entity = entityLoader.factory(objType);
+        // If we have an objType selected, then lets display the entity fields
+        if (objType) {
+            let entity = entityLoader.factory(objType);
 
-                // Loop thru the entity fields and display each field using <FieldInput>
-                entity.def.fields.map(function (field) {
+            // Loop thru the entity fields and display each field using <FieldInput>
+            entity.def.fields.map(function (field) {
 
-                    // Do not display the fields that are read only && are not objectMulti
-                    if (!field.readonly && (field.type && field.type != Field.types.objectMulti)) {
+                // Do not display the fields that are read only or are not objectMulti
+                if (!field.readonly && (field.type && field.type != Field.types.objectMulti)) {
 
-                        var key = objType + field.id;
-                        var value = this.props.data[field.name] || null;
+                    var key = objType + field.id;
+                    var value = this.props.data[field.name] || null;
 
-                        // If we are on editMode, then let's display the field input of each entity fields
-                        if (this.props.editMode) {
+                    // If we are on editMode, then let's display the field input of each entity fields
+                    if (this.props.editMode) {
+                        entityFieldsDisplay.push(
+                            <div key={key + 'div'}>
+                                <div className="entity-form-field-label">
+                                    {field.title}
+                                </div>
+                                <div className="entity-form-field-value">
+                                    <FieldInput
+                                        key={key}
+                                        objType={objType}
+                                        fieldName={field.name}
+                                        value={value}
+                                        onChange={this._handleValueChange}
+                                        entityDefinition={entity.def}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    } else { // If we are NOT on editMode, then let's just display the label and the value of each entity field
+
+                        // Make sure we have an existing value in our data before we display the entity value
+                        if (value) {
                             entityFieldsDisplay.push(
-                                <div key={key + 'div'}>
+                                <div key={key + 'label'}>
                                     <div className="entity-form-field-label">
                                         {field.title}
                                     </div>
-                                    <div className="entity-form-field-value">
-                                        <FieldInput
-                                            key={key}
-                                            objType={objType}
-                                            fieldName={field.name}
-                                            value={value}
-                                            onChange={this._handleValueChange}
-                                            entityDefinition={entity.def}
-                                        />
+                                    <div>
+                                        {this.props.data[field.name]}
                                     </div>
                                 </div>
                             );
-                        } else { // If we are NOT on editMode, then let's just display the label and the value of each entity field
-
-                            // Make sure we have an existing value in our data before we display the entity value
-                            if (value) {
-                                entityFieldsDisplay.push(
-                                    <div key={key + 'label'}>
-                                        <div className="entity-form-field-label">
-                                            {field.title}
-                                        </div>
-                                        <div>
-                                            {this.props.data[field.name]}
-                                        </div>
-                                    </div>
-                                );
-                            }
                         }
                     }
-                }.bind(this));
-            }
-        } else {
-            definitionsDropDown = "Loading Object Types..."
+                }
+            }.bind(this));
         }
 
         return (
@@ -199,13 +169,11 @@ var CreateEntity = React.createClass({
     /**
      * Callback used to handle the selecting of definition
      *
-     * @param {DOMEvent} e Reference to the DOM event being sent
-     * @param {int} key The index of the menu clicked
-     * @param {array} menuItem The object value of the menu clicked
+     * @param {stirng} objType The object type that was selected
      * @private
      */
-    _handleDefintionsMenuSelect: function (e, key, menuItem) {
-        this._handleDataChange('obj_type', menuItem.objType);
+    _handleDefintionsMenuSelect: function (objType) {
+        this._handleDataChange('obj_type', objType);
     },
 
     /**
@@ -219,59 +187,6 @@ var CreateEntity = React.createClass({
     _handleValueChange: function (fieldName, fieldValue, opt_fieldValueLabel) {
         let fieldValueLabel = opt_fieldValueLabel || null;
         this._handleDataChange(fieldName, fieldValue);
-    },
-
-    /**
-     * Function that will loop thru state.entityDefinition (Entity/Definition) to get the objType and create a menu data
-     *
-     * @returns {Array} Menu data of the objTypes
-     * @private
-     */
-    _getDefinitionMenuData: function () {
-        let definitionsMenuData = [];
-
-        for (let idx in this.state.entityDefinition) {
-            let def = this.state.entityDefinition[idx];
-
-            definitionsMenuData.push({
-                objType: def.objType,
-                text: def.title
-            })
-        }
-
-        // Sort entityDefinition
-        definitionsMenuData.sort(function (a, b) {
-            if (a.text < b.text) return -1;
-            if (a.text > b.text) return 1;
-            return 0;
-        });
-
-        // Insert in the first index the default dropdown value
-        definitionsMenuData.splice(0, 0, {
-            objType: '',
-            text: 'Select Object Type'
-        });
-
-        return definitionsMenuData;
-    },
-
-    /**
-     * Gets the index of an objType based on the name
-     *
-     * @param {Array} data Array of data that will be mapped to get the index of the saved objType
-     * @param {string} value The value that will be used to get the index
-     * @private
-     */
-    _getSelectedIndex: function (data, value) {
-        var index = 0;
-        for (var idx in data) {
-            if (data[idx].objType == value) {
-                index = idx;
-                break;
-            }
-        }
-
-        return index;
     }
 });
 

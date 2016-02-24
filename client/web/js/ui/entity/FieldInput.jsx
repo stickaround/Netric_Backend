@@ -60,8 +60,8 @@ var FieldsDropDown = React.createClass({
         /**
          * Optional. The entity definition of the object
          *
-         * If we are trying to load more than one field input
-         *  then we might need to provide the entityDefinition to properly display all the input fields
+         * If we are trying to display multiple input fields, we may want to provide the entityDefinition for faster performance
+         *  so the component does not have to retrieve the entityDefinition everytime we load each input fields
          *
          * @var {object}
          */

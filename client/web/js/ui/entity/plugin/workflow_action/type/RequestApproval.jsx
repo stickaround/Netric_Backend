@@ -66,14 +66,6 @@ var RequestApproval = React.createClass({
         });
     },
 
-    componentDidMount: function () {
-        this._setInputValues();
-    },
-
-    componentDidUpdate: function () {
-        this._setInputValues();
-    },
-
     /**
      * Render action type form
      *
@@ -124,7 +116,8 @@ var RequestApproval = React.createClass({
                     <div className="entity-form-field-inline-block">
                         <TextField
                             floatingLabelText='Request Approval From'
-                            ref="approvalFromInput"/>
+                            ref="approvalFromInput"
+                            defaultValue={this.props.data.approval_from}/>
                     </div>
                     <div className="entity-form-field-inline-block">
                         <DropDownMenu
@@ -171,15 +164,6 @@ var RequestApproval = React.createClass({
         } else {
             this._handleDataChange('approval_from', menuItem.value);
         }
-    },
-
-    /**
-     * Set intial values for the input text for request approval from
-     * @private
-     */
-    _setInputValues: function () {
-        let approvalFrom = this.props.data.approval_from || null;
-        this.refs.approvalFromInput.setValue(approvalFrom);
     },
 
     /**

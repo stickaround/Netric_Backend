@@ -48,13 +48,6 @@ var WebHook = React.createClass({
         data: React.PropTypes.object
     },
 
-    componentDidMount: function () {
-        this._setInputValues();
-    },
-
-    componentDidUpdate: function () {
-        this._setInputValues();
-    },
 
     /**
      * Render action type form
@@ -69,6 +62,7 @@ var WebHook = React.createClass({
                     <TextField
                         floatingLabelText='Url'
                         ref="urlInput"
+                        defaultValue={this.props.data.url}
                         onBlur={this._handleDataChange}/>
                 </div>
             );
@@ -98,17 +92,6 @@ var WebHook = React.createClass({
 
         if (this.props.onChange) {
             this.props.onChange(data);
-        }
-    },
-
-    /**
-     * Set intial values for the input text for webhook url
-     * @private
-     */
-    _setInputValues: function () {
-        if(this.refs.urlInput) {
-            let url = this.props.data.url || null;
-            this.refs.urlInput.setValue(url);
         }
     },
 });

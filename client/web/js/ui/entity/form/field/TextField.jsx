@@ -33,7 +33,6 @@ var TextField = React.createClass({
     getInitialState: function () {
         return {
             shouldUpdateField: false,
-            optionalValuesSelectedIndex: 0
         }
     },
 
@@ -73,7 +72,7 @@ var TextField = React.createClass({
          * with optional values - a DropDown menu
          */
         let optionalValuesData = null;
-        let optionalValuesSelectedIndex = this.state.optionalValuesSelectedIndex;
+        let optionalValuesSelectedIndex = 0;
         if (field.optionalValues) {
             optionalValuesData = [];
             for (var optionValue in field.optionalValues) {
@@ -172,7 +171,6 @@ var TextField = React.createClass({
      */
     _handleDropDownInputChange: function (evt, key, menuItem) {
         this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), menuItem.payload);
-        this.setState({optionalValuesSelectedIndex: key});
     },
 
     /**
