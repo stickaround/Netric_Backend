@@ -1,5 +1,5 @@
 /**
- * Handle a send_email type action
+ * Handle an update field type action
  *
  * All actions have a 'data' field, which is just a JSON encoded string
  * used by the backend when executing the action.
@@ -21,7 +21,7 @@ var FieldInput = require("../../../FieldInput.jsx");
 /**
  * Manage action data for sending an email
  */
-var SendEmail = React.createClass({
+var UpdateField = React.createClass({
 
     /**
      * Expected props
@@ -163,4 +163,4 @@ var SendEmail = React.createClass({
 
 });
 
-module.exports = SendEmail;
+module.exports = UpdateField;

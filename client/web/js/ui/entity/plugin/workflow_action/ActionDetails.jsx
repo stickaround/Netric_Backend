@@ -12,13 +12,21 @@ var log = require("../../../../log");
 var entityLoader = require("../../../../entity/loader");
 
 var _actionTypes = {
-    update_field: require("./type/UpdateField.jsx")
+    approval: require("./type/RequestApproval.jsx"),
+    assign: null,
+    check_condition: null,
+    create_entity: require("./type/CreateEntity.jsx"),
+    send_email: null,
+    start_workflow: null,
+    update_field: require("./type/UpdateField.jsx"),
+    wait_condition: null,
+    webhook: require("./type/WebHook.jsx"),
 };
 
 /**
  * Manage actions for a workflow
  */
-var WorkflowActions = React.createClass({
+var WorkflowActionDetails = React.createClass({
 
     /**
      * Expected props
@@ -59,8 +67,11 @@ var WorkflowActions = React.createClass({
      * Get the starting state of this component
      */
     getInitialState: function() {
+
         // We need to know the type of object we are acting on
-        return ({objTypeActedOn: null})
+        return ({
+            objTypeActedOn: null
+        });
     },
 
     /**
@@ -68,7 +79,8 @@ var WorkflowActions = React.createClass({
      */
     render: function() {
 
-        let type = this.props.entity.getValue("type_name");
+        // If we have a null value of type_name (newly created workflow action) then we set the default value to approval
+        let type = this.props.entity.getValue("type_name") || 'approval';
         let objType = this.state.objTypeActedOn;
         let data = {};
 
@@ -127,4 +139,4 @@ var WorkflowActions = React.createClass({
     }
 });
 
-module.exports = WorkflowActions;
+module.exports = WorkflowActionDetails;

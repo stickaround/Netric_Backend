@@ -96,6 +96,10 @@ margin: 0 $gutter-less 0 $gutter-less;
       }
     }
 
+    .entity-form-object-type-dropdown {
+      float: left;
+    }
+
     .entity-form-member-value {
       @media #{$device-medium} {
         float: left;
