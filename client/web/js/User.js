@@ -39,6 +39,14 @@ var User = function(opt_data)
 	 * @type {string}
 	 */
 	this.fullName = initData.fullName || "";
+
+	/**
+	 * EMail for this user
+	 *
+	 * @public
+	 * @type {string}
+	 */
+	this.email = initData.email || "";
 };
 
 module.exports = User;

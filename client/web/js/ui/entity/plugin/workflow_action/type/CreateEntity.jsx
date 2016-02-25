@@ -13,15 +13,15 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Chamel = require('chamel');
-var DropDownMenu = Chamel.DropDownMenu;
-var TextField = Chamel.TextField;
 var netric = require("../../../../../base");
 var entityLoader = require('../../../../../entity/loader');
 var definitionLoader = require("../../../../../entity/definitionLoader");
 var FieldInput = require("../../../FieldInput.jsx");
 var ObjectTypeDropDown = require("../../../ObjectTypeDropDown.jsx");
 var Field = require('../../../../../entity/definition/Field.js');
+var Controls = require('../../../../Controls.jsx');
+var DropDownMenu = Controls.DropDownMenu;
+var TextField = Controls.TextField;
 
 /**
  * Manage action data for create entity

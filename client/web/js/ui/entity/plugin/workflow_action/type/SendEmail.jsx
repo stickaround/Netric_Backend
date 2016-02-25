@@ -1,5 +1,5 @@
 /**
- * Handle a request approval type action
+ * Handle a send email type action
  *
  * All actions have a 'data' field, which is just a JSON encoded string
  * used by the backend when executing the action.
@@ -7,28 +7,21 @@
  * When the ActionDetails plugin is rendered it will decode or parse the string
  * and pass it down to the type component.
  *
-
+ * @jsx React.DOM
  */
 'use strict';
 
 var React = require('react');
 var ReactDOM = require('react-dom');
 var netric = require("../../../../../base");
-var Field = require('../../../../../entity/definition/Field.js');
-var entityLoader = require('../../../../../entity/loader');
-var controller = require('../../../../../controller/controller');
-var TextFieldAutoComplete = require("../../../../mixins/TextFieldAutoComplete.jsx");
 var Selector = require("../Selector.jsx");
 var Controls = require('../../../../Controls.jsx');
-var DropDownMenu = Controls.DropDownMenu;
 var TextField = Controls.TextField;
 
 /**
- * Manage action data for request approval
+ * Manage action data for SendEmail
  */
-var RequestApproval = React.createClass({
-
-    mixins: [TextFieldAutoComplete],
+var SendEmail = React.createClass({
 
     /**
      * Expected props
@@ -51,11 +44,6 @@ var RequestApproval = React.createClass({
         objType: React.PropTypes.string.isRequired,
 
         /**
-         * The workflow_action entity that we are currently working on
-         */
-        entity: React.PropTypes.object,
-
-        /**
          * Data from the action - decoded JSON object
          */
         data: React.PropTypes.object
@@ -73,8 +61,8 @@ var RequestApproval = React.createClass({
     render: function () {
 
         let additionalSelectorData = [{
-            value: 'browse',
-            text: 'Specific User'
+            value: 'default',
+            text: 'Default'
         }];
 
         return (
@@ -82,10 +70,10 @@ var RequestApproval = React.createClass({
                 <div>
                     <div className="entity-form-field-inline-block">
                         <TextField
-                            floatingLabelText='Request Approval From'
-                            ref="approvalFromInput"
-                            defaultValue={this.props.data.approval_from}
-                            />
+                            floatingLabelText='From'
+                            ref="fromInput"
+                            defaultValue={this.props.data.from}
+                        />
                     </div>
                     <div className="entity-form-field-inline-block">
                         <Selector
@@ -93,15 +81,28 @@ var RequestApproval = React.createClass({
                             displayType="dropdown"
                             filterBy="subtype"
                             fieldType="user"
-                            selectedField={this.props.data.approval_from}
+                            selectedField={this.props.data.from}
                             additionalMenuData={additionalSelectorData}
                             onChange={this._handleMenuSelect}
-                            />
+                        />
+                    </div>
+                </div>
+                <div>
+                    <div className="entity-form-field-label">
+                        To
+                    </div>
+                    <div className="entity-form-field-value">
+                        <Selector
+                            objType={this.props.objType}
+                            displayType="checkbox"
+                            filterBy="subtype"
+                            fieldType="user"
+                            onChange={this._handleCheckboxSelect}
+                        />
                     </div>
                 </div>
             </div>
         );
-
     },
 
     /**
@@ -126,46 +127,25 @@ var RequestApproval = React.createClass({
      * @private
      */
     _handleMenuSelect: function (fieldValue) {
-
-        if (fieldValue === 'browse') {
-            this._handleSelectExistingUser();
+        if(fieldValue === 'default') {
+            this._handleDataChange('from', netric.getApplication().getAccount().getUser().email);
         } else {
-            this._handleDataChange('approval_from', fieldValue);
+            this._handleDataChange('from', fieldValue);
         }
     },
 
-    /**
-     * Callback used to display the entity browser and enable the user to select a specific user
-     *
-     * @private
-     */
-    _handleSelectExistingUser: function () {
+    _handleCheckboxSelect: function() {
 
-        /*
-         * We require it here to avoid a circular dependency where the
-         * controller requires the view and the view requires the controller
-         */
-        let BrowserController = require('../../../../../controller/EntityBrowserController');
-        let browser = new BrowserController();
-        browser.load({
-            type: controller.types.DIALOG,
-            title: 'Select User',
-            objType: 'user',
-            onSelect: function (objType, id, name) {
-                let selectedUser = this.transformAutoCompleteSelected({payload: id, text: name});
-                this._handleDataChange('approval_from', selectedUser);
-            }.bind(this)
-        });
     },
 
     /**
-     * Set intial values for the input text for request approval from
+     * Set intial values for the input text for send email from
      * @private
      */
     _setInputValues: function () {
-        let approvalFrom = this.props.data.approval_from || null;
-        this.refs.approvalFromInput.setValue(approvalFrom);
+        let from = this.props.data.from || null;
+        this.refs.fromInput.setValue(from);
     }
 });
 
-module.exports = RequestApproval;
+module.exports = SendEmail;

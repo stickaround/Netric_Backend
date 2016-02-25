@@ -1,5 +1,5 @@
 /**
- * The action data details editor
+ * The workflow action details editor
  *
 
  */
@@ -16,7 +16,7 @@ var _actionTypes = {
     assign: null,
     check_condition: null,
     create_entity: require("./type/CreateEntity.jsx"),
-    send_email: null,
+    send_email: require("./type/SendEmail.jsx"),
     start_workflow: null,
     update_field: require("./type/UpdateField.jsx"),
     wait_condition: null,
@@ -101,7 +101,8 @@ var WorkflowActionDetails = React.createClass({
                 data: data,
                 onChange: this._handleDataChange,
                 editMode: this.props.editMode,
-                objType: objType
+                objType: objType,
+                entity: this.props.entity
             });
         } else {
             log.error("No editor plugin found for action type " + type);
