@@ -41,7 +41,7 @@ var User = function(opt_data)
 	this.fullName = initData.fullName || "";
 
 	/**
-	 * EMail for this user
+	 * Email for this user
 	 *
 	 * @public
 	 * @type {string}
