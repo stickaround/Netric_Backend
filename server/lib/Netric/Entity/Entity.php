@@ -508,7 +508,7 @@ class Entity implements EntityInterface
 			}
 
 			// Make sure we will not overwrite the obj_type
-			if($fname != 'obj_type') {
+			if($fname !== 'obj_type') {
 				$data[$fname] = $val;
 			}
 
