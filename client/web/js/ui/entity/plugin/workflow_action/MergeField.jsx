@@ -28,11 +28,11 @@ var MergeField = React.createClass({
         objType: React.PropTypes.string,
 
         /**
-         * Function that should be called when we are finished MergeFielding a lead
+         * Function that will be called when selecting a merge field
          *
          * @type {function}
          */
-        onActionFinished: React.PropTypes.func,
+        onSelect: React.PropTypes.func,
 
         /**
          * Function that is called when clicking the back button
@@ -47,7 +47,8 @@ var MergeField = React.createClass({
         return ({
             field: null,
             fieldSelected: null,
-            subtypeFieldSelected: null
+            subtypeFieldSelected: null,
+            errorMsg: null
         });
     },
 
@@ -60,7 +61,7 @@ var MergeField = React.createClass({
                 <IconButton
                     iconClassName='fa fa-arrow-left'
                     onClick={this._handleBackButtonClicked}
-                    />
+                />
             );
 
             toolBar = (
@@ -68,6 +69,15 @@ var MergeField = React.createClass({
                     iconElementLeft={elementLeft}
                     title={this.props.title}>
                 </AppBar>
+            );
+        }
+
+        var displayErrorMsg = null;
+        if (this.state.errorMsg) {
+            displayErrorMsg = (
+                <div className="entity-form-input-error">
+                    {this.state.errorMsg}
+                </div>
             );
         }
 
@@ -91,14 +101,15 @@ var MergeField = React.createClass({
                         parentFieldName={this.state.field.name}
                         selectedField={this.state.subtypeFieldSelected}
                         onChange={this._handleSubtypeMenuSelect}
-                        />
+                    />
                 </div>
             );
         }
 
         return (
-            <div>
+            <div className="entity-form">
                 {toolBar}
+                {displayErrorMsg}
                 <div>
                     <div className="entity-form-field-inline-block">
                         <Selector
@@ -110,7 +121,7 @@ var MergeField = React.createClass({
                             selectedField={this.state.fieldSelected}
                             onChange={this._handleMenuSelect}
                             getSelectedFieldObject={this._handleGetSelectedFieldObject}
-                            />
+                        />
                     </div>
                     {displaySubtypSelector}
                 </div>
@@ -142,7 +153,8 @@ var MergeField = React.createClass({
     _handleMenuSelect: function (fieldValue) {
         this.setState({
             fieldSelected: fieldValue,
-            subtypeFieldSelected: null
+            subtypeFieldSelected: null,
+            errorMsg: null
         });
     },
 
@@ -173,14 +185,31 @@ var MergeField = React.createClass({
      * @private
      */
     _handleSelectField: function () {
-        var fieldSelected = this.state.fieldSelected;
+        var fieldSelected = null;
 
-        if(this.state.subtypeFieldSelected) {
-            fieldSelected = this.state.subtypeFieldSelected;
+        /*
+         * If the selected field is an object and has a subtype
+         *  then we will display subtype's field selector to display the subtype's fields
+         */
+        if (this.state.field
+            && this.state.field.subtype
+            && this.state.field.type == this.state.field.types.object) {
+
+            if (this.state.subtypeFieldSelected) {
+                fieldSelected = this.state.subtypeFieldSelected;
+            } else {
+                this.setState({errorMsg: 'Please select a subtype merge field.'})
+            }
+        } else if(this.state.fieldSelected) {
+            fieldSelected = this.state.fieldSelected
+        } else {
+            this.setState({errorMsg: 'Please select a merge field.'})
         }
 
 
-        console.log(fieldSelected);
+        if (fieldSelected && this.props.onSelect) {
+            this.props.onSelect({fieldSelected: fieldSelected});
+        }
     }
 });
 

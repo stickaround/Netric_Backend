@@ -507,7 +507,10 @@ class Entity implements EntityInterface
 				}
 			}
 
-			$data[$fname] = $val;
+			// Make sure we will not overwrite the obj_type
+			if($fname != 'obj_type') {
+				$data[$fname] = $val;
+			}
 
             $valueNames = $this->getValueNames($fname);
 			if ($valueNames)

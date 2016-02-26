@@ -115,7 +115,12 @@ EntityPluginController.prototype.render = function () {
             if(this.props.onFinishedAction) {
                 this.props.onFinishedAction();
             }
-
+            this.close();
+        }.bind(this),
+        onSelect:function (data) {
+            if(this.props.onSelect) {
+                this.props.onSelect(data);
+            }
             this.close();
         }.bind(this),
         onNavBtnClick: function (evt) {

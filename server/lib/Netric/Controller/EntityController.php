@@ -178,7 +178,6 @@ class EntityController extends Mvc\AbstractController
             return $this->sendOutput(array("error"=>"obj_type and id are required params"));
         }
 
-
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $entity = $loader->get($params['obj_type'], $params['id']);
 
