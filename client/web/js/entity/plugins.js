@@ -19,7 +19,8 @@ plugins.List = {
         Actions: require('../ui/entity/plugin/workflow/Actions.jsx')
     },
     workflow_action: {
-        ActionDetails: require('../ui/entity/plugin/workflow_action/ActionDetails.jsx')
+        ActionDetails: require('../ui/entity/plugin/workflow_action/ActionDetails.jsx'),
+        MergeField: require('../ui/entity/plugin/workflow_action/MergeField.jsx')
     },
     task: {
         LogTime: require('../ui/entity/plugin/task/LogTime.jsx')

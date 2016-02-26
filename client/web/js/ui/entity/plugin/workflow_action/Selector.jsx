@@ -34,6 +34,13 @@ var WorkflowActionSelector = React.createClass({
         objType: React.PropTypes.string.isRequired,
 
         /**
+         * This will determine if we will include manager_id in the field list
+         *
+         * @var {bool}
+         */
+        includeManager: React.PropTypes.bool,
+
+        /**
          * This will determine how we will display the fields
          *
          * @type {string}
@@ -55,6 +62,13 @@ var WorkflowActionSelector = React.createClass({
         fieldType: React.PropTypes.string,
 
         /**
+         * The field that was selected
+         *
+         * @var {string}
+         */
+        selectedField: React.PropTypes.any,
+
+        /**
          * Callback called when the user selects a field (Applicable only with dropdown)
          *
          * @var {function}
@@ -69,14 +83,14 @@ var WorkflowActionSelector = React.createClass({
         onCheck: React.PropTypes.func,
 
         /**
-         * The field that was selected
+         * Optional function that will get the selected field object
          *
-         * @var {string}
+         * @var {function}
          */
-        selectedField: React.PropTypes.any,
+        getSelectedFieldObject: React.PropTypes.func,
 
         /**
-         * If we have an additional custom data for menu, then we specify them here
+         * Optional data that will be added in the menu data
          *
          * data[0]: {
          *  value: browse,
@@ -85,7 +99,27 @@ var WorkflowActionSelector = React.createClass({
          *
          * @var {array}
          */
-        additionalMenuData: React.PropTypes.array
+        additionalMenuData: React.PropTypes.array,
+
+        /**
+         * Optional list of field types to exclude from the list
+         *
+         * @var {array}
+         */
+        hideFieldTypes: React.PropTypes.array,
+
+        /**
+         * Optional value that will be prepended in the field.name.
+         *
+         * Sometimes we display the subtype fields and it should have a parentFieldName
+         *  to specify that it is a subtype field.
+         *
+         *  Sample field value with parentFieldName: <%project_id.id%>
+         *  Sample field value without parentFieldName: <%id%>
+         *
+         * @var {array}
+         */
+        parentFieldName: React.PropTypes.string
     },
 
     /**
@@ -95,8 +129,11 @@ var WorkflowActionSelector = React.createClass({
      */
     getDefaultProps: function () {
         return {
+            includeManager: true,
             displayType: 'dropdown',
-            filterBy: 'none'
+            filterBy: 'none',
+            hideFieldTypes: [],
+            parentFieldName: null
         }
     },
 
@@ -105,9 +142,8 @@ var WorkflowActionSelector = React.createClass({
      */
     getInitialState: function () {
 
-        // We need to know the type of object we are acting on
         return {
-            entityDefinition: null
+            fieldData: null
         };
     },
 
@@ -125,37 +161,12 @@ var WorkflowActionSelector = React.createClass({
      */
     render: function () {
 
-        if (!this.state.entityDefinition) {
+        if (!this.state.fieldData) {
             // Entity definition is loading still so return an empty div
             return (<div />);
         }
 
-        // This will contain the entity fields
-        let fields = null;
-
-        // This will contain the field menu data that will be used in the dropdown menu or checkbox list
-        let fieldData = [];
-
-        // Determine on how we will get the entity fields
-        switch (this.props.filterBy) {
-            case 'none':
-
-                // Get the entity fields
-                fields = this.state.entityDefinition.getFields();
-                break;
-
-            case 'type':
-
-                // Get the entity fields by filtering the field.type
-                fields = this.state.entityDefinition.getFieldsByType(this.props.fieldType);
-                break;
-
-            case 'subtype':
-
-                // Get the entity fields by filtering the field.subtype
-                fields = this.state.entityDefinition.getFieldsBySubtype(this.props.fieldType);
-                break;
-        }
+        let fieldData = this.state.fieldData.slice(0);
 
         // Determine on how we will display the entity field selector
         switch (this.props.displayType) {
@@ -163,14 +174,14 @@ var WorkflowActionSelector = React.createClass({
 
                 // If no field name has been selected, enter a first explanation entry
                 if (!this.props.selectedField) {
-                    fieldData.push({
+
+                    let fieldTypeText = (this.props.fieldType) ? this.props.fieldType : 'field';
+
+                    fieldData.splice(0, 0, {
                         value: '',
-                        text: 'Select ' + this.props.fieldType
+                        text: 'Select ' + fieldTypeText
                     });
                 }
-
-                // This will loop thru each entity field and save it in the fieldData array to be used in the dropdown menu
-                this._prepFieldData(fieldData, fields);
 
                 // If we have additional custom menu data, then lets add it in our menu data
                 if (this.props.additionalMenuData) {
@@ -178,7 +189,7 @@ var WorkflowActionSelector = React.createClass({
                         fieldData.push(data);
                     })
                 }
-                
+
                 let selectedFieldIndex = (this.props.selectedField) ?
                     this._getSelectedIndex(fieldData, this.props.selectedField) : 0;
 
@@ -196,16 +207,13 @@ var WorkflowActionSelector = React.createClass({
 
                 let checkboxDisplay = [];
 
-                // This will loop thru each entity field and save it in the fieldData array to be used in the checkbox list
-                this._prepFieldData(fieldData, fields);
-
                 // Loop through fields and prepare the checkbox inputs
                 for (var idx in fieldData) {
                     let field = fieldData[idx];
                     let isChecked = false;
 
                     // Make sure the selectedField is an array, and it contains the currentFieldData then we set the checkbox to checked
-                    if(this.props.selectedField instanceof Array && this.props.selectedField.indexOf(field.value) > -1) {
+                    if (this.props.selectedField instanceof Array && this.props.selectedField.indexOf(field.value) > -1) {
                         isChecked = true;
                     }
 
@@ -250,6 +258,10 @@ var WorkflowActionSelector = React.createClass({
         if (this.props.onChange) {
             this.props.onChange(data.value);
         }
+
+        if (this.props.getSelectedFieldObject) {
+            this.props.getSelectedFieldObject(data.field);
+        }
     },
 
     /**
@@ -291,9 +303,35 @@ var WorkflowActionSelector = React.createClass({
      * @param {EntityDefinition} entityDefinition The loaded definition
      */
     _handleEntityDefinititionLoaded: function (entityDefinition) {
-        this.setState({
-            entityDefinition: entityDefinition
-        });
+
+        // This will contain the entity fields
+        let fields = null;
+
+
+
+        // Determine on how we will get the entity fields
+        switch (this.props.filterBy) {
+            case 'none':
+
+                // Get the entity fields
+                fields = entityDefinition.getFields();
+                break;
+
+            case 'type':
+
+                // Get the entity fields by filtering the field.type
+                fields = entityDefinition.getFieldsByType(this.props.fieldType);
+                break;
+
+            case 'subtype':
+
+                // Get the entity fields by filtering the field.subtype
+                fields = entityDefinition.getFieldsBySubtype(this.props.fieldType);
+                break;
+        }
+
+        // Prepare the entity fields to be displayed in a dropdown or checkbox list
+        this._prepFieldData(fields);
     },
 
     /**
@@ -303,23 +341,44 @@ var WorkflowActionSelector = React.createClass({
      * @returns {Array} Data that will be used in the menu dropdown
      * @private
      */
-    _prepFieldData: function (fieldData, fields) {
+    _prepFieldData: function (fields) {
+
+        // This will contain the field menu data that will be used in the dropdown menu or checkbox list
+        let fieldData = [];
 
         // Loop through fields and pass to dropdown menu data
         for (var idx in fields) {
             let field = fields[idx];
 
+            // Skip fields with types that have been hidden
+            if (this.props.hideFieldTypes.indexOf(field.type) !== -1) {
+                continue;
+            }
+
+            var fieldName = field.name;
+
+            // If we have a prop.parentFieldName then lets prepend it in the field.name
+            if(this.props.parentFieldName) {
+                fieldName = this.props.parentFieldName + '.' + fieldName;
+            }
+
             fieldData.push({
-                value: "<%" + field.name + "%>",
-                text: this.props.objType + '.' + field.title
+                value: "<%" + fieldName + "%>",
+                text: this.props.objType + '.' + field.title,
+                field: field
             });
 
             // Add Manager
-            fieldData.push({
-                value: "<%" + field.name + ".manager_id%>",
-                text: this.props.objType + '.' + field.title + '.Manager'
-            });
+            if (this.props.includeManager) {
+                fieldData.push({
+                    value: "<%" + field.name + ".manager_id%>",
+                    text: this.props.objType + '.' + field.title + '.Manager',
+                    field: field
+                });
+            }
         }
+
+        this.setState({fieldData: fieldData});
     }
 });
 
