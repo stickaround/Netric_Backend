@@ -37,7 +37,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->controller->testMode = true;
     }
 
-    /*public function testGetDefinitionForms()
+    public function testGetDefinitionForms()
     {
         // Set params in the request
         $req = $this->controller->getRequest();
@@ -138,20 +138,5 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         // Make sure the large form was loaded
         $this->assertFalse(empty($ret[0]['forms']['large']));
-    }*/
-
-    public function testGetAction()
-    {
-        $data = array(
-            'obj_type' => "html_template",
-            'id' => "7",
-        );
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "html_template");
-        $req->setParam('id', "7");
-
-        $ret = $this->controller->getGetAction();
     }
 }

@@ -129,7 +129,7 @@ class EntityLoader
 
 		// First check to see if the object is cached
 		$data = $this->getCached($objType, $id);
-		if (false && $data)
+		if ($data)
 		{
 			$entity->fromArray($data);
 			if ($entity->getId())
