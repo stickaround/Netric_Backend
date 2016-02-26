@@ -130,65 +130,94 @@ var WorkflowActionSelector = React.createClass({
             return (<div />);
         }
 
-        // Get the entity of the objtype reference
+        // This will contain the entity fields
         let fields = null;
 
+        // This will contain the field menu data that will be used in the dropdown menu or checkbox list
+        let fieldData = [];
+
+        // Determine on how we will get the entity fields
         switch (this.props.filterBy) {
             case 'none':
+
+                // Get the entity fields
                 fields = this.state.entityDefinition.getFields();
                 break;
+
             case 'type':
+
+                // Get the entity fields by filtering the field.type
                 fields = this.state.entityDefinition.getFieldsByType(this.props.fieldType);
                 break;
+
             case 'subtype':
+
+                // Get the entity fields by filtering the field.subtype
                 fields = this.state.entityDefinition.getFieldsBySubtype(this.props.fieldType);
                 break;
         }
 
+        // Determine on how we will display the entity field selector
         switch (this.props.displayType) {
             case 'dropdown':
 
-                let menuData = this._handleGetMenuData(fields);
+                // If no field name has been selected, enter a first explanation entry
+                if (!this.props.selectedField) {
+                    fieldData.push({
+                        value: '',
+                        text: 'Select ' + this.props.fieldType
+                    });
+                }
+
+                // This will loop thru each entity field and save it in the fieldData array to be used in the dropdown menu
+                this._prepFieldData(fieldData, fields);
+
+                // If we have additional custom menu data, then lets add it in our menu data
+                if (this.props.additionalMenuData) {
+                    this.props.additionalMenuData.map(function (data) {
+                        fieldData.push(data);
+                    })
+                }
+                
                 let selectedFieldIndex = (this.props.selectedField) ?
-                    this._getSelectedIndex(menuData, this.props.selectedField) : 0;
+                    this._getSelectedIndex(fieldData, this.props.selectedField) : 0;
 
                 return (
                     <div>
                         <DropDownMenu
-                            menuItems={menuData}
+                            menuItems={fieldData}
                             selectedIndex={parseInt(selectedFieldIndex)}
                             onChange={this._handleFieldChange}/>
                     </div>
                 );
                 break;
+
             case 'checkbox':
 
                 let checkboxDisplay = [];
 
+                // This will loop thru each entity field and save it in the fieldData array to be used in the checkbox list
+                this._prepFieldData(fieldData, fields);
+
                 // Loop through fields and prepare the checkbox inputs
-                for (var idx in fields) {
-                    let field = fields[idx];
+                for (var idx in fieldData) {
+                    let field = fieldData[idx];
+                    let isChecked = false;
+
+                    // Make sure the selectedField is an array, and it contains the currentFieldData then we set the checkbox to checked
+                    if(this.props.selectedField instanceof Array && this.props.selectedField.indexOf(field.value) > -1) {
+                        isChecked = true;
+                    }
 
                     checkboxDisplay.push(
                         <Checkbox
                             key={idx}
-                            value={"<%" + field.name + "%>"}
-                            label={this.props.objType + '.' + field.title}
+                            value={field.value}
+                            label={field.text}
                             onCheck={this._handleFieldCheck}
-                            defaultSwitched={false}/>
-                    );
-
-                    // Add the manager
-                    checkboxDisplay.push(
-                        <Checkbox
-                            key={idx + 'manager'}
-                            value={"<%" + field.name + ".manager_id%>"}
-                            label={this.props.objType + '.' + field.title + '.Manager'}
-                            onCheck={this._handleFieldCheck}
-                            defaultSwitched={false}/>
+                            defaultSwitched={isChecked}/>
                     );
                 }
-
 
                 return (
                     <div>
@@ -196,6 +225,7 @@ var WorkflowActionSelector = React.createClass({
                     </div>
                 );
                 break;
+
             default:
                 var errorMsg = this.props.displayType + ' display Type is not available. Please provide a valid display type.';
                 log.error(errorMsg);
@@ -230,12 +260,9 @@ var WorkflowActionSelector = React.createClass({
      *
      * @private
      */
-    _handleFieldCheck: function (e, isInputChecked) {
-
-        console.log(e);
-
+    _handleFieldCheck: function (e, isChecked) {
         if (this.props.onCheck) {
-            this.props.onCheck(isInputChecked);
+            this.props.onCheck(e.target.value, isChecked);
         }
     },
 
@@ -270,46 +297,29 @@ var WorkflowActionSelector = React.createClass({
     },
 
     /**
-     * Prepares the menu data to be used in a dropdown
+     * Prepares the field menu data to be used in a dropdown menu or checkbox list
      *
      * @param {array} fields Array of filtered/unfiltered fields of an entity
      * @returns {Array} Data that will be used in the menu dropdown
      * @private
      */
-    _handleGetMenuData: function (fields) {
-        let menuData = [];
-        // If no field name has been selected, enter a first explanation entry
-        if (!this.props.selectedField) {
-            menuData.push({
-                value: '',
-                text: 'Select ' + this.props.fieldType
-            });
-        }
-
-        // If we have additional custom menu data, then lets add it in our menu data
-        if (this.props.additionalMenuData) {
-            this.props.additionalMenuData.map(function (data) {
-                menuData.push(data);
-            })
-        }
+    _prepFieldData: function (fieldData, fields) {
 
         // Loop through fields and pass to dropdown menu data
         for (var idx in fields) {
             let field = fields[idx];
 
-            menuData.push({
+            fieldData.push({
                 value: "<%" + field.name + "%>",
                 text: this.props.objType + '.' + field.title
             });
 
             // Add Manager
-            menuData.push({
+            fieldData.push({
                 value: "<%" + field.name + ".manager_id%>",
                 text: this.props.objType + '.' + field.title + '.Manager'
             });
         }
-
-        return menuData;
     }
 });
 

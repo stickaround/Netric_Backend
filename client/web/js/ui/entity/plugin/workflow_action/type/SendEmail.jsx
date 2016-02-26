@@ -17,6 +17,8 @@ var netric = require("../../../../../base");
 var Selector = require("../Selector.jsx");
 var Controls = require('../../../../Controls.jsx');
 var TextField = Controls.TextField;
+var RadioButton = Controls.RadioButton;
+var RadioButtonGroup = Controls.RadioButtonGroup;
 
 /**
  * Manage action data for SendEmail
@@ -59,50 +61,140 @@ var SendEmail = React.createClass({
      * @returns {JSX}
      */
     render: function () {
-
         let additionalSelectorData = [{
             value: 'default',
             text: 'Default'
         }];
 
-        return (
-            <div className="entity-form-field">
-                <div>
-                    <div className="entity-form-field-inline-block">
-                        <TextField
-                            floatingLabelText='From'
-                            ref="fromInput"
-                            defaultValue={this.props.data.from}
-                        />
+        if (this.props.editMode) {
+            return (
+                <div className="entity-form-field">
+                    <div>
+                        <div className="entity-form-field-inline-block">
+                            <TextField
+                                floatingLabelText='From'
+                                ref="fromInput"
+                                defaultValue={this.props.data.from}
+                            />
+                        </div>
+                        <div className="entity-form-field-inline-block">
+                            <Selector
+                                objType={this.props.objType}
+                                displayType="dropdown"
+                                filterBy="subtype"
+                                fieldType="user"
+                                selectedField={this.props.data.from}
+                                additionalMenuData={additionalSelectorData}
+                                onChange={this._handleMenuSelect}
+                            />
+                        </div>
                     </div>
-                    <div className="entity-form-field-inline-block">
-                        <Selector
-                            objType={this.props.objType}
-                            displayType="dropdown"
-                            filterBy="subtype"
-                            fieldType="user"
-                            selectedField={this.props.data.from}
-                            additionalMenuData={additionalSelectorData}
-                            onChange={this._handleMenuSelect}
-                        />
+                    <div>
+                        <div className="entity-form-field-label">
+                            To
+                        </div>
+                        <div>
+                            <Selector
+                                objType={this.props.objType}
+                                displayType="checkbox"
+                                filterBy="subtype"
+                                fieldType="user"
+                                selectedField={this.props.data.to}
+                                onCheck={this._handleCheckboxSelect}
+                            />
+                            <TextField
+                                floatingLabelText='Other email addresses - separate with commas'
+                                ref="toEmailOther"
+                                defaultValue={this.props.data.to_other}
+                                onBlur={this._handleTextInputChange.bind(this, 'to_other')}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <div className="entity-form-field-label">
+                            Cc
+                        </div>
+                        <div>
+                            <Selector
+                                objType={this.props.objType}
+                                displayType="checkbox"
+                                filterBy="subtype"
+                                fieldType="user"
+                                selectedField={this.props.data.cc}
+                                onCheck={this._handleCheckboxSelect}
+                            />
+                            <TextField
+                                floatingLabelText='Other email addresses - separate with commas'
+                                ref="toEmailOther"
+                                defaultValue={this.props.data.cc_other}
+                                onBlur={this._handleTextInputChange.bind(this, 'cc_other')}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <div className="entity-form-field-label">
+                            Bcc
+                        </div>
+                        <div>
+                            <Selector
+                                objType={this.props.objType}
+                                displayType="checkbox"
+                                filterBy="subtype"
+                                fieldType="user"
+                                selectedField={this.props.data.bcc}
+                                onCheck={this._handleCheckboxSelect}
+                            />
+                            <TextField
+                                floatingLabelText='Other email addresses - separate with commas'
+                                ref="toEmailOther"
+                                defaultValue={this.props.data.bcc_other}
+                                onBlur={this._handleTextInputChange.bind(this, 'bcc_other')}
+                            />
+                        </div>
+                    </div>
+                    <div className="entity-form-group">
+                        <RadioButtonGroup
+                            className='recurrence-input'
+                            name='composeType'
+                            defaultSelected='compose'
+                            onChange={this._handleTypeChange}
+                            inline={true}>
+                            <RadioButton
+                                value='compose'
+                                label='Compose New Email '
+                            />
+                            <RadioButton
+                                value='template'
+                                label='Use Email Template'
+                            />
+                        </RadioButtonGroup>
                     </div>
                 </div>
-                <div>
-                    <div className="entity-form-field-label">
-                        To
+            );
+        } else {
+
+            let displayData = [];
+
+            for (var field in this.props.data) {
+                displayData.push(
+                    <div>
+                        <div className="entity-form-field-label">
+                            {field}
+                        </div>
+                        <div>
+                            {this.props.data[field]}
+                        </div>
                     </div>
-                    <div className="entity-form-field-value">
-                        <Selector
-                            objType={this.props.objType}
-                            displayType="checkbox"
-                            filterBy="subtype"
-                            fieldType="user"
-                            onChange={this._handleCheckboxSelect}
-                        />
-                    </div>
+                )
+            }
+
+            // If we are not on editMode then lets just display the send email info
+            return (
+                <div className="entity-form-field">
+                    {displayData}
                 </div>
-            </div>
-        );
+            );
+        }
     },
 
     /**
@@ -121,21 +213,58 @@ var SendEmail = React.createClass({
     },
 
     /**
+     * Callback used to handle the changing of text inputs for send email data
+     *
+     * @param {string} property The name of the property that was changed
+     * @param {DOMEvent} evt Reference to the DOM event being sent
+     * @private
+     */
+    _handleTextInputChange: function (property, evt) {
+        this._handleDataChange(property, evt.target.value);
+    },
+
+    /**
      * Callback used to handle the selecting of user dropdown menu
      *
      * @param {string} fieldValue The value of the field that was selected
      * @private
      */
     _handleMenuSelect: function (fieldValue) {
-        if(fieldValue === 'default') {
+        if (fieldValue === 'default') {
             this._handleDataChange('from', netric.getApplication().getAccount().getUser().email);
         } else {
             this._handleDataChange('from', fieldValue);
         }
     },
 
-    _handleCheckboxSelect: function() {
+    /**
+     * Callback used to handle the selecting of field checkbox
+     *
+     * @param {string} fieldValue The value of the field that was checked
+     * @param {bool} isChecked The current state of the checkbox
+     * @private
+     */
+    _handleCheckboxSelect: function (fieldValue, isChecked) {
+        var emailTo = this.props.data.to;
 
+        // if emailTo data is not defined, then lets set it to an array variable type
+        if (!emailTo) {
+            emailTo = [];
+        }
+
+        if (isChecked) {
+            emailTo.push(fieldValue)
+        } else {
+
+            // if the fieldValue is deselected, then we need to remove that fieldValue in the data array
+            for (var idx in emailTo) {
+                if (emailTo[idx] == fieldValue) {
+                    emailTo.splice(idx, 1);
+                }
+            }
+        }
+
+        this._handleDataChange('to', emailTo);
     },
 
     /**
