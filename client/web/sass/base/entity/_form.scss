@@ -241,7 +241,7 @@ margin: 0 $gutter-less 0 $gutter-less;
     margin-top: 15px;
 
     @media #{$device-small} {
-      margin-left: 5%;
+      margin-left: $gutter;
     }
 
     .entity-form-group-label-selected {
