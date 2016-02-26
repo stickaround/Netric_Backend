@@ -242,7 +242,7 @@ var SendEmail = React.createClass({
                 }
 
                 displayData.push(
-                    <div>
+                    <div key={field}>
                         <div className="entity-form-field-label">
                             {field}
                         </div>
