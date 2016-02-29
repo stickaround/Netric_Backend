@@ -100,6 +100,7 @@ var Entity = React.createClass({
         if (this.props.onNavBtnClick) {
             appBar = (
                 <AppBar
+                    fixed={true}
                     title={appBarTitle}
                     className={appBarClassName}
                     iconClassNameLeft="fa fa-times"
@@ -111,6 +112,7 @@ var Entity = React.createClass({
         } else {
             appBar = (
                 <AppBar
+                    fixed={true}
                     title={appBarTitle}
                     zDepth={appBarZDepth}
                     className={appBarClassName}>

@@ -47,7 +47,7 @@ var LeftNavModuleHeader = React.createClass({
         var headerTitle = this.props.title;
 
         var menuClass = this.getClasses('left-nav-header-menu', {
-          'chamel-is-closed': (this.state.open) ? false : true
+          'hidden': (this.state.open) ? false : true
         });
 
         var headerIcon = null;
@@ -100,30 +100,23 @@ var LeftNavModuleHeader = React.createClass({
                     title={headerTitle}
                     onNavBtnClick={this._handleModuleMenuClick}
                     iconClassNameLeft={"fa fa-bars"}
-                    zDepth={1}
-                />
-                <Menu
-                    ref="menuItems"
                     zDepth={0}
-                    menuItems={menuItems}
-                    selectedIndex={selectedIndex}
-                    onItemClick={this._handleModuleClick}
                 />
+                <div className={menuClass}>
+                    <Menu
+                        ref="menuItems"
+                        zDepth={0}
+                        menuItems={menuItems}
+                        selectedIndex={selectedIndex}
+                        onItemClick={this._handleModuleClick}
+                    />
+                </div>
             </div>
         );
     },
 
     _handleModuleMenuClick: function(e) {
-        if (this.props.deviceIsSmall) {
-            this.setState({ open: (this.state.open) ? false : true });
-        }
-    },
-
-    _handleMenuClick:function(evt) {
-
-        if (this.props.deviceIsSmall) {
-            this.setState({ open: (this.state.open) ? false : true });
-        }
+        this.setState({ open: (this.state.open) ? false : true });
     },
 
     _handleModuleClick:function(e, key, payload) {
