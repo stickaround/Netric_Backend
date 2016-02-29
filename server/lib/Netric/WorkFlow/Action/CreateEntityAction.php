@@ -31,7 +31,7 @@ class CreateEntityAction extends AbstractAction implements ActionInterface
         // Make sure we have what we need
         if (!$params['obj_type'])
         {
-            throw new \InvalidArgumentException("Cannot create an entity withotu obj_type param");
+            throw new \InvalidArgumentException("Cannot create an entity without obj_type param");
         }
 
         // Create new entity

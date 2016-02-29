@@ -62,14 +62,14 @@ var FieldsDropDown = React.createClass({
         /**
          * Optional list of field types to exclude from the list
          *
-         * @var {bool}
+         * @var {array}
          */
         hideFieldTypes: React.PropTypes.array,
 
         /**
-         * Where condition being modified
+         * The field that was selected
          *
-         * @var {entity/Where}
+         * @var {string}
          */
         selectedField: React.PropTypes.string,
     },
