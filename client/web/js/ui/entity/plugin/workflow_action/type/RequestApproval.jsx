@@ -18,7 +18,7 @@ var Field = require('../../../../../entity/definition/Field.js');
 var entityLoader = require('../../../../../entity/loader');
 var controller = require('../../../../../controller/controller');
 var TextFieldAutoComplete = require("../../../../mixins/TextFieldAutoComplete.jsx");
-var Selector = require("../Selector.jsx");
+var FieldsDropDown = require("../../../FieldsDropDown.jsx");
 var Controls = require('../../../../Controls.jsx');
 var DropDownMenu = Controls.DropDownMenu;
 var TextField = Controls.TextField;
@@ -73,7 +73,7 @@ var RequestApproval = React.createClass({
     render: function () {
 
         let additionalSelectorData = [{
-            value: 'browse',
+            payload: 'browse',
             text: 'Specific User'
         }];
 
@@ -88,11 +88,12 @@ var RequestApproval = React.createClass({
                             />
                     </div>
                     <div className="entity-form-field-inline-block">
-                        <Selector
+                        <FieldsDropDown
                             objType={this.props.objType}
-                            displayType="dropdown"
                             filterBy="subtype"
-                            fieldType="user"
+                            filterText="user"
+                            fieldFormat={{prepend: '<%', append: '%>'}}
+                            includeFieldManager={true}
                             selectedField={this.props.data.approval_from}
                             additionalMenuData={additionalSelectorData}
                             onChange={this._handleMenuSelect}
@@ -122,7 +123,7 @@ var RequestApproval = React.createClass({
     /**
      * Callback used to handle the selecting of user dropdown menu
      *
-     * @param {string} fieldValue The value of the field that was selected
+     * @param {string} fieldValue The value of the fieldname that was selected
      * @private
      */
     _handleMenuSelect: function (fieldValue) {

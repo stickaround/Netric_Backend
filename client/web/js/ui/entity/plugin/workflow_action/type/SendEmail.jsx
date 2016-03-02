@@ -16,7 +16,8 @@ var ReactDOM = require('react-dom');
 var netric = require("../../../../../base");
 var controller = require("../../../../../controller/controller");
 var entityLoader = require('../../../../../entity/loader');
-var Selector = require("../Selector.jsx");
+var FieldsDropDown = require("../../../FieldsDropDown.jsx");
+var RecipientsInput = require("./send_email/RecipientsInput.jsx")
 var Controls = require('../../../../Controls.jsx');
 var TextField = Controls.TextField;
 var RadioButton = Controls.RadioButton;
@@ -67,7 +68,9 @@ var SendEmail = React.createClass({
         // We need to know the type of object we are acting on
         return {
             emailType: (this.props.data.fid) ? emailType.TEMPLATE : emailType.COMPOSE,
-            templateName: null
+            templateName: null,
+            emailFrom: this.props.data.from,
+            showMergeField: false
         };
     },
 
@@ -94,7 +97,24 @@ var SendEmail = React.createClass({
 
             let displayEmailCompose = null;
 
+            // If the emailType selected is Compose, then we will display elements needed to compose an email
             if (this.state.emailType == emailType.COMPOSE) {
+
+                var mergeFieldLabel = 'Insert Merge Field';
+                var displayMergeField = null;
+
+                if (this.state.showMergeField) {
+                    mergeFieldLabel = 'Hide Merge Field Menu';
+
+                    displayMergeField = (
+                        <FieldsDropDown
+                            objType={this.props.objType}
+                            fieldFormat={{prepend: '<%', append: '%>'}}
+                            onChange={this._handleSelectMergeField}
+                            showReferencedFields={1}
+                        />
+                    );
+                }
 
                 // Display the input fields that will be used to compose an email
                 displayEmailCompose = (
@@ -109,9 +129,10 @@ var SendEmail = React.createClass({
                             </div>
                             <div className="entity-form-field-inline-block">
                                 <FlatButton
-                                    label='Insert Merge Field'
-                                    onClick={this._handleInsertMergeField}
+                                    label={mergeFieldLabel}
+                                    onClick={this._handleInsertMergeField.bind(this, !this.state.showMergeField)}
                                 />
+                                {displayMergeField}
                             </div>
                         </div>
                         <div>
@@ -126,6 +147,9 @@ var SendEmail = React.createClass({
                     </div>
                 );
             } else {
+
+                // If the emailTye selected is template, then we will display a button to let the user select an email template.
+
                 var templateName = 'No template selected';
                 var buttonLabel = 'Select';
 
@@ -161,11 +185,8 @@ var SendEmail = React.createClass({
                             {recipient.charAt(0).toUpperCase() + recipient.slice(1)}
                         </div>
                         <div>
-                            <Selector
+                            <RecipientsInput
                                 objType={this.props.objType}
-                                displayType="checkbox"
-                                filterBy="subtype"
-                                fieldType="user"
                                 selectedField={this.props.data[recipient]}
                                 onCheck={this._handleCheckboxSelect.bind(this, recipient)}
                             />
@@ -182,7 +203,7 @@ var SendEmail = React.createClass({
 
             // This will be selected as a default value in the selector dropdown
             let additionalSelectorData = [{
-                value: 'default',
+                payload: 'default',
                 text: 'Default'
             }];
 
@@ -197,12 +218,13 @@ var SendEmail = React.createClass({
                             />
                         </div>
                         <div className="entity-form-field-inline-block">
-                            <Selector
+                            <FieldsDropDown
                                 objType={this.props.objType}
-                                displayType="dropdown"
                                 filterBy="subtype"
-                                fieldType="user"
-                                selectedField={this.props.data.from}
+                                filterText="user"
+                                fieldFormat={{prepend: '<%', append: '%>'}}
+                                includeFieldManager={true}
+                                selectedField={this.state.emailFrom}
                                 additionalMenuData={additionalSelectorData}
                                 onChange={this._handleMenuSelect}
                             />
@@ -236,7 +258,7 @@ var SendEmail = React.createClass({
             for (var field in this.props.data) {
                 var value = this.props.data[field];
 
-                if(field == 'fid' && this.state.templateName) {
+                if (field == 'fid' && this.state.templateName) {
                     field = 'Template Name';
                     value = this.state.templateName;
                 }
@@ -277,14 +299,14 @@ var SendEmail = React.createClass({
         }
     },
 
-    _handleRemoveDataProperty: function(property){
+    _handleRemoveDataProperty: function (property) {
         let data = this.props.data;
 
         // Loop thru data and find the property to be removed in the data
-        for(var field in data) {
+        for (var field in data) {
 
             // If we found the property to remove, then let's get out from the loop since we have already deleted the field
-            if(field == property) {
+            if (field == property) {
                 delete data[field];
                 break;
             }
@@ -306,7 +328,7 @@ var SendEmail = React.createClass({
     _handleTypeChange: function (e, newSelection) {
 
         // If compose is selected, then we will remove the value of template id (fid)
-        if(newSelection == emailType.COMPOSE) {
+        if (newSelection == emailType.COMPOSE) {
             this._handleRemoveDataProperty('fid');
         } else {
             this._handleRemoveDataProperty('subject');
@@ -330,7 +352,7 @@ var SendEmail = React.createClass({
     /**
      * Callback used to handle the selecting of user dropdown menu
      *
-     * @param {string} fieldValue The value of the field that was selected
+     * @param {string} fieldValue The value of the fieldname that was selected
      * @private
      */
     _handleMenuSelect: function (fieldValue) {
@@ -339,6 +361,8 @@ var SendEmail = React.createClass({
         } else {
             this._handleDataChange('from', fieldValue);
         }
+
+        this.setState({emailFrom: fieldValue})
     },
 
     /**
@@ -375,28 +399,26 @@ var SendEmail = React.createClass({
     /**
      * Callback used to handle the inserting of merge field
      *
+     * @param {bool} flagShowHide Flag that will determine if we will show or hide the merge field menu
      * @private
      */
-    _handleInsertMergeField: function () {
+    _handleInsertMergeField: function (flagShowHide) {
+        this.setState({showMergeField: flagShowHide})
+    },
 
-        /*
-         * We require it here to avoid a circular dependency where the
-         * controller requires the view and the view requires the controller
-         */
-        var EntityPluginController = require("../../../../../controller/EntityPluginController");
-        var entityPlugin = new EntityPluginController();
+    /**
+     * Callback used to handle the selecting of merge field
+     *
+     * @param {string} fieldValue The value of the fieldname that was selected
+     * @private
+     */
+    _handleSelectMergeField: function(fieldValue) {
 
-        entityPlugin.load({
-            type: controller.types.DIALOG,
-            pluginName: "workflow_action.MergeField",
-            objType: this.props.objType,
-            title: "Select Merge Field",
-            onSelect: function (data) {
-                var body = this.refs.emailBodyInput.getValue() + data.fieldSelected;
-                this.refs.emailBodyInput.setValue(body);
-                this._handleDataChange('body', body);
-            }.bind(this)
-        });
+        var body = this.refs.emailBodyInput.getValue() + fieldValue;
+        this.refs.emailBodyInput.setValue(body);
+        this._handleDataChange('body', body);
+
+        this.setState({showMergeField: false})
     },
 
     /**
