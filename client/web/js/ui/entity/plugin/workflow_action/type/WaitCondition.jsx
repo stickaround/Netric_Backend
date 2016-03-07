@@ -7,7 +7,6 @@
  * When the ActionDetails plugin is rendered it will decode or parse the string
  * and pass it down to the type component.
  *
- * @jsx React.DOM
  */
 'use strict';
 
@@ -18,7 +17,21 @@ var TextField = Controls.TextField;
 var DropDownMenu = Controls.DropDownMenu;
 
 /**
- * Manage action data for check condition
+ * Units of time for relative times
+ *
+ * @constant
+ */
+var timeUnits = {
+    MINUTE: 1,
+    HOUR: 2,
+    DAY: 3,
+    WEEK: 4,
+    MONTH: 5,
+    YEAR: 6
+}
+
+/**
+ * Manage action data for wait condition
  */
 var WaitCondition = React.createClass({
 
@@ -56,18 +69,17 @@ var WaitCondition = React.createClass({
     render: function () {
 
         let displayWaitCondition = null;
-
-        // Units of time for relative times
-        let units = ['Minute', 'Hour', 'Day', 'Week', 'Month', 'Year'];
         let unitsMenuData = [];
 
         // Variable where we store the human description for the props.data.when_unit
         let waitHumanDesc = null;
 
-        // Loop thru units to create the unitsMenuData to be used in the dropdown
-        for (var idx in units) {
-            let value = parseInt(idx) + 1;
-            let desc = units[idx] + '(s)'
+        // Loop thru timeUnits to create the unitsMenuData to be used in the dropdown
+        for (var unit in timeUnits) {
+
+            // We need to capitalize the time unit label
+            let desc = unit[0] + unit.slice(1).toLowerCase() + '(s)';
+            let value = parseInt(timeUnits[unit]);
 
             unitsMenuData.push({
                 payload: value,
@@ -79,7 +91,7 @@ var WaitCondition = React.createClass({
             }
         }
 
-        // If we are on edit mode, then we will display the dropdown and input used to set the wait condition
+        // If we are in edit mode, then we will display the dropdown and input used to set the wait condition
         if (this.props.editMode) {
 
             var selectedFieldIndex = (this.props.data.when_unit) ?
