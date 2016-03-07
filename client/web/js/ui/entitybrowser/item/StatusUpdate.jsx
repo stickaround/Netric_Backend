@@ -1,7 +1,7 @@
 /**
  * List Item used where object type is 'status_update'
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

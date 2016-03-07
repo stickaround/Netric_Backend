@@ -1,7 +1,7 @@
 /**
  * Profile image for a given userid
  *
- * @jsx React.DOM
+
  */
 'use strict';
 var React = require('react');

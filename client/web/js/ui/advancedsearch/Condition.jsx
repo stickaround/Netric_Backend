@@ -2,7 +2,7 @@
  * Search condition used for advanced search.
  * Pass the condition object in the props which is an instance of Where object.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

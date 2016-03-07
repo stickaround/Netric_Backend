@@ -2,7 +2,7 @@
  * Column View used for advanced search.
  * Pass the column object in the props and should contain the fieldName index
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

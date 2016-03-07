@@ -1,7 +1,7 @@
 /**
  * Flex box column
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

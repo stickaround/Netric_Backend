@@ -1,7 +1,7 @@
 /**
  * Render a single Where condition row
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
@@ -166,22 +166,22 @@ var WhereComponent = React.createClass({
 
         return (
             <div className="row">
-                <div className="col-small-1">
+                <div className="col-small-12 col-medium-1">
                     {bLogicComponent}
                 </div>
-                <div className="col-small-4">
+                <div className="col-small-12 col-medium-4">
                     <DropDownMenu
                         menuItems={fieldData}
                         selectedIndex={parseInt(seletedFieldIndex)}
                         onChange={this._handleFieldClick} />
                 </div>
-                <div className="col-small-4" >
+                <div className="col-small-12 col-medium-4" >
                     {operatorsComponent}
                 </div>
-                <div className="col-small-2">
+                <div className="col-small-6 col-medium-2">
                     {valueComponent}
                 </div>
-                <div className="col-small-1">
+                <div className="col-small-6 col-medium-1">
                     <IconButton
                         onClick={this._handleRemoveCondition}
                         className="fa fa-times" />

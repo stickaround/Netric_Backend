@@ -1,7 +1,7 @@
 /**
  * Object reference component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

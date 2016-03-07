@@ -1,7 +1,7 @@
 /**
  * Objectsref UIML element
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

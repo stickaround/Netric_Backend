@@ -183,9 +183,9 @@ margin: 0 $gutter-less 0 $gutter-less;
   }
 
   fieldset {
-    margin: 0 $gutter-less $gutter-less $gutter-less;
+    margin: 0 0 $gutter-less 0;
     padding: 0;
-
+    border: 0;
 
     @media #{$device-medium} {
       margin: 0 $gutter $gutter $gutter;
@@ -193,18 +193,26 @@ margin: 0 $gutter-less 0 $gutter-less;
 
     @media #{$device-large} {
       margin: 0 $gutter $gutter $gutter;
+      border: 1px solid;
+      padding-bottom: 15px;
     }
 
     legend {
-      margin-left: $gutter-less;
-      padding: 0;
+      width: 100%;
+      margin-left: 0;
+      padding: $gutter-less;
+      background-color: #f3f3f3;
 
       @media #{$device-medium} {
         margin-left: $gutter;
+        width: auto;
+        background-color: transparent;
       }
 
       @media #{$device-large} {
         margin-left: $gutter;
+        width: auto;
+        background-color: transparent;
       }
     }
   }
@@ -239,6 +247,25 @@ margin: 0 $gutter-less 0 $gutter-less;
     .entity-form-group-label-selected {
       color: rgba(0, 0, 0, 0.5);
       margin-left: 6%;
+    }
+  }
+
+  /**
+   * Text info class
+   */
+  .info {
+    margin: $gutter-less $gutter-less 0 $gutter-less;
+    padding: 10px;
+    background-color: #e3e3e3;
+
+    @media #{$device-medium} {
+      margin: $gutter $gutter 0 $gutter;
+      border: 2px solid darkgray;
+    }
+
+    @media #{$device-large} {
+      margin: $gutter $gutter 0 $gutter;
+      border: 2px solid darkgray;
     }
   }
 }

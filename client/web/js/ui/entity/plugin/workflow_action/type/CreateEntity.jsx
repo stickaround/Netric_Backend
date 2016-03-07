@@ -7,7 +7,7 @@
  * When the ActionDetails plugin is rendered it will decode or parse the string
  * and pass it down to the type component.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

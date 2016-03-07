@@ -1,7 +1,7 @@
 /**
  * A grouping chip displays a single grouping entry
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

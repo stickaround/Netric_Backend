@@ -1,7 +1,7 @@
 /**
  * Render a field select dropdown
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

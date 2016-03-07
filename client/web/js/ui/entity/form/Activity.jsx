@@ -1,7 +1,7 @@
 /**
  * Component that handles rendering Activity of an entity
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

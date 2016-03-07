@@ -1,7 +1,7 @@
 /**
  * Main controller view for entity comments
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
