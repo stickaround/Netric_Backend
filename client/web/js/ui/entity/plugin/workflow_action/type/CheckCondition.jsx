@@ -7,7 +7,6 @@
  * When the ActionDetails plugin is rendered it will decode or parse the string
  * and pass it down to the type component.
  *
- * @jsx React.DOM
  */
 'use strict';
 
@@ -82,7 +81,7 @@ var CheckCondition = React.createClass({
                             <div className="entity-form-field-label">
                                 {'Condition ' + (parseInt(idx) + 1).toString()}
                             </div>
-                            <div>
+                            <div className="entity-form-field-value">
                                 {where.getHumanDesc(skipBlogic)}
                             </div>
                         </div>
