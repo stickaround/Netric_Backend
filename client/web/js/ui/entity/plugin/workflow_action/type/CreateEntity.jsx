@@ -65,7 +65,7 @@ var CreateEntity = React.createClass({
         let definitionsDropDown = null;
         let entityFieldsDisplay = [];
 
-        // If we are on editMode, then let's display the dropdown menu of object types
+        // If we are in editMode, then let's display the dropdown menu of object types
         if (this.props.editMode) {
             definitionsDropDown = (
                 <ObjectTypeDropDown
@@ -142,7 +142,7 @@ var CreateEntity = React.createClass({
                     <div className="entity-form-field-label">
                         Object Type
                     </div>
-                    <div>
+                    <div className="entity-form-field-value">
                         {definitionsDropDown}
                     </div>
                 </div>
