@@ -13,7 +13,7 @@ var definitionLoader = require("../../entity/definitionLoader");
 var Field = require("../../entity/definition/Field");
 var ObjectSelect = require("./ObjectSelect.jsx");
 var GroupingSelect = require("./GroupingSelect.jsx");
-var Controls = require("./Controls.jsx");
+var Controls = require("../Controls.jsx");
 var TextField = Controls.TextField;
 var IconButton = Controls.IconButton;
 var DropDownMenu = Controls.DropDownMenu;
@@ -21,6 +21,7 @@ var MenuItem = Controls.MenuItem;
 var Menu = Controls.Menu;
 var MenuItem = Controls.MenuItem;
 var NestedMenuItem = Controls.NestedMenuItem;
+var RaisedButton = Controls.RaisedButton;
 var Popover = Controls.Popover;
 
 /**
@@ -43,6 +44,13 @@ var FieldsDropDown = React.createClass({
          * @var {function}
          */
         onChange: React.PropTypes.func,
+
+        /**
+         * Callback called when the user selects the parent field
+         *
+         * @var {function}
+         */
+        onParentFieldSelect: React.PropTypes.func,
 
         /**
          * Option to show one level deep of referenced entity fields
@@ -230,7 +238,7 @@ var FieldsDropDown = React.createClass({
                     var {...childProps} = this.props;
 
                     // Override the props to determine that this is a referenced field (child field)
-                    childProps.parentField = field.details;
+                    childProps.parentField = field;
                     childProps.objType = field.details.subtype;
 
                     // We will decrement the showReferencedFields to determine that we have searched 1 level deep
@@ -240,7 +248,6 @@ var FieldsDropDown = React.createClass({
                         <FieldsDropDown
                             {...childProps}
                             key={idx}
-
                         />
                     );
                 } else {
@@ -262,7 +269,9 @@ var FieldsDropDown = React.createClass({
             if (this.props.parentField) {
                 return (
                     <NestedMenuItem
-                        text={this.props.parentField.title}>
+                        parentItem={this.props.parentField}
+                        onParentItemClick={this._handleSelectParentMenuItem}
+                        text={this.props.parentField.details.title}>
                         {menuItems}
                     </NestedMenuItem>
                 );
@@ -295,7 +304,7 @@ var FieldsDropDown = React.createClass({
      * @param {DOMEvent} e Reference to the DOM event being sent
      * @private
      */
-    _handlePopoverTouchTap: function(e) {
+    _handlePopoverTouchTap: function (e) {
 
         // This prevents ghost click.
         e.preventDefault();
@@ -311,7 +320,7 @@ var FieldsDropDown = React.createClass({
      *
      * @private
      */
-    _handlePopoverRequestClose: function() {
+    _handlePopoverRequestClose: function () {
         this.setState({
             openMenu: false
         });
@@ -341,6 +350,19 @@ var FieldsDropDown = React.createClass({
     _handleSelectMenuItem: function (e, key) {
         if (this.props.onChange && this.state.fieldData[key]) {
             this.props.onChange(this.state.fieldData[key].payload);
+        }
+    },
+
+    /**
+     * Callback used to handle commands when user selects a parent field name
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {Object} data The object value of the menu clicked
+     * @private
+     */
+    _handleSelectParentMenuItem: function (e, data) {
+        if (this.props.onChange) {
+            this.props.onChange(data.payload);
         }
     },
 
@@ -435,7 +457,7 @@ var FieldsDropDown = React.createClass({
             }
 
             // If we have props.parentField, then we will prepend it in the field.name
-            var parentNamePrepend = (this.props.parentField) ? this.props.parentField.name + '.' : '';
+            var parentNamePrepend = (this.props.parentField) ? this.props.parentField.details.name + '.' : '';
 
             data.push({
                 payload: this.props.fieldFormat.prepend + parentNamePrepend + field.name + this.props.fieldFormat.append,
@@ -445,7 +467,7 @@ var FieldsDropDown = React.createClass({
         }
 
         // If we have additional custom menu data, then lets add it in our field data
-        if (this.props.additionalMenuData) {
+        if (this.props.additionalMenuData && !this.props.parentField) {
             this.props.additionalMenuData.map(function (additionalData) {
                 data.push(additionalData);
             })
