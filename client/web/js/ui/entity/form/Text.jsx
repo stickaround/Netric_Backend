@@ -1,7 +1,7 @@
 /**
  * Text Label component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

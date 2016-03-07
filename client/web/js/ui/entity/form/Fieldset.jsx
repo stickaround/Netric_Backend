@@ -1,7 +1,7 @@
 /**
  * Fieldset UIML element
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

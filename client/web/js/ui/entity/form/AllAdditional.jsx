@@ -1,7 +1,7 @@
 /**
  * All additional/custom fields
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

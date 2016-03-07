@@ -40,7 +40,7 @@ module.exports = function(config){
       debug: true,
       es6: true,
       transform: [
-        ['babelify', {loose: "all", nonStandard: true}],
+        ['babelify', {presets: ["es2015", "stage-1", "react"]}],
         ['envify', {NODE_ENV: 'test'}]
       ],
       configure: function(bundle) {

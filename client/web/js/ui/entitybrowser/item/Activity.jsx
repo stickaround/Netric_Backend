@@ -1,7 +1,7 @@
 /**
  * List Item used where object type is 'activity'
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

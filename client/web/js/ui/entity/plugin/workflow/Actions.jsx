@@ -1,7 +1,7 @@
 /**
  * Plugin for displaying actions for a workflow
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

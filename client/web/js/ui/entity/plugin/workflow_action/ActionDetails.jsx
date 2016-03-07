@@ -1,7 +1,7 @@
 /**
  * The action data details editor
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -1,7 +1,7 @@
 /**
  * Render an advanced search
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

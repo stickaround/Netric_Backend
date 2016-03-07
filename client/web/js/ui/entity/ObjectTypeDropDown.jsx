@@ -1,7 +1,7 @@
 /**
  * Component that will display the object types in a dropdown
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

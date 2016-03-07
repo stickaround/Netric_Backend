@@ -1,7 +1,7 @@
 /**
  * Entity Recurrence
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

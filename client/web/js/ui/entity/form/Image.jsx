@@ -1,7 +1,7 @@
 /**
  * Image component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -1,7 +1,7 @@
 /**
  * Plugin that will allow the Reminder Object to speficy when to execute the reminder
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

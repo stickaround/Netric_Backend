@@ -1,7 +1,7 @@
 /**
  * Render the application shell for a large device
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

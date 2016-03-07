@@ -1,7 +1,7 @@
 /**
  * Handles the processes for textfield autocomplete to work
  *
- * @jsx React.DOM
+
  */
 
 'use strict';

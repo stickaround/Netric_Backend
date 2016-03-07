@@ -1,7 +1,7 @@
 /**
  * Entity Plugin
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

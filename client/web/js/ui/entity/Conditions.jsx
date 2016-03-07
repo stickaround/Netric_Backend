@@ -1,7 +1,7 @@
 /**
  * Display list of entity conditions
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
