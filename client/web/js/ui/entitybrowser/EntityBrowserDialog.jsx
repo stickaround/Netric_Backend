@@ -1,7 +1,7 @@
 /**
  * Render an entity browser in a dialog window
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

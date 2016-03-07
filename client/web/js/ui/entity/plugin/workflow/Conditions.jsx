@@ -1,7 +1,7 @@
 /**
  * Plugin for displaying search conditions that must be met before strating workflow
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

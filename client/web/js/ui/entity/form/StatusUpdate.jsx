@@ -1,7 +1,7 @@
 /**
  * Handles the rendering a status update form and displaying the entity browser list for status update/activity
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

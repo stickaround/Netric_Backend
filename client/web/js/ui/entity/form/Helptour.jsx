@@ -1,7 +1,7 @@
 /**
  * A row 
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

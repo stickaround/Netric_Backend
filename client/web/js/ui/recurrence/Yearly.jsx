@@ -4,7 +4,7 @@
  * Yearly will accept monthOfYear and dayOfMonth input values.
  * YearlyNth will accept instance, monthOfYear, and dayOfWeek input values.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

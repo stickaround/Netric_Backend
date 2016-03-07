@@ -16,7 +16,7 @@ module.exports = function(grunt) {
                   //alias: ['react:']  // Make React available externally for dev tools
                   debug: true,
                   transform: [
-                      ['babelify', {loose: "all", nonStandard: true}],
+                      ['babelify'],
                       ['envify', {NODE_ENV: 'development'}]
                   ]
                 },
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
                 options: {
                   debug: false,
                   transform: [
-                    ['babelify', {loose: "all", nonStandard: true}]
+                    ['babelify'],
                     ['envify', {NODE_ENV: 'production'}]
                   ]
                 },
@@ -37,6 +37,10 @@ module.exports = function(grunt) {
                 src: ['js/main.js'],
                 dest: 'dist/js/netric.js'
             }
+        },
+
+        babel: {
+            "presets": ['es2015', 'react']
         },
         
         /**
@@ -178,62 +182,7 @@ module.exports = function(grunt) {
                     {expand: true, cwd: './node_modules/chamel/dist', src: ['css/**'], dest: 'build/'},
                 ]
             }
-        },
-        
-        /*
-         * Automatically insert script tags into index.html
-         */
-        fileblocks: {
-            /* Task options */
-            options: {
-                templates: {
-                    'jsx': '<script type="text/jsx" src="${file}"></script>',
-                    md: '+ ${file}' // Add a custom template
-                }
-            },
-            dev: {
-                src: 'index.html',
-                blocks: {
-                    'app': { 
-                        src: 'build/js/**/*.js'
-                    },
-                    'components': {
-                        src: 'build/js/ui/**/*.js'
-                    }
-                }
-            }
-        },
-
-        /*
-         * Wire in bower dependencies
-         */
-        wiredep: {
-
-            target: {
-
-                // Point to the files that should be updated when
-                // you run `grunt wiredep`
-                src: [
-                    '**/*.html'
-                ]
-            }
         }
-
-        /*
-         * Load aereus lib
-         
-        svn_fetch: {
-            options: {
-                'repository': 'svn://src.aereus.com/var/src/',
-                'path': 'vendor/'
-            },
-            alib: {
-                map: {
-                    'aereus': 'lib/js/trunk'
-                }
-            }
-        }
-        */
     });
 
     /*
@@ -241,9 +190,7 @@ module.exports = function(grunt) {
      */
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-concat-in-order');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-file-blocks');
     grunt.loadNpmTasks('grunt-wiredep');
     //grunt.loadNpmTasks('grunt-svn-fetch');
     grunt.loadNpmTasks('grunt-react');
@@ -255,14 +202,11 @@ module.exports = function(grunt) {
     // Register our own custom task alias.
     grunt.registerTask('concat', ['concat_in_order:all']);
     
-    // Insert script tags into index test file
-    grunt.registerTask('includes', ['wiredep', 'fileblocks:dev']);
-    
     // Compine and put built application in dist
     grunt.registerTask('compile', ['sass:dist', 'browserify:production', 'copy:main']);
     
     // Default will build sass, update js includes and then sit and watch for changes
-    grunt.registerTask('default', ['sass:dist', 'browserify:dev', 'includes', 'watch']);
+    grunt.registerTask('default', ['sass:dist', 'browserify:dev', 'watch']);
 
     // We are utilizing browserify for react components
     grunt.loadNpmTasks('grunt-browserify');

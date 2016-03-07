@@ -1,7 +1,7 @@
 /**
  * List Item used where object type is 'workflow_action'
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

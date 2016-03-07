@@ -1,7 +1,7 @@
 /**
  * Text field component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

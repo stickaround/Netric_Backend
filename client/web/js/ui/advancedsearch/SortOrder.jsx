@@ -2,7 +2,7 @@
  * Sort By used for advance search.
  * Pass the orderBy object in the props and should contains the fieldName and direction data
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

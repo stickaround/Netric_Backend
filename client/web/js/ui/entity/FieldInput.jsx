@@ -1,7 +1,7 @@
 /**
  * Component get user input for any entity field
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

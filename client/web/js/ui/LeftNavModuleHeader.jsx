@@ -1,7 +1,7 @@
 /**
  * Header view for the left nav when loaded from a module
  *
- * @jsx React.DOM
+
  */
 'use strict';
 var React = require('react');

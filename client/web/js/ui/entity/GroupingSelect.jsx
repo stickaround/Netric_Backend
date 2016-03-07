@@ -1,7 +1,7 @@
 /**
  * Grouping add dialog/dropdown
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

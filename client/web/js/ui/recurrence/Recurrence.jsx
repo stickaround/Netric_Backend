@@ -15,7 +15,7 @@
  * Yearly will display the dropdowns for month of year and input for day of the month.
  * YearNth will display the dropdowns for instance, day of the week, and  month of year.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

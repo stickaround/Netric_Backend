@@ -1,7 +1,7 @@
 /**
  * List Item used where object type is 'comment'
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

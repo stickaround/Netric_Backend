@@ -1,7 +1,7 @@
 /**
  * The purpose of this is the abstract out any common UI controls libraries
  *
- * @jsx React.DOM
+
  */
 'use strict';
 var React = require('react');

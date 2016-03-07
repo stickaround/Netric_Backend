@@ -1,7 +1,7 @@
 /**
  * Render a single Where condition row
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

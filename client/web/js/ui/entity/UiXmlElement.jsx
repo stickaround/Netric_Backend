@@ -1,7 +1,7 @@
 /**
  * Render an entity form from UIML
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

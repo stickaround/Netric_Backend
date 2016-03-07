@@ -1,7 +1,7 @@
 /**
  * Numeric field input
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -4,7 +4,7 @@
  * Monthly will accept dayOfMonth and interval input values.
  * MonthlyNth will accept instance, dayOfWeek, and interval input values.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -1,7 +1,7 @@
 /**
  * Render an entity browser
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
