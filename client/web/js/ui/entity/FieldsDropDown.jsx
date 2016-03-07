@@ -160,7 +160,6 @@ var FieldsDropDown = React.createClass({
             showReferencedFields: false,
             showReadOnlyFields: true,
             hideFieldTypes: [],
-            includeFieldManager: false,
             filterBy: 'none',
             menuEntryLabel: 'Select Field',
             showReferencedFields: 0,
