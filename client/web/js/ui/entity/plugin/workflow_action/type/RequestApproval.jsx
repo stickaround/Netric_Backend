@@ -92,11 +92,13 @@ var RequestApproval = React.createClass({
                             objType={this.props.objType}
                             filterBy="subtype"
                             filterText="user"
+                            menuEntryLabel="Select User"
+                            hideFieldTypes={[Field.types.objectMulti]}
                             fieldFormat={{prepend: '<%', append: '%>'}}
-                            includeFieldManager={true}
                             selectedField={this.props.data.approval_from}
                             additionalMenuData={additionalSelectorData}
                             onChange={this._handleMenuSelect}
+                            showReferencedFields={1}
                             />
                     </div>
                 </div>

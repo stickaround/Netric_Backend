@@ -4,7 +4,6 @@
  * This selector is used by workflow action dialogs to get available
  *  options to select an entity field as a variable based on the field.type/field.subtype provided
  *
- * @jsx React.DOM
  */
 'use strict';
 

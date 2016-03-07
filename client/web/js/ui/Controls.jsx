@@ -30,6 +30,7 @@ var UiControls = {
     LeftNav: Chamel.LeftNav,
     Menu: Chamel.Menu,
     MenuItem: Chamel.MenuItem,
+    NestedMenuItem: Chamel.NestedMenuItem,
     Paper: Chamel.Paper,
     Popover: Chamel.Popover,
     RadioButton: Chamel.RadioButton,

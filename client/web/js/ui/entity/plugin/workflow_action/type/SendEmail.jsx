@@ -7,7 +7,6 @@
  * When the ActionDetails plugin is rendered it will decode or parse the string
  * and pass it down to the type component.
  *
- * @jsx React.DOM
  */
 'use strict';
 
@@ -16,6 +15,7 @@ var ReactDOM = require('react-dom');
 var netric = require("../../../../../base");
 var controller = require("../../../../../controller/controller");
 var entityLoader = require('../../../../../entity/loader');
+var Field = require('../../../../../entity/definition/Field.js');
 var FieldsDropDown = require("../../../FieldsDropDown.jsx");
 var RecipientsInput = require("./send_email/RecipientsInput.jsx")
 var Controls = require('../../../../Controls.jsx');
@@ -206,11 +206,13 @@ var SendEmail = React.createClass({
                                 objType={this.props.objType}
                                 filterBy="subtype"
                                 filterText="user"
+                                menuEntryLabel="Select User"
                                 fieldFormat={{prepend: '<%', append: '%>'}}
-                                hideFieldTypes={['object_multi']}
+                                hideFieldTypes={[Field.types.objectMulti]}
                                 selectedField={this.props.data.from}
                                 additionalMenuData={additionalSelectorData}
                                 onChange={this._handleMenuSelect}
+                                showReferencedFields={1}
                             />
                         </div>
                     </div>
