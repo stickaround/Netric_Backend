@@ -105,7 +105,10 @@ var RecipientsInput = React.createClass({
                         defaultSwitched={isChecked}/>
                 );
 
-                // Setup field manager
+                /*
+                 * Every user can have a manager listed in a field called 'manager_id' so we add it here
+                 * as an option to email the selected user's manager.
+                 */
                 let valueManager = '<%' + field.name + ".manager_id" + '%>';
                 let isCheckedManager = false;
 

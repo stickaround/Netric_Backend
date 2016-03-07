@@ -68,9 +68,7 @@ var SendEmail = React.createClass({
         // We need to know the type of object we are acting on
         return {
             emailType: (this.props.data.fid) ? emailType.TEMPLATE : emailType.COMPOSE,
-            templateName: null,
-            emailFrom: this.props.data.from,
-            showMergeField: false
+            templateName: null
         };
     },
 
@@ -100,22 +98,6 @@ var SendEmail = React.createClass({
             // If the emailType selected is Compose, then we will display elements needed to compose an email
             if (this.state.emailType == emailType.COMPOSE) {
 
-                var mergeFieldLabel = 'Insert Merge Field';
-                var displayMergeField = null;
-
-                if (this.state.showMergeField) {
-                    mergeFieldLabel = 'Hide Merge Field Menu';
-
-                    displayMergeField = (
-                        <FieldsDropDown
-                            objType={this.props.objType}
-                            fieldFormat={{prepend: '<%', append: '%>'}}
-                            onChange={this._handleSelectMergeField}
-                            showReferencedFields={1}
-                        />
-                    );
-                }
-
                 // Display the input fields that will be used to compose an email
                 displayEmailCompose = (
                     <div>
@@ -128,11 +110,13 @@ var SendEmail = React.createClass({
                                 />
                             </div>
                             <div className="entity-form-field-inline-block">
-                                <FlatButton
-                                    label={mergeFieldLabel}
-                                    onClick={this._handleInsertMergeField.bind(this, !this.state.showMergeField)}
+                                <FieldsDropDown
+                                    objType={this.props.objType}
+                                    fieldFormat={{prepend: '<%', append: '%>'}}
+                                    onChange={this._handleSelectMergeField}
+                                    menuEntryLabel="Insert Merge Field"
+                                    showReferencedFields={1}
                                 />
-                                {displayMergeField}
                             </div>
                         </div>
                         <div>
@@ -223,8 +207,8 @@ var SendEmail = React.createClass({
                                 filterBy="subtype"
                                 filterText="user"
                                 fieldFormat={{prepend: '<%', append: '%>'}}
-                                includeFieldManager={true}
-                                selectedField={this.state.emailFrom}
+                                hideFieldTypes={['object_multi']}
+                                selectedField={this.props.data.from}
                                 additionalMenuData={additionalSelectorData}
                                 onChange={this._handleMenuSelect}
                             />
@@ -268,14 +252,14 @@ var SendEmail = React.createClass({
                         <div className="entity-form-field-label">
                             {field}
                         </div>
-                        <div>
+                        <div className="entity-form-field-value">
                             {value}
                         </div>
                     </div>
                 )
             }
 
-            // If we are not on editMode then lets just display the send email info
+            // If we are not in editMode then lets just display the send email info
             return (
                 <div className="entity-form-field">
                     {displayData}
@@ -299,6 +283,12 @@ var SendEmail = React.createClass({
         }
     },
 
+    /**
+     * Handles the removing of property in the props.data
+     *
+     * @param property The property to be removed
+     * @private
+     */
     _handleRemoveDataProperty: function (property) {
         let data = this.props.data;
 
@@ -361,8 +351,6 @@ var SendEmail = React.createClass({
         } else {
             this._handleDataChange('from', fieldValue);
         }
-
-        this.setState({emailFrom: fieldValue})
     },
 
     /**
@@ -397,16 +385,6 @@ var SendEmail = React.createClass({
     },
 
     /**
-     * Callback used to handle the inserting of merge field
-     *
-     * @param {bool} flagShowHide Flag that will determine if we will show or hide the merge field menu
-     * @private
-     */
-    _handleInsertMergeField: function (flagShowHide) {
-        this.setState({showMergeField: flagShowHide})
-    },
-
-    /**
      * Callback used to handle the selecting of merge field
      *
      * @param {string} fieldValue The value of the fieldname that was selected
@@ -417,8 +395,6 @@ var SendEmail = React.createClass({
         var body = this.refs.emailBodyInput.getValue() + fieldValue;
         this.refs.emailBodyInput.setValue(body);
         this._handleDataChange('body', body);
-
-        this.setState({showMergeField: false})
     },
 
     /**

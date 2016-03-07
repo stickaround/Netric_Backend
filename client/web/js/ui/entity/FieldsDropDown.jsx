@@ -13,13 +13,15 @@ var definitionLoader = require("../../entity/definitionLoader");
 var Field = require("../../entity/definition/Field");
 var ObjectSelect = require("./ObjectSelect.jsx");
 var GroupingSelect = require("./GroupingSelect.jsx");
-var TextField = Chamel.TextField;
-var IconButton = Chamel.IconButton;
-var DropDownMenu = Chamel.DropDownMenu;
-var MenuItem = Chamel.MenuItem;
-var Menu = Chamel.Menu;
-var MenuItem = Chamel.MenuItem;
-var NestedMenuItem = Chamel.NestedMenuItem;
+var Controls = require("./Controls.jsx");
+var TextField = Controls.TextField;
+var IconButton = Controls.IconButton;
+var DropDownMenu = Controls.DropDownMenu;
+var MenuItem = Controls.MenuItem;
+var Menu = Controls.Menu;
+var MenuItem = Controls.MenuItem;
+var NestedMenuItem = Controls.NestedMenuItem;
+var Popover = Controls.Popover;
 
 /**
  * Create a DropDown that shows all fields for an object type
@@ -78,13 +80,6 @@ var FieldsDropDown = React.createClass({
         selectedField: React.PropTypes.string,
 
         /**
-         * This will determine if we will include manager_id in the field list
-         *
-         * @var {bool}
-         */
-        includeFieldManager: React.PropTypes.bool,
-
-        /**
          * This will determine how we will filter the entity fields
          *
          * @type {string}
@@ -136,7 +131,14 @@ var FieldsDropDown = React.createClass({
          *
          * @type {entity/definition/Field}
          */
-        parent: React.PropTypes.object
+        parentField: React.PropTypes.object,
+
+        /**
+         * The label that will be used in the button to display the declarative menu
+         *
+         * @type {string}
+         */
+        menuEntryLabel: React.PropTypes.string
     },
 
 
@@ -152,6 +154,7 @@ var FieldsDropDown = React.createClass({
             hideFieldTypes: [],
             includeFieldManager: false,
             filterBy: 'none',
+            menuEntryLabel: 'Select Field',
             showReferencedFields: 0,
             fieldFormat: {
                 prepend: '',
@@ -167,7 +170,8 @@ var FieldsDropDown = React.createClass({
      */
     getInitialState: function () {
         return {
-            fieldData: null
+            fieldData: null,
+            openMenu: false
         };
     },
 
@@ -191,8 +195,8 @@ var FieldsDropDown = React.createClass({
             return (<div />);
         }
 
-        // If showReferencedFields is 0 and we dont have props.parent then we will just show the dropdown
-        if (!this.props.parent && this.props.showReferencedFields == 0) {
+        // If showReferencedFields is 0 and we dont have props.parentField then we will just show the dropdown
+        if (!this.props.parentField && this.props.showReferencedFields == 0) {
             var selectedFieldIndex = (this.props.selectedField) ?
                 this._getSelectedIndex(fieldData, this.props.selectedField) : 0;
 
@@ -223,10 +227,10 @@ var FieldsDropDown = React.createClass({
                     && this.props.showReferencedFields > 0) {
 
                     // Transfer the props to the child props
-                    var {... childProps} = this.props;
+                    var {...childProps} = this.props;
 
                     // Override the props to determine that this is a referenced field (child field)
-                    childProps.parent = field.details;
+                    childProps.parentField = field.details;
                     childProps.objType = field.details.subtype;
 
                     // We will decrement the showReferencedFields to determine that we have searched 1 level deep
@@ -247,31 +251,70 @@ var FieldsDropDown = React.createClass({
                             key={idx}
                             index={parseInt(idx)}
                             payload={field.payload}
-                            onClick={this._handleSelectMenuItem}
-                        >
+                            onClick={this._handleSelectMenuItem}>
                             {field.text}
                         </MenuItem>
                     );
                 }
             }
 
-            // If we have props.parent this means that we are dealing a subMenu field so we will return the <NestedMenuItem />
-            if (this.props.parent) {
+            // If we have props.parentField this means that we are dealing a subMenu field so we will return the <NestedMenuItem />
+            if (this.props.parentField) {
                 return (
                     <NestedMenuItem
-                        text={this.props.parent.title}
-                    >
+                        text={this.props.parentField.title}>
                         {menuItems}
                     </NestedMenuItem>
                 );
             } else {
                 return (
-                    <Menu>
-                        {menuItems}
-                    </Menu>
+                    <div>
+                        <RaisedButton
+                            onClick={this._handlePopoverTouchTap}
+                            label={this.props.menuEntryLabel}
+                        />
+                        <Popover
+                            open={this.state.openMenu}
+                            anchorEl={this.state.anchorEl}
+                            anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                            targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                            onRequestClose={this._handlePopoverRequestClose}>
+                            <Menu>
+                                {menuItems}
+                            </Menu>
+                        </Popover>
+                    </div>
                 );
             }
         }
+    },
+
+    /**
+     * Callback used to handle commands when user clicks the button to display the declarative menu
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @private
+     */
+    _handlePopoverTouchTap: function(e) {
+
+        // This prevents ghost click.
+        e.preventDefault();
+
+        this.setState({
+            openMenu: this.state.openMenu ? false : true,
+            anchorEl: e.currentTarget
+        });
+    },
+
+    /**
+     * Callback used to close the popover
+     *
+     * @private
+     */
+    _handlePopoverRequestClose: function() {
+        this.setState({
+            openMenu: false
+        });
     },
 
     /**
@@ -368,7 +411,9 @@ var FieldsDropDown = React.createClass({
 
         // If no field name has been selected, enter a first explanation entry
         if (!this.props.selectedField
-            && !this.props.parent
+            && !this.props.parentField
+
+
             && this.props.showReferencedFields == 0) {
             data.push({
                 payload: "",
@@ -389,23 +434,14 @@ var FieldsDropDown = React.createClass({
                 continue;
             }
 
-            // If we have props.parent, then we will prepend it in the field.name
-            var parentPrepend = (this.props.parent) ? this.props.parent.name + '.' : '';
+            // If we have props.parentField, then we will prepend it in the field.name
+            var parentNamePrepend = (this.props.parentField) ? this.props.parentField.name + '.' : '';
 
             data.push({
-                payload: this.props.fieldFormat.prepend + parentPrepend + field.name + this.props.fieldFormat.append,
+                payload: this.props.fieldFormat.prepend + parentNamePrepend + field.name + this.props.fieldFormat.append,
                 text: field.title,
                 details: field
             });
-
-            // Add Manager
-            if (this.props.includeManager) {
-                data.push({
-                    payload: this.props.fieldFormat.prepend + parentPrepend + field.name + ".manager_id" + this.props.fieldFormat.append,
-                    text: field.title + '.Manager',
-                    details: field
-                });
-            }
         }
 
         // If we have additional custom menu data, then lets add it in our field data

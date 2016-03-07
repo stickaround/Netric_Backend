@@ -72,7 +72,7 @@ var WebHook = React.createClass({
                     <div className="entity-form-field-label">
                         Url
                     </div>
-                    <div>
+                    <div className="entity-form-field-value">
                         {this.props.data['url']}
                     </div>
                 </div>
