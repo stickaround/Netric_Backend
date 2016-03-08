@@ -13,7 +13,7 @@ var entityLoader = require("../../../../entity/loader");
 
 var _actionTypes = {
     approval: require("./type/RequestApproval.jsx"),
-    assign: null,
+    assign: require("./type/Assign.jsx"),
     check_condition: null,
     create_entity: require("./type/CreateEntity.jsx"),
     send_email: require("./type/SendEmail.jsx"),

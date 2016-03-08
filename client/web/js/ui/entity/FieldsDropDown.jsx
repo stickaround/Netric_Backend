@@ -427,6 +427,11 @@ var FieldsDropDown = React.createClass({
      */
     _prepFieldData: function (fields) {
 
+        // We will make sure that the component is mounted before we save the fieldData to the state
+        if (!this.isMounted()) {
+            return;
+        }
+
         // Set list of fields to Load
         let data = [];
 
