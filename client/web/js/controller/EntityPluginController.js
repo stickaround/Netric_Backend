@@ -100,6 +100,7 @@ EntityPluginController.prototype.render = function () {
     var data = {
         title: this.props.title || "",
         entity: this._entity,
+        objType: this.props.objType,
         hideToolbar: hideToolbar,
         loadEntity: function(objType, eid, opt_callback) {
             return this._loadEntity(objType, eid, opt_callback);
@@ -114,7 +115,6 @@ EntityPluginController.prototype.render = function () {
             if(this.props.onFinishedAction) {
                 this.props.onFinishedAction();
             }
-
             this.close();
         }.bind(this),
         onNavBtnClick: function (evt) {

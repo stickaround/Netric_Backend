@@ -13,14 +13,15 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Chamel = require('chamel');
-var DropDownMenu = Chamel.DropDownMenu;
-var TextField = Chamel.TextField;
 var netric = require("../../../../../base");
 var Field = require('../../../../../entity/definition/Field.js');
 var entityLoader = require('../../../../../entity/loader');
 var controller = require('../../../../../controller/controller');
 var TextFieldAutoComplete = require("../../../../mixins/TextFieldAutoComplete.jsx");
+var FieldsDropDown = require("../../../FieldsDropDown.jsx");
+var Controls = require('../../../../Controls.jsx');
+var DropDownMenu = Controls.DropDownMenu;
+var TextField = Controls.TextField;
 
 /**
  * Manage action data for request approval
@@ -60,10 +61,8 @@ var RequestApproval = React.createClass({
         data: React.PropTypes.object
     },
 
-    getInitialState: function () {
-        return ({
-            selectedUserFieldsMenuIndex: 0
-        });
+    componentDidUpdate: function () {
+        this._setInputValues();
     },
 
     /**
@@ -73,42 +72,10 @@ var RequestApproval = React.createClass({
      */
     render: function () {
 
-        // Get the entity of the objtype reference
-        let objRefEntity = entityLoader.factory(this.props.objType);
-
-        let userFields = objRefEntity.def.getFieldsBySubtype('user');
-
-        let userFieldsMenuData = [{
-            id: '',
-            value: '',
-            text: 'Select User'
+        let additionalSelectorData = [{
+            payload: 'browse',
+            text: 'Specific User'
         }];
-        let selectedUserFieldsMenuIndex = this.state.selectedUserFieldsMenuIndex;
-
-        // Loop through user fields and pass to dropdown menu data
-        for (let idx in userFields) {
-            let field = userFields[idx];
-
-            userFieldsMenuData.push({
-                id: field.id,
-                value: "<%" + field.name + "%>",
-                text: this.props.objType + '.' + field.title
-            });
-
-            // Add Manager
-            userFieldsMenuData.push({
-                id: field.id,
-                value: "<%" + field.name + ".manager_id%>",
-                text: this.props.objType + '.' + field.title + '.Manager'
-            });
-        }
-
-        // Add option to select specific user
-        userFieldsMenuData.push({
-            id: '',
-            value: 'browse',
-            text: 'Select Specific User'
-        });
 
         return (
             <div className="entity-form-field">
@@ -117,13 +84,22 @@ var RequestApproval = React.createClass({
                         <TextField
                             floatingLabelText='Request Approval From'
                             ref="approvalFromInput"
-                            defaultValue={this.props.data.approval_from}/>
+                            defaultValue={this.props.data.approval_from}
+                            />
                     </div>
                     <div className="entity-form-field-inline-block">
-                        <DropDownMenu
-                            menuItems={userFieldsMenuData}
-                            selectedIndex={selectedUserFieldsMenuIndex}
-                            onChange={this._handleMenuSelect}/>
+                        <FieldsDropDown
+                            objType={this.props.objType}
+                            filterBy="subtype"
+                            filterText="user"
+                            menuEntryLabel="Select User"
+                            hideFieldTypes={[Field.types.objectMulti]}
+                            fieldFormat={{prepend: '<%', append: '%>'}}
+                            selectedField={this.props.data.approval_from}
+                            additionalMenuData={additionalSelectorData}
+                            onChange={this._handleMenuSelect}
+                            showReferencedFields={1}
+                            />
                     </div>
                 </div>
             </div>
@@ -149,20 +125,15 @@ var RequestApproval = React.createClass({
     /**
      * Callback used to handle the selecting of user dropdown menu
      *
-     * @param {DOMEvent} evt Reference to the DOM event being sent
-     * @param {int} key The index of the menu clicked
-     * @param {array} menuItem The object value of the menu clicked
+     * @param {string} fieldValue The value of the fieldname that was selected
      * @private
      */
-    _handleMenuSelect: function (evt, key, menuItem) {
-        this.setState({
-            selectedUserFieldsMenuIndex: key
-        });
+    _handleMenuSelect: function (fieldValue) {
 
-        if (menuItem.value === 'browse') {
+        if (fieldValue === 'browse') {
             this._handleSelectExistingUser();
         } else {
-            this._handleDataChange('approval_from', menuItem.value);
+            this._handleDataChange('approval_from', fieldValue);
         }
     },
 
@@ -188,8 +159,16 @@ var RequestApproval = React.createClass({
                 this._handleDataChange('approval_from', selectedUser);
             }.bind(this)
         });
-    }
+    },
 
+    /**
+     * Set intial values for the input text for request approval from
+     * @private
+     */
+    _setInputValues: function () {
+        let approvalFrom = this.props.data.approval_from || null;
+        this.refs.approvalFromInput.setValue(approvalFrom);
+    }
 });
 
 module.exports = RequestApproval;
