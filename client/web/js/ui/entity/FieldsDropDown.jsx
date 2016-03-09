@@ -1,7 +1,6 @@
 /**
  * Render a field select dropdown
  *
-
  */
 'use strict';
 
@@ -19,8 +18,8 @@ var IconButton = Controls.IconButton;
 var DropDownMenu = Controls.DropDownMenu;
 var MenuItem = Controls.MenuItem;
 var Menu = Controls.Menu;
-var MenuItem = Controls.MenuItem;
-var NestedMenuItem = Controls.NestedMenuItem;
+var RaisedButton = Controls.RaisedButton;
+var Popover = Controls.Popover;
 
 /**
  * Create a DropDown that shows all fields for an object type
@@ -44,13 +43,13 @@ var FieldsDropDown = React.createClass({
         onChange: React.PropTypes.func,
 
         /**
-         * Callback called when the user selects the parent field
+         * Callback called when the user selects the child field
          *
          * This is only used when we have a submenu
          *
          * @var {function}
          */
-        onParentFieldSelect: React.PropTypes.func,
+        onChildClick: React.PropTypes.func,
 
         /**
          * Option to show one level deep of referenced entity fields
@@ -210,7 +209,7 @@ var FieldsDropDown = React.createClass({
             );
         } else {
 
-            // Since showReferencedFields is greater than 0, then we will display a declarative menu
+            // Since showReferencedFields is greater than 0, then we will display a menu
             var menuItems = [];
 
             // Loop thru the fieldData to get the entity fields for this objType
@@ -219,7 +218,7 @@ var FieldsDropDown = React.createClass({
                 let fieldText = field.text;
 
                 // If the field has a prefix, then we will prepend it in the fieldText
-                if(field.prefix) {
+                if (field.prefix) {
                     fieldText = field.prefix + ' - ' + fieldText;
                 }
 
@@ -253,6 +252,9 @@ var FieldsDropDown = React.createClass({
                     // We will decrement the showReferencedFields to determine that we have searched 1 level deep
                     childProps.showReferencedFields = (this.props.showReferencedFields - 1);
 
+                    // When clicking the submenu field, we need to let the parent know to hide the menu
+                    childProps.onChildClick = this._handlePopoverRequestClose;
+
                     menuItems.push(
                         <FieldsDropDown
                             {...childProps}
@@ -272,16 +274,52 @@ var FieldsDropDown = React.createClass({
             } else {
                 return (
                     <div>
-                        <DropDownMenu
-                            ref="dropdownmenu"
-                            menuItems={[]}
-                            defaultText={this.props.firstEntryLabel}>
-                            {menuItems}
-                        </DropDownMenu>
+                        <RaisedButton
+                            onClick={this._handlePopoverDisplay}
+                            label={this.props.firstEntryLabel}
+                        />
+                        <Popover
+                            open={this.state.openMenu}
+                            anchorEl={this.state.anchorEl}
+                            anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                            targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                            onRequestClose={this._handlePopoverRequestClose}>
+                            <div className="fields-dropdown-menu">
+                                <Menu>
+                                    {menuItems}
+                                </Menu>
+                            </div>
+                        </Popover>
                     </div>
                 );
             }
         }
+    },
+
+    /**
+     * Callback used to handle commands when user clicks the button to display the menu in the popover
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @private
+     */
+    _handlePopoverDisplay: function (e) {
+
+        // This prevents ghost click.
+        e.preventDefault();
+
+        this.setState({
+            openMenu: this.state.openMenu ? false : true,
+            anchorEl: e.currentTarget
+        });
+    },
+
+    /**
+     * Callback used to close the popover
+     *
+     * @private
+     */
+    _handlePopoverRequestClose: function () {
+        this.setState({openMenu: false});
     },
 
     /**
@@ -312,6 +350,12 @@ var FieldsDropDown = React.createClass({
             let value = this.props.fieldFormat.prepend + data.payload + this.props.fieldFormat.append;
             this.props.onChange(value);
         }
+
+        if (this.props.onChildClick) {
+            this.props.onChildClick();
+        } else {
+            this.setState({openMenu: false});
+        }
     },
 
     /**
@@ -339,7 +383,6 @@ var FieldsDropDown = React.createClass({
      * @param {EntityDefinition} entityDefinition The loaded definition
      */
     _handleEntityDefinititionLoaded: function (entityDefinition) {
-
         let fields = null;
 
         fields = entityDefinition.getFields();
