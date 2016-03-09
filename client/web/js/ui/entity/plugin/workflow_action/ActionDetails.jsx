@@ -1,5 +1,5 @@
 /**
- * The workflow action details editor
+ * The action data details editor
  *
 
  */
@@ -13,13 +13,13 @@ var entityLoader = require("../../../../entity/loader");
 
 var _actionTypes = {
     approval: require("./type/RequestApproval.jsx"),
-    assign: require("./type/Assign.jsx"),
-    check_condition: null,
+    assign: null,
+    check_condition: require("./type/CheckCondition.jsx"),
     create_entity: require("./type/CreateEntity.jsx"),
-    send_email: require("./type/SendEmail.jsx"),
+    send_email: null,
     start_workflow: null,
     update_field: require("./type/UpdateField.jsx"),
-    wait_condition: null,
+    wait_condition: require("./type/WaitCondition.jsx"),
     webhook: require("./type/WebHook.jsx"),
 };
 
@@ -101,8 +101,7 @@ var WorkflowActionDetails = React.createClass({
                 data: data,
                 onChange: this._handleDataChange,
                 editMode: this.props.editMode,
-                objType: objType,
-                entity: this.props.entity
+                objType: objType
             });
         } else {
             log.error("No editor plugin found for action type " + type);
