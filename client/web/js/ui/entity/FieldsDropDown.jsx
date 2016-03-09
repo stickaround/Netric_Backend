@@ -82,7 +82,7 @@ var FieldsDropDown = React.createClass({
         /**
          * Optional list of field subtypes to include from the list
          *
-         * If left blank, this means that we are display all subtypes
+         * If left blank, this means that we are displaying all subtypes
          *
          * @var {array}
          */
@@ -101,7 +101,7 @@ var FieldsDropDown = React.createClass({
          * If we need a custom data added in the dropdown that is not available in the entity fields
          *  then we will specify them in this variable.
          *
-         * For this example, if are displaying user fields and we want to have an option to select a specific user
+         * For this example, if want to display an option to select a specific user then we set it here
          * data[0]: {
          *  value: browse,
          *  text: select specific user
@@ -112,7 +112,10 @@ var FieldsDropDown = React.createClass({
         additionalMenuData: React.PropTypes.array,
 
         /**
-         * Optional format for the field values
+         * Optional This will transform/format the selected field value.
+         *
+         * The normal/unformatted selected field value is field.name (e.g. customer_id)
+         * If fieldFormat is available based on our example, the selected field value value will be <%customer_id%>
          *
          * fieldFormat = {
          *  prepend: '<%',
