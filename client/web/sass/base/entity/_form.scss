@@ -268,4 +268,9 @@ margin: 0 $gutter-less 0 $gutter-less;
       border: 2px solid darkgray;
     }
   }
+
+  .fields-dropdown-menu {
+    max-height: 300px;
+    overflow: auto;
+  }
 }

@@ -1,7 +1,6 @@
 /**
  * Render a field select dropdown
  *
-
  */
 'use strict';
 
@@ -19,8 +18,6 @@ var IconButton = Controls.IconButton;
 var DropDownMenu = Controls.DropDownMenu;
 var MenuItem = Controls.MenuItem;
 var Menu = Controls.Menu;
-var MenuItem = Controls.MenuItem;
-var NestedMenuItem = Controls.NestedMenuItem;
 var RaisedButton = Controls.RaisedButton;
 var Popover = Controls.Popover;
 
@@ -46,11 +43,13 @@ var FieldsDropDown = React.createClass({
         onChange: React.PropTypes.func,
 
         /**
-         * Callback called when the user selects the parent field
+         * Callback called when the user selects the child field
+         *
+         * This is only used when we have a submenu
          *
          * @var {function}
          */
-        onParentFieldSelect: React.PropTypes.func,
+        onChildClick: React.PropTypes.func,
 
         /**
          * Option to show one level deep of referenced entity fields
@@ -58,9 +57,9 @@ var FieldsDropDown = React.createClass({
          * This is useful if working with things like an entity index
          * that can query across entity types. For example, lead.owner.name
          *
-         * @var {bool}
+         * @var {int}
          */
-        showReferencedFields: React.PropTypes.bool,
+        showReferencedFields: React.PropTypes.number,
 
         /**
          * Flag to indicate if we should include read-only fields
@@ -81,6 +80,15 @@ var FieldsDropDown = React.createClass({
         hideFieldTypes: React.PropTypes.array,
 
         /**
+         * Optional list of field subtypes to include from the list
+         *
+         * If left blank, this means that we are displaying all subtypes
+         *
+         * @var {array}
+         */
+        filterFieldSubtypes: React.PropTypes.array,
+
+        /**
          * The field that was selected
          *
          * @var {string}
@@ -88,22 +96,12 @@ var FieldsDropDown = React.createClass({
         selectedField: React.PropTypes.string,
 
         /**
-         * This will determine how we will filter the entity fields
+         * Optional data that will be added in the menu data.
          *
-         * @type {string}
-         */
-        filterBy: React.PropTypes.oneOf(['none', 'type', 'subtype']),
-
-        /**
-         * The text that we will used as a filter
+         * If we need a custom data added in the dropdown that is not available in the entity fields
+         *  then we will specify them in this variable.
          *
-         * @type {string}
-         */
-        filterText: React.PropTypes.string,
-
-        /**
-         * Optional data that will be added in the menu data
-         *
+         * For this example, if want to display an option to select a specific user then we set it here
          * data[0]: {
          *  value: browse,
          *  text: select specific user
@@ -114,7 +112,10 @@ var FieldsDropDown = React.createClass({
         additionalMenuData: React.PropTypes.array,
 
         /**
-         * Optional format for the field values
+         * Optional This will transform/format the selected field value.
+         *
+         * The normal/unformatted selected field value is field.name (e.g. customer_id)
+         * If fieldFormat is available based on our example, the selected field value value will be <%customer_id%>
          *
          * fieldFormat = {
          *  prepend: '<%',
@@ -126,27 +127,24 @@ var FieldsDropDown = React.createClass({
         fieldFormat: React.PropTypes.object,
 
         /**
-         * This will determine how many levels we need to search for the referenced fields
-         *
-         * @type {int}
-         */
-        showReferencedFields: React.PropTypes.number,
-
-        /**
          * This will determine that we are dealing with referenced entity.
          *
-         * This will contain the field details
+         * parentField will be used if the showReferencedFields value is greater than zero
+         * This means that we are displaying a submenu.
+         * Submenu will always have a parentField since we need to append the parentField.name to the submenu field value
          *
          * @type {entity/definition/Field}
          */
         parentField: React.PropTypes.object,
 
         /**
-         * The label that will be used in the button to display the declarative menu
+         * The label of the first entry of the dropdown
+         *
+         * Sample: 'Select User Field'
          *
          * @type {string}
          */
-        menuEntryLabel: React.PropTypes.string
+        firstEntryLabel: React.PropTypes.string
     },
 
 
@@ -157,11 +155,10 @@ var FieldsDropDown = React.createClass({
      */
     getDefaultProps: function () {
         return {
-            showReferencedFields: false,
             showReadOnlyFields: true,
+            filterFieldSubtypes: [],
             hideFieldTypes: [],
-            filterBy: 'none',
-            menuEntryLabel: 'Select Field',
+            firstEntryLabel: 'Select Field',
             showReferencedFields: 0,
             fieldFormat: {
                 prepend: '',
@@ -177,8 +174,7 @@ var FieldsDropDown = React.createClass({
      */
     getInitialState: function () {
         return {
-            fieldData: null,
-            openMenu: false
+            fieldData: null
         };
     },
 
@@ -216,12 +212,28 @@ var FieldsDropDown = React.createClass({
             );
         } else {
 
-            // Since showReferencedFields is greater than 0, then we will display a declarative menu
+            // Since showReferencedFields is greater than 0, then we will display a menu
             var menuItems = [];
 
             // Loop thru the fieldData to get the entity fields for this objType
             for (var idx in fieldData) {
-                var field = fieldData[idx];
+                let field = fieldData[idx];
+                let fieldText = field.text;
+
+                // If the field has a prefix, then we will prepend it in the fieldText
+                if (field.prefix) {
+                    fieldText = field.prefix + ' - ' + fieldText;
+                }
+
+                // Just push the menuItem in the menuItems array
+                menuItems.push(
+                    <MenuItem
+                        key={idx + 'main'}
+                        index={parseInt(idx)}
+                        onClick={this._handleSelectMenuItem.bind(this, field)}>
+                        {fieldText}
+                    </MenuItem>
+                );
 
                 /*
                  * If the current field is an object and has a subtype and the showReferencedFields is greater than zero
@@ -243,43 +255,31 @@ var FieldsDropDown = React.createClass({
                     // We will decrement the showReferencedFields to determine that we have searched 1 level deep
                     childProps.showReferencedFields = (this.props.showReferencedFields - 1);
 
+                    // When clicking the submenu field, we need to let the parent know to hide the menu
+                    childProps.onChildClick = this._handlePopoverRequestClose;
+
                     menuItems.push(
                         <FieldsDropDown
                             {...childProps}
-                            key={idx}
+                            key={idx + 'child'}
                         />
-                    );
-                } else {
-
-                    // Just push the menuItem in the menuItems array
-                    menuItems.push(
-                        <MenuItem
-                            key={idx}
-                            index={parseInt(idx)}
-                            payload={field.payload}
-                            onClick={this._handleSelectMenuItem}>
-                            {field.text}
-                        </MenuItem>
                     );
                 }
             }
 
-            // If we have props.parentField this means that we are dealing a subMenu field so we will return the <NestedMenuItem />
+            // If we have props.parentField this means that we are dealing a subMenu field so we will return the child <MenuItem/>
             if (this.props.parentField) {
                 return (
-                    <NestedMenuItem
-                        parentItem={this.props.parentField}
-                        onParentItemClick={this._handleSelectParentMenuItem}
-                        text={this.props.parentField.details.title}>
+                    <div>
                         {menuItems}
-                    </NestedMenuItem>
+                    </div>
                 );
             } else {
                 return (
                     <div>
                         <RaisedButton
-                            onClick={this._handlePopoverTouchTap}
-                            label={this.props.menuEntryLabel}
+                            onClick={this._handlePopoverDisplay}
+                            label={this.props.firstEntryLabel}
                         />
                         <Popover
                             open={this.state.openMenu}
@@ -287,9 +287,11 @@ var FieldsDropDown = React.createClass({
                             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                             targetOrigin={{horizontal: 'left', vertical: 'top'}}
                             onRequestClose={this._handlePopoverRequestClose}>
-                            <Menu>
-                                {menuItems}
-                            </Menu>
+                            <div className="fields-dropdown-menu">
+                                <Menu>
+                                    {menuItems}
+                                </Menu>
+                            </div>
                         </Popover>
                     </div>
                 );
@@ -298,12 +300,12 @@ var FieldsDropDown = React.createClass({
     },
 
     /**
-     * Callback used to handle commands when user clicks the button to display the declarative menu
+     * Callback used to handle commands when user clicks the button to display the menu in the popover
      *
      * @param {DOMEvent} e Reference to the DOM event being sent
      * @private
      */
-    _handlePopoverTouchTap: function (e) {
+    _handlePopoverDisplay: function (e) {
 
         // This prevents ghost click.
         e.preventDefault();
@@ -320,9 +322,7 @@ var FieldsDropDown = React.createClass({
      * @private
      */
     _handlePopoverRequestClose: function () {
-        this.setState({
-            openMenu: false
-        });
+        this.setState({openMenu: false});
     },
 
     /**
@@ -335,33 +335,29 @@ var FieldsDropDown = React.createClass({
      */
     _handleFieldChange: function (e, key, data) {
         if (this.props.onChange) {
-            this.props.onChange(data.payload);
+            let value = this.props.fieldFormat.prepend + data.payload + this.props.fieldFormat.append;
+            this.props.onChange(value);
         }
     },
 
     /**
      * Callback used to handle commands when user selects a field name
      *
+     * @param {Object} data The object value of the menu clicked
      * @param {DOMEvent} e Reference to the DOM event being sent
      * @param {int} key The index of the menu clicked
      * @private
      */
-    _handleSelectMenuItem: function (e, key) {
-        if (this.props.onChange && this.state.fieldData[key]) {
-            this.props.onChange(this.state.fieldData[key].payload);
-        }
-    },
-
-    /**
-     * Callback used to handle commands when user selects a parent field name
-     *
-     * @param {DOMEvent} e Reference to the DOM event being sent
-     * @param {Object} data The object value of the menu clicked
-     * @private
-     */
-    _handleSelectParentMenuItem: function (e, data) {
+    _handleSelectMenuItem: function (data, e, key) {
         if (this.props.onChange) {
-            this.props.onChange(data.payload);
+            let value = this.props.fieldFormat.prepend + data.payload + this.props.fieldFormat.append;
+            this.props.onChange(value);
+        }
+
+        if (this.props.onChildClick) {
+            this.props.onChildClick();
+        } else {
+            this.setState({openMenu: false});
         }
     },
 
@@ -390,30 +386,9 @@ var FieldsDropDown = React.createClass({
      * @param {EntityDefinition} entityDefinition The loaded definition
      */
     _handleEntityDefinititionLoaded: function (entityDefinition) {
-
         let fields = null;
 
-        // Determine on how we will get the entity fields
-        switch (this.props.filterBy) {
-            case 'type':
-
-                // Get the entity fields by filtering the field.type
-                fields = entityDefinition.getFieldsByType(this.props.filterText);
-                break;
-
-            case 'subtype':
-
-                // Get the entity fields by filtering the field.subtype
-                fields = entityDefinition.getFieldsBySubtype(this.props.filterText);
-                break;
-
-            case 'none':
-            default:
-
-                // Get the entity fields
-                fields = entityDefinition.getFields();
-                break;
-        }
+        fields = entityDefinition.getFields();
 
         // Prepare the entity fields to be displayed in a dropdown
         this._prepFieldData(fields);
@@ -427,23 +402,16 @@ var FieldsDropDown = React.createClass({
      */
     _prepFieldData: function (fields) {
 
-        // We will make sure that the component is mounted before we save the fieldData to the state
-        if (!this.isMounted()) {
-            return;
-        }
-
         // Set list of fields to Load
         let data = [];
 
         // If no field name has been selected, enter a first explanation entry
         if (!this.props.selectedField
             && !this.props.parentField
-
-
             && this.props.showReferencedFields == 0) {
             data.push({
                 payload: "",
-                text: "Select Field"
+                text: this.props.firstEntryLabel
             });
         }
 
@@ -460,12 +428,32 @@ var FieldsDropDown = React.createClass({
                 continue;
             }
 
+            /*
+             * Skip fields with subtypes that have been set as filtered
+             * If we have not specified any filterFieldSubtypes, then we assume that we will dispaly all subtypes
+             */
+            if (this.props.filterFieldSubtypes.length && this.props.filterFieldSubtypes.indexOf(field.subtype) === -1) {
+                continue;
+            }
+
+            let prefix = '',
+                childPrefix = '',
+                parentNamePrepend = '',
+                fieldTitle = field.title;
+
             // If we have props.parentField, then we will prepend it in the field.name
-            var parentNamePrepend = (this.props.parentField) ? this.props.parentField.details.name + '.' : '';
+            if (this.props.parentField) {
+                parentNamePrepend = this.props.parentField.payload + '.';
+
+                // Setup the prefix to specify that we are displaying a child field
+                prefix = this.props.parentField.prefix + "\u00A0\u00A0\u00A0\u00A0";
+                fieldTitle = this.props.parentField.details.title + '.' + fieldTitle;
+            }
 
             data.push({
-                payload: this.props.fieldFormat.prepend + parentNamePrepend + field.name + this.props.fieldFormat.append,
-                text: field.title,
+                payload: parentNamePrepend + field.name,
+                text: fieldTitle,
+                prefix: prefix,
                 details: field
             });
         }
