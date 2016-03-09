@@ -14,7 +14,7 @@ var entityLoader = require("../../../../entity/loader");
 var _actionTypes = {
     approval: require("./type/RequestApproval.jsx"),
     assign: null,
-    check_condition: null,
+    check_condition: require("./type/CheckCondition.jsx"),
     create_entity: require("./type/CreateEntity.jsx"),
     send_email: null,
     start_workflow: null,

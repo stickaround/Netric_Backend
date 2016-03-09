@@ -251,5 +251,22 @@ Where.prototype.fromData = function(data) {
     this.value = data.value || "";
 }
 
+/**
+ * Get the human description to be displayed of the where condition
+ *
+ * @param {bool} hideBlogic Flag that will determine if we should display the bLogic
+ * @return string The human description of the where condition
+ * @public
+ */
+Where.prototype.getHumanDesc = function(hideBlogic) {
+    var operator = this.operator.replace(/[_]/g, " ");
+    var bLogic = this.bLogic + ' ';
+
+    if(hideBlogic) {
+        bLogic = '';
+    }
+
+    return bLogic + this.fieldName + ' ' + operator + ' ' + this.value;
+}
 
 module.exports = Where;
