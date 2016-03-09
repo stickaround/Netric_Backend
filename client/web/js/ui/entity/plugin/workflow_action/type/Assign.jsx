@@ -72,55 +72,105 @@ var CheckCondition = React.createClass({
      */
     render: function () {
 
-        let displayAssignTo = null;
+        let displayAssignTo = null,
+            displayUserField = null,
+            displayAssignField = null;
 
-        switch (this.state.type) {
-            case 'team':
-                displayAssignTo = (
-                    <GroupingSelect
-                        objType='user'
-                        key='team'
-                        fieldName='team_id'
-                        allowNoSelection={false}
-                        label={'none'}
-                        selectedValue={this.props.data.team_id}
-                        onChange={this._handleGroupingSelect.bind(this, 'team_id')}
-                    />
-                );
-                break;
-            case 'group':
-                displayAssignTo = (
-                    <GroupingSelect
-                        objType='user'
-                        key='group'
-                        fieldName='groups'
-                        allowNoSelection={false}
-                        label={'none'}
-                        selectedValue={this.props.data.group_id}
-                        onChange={this._handleGroupingSelect.bind(this, 'group_id')}
-                    />
-                );
-                break;
-            case 'users':
-                var autoCompleteAttributes = {
-                    autoComplete: true,
-                    autoCompleteDelimiter: ',',
-                    autoCompleteTrigger: '@',
-                    autoCompleteTransform: this.transformAutoCompleteSelected,
-                    autoCompleteGetData: this.getAutoCompleteData
-                }
+        // If we are in editMode, then let's display the inputs used for assign workflow action
+        if (this.props.editMode) {
 
-                displayAssignTo = (
-                    <TextField
-                        {...autoCompleteAttributes}
-                        floatingLabelText="Enter user IDs separated by a comma ','"
-                        ref="usersAssignTo"
-                        multiLine={true}
-                        defaultValue={this.props.data.users}
-                        onBlur={this._handleTextInputChange}
+            switch (this.state.type) {
+                case 'team':
+                    displayAssignTo = (
+                        <GroupingSelect
+                            objType='user'
+                            key='team'
+                            fieldName='team_id'
+                            allowNoSelection={false}
+                            label={'none'}
+                            selectedValue={this.props.data.team_id}
+                            onChange={this._handleGroupingSelect.bind(this, 'team_id')}
+                        />
+                    );
+                    break;
+                case 'group':
+                    displayAssignTo = (
+                        <GroupingSelect
+                            objType='user'
+                            key='group'
+                            fieldName='groups'
+                            allowNoSelection={false}
+                            label={'none'}
+                            selectedValue={this.props.data.group_id}
+                            onChange={this._handleGroupingSelect.bind(this, 'group_id')}
+                        />
+                    );
+                    break;
+                case 'users':
+                    var autoCompleteAttributes = {
+                        autoComplete: true,
+                        autoCompleteDelimiter: ',',
+                        autoCompleteTrigger: '@',
+                        autoCompleteTransform: this._handleAutoCompleteTransform,
+                        autoCompleteGetData: this.getAutoCompleteData
+                    }
+
+                    displayAssignTo = (
+                        <TextField
+                            {...autoCompleteAttributes}
+                            floatingLabelText="Enter user IDs separated by a comma ','. Press '@' to display the list of users as you write their name."
+                            ref="usersAssignTo"
+                            defaultValue={this.props.data.users}
+                            onBlur={this._handleTextInputChange}
+                        />
+                    );
+                    break;
+            }
+
+            displayUserField = (
+                <FieldsDropDown
+                    objType={this.props.objType}
+                    firstEntryLabel="Select Field"
+                    filterFieldSubtypes={['user']}
+                    hideFieldTypes={[Field.types.objectMulti]}
+                    selectedField={this.props.data.field}
+                    onChange={this._handleMenuSelect}
+                />
+            );
+
+            displayAssignField = (
+                <RadioButtonGroup
+                    name='type'
+                    defaultSelected={this.state.type}
+                    onChange={this._handleTypeChange}
+                    inline={true}>
+                    <RadioButton
+                        value='team'
+                        label='Team'
                     />
-                );
-                break;
+                    <RadioButton
+                        value='group'
+                        label='Group'
+                    />
+                    <RadioButton
+                        value='users'
+                        label='Users'
+                    />
+                </RadioButtonGroup>
+            );
+        } else {
+            displayUserField = this.props.data.field;
+
+            if (this.props.data.group_id) {
+                displayAssignTo = this.props.data.group_id;
+                displayAssignField = "Group";
+            } else if (this.props.data.team_id) {
+                displayAssignTo = this.props.data.team_id;
+                displayAssignField = "Team";
+            } else if (this.props.data.users) {
+                displayAssignTo = this.props.data.users;
+                displayAssignField = "Users";
+            }
         }
 
         return (
@@ -130,15 +180,7 @@ var CheckCondition = React.createClass({
                         User Field
                     </div>
                     <div className="entity-form-field-value">
-                        <FieldsDropDown
-                            objType={this.props.objType}
-                            filterBy="subtype"
-                            filterText="user"
-                            menuEntryLabel="Select Field"
-                            hideFieldTypes={[Field.types.objectMulti]}
-                            selectedField={this.props.data.field}
-                            onChange={this._handleMenuSelect}
-                        />
+                        {displayUserField}
                     </div>
                 </div>
                 <div>
@@ -146,24 +188,7 @@ var CheckCondition = React.createClass({
                         Assign Field
                     </div>
                     <div className="entity-form-field-value">
-                        <RadioButtonGroup
-                            name='type'
-                            defaultSelected={this.state.type}
-                            onChange={this._handleTypeChange}
-                            inline={true}>
-                            <RadioButton
-                                value='team'
-                                label='Team'
-                            />
-                            <RadioButton
-                                value='group'
-                                label='Group'
-                            />
-                            <RadioButton
-                                value='users'
-                                label='Users'
-                            />
-                        </RadioButtonGroup>
+                        {displayAssignField}
                     </div>
                 </div>
                 <div>
@@ -176,6 +201,7 @@ var CheckCondition = React.createClass({
                 </div>
             </div>
         );
+
     },
 
     /**
@@ -224,6 +250,17 @@ var CheckCondition = React.createClass({
      */
     _handleGroupingSelect: function (property, payload, text) {
         this._handleDataChange(property, payload);
+    },
+
+    /**
+     * AutoComplete function that will transform the selected data to something else
+     *
+     * @param {object} data     THe autocomplete selected data
+     * @returns {string}
+     * @public
+     */
+    _handleAutoCompleteTransform: function (data) {
+        return data.payload;
     }
 });
 
