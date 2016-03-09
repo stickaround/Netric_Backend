@@ -63,13 +63,6 @@ module.exports = function(grunt) {
                 tasks: ['browserify:dev']
             },
 
-            // Make sure any new scripts are included in the html documents
-            blocks: {
-                //files: ['js/**/*.js', 'build/js/ui/**/*.js'],
-                files: ['build/js/**/*.js'],
-                tasks: ['fileblocks:dev']
-            },
-
             // Render jsx filse into js files
             // react: {
             //     files: ['js/ui/**/*.jsx'],
@@ -191,7 +184,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-wiredep');
     //grunt.loadNpmTasks('grunt-svn-fetch');
     grunt.loadNpmTasks('grunt-react');
 

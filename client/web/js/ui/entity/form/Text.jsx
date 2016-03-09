@@ -36,7 +36,9 @@ var Text = React.createClass({
         var fieldValue = this.props.entity.getValue(fieldName);
         var showif = this.props.xmlNode.getAttribute('showif');
 
-        var textDisplay = (<div className="entity-form-field-text">{this.props.children}{fieldValue}</div>);
+        var textDisplay = (
+            <div className="entity-form-field-text">{this.props.children}{fieldValue}</div>
+        );
         if (showif) {
 
             // If ::evaluateShowIf() returns false, it means that the showif did not match the filter specified
