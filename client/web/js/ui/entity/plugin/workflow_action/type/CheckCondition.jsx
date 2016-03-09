@@ -77,7 +77,7 @@ var CheckCondition = React.createClass({
 
                     // Build the conditions description
                     conditionDisplay.push(
-                        <div key={Math.random()}>
+                        <div key={idx}>
                             <div className="entity-form-field-label">
                                 {'Condition ' + (parseInt(idx) + 1).toString()}
                             </div>
