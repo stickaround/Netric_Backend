@@ -109,7 +109,7 @@ var SendEmail = React.createClass({
                                     onBlur={this._handleTextInputChange.bind(this, 'subject')}
                                 />
                             </div>
-                            <div className="entity-form-field-inline-block">
+                            <div className="entity-form-field-inline-block fields-dropdown-popover">
                                 <FieldsDropDown
                                     objType={this.props.objType}
                                     fieldFormat={{prepend: '<%', append: '%>'}}
@@ -186,7 +186,7 @@ var SendEmail = React.createClass({
             }.bind(this));
 
             // This will be selected as a default value in the selector dropdown
-            let additionalSelectorData = [{
+            let additionalMenuData = [{
                 payload: 'default',
                 text: 'Default'
             }];
@@ -203,14 +203,12 @@ var SendEmail = React.createClass({
                         </div>
                         <div className="entity-form-field-inline-block">
                             <FieldsDropDown
+                                firstEntryLabel="Select User"
                                 objType={this.props.objType}
-                                filterBy="subtype"
-                                filterText="user"
-                                menuEntryLabel="Select User"
-                                fieldFormat={{prepend: '<%', append: '%>'}}
+                                filterFieldSubtypes={["user"]}
                                 hideFieldTypes={[Field.types.objectMulti]}
-                                selectedField={this.props.data.from}
-                                additionalMenuData={additionalSelectorData}
+                                fieldFormat={{prepend: '<%', append: '%>'}}
+                                additionalMenuData={additionalMenuData}
                                 onChange={this._handleMenuSelect}
                                 showReferencedFields={1}
                             />
@@ -348,7 +346,7 @@ var SendEmail = React.createClass({
      * @private
      */
     _handleMenuSelect: function (fieldValue) {
-        if (fieldValue === 'default') {
+        if (fieldValue === '<%default%>') {
             this._handleDataChange('from', netric.getApplication().getAccount().getUser().email);
         } else {
             this._handleDataChange('from', fieldValue);

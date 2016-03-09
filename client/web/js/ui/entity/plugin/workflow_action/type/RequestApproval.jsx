@@ -90,12 +90,10 @@ var RequestApproval = React.createClass({
                     <div className="entity-form-field-inline-block">
                         <FieldsDropDown
                             objType={this.props.objType}
-                            filterBy="subtype"
-                            filterText="user"
-                            menuEntryLabel="Select User"
+                            firstEntryLabel="Select User"
+                            filterFieldSubtypes={['user']}
                             hideFieldTypes={[Field.types.objectMulti]}
                             fieldFormat={{prepend: '<%', append: '%>'}}
-                            selectedField={this.props.data.approval_from}
                             additionalMenuData={additionalSelectorData}
                             onChange={this._handleMenuSelect}
                             showReferencedFields={1}
@@ -130,7 +128,7 @@ var RequestApproval = React.createClass({
      */
     _handleMenuSelect: function (fieldValue) {
 
-        if (fieldValue === 'browse') {
+        if (fieldValue === '<%browse%>') {
             this._handleSelectExistingUser();
         } else {
             this._handleDataChange('approval_from', fieldValue);
