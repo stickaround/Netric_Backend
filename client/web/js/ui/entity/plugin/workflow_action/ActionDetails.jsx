@@ -19,7 +19,7 @@ var _actionTypes = {
     send_email: null,
     start_workflow: null,
     update_field: require("./type/UpdateField.jsx"),
-    wait_condition: null,
+    wait_condition: require("./type/WaitCondition.jsx"),
     webhook: require("./type/WebHook.jsx"),
 };
 
