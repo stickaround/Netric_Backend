@@ -14,12 +14,12 @@ var entityLoader = require("../../../../entity/loader");
 var _actionTypes = {
     approval: require("./type/RequestApproval.jsx"),
     assign: null,
-    check_condition: null,
+    check_condition: require("./type/CheckCondition.jsx"),
     create_entity: require("./type/CreateEntity.jsx"),
     send_email: null,
     start_workflow: null,
     update_field: require("./type/UpdateField.jsx"),
-    wait_condition: null,
+    wait_condition: require("./type/WaitCondition.jsx"),
     webhook: require("./type/WebHook.jsx"),
 };
 
