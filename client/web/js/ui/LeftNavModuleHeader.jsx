@@ -1,7 +1,7 @@
 /**
  * Header view for the left nav when loaded from a module
  *
- * @jsx React.DOM
+
  */
 'use strict';
 var React = require('react');
@@ -47,7 +47,7 @@ var LeftNavModuleHeader = React.createClass({
         var headerTitle = this.props.title;
 
         var menuClass = this.getClasses('left-nav-header-menu', {
-          'chamel-is-closed': (this.state.open) ? false : true
+          'hidden': (this.state.open) ? false : true
         });
 
         var headerIcon = null;
@@ -57,7 +57,7 @@ var LeftNavModuleHeader = React.createClass({
             } else {
                 headerIcon = <i className="fa fa-chevron-left" />;
             }
-        } 
+        }
         
         // TODO: make this dynamic
         var menuItems = [];
@@ -95,15 +95,28 @@ var LeftNavModuleHeader = React.createClass({
         */
 
         return (
-            <AppBar title={headerTitle} zDepth={1} />
+            <div>
+                <AppBar
+                    title={headerTitle}
+                    onNavBtnClick={this._handleModuleMenuClick}
+                    iconClassNameLeft={"fa fa-bars"}
+                    zDepth={0}
+                />
+                <div className={menuClass}>
+                    <Menu
+                        ref="menuItems"
+                        zDepth={0}
+                        menuItems={menuItems}
+                        selectedIndex={selectedIndex}
+                        onItemClick={this._handleModuleClick}
+                    />
+                </div>
+            </div>
         );
     },
 
-    _handleMenuClick:function(evt) {
-
-        if (this.props.deviceIsSmall) {
-            this.setState({ open: (this.state.open) ? false : true });
-        }
+    _handleModuleMenuClick: function(e) {
+        this.setState({ open: (this.state.open) ? false : true });
     },
 
     _handleModuleClick:function(e, key, payload) {

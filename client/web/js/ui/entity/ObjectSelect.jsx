@@ -1,7 +1,7 @@
 /**
  * Object reference value and browse/select dialog
  *
- * @jsx React.DOM
+
  * @author Sky Stebnicki
  */
 'use strict';

@@ -1,10 +1,8 @@
 /**
  * @fileoverview Main function used for building netric module
  */
-'use strict';
-
 // Add react
-var React = require('react');
+//var React = require('react');
 
 //Needed for onTouchTap
 //Can go away when react 1.0 release
@@ -20,4 +18,7 @@ netric.Device = require("./Device");
 netric.Application = require("./Application");
 netric.moduleLoader = require("./module/loader");
 
-module.exports = netric;
+if (module)
+    module.exports = netric;
+
+export default netric;

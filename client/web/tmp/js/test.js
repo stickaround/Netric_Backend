@@ -1,7 +1,7 @@
 /**
  * My first test component
  *
- * @jsx React.DOM
+
  */
 
  define("netric.ui.component.test");

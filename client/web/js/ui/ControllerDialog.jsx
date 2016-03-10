@@ -1,7 +1,7 @@
 /**
  * Render controller in a modal dialog
  *
- * @jsx React.DOM
+
  */
 'use strict';
 var React = require('react');

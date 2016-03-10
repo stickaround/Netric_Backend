@@ -1,7 +1,7 @@
 /**
  * Plugin for converting a lead
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

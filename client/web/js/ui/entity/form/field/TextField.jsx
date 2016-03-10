@@ -1,7 +1,7 @@
 /**
  * Text field component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
@@ -32,7 +32,7 @@ var TextField = React.createClass({
 
     getInitialState: function () {
         return {
-            shouldUpdateField: false
+            shouldUpdateField: false,
         }
     },
 
@@ -163,13 +163,21 @@ var TextField = React.createClass({
 
     /**
      * Handle value change of dropdowm menu
+     *
+     * @param {DOMEvent} evt Reference to the DOM event being sent
+     * @param {int} key The index of the menu clicked
+     * @param {array} menuItem The object value of the menu clicked
+     * @private
      */
-    _handleDropDownInputChange: function (evt, menuItem) {
+    _handleDropDownInputChange: function (evt, key, menuItem) {
         this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), menuItem.payload);
     },
 
     /**
      * Handle value change
+     *
+     * @param {DOMEvent} evt Reference to the DOM event being sent
+     * @private
      */
     _handleInputChange: function (evt) {
         var val = evt.target.value;

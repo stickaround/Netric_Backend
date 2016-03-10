@@ -1,7 +1,7 @@
 /**
  * Root form component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

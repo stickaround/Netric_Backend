@@ -1,7 +1,7 @@
 /**
  * Plugin for logging time on a task
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

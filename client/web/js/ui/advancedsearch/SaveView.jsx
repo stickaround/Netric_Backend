@@ -2,7 +2,7 @@
  * Provides user inputs required for browser view details
  * Displays the inputs for View Name, Description and if this view will be the default view.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -1,7 +1,7 @@
 /**
  * Tabs parent component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -1,7 +1,7 @@
 /**
  * Object reference component
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
@@ -10,6 +10,7 @@ var controller = require("../../../../controller/controller");
 var ObjectSelect = require("../../ObjectSelect.jsx");
 var entityLoader = require("../../../../entity/loader");
 var definitionLoader = require("../../../../entity/definitionLoader");
+var ObjectTypeDropDown = require("../../ObjectTypeDropDown.jsx");
 var Chamel = require("chamel");
 var Dialog = Chamel.Dialog;
 var DropDownMenu = Chamel.DropDownMenu;
@@ -36,32 +37,8 @@ var ObjectField = React.createClass({
             // Used if valueName was not set for the field value
             valueLabel: "",
             definitions: null,
-            subtype: null,
-            subtypeIndex: 0
+            subtype: null
         });
-    },
-
-    componentDidMount: function () {
-        // Make sure we have the field value label set
-        var fieldName = this.props.xmlNode.getAttribute('name');
-        var field = this.props.entity.def.getField(fieldName);
-        var fieldValue = this.props.entity.getValue(fieldName);
-        var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
-
-        if (fieldValue && !valueLabel && !this.state.valueLabel) {
-            entityLoader.get(field.subtype, fieldValue, function (ent) {
-                this.setState({valueLabel: ent.getName()});
-            }.bind(this));
-        }
-
-        // If this field does NOT have a subtype, then load the definitions and let the user pick a subtype
-        if (field.subtype === '' || field.subtype === null) {
-            var func = function ProcessReturnedDefinitions (definitions) {
-                this.setState({definitions: definitions});
-            }.bind(this);
-
-            definitionLoader.getAll(func);
-        }
     },
 
     /**
@@ -88,34 +65,16 @@ var ObjectField = React.createClass({
         var fieldSubtype = field.subtype || this.state.subtype;
         var definitionsDropDown = null;
 
-        // If we have a loaded all the definitions, then lets display it in a dropdown menu
-        if (this.state.definitions) {
-            var definitionsMenuData = [];
-            for(var idx in this.state.definitions) {
-
-                var def = this.state.definitions[idx];
-                definitionsMenuData.push({
-                    objType: def.objType,
-                    text: def.title
-                })
-            }
-
-            // Sort definitions
-            definitionsMenuData.sort(function(a, b){
-                if(a.text < b.text) return -1;
-                if(a.text > b.text) return 1;
-                return 0;
-            })
-
-            definitionsDropDown = (<DropDownMenu
-                menuItems={definitionsMenuData}
-                selectedIndex={this.state.subtypeIndex}
-                onChange={this._handleDefintionsMenuSelect}/>);
-
-            // If we have a null subtype, then lets assign a default 1 (needed for the first loading)
-            if(!fieldSubtype) {
-                fieldSubtype = definitionsMenuData[0].objType;
-            }
+        // If this field does NOT have a subtype, then load the definitions and let the user pick a subtype
+        if (field.subtype === '' || field.subtype === null) {
+            definitionsDropDown = (
+                <div className="entity-form-object-type-dropdown">
+                    <ObjectTypeDropDown
+                        objType={this.state.subtype}
+                        onChange={this._handleDefintionsMenuSelect}
+                    />
+                </div>
+            );
         }
 
         if (this.props.editMode) {
@@ -124,8 +83,8 @@ var ObjectField = React.createClass({
                     <div className="entity-form-field-label">
                         {field.title}
                     </div>
+                    {definitionsDropDown}
                     <div className="entity-form-field-value">
-                        {definitionsDropDown}
                         <ObjectSelect
                             onChange={this._handleSetValue}
                             objType={this.props.entity.def.objType}
@@ -133,7 +92,7 @@ var ObjectField = React.createClass({
                             subtype={fieldSubtype}
                             value={fieldValue}
                             label={valueLabel}
-                            />
+                        />
                     </div>
                 </div>
             );
@@ -176,17 +135,11 @@ var ObjectField = React.createClass({
     /**
      * Callback used to handle the selecting of definition
      *
-     * @param {DOMEvent} e          Reference to the DOM event being sent
-     * @param {int} key             The index of the menu clicked
-     * @param {array} menuItem      The object value of the menu clicked
+     * @param {string} objType The object type that was selected
      * @private
      */
-    _handleDefintionsMenuSelect: function(e, key, menuItem) {
-
-        this.setState({
-            subtype: menuItem.objType,
-            subtypeIndex: key
-        });
+    _handleDefintionsMenuSelect: function (objType) {
+        this.setState({subtype: objType});
     }
 });
 

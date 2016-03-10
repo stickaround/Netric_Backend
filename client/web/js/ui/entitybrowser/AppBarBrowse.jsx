@@ -1,7 +1,7 @@
 /**
  * AppBar used for browse mode
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
@@ -104,6 +104,7 @@ var AppBarBrowse = React.createClass({
 
         return (
             <AppBar
+                fixed={true}
                 key="appBarBrowse"
                 iconElementLeft={elemmentLeft}
                 title={title}

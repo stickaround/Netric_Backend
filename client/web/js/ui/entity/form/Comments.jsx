@@ -1,7 +1,7 @@
 /**
  * Component that handles rendering both an add comment form and comments list into an entity form
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

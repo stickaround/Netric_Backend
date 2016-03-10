@@ -13,6 +13,10 @@ use Zend\Http\Client;
 
 /**
  * Action to call an external page - very useful for API integration
+ *
+ * Params in the 'data' field:
+ *
+ *  url string REQUIRED the URL to call when the action is executed
  */
 class WebhookAction extends AbstractAction implements ActionInterface
 {

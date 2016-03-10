@@ -3,7 +3,7 @@
  *
  * This is only used in entity form elements since ShowIf Filters are only specified in Object Forms.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

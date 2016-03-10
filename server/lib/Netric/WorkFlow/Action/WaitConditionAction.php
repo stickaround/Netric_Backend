@@ -13,6 +13,10 @@ use Netric\WorkFlow\workFlowInstance;
 
 /**
  * Action used for delaying the execution of child actions
+ *
+ * Params in the 'data' field:
+ *  when_unit       int REQUIRED A time unit from WorkFlow::TIME_UNIT_*
+ *  when_interval   int REQUIRED An interval to use with the unit like 1 month or 1 day
  */
 class WaitConditionAction extends AbstractAction implements ActionInterface
 {

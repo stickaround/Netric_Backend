@@ -3,7 +3,7 @@
  * Specify the folderId or currentPath to determine where to upload the files.
  * uploadedFiles[] array should have the collection of File instances (entity/definition/File)
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

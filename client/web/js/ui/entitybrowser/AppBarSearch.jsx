@@ -1,7 +1,7 @@
 /**
  * AppBar used for search mode
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

@@ -1,7 +1,7 @@
 /**
  * Plugin for Members
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

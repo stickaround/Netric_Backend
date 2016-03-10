@@ -3,7 +3,7 @@
  * Pass the file entity (entity/fileupload/file) in the file props to display the file details
  * File Upload Progressbar will be displayed if file.progress is specified
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

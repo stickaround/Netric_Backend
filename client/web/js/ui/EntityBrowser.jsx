@@ -1,7 +1,7 @@
 /**
  * Render an entity browser
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
@@ -122,7 +122,7 @@ var EntityBrowser = React.createClass({
                         onPerformAction={this.props.onPerformAction}
                         onSelectAll={this.handleSeelctAll_}
                         selectedEntities={this.props.selectedEntities}
-                        />
+                    />
                 );
             } else {
                 toolbar = (

@@ -1,7 +1,7 @@
 /**
  * Table row view of an entity
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

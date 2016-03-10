@@ -1,7 +1,7 @@
 /**
  * Tab UIML element
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

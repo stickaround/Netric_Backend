@@ -1,7 +1,7 @@
 /**
  * AppBar used for browse mode
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

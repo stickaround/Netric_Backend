@@ -2,7 +2,7 @@
  * Weekly recurrence pattern.
  * This will display the interval and days of week.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 

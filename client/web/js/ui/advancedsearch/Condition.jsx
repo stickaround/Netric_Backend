@@ -2,7 +2,7 @@
  * Search condition used for advanced search.
  * Pass the condition object in the props which is an instance of Where object.
  *
- * @jsx React.DOM
+
  */
 'use strict';
 
@@ -140,12 +140,23 @@ var SearchCondition = React.createClass({
     /**
      * Callback used to handle commands when user selects a value in the dropdown groupings input
      *
-     * @param {string} payload  The value of the selected menu
-     * @param {string} text     The text of the selected menu
+     * @param {string} payload The value of the selected menu
+     * @param {string} text The text of the selected menu
      * @private
      */
     _handleGroupingSelect: function(payload, text) {
         this.props.condition.value = payload;
+    },
+
+    /**
+     * Callback used to handle commands when user selects a value in the dropdown groupings input
+     *
+     * @param {string} payload  The value of the selected menu
+     * @param {string} text     The text of the selected menu
+     * @private
+     */
+    _handleSetObjectValue: function(oid, label) {
+        this.props.condition.value = oid;
     },
 
     /**
@@ -210,7 +221,7 @@ var SearchCondition = React.createClass({
             case 'object':
                 valueInput = (
                     <ObjectSelect
-                        onChange={this._handleSetValue}
+                        onChange={this._handleSetObjectValue}
                         objType={this.props.objType}
                         field={field}
                         value={null} />
