@@ -8,7 +8,6 @@ var entitySaver = require("../saver");
 var DefaultActions = require("./DefaultActions");
 var netric = require("../../base");
 var log = require("../../log");
-
 var controller = require("../../controller/controller");
 
 /**
@@ -43,7 +42,7 @@ CustomerActions.prototype.defaultViewActions = [
 ];
 
 /**
- * Action that will enable the user to followup a customer
+ * Action that will enable the user to follow up with a customer
  *
  * @param {string} objType The type of object to perform the action on
  * @param {int[]} selectedEntities The entities to perform the action on
@@ -65,11 +64,11 @@ CustomerActions.prototype.followup = function (objType, selectedEntities, finish
     entityPlugin.load({
         type: controller.types.DIALOG,
         title: "Follow-up Customer",
-        pluginName: "crm.Followup",
+        pluginName: "global.Followup",
         objType: "customer",
         eid: customerId,
         onFinishedAction: function () {
-            finishedFunction(false, "Followed up a customer");
+            finishedFunction(false, "Follow-up action created");
         }
     });
 

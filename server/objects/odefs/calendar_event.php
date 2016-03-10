@@ -9,7 +9,7 @@
 *                Copyright (c) 2010 Aereus Corporation, All Rights Reserved. 
 *
 **************************************************************************************/
-$obj_revision = 30;
+$obj_revision = 31;
 
 $isPrivate = false;
 $defaultActivityLevel = 1;
@@ -75,6 +75,11 @@ $obj_fields['customer_id'] = array('title'=>'Customer',
 $obj_fields['attendees'] = array('title'=>'Attendees',
                                   'type'=>'object_multi',
                                   'subtype'=>'member');
+
+$obj_fields['obj_reference'] = array('title'=>'Reference',
+    'type'=>'object',
+    'subtype'=>'',
+    'readonly'=>true);
 
 
 // Set views

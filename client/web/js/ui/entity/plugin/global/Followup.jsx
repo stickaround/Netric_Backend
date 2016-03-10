@@ -1,15 +1,15 @@
 /**
  * Plugin for following up a customer or opportunity
  *
- * @jsx React.DOM
  */
 'use strict';
 
 var React = require('react');
 var Chamel = require('chamel');
-var IconButton = Chamel.IconButton;
-var FlatButton = Chamel.FlatButton;
-var AppBar = Chamel.AppBar;
+var Controls = require("../../../Controls.jsx");
+var IconButton = Controls.IconButton;
+var FlatButton = Controls.FlatButton;
+var AppBar = Controls.AppBar;
 
 var Followup = React.createClass({
 
@@ -50,9 +50,9 @@ var Followup = React.createClass({
     render: function () {
 
         // Determine if we need to display the toolbar or just the icon button
-        var toolBar = null;
+        let toolBar = null;
         if (!this.props.hideToolbar) {
-            var elementLeft = (
+            let elementLeft = (
                 <IconButton
                     iconClassName='fa fa-arrow-left'
                     onClick={this._handleBackButtonClicked}
@@ -89,11 +89,11 @@ var Followup = React.createClass({
                 </div>
                 <div className="row entity-form-group">
                     <div className="col-small-3">
-                        <FlatButton label='Record Activity'
-                                    onClick={this._handleFollowupAction.bind(this, 'activity')}/>
+                        <FlatButton label='Create Reminder'
+                                    onClick={this._handleFollowupAction.bind(this, 'reminder')}/>
                     </div>
                     <div className="col-small-7">
-                        Record an activity like a "Phone Call" or "Sent a Letter."
+                        Create a reminder that will send the future you a notification
                     </div>
                 </div>
             </div>
@@ -119,12 +119,14 @@ var Followup = React.createClass({
      * @private
      */
     _handleFollowupAction: function (objType) {
-        if (this.props.displayNewEntity) {
-            var params = [];
-            params['customer_id'] = this.props.entity.id;
-            params['customer_id_val'] = encodeURIComponent(this.props.entity.getName());
 
-            var data = {
+        if (this.props.displayNewEntity) {
+            let params = [];
+
+            params['obj_reference'] = this.props.entity.objType + ':' + this.props.entity.id;
+            params['obj_reference_fval'] = encodeURIComponent(this.props.entity.getName());
+
+            let data = {
                 objType: objType,
                 params: params
             }

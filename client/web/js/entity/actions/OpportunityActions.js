@@ -12,7 +12,7 @@ var log = require("../../log");
 var controller = require("../../controller/controller");
 
 /**
- * This is the opportunity actions class that will display edit, remove, print and followup opportunity action buttons
+ * This is the opportunity actions class that will display edit, remove, print and follow-up on opportunity action buttons
  */
 var OpportunityActions = function () {
 
@@ -43,7 +43,7 @@ OpportunityActions.prototype.defaultViewActions = [
 ];
 
 /**
- * Action that will enable the user to followup an opportunity
+ * Action that will enable the user to followup on an opportunity
  *
  * @param {string} objType The type of object to perform the action on
  * @param {int[]} selectedEntities The entities to perform the action on
@@ -65,11 +65,11 @@ OpportunityActions.prototype.followup = function (objType, selectedEntities, fin
     entityPlugin.load({
         type: controller.types.DIALOG,
         title: "Follow-up Opportunity",
-        pluginName: "crm.Followup",
+        pluginName: "global.Followup",
         objType: "opportunity",
         eid: opportunityId,
         onFinishedAction: function (postAction) {
-            finishedFunction(false, "Followed up an opportunity");
+            finishedFunction(false, "Follow-up action created");
         }
     });
 

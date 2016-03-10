@@ -27,14 +27,12 @@ plugins.List = {
     reminder: {
         ExecuteTime: require('../ui/entity/plugin/reminder/ExecuteTime.jsx')
     },
-    crm: {
-        Followup: require('../ui/entity/plugin/crm/Followup.jsx')
-    },
     lead: {
         Convert: require('../ui/entity/plugin/lead/Convert.jsx')
     },
     global: {
-        Members: require('../ui/entity/plugin/global/Members.jsx')
+        Members: require('../ui/entity/plugin/global/Members.jsx'),
+        Followup: require('../ui/entity/plugin/global/Followup.jsx')
     }
 }
 

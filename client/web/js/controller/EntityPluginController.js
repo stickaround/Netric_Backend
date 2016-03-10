@@ -190,13 +190,14 @@ EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
 }
 
 /**
- * Function that will display a new entity form using the data provided
+ * Function that will display a new entity form using the data provided.
+ * This function is used when we want to display a new entity form from a plugin perspective
  *
  * @param {Object} data Contains the information to display the new entity form
  * data {
  *  objType: customer
  *  params['customer_id']: 1,
- *  params['customer_id_val']: test customer
+ *  params['customer_id_fval']: test customer
  * }
  *
  * @private

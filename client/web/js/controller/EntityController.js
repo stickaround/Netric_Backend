@@ -350,17 +350,10 @@ EntityController.prototype._performAction = function (actionName) {
     var selected = [this.entity_.id];
     var objType = this.entity_.def.objType;
 
-    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message, postAction) {
+    var workingText = this.actions_.performAction(actionName, objType, selected, function (error, message) {
 
         if (error) {
             log.error(message);
-        }
-
-        // Check if we have a postAction specified
-        if(postAction && postAction.type === 'createNewEntity') {
-
-            // If the postAction.type is to create a new entity, then we will call the _createNewEntity() and pass the postAction.data
-            this._createNewEntity(postAction.data);
         }
 
         // TODO: clear workingText notification

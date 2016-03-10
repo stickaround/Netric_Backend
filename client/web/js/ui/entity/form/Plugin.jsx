@@ -1,7 +1,6 @@
 /**
  * Entity Plugin
  *
-
  */
 'use strict';
 
