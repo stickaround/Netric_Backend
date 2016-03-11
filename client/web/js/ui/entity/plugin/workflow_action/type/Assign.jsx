@@ -1,5 +1,5 @@
 /**
- * Handle a assign type action
+ * Handle a Check Condition type action
  *
  * All actions have a 'data' field, which is just a JSON encoded string
  * used by the backend when executing the action.
@@ -22,7 +22,7 @@ var RadioButton = Controls.RadioButton;
 var RadioButtonGroup = Controls.RadioButtonGroup;
 
 /**
- * Manage action data for assign
+ * Manage action data for Check Condition
  */
 var CheckCondition = React.createClass({
 
@@ -255,7 +255,7 @@ var CheckCondition = React.createClass({
     /**
      * AutoComplete function that will transform the selected data to something else
      *
-     * @param {object} data     THe autocomplete selected data
+     * @param {object} data The autocomplete selected data
      * @returns {string}
      * @public
      */
