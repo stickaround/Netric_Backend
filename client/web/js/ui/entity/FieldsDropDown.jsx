@@ -20,6 +20,7 @@ var MenuItem = Controls.MenuItem;
 var Menu = Controls.Menu;
 var RaisedButton = Controls.RaisedButton;
 var Popover = Controls.Popover;
+var Paper = Controls.Paper;
 
 /**
  * Create a DropDown that shows all fields for an object type
@@ -287,12 +288,15 @@ var FieldsDropDown = React.createClass({
                             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                             targetOrigin={{horizontal: 'left', vertical: 'top'}}
                             onRequestClose={this._handlePopoverRequestClose}>
-                            <div className="fields-dropdown-menu">
-                                <Menu>
-                                    {menuItems}
-                                </Menu>
-                            </div>
+                            <Paper zDepth={1}>
+                                <div className="fields-dropdown-menu">
+                                    <Menu>
+                                        {menuItems}
+                                    </Menu>
+                                </div>
+                            </Paper>
                         </Popover>
+
                     </div>
                 );
             }
