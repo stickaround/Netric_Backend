@@ -13,15 +13,15 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Chamel = require('chamel');
-var DropDownMenu = Chamel.DropDownMenu;
-var TextField = Chamel.TextField;
 var netric = require("../../../../../base");
 var entityLoader = require('../../../../../entity/loader');
 var definitionLoader = require("../../../../../entity/definitionLoader");
 var FieldInput = require("../../../FieldInput.jsx");
 var ObjectTypeDropDown = require("../../../ObjectTypeDropDown.jsx");
 var Field = require('../../../../../entity/definition/Field.js');
+var Controls = require('../../../../Controls.jsx');
+var DropDownMenu = Controls.DropDownMenu;
+var TextField = Controls.TextField;
 
 /**
  * Manage action data for create entity
@@ -65,7 +65,7 @@ var CreateEntity = React.createClass({
         let definitionsDropDown = null;
         let entityFieldsDisplay = [];
 
-        // If we are on editMode, then let's display the dropdown menu of object types
+        // If we are in editMode, then let's display the dropdown menu of object types
         if (this.props.editMode) {
             definitionsDropDown = (
                 <ObjectTypeDropDown
@@ -142,7 +142,7 @@ var CreateEntity = React.createClass({
                     <div className="entity-form-field-label">
                         Object Type
                     </div>
-                    <div>
+                    <div className="entity-form-field-value">
                         {definitionsDropDown}
                     </div>
                 </div>

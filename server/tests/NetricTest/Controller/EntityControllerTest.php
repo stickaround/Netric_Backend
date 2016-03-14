@@ -125,11 +125,11 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['attendees_new'][1]['name'], $ret['attendees_fval'][$ret['attendees'][1]]);
     }
 
-    public function testGetAllDefinitions()
+    public function getAllDefinitionsAction()
     {
         // Set params in the request
         $req = $this->controller->getRequest();
-        $ret = $this->controller->getDefinitions();
+        $ret = $this->controller->getGetDefinitionAction();
 
         $this->assertTrue($ret[0]['id'] > 0);
 
