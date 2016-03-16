@@ -191,7 +191,7 @@ EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
 
 /**
  * Function that will display a new entity form using the data provided.
- * This function is used when we want to display a new entity form from a plugin perspective
+ * This function is used when an ui/entity/plugin/ wants to display a new entity form
  *
  * @param {Object} data Contains the information to display the new entity form
  * data {
@@ -204,7 +204,25 @@ EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
  */
 EntityPluginController.prototype._displayNewEntity = function (data) {
     var parentConroller = this.getParentControllerFromRouter();
-    parentConroller._createNewEntity(data);
+
+    try {
+
+        // Try to get the controller's eventsObj
+        var eventsObj = parentConroller.getEventsObj();
+
+        if(eventsObj) {
+
+            // If we have controller's eventsObj, then we will trigger the event 'entitycreatenew'
+            alib.events.triggerEvent(eventsObj, 'entitycreatenew', data);
+        } else {
+            log.error("The parent controller does not have an eventsObj which is needed to create a new entity");
+        }
+
+    } catch (e) {
+        log.error("Could not create a new entity: " + e);
+    }
+
+
 }
 
 module.exports = EntityPluginController;

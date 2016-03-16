@@ -405,4 +405,14 @@ EntityController.prototype._createNewEntity = function(data) {
     }
 }
 
+/**
+ * Get the private object variable eventsObj_
+ *
+ * @returns {Object} Object used for handling custom events through the entity form
+ * @private
+ */
+EntityController.prototype.getEventsObj = function() {
+    return this.eventsObj_;
+}
+
 module.exports = EntityController;
