@@ -140,6 +140,9 @@ class CAntObject_EmailMessage extends CAntObject
 	 */
 	protected function beforesaved()
 	{
+		// This has been moved to Netric\Entity\ObjType\EmailMessageEntity
+
+		/*
 		// Check message_id
 		$this->getMessageId(); // will set message_id property
 
@@ -211,6 +214,7 @@ class CAntObject_EmailMessage extends CAntObject
 		$tid = $thread->save();
 		if (!$this->getValue("thread") && $tid) 
 			$this->setValue("thread", $tid);
+		*/
 	}
 
 	/**
@@ -218,6 +222,9 @@ class CAntObject_EmailMessage extends CAntObject
 	 */
 	protected function saved()
 	{
+		// This has been moved to Netric\Entity\ObjType\EmailMessageEntity
+
+		/*
 		// Add local file attachments
 		if (is_array($this->attachments) && count($this->attachments))
 		{
@@ -229,6 +236,7 @@ class CAntObject_EmailMessage extends CAntObject
 			// Clear queue
 			$this->attachments = array();
 		}
+		*/
 	}
 
 	/**
@@ -244,6 +252,9 @@ class CAntObject_EmailMessage extends CAntObject
 	 */
 	protected function removed($hard=false)
 	{
+		// This has been moved to Netric\Entity\ObjType\EmailMessageEntity
+
+		/*
 		// Remove all attachments
 		$olist = new CAntObjectList($this->dbh, "email_message_attachment", $this->user);
 		$olist->addCondition('and', "message_id", "is_equal", $this->id);
@@ -274,6 +285,7 @@ class CAntObject_EmailMessage extends CAntObject
 			else
 				$thread->remove();
 		}
+		*/
 	}
 
 	/**
@@ -281,6 +293,9 @@ class CAntObject_EmailMessage extends CAntObject
 	 */
 	protected function unremoved()
 	{
+		// This has been moved to Netric\Entity\ObjType\EmailMessageEntity
+
+		/*
 		// unremove all attachments
 		$olist = new CAntObjectList($this->dbh, "email_message_attachment", $this->user);
 		$olist->addCondition('and', "message_id", "is_equal", $this->id);
@@ -291,6 +306,7 @@ class CAntObject_EmailMessage extends CAntObject
 			$att = $olist->getObject($m);
 			$att->unremove();
 		}
+		*/
 	}
 
 	/**

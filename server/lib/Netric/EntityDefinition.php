@@ -721,4 +721,14 @@ class EntityDefinition
     {
         $this->title = $title;
     }
+
+	/**
+	 * Check if this is a private entity type
+	 *
+	 * @return bool
+	 */
+	public function isPrivate()
+	{
+		return $this->isPrivate;
+	}
 }

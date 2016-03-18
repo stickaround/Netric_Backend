@@ -78,11 +78,9 @@ for ($i = 0; $i < $num; $i++)
     {
         $encData = json_encode($data);
         $sql = "UPDATE workflow_actions SET  data='" . $dbh->Escape($encData) . "' WHERE id=" . $row['id'];
-        echo $sql . "\n";
         $dbh->Query($sql);
     }
 }
-
 
 /*
  * Second copy workflow_object_values
@@ -114,10 +112,12 @@ for ($i = 0; $i < $num; $i++)
     {
         $encData = json_encode($data);
         $sql = "UPDATE workflow_actions SET  data='" . $dbh->Escape($encData) . "' WHERE id=" . $row['id'];
-        echo $sql . "\n";
         $dbh->Query($sql);
     }
 }
+
+// Remove not null constraint of workflow_actions
+$results = $dbh->Query("ALTER TABLE workflow_actions ALTER COLUMN type DROP NOT NULL");
 
 /*
  * Now move all when_* actions to child actions of a new wait condition action
@@ -157,5 +157,6 @@ for ($i = 0; $i < $num; $i++)
                   when_interval=0
                  WHERE id='" . $row['id'] . "'");
 
-    echo "Moved {$row['id']} to be a child of " . $waitAction->getId() . "\n";
+    echo "\tMoved {$row['id']} to be a child of " . $waitAction->getId() . "\n";
+    echo "\tProcessed $i of $num\n";
 }

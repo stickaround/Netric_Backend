@@ -202,6 +202,12 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             return true;
         }
 
+        // If the table already has a primary key, then leave it alone
+        if ($this->dbh->hasPrimaryKey($tableName)) {
+            // TODO: Log that the primary keys are different
+            return true;
+        }
+
         // Run the SQL
         $sql = "ALTER TABLE $tableName ADD PRIMARY KEY (" . implode(', ', $columnNameOrNames) . ");";
         return ($this->dbh->query($sql)) ? true : false;

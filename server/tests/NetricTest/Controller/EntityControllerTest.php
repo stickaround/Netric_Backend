@@ -129,7 +129,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
     {
         // Set params in the request
         $req = $this->controller->getRequest();
-        $ret = $this->controller->getDefinitions();
+        $ret = $this->controller->getAllDefinitionsAction();
 
         $this->assertTrue($ret[0]['id'] > 0);
 

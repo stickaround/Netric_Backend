@@ -629,7 +629,7 @@ class CAntObject
 		$entity = $loader->get($this->object_type, $this->id);
 
 		// Check to see if object not found
-		if (!$entity->getId())
+		if (!$entity)
 		{
 			$this->id = "";
 			return false;
@@ -1176,6 +1176,9 @@ class CAntObject
 			$entity->setValue($fname, $val, $valName);
 		}
 
+        /*
+         * FIXME: This is now managed in Entity - can eventually delete - Sky
+         *
 		// Set all null defaults
 		$entity->setFieldsDefault("null", $this->user);
 
@@ -1185,6 +1188,7 @@ class CAntObject
 		// Set all create defaults if this is a new object
 		if (!$entity->getId())
 			$entity->setFieldsDefault("create", $this->user);
+        */
 
 		$dm = $sl->get("Entity_DataMapper");
 		$dm->save($entity, $this->user);
@@ -1220,8 +1224,12 @@ class CAntObject
 				$dm->save($entity, $this->user);
 		}
 
+		/*
+		 * FIXME: This is now managed in Entity - can eventually delete - Sky
+		 *
 		$this->revision = $entity->getValue("revision");
 		$this->setValue("revision", $entity->getValue("revision"));
+		*/
 
 		/*
 		$objTable = $this->object_table;
@@ -1454,7 +1462,7 @@ class CAntObject
 				$this->load();
 
 			// Index this object
-			$this->index();
+			//$this->index();
 
 			/*
 			 * FIXME: This is now managed in Entity - can eventually delete - Sky
@@ -1475,15 +1483,15 @@ class CAntObject
 			*/
 
 			// Update path
-			if ($this->def->parentField)
-				$this->updateHeiarchPath();
+			//if ($this->def->parentField)
+			//	$this->updateHeiarchPath();
 
 			// Update uname index table
 			//if ($this->getValue("uname"))
 				//$this->setUniqueName($this->getValue("uname"));
 
-			// Process workflow
-			$this->processWorkflow($performed);
+			// Process workflow - now handled in new Entity classes
+			//$this->processWorkflow($performed);
 
 			// FIXME: This is now managed in Entity - can eventually delete - Sky
 			// Process temp file uploads

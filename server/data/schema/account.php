@@ -1557,7 +1557,6 @@ return array(
             'revision' => array('type' => SchemaProperty::TYPE_INT),
             'index_type' => array('type' => SchemaProperty::TYPE_SMALLINT),
         ),
-        'PRIMARY_KEY' => array('object_type_id', 'object_id'),
         "INDEXES" => array(
             array('properties' => array("index_type")),
             array('properties' => array("object_id")),
@@ -1626,7 +1625,6 @@ return array(
             'object_id' => array('type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true),
             'name' => array('type' => SchemaProperty::TYPE_CHAR_512),
         ),
-        'PRIMARY_KEY' => array('object_type_id', 'object_id'),
         "INDEXES" => array(
             array('properties' => array("object_type_id", "name")),
         )

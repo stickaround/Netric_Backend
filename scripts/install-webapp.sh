@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 # This handles copying the built webapp to the root of the server locally for development
 

@@ -610,6 +610,39 @@ class Pgsql implements DbInterface
 		*/
 	}
 
+	/**
+	 * Check if the table has a primary key
+	 *
+	 * @param $tbl
+	 * @param null $schema
+	 * @return bool
+	 */
+	public function hasPrimaryKey($tbl, $schema=null)
+	{
+		if (!$this->isActive())
+			$this->connect();
+
+		if (!$this->dbHandle)
+			return false;
+
+		$sql = "";
+
+		// Set default schema of not explicitly passed - only for this query
+		if ($schema)
+			$sql = "SET search_path=$schema;";
+
+		$sql .= "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+				FROM   pg_index i
+				JOIN   pg_attribute a ON a.attrelid = i.indrelid
+									 AND a.attnum = ANY(i.indkey)
+				WHERE  i.indrelid = '{$tbl}'::regclass
+				AND    i.indisprimary ORDER BY attname;";
+		$result = pg_query($this->dbHandle, $sql);
+		$num = pg_num_rows($result);
+
+		return ($num) ? true : false;
+	}
+
 	function loCreate()
 	{
 		$this->query("begin");

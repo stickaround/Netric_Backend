@@ -473,6 +473,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $groupingsLoader = $serviceManager->get("EntityGroupings_Loader");
         $entityLoader = $serviceManager->get("EntityLoader");
 
+		// Setup filters for groupings if this is a private object
+		$groupingFilter = array();
+
+		if ($entity->getDefinition()->isPrivate()) {
+			if ($entity->getValue("owner_id")) {
+				$groupingFilter['owner_id'] = $entity->getValue("owner_id");
+			} else if ($entity->getValue("user_id")) {
+				// All entities have owner_id, but some old entities use user_id
+				$groupingFilter['user_id'] = $entity->getValue("user_id");
+			}
+		}
+
         $fields = $entity->getDefinition()->getFields();
         foreach ($fields as $field)
         {
@@ -541,7 +553,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case 'fkey':
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name);
+                    $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
                     $group = $groups->getById($value);
                     if ($group)
                         $entity->setValue($field->name, $value, $group->name);
@@ -549,7 +561,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                 case 'fkey_multi':
                     $objType = $entity->getDefinition()->getObjType();
-                    $groups = $groupingsLoader->get($objType, $field->name);
+                    $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
                     if (is_array($value))
                     {
                         foreach ($value as $valPart)

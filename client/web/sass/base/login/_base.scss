@@ -1,5 +1,4 @@
 .login-page {
-	height: 100%;
 	padding: 15px;
 
 	.login-logo-con {
@@ -14,6 +13,10 @@
 		max-width: 293px;
 		margin-left: auto;
 		margin-right: auto;
+
+	  	.chamel-text-field {
+		  width: 100%;
+		}
 
 		.login-form-actions {
 			margin-top: 20px;

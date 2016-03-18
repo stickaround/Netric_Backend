@@ -1906,10 +1906,10 @@ class EmailController extends Controller
         
         $ret['messageId'] = '<' . $_SERVER['REMOTE_PORT'] . '.' . $_SERVER['REMOTE_ADDR'] . '.' . time() . '.antmail@' . $_SERVER['SERVER_NAME'] .'>';
         $ret['userId'] = $this->user->id;
-        
+
         $replyForward = $this->getReplyForward($params);
         $savedEmail = $this->getSavedEmail($params);
-        
+
         if(sizeof($replyForward) > 0)
             $ret['messageDetails'] = $replyForward;
         else
@@ -1923,7 +1923,7 @@ class EmailController extends Controller
         
         // Get Email Accounts
         $ret["emailAccounts"] = $this->getEmailAccounts();
-        
+
         $ret['emailAddress'] = array();
         if ((is_array($params['objects']) || $params['all_selected']) && $params['obj_type'] && $params['send_method']==0)
         {

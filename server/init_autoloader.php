@@ -11,8 +11,11 @@
 $loader = false;
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     $loader = include __DIR__ . '/vendor/autoload.php';
+} else {
+    throw new \RuntimeException("Please run composer install to install required dependencies");
 }
 
+/*
 // Load the zend framework
 $zf2Path = false;
 if (!class_exists('Zend\Loader\StandardAutoloader'))
@@ -34,7 +37,7 @@ if (!class_exists('Zend\Loader\StandardAutoloader'))
         include $zf2Path . '/Zend/Loader/StandardAutoloader.php';
     }
 }
-
+*/
 /*
 if (isset($loader))
 {
@@ -66,8 +69,11 @@ $autoLoader = new Zend\Loader\StandardAutoloader(array(
 ));
 $autoLoader->registerNamespace('Netric', __DIR__ . '/lib/Netric');
 $autoLoader->registerNamespace('NetricPublic', __DIR__ . '/public');
+
+/*
 if ($zf2Path)
     $autoLoader->registerNamespace('Zend', $zf2Path);
+*/
 
 $autoLoader->register();
 //}

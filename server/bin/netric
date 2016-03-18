@@ -18,5 +18,5 @@ include("../init_autoloader.php");
 // Get system config
 $config = new Netric\Config();
 
-// Run the application
+// Run the application - arguments will be parsed in run
 Netric\Application\Application::init($config)->run();

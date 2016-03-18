@@ -110,8 +110,11 @@ class Notifier
             /*
              * Create a new notification if it is not the current user - we don't want
              * to notify a user if they are the one performing the action.
+             *
+             * We also do not want to send notifications to users if the system does
+             * something like adding a new email.
              */
-            if ($userId != $this->user->getId())
+            if ($userId != $this->user->getId() && !$this->user->isSystem() && !$this->user->isAnonymous())
             {
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userId);

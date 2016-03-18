@@ -157,9 +157,9 @@ class Ant
             if(isset(AntConfig::getInstance()->db['db_name']))
                 $configDbName = AntConfig::getInstance()->db['db_name'];
             
-			$this->accountName = $this->detectAccount();	
+			$this->accountName = $this->detectAccount();
 			$acctinf = $antsys->getAccountInfoByName($this->accountName);
-            
+
 			if (is_numeric($acctinf['id']))
 			{
 				$dbname = $acctinf['database'];
@@ -183,8 +183,7 @@ class Ant
 		$this->name = $this->accountName;
 
 		// Set the schema for this account
-		if ($this->dbh->setSchema("acc_" . $this->id) === false)
-			$this->dbh->setSchema("public"); // fallback for legacy versions
+		$this->dbh->setSchema("acc_" . $this->id);
 
 		// Set account id for namespaces
 		$this->dbh->accountId = $this->id;

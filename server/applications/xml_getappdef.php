@@ -110,6 +110,6 @@
 	}
 	else
 	{
-		echo "<error>Application not installed</error>";
+		echo "<error>Application not installed - " . $dbh->lastError . "</error>";
 	}
 ?>

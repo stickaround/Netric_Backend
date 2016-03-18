@@ -26,10 +26,10 @@ else
 fi
 
 # Add optinal target-dir postfix to standard install dir
-if [ "$2" ] 
+if [ "$2" ]
 then
 	REMOTE_DIR=$REMOTE_DIR"-"$2
 fi
 
 echo "Deploying to $TARGET_SERVER:$REMOTE_DIR"
-rsync -rvzh --exclude data --exclude 'res/' --exclude '.git/' --chmod=ug+rwx,o=rx $LOCAL_DIR "$TARGET_SERVER:$REMOTE_DIR"
+rsync -rvzh --exclude 'res/' --exclude '.git/' --exclude 'data/antfs' --exclude 'data/files'  --exclude 'data/log'  --exclude 'data/tmp' --chmod=ug+rwx,o=rx $LOCAL_DIR "$TARGET_SERVER:$REMOTE_DIR"

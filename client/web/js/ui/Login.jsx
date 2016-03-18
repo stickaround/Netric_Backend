@@ -92,6 +92,7 @@ var Large = React.createClass({
             );
         }
 
+        // Add the login logo
         var imagePath = location.getRelativeUrlRoot();
         imagePath += "/img/logo_login.png";
 
@@ -111,13 +112,12 @@ var Large = React.createClass({
                     {accountOptions}
                     <div className="login-form-actions">
                         <RaisedButton disabled={this.state.loginDisabled} onClick={this._handleLoginClick} primary={true}>
-                            <span className="raised-button-label">
-                                Login
-                                {processingIcon}
-                            </span>
+                            Login
+                            {processingIcon}
                         </RaisedButton>
+
                     </div>
-          
+
                 </div>
                 <Snackbar ref="snackbar" message={this.props.errorText} />
             </div>
@@ -165,6 +165,8 @@ var Large = React.createClass({
     },
 
     _handleLoginClick: function(e) {
+        console.log("Clicked", e);
+
         if (!this.state.username) {
             // TODO set error state of username
             return;

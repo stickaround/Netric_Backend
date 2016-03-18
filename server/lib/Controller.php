@@ -115,7 +115,7 @@ abstract class Controller
 	protected function sendOutputJson($data)
 	{
 		$this->setContentType("json");
-		$enc = json_encode($data);
+		$enc = json_encode($this->utf8Converter($data));
 
 		switch (json_last_error()) 
 		{
@@ -287,6 +287,9 @@ abstract class Controller
 	 */
 	private function utf8Converter($array)
 	{
+		if (!is_array($array))
+			return $array;
+
 		array_walk_recursive($array, function(&$item, $key){
 			if(!mb_detect_encoding($item, 'utf-8', true)){
 				$item = utf8_encode($item);

@@ -56,6 +56,9 @@ class CAntObject_EmailThread extends CAntObject
 	 */
 	protected function removed($hard=false)
 	{
+		// This has been moved to Netric\Entity\ObjType\EmailThreadEntity
+
+		/*
 		// Select undeleted messages and delete
 		$olist = new CAntObjectList($this->dbh, "email_message", $this->user);
 		$olist->addCondition('and', "thread", "is_equal", $this->id);
@@ -70,6 +73,7 @@ class CAntObject_EmailThread extends CAntObject
 			else
 				$obj->remove();
 		}
+		*/
 	}
 
 	/**
@@ -77,6 +81,9 @@ class CAntObject_EmailThread extends CAntObject
 	 */
 	protected function unremoved()
 	{
+		// This has been moved to Netric\Entity\ObjType\EmailThreadEntity
+
+		/*
 		// Select undeleted messages and delete
 		$olist = new CAntObjectList($this->dbh, "email_message", $this->user);
 		$olist->addCondition('and', "thread", "is_equal", $this->id);
@@ -89,6 +96,7 @@ class CAntObject_EmailThread extends CAntObject
 			$obj->skipProcessThread = true; // prevent endless loop where email message calls thread
 			$obj->unremove();
 		}
+		*/
 	}
 
 	/**

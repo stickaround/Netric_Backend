@@ -7,7 +7,7 @@
  */
 namespace Netric\Request;
 
-use Zend\Console\GetOpt;
+use Zend\Console\Getopt;
 
 class ConsoleRequest implements RequestInterface
 {
@@ -174,7 +174,7 @@ class ConsoleRequest implements RequestInterface
     {
         $options = $this->getOptionsFromArgs($args);
 
-        $getOpt = new GetOpt($options, $args);
+        $getOpt = new Getopt($options, $args);
 
         return $getOpt->getArguments();
     }

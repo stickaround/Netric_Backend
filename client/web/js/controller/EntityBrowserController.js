@@ -314,28 +314,6 @@ EntityBrowserController.prototype.loadCollection = function () {
     // Setup the controller in case it was not setup before
     this._setupCollection();
 
-    // Clear out conditions to remove stale wheres
-    this.collection_.clearConditions();
-    this.collection_.clearOrderBy();
-
-    // Check filter conditions
-    if (this.props.browseby && this.props.browseval) {
-        this.collection_.where(this.props.browseby).equalTo(this.props.browseval);
-    }
-
-    // Check if the user entered a full-text search condition
-    if (this.userSearchString_) {
-        this.collection_.where("*").equalTo(this.userSearchString_);
-    }
-
-    // Set Sort Order
-    var orderBy = this.browserView_.getOrderBy();
-    if (orderBy) {
-        for (var idx in orderBy) {
-            this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
-        }
-    }
-
     // Sets the conditions for this collection. The conditions are from the browserView conditions and/or from the filters (if they are set)
     this.setCollectionConditions(this.props.filters)
 
@@ -350,25 +328,43 @@ EntityBrowserController.prototype.loadCollection = function () {
  */
 EntityBrowserController.prototype.setCollectionConditions = function (filters) {
 
-    // Removes the conditions set to this collection
+    // Clear out conditions to remove stale wheres
     this.collection_.clearConditions();
+    this.collection_.clearOrderBy();
 
-    // Set Conditions
-    var conditions = this.browserView_.getConditions();
-
-    // If there is a condition set, then we will push the where clase to the collection
-    if (conditions) {
-        for (var i in conditions) {
-            this.collection_.addWhere(conditions[i]);
-        }
+    // Check browseby filter conditions
+    if (this.props.browseby && this.props.browseval) {
+        this.collection_.where(this.props.browseby).equalTo(this.props.browseval);
     }
 
+    // Add any additional filters passed as a argument to this function
     if (filters) {
         for (var idx in filters) {
             this.collection_.addWhere(filters[idx]);
         }
     }
-}
+
+    // Set conditions from the current browseView
+    var browserViewConditions = this.browserView_.getConditions();
+    if (browserViewConditions) {
+        for (var i in browserViewConditions) {
+            this.collection_.addWhere(browserViewConditions[i]);
+        }
+    }
+
+    // Check if the user entered a full-text search condition
+    if (this.userSearchString_) {
+        this.collection_.where("*").equalTo(this.userSearchString_);
+    }
+
+    // Set Sort Order
+    var orderBy = this.browserView_.getOrderBy();
+    if (orderBy) {
+        for (var idx in orderBy) {
+            this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
+        }
+    }
+};
 
 /**
  * User clicked/touched an entity in the list
