@@ -119,11 +119,13 @@ var ObjectTypeDropDown = React.createClass({
             return 0;
         });
 
-        // Insert in the first index the default dropdown value
-        definitionsMenuData.splice(0, 0, {
-            objType: '',
-            text: 'Select Object Type'
-        });
+        // If no field name has been selected, enter a first explanation entry
+        if(!this.props.objType) {
+            definitionsMenuData.splice(0, 0, {
+                objType: '',
+                text: 'Select Object Type'
+            });
+        }
 
         return definitionsMenuData;
     },

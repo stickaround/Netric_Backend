@@ -95,7 +95,7 @@ var UpdateField = React.createClass({
                 <div className="entity-form-field-label">
                     Change
                 </div>
-                <div>
+                <div className="entity-form-field-value">
                     <div className="entity-form-field-inline-block">
                         <FieldsDropDown
                             objType={this.props.objType}

@@ -62,6 +62,7 @@ var GroupingField = React.createClass({
               fieldName={fieldName}
               onChange={this._handleGroupAdd}
               label={addLabel}
+              selectedValue={fieldValues}
             />
           );
         }

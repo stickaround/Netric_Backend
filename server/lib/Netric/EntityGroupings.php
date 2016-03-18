@@ -314,12 +314,16 @@ class EntityGroupings
             // TODO: check for circular reference in the chain
         }
 
-        // Set filters to match the defaults set in this container
-        foreach ($this->filters as $name=>$value)
+        // Make sure we have filters before we evaluate the group
+        if($this->filters)
         {
-            if ($value && !$group->getFilteredVal($name))
+            // Set filters to match the defaults set in this container
+            foreach ($this->filters as $name=>$value)
             {
-                $group->setValue($name, $value);
+                if ($value && !$group->getFilteredVal($name))
+                {
+                    $group->setValue($name, $value);
+                }
             }
         }
         
@@ -393,20 +397,24 @@ class EntityGroupings
      */
     static public function getFiltersHash($filters=array())
     {
-        $buf = $filters; // copy array
-        ksort($buf);
-        
-        $ret = "";
-        
-        foreach ($buf as $fname=>$fval)
+        // Make sure we have filters provided
+        if($filters)
         {
-            if ($fval)
-                $ret .= $fname . "=" . $fval;
+            $buf = $filters; // copy array
+            ksort($buf);
+
+            $ret = "";
+
+            foreach ($buf as $fname=>$fval)
+            {
+                if ($fval)
+                    $ret .= $fname . "=" . $fval;
+            }
+
+            if ("" == $ret)
+                $ret = 'none';
+
+            return $ret;
         }
-        
-        if ("" == $ret)
-            $ret = 'none';
-        
-        return $ret;
     }
 }

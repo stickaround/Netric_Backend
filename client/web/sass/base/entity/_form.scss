@@ -127,17 +127,17 @@ margin: 0 $gutter-less 0 $gutter-less;
      * text fields side by side
      */
     .entity-form-field-inline-block {
-        display: inline-block;
-        max-width: 250px;
-        margin-right: $gutter-less;
+      display: inline-block;
+      max-width: 250px;
+      margin-right: $gutter-less;
 
-        @media #{$device-medium} {
-          margin-right: $gutter;
-        }
+      @media #{$device-medium} {
+        margin-right: $gutter;
+      }
 
-        @media #{$device-large} {
-          margin-right: $gutter;
-        }
+      @media #{$device-large} {
+        margin-right: $gutter;
+      }
     }
 
     /*
@@ -241,7 +241,7 @@ margin: 0 $gutter-less 0 $gutter-less;
     margin-top: 15px;
 
     @media #{$device-small} {
-      margin-left: 5%;
+      margin-left: $gutter;
     }
 
     .entity-form-group-label-selected {
@@ -267,5 +267,10 @@ margin: 0 $gutter-less 0 $gutter-less;
       margin: $gutter $gutter 0 $gutter;
       border: 2px solid darkgray;
     }
+  }
+
+  .fields-dropdown-menu {
+    max-height: 300px;
+    overflow: auto;
   }
 }

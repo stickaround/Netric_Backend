@@ -13,9 +13,9 @@
 
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Chamel = require('chamel');
-var TextField = Chamel.TextField;
 var netric = require("../../../../../base");
+var Controls = require('../../../../Controls.jsx');
+var TextField = Controls.TextField;
 
 /**
  * Manage action data for webhook
@@ -72,7 +72,7 @@ var WebHook = React.createClass({
                     <div className="entity-form-field-label">
                         Url
                     </div>
-                    <div>
+                    <div className="entity-form-field-value">
                         {this.props.data['url']}
                     </div>
                 </div>

@@ -192,6 +192,7 @@ class AccountController extends Mvc\AbstractController
 				"id" => $user->getId(),
 				"name" => $user->getValue("name"),
 				"fullName" => $user->getValue("full_name"),
+				"email" => $user->getValue("email")
 			);
 		}
 
