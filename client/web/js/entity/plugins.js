@@ -31,7 +31,8 @@ plugins.List = {
         Convert: require('../ui/entity/plugin/lead/Convert.jsx')
     },
     global: {
-        Members: require('../ui/entity/plugin/global/Members.jsx')
+        Members: require('../ui/entity/plugin/global/Members.jsx'),
+        Followup: require('../ui/entity/plugin/global/Followup.jsx')
     }
 }
 

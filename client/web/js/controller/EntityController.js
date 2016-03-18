@@ -110,31 +110,7 @@ EntityController.prototype.onLoad = function (opt_callback) {
 
     // Capture a create new entity event
     alib.events.listen(this.eventsObj_, "entitycreatenew", function (evt) {
-        if (this.getRoutePath()) {
-            var params = "";
-
-            /*
-             * evt.data.params is an array that contains information that will be passed as url query string
-             *
-             * Sample Values:
-             * params["ref_field"] = 1;
-             * params["ref_field_val"] = 'testValue';
-             *
-             * Output url query string: ?ref_field=1&ref_field_val=testValue
-             */
-            if (evt.data.params) {
-                var evtParams = evt.data.params;
-
-                for (var idx in evtParams) {
-                    params = (params == "") ? "?" : params += "&";
-                    params += idx + "=" + evtParams[idx];
-                }
-            }
-
-            netric.location.go(this.getRoutePath() + "/new/" + evt.data.objType + params);
-        } else {
-            // TODO: load a dialog
-        }
+        this._createNewEntity(evt.data);
     }.bind(this));
 
     // Capture a save entity and handle the saving of the entity
@@ -385,6 +361,58 @@ EntityController.prototype._performAction = function (actionName) {
     }.bind(this));
 
     // TODO: display working notification(workingText) only if the function has not already finished
+}
+
+/**
+ * Function that will create a new entity using data.objType and data.params
+ *
+ * @param {object} data Contains the information needed to create a new entity
+ * data {
+ *  objType: task,
+ *  params: {
+ *   'customer_id': 1,
+ *   'customer_id_val': 'test customer'
+ *  }
+ * }
+ *
+ * @private
+ */
+EntityController.prototype._createNewEntity = function(data) {
+    if (this.getRoutePath()) {
+        var params = "";
+
+        /*
+         * data.params is an array that contains information that will be passed as url query string
+         *
+         * Sample Values:
+         * params["ref_field"] = 1;
+         * params["ref_field_val"] = 'testValue';
+         *
+         * Output url query string: ?ref_field=1&ref_field_val=testValue
+         */
+        if (data.params) {
+            var evtParams = data.params;
+
+            for (var idx in evtParams) {
+                params = (params == "") ? "?" : params += "&";
+                params += idx + "=" + evtParams[idx];
+            }
+        }
+
+        netric.location.go(this.getRoutePath() + "/new/" + data.objType + params);
+    } else {
+        // TODO: load a dialog
+    }
+}
+
+/**
+ * Get the private object variable eventsObj_
+ *
+ * @returns {Object} Object used for handling custom events through the entity form
+ * @private
+ */
+EntityController.prototype.getEventsObj = function() {
+    return this.eventsObj_;
 }
 
 module.exports = EntityController;

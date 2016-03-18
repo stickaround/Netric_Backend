@@ -9,7 +9,7 @@
 *                Copyright (c) 2010 Aereus Corporation, All Rights Reserved. 
 *
 **************************************************************************************/
-$obj_revision = 30;
+$obj_revision = 31;
 
 $isPrivate = false;
 $defaultActivityLevel = 1;
@@ -58,6 +58,7 @@ $obj_fields['recurrence_pattern'] = array('title'=>'Recurrence',
                                            'readonly'=>true,
                                            'type'=>'integer');
 
+// contact_id is deprecated. Use obj_reference field as field reference
 $obj_fields['contact_id'] = array('title'=>'Contact',
                                    'type'=>'object',
                                    'subtype'=>'contact_personal');
@@ -67,6 +68,7 @@ $obj_fields['calendar'] = array('title'=>'Calendar',
                                    'subtype'=>'calendars',
                                    'fkey_table'=>array("key"=>"id", "title"=>"name"));
 
+// customer_id is deprecated. Use obj_reference field as field reference
 $obj_fields['customer_id'] = array('title'=>'Customer',
                                    'type'=>'object',
                                    'subtype'=>'customer');
@@ -75,6 +77,11 @@ $obj_fields['customer_id'] = array('title'=>'Customer',
 $obj_fields['attendees'] = array('title'=>'Attendees',
                                   'type'=>'object_multi',
                                   'subtype'=>'member');
+
+$obj_fields['obj_reference'] = array('title'=>'Reference',
+    'type'=>'object',
+    'subtype'=>'',
+    'readonly'=>true);
 
 
 // Set views
