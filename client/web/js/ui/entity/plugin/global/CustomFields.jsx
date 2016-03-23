@@ -58,6 +58,7 @@ var CustomFields = React.createClass({
             removeField: {},
             removeFieldStatus: null,
             selectedFieldType: null,
+            errorStatus: null,
             customFields: null
         };
     },
@@ -126,7 +127,7 @@ var CustomFields = React.createClass({
             );
 
             // If we are removing the field from the definition, then lets display the status
-            if(this.state.removeFieldStatus && this.state.removeField.name == field.name) {
+            if (this.state.removeFieldStatus && this.state.removeField.name == field.name) {
                 removeFieldDisplay = this.state.removeFieldStatus;
             }
 
@@ -148,6 +149,15 @@ var CustomFields = React.createClass({
             );
         }.bind(this));
 
+        let dialogErrorDisplay = null;
+        if(this.state.errorStatus) {
+            dialogErrorDisplay = (
+                <div className="entity-form-error-status">
+                    {this.state.errorStatus}
+                </div>
+            )
+        }
+
         let selectedFieldType = (this.state.selectedFieldType) ?
             this._getSelectedFieldType(fieldTypeData, this.state.selectedFieldType) : {index: 0};
 
@@ -168,6 +178,7 @@ var CustomFields = React.createClass({
                     actions={addFieldActions}
                     modal={true}
                 >
+                    {dialogErrorDisplay}
                     <TextField
                         floatingLabelText='Custom Field Name'
                         ref="fieldInput"/>
@@ -236,11 +247,19 @@ var CustomFields = React.createClass({
         let fieldName = this.refs.fieldInput.getValue();
         let fieldType = this.state.selectedFieldType;
 
+        if (fieldName === '') {
+            this.setState({errorStatus: 'Field name is not provided.'});
+            return;
+        } else if (fieldType === '' || fieldType === null) {
+            this.setState({errorStatus: 'Please select a field type.'});
+            return;
+        }
+
         // Create a new instance of /entity/definition/Field
         let fieldObj = new Field();
 
         // Store the field data
-        fieldObj.name = fieldName;
+        fieldObj.name = fieldName.replace(/ /g, '_').replace(/[\W]+/g, " ");
         fieldObj.title = fieldName;
         fieldObj.type = fieldType;
         fieldObj.useWhen = refField + ':' + this.props.entity.id;
@@ -285,7 +304,8 @@ var CustomFields = React.createClass({
             customFields: entityDefinition.getFilteredFields('useWhen', refField + ':' + this.props.entity.id),
             removeField: {},
             removeFieldStatus: null,
-            selectedFieldType: null
+            selectedFieldType: null,
+            errorStatus: null
         })
     },
 
