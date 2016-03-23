@@ -157,8 +157,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $req->setBody(json_encode($fieldData));
 
         $ret = $this->controller->postAddEntityFieldAction();
-        $this->assertTrue($ret['fields'][$data['name']]['id'] > 0);
-
+        $this->assertTrue($ret['fields'][$fieldData['data']['name']]['id'] > 0);
 
         // Remove the test field
         $fieldData = array(
@@ -169,7 +168,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $req->setBody(json_encode($fieldData));
         $ret = $this->controller->postDeleteEntityFieldAction();
 
-        $this->assertArrayNotHasKey($data['name'], $ret['fields']);
+        $this->assertArrayNotHasKey($fieldData['name'], $ret['fields']);
     }
 
 
