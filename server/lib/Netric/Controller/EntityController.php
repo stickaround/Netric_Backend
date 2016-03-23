@@ -7,6 +7,7 @@ namespace Netric\Controller;
 use Netric\Entity\EntityInterface;
 use \Netric\Mvc;
 use \Netric\EntityDefinition;
+use \Netric\EntityDefinition\Field;
 
 class EntityController extends Mvc\AbstractController
 {
@@ -495,6 +496,113 @@ class EntityController extends Mvc\AbstractController
         if($entityShouldUpdate)
         {
             $dataMapper->save($entity);
+        }
+    }
+
+    /**
+     * Adds a custom field to an entity definition
+     */
+    public function postAddEntityFieldAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        $ret = array();
+        if (!$rawBody)
+        {
+            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['obj_type']))
+        {
+            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        }
+
+        if (isset($objData['data']))
+        {
+            $field = new Field();
+
+            /* Sample $params['data']
+             $data = array(
+                'name' => "test_field",
+                'title' => "New Test Field",
+                'type' => "text",
+                'system' => false
+            );
+             */
+            $field->fromArray($objData['data']);
+
+            // Get the service manager and current user
+            $serviceManager = $this->account->getServiceManager();
+
+            // Load the entity definition
+            $defLoader = $serviceManager->get("EntityDefinitionLoader");
+            $def = $defLoader->get($objData['obj_type']);
+
+            // Add the new field in the entity definition
+            $def->addField($field);
+
+            $dataMapper = $serviceManager->get("EntityDefinition_DataMapper");
+
+            // Save the new field
+            $dataMapper->save($def);
+            $ret = $this->fillDefinitionArray($def);
+
+            return $this->sendOutput($ret);
+        }
+        else
+        {
+            return $this->sendOutput(array("error"=>"No Field Data Provided."));
+        }
+    }
+
+    /**
+     * Deletes the custom field added to entity definition
+     */
+    public function postDeleteEntityFieldAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        $ret = array();
+        if (!$rawBody)
+        {
+            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['obj_type']))
+        {
+            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        }
+
+        if (isset($objData['name']))
+        {
+
+            // Get the service manager and current user
+            $serviceManager = $this->account->getServiceManager();
+
+            // Load the entity definition
+            $defLoader = $serviceManager->get("EntityDefinitionLoader");
+            $def = $defLoader->get($objData['obj_type']);
+
+            // Remove the field in the entity definition
+            $def->removeField($objData['name']);
+
+            $dataMapper = $serviceManager->get("EntityDefinition_DataMapper");
+
+            // Save the new entity definition
+            $dataMapper->save($def);
+            $ret = $this->fillDefinitionArray($def);
+
+            return $this->sendOutput($ret);
+        }
+        else
+        {
+            return $this->sendOutput(array("error"=>"No Field Data Provided."));
         }
     }
 }

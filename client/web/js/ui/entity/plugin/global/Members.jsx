@@ -70,7 +70,7 @@ var Members = React.createClass({
                         <IconButton
                             onClick={this._removeMember.bind(this, member)}
                             tooltip={"Remove"}
-                            className="cfi cfi-close"
+                            className="cfi cfi-close entity-form-remove-button"
                         />
                     </div>
                     <div className="clearfix"></div>

@@ -280,39 +280,19 @@ Definition.prototype.getDefaultView = function () {
 }
 
 /**
- * Get the fields using the field.type as the filter
+ * Get the filtered fields using the filters
  *
- * @params {string} type The field type that will be used as filter
+ * @params {string} filterType The field type that will be filtered
+ * @params {string} filterText The field value that will be used a filter
  * @public
- * @return {array} Collection of fields that are filtered by type
+ * @return {array} Collection of fields that are filtered
  */
-Definition.prototype.getFieldsByType = function (type) {
+Definition.prototype.getFilteredFields = function (filterType, filterText) {
     var result = [];
 
     if (this.fields) {
         this.fields.map(function (field) {
-            if (field.type == type) {
-                result.push(field);
-            }
-        });
-    }
-
-    return result;
-}
-
-/**
- * Get the fields using the field.subtype as the filter
- *
- * @params {string} subtype The field subtype that will be used as filter
- * @public
- * @return {array} Collection of fields that are filtered by subtype
- */
-Definition.prototype.getFieldsBySubtype = function (subtype) {
-    var result = [];
-
-    if (this.fields) {
-        this.fields.map(function (field) {
-            if (field.subtype == subtype) {
+            if (field[filterType] == filterText) {
                 result.push(field);
             }
         });

@@ -1,0 +1,315 @@
+/**
+ * Plugin for managing the custom fields for an entity
+ *
+ */
+'use strict';
+
+var React = require('react');
+var Chamel = require('chamel');
+var definitionLoader = require("../../../../entity/definitionLoader");
+var definitionSaver = require("../../../../entity/definitionSaver");
+var Field = require("../../../../entity/definition/Field");
+var Controls = require("../../../Controls.jsx");
+var IconButton = Controls.IconButton;
+var RaisedButton = Controls.RaisedButton;
+var TextField = Controls.TextField;
+var Dialog = Controls.Dialog;
+var DropDownMenu = Controls.DropDownMenu;
+
+/**
+ * Handles the creating of custom field for an entity
+ */
+var CustomFields = React.createClass({
+
+    /**
+     * Expected props
+     */
+    propTypes: {
+
+        /**
+         * Current xml node level
+         *
+         * @type {XMLNode}
+         */
+        xmlNode: React.PropTypes.object,
+
+        /**
+         * The entity that we want to follow-up
+         *
+         * @type {Entity}
+         */
+        entity: React.PropTypes.object,
+
+        /**
+         * Function that is called when clicking the back button
+         *
+         * @type {function}
+         */
+        onNavBtnClick: React.PropTypes.func
+    },
+
+    /**
+     * Return the starting state of this component
+     *
+     * @returns {{}}
+     */
+    getInitialState: function () {
+        return {
+            removeField: {},
+            removeFieldStatus: null,
+            selectedFieldType: null,
+            customFields: null
+        };
+    },
+
+    componentDidMount: function () {
+        let xmlNode = this.props.xmlNode;
+        let objType = xmlNode.getAttribute('objType');
+
+        /*
+         * If the objType specified in the xml does not match with the current props.entity.objType
+         *  then we need to get the definition of the objType speficied in the xml
+         */
+        if (this.props.entity.objType != objType) {
+
+            definitionLoader.get(objType, function (def) {
+                this._handleEntityDefinititionLoaded(def);
+            }.bind(this));
+        } else {
+
+            // We can readily use the props.entity.def as our entity definition of objType from xml and entity's objType matched
+            this._handleEntityDefinititionLoaded(this.props.entity.def);
+        }
+    },
+
+    render: function () {
+
+        // Add field dialog action buttons
+        let addFieldActions = [
+            {text: 'Cancel'},
+            {text: 'Submit', onClick: this._handleCreateField}
+        ];
+
+        // Remove field dialog action buttons
+        let removeFieldActions = [
+            {text: 'Cancel'},
+            {text: 'Continue', onClick: this._handleRemoveField}
+        ];
+
+        // Types of field that will be used in the dropdown menu data
+        let fieldTypeData = [
+            {payload: '', text: 'Select Field Type'},
+            {payload: 'text', text: 'Text'},
+            {payload: 'date', text: 'Date'},
+            {payload: 'number', text: 'Number'},
+            {payload: 'object', text: 'File'}
+        ]
+
+        // If we do not have customFields to use yet, then we just return an empty div for now
+        if (this.state.customFields == null) {
+            return (
+                <div />
+            )
+        }
+
+        // Map thru the customFields and display the custom customFields for this entity
+        let customFieldsDisplay = [];
+        this.state.customFields.map(function (field) {
+
+            let fieldType = this._getSelectedFieldType(fieldTypeData, field.type);
+            let removeFieldDisplay = (
+                <IconButton
+                    onClick={this._handleShowDialog.bind(this, 'removeFieldDialog', field)}
+                    tooltip={"Remove"}
+                    className="cfi cfi-close entity-form-remove-button"
+                />
+            );
+
+            // If we are removing the field from the definition, then lets display the status
+            if(this.state.removeFieldStatus && this.state.removeField.name == field.name) {
+                removeFieldDisplay = this.state.removeFieldStatus;
+            }
+
+            customFieldsDisplay.push(
+                <div className="row entity-form-group" key={field.id}>
+                    <div className="col-small-3">
+                        {field.title}
+                    </div>
+                    <div className="col-small-3">
+                        {field.name}
+                    </div>
+                    <div className="col-small-2">
+                        {fieldType.text}
+                    </div>
+                    <div className="col-small-1">
+                        {removeFieldDisplay}
+                    </div>
+                </div>
+            );
+        }.bind(this));
+
+        let selectedFieldType = (this.state.selectedFieldType) ?
+            this._getSelectedFieldType(fieldTypeData, this.state.selectedFieldType) : {index: 0};
+
+        return (
+            <div className='entity-form'>
+                <div className="row entity-form-group">
+                    <div className="col-small-12">
+                        <RaisedButton
+                            onClick={this._handleShowDialog.bind(this, 'addFieldDialog')}
+                            label='Add Custom Field'
+                        />
+                    </div>
+                </div>
+                {customFieldsDisplay}
+                <Dialog
+                    ref="addFieldDialog"
+                    title="Add Custom Field"
+                    actions={addFieldActions}
+                    modal={true}
+                >
+                    <TextField
+                        floatingLabelText='Custom Field Name'
+                        ref="fieldInput"/>
+                    <DropDownMenu
+                        menuItems={fieldTypeData}
+                        selectedIndex={parseInt(selectedFieldType.index)}
+                        onChange={this._handleFieldTypeChange}
+                    />
+                </Dialog>
+                <Dialog
+                    ref='removeFieldDialog'
+                    title={'Remove Custom Field: ' + this.state.removeField.name}
+                    actions={removeFieldActions}
+                    modal={true}
+                >
+                    {"Are you sure you want to permanantly remove the '" + this.state.removeField.title + "' field?"}
+                </Dialog>
+            </div>
+        );
+    },
+
+    /**
+     * Callback used to handle commands when user selects a field type
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {int} key The index of the menu clicked
+     * @param {Object} data The object value of the menu clicked
+     * @private
+     */
+    _handleFieldTypeChange: function (e, key, data) {
+        this.setState({selectedFieldType: data.payload});
+    },
+
+    /**
+     * Remove the custom field from the entity defintion
+     *
+     * @private
+     */
+    _handleRemoveField: function () {
+
+        // Get the xml data
+        let xmlNode = this.props.xmlNode;
+        let objType = xmlNode.getAttribute('objType');
+
+        this.setState({removeFieldStatus: 'Removing...'});
+
+        // Remove the custom field from the entity definition
+        definitionSaver.remove(objType, this.state.removeField.name, this._handleEntityDefinititionLoaded);
+
+        this.refs.removeFieldDialog.dismiss();
+    },
+
+    /**
+     * Callback used to handle commands when user submits to create the new custom field
+     *
+     * @private
+     */
+    _handleCreateField: function () {
+
+        // Get the xml data
+        let xmlNode = this.props.xmlNode;
+        let objType = xmlNode.getAttribute('objType');
+        let refField = xmlNode.getAttribute('ref_field');
+
+        // get the user input data
+        let fieldName = this.refs.fieldInput.getValue();
+        let fieldType = this.state.selectedFieldType;
+
+        // Create a new instance of /entity/definition/Field
+        let fieldObj = new Field();
+
+        // Store the field data
+        fieldObj.name = fieldName;
+        fieldObj.title = fieldName;
+        fieldObj.type = fieldType;
+        fieldObj.useWhen = refField + ':' + this.props.entity.id;
+
+        // Save the field
+        definitionSaver.save(objType, fieldObj, this._handleEntityDefinititionLoaded);
+
+        // Clear the dialog input
+        this.refs.fieldInput.clearValue();
+        this.refs.addFieldDialog.dismiss();
+    },
+
+    /**
+     * Callback used to handle commands when user wants to add a custom field.
+     *
+     * @params {string} type The type of dialog to show
+     * @params {entity/definition/Field} field The field that we are going to remove. This is only applicable in 'removeFieldDialog'
+     * @private
+     */
+    _handleShowDialog: function (type, field) {
+        this.refs[type].show();
+
+        /*
+         * If field is provided and the type of dialog shown is removeFieldDialog
+         *  then lets set the state that we are about to remove a field
+         */
+        if (field && type === 'removeFieldDialog') {
+            this.setState({removeField: field});
+        }
+    },
+
+    /**
+     * Callback used when an entity definition loads (or changes)
+     *
+     * @param {EntityDefinition} entityDefinition The loaded definition
+     */
+    _handleEntityDefinititionLoaded: function (entityDefinition) {
+        let xmlNode = this.props.xmlNode;
+        let refField = xmlNode.getAttribute('ref_field');
+
+        this.setState({
+            customFields: entityDefinition.getFilteredFields('useWhen', refField + ':' + this.props.entity.id),
+            removeField: {},
+            removeFieldStatus: null,
+            selectedFieldType: null
+        })
+    },
+
+    /**
+     * Gets the selected field type data including the index value
+     *
+     * @param {Array} data Array of data that will be mapped to get the index of the saved field/operator/blogic value
+     * @param {string} value The value that will be used to get the index
+     * @return {object} The field data (including the index) that was selected
+     * @private
+     */
+    _getSelectedFieldType: function (data, value) {
+        let field = null;
+
+        for (var idx in data) {
+            if (data[idx].payload == value) {
+                field = data[idx];
+                field.index = idx;
+                break;
+            }
+        }
+
+        return field;
+    }
+});
+
+module.exports = CustomFields;

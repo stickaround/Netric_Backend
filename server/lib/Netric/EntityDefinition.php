@@ -432,7 +432,10 @@ class EntityDefinition
 		// Add fields for this object definition
 		foreach ($this->fields as $fname=>$field)
 		{
-			$ret['fields'][$fname] = $field->toArray();
+			// Make sure the the $field is not a deleted field
+			if($field != null) {
+				$ret['fields'][$fname] = $field->toArray();
+			}
 		}
 
         $views = $this->getViews();
