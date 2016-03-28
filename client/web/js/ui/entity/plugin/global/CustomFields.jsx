@@ -59,7 +59,7 @@ var CustomFields = React.createClass({
             removeFieldStatus: null,
             selectedFieldType: null,
             errorStatus: null,
-            customFields: null
+            entityDefinition: null
         };
     },
 
@@ -107,15 +107,21 @@ var CustomFields = React.createClass({
         ]
 
         // If we do not have customFields to use yet, then we just return an empty div for now
-        if (this.state.customFields == null) {
+        if (this.state.entityDefinition === null) {
             return (
                 <div />
             )
         }
 
+        let xmlNode = this.props.xmlNode;
+        let refField = xmlNode.getAttribute('ref_field');
+
+        // Get the custom fields by filtering the fields using the useWhen field attribute
+        let customFields = this.state.entityDefinition.getFilteredFields('useWhen', refField + ':' + this.props.entity.id);
+
         // Map thru the customFields and display the custom customFields for this entity
         let customFieldsDisplay = [];
-        this.state.customFields.map(function (field) {
+        customFields.map(function (field, idx) {
 
             let fieldType = this._getSelectedFieldType(fieldTypeData, field.type);
             let removeFieldDisplay = (
@@ -132,7 +138,7 @@ var CustomFields = React.createClass({
             }
 
             customFieldsDisplay.push(
-                <div className="row entity-form-group" key={field.id}>
+                <div className="row entity-form-group" key={idx}>
                     <div className="col-small-3">
                         {field.title}
                     </div>
@@ -226,7 +232,10 @@ var CustomFields = React.createClass({
         this.setState({removeFieldStatus: 'Removing...'});
 
         // Remove the custom field from the entity definition
-        definitionSaver.remove(objType, this.state.removeField.name, this._handleEntityDefinititionLoaded);
+        this.state.entityDefinition.removeField(this.state.removeField.name);
+
+        // Update the entity definition
+        definitionSaver.update(this.state.entityDefinition, this._handleEntityDefinititionLoaded);
 
         this.refs.removeFieldDialog.dismiss();
     },
@@ -240,7 +249,6 @@ var CustomFields = React.createClass({
 
         // Get the xml data
         let xmlNode = this.props.xmlNode;
-        let objType = xmlNode.getAttribute('objType');
         let refField = xmlNode.getAttribute('ref_field');
 
         // get the user input data
@@ -264,8 +272,11 @@ var CustomFields = React.createClass({
         fieldObj.type = fieldType;
         fieldObj.useWhen = refField + ':' + this.props.entity.id;
 
-        // Save the field
-        definitionSaver.save(objType, fieldObj, this._handleEntityDefinititionLoaded);
+        // Add the new custom field in the entity definition
+        this.state.entityDefinition.addField(fieldObj);
+
+        // Update the entity definition
+        definitionSaver.update(this.state.entityDefinition, this._handleEntityDefinititionLoaded);
 
         // Clear the dialog input
         this.refs.fieldInput.clearValue();
@@ -297,11 +308,8 @@ var CustomFields = React.createClass({
      * @param {EntityDefinition} entityDefinition The loaded definition
      */
     _handleEntityDefinititionLoaded: function (entityDefinition) {
-        let xmlNode = this.props.xmlNode;
-        let refField = xmlNode.getAttribute('ref_field');
-
         this.setState({
-            customFields: entityDefinition.getFilteredFields('useWhen', refField + ':' + this.props.entity.id),
+            entityDefinition: entityDefinition,
             removeField: {},
             removeFieldStatus: null,
             selectedFieldType: null,

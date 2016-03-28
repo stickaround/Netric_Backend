@@ -473,6 +473,12 @@ class EntityDefinition
 			}
 		}
 
+		if (isset($data['deleted_fields']))
+		{
+			foreach ($data['deleted_fields'] as $fieldName)
+				$this->removeField($fieldName);
+		}
+
 		if (isset($data['system']))
 			$this->system = $data['system'];
 

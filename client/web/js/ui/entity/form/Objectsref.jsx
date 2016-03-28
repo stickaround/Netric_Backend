@@ -90,6 +90,7 @@ var Objectsref = React.createClass({
         var refField = this.state.refField;
         var entityName = this.props.entity.getValue('name');
 
+        // If we do not have the name field in the entity, then let's try to get the entity name from the entity model.
         if(!entityName) {
             entityName = this.props.entity.getName();
         }

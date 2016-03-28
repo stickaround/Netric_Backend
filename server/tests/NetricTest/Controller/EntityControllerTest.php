@@ -140,35 +140,38 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(empty($ret[0]['forms']['large']));
     }
 
-    public function testPostAddEntityFieldAction()
+    public function testUpdateEntityDefAction()
     {
-        $fieldData = array(
+        $data = array(
             'obj_type' => "customer",
-            'data' => array(
-                'name' => "test_field",
-                'title' => "New Test Field",
-                'type' => "text",
-                'system' => false
+            'fields' => array(
+                "test_field" => array(
+                    'name' => "test_field",
+                    'title' => "New Test Field",
+                    'type' => "text",
+                    'system' => false
+                )
             )
         );
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode($fieldData));
+        $req->setBody(json_encode($data));
 
-        $ret = $this->controller->postAddEntityFieldAction();
-        $this->assertTrue($ret['fields'][$fieldData['data']['name']]['id'] > 0);
+        $ret = $this->controller->postUpdateEntityDefAction();
+        $this->assertTrue($ret['fields']['test_field']['id'] > 0);
 
-        // Remove the test field
-        $fieldData = array(
+        // Remove the custom test field added
+        $data = array(
             'obj_type' => "customer",
-            'name' => "test_field"
+            'deleted_fields' => array("test_field")
         );
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($fieldData));
-        $ret = $this->controller->postDeleteEntityFieldAction();
 
-        $this->assertArrayNotHasKey($fieldData['name'], $ret['fields']);
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $ret = $this->controller->postUpdateEntityDefAction();
+
+        $this->assertArrayNotHasKey('test_field', $ret['fields']);
     }
 
 
