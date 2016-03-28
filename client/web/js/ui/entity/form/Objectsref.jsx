@@ -89,6 +89,11 @@ var Objectsref = React.createClass({
     _createNewEntity: function () {
         var refField = this.state.refField;
         var entityName = this.props.entity.getValue('name');
+
+        if(!entityName) {
+            entityName = this.props.entity.getName();
+        }
+
         var params = [];
 
         // If refField is set, then add it in the query parameters
