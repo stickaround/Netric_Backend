@@ -15,6 +15,7 @@ var ActivitytItem = require("./item/Activity.jsx");
 var StatusUpdateItem = require("./item/StatusUpdate.jsx");
 var WorkflowActionItem = require("./item/WorkflowAction.jsx");
 var controller = require("../../controller/controller");
+var Device = require("../../Device");
 
 /**
  * Module shell
@@ -79,8 +80,13 @@ var List = React.createClass({
             offsetHeight += 2;
         }
 
-        // Determine whether the container has the scrollbar or if the window has the scrollbar
-        if (container.scrollHeight == offsetHeight) {
+        /*
+         * Determine whether the container has the scrollbar or if the window has the scrollbar
+         *
+         * Or if the device used is small or mobile, then we will set that the container of the scrollbar is window
+         */
+        if (container.scrollHeight == offsetHeight
+            || netric.getApplication().device.size <= Device.sizes.small) {
             container = window;
         }
 
@@ -169,27 +175,27 @@ var List = React.createClass({
                 default:
                     if (layout === 'table') {
                         item = (
-                          <ListItemTableRow
-                            key={entity.id}
-                            selected={selected}
-                            entity={entity}
-                            browserView={this.props.browserView}
-                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
-                            onRemoveEntity={this.props.onRemoveEntity}
-                          />
-                      );
+                            <ListItemTableRow
+                                key={entity.id}
+                                selected={selected}
+                                entity={entity}
+                                browserView={this.props.browserView}
+                                onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
+                                onSelect={this._sendSelect.bind(null, entity.id)}
+                                onRemoveEntity={this.props.onRemoveEntity}
+                            />
+                        );
                     } else {
                         item = (
-                          <ListItem
-                            key={entity.id}
-                            selected={selected}
-                            entity={entity}
-                            onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
-                            onSelect={this._sendSelect.bind(null, entity.id)}
-                            onRemoveEntity={this.props.onRemoveEntity}
-                          />
-                      );
+                            <ListItem
+                                key={entity.id}
+                                selected={selected}
+                                entity={entity}
+                                onClick={this._sendClick.bind(null, entity.objType, entity.id, entity.getName())}
+                                onSelect={this._sendSelect.bind(null, entity.id)}
+                                onRemoveEntity={this.props.onRemoveEntity}
+                            />
+                        );
                     }
 
                     break;
