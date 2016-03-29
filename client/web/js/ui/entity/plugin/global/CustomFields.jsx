@@ -103,7 +103,7 @@ var CustomFields = React.createClass({
             {payload: 'text', text: 'Text'},
             {payload: 'date', text: 'Date'},
             {payload: 'number', text: 'Number'},
-            {payload: 'object', text: 'File'}
+            {payload: 'object', text: 'File', subtype: 'file'}
         ]
 
         // If we do not have customFields to use yet, then we just return an empty div for now
@@ -165,7 +165,7 @@ var CustomFields = React.createClass({
         }
 
         let selectedFieldType = (this.state.selectedFieldType) ?
-            this._getSelectedFieldType(fieldTypeData, this.state.selectedFieldType) : {index: 0};
+            this._getSelectedFieldType(fieldTypeData, this.state.selectedFieldType.payload) : {index: 0};
 
         return (
             <div className='entity-form'>
@@ -215,7 +215,7 @@ var CustomFields = React.createClass({
      * @private
      */
     _handleFieldTypeChange: function (e, key, data) {
-        this.setState({selectedFieldType: data.payload});
+        this.setState({selectedFieldType: data});
     },
 
     /**
@@ -254,9 +254,13 @@ var CustomFields = React.createClass({
         // get the user input data
         let fieldName = this.refs.fieldInput.getValue();
         let fieldType = this.state.selectedFieldType;
+        let regexAlpha = new RegExp("^[a-zA-Z]+$"); // This expression checks if the string contains letters only
 
         if (fieldName === '') {
             this.setState({errorStatus: 'Field name is not provided.'});
+            return;
+        } else if(!regexAlpha.test(fieldName.charAt(0))) { // Make sure that the first letter is an alphabet
+            this.setState({errorStatus: 'Field name must start with a letter.'});
             return;
         } else if (fieldType === '' || fieldType === null) {
             this.setState({errorStatus: 'Please select a field type.'});
@@ -269,8 +273,13 @@ var CustomFields = React.createClass({
         // Store the field data
         fieldObj.name = fieldName.replace(/ /g, '_').replace(/[\W]+/g, " ");
         fieldObj.title = fieldName;
-        fieldObj.type = fieldType;
+        fieldObj.type = fieldType.payload;
         fieldObj.useWhen = refField + ':' + this.props.entity.id;
+
+        // Setup the subtype if it is available
+        if(fieldType.subtype) {
+            fieldObj.subtype = fieldType.subtype;
+        }
 
         // Add the new custom field in the entity definition
         this.state.entityDefinition.addField(fieldObj);

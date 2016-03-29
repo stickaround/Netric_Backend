@@ -186,7 +186,7 @@ var CreateEntity = React.createClass({
      */
     _handleValueChange: function (fieldName, fieldValue, opt_fieldValueLabel) {
         let fieldValueLabel = opt_fieldValueLabel || null;
-        this._handleDataChange(fieldName, fieldValue);
+        this._handleDataChange(fieldName, fieldValue, fieldValueLabel);
     }
 });
 
