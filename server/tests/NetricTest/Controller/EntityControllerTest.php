@@ -7,8 +7,8 @@ namespace NetricTest\Controller;
 use Netric;
 use PHPUnit_Framework_TestCase;
 
-class EntityControllerTest extends PHPUnit_Framework_TestCase 
-{   
+class EntityControllerTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Account used for testing
      *
@@ -125,11 +125,11 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['attendees_new'][1]['name'], $ret['attendees_fval'][$ret['attendees'][1]]);
     }
 
-    public function getAllDefinitionsAction()
+    public function testGetAllDefinitionsAction()
     {
         // Set params in the request
         $req = $this->controller->getRequest();
-        $ret = $this->controller->getGetDefinitionAction();
+        $ret = $this->controller->getAllDefinitionsAction();
 
         $this->assertTrue($ret[0]['id'] > 0);
 
@@ -139,4 +139,40 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         // Make sure the large form was loaded
         $this->assertFalse(empty($ret[0]['forms']['large']));
     }
+
+    public function testUpdateEntityDefAction()
+    {
+        $data = array(
+            'obj_type' => "customer",
+            'fields' => array(
+                "test_field" => array(
+                    'name' => "test_field",
+                    'title' => "New Test Field",
+                    'type' => "text",
+                    'system' => false
+                )
+            )
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+
+        $ret = $this->controller->postUpdateEntityDefAction();
+        $this->assertTrue($ret['fields']['test_field']['id'] > 0);
+
+        // Remove the custom test field added
+        $data = array(
+            'obj_type' => "customer",
+            'deleted_fields' => array("test_field")
+        );
+
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $ret = $this->controller->postUpdateEntityDefAction();
+
+        $this->assertArrayNotHasKey('test_field', $ret['fields']);
+    }
+
+
 }
