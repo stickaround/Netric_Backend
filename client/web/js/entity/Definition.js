@@ -291,16 +291,16 @@ Definition.prototype.getDefaultView = function () {
  * Get the filtered fields using the filters
  *
  * @params {string} fieldAttribute The field attribute that will be used to filter
- * @params {string} fieldProperty The field property that will be used as filter
+ * @params {string} attributeValue The attribute value that we are using as filter
  * @public
  * @return {array} Collection of fields that are filtered
  */
-Definition.prototype.getFilteredFields = function (fieldAttribute, fieldProperty) {
+Definition.prototype.getFilteredFields = function (fieldAttribute, attributeValue) {
     var result = [];
 
     if (this.fields) {
         this.fields.map(function (field) {
-            if (field[fieldAttribute] === fieldProperty) {
+            if (field[fieldAttribute] === attributeValue) {
                 result.push(field);
             }
         });

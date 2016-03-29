@@ -51,8 +51,7 @@ definitionSaver.update = function (entityDefinition, opt_finishedCallback) {
         }, 'POST', JSON.stringify(defData));
 
     } else {
-        // TODO: Save the data locally into an "outbox"
-        // to be saved on the next connection
+        throw "Error saving entity definition field: Netric server is offline.";
     }
 }
 
