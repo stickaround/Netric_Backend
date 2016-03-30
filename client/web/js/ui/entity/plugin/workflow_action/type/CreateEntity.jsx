@@ -96,6 +96,12 @@ var CreateEntity = React.createClass({
 
                     var key = objType + field.id;
                     var value = this.props.data[field.name] || null;
+                    var valueLabel = null;
+
+                    // If the field is an object, then let's display the label of the value.
+                    if (field.type == field.types.object) {
+                        valueLabel = this.props.entity.getValueName(field.name, value);
+                    }
 
                     // If we are on editMode, then let's display the field input of each entity fields
                     if (this.props.editMode) {
@@ -110,6 +116,7 @@ var CreateEntity = React.createClass({
                                         objType={objType}
                                         fieldName={field.name}
                                         value={value}
+                                        valueLabel={valueLabel}
                                         onChange={this._handleValueChange}
                                         entityDefinition={entity.def}
                                     />
@@ -117,6 +124,8 @@ var CreateEntity = React.createClass({
                             </div>
                         );
                     } else { // If we are NOT on editMode, then let's just display the label and the value of each entity field
+
+                        let displayValue = valueLabel || value;
 
                         // Make sure we have an existing value in our data before we display the entity value
                         if (value) {
@@ -126,7 +135,7 @@ var CreateEntity = React.createClass({
                                         {field.title}
                                     </div>
                                     <div>
-                                        {this.props.data[field.name]}
+                                        {displayValue}
                                     </div>
                                 </div>
                             );

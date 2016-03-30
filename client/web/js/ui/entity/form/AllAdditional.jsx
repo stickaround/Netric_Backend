@@ -63,7 +63,13 @@ var AllAdditional = React.createClass({
                 if (field.useWhen
                     && field.useWhen == refField + ':' + this.props.entity.getValue(refField)) {
 
+                    let valueLabel = null;
                     let value = this.props.entity.getValue(field.name);
+
+                    // If the field is an object, then let's display the label of the value.
+                    if (field.type == field.types.object) {
+                        valueLabel = this.props.entity.getValueName(field.name, value);
+                    }
 
                     // If we are on editMode, then let's display the field input of each entity fields
                     if (this.props.editMode) {
@@ -78,6 +84,7 @@ var AllAdditional = React.createClass({
                                         objType={this.props.entity.objType}
                                         fieldName={field.name}
                                         value={value}
+                                        valueLabel={valueLabel}
                                         onChange={this._handleValueChange}
                                         entityDefinition={this.props.entity.def}
                                     />
@@ -87,10 +94,7 @@ var AllAdditional = React.createClass({
                     } else {
                         if (value) {
 
-                            // If the field is an object, then let's display the value name.
-                            if (field.type == field.types.object) {
-                                value = this.props.entity.getValueName(field.name, value);
-                            }
+                            let displayValue = valueLabel || value;
 
                             displayFields.push(
                                 <div key={idx + 'label'}>
@@ -98,7 +102,7 @@ var AllAdditional = React.createClass({
                                         {field.title}
                                     </div>
                                     <div>
-                                        {value}
+                                        {displayValue}
                                     </div>
                                 </div>
                             )
