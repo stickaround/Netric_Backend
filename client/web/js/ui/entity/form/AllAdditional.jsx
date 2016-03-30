@@ -12,8 +12,6 @@ var FieldInput = require('../FieldInput.jsx');
  *
  * This allows users to add custom fields without having to worry about placing
  * them into a form.
- *
- * We will use ref_field specified in the xml form to determine the custom fields to display
  */
 var AllAdditional = React.createClass({
 
