@@ -232,7 +232,7 @@ Field.prototype.getData = function () {
  *
  * @return array Assoc object with the following keys: name, value
  */
-Field.prototype.decodeUseWhen = function () {
+Field.prototype.getDecodedUseWhen = function () {
     let parts = this.useWhen.split(":");
     let retObj = null;
 

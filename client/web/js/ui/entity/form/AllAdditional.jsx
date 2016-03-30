@@ -62,7 +62,7 @@ var AllAdditional = React.createClass({
                 if (!field.system && field.useWhen) {
 
                     // Get the decoded value of useWhen
-                    let useWhenObj = field.decodeUseWhen();
+                    let useWhenObj = field.getDecodedUseWhen();
 
                     // If the useWhen value did not match with the entity field, then let's return and move to the next field
                     if(this.props.entity.getValue(useWhenObj.name) != useWhenObj.value) {
