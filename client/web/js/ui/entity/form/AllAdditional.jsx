@@ -52,16 +52,22 @@ var AllAdditional = React.createClass({
 
     render: function () {
 
-        let refField = this.props.xmlNode.getAttribute('ref_field');
         let fields = this.props.entity.def.getFields();
         let displayFields = [];
 
         if (fields) {
             fields.map(function (field, idx) {
 
-                // Make sure that we have useWhen field attribute and it matches the ref_field specified in the xml form
-                if (field.useWhen
-                    && field.useWhen == refField + ':' + this.props.entity.getValue(refField)) {
+                // Make sure that we have useWhen field attribute and the field is not a system field
+                if (!field.system && field.useWhen) {
+
+                    // Get the decoded value of useWhen
+                    let useWhenObj = field.decodeUseWhen();
+
+                    // If the useWhen value did not match with the entity field, then let's return and move to the next field
+                    if(this.props.entity.getValue(useWhenObj.name) != useWhenObj.value) {
+                        return;
+                    }
 
                     let valueLabel = null;
                     let value = this.props.entity.getValue(field.name);
@@ -108,7 +114,6 @@ var AllAdditional = React.createClass({
                             )
                         }
                     }
-
                 }
             }.bind(this))
         }

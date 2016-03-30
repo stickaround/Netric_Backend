@@ -227,4 +227,29 @@ Field.prototype.getData = function () {
     return retObj;
 }
 
+/**
+ * Function used to decode useWhen field attribute to object value
+ *
+ * @return array Assoc object with the following keys: name, value
+ */
+Field.prototype.decodeUseWhen = function () {
+    let parts = this.useWhen.split(":");
+    let retObj = null;
+
+    // If we have a value useWhen then return the name and value
+    if (parts.length > 1) {
+        retObj = {
+            name: parts[0],
+            value: parts[1]
+        }
+    } else {
+        retObj = {
+            name: this.useWhen,
+            value: null
+        }
+    }
+
+    return retObj;
+}
+
 module.exports = Field;

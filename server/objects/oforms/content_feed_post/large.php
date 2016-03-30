@@ -37,7 +37,7 @@
                 </row>
                 <row>
                     <column>
-                        <all_additional ref_field="feed_id"></all_additional>
+                        <all_additional></all_additional>
                     </column>
                 </row>
                 <row>
