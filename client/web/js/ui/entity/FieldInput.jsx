@@ -18,8 +18,8 @@ var TextField = Controls.TextField;
 var IconButton = Controls.IconButton;
 
 var boolInputMenu = [
-    { payload: 'true', text: 'true' },
-    { payload: 'false', text: 'false' },
+    {payload: 'true', text: 'true'},
+    {payload: 'false', text: 'false'},
 ];
 
 /**
@@ -72,7 +72,21 @@ var FieldsDropDown = React.createClass({
          *
          * @var {object}
          */
-        entityDefinition: React.PropTypes.object
+        entityDefinition: React.PropTypes.object,
+
+        /**
+         * Flag indicating if we are in edit mode or view mode
+         *
+         * @type {bool}
+         */
+        editMode: React.PropTypes.bool,
+
+        /**
+         * Flag indicating if we will display the field title
+         *
+         * @type {bool}
+         */
+        displayFieldTitle: React.PropTypes.bool
     },
 
     /**
@@ -82,6 +96,8 @@ var FieldsDropDown = React.createClass({
      */
     getDefaultProps: function () {
         return {
+            displayFieldTitle: false,
+            editMode: true,
             valueLabel: null,
             entityDefinition: null
         }
@@ -92,7 +108,7 @@ var FieldsDropDown = React.createClass({
      *
      * @returns {{}}
      */
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             entityDefinition: this.props.entityDefinition
         };
@@ -101,12 +117,12 @@ var FieldsDropDown = React.createClass({
     /**
      * We have entered the DOM
      */
-    componentDidMount: function() {
+    componentDidMount: function () {
 
         // If the entity definition is already provided, then we do not need to get the definition again
-        if(!this.state.entityDefinition) {
+        if (!this.state.entityDefinition) {
             // Get the definition so we can get field details
-            definitionLoader.get(this.props.objType, function(def) {
+            definitionLoader.get(this.props.objType, function (def) {
 
                 this._handleEntityDefinititionLoaded(def);
             }.bind(this));
@@ -116,7 +132,7 @@ var FieldsDropDown = React.createClass({
     /**
      * Render the dropdown containing all fields
      */
-    render: function() {
+    render: function () {
         if (!this.state.entityDefinition) {
             // Entity definition is loading still so return an empty div
             return (<div />);
@@ -125,58 +141,102 @@ var FieldsDropDown = React.createClass({
         let field = this.state.entityDefinition.getField(this.props.fieldName);
         let value = this.props.value;
         let valueLabel = this.props.valueLabel;
+        let displayFieldTitle = null;
+        let displayField = null;
 
-        switch(field.type) {
-            case Field.types.fkey:
-            case Field.types.fkeyMulti:
-                return (
-                    <GroupingSelect
-                        onChange={this._handleGroupingSelect}
-                        objType={this.props.objType}
-                        fieldName={field.name}
-                        allowNoSelection={false}
-                        label={'none'}
-                        selectedValue={value}
-                    />
-                );
+        // If we are on editMode, then let's display the input fields
+        if (this.props.editMode) {
+            switch (field.type) {
+                case Field.types.fkey:
+                case Field.types.fkeyMulti:
+                    displayField = (
+                        <GroupingSelect
+                            onChange={this._handleGroupingSelect}
+                            objType={this.props.objType}
+                            fieldName={field.name}
+                            allowNoSelection={false}
+                            label={'none'}
+                            selectedValue={value}
+                        />
+                    );
+                    break;
 
-            case Field.types.object:
-                return (
-                    <ObjectSelect
-                        onChange={this._handleObjectSelect}
-                        objType={this.props.objType}
-                        field={field}
-                        value={value}
-                        label={valueLabel}
-                    />
-                );
+                case Field.types.object:
+                    displayField = (
+                        <ObjectSelect
+                            onChange={this._handleObjectSelect}
+                            objType={this.props.objType}
+                            field={field}
+                            value={value}
+                            label={valueLabel}
+                        />
+                    );
+                    break;
 
-            case Field.types.bool:
-                return (
-                    <DropDownMenu
-                        onChange={this._handleValueSelect}
-                        selectedIndex={ ( (value && value.toString()) === 'true' ? 0 : 1 )}
-                        menuItems={boolInputMenu}
-                    />
-                );
+                case Field.types.bool:
+                    displayField = (
+                        <DropDownMenu
+                            onChange={this._handleValueSelect}
+                            selectedIndex={ ( (value && value.toString()) === 'true' ? 0 : 1 )}
+                            menuItems={boolInputMenu}
+                        />
+                    );
+                    break;
 
-            default:
+                default:
+                    displayField = (
+                        <TextField
+                            onBlur={this._handleValueInputBlur}
+                            defaultValue={value}
+                        />
+                    );
+                    break;
+            }
+        } else {
+
+            // If we are on view mode and we have a field value
+            if(value) {
+                displayField = valueLabel || value;
+            } else {
+
+                // If we are on view mode and we do not have a field value, then let's just return a blank div
                 return (
-                    <TextField
-                        onBlur={this._handleValueInputBlur}
-                        defaultValue={value}
-                    />
-                );
+                    <div />
+                )
+            }
+
+        }
+
+        // This will display the field title and field input / field value
+        if (this.props.displayFieldTitle) {
+            return (
+                <div>
+                    <div className="entity-form-field-label">
+                        {field.title}
+                    </div>
+                    <div className="entity-form-field-value">
+                        {displayField}
+                    </div>
+                </div>
+            )
+        } else {
+
+            // This will just display the field input
+            return (
+                <div>
+                    {displayField}
+                </div>
+            );
         }
     },
 
     /**
      * Callback used to handle commands when user selects a field name
      *
-     * @param {mixed} value	Value to send to the callback
+     * @param {mixed} value    Value to send to the callback
      * @private
      */
-    _handleValueChange: function(value) {
+    _handleValueChange: function (value) {
         console.log("setting", this.props.fieldName, "to", value);
         if (this.props.onChange) {
             this.props.onChange(this.props.fieldName, value);
@@ -190,7 +250,7 @@ var FieldsDropDown = React.createClass({
      * @param {string} text The text of the selected menu
      * @private
      */
-    _handleGroupingSelect: function(payload, text) {
+    _handleGroupingSelect: function (payload, text) {
         this._handleValueChange(payload);
     },
 
@@ -201,7 +261,7 @@ var FieldsDropDown = React.createClass({
      * @param {string} name The name of the selected entity
      * @private
      */
-    _handleObjectSelect: function(oid, name) {
+    _handleObjectSelect: function (oid, name) {
         this._handleValueChange(oid);
     },
 
@@ -213,7 +273,7 @@ var FieldsDropDown = React.createClass({
      * @param {array} menuItem The object value of the menu clicked
      * @private
      */
-    _handleValueSelect: function(e, key, menuItem) {
+    _handleValueSelect: function (e, key, menuItem) {
         this._handleValueChange(menuItem.payload);
     },
 
@@ -223,7 +283,7 @@ var FieldsDropDown = React.createClass({
      * @param {DOMEvent} e Reference to the DOM event being sent
      * @private
      */
-    _handleValueInputBlur: function(e) {
+    _handleValueInputBlur: function (e) {
         this._handleValueChange(e.target.value);
     },
 
@@ -232,7 +292,7 @@ var FieldsDropDown = React.createClass({
      *
      * @param {EntityDefinition} entityDefinition The loaded definition
      */
-    _handleEntityDefinititionLoaded: function(entityDefinition) {
+    _handleEntityDefinititionLoaded: function (entityDefinition) {
         this.setState({
             entityDefinition: entityDefinition
         });

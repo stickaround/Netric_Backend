@@ -84,6 +84,7 @@ var UpdateField = React.createClass({
                     fieldName={updateField}
                     value={updateValue}
                     onChange={this._handleValueChange}
+                    editMode={this.props.editMode}
                 />
             );
 

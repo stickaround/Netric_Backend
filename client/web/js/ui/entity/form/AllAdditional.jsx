@@ -57,15 +57,16 @@ var AllAdditional = React.createClass({
             fields.map(function (field, idx) {
 
                 // Make sure that we have useWhen field attribute and the field is not a system field
-                if (!field.system && field.useWhen) {
+                if (!field.system) {
 
-                    // Get the decoded value of useWhen
+                    // Get the decoded value of useWhen, if it is available
                     let useWhenObj = field.getDecodedUseWhen();
 
                     // If the useWhen value did not match with the entity field, then let's return and move to the next field
-                    if(this.props.entity.getValue(useWhenObj.name) != useWhenObj.value) {
+                    if (field.useWhen && this.props.entity.getValue(useWhenObj.name) != useWhenObj.value) {
                         return;
                     }
+
 
                     let valueLabel = null;
                     let value = this.props.entity.getValue(field.name);
@@ -75,43 +76,19 @@ var AllAdditional = React.createClass({
                         valueLabel = this.props.entity.getValueName(field.name, value);
                     }
 
-                    // If we are on editMode, then let's display the field input of each entity fields
-                    if (this.props.editMode) {
-                        displayFields.push(
-                            <div key={idx + 'div'}>
-                                <div className="entity-form-field-label">
-                                    {field.title}
-                                </div>
-                                <div className="entity-form-field-value">
-                                    <FieldInput
-                                        key={idx}
-                                        objType={this.props.entity.objType}
-                                        fieldName={field.name}
-                                        value={value}
-                                        valueLabel={valueLabel}
-                                        onChange={this._handleValueChange}
-                                        entityDefinition={this.props.entity.def}
-                                    />
-                                </div>
-                            </div>
-                        )
-                    } else {
-                        if (value) {
-
-                            let displayValue = valueLabel || value;
-
-                            displayFields.push(
-                                <div key={idx + 'label'}>
-                                    <div className="entity-form-field-label">
-                                        {field.title}
-                                    </div>
-                                    <div>
-                                        {displayValue}
-                                    </div>
-                                </div>
-                            )
-                        }
-                    }
+                    displayFields.push(
+                        <FieldInput
+                            key={idx}
+                            objType={this.props.entity.objType}
+                            fieldName={field.name}
+                            value={value}
+                            valueLabel={valueLabel}
+                            onChange={this._handleValueChange}
+                            entityDefinition={this.props.entity.def}
+                            editMode={this.props.editMode}
+                            displayFieldTitle={true}
+                        />
+                    )
                 }
             }.bind(this))
         }
