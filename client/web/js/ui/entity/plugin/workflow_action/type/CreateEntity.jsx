@@ -71,7 +71,7 @@ var CreateEntity = React.createClass({
                 <ObjectTypeDropDown
                     objType={objType}
                     onChange={this._handleDefintionsMenuSelect}
-                />
+                    />
             );
         } else {
 
@@ -103,19 +103,44 @@ var CreateEntity = React.createClass({
                         valueLabel = this.props.entity.getValueName(field.name, value);
                     }
 
-                    entityFieldsDisplay.push(
-                        <FieldInput
-                            key={key}
-                            objType={objType}
-                            fieldName={field.name}
-                            value={value}
-                            valueLabel={valueLabel}
-                            onChange={this._handleValueChange}
-                            entityDefinition={entity.def}
-                            editMode={this.props.editMode}
-                            displayFieldTitle={true}
-                        />
-                    );
+                    // If we are on editMode, then let's display the field input of each entity fields
+                    if (this.props.editMode) {
+                        entityFieldsDisplay.push(
+                            <div key={key + 'div'}>
+                                <div className="entity-form-field-label">
+                                    {field.title}
+                                </div>
+                                <div className="entity-form-field-value">
+                                    <FieldInput
+                                        key={key}
+                                        objType={objType}
+                                        fieldName={field.name}
+                                        value={value}
+                                        valueLabel={valueLabel}
+                                        onChange={this._handleValueChange}
+                                        entityDefinition={entity.def}
+                                        />
+                                </div>
+                            </div>
+                        );
+                    } else { // If we are NOT on editMode, then let's just display the label and the value of each entity field
+
+                        let displayValue = valueLabel || value;
+
+                        // Make sure we have an existing value in our data before we display the entity value
+                        if (value) {
+                            entityFieldsDisplay.push(
+                                <div key={key + 'label'}>
+                                    <div className="entity-form-field-label">
+                                        {field.title}
+                                    </div>
+                                    <div>
+                                        {displayValue}
+                                    </div>
+                                </div>
+                            );
+                        }
+                    }
                 }
             }.bind(this));
         }

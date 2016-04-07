@@ -5,7 +5,7 @@
 'use strict';
 
 var React = require('react');
-var FieldInput = require('../FieldInput.jsx');
+var Field = require('./Field.jsx');
 
 /**
  * All additional will gather all custom (non-system) fields and print them
@@ -19,6 +19,7 @@ var AllAdditional = React.createClass({
      * Expected props
      */
     propTypes: {
+
         /**
          * Current xml node level
          *
@@ -67,27 +68,20 @@ var AllAdditional = React.createClass({
                         return;
                     }
 
+                    // Let's clone the props.xmlNode, so we assign the current field.name as its name attribute
+                    let xmlNode = this.props.xmlNode.cloneNode(true);
 
-                    let valueLabel = null;
-                    let value = this.props.entity.getValue(field.name);
-
-                    // If the field is an object, then let's display the label of the value.
-                    if (field.type == field.types.object) {
-                        valueLabel = this.props.entity.getValueName(field.name, value);
-                    }
+                    // Set the attribute name of the current field
+                    xmlNode.setAttribute("name", field.name);
 
                     displayFields.push(
-                        <FieldInput
+                        <Field
                             key={idx}
-                            objType={this.props.entity.objType}
-                            fieldName={field.name}
-                            value={value}
-                            valueLabel={valueLabel}
-                            onChange={this._handleValueChange}
-                            entityDefinition={this.props.entity.def}
+                            entity={this.props.entity}
+                            eventsObj={this.props.eventsObj}
                             editMode={this.props.editMode}
-                            displayFieldTitle={true}
-                        />
+                            xmlNode={xmlNode}
+                            />
                     )
                 }
             }.bind(this))
@@ -98,20 +92,6 @@ var AllAdditional = React.createClass({
                 {displayFields}
             </div>
         );
-    },
-
-    /**
-     * Handle the input value changing for the entity field
-     *
-     * @param {string} fieldName The name of the field changed
-     * @param {any} fieldValue The value the field was changed to
-     * @param {string} opt_fieldValueLabel Optional string describing an ID value
-     * @private
-     */
-    _handleValueChange: function (fieldName, fieldValue, opt_fieldValueLabel) {
-        let fieldValueLabel = opt_fieldValueLabel || null;
-
-        this.props.entity.setValue(fieldName, fieldValue, fieldValueLabel);
     }
 });
 
