@@ -19,7 +19,7 @@ var NumberField = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
@@ -33,8 +33,8 @@ var NumberField = React.createClass({
     },
 
     componentDidMount: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
         var optionalValuesData = this._getOptionalValues();
 
         // If field value is null and we have optionalValuesData then lets set a default value
@@ -47,8 +47,8 @@ var NumberField = React.createClass({
 
     render: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
         var optionalValues = this._getOptionalValues();
@@ -132,7 +132,7 @@ var NumberField = React.createClass({
         });
 
         if (isNumeric) {
-            this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), value);
+            this.props.entity.setValue(this.props.elementNode.getAttribute('name'), value);
         }
     },
 
@@ -145,8 +145,8 @@ var NumberField = React.createClass({
      * @private
      */
     _handleDropdownChange: function (e, key, menuItem) {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         this.props.entity.setValue(fieldName, menuItem.key);
         this.setState({selectedIndex: key});
@@ -159,8 +159,8 @@ var NumberField = React.createClass({
      * @private
      */
     _getOptionalValues: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         var field = this.props.entity.def.getField(fieldName);
         var optionalValues = field.optionalValues;

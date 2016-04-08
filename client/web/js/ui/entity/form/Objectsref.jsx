@@ -35,8 +35,8 @@ var Objectsref = React.createClass({
 
     getInitialState: function () {
 
-        var refObjType = this.props.xmlNode.getAttribute('obj_type');
-        var refField = this.props.xmlNode.getAttribute('ref_field');
+        var refObjType = this.props.elementNode.getAttribute('obj_type');
+        var refField = this.props.elementNode.getAttribute('ref_field');
 
         // Return the initial state
         return {

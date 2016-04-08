@@ -14,8 +14,8 @@ var Column = React.createClass({
 
     render: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var type = xmlNode.getAttribute('type');
+        var elementNode = this.props.elementNode;
+        var type = elementNode.getAttribute('type');
         var className = "entity-form-column";
 
         if (type) {

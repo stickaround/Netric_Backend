@@ -22,10 +22,40 @@ var Image = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+
+        /**
+         * Current element node level
+         *
+         * @type {entity/form/Node}
+         */
+        elementNode: React.PropTypes.object.isRequired,
+
+        /**
+         * Entity being edited
+         *
+         * @type {entity\Entity}
+         */
         entity: React.PropTypes.object,
+
+        /**
+         * Generic object used to pass events back up to controller
+         *
+         * @type {Object}
+         */
         eventsObj: React.PropTypes.object,
-        editMode: React.PropTypes.bool,
+
+        /**
+         * Flag indicating if we are in edit mode or view mode
+         *
+         * @type {bool}
+         */
+        editMode: React.PropTypes.bool
+
+        /**
+         * The label that will be used in image upload button
+         *
+         * @type {string}
+         */
         label: React.PropTypes.string,
     },
 
@@ -39,8 +69,8 @@ var Image = React.createClass({
      * Render the component
      */
     render: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
         var fieldValue = this.props.entity.getValue(fieldName);
 
         var iconButtonDisplay = null;
@@ -118,8 +148,8 @@ var Image = React.createClass({
      * @private
      */
     _handleImageUploaded: function (image) {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         // Set the image in the entity object
         this.props.entity.setValue(fieldName, image.id, image.name);
@@ -131,8 +161,8 @@ var Image = React.createClass({
      * @private
      */
     _clearValue: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         // Set the entity field value to null
         this.props.entity.setValue(fieldName, null);

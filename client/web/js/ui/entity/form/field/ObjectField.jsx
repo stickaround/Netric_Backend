@@ -24,7 +24,7 @@ var ObjectField = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
@@ -44,8 +44,8 @@ var ObjectField = React.createClass({
      * Render the component
      */
     render: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
@@ -137,8 +137,8 @@ var ObjectField = React.createClass({
      */
     _handleSetValue: function (oid, title) {
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
         this.props.entity.setValue(fieldName, oid, title);
     },
 

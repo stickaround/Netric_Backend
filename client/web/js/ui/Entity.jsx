@@ -14,6 +14,7 @@ var IconButton = Chamel.IconButton;
 var Dialog = Chamel.Dialog;
 var netric = require('../base');
 var actionModes = require("../entity/actions/actionModes");
+var Form = require("../entity/Form");
 var EntityFormShowFilter = require("./mixins/EntityFormShowFilter.jsx");
 
 /**
@@ -24,7 +25,7 @@ var Entity = React.createClass({
     mixins: [EntityFormShowFilter],
 
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         onSaveClick: React.PropTypes.func,
@@ -121,12 +122,11 @@ var Entity = React.createClass({
             );
         }
 
-        // Get the form
-        var xmlData = '<form>' + this.props.form + '</form>';
+        // Create an instance of Form Model
+        var form = new Form();
 
-        // http://api.jquery.com/jQuery.parseXML/
-        var xmlDoc = jQuery.parseXML(xmlData);
-        var rootFormNode = xmlDoc.documentElement;
+        // Parse the object entity form xml string
+        var formElementNode = form.parseXML(this.props.form);
 
         // If the zDepth is 0 then add an hr
         var hr = (appBarZDepth == 0) ? <hr /> : null;
@@ -138,7 +138,7 @@ var Entity = React.createClass({
         } else {
             // render the UIXML form
             body = (<UiXmlElement
-                xmlNode={rootFormNode}
+                elementNode={formElementNode}
                 eventsObj={this.props.eventsObj}
                 entity={this.props.entity}
                 editMode={this.state.editMode} />);

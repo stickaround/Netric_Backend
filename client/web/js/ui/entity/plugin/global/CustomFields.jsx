@@ -27,11 +27,11 @@ var CustomFields = React.createClass({
     propTypes: {
 
         /**
-         * Current xml node level
+         * Current element node level
          *
-         * @type {XMLNode}
+         * @type {elementNode}
          */
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
 
         /**
          * The entity that we want to follow-up
@@ -64,8 +64,8 @@ var CustomFields = React.createClass({
     },
 
     componentDidMount: function () {
-        let xmlNode = this.props.xmlNode;
-        let objType = xmlNode.getAttribute('objType');
+        let elementNode = this.props.elementNode;
+        let objType = elementNode.getAttribute('objType');
 
         /*
          * If the objType specified in the xml does not match with the current props.entity.objType
@@ -113,8 +113,8 @@ var CustomFields = React.createClass({
             )
         }
 
-        let xmlNode = this.props.xmlNode;
-        let refField = xmlNode.getAttribute('ref_field');
+        let elementNode = this.props.elementNode;
+        let refField = elementNode.getAttribute('ref_field');
 
         // Get the custom fields by filtering the fields using the useWhen field attribute
         let customFields = this.state.entityDefinition.getFilteredFields('useWhen', refField + ':' + this.props.entity.id);
@@ -226,8 +226,8 @@ var CustomFields = React.createClass({
     _handleRemoveField: function () {
 
         // Get the xml data
-        let xmlNode = this.props.xmlNode;
-        let objType = xmlNode.getAttribute('objType');
+        let elementNode = this.props.elementNode;
+        let objType = elementNode.getAttribute('objType');
 
         this.setState({removeFieldStatus: 'Removing...'});
 
@@ -248,8 +248,8 @@ var CustomFields = React.createClass({
     _handleCreateField: function () {
 
         // Get the xml data
-        let xmlNode = this.props.xmlNode;
-        let refField = xmlNode.getAttribute('ref_field');
+        let elementNode = this.props.elementNode;
+        let refField = elementNode.getAttribute('ref_field');
 
         // get the user input data
         let fieldName = this.refs.fieldInput.getValue();

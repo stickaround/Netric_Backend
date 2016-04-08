@@ -14,9 +14,9 @@ var Header = React.createClass({
 
     render: function() {
 
-        let xmlNode = this.props.xmlNode;
-        let text = xmlNode.childNodes[0].nodeValue;
-        let className = xmlNode.getAttribute("class");
+        let elementNode = this.props.elementNode;
+        let text = elementNode.nodeValue;
+        let className = elementNode.getAttribute("class");
 
         let headerElement = null;
 

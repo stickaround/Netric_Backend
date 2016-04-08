@@ -14,11 +14,11 @@ var Plugin = React.createClass({
      */
     propTypes: {
         /**
-         * Current xml node level
+         * Current element node level
          *
-         * @type {XMLNode}
+         * @type {entity/form/Node}
          */
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object.isRequired,
 
         /**
          * Entity being edited
@@ -44,8 +44,8 @@ var Plugin = React.createClass({
 
     render: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var pluginName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var pluginName = elementNode.getAttribute('name');
         var componentName = this.props.entity.def.objType + "." + pluginName;
         var componentGlobal = "global." + pluginName; // Try to get the plugin in the global folder
 
@@ -59,7 +59,7 @@ var Plugin = React.createClass({
         var reactElement;
         try {
             reactElement = React.createElement(component, {
-                xmlNode: this.props.xmlNode,
+                elementNode: this.props.elementNode,
                 eventsObj: this.props.eventsObj,
                 entity: this.props.entity,
                 editMode: this.props.editMode

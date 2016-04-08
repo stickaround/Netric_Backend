@@ -17,8 +17,8 @@ var Fieldset = React.createClass({
      */
     render: function() {
 
-        var xmlNode = this.props.xmlNode;
-        var name = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var name = elementNode.getAttribute('name');
         var legend;
         if (name) {
             legend = <legend>{name}</legend>;

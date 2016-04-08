@@ -22,7 +22,7 @@ var ExecuteTime = React.createClass({
      */
     propTypes: {
         entity: React.PropTypes.object,
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         editMode: React.PropTypes.bool
     },
 

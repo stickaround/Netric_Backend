@@ -18,7 +18,7 @@ var DateField = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
@@ -26,8 +26,8 @@ var DateField = React.createClass({
 
     render: function() {
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
@@ -67,7 +67,7 @@ var DateField = React.createClass({
      * Handle value change
      */
     _handleInputChange: function(evt, date) {
-        this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), date);
+        this.props.entity.setValue(this.props.elementNode.getAttribute('name'), date);
     }
 
 });

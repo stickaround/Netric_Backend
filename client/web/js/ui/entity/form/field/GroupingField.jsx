@@ -18,7 +18,7 @@ var GroupingField = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
@@ -29,8 +29,8 @@ var GroupingField = React.createClass({
      */
     render: function() {
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
         
 
         var field = this.props.entity.def.getField(fieldName);
@@ -79,7 +79,7 @@ var GroupingField = React.createClass({
      * @param {string} name Optional name value of the id
      */
     _handleRemove: function(id, name) {
-      this.props.entity.remMultiValue(this.props.xmlNode.getAttribute('name'), id);
+      this.props.entity.remMultiValue(this.props.elementNode.getAttribute('name'), id);
     },
 
     /**
@@ -89,7 +89,7 @@ var GroupingField = React.createClass({
      * @param {string} name Optional name value of the id
      */
     _handleGroupAdd: function(id, name) {
-        this.props.entity.addMultiValue(this.props.xmlNode.getAttribute('name'), id, name);
+        this.props.entity.addMultiValue(this.props.elementNode.getAttribute('name'), id, name);
     }
 });
 

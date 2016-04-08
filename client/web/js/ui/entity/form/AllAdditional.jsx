@@ -6,6 +6,7 @@
 
 var React = require('react');
 var Field = require('./Field.jsx');
+var Node = require('../../../entity/form/Node');
 
 /**
  * All additional will gather all custom (non-system) fields and print them
@@ -21,11 +22,11 @@ var AllAdditional = React.createClass({
     propTypes: {
 
         /**
-         * Current xml node level
+         * Current element node level
          *
-         * @type {XMLNode}
+         * @type {entity/form/Node}
          */
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
 
         /**
          * Entity being edited
@@ -54,6 +55,7 @@ var AllAdditional = React.createClass({
         let fields = this.props.entity.def.getFields();
         let displayFields = [];
 
+        // Make sure we have the collection of fields from entity definition
         if (fields) {
             fields.map(function (field, idx) {
 
@@ -68,19 +70,19 @@ var AllAdditional = React.createClass({
                         return;
                     }
 
-                    // Let's clone the props.xmlNode, so we assign the current field.name as its name attribute
-                    let xmlNode = this.props.xmlNode.cloneNode(true);
+                    // Create an instance of node model so we can render the field element
+                    let elementNode = new Node('Field');
 
-                    // Set the attribute name of the current field
-                    xmlNode.setAttribute("name", field.name);
+                    // Set the name attribute for this element node
+                    elementNode.setAttribute('name', field.name);
 
                     displayFields.push(
                         <Field
                             key={idx}
+                            elementNode={elementNode}
                             entity={this.props.entity}
                             eventsObj={this.props.eventsObj}
                             editMode={this.props.editMode}
-                            xmlNode={xmlNode}
                             />
                     )
                 }
