@@ -73,9 +73,9 @@ Node.prototype.loadXmlData = function (data) {
         for (var idx in data.attributes) {
             let attribute = data.attributes[idx];
 
-            // Make sure we have attribute name and value before storing
+            // Make sure that we have and attribute name and value before setting
             if (attribute.name && attribute.value) {
-                this._attributes[attribute.name] = attribute.value
+                this.setAttribute(attribute.name, attribute.value);
             }
         }
     }

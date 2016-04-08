@@ -49,7 +49,7 @@ var Image = React.createClass({
          *
          * @type {bool}
          */
-        editMode: React.PropTypes.bool
+        editMode: React.PropTypes.bool,
 
         /**
          * The label that will be used in image upload button
