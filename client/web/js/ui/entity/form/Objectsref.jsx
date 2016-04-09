@@ -108,7 +108,7 @@ var Objectsref = React.createClass({
             }
 
             params[refField] = refValue;
-            params[refField + '_val'] = encodeURIComponent(entityName);
+            params[refField + '_fval'] = encodeURIComponent(entityName);
         }
 
         this.triggerCustomEvent("entitycreatenew", {objType: this.state.refObjType, params: params});

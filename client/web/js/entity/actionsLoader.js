@@ -13,6 +13,8 @@ var ActionClasses = {
 	base: require("./actions/DefaultActions"),
 	task: require("./actions/TaskActions"),
 	lead: require("./actions/LeadActions"),
+	customer: require("./actions/CustomerActions"),
+	opportunity: require("./actions/OpportunityActions"),
 }
 
 /**

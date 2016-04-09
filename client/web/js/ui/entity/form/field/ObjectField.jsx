@@ -1,7 +1,6 @@
 /**
  * Object reference component
  *
-
  */
 'use strict';
 
@@ -63,14 +62,25 @@ var ObjectField = React.createClass({
         }
 
         var fieldSubtype = field.subtype || this.state.subtype;
-        var definitionsDropDown = null;
 
+        /*
+         * If we still do not have a value for fieldSubtype but we have a fieldValue
+         * Then we try to get the subtype value from the fieldValue by decoding it and use the objType as our fieldSubtype
+         * The format of fieldValue is usually objType:entityId
+         */
+        if(!fieldSubtype && fieldValue) {
+            var objRef = this.props.entity.decodeObjRef(fieldValue);
+
+            fieldSubtype = objRef.objType || null;
+        }
+
+        var definitionsDropDown = null;
         // If this field does NOT have a subtype, then load the definitions and let the user pick a subtype
         if (field.subtype === '' || field.subtype === null) {
             definitionsDropDown = (
                 <div className="entity-form-object-type-dropdown">
                     <ObjectTypeDropDown
-                        objType={this.state.subtype}
+                        objType={fieldSubtype}
                         onChange={this._handleDefintionsMenuSelect}
                     />
                 </div>

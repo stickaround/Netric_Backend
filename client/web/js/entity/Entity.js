@@ -685,7 +685,7 @@ Entity.prototype.setDefaultValues = function (onEventName, opt_defaultData) {
             && defaultData[field.name]) {
 
             // Check if a default value name was also passed
-            var valueName = defaultData[field.name + "_val"] || null;
+            var valueName = defaultData[field.name + "_fval"] || null;
             this.setValue(field.name, defaultData[field.name], valueName);
         }
 

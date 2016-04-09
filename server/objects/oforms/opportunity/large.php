@@ -35,7 +35,7 @@
             </tab>
 
             <tab name='Task'>
-                <objectsref obj_type='task' ref_field='project'></objectsref>
+                <objectsref obj_type='task' ref_field='customer_id'></objectsref>
             </tab>
 
             <tab name='Events'>
