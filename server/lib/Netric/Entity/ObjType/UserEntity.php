@@ -183,4 +183,38 @@ class UserEntity extends Entity implements EntityInterface
 
         return false;
     }
+
+    /**
+     * Get the first name of the user
+     *
+     * @return string
+     */
+    public function getFirstName()
+    {
+        $fullName = $this->getValue("full_name");
+
+        if (!$fullName) {
+            return null;
+        }
+
+        $pos = strpos($fullName, ' ');
+        return substr($fullName, 0, $pos);
+    }
+
+    /**
+     * Get the first name of the user
+     *
+     * @return string
+     */
+    public function getLastName()
+    {
+        $fullName = $this->getValue("full_name");
+
+        if (!$fullName) {
+            return null;
+        }
+
+        $pos = strpos($fullName, ' ');
+        return ($pos !== false) ? substr($fullName, $pos + 1) : null;
+    }
 }

@@ -65,8 +65,8 @@ class HttpRequest implements RequestInterface
 			$headers, $_COOKIE, $_POST, $_GET, $this->params,
 		);
 
-		$this->method = $_SERVER['REQUEST_METHOD'];
-        $this->path = $_SERVER['PATH_INFO'];
+		$this->method = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
+        $this->path = (isset($_SERVER['PATH_INFO'])) ? $_SERVER['PATH_INFO'] : null;
 	}
 
 	/**

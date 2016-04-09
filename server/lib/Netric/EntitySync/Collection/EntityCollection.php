@@ -46,8 +46,15 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	/**
 	 * Get a stats list of what has changed locally since the last sync
 	 *
-	 * @param bool $autoFastForward If true (default) then fast-forward collection commit on return
-	 * @return array of assoiative array [["id"=><object_id>, "action"=>'change'|'delete']]
+	 * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
+	 * @return array of associative array [
+	 *      [
+	 *          "id", // Unique id of local object
+	 *          "action", // 'change'|'delete',
+	 *          "commit_id" // Incremental id of the commits - global revision
+	 *      ]
+	 *  ]
+	 * @throws \Exception if the objType was not set
 	 */
 	public function getExportChanged($autoFastForward=true)
 	{
@@ -129,6 +136,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                     $retStats[] = array(
                         "id" => $ent->getId(),
                         "action" => (($ent->isDeleted()) ? 'delete' : 'change'),
+						"commit_id" => $ent->getValue("commit_id")
                     );
 
 					// Sanity check, make sure we do not return the last commit id for change again
@@ -171,14 +179,22 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 {
                     foreach ($retStats as $stale)
                     {
-                        if ($autoFastForward)
-                        {
-                            // Save to exported log with no commit deletes the export
-                            $this->logExported($stale['id'], null);
-                        }
+                        // Save to exported log with no commit deletes the export
+                        $this->logExported($stale['id'], null);
                     }
                 }
 	        }
+
+			/*
+			 * If we found no changes since the last commit, then fast-forward
+			 * to keep us at the head of the collection.
+			 * This prevents a bug where $this->isBehindHead can report true
+			 * suggesting there might be changes, but querying reveals none.
+			 */
+			if (0 === count($retStats))
+			{
+				$this->fastForwardToHead();
+			}
 
 	        // TODO: Save lastCommit if changed
 	        if (count($retStats) && $autoFastForward && $this->getId())

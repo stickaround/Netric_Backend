@@ -27,7 +27,7 @@ use Zend\Db\TableGateway\Exception\RuntimeException;
  * 	$email->setValue("sent_from", "sky.stebnicki@aereus.com");
  * 	$email->setValue("send_to", "someone@somewhere.com");
  * 	$email->setValue("body", "Hello there");
- *  $email->setValue("body_type", "plain");
+ *  $email->setValue("body_type", EmailMessageEntity::BODY_TYPE_PLAIN);
  * 	$email->addAttachment("/path/to/my/file.txt");
  * 	$sender = $serviceManager->get("Netric\Mail\Sender");
  *  $sender->send($email);
@@ -55,6 +55,12 @@ class EmailMessageEntity extends Entity implements EntityInterface
      * @var FileSystem
      */
     private $fileSystem = null;
+
+    /**
+     * Body types
+     */
+    const BODY_TYPE_PLAIN = 'plain';
+    const BODY_TYPE_HTML = 'html';
 
     /**
      * Class constructor
@@ -294,10 +300,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $this->setValue("body", $body);
             if ($this->getValue("content_type")) {
                 $ctypeParts = explode("/", $this->getValue("content_type"));
-                $bodyType = (isset($ctypeParts[1])) ? $ctypeParts[1] : 'plain';
+                $bodyType = (isset($ctypeParts[1])) ? $ctypeParts[1] : self::BODY_TYPE_PLAIN;
                 $this->setValue("body_type", $bodyType);
             } else {
-                $this->setValue("body_type", 'plain');
+                $this->setValue("body_type", self::BODY_TYPE_PLAIN);
             }
         } else {
             // Multi-part message
@@ -305,6 +311,67 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $this->fromMailMessageMultiPart($parts);
         }
 
+    }
+
+    /**
+     * Get the HTML version of email body
+     *
+     * This function will convert plain to HTML if the body
+     * is plain text.
+     *
+     * @return string
+     */
+    public function getHtmlBody()
+    {
+        $body = $this->getValue("body");
+
+        if ($this->getValue("body_type") != self::BODY_TYPE_PLAIN) {
+            return $body;
+        }
+
+        // Replace space with &bnsp; to make sure things look okay
+        $body = str_replace(" ", "&nbsp;", $body);
+
+        // Replace tab with three spaces
+        $body = str_replace("\t", "&nbsp;&nbsp;&nbsp;", $body);
+
+        // Replace \n new lines with <br />
+        $body = nl2br(htmlspecialchars($body));
+
+        // Replace links with HTML links
+        $body = preg_replace('/\s(\w+:\/\/)(\S+)/', ' <a href="\\1\\2">\\1\\2</a>', $body);
+
+        // Return converted body
+        return $body;
+    }
+
+    /**
+     * Get the plain text version of email body
+     *
+     * @return string
+     */
+    public function getPlainBody()
+    {
+        if ($this->getValue("body_type") == self::BODY_TYPE_PLAIN) {
+            return $this->getValue("body");
+        }
+
+        $body = $this->getValue("body");
+
+        // Convert breaks to new lines
+        $body = str_replace("<br>", "\n", $body);
+
+        // Convert breaks to new lines
+        $body = str_replace("<br />", "\n", $body);
+
+        // Remove css style tags
+        $body = preg_replace("/<style.*?<\/style>/is", "", $body);
+
+        // Remove all other html tags
+        $body = strip_tags($body);
+
+        // Return the results
+        return $body;
     }
 
     /**
@@ -324,11 +391,11 @@ class EmailMessageEntity extends Entity implements EntityInterface
             } else if ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
                 // If multipart/aleternative then this will come after 'plain' and overwrite
                 $this->setValue("body", trim($mimePart->getRawContent()));
-                $this->setValue("body_type", "html");
+                $this->setValue("body_type", self::BODY_TYPE_HTML);
             } else if ($mimePart->getType() == Mime\Mime::TYPE_TEXT) {
                 // Plain text part
                 $this->setValue("body", trim($mimePart->getRawContent()));
-                $this->setValue("body_type", "plain");
+                $this->setValue("body_type", self::BODY_TYPE_PLAIN);
             } else if ($mimePart->getType() == Mime\Mime::MULTIPART_ALTERNATIVE) {
                 // Multipart alternative
                 $mimeMessage = Mime\Message::createFromMessage($mimePart->getRawContent(), $mimePart->getBoundary());
@@ -374,53 +441,6 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
 
         return ($addressList->count()) ? $addressList : null;
-    }
-
-    /**
-     * Get the HTML version of email body
-     *
-     * This function will convert plain to HTML if the body
-     * is plain text.
-     *
-     * @return string
-     */
-    private function getHtmlBody()
-    {
-        $body = $this->getValue("body");
-
-        if ($this->getValue("body_type") != "plain") {
-            return $body;
-        }
-
-        // Replace \n new lines with <br />
-        $body = nl2br(htmlspecialchars($body));
-
-        // Replace tab with three spaces
-        $body = str_replace("\t", "&nbsp;&nbsp;&nbsp;", $body);
-
-        // Replace space with &bnsp; to make sure things look okay
-        $body = str_replace(" ", "&nbsp;", $body);
-
-        // Replace links with HTML links
-        $body = preg_replace('/\s(\w+:\/\/)(\S+)/', ' <a href="\\1\\2">\\1\\2</a>', $body);
-
-        // Return converted body
-        return $body;
-    }
-
-    /**
-     * Get the plain text version of email body
-     *
-     * @return string
-     */
-    private function getPlainBody()
-    {
-        if ($this->getValue("body_type") == "plain") {
-            return $this->getValue("body");
-        }
-
-        // Convert an HTML message to plain
-        return strip_tags(str_replace("<br>", "\n", $this->getValue("body")));
     }
 
     /**

@@ -8,6 +8,7 @@
  */
 namespace Netric\Entity;
 
+use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
 use Netric\Entity\EntityAggregator;
@@ -24,7 +25,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Record of moved-to references
 	 *
-	 * @var arrray
+	 * @var array
 	 */
 	 protected $movedToRef = array();
 
@@ -236,10 +237,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		if ($def->storeRevisions)
 			$this->saveRevision($entity);
 
-		// Save data to EntityCollection_Index
-		//if ($this->getServiceLocator())
-			//$this->getServiceLocator()->get("EntityCollection_Index")->save($entity);
-		
+		// Save data to EntityQuery Index
+		$serviceManager->get("EntityQuery_index")->save($entity);
+
 		// Clear cache in the EntityLoader
         $serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
 		
@@ -291,6 +291,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	{
 		$ret = $this->fetchById($entity, $id);
 
+        if (!empty($id) && !is_numeric($id)) {
+            throw new \InvalidArgumentException("$id is not a valid entity id");
+        }
+
 		if (!$ret)
 		{
 			$movedToId = $this->entityHasMoved($entity->getDefinition(), $id);
@@ -303,11 +307,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         {
             // If we have a recurrence pattern id then load it
             $recurId = $entity->getValue($entity->getDefinition()->recurRules['field_recur_id']);
-            if ($recurId)
+			if ($recurId)
             {
                 $recurPattern = $this->recurIdentityMapper->getById($recurId);
-				if ($recurPattern)
-                	$entity->setRecurrencePattern($recurPattern);
+                if ($recurPattern) {
+                    $entity->setRecurrencePattern($recurPattern);
+                }
             }
         }
 
@@ -356,8 +361,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             $entity->afterDeleteHard($serviceManager);
 
 			// Delete from EntityCollection_Index
-			//if ($this->getServiceLocator())
-				//$this->getServiceLocator()->get("EntityCollection_Index")->save($entity);
+			$serviceManager->get("EntityQuery_index")->save($entity);
 			
 			// Remove unique DACL. Of course, we don't want to delete the dacl for all object types, just for this id
 			//if ($this->daclIsUnique && $this->dacl)
@@ -454,6 +458,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 					$lastCommitId, $nextCommit);
 			}
         }
+
+		return true;
     }
 
     /**
@@ -528,7 +534,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                         foreach ($value as $valPart)
                         {
                             $id = $valPart;
-                            if (!$objType)
+                            if (empty($field->subtype))
                             {
                                 $refParts = Entity::decodeObjRef($valPart);
                                 $objType = $refParts['obj_type'];

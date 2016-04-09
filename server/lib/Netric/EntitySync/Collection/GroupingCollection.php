@@ -44,12 +44,18 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 		parent::__construct($dm, $commitManager);
 	}
 
-	/**
-	 * Get a stats list of what has changed locally since the last sync
-	 *
-	 * @param bool $autoFastForward If true (default) then fast-forward collection commit on return
-	 * @return array of assoiative array [["id"=><object_id>, "action"=>'change'|'delete']]
-	 */
+    /**
+     * Get a stats list of what has changed locally since the last sync
+     *
+     * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
+     * @return array of associative array [
+     *      [
+     *          "id", // Unique id of local object
+     *          "action", // 'change'|'delete',
+     *          "commit_id" // Incremental id of the commits - global revision
+     *      ]
+     *  ]
+     */
 	public function getExportChanged($autoFastForward=true)
 	{
 		if (!$this->getObjType())
@@ -108,6 +114,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
                         $retStats[] = array(
                             "id" => $grp->id,
                             "action" => 'change',
+							"commit_id" => $grp->commitId
                         );
                     }
 

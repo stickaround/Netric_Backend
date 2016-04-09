@@ -119,6 +119,19 @@ for ($i = 0; $i < $num; $i++)
 // Remove not null constraint of workflow_actions
 $results = $dbh->Query("ALTER TABLE workflow_actions ALTER COLUMN type DROP NOT NULL");
 
+// Make sure workflow exists as an object
+if (!$dbh->GetNumberRows($dbh->Query("select * form app_object_types where name='workflow'"))) {
+    $dbh->Query("INSERT INTO app_object_types(name, title, object_type, revision, system)
+                 VALUES('workflow', 'Workflow', 'workflows', '0', 't'))");
+}
+
+// Make sure workflow_action exists as an object
+if (!$dbh->GetNumberRows($dbh->Query("select * form app_object_types where name='workflow_action'"))) {
+    $dbh->Query("INSERT INTO app_object_types(name, title, object_type, revision, system)
+                 VALUES('workflow_action', 'Workflow Action', 'workflow_actions', '0', 't'))");
+}
+
+
 /*
  * Now move all when_* actions to child actions of a new wait condition action
  */

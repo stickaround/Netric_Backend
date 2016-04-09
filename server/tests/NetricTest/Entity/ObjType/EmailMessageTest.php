@@ -5,6 +5,7 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
+use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Mime;
 use Netric\Mail;
@@ -391,5 +392,33 @@ class EmailMessageTest extends PHPUnit_Framework_TestCase
         // Purge the email message and make sure the file goes with it
         $entityLoader->delete($emailMessage, true);
         $this->assertNull($fileSystem->openFileById($fileId));
+    }
+
+    public function testGetHtmlBody()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $emailMessage = $entityLoader->create("email_message");
+
+        // Add a plain text message
+        $emailMessage->setValue("body_type", EmailMessageEntity::BODY_TYPE_PLAIN);
+        $emailMessage->setValue("body", "my\nmessage");
+
+        // Test
+        $expected = "my<br />\nmessage";
+        $this->assertEquals($expected, $emailMessage->getHtmlBody());
+    }
+
+    public function testGetPlainBody()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $emailMessage = $entityLoader->create("email_message");
+
+        // Add a plain text message
+        $emailMessage->setValue("body_type", EmailMessageEntity::BODY_TYPE_HTML);
+        $emailMessage->setValue("body", "<style>.test{padding:0;}</style>my<br />message");
+
+        // Test
+        $expected = "my\nmessage";
+        $this->assertEquals($expected, $emailMessage->getPlainBody());
     }
 }

@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 37;
+$obj_revision = 38;
 
 $listTitle = "full_name";
 
@@ -112,6 +112,14 @@ $obj_fields = array(
 			"@mobile.surewest.com"=>"SureWest",
 			"@mymetropcs.com"=>"Metro PCS",
 		),
+	),
+
+	'phone_home' => array(
+		'title'=>'Home Phone',
+		'type'=>'text',
+		'subtype'=>'64',
+		'readonly'=>false,
+		'mask'=>'phone_dash'
 	),
 
     // Aereus customer number

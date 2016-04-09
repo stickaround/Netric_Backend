@@ -454,7 +454,7 @@ class Entity implements EntityInterface
 		}
 
 		// If the recurrence pattern data was passed then load it
-		if (isset($data['recurrence_pattern']) && !empty($data['recurrence_pattern']))
+		if (isset($data['recurrence_pattern']) && is_array($data['recurrence_pattern']))
 		{
 			$this->recurrencePattern = new RecurrencePattern();
 			$this->recurrencePattern->fromArray($data['recurrence_pattern']);

@@ -38,8 +38,30 @@ class Pgsql extends IndexAbstract implements IndexInterface
 	 */
 	public function save(\Netric\Entity\Entity $entity)
     {
-        // Nothing need be done because we are currently storing data in pgsql
-        return true;
+        $def = $entity->getDefinition();
+
+        // Update the full text index if we are not using a custom table
+        if ($def->isCustomTable())
+            return true;
+
+        $tableName = $def->getTable();
+        $tableName .= ($entity->isDeleted()) ? "_del" : "_act";
+
+        // Get indexed text
+        $fields = $def->getFields();
+        $buf = "";
+        foreach ($fields as $field) {
+            if ($field->type != "fkey_multi" && $field->type != "object_multi") {
+                $val = $entity->getValue($field->name);
+                $buf .= strtolower($val . " ");
+            }
+        }
+
+
+        $sql = "UPDATE " . $tableName . " SET tsv_fulltext=";
+        $sql .= "to_tsvector('english', '".$this->dbh->escape(strip_tags($buf))."') ";
+        $sql .= "WHERE id='" . $this->dbh->escape($entity->getId()) . "'";
+        return ($this->dbh->query($sql)) ? true : false;
     }
     
     /**

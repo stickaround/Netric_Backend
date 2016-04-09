@@ -160,4 +160,11 @@ interface EntityInterface
 	 * @param AntUser $user Optional current user for default variables
 	 */
 	public function setFieldsDefault($event, $user=null);
+
+	/**
+	 * Get the local recurrence pattern
+	 *
+	 * @return Recurrence\RecurrencePattern
+	 */
+	public function getRecurrencePattern();
 }

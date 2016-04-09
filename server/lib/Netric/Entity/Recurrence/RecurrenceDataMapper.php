@@ -179,7 +179,7 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 				$query .= "select currval('object_recurrence_id_seq') as id;";
 		}
 
-		//echo "\n-----\n" . $query . "\n-----\n";
+		//echo "\n-----\nSAVE: " . $query . "\n-----\n";
 		$result = $dbh->query($query);
         if (!$result)
             throw new \RuntimeException("Error saving recurrence: " . $dbh->getLastError());
@@ -236,8 +236,8 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 					dayofweekmask[4] as day4, dayofweekmask[5] as day5, dayofweekmask[6] as day6,
 					dayofweekmask[7] as day7
 				  FROM object_recurrence WHERE id=" . $dbh->escapeNumber($id);
-		//echo "<pre>$query</pre>";
 		$result = $dbh->query($query);
+        //echo "\n-----\nLOAD: " . $query . "\n-----\n";
 		if ($dbh->getNumRows($result))
         {
 			$row = $dbh->GetRow($result, 0);

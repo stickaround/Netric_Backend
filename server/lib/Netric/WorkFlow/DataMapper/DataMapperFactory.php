@@ -26,8 +26,9 @@ class DataMapperFactory implements ServiceManager\ServiceFactoryInterface
         $db = $sl->get("Db");
         $actionFactory = new ActionFactory($sl);
         $entityLoader = $sl->get("EntityLoader");
+        $entityIndex = $sl->get("EntityQuery_Index");
 
         // Right now we only support PgSql but may support more later
-        return new PgsqlDataMapper($db, $actionFactory, $entityLoader);
+        return new PgsqlDataMapper($db, $actionFactory, $entityLoader, $entityIndex);
     }
 }

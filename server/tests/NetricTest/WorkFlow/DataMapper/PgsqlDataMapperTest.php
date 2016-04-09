@@ -16,6 +16,7 @@ class PgsqlDataMapperTest extends AbstractDataMapperTests
         $db = $sm->get("Db");
         $actionFactory = new ActionFactory($sm);
         $entityLoader = $sm->get("EntityLoader");
-        return new PgsqlDataMapper($db, $actionFactory, $entityLoader);
+        $entityIndex = $sm->get("EntityQuery_Index");
+        return new PgsqlDataMapper($db, $actionFactory, $entityLoader, $entityIndex);
     }
 }

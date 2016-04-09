@@ -977,7 +977,14 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		if ($fdef->type == "object" && $fdef->subtype && $this->getAccount()->getServiceManager() && $value)
 		{
 			$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($fdef->subtype, $value);
-			$ret[(string)$value] = $entity->getName();
+			if ($entity) {
+				$ret[(string)$value] = $entity->getName();
+			} else {
+
+				$log = $this->getAccount()->getApplication()->getLog();
+				$log->error("Could not load {$fdef->subtype}.{$value} to update foreign value");
+			}
+
 		}
 		else if (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi")
 		{

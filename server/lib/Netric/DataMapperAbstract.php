@@ -64,6 +64,11 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 			'line' => $line,
 		);
 
+		if ($this->getAccount()) {
+			$log = $this->getAccount()->getApplication()->getLog();
+			$log->error("$file: $message");
+		}
+
 		return $retVal;
 	}
 

@@ -121,8 +121,9 @@ class EntityLoader
 	 */
 	public function get($objType, $id)
 	{
-		if ($this->isLoaded($objType, $id))
+		if ($this->isLoaded($objType, $id)) {
 			return $this->loadedEntities[$objType][$id];
+		}
 
 		// Create entity to load data into
 		$entity = $this->create($objType);
@@ -185,7 +186,13 @@ class EntityLoader
 	 */
 	public function save(EntityInterface $entity)
 	{
-		return $this->dataMapper->save($entity);
+        $ret = $this->dataMapper->save($entity);
+
+        if ($entity->getId()) {
+            $this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
+        }
+
+        return $ret;
 	}
 
     /**
@@ -198,6 +205,7 @@ class EntityLoader
     public function delete(EntityInterface $entity, $forceHard = false)
     {
 		$this->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
+
         return $this->dataMapper->delete($entity, $forceHard);
     }
 

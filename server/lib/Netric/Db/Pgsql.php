@@ -800,7 +800,7 @@ class Pgsql implements DbInterface
 		$time = strtotime($date);
 		if ($date && $date != "0/0/00" && strtolower($date) != "never" && $time !==false)
 		{
-			return "'".date("m/d/Y h:i:s A", $time)."'";
+			return "'" . $date . "'";
 		}
 		else
 			return 'NULL';

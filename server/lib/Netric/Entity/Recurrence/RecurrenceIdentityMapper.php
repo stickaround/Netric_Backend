@@ -67,7 +67,9 @@ class RecurrenceIdentityMapper
         if (!$pattern)
         {
             $pattern = $this->recurDataMapper->load($id);
-            $this->cachedPatterns[$id] = $pattern;
+            if ($pattern) {
+                $this->cachedPatterns[$id] = $pattern;
+            }
         }
 
         return $pattern;

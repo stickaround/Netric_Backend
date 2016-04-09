@@ -8,6 +8,7 @@ use Netric\Application\Application;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\ServiceManager\ServiceManager;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityQuery;
 
 class Account
 {
@@ -223,8 +224,13 @@ class Account
         }
         elseif ($username) 
         {
-            // TODO: query based on username
-            throw new \RuntimeException("Loading a user by username is not yet supported");
+            $query = new EntityQuery("user");
+            $query->where('name')->equals($username);
+            $index = $this->getServiceManager()->get("EntityQuery_Index");
+            $res = $index->executeQuery($query);
+            if ($res->getTotalNum()) {
+               return $res->getEntity(0);
+            }
         }
                 
         // Return anonymous user

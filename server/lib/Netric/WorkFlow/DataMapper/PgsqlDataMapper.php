@@ -15,6 +15,8 @@ use Netric\WorkFlow\WorkFlowInstance;
 use Netric\Db\DbInterface;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
+use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityQuery;
 
 /**
  * Store data in postgresql
@@ -43,15 +45,28 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     private $entityLoader = null;
 
     /**
+     * Index used for querying entities - mostly actions
+     *
+     * @var IndexInterface
+     */
+    private $entityIndex = null;
+
+    /**
      * Construct the DataMapper
      *
      * @param DbInterface $dbh
      */
-    public function __construct(DbInterface $dbh, ActionFactory $actionFactory, EntityLoader $entityLoader)
+    public function __construct(
+        DbInterface $dbh,
+        ActionFactory $actionFactory,
+        EntityLoader $entityLoader,
+        IndexInterface $entityIndex
+    )
     {
         $this->dbh = $dbh;
         $this->actionFactory = $actionFactory;
         $this->entityLoader = $entityLoader;
+        $this->entityIndex = $entityIndex;
     }
 
     /**
@@ -396,9 +411,10 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      *
      * @param int $workflowId Unique id of the workflow to get actions for
      * @param int $parentActionid Get child actions for a parent action
+     * @param array $circularCheck Log of previously added actions to avoid circular references
      * @return array
      */
-    private function getActionsArray($workflowId, $parentActionId = null)
+    private function getActionsArray($workflowId, $parentActionId = null, $circularCheck = array())
     {
         if (!is_numeric($workflowId) && !is_numeric($parentActionId))
             throw new \InvalidArgumentException("A valid workflow id or parent action id must be passed");
@@ -406,36 +422,49 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $actionsArray = array();
 
         // Query all actions
-        $sql = "SELECT * FROM workflow_actions WHERE ";
-        if ($parentActionId)
-            $sql .= "parent_action_id=" . $this->dbh->escapeNumber($parentActionId);
-        else
-            $sql .= "workflow_id=" . $this->dbh->escapeNumber($workflowId) . " AND parent_action_id is NULL";
-
-        $result = $this->dbh->query($sql);
+        $query = new EntityQuery("workflow_action");
+        if ($parentActionId) {
+            $query->where("parent_action_id")->equals($parentActionId);
+        } else {
+            $query->where("parent_action_id")->equals("");
+            $query->andWhere("workflow_id")->equals($workflowId);
+        }
+        $result = $this->entityIndex->executeQuery($query);
         if (!$result)
-            throw new \RuntimeException("Could not get actions: " . $this->dbh->getLastError());
+            throw new \RuntimeException("Could not get actions: " . $this->entityIndex->getLastError());
 
-        $num = $this->dbh->getNumRows($result);
+        $num = $result->getNum();
         for ($i = 0; $i < $num; $i++)
         {
-            $row = $this->dbh->getRow($result, $i);
+            $action = $result->getEntity($i);
+
+            /*
+             * Actions can be children of other actions.
+             * Check to make sure there are no circular relationships where a child
+             * lists a parent as it's own child - that would be very bad!
+             */
+            if (in_array($action->getId(), $circularCheck)) {
+                throw new \RunTimeException($action->getId() . " is a curcular dependency because it was already added");
+            } else {
+                $circularCheck[] = $action->getId();
+            }
 
             // If type is not defined then throw an exception since it is required
-            if (!$row['type_name'])
-                throw new \RuntimeException("Action " . $row['id'] . " does not have a type_name set");
+            if (!$action->getValue("type_name")) {
+                throw new \RuntimeException("Action " . $action->getId() . " does not have a type_name set");
+            }
 
             $actionArray = array(
-                "id" => $row['id'],
-                "name" => $row['name'],
-                "workflow_id" => $row['workflow_id'],
-                "type" => $row['type_name'],
-                "parent_action_id" => $row['parent_action_id'],
-                "actions" => $this->getActionsArray($row['workflow_id'], $row['id']),
+                "id" => $action->getId(),
+                "name" => $action->getValue("name"),
+                "workflow_id" => $action->getValue("workflow_id"),
+                "type" => $action->getValue("type_name"),
+                "parent_action_id" => $action->getValue("parent_action_id"),
+                "actions" => $this->getActionsArray($action->getValue("workflow_id"), $action->getId(), $circularCheck),
             );
 
-            if ($row['data'])
-                $actionArray['params'] = json_decode($row['data'], true);
+            if ($action->getValue("data"))
+                $actionArray['params'] = json_decode($action->getValue("data"), true);
 
 
             $actionsArray[] = $actionArray;

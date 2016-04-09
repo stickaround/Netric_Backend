@@ -520,7 +520,7 @@ class BackendAntTest extends \PHPUnit_Framework_TestCase
 		$obj->setValue("ts_end", date("m/d/Y") . " 01:00 PM");
 		$mid = $obj->save();
 
-		// Get changes for Inbox - should be 0 because we reset above
+		// Get changes for Inbox - should be 1
 		$changedFolders = $this->backend->ChangesSink(10);
 		$this->assertEquals(1, count($changedFolders));
 

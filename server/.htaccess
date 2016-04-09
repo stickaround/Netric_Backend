@@ -39,9 +39,8 @@ RewriteRule ^main$ main.php [QSA]
 RewriteRule ^login$ login.php [QSA]
 RewriteRule ^app/(.*)$ app.php?app=$1 [QSA]
 
-RewriteRule Microsoft-Server-ActiveSync$ /async/index.php
-RewriteRule Autodiscover/Autodiscover.xml$ /async/autodiscover.php
-RewriteRule AutoDiscover/AutoDiscover.xml$ /async/autodiscover.php
+RewriteRule Microsoft-Server-ActiveSync$ /public/async.php
+#RewriteRule Autodiscover/Autodiscover.xml$ /async/autodiscover.php
 
 # AntFs
 RewriteRule ^antfs/images/([0-9]+)$ /controllerLoader.php?controller=AntFs&function=streamImage&fid=$1 [QSA]

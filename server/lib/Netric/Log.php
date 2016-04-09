@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Netric logger class
  * 
@@ -10,44 +9,10 @@
 namespace Netric;
 
 /**
- * Set log level constants if not already set by the system
- */
-if (!defined("LOG_EMERG"))
-	define("LOG_EMERG", 0); // system is unusable
-
-if (!defined("LOG_ALERT"))
-	define("LOG_ALERT", 1); // action must be taken immediately
-
-if (!defined("LOG_CRIT"))
-	define("LOG_CRIT", 2); // critical issues
-
-if (!defined("LOG_ERR"))
-	define("LOG_ERR", 3); // error conditions
-
-if (!defined("LOG_WARNING"))
-	define("LOG_WARNING", 4); // warning conditions
-
-if (!defined("LOG_NOTICE"))
-	define("LOG_NOTICE", 5); // normal, but significant, condition
-
-if (!defined("LOG_INFO"))
-	define("LOG_INFO", 6); // informational message
-
-if (!defined("LOG_DEBUG"))
-	define("LOG_DEBUG", 7); // debug-level message
-
-/**
  * Description of Log
  */
 class Log 
 {
-  	/**
-	 * Current log level
-	 *
-	 * @var int
-	 */
-	private $level = LOG_ERR;
-
 	/**
 	 * Path to the log file
 	 *
@@ -85,19 +50,44 @@ class Log
     );
 
 	/**
+	 * Log levels
+	 */
+	const LOG_EMERG = 0;
+	const LOG_ALERT = 1;
+	const LOG_CRIT = 2;
+	const LOG_ERR = 3;
+	const LOG_WARNING = 4;
+	const LOG_NOTICE = 5;
+	const LOG_INFO = 6;
+	const LOG_DEBUG = 7;
+
+	/**
+	 * Current log level
+	 *
+	 * @var int
+	 */
+	private $level = self::LOG_ERR;
+
+    /**
+     * Current application release
+     *
+     * @var string
+     */
+    private $appBranch = "release";
+
+	/**
 	 * Constructor
 	 *
-	 * @param Netric\Config $config
+	 * @param Config $config
 	 */
 	public function __construct($config)
 	{
-		$data_path = $config->data_path;
 
-		// Make sure the local data path exists
-		if ($data_path && file_exists($data_path))
+		// Make sure the local data path exists if we are logging to a file
+		$data_path = $config->data_path;
+		if ($data_path && file_exists($data_path) && $config->log)
 		{
-			$lname = ($config->log) ? $config->log : "ant.log";
-			$this->logPath = $data_path . "/" . $lname;
+			$this->logPath = $data_path . "/" . $config->log;
 
 			// Now make sure we have not exceeded the maxiumu size for this log file
 			if (file_exists($this->logPath))
@@ -122,6 +112,13 @@ class Log
 		// Set current logging level if defined
 		if ($config->log_level)
 			$this->level = $config->log_level;
+
+        // Set the current version/branch we are running
+        if ($config->version)
+            $this->appBranch = $config->version;
+
+		// Open a connection to the syslog
+		openlog("netric", LOG_CONS, LOG_LOCAL5);
 	}
 
 	/**
@@ -129,8 +126,12 @@ class Log
 	 */
 	public function __destruct()
 	{
+		// This will be deprecated when we move it all to syslog
 		if ($this->logFile != null)
 			@fclose($this->logFile);
+
+		// Close connection to the system log
+		closelog();
 	}
 
 	/**
@@ -148,8 +149,8 @@ class Log
 		if ($lvl > $this->level)
 			return false;
 
-		if ($this->logPath == "")
-			throw new \Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
+		//if ($this->logPath == "")
+		//	throw new \Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
 
 		global $_SERVER;
 
@@ -172,8 +173,14 @@ class Log
 		$eventData[$this->logDef["ACCOUNT"]] = "";
 		$eventData[$this->logDef["USER"]] = "";
 
-		//file_put_contents($this->logPath, $message, FILE_APPEND);
-		return fputcsv($this->logFile, $eventData);
+        // If we are logging to a file, then write it here
+		if ($this->logFile) {
+            return fputcsv($this->logFile, $eventData);
+        } else {
+            // Otherwise just log to syslog
+            return syslog($lvl, "branch={$this->appBranch}, page=$source, message=$message");
+        }
+
 	}
 
 	/**
@@ -183,7 +190,7 @@ class Log
 	 */
 	public function info($message)
 	{
-		return $this->writeLog(LOG_INFO, $message);
+		return $this->writeLog(self::LOG_INFO, $message);
 	}
 
 	/**
@@ -193,7 +200,7 @@ class Log
 	 */
 	public function warning($message)
 	{
-		return $this->writeLog(LOG_WARNING, $message);
+		return $this->writeLog(self::LOG_WARNING, $message);
 	}
 
 	/**
@@ -203,7 +210,7 @@ class Log
 	 */
 	public function error($message)
 	{
-		return $this->writeLog(LOG_ERR, $message);
+		return $this->writeLog(self::LOG_ERR, $message);
 	}
 
 	/**
@@ -213,7 +220,7 @@ class Log
 	 */
 	public function debug($message)
 	{
-		return $this->writeLog(LOG_DEBUG, $message);
+		return $this->writeLog(self::LOG_DEBUG, $message);
 	}
 
 	/**
@@ -226,17 +233,17 @@ class Log
 	{
 		switch ($lvl)
 		{
-		case LOG_EMERG:
-		case LOG_ALERT:
-		case LOG_CRIT:
-		case LOG_ERR:
+		case self::LOG_EMERG:
+		case self::LOG_ALERT:
+		case self::LOG_CRIT:
+		case self::LOG_ERR:
 			return 'ERROR';
-		case LOG_WARNING:
+		case self::LOG_WARNING:
 			return 'WARNING';
-		case LOG_DEBUG:
+		case self::LOG_DEBUG:
 			return 'DEBUG';
-		case LOG_NOTICE:
-		case LOG_INFO:
+		case self::LOG_NOTICE:
+		case self::LOG_INFO:
 		default:
 			return 'INFO';
 		}
