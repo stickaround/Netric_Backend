@@ -317,9 +317,9 @@ class EntityProviderTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($syncTask->subject, $task->getValue("name"));
-        $this->assertEquals($syncTask->startdate, strtotime($task->getValue('start_date')));
-        $this->assertEquals($syncTask->datecompleted, strtotime($task->getValue('date_completed')));
-        $this->assertEquals($syncTask->duedate, strtotime($task->getValue('deadline')));
+        $this->assertEquals($syncTask->startdate, $task->getValue('start_date'));
+        $this->assertEquals($syncTask->datecompleted, $task->getValue('date_completed'));
+        $this->assertEquals($syncTask->duedate, $task->getValue('deadline'));
     }
 
     /**

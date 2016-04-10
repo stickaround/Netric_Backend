@@ -25,7 +25,7 @@ class Pgsql extends DataMapperAbstract
 	 * 
 	 * BIGINT supports 922 quadrillion unique entries which means if we were to
 	 * give a unique id to every star in the milky way (100 billion stars),
-	 * then we could track 9.2 million mikly way size universes before UID collision!
+	 * then we could track 9.2 million milky way size universes before UID collision!
 	 *
 	 * For a real world example, let's assume one account (each account has it's own commit id)
 	 * was sustaining 100,000 commits per second without pause the whole year. One bigint could
@@ -68,6 +68,7 @@ class Pgsql extends DataMapperAbstract
 	 *
 	 * @param string $key
 	 * @param bigint $cid
+	 * @return bool true on success, false on failure
 	 */
 	public function saveHead($key, $cid)
 	{

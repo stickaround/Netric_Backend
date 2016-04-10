@@ -845,11 +845,11 @@ class EntityProvider
         $task->body = $taskEntity->getValue('notes');
         $task->complete = ($taskEntity->getValue('done') == 't') ? 1 : 0;
         if ($taskEntity->getValue('date_completed'))
-            $task->datecompleted = strtotime($taskEntity->getValue('date_completed'));
+            $task->datecompleted = $taskEntity->getValue('date_completed');
         if ($taskEntity->getValue('deadline'))
-            $task->duedate = strtotime($taskEntity->getValue('deadline'));
+            $task->duedate = $taskEntity->getValue('deadline');
         if ($taskEntity->getValue('start_date'))
-            $task->startdate = strtotime($taskEntity->getValue('start_date'));
+            $task->startdate = $taskEntity->getValue('start_date');
 
         ZLog::Write(LOGLEVEL_INFO,"EntityProvider:getTask returning " . $taskEntity->getId());
 
@@ -871,11 +871,20 @@ class EntityProvider
         $syncNote->messageclass = "IPM.Note";
         $syncNote->subject = $noteEntity->getValue('name');
         $syncNote->asbody = new SyncBaseBody();
-        $syncNote->asbody->type = SYNC_BODYPREFERENCE_HTML;
-        $syncNote->asbody->data = $noteEntity->getValue('notes');
+
+        if ($noteEntity->getValue("ts_updated"))
+            $syncNote->lastmodified = $noteEntity->getValue("ts_updated");
+
+        if ($noteEntity->getValue('body') == 'plain') {
+            $syncNote->asbody->type = SYNC_BODYPREFERENCE_PLAIN;
+        } else {
+            $syncNote->asbody->type = SYNC_BODYPREFERENCE_HTML;
+        }
+
+        $syncNote->asbody->data = $noteEntity->getValue('body');
 
         if ($noteEntity->getValue('ts_updated'))
-            $syncNote->lastmodified = strtotime($noteEntity->getValue('ts_updated'));
+            $syncNote->lastmodified = $noteEntity->getValue('ts_updated');
 
         // Get categories
         $groups = $noteEntity->getValueNames("groups");
@@ -1022,7 +1031,7 @@ class EntityProvider
             }
         }
 
-        $datereceived = strtotime($emailEntity->getValue("message_date"));
+        $datereceived = $emailEntity->getValue("message_date");
         $tz = TimezoneUtil::GetFullTZ();
         if (!$tz)
             $tz =  $this->getGMTTZ();

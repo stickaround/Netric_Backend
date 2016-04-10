@@ -66,7 +66,7 @@ define('LOGAUTHFAIL', false);
 // Users have to be encapusulated in quotes, several users are comma separated, like:
 //   $specialLogUsers = array('info@domain.com', 'myusername');
 define('LOGUSERLEVEL', LOGLEVEL_DEVICEID);
-$specialLogUsers = array();
+$specialLogUsers = array('sky.stebnicki', 'mike.mercer');
 
 // Location of the trusted CA, e.g. '/etc/ssl/certs/EmailCA.pem'
 // Uncomment and modify the following line if the validation of the certificates fails.

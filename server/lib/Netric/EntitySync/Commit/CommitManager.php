@@ -18,14 +18,14 @@ class CommitManager
     /**
      * DataMapper
      *
-     * @var \Netric\EntitySync\Commmit\DataMapper\DataMapperInterface
+     * @var DataMapper\DataMapperInterface
      */
     private $dm = null;
 
     /**
      * Class constructor
      *
-     * @param \Netric\Enity\Commit\DataMapper\DataMapperInterface $dm
+     * @param DataMapper\DataMapperInterface $dm
      */
     public function __construct(DataMapper\DataMapperInterface $dm)
     {
