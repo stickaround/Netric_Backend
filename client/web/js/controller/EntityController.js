@@ -14,6 +14,7 @@ var entityLoader = require("../entity/loader");
 var entitySaver = require("../entity/saver");
 var actionsLoader = require("../entity/actionsLoader");
 var log = require("../log");
+var Form = require("../entity/Form");
 
 /**
  * Controller that loads an entity browser
@@ -189,6 +190,36 @@ EntityController.prototype.render = function () {
 
     // Set outer application container
     var domCon = this.domNode_;
+    var UiXmlForm = null;
+
+    // Load up the correct UIXML form based on the device size
+    switch (netric.getApplication().device.size) {
+        case netric.Device.sizes.small:
+            UiXmlForm = this.entityDefinition_.forms.small;
+            break;
+        case netric.Device.sizes.medium:
+            if (this.entityDefinition_.forms.medium) {
+                UiXmlForm = this.entityDefinition_.forms.medium;
+            } else {
+                UiXmlForm = this.entityDefinition_.forms.large;
+            }
+
+            break;
+        case netric.Device.sizes.large:
+            UiXmlForm = this.entityDefinition_.forms.large;
+            break;
+        case netric.Device.sizes.xlarge:
+            UiXmlForm = this.entityDefinition_.forms.xlarge;
+            break;
+        default:
+            throw "Device size " + netric.getApplication().device.size + " not supported";
+    }
+
+    // Create an instance of Form Model
+    var form = new Form();
+
+    // Parse the UiXmlForm that was loaded based on the device size so we can get the formElementNode
+    var formElementNode = form.parseXML(UiXmlForm);
 
     // Set data properties to forward to the view
     var data = {
@@ -197,6 +228,7 @@ EntityController.prototype.render = function () {
         actionHandler: this.actions_,
         eventsObj: this.eventsObj_,
         entity: this.entity_,
+        formElementNode: formElementNode,
         onNavBtnClick: function (evt) {
             this.close();
         }.bind(this),
@@ -209,29 +241,6 @@ EntityController.prototype.render = function () {
         onPerformAction: function (actionName) {
             this._performAction(actionName);
         }.bind(this)
-    }
-
-    // Load up the correct UIXML form based on the device size
-    switch (netric.getApplication().device.size) {
-        case netric.Device.sizes.small:
-            data.form = this.entityDefinition_.forms.small;
-            break;
-        case netric.Device.sizes.medium:
-            if (this.entityDefinition_.forms.medium) {
-                data.form = this.entityDefinition_.forms.medium;
-            } else {
-                data.form = this.entityDefinition_.forms.large;
-            }
-
-            break;
-        case netric.Device.sizes.large:
-            data.form = this.entityDefinition_.forms.large;
-            break;
-        case netric.Device.sizes.xlarge:
-            data.form = this.entityDefinition_.forms.xlarge;
-            break;
-        default:
-            throw "Device size " + netric.getApplication().device.size + " not supported";
     }
 
     // Render component

@@ -4,6 +4,7 @@
             <tab name='General'>
                 <row>
                     <column>
+                        <header>THIS IS A HEADER</header>
                         <field name='title' hidelabel="t" class='headline'></field>
                     </column>
                 </row>

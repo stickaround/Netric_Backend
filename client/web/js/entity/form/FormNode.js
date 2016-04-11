@@ -1,8 +1,8 @@
 /**
  * @fileOverview Define the xml node object data
  *
- * Use the public function loadXmlData() to import the xml node data into this node model
- * Node model can also set and get its attributes just like in xml node document
+ * Use the public function loadXmlData() to import the xml node data into this form node model
+ * Form Node model can also set and get its attributes just like in xml node document
  *  Use public function setAttribute() and getAttribute()
  *
  * @author =    Marl Tumulak; marl.tumulak@aereus.com;
@@ -16,14 +16,14 @@
  * @param {string} nodeName The name of the node we are creating
  * @constructor
  */
-var Node = function (nodeName) {
+var FormNode = function (nodeName) {
 
     /**
      * The name of the node
      *
      * @type {string|null}
      */
-    this.nodeName = nodeName || null;
+    this._nodeName = nodeName || null;
 
     /**
      * The value/element inside the node
@@ -32,7 +32,7 @@ var Node = function (nodeName) {
      *
      * @type {null}
      */
-    this.nodeValue = null;
+    this._nodeValue = null;
 
     /**
      * Here we will store the xml node attributes
@@ -47,7 +47,52 @@ var Node = function (nodeName) {
      *
      * @type {Array}
      */
-    this.childNodes = new Array;
+    this._childNodes = new Array;
+}
+
+/**
+ * Function that will get the name of this node model
+ *
+ * @returns {string} Name of this node model
+ */
+FormNode.prototype.getName = function () {
+    return this._nodeName;
+}
+
+/**
+ * Function that will get the text value of the xml node if there is any
+ *
+ * @returns {string|null} Returns the text value if there is any
+ */
+FormNode.prototype.getText = function () {
+    return this._nodeValue;
+}
+
+/**
+ * Function that will get the child nodes
+ *
+ * @returns {Array}
+ */
+FormNode.prototype.getChildNodes = function () {
+    return this._childNodes;
+}
+
+/**
+ * Function that will add a new child node for this node model
+ *
+ * @param {entity/form/Node} formNode The new instance of formNode model that will be added
+ */
+FormNode.prototype.addChildNode = function (formNode) {
+    this._childNodes.push(formNode);
+}
+
+/**
+ * Function that will remove a child node based on the index that was provided
+ *
+ * @param {int} index The index of the child node to be removed
+ */
+FormNode.prototype.removeChildNode = function (index) {
+    this._childNodes.splice(index, 1)
 }
 
 /**
@@ -56,16 +101,21 @@ var Node = function (nodeName) {
  * @param {object} data The data object where we map its values and assign it to this node model variables
  * @private
  */
-Node.prototype.loadXmlData = function (data) {
+FormNode.prototype.loadXmlData = function (data) {
 
     // Data is a required param and we should fail if called without it
     if (!data) {
         throw "'data' is a required param to load the xml data";
     }
 
-    // If we have a child node, then let's consider it as the nodeValue
-    if (data.childNodes && data.childNodes.length) {
-        this.nodeValue = data.childNodes[0].nodeValue;
+    /*
+     * If we have a child node, and first child node has a node type of TEXT_NODE
+     *  Then we will consider this as the node value
+     */
+    if (data.childNodes
+        && data.childNodes.length
+        && data.childNodes[0].nodeType == data.childNodes[0].TEXT_NODE) {
+        this._nodeValue = data.childNodes[0].nodeValue;
     }
 
     // If we have xml data attributes, then let's map it and store in the _attributes
@@ -73,35 +123,33 @@ Node.prototype.loadXmlData = function (data) {
         for (var idx in data.attributes) {
             let attribute = data.attributes[idx];
 
-            // Make sure we have attribute name and value before storing
+            // Make sure that we have and attribute name and value before setting
             if (attribute.name && attribute.value) {
-                this._attributes[attribute.name] = attribute.value
+                this.setAttribute(attribute.name, attribute.value);
             }
         }
     }
 }
 
 /**
- * Function that will generate a component name based on the node model name
+ * Function that will generate an element class name based on the node model name
  *
  * Basically, we will just format the nodeName as camel case and remove the underscores
- * This will be used to determine what type of form fields to render
- * e.g. (Row, Tab, Field, StatusUpdate) refer to ui/entity/form for more fields
  *
- * @return {string} The generated component name
+ * @return {string} The generated element class name
  * @public
  */
-Node.prototype.generateComponentName = function () {
+FormNode.prototype.generateElementClassName = function () {
 
     // Set the default value of componentName to an empty string
     let componentName = "";
 
     // Make sure we have a valid nodeName before we generate a component name
-    if(!this.nodeName || typeof this.nodeName === 'undefined') {
+    if (!this._nodeName || typeof this._nodeName === 'undefined') {
         return componentName;
     }
 
-    let parts = this.nodeName.split("_");
+    let parts = this._nodeName.split("_");
 
     for (var idx in parts) {
 
@@ -120,7 +168,7 @@ Node.prototype.generateComponentName = function () {
  * @returns {mixed} The attribute value
  * @public
  */
-Node.prototype.getAttribute = function (name) {
+FormNode.prototype.getAttribute = function (name) {
 
     // Make sure that attribute name is provided before getting the attribute value
     if (typeof name == "undefined") {
@@ -142,7 +190,7 @@ Node.prototype.getAttribute = function (name) {
  * @param {mixed} value The value of the attribute to be saved
  * @public
  */
-Node.prototype.setAttribute = function (name, value) {
+FormNode.prototype.setAttribute = function (name, value) {
 
     // Can't set an attribute without a name
     if (typeof name == "undefined") {
@@ -153,4 +201,4 @@ Node.prototype.setAttribute = function (name, value) {
     this._attributes[name] = value;
 }
 
-module.exports = Node;
+module.exports = FormNode;

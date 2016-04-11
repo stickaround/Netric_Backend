@@ -18,7 +18,7 @@ var Helptour = React.createClass({
 		var tourId = elementNode.getAttribute("id");
         // Type can be 'inline', 'dialog', or 'popup'
     	var type = elementNode.getAttribute("type");
-        let nodeText = elementNode.nodeValue;
+        let nodeText = elementNode.getText();
 
         // We only display tour information in edit mode
         if (this.props.editMode) {

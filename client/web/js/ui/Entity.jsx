@@ -14,7 +14,6 @@ var IconButton = Chamel.IconButton;
 var Dialog = Chamel.Dialog;
 var netric = require('../base');
 var actionModes = require("../entity/actions/actionModes");
-var Form = require("../entity/Form");
 var EntityFormShowFilter = require("./mixins/EntityFormShowFilter.jsx");
 
 /**
@@ -122,12 +121,6 @@ var Entity = React.createClass({
             );
         }
 
-        // Create an instance of Form Model
-        var form = new Form();
-
-        // Parse the object entity form xml string
-        var formElementNode = form.parseXML(this.props.form);
-
         // If the zDepth is 0 then add an hr
         var hr = (appBarZDepth == 0) ? <hr /> : null;
 
@@ -136,9 +129,10 @@ var Entity = React.createClass({
         if (this.props.entity.isLoading) {
             body = <Loading />;
         } else {
+            
             // render the UIXML form
             body = (<UiXmlElement
-                elementNode={formElementNode}
+                elementNode={this.props.formElementNode}
                 eventsObj={this.props.eventsObj}
                 entity={this.props.entity}
                 editMode={this.state.editMode} />);

@@ -8,7 +8,7 @@
  */
 'use strict';
 
-var Node = require('./form/Node');
+var FormNode = require('./form/FormNode');
 
 /**
  * Create an instance of Form Model
@@ -37,7 +37,7 @@ Form.prototype.parseXML = function (xmlString) {
     let rootFormNode = xmlDoc.documentElement;
 
     // Create an instance of node using the xml form node as the argument
-    let formNode = new Node(rootFormNode.nodeName);
+    let formNode = new FormNode(rootFormNode.nodeName);
     formNode.loadXmlData(rootFormNode);
 
     // Get the xml child nodes
@@ -61,18 +61,23 @@ Form.prototype.getXmlNodes = function (xmlNode, parentNode) {
     for (let i = 0; i < xmlChildNodes.length; i++) {
         let childNode = xmlChildNodes[i];
 
-        // Make sure that the children is an element node type
+        // Make sure that the xml child node is an element node type (ELEMENT_NODE)
         if (childNode.nodeType == childNode.ELEMENT_NODE) {
 
-            // If we found a child node, then let's create an instance of node model
-            parentNode.childNodes[i] = new Node(childNode.nodeName);
-            parentNode.childNodes[i].loadXmlData(childNode);
+            // Let's create a new instance of node form model for this child node
+            let childFormNode = new FormNode(childNode.nodeName);
+
+            // Load the xml data using the childNode (xmlChildNodes[i])
+            childFormNode.loadXmlData(childNode);
+
+            // Now let's add the child form node model to the parentNode
+            parentNode.addChildNode(childFormNode);
 
             /*
              * Call this function again to check if this child has its own child nodes
              * Use the node model created as our parentNode
              */
-            this.getXmlNodes(childNode, parentNode.childNodes[i]);
+            this.getXmlNodes(childNode, childFormNode);
         }
     }
 }

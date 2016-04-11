@@ -71,17 +71,21 @@ var UiXmlElement = React.createClass({
 
     render: function() {
 
+        // We will store all the child element of props.elementNode to this variable
         var childElements = [];
 
+        // Get the child node of the props.elementNode
+        var elementChildNodes = this.props.elementNode.getChildNodes();
+
         // Process through the child nodes of the elementNode
-        this.props.elementNode.childNodes.map(function(childNode, idx) {
+        elementChildNodes.map(function(childNode, idx) {
 
             /*
              * If we are in a 'tabs' element, then children should be a tab and
              * not another UiXmlElement because Chamel tabs only support a chamel.Tab
              * as children of a chamel.Tabs container.
              */
-            if (this.props.elementNode.nodeName === "tabs") {
+            if (this.props.elementNode.getName() === "tabs") {
                 var label = childNode.getAttribute('name');
 
                 childElements.push(
@@ -105,14 +109,14 @@ var UiXmlElement = React.createClass({
                         />
                 );
             }
-        }.bind(this))
+        }.bind(this));
 
         /*
          * Try to render the dynamic component and pass childElements,
          * but if the component is not defined for the given element
          * then throw an exception because this should never happen.
          */
-        var component = netric.getObjectByName(this.props.elementNode.generateComponentName(), null, formElements);
+        var component = netric.getObjectByName(this.props.elementNode.generateElementClassName(), null, formElements);
         var reactElement;
         if (component != null) {
             try {
@@ -123,7 +127,7 @@ var UiXmlElement = React.createClass({
         } else {
 
             // Let client know we have a problem with the UIML
-            throw 'Unsupported element type in UIML: ' + this.props.elementNode.nodeName;
+            throw 'Unsupported element type in UIML: ' + this.props.elementNode.getName();
         }
 
         return reactElement;

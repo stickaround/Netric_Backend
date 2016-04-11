@@ -6,7 +6,7 @@
 
 var React = require('react');
 var Field = require('./Field.jsx');
-var Node = require('../../../entity/form/Node');
+var FormNode = require('../../../entity/form/FormNode');
 
 /**
  * All additional will gather all custom (non-system) fields and print them
@@ -71,7 +71,7 @@ var AllAdditional = React.createClass({
                     }
 
                     // Create an instance of node model so we can render the field element
-                    let elementNode = new Node('Field');
+                    let elementNode = new FormNode('Field');
 
                     // Set the name attribute for this element node
                     elementNode.setAttribute('name', field.name);
