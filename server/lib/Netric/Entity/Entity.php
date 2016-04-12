@@ -453,6 +453,17 @@ class Entity implements EntityInterface
 			}
 		}
 
+		// Set the recurrence if we have recurrence pattern data
+		$this->fromArrayRecurrence($data);
+	}
+
+	/**
+	 * Set recurrence values from array
+	 *
+	 * @param array $data Associative array of values
+	 */
+	public function fromArrayRecurrence($data)
+	{
 		// If the recurrence pattern data was passed then load it
 		if (isset($data['recurrence_pattern']) && !empty($data['recurrence_pattern']))
 		{
@@ -461,8 +472,8 @@ class Entity implements EntityInterface
 			$this->recurrencePattern->setObjType($this->getDefinition()->getObjType());
 		}
 
-        if (isset($data['recurrence_exception']))
-            $this->isRecurrenceException = $data['recurrence_exception'];
+		if (isset($data['recurrence_exception']))
+			$this->isRecurrenceException = $data['recurrence_exception'];
 	}
 
 	/**
