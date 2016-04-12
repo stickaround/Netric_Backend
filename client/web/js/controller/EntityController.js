@@ -218,8 +218,14 @@ EntityController.prototype.render = function () {
     // Create an instance of Form Model
     var form = new Form();
 
+    // Encapsulate the UiXmlForm with <form> tag
+    var UiXmlForm = '<form>' + UiXmlForm + '</form>';
+
     // Parse the UiXmlForm that was loaded based on the device size so we can get the formElementNode
-    var formElementNode = form.parseXML(UiXmlForm);
+    var parsedXmlData = form.parseXML(UiXmlForm);
+
+    // After parsing the UiXmlForm, let's create the form element node and its child element nodes
+    var formElementNode = form.createFormNode(parsedXmlData);
 
     // Set data properties to forward to the view
     var data = {

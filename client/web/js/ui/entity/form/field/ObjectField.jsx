@@ -24,7 +24,7 @@ var ObjectField = React.createClass({
      * Expected props
      */
     propTypes: {
-        elementNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object.isRequired,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool

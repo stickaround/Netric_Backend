@@ -19,29 +19,37 @@ var Form = function () {
 }
 
 /**
- * Parses the xml string by encapsulating it inside <form> tag
- *
- * After parsing, the xml child nodes are mapped and stored in node.childNodes
+ * Parses the xml string into an xml object
  *
  * @params {string} xmlString The xml form string that will be parsed
  * @public
- * @return {entity/form/Node}
+ * @return {object} The xml object that was parsed
  */
 Form.prototype.parseXML = function (xmlString) {
 
-    // Encapsulate the xmlString with <form> tag
-    let xmlData = '<form>' + xmlString + '</form>';
-
     // http://api.jquery.com/jQuery.parseXML/
-    let xmlDoc = jQuery.parseXML(xmlData);
-    let rootFormNode = xmlDoc.documentElement;
+    let xmlDoc = jQuery.parseXML(xmlString);
+    let xmlData = xmlDoc.documentElement;
 
-    // Create an instance of node using the xml form node as the argument
-    let formNode = new FormNode(rootFormNode.nodeName);
-    formNode.loadXmlData(rootFormNode);
+    return xmlData;
+}
 
-    // Get the xml child nodes
-    this.getXmlNodes(rootFormNode, formNode);
+/**
+ * Creates the form element nodes. Maps the xmlData children to create the child element nodes
+ *
+ * @param {object} xmlData The xml object that contains the element form information
+ * @returns {entity/form/FormNode}
+ */
+Form.prototype.createFormNode = function (xmlData) {
+
+    // Create an instance of node using the xmlData.nodeName
+    let formNode = new FormNode(xmlData.nodeName);
+
+    // Let's load the xmlData so we can define our formNode model
+    formNode.loadXmlData(xmlData);
+
+    // Get the xml child nodes if there is any
+    this._getXmlNodes(xmlData, formNode);
 
     return formNode;
 }
@@ -50,10 +58,10 @@ Form.prototype.parseXML = function (xmlString) {
  * Function that will get the xml child nodes
  *
  * @param {object} xmlNode The xml form node where we will map its child nodes
- * @param {entity/form/Node} parentNode The parent node where we will save the mapped child nodes
- * @public
+ * @param {entity/form/FormNode} parentNode The parent node where we will save the mapped child nodes
+ * @private
  */
-Form.prototype.getXmlNodes = function (xmlNode, parentNode) {
+Form.prototype._getXmlNodes = function (xmlNode, parentNode) {
 
     var xmlChildNodes = xmlNode.childNodes;
 
@@ -77,7 +85,7 @@ Form.prototype.getXmlNodes = function (xmlNode, parentNode) {
              * Call this function again to check if this child has its own child nodes
              * Use the node model created as our parentNode
              */
-            this.getXmlNodes(childNode, childFormNode);
+            this._getXmlNodes(childNode, childFormNode);
         }
     }
 }

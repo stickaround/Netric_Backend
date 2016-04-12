@@ -54,6 +54,7 @@ var FormNode = function (nodeName) {
  * Function that will get the name of this node model
  *
  * @returns {string} Name of this node model
+ * @public
  */
 FormNode.prototype.getName = function () {
     return this._nodeName;
@@ -63,6 +64,7 @@ FormNode.prototype.getName = function () {
  * Function that will get the text value of the xml node if there is any
  *
  * @returns {string|null} Returns the text value if there is any
+ * @public
  */
 FormNode.prototype.getText = function () {
     return this._nodeValue;
@@ -72,15 +74,28 @@ FormNode.prototype.getText = function () {
  * Function that will get the child nodes
  *
  * @returns {Array}
+ * @public
  */
 FormNode.prototype.getChildNodes = function () {
     return this._childNodes;
 }
 
 /**
+ * Function that will get the specific child node using the index provided
+ *
+ * @param {int} index The index of the child to be retrieved
+ * @returns {entity/form/FormNode}
+ * @public
+ */
+FormNode.prototype.getChildNode = function (index) {
+    return this._childNodes[index];
+}
+
+/**
  * Function that will add a new child node for this node model
  *
- * @param {entity/form/Node} formNode The new instance of formNode model that will be added
+ * @param {entity/form/FormNode} formNode The new instance of formNode model that will be added
+ * @public
  */
 FormNode.prototype.addChildNode = function (formNode) {
     this._childNodes.push(formNode);
@@ -90,6 +105,7 @@ FormNode.prototype.addChildNode = function (formNode) {
  * Function that will remove a child node based on the index that was provided
  *
  * @param {int} index The index of the child node to be removed
+ * @public
  */
 FormNode.prototype.removeChildNode = function (index) {
     this._childNodes.splice(index, 1)

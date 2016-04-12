@@ -25,7 +25,7 @@ var Text = React.createClass({
         /**
          * Current element node level
          *
-         * @type {entity/form/Node}
+         * @type {entity/form/FormNode}
          */
         elementNode: React.PropTypes.object.isRequired,
 
