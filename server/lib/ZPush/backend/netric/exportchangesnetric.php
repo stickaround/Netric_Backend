@@ -116,8 +116,15 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
         // Do nothing if it is a dummy folder
         if ($this->folderId != SYNC_FOLDER_TYPE_DUMMY)
         {
+            // Check for cutoff date
+            $cutoffDate = null;
+            if ($this->cutoffDate) {
+                $cutoffDate = new \DateTime();
+                $cutoffDate->setTimestamp($this->cutoffDate);
+            }
+
             // Second param does not fast-forward the collection so we have to do it manually
-            $this->changes = $this->collection->getExportChanged(false);
+            $this->changes = $this->collection->getExportChanged(false, $cutoffDate);
         }
 
          ZLog::Write(LOGLEVEL_DEBUG, "ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");

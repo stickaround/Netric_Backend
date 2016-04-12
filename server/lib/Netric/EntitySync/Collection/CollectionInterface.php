@@ -20,6 +20,7 @@ interface CollectionInterface
 	 * Get a stats list of what has changed locally since the last sync
 	 *
 	 * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
+     * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
 	 * @return array of associative array [
      *      [
      *          "id", // Unique id of local object
@@ -28,7 +29,7 @@ interface CollectionInterface
      *      ]
      *  ]
 	 */
-	public function getExportChanged($autoFastForward=true);
+	public function getExportChanged($autoFastForward=true, \DateTime $limitUpdatesAfter = null);
 
 	/**
 	 * Get a stats of the difference between an import and what is stored locally

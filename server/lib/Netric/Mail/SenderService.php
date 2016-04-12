@@ -87,9 +87,10 @@ class SenderService extends AbstractHasErrors
             $this->mailTransport->send($message);
 
             // Log info
+            $toEmail = $message->getTo()->current();
             $this->log->info(
                 "Message successfully sent to " .
-                $message->getTo()->current()->toString()
+                (($toEmail) ? $toEmail->toString() : "unknown")
             );
 
             // Save the message in the sent directory for the current user

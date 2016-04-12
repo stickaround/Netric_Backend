@@ -6,6 +6,9 @@
         <testsuite name="BinTest">
             <directory>./BinTest</directory>
         </testsuite>
+        <testsuite name="ZPushTest">
+            <directory>./ZPushTest</directory>
+        </testsuite>
         <!--
         <testsuite name="Library Test Suite">
             <directory>./lib</directory>

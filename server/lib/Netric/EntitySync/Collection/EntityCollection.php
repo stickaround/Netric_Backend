@@ -47,6 +47,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	 * Get a stats list of what has changed locally since the last sync
 	 *
 	 * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
+     * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
 	 * @return array of associative array [
 	 *      [
 	 *          "id", // Unique id of local object
@@ -56,7 +57,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	 *  ]
 	 * @throws \Exception if the objType was not set
 	 */
-	public function getExportChanged($autoFastForward=true)
+	public function getExportChanged($autoFastForward=true, \DateTime $limitUpdatesAfter = null)
 	{
 		if (!$this->getObjType())
 		{
@@ -81,6 +82,12 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	        // Set base/common condition
 	        $query->where('commit_id')->isGreaterThan($lastCollectionCommit);
 	        $query->andWhere('commit_id')->doesNotEqual('');
+
+            // Check to see if we should only pull updates after a specific date
+            if ($limitUpdatesAfter)
+            {
+                $query->andWhere("ts_updated")->isGreaterOrEqualTo($limitUpdatesAfter->getTimestamp());
+            }
 
 	        // Add any collection conditions
 	        $conditions = $this->getConditions();

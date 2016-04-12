@@ -264,7 +264,7 @@ abstract class IndexAbstract
         $user = $this->account->getUser();
 
         // Cleanup bool
-        if ($field->type == "bool" && is_string($value))
+        if ("bool" == $field->type && is_string($value))
         {
             switch ($value)
             {
@@ -275,6 +275,22 @@ abstract class IndexAbstract
                 default:
                     return false;
             }
+        }
+
+        // Cleanup dates and times
+        if (("date" == $field->type || "timestamp" == $field->type))
+        {
+            // Convert \DateTime to a timestamp
+            if ($value instanceof \DateTime) {
+                $value = $value->format("Y-m-d h:i:s A e");
+            }
+            /*
+             * The below is causing things fail due to complex queries like
+             * monthIsEqual and dayIsEqual. Probably needs some more thought.
+            else if (is_numeric($value) && !is_string($value)) {
+                $value = date("Y-m-d h:i:s A e", $value);
+            }
+            */
         }
 
         // Replace user vars
