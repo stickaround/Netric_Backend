@@ -39,6 +39,8 @@ define("ACT_TYPE_EMAIL", -2);
 
 $G_OBJ_IND_EXISTS = array();
 
+use Netric\Entity\Recurrence\RecurrencePattern;
+
 /**
  * CAntObject class definition
  */
@@ -1210,7 +1212,7 @@ class CAntObject
 			);
 
 			// Create the instance of recurrence pattern
-			$recurrencePattern = $entity->createRecurrencePattern();
+			$recurrencePattern = new RecurrencePattern();
 
 			// Set the data of the recurrence pattern
 			$recurrencePattern->fromArray($recurrenceData);
