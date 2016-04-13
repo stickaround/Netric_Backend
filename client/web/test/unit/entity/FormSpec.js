@@ -13,16 +13,8 @@ describe("Create form instance and parse the xml form string", function() {
         var xmlFormString = "<row><column><field name='title' hidelabel='t' class='headline'></field></column><column></column></row>";
         var form = new Form();
 
-        // Parse the xmlFormString
-        var parsedXmlData = form.parseXML(xmlFormString);
-        expect(typeof parsedXmlData).toEqual('object');
-
-        // Verify that the xml string was properly parsed
-        expect(parsedXmlData.nodeName).toEqual('row');
-        expect(parsedXmlData.childNodes.length).toEqual(2);
-
-        // Create the form element node using the parsed xml data
-        var elementNode = form.createFormNode(parsedXmlData);
+        // Parse the xml string and create the form element node using the parsed xml data
+        var elementNode = form.fromXml(xmlFormString);
 
         // Verify that the element node was created
         expect(elementNode.constructor.name).toEqual('FormNode');

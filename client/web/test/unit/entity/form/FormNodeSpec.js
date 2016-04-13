@@ -18,11 +18,8 @@ describe("Parse the xml form string and get its children node", function () {
 
         form = new Form();
 
-        // Parse the xmlFormString
-        var parsedXmlData = form.parseXML(xmlFormString);
-
-        // Create the element node
-        parentElementNode = form.createFormNode(parsedXmlData);
+        // Parse the xmlFormString and Create the element node
+        parentElementNode = form.fromXml(xmlFormString);
     });
 
     it("should be able to create the parent row node including its child nodes", function () {
@@ -47,11 +44,8 @@ describe("Parse the xml form string and get its children node", function () {
 
         var newXmlString = "<field name='newElementField'>This is a new field</field>";
 
-        // Parse the new xml string
-        var newFieldXmlData = form.parseXML(newXmlString)
-
-        // Create the new element node
-        var fieldElementNode = form.createFormNode(newFieldXmlData);
+        // Parse the new xml string and Create the new element node
+        var fieldElementNode = form.fromXml(newXmlString);
 
         fieldElementNode.setAttribute("class", "newFieldElementClass")
 
@@ -82,11 +76,8 @@ describe("Parse the xml form string and get its children node", function () {
 
         var newXmlString = "<column><text>New Header</text><field name='newElementField'></field></column>";
 
-        // Parse the new xml string
-        var newFieldXmlData = form.parseXML(newXmlString)
-
-        // Create the new column element node
-        var columnElementNode = form.createFormNode(newFieldXmlData);
+        // Parse the new xml string and Create the new column element node
+        var columnElementNode = form.fromXml(newXmlString);
 
         // Before adding, let's test if the parentElementNode has 2 child nodes
         expect(parentElementNode.getChildNodes().length).toEqual(2);

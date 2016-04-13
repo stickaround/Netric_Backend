@@ -19,28 +19,17 @@ var Form = function () {
 }
 
 /**
- * Parses the xml string into an xml object
+ * Parses the xmlString then creates the form element nodes. Maps the xmlData children to create the child element nodes
  *
- * @params {string} xmlString The xml form string that will be parsed
+ * @param {string} xmlString The xml form string that will be parsed
+ * @returns {entity/form/FormNode}
  * @public
- * @return {object} The xml object that was parsed
  */
-Form.prototype.parseXML = function (xmlString) {
+Form.prototype.fromXml = function (xmlString) {
 
     // http://api.jquery.com/jQuery.parseXML/
     let xmlDoc = jQuery.parseXML(xmlString);
     let xmlData = xmlDoc.documentElement;
-
-    return xmlData;
-}
-
-/**
- * Creates the form element nodes. Maps the xmlData children to create the child element nodes
- *
- * @param {object} xmlData The xml object that contains the element form information
- * @returns {entity/form/FormNode}
- */
-Form.prototype.createFormNode = function (xmlData) {
 
     // Create an instance of node using the xmlData.nodeName
     let formNode = new FormNode(xmlData.nodeName);
