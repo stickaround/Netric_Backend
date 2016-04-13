@@ -1190,30 +1190,33 @@ class CAntObject
 		if ($this->recurrencePattern)
 		{
 			// Build the recurrence data
-			$data = array(
-				'recurrence_pattern' => array (
-					'id' => $this->recurrencePattern->id,
-					'recur_type' => $this->recurrencePattern->type,
-					'interval' => $this->recurrencePattern->interval,
-					'instance' => $this->recurrencePattern->instance,
-					'day_of_month' => $this->recurrencePattern->dayOfMonth,
-					'month_of_year' => $this->recurrencePattern->monthOfYear,
-					'day_of_week_mask' => $this->recurrencePattern->dayOfWeekMask,
-					'date_start' => $this->recurrencePattern->dateStart,
-					'date_end' => $this->recurrencePattern->dateEnd,
-					'date_processed_to' => $this->recurrencePattern->dateProcessedTo,
-					'obj_type' => $this->recurrencePattern->object_type,
-					'ep_locked' => $this->recurrencePattern->epLocked,
-					'field_date_start' => $this->recurrencePattern->fieldDateStart,
-					'field_time_start' => $this->recurrencePattern->fieldTimeStart,
-					'field_date_end' => $this->recurrencePattern->fieldDateEnd,
-					'field_time_end' => $this->recurrencePattern->fieldTimeEnd,
-				),
-				'recurrence_exception' => $this->recurrenceException
+			$recurrenceData = array (
+				'id' => $this->recurrencePattern->id,
+				'recur_type' => $this->recurrencePattern->type,
+				'interval' => $this->recurrencePattern->interval,
+				'instance' => $this->recurrencePattern->instance,
+				'day_of_month' => $this->recurrencePattern->dayOfMonth,
+				'month_of_year' => $this->recurrencePattern->monthOfYear,
+				'day_of_week_mask' => $this->recurrencePattern->dayOfWeekMask,
+				'date_start' => $this->recurrencePattern->dateStart,
+				'date_end' => $this->recurrencePattern->dateEnd,
+				'date_processed_to' => $this->recurrencePattern->dateProcessedTo,
+				'obj_type' => $this->recurrencePattern->object_type,
+				'ep_locked' => $this->recurrencePattern->epLocked,
+				'field_date_start' => $this->recurrencePattern->fieldDateStart,
+				'field_time_start' => $this->recurrencePattern->fieldTimeStart,
+				'field_date_end' => $this->recurrencePattern->fieldDateEnd,
+				'field_time_end' => $this->recurrencePattern->fieldTimeEnd
 			);
 
-			// Setup the recurrence using the new RecurrencePattern entity
-			$entity->fromArrayRecurrence($data);
+			// Create the instance of recurrence pattern
+			$recurrencePattern = $entity->createRecurrencePattern();
+
+			// Set the data of the recurrence pattern
+			$recurrencePattern->fromArray($recurrenceData);
+
+			// Update the entity that we have a recurrence pattern
+			$entity->setRecurrencePattern($recurrencePattern);
 		}
 
 		$dm = $sl->get("Entity_DataMapper");

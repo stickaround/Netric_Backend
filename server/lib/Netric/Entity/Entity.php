@@ -363,6 +363,18 @@ class Entity implements EntityInterface
 	}
 
     /**
+     * Create a new instance of recurrence pattern
+     *
+     * @return RecurrencePattern
+     */
+    public function createRecurrencePattern()
+    {
+        $recurrencePattern = new RecurrencePattern();
+
+        return $recurrencePattern;
+    }
+
+    /**
      * Record changes to the local changelog
      *
      * @param $strName
