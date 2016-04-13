@@ -21,9 +21,33 @@ var Text = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+
+        /**
+         * Current element node level
+         *
+         * @type {entity/form/FormNode}
+         */
+        elementNode: React.PropTypes.object.isRequired,
+
+        /**
+         * Entity being edited
+         *
+         * @type {entity\Entity}
+         */
         entity: React.PropTypes.object,
+
+        /**
+         * Generic object used to pass events back up to controller
+         *
+         * @type {Object}
+         */
         eventsObj: React.PropTypes.object,
+
+        /**
+         * Flag indicating if we are in edit mode or view mode
+         *
+         * @type {bool}
+         */
         editMode: React.PropTypes.bool
     },
 
@@ -31,10 +55,10 @@ var Text = React.createClass({
      * Render the component
      */
     render: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('field');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('field');
         var fieldValue = this.props.entity.getValue(fieldName);
-        var showif = this.props.xmlNode.getAttribute('showif');
+        var showif = this.props.elementNode.getAttribute('showif');
 
         var textDisplay = (
             <div className="entity-form-field-text">{this.props.children}{fieldValue}</div>

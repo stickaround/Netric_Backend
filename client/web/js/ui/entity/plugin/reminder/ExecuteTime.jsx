@@ -22,7 +22,7 @@ var ExecuteTime = React.createClass({
      */
     propTypes: {
         entity: React.PropTypes.object,
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         editMode: React.PropTypes.bool
     },
 
@@ -85,10 +85,10 @@ var ExecuteTime = React.createClass({
             var objRefEntity = entityLoader.factory(objRef.objType);
 
             // Get all date fields
-            var dateFields = objRefEntity.def.getFieldsByType(Field.types.date);
+            var dateFields = objRefEntity.def.getFilteredFields('type', Field.types.date);
 
             // Get all timestamp fields
-            var timestampFields = objRefEntity.def.getFieldsByType(Field.types.timestamp);
+            var timestampFields = objRefEntity.def.getFilteredFields('type', Field.types.timestamp);
 
             //  Merge both date and timestamp fields to use in a menu dropdown
             var fields = dateFields.concat(timestampFields);

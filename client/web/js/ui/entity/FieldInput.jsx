@@ -58,6 +58,13 @@ var FieldsDropDown = React.createClass({
         value: React.PropTypes.any,
 
         /**
+         * If the field input is an object, then it should have a value label
+         *
+         * @var {string}
+         */
+        valueLabel: React.PropTypes.string,
+
+        /**
          * Optional. The entity definition of the object
          *
          * If we are trying to display multiple input fields, we may want to provide the entityDefinition for faster performance
@@ -75,6 +82,7 @@ var FieldsDropDown = React.createClass({
      */
     getDefaultProps: function () {
         return {
+            valueLabel: null,
             entityDefinition: null
         }
     },
@@ -115,8 +123,8 @@ var FieldsDropDown = React.createClass({
         }
 
         let field = this.state.entityDefinition.getField(this.props.fieldName);
-        var value = this.props.value;
-        let valueInput = null;
+        let value = this.props.value;
+        let valueLabel = this.props.valueLabel;
 
         switch(field.type) {
             case Field.types.fkey:
@@ -129,7 +137,7 @@ var FieldsDropDown = React.createClass({
                         allowNoSelection={false}
                         label={'none'}
                         selectedValue={value}
-                    />
+                        />
                 );
 
             case Field.types.object:
@@ -139,7 +147,8 @@ var FieldsDropDown = React.createClass({
                         objType={this.props.objType}
                         field={field}
                         value={value}
-                    />
+                        label={valueLabel}
+                        />
                 );
 
             case Field.types.bool:
@@ -148,7 +157,7 @@ var FieldsDropDown = React.createClass({
                         onChange={this._handleValueSelect}
                         selectedIndex={ ( (value && value.toString()) === 'true' ? 0 : 1 )}
                         menuItems={boolInputMenu}
-                    />
+                        />
                 );
 
             default:
@@ -156,7 +165,7 @@ var FieldsDropDown = React.createClass({
                     <TextField
                         onBlur={this._handleValueInputBlur}
                         defaultValue={value}
-                    />
+                        />
                 );
         }
     },

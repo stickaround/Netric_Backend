@@ -111,7 +111,7 @@ var Definition = function (opt_data) {
      * @public
      * @type {bool}
      */
-    this.system = data.system || "";
+    this.system = data.system || false;
 
     /**
      * Fields associated with this object type
@@ -122,6 +122,14 @@ var Definition = function (opt_data) {
      * @type {Field[]}
      */
     this.fields = new Array();
+
+    /**
+     * Fields that will be deleted when the entity definition updates
+     *
+     * @private
+     * @type {[]}
+     */
+    this.deletedFields = new Array();
 
     /**
      * Array of object views
@@ -280,18 +288,19 @@ Definition.prototype.getDefaultView = function () {
 }
 
 /**
- * Get the fields using the field.type as the filter
+ * Get the filtered fields using the filters
  *
- * @params {string} type The field type that will be used as filter
+ * @params {string} fieldAttribute The field attribute that will be used to filter
+ * @params {string} attributeValue The attribute value that we are using as filter
  * @public
- * @return {array} Collection of fields that are filtered by type
+ * @return {array} Collection of fields that are filtered
  */
-Definition.prototype.getFieldsByType = function (type) {
+Definition.prototype.getFilteredFields = function (fieldAttribute, attributeValue) {
     var result = [];
 
     if (this.fields) {
         this.fields.map(function (field) {
-            if (field.type == type) {
+            if (field[fieldAttribute] === attributeValue) {
                 result.push(field);
             }
         });
@@ -301,24 +310,60 @@ Definition.prototype.getFieldsByType = function (type) {
 }
 
 /**
- * Get the fields using the field.subtype as the filter
+ * Return an object representing the actual values of the this entity definition
  *
- * @params {string} subtype The field subtype that will be used as filter
- * @public
- * @return {array} Collection of fields that are filtered by subtype
+ * @returns {object}
  */
-Definition.prototype.getFieldsBySubtype = function (subtype) {
-    var result = [];
+Definition.prototype.getData = function () {
+    let retObj = {
+        id: this.id,
+        obj_type: this.objType,
+        title: this.title,
+        icon: this.icon,
+        recur_rules: this.recurRulesules,
+        list_title: this.listTitle,
+        is_private: this.isPrivate,
+        system: this.system,
+        revision: this.revision
+    }
 
+    // Map thru the entity fields
     if (this.fields) {
-        this.fields.map(function (field) {
-            if (field.subtype == subtype) {
-                result.push(field);
-            }
+        retObj.fields = {};
+        this.fields.map(function (field, idx) {
+            retObj.fields[idx] = field.getData();
         });
     }
 
-    return result;
+    // Map thru deleted fields
+    if(this.deletedFields) {
+        retObj.deleted_fields = {};
+        this.deletedFields.map(function (fieldName, idx) {
+            retObj.deleted_fields[idx] = fieldName;
+        });
+    }
+
+    return retObj;
+}
+
+/**
+ * Add a new custom field
+ *
+ * @params {entity/Definition/Field} field The custom field to be added
+ * @public
+ */
+Definition.prototype.addField = function (field) {
+    this.fields.push(field);
+}
+
+/**
+ * Remove a custom field
+ *
+ * @params {string} fieldName The custom field name to be removed
+ * @public
+ */
+Definition.prototype.removeField = function (fieldName) {
+    this.deletedFields.push(fieldName);
 }
 
 module.exports = Definition;

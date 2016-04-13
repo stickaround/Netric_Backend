@@ -497,4 +497,43 @@ class EntityController extends Mvc\AbstractController
             $dataMapper->save($entity);
         }
     }
+
+    /**
+     * Updates the entity definition
+     */
+    public function postUpdateEntityDefAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        $ret = array();
+        if (!$rawBody)
+        {
+            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['obj_type']))
+        {
+            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        }
+
+        // Get the service manager and current user
+        $serviceManager = $this->account->getServiceManager();
+
+        // Load the entity definition
+        $defLoader = $serviceManager->get("EntityDefinitionLoader");
+
+        $def = $defLoader->get($objData['obj_type']);
+        $def->fromArray($objData);
+
+        // Save the new entity definition
+        $dataMapper = $serviceManager->get("EntityDefinition_DataMapper");
+        $dataMapper->save($def);
+
+        // Build the new entity definition and return the result
+        $ret = $this->fillDefinitionArray($def);
+        return $this->sendOutput($ret);
+    }
 }

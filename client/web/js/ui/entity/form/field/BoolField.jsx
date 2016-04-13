@@ -19,7 +19,7 @@ var BoolField = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object.isRequired,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
@@ -29,8 +29,8 @@ var BoolField = React.createClass({
      * Render the component
      */
     render: function () {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
@@ -60,8 +60,8 @@ var BoolField = React.createClass({
      */
     _handleCheck: function(evt, isInputChecked) {
         var val = evt.target.value;
-        log.info("Setting", this.props.xmlNode.getAttribute('name'), "to", isInputChecked);
-        this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), isInputChecked);
+        log.info("Setting", this.props.elementNode.getAttribute('name'), "to", isInputChecked);
+        this.props.entity.setValue(this.props.elementNode.getAttribute('name'), isInputChecked);
     }
 });
 

@@ -14,14 +14,11 @@ var Helptour = React.createClass({
 
     render: function() {
 
-		var xmlNode = this.props.xmlNode;
-		var tourId = xmlNode.getAttribute("id");
+		var elementNode = this.props.elementNode;
+		var tourId = elementNode.getAttribute("id");
         // Type can be 'inline', 'dialog', or 'popup'
-    	var type = xmlNode.getAttribute("type");
-        let nodeText = "";
-        if (xmlNode.childNodes.length) {
-            nodeText = xmlNode.childNodes[0].nodeValue;
-        }
+    	var type = elementNode.getAttribute("type");
+        let nodeText = elementNode.getText();
 
         // We only display tour information in edit mode
         if (this.props.editMode) {

@@ -32,7 +32,8 @@ plugins.List = {
     },
     global: {
         Members: require('../ui/entity/plugin/global/Members.jsx'),
-        Followup: require('../ui/entity/plugin/global/Followup.jsx')
+        Followup: require('../ui/entity/plugin/global/Followup.jsx'),
+        CustomFields: require('../ui/entity/plugin/global/CustomFields.jsx')
     }
 }
 

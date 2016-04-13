@@ -21,7 +21,34 @@ var Attachments = React.createClass({
      * Expected props
      */
     propTypes: {
-        entity: React.PropTypes.object
+
+        /**
+         * Current element node level
+         *
+         * @type {entity/form/FormNode}
+         */
+        elementNode: React.PropTypes.object.isRequired,
+
+        /**
+         * Entity being edited
+         *
+         * @type {entity\Entity}
+         */
+        entity: React.PropTypes.object,
+
+        /**
+         * Generic object used to pass events back up to controller
+         *
+         * @type {Object}
+         */
+        eventsObj: React.PropTypes.object,
+
+        /**
+         * Flag indicating if we are in edit mode or view mode
+         *
+         * @type {bool}
+         */
+        editMode: React.PropTypes.bool
     },
 
     getInitialState: function () {
@@ -33,7 +60,6 @@ var Attachments = React.createClass({
     },
 
     render: function () {
-        var xmlNode = this.props.xmlNode;
         var displayFiles = [];
 
         // Loop thru the attachedFiles and create the display for the file details using the File Component

@@ -24,7 +24,7 @@ var Entity = React.createClass({
     mixins: [EntityFormShowFilter],
 
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         onSaveClick: React.PropTypes.func,
@@ -121,13 +121,6 @@ var Entity = React.createClass({
             );
         }
 
-        // Get the form
-        var xmlData = '<form>' + this.props.form + '</form>';
-
-        // http://api.jquery.com/jQuery.parseXML/
-        var xmlDoc = jQuery.parseXML(xmlData);
-        var rootFormNode = xmlDoc.documentElement;
-
         // If the zDepth is 0 then add an hr
         var hr = (appBarZDepth == 0) ? <hr /> : null;
 
@@ -136,9 +129,10 @@ var Entity = React.createClass({
         if (this.props.entity.isLoading) {
             body = <Loading />;
         } else {
+            
             // render the UIXML form
             body = (<UiXmlElement
-                xmlNode={rootFormNode}
+                elementNode={this.props.formElementNode}
                 eventsObj={this.props.eventsObj}
                 entity={this.props.entity}
                 editMode={this.state.editMode} />);

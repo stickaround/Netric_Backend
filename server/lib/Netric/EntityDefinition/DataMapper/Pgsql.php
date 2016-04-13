@@ -892,7 +892,9 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 	private function saveFields(&$def)
 	{
 		$dbh = $this->dbh;
-		$fields = $def->getFields();
+
+		// We need to include the removed fields, so it will be permanently removed from the definition
+		$fields = $def->getFields(true);
 
 		$sort_order = 1;
 		foreach ($fields as $fname=>$field)

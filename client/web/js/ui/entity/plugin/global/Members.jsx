@@ -24,15 +24,15 @@ var Members = React.createClass({
      */
     propTypes: {
         eventsObj: React.PropTypes.object,
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object,
         entity: React.PropTypes.object,
         editMode: React.PropTypes.bool
     },
 
     getInitialState: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('field');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('field');
         var field = this.props.entity.def.getField(fieldName);
         var members = this.props.entity.getValueName(fieldName);
 
@@ -70,7 +70,7 @@ var Members = React.createClass({
                         <IconButton
                             onClick={this._removeMember.bind(this, member)}
                             tooltip={"Remove"}
-                            className="cfi cfi-close"
+                            className="cfi cfi-close entity-form-remove-button"
                         />
                     </div>
                     <div className="clearfix"></div>
@@ -87,8 +87,8 @@ var Members = React.createClass({
             autoCompleteSelected: this._addMember
         }
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('field');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('field');
         var field = this.props.entity.def.getField(fieldName);
 
         return (
@@ -112,8 +112,8 @@ var Members = React.createClass({
      * @private
      */
     _addMember: function (selectedMember) {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('field');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('field');
         var memberEntity = entityLoader.factory("member");
 
         // Set the member name with the transformed text ([user:userId:userName]) so the member will be notified
@@ -135,8 +135,8 @@ var Members = React.createClass({
      * @private
      */
     _removeMember: function (member) {
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('field');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('field');
 
         // We will only remove the member in the entity if meber has an id
         if(!member.id) {
