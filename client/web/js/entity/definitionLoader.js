@@ -228,4 +228,14 @@ definitionLoader.preloadAllDefinitions = function(definitions) {
     }
 }
 
+/**
+ * Update the definition
+ *
+ * @param {Object} data The data to update the definition from
+ * @return {Definition} Entity defintion that has been updated
+ */
+definitionLoader.updateDefinition = function (data) {
+    return definitionLoader.createFromData(data);
+}
+
 module.exports = definitionLoader;

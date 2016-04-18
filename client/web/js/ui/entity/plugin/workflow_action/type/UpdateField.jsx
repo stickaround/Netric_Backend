@@ -84,7 +84,7 @@ var UpdateField = React.createClass({
                     fieldName={updateField}
                     value={updateValue}
                     onChange={this._handleValueChange}
-                />
+                    />
             );
 
             connectionToString = " to ";
@@ -103,7 +103,7 @@ var UpdateField = React.createClass({
                             showReadOnlyFields={false}
                             hideFieldTypes={[Field.types.objectMulti]}
                             selectedField={updateField}
-                        />
+                            />
                     </div>
                     <div className="entity-form-field-inline-block">
                         {connectionToString}

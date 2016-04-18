@@ -26,7 +26,7 @@ var menuItems = [
 /**
  * List item for an WorkflowAction
  */
-var WorkflowAction = React.createClass({
+var WorkflowActionItem = React.createClass({
 
     propTypes: {
         /**
@@ -233,4 +233,4 @@ var WorkflowAction = React.createClass({
     }
 });
 
-module.exports = WorkflowAction;
+module.exports = WorkflowActionItem;

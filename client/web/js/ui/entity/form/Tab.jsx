@@ -19,9 +19,9 @@ var FormTab = React.createClass({
 
     render: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var label = xmlNode.getAttribute('name');
-        var showif = xmlNode.getAttribute('showif');
+        var elementNode = this.props.elementNode;
+        var label = elementNode.getAttribute('name');
+        var showif = elementNode.getAttribute('showif');
 
         var displayTab = (
             <div>

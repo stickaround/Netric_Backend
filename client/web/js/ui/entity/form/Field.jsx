@@ -30,9 +30,33 @@ var Field = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+
+        /**
+         * Current element node level
+         *
+         * @type {entity/form/FormNode}
+         */
+        elementNode: React.PropTypes.object.isRequired,
+
+        /**
+         * Entity being edited
+         *
+         * @type {entity\Entity}
+         */
         entity: React.PropTypes.object,
+
+        /**
+         * Generic object used to pass events back up to controller
+         *
+         * @type {Object}
+         */
         eventsObj: React.PropTypes.object,
+
+        /**
+         * Flag indicating if we are in edit mode or view mode
+         *
+         * @type {bool}
+         */
         editMode: React.PropTypes.bool
     },
 
@@ -41,18 +65,22 @@ var Field = React.createClass({
      */
     render: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var fieldName = xmlNode.getAttribute('name');
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
         var classes = "entity-form-field";
-        if (xmlNode.getAttribute('class')) {
-            classes += " font-style-" + xmlNode.getAttribute('class');
+        if (elementNode.getAttribute('class')) {
+            classes += " font-style-" + elementNode.getAttribute('class');
         } else if (!this.props.editMode) {
             classes += " font-style-body-1";
         }
 
         var fieldContent = null;
-
         var field = this.props.entity.def.getField(fieldName);
+
+        // If we have an invalid field, then let's throw an error.
+        if(!field) {
+            throw 'Trying to render an invalid field. Check the field name: ' + fieldName;
+        }
 
         switch (field.type) {
             case field.types.bool:
@@ -76,7 +104,7 @@ var Field = React.createClass({
             case field.types.object:
 
                 // If the file object is used as profile image
-                if(field.subtype == "file" && xmlNode.getAttribute('profile_image') == "t") {
+                if(field.subtype == "file" && elementNode.getAttribute('profile_image') == "t") {
                     fieldContent = <Image {...this.props} label="Profile Picture" />;
                 } else {
                     fieldContent = <ObjectField {...this.props} />;

@@ -22,7 +22,8 @@ var Row = React.createClass({
                 {this.props.children}
             </div>
         );
-        var showif = this.props.xmlNode.getAttribute('showif');
+
+        var showif = this.props.elementNode.getAttribute('showif');
 
         if (showif) {
 

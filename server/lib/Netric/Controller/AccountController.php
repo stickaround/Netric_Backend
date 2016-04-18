@@ -87,7 +87,7 @@ class AccountController extends Mvc\AbstractController
 			array(
 				"name" => "crm",
 				"title" => "CRM",
-				"icon" => "check-square-o",
+				"icon" => "users",
 				"defaultRoute" => "all-customers",
 				"navigation" => array(
 					array(
@@ -165,6 +165,52 @@ class AccountController extends Mvc\AbstractController
 						"icon" => "list-ul",
 						"browseby" => "groups",
 					)
+				),
+			),
+			array(
+				"name" => "content",
+				"title" => "Content",
+				"icon" => "newspaper-o",
+				"defaultRoute" => "all-contents",
+				"navigation" => array(
+					array(
+						"title" => "New Content",
+						"type" => "entity",
+						"route" => "new-content",
+						"objType" => "content_feed",
+						"icon" => "plus",
+					),
+					array(
+						"title" => "All Contents",
+						"type" => "browse",
+						"route" => "all-contents",
+						"objType" => "content_feed",
+						"icon" => "list-ul",
+						"browseby" => "groups",
+					)
+				),
+			),
+			array(
+				"name" => "infocenter",
+				"title" => "Infocenter",
+				"icon" => "clipboard",
+				"defaultRoute" => "all-documents",
+				"navigation" => array(
+					array(
+						"title" => "New Document",
+						"type" => "entity",
+						"route" => "new-document",
+						"objType" => "infocenter_document",
+						"icon" => "plus",
+					),
+					array(
+						"title" => "All Documents",
+						"type" => "browse",
+						"route" => "all-documents",
+						"objType" => "infocenter_document",
+						"icon" => "tags",
+						"browseby" => "groups",
+					),
 				),
 			),
 			array(

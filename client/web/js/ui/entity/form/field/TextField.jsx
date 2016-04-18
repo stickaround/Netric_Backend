@@ -24,7 +24,7 @@ var TextField = React.createClass({
      * Expected props
      */
     propTypes: {
-        xmlNode: React.PropTypes.object,
+        elementNode: React.PropTypes.object.isRequired,
         entity: React.PropTypes.object,
         eventsObj: React.PropTypes.object,
         editMode: React.PropTypes.bool
@@ -58,11 +58,11 @@ var TextField = React.createClass({
 
     render: function () {
 
-        var xmlNode = this.props.xmlNode;
-        var hidelabel = xmlNode.getAttribute('hidelabel');
-        var fieldName = xmlNode.getAttribute('name');
-        var multiline = (xmlNode.getAttribute('multiline') == 't') ? true : false;
-        var rich = (xmlNode.getAttribute('rich') == 't') ? true : false;
+        var elementNode = this.props.elementNode;
+        var hidelabel = elementNode.getAttribute('hidelabel');
+        var fieldName = elementNode.getAttribute('name');
+        var multiline = (elementNode.getAttribute('multiline') == 't') ? true : false;
+        var rich = (elementNode.getAttribute('rich') == 't') ? true : false;
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
@@ -170,7 +170,7 @@ var TextField = React.createClass({
      * @private
      */
     _handleDropDownInputChange: function (evt, key, menuItem) {
-        this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), menuItem.payload);
+        this.props.entity.setValue(this.props.elementNode.getAttribute('name'), menuItem.payload);
     },
 
     /**
@@ -181,7 +181,7 @@ var TextField = React.createClass({
      */
     _handleInputChange: function (evt) {
         var val = evt.target.value;
-        this.props.entity.setValue(this.props.xmlNode.getAttribute('name'), val);
+        this.props.entity.setValue(this.props.elementNode.getAttribute('name'), val);
     },
 
     /**
@@ -289,7 +289,7 @@ var TextField = React.createClass({
      */
     _updateFieldValue: function () {
         if (this.refs.textFieldComponent) {
-            var fieldName = this.props.xmlNode.getAttribute('name');
+            var fieldName = this.props.elementNode.getAttribute('name');
             var fieldValue = this.props.entity.getValue(fieldName);
 
             this.refs.textFieldComponent.setValue(fieldValue);
