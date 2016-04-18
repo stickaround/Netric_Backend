@@ -38,7 +38,7 @@ var BoolField = React.createClass({
         if (this.props.editMode) {
             return (<Checkbox
                 name={fieldName}
-                value={fieldValue}
+                value={fieldValue.toString()}
                 label={field.title}
                 onCheck={this._handleCheck}
                 defaultSwitched={fieldValue} />
