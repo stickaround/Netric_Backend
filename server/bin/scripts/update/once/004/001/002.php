@@ -29,5 +29,7 @@ for ($i = 0; $i < $totalNum; $i++) {
     $entity = $results->getEntity($i);
 
     // Just saving the entity will result in a new commit id being created
-    $entityLoader->save($entity);
+    if ($entity) {
+        $entityLoader->save($entity);
+    }
 }

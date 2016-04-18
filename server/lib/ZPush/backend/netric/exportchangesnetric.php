@@ -193,11 +193,20 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
 
                 case "delete":
                     // Entity was deleted
-                    if($this->flags & BACKEND_DISCARD_DATA ||
-                       $this->importer->ImportMessageDeletion($change["id"]) == true) {
-                        $this->collection->logExported($change['id'], null);
-                         ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric->Synchronize: exported delete {$change['id']}");
+                    if ($this->foundInSyncState($change['id'])) {
+                        if(
+                            $this->flags & BACKEND_DISCARD_DATA ||
+                            $this->importer->ImportMessageDeletion($change["id"]) == true
+                        )
+                        {
+
+                            $this->collection->logExported($change['id'], null);
+                            ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric->Synchronize: exported delete {$change['id']}");
+                        }
+                    } else {
+                        ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric->Synchronize: stale in netric but never sent to device {$change['id']}");
                     }
+
                     break;
                 default:
                     // Not supported

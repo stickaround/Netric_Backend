@@ -9,8 +9,6 @@ define('SM_PATH', APPLICATION_PATH."/email/");
 require_once('plugins/attachment_tnef/constants.php');
 require_once('plugins/attachment_tnef/functions.php');
 require_once('plugins/attachment_tnef/class/tnef.php');
-// ZLIB
-include_once('async/include/mimeDecode.php');
 //include_once('mimeDecode.php');
 // Aereus lib
 require_once("lib/aereus.lib.php/CCache.php");
