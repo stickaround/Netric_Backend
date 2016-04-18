@@ -170,7 +170,7 @@ class AccountController extends Mvc\AbstractController
 			array(
 				"name" => "content",
 				"title" => "Content",
-				"icon" => "check-square-o",
+				"icon" => "newspaper-o",
 				"defaultRoute" => "all-contents",
 				"navigation" => array(
 					array(
