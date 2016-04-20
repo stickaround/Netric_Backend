@@ -38,10 +38,10 @@ var browserViewSaver = {
         
                 // Update the id of the browserView
                 browserView.setId(resp);
-        
+
                 // Invoke callback if set
                 if (opt_finishedCallback) {
-                    opt_finishedCallback();
+                    opt_finishedCallback(browserView);
                 }
         
             }, 'POST', JSON.stringify(data));

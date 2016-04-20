@@ -44,6 +44,7 @@ var definitionLoader = require("./definitionLoader");
 var BackendRequest = require("../BackendRequest");
 var Entity = require("./Entity");
 var Where = require("./Where");
+var OrderBy = require("./OrderBy");
 var log = require("../log");
 
 /**
@@ -252,8 +253,8 @@ Collection.prototype.load = function (opt_callback) {
 
         for (var i in sortOrder) {
             requestParams.order_by.push(
-                sortOrder[i].field + "," +
-                sortOrder[i].direction + ","
+                sortOrder[i].getFieldName() + "," +
+                sortOrder[i].getDirection() + ","
             );
         }
     }
@@ -386,7 +387,12 @@ Collection.prototype.clearConditions = function () {
  * @param {Collection.orderByDir} The direction of the sort
  */
 Collection.prototype.setOrderBy = function (fieldName, direction) {
-    this.orderBy_.push({field: fieldName, direction: direction});
+
+    var orderBy = new OrderBy();
+    orderBy.setFieldName(fieldName);
+    orderBy.setDirection(direction);
+
+    this.orderBy_.push(orderBy);
 }
 
 /**

@@ -7,6 +7,7 @@
 'use strict';
 
 var Where = require("./Where");
+var OrderBy = require("./OrderBy");
 
 /**
  * Define the view of an entity collection
@@ -30,7 +31,7 @@ var BrowserView = function(objType) {
      * @type {Where[]}
      * @private
      */
-    this.conditions_ = [];
+    this._conditions = [];
 
     /**
      * Description of this view
@@ -69,7 +70,7 @@ var BrowserView = function(objType) {
      * @type {Array}
      * @private
      */
-    this.orderBy_ = [];
+    this._orderBy = [];
 
     /**
      * Which fields to display in a table view
@@ -153,16 +154,14 @@ BrowserView.prototype.fromData = function(data) {
         where.bLogic = data.conditions[i].blogic;
         where.operator = data.conditions[i].operator;
         where.value = data.conditions[i].value;
-        this.conditions_.push(where);
+        this._conditions.push(where);
     }
 
-    var orderBy = data.sort_order || data.order_by;
-    for (var i in orderBy)
+    var orderByData = data.sort_order || data.order_by;
+    for (var i in orderByData)
     {
-        this.orderBy_.push({
-            field : orderBy[i].field_name,
-            direction : orderBy[i].order || orderBy[i].direction
-        });
+        var orderBy = new OrderBy(orderByData[i]);
+        this._orderBy.push(orderBy);
     }
 }
 
@@ -195,33 +194,30 @@ BrowserView.prototype.getData = function() {
 
     // Conditions data
     data.conditions = [];
-    for (var idx in this.conditions_) {
-        data.conditions.push(this.conditions_[idx].toData());
+    for (var idx in this._conditions) {
+        data.conditions.push(this._conditions[idx].toData());
     }
 
     // Order By data
     data.order_by = [];
-    for (var idx in this.orderBy_) {
-        data.order_by.push({
-            field_name: this.orderBy_[idx].field,
-            direction: this.orderBy_[idx].direction
-        });
+    for (var idx in this._orderBy) {
+        data.order_by.push(this._orderBy[idx].toData());
     }
 
     return data;
 }
 
 /**
- * Creates a new where object instance and stores it in conditions_
+ * Creates a new where object instance and stores it in _conditions
  *
- * @param {string} fieldName    The fieldName of the condition we want to create and store in Conditions_
+ * @param {string} fieldName    The fieldName of the condition we want to create and store in _conditions
  * @public
  */
 BrowserView.prototype.addCondition = function(fieldName) {
 
     // We do not need to specify the bLogic, operator and value since this will be set by the user in the Advanced Search
     var condition = new Where(fieldName);
-    this.conditions_.push(condition);
+    this._conditions.push(condition);
 }
 
 /**
@@ -232,7 +228,7 @@ BrowserView.prototype.addCondition = function(fieldName) {
  * @public
  */
 BrowserView.prototype.removeCondition = function(index) {
-    this.conditions_.splice(index, 1);
+    this._conditions.splice(index, 1);
 }
 
 /**
@@ -241,21 +237,30 @@ BrowserView.prototype.removeCondition = function(index) {
  * @return {Where[]}
  */
 BrowserView.prototype.getConditions = function() {
-    return this.conditions_;
+    return this._conditions;
 }
 
 /**
- * Pushes a new orderBy object in orderBy_
+ * Set where conditions
+ *
+ * @param {entity/Where[]} conditionData Array of entity/Where conditions
+ */
+BrowserView.prototype.setConditions = function(conditionData) {
+    this._conditions = conditionData;
+}
+
+/**
+ * Pushes a new orderBy object in _orderBy
  *
  * @param {string} fieldName    The fieldName of sort order we want to create
  * @param {string} direction    The direction of the sort order we want to create
  * @public
  */
 BrowserView.prototype.addOrderBy = function(fieldName, direction) {
-    this.orderBy_.push({
-        field : fieldName,
-        direction : direction
-    });
+
+    var orderBy = new OrderBy();
+    orderBy.setFieldName(fieldName);
+    orderBy.setDirection(direction);
 }
 
 /**
@@ -265,7 +270,7 @@ BrowserView.prototype.addOrderBy = function(fieldName, direction) {
  * @public
  */
 BrowserView.prototype.removeOrderBy = function(index) {
-    this.orderBy_.splice(index, 1);
+    this._orderBy.splice(index, 1);
 }
 
 /**
@@ -274,7 +279,16 @@ BrowserView.prototype.removeOrderBy = function(index) {
  * @return {string[]}
  */
 BrowserView.prototype.getOrderBy = function() {
-    return this.orderBy_;
+    return this._orderBy;
+}
+
+/**
+ * Set the sort order
+ *
+ * @param {entity/OrderBy[]} orderByData Array of entity/OrderBy
+ */
+BrowserView.prototype.setOrderBy = function(orderByData) {
+    this._orderBy = orderByData;
 }
 
 /**
@@ -315,6 +329,15 @@ BrowserView.prototype.removeTableColumn = function(index) {
  */
 BrowserView.prototype.getTableColumns = function() {
     return this.tableColumns_;
+}
+
+/**
+ * Set the table columns to view
+ *
+ * @param {string[]} columnsToViewData Array of column names
+ */
+BrowserView.prototype.setTableColumns = function(columnsToViewData) {
+    this.tableColumns_ = columnsToViewData;
 }
 
 /**

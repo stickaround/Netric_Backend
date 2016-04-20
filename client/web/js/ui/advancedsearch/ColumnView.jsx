@@ -7,9 +7,11 @@
 'use strict';
 
 var React = require('react');
-var Chamel = require('chamel');
-var DropDownMenu = Chamel.DropDownMenu;
-var IconButton = Chamel.IconButton;
+var Controls = require('../Controls.jsx');
+var FieldsDropDown = require('../entity/FieldsDropDown.jsx');
+var DropDownMenu = Controls.DropDownMenu;
+var IconButton = Controls.IconButton;
+var FlatButton = Controls.FlatButton;
 
 
 /**
@@ -18,34 +20,59 @@ var IconButton = Chamel.IconButton;
 var ColumnView = React.createClass({
 
     propTypes: {
-        onRemove: React.PropTypes.func,
-        onUpdate: React.PropTypes.func,
-        fieldData: React.PropTypes.object,
-        index: React.PropTypes.number,
-        column: React.PropTypes.object,
-        objType: React.PropTypes.string,
+        
+        /**
+         * The type of object we are adding column view for
+         *
+         * @type {string}
+         */
+        objType: React.PropTypes.string.isRequired,
+
+        /**
+         * Array of columnToView to pre-populate
+         *
+         * @type {array}
+         */
+        columnToViewData: React.PropTypes.array,
+
+        /**
+         * Event triggered any time the user makes changes to the column view
+         *
+         * @type {func}
+         */
+        onChange: React.PropTypes.func
     },
     
-    getInitialState: function() {
-        // Return the initial state
-        return { 
-            fieldName: this.props.column.fieldName,
-            selectedFieldIndex: this.props.fieldData.selectedIndex,
-        };
-    },
-
     render: function() {
+
+        let columnToViewDisplay = [];
+
+        for (var idx in this.props.columnToViewData) {
+
+            let columnToView = this.props.columnToViewData[idx];
+
+            columnToViewDisplay.push(
+                <div className="row" key={idx}>
+                    <div className="col-small-3">
+                        <FieldsDropDown
+                            objType={this.props.objType}
+                            selectedField={columnToView}
+                            onChange={this._handleColumnViewClick.bind(this, idx)} />
+                    </div>
+                    <div className="col-small-1 col-medium-1">
+                        <IconButton onClick={this._handleRemoveColumnToView.bind(this, idx)} className="fa fa-times" />
+                    </div>
+                </div>
+            )
+        }
     		
         return (
-            <div className="row" key={this.props.index}>
-                <div className="col-small-3">
-                    <DropDownMenu
-                        menuItems={this.props.fieldData.fields}
-                        selectedIndex={this.state.selectedFieldIndex}
-                        onChange={this._handleMenuClick} />
-                </div>
-                <div className="col-small-1">
-                    <IconButton onClick={this._handleRemoveColumnToView} className="fa fa-times" />
+            <div className="container-fluid">
+                {columnToViewDisplay}
+                <div className="row">
+                    <div className="col-small-12">
+                        <FlatButton onClick={this._handleAddColumnToView} label={"Add"} />
+                    </div>
                 </div>
             </div>
         );
@@ -54,26 +81,51 @@ var ColumnView = React.createClass({
     /**
      * Removes the column to view
      *
+     * @param {int} index The index of the columnToView to be removed
      * @private
      */
-    _handleRemoveColumnToView: function () {
-        if(this.props.onRemove) this.props.onRemove('columnView', this.props.index);
+    _handleRemoveColumnToView: function (index) {
+
+        var columnToViewData = this.props.columnToViewData;
+        columnToViewData.splice(index, 1);
+
+        if (this.props.onChange) {
+            this.props.onChange(columnToViewData);
+        }
     },
-    
+
     /**
-     * Callback used to handle commands when user selects the column field
+     * Callback used to handle commands when user selects the column name in the dropdown menu
      *
-     * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @param {int} key     The index of the menu clicked
-     * @param {array} field     The object value of the menu clicked
+     * @param {int} index The index of the sort order that changed its field name
+     * @param {string} fieldName The value of the field name that was selected
      * @private
      */
-    _handleMenuClick: function(e, key, field) {
-        if(this.props.onUpdate) this.props.onUpdate(field.name, this.props.index);
-        
-        this.setState({ 
-            selectedFieldIndex: key
-        });
+    _handleColumnViewClick: function (index, fieldName) {
+
+        let columnToViewData = this.props.columnToViewData;
+        columnToViewData[index] = fieldName;
+
+        if (this.props.onChange) {
+            this.props.onChange(columnToViewData);
+        }
+    },
+
+    /**
+     * Append a column to the columnToViewData array
+     *
+     * @private
+     */
+    _handleAddColumnToView: function() {
+
+        let columnToViewData = this.props.columnToViewData;
+
+        // Set the default column field to id
+        columnToViewData.push("id");
+
+        if (this.props.onChange) {
+            this.props.onChange(columnToViewData);
+        }
     },
 });
 

@@ -8,10 +8,10 @@
 var React = require('react');
 var WhereComponent = require('./Where.jsx');
 var Where = require("../../entity/Where");
-var Chamel = require('chamel');
-var IconButton = Chamel.IconButton;
-var FontIcon = Chamel.FontIcon;
-var FlatButton = Chamel.FlatButton;
+var Controls = require('../Controls.jsx');
+var IconButton = Controls.IconButton;
+var FontIcon = Controls.FontIcon;
+var FlatButton = Controls.FlatButton;
 
 
 var Conditions = React.createClass({
@@ -31,7 +31,7 @@ var Conditions = React.createClass({
         /**
          * Event triggered any time the user makes changes to the conditions
          *
-         * @type {bool}
+         * @type {func}
          */
         onChange: React.PropTypes.func,
 

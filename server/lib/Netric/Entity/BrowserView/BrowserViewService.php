@@ -117,6 +117,21 @@ class BrowserViewService
     }
 
     /**
+     * Get the user's default view for the given object type
+     *
+     * @param string $objType The object type
+     * @param UserEntity $user The user we are getting the default for
+     * @return string User's default view for the given object type
+     */
+    public function setDefaultViewForUser($objType, UserEntity $user, $defaultViewId)
+    {
+        $settingKey = "entity/browser-view/default/" . $objType;
+
+        // Set the default view for this specific user
+        $this->settings->setForUser($user, $settingKey, $defaultViewId);
+    }
+
+    /**
      * Get browser views for a user
      *
      * Here is how views will be loaded:
@@ -485,6 +500,7 @@ class BrowserViewService
                 'id' => $row['id'],
                 'obj_type' => $objType,
                 'name' => $row['name'],
+                'description' => $row['description'],
                 'user_id' => $row['user_id'],
                 'team_id' => $row['team_id'],
                 'default' => ($row['f_default'] === 't') ? true : false,

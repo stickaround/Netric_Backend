@@ -7,15 +7,17 @@
 'use strict';
 
 var React = require('react');
-var Chamel = require('chamel');
-var DropDownMenu = Chamel.DropDownMenu;
-var IconButton = Chamel.IconButton;
+var Controls = require('../Controls.jsx');
+var FieldsDropDown = require('../entity/FieldsDropDown.jsx');
+var OrderBy = require("../../entity/OrderBy");
+var DropDownMenu = Controls.DropDownMenu;
+var IconButton = Controls.IconButton;
+var FlatButton = Controls.FlatButton;
 
-var directionMenu = [
-    { payload: 'asc', text: 'Ascending' },
-    { payload: 'desc', text: 'Descending' },
+var directionMenuData = [
+    {payload: 'asc', text: 'Ascending'},
+    {payload: 'desc', text: 'Descending'},
 ];
-
 
 /**
  * Displays the sort order used in the advanced search.
@@ -23,88 +25,167 @@ var directionMenu = [
 var SortOrder = React.createClass({
 
     propTypes: {
-        onRemove: React.PropTypes.func,
-        fieldData: React.PropTypes.object,
-        index: React.PropTypes.number,
+
+        /**
+         * The type of object we are adding orderBy for
+         *
+         * @type {string}
+         */
         objType: React.PropTypes.string.isRequired,
-        orderBy: React.PropTypes.object,
-    },
-    
-    getInitialState: function() {
-        var selectedDirectionIndex = ( this.props.orderBy.direction == 'asc' ? 0 : 1 );
-        
-        // Return the initial state
-        return { 
-            fieldName: this.props.orderBy.field, 
-            direction: this.props.orderBy.direction,
-            selectedFieldIndex: this.props.fieldData.selectedIndex,
-            selectedDirectionIndex: selectedDirectionIndex
-        };
+
+        /**
+         * Array of orderBy to pre-populate
+         *
+         * @type {entity\OrderBy[]}
+         */
+        orderByData: React.PropTypes.array,
+
+        /**
+         * Event triggered any time the user makes changes to the orderBy
+         *
+         * @type {func}
+         */
+        onChange: React.PropTypes.func
     },
 
-    render: function() {
-    		
+    render: function () {
+
+        let sortOrderDisplay = [];
+
+        for (var idx in this.props.orderByData) {
+
+            let orderBy = this.props.orderByData[idx];
+            let directionIndex = this._getSelectedIndex(directionMenuData, orderBy.getDirection());
+
+            sortOrderDisplay.push(
+                <div className="row" key={idx}>
+                    <div className="col-small-3">
+                        <FieldsDropDown
+                            objType={this.props.objType}
+                            selectedField={orderBy.getFieldName()}
+                            onChange={this._handleFieldNameClick.bind(this, idx)}/>
+                    </div>
+                    <div className="col-small-2">
+                        <DropDownMenu
+                            menuItems={directionMenuData}
+                            selectedIndex={parseInt(directionIndex)}
+                            onChange={this._handleDirectionClick.bind(this, idx)}/>
+                    </div>
+                    <div className="col-small-1">
+                        <IconButton
+                            className="fa fa-times"
+                            onClick={this._handleRemoveOrder.bind(this, idx)}/>
+                    </div>
+                </div>
+            )
+        }
+
         return (
-            <div className="row" key={this.props.index}>
-                <div className="col-small-3">
-                    <DropDownMenu
-                        menuItems={this.props.fieldData.fields}
-                        selectedIndex={this.state.selectedFieldIndex}
-                        onChange={this._handleFieldNameClick} />
-                </div>
-                <div className="col-small-2">
-                    <DropDownMenu
-                        menuItems={directionMenu}
-                        selectedIndex={this.state.selectedDirectionIndex}
-                        onChange={this._handleDirectionClick } />
-                </div>
-                <div className="col-small-1">
-                    <IconButton
-                        className="fa fa-times"
-                        onClick={this._handleRemoveOrder} />
+            <div className="container-fluid">
+                {sortOrderDisplay}
+                <div className="row">
+                    <div className="col-small-12">
+                        <FlatButton onClick={this._handleAddOrderBy} label={"Add"}/>
+                    </div>
                 </div>
             </div>
         );
     },
-    
+
     /**
      * Removes the Sort Order
      *
-     * @param {int} conditionIndex		The index of the condition to be removed
+     * @param {int} index The index of the sort order to be removed
      * @private
      */
-    _handleRemoveOrder: function () {
-        if(this.props.onRemove) this.props.onRemove('sortOrder', this.props.index);
+    _handleRemoveOrder: function (index) {
+
+        var orderByData = this.props.orderByData;
+        orderByData.splice(index, 1);
+
+        if (this.props.onChange) {
+            this.props.onChange(orderByData);
+        }
     },
-    
+
     /**
      * Callback used to handle commands when user selects the field name in the dropdown menu
      *
-     * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @param {int} key         The index of the menu clicked
-     * @param {array} field     The object value of the menu clicked
+     * @param {int} index The index of the sort order that changed its field name
+     * @param {string} fieldName The value of the field name that was selected
      * @private
      */
-    _handleFieldNameClick: function(e, key, field) {
-        this.props.orderBy.field = field.name;
-        this.setState({
-            selectedFieldIndex: key
-        });
+    _handleFieldNameClick: function (index, fieldName) {
+
+        let orderByData = this.props.orderByData;
+        orderByData[index].setFieldName(fieldName);
+
+        if (this.props.onChange) {
+            this.props.onChange(orderByData);
+        }
     },
-    
+
     /**
      * Callback used to handle commands when user selects the sort direction in the dropdown menu
      *
-     * @param {DOMEvent} e      Reference to the DOM event being sent
-     * @param {int} key         The index of the menu clicked
-     * @param {array} menuItem  The object value of the menu clicked
+     * @param {int} index The index of the sort order that changed its direction
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {int} key The index of the menu clicked
+     * @param {array} menuItem The object value of the menu clicked
      * @private
      */
-    _handleDirectionClick: function(e, key, menuItem) {
-        this.props.orderBy.direction = menuItem.payload;
-        this.setState({
-            selectedDirectionIndex: key
-        });
+    _handleDirectionClick: function (index, e, key, menuItem) {
+
+        let orderByData = this.props.orderByData;
+
+        orderByData[index].setDirection(menuItem.payload);
+
+        if (this.props.onChange) {
+            this.props.onChange(orderByData);
+        }
+    },
+
+    /**
+     * Append a sort order to the orderBy array
+     *
+     * @private
+     */
+    _handleAddOrderBy: function () {
+
+        let orderByData = this.props.orderByData;
+        let orderBy = new OrderBy();
+
+        // Set the default fieldName to id
+        orderBy.setFieldName("id");
+
+        // Set the default direction to asc
+        orderBy.setDirection("asc");
+
+        // Add the newly created orderBy to the orderByData array
+        orderByData.push(orderBy);
+
+        if (this.props.onChange) {
+            this.props.onChange(orderByData);
+        }
+    },
+
+    /**
+     * Gets the index of an entry based on the name
+     *
+     * @param {Array} data Array of data that will be mapped to get the index of an entry
+     * @param {string} value The value that will be used to get the index
+     * @private
+     */
+    _getSelectedIndex: function (data, value) {
+        var index = 0;
+        for (var idx in data) {
+            if (data[idx].payload == value) {
+                index = idx;
+                break;
+            }
+        }
+
+        return index;
     }
 });
 
