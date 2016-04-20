@@ -14,15 +14,15 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class RecurrenceSeriesManagerFactory implements ServiceManager\ServiceFactoryInterface
+class RecurrenceSeriesManagerFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return EntitySeriesWriter
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $recurIdentityMapper = $sl->get("RecurrenceIdentityMapper");
         $entityLoader = $sl->get("EntityLoader");

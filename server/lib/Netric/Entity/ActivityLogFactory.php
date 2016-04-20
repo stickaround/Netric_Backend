@@ -12,15 +12,15 @@ use Netric\ServiceManager;
 /**
  * Factory for constructing an activity log service
  */
-class ActivityLogFactory implements ServiceManager\ServiceFactoryInterface
+class ActivityLogFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $entityLoader = $sl->get("EntityLoader");
         $groupingsLoader = $sl->get("EntityGroupings_Loader");

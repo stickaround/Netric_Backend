@@ -15,6 +15,7 @@ use Netric\Config;
 use Netric\Log;
 use Netric\Cache\AlibCache;
 use Netric\Account\AccountIdentityMapper;
+use Netric\ServiceManager\ApplicationServiceManager;
 
 class Application
 {
@@ -39,6 +40,7 @@ class Application
      */
     private $dm = null;
 
+
     /**
      * Application cache
      * \
@@ -50,7 +52,7 @@ class Application
     /**
      * Accounts identity mapper
      *
-     * @var \Netric\Account\Account\AccountIdentityMapper
+     * @var AccountIdentityMapper
      */
     private $accountsIdentityMapper = null;
 
@@ -60,6 +62,13 @@ class Application
      * @var RequestInterface
      */
     private $request = null;
+
+    /**
+     * Application service manager
+     *
+     * @var ApplicationServiceManager
+     */
+    private $serviceManager = null;
     
     /**
      * Initialize application
@@ -85,6 +94,11 @@ class Application
             // Watch for fatals which cause script execution to fail
             register_shutdown_function(array($this->log, "phpShutdownErrorChecker"));
         }
+
+        // Setup the application service manager
+        $this->serviceManager = new ApplicationServiceManager($this);
+
+        // TODO: Convert the below to service factories
 
         // Setup application datamapper
         $this->dm = new DataMapperPgsql($config->db["host"],
@@ -112,14 +126,21 @@ class Application
 
     /**
      * Run The application
+     *
+     * @param string $path Optional initial route to load
      */
-    public function run()
+    public function run($path = "")
     {
         // Get the request
         $request = Console::isConsole() ? new ConsoleRequest() : new HttpRequest();
 
         // Get the router
         $router = new Router($this);
+
+        // Check if we have set the first/initial route
+        if ($path) {
+            $request->setPath($path);
+        }
 
         // Execute through the router
         $router->run($request);
@@ -229,12 +250,7 @@ class Application
 
 		$ret = null;
 
-		// 1 check session
-		$ret = $this->getSessionVar('aname');
-        if ($ret)
-            return $ret;
-
-		// 2 check url - 3rd level domain is the account name
+		// Check url - 3rd level domain is the account name
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root 
 			 && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root))
 		{
@@ -243,19 +259,19 @@ class Application
 				return $left;
 		}
 		
-		// 3 check get - less common
+		// Check get - less common
 		if (isset($_GET['account']) && $_GET['account'])
 		{
 			return $_GET['account'];
 		}
 
-		// 4 check post - less common
+		// Check post - less common
 		if (isset($_POST['account']) && $_POST['account'])
 		{
 			return $_POST['account'];
 		}
 
-		// 5 check for any third level domain (not sure if this is safe)
+		// Check for any third level domain (not sure if this is safe)
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.')>=2)
 		{
 			$left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
@@ -263,7 +279,7 @@ class Application
                 return $left;
 		}
 
-		// 6 get default account from the system settings
+		// Get default account from the system settings
 		return $this->getConfig()->default_account;
 	}
 
@@ -346,44 +362,16 @@ class Application
         $setup = new Setup();
         return $setup->updateApplication($this);
     }
-    
-    /**
-	 * @deprecated We no longer use this, instead we use the Authentication service
-     *
-     * Get session variable if exists
-	 *
-	 * These functions can be called statically
-	 * This currently uses cookies for sessions
-	 *
-	 * @param string $name The name of the session variable to get
-	 * @return string The value of the session variable
-	 */
-	public function getSessionVar($name)
-	{
-		global $_COOKIE;
-        
-        if(isset($_COOKIE[$name]) && $_COOKIE[$name])
-		    return base64_decode($_COOKIE[$name]);
-        else
-            return null;
-	}
 
-	/**
-     * @deprecated We no longer use this, instead we use the Authentication service
+    /**
+     * Get the application service manager
      *
-	 * Set session variable
-	 *
-	 * This function can be called statically
-	 * This currently uses cookies for sessions
-	 *
-	 * @param string $name The name of the session variable to get
-	 * @param string $value The value to set the names variable to
-	 * @param int $expires Set the number of seconds until this expires
-	 */
-	public function setSessionVar($name, $value, $expires=null)
-	{
-		setcookie($name, base64_encode($value), $expires);
-	}
+     * @return ApplicationServiceManager
+     */
+    public function getServiceManager()
+    {
+        return $this->serviceManager;
+    }
 
     /**
      * Get the application log

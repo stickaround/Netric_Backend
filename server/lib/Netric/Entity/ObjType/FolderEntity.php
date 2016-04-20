@@ -40,9 +40,9 @@ class FolderEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(ServiceManager\ServiceLocatorInterface $sm)
+    public function onBeforeSave(ServiceManager\AccountServiceManagerInterface $sm)
     {
         // Check to see if they are trying to delete a system directory - should never happen
         if ($this->getValue("f_system") === true && $this->getValue("f_deleted") === true) {
@@ -53,18 +53,18 @@ class FolderEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(ServiceManager\ServiceLocatorInterface $sm)
+    public function onAfterSave(ServiceManager\AccountServiceManagerInterface $sm)
     {
     }
 
     /**
      * Checks before a hard delete
      *
-     * @param ServiceManager\ServiceLocatorInterface $sm
+     * @param ServiceManager\AccountServiceManagerInterface $sm
      */
-    public function onBeforeDeleteHard(ServiceManager\ServiceLocatorInterface $sm)
+    public function onBeforeDeleteHard(ServiceManager\AccountServiceManagerInterface $sm)
     {
         if ($this->getValue("f_system") === true) {
             throw new \RuntimeException("A system folder cannot be deleted: " . $this->getFullPath());

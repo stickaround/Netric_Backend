@@ -108,16 +108,16 @@ interface EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm);
+	public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm);
 
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm);
+	public function onAfterSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm);
 
 	/**
 	 * Check if a field value changed since created or opened

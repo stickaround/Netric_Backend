@@ -5,7 +5,7 @@
 namespace Netric\Entity;
 
 use My\Space\ExceptionNamespaceTest;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\Recurrence\RecurrencePattern;
@@ -544,9 +544,9 @@ class Entity implements EntityInterface
 	/**
 	 * The datamapper will call this just before the entity is saved
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function beforeSave(ServiceLocatorInterface $sm)
+	public function beforeSave(AccountServiceManagerInterface $sm)
 	{
         // Make sure we have associations added for any object reference
         $fields = $this->getDefinition()->getFields();
@@ -579,16 +579,16 @@ class Entity implements EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function onBeforeSave(ServiceLocatorInterface $sm) { }
+	public function onBeforeSave(AccountServiceManagerInterface $sm) { }
 
 	/**
 	 * The datamapper will call this just after the entity is saved
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function afterSave(ServiceLocatorInterface $sm)
+	public function afterSave(AccountServiceManagerInterface $sm)
 	{
 		// Process any temp files or attachments associated with this entity
 		$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
@@ -600,16 +600,16 @@ class Entity implements EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function onAfterSave(ServiceLocatorInterface $sm) { }
+	public function onAfterSave(AccountServiceManagerInterface $sm) { }
 
 	/**
 	 * The datamapper will call this just before an entity is purged -- hard delete
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function beforeDeleteHard(ServiceLocatorInterface $sm)
+	public function beforeDeleteHard(AccountServiceManagerInterface $sm)
 	{
 		// Call derived extensions
 		$this->onBeforeDeleteHard($sm);
@@ -618,16 +618,16 @@ class Entity implements EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function onBeforeDeleteHard(ServiceLocatorInterface $sm) { }
+	public function onBeforeDeleteHard(AccountServiceManagerInterface $sm) { }
 
 	/**
 	 * The datamapper will call this just after an entity is purged -- hard delete
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function afterDeleteHard(ServiceLocatorInterface $sm)
+	public function afterDeleteHard(AccountServiceManagerInterface $sm)
 	{
 		// Call derived extensions
 		$this->onAfterDeleteHard($sm);
@@ -636,9 +636,9 @@ class Entity implements EntityInterface
 	/**
 	 * Callback function used for derrived subclasses
 	 *
-	 * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+	 * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
 	 */
-	public function onAfterDeleteHard(ServiceLocatorInterface $sm) { }
+	public function onAfterDeleteHard(AccountServiceManagerInterface $sm) { }
 
 	/**
 	 * Check if a field value changed since created or opened

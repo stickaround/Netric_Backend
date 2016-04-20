@@ -8,7 +8,7 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityDefinition;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
@@ -29,9 +29,9 @@ class NotificationEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(ServiceLocatorInterface $sm)
+    public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         /*
          * If this is a new notification, then send messages - email, sms.
@@ -67,9 +67,9 @@ class NotificationEntity extends Entity implements EntityInterface
     /**
      * Send this notice via email to the owner
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    private function sendEmailNotification(ServiceLocatorInterface $sm)
+    private function sendEmailNotification(AccountServiceManagerInterface $sm)
     {
         // Make sure the notification has an owner or a creator
         if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id")))

@@ -5,7 +5,7 @@
 namespace Netric\Account;
 
 use Netric\Application\Application;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\ServiceManager;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
@@ -43,7 +43,7 @@ class Account
     /**
      * Handle to service manager for this account
      * 
-     * @var ServiceLocatorInterface
+     * @var AccountServiceManagerInterface
      */
     private $serviceManager = null;
 
@@ -146,7 +146,7 @@ class Account
     /**
      * Get ServiceManager for this account
      * 
-     * @return ServiceLocatorInterface
+     * @return AccountServiceManagerInterface
      */
     public function getServiceManager()
     {

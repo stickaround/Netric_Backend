@@ -18,16 +18,16 @@ class EntityFactory
     /**
      * Service manager used to load dependencies
      *
-     * @var \Netric\ServiceManager\ServiceLocatorInterface
+     * @var \Netric\ServiceManager\AccountServiceManagerInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator implementation for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator implementation for injecting dependencies
      */
-    public function __construct(ServiceManager\ServiceLocatorInterface $sl)
+    public function __construct(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $this->serviceManager = $sl;
     }

@@ -151,6 +151,16 @@ class HttpRequest implements RequestInterface
 	}
 
     /**
+     * Manual path override
+     *
+     * @param string $path The path to set
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
      * Get the method/verb of the request type
      *
      * @return string The HTTP verb used for this request: POST, GET, PUT, DELETE

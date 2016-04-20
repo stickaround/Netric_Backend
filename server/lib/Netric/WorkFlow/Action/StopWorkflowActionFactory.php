@@ -5,7 +5,7 @@
  */
 namespace Netric\WorkFlow\Action;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Factory to create a new StopWorkflowAction
@@ -15,10 +15,10 @@ class StopWorkflowActionFactory
     /**
      * Construct new action
      *
-     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
+     * @param AccountServiceManagerInterface $serviceLocator For loading dependencies
      * @return ActionInterface
      */
-    static public function create(ServiceLocatorInterface $serviceLocator)
+    static public function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new TestAction
         $entityLoader = $serviceLocator->get("EntityLoader");

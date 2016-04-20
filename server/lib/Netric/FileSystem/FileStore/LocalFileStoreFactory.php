@@ -12,15 +12,15 @@ use Netric\ServiceManager;
 /**
  * Create a file system storage service
  */
-class LocalFileStoreFactory implements ServiceManager\ServiceFactoryInterface
+class LocalFileStoreFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return LocalFileStore
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $config = $sl->get("Config");
         $dataPath = $config->data_path;

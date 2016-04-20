@@ -14,15 +14,15 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class SettingsFactory implements ServiceManager\ServiceFactoryInterface
+class SettingsFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $dbh = $sl->get("Db");
         $cache = $sl->get("Cache");

@@ -20,6 +20,13 @@ class WorkerService
     private $jobQueue = null;
 
     /**
+     * Array of workers to handle jobs
+     *
+     * @var WorkerInterface[]
+     */
+    private $workers = null;
+
+    /**
      * Setup the WorkerService
      *
      * @param QueueInterface $queue The Queue used to push jobs and pull info
@@ -68,10 +75,33 @@ class WorkerService
     /**
      * Process the job queue or wait for new jobs
      *
-     * @return bool true on sucess, false on a failure
+     * @return bool true on success, false on a failure
      */
     public function processJobQueue()
     {
+        // Make sure that we have loaded the workers
+        if ($this->workers === null) {
+            $this->loadWorkers();
+        }
 
+        // Wait for jobs and send them to workers
+        return $this->jobQueue->dispatchJobs();
+    }
+
+    /**
+     * Load up workers
+     */
+    private function loadWorkers()
+    {
+        $this->workers = array();
+
+        // Load up all workers from the ../Worker directory
+        foreach (glob(__DIR__ . "/../Worker/*Worker.php") as $filename) {
+            // Add each worker as a listener
+            $workerName = substr(basename($filename), 0, -(strlen("Worker.php")));
+            $workerClass = "\\Netric\\Worker\\" . $workerName . "Worker";
+            $this->workers[$workerName] = new $workerClass;
+            $this->jobQueue->addWorker($workerName, $this->workers[$workerName]);
+        }
     }
 }

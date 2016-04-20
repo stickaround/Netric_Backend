@@ -14,15 +14,15 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class RecurrenceDataMapperFactory implements ServiceManager\ServiceFactoryInterface
+class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return RecurrenceDataMapper
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $entDefLoader = $sl->get("EntityDefinitionLoader");
         $dbh = $sl->get("Db");

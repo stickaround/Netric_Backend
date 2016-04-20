@@ -7,26 +7,20 @@
  */
 namespace Netric\ServiceManager;
 
+use Netric\Account\Account;
 use Netric;
 
 /**
  * Class for constructing, caching, and finding services by name
  */
-class ServiceManager implements ServiceLocatorInterface
+class ServiceManager extends AbstractServiceManager implements AccountServiceManagerInterface
 {
     /**
 	 * Handle to netric account
 	 * 
-	 * @var Netric\Account
+	 * @var Account
 	 */
 	private $account = null;
-
-	/**
-	 * Cached services that have already been constructed
-	 *
-	 * @var array
-	 */
-	private $loadedServices = array();
 
     /**
      * Map a name to a class factory
@@ -41,7 +35,7 @@ class ServiceManager implements ServiceLocatorInterface
      *
      * @var array
      */
-    private $invokableFactoryMaps = array(
+    protected $invokableFactoryMaps = array(
         // Test service map
         "test" => "Netric/ServiceManager/Test/Service",
         // The entity factory service will initialize new entities with injected dependencies
@@ -58,17 +52,18 @@ class ServiceManager implements ServiceLocatorInterface
 	 * We are private because the class must be a singleton to assure resources
 	 * are initialized only once.
 	 *
-	 * @param Ant $ant The ant account we are loading services for
+	 * @param Account $account The account we are loading services for
 	 */
-	public function __construct(\Netric\Account\Account $account)
+	public function __construct(Account $account)
 	{
 		$this->account = $account;
+        parent::__construct($account->getApplication());
 	}
 
 	/**
-	 * Get account instance of ANT
+	 * Get account instance of netric
 	 *
-	 * @return Netric\Account
+	 * @return Account
 	 */
 	public function getAccount()
 	{
@@ -114,141 +109,16 @@ class ServiceManager implements ServiceLocatorInterface
         }
         else
         {
-            $service = $this->initializeServiceByFactory($serviceName, true);
+            $service = parent::get($serviceName);
         }
 
 		return $service;
 	}
 
-    /**
-     * Attempt to initialize a service by loading a factory
-     *
-     * @param string $serviceName The class name of the service to load
-     * @param bool $bCache Flag to enable caching this service for future requests
-     * @throws Netric\ServiceManager\Exception\ServiceNotFoundException Could not autoload factory for named service
-     * @return mixed Service instance if loaded, null if class not found
+    /*
+     * TODO: All of the below factories need to be moved to actual factory classes
+     * ===========================================================================
      */
-    private function initializeServiceByFactory($serviceName, $bCache=true)
-    {
-        // First check to see if $sServiceName has been mapped to a factory
-        $serviceName = $this->getInvokableTarget($serviceName);
-
-        // Normalie the serviceName
-        $serviceName = $this->normalizeClassPath($serviceName);
-
-        // First check to see if the service was already loaded
-        if ($this->isLoaded($serviceName))
-			return $this->loadedServices[$serviceName];
-
-        // Get actual class name by appending 'Factory' and normalizing slashes
-        $classPath = $this->getServiceFactoryPath($serviceName);
-
-		// Load the the service for the first time
-        $service = null;
-
-        // Try to load the service and allow exception to be thrown if not found
-        if ($classPath)
-        {
-            if (class_exists($classPath))
-            {
-                $factory = new $classPath();
-            }
-            else
-            {
-                throw new Exception\ServiceNotFoundException(sprintf(
-                    '%s: A service by the name "%s" was not found and could not be instantiated.',
-                    get_class($this) . '::' . __FUNCTION__,
-                    $classPath
-                ));
-            }
-
-
-            if ($factory Instanceof ServiceFactoryInterface)
-            {
-                $service = $factory->createService($this);
-            }
-            else
-            {
-                throw new Exception\ServiceNotFoundException(sprintf(
-                    '%s: The factory interface must implement Netric/ServiceManager/ServiceFactoryInterface.',
-                    get_class($this) . '::' . __FUNCTION__,
-                    $classPath
-                ));
-            }
-        }
-
-        // Cache for future calls
-        if ($bCache)
-        {
-            $this->loadedServices[$serviceName] = $service;
-        }
-
-        return $service;
-    }
-
-    /**
-     * Normalize class path
-     *
-     * @param string $classPath The unique name of the service to load
-     */
-    private function normalizeClassPath($classPath)
-    {
-        // Replace forward slash with backslash
-        $classPath = str_replace('/', '\\', $classPath);
-
-        // If class begins with "\Netric" then remove the first slash because it is not needed
-        if ("\\Netric" == substr($classPath, 0 , strlen("\\Netric")))
-        {
-        	$classPath = substr($classPath, 1);
-        }
-
-        return $classPath;
-    }
-
-    /**
-     * Try to locate service loading factory from the service path
-     *
-     * @param string $sServiceName The unique name of the service to load
-     * @return string|bool The real path to the service factory class, or false if class not found
-     */
-    private function getServiceFactoryPath($sServiceName)
-    {
-        // Append Factory to the service name, then try to load using the initialized autoloaders
-        $sClassPath = $sServiceName . "Factory";
-        return $sClassPath;
-    }
-
-    /**
-     * Check to see if a name is mapped to a real namespaced class
-     *
-     * @param string $sServiceName The potential service name alias
-     * @return string If a map exists the rename the service to the real path, otherwise return the alias
-     */
-    private function getInvokableTarget($sServiceName)
-    {
-        if (isset($this->invokableFactoryMaps[$sServiceName]))
-        {
-            $sServiceName = $this->invokableFactoryMaps[$sServiceName];
-        }
-
-        return $sServiceName;
-    }
-
-
-
-    /**
-	 * Check to see if a service is already loaded
-	 *
-	 * @param string $serviceName
-	 * @return bool true if service is loaded and cached, false if it needs to be instantiated
-	 */
-	private function isLoaded($serviceName)
-	{
-		if (isset($this->loadedServices[$serviceName]) && $this->loadedServices[$serviceName] != null)
-			return true;
-		else
-			return false;
-	}
 
 	/**
 	 * Construct datamapper for an object type
@@ -259,7 +129,7 @@ class ServiceManager implements ServiceLocatorInterface
 	private function factoryEntity_DataMapper()
     {
 		// For now all we support is pgsql
-		$dm = new Netric\Entity\DataMapper\Pgsql($this->getAccount(), $this->get("Db"));
+		$dm = new \Netric\Entity\DataMapper\Pgsql($this->getAccount(), $this->get("Db"));
 		return $dm;
 	}
 
@@ -273,7 +143,7 @@ class ServiceManager implements ServiceLocatorInterface
         
         // Setup antsystem datamapper
         $config = $this->get("Config");
-        $db = new Netric\Db\Pgsql($config->db["host"], $this->getAccount()->getDatabaseName(), $config->db["user"], $config->db["password"]);
+        $db = new \Netric\Db\Pgsql($config->db["host"], $this->getAccount()->getDatabaseName(), $config->db["user"], $config->db["password"]);
         $db->setSchema("acc_" . $this->getAccount()->getId());
 		return $db;
 	}
@@ -286,7 +156,7 @@ class ServiceManager implements ServiceLocatorInterface
 	private function factoryEntityDefinition_DataMapper()
 	{
 		// For now all we support is pgsql
-		$dm = new Netric\EntityDefinition\DataMapper\Pgsql($this->getAccount(), $this->get("Db"));
+		$dm = new \Netric\EntityDefinition\DataMapper\Pgsql($this->getAccount(), $this->get("Db"));
 		return $dm;
 	}
 
@@ -300,7 +170,7 @@ class ServiceManager implements ServiceLocatorInterface
 		// For now all we support is pgsql
 		$dm = $this->get("EntityDefinition_DataMapper");
         $cache = $this->get("Cache");
-		$loader = new Netric\EntityDefinitionLoader($dm, $cache);
+		$loader = new \Netric\EntityDefinitionLoader($dm, $cache);
 		return $loader;
 	}
 
@@ -334,7 +204,7 @@ class ServiceManager implements ServiceLocatorInterface
 		$dm = $this->get("Entity_DataMapper");
 		$definitionLoader = $this->get("EntityDefinitionLoader");
 
-		$loader = new Netric\EntityLoader($dm, $definitionLoader);
+		$loader = new \Netric\EntityLoader($dm, $definitionLoader);
 		return $loader;
 	}
 
@@ -394,7 +264,7 @@ class ServiceManager implements ServiceLocatorInterface
 	{
 		$dm = $this->get("Entity_DataMapper");
         $cache = $this->get("Cache");
-		$loader = new Netric\EntityGroupings\Loader($dm, $cache);
+		$loader = new \Netric\EntityGroupings\Loader($dm, $cache);
 		return $loader;
 	}
     
@@ -438,7 +308,7 @@ class ServiceManager implements ServiceLocatorInterface
     private function factoryApplication_DataMapper()
     {
         $config = $this->get("Config");
-        return new Netric\Application\DataMapperPgsql($config->db["host"],
+        return new \Netric\Application\DataMapperPgsql($config->db["host"],
                                                 $config->db["sysdb"],
                                                 $config->db["user"],
                                                 $config->db["password"]);

@@ -10,15 +10,15 @@ use Netric\ServiceManager;
 /**
  * Create a service for sending email
  */
-class SenderServiceFactory implements ServiceManager\ServiceFactoryInterface
+class SenderServiceFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return SenderService
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $transport = $sl->get("Netric/Mail/Transport/Transport");
         $bulkTransport = $sl->get("Netric/Mail/Transport/BulkTransport");

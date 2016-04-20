@@ -12,15 +12,15 @@ use Netric\ServiceManager;
 /**
  * Create an entity validator instance
  */
-class EntityValidatorFactory implements ServiceManager\ServiceFactoryInterface
+class EntityValidatorFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         return new EntityValidator();
     }

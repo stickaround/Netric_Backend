@@ -14,15 +14,15 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class EntityAggregatorFactory implements ServiceManager\ServiceFactoryInterface
+class EntityAggregatorFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $entityLoader = $sl->get("EntityLoader");
         $entityIndex = $sl->get("EntityQuery_Index");

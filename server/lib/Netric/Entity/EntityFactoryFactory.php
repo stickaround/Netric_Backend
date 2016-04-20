@@ -13,15 +13,15 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class EntityFactoryFactory implements ServiceManager\ServiceFactoryInterface
+class EntityFactoryFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         return new EntityFactory($sl);
     }

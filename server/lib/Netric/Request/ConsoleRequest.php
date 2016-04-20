@@ -9,6 +9,14 @@ namespace Netric\Request;
 
 use Zend\Console\Getopt;
 
+/*
+ * A tick is an event that occurs for every N low-level tickable
+ * statements executed by the parser within the declare block.
+ * We are basically telling the pcntl_signal to check after every
+ * single operation to see if we should exit.
+ */
+declare(ticks = 1);
+
 class ConsoleRequest implements RequestInterface
 {
 	/**
@@ -39,6 +47,13 @@ class ConsoleRequest implements RequestInterface
      * @var string
      */
     private $rawBody = null;
+
+    /**
+     * Flag if the request (process) is being canceled or stopped
+     *
+     * @var bool
+     */
+    private $stopping = false;
 
 	/**
 	 * Initialize request object variables
@@ -84,6 +99,13 @@ class ConsoleRequest implements RequestInterface
          * Store environment data
          */
         $this->envParams = $env;
+
+        // Setup signal handlers to actually catch and direct the signals
+        if (function_exists("pcntl_signal")) {
+            pcntl_signal(SIGTERM, array($this, "singHandleStop"));
+            pcntl_signal(SIGHUP, array($this, "singHandleStop"));
+            pcntl_signal(SIGINT, array($this, "singHandleStop"));
+        }
 	}
 
 	/**
@@ -238,6 +260,16 @@ class ConsoleRequest implements RequestInterface
     }
 
     /**
+     * Manual path override
+     *
+     * @param string $path The path to set
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
      * Get the method/verb of the request type
      *
      * @return string Always returns 'CONSOLE'
@@ -255,5 +287,25 @@ class ConsoleRequest implements RequestInterface
     public function setBody($data)
     {
         $this->rawBody = $data;
+    }
+
+    /**
+     * Handle stop signals if we are working in the console
+     *
+     * @param int $signo
+     */
+    public function singHandleStop($signo)
+    {
+        $this->stopping = true;
+    }
+
+    /**
+     * Check if the request was canceled and we should exist gracefully
+     *
+     * @return bool true if the process is being killed
+     */
+    public function isStopping()
+    {
+        return $this->stopping;
     }
 }

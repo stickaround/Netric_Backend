@@ -49,6 +49,7 @@ declare(ticks = 1);
  */
 function sig_handler($signo) {
     global $pids,$pidFileWritten, $log;
+
     if ($signo == SIGTERM || $signo == SIGHUP || $signo == SIGINT){
         // If we are being restarted or killed, quit all children
 
@@ -84,7 +85,7 @@ pcntl_signal(SIGUSR1, "sig_handler");
  */
 $pid=pcntl_fork();
 if(!$pid){
-    pcntl_exec("scripts/netric.d/scheduler.php",[]);
+    pcntl_exec("./netric",["workers/schedule", "--daemon=true"]);
     exit();
 } else {
     // We add pids to a global array so we can manage as needed
@@ -94,8 +95,8 @@ if(!$pid){
 /*
  * Now run workers
  */
-$program = "scripts/netric.d/worker.php";
-$arguments = array("");
+$program = "./netric";
+$arguments = array("workers/process", "--daemon=true");
 
 while(true) {
 
@@ -107,7 +108,7 @@ while(true) {
 
         if(!$pid){
             // New thread launches worker
-            pcntl_exec($program, $arguments); // takes an array of arguments
+            pcntl_exec($program, $arguments);
 
             exit();
         } else {

@@ -5,7 +5,7 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 
@@ -17,27 +17,27 @@ class WorkflowActionEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(ServiceLocatorInterface $sm)
+    public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
     }
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(ServiceLocatorInterface $sm)
+    public function onAfterSave(AccountServiceManagerInterface $sm)
     {
     }
 
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeDeleteHard(ServiceLocatorInterface $sm)
+    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
     {
 
     }

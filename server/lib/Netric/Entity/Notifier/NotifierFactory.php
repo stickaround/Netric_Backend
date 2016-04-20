@@ -5,21 +5,21 @@
  */
 namespace Netric\Entity\Notifier;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\ServiceManager\ServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\AccountServiceLocatorInterface;
 
 /**
  * Create a new Notifier service
  */
-class NotifierFactory implements ServiceFactoryInterface
+class NotifierFactory implements AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
      * @return Notifier
      */
-    public function createService(ServiceLocatorInterface $serviceManager)
+    public function createService(AccountServiceManagerInterface $serviceManager)
     {
         $entityLoader = $serviceManager->get("EntityLoader");
         $entityIndex = $serviceManager->get("EntityQuery_Index");

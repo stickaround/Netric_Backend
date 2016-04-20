@@ -1,17 +1,15 @@
 <?php
-/*
- * Define interface for a service locator
- * 
+/**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @copyright 2015-2016 Aereus
  */
 namespace Netric\ServiceManager;
 
-use Netric\Account\Account;
+use Netric\Application\Application;
 
 /**
- * Service factories are classes that handle the construction of complex/cumbersome services
- */
+* Service factories are classes that handle the construction of complex/cumbersome services
+*/
 interface ServiceLocatorInterface
 {
     /**
@@ -23,9 +21,9 @@ interface ServiceLocatorInterface
     public function get($serviceName);
 
     /**
-     * Get the current account/tennant
+     * Get the current running application
      *
-     * @return Account;
+     * @return Application;
      */
-    public function getAccount();
+    public function getApplication();
 }

@@ -12,7 +12,7 @@ use Netric\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Mail;
 use Netric\Mime;
 use Netric\FileSystem\FileSystem;
@@ -85,9 +85,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(ServiceLocatorInterface $sm)
+    public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         // Make sure a unique message_id is set
         if (!$this->getValue('message_id'))
@@ -113,9 +113,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(ServiceLocatorInterface $sm)
+    public function onAfterSave(AccountServiceManagerInterface $sm)
     {
         if ($this->isDeleted())
         {
@@ -140,9 +140,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeDeleteHard(ServiceLocatorInterface $sm)
+    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
     {
         // If purging, then clear the raw file holding our message data
         if ($this->getValue('file_id'))

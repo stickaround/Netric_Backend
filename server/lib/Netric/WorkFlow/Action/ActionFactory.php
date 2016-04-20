@@ -7,7 +7,7 @@
  */
 namespace Netric\WorkFlow\Action;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\WorkFlow\Action\Exception\ActionNotFoundException;
 
 /**
@@ -20,16 +20,16 @@ class ActionFactory
     /**
      * Service manager used to load dependencies
      *
-     * @var ServiceLocatorInterface
+     * @var AccountServiceManagerInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param ServiceLocatorInterface $sl ServiceLocator implementation for injecting dependencies
+     * @param AccountServiceManagerInterface $sl ServiceLocator implementation for injecting dependencies
      */
-    public function __construct(ServiceLocatorInterface $sl)
+    public function __construct(AccountServiceManagerInterface $sl)
     {
         $this->serviceManager = $sl;
     }

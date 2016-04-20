@@ -6,22 +6,22 @@
 
 namespace Netric\Mail\Transport;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\ServiceManager\ServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\AccountServiceLocatorInterface;
 
 /**
  * Create the default SMTP transport
  */
-class TransportFactory implements ServiceFactoryInterface
+class TransportFactory implements AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function createService(ServiceLocatorInterface $serviceManager)
+    public function createService(AccountServiceManagerInterface $serviceManager)
     {
         // Get the required method
         $config = $serviceManager->get("Config");

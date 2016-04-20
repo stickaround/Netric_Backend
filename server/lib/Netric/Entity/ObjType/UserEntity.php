@@ -44,9 +44,9 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
+    public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("password"))
@@ -66,9 +66,9 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
+    public function onAfterSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
     {
         // Update the account email address for the application if changed
         if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name"))

@@ -14,15 +14,15 @@ use Netric\ServiceManager;
  *
  * @package RecurrenceIdentityMapper
  */
-class RecurrenceIdentityMapperFactory implements ServiceManager\ServiceFactoryInterface
+class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return RecurrenceIdentityMapper
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $recurDataMapper = $sl->get("RecurrenceDataMapper");
         return new RecurrenceIdentityMapper($recurDataMapper);

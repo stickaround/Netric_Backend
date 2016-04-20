@@ -23,3 +23,5 @@ $config = new Netric\Config();
 
 // Run the application - arguments will be parsed in run
 Netric\Application\Application::init($config)->run();
+
+exit();

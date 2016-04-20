@@ -1,22 +1,19 @@
 <?php
 /**
- * Define invokable service factory interface
- * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @copyright 2016 Aereus
  */
 namespace Netric\ServiceManager;
 
 /**
  * Service factories are classes that handle the construction of complex/cumbersome services
+ *
+ * We just need to make sure that account or application interfaces extend this so the
+ * service locator knows if the factory is a service locator factory.
+ *
+ * It will check if ($factory Instanceof ServiceFactoryInterface) before calling
+ * ::create to instantiate the service.
  */
 interface ServiceFactoryInterface
 {
-	/**
-	 * Service creation factory
-	 *
-	 * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
-	 * @return mixed Initailized service object
-	 */
-	public function createService(\Netric\ServiceManager\ServiceLocatorInterface $sl);
 }

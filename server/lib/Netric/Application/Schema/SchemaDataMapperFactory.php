@@ -5,21 +5,21 @@
  */
 namespace Netric\Application\Schema;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\ServiceManager\ServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\AccountServiceLocatorInterface;
 
 /**
  * Create the default DataMapper for account schemas
  */
-class SchemaDataMapperFactory implements ServiceFactoryInterface
+class SchemaDataMapperFactory implements AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return SchemaDataMapperInterface
      */
-    public function createService(ServiceLocatorInterface $sl)
+    public function createService(AccountServiceManagerInterface $sl)
     {
         $dbh = $sl->get("Db");
         $schemaDefinition = include(__DIR__ . "/../../../../data/schema/account.php");

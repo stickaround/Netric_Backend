@@ -38,14 +38,22 @@ class WorkFlowTest extends PHPUnit_Framework_TestCase
     {
         $queue = new Queue\InMemory();
         $service = new WorkerService($queue);
-        $this->assertTrue($service->doWork("Test", array("test")));
+        $this->assertTrue($service->doWork("Test", array("mystring"=>"test")));
     }
 
     public function testDoWorkBackground()
     {
         $queue = new Queue\InMemory();
         $service = new WorkerService($queue);
-        $this->assertEquals("1", $service->doWorkBackground("Test", array("test")));
+        $this->assertEquals("1", $service->doWorkBackground("Test", array("mystring"=>"test")));
+    }
+
+    public function testProcessJobQueue()
+    {
+        $queue = new Queue\InMemory();
+        $service = new WorkerService($queue);
+        $service->doWorkBackground("Test", array("mystring"=>"test"));
+        $this->assertTrue($service->processJobQueue());
     }
 
 }

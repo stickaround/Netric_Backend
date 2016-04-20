@@ -45,6 +45,13 @@ interface RequestInterface
 	 */
 	public function getPath();
 
+	/**
+	 * Manual path override
+	 *
+	 * @param string $path The path to set
+	 */
+	public function setPath($path);
+
     /**
      * Get the method/verb of the request type
      *

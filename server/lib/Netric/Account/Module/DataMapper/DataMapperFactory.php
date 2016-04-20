@@ -10,15 +10,15 @@ use Netric\ServiceManager;
 /**
  * Create a data mapper service for modules
  */
-class DataMapperFactory implements ServiceManager\ServiceFactoryInterface
+class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return DataMapperDb
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $dbh = $sl->get('Db');
         return new DataMapperDb($dbh);

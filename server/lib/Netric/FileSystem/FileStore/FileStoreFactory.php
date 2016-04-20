@@ -12,15 +12,15 @@ use Netric\ServiceManager;
 /**
  * Create a file system storage service
  */
-class FileStoreFactory implements ServiceManager\ServiceFactoryInterface
+class FileStoreFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileStoreInterface
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         // TODO: get the default FileStore based on config values
         //       but for now just use local

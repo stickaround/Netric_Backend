@@ -6,8 +6,8 @@
 
 namespace Netric\Mail\Transport;
 
-use Netric\ServiceManager\ServiceLocatorInterface;
-use Netric\ServiceManager\ServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\ServiceManager\AccountServiceLocatorInterface;
 
 /**
  * Create a new Bulk SMTP Transport service based on account settings
@@ -21,16 +21,16 @@ use Netric\ServiceManager\ServiceFactoryInterface;
  * This factory is basically just gathering configuration options from either the system
  * settings or user-defined account settings.
  */
-class BulkSmtpFactory implements ServiceFactoryInterface
+class BulkSmtpFactory implements AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceLocatorInterface $serviceManager ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $serviceManager ServiceLocator for injecting dependencies
      * @return TransportInterface
      * @throws Exception\InvalidArgumentException if a transport could not be created
      */
-    public function createService(ServiceLocatorInterface $serviceManager)
+    public function createService(AccountServiceManagerInterface $serviceManager)
     {
         // Get the required method
         $config = $serviceManager->get("Config");

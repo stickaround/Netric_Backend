@@ -14,15 +14,15 @@ use Netric\ServiceManager;
  *
  * @package Netric\Authentication
  */
-class AuthenticationServiceFactory implements ServiceManager\ServiceFactoryInterface
+class AuthenticationServiceFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $key = "GENERATEDSERVERSIDEKEY";
         $userIndex = $sl->get("EntityQuery_Index");

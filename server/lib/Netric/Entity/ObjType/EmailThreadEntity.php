@@ -12,7 +12,7 @@ use Netric\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Email thread extension
@@ -53,18 +53,18 @@ class EmailThreadEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(ServiceLocatorInterface $sm)
+    public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
     }
 
     /**
      * Callback function used for derived subclasses
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(ServiceLocatorInterface $sm)
+    public function onAfterSave(AccountServiceManagerInterface $sm)
     {
         // Check it see if the user deleted the whole thread
         if ($this->isDeleted()) {
@@ -78,9 +78,9 @@ class EmailThreadEntity extends Entity implements EntityInterface
     /**
      * Called right before the entity is purged (hard delete)
      *
-     * @param ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterDeleteHard(ServiceLocatorInterface $sm)
+    public function onAfterDeleteHard(AccountServiceManagerInterface $sm)
     {
         // Purge all messages that were in this thread
         $this->removeMessages(true); // Now purge

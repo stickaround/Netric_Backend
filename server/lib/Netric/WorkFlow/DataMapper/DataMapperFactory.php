@@ -13,15 +13,15 @@ use Netric\WorkFlow\Action\ActionFactory;
 /**
  * Base DataMapper class
  */
-class DataMapperFactory implements ServiceManager\ServiceFactoryInterface
+class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return DataMapperInterface
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $db = $sl->get("Db");
         $actionFactory = new ActionFactory($sl);

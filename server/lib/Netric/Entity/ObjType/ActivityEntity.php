@@ -33,9 +33,9 @@ class ActivityEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sm Service manager used to load supporting services
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager\ServiceLocatorInterface $sm)
+    public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
     {
         // Set association for the object which is used for queries
         if ($this->getValue('obj_reference'))

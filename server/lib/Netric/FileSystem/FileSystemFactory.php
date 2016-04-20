@@ -13,15 +13,15 @@ use Netric\ServiceManager;
  * Create a file system service
  * @package Netric\FileSystem
  */
-class FileSystemFactory implements ServiceManager\ServiceFactoryInterface
+class FileSystemFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $fileStore = $sl->get('Netric\FileSystem\FileStore\FileStore');
         $user = $sl->getAccount()->getUser();

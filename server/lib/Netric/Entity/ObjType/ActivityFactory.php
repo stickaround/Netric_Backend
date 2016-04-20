@@ -18,10 +18,10 @@ class ActivityFactory implements Entity\EntityFactoryInterface
     /**
      * Entity creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return new Entity\EntityInterface object
      */
-    public static function create(ServiceManager\ServiceLocatorInterface $sl)
+    public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $def = $sl->get("EntityDefinitionLoader")->get("activity");
         return new ActivityEntity($def);

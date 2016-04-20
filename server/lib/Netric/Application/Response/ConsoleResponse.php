@@ -11,6 +11,20 @@ namespace Netric\Application\Response;
 class ConsoleResponse implements ResponseInterface
 {
     /**
+     * Buffer output
+     *
+     * @var string[]
+     */
+    private $outputBuffer = array();
+
+    /**
+     * Flag to suppress output
+     *
+     * @var bool
+     */
+    private $suppressOutput = false;
+
+    /**
      * Set the mime content type of this response
      *
      * For console we only support plain text and json (beautified when pritned)
@@ -67,7 +81,11 @@ class ConsoleResponse implements ResponseInterface
      */
     public function write($text)
     {
-        echo $text;
+        if ($this->suppressOutput) {
+            $this->outputBuffer[] = $text;
+        } else {
+            echo $text;
+        }
     }
 
     /**
@@ -77,6 +95,30 @@ class ConsoleResponse implements ResponseInterface
      */
     public function writeLine($text)
     {
-        echo $text . "\n";
+        if ($this->suppressOutput) {
+            $this->outputBuffer[] = $text;
+        } else {
+            echo $text . "\n";
+        }
+    }
+
+    /**
+     * Turn on or off output suppression
+     *
+     * @param $flag
+     */
+    public function suppressOutput($flag)
+    {
+        $this->suppressOutput = $flag;
+    }
+
+    /**
+     * Get the buffer
+     *
+     * @return string[]
+     */
+    public function getOutputBuffer()
+    {
+        return $this->outputBuffer;
     }
 }

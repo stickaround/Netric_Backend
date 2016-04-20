@@ -45,6 +45,9 @@ class Gearman implements QueueInterface
         $this->gmWorker = new \GearmanWorker();
         $this->gmWorker->addServer($server);
 
+        // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
+        $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
+
         /*
         $client->setCreatedCallback("create_change");
 
@@ -202,8 +205,6 @@ class Gearman implements QueueInterface
         // Register a no-op function to run through the queue (our /dev/null)
         $this->gmWorker->addFunction($workerName, function($job) { return true; });
 
-        // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
-        $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
 
         // If there are no jobs work will return GEARMAN_NO_JOBS
         while($this->dispatchJobs()) {
@@ -212,7 +213,7 @@ class Gearman implements QueueInterface
         $this->gmWorker->unregister($workerName);
 
         // Restore options
-        $this->gmWorker->removeOptions(GEARMAN_WORKER_NON_BLOCKING);
+        //$this->gmWorker->removeOptions(GEARMAN_WORKER_NON_BLOCKING);
 
         // Re-register original listeners
         foreach ($this->listeners as $workerName=>$worker) {

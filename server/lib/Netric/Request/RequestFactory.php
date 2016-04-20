@@ -15,15 +15,15 @@ use Netric\Console\Console;
  *
  * @package Netric\Request
  */
-class RequestFactory implements ServiceManager\ServiceFactoryInterface
+class RequestFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\ServiceLocatorInterface $sl ServiceLocator for injecting dependencies
+     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return RequestInterface
      */
-    public function createService(ServiceManager\ServiceLocatorInterface $sl)
+    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         if (Console::isConsole()) { 
             return new ConsoleRequest();
