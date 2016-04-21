@@ -169,7 +169,7 @@ var WhereComponent = React.createClass({
                 <div className="col-small-12 col-medium-1">
                     {bLogicComponent}
                 </div>
-                <div className="col-small-12 col-medium-4">
+                <div className="col-small-12 col-medium-3">
                     <DropDownMenu
                         menuItems={fieldData}
                         selectedIndex={parseInt(seletedFieldIndex)}
@@ -178,7 +178,7 @@ var WhereComponent = React.createClass({
                 <div className="col-small-12 col-medium-3" >
                     {operatorsComponent}
                 </div>
-                <div className="col-small-6 col-medium-3">
+                <div className="col-small-6 col-medium-4">
                     {valueComponent}
                 </div>
                 <div className="col-small-6 col-medium-1">
@@ -386,16 +386,15 @@ var WhereComponent = React.createClass({
                 // Since <ObjectSelect> is accepting value as string, we need to convert the value to string.
                 if(value !== null) {
                     value = value.toString();
-                    label = value.toString();
                 }
 
                 valueInput = (
                     <ObjectSelect
                         onChange={this._handleSetValue}
                         objType={this.props.objType}
+                        subType={field.subtype}
                         field={field}
-                        value={value}
-                        label={label}/>
+                        value={value}/>
                 );
                 break;
 
