@@ -240,6 +240,9 @@ EntityBrowserController.prototype.reactRender_ = function () {
         onRefreshEntityList: function () {
             this._refreshEntityList()
         }.bind(this),
+        onApplySearch: function (browserView) {
+            this._applyAdvancedSearch(browserView)
+        }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
         selectedEntities: this.selected_,
@@ -247,7 +250,8 @@ EntityBrowserController.prototype.reactRender_ = function () {
         collectionLoading: this.collectionLoading_,
         filters: this.props.filters,
         entitiesTotalNum: parseInt(this.collection_.getTotalNum()),
-        hideNoItemsMessage: this.props.hideNoItemsMessage || false
+        hideNoItemsMessage: this.props.hideNoItemsMessage || false,
+        entityBrowserViews: this.entityDefinition_.views
     }
 
     // Render browser component

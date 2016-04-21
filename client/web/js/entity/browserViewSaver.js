@@ -11,6 +11,7 @@ var BackendRequest = require("../BackendRequest");
 var nertic = require("../base");
 
 var browserViewSaver = {
+
     /**
      * Save a browser view
      *
@@ -47,8 +48,49 @@ var browserViewSaver = {
             }, 'POST', JSON.stringify(data));
                 
         } else {
-            // TODO: Save the data locally into an "outbox"
-            // to be saved on the next connection
+            throw "Error saving browserView: Netric server is offline.";
+        }
+    },
+
+    /**
+     * Set a browser view as default view
+     *
+     * @param {netric\entity\BrowserView} browserView   The browser view that will be set as default view
+     * @param {function} opt_finishedCallback Optional callback to call when finished
+     * @public
+     */
+    setDefaultView: function (browserView, opt_finishedCallback) {
+
+        if (!browserView) {
+            throw "entity/browserViewSaver: First param must be a browserView";
+        }
+
+        if(!browserView.id) {
+            throw "BrowserView should be saved first before setting as the default view.";
+        }
+
+        var data = browserView.getData();
+
+        // If we are connected
+        if (netric.server.online) {
+
+            // Save the data remotely
+            BackendRequest.send("svr/browserview/setDefaultView", function(resp) {
+
+                // First check to see if there was an error
+                if (resp.error) {
+                    throw "Error setting the browser view as default: " + resp.error;
+                }
+
+                // Invoke callback if set
+                if (opt_finishedCallback) {
+                    opt_finishedCallback(browserView);
+                }
+
+            }, 'POST', JSON.stringify(data));
+
+        } else {
+            throw "Error setting the browser view as default: Netric server is offline.";
         }
     }
 }

@@ -48,7 +48,14 @@ var AdvancedSearch = React.createClass({
          *
          * @type {func}
          */
-        onSaveView: React.PropTypes.func
+        onSaveView: React.PropTypes.func,
+
+        /**
+         * Event triggered when the user wants to set the current browserView as the default view
+         *
+         * @type {func}
+         */
+        onSetDefaultView: React.PropTypes.func
     },
 
     getInitialState: function () {
@@ -134,12 +141,22 @@ var AdvancedSearch = React.createClass({
                 />
             );
 
-            // Make sure we only display the save changes button if the browser view is not system generated
-            var displaySaveChanges = null;
-            if (!this.props.browserView.system && this.props.browserView.id) {
-                displaySaveChanges = (
-                    <FlatButton label='Save Changes' onClick={this._handleShowSaveDisplay.bind(this, false)}/>
+
+            var displayButtons = [];
+
+            // If the props.browserView has an id, then let's display the button that can set the browserView as the default view
+            if (this.props.browserView.id) {
+
+                displayButtons.push(
+                    <FlatButton key="setDefault" label='Set as Default View' onClick={this._handleSetDefault}/>
                 );
+
+                // If this props.browserView is not system generated, then let's display a button that can save the changes made by the user
+                if (!this.props.browserView.system) {
+                    displayButtons.push(
+                        <FlatButton key="save" label='Save Changes' onClick={this._handleShowSaveDisplay.bind(this, false)}/>
+                    );
+                }
             }
 
             var display = (
@@ -157,10 +174,10 @@ var AdvancedSearch = React.createClass({
                         {columnViewDisplay}
                     </div>
                     <div>
-                        <FlatButton label='Apply' onClick={this._handleApplyAdvancedSearch}/>
-                        {displaySaveChanges}
+                        <FlatButton key="apply" label='Apply' onClick={this._handleApplyAdvancedSearch}/>
+                        {displayButtons}
                         <span> | </span>
-                        <FlatButton label='Save As New View' onClick={this._handleShowSaveDisplay.bind(this, true)}/>
+                        <FlatButton key="saveNew" label='Save as New View' onClick={this._handleShowSaveDisplay.bind(this, true)}/>
                     </div>
                 </div>
             );
@@ -265,6 +282,24 @@ var AdvancedSearch = React.createClass({
             case 'columnView':
                 this.setState({'columnToViewData': data});
                 break;
+        }
+    },
+
+    /**
+     * Fuction that will set the current browserView as the default view
+     *
+     * @private
+     */
+    _handleSetDefault: function () {
+
+        // Create a new instance of browserView object using the props.browserView as our base object
+        let browserView = Object.create(this.props.browserView);
+
+        // Always make sure we have an objType set in the browserView before we set it as the default view.
+        browserView.setObjType(this.props.objType)
+
+        if(this.props.onSetDefaultView) {
+            this.props.onSetDefaultView(browserView);
         }
     }
 });

@@ -74,6 +74,7 @@ var SortOrder = React.createClass({
                     <div className="col-small-1">
                         <IconButton
                             className="fa fa-times"
+                            tooltip="Remove Order By"
                             onClick={this._handleRemoveOrder.bind(this, idx)}/>
                     </div>
                 </div>

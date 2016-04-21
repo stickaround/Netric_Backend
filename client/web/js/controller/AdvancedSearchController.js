@@ -61,9 +61,14 @@ AdvancedSearchController.prototype.render = function () {
         title: this.props.title || "Advanced Search",
         objType: this.props.objType,
         browserView: this.props.browserView,
-        onApplySearch: this.props.onApplySearch,
+        onApplySearch: function (browserView) {
+            this.props.onApplySearch(browserView);
+        }.bind(this),
         onSaveView: function (browserView, data) {
             this._saveView(browserView, data);
+        }.bind(this),
+        onSetDefaultView: function (browserView) {
+            browserViewSaver.setDefaultView(browserView);
         }.bind(this)
     }
 
@@ -77,8 +82,8 @@ AdvancedSearchController.prototype.render = function () {
 /**
  * Save the browser view
  *
- * @param {entity/BrowserView} browserView   The browser view to save
- * @param {object} data  Contains the user input details for additional browser view information
+ * @param {entity/BrowserView} browserView The browser view to save
+ * @param {object} data Contains the user input details for additional browser view information
  */
 AdvancedSearchController.prototype._saveView = function (browserView, data) {
 

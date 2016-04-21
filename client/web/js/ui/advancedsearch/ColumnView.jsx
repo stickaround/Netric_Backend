@@ -60,7 +60,10 @@ var ColumnView = React.createClass({
                             onChange={this._handleColumnViewClick.bind(this, idx)} />
                     </div>
                     <div className="col-small-1 col-medium-1">
-                        <IconButton onClick={this._handleRemoveColumnToView.bind(this, idx)} className="fa fa-times" />
+                        <IconButton
+                            onClick={this._handleRemoveColumnToView.bind(this, idx)}
+                            tooltip="Remove Column"
+                            className="fa fa-times" />
                     </div>
                 </div>
             )
