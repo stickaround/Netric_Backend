@@ -65,7 +65,7 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
         $queue->doWorkBackground("Test", ["mystring"=>"test"]);
 
         // Now add a worker which will process the queue
-        $worker = new TestWorker();
+        $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
 
         // Dispatch the job
@@ -83,7 +83,7 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
         $queue->clearWorkerQueue("Test");
 
         // Now add a worker which will process the queue
-        $worker = new TestWorker();
+        $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
 
         $this->assertEquals(1, count($queue->getWorkers()));
@@ -100,7 +100,7 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
         $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
 
         // Now add a worker which will process the queue
-        $worker = new TestWorker();
+        $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
 
         // Dispatch the job and get the result, it should take the first job on the queue and return
@@ -118,7 +118,7 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
         $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
 
         // Now add a worker which will process the queue
-        $worker = new TestWorker();
+        $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
 
         // Clear all reqults

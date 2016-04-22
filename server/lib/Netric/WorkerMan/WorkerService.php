@@ -6,6 +6,7 @@
 namespace Netric\WorkerMan;
 
 use Netric\WorkerMan\Queue\QueueInterface;
+use Netric\Application\Application;
 
 /**
  * Service used to interact with the worker manager
@@ -20,6 +21,13 @@ class WorkerService
     private $jobQueue = null;
 
     /**
+     * Current running netric application
+     *
+     * @var Application
+     */
+    private $application = null;
+
+    /**
      * Array of workers to handle jobs
      *
      * @var WorkerInterface[]
@@ -29,10 +37,12 @@ class WorkerService
     /**
      * Setup the WorkerService
      *
+     * @param Application $application Instance of current running netric application
      * @param QueueInterface $queue The Queue used to push jobs and pull info
      */
-    public function __construct(QueueInterface $queue)
+    public function __construct(Application $application, QueueInterface $queue)
     {
+        $this->application = $application;
         $this->jobQueue = $queue;
     }
 
@@ -100,7 +110,7 @@ class WorkerService
             // Add each worker as a listener
             $workerName = substr(basename($filename), 0, -(strlen("Worker.php")));
             $workerClass = "\\Netric\\Worker\\" . $workerName . "Worker";
-            $this->workers[$workerName] = new $workerClass;
+            $this->workers[$workerName] = new $workerClass($this->application);
             $this->jobQueue->addWorker($workerName, $this->workers[$workerName]);
         }
     }

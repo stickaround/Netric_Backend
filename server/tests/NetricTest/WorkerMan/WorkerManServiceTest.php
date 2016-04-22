@@ -30,28 +30,28 @@ class WorkFlowTest extends PHPUnit_Framework_TestCase
     public function testConstruct()
     {
         $queue = new Queue\InMemory();
-        $service = new WorkerService($queue);
+        $service = new WorkerService($this->account->getApplication(), $queue);
         $this->assertInstanceOf('\Netric\WorkerMan\WorkerService', $service);
     }
 
     public function testDoWork()
     {
         $queue = new Queue\InMemory();
-        $service = new WorkerService($queue);
+        $service = new WorkerService($this->account->getApplication(), $queue);
         $this->assertTrue($service->doWork("Test", array("mystring"=>"test")));
     }
 
     public function testDoWorkBackground()
     {
         $queue = new Queue\InMemory();
-        $service = new WorkerService($queue);
+        $service = new WorkerService($this->account->getApplication(), $queue);
         $this->assertEquals("1", $service->doWorkBackground("Test", array("mystring"=>"test")));
     }
 
     public function testProcessJobQueue()
     {
         $queue = new Queue\InMemory();
-        $service = new WorkerService($queue);
+        $service = new WorkerService($this->account->getApplication(), $queue);
         $service->doWorkBackground("Test", array("mystring"=>"test"));
         $this->assertTrue($service->processJobQueue());
     }

@@ -40,6 +40,7 @@ var ObjectField = React.createClass({
         });
     },
 
+
     /**
      * Render the component
      */

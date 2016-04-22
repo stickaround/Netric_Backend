@@ -1,17 +1,17 @@
 <?php
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @copyright 2016 Aereus
  */
 namespace Netric\Worker;
 
 use Netric\WorkerMan\Job;
-use Netric\WorkerMan\WorkerInterface;
+use Netric\WorkerMan\AbstractWorker;
 
 /**
  * This worker is used to test the WorkerMan
  */
-class TestWorker implements WorkerInterface
+class TestWorker extends AbstractWorker
 {
     /**
      * Cache the result
@@ -29,7 +29,18 @@ class TestWorker implements WorkerInterface
     public function work(Job $job)
     {
         $workload = $job->getWorkload();
+
+        // Example of getting the current working application
+        $application = $this->getApplication();
+
+        // Example of failing with an exception
+        if (!$workload['mystring']) {
+            throw new \RuntimeException("TestWorker requires 'mystring' be set in the workload params");
+        }
+
+        // Reverse the string
         $this->result = strrev($workload['mystring']);
+
         return $this->result;
     }
 

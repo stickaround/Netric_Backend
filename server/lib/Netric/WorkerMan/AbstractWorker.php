@@ -1,11 +1,43 @@
 <?php
-$worker= new GearmanWorker();
-$worker->addServer();
-$worker->addFunction("reverse", "my_reverse_function");
-while ($worker->work());
+/**
+ * @author Sky Stebnicki <sky.stebnicki@aereus.com>
+ * @copyright 2016 Aereus
+ */
+namespace Netric\WorkerMan;
+use Netric\Application\Application;
 
-function my_reverse_function($job)
+/**
+ * Base worker that every worker ../Worker should extend
+ */
+abstract class AbstractWorker implements WorkerInterface
 {
-    return strrev($job->workload());
+    /**
+     * Cache the result
+     *
+     * @var Application
+     */
+    private $application = null;
+
+    /**
+     * Setup worker in the context of a current running application
+     *
+     * If a worker extends the constructor, it MUST call:
+     * parent::__construct in order to setup the worker property.
+     *
+     * @param Application $application
+     */
+    public function __construct(Application $application)
+    {
+        $this->application = $application;
+    }
+
+    /**
+     * Get the current running application instance
+     *
+     * @return Application
+     */
+    protected function getApplication()
+    {
+        return $this->application;
+    }
 }
-?>

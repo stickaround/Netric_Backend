@@ -73,6 +73,7 @@ class EntityDefinitionLoader
 	 * Construct the definition class
 	 *
 	 * @param string $objType
+	 * @return EntityDefinition|null
 	 */
 	private function loadDefinition($objType)
 	{
@@ -82,6 +83,10 @@ class EntityDefinitionLoader
 		// No cache, then load from dataMapper
 		if (!$def)
 			$def = $this->dataMapper->fetchByName($objType);
+
+		// Does not exist
+		if (!$def)
+			return null;
 
 		// Check if this is a system object and if it is 
 		$sysData = $this->getSysDef($objType);

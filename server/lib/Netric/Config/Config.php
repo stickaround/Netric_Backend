@@ -6,11 +6,12 @@
 namespace Netric\Config;
 
 use Netric\Config\Exception;
+use ArrayAccess;
 
 /**
  * Simple configuration object
  */
-class Config
+class Config implements ArrayAccess
 {
     /**
      * Configuration properties
@@ -141,5 +142,62 @@ class Config
             }
         }
         return $array;
+    }
+
+    /**
+     * Set a property at a specific offset
+     *
+     * ArrayAccess interface function. Since the config is designed
+     * to be read-only after it has been constructed (to keep people from
+     * using it as a global registry), we throw an exception if they
+     * try to set a property like this.
+     *
+     * @param string $offset The name of the property to set
+     * @param mixed $value The value to set
+     * @throws Exception\ViolatedReadOnlyException
+     */
+    public function offsetSet($offset, $value)
+    {
+        $exceptionMessage = "Setting properties is not allowed after construction";
+        throw new Exception\ViolatedReadOnlyException($exceptionMessage);
+    }
+
+    /**
+     * Check if a property exists
+     *
+     * ArrayAccess interface function
+     *
+     * @param string $offset The name of the property to set
+     * @return bool
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->properties[$offset]);
+    }
+
+    /**
+     * Unset a value - not allowed since this is read-only
+     *
+     * ArrayAccess interface function
+     *
+     * @param string $offset The name of the property to set
+     */
+    public function offsetUnset($offset)
+    {
+        $exceptionMessage = "Unsetting properties is not allowed after construction";
+        throw new Exception\ViolatedReadOnlyException($exceptionMessage);
+    }
+
+    /**
+     * Get a property by name
+     *
+     * ArrayAccess interface function
+     *
+     * @param string $offset The name of the property to set
+     * @return mixed The value of the property
+     */
+    public function offsetGet($offset)
+    {
+        return $this->get($offset);
     }
 }

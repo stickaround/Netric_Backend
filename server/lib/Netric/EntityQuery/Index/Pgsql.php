@@ -83,7 +83,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
      * @param Results $results Optional results set to use. Otherwise create new.
 	 * @return \Netric\EntityQuery\Results
 	 */
-	public function executeQuery(EntityQuery &$query, Results $results = null)
+	protected function queryIndex(EntityQuery $query, Results $results = null)
     {
         $condition_query = "";
         $def = $this->getDefinition($query->getObjType());

@@ -1547,7 +1547,32 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
         $dm->delete($folder2, true);
         $dm->delete($folder1, true);
     }
-    
+
+    /**
+     * Make sure that the query will load and run plugins
+     */
+    public function testPlugin()
+    {
+        $index = $this->getIndex();
+        if (!$index)
+            return;
+
+        $testPlugin = new TestAssets\TestIndexPlugin();
+
+        $property = new \ReflectionProperty("\\Netric\\EntityQuery\\Index\\IndexAbstract", "pluginsLoaded");
+        $property->setAccessible(true);
+        $property->setValue($index, ["customer"=>$testPlugin]);
+
+        // Query value
+        $query = new EntityQuery("customer");
+        $query->where('*')->fullText("test");
+        $index->executeQuery($query);
+
+        // Make sure the plugin was called
+        $this->assertTrue($testPlugin->beforeRan);
+        $this->assertTrue($testPlugin->afterRan);
+    }
+
     /**
 	 * Test hierarcy subqueries
 	 *

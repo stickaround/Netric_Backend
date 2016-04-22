@@ -13,23 +13,37 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $index = $serviceManager->get("EntityQuery_Index");
 $entityLoader = $serviceManager->get("EntityLoader");
+$entityDefinitionLoader = $serviceManager->get("EntityDefinitionLoader");
 
-// Find all contact_personal entities where commit_id is null
-$query = new \Netric\EntityQuery("contact_personal");
-$query->where("commit_id")->equals("");
+$def = null;
+try {
+    $def = $entityDefinitionLoader->get("contact_personal");
+} catch (Exception $ex) {
+    $serviceManager->get("Log")->error("Could not load contact_personal definition");
+    $def = null;
+}
 
-// Get the results
-$results = $index->executeQuery($query);
-$totalNum = $results->getTotalNum();
+// Make sure that we have contact_personal entities
+if ($def) {
 
-// Loop over total num - the results will paginate as needed
-for ($i = 0; $i < $totalNum; $i++) {
+    // Find all contact_personal entities where commit_id is null
+    $query = new \Netric\EntityQuery("contact_personal");
+    $query->where("commit_id")->equals("");
 
-    // Get each contact
-    $entity = $results->getEntity($i);
+    // Get the results
+    $results = $index->executeQuery($query);
+    $totalNum = $results->getTotalNum();
 
-    // Just saving the entity will result in a new commit id being created
-    if ($entity) {
-        $entityLoader->save($entity);
+    // Loop over total num - the results will paginate as needed
+    for ($i = 0; $i < $totalNum; $i++) {
+
+        // Get each contact
+        $entity = $results->getEntity($i);
+
+        // Just saving the entity will result in a new commit id being created
+        if ($entity) {
+            $entityLoader->save($entity);
+        }
     }
 }
+

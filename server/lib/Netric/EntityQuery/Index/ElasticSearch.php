@@ -49,7 +49,7 @@ class ElasticSearch extends IndexAbstract
      * @param string $id Unique id of object to delete
 	 * @return \Netric\EntityQuery\Results
 	 */
-	public function executeQuery(\Netric\EntityQuery &$query)
+	protected function queryIndex(\Netric\EntityQuery $query)
     {
         return false;
     }

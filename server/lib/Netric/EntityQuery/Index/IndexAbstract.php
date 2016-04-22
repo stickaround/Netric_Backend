@@ -9,6 +9,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\Entity\Recurrence;
+use Netric\EntityQuery\Plugin\PluginInterface;
 
 abstract class IndexAbstract
 {
@@ -32,6 +33,13 @@ abstract class IndexAbstract
      * @var Recurrence\RecurrenceSeriesManager
      */
     private $recurSeriesManager = null;
+
+    /**
+     * Index of plugins loaded by objName
+     *
+     * @var array('obj_name'=>PluginInterface)
+     */
+    private $pluginsLoaded = [];
 
     /**
      * Setup this index for the given account
@@ -79,7 +87,7 @@ abstract class IndexAbstract
      * @param Results $results Optional results set to use. Otherwise create new.
      * @return \Netric\EntityQuery\Results
      */
-    //abstract protected function queryIndex(EntityQuery $query, Results $results = null);
+    abstract protected function queryIndex(EntityQuery $query, Results $results = null);
 
     /**
      * Execute a query and return the results
@@ -88,14 +96,22 @@ abstract class IndexAbstract
      * @param Results $results Optional results set to use. Otherwise create new.
      * @return \Netric\EntityQuery\Results
      */
-    //public function executeQuery(EntityQuery &$query, Results $results = null)
-    //{
+    public function executeQuery(EntityQuery $query, Results $results = null)
+    {
         // First check to see if we have any recurring patterns to update
         //$this->recurSeriesManager->createInstancesFromQuery($query, $results);
 
+        // Trigger any plguins for before the query completed
+        $this->beforeExecuteQuery($query);
+
         // Get results form the index for a query
-        //return $this->queryIndex($query);
-    //}
+        $ret = $this->queryIndex($query, $results);
+
+        // Trigger any plugins after the query completed
+        $this->afterExecuteQuery($query);
+
+        return $ret;
+    }
     
     /**
 	 * Split a full text string into an array of terms
@@ -343,5 +359,63 @@ abstract class IndexAbstract
         */
 
         return $value;
+    }
+
+    /**
+     * Check to see if we have any plugins listening before the query executes
+     *
+     * @param EntityQuery $query The query that is about to run
+     */
+    private function beforeExecuteQuery(EntityQuery $query)
+    {
+        $plugin = $this->getPlugin($query->getObjType());
+        if ($plugin) {
+            $plugin->onBeforeExecuteQuery($this->account->getServiceManager());
+        }
+    }
+
+    /**
+     * Check to see if we have any plugins listening after the query executes
+     *
+     * @param EntityQuery $query The query that just ran
+     */
+    private function afterExecuteQuery(EntityQuery $query)
+    {
+        $plugin = $this->getPlugin($query->getObjType());
+        if ($plugin) {
+            $plugin->onAfterExecuteQuery($this->account->getServiceManager());
+        }
+    }
+
+    /**
+     * Look for and constuct a query plugin if it exists
+     *
+     * @param string $objType The object type name
+     * @return PluginInterface|null
+     */
+    private function getPlugin($objType)
+    {
+        $plugin = null;
+
+        // Check if we have already loaded this plugin
+        if (isset($this->pluginsLoaded[$objType])) {
+            return $this->pluginsLoaded[$objType];
+        }
+
+        $objClassName = str_replace("_", " ", $objType);
+        $objClassName = ucwords($objClassName);
+        $objClassName = str_replace(" ", "" , $objClassName);
+
+        $pluginName = "\\Netric\\EntityQuery\\Plugin\\" . $objClassName . 'QueryPlugin';
+        if (class_exists($pluginName)) {
+
+            // Construct a new plugin
+            $plugin = new $pluginName();
+
+            // Cache for future calls
+            $this->pluginsLoaded[$objType] = $plugin;
+        }
+
+        return $plugin;
     }
 }

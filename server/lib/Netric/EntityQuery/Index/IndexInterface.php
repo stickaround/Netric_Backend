@@ -22,5 +22,5 @@ interface IndexInterface
      * @param Results $results Optional results set to use. Otherwise create new.
      * @return \Netric\EntityQuery\Results
      */
-    public function executeQuery(EntityQuery &$query, Results $results = null);
+    public function executeQuery(EntityQuery $query, Results $results = null);
 }

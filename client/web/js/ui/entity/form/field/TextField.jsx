@@ -61,8 +61,8 @@ var TextField = React.createClass({
         var elementNode = this.props.elementNode;
         var hidelabel = elementNode.getAttribute('hidelabel');
         var fieldName = elementNode.getAttribute('name');
-        var multiline = (elementNode.getAttribute('multiline') == 't') ? true : false;
-        var rich = (elementNode.getAttribute('rich') == 't') ? true : false;
+        var multiline = (elementNode.getAttribute('multiline') === 't');
+        var rich = (elementNode.getAttribute('rich') === 't');
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
@@ -195,7 +195,7 @@ var TextField = React.createClass({
         /*
          * Transform fieldValue for display
          */
-        if (rich && fieldValue) {
+        if (!rich && fieldValue) {
             var re = new RegExp("\n", 'gi');
             fieldValue = fieldValue.replace(re, "<br />");
         }

@@ -8,5 +8,8 @@
     "facebook/php-sdk-v4" : "4.0.*",
     "zendframework/zendframework": "~2.5",
     "zircote/swagger-php": "^2.0"
+  },
+  "require-dev": {
+    "johnkary/phpunit-speedtrap": "^1.0"
   }
 }
