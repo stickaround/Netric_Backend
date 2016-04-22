@@ -43,7 +43,7 @@ var ObjectField = React.createClass({
     componentDidMount: function () {
 
         // Make sure we have the field value label set
-        var fieldName = this.props.xmlNode.getAttribute('name');
+        var fieldName = this.props.elementNode.getAttribute('name');
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
         var valueLabel = this.props.entity.getValueName(fieldName, fieldValue);
