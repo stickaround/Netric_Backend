@@ -12,6 +12,7 @@ var Dialog = Chamel.Dialog;
 var FlatButton = Chamel.FlatButton;
 var IconButton = Chamel.IconButton;
 var controller = require("../../controller/controller");
+var entityLoader = require("../../entity/loader");
 
 
 /**
@@ -42,7 +43,7 @@ var ObjectSelect = React.createClass({
     /**
      * Set defaults
      */
-    getDefaultProps: function() {
+    getDefaultProps: function () {
         return {
             label: 'None',
             value: null,
@@ -55,10 +56,22 @@ var ObjectSelect = React.createClass({
     /**
      * Get the initial state of this componenet
      */
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             value: this.props.value,
             label: this.props.label,
+        }
+    },
+
+    componentDidMount: function () {
+
+        // Make sure we have the field value label set
+        var subtype = this.props.subtype || this.props.field.subtype;
+
+        if (subtype) {
+            entityLoader.get(subtype, this.props.value, function (ent) {
+                this.setState({label: ent.getName()});
+            }.bind(this));
         }
     },
 
@@ -72,7 +85,7 @@ var ObjectSelect = React.createClass({
         var clearValue = null;
         if (this.state.value && !this.props.required) {
             clearValue = (
-              <IconButton onClick={this._clearValue} tooltip="Clear Value" className="cfi cfi-close" />
+                <IconButton onClick={this._clearValue} tooltip="Clear Value" className="cfi cfi-close"/>
             );
         }
 
@@ -87,7 +100,7 @@ var ObjectSelect = React.createClass({
      * The user has clicked browse to select an entity
      *
      */
-    _handleBrowseClick: function() {
+    _handleBrowseClick: function () {
 
         if (!this.props.field) {
             throw "Field is required.";
@@ -97,7 +110,7 @@ var ObjectSelect = React.createClass({
 
         // Get the field subtype
         var subtype = field.subtype;
-        if(!subtype) {
+        if (!subtype) {
             subtype = this.props.subtype;
         }
 
@@ -116,7 +129,7 @@ var ObjectSelect = React.createClass({
             type: controller.types.DIALOG,
             title: "Select " + field.title,
             objType: subtype,
-            onSelect: function(objType, oid, title) {
+            onSelect: function (objType, oid, title) {
                 this._handleChange(oid, title);
             }.bind(this)
         });
@@ -129,7 +142,7 @@ var ObjectSelect = React.createClass({
      * @param {string} title The human readable title of the entity selected
      * @private
      */
-    _handleChange: function(oid, title) {
+    _handleChange: function (oid, title) {
 
         this.setState({value: oid, label: title});
 
@@ -145,7 +158,7 @@ var ObjectSelect = React.createClass({
      * @param {string} title The human readable title of the entity selected
      * @private
      */
-    _clearValue: function(oid, title) {
+    _clearValue: function (oid, title) {
 
         this.setState({value: null, label: ""});
         this._handleChange(null, null);

@@ -169,21 +169,22 @@ var WhereComponent = React.createClass({
                 <div className="col-small-12 col-medium-1">
                     {bLogicComponent}
                 </div>
-                <div className="col-small-12 col-medium-4">
+                <div className="col-small-12 col-medium-3">
                     <DropDownMenu
                         menuItems={fieldData}
                         selectedIndex={parseInt(seletedFieldIndex)}
                         onChange={this._handleFieldClick} />
                 </div>
-                <div className="col-small-12 col-medium-4" >
+                <div className="col-small-12 col-medium-3" >
                     {operatorsComponent}
                 </div>
-                <div className="col-small-6 col-medium-2">
+                <div className="col-small-6 col-medium-4">
                     {valueComponent}
                 </div>
                 <div className="col-small-6 col-medium-1">
                     <IconButton
                         onClick={this._handleRemoveCondition}
+                        tooltip="Remove Condition"
                         className="fa fa-times" />
                 </div>
             </div>
@@ -199,6 +200,7 @@ var WhereComponent = React.createClass({
      * @private
      */
     _handleBlogicClick: function(e, key, menuItem) {
+
         // Copy original where
         var where = new Where(this.props.where.fieldName);
 
@@ -219,6 +221,7 @@ var WhereComponent = React.createClass({
      * @private
      */
     _handleOperatorClick: function(e, key, menuItem) {
+
         // Create a new where and copy it from the previous
         var where = new Where(this.props.where.fieldName);
         where.fromData(this.props.where.toData());
@@ -239,6 +242,7 @@ var WhereComponent = React.createClass({
      * @private
      */
     _handleValueInputBlur: function(e) {
+
         // Create a new where and copy it from the previous
         var where = new Where(this.props.where.fieldName);
         where.fromData(this.props.where.toData());
@@ -260,6 +264,7 @@ var WhereComponent = React.createClass({
      * @private
      */
     _handleGroupingSelect: function(payload, text) {
+
         // Create a new where and copy it from the previous
         var where = new Where(this.props.where.fieldName);
         where.fromData(this.props.where.toData());
@@ -282,6 +287,7 @@ var WhereComponent = React.createClass({
      * @private
      */
     _handleValueSelect: function(e, key, menuItem) {
+
         // Create a new where and copy it from the previous
         var where = new Where(this.props.where.fieldName);
         where.fromData(this.props.where.toData());
@@ -304,6 +310,7 @@ var WhereComponent = React.createClass({
      * @private
      */
     _handleFieldClick: function(e, key, data) {
+
         // Create a new where and copy from original but overwrite the fieldName
         var where = new Where(data.payload);
         where.bLogic = this.props.where.bLogic;
@@ -313,7 +320,25 @@ var WhereComponent = React.createClass({
          * the new field type supports the same operator and value type
          * as was previously set
          */
+        if (this.props.onChange) {
+            this.props.onChange(this.props.index, where);
+        }
+    },
 
+    /**
+     * Callback used to handle commands when user selects a value in the object select
+     *
+     * @param {int} oid The unique id of the entity selected
+     * @param {string} title The human readable title of the entity selected
+     * @private
+     */
+    _handleSetValue: function (oid, title) {
+
+        // Create a new where and copy from original but overwrite the fieldName
+        var where = new Where(this.props.where.fieldName);
+        where.value = oid;
+
+        // Send new where to parent
         if (this.props.onChange) {
             this.props.onChange(this.props.index, where);
         }
@@ -355,12 +380,21 @@ var WhereComponent = React.createClass({
                 break;
 
             case Field.types.object:
+
+                var label = null;
+
+                // Since <ObjectSelect> is accepting value as string, we need to convert the value to string.
+                if(value !== null) {
+                    value = value.toString();
+                }
+
                 valueInput = (
                     <ObjectSelect
                         onChange={this._handleSetValue}
                         objType={this.props.objType}
+                        subType={field.subtype}
                         field={field}
-                        value={null} />
+                        value={value}/>
                 );
                 break;
 

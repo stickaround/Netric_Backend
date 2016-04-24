@@ -169,6 +169,9 @@ class BrowserView
         if (isset($data['default']) && is_bool($data['default']))
             $this->default = $data['default'];
 
+        if (isset($data['f_default']) && is_bool($data['f_default']))
+            $this->default = $data['f_default'];
+
         if (isset($data['team_id']))
             $this->setTeamId($data['team_id']);
 

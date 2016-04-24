@@ -15,7 +15,8 @@ var browserViewSaver = require("../entity/browserViewSaver");
 /**
  * Controller that loads an Advanced Search
  */
-var AdvancedSearchController = function() {}
+var AdvancedSearchController = function () {
+}
 
 /**
  * Extend base controller class
@@ -35,10 +36,10 @@ AdvancedSearchController.prototype.rootReactNode_ = null;
  *
  * @param {function} opt_callback If set call this function when we are finished loading
  */
-AdvancedSearchController.prototype.onLoad = function(opt_callback) {
-    
+AdvancedSearchController.prototype.onLoad = function (opt_callback) {
+
     var callbackWhenLoaded = opt_callback || null;
-    
+
     if (callbackWhenLoaded) {
         callbackWhenLoaded();
     } else {
@@ -49,23 +50,28 @@ AdvancedSearchController.prototype.onLoad = function(opt_callback) {
 /**
  * Render this controller into the dom tree
  */
-AdvancedSearchController.prototype.render = function() {
+AdvancedSearchController.prototype.render = function () {
     // Set outer application container
     var domCon = this.domNode_;
     var entities = new Array();
     var entityFields = new Array();
-	
+
     // Define the data
     var data = {
         title: this.props.title || "Advanced Search",
         objType: this.props.objType,
-        entityDefinition: this.props.entityDefinition,
         browserView: this.props.browserView,
-        onApplySearch: this.props.onApplySearch,
-        onSaveView: this._saveView,
-        onChangeTitle: this.props.onChangeTitle,
+        onApplySearch: function (browserView) {
+            this.props.onApplySearch(browserView);
+        }.bind(this),
+        onSaveView: function (browserView, data) {
+            this._saveView(browserView, data);
+        }.bind(this),
+        onSetDefaultView: function (browserView) {
+            browserViewSaver.setDefaultView(browserView);
+        }.bind(this)
     }
-	
+
     // Render browser component
     this.rootReactNode_ = ReactDOM.render(
         React.createElement(UiAdvancedSearch, data),
@@ -75,24 +81,37 @@ AdvancedSearchController.prototype.render = function() {
 
 /**
  * Save the browser view
- * 
- * @param {netric\entity\BrowserView} browserView   The browser view to save
- * @param {object} data  Contains the user input details for additional browser view information
+ *
+ * @param {entity/BrowserView} browserView The browser view to save
+ * @param {object} data Contains the user input details for additional browser view information
  */
-AdvancedSearchController.prototype._saveView = function(browserView, data) {
-    
+AdvancedSearchController.prototype._saveView = function (browserView, data) {
+
+    browserView.setId(data.id);
     browserView.name = data.name;
     browserView.description = data.description;
     browserView.default = data.default;
 
+
     // Check if the browserView is system generated, then we will set the id to null to generate a new id for the custom view
-    if(browserView.system) {
+    if (browserView.system) {
 
         // Set the browserView.id to null so we can set a new id value after saving.
         browserView.setId(null);
     }
 
-    browserViewSaver.save(browserView);
+    // When saving the view, make sure that we set the system to false
+    browserView.system = false;
+
+    // Setup the callback function
+    var callbackFunc = function (browserView) {
+        if (this.props.onSave) {
+            this.props.onSave(browserView);
+        }
+    }.bind(this);
+
+    // After saving the browserView, then let's re-render so it will
+    browserViewSaver.save(browserView, callbackFunc);
 }
 
 module.exports = AdvancedSearchController;
