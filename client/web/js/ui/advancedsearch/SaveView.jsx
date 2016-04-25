@@ -7,10 +7,10 @@
 'use strict';
 
 var React = require('react');
-var Chamel = require('chamel');
-var TextField = Chamel.TextField;
-var FlatButton = Chamel.FlatButton;
-var Checkbox = Chamel.Checkbox;
+var Controls = require('../Controls.jsx');
+var TextField = Controls.TextField;
+var FlatButton = Controls.FlatButton;
+var Checkbox = Controls.Checkbox;
 
 /**
  * Displays input fields for saving the browser view
@@ -18,33 +18,66 @@ var Checkbox = Chamel.Checkbox;
 var SaveView = React.createClass({
     
     propTypes: {
-        data: React.PropTypes.object,
+
+        /**
+         * The id of the browser view
+         *
+         * @type {int}
+         */
+        id: React.PropTypes.string,
+
+        /**
+         * The name of the browser view
+         *
+         * @type {string}
+         */
+        name: React.PropTypes.string,
+
+        /**
+         * The description of the browser view
+         *
+         * @type {string}
+         */
+        description: React.PropTypes.string,
+
+        /**
+         * Flag that determines if the browser view will be set as a default view for this specific user
+         *
+         * @type {bool}
+         */
+        default: React.PropTypes.bool,
+
+        /**
+         * Event triggered when the user decides to save the browser view
+         *
+         * @type {func}
+         */
         onSave: React.PropTypes.func,
+
+        /**
+         * Event triggered when the user cancels the saving of browser view
+         *
+         * @type {func}
+         */
         onCancel: React.PropTypes.func,
-    },
-    
-    componentDidMount: function() {
-        this.refs.name.setValue(this.props.data.name);
-        this.refs.description.setValue(this.props.data.description);
-        this.refs.defaultView.setChecked(this.props.data.default);
     },
     
     render: function() { 
         
         return (
-            <div>
-                <div>
-                    <TextField floatingLabelText='Name:' ref='name'/>
+            <div className="entity-form-field">
+                <div className="entity-form-field-value">
+                    <TextField floatingLabelText='View Name' ref='name' value={this.props.name}/>
                 </div>
-                <div>
-                    <TextField floatingLabelText='Description:' ref='description' />
+                <div className="entity-form-field-value">
+                    <TextField floatingLabelText='Description' ref='description' value={this.props.description}/>
                 </div>
-                <div>
+                <div className="entity-form-field-value">
                     <Checkbox
                         ref="defaultView"
                         value="default"
                         label="Default"
-                        defaultSwitched={false} />
+                        defaultSwitched={this.props.default} />
                 </div>
                 <div>
                     <FlatButton label='Save' onClick={this._handleSave} />
@@ -69,11 +102,15 @@ var SaveView = React.createClass({
         }
         
         if(this.props.onSave) {
-            this.props.data.name = name;
-            this.props.data.description = this.refs.description.getValue();
-            this.props.data.default = this.refs.defaultView.isChecked()
+
+            var data = {
+                id: this.props.id,
+                name: name,
+                description: this.refs.description.getValue(),
+                default: this.refs.defaultView.isChecked()
+            }
             
-            this.props.onSave(this.props.data);
+            this.props.onSave(data);
         }
     },
     

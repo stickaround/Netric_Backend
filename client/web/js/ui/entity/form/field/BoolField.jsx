@@ -35,13 +35,18 @@ var BoolField = React.createClass({
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
 
+        // If we have a fieldValue, then let's convert it to string
+        if (fieldValue) {
+            fieldValue = fieldValue.toString();
+        }
+
         if (this.props.editMode) {
             return (<Checkbox
-                name={fieldName}
-                value={fieldValue.toString()}
-                label={field.title}
-                onCheck={this._handleCheck}
-                defaultSwitched={fieldValue} />
+                    name={fieldName}
+                    value={fieldValue}
+                    label={field.title}
+                    onCheck={this._handleCheck}
+                    defaultSwitched={fieldValue}/>
             );
         } else {
             var valLabel = (fieldValue) ? "Yes" : "No";
@@ -58,7 +63,7 @@ var BoolField = React.createClass({
     /**
      * Handle value change
      */
-    _handleCheck: function(evt, isInputChecked) {
+    _handleCheck: function (evt, isInputChecked) {
         var val = evt.target.value;
         log.info("Setting", this.props.elementNode.getAttribute('name'), "to", isInputChecked);
         this.props.entity.setValue(this.props.elementNode.getAttribute('name'), isInputChecked);

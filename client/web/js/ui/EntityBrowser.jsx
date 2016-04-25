@@ -60,7 +60,10 @@ var EntityBrowser = React.createClass({
          *
          * @type {bool}
          */
-        hideNoItemsMessage: React.PropTypes.bool
+        hideNoItemsMessage: React.PropTypes.bool,
+
+        entityBrowserViews: React.PropTypes.array,
+        onApplySearch: React.PropTypes.func
     },
 
     getDefaultProps: function () {
@@ -122,6 +125,8 @@ var EntityBrowser = React.createClass({
                         onPerformAction={this.props.onPerformAction}
                         onSelectAll={this.handleSeelctAll_}
                         selectedEntities={this.props.selectedEntities}
+                        entityBrowserViews={this.props.entityBrowserViews}
+                        onApplySearch={this.props.onApplySearch}
                     />
                 );
             } else {

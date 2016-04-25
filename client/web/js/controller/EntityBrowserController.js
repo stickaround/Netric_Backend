@@ -240,6 +240,9 @@ EntityBrowserController.prototype.reactRender_ = function () {
         onRefreshEntityList: function () {
             this._refreshEntityList()
         }.bind(this),
+        onApplySearch: function (browserView) {
+            this._applyAdvancedSearch(browserView)
+        }.bind(this),
         onNavBtnClick: this.props.onNavBtnClick || null,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null,
         selectedEntities: this.selected_,
@@ -247,7 +250,8 @@ EntityBrowserController.prototype.reactRender_ = function () {
         collectionLoading: this.collectionLoading_,
         filters: this.props.filters,
         entitiesTotalNum: parseInt(this.collection_.getTotalNum()),
-        hideNoItemsMessage: this.props.hideNoItemsMessage || false
+        hideNoItemsMessage: this.props.hideNoItemsMessage || false,
+        entityBrowserViews: this.entityDefinition_.views
     }
 
     // Render browser component
@@ -361,7 +365,7 @@ EntityBrowserController.prototype.setCollectionConditions = function (filters) {
     var orderBy = this.browserView_.getOrderBy();
     if (orderBy) {
         for (var idx in orderBy) {
-            this.collection_.setOrderBy(orderBy[idx].field, orderBy[idx].direction);
+            this.collection_.setOrderBy(orderBy[idx].getFieldName(), orderBy[idx].getDirection());
         }
     }
 };
@@ -541,15 +545,30 @@ EntityBrowserController.prototype._displayAdvancedSearch = function () {
     var AdvancedSearchController = require("./AdvancedSearchController");
     var advancedSearch = new AdvancedSearchController();
 
+    var title = "Advanced Search";
+
+    // If we have a browserView name, then let's append it to the title
+    if(this.browserView_.name) {
+        title += " - " + this.browserView_.name;
+    }
+
     advancedSearch.load({
         type: controller.types.DIALOG,
-        title: "Advanced Search",
+        title: title,
         objType: this.props.objType,
-        entityDefinition: this.entityDefinition_,
         browserView: Object.create(this.browserView_),
         onApplySearch: function (browserView) {
             this._applyAdvancedSearch(browserView)
         }.bind(this),
+        onSave: function(browserView) {
+
+            // Apply the new browserView
+            this._applyAdvancedSearch(browserView);
+
+            // We need to re-render the advanced search to reflect the new browserView title and other changes
+            advancedSearch.unload();
+            this._displayAdvancedSearch();
+        }.bind(this)
     });
 }
 

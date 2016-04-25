@@ -1,7 +1,6 @@
 /**
  * AppBar used for browse mode
  *
-
  */
 'use strict';
 
@@ -9,9 +8,11 @@ var React = require('react');
 var AppBarSearch = require("./AppBarSearch.jsx");
 var AppBarSelect = require("./AppBarSelect.jsx");
 var actionModes = require("../../entity/actions/actionModes");
-var Chamel = require('chamel');
-var AppBar = Chamel.AppBar;
-var IconButton = Chamel.IconButton;
+var Controls = require('../Controls.jsx');
+var AppBar = Controls.AppBar;
+var IconButton = Controls.IconButton;
+var DropDownIcon = Controls.DropDownIcon;
+
 
 /**
  * Module shell
@@ -19,7 +20,7 @@ var IconButton = Chamel.IconButton;
 var AppBarBrowse = React.createClass({
 
     propTypes: {
-        title : React.PropTypes.string,
+        title: React.PropTypes.string,
         // Navigation button action - hamburger to the left of the title
         onNavBtnClick: React.PropTypes.func,
         // Navigation back button - left arrow to the eft of the title
@@ -31,16 +32,18 @@ var AppBarBrowse = React.createClass({
         deviceSize: React.PropTypes.number,
         selectedEntities: React.PropTypes.array,
         actionHandler: React.PropTypes.object,
+        entityBrowserViews: React.PropTypes.array,
+        onApplySearch: React.PropTypes.func
     },
 
     /**
      * Set initial state for the browser
      */
-    getInitialState: function() {
-        return { searchMode: false };
+    getInitialState: function () {
+        return {searchMode: false};
     },
 
-    render: function() {
+    render: function () {
 
         var elementRight = null;
         var elemmentLeft = null;
@@ -53,12 +56,12 @@ var AppBarBrowse = React.createClass({
                 <IconButton
                     key="back"
                     iconClassName="fa fa-arrow-left"
-                    onClick={this.deSelectAll_} />
+                    onClick={this._deSelectAll}/>
             );
 
             // Create app bar for selected elements
             var actions = this.props.actionHandler.getActions(actionModes.BROWSE, this.props.selectedEntities);
-            elementRight = <AppBarSelect onPerformAction={this.props.onPerformAction} actions={actions} />;
+            elementRight = <AppBarSelect onPerformAction={this.props.onPerformAction} actions={actions}/>;
 
             title = this.props.selectedEntities.length + "";
 
@@ -69,23 +72,50 @@ var AppBarBrowse = React.createClass({
                 <IconButton
                     key="searchLeft"
                     iconClassName="fa fa-arrow-left"
-                    onClick={this.toggleSearchMode} />
+                    onClick={this.toggleSearchMode}/>
             );
 
             // Create AppBar with search form
-            elementRight = <AppBarSearch key="appBarSearch" onSearch={this.handleSearchChange_} onAdvancedSearch={this.props.onAdvancedSearch}/>;
+            elementRight = (
+                <AppBarSearch
+                    key="appBarSearch"
+                    onSearch={this._handleSearchChange}/>
+            );
 
             // Clear the title
             title = null;
 
         } else {
-
             if (this.props.onNavBackBtnClick) {
                 elemmentLeft = (
                     <IconButton
                         key="back"
                         iconClassName="fa fa-arrow-left"
-                        onClick={this.handleBackClick_} />
+                        onClick={this._handleBackClick}/>
+                );
+            }
+
+
+            let displayFilter = null;
+
+            if (this.props.entityBrowserViews) {
+
+                let viewMenuData = [];
+
+                this.props.entityBrowserViews.map(function (view) {
+                    viewMenuData.push({
+                        payload: view.id,
+                        text: view.name
+                    })
+                })
+
+                displayFilter = (
+                    <div className="entitybrowser-filter">
+                        <DropDownIcon
+                            iconClassName="fa fa-filter"
+                            menuItems={viewMenuData}
+                            onChange={this._handleSelectView}/>
+                    </div>
                 );
             }
 
@@ -95,8 +125,11 @@ var AppBarBrowse = React.createClass({
                     <IconButton
                         key="searchRight"
                         iconClassName="fa fa-search"
-                        onClick={this.toggleSearchMode}>
-                    </IconButton>
+                        onClick={this.toggleSearchMode}/>
+                    <IconButton
+                        iconClassName="fa fa-ellipsis-v "
+                        onClick={this._handleAdvancedSearch}/>
+                    {displayFilter}
                 </div>
             );
 
@@ -112,7 +145,7 @@ var AppBarBrowse = React.createClass({
                 onNavBtnClick={this.props.onNavBtnClick}>
                 {elementRight}
             </AppBar>
-            
+
         );
     },
 
@@ -121,11 +154,11 @@ var AppBarBrowse = React.createClass({
      *
      * @param evt
      */
-    toggleSearchMode: function(evt) {
+    toggleSearchMode: function (evt) {
 
         // Clear any text
         if (this.state.searchMode) {
-            this.handleSearchChange_("");
+            this._handleSearchChange("");
         }
 
         this.setState({searchMode: (this.state.searchMode) ? false : true});
@@ -134,16 +167,16 @@ var AppBarBrowse = React.createClass({
     /**
      * Handle getting search params
      */
-    handleSearchChange_: function(textSearch) {
+    _handleSearchChange: function (textSearch) {
         if (this.props.onSearchChange) {
             this.props.onSearchChange(textSearch, null);
         }
     },
 
-    /** 
+    /**
      * Deselect all
      */
-    deSelectAll_: function(evt) {
+    _deSelectAll: function (evt) {
         if (this.props.onSelectAll) {
             this.props.onSelectAll(false);
         }
@@ -155,12 +188,64 @@ var AppBarBrowse = React.createClass({
      * @param {DOMEvent} evt
      * @private
      */
-    handleBackClick_: function(evt) {
+    _handleBackClick: function (evt) {
         if (this.props.onNavBackBtnClick) {
             this.props.onNavBackBtnClick();
         }
-    }
+    },
 
+    /**
+     * Callback used to handle commands when user clicks the button to display the menu in the popover
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @private
+     */
+    _handlePopoverDisplay: function (e) {
+
+        // This prevents ghost click.
+        e.preventDefault();
+
+        this.setState({
+            openMenu: this.state.openMenu ? false : true,
+            anchorEl: e.currentTarget
+        });
+    },
+
+    /**
+     * Callback used to close the popover
+     *
+     * @private
+     */
+    _handlePopoverRequestClose: function () {
+        this.setState({openMenu: false});
+    },
+
+    /**
+     * Callback used to handle commands when user selects a browser view to filter the browser list
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {int} key The index of the menu clicked
+     * @param {Object} data The object value of the menu clicked
+     * @private
+     */
+    _handleSelectView: function (e, key, data) {
+
+        // Get the browserView selected by using the key
+        let browserView = this.props.entityBrowserViews[key];
+
+        if (this.props.onApplySearch) {
+            this.props.onApplySearch(browserView);
+        }
+    },
+
+    /**
+     * Displays the advanced search
+     */
+    _handleAdvancedSearch: function () {
+        if (this.props.onAdvancedSearch) {
+            this.props.onAdvancedSearch()
+        }
+    }
 });
 
 module.exports = AppBarBrowse;

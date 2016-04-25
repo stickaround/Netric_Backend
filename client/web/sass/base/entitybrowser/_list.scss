@@ -9,3 +9,16 @@
  * Container table for table display mode
  */
 .entity-browser-list-table {}
+
+.entitybrowser-filter {
+  float: right;
+  position: relative;
+  top: 20px;
+
+  .chamel-popover {
+  }
+}
+
+.entitybrowser-filter:after {
+  clear: both;
+}
