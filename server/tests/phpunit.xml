@@ -75,7 +75,7 @@
 
              TESTS_NETRIC_MAIL_TEMPDIR is used for testing write operations in
              local storages. If not set (== null) tempnam() is used. -->
-        <env name="TESTS_NETRIC_MAIL_SERVER_TESTDIR" value="" />
+        <env name="TESTS_NETRIC_MAIL_SERVER_TESTDIR" value="/var/mail/mailtest" />
         <env name="TESTS_NETRIC_MAIL_SERVER_FORMAT" value="mbox" />
         <env name="TESTS_NETRIC_MAIL_TEMPDIR" value="" />
 
@@ -85,8 +85,8 @@
              your mail if you haven't set TESTS_NETRIC_MAIL_SERVER_TESTDIR -->
         <env name="TESTS_NETRIC_MAIL_POP3_ENABLED" value="false" />
         <env name="TESTS_NETRIC_MAIL_POP3_HOST" value="localhost" />
-        <env name="TESTS_NETRIC_MAIL_POP3_USER" value="test" />
-        <env name="TESTS_NETRIC_MAIL_POP3_PASSWORD" value="" />
+        <env name="TESTS_NETRIC_MAIL_POP3_USER" value="mailtest" />
+        <env name="TESTS_NETRIC_MAIL_POP3_PASSWORD" value="test" />
         <env name="TESTS_NETRIC_MAIL_POP3_SSL" value="true" />
         <env name="TESTS_NETRIC_MAIL_POP3_TLS" value="true" />
         <env name="TESTS_NETRIC_MAIL_POP3_WRONG_PORT" value="80" />
@@ -96,10 +96,10 @@
 
              IMPORTANT: you need to copy ./NetricTest/Mail/_files/test.mbox to
              your mail if you haven't set TESTS_NETRIC_MAIL_SERVER_TESTDIR -->
-        <env name="TESTS_NETRIC_MAIL_IMAP_ENABLED" value="false" />
+        <env name="TESTS_NETRIC_MAIL_IMAP_ENABLED" value="true" />
         <env name="TESTS_NETRIC_MAIL_IMAP_HOST" value="localhost" />
-        <env name="TESTS_NETRIC_MAIL_IMAP_USER" value="test" />
-        <env name="TESTS_NETRIC_MAIL_IMAP_PASSWORD" value="" />
+        <env name="TESTS_NETRIC_MAIL_IMAP_USER" value="mailtest" />
+        <env name="TESTS_NETRIC_MAIL_IMAP_PASSWORD" value="test" />
         <env name="TESTS_NETRIC_MAIL_IMAP_SSL" value="true" />
         <env name="TESTS_NETRIC_MAIL_IMAP_TLS" value="true" />
         <env name="TESTS_NETRIC_MAIL_IMAP_WRONG_PORT" value="80" />
@@ -116,8 +116,8 @@
         <env name="TESTS_NETRIC_MAIL_SMTP_ENABLED" value="false" />
         <env name="TESTS_NETRIC_MAIL_SMTP_HOST" value="localhost" />
         <env name="TESTS_NETRIC_MAIL_SMTP_PORT" value="25" />
-        <env name="TESTS_NETRIC_MAIL_SMTP_USER" value="testuser" />
-        <env name="TESTS_NETRIC_MAIL_SMTP_PASSWORD" value="testpassword" />
+        <env name="TESTS_NETRIC_MAIL_SMTP_USER" value="mailtest" />
+        <env name="TESTS_NETRIC_MAIL_SMTP_PASSWORD" value="test" />
         <env name="TESTS_NETRIC_MAIL_SMTP_AUTH" value="false" />
     </php>
 

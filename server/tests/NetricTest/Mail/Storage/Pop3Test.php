@@ -30,15 +30,7 @@ class Pop3Test extends \PHPUnit_Framework_TestCase
                                'user'     => getenv('TESTS_NETRIC_MAIL_POP3_USER'),
                                'password' => getenv('TESTS_NETRIC_MAIL_POP3_PASSWORD')];
 
-        if (getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') && getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')) {
-            if (!file_exists(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'inbox')
-             && !file_exists(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'INBOX')) {
-                $this->markTestSkipped('There is no file name "inbox" or "INBOX" in '
-                                       . getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . '. I won\'t use it for testing. '
-                                       . 'This is you safety net. If you think it is the right directory just '
-                                       . 'create an empty file named INBOX or remove/deactived this message.');
-            }
-
+        if (getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') && getenv('TESTS_NETRIC_MAIL_SERVER_FORMAT')) {
             $this->_cleanDir(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR'));
             $this->_copyDir(__DIR__ . '/../_files/test.' . getenv('TESTS_NETRIC_MAIL_SERVER_FORMAT'),
                             getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR'));
