@@ -63,7 +63,7 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 		$refIm = new \ReflectionObject($sl);
         $isLoaded = $refIm->getMethod("isLoaded");
 		$isLoaded->setAccessible(true);
-		$this->assertTrue($isLoaded->invoke($sl, "Config"));
+		$this->assertTrue($isLoaded->invoke($sl, "Netric\Config"));
 
 		// Now that we know it is cached, lets make sure the returned object is correct
 		$config = $sl->get("Config");
