@@ -37,6 +37,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
                 "EmailMailboxSyncWorker->work: fields required account_id, user_id, mailbox_id " .
                 var_export($workload, true)
             );
+            return false;
         }
 
         // Get the account we are working with
