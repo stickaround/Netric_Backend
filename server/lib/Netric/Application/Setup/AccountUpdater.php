@@ -154,11 +154,11 @@ class AccountUpdater extends AbstractHasErrors
      */
     public function runUpdates()
     {
-        // Run the one time scripts first
-        $version = $this->runOnceUpdates();
-
         // Now run scripts that are set to run on every update
         $this->runAlwaysUpdates();
+
+        // Run the one time scripts first
+        $version = $this->runOnceUpdates();
 
         return $version;
     }
