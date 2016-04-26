@@ -63,7 +63,7 @@ class ServiceManager extends AbstractServiceManager implements AccountServiceMan
 
 		"Config" => "Netric/Config",
 
-		"Cache" => "Netric/Cache",
+		"Cache" => "Netric/Cache/Cache",
 
 		"Entity_DataMapper" => "Netric/Entity/DataMapper/DataMapper",
 

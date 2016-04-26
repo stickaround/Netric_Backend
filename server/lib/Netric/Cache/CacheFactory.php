@@ -5,7 +5,7 @@
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
-namespace Netric;
+namespace Netric\Cache;
 
 use Netric\ServiceManager;
 
@@ -14,7 +14,7 @@ use Netric\ServiceManager;
  *
  * @package Netric\Cache
  */
-class CacheNewFactory implements ServiceManager\AccountServiceLocatorInterface
+class CacheFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
