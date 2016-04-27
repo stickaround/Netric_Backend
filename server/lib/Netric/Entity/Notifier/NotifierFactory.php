@@ -21,8 +21,8 @@ class NotifierFactory implements AccountServiceLocatorInterface
      */
     public function createService(AccountServiceManagerInterface $serviceManager)
     {
-        $entityLoader = $serviceManager->get("EntityLoader");
-        $entityIndex = $serviceManager->get("EntityQuery_Index");
+        $entityLoader = $serviceManager->get("Netric/EntityLoader");
+        $entityIndex = $serviceManager->get("Netric/EntityQuery/Index/Index");
         $currentUser = $serviceManager->getAccount()->getUser();
         return new Notifier($currentUser, $entityLoader, $entityIndex);
     }

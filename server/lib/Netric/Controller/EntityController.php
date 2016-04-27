@@ -30,7 +30,7 @@ class EntityController extends Mvc\AbstractController
 		$serviceManager = $this->account->getServiceManager();
 
 		// Load the entity definition
-		$defLoader = $serviceManager->get("EntityDefinitionLoader");
+		$defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
 		$def = $defLoader->get($params['obj_type']);
 		if (!$def) 
 		{
@@ -179,7 +179,7 @@ class EntityController extends Mvc\AbstractController
         }
 
 
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
         $entity = $loader->get($params['obj_type'], $params['id']);
 
         // TODO: Check permissions
@@ -217,7 +217,7 @@ class EntityController extends Mvc\AbstractController
             return $this->sendOutput(array("error"=>"obj_type is a required param"));
         }
 
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
         if (isset($objData['id']))
         {
@@ -232,7 +232,7 @@ class EntityController extends Mvc\AbstractController
         $entity->fromArray($objData);
 
         // Save the entity
-        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
         if ($dataMapper->save($entity))
         {
             // Check to see if any new object_multi objects were sent awaiting save
@@ -278,10 +278,10 @@ class EntityController extends Mvc\AbstractController
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
         // Get the datamapper to delete
-        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
 
         foreach ($ids as $did)
         {
@@ -322,10 +322,10 @@ class EntityController extends Mvc\AbstractController
         $filterArray = ($filterString) ? json_decode($filterString) : array();
 
         // Get the service manager and current user
-        $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
+        $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
 
         // If this is a private object then send the current user as a filter
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
+        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objType);
         if ($def->isPrivate && !count($filterArray))
         {
             $filterArray['user_id'] = $this->account->getUser()->getId();
@@ -359,7 +359,7 @@ class EntityController extends Mvc\AbstractController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $loader = $serviceManager->get("EntityDefinitionLoader");
+        $loader = $serviceManager->get("Netric/EntityDefinitionLoader");
         $definitions = $loader->getAll();
 
         $ret = array();
@@ -437,8 +437,8 @@ class EntityController extends Mvc\AbstractController
      */
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
         $fields = $entity->getDefinition()->getFields();
 
         // Flag that will determine if we should save the $entity
@@ -523,13 +523,13 @@ class EntityController extends Mvc\AbstractController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $defLoader = $serviceManager->get("EntityDefinitionLoader");
+        $defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
 
         $def = $defLoader->get($objData['obj_type']);
         $def->fromArray($objData);
 
         // Save the new entity definition
-        $dataMapper = $serviceManager->get("EntityDefinition_DataMapper");
+        $dataMapper = $serviceManager->get("Netric/EntityDefinition/DataMapper/DataMapper");
         $dataMapper->save($def);
 
         // Build the new entity definition and return the result

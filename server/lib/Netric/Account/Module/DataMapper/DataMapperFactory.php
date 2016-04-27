@@ -16,7 +16,7 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return DataMapperDb
+     * @return DataMapperInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

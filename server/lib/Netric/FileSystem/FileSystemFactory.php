@@ -25,9 +25,9 @@ class FileSystemFactory implements ServiceManager\AccountServiceLocatorInterface
     {
         $fileStore = $sl->get('Netric\FileSystem\FileStore\FileStore');
         $user = $sl->getAccount()->getUser();
-        $entityLoader = $sl->get("EntityLoader");
-        $dataMapper = $sl->get("Entity_DataMapper");
-        $entityIndex = $sl->get("EntityQuery_Index");
+        $entityLoader = $sl->get("Netric/EntityLoader");
+        $dataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");
+        $entityIndex = $sl->get("Netric/EntityQuery/Index/Index");
 
         return new FileSystem($fileStore, $user, $entityLoader, $dataMapper, $entityIndex);
     }

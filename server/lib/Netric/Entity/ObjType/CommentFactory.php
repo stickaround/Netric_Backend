@@ -23,7 +23,7 @@ class CommentFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("comment");
+        $def = $sl->get("Netric/EntityDefinitionLoader")->get("comment");
         return new CommentEntity($def);
     }
 }

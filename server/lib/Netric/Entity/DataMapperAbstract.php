@@ -238,7 +238,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			$this->saveRevision($entity);
 
 		// Save data to EntityQuery Index
-		$serviceManager->get("EntityQuery_index")->save($entity);
+		$serviceManager->get("EntityQuery_Index")->save($entity);
 
 		// Clear cache in the EntityLoader
         $serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
@@ -361,7 +361,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             $entity->afterDeleteHard($serviceManager);
 
 			// Delete from EntityCollection_Index
-			$serviceManager->get("EntityQuery_index")->save($entity);
+			$serviceManager->get("EntityQuery_Index")->save($entity);
 			
 			// Remove unique DACL. Of course, we don't want to delete the dacl for all object types, just for this id
 			//if ($this->daclIsUnique && $this->dacl)
