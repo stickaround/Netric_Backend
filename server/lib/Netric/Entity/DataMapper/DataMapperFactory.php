@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Entity DataMapper service
- *
- * @package DataMapperInterface
  */
 class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,11 +18,11 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return DataMapper/Pgsql
+     * @return DataMapperInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $db = $sl->get("Db");
+        $db = $sl->get("Netric/Db/Db");
         return new Pgsql($sl->getAccount(), $db);
     }
 }

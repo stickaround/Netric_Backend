@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a EntityQuery Index service
- *
- * @package IndexInterface
  */
 class IndexFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,7 +18,7 @@ class IndexFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return Pgsql
+     * @return DbInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

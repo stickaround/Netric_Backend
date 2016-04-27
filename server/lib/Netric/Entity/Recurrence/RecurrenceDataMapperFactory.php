@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a new Recurring DataMapper service
- *
- * @package Netric\FileSystem
  */
 class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -24,8 +22,8 @@ class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceLocato
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $entDefLoader = $sl->get("EntityDefinitionLoader");
-        $dbh = $sl->get("Db");
+        $entDefLoader = $sl->get("Netric/EntityDefinitionLoader");
+        $dbh = $sl->get("Netric/Db/Db");
         return new RecurrenceDataMapper($sl->getAccount(), $dbh, $entDefLoader);
     }
 }

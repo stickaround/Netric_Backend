@@ -21,7 +21,7 @@ class SchemaDataMapperFactory implements AccountServiceLocatorInterface
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get("Db");
+        $dbh = $sl->get("Netric/Db/Db");
         $schemaDefinition = include(__DIR__ . "/../../../../data/schema/account.php");
         return new SchemaDataMapperPgsql($dbh, $schemaDefinition);
     }

@@ -25,8 +25,8 @@ class AuthenticationServiceFactory implements ServiceManager\AccountServiceLocat
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $key = "GENERATEDSERVERSIDEKEY";
-        $userIndex = $sl->get("EntityQuery_Index");
-        $userLoader = $sl->get("EntityLoader");
+        $userIndex = $sl->get("Netric/EntityQuery/Index/Index");
+        $userLoader = $sl->get("Netric/EntityLoader");
         $request = $sl->get("Netric/Request/Request");
 
         return new AuthenticationService($key, $userIndex, $userLoader, $request);

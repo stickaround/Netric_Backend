@@ -24,8 +24,8 @@ class CollectionFactory implements CollectionFactoryInterface
 		$collection = null;
 
 		// Common dependency
-		$dm = $sm->get("EntitySync_DataMapper");
-		$commitManager = $sm->get("EntitySyncCommitManager");
+		$dm = $sm->get("Netric/EntitySync/DataMapper");
+		$commitManager = $sm->get("Netric/EntitySync/Commit/CommitManager");
 
 		switch ($type)
 		{

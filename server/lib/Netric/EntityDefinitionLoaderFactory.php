@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Entity Definition Loader service
- *
- * @package Netric\FileSystem
  */
 class EntityDefinitionLoaderFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,12 +18,12 @@ class EntityDefinitionLoaderFactory implements ServiceManager\AccountServiceLoca
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @return EntityDefinitionLoader
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("EntityDefinition_DataMapper");
-        $cache = $sl->get("Cache");
+        $dm = $sl->get("Netric/EntityDefinition/DataMapper/DataMapper");
+        $cache = $sl->get("Netric/Cache/Cache");
 
         return new EntityDefinitionLoader($dm, $cache);
     }

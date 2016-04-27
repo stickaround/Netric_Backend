@@ -23,7 +23,7 @@ class CustomerFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("customer");
+        $def = $sl->get("Netric/EntityDefinitionLoader")->get("customer");
         return new CustomerEntity($def);
     }
 }

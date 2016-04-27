@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Entity Sync service
- *
- * @package Netric\EntitySync
  */
 class EntitySyncFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -24,7 +22,7 @@ class EntitySyncFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("EntitySync_DataMapper");
+        $dm = $sl->get("Netric/EntitySync/DataMapper");
         return new EntitySync($dm);
     }
 }

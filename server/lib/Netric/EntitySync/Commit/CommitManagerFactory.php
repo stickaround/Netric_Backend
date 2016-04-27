@@ -24,7 +24,7 @@ class CommitManagerFactory implements ServiceManager\AccountServiceLocatorInterf
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("EntitySyncCommit_DataMapper");
+        $dm = $sl->get("Netric/EntitySync/Commit/DataMapper/DataMapper");
         return new CommitManager($dm);
     }
 }

@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a new Application DataMapper service
- *
- * @package DataMapperInterface
  */
 class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,11 +18,11 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return DataMapper/Pgsql
+     * @return DataMapperInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $config = $sl->get("Config");
+        $config = $sl->get("Netric/Config");
         return new DataMapperPgsql($config->db["host"], $config->db["sysdb"], $config->db["user"], $config->db["password"]);
     }
 }

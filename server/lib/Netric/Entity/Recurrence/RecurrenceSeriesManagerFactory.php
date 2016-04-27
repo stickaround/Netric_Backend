@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a new Recurring Entity Series Writer service
- *
- * @package Netric\FileSystem
  */
 class RecurrenceSeriesManagerFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -24,11 +22,11 @@ class RecurrenceSeriesManagerFactory implements ServiceManager\AccountServiceLoc
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $recurIdentityMapper = $sl->get("RecurrenceIdentityMapper");
-        $entityLoader = $sl->get("EntityLoader");
-        $entityDataMapper = $sl->get("Entity_DataMapper");
-        $entityIndex = $sl->get("EntityQuery_Index");
-        $entityDefinitionLoader = $sl->get("EntityDefinitionLoader");
+        $recurIdentityMapper = $sl->get("Netric/Entity/Recurrence/RecurrenceIdentityMapper");
+        $entityLoader = $sl->get("Netric/EntityLoader");
+        $entityDataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");
+        $entityIndex = $sl->get("Netric/EntityQuery/Index/Index");
+        $entityDefinitionLoader = $sl->get("Netric/EntityDefinitionLoader");
         return new RecurrenceSeriesManager(
             $recurIdentityMapper,
             $entityLoader,

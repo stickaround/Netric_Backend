@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Config service
- *
- * @package Netric\FileSystem
  */
 class ConfigFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,7 +18,7 @@ class ConfigFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @return Config
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

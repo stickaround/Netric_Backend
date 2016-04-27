@@ -21,7 +21,7 @@ class WorkflowFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("workflow");
+        $def = $sl->get("Netric/EntityDefinitionLoader")->get("workflow");
         return new WorkflowEntity($def);
     }
 }

@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Entity Loader service
- *
- * @package Netric\EntityLoader
  */
 class EntityLoaderFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -24,8 +22,8 @@ class EntityLoaderFactory implements ServiceManager\AccountServiceLocatorInterfa
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("Entity_DataMapper");
-        $definitionLoader = $sl->get("EntityDefinitionLoader");
+        $dm = $sl->get("Netric/Entity/DataMapper/DataMapper");
+        $definitionLoader = $sl->get("Netric/EntityDefinitionLoader");
 
         return new EntityLoader($dm, $definitionLoader);
     }

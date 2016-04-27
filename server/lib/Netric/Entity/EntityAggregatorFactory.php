@@ -24,8 +24,8 @@ class EntityAggregatorFactory implements ServiceManager\AccountServiceLocatorInt
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $entityLoader = $sl->get("EntityLoader");
-        $entityIndex = $sl->get("EntityQuery_Index");
+        $entityLoader = $sl->get("Netric/EntityLoader");
+        $entityIndex = $sl->get("Netric/EntityQuery/Index/Index");
 
         return new EntityAggregator($entityLoader, $entityIndex);
     }

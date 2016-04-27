@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Log service
- *
- * @package Netric\FileSystem
  */
 class LogFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,7 +18,7 @@ class LogFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @return Log
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

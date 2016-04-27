@@ -23,7 +23,7 @@ class FileFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("EntityDefinitionLoader")->get("file");
+        $def = $sl->get("Netric/EntityDefinitionLoader")->get("file");
         return new FileEntity($def);
     }
 }

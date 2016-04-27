@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Netric Db service
- *
- * @package Netric\Db
  */
 class DbFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -20,7 +18,7 @@ class DbFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return Db/Pgsql
+     * @return DbInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

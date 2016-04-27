@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a new recurrence indentity mapper service
- *
- * @package RecurrenceIdentityMapper
  */
 class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -24,7 +22,7 @@ class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceLo
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $recurDataMapper = $sl->get("RecurrenceDataMapper");
+        $recurDataMapper = $sl->get("Netric/Entity/Recurrence/RecurrenceDataMapper");
         return new RecurrenceIdentityMapper($recurDataMapper);
     }
 }

@@ -11,8 +11,6 @@ use Netric\ServiceManager;
 
 /**
  * Create a Cache service
- *
- * @package Netric\Cache
  */
 class CacheFactory implements ServiceManager\AccountServiceLocatorInterface
 {
