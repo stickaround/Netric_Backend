@@ -204,10 +204,6 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
             $sServiceName = $this->invokableFactoryMaps[$sServiceName];
         }
 
-        if($sServiceName =='Cache') {
-            print_r($this->invokableFactoryMaps);
-        }
-
         return $sServiceName;
     }
 

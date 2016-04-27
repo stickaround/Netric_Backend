@@ -69,56 +69,6 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 		$config = $sl->get("Config");
 		$this->assertInstanceOf("Netric\Config", $config);
 	}
-
-	/**
-	 * Test getting entity datamapper
-	 *
-	public function testFactoryEntity_DataMapper()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config service
-		$config = $sl->get("Entity_DataMapper");
-		$this->assertInstanceOf("Netric\Entity\DataMapper\Pgsql", $config);
-	}
-     * 
-     */
-
-	/**
-	 * Test getting entity datamapper
-	 */
-	public function testFactoryEntityDefinition_DataMapper()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config service
-		$dm = $sl->get("EntityDefinition_DataMapper");
-		$this->assertInstanceOf("Netric\EntityDefinition\DataMapper\Pgsql", $dm);
-	}
-    
-    /**
-	 * Test getting entity datamapper
-	 */
-	public function testFactoryEntityLoader()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config service
-		$config = $sl->get("EntityLoader");
-		$this->assertInstanceOf("Netric\EntityLoader", $config);
-	}
-    
-    /**
-	 * Test getting groupings loader
-	 */
-	public function testFactoryEntityGroupings_Loader()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config services
-		$config = $sl->get("EntityGroupings_Loader");
-		$this->assertInstanceOf("Netric\EntityGroupings\Loader", $config);
-	}
     
     /**
 	 * Test getting entity datamapper
@@ -130,29 +80,5 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 		// Get config service
 		$antfs = $sl->get("AntFs");
 		$this->assertInstanceOf("\AntFs", $antfs);
-	}
-    
-    /**
-	 * Test getting logger
-	 */
-	public function testFactoryLog()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config services
-		$log = $sl->get("Log");
-		$this->assertInstanceOf("Netric\Log", $log);
-	}
-
-	/**
-	 * Test getting entity syncronization commit manager
-	 */
-	public function testEntitySyncCommitManager()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config service
-		$manager = $sl->get("EntitySyncCommitManager");
-		$this->assertInstanceOf("Netric\\EntitySync\\Commit\\CommitManager", $manager);
 	}
 }
