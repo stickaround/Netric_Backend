@@ -5,7 +5,6 @@
  */
 namespace Netric\Config;
 
-use Netric\Config;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 

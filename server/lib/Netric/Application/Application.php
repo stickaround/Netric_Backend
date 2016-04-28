@@ -11,7 +11,7 @@ use Netric\Console\Console;
 use Netric\Request\ConsoleRequest;
 use Netric\Request\HttpRequest;
 use Netric\Mvc\Router;
-use Netric\Config;
+use Netric\Config\Config;
 use Netric\Log;
 use Netric\Cache\AlibCache;
 use Netric\Account\AccountIdentityMapper;

@@ -1052,7 +1052,14 @@ class Ant
         
         // Initialize Netric Application and Account
         // ------------------------------------------------
-        $config = new Netric\Config();
+        //$config = new Netric\Config\Config();
+
+		// Create the instance of config loader
+		$this->nconfigLoader = new \Netric\Config\ConfigLoader();
+		$applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+		// Setup the new config
+		$config = $this->nconfigLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 
         // Initialize application
         //$application = new Netric\Application($config);

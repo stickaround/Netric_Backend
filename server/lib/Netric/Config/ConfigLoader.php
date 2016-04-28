@@ -29,7 +29,7 @@ class ConfigLoader
         // Load and merge arrays
         $base = self::importFileArray($configPath . "/ant.ini");
         $baseLocal = self::importFileArray($configPath . "/ant.local.ini");
-        $env = self::importFileArray($configPath . "/" . $appEnv . ".ini");
+        $env = self::importFileArray($configPath . "/ant." . $appEnv . ".ini");
         $envLocal = self::importFileArray($configPath . "/" . $appEnv . ".local.ini");
         $local = self::importFileArray($configPath . "/local.php");
 

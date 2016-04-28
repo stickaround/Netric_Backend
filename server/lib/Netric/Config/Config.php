@@ -200,4 +200,16 @@ class Config implements ArrayAccess
     {
         return $this->get($offset);
     }
+
+    /**
+     * Set configuration values
+     *
+     * We traverse through the values and set them in order
+     *
+     * @param array $values The values to set
+     */
+    public function setValues($values)
+    {
+        $this->fromArray($values);
+    }
 }

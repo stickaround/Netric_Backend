@@ -7,7 +7,8 @@
  **/
 namespace Netric\Stats;
 
-use Netric\Config;
+use Netric\Config\ConfigLoader;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Stats publisher
@@ -84,7 +85,14 @@ class StatsPublisher
         else
         {
             // Pull from global config
-            $config = Config::getInstance();
+            //$config = Config::getInstance();
+
+            $configLoader = new \Netric\Config\ConfigLoader();
+            $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+            // Setup the new config
+            $config = $configLoader->fromFolder(__DIR__ . "/../../config", $applicationEnvironment);
+
             if ($config->stats['enabled'])
             {
                 static::$host = $config->stats['host'];

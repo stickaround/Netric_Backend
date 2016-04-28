@@ -9,7 +9,7 @@
 
 namespace NetricTest\Mail\Storage;
 
-use Netric\Config;
+use Netric\Config\Config;
 use Netric\Mail\Storage;
 
 /**

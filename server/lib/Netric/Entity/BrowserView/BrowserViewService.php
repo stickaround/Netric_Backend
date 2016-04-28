@@ -10,7 +10,7 @@ namespace Netric\Entity\BrowserView;
 use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition;
-use Netric\Config;
+use Netric\Config\Config;
 use Netric\Settings\Settings;
 use Netric;
 
@@ -269,7 +269,7 @@ class BrowserViewService
         $views = array();
 
         // Check for system object
-        $basePath = $this->config->application_path . "/objects";
+        $basePath = $this->config->get("application_path") . "/objects";
         if (file_exists($basePath . "/browser_views/" . $objType . ".php"))
         {
             $viewsData = include($basePath . "/browser_views/" . $objType . ".php");

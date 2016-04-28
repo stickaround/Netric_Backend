@@ -3,12 +3,31 @@ namespace NetricTest\Application;
 
 use Netric\Application\DataMapperInterface;
 use Netric\Application\DataMapperPgsql;
-use Netric\Config;
+use Netric\Config\ConfigLoader;
 use Netric\Db\Pgsql;
 use PHPUnit_Framework_TestCase;
 
 class DataMapperPgsqlTest extends AbstractDataMapperTests
 {
+    /**
+     * Netric Config
+     *
+     * @var \Netric\Config\Config
+     */
+    private $config = null;
+    
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
+        $configLoader = new ConfigLoader();
+        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+        // Setup the new config
+        $this->config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
+    }
+    
     /**
      * Get an implementation specific DataMapper
      *
@@ -17,14 +36,13 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
      */
     protected function getDataMapper($optDbName = null)
     {
-        $config = new Config();
-        $dbName = ($optDbName) ? $optDbName : $config->db['sysdb'];
+        $dbName = ($optDbName) ? $optDbName : $this->config->db['sysdb'];
 
         return new DataMapperPgsql(
-            $config->db['syshost'],
+            $this->config->db['syshost'],
             $dbName,
-            $config->db['user'],
-            $config->db['password']
+            $this->config->db['user'],
+            $this->config->db['password']
         );
     }
 
@@ -39,13 +57,11 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
      */
     protected function deleteDatabase($dbName)
     {
-        $config = new Config();
-
         $db = new Pgsql(
-            $config->db['syshost'],
-            $config->db['sysdb'],
-            $config->db['user'],
-            $config->db['password']
+            $this->config->db['syshost'],
+            $this->config->db['sysdb'],
+            $this->config->db['user'],
+            $this->config->db['password']
         );
 
         $db->query("DROP DATABASE $dbName");

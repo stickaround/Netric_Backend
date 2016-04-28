@@ -10,7 +10,7 @@ namespace Netric\Entity;
 use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition;
-use Netric\Config;
+use Netric\Config\Config;
 
 
 /**
@@ -30,7 +30,7 @@ class Forms
     /**
      * Netric configuration
      *
-     * @var \Netric\Config
+     * @var \Netric\Config\Config
      */
     private $config = null;
 
@@ -195,7 +195,7 @@ class Forms
             throw new \Exception("Invalid object type");
 
         // Check form xml from a file found in /objects/{objType}/{device}.php
-        $basePath = $this->config->application_path . "/objects";
+        $basePath = $this->config->get("application_path") . "/objects";
         $formPath = $basePath . "/oforms/" . $objType . "/" . $device . ".php";
         if (file_exists($formPath))
         {
