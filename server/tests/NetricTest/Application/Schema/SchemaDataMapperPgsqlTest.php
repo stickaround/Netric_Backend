@@ -5,7 +5,7 @@
 namespace NetricTest\Application\Schema;
 
 use Netric\Application\Application;
-use Netric\Config;
+use Netric\Config\ConfigLoader;
 use Netric\Db\Pgsql;
 use Netric\Application\Schema\SchemaDataMapperPgsql;
 
@@ -27,7 +27,11 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
      */
     protected function getDataMapper(array $schemaDefinition, $accountId)
     {
-        $config = new Config();
+        $configLoader = new \Netric\Config\ConfigLoader();
+        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+        // Setup the new config
+        $config = $configLoader->fromFolder(__DIR__ . "/../../../../config", $applicationEnvironment);
 
         $pgsql = new Pgsql(
             $config->db['host'],

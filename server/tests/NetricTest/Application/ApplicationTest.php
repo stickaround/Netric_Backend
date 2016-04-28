@@ -5,6 +5,7 @@
 namespace NetricTest\Application;
 
 use Netric;
+use Netric\Config\ConfigLoader;
 use PHPUnit_Framework_TestCase;
 
 class ApplicationTest extends PHPUnit_Framework_TestCase
@@ -23,13 +24,18 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $config = new Netric\Config();
+        $configLoader = new ConfigLoader();
+        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+        // Setup the new config
+        $config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
+
         $this->application = new Netric\Application\Application($config);
     }
 
     public function testGetConfig()
     {
-        $this->assertInstanceOf('Netric\Config', $this->application->getConfig());
+        $this->assertInstanceOf('Netric\Config\Config', $this->application->getConfig());
     }
     
     /**

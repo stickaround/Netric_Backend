@@ -6,7 +6,6 @@ namespace NetricTest\Application\Schema;
 
 use PHPUnit_Framework_TestCase;
 use Netric\Application\Application;
-use Netric\Config;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaProperty;
 

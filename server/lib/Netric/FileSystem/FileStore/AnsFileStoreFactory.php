@@ -25,10 +25,10 @@ class AnsFileStoreFactory implements ServiceManager\AccountServiceLocatorInterfa
         $accountId = $sl->getAccount()->getId();
         $dataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");
 
-        $config = $sl->get("Netric/Config");
-        $ansServer = $config->alib['ans_server'];
-        $ansAccount = $config->alib['ans_account'];
-        $ansPassword = $config->alib['ans_password'];
+        $config = $sl->get("Netric/Config/Config");
+        $ansServer = $config->alib->ans_server;
+        $ansAccount = $config->alib->ans_account;
+        $ansPassword = $config->alib->ans_password;
 
         $tmpPath = $config->data_path . "/" . "tmp";
 

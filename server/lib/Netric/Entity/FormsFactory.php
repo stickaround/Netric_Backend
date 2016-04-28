@@ -25,7 +25,7 @@ class FormsFactory implements ServiceManager\AccountServiceLocatorInterface
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $dbh = $sl->get("Netric/Db/Db");
-        $config = $sl->get("Netric/Config");
+        $config = $sl->get("Netric/Config/Config");
         return new Forms($dbh, $config);
     }
 }

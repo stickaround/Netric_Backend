@@ -13,7 +13,8 @@
  * @package   Config
  * @copyright Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("Netric/Config.php");
+require_once("Netric/Config/Config.php");
+require_once("Netric/Config/ConfigLoader.php");
 
 // Define path to application directory
 defined('APPLICATION_PATH')
@@ -51,6 +52,13 @@ class AntConfig
      * @var \Netric\Config
      */
     private $nconfig = null;
+
+	/**
+	 * Netric config loader object which gets the config file from /config folder
+	 *
+	 * @var \Netric\Config\ConfigLoader
+	 */
+	private $nconfigLoader = null;
     
 	/**
 	 * Store the single instance of class for singleton pattern
@@ -92,7 +100,16 @@ class AntConfig
 	{
         if (!$appEnv)
             $appEnv = APPLICATION_ENV;
-        $this->nconfig = new \Netric\Config($appEnv, $path);
+
+
+		// Create the instance of config loader
+		$this->nconfigLoader = new \Netric\Config\ConfigLoader();
+		$applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+		// Setup the new config
+		$this->nconfig = $this->nconfigLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
+
+        //$this->nconfig = new \Netric\Config\Config($configData);
         
         /**
          * Sky Stebnicki: We have moved the core ini reading to Netric\Config
@@ -145,7 +162,10 @@ class AntConfig
 	 */
  	public function __set($name, $value)
     {
-        $this->nconfig->setValue($name, null, $value);
+        //$this->nconfig->set($name, $value);
+
+		// The new config does not allow this after construction
+
         // Sky Stebnicki: pass through to netric config
         //$this->m_settings[$name] = $value;
     }
@@ -157,7 +177,7 @@ class AntConfig
 	 */
     public function __get($name)
     {
-        return $this->nconfig->getValue($name);
+        return $this->nconfig->get($name);
         
         // Sky Stebnicki: pass through to netric config
         /*
@@ -244,7 +264,11 @@ class AntConfig
 	 */
 	private function loadConfigFile($name)
 	{
-        $this->nconfig->loadConfigFile($name);
+        //$this->nconfig->loadConfigFile($name);
+
+		$configData = $this->nconfigLoader->importFileArray($name);
+
+		$this->nconfig->setValues($configData);
         
         /*
 		$path = $this->m_basePath . "/" . $name;
@@ -269,7 +293,7 @@ class AntConfig
 	 */
 	private function setValues($values)
 	{
-        $this->nconfig->setValues($values);
+		$this->nconfig->setValues($values);
         /*
 		foreach ($values as $name=>$val)
 		{
@@ -299,18 +323,18 @@ class AntConfig
 	private function defineConstants()
 	{
         $logLevel = null;
-        if(($this->nconfig->log_level))
+        if($this->nconfig->log_level)
             $logLevel = $this->nconfig->log_level;
 
         if(!defined("ANTLOG_LEVEL"))
 		    define("ANTLOG_LEVEL", $logLevel);
 
         $objectIndexType = null;
-        if(($this->nconfig->object_index['type']))
+        if($this->nconfig->object_index->type)
             $objectIndexType = $this->nconfig->object_index['type'];
             
         $objectIndexHost = null;
-        if(($this->nconfig->object_index['host']))
+        if($this->nconfig->object_index->host)
             $objectIndexHost = $this->nconfig->object_index['host'];
             
 		// Object index
@@ -320,25 +344,27 @@ class AntConfig
         if(!defined("ANT_INDEX_ELASTIC_HOST"))
 		    define("ANT_INDEX_ELASTIC_HOST", $objectIndexHost);
 
+		$configStats = $this->nconfig->stats;
+
         $statsEngine = null;
-        if(($this->nconfig->stats['engine']))
-            $statsEngine = $this->nconfig->stats['engine'];
+        if($configStats->engine)
+            $statsEngine = $configStats->engine;
             
         $statsHost = null;
-        if(($this->nconfig->stats['host']))
-            $statsHost = $this->nconfig->stats['host'];
+        if($configStats->host)
+            $statsHost = $configStats->host;
         
         $statsPort = null;
-        if(($this->nconfig->stats['port']))
-            $statsPort = $this->nconfig->stats['port'];
+        if($configStats->port)
+            $statsPort = $configStats->port;
             
         $statsPrefix = null;
-        if(($this->nconfig->stats['prefix']))
-            $statsPrefix = $this->nconfig->stats['prefix'];
+        if($configStats->prefix)
+            $statsPrefix = $configStats->prefix;
         
 		// Stats
         if(!defined("STATS_ENABLE"))
-		    define("STATS_ENABLE", (isset($this->nconfig->stats['enabled']) && $this->nconfig->stats['enabled']) ? true : false);
+		    define("STATS_ENABLE", ($configStats->enabled) ? true : false);
         
         if(!defined("STATS_ENGINE"))
 		    define("STATS_ENGINE", $statsEngine);
@@ -366,27 +392,27 @@ class AntConfig
 				$ALIB_USEMEMCACHED, $ALIB_MEMCACHED_SVR, $ALIB_SESS_USEDB,
 				$ALIB_SESS_DB_SERVER, $ALIB_SESS_DB_NAME, $ALIB_SESS_DB_USER, $ALIB_SESS_DB_PASS;
 
-        if(($this->nconfig->alib['path']))
-		    $ALIBPATH = $this->nconfig->alib['path'];		// Path to js library
+        if(($this->nconfig->alib->path))
+		    $ALIBPATH = $this->nconfig->alib->path;		// Path to js library
         
 		// Aereus Network Storage
-        if(($this->nconfig->alib['ans_server']))
-		    $ALIB_ANS_SERVER = $this->nconfig->alib['ans_server'];
+        if($this->nconfig->alib->ans_server)
+		    $ALIB_ANS_SERVER = $this->nconfig->alib->ans_server;
             
-        if(($this->nconfig->alib['ans_account']))
-		    $ALIB_ANS_ACCOUNT = $this->nconfig->alib['ans_account'];
+        if($this->nconfig->alib->ans_account)
+		    $ALIB_ANS_ACCOUNT = $this->nconfig->alib->ans_account;
             
-        if(($this->nconfig->alib['ans_password']))
-		    $ALIB_ANS_PASS = $this->nconfig->alib['ans_password'];
+        if($this->nconfig->alib->ans_password)
+		    $ALIB_ANS_PASS = $this->nconfig->alib->ans_password;
 
         $dataPath = "";
-        if(($this->nconfig->data_path))
+        if($this->nconfig->data_path)
             $dataPath = $this->nconfig->data_path;
 		$ALIB_CACHE_DIR = $dataPath . "/cache";
-		$ALIB_USEMEMCACHED = (isset($this->nconfig->alib['memcached']) && $this->nconfig->alib['memcached']) ? true : false;
+		$ALIB_USEMEMCACHED = ($this->nconfig->alib->memcached) ? true : false;
  
-        if(($this->nconfig->alib['memcache_host']))
-		    $ALIB_MEMCACHED_SVR = $this->nconfig->alib['memcache_host'];
+        if($this->nconfig->alib->memcache_host)
+		    $ALIB_MEMCACHED_SVR = $this->nconfig->alib->memcache_host;
         
         // Define global variables as constant
         if(!defined("ALIBPATH"))

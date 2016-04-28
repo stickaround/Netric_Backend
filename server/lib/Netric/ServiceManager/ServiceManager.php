@@ -61,7 +61,7 @@ class ServiceManager extends AbstractServiceManager implements AccountServiceMan
 
         "Db" => "Netric/Db/Db",
 
-        "Config" => "Netric/Config",
+        "Config" => "Netric/Config/Config",
 
         "Cache" => "Netric/Cache/Cache",
 

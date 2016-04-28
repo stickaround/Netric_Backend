@@ -22,7 +22,7 @@ class LocalFileStoreFactory implements ServiceManager\AccountServiceLocatorInter
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $config = $sl->get("Netric/Config");
+        $config = $sl->get("Netric/Config/Config");
         $dataPath = $config->data_path;
         $accountId = $sl->getAccount()->getId();
         $dataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");

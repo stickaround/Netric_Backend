@@ -4,7 +4,7 @@ namespace NetricTest\Application;
 use Netric\Application\DataMapperInterface;
 use Netric\Account\Account;
 use Netric\Application\Application;
-use Netric\Config;
+use Netric\Config\ConfigLoader;
 use PHPUnit_Framework_TestCase;
 
 abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
@@ -23,6 +23,8 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
      */
     private $testAccountIds = [];
 
+    public $config = null;
+
     /**
      * A name we can use for creating test accounts
      */
@@ -30,8 +32,12 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $config = new Config();
-        $this->application = new Application($config);
+        $configLoader = new ConfigLoader();
+        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+        // Setup the new config
+        $this->config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
+        $this->application = new Application($this->config);
 
         // Clean-up the test account in case it was left hanging on a previous failure
         $dataMapper = $this->getDataMapper();
@@ -91,7 +97,6 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
         // Make sure we cannot open it now
         $account = new Account($this->application);
         $this->assertFalse($dataMapper->getAccountById($aid, $account));
-
     }
 
     /**

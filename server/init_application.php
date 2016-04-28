@@ -15,7 +15,12 @@ include(__DIR__ . "/init_autoloader.php");
 
 // Initialize Netric Application and Account
 // ------------------------------------------------
-$config = new Netric\Config();
+//$config = new Netric\Config\Config();
+$configLoader = new Netric\Config\ConfigLoader();
+$applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+// Setup the new config
+$config = $configLoader->fromFolder(__DIR__ . "/config", $applicationEnvironment);
 
 // Initialize application
 $application = new Netric\Application\Application($config);

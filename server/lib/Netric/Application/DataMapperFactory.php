@@ -22,7 +22,7 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $config = $sl->get("Netric/Config");
-        return new DataMapperPgsql($config->db["host"], $config->db["sysdb"], $config->db["user"], $config->db["password"]);
+        $config = $sl->get("Netric/Config/Config");
+        return new DataMapperPgsql($config->db->host, $config->db->sysdb, $config->db->user, $config->db->password  );
     }
 }
