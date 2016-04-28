@@ -10,25 +10,6 @@ use PHPUnit_Framework_TestCase;
 class DataMapperPgsqlTest extends AbstractDataMapperTests
 {
     /**
-     * Netric Config
-     *
-     * @var \Netric\Config\Config
-     */
-    private $config = null;
-    
-    /**
-     * Setup each test
-     */
-    protected function setUp()
-    {
-        $configLoader = new ConfigLoader();
-        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
-
-        // Setup the new config
-        $this->config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
-    }
-    
-    /**
      * Get an implementation specific DataMapper
      *
      * @param string $optDbName Optional different name to use for the database

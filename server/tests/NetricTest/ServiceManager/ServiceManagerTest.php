@@ -57,17 +57,17 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 
 		// Get config service
 		$config = $sl->get("Config");
-		$this->assertInstanceOf("Netric\Config", $config);
+		$this->assertInstanceOf("Netric\Config\Config", $config);
 
 		// Test to see if the isLoaded function indicates the service has been loaded
 		$refIm = new \ReflectionObject($sl);
         $isLoaded = $refIm->getMethod("isLoaded");
 		$isLoaded->setAccessible(true);
-		$this->assertTrue($isLoaded->invoke($sl, "Netric\Config"));
+		$this->assertTrue($isLoaded->invoke($sl, "Netric\Config\Config"));
 
 		// Now that we know it is cached, lets make sure the returned object is correct
 		$config = $sl->get("Config");
-		$this->assertInstanceOf("Netric\Config", $config);
+		$this->assertInstanceOf("Netric\Config\Config", $config);
 	}
     
     /**

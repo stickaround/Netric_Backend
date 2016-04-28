@@ -35,7 +35,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
 
     public function testGetConfig()
     {
-        $this->assertInstanceOf('Netric\Config', $this->application->getConfig());
+        $this->assertInstanceOf('Netric\Config\Config', $this->application->getConfig());
     }
     
     /**

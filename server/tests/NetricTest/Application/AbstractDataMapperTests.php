@@ -23,7 +23,7 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
      */
     private $testAccountIds = [];
 
-    private $config = null;
+    public $config = null;
 
     /**
      * A name we can use for creating test accounts

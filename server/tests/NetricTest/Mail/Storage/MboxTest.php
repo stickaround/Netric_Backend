@@ -67,7 +67,7 @@ class MboxTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfig()
     {
-        new Storage\Mbox(new Config\Config(['filename' => $this->_mboxFile]));
+        new Storage\Mbox(new Config(['filename' => $this->_mboxFile]));
     }
 
     public function testNoParams()
