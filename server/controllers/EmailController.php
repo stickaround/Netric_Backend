@@ -231,7 +231,7 @@ class EmailController extends Controller
 
                 // If we have an entity, then let's set the f_default to false
                 if ($entity) {
-                    $entity->setValue("f_default", "f");
+                    $entity->setValue("f_default", false);
                     $entityLoader->save($entity);
                 }
             }

@@ -621,12 +621,10 @@ class AntUser
 		if($filterParams) {
 			foreach ($filterParams as $pname=>$pval)
 			{
-				$where[] = array(
-					"blogic" => "and",
-					"field" => $pname,
-					"operator" => "is_equal",
-					"value" => $pval
-				);
+				// Use the Where model for our filter
+				$filter = new \Netric\EntityQuery\Where($pname);
+				$filter->equals($pval);
+				$where[] = $filter->toArray();
 			}
 
 			// Parse the query and apply the where params

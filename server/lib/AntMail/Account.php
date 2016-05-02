@@ -231,8 +231,12 @@ class AntMail_Account
 		if (!is_numeric($aid))
 			return false;
 
-		/*$dbh = $this->dbh;
-
+		/*
+		 * Removing this block of code since we have alreardy created the email_account entity
+		 * We are now using the Netric/EntityLoader to load the email_account
+		 * Marl Tumulak 05-02-16
+		 *
+		 *$dbh = $this->dbh;
 		$result = $dbh->Query("SELECT * FROM email_accounts WHERE id='$aid';");
 		if ($dbh->GetNumberRows($result))
 		{
@@ -264,6 +268,7 @@ class AntMail_Account
 		}*/
 
 
+		// We will use the service locator to get the entity loader and load the email_account entity
 		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
 		$entityLoader = $sl->get("EntityLoader");
 		$entity = $entityLoader->get("email_account", $aid);
@@ -391,7 +396,9 @@ class AntMail_Account
 			$values["id"] = $this->id;
 		}
 		else
+		{
 			$entity = $entityLoader->create("email_account");
+		}
 
 		// Import the email account values
 		$entity->fromArray($values);
@@ -414,7 +421,7 @@ class AntMail_Account
 			"id" => $this->id,
 			"name" => $this->name,
 			"type" => $this->type,
-			"owner_id" => $userId,
+			"user_id" => $userId,
 			"email_address" => $this->emailAddress,
 			"reply_to" => $this->replyTo,
 			"signature" => $this->signature,
@@ -526,7 +533,14 @@ class AntMail_Account
      */
     public function saveEmailAccount($params)
     {
-        $dbh = $this->dbh;
+		return $this->save();
+
+        /*
+		 * Removing this block of code since we have alreardy created the email_account entity
+         * We are now using the Netric/EntityLoader to insert/update the email_account
+		 * Marl Tumulak 05-02-16
+		 *
+         * $dbh = $this->dbh;
         $userId = $this->user->id;
         $id = null;
         
@@ -620,7 +634,7 @@ class AntMail_Account
             $insertFields[] = "f_default";
             $insertValues[] = (isset($params['defaultAccount']) && $params['defaultAccount']==1) ? "'t'" : "'f'";
             
-            $insertFields[] = "owner_id";
+            $insertFields[] = "user_id";
             $insertValues[] = "'$userId'";
             
 			$sql = "INSERT INTO email_accounts(" . implode(", ", $insertFields) . ") 
@@ -633,7 +647,7 @@ class AntMail_Account
         if ($dbh->GetNumberRows($result))
             $id = $dbh->GetValue($result, 0, "id");
         
-        return $id;
+        return $id;*/
     }
 
 	/**
@@ -703,13 +717,19 @@ class AntMail_Account
      */
     public function deleteEmailAccount($params)
     {
-        $dbh = $this->dbh;
+		return $this->remove();
+        /*
+		 * Removing this block of code since we have alreardy created the email_account entity
+         * We are now using the Netric/Entity/DataMapper to delete an email account
+		 * Marl Tumulak 05-02-16
+		 *
+         * $dbh = $this->dbh;
         $userId = $this->user->id;
         
         $accountId = $params['accountId'];
         $dbh->Query("DELETE FROM email_accounts WHERE id='$accountId' AND owner_id='$userId'");
         
-        return true;
+        return true;*/
     }
     
     /**
