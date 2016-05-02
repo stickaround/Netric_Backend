@@ -83,7 +83,8 @@ class Application
         $this->log = new Log($config);
 
         // Setup error handler if not in a unit test
-        if (!class_exists('\PHPUnit_Framework_TestCase')) {
+        if (!class_exists('\PHPUnit_Framework_TestCase'))
+        {
             // Watch for error notices and log them
             set_error_handler(array($this->log, "phpErrorHandler"));
 
@@ -163,7 +164,7 @@ class Application
      * @throws \Exception when an invalid account id or name is passed
      * @return Account
      */
-    public function getAccount($accountId = "", $accountName = "")
+    public function getAccount($accountId="", $accountName="")
     {
         // If no specific account is set to be loaded, then get current/default
         if (!$accountId && !$accountName)
@@ -193,7 +194,8 @@ class Application
         $accountsData = $this->dm->getAccounts($config->version);
 
         $accounts = [];
-        foreach ($accountsData as $data) {
+        foreach ($accountsData as $data)
+        {
             $accounts[] = $this->accountsIdentityMapper->loadById($data['id'], $this);
         }
 
@@ -212,7 +214,8 @@ class Application
         $accounts = $this->dm->getAccountsByEmail($emailAddress);
 
         // Add instanceUri
-        for ($i = 0; $i < count($accounts); $i++) {
+        for ($i = 0; $i < count($accounts); $i++)
+        {
             $proto = ($this->config->force_https) ? "https://" : "http://";
             $accounts[$i]['instanceUri'] = $proto . $accounts[$i]["account"] . "." . $this->config->localhost_root;
         }
@@ -249,25 +252,28 @@ class Application
 
         // Check url - 3rd level domain is the account name
         if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
-            && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)
-        ) {
+            && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root))
+        {
             $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
             if ($left)
                 return $left;
         }
 
         // Check get - less common
-        if (isset($_GET['account']) && $_GET['account']) {
+        if (isset($_GET['account']) && $_GET['account'])
+        {
             return $_GET['account'];
         }
 
         // Check post - less common
-        if (isset($_POST['account']) && $_POST['account']) {
+        if (isset($_POST['account']) && $_POST['account'])
+        {
             return $_POST['account'];
         }
 
         // Check for any third level domain (not sure if this is safe)
-        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.') >= 2) {
+        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.')>=2)
+        {
             $left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
             if ($left)
                 return $left;
@@ -288,7 +294,8 @@ class Application
     public function createAccount($accountName, $adminUserName, $adminUserPassword)
     {
         // Make sure the account does not already exists
-        if ($this->accountsIdentityMapper->loadByName($accountName, $this)) {
+        if ($this->accountsIdentityMapper->loadByName($accountName, $this))
+        {
             throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
         }
 
@@ -298,7 +305,8 @@ class Application
         $accountId = $this->accountsIdentityMapper->createAccount($accountName);
 
         // Make sure the created account is valid
-        if (!$accountId) {
+        if (!$accountId)
+        {
             throw new Exception\CouldNotCreateAccountException(
                 "Failed creating account " . $this->accountsIdentityMapper->getLastError()->getMessage()
             );
@@ -329,7 +337,8 @@ class Application
         $account = $this->getAccount(null, $accountName);
 
         // Delete the account if it is valid
-        if ($account->getId()) {
+        if ($account->getId())
+        {
             return $this->accountsIdentityMapper->deleteAccount($account);
         }
 
