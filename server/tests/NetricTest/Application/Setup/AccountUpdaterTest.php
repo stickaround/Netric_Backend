@@ -30,6 +30,12 @@ class AccountUpdaterTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
+
+        // Cleanup if there's any left-overs from a failed test
+        $application = $this->account->getApplication();
+        $accountToDelete = $application->getAccount(null, self::TEST_ACCOUNT_NAME);
+        if ($accountToDelete)
+            $application->deleteAccount($accountToDelete->getName());
     }
 
     protected function tearDown()
