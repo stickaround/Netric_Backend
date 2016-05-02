@@ -410,7 +410,18 @@ class AntUser
 			return $cid;
 		}
 
-		$acustid = Ant::getAereusCustomerId($this->dbh, $this->accountId);
+		$sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+		$settings = $sm->get("Netric/Settings/Settings");
+		$acustid = $settings->get("general/customer_id");
+
+		// If we do not have a customer id, then let's get it from AntSystem and save it in the settings after
+		if(!$acustid) {
+			$antsys = new AntSystem();
+			$acustid = $antsys->getAereusCustomerId($this->accountId);
+			$settings->set("general/customer_id", $acustid);
+		}
+
+		//echo $acustid = Ant::getAereusCustomerId($this->dbh, $this->accountId);
 
 		// Create customer record for this users
 		$api = new AntApi(AntConfig::getInstance()->aereus['server'], 
@@ -588,17 +599,48 @@ class AntUser
 	{
 		if (!$this->id)
 			return false;
-		
-		$dbh = $this->dbh;
-		$ret = array();
 
-		$sql = "SELECT id FROM email_accounts WHERE user_id='".$this->id."'";
-		foreach ($filterParams as $pname=>$pval)
-			$sql .= " AND $pname='$pval'";
-		$result = $dbh->Query($sql);
-		for ($i = 0; $i < $dbh->GetNumberRows($result); $i++)
+		$dbh = $this->dbh;
+		/*$dbh = $this->dbh;
+		$sql = "SELECT id FROM email_accounts";
+
+		if($filterParams) {
+			foreach ($filterParams as $pname=>$pval)
+				$sql .= " AND $pname='$pval'";
+		}
+
+		$result = $dbh->Query($sql);*/
+
+		// Setup the netric service locator
+		$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+		$index = $sl->get("EntityQuery_Index");
+
+		// Get the entity query for email_account object type
+		$query = new \Netric\EntityQuery('email_account');
+
+		if($filterParams) {
+			foreach ($filterParams as $pname=>$pval)
+			{
+				$where[] = array(
+					"blogic" => "and",
+					"field" => $pname,
+					"operator" => "is_equal",
+					"value" => $pval
+				);
+			}
+
+			// Parse the query and apply the where params
+			$params["where"] = $where;
+			\Netric\EntityQuery\FormParser::buildQuery($query, $params);
+		}
+
+		// Execute the query
+		$result = $index->executeQuery($query);
+
+		$ret = array();
+		for ($i = 0; $i < $result->getNum(); $i++)
 		{
-			$row = $dbh->GetRow($result, $i);
+			$row = $result->getEntity($i)->toArray();
 
 			$acc = new AntMail_Account($dbh, $row['id'], $this);
 			$ret[] = ($dataArray) ? $acc->toArray() : $acc;

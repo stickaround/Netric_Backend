@@ -231,7 +231,7 @@ class AntMail_Account
 		if (!is_numeric($aid))
 			return false;
 
-		$dbh = $this->dbh;
+		/*$dbh = $this->dbh;
 
 		$result = $dbh->Query("SELECT * FROM email_accounts WHERE id='$aid';");
 		if ($dbh->GetNumberRows($result))
@@ -248,7 +248,7 @@ class AntMail_Account
 			$this->username = $row['username'];
 			$this->password = decrypt($row['password']);
 			$this->port = $row['port'];
-			$this->userId = $row['user_id'];
+			$this->userId = $row['owner_id'];
 			$this->fDefault = ($row['f_default'] == 't') ? true : false;
             $this->ssl = ($row['f_ssl'] == 't') ? true : false;
 			$this->syncData = $row['sync_data'];
@@ -261,6 +261,40 @@ class AntMail_Account
 			$this->usernameOut = $row['username_out'];
 			$this->passwordOut = decrypt($row['password_out']);
             $this->forward = $row['forward'];
+		}*/
+
+
+		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
+		$entityLoader = $sl->get("EntityLoader");
+		$entity = $entityLoader->get("email_account", $aid);
+
+		if($entity)
+		{
+			$details = $entity->toArray();
+
+			$this->id = $details['id'];
+			$this->type = $details['type'];
+			$this->name = $details['name'];
+			$this->emailAddress = $details['address'];
+			$this->replyTo = $details['reply_to'];
+			$this->signature = $details['signature'];
+			$this->host = $details['host'];
+			$this->username = $details['username'];
+			$this->password = decrypt($details['password']);
+			$this->port = $details['port'];
+			$this->userId = $details['owner_id'];
+			$this->fDefault = ($details['f_default'] == 't') ? true : false;
+			$this->ssl = ($details['f_ssl'] == 't') ? true : false;
+			$this->syncData = $details['sync_data'];
+			$this->tsLastFullSync = $details['ts_last_full_sync'];
+			$this->fSystem = ($details['f_system'] == 't') ? true : false;
+			$this->fOutgoingAuth = ($details['f_outgoing_auth'] == 't') ? true : false;
+			$this->hostOut = $details['host_out'];
+			$this->portOut = $details['port_out'];
+			$this->sslOut = ($details['f_ssl_out'] == 't') ? true : false;
+			$this->usernameOut = $details['username_out'];
+			$this->passwordOut = decrypt($details['password_out']);
+			$this->forward = $details['forward'];
 		}
 
 		// Look for system default type and host
@@ -271,7 +305,7 @@ class AntMail_Account
 		}
 
 		if (!$this->username)
-			$this->username = $row['address'];
+			$this->username = $details['address'];
 	}
 
 	/**
@@ -289,7 +323,7 @@ class AntMail_Account
 		$values = array(
 			"name" => $this->name,
 			"type" => $this->type,
-			"user_id" => $userId,
+			"owner_id" => $userId,
 			"address" => $this->emailAddress,
 			"reply_to" => $this->replyTo,
 			"signature" => $this->signature,
@@ -311,7 +345,7 @@ class AntMail_Account
             "f_ssl_out" => ($this->sslOut) ? 't' : 'f',
 		);
 
-		if ($this->id)
+		/*if ($this->id)
 		{
 			$valq = "";
 			foreach ($values as $colname=>$val)
@@ -345,7 +379,28 @@ class AntMail_Account
 			$this->id = $dbh->GetValue($res, 0, "id");
 		}
 
-		return $this->id;
+		return $this->id;*/
+
+		// Get the Entity Loader
+		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
+		$entityLoader = $sl->get("EntityLoader");
+
+		if ($this->id)
+		{
+			$entity = $entityLoader->get("email_account", $this->id);
+			$values["id"] = $this->id;
+		}
+		else
+			$entity = $entityLoader->create("email_account");
+
+		// Import the email account values
+		$entity->fromArray($values);
+
+		// Save the entity
+		$entityLoader->save($entity);
+
+		// Return the entity id saved
+		return $entity->getId();
 	}
 
 	/**
@@ -359,7 +414,7 @@ class AntMail_Account
 			"id" => $this->id,
 			"name" => $this->name,
 			"type" => $this->type,
-			"user_id" => $userId,
+			"owner_id" => $userId,
 			"email_address" => $this->emailAddress,
 			"reply_to" => $this->replyTo,
 			"signature" => $this->signature,
@@ -390,16 +445,30 @@ class AntMail_Account
 
 		// Check to see if sync partnership exists
 		$partner = $this->getSyncPartner(false);
-		if ($partner)
-        {
-            $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
-            $entitySync = $serviceManager->get("EntitySync");
-            $entitySync->deletePartner($partner);
-        }
+		if ($partner) {
+			$serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+			$entitySync = $serviceManager->get("EntitySync");
+			$entitySync->deletePartner($partner);
+		}
 
-		$ret = $this->dbh->Query("DELETE FROM email_accounts WHERE id='".$this->id."'");
+		//$ret = $this->dbh->Query("DELETE FROM email_accounts WHERE id='".$this->id."'");
 
-        return ($ret === false) ? false : true;
+		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
+
+		// Get the new netric entity DataMapper
+		$dataMapper = $sl->get("Entity_DataMapper");
+
+		// Get the new netric entity loader
+		$loader = $sl->get("EntityLoader");
+
+		// Get the email_account entity using the $this->id
+		$entity = $loader->get("email_account", $this->id);
+
+		// Delete the entity and return true if successful, else return false
+		if ($dataMapper->delete($entity))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -409,8 +478,8 @@ class AntMail_Account
 	 */
 	public function getSyncPartner($createIfMissing=true)
 	{
-        $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
-        $entitySync = $serviceManager->get("EntitySync");
+		$serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$entitySync = $serviceManager->get("EntitySync");
         $partner = $entitySync->getPartner("EmailAccounts/" . $this->id);
         if (!$partner && $createIfMissing)
         {
@@ -551,7 +620,7 @@ class AntMail_Account
             $insertFields[] = "f_default";
             $insertValues[] = (isset($params['defaultAccount']) && $params['defaultAccount']==1) ? "'t'" : "'f'";
             
-            $insertFields[] = "user_id";
+            $insertFields[] = "owner_id";
             $insertValues[] = "'$userId'";
             
 			$sql = "INSERT INTO email_accounts(" . implode(", ", $insertFields) . ") 
@@ -594,7 +663,7 @@ class AntMail_Account
             $whereSql = "and " . implode("and ", $whereClause);
         
 		$query = "SELECT id, name, address, reply_to, f_default, signature, type, username, password, host 
-					FROM email_accounts WHERE user_id='$userId' $whereSql";
+					FROM email_accounts WHERE owner_id='$userId' $whereSql";
         $result = $dbh->Query($query);
         $num = $dbh->GetNumberRows($result);
         
@@ -628,6 +697,7 @@ class AntMail_Account
     /**
      * Deletes the email account
      *
+	 * @deprecated
      * @param array $params     An array of email account information
      * (e.g. accountId)
      */
@@ -637,7 +707,7 @@ class AntMail_Account
         $userId = $this->user->id;
         
         $accountId = $params['accountId'];
-        $dbh->Query("DELETE FROM email_accounts WHERE id='$accountId' AND user_id='$userId'");
+        $dbh->Query("DELETE FROM email_accounts WHERE id='$accountId' AND owner_id='$userId'");
         
         return true;
     }

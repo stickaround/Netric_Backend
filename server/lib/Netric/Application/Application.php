@@ -21,7 +21,7 @@ class Application
 {
     /**
      * Initialized configuration class
-     * 
+     *
      * @var \Netric\Config
      */
     protected $config = null;
@@ -35,7 +35,7 @@ class Application
 
     /**
      * Application DataMapper
-     * 
+     *
      * @var \Netric\Application\DataMapperInterface
      */
     private $dm = null;
@@ -69,7 +69,7 @@ class Application
      * @var ApplicationServiceManager
      */
     private $serviceManager = null;
-    
+
     /**
      * Initialize application
      *
@@ -83,8 +83,7 @@ class Application
         $this->log = new Log($config);
 
         // Setup error handler if not in a unit test
-        if (!class_exists('\PHPUnit_Framework_TestCase'))
-        {
+        if (!class_exists('\PHPUnit_Framework_TestCase')) {
             // Watch for error notices and log them
             set_error_handler(array($this->log, "phpErrorHandler"));
 
@@ -102,9 +101,9 @@ class Application
 
         // Setup application datamapper
         $this->dm = new DataMapperPgsql($config->db["host"],
-                                        $config->db["sysdb"],
-                                        $config->db["user"],
-                                        $config->db["password"]);
+            $config->db["sysdb"],
+            $config->db["user"],
+            $config->db["password"]);
 
         // Setup application cache
         $this->cache = new AlibCache();
@@ -145,26 +144,26 @@ class Application
         // Execute through the router
         $router->run($request);
     }
-    
+
     /**
      * Get initialized config
-     * 
+     *
      * @return Config
      */
     public function getConfig()
     {
         return $this->config;
     }
-    
+
     /**
      * Get current account
-     * 
+     *
      * @param string $accountId If set the pull an account by id, otherwise automatically get from url or config
      * @param string $name If set try to get an account by the unique name
      * @throws \Exception when an invalid account id or name is passed
      * @return Account
      */
-    public function getAccount($accountId="", $accountName="")
+    public function getAccount($accountId = "", $accountName = "")
     {
         // If no specific account is set to be loaded, then get current/default
         if (!$accountId && !$accountName)
@@ -172,7 +171,7 @@ class Application
 
         if (!$accountId && !$accountName)
             throw new \Exception("Cannot get account without accountName");
-        
+
         // Get the account with either $accountId or $accountName
         $account = null;
         if ($accountId)
@@ -194,8 +193,7 @@ class Application
         $accountsData = $this->dm->getAccounts($config->version);
 
         $accounts = [];
-        foreach ($accountsData as $data)
-        {
+        foreach ($accountsData as $data) {
             $accounts[] = $this->accountsIdentityMapper->loadById($data['id'], $this);
         }
 
@@ -214,8 +212,7 @@ class Application
         $accounts = $this->dm->getAccountsByEmail($emailAddress);
 
         // Add instanceUri
-        for ($i = 0; $i < count($accounts); $i++) 
-        {
+        for ($i = 0; $i < count($accounts); $i++) {
             $proto = ($this->config->force_https) ? "https://" : "http://";
             $accounts[$i]['instanceUri'] = $proto . $accounts[$i]["account"] . "." . $this->config->localhost_root;
         }
@@ -235,53 +232,50 @@ class Application
     {
         return $this->dm->setAccountUserEmail($accountId, $username, $emailAddress);
     }
-    
+
     /**
-	 * Determine what account we are working with.
-	 *
-	 * This is usually done by the third level url, but can fall
-	 * all the way back to the system default account if needed.
-	 *
-	 * @return string The unique account name for this instance of netric
-	 */
-	private function getAccountName()
-	{
-		global $_SERVER, $_GET, $_POST, $_SERVER;
+     * Determine what account we are working with.
+     *
+     * This is usually done by the third level url, but can fall
+     * all the way back to the system default account if needed.
+     *
+     * @return string The unique account name for this instance of netric
+     */
+    private function getAccountName()
+    {
+        global $_SERVER, $_GET, $_POST, $_SERVER;
 
-		$ret = null;
+        $ret = null;
 
-		// Check url - 3rd level domain is the account name
-		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root 
-			 && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root))
-		{
-			$left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
+        // Check url - 3rd level domain is the account name
+        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
+            && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)
+        ) {
+            $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
             if ($left)
-				return $left;
-		}
-		
-		// Check get - less common
-		if (isset($_GET['account']) && $_GET['account'])
-		{
-			return $_GET['account'];
-		}
-
-		// Check post - less common
-		if (isset($_POST['account']) && $_POST['account'])
-		{
-			return $_POST['account'];
-		}
-
-		// Check for any third level domain (not sure if this is safe)
-		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.')>=2)
-		{
-			$left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
-			if ($left)
                 return $left;
-		}
+        }
 
-		// Get default account from the system settings
-		return $this->getConfig()->default_account;
-	}
+        // Check get - less common
+        if (isset($_GET['account']) && $_GET['account']) {
+            return $_GET['account'];
+        }
+
+        // Check post - less common
+        if (isset($_POST['account']) && $_POST['account']) {
+            return $_POST['account'];
+        }
+
+        // Check for any third level domain (not sure if this is safe)
+        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.') >= 2) {
+            $left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
+            if ($left)
+                return $left;
+        }
+
+        // Get default account from the system settings
+        return $this->getConfig()->default_account;
+    }
 
     /**
      * Initialize a brand new account and create the admin user
@@ -294,8 +288,7 @@ class Application
     public function createAccount($accountName, $adminUserName, $adminUserPassword)
     {
         // Make sure the account does not already exists
-        if ($this->accountsIdentityMapper->loadByName($accountName, $this))
-        {
+        if ($this->accountsIdentityMapper->loadByName($accountName, $this)) {
             throw new Exception\AccountAlreadyExistsException($accountName . " already exists");
         }
 
@@ -305,8 +298,7 @@ class Application
         $accountId = $this->accountsIdentityMapper->createAccount($accountName);
 
         // Make sure the created account is valid
-        if (!$accountId)
-        {
+        if (!$accountId) {
             throw new Exception\CouldNotCreateAccountException(
                 "Failed creating account " . $this->accountsIdentityMapper->getLastError()->getMessage()
             );
@@ -337,8 +329,7 @@ class Application
         $account = $this->getAccount(null, $accountName);
 
         // Delete the account if it is valid
-        if ($account->getId())
-        {
+        if ($account->getId()) {
             return $this->accountsIdentityMapper->deleteAccount($account);
         }
 
