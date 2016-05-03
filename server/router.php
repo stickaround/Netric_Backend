@@ -54,7 +54,13 @@ $svr->run($request);
 
 
 // Get the system config
-$config = new Netric\Config();
+//$config = new Netric\Config\Config();
+
+$configLoader = new Netric\Config\ConfigLoader();
+$applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+
+// Setup the new config
+$config = $configLoader->fromFolder(__DIR__ . "/config", $applicationEnvironment);
 
 // Run the application
 \Netric\Application\Application::init($config)->run();
