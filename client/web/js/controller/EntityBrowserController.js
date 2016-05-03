@@ -508,6 +508,12 @@ EntityBrowserController.prototype.getMoreEntities = function (limitIncrease, opt
 
     var limit = this.collection_.getLimit();
     var newLimit = limit + limitIncrease; // increase the limit
+
+    // We just want to make sure that we will not get more entities if have the same limits
+    if(limit == newLimit) {
+        return;
+    }
+
     var totalNum = this.collection_.getTotalNum();
 
     // Check if maxed out already so no more actions needed
