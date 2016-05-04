@@ -203,10 +203,40 @@ class EmailController extends Controller
         $userId = $this->user->id;
         //$themeName = ($userId) ? UserGetTheme($dbh, $userId, 'name') : "ant_skygrey"; // TODO: I don't think we need this at all
         $id = null;
-        
+
 		// Update all existing email accounts to not be the default for this user if this is the default
         if($params['f_default']==1)
-            $dbh->Query("update email_accounts set f_default='f' where user_id='$userId'");
+        {
+            //$dbh->Query("update email_accounts set f_default='f' where user_id='$userId'");
+
+            // Setup the new service locator
+            $sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
+            $entityLoader = $sl->get("EntityLoader");
+
+            // Create the query for email_account
+            $query = new \Netric\EntityQuery("email_account");
+
+            // Filter the query that we will only get the email accounts for specific $userId
+            $query->where("user_id")->equals($userId);
+
+            // Execute the query
+            $results = $index->executeQuery($query);
+            $totalNum = $results->getTotalNum();
+
+            // Loop over total num - the results will paginate as needed
+            for ($i = 0; $i < $totalNum; $i++) {
+
+                // Get each filterd email accounts
+                $entity = $results->getEntity($i);
+
+                // If we have an entity, then let's set the f_default to false
+                if ($entity) {
+                    $entity->setValue("f_default", false);
+                    $entityLoader->save($entity);
+                }
+            }
+        }
+
         
         // Instantiate Email Account
 		$aid = (isset($params['accountId']) && $params['accountId']>0) ? $params['accountId'] : null;
