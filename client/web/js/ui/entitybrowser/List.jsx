@@ -112,18 +112,6 @@ var List = React.createClass({
         alib.events.unlisten(this.state.scrollContainer, "scroll", this._handleScroll);
     },
 
-    shouldComponentUpdate: function (nextProps, nextState) {
-
-        // If the nextProps.entities length is the just the as the current props.entities, then we do not need to render again
-        if (nextProps.selectedEntities.length != this.props.entities.length ||
-            nextProps.entities.length > this.props.entities.length) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    },
-
     render: function () {
 
         var layout = this.props.layout;

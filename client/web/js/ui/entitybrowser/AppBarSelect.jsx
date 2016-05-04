@@ -12,7 +12,7 @@ var IconButton = Chamel.IconButton;
 /**
  * Module shell
  */
-var AppBarBrowse = React.createClass({
+var AppBarSelect = React.createClass({
 
     propTypes: {
         onPerformAction: React.PropTypes.func,
@@ -33,6 +33,7 @@ var AppBarBrowse = React.createClass({
             var act = this.props.actions[i];
             icons.push(
                 <IconButton
+                    key={i}
                     iconClassName={act.iconClassName}
                     onClick={this.handleActionClick_.bind(this, act.name)}>
                 </IconButton>
@@ -49,4 +50,4 @@ var AppBarBrowse = React.createClass({
     }
 });
 
-module.exports = AppBarBrowse;
+module.exports = AppBarSelect;

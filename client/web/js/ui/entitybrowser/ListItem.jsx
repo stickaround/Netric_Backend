@@ -14,6 +14,17 @@ var Checkbox = Chamel.Checkbox;
  */
 var ListItem = React.createClass({
 
+    shouldComponentUpdate: function (nextProps, nextState) {
+
+        // If we do not have any changes in the nextProps, then we will not proceed with re-rendering the component
+        if (this.props.entity.getValue("revision") == nextProps.entity.getValue("revision")
+            && this.props.selected == nextProps.selected) {
+            return false;
+        } else {
+            return true;
+        }
+    },
+
     render: function () {
         var entity = this.props.entity;
         var classes = "entity-browser-item entity-browser-item-cmp";

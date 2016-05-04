@@ -115,6 +115,7 @@ var EntityBrowser = React.createClass({
             if (this.props.toolbarMode == 'appbar') {
                 toolbar = (
                     <AppBarBrowse
+                        key="appbarEntityBrowser"
                         title={this.props.title}
                         actionHandler={this.props.actionHandler}
                         deviceSize={this.props.deviceSize}
