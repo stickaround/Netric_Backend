@@ -650,7 +650,7 @@ EntityBrowserController.prototype._removeEntity = function (entityId) {
     // Send delete action
     this.performActionOnSelected("remove", [entityId]);
 
-    if (this.props.onCreateNewEntity) {
+    if (this.props.onRemoveEntity) {
         this.props.onRemoveEntity(this.entityDefinition_.objType, entityId);
     }
 }

@@ -74,6 +74,16 @@ var WorkflowActionItem = React.createClass({
         this._loadActions();
     },
 
+    shouldComponentUpdate: function (nextProps, nextState) {
+
+        // If we do not have any changes in the nextProps, then we will not proceed with re-rendering the component
+        if (this.props.entity.getValue("revision") == nextProps.entity.getValue("revision")) {
+            return false;
+        } else {
+            return true;
+        }
+    },
+
     /**
      * Render the list item
      */
