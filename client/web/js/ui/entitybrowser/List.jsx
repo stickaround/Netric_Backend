@@ -318,14 +318,22 @@ var List = React.createClass({
             return false;
         }
 
-        // Function load more entities. The argument 50 will increment the current limit.
-        this.props.onLoadMoreEntities(50, opt_callback);
+        // Lets create our own callback function first so we can set the state before we call the argument opt_callback
+        var funcFinishedLoading = function () {
+            if (this.isMounted()) {
+                this.setState({
+                    loadingFlag: false, // set to false to get new updates when reached at bottom
+                });
+            }
 
-        if (this.isMounted()) {
-            this.setState({
-                loadingFlag: false, // set to false to get new updates when reached at bottom
-            });
-        }
+            // Now let's call the argument opt_callback function
+            if (opt_callback) {
+                opt_callback();
+            }
+        }.bind(this)
+
+        // Function load more entities. The argument 50 will increment the current limit.
+        this.props.onLoadMoreEntities(50, funcFinishedLoading);
     },
 
     /**
