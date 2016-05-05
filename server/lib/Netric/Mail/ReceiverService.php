@@ -5,7 +5,6 @@
  */
 namespace Netric\Mail;
 
-use Netric\Entity\Entity;
 use Netric\EntitySync\Collection\CollectionFactoryInterface;
 use Netric\EntitySync\Collection\CollectionInterface;
 use Netric\EntitySync\Partner;

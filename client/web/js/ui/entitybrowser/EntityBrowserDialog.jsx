@@ -78,6 +78,7 @@ var EntityBrowserDialog = React.createClass({
             <div>
                 <div>
                     <AppBarBrowse
+                        key="appbarDialog"
                         title={this.props.title}
                         actionHandler={this.props.actionHandler}
                         deviceSize={this.props.deviceSize}

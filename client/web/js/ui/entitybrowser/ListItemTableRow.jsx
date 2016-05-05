@@ -46,6 +46,17 @@ var ListItemTableRow = React.createClass({
         browserView: React.PropTypes.object
     },
 
+    shouldComponentUpdate: function (nextProps, nextState) {
+
+        // If we do not have any changes in the nextProps, then we will not proceed with re-rendering the component
+        if (this.props.entity.getValue("revision") == nextProps.entity.getValue("revision")
+            && this.props.selected == nextProps.selected) {
+            return false;
+        } else {
+            return true;
+        }
+    },
+
     /**
      * Render the entity table row
      *
@@ -94,8 +105,8 @@ var ListItemTableRow = React.createClass({
 
             // Truncate long strings
             if (cellContents) {
-                cellContents = (cellContents.length>20)
-                    ? cellContents.substr(0,100)+'...' : cellContents;
+                cellContents = (cellContents.length > 20)
+                    ? cellContents.substr(0, 100) + '...' : cellContents;
             }
 
             // Add the column
@@ -110,7 +121,7 @@ var ListItemTableRow = React.createClass({
             <tr className={classes}>
                 <td className="entity-browser-item-trow-icon">
                     <div className="entity-browser-item-cmp-icon">
-                        <Checkbox checked={this.props.selected} onCheck={this.toggleSelected} />
+                        <Checkbox checked={this.props.selected} onCheck={this.toggleSelected}/>
                     </div>
                 </td>
                 {columns}
@@ -121,7 +132,7 @@ var ListItemTableRow = React.createClass({
     /**
      * Toggle selected state
      */
-    toggleSelected: function() {
+    toggleSelected: function () {
         if (this.props.onSelect) {
             this.props.onSelect();
         }
@@ -132,7 +143,7 @@ var ListItemTableRow = React.createClass({
      *
      * @return {string[]}
      */
-    getFieldsToRender_: function() {
+    getFieldsToRender_: function () {
         var fields = (this.props.browserView) ? this.props.browserView.getTableColumns() : [];
 
         // If no table columns are defined in the view, then guess

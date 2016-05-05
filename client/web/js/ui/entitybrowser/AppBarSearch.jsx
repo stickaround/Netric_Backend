@@ -14,7 +14,7 @@ var TextField = Chamel.TextField;
 /**
  * Module shell
  */
-var AppBarBrowse = React.createClass({
+var AppBarSearch = React.createClass({
 
     propTypes: {
         onSearch: React.PropTypes.func,
@@ -74,4 +74,4 @@ var AppBarBrowse = React.createClass({
     }
 });
 
-module.exports = AppBarBrowse;
+module.exports = AppBarSearch;
