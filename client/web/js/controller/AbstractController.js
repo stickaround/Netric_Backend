@@ -359,34 +359,6 @@ AbstractController.prototype.getParentControllerFromRootRouter_ = function() {
 }
 
 /**
- * Re render the controller ui into the DOM
- *
- * This function is usually used by the controller that is NOT displayed as a fragment.
- * When the controller is previously displayed but was unloaded and we still have the instance of that controller
- *  then, we can call this function to redisplay the controller ui into the DOM instead of loading the controller again.
- *
- * @param {ReactElement|DomElement} domNode Parent node to render controller into
- */
-AbstractController.prototype.reDisplayDomNode = function(domNode) {
-
-	// Set the root dom node for this controller
-	this.setupDomNode_(domNode);
-
-	// Pause parent controller (if a page)
-	if (this.getParentController() && this.type_ == controller.types.PAGE) {
-		this.getParentController().pause();
-	}
-
-	// Render the controller
-	this.render();
-
-	// If we are rendered in a dialog then show it
-	if (this.dialogComponent_) {
-		this.dialogComponent_.show();
-	}
-}
-
-/**
  * Set the root dom node to render this controller into
  *
  * @param {DOMElement} opt_domNode Optional DOM node. Usually only used for fragments but also for custom root node.

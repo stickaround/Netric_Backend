@@ -172,9 +172,7 @@ var Comments = React.createClass({
         }
 
         // Check if we have already loaded the controller
-        if (this.state.commentsController) {
-
-            //var domNode = ReactDOM.findDOMNode(this.refs.comcon);
+        if (this.state.commentsController && this.state.commentsController.getType() == controller.types.FRAGMENT) {
 
             // Just refresh the results and return
             this.state.commentsController.refresh();
