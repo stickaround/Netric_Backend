@@ -152,11 +152,11 @@ EntityCommentsController.prototype._handleAddComment = function (comment) {
     }
 
     if (this.attachedFiles_.length) {
-        
+
         // Loop thru the files
-        for(var idx in this.attachedFiles_) {
+        for (var idx in this.attachedFiles_) {
             var attachedFile = this.attachedFiles_[idx];
-            
+
             // Add the file in this comment entity
             ent.addMultiValue('attachments', attachedFile.id, attachedFile.name);
         }
@@ -238,7 +238,9 @@ EntityCommentsController.prototype._handleRemoveFiles = function (index) {
  * Refresh the comments list
  */
 EntityCommentsController.prototype.refresh = function () {
-    this.rootReactNode_.refreshComments();
+    if (this.rootReactNode_) {
+        this.rootReactNode_.refreshComments();
+    }
 }
 
 module.exports = EntityCommentsController;
