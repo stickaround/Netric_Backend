@@ -174,10 +174,10 @@ var Comments = React.createClass({
         // Check if we have already loaded the controller
         if (this.state.commentsController) {
 
-            var domNode = ReactDOM.findDOMNode(this.refs.comcon);
+            //var domNode = ReactDOM.findDOMNode(this.refs.comcon);
 
             // Just refresh the results and return
-            this.state.commentsController.refresh(domNode);
+            this.state.commentsController.refresh();
             return;
         }
 
