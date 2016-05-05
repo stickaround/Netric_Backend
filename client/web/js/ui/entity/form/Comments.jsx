@@ -11,9 +11,9 @@ var EntityCommentsController = require('../../../controller/EntityCommentsContro
 var controller = require("../../../controller/controller");
 var netric = require("../../../base");
 var Device = require("../../../Device");
-var Chamel = require("chamel");
-var IconButton = Chamel.IconButton;
-var FlatButton = Chamel.FlatButton;
+var Controls = require("../../Controls.jsx");
+var IconButton = Controls.IconButton;
+var FlatButton = Controls.FlatButton;
 
 /**
  * Constant indicating the smallest device that we can print comments in
@@ -70,7 +70,11 @@ var Comments = React.createClass({
     },
 
     componentDidMount: function () {
-        this._loadComments();
+
+        // Only load comments if this device displays inline comments (size >= medium)
+        if (netric.getApplication().device.size >= _minimumInlineDeviceSize) {
+            this._loadComments();
+        }
     },
 
 
@@ -112,7 +116,11 @@ var Comments = React.createClass({
      * the id has changed - meaning a new entity was saved.
      */
     componentDidUpdate: function () {
-        this._loadComments();
+
+        // Only load comments if this device displays inline comments (size >= medium)
+        if (netric.getApplication().device.size >= _minimumInlineDeviceSize) {
+            this._loadComments();
+        }
     },
 
     render: function () {
@@ -132,11 +140,11 @@ var Comments = React.createClass({
                     <IconButton
                         onClick={this._loadComments}
                         iconClassName="fa fa-comment-o"
-                        />
+                    />
                     <FlatButton
                         label={numCommentsLabel}
                         onClick={this._loadComments}
-                        />
+                    />
                 </div>
             );
         }
@@ -158,11 +166,6 @@ var Comments = React.createClass({
      */
     _loadComments: function () {
 
-        // Only load comments if this device displays inline comments (size > medium)
-        if (netric.getApplication().device.size < _minimumInlineDeviceSize) {
-            return;
-        }
-
         // We only display comments if workign with an actual entity
         if (!this.props.entity.id) {
             return;
@@ -170,8 +173,11 @@ var Comments = React.createClass({
 
         // Check if we have already loaded the controller
         if (this.state.commentsController) {
+
+            var domNode = ReactDOM.findDOMNode(this.refs.comcon);
+
             // Just refresh the results and return
-            this.state.commentsController.refresh();
+            this.state.commentsController.refresh(domNode);
             return;
         }
 

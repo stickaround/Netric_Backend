@@ -130,7 +130,6 @@ EntityCommentsController.prototype.render = function () {
         React.createElement(UiEntityComments, data),
         domCon
     );
-
 }
 
 /**
@@ -237,9 +236,19 @@ EntityCommentsController.prototype._handleRemoveFiles = function (index) {
 
 /**
  * Refresh the comments list
+ *
+ * @param {ReactElement|DomElement} opt_domNode Optional parent node to re-render comments into (if we are not on controller.types.fragment)
  */
-EntityCommentsController.prototype.refresh = function () {
-    if (this.rootReactNode_) {
+EntityCommentsController.prototype.refresh = function (opt_domNode) {
+
+    /**
+     * If we are displaying the comments in a page type,
+     *  then we need to redisplay the page instead of refreshing the comment list.
+     * Since in the page display type, we are not displaying the comment list
+     */
+    if(this.getType() != controller.types.FRAGMENT && opt_domNode) {
+        this.reDisplayDomNode(opt_domNode)
+    } else if (this.rootReactNode_) {
         this.rootReactNode_.refreshComments();
     }
 }
