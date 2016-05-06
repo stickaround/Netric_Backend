@@ -180,11 +180,11 @@ EntityPluginController.prototype._saveEntity = function (entity, opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
-    entitySaver.save(entity, function () {
+    entitySaver.save(entity, function (resp) {
         log.info("Saved " + entity.objType + " entity via plugin controller: ", entity.getName());
 
         if (callbackWhenLoaded) {
-            callbackWhenLoaded();
+            callbackWhenLoaded(resp);
         }
     }.bind(this));
 }

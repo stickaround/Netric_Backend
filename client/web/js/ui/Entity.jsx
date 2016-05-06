@@ -35,14 +35,14 @@ var Entity = React.createClass({
     /**
      * Set initial state for the entity
      */
-    getInitialState: function() {
-        return { editMode: (this.props.entity.id) ? false : true };
+    getInitialState: function () {
+        return {editMode: (this.props.entity.id) ? false : true};
     },
 
     /**
      * Notify the application if we have changed modes
      */
-    componentDidMount: function() {
+    componentDidMount: function () {
         // If we are working with a device that supports status bar color, then set
         if (typeof cordova != "undefined" && typeof StatusBar != "undefined") {
             if (cordova.platformId == 'android') {
@@ -51,7 +51,7 @@ var Entity = React.createClass({
         }
     },
 
-    render: function() {
+    render: function () {
 
         var rightIcons = [];
         var actions = null;
@@ -73,7 +73,7 @@ var Entity = React.createClass({
             if (action.showif) {
 
                 // If ::evaluateShowIf() returns false, it means that the showif did not match the filter specified
-                if(!this.evaluateShowIf(action.showif)) {
+                if (!this.evaluateShowIf(action.showif)) {
                     continue;
                 }
             }
@@ -82,11 +82,11 @@ var Entity = React.createClass({
                 <IconButton
                     key={i}
                     iconClassName={action.iconClassName}
-                    onClick={this.handleActionClick_.bind(this, action.name)}>
-                </IconButton>
+                    onClick={this.handleActionClick_.bind(this, action.name)}
+                    tooltip={action.title}/>
             );
         }
-        
+
         var appBar = "";
         var appBarClassName = (this.state.editMode) ? "edit" : "detail";
 
@@ -129,19 +129,19 @@ var Entity = React.createClass({
         if (this.props.entity.isLoading) {
             body = <Loading />;
         } else {
-            
+
             // render the UIXML form
             body = (<UiXmlElement
                 elementNode={this.props.formElementNode}
                 eventsObj={this.props.eventsObj}
                 entity={this.props.entity}
-                editMode={this.state.editMode} />);
+                editMode={this.state.editMode}/>);
         }
 
         // Add confirmation dialog for undoing changes
         var confirmActions = [
-          { text: 'Cancel' },
-          { text: 'Continue', onClick: this.undoChangesClick_ }
+            {text: 'Cancel'},
+            {text: 'Continue', onClick: this.undoChangesClick_}
         ];
 
         return (
@@ -153,12 +153,12 @@ var Entity = React.createClass({
                 <div>
                     {body}
                 </div>
-                <Dialog 
-                    ref='confirm' 
-                    title="Cancel Changes" 
-                    actions={confirmActions} 
+                <Dialog
+                    ref='confirm'
+                    title="Cancel Changes"
+                    actions={confirmActions}
                     modal={true}>
-                  This will undo any changes you made.
+                    This will undo any changes you made.
                 </Dialog>
             </div>
         );
@@ -169,7 +169,7 @@ var Entity = React.createClass({
      *
      * @param {Event} evt Event fired
      */
-    navigationClick_: function(evt) {
+    navigationClick_: function (evt) {
 
         if (this.state.editMode) {
             // Prompt user to make sure they want to undo their changes
@@ -185,7 +185,7 @@ var Entity = React.createClass({
      *
      * @param {Event} evt Event fired
      */
-    editModeClick_: function(evt) {
+    editModeClick_: function (evt) {
         // Toggle state
         this.setState({
             editMode: (this.state.editMode) ? false : true
@@ -197,8 +197,8 @@ var Entity = React.createClass({
      *
      * @param {Event} evt Event fired
      */
-    undoChangesClick_: function(evt) {
-        
+    undoChangesClick_: function (evt) {
+
         // Hide the dialog
         this.refs.confirm.dismiss();
 
@@ -217,7 +217,7 @@ var Entity = React.createClass({
      *
      * @param {Event} evt Event fired
      */
-    saveClick_: function(evt) {
+    saveClick_: function (evt) {
         // Toggle state
         this.setState({
             editMode: false
@@ -234,7 +234,7 @@ var Entity = React.createClass({
      * @param actionName
      * @private
      */
-    handleActionClick_: function(actionName) {
+    handleActionClick_: function (actionName) {
 
         switch (actionName) {
             /*
