@@ -11,11 +11,11 @@ var controller = require("../controller/controller");
 var Device = require("../Device");
 var Where = require("../entity/Where");
 var File = require("./fileupload/File.jsx");
-var Chamel = require("chamel");
-var TextField = Chamel.TextField;
-var FlatButton = Chamel.FlatButton;
-var IconButton = Chamel.IconButton;
-var AppBar = Chamel.AppBar;
+var Controls = require("./Controls.jsx");
+var TextField = Controls.TextField;
+var FlatButton = Controls.FlatButton;
+var IconButton = Controls.IconButton;
+var AppBar = Controls.AppBar;
 
 /**
  * Handle rendering comments browser inline and add comment

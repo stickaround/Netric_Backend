@@ -130,7 +130,6 @@ EntityCommentsController.prototype.render = function () {
         React.createElement(UiEntityComments, data),
         domCon
     );
-
 }
 
 /**
@@ -153,11 +152,11 @@ EntityCommentsController.prototype._handleAddComment = function (comment) {
     }
 
     if (this.attachedFiles_.length) {
-        
+
         // Loop thru the files
-        for(var idx in this.attachedFiles_) {
+        for (var idx in this.attachedFiles_) {
             var attachedFile = this.attachedFiles_[idx];
-            
+
             // Add the file in this comment entity
             ent.addMultiValue('attachments', attachedFile.id, attachedFile.name);
         }
