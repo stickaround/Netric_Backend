@@ -9,7 +9,7 @@
 
 namespace NetricTest\Mail\Storage;
 
-use Netric\Config\Config;
+use Netric\Config;
 use Netric\Mail\Protocol;
 use Netric\Mail\Storage;
 
@@ -22,21 +22,10 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         if (!getenv('TESTS_NETRIC_MAIL_IMAP_ENABLED')) {
             $this->markTestSkipped('Netric_Mail IMAP tests are not enabled');
         }
-        $this->params = ['host'     => getenv('TESTS_NETRIC_MAIL_IMAP_HOST'),
-                               'user'     => getenv('TESTS_NETRIC_MAIL_IMAP_USER'),
-                               'password' => getenv('TESTS_NETRIC_MAIL_IMAP_PASSWORD')];
-        if (getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') && getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')) {
-            if (!file_exists(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'inbox')
-                && !file_exists(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . DIRECTORY_SEPARATOR . 'INBOX')
-            ) {
-                $this->markTestSkipped(
-                     'There is no file name "inbox" or "INBOX" in '
-                     . getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') . '. I won\'t use it for testing. '
-                     . 'This is you safety net. If you think it is the right directory just '
-                     . 'create an empty file named INBOX or remove/deactived this message.'
-                 );
-            }
-
+        $this->params = ['host' => getenv('TESTS_NETRIC_MAIL_IMAP_HOST'),
+                         'user' => getenv('TESTS_NETRIC_MAIL_IMAP_USER'),
+                         'password' => getenv('TESTS_NETRIC_MAIL_IMAP_PASSWORD')];
+        if ( getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') && getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')) {
             $this->cleanDir(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR'));
             $this->copyDir(
                 __DIR__ . '/../_files/test.' . getenv('TESTS_NETRIC_MAIL_SERVER_FORMAT'),
@@ -95,7 +84,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testConnectFailure()
     {
         $this->params['host'] = 'example.example';
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -129,14 +118,14 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testInvalidService()
     {
         $this->params['port'] = getenv('TESTS_NETRIC_MAIL_IMAP_INVALID_PORT');
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
     public function testWrongService()
     {
         $this->params['port'] = getenv('TESTS_NETRIC_MAIL_IMAP_WRONG_PORT');
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -144,7 +133,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     {
         // this also triggers ...{chars}<NL>token for coverage
         $this->params['user'] = "there is no\nnobody";
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -159,14 +148,14 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testWithNotConnectedInstance()
     {
         $protocol = new Protocol\Imap();
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($protocol);
     }
 
     public function testWithNotLoggedInstance()
     {
         $protocol = new Protocol\Imap($this->params['host']);
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($protocol);
     }
 
@@ -174,7 +163,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     {
         $this->params['folder'] = 'this folder does not exist on your server';
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -284,7 +273,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $mail->close();
         // after closing we can't count messages
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->countMessages();
     }
 
@@ -306,7 +295,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testUnknownFolder()
     {
         $mail = new Storage\Imap($this->params);
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->selectFolder('/Unknown/Folder/');
     }
 
@@ -452,7 +441,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     {
         $mail = new Storage\Imap($this->params);
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->createFolder('subfolder/test');
     }
 
@@ -478,7 +467,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     {
         $mail = new Storage\Imap($this->params);
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->removeFolder('thisFolderDoestNotExist');
     }
 
@@ -489,7 +478,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $mail->renameFolder('subfolder/test', 'subfolder/test1');
         $mail->renameFolder($mail->getFolders()->subfolder->test1, 'subfolder/test');
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->renameFolder('subfolder/test', 'INBOX');
     }
 
@@ -509,7 +498,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($count + 1, $mail->countMessages());
         $this->assertEquals($mail->getMessage($count + 1)->subject, 'append test');
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->appendMessage('');
     }
 
@@ -529,7 +518,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($mail->getMessage($count + 1)->from, $message->from);
         $this->assertEquals($mail->getMessage($count + 1)->to, $message->to);
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->copyMessage(1, 'justARandomFolder');
     }
 
@@ -558,7 +547,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($message->hasFlag(Storage::FLAG_FLAGGED));
         $this->assertTrue($message->hasFlag('myflag'));
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $mail->setFlags(1, [Storage::FLAG_RECENT]);
     }
 
@@ -642,7 +631,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
             $this->assertInternalType('array', $v['FLAGS']);
         }
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         $protocol->fetch('UID', 99);
     }
 

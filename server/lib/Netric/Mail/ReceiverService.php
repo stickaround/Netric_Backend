@@ -5,6 +5,7 @@
  */
 namespace Netric\Mail;
 
+use Netric\EntityQuery;
 use Netric\EntitySync\Collection\CollectionFactoryInterface;
 use Netric\EntitySync\Collection\CollectionInterface;
 use Netric\EntitySync\Partner;
@@ -21,9 +22,12 @@ use Netric\Mail\Storage\Imap;
 use Netric\Mail\Storage\Pop3;
 use Netric\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
+use Netric\EntityQuery\Index\IndexInterface;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
+ *
+ * @group integration
  */
 class ReceiverService extends AbstractHasErrors
 {
@@ -70,6 +74,13 @@ class ReceiverService extends AbstractHasErrors
     private $entityLoader = null;
 
     /**
+     * Index for querying entities
+     *
+     * @var IndexInterface
+     */
+    private $entityIndex = null;
+
+    /**
      * Construct the transport service
      *
      * @param Log $log
@@ -78,6 +89,7 @@ class ReceiverService extends AbstractHasErrors
      * @param CollectionFactoryInterface $collectionFactory Factory for constructing collections
      * @param EntityLoader $entityLoader Loader to get and save messages
      * @param GroupingsLoader $groupingsLoader For loading mailbox groupings
+     * @param IndexInterface $entityIndex The index for querying entities
      */
     public function __construct(
         Log $log,
@@ -85,7 +97,8 @@ class ReceiverService extends AbstractHasErrors
         EntitySync $entitySync,
         CollectionFactoryInterface $collectionFactory,
         EntityLoader $entityLoader,
-        GroupingsLoader $groupingsLoader
+        GroupingsLoader $groupingsLoader,
+        IndexInterface $entityIndex
     ) {
         $this->log = $log;
         $this->user = $user;
@@ -93,6 +106,7 @@ class ReceiverService extends AbstractHasErrors
         $this->collectionFactory = $collectionFactory;
         $this->entityLoader = $entityLoader;
         $this->groupingsLoader = $groupingsLoader;
+        $this->entityIndex = $entityIndex;
     }
 
     /**
@@ -112,13 +126,13 @@ class ReceiverService extends AbstractHasErrors
 
         // Get the mailbox path
         $mailboxGroupings = $this->groupingsLoader->get(
-            "email_message", "maibox_id", ["user_id"=>$this->user->getId()]
+            "email_message", "mailbox_id", ["user_id"=>$this->user->getId()]
         );
         $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
         // Right now we only want to synchronize the Inbox - Sky
         if (strtolower($mailboxPath) != "inbox") {
-            $this->log->warning("ReceiverService->syncMail: $mailboxId is not an inbox and we only support inbox");
+            $this->log->warning("ReceiverService->syncMail: $mailboxPath($mailboxId) is not an inbox and we only support inbox");
             return false;
         }
 
@@ -127,13 +141,19 @@ class ReceiverService extends AbstractHasErrors
 
         // Get object sync partnership and collection
         $syncPartner = $this->entitySync->getPartner("EmailAccounts/" . $emailAccount->getId());
+        if (!$syncPartner) {
+            $syncPartner = $this->entitySync->createPartner(
+                "EmailAccounts/" . $emailAccount->getId(),
+                $this->user->getId()
+            );
+        }
         $syncColl = $this->getSyncCollection($syncPartner, $emailAccount->getId(), $mailboxId);
 
         // First send changes to server
         $this->sendChanges($syncColl, $mail);
 
         // Now get new messages from the server and import
-        $this->receiveChanges($syncColl);
+        $this->receiveChanges($syncColl, $mail, $emailAccount, $mailboxId);
 
         // Save the changes to the collection
         $this->entitySync->savePartner($syncPartner);
@@ -163,26 +183,25 @@ class ReceiverService extends AbstractHasErrors
                     case 'change':
 
                         if ($mailServer instanceof WritableInterface) {
-
                             // Handle seen flag
                             if ($emailEntity->getValue("flag_seen") === true) {
-                                $mailServer->setFlags($msgNum, Storage::FLAG_SEEN);
+                                $mailServer->setFlags($msgNum, [Storage::FLAG_SEEN]);
                             } else {
-                                $mailServer->setFlags($msgNum, Storage::FLAG_UNSEEN);
+                                $mailServer->setFlags($msgNum, [Storage::FLAG_UNSEEN]);
                             }
 
                             // Handle flagged flag
                             if ($emailEntity->getValue("flag_flagged") === true) {
-                                $mailServer->setFlags($msgNum, Storage::FLAG_FLAGGED);
+                                $mailServer->setFlags($msgNum, [Storage::FLAG_FLAGGED]);
                             } else {
-                                $mailServer->setFlags($msgNum, Storage::FLAG_PASSED);
+                                $mailServer->setFlags($msgNum, [Storage::FLAG_PASSED]);
                             }
 
-                            $this->log->debug("Exported: change:{$stat['id']}:{$emailEntity->getValue("commit_id")}");
+                            $this->log->info("Exported: change:{$stat['id']}:{$emailEntity->getValue("commit_id")}");
 
                         } else {
                             // Log that this mail server does not support writing changes
-                            $this->log->debug("Skipping export because server does not support WritableInterface: {$stat['id']}");
+                            $this->log->info("Skipping export because server does not support WritableInterface: {$stat['id']}");
                         }
 
                         // Log that we exported this change so we never try to export it again
@@ -192,7 +211,7 @@ class ReceiverService extends AbstractHasErrors
                     case 'delete':
                         $mailServer->removeMessage($msgNum);
                         $syncColl->logExported($stat['id'], null);
-                        $this->log->debug("Exported: delete:{$stat['id']}");
+                        $this->log->info("Exported: delete:{$stat['id']}");
                         break;
 
                     default:
@@ -210,12 +229,6 @@ class ReceiverService extends AbstractHasErrors
                         $syncColl->getId()
                     );
                 }
-
-                // Check for error
-                $error = $mailServer->getLastError();
-                if ($error) {
-                    $this->log->error("ReceiverService->sendChanges: " . $error->getMessage());
-                }
             }
         }
     }
@@ -225,8 +238,15 @@ class ReceiverService extends AbstractHasErrors
      *
      * @param CollectionInterface $syncColl
      * @param AbstractStorage $mailServer Current mail server connection
+     * @param EmailAccountEntity $emailAccount The email account to sync
+     * @param int $mailboxId The mailbox to place the message into
      */
-    private function receiveChanges(CollectionInterface $syncColl, AbstractStorage $mailServer)
+    private function receiveChanges(
+        CollectionInterface $syncColl,
+        AbstractStorage $mailServer,
+        EmailAccountEntity $emailAccount,
+        $mailboxId
+    )
     {
         $importList = array();
         foreach($mailServer as $id=>$message) {
@@ -240,112 +260,89 @@ class ReceiverService extends AbstractHasErrors
         $stats = $syncColl->getImportChanged($importList);
 
         // $stat = array('remote_id', 'remote_revision', 'local_id', 'action', 'local_revision')
-        foreach ($stats as $stat)
-        {
-            switch ($stat['action'])
-            {
+        foreach ($stats as $stat) {
+            switch ($stat['action']) {
                 case 'change':
                     // Set email meta data from server list
                     $message = null;
-                    foreach ($importList as $toImport)
-                    {
-                        if ($toImport['remote_id'] == $stat['remote_id'])
-                        {
+                    foreach ($importList as $toImport) {
+                        if ($toImport['remote_id'] == $stat['remote_id']) {
                             $message = $toImport['message'];
                             break; // stop the loop
                         }
                     }
 
+                    /*
+                     * This condition should never happen since the stats are rendered
+                     * directly from the importList, but just in case we should throw
+                     * an exception if ever we cannot find a message in the list
+                     * returned from the server.
+                     */
+                    if (!$message) {
+                        throw new \RuntimeException("Could not find message in mailbox");
+                    }
+
                     // Set return variable for keeping track of import
                     $importMid = 0;
 
-                    if (isset($stat['local_id']))
-                    {
+                    if (isset($stat['local_id'])) {
                         $emailEntity = $this->entityLoader->get("email_message", $stat['local_id']);
                         $emailEntity->setValue("flag_seen", $message->hasFlag(Storage::FLAG_SEEN) ? true : false);
                         $emailEntity->setValue("flag_flagged", $message->hasFlag(Storage::FLAG_FLAGGED) ? true : false);
-                        if ($emailEntity->fieldValueChanged("flag_seen") || $emailEntity->fieldValueChanged("flag_flagged"))
-                        {
+                        if ($emailEntity->fieldValueChanged("flag_seen") || $emailEntity->fieldValueChanged("flag_flagged")) {
                             $this->entityLoader->save($emailEntity);
                             $this->log->info("ReceiverService->receiveChanges: Imported change {$stat['local_id']}");
-                        }
-                        else
-                        {
+                        } else {
                             $importMid = $stat['local_id'];
                         }
+                    } else {
+                        $importMid = $this->importMessage(
+                            $stat['remote_id'],
+                            $message,
+                            $emailAccount,
+                            $mailboxId
+                        );
+                        $this->log->info("ReceiverService->receiveChanges: Imported new $importMid");
                     }
-                    else
-                    {
-                        $importMid = $this->importMessage($message, $accountObj, $mailboxId);
-                        $this->log->info("ReceiverService->receiveChanges: Imported new $mid");
 
-                    }
+                    if ($importMid > 0) {
+                        $emailEntity = $this->entityLoader->get("email_message", $importMid);
+                        $syncColl->logImported(
+                            $stat['remote_id'],
+                            $stat['remote_revision'],
+                            $emailEntity->getId(),
+                            $emailEntity->getValue("commit_id")
+                        );
+                        $this->log->info("ReceiverService->receiveChanges: This was already imported earlier: $importMid");
 
-                    if ($importMid > 0)
-                    {
-                        $emailObj = CAntObject::factory($this->dbh, "email_message", $mid, $this->user);
-                        $syncColl->logImported($stat['remote_id'], $stat['remote_revision'], $importMid, $emailObj->revision);
-                        echo "This was already imported earlier: $mid\n";
-
-                        /*
-                         * Routine to clean-up bugs in the old sync system where moves and deletes were not being sent
-                         * to the server. This should eventually be removed but for now it can be used to clean-up
-                         * imap inboxes.
-                         * - Sky Stebnicki <sky.stebnicki@aereus.com>, 3/2/2015
-                         *
-
-                        // Check undeleted
-                        $list = new CAntObjectList($this->dbh, "email_message");
-                        $list->addCondition("and", "id", "is_not_equal", $mid);
-                        $list->addCondition("and", "message_id", "is_equal", $emailObj->getValue('message_id'));
-                        $list->addCondition("and", "message_date", "is_equal", $emailObj->getValue('message_date'));
-                        $list->addCondition("and", "email_account", "is_equal", $accountObj->id);
-                        $list->addCondition("and", "subject", "is_equal", $emailObj->getValue('subject'));
-                        $list->addCondition("and", "owner_id", "is_equal", $emailObj->getValue('owner_id')); // just to be safe
-                        $list->addCondition("and", "f_deleted", "is_equal", "f");
-                        $list->getObjects();
-                        if ($list->getNumObjects() > 0)
-                            $emailObj->remove();
-
-                        // Check deleted
-                        $list = new CAntObjectList($this->dbh, "email_message");
-                        $list->addCondition("and", "id", "is_not_equal", $mid);
-                        $list->addCondition("and", "message_id", "is_equal", $emailObj->getValue('message_id'));
-                        $list->addCondition("and", "message_date", "is_equal", $emailObj->getValue('message_date'));
-                        $list->addCondition("and", "email_account", "is_equal", $accountObj->id);
-                        $list->addCondition("and", "subject", "is_equal", $emailObj->getValue('subject'));
-                        $list->addCondition("and", "owner_id", "is_equal", $emailObj->getValue('owner_id')); // just to be safe
-                        $list->addCondition("and", "f_deleted", "is_equal", "t");
-                        $list->getObjects();
-                        if ($list->getNumObjects() > 0)
-                            $emailObj->remove();
-                        */
-                    }
-                    else if ($importMid == -1)
-                    {
-                        echo "Deleting stale imported message...\n";
+                    } else if ($importMid == -1) {
                         // This message was previously imported and then deleted so delete on the server
-                        $backend->processUpsync($mailboxPath, $stat['remote_id'], "deleted", null);
-                        $syncColl->logImported($stat['remote_id']);
-                    }
-                    else if (0 == $importMid)
-                    {
+                        $msgNum = $mailServer->getNumberByUniqueId($stat['remote_id']);
+                        if ($msgNum) {
+                            $mailServer->removeMessage($msgNum);
+                            $syncColl->logImported($stat['remote_id']);
+                            $this->log->info("ReceiverService->receiveChanges: Deleted stale imported message");
+                        } else {
+                            $this->log->error("ReceiverService->receiveChanges: Could not locate report message number from id");
+                        }
+                    } else {
                         // If there was an error it $this->importEmail will return zero which
                         // will do nothing. This will cause the system to try again nex time
-                        AntLog::getInstance()->error("Error trying to import [" . $accountObj->emailAddress . "]:" . var_export($emailMeta, true));
+                        $this->log->error("ReceiverService->receiveChanges: Error trying to import message");
                     }
 
                     break;
 
                 case 'delete':
-                    echo "Imported delete {$stat['local_id']}\n";
-                    if (isset($stat['local_id']) && $backend->isTwoWaySync())
-                    {
-                        $emailObj = CAntObject::factory($this->dbh, "email_message", $stat['local_id'], $this->user);
-                        if ($emailObj->getValue("f_deleted") != 't')
-                            $emailObj->remove();
 
-                        $ret[] = $stat['local_id'];
+                    if (isset($stat['local_id'])) {
+
+                        $emailEntity = $this->entityLoader->get("email_message", $stat['local_id']);
+                        if ($emailEntity->getValue("f_deleted") === false) {
+                            $this->entityLoader->delete($emailEntity);
+                            $this->log->info("ReceiverService->receiveChanges: Imported delete {$stat['local_id']}");
+                        }
+
                     }
 
                     $syncColl->logImported($stat['remote_id']);
@@ -366,13 +363,6 @@ class ReceiverService extends AbstractHasErrors
      */
     private function getSyncCollection(Partner $syncPartner, $accountId, $mailboxId)
     {
-        if (!$syncPartner) {
-            $syncPartner = $this->entitySync->createPartner(
-                "EmailAccounts/" . $accountId,
-                $this->user->getId()
-            );
-        }
-
         $conditions = array(
             array(
                 "blogic" => Where::COMBINED_BY_AND,
@@ -434,12 +424,56 @@ class ReceiverService extends AbstractHasErrors
         }
     }
 
-    private function importMessage()
+    /**
+     * Import a message from a remote server into a netric entity
+     *
+     * @param string $uniqueId the id of the message on the server
+     * @param Storage\Message $message The message retrieved from the server
+     * @param EmailAccountEntity $emailAccount The account we are importing for
+     * @param int $mailboxId The mailbox to place the new imssage into
+     * @return int The imported message id, 0 on failure, and -1 if already imported
+     */
+    private function importMessage($uniqueId, Storage\Message $message, EmailAccountEntity $emailAccount, $mailboxId)
     {
-        // 1. Import text into Mail\Message
-        // 2. Import Mail\Message into EmailMessageEntity
-        // 3. Save the entity to get an ID
-        // 4. Upload the original message text and attach to the entity
-        // 5. Record an activity if settings permit
+        // Convert the storage message to a mail-message for mime parsing
+        $mailMessage = new Message();
+        $mailMessage->setHeaders($message->getHeaders());
+        $mailMessage->setBody($message->getContent());
+
+        // Check to make sure this message was not already imported - no duplicates
+        $query = new EntityQuery("email_message");
+        $query->where("mailbox_id")->equals($mailboxId);
+        $query->andWhere("message_uid")->equals($uniqueId);
+        $query->andWhere("email_account")->equals($emailAccount->getId());
+        $query->andWhere("subject")->equals($mailMessage->getSubject());
+        $result = $this->entityIndex->executeQuery($query);
+        $num = $result->getNum();
+        if ($num > 0) {
+            $emailEntity = $result->getEntity(0);
+            return $emailEntity;
+        }
+
+        // Also checked previously deleted and return -1 if found
+        $query = new EntityQuery("email_message");
+        $query->where("mailbox_id")->equals($mailboxId);
+        $query->andWhere("message_uid")->equals($uniqueId);
+        $query->andWhere("email_account")->equals($emailAccount->getId());
+        $query->andWhere("subject")->equals($mailMessage->getSubject());
+        $query->andWhere("f_deleted")->equals(true);
+        $result = $this->entityIndex->executeQuery($query);
+        $num = $result->getNum();
+        if ($num > 0) {
+            return -1;
+        }
+
+        // Create EmailMessageEntity and import Mail\Message
+        $emailEntity = $this->entityLoader->create("email_message");
+        $emailEntity->fromMailMessage($mailMessage);
+        $emailEntity->setValue("email_account", $emailAccount->getId());
+        $emailEntity->setValue("owner_id", $this->user->getId());
+        $emailEntity->setValue("mailbox_id", $mailboxId);
+        $emailEntity->setValue("message_uid", $uniqueId);
+        $emailEntity->setValue("flag_seen", ($message->hasFlag(Storage::FLAG_UNSEEN)) ? false : true);
+        return $this->entityLoader->save($emailEntity);
     }
 }

@@ -237,7 +237,7 @@ class AntMail_Sync
 					if ($mid>0)
 					{
                         $emailObj = CAntObject::factory($this->dbh, "email_message", $mid, $this->user);
-						$syncColl->logImported($stat['remote_id'], $stat['remote_revision'], $mid, $emailObj->revision);
+						$syncColl->logImported($stat['remote_id'], $stat['remote_revision'], $mid, $emailObj->getValue("commit_id"));
 						$ret[] = $mid;
                         echo "This was already imported earlier: $mid\n";
 

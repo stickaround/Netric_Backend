@@ -161,6 +161,9 @@ class EntityGroupings
 
 		$path = "";
 
+        if (!$grp)
+            return $path;
+
 		if ($grp->parentId)
 			$path .= $this->getPath($grp->parentId) . "/";
 

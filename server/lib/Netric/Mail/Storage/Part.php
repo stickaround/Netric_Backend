@@ -160,7 +160,6 @@ class Part implements RecursiveIterator, Part\PartInterface
         return strlen($this->getContent());
     }
 
-
     /**
      * Cache content and split in parts if multipart
      *

@@ -13,6 +13,7 @@ use Netric\EntityQuery\Index;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
+use Netric\EntitySync\Commit\CommitManager;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -30,6 +31,7 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
 	 * Constructor
 	 *
 	 * @param \Netric\EntitySync\DataMapperInterface $dm The sync datamapper
+     * @param CommitManager $commitManager A manager used to keep track of commits
 	 * @param \Netric\EntityQuery\Index\IndexInterface $idx Index for querying entities
 	 */
 	public function __construct(
@@ -129,8 +131,10 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
                 $skipStat = false;
                 foreach ($imports as $imported)
                 {
-                    if ($imported['local_id'] == $ent->getId()
-                        && $imported['local_revision'] == $ent->getValue("revision"))
+                    if (
+                        $imported['local_id'] == $ent->getId() &&
+                        $imported['local_revision'] == $ent->getValue("commit_id")
+                    )
                     {
                         // Skip over this export because we just imported it
                         $skipStat = true;

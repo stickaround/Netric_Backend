@@ -10,6 +10,7 @@
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit;
+use Netric\Entity\EntityInterface;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -420,17 +421,17 @@ abstract class AbstractCollection
 		return $changes;
 	}
 
-	/**
-	 * Log an imported object
-	 * 
-	 * @param string $remoteId The foreign unique id of the object being imported
+    /**
+     * Log an imported object
+     *
+     * @param string $remoteId The foreign unique id of the object being imported
      * @param int $remoteRevision A revision of the remote object (could be an epoch)
-	 * @param int $localId If imported to a local object then record the id, if null the delete
+     * @param int $localId If imported to a local object then record the id, if null the delete
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      * @throws \InvalidArgumentException
-	 */
-	public function logImported($remoteId, $remoteRevision=null, $localId=null, $localRevision=null)
+     */
+    public function logImported($remoteId, $remoteRevision=null, $localId=null, $localRevision=null)
 	{
 		if (!$this->getId())
 			return false;
@@ -438,7 +439,22 @@ abstract class AbstractCollection
 		if (!$remoteId)
 			throw new \InvalidArgumentException("remoteId was not set and is required.");
 
-		return $this->dataMapper->logImported($this->getId(), $remoteId, $remoteRevision, $localId, $localRevision);
+		/*
+		 * When we import, we should also log that it was exported since
+		 * we know that the remote client has the object already.
+		 */
+        if ($localId && $localRevision) {
+            $this->logExported($localId, $localRevision);
+        }
+
+		// Log the import and return the results
+		return $this->dataMapper->logImported(
+            $this->getId(),
+            $remoteId,
+            $remoteRevision,
+            $localId,
+            $localRevision
+        );
 	}
 
 
