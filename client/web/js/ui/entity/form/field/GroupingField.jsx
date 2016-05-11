@@ -38,31 +38,34 @@ var GroupingField = React.createClass({
         var chips = [];
         var selectedValue = null;
 
-        // If the fieldValues is an array or an object, then lets loop thru it to get the actual values
-        if (Array.isArray(fieldValues) || typeof fieldValues === 'object') {
-            for (var idx in fieldValues) {
-
-                let id = null,
-                    name = null;
-
-                // If it is an array, we are using the 'key' as id and 'value' as the field name
-                if (Array.isArray(fieldValues)) {
-                    id = fieldValues[idx].key;
-                    name = fieldValues[idx].value;
-                } else {
-
-                    // If fieldValue is an object, then we will use the idx as our id
-                    id = parseInt(idx);
-                    name = fieldValues[idx];
-                }
+        // If the fieldValues is an array then lets loop thru it to get the actual values
+        if (Array.isArray(fieldValues)) {
+            for (let idx in fieldValues) {
 
                 // Setup the GroupingChip
                 chips.push(
                     <GroupingChip
                         key={idx}
-                        id={id}
+                        id={parseInt(fieldValues[idx].key)}
                         onRemove={this._handleRemove}
-                        name={name}
+                        name={fieldValues[idx].value}
+                    />
+                );
+            }
+        } else if(typeof fieldValues === 'object') {
+
+            for (let idx in fieldValues) {
+
+                /*
+                 * If fieldValues is an object, then let's use the idx as the id
+                 *  and use the fieldValue[idx] as the name
+                 */
+                chips.push(
+                    <GroupingChip
+                        key={idx}
+                        id={parseInt(idx)}
+                        onRemove={this._handleRemove}
+                        name={fieldValues[idx]}
                     />
                 );
             }
