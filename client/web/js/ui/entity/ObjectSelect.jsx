@@ -68,7 +68,7 @@ var ObjectSelect = React.createClass({
         // Make sure we have the field value label set
         var subtype = this.props.subtype || this.props.field.subtype;
 
-        if (subtype) {
+        if (subtype && this.props.value) {
             entityLoader.get(subtype, this.props.value, function (ent) {
                 this.setState({label: ent.getName()});
             }.bind(this));

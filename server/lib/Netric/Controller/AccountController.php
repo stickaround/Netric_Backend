@@ -227,11 +227,18 @@ class AccountController extends Mvc\AbstractController
 						"icon" => "cogs",
 					),
 					array(
+						"title" => "New User",
+						"type" => "entity",
+						"route" => "new-user",
+						"objType" => "user",
+						"icon" => "user-plus",
+					),
+					array(
 						"title" => "Users",
 						"type" => "browse",
 						"objType" => "user",
 						"route" => "users",
-						"icon" => "users",
+						"icon" => "users"
 					)
 				),
 			),

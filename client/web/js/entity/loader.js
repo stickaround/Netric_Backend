@@ -136,7 +136,7 @@ loader.createFromData = function(data) {
 
 	// Get cached object definition
 	var entDef = definitionLoader.getCached(data.obj_type);
-	
+
 	// If cached definition is not found then the data object should include a .definition prop
 	if (entDef == null && data.definition) {
 		entDef = definitionLoader.createFromData(data.definition);

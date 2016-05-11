@@ -6,7 +6,6 @@
 'use strict';
 
 var React = require('react');
-var GroupingChip = require("../../GroupingChip.jsx");
 var GroupingSelect = require("../../GroupingSelect.jsx");
 
 /**

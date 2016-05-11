@@ -17,7 +17,7 @@ var EntityFormShowFilter = {
      *
      * @param {string} showIf The filter that we will be evaluating. Sample value: type=1
      */
-    evaluateShowIf: function(showIf) {
+    evaluateShowIf: function (showIf) {
         var parts = showIf.split("=");
         var refField = parts[0];
         var refValue = parts[1];
@@ -29,6 +29,8 @@ var EntityFormShowFilter = {
 
         // If it did not match with the entity field value, then return true
         if (this.props.entity.getValue(refField) == refValue) {
+            return true;
+        } else if (this.props[refField] == refValue) {
             return true;
         } else {
             return false;

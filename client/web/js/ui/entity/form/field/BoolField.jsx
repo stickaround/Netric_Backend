@@ -35,11 +35,6 @@ var BoolField = React.createClass({
         var field = this.props.entity.def.getField(fieldName);
         var fieldValue = this.props.entity.getValue(fieldName);
 
-        // If we have a fieldValue, then let's convert it to string
-        if (fieldValue) {
-            fieldValue = fieldValue.toString();
-        }
-
         if (this.props.editMode) {
             return (<Checkbox
                     name={fieldName}
