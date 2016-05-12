@@ -15,7 +15,7 @@
 
   h2 {
     font-family: "Casper";
-    @extend .cml-font-style-title;
+    @extend .font-style-title;
     padding: 0 $gutter-less 0 $gutter-less;
     line-height: $app-bar-height-small;
     margin: 0;
