@@ -244,6 +244,24 @@ margin: 0 $gutter-less 0 $gutter-less;
     }
   }
 
+  .entity-form-button {
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    @media #{$device-small} {
+      margin-left: $gutter;
+    }
+
+    .entity-form-group-label-selected {
+      color: rgba(0, 0, 0, 0.5);
+      margin-left: 6%;
+    }
+  }
+
+  .profile-label {
+    padding-left: 23px;
+  }
+
   /**
    * Text info class
    */

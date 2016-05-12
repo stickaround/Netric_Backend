@@ -15,6 +15,7 @@ var ActionClasses = {
 	lead: require("./actions/LeadActions"),
 	customer: require("./actions/CustomerActions"),
 	opportunity: require("./actions/OpportunityActions"),
+	user: require("./actions/UserActions"),
 }
 
 /**

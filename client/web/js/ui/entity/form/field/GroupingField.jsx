@@ -27,48 +27,75 @@ var GroupingField = React.createClass({
     /**
      * Render the component
      */
-    render: function() {
+    render: function () {
 
         var elementNode = this.props.elementNode;
         var fieldName = elementNode.getAttribute('name');
-        
 
         var field = this.props.entity.def.getField(fieldName);
         var fieldValues = this.props.entity.getValueName(fieldName);
 
         var chips = [];
+        var selectedValue = null;
+
+        // If the fieldValues is an array then lets loop thru it to get the actual values
         if (Array.isArray(fieldValues)) {
-            for (var i in fieldValues) {
+            for (let idx in fieldValues) {
+
+                // Setup the GroupingChip
                 chips.push(
-                    <GroupingChip id={fieldValues[i].key} onRemove={this._handleRemove} name={fieldValues[i].value} />
+                    <GroupingChip
+                        key={idx}
+                        id={parseInt(fieldValues[idx].key)}
+                        onRemove={this._handleRemove}
+                        name={fieldValues[idx].value}
+                    />
                 );
             }
-        }
+        } else if(typeof fieldValues === 'object') {
 
+            for (let idx in fieldValues) {
+
+                /*
+                 * If fieldValues is an object, then let's use the idx as the id
+                 *  and use the fieldValue[idx] as the name
+                 */
+                chips.push(
+                    <GroupingChip
+                        key={idx}
+                        id={parseInt(idx)}
+                        onRemove={this._handleRemove}
+                        name={fieldValues[idx]}
+                    />
+                );
+            }
+        } else {
+            selectedValue = fieldValues;
+        }
 
         // TODO: create a GroupingChip component
         var selectElement = null;
 
         if (this.props.editMode) {
 
-          var addLabel = "Set " + field.title;
-          if (field.type == field.types.fkeyMulti) {
-              addLabel = "Add " + field.title;
-          }
+            var addLabel = "Set " + field.title;
+            if (field.type == field.types.fkeyMulti) {
+                addLabel = "Add " + field.title;
+            }
 
-          selectElement = (
-            <GroupingSelect 
-              objType={this.props.entity.def.objType}
-              fieldName={fieldName}
-              onChange={this._handleGroupAdd}
-              label={addLabel}
-              selectedValue={fieldValues}
-            />
-          );
+            selectElement = (
+                <GroupingSelect
+                    objType={this.props.entity.def.objType}
+                    fieldName={fieldName}
+                    onChange={this._handleGroupAdd}
+                    label={addLabel}
+                    selectedValue={selectedValue}
+                />
+            );
         }
 
         return (
-          <div>{chips} {selectElement}</div>
+            <div>{chips} {selectElement}</div>
         );
     },
 
@@ -78,8 +105,8 @@ var GroupingField = React.createClass({
      * @param {string} id The unique id of the grouping to remove
      * @param {string} name Optional name value of the id
      */
-    _handleRemove: function(id, name) {
-      this.props.entity.remMultiValue(this.props.elementNode.getAttribute('name'), id);
+    _handleRemove: function (id, name) {
+        this.props.entity.remMultiValue(this.props.elementNode.getAttribute('name'), id);
     },
 
     /**
@@ -88,7 +115,7 @@ var GroupingField = React.createClass({
      * @param {string} id The unique id of the grouping to remove
      * @param {string} name Optional name value of the id
      */
-    _handleGroupAdd: function(id, name) {
+    _handleGroupAdd: function (id, name) {
         this.props.entity.addMultiValue(this.props.elementNode.getAttribute('name'), id, name);
     }
 });

@@ -14,6 +14,9 @@
 var plugins = {}
 
 plugins.List = {
+    user: {
+        ChangePassword: require('../ui/entity/plugin/user/ChangePassword.jsx'),
+    },
     workflow: {
         Conditions: require('../ui/entity/plugin/workflow/Conditions.jsx'),
         Actions: require('../ui/entity/plugin/workflow/Actions.jsx')

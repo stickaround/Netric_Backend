@@ -15,7 +15,7 @@ var GroupingChip = React.createClass({
 	propTypes: {
 		id: React.PropTypes.number,
 		name: React.PropTypes.string,
-		onRemove: React.PropTypes.func
+		onRemove: React.PropTypes.func,
 	},
 
 	render: function() {

@@ -1,7 +1,6 @@
 /**
  * A row
  *
-
  */
 'use strict';
 

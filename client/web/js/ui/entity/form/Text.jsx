@@ -59,9 +59,10 @@ var Text = React.createClass({
         var fieldName = elementNode.getAttribute('field');
         var fieldValue = this.props.entity.getValue(fieldName);
         var showif = this.props.elementNode.getAttribute('showif');
+        var className = this.props.elementNode.getAttribute("class");
 
         var textDisplay = (
-            <div className="entity-form-field-text">{this.props.children}{fieldValue}</div>
+            <div className={"entity-form-field-text " + className}>{this.props.children}{fieldValue}</div>
         );
         if (showif) {
 

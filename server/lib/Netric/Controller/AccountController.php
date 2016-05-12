@@ -87,7 +87,7 @@ class AccountController extends Mvc\AbstractController
 			array(
 				"name" => "crm",
 				"title" => "CRM",
-				"icon" => "users",
+				"icon" => "child",
 				"defaultRoute" => "all-customers",
 				"navigation" => array(
 					array(
@@ -225,6 +225,20 @@ class AccountController extends Mvc\AbstractController
                         "objType" => "workflow",
 						"route" => "workflows",
 						"icon" => "cogs",
+					),
+					array(
+						"title" => "New User",
+						"type" => "entity",
+						"route" => "new-user",
+						"objType" => "user",
+						"icon" => "user-plus",
+					),
+					array(
+						"title" => "Users",
+						"type" => "browse",
+						"objType" => "user",
+						"route" => "users",
+						"icon" => "users"
 					)
 				),
 			),

@@ -17,11 +17,14 @@ var Header = React.createClass({
         let elementNode = this.props.elementNode;
         let text = elementNode.getText();
         let className = elementNode.getAttribute("class");
+        let field = elementNode.getAttribute("field");
 
-        let headerElement = null;
+        if(field) {
+            text = this.props.entity.getValue(field);
+        }
 
         return (
-            <h5>
+            <h5 className={className}>
                 {text}
             </h5>
         );
