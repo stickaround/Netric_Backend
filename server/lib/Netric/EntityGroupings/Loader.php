@@ -62,7 +62,7 @@ class Loader
         }
         else
         {
-			$ret = $this->loadGroupings($objType, $fieldName, $filters);
+            $ret = $this->loadGroupings($objType, $fieldName, $filters);
         }
 
         return $ret;

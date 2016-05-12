@@ -160,7 +160,10 @@ class BackendNetric implements IBackend
      */
     public function Logon($username, $domain, $password)
     {
-        $config = new Netric\Config();
+        // Setup config
+        $configLoader = new Netric\Config\ConfigLoader();
+        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+        $config = $configLoader->fromFolder(dirname(__FILE__)."/../../../../config", $applicationEnvironment);
         $application = new Netric\Application\Application($config);
         $this->log = $application->getLog();
         $this->account = $application->getAccount(null, $domain);

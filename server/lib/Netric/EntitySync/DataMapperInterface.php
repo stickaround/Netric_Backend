@@ -15,7 +15,7 @@ interface DataMapperInterface
 	 * This is also responsible for loading collections
 	 *
 	 * @param string $id Netric unique partner id
-	 * @return Netric\EntitySync\Partner or null if id does not exist
+	 * @return Partner or null if id does not exist
 	 */
 	public function getPartnerById($id);
 
@@ -25,7 +25,7 @@ interface DataMapperInterface
 	 * This is also responsible for loading collections
 	 *
 	 * @param string $partnerId Remotely provided unique ident
-	 * @return Netric\EntitySync\Partner or null if id does not exist
+	 * @return Partner or null if id does not exist
 	 */
 	public function getPartnerByPartnerId($partnerId);
 
@@ -34,7 +34,7 @@ interface DataMapperInterface
 	 *
 	 * This is also responsible for saving collections for the partner
 	 *
-	 * @param Netric\EntitySync\Partner $partner Will set the id if new partner
+	 * @param Partner $partner Will set the id if new partner
 	 * @return bool true on success, false on failure
 	 */
 	public function savePartner(Partner $partner);
@@ -67,16 +67,17 @@ interface DataMapperInterface
      */
     public function logExported($collType, $collectionId, $uniqueId, $commitId);
 
-    /**
-     * Log that a commit was exported from this collection
-     *
-     * @param int $collectionId The unique id of the collection we exported for
-     * @param string $uniqueId The foreign unique id of the object being imported 
-	 * @param int $revision A revision of the remote object (could be an epoch)
+	/**
+	 * Log that a commit was exported from this collection
+	 *
+	 * @param int $collectionId The id of the collection we are logging changes to
+	 * @param string $remoteId The foreign unique id of the object being imported
+	 * @param int $remoteRevision A revision of the remote object (could be an epoch)
 	 * @param int $localId If imported to a local object then record the id, if null the delete
-     * @return bool true on success, false on failure
-     */
-    public function logImported($collectionId, $uniqueId, $revision, $localId=null);
+	 * @param int $localRevision The revision of the local object
+	 * @return bool true if imported false if failure
+	 */
+	public function logImported($collectionId, $remoteId, $remoteRevision=null, $localId=null, $localRevision=null);
 
     /**
 	 * Get a list of previously exported commits that have been updated

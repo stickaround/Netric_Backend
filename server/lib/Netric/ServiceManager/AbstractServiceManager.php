@@ -97,6 +97,14 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
     }
 
     /**
+     * Clear all loaded services causing the factories to be called again
+     */
+    public function clearLoadedServices()
+    {
+        $this->loadedServices = [];
+    }
+
+    /**
      * Attempt to initialize a service by loading a factory
      *
      * @param string $serviceName The class name of the service to load

@@ -137,7 +137,7 @@
 	 * Get a partner by unique system id
 	 *
 	 * @param string $id Netric unique partner id
-	 * @return Netric\EntitySync\Partner or null if id does not exist
+	 * @return Partner or null if id does not exist
 	 */
 	public function getPartnerById($id)
 	{
@@ -148,7 +148,7 @@
 	 * Get a partner by the remote partner id
 	 *
 	 * @param string $partnerId Remotely provided unique ident
-	 * @return Netric\EntitySync\Partner or null if id does not exist
+	 * @return Partner or null if id does not exist
 	 */
 	public function getPartnerByPartnerId($partnerId)
 	{
@@ -160,7 +160,7 @@
 	 *
 	 * @param string $id System id
 	 * @param string $partnerId Device id
-	 * @return Netric\EntitySync\Partner or null if id does not exist
+	 * @return Partner or null if id does not exist
 	 */
 	private function getPartner($id=null, $partnerId=null)
 	{

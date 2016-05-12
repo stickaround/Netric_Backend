@@ -1,16 +1,44 @@
 <?php
 /**
- * Sync collection interface
- *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\EntitySync;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 class CollectionFactory implements CollectionFactoryInterface
 {
+	/**
+	 * Service manager for loading collection dependencies
+	 *
+	 * @var AccountServiceManagerInterface
+	 */
+	private $serviceManager = null;
+
+	/**
+	 * Construct an instance of this factory so we can inject it as a dependency
+	 *
+	 * @param AccountServiceManagerInterface $serviceManager
+	 */
+	public function __construct(AccountServiceManagerInterface $serviceManager)
+	{
+		$this->serviceManager = $serviceManager;
+	}
+
+	/**
+	 * Instantiated version of the static create function
+	 *
+	 * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
+	 * @param array $data Optional data to initialize into the collection
+	 * @return CollectionInterface
+	 */
+	public function createCollection($type, array $data=null)
+	{
+		return self::create($this->serviceManager, $type, $data);
+	}
+
 	/**
 	 * Factory for creating collections and injecting all dependencies
 	 *
@@ -18,8 +46,9 @@ class CollectionFactory implements CollectionFactoryInterface
 	 * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
 	 * @param array $data Optional data to initialize into the collection
 	 * @return CollectionInterface
+	 * @throws \Exception if an unsupported collection type is added
 	 */
-	public static function create(\Netric\ServiceManager\AccountServiceManagerInterface $sm, $type, $data=null)
+	public static function create(AccountServiceManagerInterface $sm, $type, array $data=null)
 	{
 		$collection = null;
 

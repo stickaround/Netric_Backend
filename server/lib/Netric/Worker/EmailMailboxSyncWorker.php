@@ -5,6 +5,7 @@
  */
 namespace Netric\Worker;
 
+use Netric\EntityQuery;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
 
@@ -44,9 +45,20 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);
         $entityLoader = $account->getServiceManager()->get("EntityLoader");
+        $entityIndex = $account->getServiceManager()->get("EntityQuery_Index");
 
+        /*
         // Get email accounts
-        //$emailAccount = $entityLoader->get("email_account", $workload['email_account_id']);
+        $query = new EntityQuery("email_account");
+        $query->where("owner_id")->equals($workload['user_id']);
+        $query->andWhere("type")->doesNotEqual("");
+        $results = $entityIndex->executeQuery($query);
+        $num = $results->getTotalNum();
+        for ($i = 0; $i < $num; $i++) {
+            $emailAccount = $results->getEntity($i);
+            $mailReceiver->syncMailbox($data['mailbox_id'], $emailAccount);
+        }
+        */
 
         /*
          * TODO: Copy code from /server/workers/email_account_sync:email_account_sync_mailbox

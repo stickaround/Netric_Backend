@@ -277,7 +277,7 @@ class Entity implements EntityInterface
         // Check to make sure we do not already have this value added
         for ($i = 0; $i < count($this->values[$strName]); $i++)
         {
-        	if (!empty($this->values[$strName][$i]) && $value === $this->values[$strName][$i])
+        	if (!empty($this->values[$strName][$i]) && $value == $this->values[$strName][$i])
         	{
         		// The value was already added and they need to be unique
 
@@ -1069,18 +1069,21 @@ class Entity implements EntityInterface
                     {
                         foreach ($value as $entityId)
                         {
-                            $this->addMultiValue(
-                                "followers",
-                                $entityId,
-                                $this->getValueName($field->name, $entityId)
-                            );
+                            if ($entityId)
+                            {
+                                $this->addMultiValue(
+                                    "followers",
+                                    (int) $entityId,
+                                    $this->getValueName($field->name, $entityId)
+                                );
+                            }
                         }
                     }
                     else if ($value)
                     {
                         $this->addMultiValue(
                             "followers",
-                            $value,
+                            (int) $value,
                             $this->getValueName($field->name, $value)
                         );
                     }

@@ -7,14 +7,25 @@
  */
 namespace Netric\EntitySync\Collection;
 
+use Netric\ServiceManager\AccountServiceManagerInterface;
+
 interface CollectionFactoryInterface
 {
 	/**
 	 * Factory for creating collections and injecting all dependencies
 	 *
-	 * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm
+	 * @param AccountServiceManagerInterface $sm
 	 * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
 	 * @param array $data Optional data to initialize into the collection
 	 */
-	public static function create(\Netric\ServiceManager\AccountServiceManagerInterface $sm, $type, $data=null);
+	public static function create(AccountServiceManagerInterface $sm, $type, array $data=null);
+
+	/**
+	 * Instantiated version of the static create function
+	 *
+	 * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
+	 * @param array $data Optional data to initialize into the collection
+	 * @return CollectionInterface
+	 */
+	public function createCollection($type, array $data=null);
 }

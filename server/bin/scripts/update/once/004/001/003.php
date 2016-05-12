@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Transfer the email_accounts table to objects_email_account_act
  *

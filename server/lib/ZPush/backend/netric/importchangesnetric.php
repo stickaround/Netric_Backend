@@ -164,7 +164,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          * import, then it exports, then we re-import etc...
          * Both the remote (first param) and the local (third param) IDs are the same
          */
-        $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['revision']);
+        $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
         ZLog::Write(LOGLEVEL_INFO, "ImportChangesNetric->ImportMessageChange: $id, {$this->folderId} imported");
 
@@ -257,7 +257,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          * Both the remote (first param) and the local (third param) IDs are the same
          */
         $stat = $this->provider->getEntityStat($this->folderId, $id);
-        $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['revision']);
+        $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
         return true;
     }
@@ -292,7 +292,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
              * Both the remote (first param) and the local (third param) IDs are the same
              */
             $stat = $this->provider->getEntityStat($this->folderId, $id);
-            $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['revision']);
+            $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
             ZLog::Write(LOGLEVEL_INFO, "ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");
 

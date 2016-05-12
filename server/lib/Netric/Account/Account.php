@@ -175,6 +175,9 @@ class Account
     public function setCurrentUser(UserEntity $user)
     {
         $this->currentUserOverride = $user;
+
+        // Clear the service locator since user is often injected as a dependency
+        $this->getServiceManager()->clearLoadedServices();
     }
     
     /**

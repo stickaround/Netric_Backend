@@ -26,6 +26,7 @@ require_once($zPushRoot . 'include/z_RFC822.php');
 require_once(dirname(__FILE__)."/../../../../init_autoloader.php");
 
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\Entity\EntityInterface;
 
 /**
  * Save and load sync objects from netric entities
@@ -202,6 +203,32 @@ class EntityProvider
     {
         $folder = $this->unpackFolderId($folderId);
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entity = $this->getEntity($folderId, $id);
+
+        // Return the stat
+        if ($entity) {
+            return array(
+                "id" => $entity->getId(),
+                "mod" => $entity->getValue("commit_id"),
+                "flags" => ($entity->getValue("f_seen") == 't') ? 1 : 0,
+                "revision" => $entity->getValue("revision")
+            );
+        }
+
+        return false;
+    }
+
+    /**
+     * Get a stat array for an entity
+     *
+     * @param string $folderId Where the entity is stored - encoded with type and id
+     * @param string $id Entity id
+     * @return EntityInterface
+     */
+    public function getEntity($folderId, $id)
+    {
+        $folder = $this->unpackFolderId($folderId);
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $entity = null;
 
         switch($folder['type'])
@@ -226,17 +253,8 @@ class EntityProvider
                 return false;
         }
 
-        // Return the stat
-        if ($entity) {
-            return array(
-                "id" => $entity->getId(),
-                "mod" => $entity->getValue("commit_id"),
-                "flags" => ($entity->getValue("f_seen") == 't') ? 1 : 0,
-                "revision" => $entity->getValue("revision")
-            );
-        }
-
-        return true;
+        // Return the entity if found
+        return $entity;
     }
 
     /**
