@@ -1,13 +1,13 @@
 <?php
 /**
- * Make sure the bin/scripts/update/once/004/001/002=3.php script works
+ * Make sure the bin/scripts/update/once/004/001/003.php script works
  */
 namespace BinTest\Update\Once;
 
 use Netric\Console\BinScript;
 use PHPUnit_Framework_TestCase;
 
-class Update_004001002_Test extends PHPUnit_Framework_TestCase
+class Update_004001003_Test extends PHPUnit_Framework_TestCase
 {
     /**
      * Handle to account
