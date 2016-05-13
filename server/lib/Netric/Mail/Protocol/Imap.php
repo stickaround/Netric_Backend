@@ -16,13 +16,15 @@ class Imap
     const TIMEOUT_CONNECTION = 30;
 
     /**
-     * socket to imap server
+     * Socket to imap server
+     *
      * @var resource|null
      */
     protected $socket;
 
     /**
-     * counter for request tag
+     * Counter for request tag
+     *
      * @var int
      */
     protected $tagCount = 0;
@@ -146,7 +148,14 @@ class Imap
         $line = $this->_nextLine();
 
         // separate tag from line
-        list($tag, $line) = explode(' ', $line, 2);
+        $parts = explode(' ', $line, 2);
+
+        if (count($parts) > 1) {
+            $tag = $parts[0];
+            $line = $parts[1];
+        } else {
+            throw new Exception\RuntimeException("Invalid line received $line");
+        }
 
         return $line;
     }
@@ -309,6 +318,11 @@ class Imap
      */
     public function sendRequest($command, $tokens = [], &$tag = null)
     {
+        // Check if the connection is even active
+        if (!$this->socket) {
+            throw new Exception\RuntimeException('Cannot write - connection closed?');
+        }
+
         if (!$tag) {
             ++$this->tagCount;
             $tag = 'TAG' . $this->tagCount;

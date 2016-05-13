@@ -84,7 +84,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testConnectFailure()
     {
         $this->params['host'] = 'example.example';
-        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
+        $this->setExpectedException('Netric\Mail\Protocol\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -118,14 +118,14 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testInvalidService()
     {
         $this->params['port'] = getenv('TESTS_NETRIC_MAIL_IMAP_INVALID_PORT');
-        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
+        $this->setExpectedException('Netric\Mail\Protocol\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
     public function testWrongService()
     {
         $this->params['port'] = getenv('TESTS_NETRIC_MAIL_IMAP_WRONG_PORT');
-        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
+        $this->setExpectedException('Netric\Mail\Protocol\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -148,7 +148,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testWithNotConnectedInstance()
     {
         $protocol = new Protocol\Imap();
-        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
+        $this->setExpectedException('Netric\Mail\Protocol\Exception\RuntimeException');
         new Storage\Imap($protocol);
     }
 
@@ -280,7 +280,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testLoadUnkownFolder()
     {
         $this->params['folder'] = 'UnknownFolder';
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
         new Storage\Imap($this->params);
     }
 
@@ -557,9 +557,9 @@ class ImapTest extends \PHPUnit_Framework_TestCase
     public function testCanMarkMessageUnseen()
     {
         $mail = new Storage\Imap($this->params);
-        $mail->setFlags(1, [Storage::FLAG_UNSEEN]);
+        $mail->setFlags(1, [Storage::FLAG_SEEN]);
         $message = $mail->getMessage(1);
-        $this->assertTrue($message->hasFlag(Storage::FLAG_UNSEEN));
+        $this->assertTrue($message->hasFlag(Storage::FLAG_SEEN));
     }
 
     public function testCapability()
@@ -596,7 +596,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $protocol->login($this->params['user'], $this->params['password']);
         $protocol->logout();
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\InvalidArgumentException');
+        $this->setExpectedException('Netric\Mail\Protocol\Exception\RuntimeException');
         $protocol->select("foo\nbar");
     }
 
@@ -631,7 +631,7 @@ class ImapTest extends \PHPUnit_Framework_TestCase
             $this->assertInternalType('array', $v['FLAGS']);
         }
 
-        $this->setExpectedException('Netric\Mail\Storage\Exception\RuntimeException');
+        $this->setExpectedException('Netric\Mail\Protocol\Exception\RuntimeException');
         $protocol->fetch('UID', 99);
     }
 
@@ -645,8 +645,6 @@ class ImapTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($protocol->store(['\Flagged'], 1, null, '-'));
         $this->assertTrue($protocol->store(['\Flagged'], 1, null, '+'));
 
-        $result = $protocol->store(['\Flagged'], 1, null, '', false);
-        $this->assertContains('\Flagged', $result[1]);
         $result = $protocol->store(['\Flagged'], 1, null, '-', false);
         $this->assertNotContains('\Flagged', $result[1]);
         $result = $protocol->store(['\Flagged'], 1, null, '+', false);

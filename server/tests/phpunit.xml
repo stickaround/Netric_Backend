@@ -97,7 +97,7 @@
 
              IMPORTANT: you need to copy ./NetricTest/Mail/_files/test.mbox to
              your mail if you haven't set TESTS_NETRIC_MAIL_SERVER_TESTDIR -->
-        <env name="TESTS_NETRIC_MAIL_IMAP_ENABLED" value="false" />
+        <env name="TESTS_NETRIC_MAIL_IMAP_ENABLED" value="true" />
         <env name="TESTS_NETRIC_MAIL_IMAP_HOST" value="localhost" />
         <env name="TESTS_NETRIC_MAIL_IMAP_USER" value="mailtest" />
         <env name="TESTS_NETRIC_MAIL_IMAP_PASSWORD" value="test" />

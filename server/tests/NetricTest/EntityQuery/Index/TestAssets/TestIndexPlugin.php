@@ -6,6 +6,7 @@ namespace NetricTest\EntityQuery\Index\TestAssets;
 
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityQuery;
 
 class TestIndexPlugin implements PluginInterface
 {
@@ -27,9 +28,10 @@ class TestIndexPlugin implements PluginInterface
      * Perform an operation before a query is executed
      *
      * @param AccountServiceManagerInterface $sl A service locator for getting dependencies
+     * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onBeforeExecuteQuery(AccountServiceManagerInterface $sl)
+    public function onBeforeExecuteQuery(AccountServiceManagerInterface $sl, EntityQuery $query)
     {
         $this->beforeRan = true;
     }
@@ -38,9 +40,10 @@ class TestIndexPlugin implements PluginInterface
      * Perform an operation after a query is executed
      *
      * @param AccountServiceManagerInterface $sl A service locator for getting dependencies
+     * @param EntityQuery $query The query being executed
      * @return bool true on success, false on failure
      */
-    public function onAfterExecuteQuery(AccountServiceManagerInterface $sl)
+    public function onAfterExecuteQuery(AccountServiceManagerInterface $sl, EntityQuery $query)
     {
         $this->afterRan = true;
     }

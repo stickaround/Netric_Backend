@@ -7,9 +7,8 @@ namespace NetricTest\WorkFlow\Action;
 use PHPUnit_Framework_TestCase;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
-use Netric\EntityQuery\Where;
-use Netric\WorkFlow\WorkFlow;
 use Netric\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 
 abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
@@ -42,6 +41,16 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
      */
     protected $workFlowDataMapper = null;
 
+    /**
+     * Test user
+     *
+     * @var UserEntity
+     */
+    protected $testUser = null;
+
+    /**
+     * Setup any dependencies
+     */
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
@@ -49,6 +58,23 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
         $this->actionFactory = new ActionFactory($sl);
         $this->entityLoader = $sl->get("EntityLoader");
         $this->workFlowDataMapper = $sl->get("Netric/WorkFlow/DataMapper/DataMapper");
+
+        // Create a test user
+        $this->testUser = $this->entityLoader->create("user");
+        $this->testUser->setValue("name", "test-" . rand());
+        $this->testUser->setValue("email", "test@test.com");
+        $this->entityLoader->save(($this->testUser));
+        $this->account->setCurrentUser($this->testUser);
+    }
+
+    /**
+     * Cleanup
+     */
+    protected function tearDown()
+    {
+        if ($this->testUser) {
+            $this->entityLoader->delete($this->testUser, true);
+        }
     }
 
     /**
@@ -127,7 +153,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testGetParamVariableFieldValue()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $user = $this->testUser;
 
         // Create an entity
         $task = $this->entityLoader->create("task");
@@ -155,7 +181,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testReplaceParamVariables()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $user = $this->testUser;
 
         // Create an entity
         $task = $this->entityLoader->create("task");
@@ -206,7 +232,7 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testGetParams()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $user = $this->testUser;
 
         // Set params for action
         $action->setParam("subject", "Work on <%name%>");
@@ -237,7 +263,6 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testGetParamsObjType()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         // Set params for action
         $action->setParam("subject", "Work on <%obj_type%>");
@@ -265,7 +290,6 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     public function testGetParamsOID()
     {
         $action = $this->getAction();
-        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         // Set params for action
         $action->setParam("subject", "Work on <%oid%>");
@@ -291,15 +315,15 @@ abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
     /**
      * We have some legacy features to support where a user may have
      * entered a object type = user field in an email param called 'to', 'cc', or 'bcc'
+     *
+     * @group legacy
      */
     public function testGetParams_Legacy()
     {
         $action = $this->getAction();
 
-        // Make sure the user has an email address
-        $user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
-        if (!$user->getValue("email"))
-            $user->setValue("email", "test@test.com");
+        // We set email to test@test.com to test user in $this->setUp
+        $user = $this->testUser;
 
         // Set params for action
         $action->setParam("to", "<%user_id%>,<%creator_id%>,<%user_id.email%>");

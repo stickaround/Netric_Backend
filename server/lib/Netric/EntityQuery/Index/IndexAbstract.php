@@ -370,7 +370,7 @@ abstract class IndexAbstract
     {
         $plugin = $this->getPlugin($query->getObjType());
         if ($plugin) {
-            $plugin->onBeforeExecuteQuery($this->account->getServiceManager());
+            $plugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query);
         }
     }
 
@@ -383,7 +383,7 @@ abstract class IndexAbstract
     {
         $plugin = $this->getPlugin($query->getObjType());
         if ($plugin) {
-            $plugin->onAfterExecuteQuery($this->account->getServiceManager());
+            $plugin->onAfterExecuteQuery($this->account->getServiceManager(), $query);
         }
     }
 

@@ -44,10 +44,9 @@ class EmailMailboxSyncWorker extends AbstractWorker
         // Get the account we are working with
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);
-        $entityLoader = $account->getServiceManager()->get("EntityLoader");
         $entityIndex = $account->getServiceManager()->get("EntityQuery_Index");
+        $mailReceiver = $account->getServiceManager()->get("Netric/Mail/ReceiverService");
 
-        /*
         // Get email accounts
         $query = new EntityQuery("email_account");
         $query->where("owner_id")->equals($workload['user_id']);
@@ -56,13 +55,9 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $num = $results->getTotalNum();
         for ($i = 0; $i < $num; $i++) {
             $emailAccount = $results->getEntity($i);
-            $mailReceiver->syncMailbox($data['mailbox_id'], $emailAccount);
+            $mailReceiver->syncMailbox($workload['mailbox_id'], $emailAccount);
+            $job->sendStatus($i+1, $num);
         }
-        */
-
-        /*
-         * TODO: Copy code from /server/workers/email_account_sync:email_account_sync_mailbox
-         */
 
         $log->info("EmailMailboxSyncWorker->work: [DONE]");
 

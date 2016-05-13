@@ -142,7 +142,10 @@ class AnsFileStore implements FileStoreInterface
             }
             else
             {
-                throw new exception\FileNotFoundException("Key '$url' is not in the ANS store");
+                throw new exception\FileNotFoundException(
+                    "Key '$url' is not in the ANS store: " .
+                    $this->getLastError()->getMessage()
+                );
             }
         }
 
@@ -367,7 +370,7 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Get the last error thrown in an object or module
      *
-     * @return Error
+     * @return Error\Error
      */
     public function getLastError()
     {
@@ -377,7 +380,7 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Get all errors
      *
-     * @return Error[]
+     * @return Error\Error[]
      */
     public function getErrors()
     {
