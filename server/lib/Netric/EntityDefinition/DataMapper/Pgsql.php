@@ -316,13 +316,11 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 
 		// Execute query and get id if this is a new type
 		$ret = $this->dbh->query($query);
-		if ($ret && !$def->getId())
-		{
+		if ($ret && !$def->getId()) {
 			$def->setId($this->dbh->getValue($ret, 0, "id"));
 		}
 
 		// Check to see if this dynamic object has yet to be initilized
-		//if ($def->revision <= 0 && !$def->useCustomTable)
 		if (!$def->useCustomTable)
 			$this->createObjectTable($def->getObjType(), $def->getId());
 
@@ -423,6 +421,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 					$obj_rfield = $this->def->getField($object_field);
 					if ($obj_rfield->fkeyTable && $obj_rfield->fkeyTable['parent'])
 					{
+                        // TODO: We need to get rid of the reference to CAntObject below!!!
 						if ($obj_rfield->type == "object")
 						{
 							$refo = new CAntObject($dbh, $obj_rfield->subtype);

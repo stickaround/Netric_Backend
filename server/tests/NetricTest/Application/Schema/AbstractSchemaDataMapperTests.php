@@ -96,7 +96,6 @@ abstract class AbstractSchemaDataMapperTests extends PHPUnit_Framework_TestCase
     {
         // Create a new account to update
         $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
-
         // Create a test definition with all the goodies for testing
         $testDefinition = array(
             "unit_test_schema" => array(
@@ -112,9 +111,11 @@ abstract class AbstractSchemaDataMapperTests extends PHPUnit_Framework_TestCase
                 )
             ),
         );
+
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
         $this->assertTrue($dataMapper->update($account->getId()), $dataMapper->getLastError());
 
+        $start = microtime(true);
         // Now test reading and writing data
         $data = array(
             "name" => 'my test value',

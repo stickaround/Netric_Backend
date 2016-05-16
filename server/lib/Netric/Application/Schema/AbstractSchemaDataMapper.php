@@ -71,6 +71,7 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
             return false;
         }
 
+
         // The new schema should be ready to go
         return true;
     }
@@ -88,7 +89,6 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
                 throw new \RuntimeException("Could not process schema: " . $this->getLastError()->getMessage());
             }
         }
-
         return true;
     }
 }

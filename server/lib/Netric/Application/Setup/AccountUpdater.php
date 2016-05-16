@@ -155,6 +155,7 @@ class AccountUpdater extends AbstractHasErrors
     public function runUpdates()
     {
         // Now run scripts that are set to run on every update
+        $start = microtime(true);
         $this->runAlwaysUpdates();
 
         // Run the one time scripts first
@@ -191,16 +192,22 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         // Now process each of the update scripts
+        $allStart = microtime(true);
+        echo "\nProcessing always updates\n";
         foreach ($updates as $update)
         {
             // It's possible to run through this without executing the scripts
             if (substr($update, -3) == "php" && $this->executeUpdates)
             {
+                $start = microtime(true);
+                echo "\n\tRunning $update";
                 // Execute a script only on the current account
                 $script = new BinScript($this->account->getApplication(), $this->account);
                 $script->run($updatePath."/".$update);
+                echo "\t\t[done] - " . (microtime(true) - $start);
             }
         }
+        echo "\nUpdates:always done - " . (microtime(true) - $allStart);
     }
 
     /**

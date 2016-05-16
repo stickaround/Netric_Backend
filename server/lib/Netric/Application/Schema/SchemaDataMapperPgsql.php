@@ -70,32 +70,49 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     protected function applyBucketDefinition($bucketName, array $bucketDefinition)
     {
-        // First make sure the table exists
-        // ----------------------------------------
-        $sql = "CREATE TABLE IF NOT EXISTS $bucketName()";
-
-        // Does this table inherit?
-        if (isset($bucketDefinition['INHERITS']))
-        {
-            $sql .= " INHERITS (".$bucketDefinition['INHERITS'].")";
-        }
-
-        $sql .= ";";
-
-        // Create the table
-        $this->dbh->query($sql);
+        $tableExists = $this->dbh->tableExists($bucketName);
 
         // Create or update columns
         // -----------------------------------------------
-        foreach ($bucketDefinition['PROPERTIES'] as $columnName=>$columnDefinition)
-        {
-            if (!$this->applyColumn($bucketName, $columnName, $columnDefinition))
-            {
+
+        /*
+         * If this is a new table, we expect applyColumns to return true and add the
+         * column definition string to $createColumns array so that the CREATE TABLE
+         * statement below this can use the columns added to first create the table.
+         *
+         * If the table already exists then applyColumn will run an ALTER TABLE query.
+         * This is done because creating the table all at once is about 2x as fast as
+         * creating an empty table and altering it to add each column.
+         */
+        $createColumns = ($tableExists) ? false : array();
+
+        // Loop through each column and either queue it to be added to a new table or alter existing
+        foreach ($bucketDefinition['PROPERTIES'] as $columnName=>$columnDefinition) {
+            if (!$this->applyColumn($bucketName, $columnName, $columnDefinition, $createColumns)) {
                 // Something went wrong, leave and return an error
                 $this->errors[] = new Error($this->dbh->getLastError());
                 return false;
             }
         }
+
+        // Create the table if it does not exist
+        // ----------------------------------------
+        if (is_array($createColumns)) {
+
+            $sql = "CREATE TABLE IF NOT EXISTS $bucketName(" . implode(',', $createColumns) . ")";
+
+            // Does this table inherit?
+            if (isset($bucketDefinition['INHERITS']))
+            {
+                $sql .= " INHERITS (".$bucketDefinition['INHERITS'].")";
+            }
+
+            $sql .= ";";
+
+            // Create the table
+            $this->dbh->query($sql);
+        }
+
 
         // Create primary key
         // -----------------------------------------------
@@ -138,9 +155,10 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      * @param $tableName
      * @param $columnName
      * @param array $columnDefinition
+     * @param array|bool $createColumns If new table this will be an array to add statements to
      * @return bool true on success, false on failure
      */
-    private function applyColumn($tableName, $columnName, array $columnDefinition)
+    private function applyColumn($tableName, $columnName, array $columnDefinition, &$createColumns = false)
     {
         // Make sure the column names are not too long
         if (strlen($columnName) > 64)
@@ -150,8 +168,10 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             throw new \RuntimeException("Auto increment column name '$columnName' on table '$tableName' is too long.");
 
         // Return true if the column already exists
-        if ($this->dbh->columnExists($tableName, $columnName)) {
-            return true;
+        if ($createColumns === false) {
+            if ($this->dbh->columnExists($tableName, $columnName)) {
+                return true;
+            }
         }
 
         // Determine the column type
@@ -172,14 +192,24 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             throw new \RuntimeException("Could not add $columnName to $tableName because missing type " . var_export($columnDefinition, true));
         }
 
-        // Add column definition
-        $sql = "ALTER TABLE $tableName ADD COLUMN {$columnName} {$columnType}";
-
         // Add column defaults
+        $default = "";
         if (isset($columnDefinition['default']) && $columnDefinition['default'] != 'auto_increment')
         {
-            $sql .= " DEFAULT '{$columnDefinition['default']}'";
+            $default = " DEFAULT '{$columnDefinition['default']}'";
         }
+
+        /*
+         * If this is a new table we do not want to run an alter, but rather just add
+         * the column name so that it can be added to a create statement and return true.
+         */
+        if (is_array($createColumns)) {
+            $createColumns[] = "{$columnName} {$columnType} $default";
+            return true;
+        }
+
+        // Add column definition
+        $sql = "ALTER TABLE $tableName ADD COLUMN {$columnName} {$columnType} $default";
 
         return ($this->dbh->query($sql)) ? true : false;
     }
