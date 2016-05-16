@@ -85,6 +85,27 @@ class Module
     private $sortOder = 0;
 
     /**
+     * The icon that will be used in the navigation display
+     *
+     * @var string
+     */
+    private $icon = "";
+
+    /**
+     * The default route will specify what route to load in the frontend, when clicking the module
+     *
+     * @var string
+     */
+    private $defaultRoute = null;
+
+    /**
+     * Contains the navigation link details that will be displayed in the frontend
+     *
+     * @var array
+     */
+    private $navigation = null;
+
+    /**
      * Get the id of this module
      *
      * @return int
@@ -265,6 +286,66 @@ class Module
     }
 
     /**
+     * Set the module icon
+     *
+     * @param string $icon
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+    }
+
+    /**
+     * Get the module icon
+     *
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * Set the module navigation default route
+     *
+     * @param string $defaultRoute
+     */
+    public function setDefaultRoute($defaultRoute)
+    {
+        $this->defaultRoute = $defaultRoute;
+    }
+
+    /**
+     * Get the module navigation default route
+     *
+     * @return string
+     */
+    public function getDefaultRoute()
+    {
+        return $this->defaultRoute;
+    }
+
+    /**
+     * Set the navigation details
+     *
+     * @param array $navigation
+     */
+    public function setNavigation ($navigation)
+    {
+        $this->navigation = $navigation;
+    }
+
+    /**
+     * Get the navigation details
+     *
+     * @return array
+     */
+    public function getNavigation ()
+    {
+        return $this->navigation;
+    }
+
+    /**
      * Import properties from an associative array
      *
      * @param array $data Associative array describing the module
@@ -297,6 +378,15 @@ class Module
 
         if (isset($data['sort_order']))
             $this->sortOder = $data['sort_order'];
+
+        if (isset($data['icon']))
+            $this->icon = $data['icon'];
+
+        if (isset($data['default_route']))
+            $this->defaultRoute = $data['default_route'];
+
+        if (isset($data['navigation']))
+            $this->navigation = $data['navigation'];
     }
 
     /**
@@ -316,6 +406,9 @@ class Module
             "user_id" => $this->userId,
             "team_id" => $this->teamId,
             "sort_order" => $this->sortOder,
+            "icon" => $this->icon,
+            "defaultRoute" => $this->defaultRoute,
+            "navigation" => $this->navigation,
         );
     }
 }
