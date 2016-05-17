@@ -90,14 +90,26 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
         $module = $dataMapper->get("notes");
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getId());
+
+        // Make sure that we have a xml navigation set
+        $this->assertNotNull($module->getXmlNavigation());
     }
 
     public function testGetAll()
     {
-        $dataMapper = $this->getDataMapper();
+        $dataMapper = $this->getDataMapper(true);
         $modules = $dataMapper->getAll();
         $this->assertNotNull($modules);
         $this->assertGreaterThan(0, count($modules), $dataMapper->getLastError());
+
+        // Since we have set the getDataMapper to use an admin account, we are able to get the settings module
+        $this->assertTrue(isset($modules['settings']));
+        $this->assertEquals($modules['settings']->getName(), 'settings');
+
+        // Now, let's set the getDataMapper to NOT use an admin account
+        $dataMapper = $this->getDataMapper(false);
+        $modules = $dataMapper->getAll();
+        $this->assertFalse(isset($modules['settings']));
     }
 
     public function testDelete()

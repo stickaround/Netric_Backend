@@ -85,25 +85,11 @@ class Module
     private $sortOder = 0;
 
     /**
-     * The icon that will be used in the navigation display
-     *
-     * @var string
-     */
-    private $icon = "";
-
-    /**
-     * The default route will specify what route to load in the frontend, when clicking the module
-     *
-     * @var string
-     */
-    private $defaultRoute = null;
-
-    /**
      * Contains the navigation link details that will be displayed in the frontend
      *
      * @var array
      */
-    private $navigation = null;
+    private $xmlNavigation = null;
 
     /**
      * Get the id of this module
@@ -286,53 +272,13 @@ class Module
     }
 
     /**
-     * Set the module icon
-     *
-     * @param string $icon
-     */
-    public function setIcon($icon)
-    {
-        $this->icon = $icon;
-    }
-
-    /**
-     * Get the module icon
-     *
-     * @return string
-     */
-    public function getIcon()
-    {
-        return $this->icon;
-    }
-
-    /**
-     * Set the module navigation default route
-     *
-     * @param string $defaultRoute
-     */
-    public function setDefaultRoute($defaultRoute)
-    {
-        $this->defaultRoute = $defaultRoute;
-    }
-
-    /**
-     * Get the module navigation default route
-     *
-     * @return string
-     */
-    public function getDefaultRoute()
-    {
-        return $this->defaultRoute;
-    }
-
-    /**
      * Set the navigation details
      *
-     * @param array $navigation
+     * @param array $xmlNavigation
      */
-    public function setNavigation ($navigation)
+    public function setXmlNavigation ($xmlNavigation)
     {
-        $this->navigation = $navigation;
+        $this->xmlNavigation = $xmlNavigation;
     }
 
     /**
@@ -340,9 +286,9 @@ class Module
      *
      * @return array
      */
-    public function getNavigation ()
+    public function getXmlNavigation ()
     {
-        return $this->navigation;
+        return $this->xmlNavigation;
     }
 
     /**
@@ -364,6 +310,9 @@ class Module
         if (isset($data['short_title']))
             $this->shortTitle = $data['short_title'];
 
+        if (isset($data['sort_order']))
+            $this->sortOder = $data['sort_order'];
+
         if (isset($data['scope']))
             $this->scope = $data['scope'];
 
@@ -376,17 +325,8 @@ class Module
         if (isset($data['team_id']))
             $this->teamId = $data['team_id'];
 
-        if (isset($data['sort_order']))
-            $this->sortOder = $data['sort_order'];
-
-        if (isset($data['icon']))
-            $this->icon = $data['icon'];
-
-        if (isset($data['default_route']))
-            $this->defaultRoute = $data['default_route'];
-
-        if (isset($data['navigation']))
-            $this->navigation = $data['navigation'];
+        if (isset($data['xml_navigation']))
+            $this->xmlNavigation = $data['xml_navigation'];
     }
 
     /**
@@ -406,9 +346,36 @@ class Module
             "user_id" => $this->userId,
             "team_id" => $this->teamId,
             "sort_order" => $this->sortOder,
-            "icon" => $this->icon,
-            "defaultRoute" => $this->defaultRoute,
-            "navigation" => $this->navigation,
+            "xml_navigation" => $this->xmlNavigation,
         );
+    }
+
+    /**
+     * Export properties as an array with navigation link details
+     * The navigation link is commonly used in the frontend display
+     *
+     * @return array Associative array of module properties with navigation link details
+     */
+    public function getModuleDataForNavigation()
+    {
+        $ret = array(
+            "id" => $this->id,
+            "name" => $this->name,
+            "title" => $this->title,
+            "short_title" => $this->shortTitle,
+            "scope" => $this->scope,
+            "system" => $this->system,
+            "user_id" => $this->userId,
+            "team_id" => $this->teamId,
+            "sort_order" => $this->sortOder,
+        );
+
+        if ($this->xmlNavigation)
+        {
+            foreach ($this->xmlNavigation as $key=>$value)
+                $ret[$key] = $value;
+        }
+
+        return $ret;
     }
 }

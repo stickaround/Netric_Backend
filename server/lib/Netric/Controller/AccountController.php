@@ -8,58 +8,58 @@ use \Netric\Mvc;
 
 class AccountController extends Mvc\AbstractAccountController
 {
-	/**
-	 * Get the definition of an account
-	 */
-	public function getGetAction()
-	{
-		// Get the service manager of the current user
-		$serviceManager = $this->account->getServiceManager();
+    /**
+     * Get the definition of an account
+     */
+    public function getGetAction()
+    {
+        // Get the service manager of the current user
+        $serviceManager = $this->account->getServiceManager();
 
-		// Load the Module Service
-		$moduleService = $serviceManager->get("Netric/Account/Module/ModuleService");
+        // Load the Module Service
+        $moduleService = $serviceManager->get("Netric/Account/Module/ModuleService");
 
-		// Get the current user
-		$user = $this->account->getUser();
+        // Get the current user
+        $user = $this->account->getUser();
 
-		// Get the modules specific for the current user
-		$modules = $moduleService->getForUser($user);
+        // Get the modules specific for the current user
+        $userModules = $moduleService->getForUser($user);
 
+        $modules = array();
 
-		$modulesWitNaviation = array();
-		foreach($modules as $module) {
+        // Loop thru each module for the current user
+        foreach ($userModules as $module)
+        {
 
-			// Get the additional module details (e.g. default_route, naviagtion links, and nav icon)
-			$newModule = $moduleService->getAdditionalModuleInfo($module);
+            /*
+             * We will only get the module that has xml navigation
+             *  since the xml navigation will be used as the navigation link in the frontend
+             */
+            if ($module->getXmlNavigation())
+            {
 
-			if($newModule->getNavigation())
-				$modulesWitNaviation[] = $newModule->toArray();
-		}
+                // Convert the Module object into an array
+                $modules[] = $module->getModuleDataForNavigation();
+            }
+        }
 
-		// If the current user is an Admin, then let's include the settings module
-		if ($user->isAdmin())
-		{
-			$modulesWitNaviation[] = $moduleService->getSettingsModule()->toArray();
-		}
+        // Setup the return details
+        $ret = array(
+            "id" => $this->account->getId(),
+            "name" => $this->account->getName(),
+            "orgName" => "", // TODO: $this->account->get
+            "defaultModule" => "notes", // TODO: this should be home until it is configurable
+            "modules" => $modules
+        );
 
+        return $this->sendOutput($ret);
+    }
 
-		// Setup the return details
-		$ret = array(
-			"id" => $this->account->getId(),
-			"name" => $this->account->getName(),
-			"orgName" => "", // TODO: $this->account->get
-			"defaultModule" => "notes", // TODO: this should be home until it is configurable
-			"modules" => $modulesWitNaviation
-		);
-
-		return $this->sendOutput($ret);
-	}
-
-	/**
-	 * Just in case they use POST
-	 */
-	public function postGetAction()
-	{
-		return $this->getGetAction();
-	}
+    /**
+     * Just in case they use POST
+     */
+    public function postGetAction()
+    {
+        return $this->getGetAction();
+    }
 }

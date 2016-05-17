@@ -8,6 +8,10 @@ namespace Netric\Account\Module\DataMapper;
 use Netric\Error\AbstractHasErrors;
 use Netric\Account\Module\Module;
 use Netric\Db\DbInterface;
+use Netric\Config\Config;
+use Netric\Entity\ObjType\UserEntity;
+
+const SETTINGS_ID = -1;
 
 class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
 {
@@ -19,13 +23,30 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
     private $dbh = null;
 
     /**
+     * Netric configuration
+     *
+     * @var \Netric\Config
+     */
+    private $config = null;
+
+    /**
+     * Current user
+     *
+     * @var UserEntity
+     */
+    private $user = null;
+
+    /**
      * Construct and initialize dependencies
      *
      * @param DbInterface $dbh
+     * @param Config $config The configuration object
      */
-    public function __construct(DbInterface $dbh)
+    public function __construct(DbInterface $dbh, Config $config, UserEntity $user)
     {
         $this->dbh = $dbh;
+        $this->config = $config;
+        $this->user = $user;
     }
 
     /**
@@ -48,6 +69,10 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             "team_id" => $this->dbh->escapeNumber($module->getTeamId()),
             "sort_order" => $this->dbh->escapeNumber($module->getSortOrder()),
         );
+
+        // If we have xml navigation, then we will include it in the save data.
+        if($module->getXmlNavigation())
+            $data["xml_navigation"] = "'" . $this->dbh->escape(serialize($module->getXmlNavigation()))  . "'";
 
         // Compose either an update or insert statement
         $sql = "";
@@ -145,6 +170,22 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             $modules[] = $this->createModuleFromRow($row);
         }
 
+        // If the current user is an Admin, then let's include the settings module
+        if ($this->user->isAdmin())
+        {
+
+            // Since this is a custom settings module, we will set the id to null
+            $settingsData = array(
+                "id" => SETTINGS_ID,
+                "name" => "settings",
+                "title" => "Settings",
+                "short_title" => "Settings",
+                "f_system" => "t"
+            );
+
+            $modules[] = $this->createModuleFromRow($settingsData);
+        }
+
         return $modules;
     }
 
@@ -196,17 +237,51 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         $module->setSystem(($row['f_system'] == 't') ? true : false);
 
         // Now add columns that may not be set
-        if ($row['scope'])
+        if (isset($row['scope']) && $row['scope'])
             $module->setScope($row['scope']);
 
-        if ($row['user_id'])
+        if (isset($row['user_id']) && $row['user_id'])
             $module->setUserId($row['user_id']);
 
-        if ($row['team_id'])
+        if (isset($row['team_id']) && $row['team_id'])
             $module->setTeamId($row['team_id']);
 
-        if ($row['sort_order'])
+        if (isset($row['sort_order']) && $row['sort_order'])
             $module->setSortOrder($row['sort_order']);
+
+        // If we have xml_navigation, then let's load it instead of using the module navigation file
+        if($row['xml_navigation'])
+        {
+
+            /*
+             * Since the xml_navigation is a serialized value because it is an array value
+             *  we will unserialize it, so it will be readable by the system
+             */
+            $module->setXmlNavigation(unserialize($row['xml_navigation']));
+        }
+        else
+        {
+            /*
+             * If we do not have a xml_navigation saved in the module, then let's use module navigation file as our fallback
+             * Then let's update the module so we do not need to use again the module navigation fallback file
+             */
+
+            // Get the location of the module navigation file
+            $basePath = $this->config->get("application_path") . "/data";
+
+            // Make sure that the pathy and file is existing
+            if ($module->getName() && file_exists($basePath . "/modules/" . $module->getName() . ".php")) {
+                $moduleData = include($basePath . "/modules/" . $module->getName() . ".php");
+
+                // Import the additional data of the module
+                $module->fromArray($moduleData);
+
+                // If the module is settings, then we do not need to save it in the database
+                if($module->getId() != SETTINGS_ID) {
+                    $this->save($module);
+                }
+            }
+        }
 
         return $module;
     }

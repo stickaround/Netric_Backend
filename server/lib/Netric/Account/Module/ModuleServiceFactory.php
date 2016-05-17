@@ -21,8 +21,7 @@ class ModuleServiceFactory implements ServiceManager\AccountServiceLocatorInterf
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $dataMapper = $sl->get('Netric/Account/Module/DataMapper/DataMapper');
-        $config = $sl->get("Netric/Config/Config");
 
-        return new ModuleService($dataMapper, $config);
+        return new ModuleService($dataMapper);
     }
 }
