@@ -7,16 +7,14 @@ To get started developing, you will need to have installed VirtualBox and Vagran
 
 Once both those are installed, perform the following:
 
-1. cd ./vagrant
-2. vagrant plugin install vagrant-hostsupdater
-3. vagrant up (may ask for your local password)
-4. vagrant ssh
-5. cd /var/www/html/netric
-6. php composer.phar install
-7. cd ./system
-8. php schema_updates.php
-9. php createdefaultaccount.php
-10. sudo service memcached restart
+1. Follow instructions in ./vagrant/README.md
+2. vagrant ssh
+3. cd /var/www/html/netric
+4. php composer.phar install
+5. cd ./system
+6. php schema_updates.php
+7. php createdefaultaccount.php
+8. sudo service memcached restart
 
 That's all there is to it, you should now be able to navigate to devel.netric.com on your workstation.
 
