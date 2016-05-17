@@ -939,7 +939,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 			$updateFields[] = "type='" . $field->type . "'";
 			$updateFields[] = "subtype='" . $field->subtype . "'";
 
-			if(isset($field->fkeyTable['key']))    
+			if(isset($field->fkeyTable['key']))
 				$updateFields[] = "fkey_table_key='" . $dbh->escape($field->fkeyTable['key']) . "'";
 				
 			if(isset($field->fkeyTable['title']))
