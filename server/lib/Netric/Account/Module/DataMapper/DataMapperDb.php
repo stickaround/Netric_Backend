@@ -183,7 +183,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
                 "f_system" => "t"
             );
 
-            $modules[] = $this->createModuleFromRow($settingsData);
+            $modules['settings'] = $this->createModuleFromRow($settingsData);
         }
 
         return $modules;
@@ -250,7 +250,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             $module->setSortOrder($row['sort_order']);
 
         // If we have xml_navigation, then let's load it instead of using the module navigation file
-        if($row['xml_navigation'])
+        if(isset($row['xml_navigation']) && $row['xml_navigation'])
         {
 
             /*
