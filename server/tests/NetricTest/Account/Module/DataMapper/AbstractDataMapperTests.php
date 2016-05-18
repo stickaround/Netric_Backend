@@ -91,8 +91,11 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getId());
 
-        // Make sure that we have a xml navigation set
-        $this->assertNotNull($module->getXmlNavigation());
+        // Make sure that we have a navigation set
+        $this->assertNotNull($module->getNavigation());
+
+        // Make sure that the navigation set is an array
+        $this->assertTrue(is_array($module->getNavigation()));
     }
 
     public function testGetAll()

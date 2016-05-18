@@ -85,11 +85,26 @@ class Module
     private $sortOder = 0;
 
     /**
+     * The icon that will be used in the navigation display
+     *
+     * @var string
+     */
+    private $icon = "";
+
+    /**
+     * The default route will specify what route to load in the frontend, when clicking the module
+     *
+     * @var string
+     */
+    private $defaultRoute = null;
+
+    /**
      * Contains the navigation link details that will be displayed in the frontend
      *
      * @var array
      */
-    private $xmlNavigation = null;
+    private $navigation = null;
+
 
     /**
      * Get the id of this module
@@ -272,13 +287,53 @@ class Module
     }
 
     /**
+     * Set the module icon
+     *
+     * @param string $icon
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+    }
+
+    /**
+     * Get the module icon
+     *
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * Set the module navigation default route
+     *
+     * @param string $defaultRoute
+     */
+    public function setDefaultRoute($defaultRoute)
+    {
+        $this->defaultRoute = $defaultRoute;
+    }
+
+    /**
+     * Get the module navigation default route
+     *
+     * @return string
+     */
+    public function getDefaultRoute()
+    {
+        return $this->defaultRoute;
+    }
+
+    /**
      * Set the navigation details
      *
-     * @param array $xmlNavigation
+     * @param array $navigation
      */
-    public function setXmlNavigation ($xmlNavigation)
+    public function setNavigation (array $navigation)
     {
-        $this->xmlNavigation = $xmlNavigation;
+        $this->navigation = $navigation;
     }
 
     /**
@@ -286,9 +341,9 @@ class Module
      *
      * @return array
      */
-    public function getXmlNavigation ()
+    public function getNavigation ()
     {
-        return $this->xmlNavigation;
+        return $this->navigation;
     }
 
     /**
@@ -298,35 +353,43 @@ class Module
      */
     public function fromArray(array $data)
     {
-        if (isset($data['id']))
+        if (isset($data['id']) && $data['id'])
             $this->id = $data['id'];
 
-        if (isset($data['name']))
+        if (isset($data['name']) && $data['name'])
             $this->name = $data['name'];
 
-        if (isset($data['title']))
+        if (isset($data['title']) && $data['title'])
             $this->title = $data['title'];
 
-        if (isset($data['short_title']))
+        if (isset($data['short_title']) && $data['short_title'])
             $this->shortTitle = $data['short_title'];
 
-        if (isset($data['sort_order']))
+        if (isset($data['sort_order']) && $data['sort_order'])
             $this->sortOder = $data['sort_order'];
 
-        if (isset($data['scope']))
+        if (isset($data['scope']) && $data['scope'])
             $this->scope = $data['scope'];
 
-        if (isset($data['system']))
+        if (isset($data['system']) && $data['system'])
             $this->system = $data['system'];
+        else
+            $this->system = false;
 
-        if (isset($data['user_id']))
+        if (isset($data['user_id']) && $data['user_id'])
             $this->userId = $data['user_id'];
 
-        if (isset($data['team_id']))
+        if (isset($data['team_id']) && $data['team_id'])
             $this->teamId = $data['team_id'];
 
-        if (isset($data['xml_navigation']))
-            $this->xmlNavigation = $data['xml_navigation'];
+        if (isset($data['icon']) && $data['icon'])
+            $this->icon = $data['icon'];
+
+        if (isset($data['default_route']) && $data['default_route'])
+            $this->defaultRoute = $data['default_route'];
+
+        if (isset($data['navigation']) && is_array($data['navigation']) && $data['navigation'])
+            $this->navigation = $data['navigation'];
     }
 
     /**
@@ -346,36 +409,9 @@ class Module
             "user_id" => $this->userId,
             "team_id" => $this->teamId,
             "sort_order" => $this->sortOder,
-            "xml_navigation" => $this->xmlNavigation,
+            "icon" => $this->icon,
+            "defaultRoute" => $this->defaultRoute,
+            "navigation" => $this->navigation
         );
-    }
-
-    /**
-     * Export properties as an array with navigation link details
-     * The navigation link is commonly used in the frontend display
-     *
-     * @return array Associative array of module properties with navigation link details
-     */
-    public function getModuleDataForNavigation()
-    {
-        $ret = array(
-            "id" => $this->id,
-            "name" => $this->name,
-            "title" => $this->title,
-            "short_title" => $this->shortTitle,
-            "scope" => $this->scope,
-            "system" => $this->system,
-            "user_id" => $this->userId,
-            "team_id" => $this->teamId,
-            "sort_order" => $this->sortOder,
-        );
-
-        if ($this->xmlNavigation)
-        {
-            foreach ($this->xmlNavigation as $key=>$value)
-                $ret[$key] = $value;
-        }
-
-        return $ret;
     }
 }

@@ -21,7 +21,9 @@ class ModuleTest extends PHPUnit_Framework_TestCase
             "user_id" => 234,
             "team_id" => 345,
             "sort_order" => 100,
-            "xml_navigation" => array(
+            "icon" => "test-icon",
+            "default_route" => "all-notes",
+            "navigation" => array(
                 "title" => "Notes",
                 "icon" => "pencil-square-o",
                 "defaultRoute" => "all-notes",
@@ -49,7 +51,9 @@ class ModuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['user_id'], $module->getUserId());
         $this->assertEquals($data['team_id'], $module->getTeamId());
         $this->assertEquals($data['sort_order'], $module->getSortOrder());
-        $this->assertEquals($data['xml_navigation'], $module->getXmlNavigation());
+        $this->assertEquals($data['icon'], $module->getIcon());
+        $this->assertEquals($data['default_route'], $module->getDefaultRoute());
+        $this->assertEquals($data['navigation'], $module->getNavigation());
     }
 
     public function testToArray()
@@ -64,18 +68,23 @@ class ModuleTest extends PHPUnit_Framework_TestCase
         $module->setUserId(234);
         $module->setTeamId(345);
         $module->setSortOrder(3000);
-        $module->setXmlNavigation(array(
-                "title" => "Notes",
-                "icon" => "pencil-square-o",
-                "defaultRoute" => "all-notes",
-                "navigation" => array(
-                    array(
-                        "title" => "New Note",
-                        "type" => "entity",
-                        "route" => "new-note",
-                        "objType" => "note",
-                        "icon" => "plus",
-                    )
+        $module->setIcon("test-icon");
+        $module->setDefaultRoute("all-notes");
+        $module->setNavigation(array(
+                array(
+                    "title" => "New Note",
+                    "type" => "entity",
+                    "route" => "new-note",
+                    "objType" => "note",
+                    "icon" => "plus",
+                ),
+                array(
+                    "title" => "All Notes",
+                    "type" => "browse",
+                    "route" => "all-notes",
+                    "objType" => "note",
+                    "icon" => "tags",
+                    "browseby" => "groups",
                 )
             )
         );
@@ -90,41 +99,8 @@ class ModuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['user_id'], $module->getUserId());
         $this->assertEquals($data['team_id'], $module->getTeamId());
         $this->assertEquals($data['sort_order'], $module->getSortOrder());
-        $this->assertEquals($data['xml_navigation'], $module->getXmlNavigation());
-    }
-
-    public function testToArrayWithNavLinks()
-    {
-        $module = new Module();
-        $module->setId(123);
-        $module->setName("tester");
-        $module->setTitle("My Tester Module");
-        $module->setShortTitle("Tester");
-        $module->setScope(Module::SCOPE_TEAM);
-        $module->setSystem(false);
-        $module->setUserId(234);
-        $module->setTeamId(345);
-        $module->setSortOrder(3000);
-        $module->setXmlNavigation(array(
-                "title" => "Notes",
-                "icon" => "pencil-square-o",
-                "defaultRoute" => "all-notes",
-                "navigation" => array(
-                    array(
-                        "title" => "New Note",
-                        "type" => "entity",
-                        "route" => "new-note",
-                        "objType" => "note",
-                        "icon" => "plus",
-                    )
-                )
-            )
-        );
-
-        $data = $module->getModuleDataForNavigation();
-        $this->assertEquals($data['defaultRoute'], "all-notes");
-        $this->assertEquals($data['icon'], "pencil-square-o");
-        $this->assertEquals($data['navigation'][0]['title'], "New Note");
-        $this->assertEquals($data['navigation'][0]['objType'], "note");
+        $this->assertEquals($data['icon'], $module->getIcon());
+        $this->assertEquals($data['defaultRoute'], $module->getDefaultRoute());
+        $this->assertEquals($data['navigation'], $module->getNavigation());
     }
 }
