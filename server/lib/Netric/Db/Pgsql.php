@@ -134,14 +134,13 @@ class Pgsql implements DbInterface
 	{
 		if ($this->dbname)
 		{
-			$this->dbHandle = @pg_connect("host=".$this->server." 
+			$this->dbHandle = pg_connect("host=".$this->server."
 										  dbname=".$this->dbname."
 										  user=".$this->user." 
 										  port=".$this->port." 
 										  password=".$this->password);
 
-			if ($this->dbHandle === false)
-			{
+			if (!$this->dbHandle) {
 				return false;
 			}
 
@@ -345,7 +344,11 @@ class Pgsql implements DbInterface
      */
 	function getLastError()
 	{
-		return pg_last_error($this->dbHandle);
+        if ($this->dbHandle) {
+            return pg_last_error($this->dbHandle);
+        } else {
+            return "";
+        }
 	}
 
     /**

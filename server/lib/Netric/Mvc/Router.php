@@ -103,7 +103,7 @@ class Router
 		if ($this->className && !$this->controllerClass && class_exists($this->className))
 		{
 			$clsname = $this->className;
-			$this->controllerClass = new $clsname($this->application->getAccount());
+			$this->controllerClass = new $clsname($this->application, $this->application->getAccount());
             
             if(isset($this->controllerClass->testMode))
                 $this->controllerClass->testMode = $this->testMode;
@@ -241,10 +241,14 @@ class Router
 		// Get the DACL for the selected controller
 		$dacl = $this->controllerClass->getAccessControlList();
 
+		// Check to see if there is an account and identity associated with this request
+		if (!$this->application->getAccount()) {
+			// No account which means this is probably a console request
+			return true;
+		}
+
 		// Get the currently authenticated user
 		$user = $this->application->getAccount()->getUser();
-
-		//echo "\nChecking if " . $user->getId() . " has access: " . var_export($user, true);
 
 		// Check if the user can access this resource and return the result
 		return $dacl->isAllowed($user);

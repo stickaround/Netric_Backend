@@ -1,11 +1,8 @@
 FROM php:5.6-apache
 COPY conf/apache2.conf /etc/apache2/apache2.conf
 COPY conf/php-devel-ini.conf /usr/local/etc/php/
-#COPY ./index.php /var/www/html/
-#ADD . /code
-#WORKDIR /code
-#RUN pip install -r requirements.txt
 
+# install required php extensions
 RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
@@ -33,4 +30,8 @@ RUN pear install mail \
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
+COPY init/docker-entrypoint.sh /
+#ENTRYPOINT ["/docker-entrypoint.sh"]
+
 EXPOSE 80
+CMD ["apache2-foreground"]

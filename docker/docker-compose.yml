@@ -2,12 +2,25 @@ web:
   build: web/
   ports:
    - "5000:80"
+  environment:
+     APPLICATION_ENV: development
   volumes:
    - ../server/:/var/www/html/
   links:
    - memcached
    - gearmand
+   - postgres
+
 memcached:
   image: memcached
+
 gearmand:
   image: pataquets/gearmand
+
+postgres:
+  build: postgres/
+  ports:
+  - "5432:5432"
+  environment:
+    POSTGRES_USER: vagrant
+    POSTGRES_PASSWORD: vagrant

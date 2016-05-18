@@ -277,15 +277,14 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     public function createDatabase()
     {
         // First try to connect to this database to see if it exists
-        if ($this->dbh->connect())
+        if ($this->dbh->connect()) {
             return true;
+        }
 
         // Try to create it by connecting to template1, then create the new db, and reconnect
         $template1 = new Db\Pgsql($this->host, "template1", $this->username, $this->password);
-        if (!$template1->query("CREATE DATABASE " . $this->database))
-        {
-            $this->errors[] = new Error($this->dbh->getLastError());
-            return false;
+        if (!$template1->query("CREATE DATABASE " . $this->database)) {
+            throw new \RuntimeException("Could not create database: " . $this->database);
         }
 
         // New database was crated, now try to reconnect and return the results

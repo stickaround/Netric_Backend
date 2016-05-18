@@ -9,6 +9,7 @@
  */
 namespace Netric\Mvc;
 
+use Netric\Application\Application;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
 
@@ -17,6 +18,13 @@ use Netric\Entity\ObjType\UserEntity;
  */
 abstract class AbstractController
 {
+	/**
+	 * Application instance for the request
+	 *
+	 * @var Application
+	 */
+	protected $application = null;
+
 	/**
      * Reference to current netric account
      *
@@ -58,10 +66,11 @@ abstract class AbstractController
 	 * @param CAnt $ant	An active reference to the current ANT account object
 	 * @param AntUser $user The current user object
 	 */
-	function __construct($account)
+	function __construct(Application $application, $account)
 	{
+        $this->application = $application;
 		$this->account = $account;
-        $this->request = $account->getServiceManager()->get("/Netric/Request/Request");
+        $this->request = $application->getServiceManager()->get("/Netric/Request/Request");
 		$this->init();
 	}
 
@@ -87,7 +96,7 @@ abstract class AbstractController
 	 */
 	protected function getApplication()
 	{
-		return $this->account->getApplication();
+		return $this->application;
 	}
 
 	/**

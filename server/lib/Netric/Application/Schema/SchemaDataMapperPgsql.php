@@ -110,7 +110,9 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             $sql .= ";";
 
             // Create the table
-            $this->dbh->query($sql);
+            if (!$this->dbh->query($sql)) {
+                throw new \RuntimeException("Could not create table $bucketName: " . $this->dbh->getLastError());
+            }
         }
 
 
