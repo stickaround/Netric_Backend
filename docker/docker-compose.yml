@@ -9,7 +9,7 @@ web:
   links:
    - memcached
    - gearmand
-   - postgres
+   - db1
 
 memcached:
   image: memcached
@@ -17,7 +17,7 @@ memcached:
 gearmand:
   image: pataquets/gearmand
 
-postgres:
+db1:
   build: postgres/
   ports:
   - "5432:5432"
