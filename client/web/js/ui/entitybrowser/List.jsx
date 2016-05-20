@@ -267,6 +267,18 @@ var List = React.createClass({
      */
     _handleScroll: function (evt) {
 
+        // Get the positions of the list container
+        var containerPosition = ReactDOM.findDOMNode(this.refs.entityContainer).getBoundingClientRect();
+
+        // Determine if the container list is displayed in the window, if not then no need to continue further
+        if (containerPosition.bottom === 0
+            && containerPosition.height === 0
+            && containerPosition.right === 0
+            && containerPosition.top === 0
+            && containerPosition.width === 0) {
+            return;
+        }
+
         // This will determine if the scroll has reached the bottom of the page
         var bottomPage = false;
 
