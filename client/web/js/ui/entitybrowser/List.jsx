@@ -270,7 +270,7 @@ var List = React.createClass({
         // Get the positions of the list container
         var containerPosition = ReactDOM.findDOMNode(this.refs.entityContainer).getBoundingClientRect();
 
-        // Determine if the container list is displayed in the window, if not then no need to continue further
+        // Determine if the container list is visible in the dom, if not then no need to continue further
         if (containerPosition.bottom === 0
             && containerPosition.height === 0
             && containerPosition.right === 0
