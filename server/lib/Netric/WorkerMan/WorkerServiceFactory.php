@@ -21,7 +21,7 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $config = $sl->get("Netric\Config\Config");
+        $config = $sl->get('Netric\Config\Config');
 
         $queue = null;
 

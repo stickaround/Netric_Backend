@@ -17,7 +17,7 @@ $starttime = $mtime;
 
 //$objectType = "customer";
 $objectType = "contact_personal";
-$owner = USER_ADMINISTRATOR;
+$owner = USER_SYSTEM;
 $dbh = new CDatabase();
 $user = new AntUser($dbh, $owner);
 

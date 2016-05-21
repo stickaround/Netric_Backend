@@ -37,7 +37,7 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	protected function setUp() 
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
 	}
     
     /**

@@ -9,7 +9,7 @@
  */
 
 // Setup autoloader
-include("../init_autoloader.php");
+include(__DIR__ . "/../init_autoloader.php");
 
 // Get system config
 $config = new \Netric\Config();

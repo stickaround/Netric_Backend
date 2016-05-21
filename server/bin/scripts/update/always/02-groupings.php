@@ -8,7 +8,7 @@ $account = $this->getAccount();
 if (!$account)
     throw new \RuntimeException("This must be run only against a single account");
 
-$defaultGroups= include("data/account/groupings.php");
+$defaultGroups= require("data/account/groupings.php");
 
 $groupingsLoader = $account->getServiceManager()->get("EntityGroupings_Loader");
 

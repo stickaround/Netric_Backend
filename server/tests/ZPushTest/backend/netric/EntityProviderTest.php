@@ -217,7 +217,7 @@ class EntityProviderTest extends PHPUnit_Framework_TestCase
         $groupings = $entityGroupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest mailbox";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR;
+        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest mailbox");
@@ -253,7 +253,7 @@ class EntityProviderTest extends PHPUnit_Framework_TestCase
         $groupings = $entityGroupingsLoader->get("note", "groups", array("user_id"=>$this->user->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest note folder";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR;
+        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest note folder");
@@ -533,7 +533,7 @@ class EntityProviderTest extends PHPUnit_Framework_TestCase
         $groupings = $entityGroupingsLoader->get("note", "groups", array("user_id"=>$this->user->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR;
+        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest");

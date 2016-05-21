@@ -54,7 +54,7 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
 	protected function setUp() 
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
         $this->esDataMapper = $this->account->getServiceManager()->get("EntitySync_DataMapper");
         $this->commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
 
@@ -301,7 +301,12 @@ abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase
         foreach ($stats as $ostat)
         {
             $newData = $this->createLocal();
-            $collection->logImported($ostat['remote_id'], $ostat['remote_revision'], $newData['id'], $newData['revision']);
+            $collection->logImported(
+                $ostat['remote_id'],
+                $ostat['remote_revision'],
+                $newData['id'],
+                $newData['revision']
+            );
         }
 
         // Now pull export changes which should be 0

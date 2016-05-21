@@ -22,7 +22,7 @@ class Olap_Cube_AdhockTest extends PHPUnit_Framework_TestCase
     {
         $this->ant = new Ant();
         $this->dbh = $this->ant->dbh;
-        $this->user = $this->ant->getUser(USER_ADMINISTRATOR);        
+        $this->user = $this->ant->getUser(USER_SYSTEM);
         $this->checkQuarter = array("Q1", "Q2", "Q3", "Q4");
         
         $this->markTestSkipped('Depricated.');
@@ -311,7 +311,7 @@ class Olap_Cube_AdhockTest extends PHPUnit_Framework_TestCase
         // Extract the data in a single dimension
         $query = new Olap_Cube_Query();
         $query->addDimension("name");
-        $query->addFilter("and", "owner_id", "is_equal", USER_ADMINISTRATOR);
+        $query->addFilter("and", "owner_id", "is_equal", USER_SYSTEM);
         $query->addDimension("name", "asc");
         $data = $cube->getTabularData($query);        
         //print_r($data); // sample output: Array ( [0] => Array ( [name] => TestUnit CustomerName ) )

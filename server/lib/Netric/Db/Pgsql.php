@@ -134,7 +134,7 @@ class Pgsql implements DbInterface
 	{
 		if ($this->dbname)
 		{
-			$this->dbHandle = pg_connect("host=".$this->server."
+			$this->dbHandle = @pg_connect("host=".$this->server."
 										  dbname=".$this->dbname."
 										  user=".$this->user." 
 										  port=".$this->port." 

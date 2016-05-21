@@ -11,11 +11,14 @@ RUN apt-get update && apt-get install -y \
 		libz-dev \
 		libmemcached-dev \
 		libpq-dev \
+		libgearman-dev \
     && docker-php-ext-install -j$(nproc) iconv mcrypt pgsql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
 	&& pecl install memcache \
-	&& docker-php-ext-enable memcache
+	&& docker-php-ext-enable memcache \
+	&& pecl install gearman \
+    && docker-php-ext-enable gearman
 
 
 # install PHP PEAR extensions
@@ -30,8 +33,9 @@ RUN pear install mail \
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
-COPY init/docker-entrypoint.sh /
-#ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY bin/netric-setup.sh /
+COPY bin/netric-tests.sh /
+#ENTRYPOINT ["/netric-setup.s"]
 
 EXPOSE 80
 CMD ["apache2-foreground"]

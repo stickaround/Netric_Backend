@@ -7,7 +7,7 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Entity\BrowserView\BrowserView;
 
-class BrowserViewController extends Mvc\AbstractController
+class BrowserViewController extends Mvc\AbstractAccountController
 {
     /**
      * Save a browser view

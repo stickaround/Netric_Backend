@@ -5,7 +5,7 @@
 use Netric\EntityDefinition;
 
 // Get object types for each account
-$types = include("data/account/object-types.php");
+$types = require("data/account/object-types.php");
 
 $account = $this->getAccount();
 if (!$account)

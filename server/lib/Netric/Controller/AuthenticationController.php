@@ -7,7 +7,7 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Console\Console;
 
-class AuthenticationController extends Mvc\AbstractController
+class AuthenticationController extends Mvc\AbstractAccountController
 {
 	/**
 	 * Override to allow anonymous users to access this controller for authentication
@@ -38,6 +38,16 @@ class AuthenticationController extends Mvc\AbstractController
 				array(
 					"result"=>"FAIL", 
 					"reason"=>"Both username and password are required fields"
+				)
+			);
+		}
+
+		// If auth is running without an account, then fail automatically
+		if (!$this->account) {
+			return $this->sendOutput(
+				array(
+					"result" => "FAIL",
+					"reason" => "Invalid account",
 				)
 			);
 		}
@@ -113,6 +123,16 @@ class AuthenticationController extends Mvc\AbstractController
 	 */
 	public function getCheckinAction()
 	{
+		// If auth is running without an account, then fail automatically
+		if (!$this->account) {
+			return $this->sendOutput(
+				array(
+					"result" => "FAIL",
+					"reason" => "Invalid account",
+				)
+			);
+		}
+
 		$sm = $this->account->getServiceManager();
 		$authService = $sm->get("/Netric/Authentication/AuthenticationService");
 

@@ -570,8 +570,21 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		else if (!$def->isCustomTable())
 			$targetTable .= "_act";
 
-		// If we are using a custom table or the deleted status has not changed on a generic object table then update row
-		if ($entity->getId() && ($def->isCustomTable() || (!$entity->fieldValueChanged("f_deleted") && !$def->isCustomTable())))
+		/*
+		 * If we are using a custom table or the deleted status has not changed
+		 * on a generic object table then update row.
+		 * The last condition checks if update is greater than 1, since 1 will be the value
+		 * of the very first save. It is possible that a user set a specific ID of an entity
+		 * when creating it. This will not matter at all for partitioned tables since it will
+		 * automatically delete before inserting, but for custom tables it could cause a bug
+		 * where it tried to update an ID that does not exist.
+		 */
+		if (
+            $entity->getId() && (
+                $def->isCustomTable() ||
+                (!$entity->fieldValueChanged("f_deleted") && !$def->isCustomTable())
+            ) && $entity->getValue("revision") > 1
+        )
 		{
 			$query = "UPDATE " . $targetTable . " SET ";
 			$update_fields = "";
@@ -586,18 +599,21 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 			$query .= $update_fields." WHERE id='" . $entity->getId() . "'";
 			$res = $dbh->query($query);
 
+            if (!$res) {
+                throw new \RuntimeException(
+                    "Could not update entity $targetTable." .
+                    $entity->getId(). ":" . $dbh->getLastError()
+                );
+            }
+
 			$performed = "update";
 		}
 		else
 		{
-			// Use copyid flag to preserve object id if moving between active or archived object tables (not custom)
-			$copyid = false; 
-			
 			// Clean out old record if it exists in a different partition
 			if ($entity->getId() && !$def->isCustomTable())
 			{
 				$dbh->query("DELETE FROM " . $def->getTable() . " WHERE id='" . $entity->getId() . "'");
-				$copyid = true;
 			}
 
 			$cols = "";
@@ -605,12 +621,21 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
 			foreach ($data as $colname=>$colval)
 			{
-				// skip over id unless we need to copy it to a new partition
-				if ($colname == "id" && !$copyid) 
-					continue;
+				// Skip over id if it is null
+				if ($colname == "id" && (empty($colval) || strtolower($colval) == 'null')) {
+                    continue;
+                }
 
-				if ($cols) $cols .= ", ";
-				if ($vals) $vals .= ", ";
+                // Add comma
+				if ($cols) {
+                    $cols .= ", ";
+                }
+
+				if ($vals) {
+                    $vals .= ", ";
+                }
+
+                // Add culumn name and column value
 				$cols .= $colname;
 				$vals .= $colval; // val is already escaped
 			}
@@ -627,7 +652,10 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
 			if (!$result)
 			{
-				throw new DefinitionStaleException("Could not save entity" . $dbh->getLastError());
+				throw new DefinitionStaleException(
+                    "Could not save entity: " . $dbh->getLastError() .
+                    " - " . $query
+                );
 			}
 
 			// Set event

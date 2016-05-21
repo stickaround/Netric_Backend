@@ -28,3 +28,11 @@ V2 of the netric UI is being built in the ./client/web directory of this repo.
 
 Once you have vagrant running the server (see Installation & Development above), navigate to the client directory
 and follow the instructions in READEME.md.
+
+
+## New Process in /scripts
+setup.sh
+start.sh
+test.sh - should dump to a results file in ../ for reporting
+
+### Jenkins

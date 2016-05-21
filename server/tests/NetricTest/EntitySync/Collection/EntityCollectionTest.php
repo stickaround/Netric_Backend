@@ -35,7 +35,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         $newEnt->setValue("name", "EntityEyncTests");
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($newEnt);
         $this->newCreated[] = $newEnt;
-        return array("id"=>$newEnt->getId(), "revision"=>$newEnt->getValue("revision"));
+        return array("id"=>$newEnt->getId(), "revision"=>$newEnt->getValue("commit_id"));
     }
 
     protected function changeLocal($id)

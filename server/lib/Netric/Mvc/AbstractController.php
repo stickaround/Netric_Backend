@@ -9,6 +9,7 @@
  */
 namespace Netric\Mvc;
 
+use Netric\Account\Account;
 use Netric\Application\Application;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
@@ -63,10 +64,10 @@ abstract class AbstractController
 	/**
 	 * class constructor. All calls to a controller class require a reference to $ant and $user classes
 	 *
-	 * @param CAnt $ant	An active reference to the current ANT account object
-	 * @param AntUser $user The current user object
+	 * @param Application $application The current application instance
+	 * @param Account $account The tenant we are running under
 	 */
-	function __construct(Application $application, $account)
+	function __construct(Application $application, Account $account = null)
 	{
         $this->application = $application;
 		$this->account = $account;
@@ -121,6 +122,7 @@ abstract class AbstractController
 	 * Print data to the browser. If debug, just cache data
 	 *
 	 * @param string $data The data to data to the browser or store in buffer
+     * @return string
 	 */
 	protected function sendOutput($data)
 	{
@@ -146,6 +148,7 @@ abstract class AbstractController
 	 * Send raw output
 	 *
 	 * @param string $data
+     * @return array
 	 */
 	protected function sendOutputRaw($data)
 	{
@@ -158,7 +161,8 @@ abstract class AbstractController
 	/**
 	 * Print data to the browser. If debug, just cache data
 	 *
-	 * @param string $output The data to output to the browser or store in buffer
+	 * @param array $data The data to output to the browser or store in buffer
+     * @return string JSON encoded string
 	 */
 	protected function sendOutputJson($data)
 	{
@@ -247,7 +251,7 @@ abstract class AbstractController
 		{
 		case 'xml':
 			header('Cache-Control: no-cache, must-revalidate');
-			header("Content-type: text/xml");			// Returns XML document
+			header("Content-type: text/xml");
 			break;
 		case 'json':
 			header('Cache-Control: no-cache, must-revalidate');
@@ -264,15 +268,16 @@ abstract class AbstractController
 	 * Recurrsively convert array to xml
 	 *
 	 * @param array $data The data to convert to xml
+     * @return string
 	 */
 	private function makeXmlFromArray($data)
 	{
-		if (!is_array($data))
-		{
-			if ($data === true)
-				return "1";
-			else if ($data === false)
-				return '0';
+		if (!is_array($data)) {
+			if ($data === true) {
+                return "1";
+            } else if ($data === false) {
+                return '0';
+            }
 
 			// Return the string
 			return $this->escapeXml($data);
@@ -280,18 +285,15 @@ abstract class AbstractController
 
 		$ret = "";
 
-		foreach ($data as $key=>$val)
-		{
-			if (is_numeric($key))
-				$key = "item";
+		foreach ($data as $key=>$val) {
+			if (is_numeric($key)) {
+                $key = "item";
+            }
 
 			$ret .= "<" . $key . ">";
-			if (is_array($val))
-			{
+			if (is_array($val)) {
 				$ret .= $this->makeXmlFromArray($val);
-			}
-			else
-			{
+			} else {
 				// Escape
 				$val = $this->escapeXml($val);
 				$ret .= $val;
@@ -311,8 +313,11 @@ abstract class AbstractController
 	 */
 	private function escapeXml($string)
 	{
-		return str_replace(array("&", "<", ">", "\"", "'"),
-						   array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"), $string);
+		return str_replace(
+            array("&", "<", ">", "\"", "'"),
+			array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"),
+            $string
+        );
 	}
 
 	/**

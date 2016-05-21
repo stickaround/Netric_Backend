@@ -14,7 +14,7 @@
 	$numToInsert = 1000;
 	//$objectType = "customer";
 	$objectType = "customer";
-	$owner = USER_ADMINISTRATOR;
+	$owner = USER_SYSTEM;
 	$dbh = new CDatabase();
 	$user = new AntUser($dbh, $owner);
 	

@@ -4,6 +4,7 @@
  */
 namespace Netric\Application;
 
+use Netric\Account\Account;
 use Netric\Application\Exception;
 use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;

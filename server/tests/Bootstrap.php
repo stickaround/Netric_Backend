@@ -36,11 +36,19 @@ class Bootstrap
         $application = new \Netric\Application\Application($config);
 
         // Initialize account
+        // TODO: Discover why account is not loading
         static::$account = $application->getAccount();
 
-        // Set the current user to administrator so permissions are not limiting
-        $loader = static::$account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", UserEntity::USER_ADMINISTRATOR);
+        // Get or create an administrator user so permissions are not limiting
+        $user = self::$account->getUser(null, "automated_test");
+        if (!$user) {
+            $loader = static::$account->getServiceManager()->get("EntityLoader");
+            $user = $loader->create("user");
+            $user->setValue("name", "automated_test");
+            $user->addMultiValue("groups", UserEntity::GROUP_ADMINISTRATORS);
+            $loader->save($user);
+        }
+
         static::$account->setCurrentUser($user);
     }
 

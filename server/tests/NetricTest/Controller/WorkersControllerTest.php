@@ -34,13 +34,8 @@ class WorkersControllerTest extends PHPUnit_Framework_TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
-        // Setup a user for testing
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $this->user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
-        $this->account->setCurrentUser($this->user);
-
         // Create the controller
-        $this->controller = new Netric\Controller\WorkersController($this->account);
+        $this->controller = new Netric\Controller\WorkersController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
     }
 

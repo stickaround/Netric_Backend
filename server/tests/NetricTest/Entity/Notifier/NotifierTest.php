@@ -63,7 +63,6 @@ class NotifierTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_ADMINISTRATOR);
         $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $this->notifier = $this->account->getServiceManager()->get("Netric/Entity/Notifier/Notifier");
 

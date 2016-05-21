@@ -77,10 +77,10 @@ class LoaderTest extends PHPUnit_Framework_TestCase
 	{
         // Create test group manually
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-        $groupings = $dm->getGroupings("note", "groups", array("user_id"=>\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR));
+        $groupings = $dm->getGroupings("note", "groups", array("user_id"=>\Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR;
+        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
         
@@ -88,7 +88,7 @@ class LoaderTest extends PHPUnit_Framework_TestCase
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         
 		// Use the loader to get private groups
-		$groupings = $loader->get("note", "groups", array("user_id"=>\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR));
+		$groupings = $loader->get("note", "groups", array("user_id"=>\Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
         $grp = $groupings->getByName($newGroup->name);
 		$this->assertNotNull($grp->id);
         $this->assertNotNull($grp->user_id);

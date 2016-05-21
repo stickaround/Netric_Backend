@@ -530,7 +530,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 							break;
 						default:
                             if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d h:i:s A", $condValue) : $condValue;
+                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
                             else if ($field->type == "date")
                                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
                             
@@ -549,7 +549,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 							break;
 						default:
                             if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d h:i:s A", $condValue) : $condValue;
+                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
                             else if ($field->type == "date")
                                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
                             
@@ -582,7 +582,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 							break;
 						default:
                             if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d h:i:s A", $condValue) : $condValue;
+                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
                             else if ($field->type == "date")
                                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
                             
@@ -625,7 +625,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 							break;
 						default:
                             if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d h:i:s A", $condValue) : $condValue;
+                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
                             else if ($field->type == "date")
                                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
                             
@@ -1016,7 +1016,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         case 'date':
         case 'timestamp':
             if ($field->type == "timestamp")
-                $condValue = (is_numeric($condValue)) ? date("Y-m-d h:i:s A", $condValue) : $condValue;
+                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
             else if ($field->type == "date")
                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
         default:
@@ -1198,7 +1198,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         case 'date':
         case 'timestamp':
             if ($field->type == "timestamp")
-                $condValue = (is_numeric($condValue)) ? date("Y-m-d h:i:s A", $condValue) : $condValue;
+                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
             else if ($field->type == "date")
                 $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
         default:

@@ -20,11 +20,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testRun()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        
-        // Setup a user with permissions
-        $loader = $account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
-        $account->setCurrentUser($user);
 
         $request = $account->getServiceManager()->get("Netric/Request/Request");
         $request->setParam("controller", "test");

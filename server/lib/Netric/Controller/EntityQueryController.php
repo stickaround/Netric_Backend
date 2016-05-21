@@ -6,7 +6,7 @@ namespace Netric\Controller;
 
 use \Netric\Mvc;
 
-class EntityQueryController extends Mvc\AbstractController
+class EntityQueryController extends Mvc\AbstractAccountController
 {
     /**
      * Execute a query

@@ -20,7 +20,7 @@ class DaclTest extends PHPUnit_Framework_TestCase
 	{
 		$this->ant = new Ant();
 		$this->dbh = $this->ant->dbh;
-		$this->user = $this->ant->getUser(USER_ADMINISTRATOR); // -1 = administrator
+		$this->user = $this->ant->getUser(USER_SYSTEM); // -1 = administrator
 	}
 	
 	function tearDown() 
@@ -36,7 +36,7 @@ class DaclTest extends PHPUnit_Framework_TestCase
 				"View", "Edit", "Delete"
 			),
 			'entries' => array(
-				array('user'=>USER_ADMINISTRATOR, 'permission'=>"View"),
+				array('user'=>USER_SYSTEM, 'permission'=>"View"),
 				array('group'=>GROUP_ADMINISTRATORS, 'permission'=>"delete"),
 			),
 			'children' => array(

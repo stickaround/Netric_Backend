@@ -11,7 +11,7 @@ if (!$account)
 /*
  * First make sure default user groups exist
  */
-$groupsData = include("data/account/user-groups.php");
+$groupsData = require("data/account/user-groups.php");
 $groupingsLoader = $account->getServiceManager()->get("EntityGroupings_Loader");
 $groupings = $groupingsLoader->get("user", "groups");
 foreach ($groupsData as $groupData) {
@@ -27,7 +27,7 @@ $groupingsLoader->save($groupings);
 /*
  * Now make sure default users exists - with no password so no login
  */
-$usersData = include("data/account/users.php");
+$usersData = require("data/account/users.php");
 $entityLoader = $account->getServiceManager()->get("EntityLoader");
 foreach ($usersData as $userData) {
     if (!$entityLoader->get("user", $userData['id'])) {

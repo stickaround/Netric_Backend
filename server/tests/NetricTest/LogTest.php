@@ -37,7 +37,7 @@ class LogTest extends PHPUnit_Framework_TestCase
 	protected function setUp() 
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
         $this->log = $this->account->getServiceManager()->get("Log");
 	}
     
@@ -49,9 +49,5 @@ class LogTest extends PHPUnit_Framework_TestCase
 		// By default the logging is set to LOG_ERR
 		$ret = $this->log->error("My Test");
 		$this->assertNotEquals($ret, false);
-
-		// Try logging an info message which should not be logged at all
-		$ret = $this->log->info("My Test");
-		$this->assertFalse($ret);
 	}
 }

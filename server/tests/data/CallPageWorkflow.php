@@ -7,7 +7,7 @@
     
 	$ant = new Ant();
     $dbh = $ant->dbh;
-    $user = new AntUser($dbh, USER_ADMINISTRATOR);
+    $user = new AntUser($dbh, USER_SYSTEM);
     
     $objType = $_GET["obj_type"];
     $oid = $_GET["oid"];

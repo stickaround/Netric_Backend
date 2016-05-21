@@ -16,7 +16,7 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
      *
      * @var \Netric\Account\Account
      */
-    private $account = null;
+    protected $account = null;
 
     /**
      * Action factory for testing

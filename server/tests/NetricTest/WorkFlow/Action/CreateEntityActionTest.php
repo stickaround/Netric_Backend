@@ -27,7 +27,7 @@ class CreateEntityActionTest extends AbstractActionTests
         $action->setParam('user_id', '<%user_id%>'); // Copy from parent task
 
         // Get user
-        $user = $this->account->getUser(UserEntity::USER_ADMINISTRATOR);
+        $user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         // Create a test task that will create another task that copies the woner
         $task = $this->entityLoader->create("task");

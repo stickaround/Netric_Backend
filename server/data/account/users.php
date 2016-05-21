@@ -20,7 +20,7 @@ return array(
     array(
         "id"=>UserEntity::USER_SYSTEM,
         "name"=>"system",
-        "full_name"=>"system"
+        "full_name"=>"System"
     ),
     array(
         "id"=>UserEntity::USER_WORKFLOW,

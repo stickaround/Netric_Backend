@@ -6,7 +6,7 @@ namespace Netric\Controller;
 
 use \Netric\Mvc;
 
-class AccountController extends Mvc\AbstractController
+class AccountController extends Mvc\AbstractAccountController
 {
 	/**
 	 * Get the definition of an account

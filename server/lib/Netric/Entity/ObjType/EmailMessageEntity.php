@@ -16,7 +16,6 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Mail;
 use Netric\Mime;
 use Netric\FileSystem\FileSystem;
-use Zend\Db\TableGateway\Exception\RuntimeException;
 
 /**
  * Email entity extension

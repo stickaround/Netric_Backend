@@ -25,7 +25,7 @@ class ReminderAction_PopupTest extends PHPUnit_Framework_TestCase
 	{
 		$this->ant = new Ant();
 		$this->dbh = $this->ant->dbh;
-		$this->user = new AntUser($this->dbh, USER_ADMINISTRATOR); // -1 = administrator
+		$this->user = new AntUser($this->dbh, USER_SYSTEM); // -1 = administrator
 	}
 	
 	/**

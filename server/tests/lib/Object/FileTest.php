@@ -21,7 +21,7 @@ class AntObject_FileTest extends PHPUnit_Framework_TestCase
 	{
 		$this->ant = new Ant();
 		$this->dbh = $this->ant->dbh;
-		$this->user = $this->ant->getUser(USER_ADMINISTRATOR);
+		$this->user = $this->ant->getUser(USER_SYSTEM);
 		$this->antfs = new AntFs($this->dbh, $this->user); // -1 = administrator
 	}
 

@@ -28,7 +28,7 @@ class SettingsTest extends PHPUnit_Framework_TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->settings = $sm->get('Netric\Settings\Settings');
-        $this->user = $account->getUser(\Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $this->user = $account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
     }
 
     public function testGetAndSet()

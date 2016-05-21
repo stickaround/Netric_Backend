@@ -16,7 +16,7 @@ $actionFactory = new Netric\WorkFlow\Action\ActionFactory($serviceLocator);
 $allWorkFlows = $workFlowDataMapper->getWorkFlows();
 
 // Get data for creating WorkFlows
-$workFlowsData = include("data/account/workflows.php");
+$workFlowsData = require("data/account/workflows.php");
 
 // Loop through each workflow data entry and create it if it does not exist
 foreach ($workFlowsData as $workFlowData) {

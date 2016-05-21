@@ -27,13 +27,8 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
-        // Setup a user for testing
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
-        $this->account->setCurrentUser($user);
-
         // Create the controller
-        $this->controller = new Netric\Controller\EntityController($this->account);
+        $this->controller = new Netric\Controller\EntityController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
     }
 

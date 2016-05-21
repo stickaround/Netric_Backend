@@ -7,7 +7,7 @@
 	require_once('lib/aereus.lib.php/CAntObjectApi.php');
 
 	$dbh = new CDatabase();
-	$USER = new AntUser($dbh, USER_ADMINISTRATOR);
+	$USER = new AntUser($dbh, USER_SYSTEM);
 	$mailboxid = EmailGetSpecialBoxId($dbh, $USER->id, "Inbox");
 	
 	$numInsert = 1000000;
@@ -23,7 +23,7 @@
 		$obj->setValue("subject", "Regression Test $i");
 		$obj->setMValue("mailbox_id", $mailboxid);
 		$obj->setValue("body", $body);
-		$obj->setValue("owner_id", USER_ADMINISTRATOR);
+		$obj->setValue("owner_id", USER_SYSTEM);
 		$obj->setValue("senders", "test@test.com, test2@test.com");
 		$obj->setValue("num_messages", 3);
 		$tid = $obj->save();
@@ -36,7 +36,7 @@
 			$obj->setValue("thread", $tid);
 			$obj->setValue("send_to", "test@test.com");
 			$obj->setValue("sent_from", "test@test.com");
-			$obj->setValue("owner_id", USER_ADMINISTRATOR);
+			$obj->setValue("owner_id", USER_SYSTEM);
 			$obj->setValue("parse_rev", 1000);
 			$obj->setValue("body", $body);
 			$tid = $obj->save();

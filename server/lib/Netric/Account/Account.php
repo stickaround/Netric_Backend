@@ -233,6 +233,8 @@ class Account
             $res = $index->executeQuery($query);
             if ($res->getTotalNum()) {
                return $res->getEntity(0);
+            } else {
+                return null;
             }
         }
                 

@@ -22,7 +22,7 @@ class CAntObject_MemberTest extends PHPUnit_Framework_TestCase
 	{
 		$this->ant = new Ant();
 		$this->dbh = $this->ant->dbh;
-		$this->user = new AntUser($this->dbh, USER_ADMINISTRATOR);
+		$this->user = new AntUser($this->dbh, USER_SYSTEM);
 	}
 
 	/**

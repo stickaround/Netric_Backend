@@ -8,7 +8,7 @@ use Netric\Entity\EntityInterface;
 use \Netric\Mvc;
 use \Netric\EntityDefinition;
 
-class EntityController extends Mvc\AbstractController
+class EntityController extends Mvc\AbstractAccountController
 {
 	public function getTestAction($params=array())
 	{

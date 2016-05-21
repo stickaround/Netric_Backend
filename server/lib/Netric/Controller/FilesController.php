@@ -14,7 +14,7 @@ use Netric\FileSystem\FileSystem;
  *
  * @package Netric\Controller
  */
-class FilesController extends Mvc\AbstractController
+class FilesController extends Mvc\AbstractAccountController
 {
     /**
      * FileSystem instance

@@ -78,9 +78,9 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * Connect to the pgsql database
      * 
      * @param string $host
-     * @param string $database
-     * @param string $username
-     * @param string $password
+     * @param string $database System database name
+     * @param string $username System database username
+     * @param string $password System database password
      * @param string $defaultAccountDatabase The database name used for new accounts
      */
     public function __construct($host, $database, $username, $password, $defaultAccountDatabase = 'netric')
@@ -276,16 +276,35 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      */
     public function createDatabase()
     {
+        $defaultAcctDb = new Db\Pgsql($this->host, $this->defaultAccountDatabase, $this->username, $this->password);
+
         // First try to connect to this database to see if it exists
-        if ($this->dbh->connect()) {
+        if ($this->dbh->connect() && $defaultAcctDb->connect()) {
             return true;
         }
 
-        // Try to create it by connecting to template1, then create the new db, and reconnect
-        $template1 = new Db\Pgsql($this->host, "template1", $this->username, $this->password);
-        if (!$template1->query("CREATE DATABASE " . $this->database)) {
-            throw new \RuntimeException("Could not create database: " . $this->database);
+        // Try to create databases  by connecting to template1, then create the new db, and reconnect
+        $postgres = new Db\Pgsql($this->host, "postgres", $this->username, $this->password);
+
+        // Try to create the application database if it does not exist
+        if (!$this->dbh->connect()) {
+            if (!$postgres->query("CREATE DATABASE " . $this->database)) {
+                throw new \RuntimeException("Could not create database: " . $this->database . " - " . $postgres->getLastError());
+            }
         }
+
+        // Now try to make the default account database if it does not exist
+        if (!$defaultAcctDb->connect()) {
+            if (!$postgres->query("CREATE DATABASE " . $this->defaultAccountDatabase)) {
+                throw new \RuntimeException("Could not create database: " . $this->defaultAccountDatabase);
+            }
+
+            if (!$defaultAcctDb->connect()) {
+                throw new \RuntimeException("Failed to connect to created database: " . $this->defaultAccountDatabase);
+            }
+        }
+
+        $postgres->close();
 
         // New database was crated, now try to reconnect and return the results
         return ($this->dbh->connect()) ? true : false;
