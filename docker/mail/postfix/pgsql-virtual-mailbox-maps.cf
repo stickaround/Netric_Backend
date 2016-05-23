@@ -1,0 +1,8 @@
+user = {{DB_USER}}
+password = {{DB_PASSWORD}}
+hosts = {{DB_HOST}}
+dbname = {{DB_NAME}}
+table = email_users
+select_field = dir
+where_field = email_address
+query = SELECT '%d' || '/' || '%u' || '/' as dir FROM email_users WHERE email_address='%u@%d'

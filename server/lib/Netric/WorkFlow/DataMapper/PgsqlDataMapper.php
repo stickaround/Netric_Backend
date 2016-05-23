@@ -1,7 +1,5 @@
 <?php
 /**
- * PostgreSQL datamapper for CRUD operations on a WorkFlow object
- *
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
  */
@@ -19,7 +17,7 @@ use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
 
 /**
- * Store data in postgresql
+ * PostgreSQL datamapper for CRUD operations on a WorkFlow object
  */
 class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
 {
@@ -55,6 +53,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      * Construct the DataMapper
      *
      * @param DbInterface $dbh
+     * @param ActionFactory $actionFactory Factory to create new actions
+     * @param EntityLoader $entityLoader Loader for getting and setting entities
+     * @param IndexInterface $entityIndex Index for querying lists of entities
      */
     public function __construct(
         DbInterface $dbh,
@@ -379,6 +380,11 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
 
             $entity = $this->entityLoader->get($row['object_type'], $row['object_uid']);
 
+            // Entity was deleted
+            if (!$entity) {
+                return null;
+            }
+
             $workFlowInstance = new WorkFlowInstance($row['workflow_id'], $entity, $row['id']);
             $workFlowInstance->setTimeStarted(new \DateTime($row['ts_started']));
             $workFlowInstance->setCompleted(($row['f_completed'] === 't') ? true : false);
@@ -634,7 +640,7 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
             $toDate = new \DateTime();
 
         $sql = "SELECT action_id, instance_id FROM workflow_action_schedule
-                WHERE ts_execute<='" . $toDate->format("Y-m-d") . "'";
+                WHERE ts_execute<='" . $toDate->format("Y-m-d g:i a T") . "'";
         $result = $this->dbh->query($sql);
         if (!$result)
             throw new \RuntimeException("Error getting scheduled actions: " . $this->dbh->getLastError());

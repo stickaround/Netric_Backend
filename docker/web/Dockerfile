@@ -33,9 +33,9 @@ RUN pear install mail \
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
-COPY bin/netric-setup.sh /
+COPY bin/netric-install.sh /
 COPY bin/netric-tests.sh /
-#ENTRYPOINT ["/netric-setup.s"]
+#ENTRYPOINT ["/netric-install.s"]
 
 EXPOSE 80
 CMD ["apache2-foreground"]

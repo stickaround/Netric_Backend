@@ -57,6 +57,11 @@
 
     <php>
         <ini name="date.timezone" value="UTC"/>
+        <!-- mail is added to the contianer hosts file -->
+        <env name="TESTS_NETRIC_MAIL_HOST" value="mail" />
+        <env name="TESTS_NETRIC_MAIL_USER" value="test@test.com" />
+        <env name="TESTS_NETRIC_MAIL_PASSWORD" value="password" />
+
 
         <!-- OB_ENABLED should be enabled for some tests to check if all
              functionality works as expected. Such tests include those for

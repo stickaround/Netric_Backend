@@ -9,6 +9,7 @@ netric_web:
   links:
    - memcached
    - gearmand
+   - mail
    - db1
 
 memcached:
@@ -24,3 +25,13 @@ db1:
   environment:
     POSTGRES_USER: vagrant
     POSTGRES_PASSWORD: vagrant
+
+mail:
+  build: mail/
+  environment:
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: antsystem
+  links:
+     - db1

@@ -260,6 +260,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
 
         // Now make sure followers were set to the two references above
         $followers = $entity->getValue("followers");
+		sort($followers);
         $this->assertEquals(array(123, 456), $followers);
     }
 

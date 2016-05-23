@@ -80,25 +80,13 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $this->emailAccount = $entityLoader->create("email_account");
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue("name", "test-imap");
-        $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_IMAP_HOST'));
-        $this->emailAccount->setValue("username", getenv('TESTS_NETRIC_MAIL_IMAP_USER'));
-        $this->emailAccount->setValue("password", getenv('TESTS_NETRIC_MAIL_IMAP_PASSWORD'));
+        $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_HOST'));
+        $this->emailAccount->setValue("username", getenv('TESTS_NETRIC_MAIL_USER'));
+        $this->emailAccount->setValue("password", getenv('TESTS_NETRIC_MAIL_PASSWORD'));
         $entityLoader->save($this->emailAccount);
         $this->testEntities[] = $this->emailAccount;
 
-        if (!getenv('TESTS_NETRIC_MAIL_IMAP_ENABLED')) {
-            $this->markTestSkipped('Netric Mail IMAP tests are not enabled');
-        }
-
-        if (getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR') && getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')) {
-
-            $this->cleanDir(getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR'));
-            $this->copyDir(
-                __DIR__ . '/_files/test.' . getenv('TESTS_NETRIC_MAIL_SERVER_FORMAT'),
-                getenv('TESTS_NETRIC_MAIL_SERVER_TESTDIR')
-            );
-        }
-
+        $this->setupMessages();
     }
 
     protected function tearDown()
@@ -119,41 +107,60 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    protected function cleanDir($dir)
+    private function setupMessages()
     {
-        $dh = opendir($dir);
-        while (($entry = readdir($dh)) !== false) {
-            if ($entry == '.' || $entry == '..') {
-                continue;
-            }
-            $fullname = $dir . DIRECTORY_SEPARATOR . $entry;
-            if (is_dir($fullname)) {
-                $this->cleanDir($fullname);
-                rmdir($fullname);
-            } else {
-                unlink($fullname);
-            }
-        }
-        closedir($dh);
-    }
+        // Connect to mail server
+        $imap = new Imap(array(
+            'host'     => getenv('TESTS_NETRIC_MAIL_HOST'),
+            'user'     => getenv('TESTS_NETRIC_MAIL_USER'),
+            'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
+        ));
 
-    protected function copyDir($dir, $dest)
-    {
-        $dh = opendir($dir);
-        while (($entry = readdir($dh)) !== false) {
-            if ($entry == '.' || $entry == '..' ) {
-                continue;
+        // Clean the mailbox
+        if ($imap->countMessages() > 0) {
+            $toRemove = [];
+
+            // Queue messages to be deleted by id since you can't iterate after changing
+            foreach ($imap as $msgNo=>$message) {
+                // Put it at the beginning so we can reverse delete
+                array_unshift($toRemove, $msgNo);
             }
-            $fullname = $dir  . DIRECTORY_SEPARATOR . $entry;
-            $destname = $dest . DIRECTORY_SEPARATOR . $entry;
-            if (is_dir($fullname)) {
-                mkdir($destname);
-                $this->copyDir($fullname, $destname);
-            } else {
-                copy($fullname, $destname);
+
+            foreach ($toRemove as $msgNo) {
+                $imap->removeMessage($msgNo);
             }
         }
-        closedir($dh);
+
+        // Append test messages
+        $testFilesRoot = __DIR__ . '/_files/';
+
+        // Send unseen message
+        $imap->appendMessage(
+            file_get_contents($testFilesRoot . DIRECTORY_SEPARATOR . 'm1.example.org.unseen')
+        );
+
+        // Send flagged message
+        $imap->appendMessage(
+            file_get_contents($testFilesRoot . DIRECTORY_SEPARATOR . 'm2.example.org.seen.flagged'),
+            null,
+            [Storage::FLAG_SEEN, Storage::FLAG_FLAGGED]
+        );
+
+        // Send three seen messages
+        $messages = array(
+            'm3.example.org.seen',
+            'm4.example.org.seen',
+            'm5.example.org.seen'
+        );
+        foreach ($messages as $fileName) {
+            $imap->appendMessage(
+                file_get_contents($testFilesRoot . DIRECTORY_SEPARATOR . $fileName),
+                null,
+                [Storage::FLAG_SEEN]
+            );
+        }
+
+        $imap->close();
     }
 
     public function testSyncMailbox_Download()
@@ -162,14 +169,14 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
-        // Check if we imported 7 messages - the number that got copied
+        // Check if we imported 5 messages - the number that got uploaded
         $query = new EntityQuery("email_message");
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
         $query->andWhere("email_account")->equals($this->emailAccount->getId());
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $results = $index->executeQuery($query);
-        $this->assertEquals(7, $results->getTotalNum());
+        $this->assertEquals(5, $results->getTotalNum());
 
         // Add imported to queue for cleanup
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
@@ -181,7 +188,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
     {
         $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
 
-        // Import 7 sample messages from the copied files in the setUp
+        // Import 5 sample messages from the copied files in the setUp
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
         // Delete the message on the remote server
@@ -195,6 +202,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
             $imap->removeMessage($msgNo);
             break;
         }
+        $imap->close();
 
         // Sync again which should delete a local message
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
@@ -206,7 +214,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $query->andWhere("email_account")->equals($this->emailAccount->getId());
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $results = $index->executeQuery($query);
-        $this->assertEquals(6, $results->getTotalNum());
+        $this->assertEquals(4, $results->getTotalNum());
 
         // Add imported to queue for cleanup
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
@@ -251,6 +259,9 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(false, $message->hasFlag(Storage::FLAG_UNSEEN));
         $this->assertEquals(true, $message->hasFlag(Storage::FLAG_FLAGGED));
 
+        // Disconnect
+        $imap->close();
+
         // Queue all the messages for cleanup
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
             $this->testEntities[] = $results->getEntity($i);
@@ -279,11 +290,12 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
 
         // Delete the message on the remote server
         $imap = new Imap([
-            'host'     => $this->emailAccount->getValue("host"),
-            'user'     => $this->emailAccount->getValue("username"),
+            'host' => $this->emailAccount->getValue("host"),
+            'user' => $this->emailAccount->getValue("username"),
             'password' => $this->emailAccount->getValue("password")
         ]);
-        $this->assertEquals(6, $imap->countMessages());
+        $this->assertEquals(4, $imap->countMessages());
+        $imap->close();
 
         // Queue all the messages for cleanup
         for ($i = 0; $i < $results->getTotalNum(); $i++) {

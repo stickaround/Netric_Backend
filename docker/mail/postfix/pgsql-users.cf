@@ -1,0 +1,6 @@
+user = {{DB_USER}}
+password = {{DB_PASSWORD}}
+hosts = {{DB_HOST}}
+dbname = {{DB_NAME}}
+#query = select user from mail_virtual_users where user='%u' and domain='%d'
+query = SELECT '%u' FROM email_users WHERE email_address='%u@%d'

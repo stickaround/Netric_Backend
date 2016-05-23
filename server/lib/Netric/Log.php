@@ -118,8 +118,8 @@ class Log
             $this->appBranch = $config->version;
 
 		// Open a connection to the syslog
-		$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
-		openlog("netric", $opt, LOG_LOCAL5);
+		//$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
+		openlog("netric", LOG_PID, LOG_LOCAL5);
 	}
 
 	/**
