@@ -241,29 +241,29 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
     private function createModuleFromRow(array $row)
     {
         $module = new Module();
-
-        // Now add columns that may not be set
         $module->fromArray($row);
 
-        // Set the system value separately
-        $module->setSystem(($row['f_system'] == 't') ? true : false);
-
+        /*
+         * If module data from the database has xml_navigation, then we will use this to set the module's navigation
+         * Otherwise, we will use the module navigation file
+         */
         if(isset($row['xml_navigation']) && $row['xml_navigation'])
         {
-
             // Convert the xml navigation string into an array
             $xml = simplexml_load_string($row['xml_navigation']);
             $json = json_encode($xml);
-            $navigation = array_values(json_decode($json, true));
-            $module->setNavigation($navigation);
+
+            // Make sure that the navigation array is not an associative array
+            $nav['navigation'] = array_values(json_decode($json, true));
+
+            // Import the module data coming from the database
+            $module->fromArray($nav);
+
+            // Set the system value separately
+            $module->setSystem(($row['f_system'] == 't') ? true : false);
         }
         else
         {
-            /*
-             * If we do not have a navigation data for this module, then let's use module navigation file as our fallback
-             * Then let's update the module so we do not need to use again the module navigation fallback file again
-             */
-
             // Get the location of the module navigation file
             $basePath = $this->config->get("application_path") . "/data";
 
@@ -273,11 +273,6 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
 
                 // Import module data coming from the navigation fallback file
                 $module->fromArray($moduleData);
-
-                // If the module is settings, then we do not need to save it in the database
-                if($module->getId()) {
-                    $this->save($module);
-                }
             }
         }
 

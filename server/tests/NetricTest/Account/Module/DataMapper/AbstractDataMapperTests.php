@@ -22,7 +22,7 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
      *
      * @return DataMapper\DataMapperInterface
      */
-    abstract public function getDataMapper();
+    abstract public function getDataMapper($setUserAdmin);
 
     /**
      * Cleanup any created assets

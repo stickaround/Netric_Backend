@@ -103,4 +103,26 @@ class ModuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['defaultRoute'], $module->getDefaultRoute());
         $this->assertEquals($data['navigation'], $module->getNavigation());
     }
+
+    public function testSetNavigationDirty()
+    {
+        $module = new Module();
+        $module->setId(123);
+        $module->setName("tester");
+        $module->setNavigation(array(
+                array(
+                    "title" => "New Note",
+                    "type" => "entity",
+                    "route" => "new-note",
+                    "objType" => "note",
+                    "icon" => "plus",
+                )
+            )
+        );
+
+        $this->assertTrue($module->isDirty());
+
+        $module->setDirty(false);
+        $this->assertFalse($module->isDirty());
+    }
 }

@@ -105,6 +105,13 @@ class Module
      */
     private $navigation = null;
 
+    /**
+     * Flag that will determine if the module navigation data was changed and needs to be saved
+     *
+     * @var bool
+     */
+    private $dirty = false;
+
 
     /**
      * Get the id of this module
@@ -334,6 +341,7 @@ class Module
     public function setNavigation (array $navigation)
     {
         $this->navigation = $navigation;
+        $this->dirty = true;
     }
 
     /**
@@ -413,5 +421,26 @@ class Module
             "defaultRoute" => $this->defaultRoute,
             "navigation" => $this->navigation
         );
+    }
+
+    /**
+     * Function that will flag this module as dirty.
+     * This module will be flagged as dirty when the navigation is changed.
+     *
+     * @param bool $dirty Boolean that will determine if the module is dirty or not
+     */
+    public function setDirty($dirty=true)
+    {
+        $this->dirty = $dirty;
+    }
+
+    /**
+     * Function that will determine if this module is dirty or not
+     *
+     * @return bool
+     */
+    public function isDirty()
+    {
+        return $this->dirty;
     }
 }
