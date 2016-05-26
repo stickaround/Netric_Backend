@@ -11,6 +11,7 @@ netric_web:
    - gearmand
    - mail
    - db1
+   - mogilefs
 
 memcached:
   image: memcached
@@ -33,5 +34,20 @@ mail:
       DB_PASSWORD: vagrant
       DB_HOST: db1
       DB_NAME: antsystem
+      DB_PORT: 5432
   links:
-     - db1
+  - db1
+
+mogilefs:
+  build: mogilefs/
+  environment:
+        DB_USER: vagrant
+        DB_PASSWORD: vagrant
+        DB_HOST: db1
+        DB_NAME: mogilefs
+        DB_PORT: 5432
+  links:
+  - mogilestorage
+
+mogilestorage:
+  build: mogilestorage/

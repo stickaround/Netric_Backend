@@ -46,7 +46,7 @@ class AnsFileStore implements FileStoreInterface
     /**
      * Array of errors encountered
      *
-     * @var Error[]
+     * @var Error\Error[]
      */
     private $errors = array();
 
@@ -201,7 +201,7 @@ class AnsFileStore implements FileStoreInterface
      * Upload a file to the data store
      *
      * @param FileEntity $file Meta-data Entity for the file
-     * @param $localPath Path of a local file
+     * @param string $localPath Path of a local file
      * @return true on success, false on failure
      */
     public function uploadFile(FileEntity $file, $localPath)
