@@ -265,7 +265,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         if (!$file->getValue('dat_ans_key'))
             return false;
 
-        $ret = $this->mogileFs->get($file);
+        $ret = $this->mogileFs->get($file->getValue('dat_ans_key'));
         if (isset($ret['paths'])) {
             return true;
         } else {

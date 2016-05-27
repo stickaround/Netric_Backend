@@ -12,13 +12,17 @@ RUN apt-get update && apt-get install -y \
 		libmemcached-dev \
 		libpq-dev \
 		libgearman-dev \
+		libxml2-dev \
+		libneon27-dev \
     && docker-php-ext-install -j$(nproc) iconv mcrypt pgsql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
 	&& pecl install memcache \
 	&& docker-php-ext-enable memcache \
 	&& pecl install gearman \
-    && docker-php-ext-enable gearman
+    && docker-php-ext-enable gearman \
+    && pecl install mogilefs-0.9.2 \
+    && docker-php-ext-enable mogilefs
 
 
 # install PHP PEAR extensions
@@ -35,6 +39,7 @@ RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
 COPY bin/netric-install.sh /
 COPY bin/netric-tests.sh /
+
 #ENTRYPOINT ["/netric-install.s"]
 
 EXPOSE 80

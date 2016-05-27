@@ -19,6 +19,7 @@ mogadm device add node1 2
 mogadm domain add netric
 mogadm class add netric userfiles --mindevcount=2
 
+# Stop daemonized verison of tracker
 pkill mogilefsd
 
 mogadm check

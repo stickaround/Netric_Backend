@@ -12,6 +12,7 @@ netric_web:
    - mail
    - db1
    - mogilefs
+   - mogilestorage
 
 memcached:
   image: memcached

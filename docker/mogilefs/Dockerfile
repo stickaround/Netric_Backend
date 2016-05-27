@@ -13,8 +13,6 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN adduser mogile --system --disabled-password
-
 RUN mkdir -p /etc/mogilefs
 RUN mkdir -p /var/mogdata
 
@@ -24,6 +22,7 @@ RUN cpanm install --force MogileFS::Server \
 
 RUN mogdbsetup --type=SQLite --yes --dbname=/var/mogdata/mogilefs.sqlite3
 
+RUN adduser mogile --system --disabled-password
 RUN chown -R mogile /var/mogdata
 
 ADD conf/mogilefs.conf /etc/mogilefs/mogilefs.conf

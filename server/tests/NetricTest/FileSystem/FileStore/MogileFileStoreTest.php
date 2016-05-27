@@ -14,7 +14,7 @@ use MogileFs;
  *
  * @group integration
  */
-class AnsFileStoreTest extends AbstractFileStoreTests
+class MogileFileStoreTest extends AbstractFileStoreTests
 {
     /**
      * Handle to a constructed LocalFiletore
