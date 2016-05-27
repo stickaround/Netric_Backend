@@ -14,8 +14,7 @@ class DataMapperFactoryTest extends PHPUnit_Framework_TestCase
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
             'Netric\Account\Module\DataMapper\DataMapperInterface',
-            $sm->get('Netric\Account\Module\DataMapper\DataMapper'),
-            $sm->getAccount()->getUser()
+            $sm->get('Netric\Account\Module\DataMapper\DataMapper')
         );
     }
 }

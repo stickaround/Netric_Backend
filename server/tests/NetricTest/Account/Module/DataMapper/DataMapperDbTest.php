@@ -13,7 +13,7 @@ class DataMapperDbTest extends AbstractDataMapperTests
      *
      * @return DataMapper\DataMapperInterface
      */
-    public function getDataMapper($setUserAdmin=true)
+    public function getDataMapper()
     {
         $account = \NetricTest\Bootstrap::getAccount();
 
@@ -23,12 +23,7 @@ class DataMapperDbTest extends AbstractDataMapperTests
 
         // Setup a user for testing
         $loader = $account->getServiceManager()->get("EntityLoader");
-
-        // If we set the user as admin, then we will be able to get the settings module
-        if($setUserAdmin)
-            $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
-        else
-            $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_WORKFLOW);
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
 
         return new DataMapper\DataMapperDb($db, $config, $user);
     }

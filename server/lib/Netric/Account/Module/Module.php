@@ -336,9 +336,9 @@ class Module
     /**
      * Set the navigation details
      *
-     * @param array $navigation
+     * @param array|null $navigation
      */
-    public function setNavigation (array $navigation)
+    public function setNavigation ($navigation)
     {
         $this->navigation = $navigation;
         $this->dirty = true;

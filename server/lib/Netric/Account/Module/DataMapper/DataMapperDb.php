@@ -57,6 +57,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
      */
     public function save(Module $module)
     {
+
         // Setup data for the database columns
         $data = array(
             "id" => $this->dbh->escapeNumber($module->getId()),
@@ -69,19 +70,29 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             "team_id" => $this->dbh->escapeNumber($module->getTeamId()),
             "sort_order" => $this->dbh->escapeNumber($module->getSortOrder()),
             "icon" => "'" . $this->dbh->escape($module->getIcon())  . "'",
-            "default_route" => "'" . $this->dbh->escape($module->getDefaultRoute())  . "'",
+            "default_route" => "'" . $this->dbh->escape($module->getDefaultRoute())  . "'"
         );
 
-        if($module->getNavigation())
+        // Make sure that the module is dirty before we set the navigation
+        if($module->isDirty())
         {
-            // Setup the xml object
-            $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
+            $moduleNavigation = null;
 
-            // Now converte the module navigation data into xml
-            $this->arrayToXml($module->getNavigation(), $xmlNavigation);
+            // Make sure the the navigation is an array
+            if($module->getNavigation() && is_array($module->getNavigation()))
+            {
+                // Setup the xml object
+                $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
 
-            // Save the xml string
-            $data["xml_navigation"] = "'" . $this->dbh->escape($xmlNavigation->asXML())  . "'";
+                // Now converte the module navigation data into xml
+                $this->arrayToXml($module->getNavigation(), $xmlNavigation);
+
+                // Save the xml string
+                $moduleNavigation = $this->dbh->escape($xmlNavigation->asXML());
+            }
+
+            // Set the module navigation
+            $data["xml_navigation"] = "'" . $this->dbh->escape($moduleNavigation)  . "'";
         }
 
         // Compose either an update or insert statement
@@ -180,22 +191,16 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             $row = $this->dbh->getRow($result, $i);
             $modules[] = $this->createModuleFromRow($row);
         }
+        // Settings navigation that will be displayed in the frontend
+        $settingsData = array(
+            "id" => -null,
+            "name" => "settings",
+            "title" => "Settings",
+            "short_title" => "Settings",
+            "f_system" => "t"
+        );
 
-        // If the current user is an Admin, then let's include the settings module
-        if ($this->user->isAdmin())
-        {
-
-            // Settings navigation that will be displayed in the frontend
-            $settingsData = array(
-                "id" => -null,
-                "name" => "settings",
-                "title" => "Settings",
-                "short_title" => "Settings",
-                "f_system" => "t"
-            );
-
-            $modules['settings'] = $this->createModuleFromRow($settingsData);
-        }
+        $modules['settings'] = $this->createModuleFromRow($settingsData);
 
         return $modules;
     }
@@ -247,7 +252,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
          * If module data from the database has xml_navigation, then we will use this to set the module's navigation
          * Otherwise, we will use the module navigation file
          */
-        if(isset($row['xml_navigation']) && $row['xml_navigation'])
+        if(isset($row['xml_navigation']) && !empty($row['xml_navigation']))
         {
             // Convert the xml navigation string into an array
             $xml = simplexml_load_string($row['xml_navigation']);
@@ -274,6 +279,9 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
                 // Import module data coming from the navigation fallback file
                 $module->fromArray($moduleData);
             }
+
+            // Flag this module as clean, since we just loaded navigation file
+            $module->setDirty(false);
         }
 
         return $module;
