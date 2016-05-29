@@ -403,4 +403,78 @@ class Application
     {
         return $this->request;
     }
+
+    /**
+     * Create a new email domain
+     *
+     * @param int $accountId
+     * @param string $domainName
+     * @return bool true on success, false on failure
+     */
+    public function createEmailDomain($accountId, $domainName)
+    {
+        return $this->dm->createEmailDomain($accountId, $domainName);
+    }
+
+    /**
+     * Delete an existing email domain
+     *
+     * @param int $accountId
+     * @param string $domainName
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailDomain($accountId, $domainName)
+    {
+        return $this->dm->deleteEmailDomain($accountId, $domainName);
+    }
+
+    /**
+     * Create or update an email alias
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @param string $goto
+     * @return bool true on success, false on failure
+     */
+    public function createOrUpdateEmailAlias($accountId, $emailAddress, $goto)
+    {
+        return $this->dm->createOrUpdateEmailAlias($accountId, $emailAddress, $goto);
+    }
+
+    /**
+     * Delete an email alias
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailAlias($accountId, $emailAddress)
+    {
+        return $this->dm->deleteEmailAlias($accountId, $emailAddress);
+    }
+
+    /**
+     * Create a new or update an existing email user in the mail system
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @param string $password
+     * @return bool true on success, false on failure
+     */
+    public function createOrUpdateEmailUser($accountId, $emailAddress, $password)
+    {
+        return $this->dm->createOrUpdateEmailUser($accountId, $emailAddress, $password);
+    }
+
+    /**
+     * Delete an email user from the mail system
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailUser($accountId, $emailAddress)
+    {
+        return $this->dm->deleteEmailUser($accountId, $emailAddress);
+    }
 }

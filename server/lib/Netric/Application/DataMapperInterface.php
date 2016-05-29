@@ -83,4 +83,60 @@ interface DataMapperInterface
      * @return bool true if exists, false if not and could not create it with $this->getLastError set
      */
     public function createDatabase();
+
+    /**
+     * Create a new email domain
+     *
+     * @param int $accountId
+     * @param string $domainName
+     * @return bool true on success, false on failure
+     */
+    public function createEmailDomain($accountId, $domainName);
+
+    /**
+     * Delete an existing email domain
+     *
+     * @param int $accountId
+     * @param string $domainName
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailDomain($accountId, $domainName);
+
+    /**
+     * Create or update an email alias
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @param string $goto
+     * @return bool true on success, false on failure
+     */
+    public function createOrUpdateEmailAlias($accountId, $emailAddress, $goto);
+
+    /**
+     * Delete an email alias
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailAlias($accountId, $emailAddress);
+
+    /**
+     * Create a new or update an existing email user in the mail system
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @param string $password
+     * @return bool true on success, false on failure
+     */
+    public function createOrUpdateEmailUser($accountId, $emailAddress, $password);
+
+    /**
+     * Delete an email user from the mail system
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailUser($accountId, $emailAddress);
 }

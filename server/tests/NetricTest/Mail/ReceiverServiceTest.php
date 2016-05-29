@@ -86,6 +86,18 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $entityLoader->save($this->emailAccount);
         $this->testEntities[] = $this->emailAccount;
 
+        // Create mail records
+        $this->account->getApplication()->createEmailDomain(
+            $this->account->getId(),
+            getenv('TESTS_NETRIC_MAIL_DOMAIN')
+        );
+
+        $this->account->getApplication()->createOrUpdateEmailUser(
+            $this->account->getId(),
+            getenv('TESTS_NETRIC_MAIL_USER'),
+            md5(getenv("TESTS_NETRIC_MAIL_PASSWORD"))
+        );
+
         $this->setupMessages();
     }
 
@@ -105,6 +117,17 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
+
+        // Cleanup mail records
+        $this->account->getApplication()->deleteEmailUser(
+            $this->account->getId(),
+            getenv('TESTS_NETRIC_MAIL_USER')
+        );
+
+        $this->account->getApplication()->deleteEmailDomain(
+            $this->account->getId(),
+            getenv('TESTS_NETRIC_MAIL_DOMAIN')
+        );
     }
 
     private function setupMessages()

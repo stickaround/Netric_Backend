@@ -44,7 +44,11 @@ class SetupController extends Mvc\AbstractController
         }
 
         $response = new ConsoleResponse();
-        $response->writeLine("-- Install Complete --");
+        $response->writeLine(
+            "-- Install Complete: " .
+            "username=" . $request->getParam("username") . ", " .
+            "password=" . $request->getParam("password") ." --"
+        );
         return $response;
     }
 

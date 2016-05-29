@@ -59,6 +59,7 @@
         <ini name="date.timezone" value="UTC"/>
         <!-- mail is added to the contianer hosts file -->
         <env name="TESTS_NETRIC_MAIL_HOST" value="mail" />
+        <env name="TESTS_NETRIC_MAIL_DOMAIN" value="test.com" />
         <env name="TESTS_NETRIC_MAIL_USER" value="test@test.com" />
         <env name="TESTS_NETRIC_MAIL_PASSWORD" value="password" />
 

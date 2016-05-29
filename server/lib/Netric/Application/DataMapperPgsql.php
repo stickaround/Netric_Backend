@@ -332,4 +332,221 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     {
         return $this->errors;
     }
+
+    /**
+     * Create a new email domain
+     *
+     * @param int $accountId
+     * @param string $domainName
+     * @return bool true on success, false on failure
+     */
+    public function createEmailDomain($accountId, $domainName)
+    {
+        if (!$accountId || !$domainName) {
+            throw new \InvalidArgumentException("accountId and domainName are required");
+        }
+
+        $sql = "INSERT INTO email_domains(domain, active, account_id)
+                VALUES(
+                  '" . strtolower($this->dbh->escape($domainName)) . "',
+                  true,
+                  " . $this->dbh->escapeNumber($accountId) . "
+                );";
+        if ($this->dbh->query($sql)) {
+            $this->errors[] = new Error(
+                "DataMapperPgsql->createEmailDomain: Error - " .
+                $this->dbh->getLastError()
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Delete an existing email domain
+     *
+     * @param int $accountId
+     * @param string $domainName
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailDomain($accountId, $domainName)
+    {
+        if (!$accountId || !$domainName) {
+            throw new \InvalidArgumentException("accountId and domainName are required");
+        }
+
+        $sql = "DELETE FROM email_domains WHERE " .
+                  "domain='" . strtolower($this->dbh->escape($domainName)) . "' AND " .
+                  "account_id=" . $this->dbh->escapeNumber($accountId);
+        if ($this->dbh->query($sql)) {
+            $this->errors[] = new Error(
+                "DataMapperPgsql->deleteEmailDomain: Error - " .
+                $this->dbh->getLastError()
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Create or update an email alias
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @param string $goto
+     * @return bool true on success, false on failure
+     */
+    public function createOrUpdateEmailAlias($accountId, $emailAddress, $goto)
+    {
+        if (!$accountId || !$emailAddress || !$goto) {
+            throw new \InvalidArgumentException("accountId and emailAddress and goto are required");
+        }
+
+        // TODO: Make sure the alias is for a domain we own
+
+        $sql = "SELECT account_id FROM email_alias WHERE
+                address='" . $this->dbh->escape($emailAddress) . "'";
+        $result = $this->dbh->query($sql);
+        if ($this->dbh->getNumRows($result)) {
+            $row = $this->dbh->getRow($result, 0);
+            // Check to make sure the accounts match
+            if ($row['account_id'] != $accountId) {
+                $this->errors[] = new Error("Could not update $emailAddress since it is owned by another account");
+                return false;
+            } else {
+                $sql = "UPDATE email_alias SET
+                            goto='" . strtolower($this->dbh->escape($goto)) . "'
+                        WHERE
+                        address='" . $this->dbh->escape($emailAddress) . "' AND
+                        account_id=" . $this->dbh->escapeNumber($accountId);
+            }
+        } else {
+            $sql = "INSERT INTO email_alias(address, goto, active, account_id)
+                    VALUES (
+                      '" . strtolower($this->dbh->escape($emailAddress)) . "',
+                      '" . strtolower($this->dbh->escape($goto)) . "',
+                      true,
+                      " . $this->dbh->escapeNumber($accountId) . "
+                    );";
+        }
+
+        if ($this->dbh->query($sql)) {
+            $this->errors[] = new Error(
+                "DataMapperPgsql->createOrUpdateEmailAlias: Error - " .
+                $this->dbh->getLastError()
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Delete an email alias
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailAlias($accountId, $emailAddress)
+    {
+        if (!$accountId || !$emailAddress) {
+            throw new \InvalidArgumentException("accountId and emailAddress are required");
+        }
+
+        $sql = "DELETE FROM email_alias WHERE " .
+                "address='" . strtolower($this->dbh->escape($emailAddress)) . "' AND " .
+                "account_id=" . $this->dbh->escapeNumber($accountId);
+        if ($this->dbh->query($sql)) {
+            $this->errors[] = new Error(
+                "DataMapperPgsql->deleteEmailAlias: Error - " .
+                $this->dbh->getLastError()
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Create a new or update an existing email user in the mail system
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @param string $password
+     * @return bool true on success, false on failure
+     */
+    public function createOrUpdateEmailUser($accountId, $emailAddress, $password)
+    {
+        if (!$accountId || !$emailAddress || !$password) {
+            throw new \InvalidArgumentException("accountId and emailAddress and password are required");
+        }
+
+        // TODO: make sure its for a domain we manage
+
+        $sql = "SELECT account_id FROM email_users WHERE
+                email_address='" . $this->dbh->escape($emailAddress) . "'";
+        $result = $this->dbh->query($sql);
+        if ($this->dbh->getNumRows($result)) {
+            $row = $this->dbh->getRow($result, 0);
+            // Check to make sure the accounts match
+            if ($row['account_id'] != $accountId) {
+                $this->errors[] = new Error("Could not update $emailAddress since it is owned by another account");
+                return false;
+            } else {
+                $sql = "UPDATE email_users SET
+                            password='" . $this->dbh->escape($password) . "'
+                        WHERE
+                            email_address='" . $this->dbh->escape($emailAddress) . "' AND
+                            account_id=" . $this->dbh->escapeNumber($accountId);
+            }
+        } else {
+            $sql = "INSERT INTO email_users(email_address, password, maildir, account_id)
+                    VALUES (
+                      '" . strtolower($this->dbh->escape($emailAddress)) . "',
+                      '" . strtolower($this->dbh->escape($password)) . "',
+                      '" . strtolower($this->dbh->escape($emailAddress)) . "',
+                      " . $this->dbh->escapeNumber($accountId) . "
+                    );";
+        }
+
+        if ($this->dbh->query($sql)) {
+            $this->errors[] = new Error(
+                "DataMapperPgsql->createOrUpdateEmailUser: Error - " .
+                $this->dbh->getLastError()
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Delete an email user from the mail system
+     *
+     * @param int $accountId
+     * @param string $emailAddress
+     * @return bool true on success, false on failure
+     */
+    public function deleteEmailUser($accountId, $emailAddress)
+    {
+        if (!$accountId || !$emailAddress) {
+            throw new \InvalidArgumentException("accountId and emailAddress are required");
+        }
+
+        $sql = "DELETE FROM email_users WHERE " .
+                "email_address='" . strtolower($this->dbh->escape($emailAddress)) . "' AND " .
+                "account_id=" . $this->dbh->escapeNumber($accountId);
+        if ($this->dbh->query($sql)) {
+            $this->errors[] = new Error(
+                "DataMapperPgsql->deleteEmailUser: Error - " .
+                $this->dbh->getLastError()
+            );
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
