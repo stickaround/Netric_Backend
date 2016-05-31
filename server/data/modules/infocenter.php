@@ -2,7 +2,7 @@
 /**
  * Return navigation for entity of object type 'infocenter'
  */
-namespace objects\navigation;
+namespace modules\navigation;
 
 return array(
     "title" => "Infocenter",

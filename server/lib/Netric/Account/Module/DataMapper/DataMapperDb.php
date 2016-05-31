@@ -193,7 +193,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         }
         // Settings navigation that will be displayed in the frontend
         $settingsData = array(
-            "id" => -null,
+            "id" => null,
             "name" => "settings",
             "title" => "Settings",
             "short_title" => "Settings",

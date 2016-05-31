@@ -2,7 +2,7 @@
 /**
  * Return navigation for entity of object type 'project'
  */
-namespace objects\navigation;
+namespace modules\navigation;
 
 return array(
     "title" => "Work",
