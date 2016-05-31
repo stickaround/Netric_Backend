@@ -66,7 +66,6 @@ loader.get = function(moduleName, cbLoaded)
  * @param {Object} data The data to create an module from
  */
 loader.createModuleFromData = function(data) {
-	
 	var module = new Module(data);
 
 	// Make sure the name was set to something other than ""

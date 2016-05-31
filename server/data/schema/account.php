@@ -335,6 +335,8 @@ return array(
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
             'team_id' => array('type' => SchemaProperty::TYPE_INT),
             'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT),
+            'icon' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
+            'default_route' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(

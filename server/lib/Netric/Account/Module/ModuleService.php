@@ -4,6 +4,7 @@
  * @copyright 2016 Aereus
  */
 namespace Netric\Account\Module;
+
 use Netric\Entity\ObjType\UserEntity;
 
 /**
@@ -65,7 +66,7 @@ class ModuleService
      */
     public function getForUser(UserEntity $user)
     {
-        $all =  $this->moduleDataMapper->getAll();
+        $all = $this->moduleDataMapper->getAll();
         $userModules = [];
 
         // Loop through each module to see if it applies to the user
@@ -81,7 +82,6 @@ class ModuleService
                     $module->getTeamId() == $user->getValue("team_id")
                 )
             ) {
-                // Add the module for the user
                 $userModules[] = $module;
             }
         }

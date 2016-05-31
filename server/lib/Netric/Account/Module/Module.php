@@ -85,6 +85,35 @@ class Module
     private $sortOder = 0;
 
     /**
+     * The icon that will be used in the navigation display
+     *
+     * @var string
+     */
+    private $icon = "";
+
+    /**
+     * The default route will specify what route to load in the frontend, when clicking the module
+     *
+     * @var string
+     */
+    private $defaultRoute = null;
+
+    /**
+     * Contains the navigation link details that will be displayed in the frontend
+     *
+     * @var array
+     */
+    private $navigation = null;
+
+    /**
+     * Flag that will determine if the module navigation data was changed and needs to be saved
+     *
+     * @var bool
+     */
+    private $dirty = false;
+
+
+    /**
      * Get the id of this module
      *
      * @return int
@@ -265,38 +294,110 @@ class Module
     }
 
     /**
+     * Set the module icon
+     *
+     * @param string $icon
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+    }
+
+    /**
+     * Get the module icon
+     *
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * Set the module navigation default route
+     *
+     * @param string $defaultRoute
+     */
+    public function setDefaultRoute($defaultRoute)
+    {
+        $this->defaultRoute = $defaultRoute;
+    }
+
+    /**
+     * Get the module navigation default route
+     *
+     * @return string
+     */
+    public function getDefaultRoute()
+    {
+        return $this->defaultRoute;
+    }
+
+    /**
+     * Set the navigation details
+     *
+     * @param array|null $navigation
+     */
+    public function setNavigation ($navigation)
+    {
+        $this->navigation = $navigation;
+        $this->dirty = true;
+    }
+
+    /**
+     * Get the navigation details
+     *
+     * @return array
+     */
+    public function getNavigation ()
+    {
+        return $this->navigation;
+    }
+
+    /**
      * Import properties from an associative array
      *
      * @param array $data Associative array describing the module
      */
     public function fromArray(array $data)
     {
-        if (isset($data['id']))
+        if (isset($data['id']) && $data['id'])
             $this->id = $data['id'];
 
-        if (isset($data['name']))
+        if (isset($data['name']) && $data['name'])
             $this->name = $data['name'];
 
-        if (isset($data['title']))
+        if (isset($data['title']) && $data['title'])
             $this->title = $data['title'];
 
-        if (isset($data['short_title']))
+        if (isset($data['short_title']) && $data['short_title'])
             $this->shortTitle = $data['short_title'];
 
-        if (isset($data['scope']))
+        if (isset($data['sort_order']) && $data['sort_order'])
+            $this->sortOder = $data['sort_order'];
+
+        if (isset($data['scope']) && $data['scope'])
             $this->scope = $data['scope'];
 
-        if (isset($data['system']))
+        if (isset($data['system']) && $data['system'])
             $this->system = $data['system'];
+        else
+            $this->system = false;
 
-        if (isset($data['user_id']))
+        if (isset($data['user_id']) && $data['user_id'])
             $this->userId = $data['user_id'];
 
-        if (isset($data['team_id']))
+        if (isset($data['team_id']) && $data['team_id'])
             $this->teamId = $data['team_id'];
 
-        if (isset($data['sort_order']))
-            $this->sortOder = $data['sort_order'];
+        if (isset($data['icon']) && $data['icon'])
+            $this->icon = $data['icon'];
+
+        if (isset($data['default_route']) && $data['default_route'])
+            $this->defaultRoute = $data['default_route'];
+
+        if (isset($data['navigation']) && is_array($data['navigation']) && $data['navigation'])
+            $this->navigation = $data['navigation'];
     }
 
     /**
@@ -316,6 +417,30 @@ class Module
             "user_id" => $this->userId,
             "team_id" => $this->teamId,
             "sort_order" => $this->sortOder,
+            "icon" => $this->icon,
+            "defaultRoute" => $this->defaultRoute,
+            "navigation" => $this->navigation
         );
+    }
+
+    /**
+     * Function that will flag this module as dirty.
+     * This module will be flagged as dirty when the navigation is changed.
+     *
+     * @param bool $dirty Boolean that will determine if the module is dirty or not
+     */
+    public function setDirty($dirty=true)
+    {
+        $this->dirty = $dirty;
+    }
+
+    /**
+     * Function that will determine if this module is dirty or not
+     *
+     * @return bool
+     */
+    public function isDirty()
+    {
+        return $this->dirty;
     }
 }
