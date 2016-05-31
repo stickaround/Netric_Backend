@@ -1,23 +1,44 @@
-## To Run Netric Services
+## To Start Netric Services
     
 1. Install docker toolbox
 
-2. Edit your /etc/hosts file and make devel.netric.com point to the server address printed in
+    https://www.docker.com/products/docker-toolbox
+
+2. Run the hosts updater to make sure that devel.netric.com goes to the container
     
-    docker-machine env
+    ./hosts.sh
     
-3. Run docker compose to start all services
+3. Run docker compose to build and start all services
 
     docker-compose up
 
-4. Load netric in the browser
+4. Run Netric Setup (first time & when updating the database)
 
-    http://delvel.netric.com
+    docker exec -it docker_netric_web_1 /netric-setup.sh
     
-## To Stop Netric Services
+5. Load netric in the browser
+
+    http://devel.netric.com
+    
+## To Stop All Services
     
     docker-compose down
 
-## To log into docker container for running unit tests and setup
+## To Run Server Tests
+
+    docker exec -it docker_netric_web_1 /netric-tests.sh
+
+You can pass any command line options for phpunit like
+    
+    docker exec -it docker_netric_web_1 /netric-tests.sh NetricTest/Entity
+
+which will run all unit tests in the NetricTest/Entity folder.
+
+## To log into docker container
     
     docker exec -it docker_netric_web_1 /bin/bash
+    
+Now you can run phpunit just like you would from a VM
+    
+    cd /var/www/html/tests
+    ../vendor/bin/phpunit -c phpunit.xml

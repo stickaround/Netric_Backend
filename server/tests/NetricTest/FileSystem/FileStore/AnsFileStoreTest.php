@@ -31,6 +31,11 @@ class AnsFileStoreTest extends AbstractFileStoreTests
 
     protected function setUp()
     {
+        // For now we are just going to skip ANS since we're planning on removing it
+        $this->markTestSkipped(
+            'ANS is no longer supported in V2, we use mogile directly.'
+        );
+
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 

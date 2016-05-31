@@ -23,6 +23,14 @@ class SetupController extends Mvc\AbstractController
     {
         $request = $this->getRequest();
         $application = $this->getApplication();
+        $config = $application->getConfig();
+
+        // Check to see if account already exists which means we're alraedy installed
+        if ($application->getAccount(null, $config->default_account)) {
+            $response = new ConsoleResponse();
+            $response->writeLine("Netric already installed. Run update instead.");
+            return $response;
+        }
 
         // First make sure they passed the username and password params to the command
         if (!$request->getParam("username") || !$request->getParam("password")) {
@@ -38,7 +46,6 @@ class SetupController extends Mvc\AbstractController
         }
 
         // Create the default account
-        $config = $application->getConfig();
         if (!$application->createAccount($config->default_account, $request->getParam("username"), $request->getParam("password"))) {
             throw new \RuntimeException("Could not create default account");
         }
