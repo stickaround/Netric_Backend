@@ -8,6 +8,10 @@ namespace Netric\Account\Module\DataMapper;
 use Netric\Error\AbstractHasErrors;
 use Netric\Account\Module\Module;
 use Netric\Db\DbInterface;
+use Netric\Config\Config;
+use Netric\Entity\ObjType\UserEntity;
+use SimpleXMLElement;
+
 
 class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
 {
@@ -19,13 +23,30 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
     private $dbh = null;
 
     /**
+     * Netric configuration
+     *
+     * @var Config
+     */
+    private $config = null;
+
+    /**
+     * Current user
+     *
+     * @var UserEntity
+     */
+    private $user = null;
+
+    /**
      * Construct and initialize dependencies
      *
      * @param DbInterface $dbh
+     * @param Config $config The configuration object
      */
-    public function __construct(DbInterface $dbh)
+    public function __construct(DbInterface $dbh, Config $config, UserEntity $user)
     {
         $this->dbh = $dbh;
+        $this->config = $config;
+        $this->user = $user;
     }
 
     /**
@@ -36,6 +57,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
      */
     public function save(Module $module)
     {
+
         // Setup data for the database columns
         $data = array(
             "id" => $this->dbh->escapeNumber($module->getId()),
@@ -47,7 +69,31 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             "user_id" => $this->dbh->escapeNumber($module->getUserId()),
             "team_id" => $this->dbh->escapeNumber($module->getTeamId()),
             "sort_order" => $this->dbh->escapeNumber($module->getSortOrder()),
+            "icon" => "'" . $this->dbh->escape($module->getIcon())  . "'",
+            "default_route" => "'" . $this->dbh->escape($module->getDefaultRoute())  . "'"
         );
+
+        // Make sure that the module is dirty before we set the navigation
+        if($module->isDirty())
+        {
+            $moduleNavigation = null;
+
+            // Make sure the the navigation is an array
+            if($module->getNavigation() && is_array($module->getNavigation()))
+            {
+                // Setup the xml object
+                $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
+
+                // Now converte the module navigation data into xml
+                $this->arrayToXml($module->getNavigation(), $xmlNavigation);
+
+                // Save the xml string
+                $moduleNavigation = $this->dbh->escape($xmlNavigation->asXML());
+            }
+
+            // Set the module navigation
+            $data["xml_navigation"] = "'" . $this->dbh->escape($moduleNavigation)  . "'";
+        }
 
         // Compose either an update or insert statement
         $sql = "";
@@ -140,10 +186,21 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         }
 
         $num = $this->dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++) {
+        for ($i = 0; $i < $num; $i++)
+        {
             $row = $this->dbh->getRow($result, $i);
             $modules[] = $this->createModuleFromRow($row);
         }
+        // Settings navigation that will be displayed in the frontend
+        $settingsData = array(
+            "id" => null,
+            "name" => "settings",
+            "title" => "Settings",
+            "short_title" => "Settings",
+            "f_system" => "t"
+        );
+
+        $modules['settings'] = $this->createModuleFromRow($settingsData);
 
         return $modules;
     }
@@ -189,25 +246,64 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
     private function createModuleFromRow(array $row)
     {
         $module = new Module();
-        $module->setId($row['id']);
-        $module->setName($row['name']);
-        $module->setTitle($row['title']);
-        $module->setShortTitle($row['short_title']);
-        $module->setSystem(($row['f_system'] == 't') ? true : false);
+        $module->fromArray($row);
 
-        // Now add columns that may not be set
-        if ($row['scope'])
-            $module->setScope($row['scope']);
+        /*
+         * If module data from the database has xml_navigation, then we will use this to set the module's navigation
+         * Otherwise, we will use the module navigation file
+         */
+        if(isset($row['xml_navigation']) && !empty($row['xml_navigation']))
+        {
+            // Convert the xml navigation string into an array
+            $xml = simplexml_load_string($row['xml_navigation']);
+            $json = json_encode($xml);
 
-        if ($row['user_id'])
-            $module->setUserId($row['user_id']);
+            // Make sure that the navigation array is not an associative array
+            $nav['navigation'] = array_values(json_decode($json, true));
 
-        if ($row['team_id'])
-            $module->setTeamId($row['team_id']);
+            // Import the module data coming from the database
+            $module->fromArray($nav);
 
-        if ($row['sort_order'])
-            $module->setSortOrder($row['sort_order']);
+            // Set the system value separately
+            $module->setSystem(($row['f_system'] == 't') ? true : false);
+        }
+        else
+        {
+            // Get the location of the module navigation file
+            $basePath = $this->config->get("application_path") . "/data";
+
+            // Make sure that the pathy and file is existing
+            if ($module->getName() && file_exists($basePath . "/modules/" . $module->getName() . ".php")) {
+                $moduleData = include($basePath . "/modules/" . $module->getName() . ".php");
+
+                // Import module data coming from the navigation fallback file
+                $module->fromArray($moduleData);
+            }
+
+            // Flag this module as clean, since we just loaded navigation file
+            $module->setDirty(false);
+        }
 
         return $module;
+    }
+
+    /**
+     * Convert the array data to xml
+     *
+     * @param array $data The module data that will be converted into xml string
+     * @param SimpleXMLElement $xmlData The xml object that will be used to convert
+     */
+    private function arrayToXml (array $data, SimpleXMLElement &$xmlData ) {
+        foreach( $data as $key => $value ) {
+            if( is_array($value) ) {
+                if( is_numeric($key) ){
+                    $key = 'item'.$key; //dealing with <0/>..<n/> issues
+                }
+                $subnode = $xmlData->addChild($key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xmlData->addChild("$key",htmlspecialchars("$value"));
+            }
+        }
     }
 }

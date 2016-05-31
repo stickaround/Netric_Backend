@@ -21,6 +21,9 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $dbh = $sl->get('Netric\Db\Db');
-        return new DataMapperDb($dbh);
+        $config = $sl->get("Netric\Config\Config");
+        $currentUser = $sl->getAccount()->getUser();
+
+        return new DataMapperDb($dbh, $config, $currentUser);
     }
 }
