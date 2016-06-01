@@ -12,7 +12,7 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $config = $serviceManager->get("Netric/Config/Config");
 $entityLoader = $serviceManager->get("Netric/EntityLoader");
-$entityIndex = $serviceManager->get("Entity_Index");
+$entityIndex = $serviceManager->get("Netric/EntityQuery/Index/Index");
 $localStore = $serviceManager->get("Netric/FileSystem/FileStore/LocalFileStore");
 $remoteStore = $serviceManager->get("Netric/FileSystem/FileStore/FileStore");
 

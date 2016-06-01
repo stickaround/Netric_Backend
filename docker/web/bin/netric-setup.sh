@@ -1,6 +1,10 @@
 #!/bin/bash
 
 set -e
+
+cd /var/www/html
+php
+
 cd /var/www/html/bin
 
 # Run install in case this is our first run - it will exit gracefully if

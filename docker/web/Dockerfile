@@ -37,12 +37,12 @@ RUN pear install mail \
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
-COPY src/ /var/www/html/
+COPY dist/ /var/www/html/
 COPY bin/netric-setup.sh /
 COPY bin/netric-tests.sh /
 
 # Run composer install to get all required dependencies
-RUN cd /var/www/html && php composer.phar install
+#RUN cd /var/www/html && php composer.phar install
 
 EXPOSE 80
 EXPOSE 443

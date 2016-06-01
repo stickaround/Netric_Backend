@@ -4,13 +4,13 @@
 
     https://www.docker.com/products/docker-toolbox
 
-2. Run the hosts updater to make sure that devel.netric.com goes to the container
+2. Build the environment
     
-    ./hosts.sh
+    ./build.sh
     
-3. Run docker compose to build and start all services
+3. Run dev environment
 
-    docker-compose up
+    ./dev.sh
 
 4. Run Netric Setup (first time & when updating the database)
 

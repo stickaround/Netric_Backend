@@ -37,6 +37,7 @@ ADD bin/start.sh /start.sh
 # SMTP ports
 EXPOSE 25
 EXPOSE 587
+
 # POP and IMAP ports
 EXPOSE 110
 EXPOSE 143

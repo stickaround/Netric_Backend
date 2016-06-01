@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# NOTE: This is not yet ready to be used
-
-#Usage start.sh
 
 # Setup Docker Machine and Hosts
 docker-machine start
@@ -21,3 +18,6 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   echo "Adding entry $DOCKER_IP $line"
   sudo bash -c "echo \"$DOCKER_IP $line\" >>/etc/hosts"
 done < "hosts.conf"
+
+# Run docker compose
+docker-compose up -d

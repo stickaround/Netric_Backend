@@ -1,5 +1,7 @@
 netric_web:
   build: web/
+  ports:
+   - "80:80"
   environment:
      APPLICATION_ENV: development
   volumes:
