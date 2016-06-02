@@ -23,7 +23,7 @@ gearmand:
 db1:
   build: postgres/
   ports:
-  - "54321:5432"
+  - "5432:54321"
   environment:
     POSTGRES_USER: vagrant
     POSTGRES_PASSWORD: vagrant
