@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-# Make sure stocker is running
+# Get any local server variables (if using docker machine)
 eval $(docker-machine env)
 
 # Step into server directory
 cd ../server
 
-echo "Running composer to make sure everything is updated"
-php ./composer.phar install
-php ./composer.phar update
+#echo "Running composer to make sure everything is updated"
+#php ./composer.phar install
+#php ./composer.phar update
 
 # Move back to docker
 cd ../docker/

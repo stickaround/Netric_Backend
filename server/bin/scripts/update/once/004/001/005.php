@@ -31,13 +31,29 @@ if ($localStore != $remoteStore) {
     for ($i = 0; $i < $num; $i++) {
         $file = $result->getEntity($i);
 
-        updates_uploadLoadFileToRemoteStore(
-            $config,
-            $account,
-            $localStore,
-            $remoteStore,
-            $file
-        );
+        // The below should be in a function, but we don't allow functions in update scripts
+        $fileName = $config->data_path . DIRECTORY_SEPARATOR . "tmp"  . DIRECTORY_SEPARATOR;
+        $fileName .= "file-" . $account->getId() . "-" . $file->getId() . "-" . $file->getValue('revision');
+
+        // Copy to the temp file
+        file_put_contents($fileName, $localStore->readFile($file));
+
+        if (filesize($fileName) <= 0) {
+            throw new RuntimeException(
+                "Failed to copy file to local temp file: " .
+                $file->getId() . ":" .
+                $file->getName() . " - " . $file->getValue("dat_local_path")
+            );
+        }
+
+        // Save the file to the remote store
+        if ($remoteStore->uploadFile($file, $fileName)) {
+            // Cleanup
+            $localStore->deleteFile($file);
+            unlink($fileName);
+        } else {
+            throw new RuntimeException("Could not upload: " . $file->getId() . ":" . $file->getName());
+        }
     }
 
     // Now move deleted
@@ -47,46 +63,28 @@ if ($localStore != $remoteStore) {
     for ($i = 0; $i < $num; $i++) {
         $file = $result->getEntity($i);
 
-        updates_uploadLoadFileToRemoteStore(
-            $config,
-            $account,
-            $localStore,
-            $remoteStore,
-            $file
-        );
-    }
-}
+        // The below should be in a function, but we don't allow functions in update scripts
+        $fileName = $config->data_path . DIRECTORY_SEPARATOR . "tmp"  . DIRECTORY_SEPARATOR;
+        $fileName .= "file-" . $account->getId() . "-" . $file->getId() . "-" . $file->getValue('revision');
 
-/**
- * Function to upload a file from the local file system to the remote store.
- *
- * @param $config
- * @param $account
- * @param $localStore
- * @param $remoteStore
- * @param $file
- */
-function updates_uploadLoadFileToRemoteStore($config, $account, $localStore, $remoteStore, $file) {
-    $fileName = $config->data_path . DIRECTORY_SEPARATOR . "tmp"  . DIRECTORY_SEPARATOR;
-    $fileName .= "file-" . $account->getId() . "-" . $file->getId() . "-" . $file->getValue('revision');
+        // Copy to the temp file
+        file_put_contents($fileName, $localStore->readFile($file));
 
-    // Copy to the temp file
-    file_put_contents($fileName, $localStore->readFile($file));
+        if (filesize($fileName) <= 0) {
+            throw new RuntimeException(
+                "Failed to copy file to local temp file: " .
+                $file->getId() . ":" .
+                $file->getName() . " - " . $file->getValue("dat_local_path")
+            );
+        }
 
-    if (filesize($fileName) <= 0) {
-        throw new RuntimeException(
-            "Failed to copy file to local temp file: " .
-            $file->getId() . ":" .
-            $file->getName() . " - " . $file->getValue("dat_local_path")
-        );
-    }
-
-    // Save the file to the remote store
-    if ($remoteStore->uploadFile($file, $fileName)) {
-        // Cleanup
-        $localStore->deleteFile($file);
-        unlink($fileName);
-    } else {
-        throw new RuntimeException("Could not upload: " . $file->getId() . ":" . $file->getName());
+        // Save the file to the remote store
+        if ($remoteStore->uploadFile($file, $fileName)) {
+            // Cleanup
+            $localStore->deleteFile($file);
+            unlink($fileName);
+        } else {
+            throw new RuntimeException("Could not upload: " . $file->getId() . ":" . $file->getName());
+        }
     }
 }
