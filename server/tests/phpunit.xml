@@ -40,6 +40,10 @@
         -->
     </filter>
 
+    <logging>
+        <log type="junit" target="./tmp/logfile.xml" logIncompleteSkipped="false"/>
+    </logging>
+
     <listeners>
         <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
             <arguments>
