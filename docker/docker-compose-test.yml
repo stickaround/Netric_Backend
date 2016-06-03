@@ -1,10 +1,18 @@
 netric_web:
+  build: web/
   ports:
    - "80:80"
   environment:
-     APPLICATION_ENV: testing
+     APPLICATION_ENV: development
   volumes:
-   - ../:/var/www/html/data/log
+   - ../server/:/var/www/html/
+  links:
+   - memcached
+   - gearmand
+   - mail
+   - db1
+   - mogilefs
+   - mogilestorage
 
 memcached:
   image: memcached
@@ -13,6 +21,7 @@ gearmand:
   image: pataquets/gearmand
 
 db1:
+  build: postgres/
   ports:
   - "54321:5432"
   environment:
@@ -20,12 +29,15 @@ db1:
     POSTGRES_PASSWORD: vagrant
 
 mail:
+  build: mail/
   environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant
       DB_HOST: db1
       DB_NAME: antsystem
       DB_PORT: 54321
+  links:
+  - db1
 
 mogilefs:
   build: mogilefs/
