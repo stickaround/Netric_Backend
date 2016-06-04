@@ -23,6 +23,7 @@ RUN cpanm install --force MogileFS::Server \
 
 RUN mogdbsetup --type=SQLite --yes --dbname=/var/mogdata/mogilefs.sqlite3
 
+# Add user and set ownership
 RUN adduser mogile --system --disabled-password
 RUN chown -R mogile /var/mogdata
 
