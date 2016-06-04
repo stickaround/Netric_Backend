@@ -42,13 +42,16 @@ mail:
 mogilefs:
   build: mogilefs/
   environment:
-        DB_USER: vagrant
-        DB_PASSWORD: vagrant
-        DB_HOST: db1
-        DB_NAME: mogilefs
-        DB_PORT: 54321
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: mogilefs
+      DB_PORT: 54321
   links:
   - mogilestorage
 
 mogilestorage:
   build: mogilestorage/
+  ports:
+    - "7510:7500"
+    - "7511:7501"

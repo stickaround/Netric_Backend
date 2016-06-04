@@ -16,8 +16,6 @@ RUN apt-get clean \
 RUN mkdir -p /etc/mogilefs
 RUN mkdir -p /var/mogdata/dev1
 RUN mkdir -p /var/mogdata/dev2
-RUN chown mogile /var/mogdata/dev1/
-RUN chown mogile /var/mogdata/dev2/
 
 RUN cpanm install --force MogileFS::Server \
   && cpanm install DBD::SQLite \

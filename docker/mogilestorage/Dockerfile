@@ -29,6 +29,5 @@ ADD conf/mogilefsd.conf /etc/mogilefs/mogilefsd.conf
 ADD conf/mogstored.conf /etc/mogilefs/mogstored.conf
 
 EXPOSE 7500
-EXPOSE 7501
 
 ENTRYPOINT ["mogstored", "-c", "/etc/mogilefs/mogstored.conf"]
