@@ -14,6 +14,7 @@ var Toolbar = Chamel.Toolbar;
 var ToolbarGroup = Chamel.ToolbarGroup;
 var FontIcon = Chamel.FontIcon;
 var IconButton = Chamel.IconButton;
+var Paper = Chamel.Paper;
 
 /**
  * Module shell
@@ -124,7 +125,7 @@ var EntityBrowser = React.createClass({
                         onSearchChange={this.props.onSearchChange}
                         onAdvancedSearch={this.props.onAdvancedSearch}
                         onPerformAction={this.props.onPerformAction}
-                        onSelectAll={this.handleSeelctAll_}
+                        onSelectAll={this.handleSelectAll_}
                         selectedEntities={this.props.selectedEntities}
                         entityBrowserViews={this.props.entityBrowserViews}
                         onApplySearch={this.props.onApplySearch}
@@ -154,7 +155,9 @@ var EntityBrowser = React.createClass({
                     {toolbar}
                 </div>
                 <div ref="moduleMain">
-                    {bodyContent}
+                    <Paper zDepth={0}>
+                        {bodyContent}
+                    </Paper>
                 </div>
             </div>
         );
@@ -163,7 +166,7 @@ var EntityBrowser = React.createClass({
     /**
      * Select/Deselect all
      */
-    handleSeelctAll_: function (selected) {
+    handleSelectAll_: function (selected) {
         if (this.props.onEntityListSelect) {
             this.props.onEntityListSelect(selected);
         }

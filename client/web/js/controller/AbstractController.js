@@ -403,9 +403,13 @@ AbstractController.prototype.setupDomNode_ = function(opt_domNode) {
 		 */
 		case controller.types.DIALOG:
 			// Render dialog component component
-			var title = this.props.title || "Browse";
+			let title = this.props.title || "Browse";
+			let data = {title:title};
+			if (this.props.dialogActions) {
+				data.dialogActions = this.props.dialogActions
+			}
 			this.dialogComponent_ = ReactDOM.render(
-				React.createElement(ControllerDialog, {title:title}),
+				React.createElement(ControllerDialog, data),
 				alib.dom.createElement("div", document.body)
 			);
 			parentNode = ReactDOM.findDOMNode(this.dialogComponent_.refs.dialogContent);

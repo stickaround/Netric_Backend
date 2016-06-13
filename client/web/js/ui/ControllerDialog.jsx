@@ -17,7 +17,8 @@ var ControllerDialog = React.createClass({
      * Expected props
      */
     propTypes: {
-        title: React.PropTypes.string
+        title: React.PropTypes.string,
+        dialogActions: React.PropTypes.array
     },
 
     /**
@@ -26,20 +27,25 @@ var ControllerDialog = React.createClass({
     getDefaultProps: function() {
         return {
             title: 'Browse',
+            actions: null
         };
     },
 
     render: function() {
 
-        var standardActions = [
+        let dialogActions = [
             { text: 'Cancel', onClick: this._handleCancel }
         ];
+
+        if (this.props.dialogActions) {
+            dialogActions = this.props.dialogActions;
+        }
 
         return (
             <Dialog
                 ref="dialog"
                 title={this.props.title}
-                actions={standardActions}
+                actions={dialogActions}
                 autoDetectWindowHeight={true}
                 autoScrollBodyContent={true}
                 modal={true}>

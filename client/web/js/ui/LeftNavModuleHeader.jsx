@@ -10,6 +10,7 @@ var Chamel = require('chamel');
 var Paper = Chamel.Paper;
 var Menu = Chamel.Menu;
 var AppBar = Chamel.AppBar;
+var Popover = Chamel.Popover;
 
 
 /**
@@ -23,6 +24,7 @@ var LeftNavModuleHeader = React.createClass({
         return {
             open: false,
             selectedIndex: 0,
+            anchorEl: null
         };
     },
 
@@ -33,22 +35,11 @@ var LeftNavModuleHeader = React.createClass({
     },
 
     componentDidMount: function() {
-
-        /*
-        netric.module.loader.get("messages", function(mdl){
-            this.setState({name: mdl.name});
-        }.bind(this));
-        */
-
     },
 
     render: function() {
 
         var headerTitle = this.props.title;
-
-        var menuClass = this.getClasses('left-nav-header-menu', {
-          'hidden': (this.state.open) ? false : true
-        });
 
         var headerIcon = null;
         if (this.props.deviceIsSmall) {
@@ -94,29 +85,42 @@ var LeftNavModuleHeader = React.createClass({
         </div>
         */
 
+
         return (
             <div>
                 <AppBar
                     title={headerTitle}
                     onNavBtnClick={this._handleModuleMenuClick}
-                    iconClassNameLeft={"fa fa-bars"}
+                    iconClassNameLeft={"fa fa-th"}
                     zDepth={0}
                 />
-                <div className={menuClass}>
-                    <Menu
-                        ref="menuItems"
-                        zDepth={0}
-                        menuItems={menuItems}
-                        selectedIndex={selectedIndex}
-                        onItemClick={this._handleModuleClick}
-                    />
-                </div>
+                <Popover
+                    open={this.state.open}
+                    anchorEl={this.state.anchorEl}
+                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                    onRequestClose={this._handleRequestClose}
+                    >
+                    <Paper zDepth={1}>
+                        <Menu
+                            ref="menuItems"
+                            zDepth={0}
+                            menuItems={menuItems}
+                            selectedIndex={selectedIndex}
+                            onItemClick={this._handleModuleClick}
+                        />
+                    </Paper>
+                </Popover>
             </div>
         );
     },
 
     _handleModuleMenuClick: function(e) {
-        this.setState({ open: (this.state.open) ? false : true });
+        e.preventDefault();
+
+        this.setState({
+            open: this.state.open ? false : true,
+            anchorEl: e.currentTarget
+        });
     },
 
     _handleModuleClick:function(e, key, payload) {
@@ -128,6 +132,12 @@ var LeftNavModuleHeader = React.createClass({
             this.props.onModuleChange(e, payload.moduleName);
             //console.log("Go to module:" + payload.moduleName);
         }
+    },
+
+    _handleRequestClose:function(e) {
+        this.setState({
+            open: false,
+        });
     }
 
 });

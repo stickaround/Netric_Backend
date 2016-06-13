@@ -32,8 +32,7 @@ var Large = React.createClass({
             <i className="fa fa-camera-retro fa-lg"></i>
           </div>
         </div>
-        <div id="app-body" ref="appMain" className="app-body app-body-large">
-        </div>
+        <div id="app-body" ref="appMain" className="app-body app-body-large"></div>
       </div>
     );
   }

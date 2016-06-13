@@ -16,7 +16,7 @@ var browserViewSaver = require("../entity/browserViewSaver");
  * Controller that loads an Advanced Search
  */
 var AdvancedSearchController = function () {
-}
+};
 
 /**
  * Extend base controller class
@@ -40,6 +40,16 @@ AdvancedSearchController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
+    // TODO: Set action buttons if we are in dialog mode
+    /*
+    if (this.getType() == controller.types.DIALOG) {
+        this.props.dialogActions = [
+            { text: 'Apply', this._handleApply }
+            { text: 'Cancel', onClick: function() { this.close(); }.bind(this) }
+        ];
+    }
+    */
+
     if (callbackWhenLoaded) {
         callbackWhenLoaded();
     } else {
@@ -55,6 +65,7 @@ AdvancedSearchController.prototype.render = function () {
     var domCon = this.domNode_;
     var entities = new Array();
     var entityFields = new Array();
+    let showAppBar = (this.getType() == controller.types.PAGE);
 
     // Define the data
     var data = {
@@ -69,7 +80,9 @@ AdvancedSearchController.prototype.render = function () {
         }.bind(this),
         onSetDefaultView: function (browserView) {
             browserViewSaver.setDefaultView(browserView);
-        }.bind(this)
+        }.bind(this),
+        showAppBar: showAppBar,
+        onNavBackBtnClick: this.props.onNavBackBtnClick || null
     }
 
     // Render browser component

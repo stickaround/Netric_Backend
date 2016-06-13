@@ -19,7 +19,7 @@ var Where = require("../entity/Where");
  * Controller that loads an entity browser
  */
 var EntityBrowserController = function () {
-}
+};
 
 /**
  * Extend base controller class

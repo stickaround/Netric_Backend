@@ -24,7 +24,7 @@ var Conditions = React.createClass({
         /**
          * Array of conditions to pre-populate
          *
-         * @type {entity\Where[]}
+         * @type {Where[]}
          */
         conditions: React.PropTypes.array,
 

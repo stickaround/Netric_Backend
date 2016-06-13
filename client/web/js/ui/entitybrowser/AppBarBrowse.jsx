@@ -110,12 +110,10 @@ var AppBarBrowse = React.createClass({
                 })
 
                 displayFilter = (
-                    <div className="entitybrowser-filter">
-                        <DropDownIcon
-                            iconClassName="fa fa-filter"
-                            menuItems={viewMenuData}
-                            onChange={this._handleSelectView}/>
-                    </div>
+                    <DropDownIcon
+                        iconClassName="fa fa-filter"
+                        menuItems={viewMenuData}
+                        onChange={this._handleSelectView}/>
                 );
             }
 

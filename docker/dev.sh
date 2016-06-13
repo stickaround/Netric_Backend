@@ -19,5 +19,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   sudo bash -c "echo \"$DOCKER_IP $line\" >>/etc/hosts"
 done < "hosts.conf"
 
+# Fix IP if cisco VPN broke it
+# This does not appear to be working so we need to check on it
+#sudo route -nv add -net "$DOCKER_IP" -interface vboxnet0
+
 # Run docker compose
 docker-compose up -d

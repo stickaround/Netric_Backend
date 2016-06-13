@@ -14,6 +14,7 @@ var SortOrder = require('./advancedsearch/SortOrder.jsx');
 var IconButton = Controls.IconButton;
 var FlatButton = Controls.FlatButton;
 var Snackbar = Controls.Snackbar;
+var AppBar = Controls.AppBar;
 
 /**
  * Displays the advanced search to filter the results list using conditions. It can also set the sort order and columns to view.
@@ -55,7 +56,14 @@ var AdvancedSearch = React.createClass({
          *
          * @type {func}
          */
-        onSetDefaultView: React.PropTypes.func
+        onSetDefaultView: React.PropTypes.func,
+
+        /**
+         * Determine if we should display the appbar which probably means we are not in dialog mode
+         *
+         * @type {bool}
+         */
+        showAppBar: React.PropTypes.bool
     },
 
     getInitialState: function () {
@@ -183,8 +191,38 @@ var AdvancedSearch = React.createClass({
             );
         }
 
+        // Show the AppBar if this.props.showAppBar is true (not in a dialog)
+        let appBar = null;
+        if (this.props.showAppBar) {
+            let elementLeft = null;
+            if (this.props.onNavBackBtnClick) {
+                elementLeft = (
+                    <IconButton
+                        key="back"
+                        iconClassName="fa fa-arrow-left"
+                        onClick={this._handleBackClick}/>
+                );
+            }
+
+            appBar = <AppBar
+                fixed={true}
+                key="appBarAdvancedSearch"
+                title={"Advanced Search"}
+                zDepth={0}
+                iconElementLeft={elementLeft}>
+                <div>
+                    <IconButton
+                        key="apply"
+                        iconClassName="fa fa-check"
+                        onClick={this._handleApplyAdvancedSearch}/>
+                </div>
+            </AppBar>
+
+        }
+
         return (
             <div>
+                {appBar}
                 {display}
                 <Snackbar ref="snackbar" message={this.state.statusText}/>
             </div>
@@ -300,6 +338,18 @@ var AdvancedSearch = React.createClass({
 
         if(this.props.onSetDefaultView) {
             this.props.onSetDefaultView(browserView);
+        }
+    },
+
+    /**
+     * The user clicked back in the toolbar/appbar
+     *
+     * @param {DOMEvent} evt
+     * @private
+     */
+    _handleBackClick: function (evt) {
+        if (this.props.onNavBackBtnClick) {
+            this.props.onNavBackBtnClick();
         }
     }
 });

@@ -2,11 +2,11 @@
     <column>
         <tabs>
             <tab name='General'>
-                <row showif='id=null'>
-                    <column>
-                        <field name='type_id'></field>
-                    </column>
-                </row>
+                    <row showif='id=null'>
+                        <column>
+                            <field name='type_id'></field>
+                        </column>
+                    </row>
                 <row showif='type_id=1'>
                     <column>
                         <field name='first_name'></field>
