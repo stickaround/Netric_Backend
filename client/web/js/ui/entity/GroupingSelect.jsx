@@ -86,7 +86,7 @@ var GroupingSelect = React.createClass({
 
         return (
             <DropDownMenu
-                selectedIndex={selectedIndex}
+                selectedIndex={parseInt(selectedIndex)}
                 ref='dropdown'
                 menuItems={menuItems}
                 onChange={this._handleOnChange}/>
