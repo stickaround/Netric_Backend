@@ -9,5 +9,5 @@ $account = $this->getAccount();
 
 // Change the name so the unit test can check
 $data = $account->toArray();
-$data['name'] = $account->getName() . "-always";
+$data['description'] = "always";
 $account->fromArray($data);

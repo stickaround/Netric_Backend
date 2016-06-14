@@ -98,16 +98,6 @@ class PartnerTest extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Test set and get last sync invalid
-	 *
-	 * @expectedException PHPUnit_Framework_Error
-	 */
-	public function testSetAndGetLastSync_InvalidString()
-	{
-		$this->partner->setLastSync("string");
-	}
-
-	/**
 	 * Check to make sure that getting the last sync on an unset property works as expected
 	 */
 	public function testGetLastSyncNull()

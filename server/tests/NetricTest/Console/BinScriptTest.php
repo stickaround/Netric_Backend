@@ -45,7 +45,7 @@ class BinScriptTest extends PHPUnit_Framework_TestCase
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $binScript->run(__DIR__ . "/TestAssets/scripts/simple.php");
 
-        $this->assertEquals($accountName . "-edited", $this->account->getName());
+        $this->assertEquals("edited", $this->account->getDescription());
     }
 
     /**

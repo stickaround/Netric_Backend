@@ -71,8 +71,8 @@ class AccountUpdaterTest extends PHPUnit_Framework_TestCase
 
         // Make sure it all ran
         $this->assertEquals("1.1.1", $settings->get("system/schema_version"));
-        // The update script - TestAssets/once/001/001/001.php changes the account name (does not save)
-        $this->assertEquals(self::TEST_ACCOUNT_NAME . "-edited", $account->getName());
+        // The update script - TestAssets/once/001/001/001.php changes the description
+        $this->assertEquals("edited", $account->getDescription());
     }
 
     public function testRunAlwaysUpdates()
@@ -88,7 +88,7 @@ class AccountUpdaterTest extends PHPUnit_Framework_TestCase
         $accountUpdater->setScriptsRootPath(__DIR__ . "/TestAssets/UpdateScripts");
         $accountUpdater->runAlwaysUpdates();
 
-        // An always update will append the account name with -always but not save
-        $this->assertEquals(self::TEST_ACCOUNT_NAME . "-always", $account->getName());
+        // An always update will set the description to always
+        $this->assertEquals("always", $account->getDescription());
     }
 }

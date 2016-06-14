@@ -48,6 +48,13 @@ class Account
     private $serviceManager = null;
 
     /**
+     * Optional description
+     *
+     * @var string
+     */
+    private $description = "";
+
+    /**
      * Property to set the current user rather than using the auth service
      * 
      * @var UserEntity
@@ -93,8 +100,12 @@ class Account
         
         $this->id = $data['id'];
         $this->name = $data['name'];
-        if ($data['database'])
+
+        if (isset($data['database']) && $data['database'])
             $this->dbname = $data['database'];
+
+        if (isset($data['description']) && $data['description'])
+            $this->description = $data['description'];
                 
         return true;
     }
@@ -110,6 +121,7 @@ class Account
             "id" => $this->id,
             "name" => $this->name,
             "database" => $this->dbname,
+            "description" => $this->description,
         );
     }
     
@@ -132,7 +144,17 @@ class Account
     {
         return $this->name;
     }
-    
+
+    /**
+     * Get the optional description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
     /**
      * Get database name for this account
      * 
