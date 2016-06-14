@@ -36,6 +36,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $account = \NetricTest\Bootstrap::getAccount();
 
         // Setup anonymous user which should be blocked
+        $origCurrentUser = $account->getUser();
         $loader = $account->getServiceManager()->get("EntityLoader");
         $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
@@ -49,5 +50,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $ret = $svr->run($request);
         // Request should fail because test requires an authenticated user
         $this->assertEquals($ret, false);
+
+        // Restore original
+        $account->setCurrentUser($origCurrentUser);
     }
 }

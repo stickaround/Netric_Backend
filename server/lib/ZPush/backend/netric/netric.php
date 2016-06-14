@@ -168,6 +168,12 @@ class BackendNetric implements IBackend
         $this->log = $application->getLog();
         $this->account = $application->getAccount(null, $domain);
 
+        if (!$this->account) {
+            throw new FatalException(
+                sprintf("Logon('%s'): Account could not be loaded", $domain)
+            );
+        }
+
         // Get the authentication service and authenticate the credentials
         $sm = $this->account->getServiceManager();
         $authService = $sm->get("/Netric/Authentication/AuthenticationService");

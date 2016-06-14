@@ -21,6 +21,13 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
     private $user = null;
 
     /**
+     * Current user before test was run
+     *
+     * @var UserEntity
+     */
+    private $origCurrentUser = null;
+
+    /**
      * Test email account for receiving local messages
      *
      * @var EmailAccountEntity
@@ -57,6 +64,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
 
         // Create a temporary user
+        $this->origCurrentUser = $this->account->getUser();
         $this->user = $entityLoader->create("user");
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $entityLoader->save($this->user);
@@ -128,6 +136,9 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
             $this->account->getId(),
             getenv('TESTS_NETRIC_MAIL_DOMAIN')
         );
+
+        // Restore original current user
+        $this->account->setCurrentUser($this->origCurrentUser);
     }
 
     private function setupMessages()

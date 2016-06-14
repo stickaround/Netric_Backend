@@ -252,14 +252,14 @@ EntityBrowserController.prototype.reactRender_ = function () {
         entitiesTotalNum: parseInt(this.collection_.getTotalNum()),
         hideNoItemsMessage: this.props.hideNoItemsMessage || false,
         entityBrowserViews: this.entityDefinition_.views
-    }
+    };
 
     // Render browser component
     this.rootReactNode_ = ReactDOM.render(
         React.createElement(UiEntityBrowser, data),
         domCon
     );
-}
+};
 
 /**
  * User clicked/touched an entity in the list

@@ -22,8 +22,7 @@ class DataMapperDbTest extends AbstractDataMapperTests
         $config = $sl->get("Config");
 
         // Setup a user for testing
-        $loader = $account->getServiceManager()->get("EntityLoader");
-        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ADMINISTRATOR);
+        $user = $account->getUser();
 
         return new DataMapper\DataMapperDb($db, $config, $user);
     }
