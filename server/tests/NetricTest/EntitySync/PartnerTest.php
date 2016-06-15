@@ -8,6 +8,10 @@ use Netric\EntitySync;
 use Netric\EntitySync\Partner;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * Class PartnerTest
+ * @package NetricTest\EntitySync
+ */
 class PartnerTest extends PHPUnit_Framework_TestCase 
 {
 	/**
