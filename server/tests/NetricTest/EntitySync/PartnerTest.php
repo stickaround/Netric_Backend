@@ -24,7 +24,7 @@ class PartnerTest extends PHPUnit_Framework_TestCase
     /**
      * Administrative user
      * 
-     * @var \Netric\User
+     * @var \Netric\Entity\ObjType\UserEntity
      */
     protected $user = null;
 
