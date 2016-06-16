@@ -22,11 +22,16 @@ class FileStoreFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        // TODO: get the default FileStore based on config values
-        //       but for now just use local
-        //
-        // $config = $sl->get("Config");
+        $config = $sl->get('Netric\Config\Config');
+        $store = $config->get('files')->get('store');
 
-        return $sl->get('Netric\FileSystem\FileStore\LocalFileStore');
+        $fileStore = 'Netric\FileSystem\FileStore';
+
+        if($store === "mogile")
+            $fileStore .= '\MogileFileStore';
+        else
+            $fileStore .= '\LocalFileStore';
+
+        return $sl->get($fileStore);
     }
 }
