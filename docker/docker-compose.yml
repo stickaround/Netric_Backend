@@ -12,7 +12,7 @@ netric_web:
    - mail
    - db1
    - mogilefs
-   - mogilestorage
+   - mogilestore
 
 memcached:
   image: memcached
@@ -47,8 +47,9 @@ mogilefs:
       DB_HOST: db1
       DB_NAME: mogilefs
       DB_PORT: 5432
+      MGFS_STORE_PORT: 7500
   links:
-  - mogilestorage
+  - mogilestore
 
-mogilestorage:
-  build: mogilestorage/
+mogilestore:
+  build: mogilestore/

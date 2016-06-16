@@ -78,7 +78,7 @@ class FilesController extends Mvc\AbstractAccountController
         $files = $request->getParam('files');
 
         // List of files that just got uploaded
-        $uploadeFiles = array();
+        $uploadedFiles = array();
 
         /**
          * When a file is uploaded it can be sent as 'input_name' or as 'input_name[]'
