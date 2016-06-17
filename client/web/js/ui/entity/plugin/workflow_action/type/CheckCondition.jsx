@@ -135,7 +135,7 @@ var CheckCondition = React.createClass({
         }
 
         // Update the data with the changes
-        this.browserView.addCondition(conditionsData);
+        this._handleDataChange('conditions', conditionsData);
     }
 });
 
