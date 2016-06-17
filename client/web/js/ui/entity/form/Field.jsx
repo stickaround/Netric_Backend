@@ -105,7 +105,7 @@ var Field = React.createClass({
 
                 // If the file object is used as profile image
                 if(field.subtype == "file" && elementNode.getAttribute('profile_image') == "t") {
-                    fieldContent = <Image {...this.props} label="Profile Picture" />;
+                    fieldContent = <Image {...this.props} label="Upload New Image" />;
                 } else {
                     fieldContent = <ObjectField {...this.props} />;
                 }
