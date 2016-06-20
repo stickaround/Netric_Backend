@@ -415,6 +415,9 @@ abstract class AbstractCollection
 					"local_revision" => isset($item['local_revision']) ? $item['local_revision'] : 1,
 					"action" => "change",
 				);
+
+				// Update count so we can stay in bounds in the above loop
+				$numChanges = count($changes);
 			}
 		}
 
