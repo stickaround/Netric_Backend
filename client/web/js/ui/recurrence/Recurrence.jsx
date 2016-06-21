@@ -41,6 +41,7 @@ var Recurrence = React.createClass({
     propTypes: {
         recurrencePattern: React.PropTypes.object.isRequired,
         onSave: React.PropTypes.func,
+        saveRecurrence: React.PropTypes.bool,
         onNavBtnClick: React.PropTypes.func,
         hideToolbar: React.PropTypes.bool
     },
@@ -73,8 +74,18 @@ var Recurrence = React.createClass({
         };
     },
 
+    componentWillReceiveProps: function (nextProps) {
+
+        /*
+         * If we are receiving a new props.saveRecurrence with a true value
+         *  then let's trigger the saving of recurrence pattern
+         */
+        if (nextProps.saveRecurrence) {
+            this._handleSaveButton();
+        }
+    },
+
     render: function () {
-        var displayCancel = null;
         var displayEndDate = null;
         var displayPattern = this._handleDisplayRecurrenceType(this.state.recurrenceType);
 
@@ -102,6 +113,12 @@ var Recurrence = React.createClass({
                 <AppBar
                     iconElementLeft={elementLeft}
                     title="Recurrence">
+                    <div>
+                        <IconButton
+                            key="apply"
+                            iconClassName="fa fa-check"
+                            onClick={this._handleSaveButton}/>
+                    </div>
                 </AppBar>
             );
         }
@@ -140,10 +157,6 @@ var Recurrence = React.createClass({
                             onCheck={this._handleNeverEnds}/>
                     </fieldset>
                 </div>
-                <div>
-                    <FlatButton label='Save' onClick={this._handleSaveButton}/>
-                    {displayCancel}
-                </div>
             </div>
         );
     },
@@ -180,6 +193,8 @@ var Recurrence = React.createClass({
      */
     _handleDateChange: function (dateType, evt, date) {
         this.state.recurPatterns[this.state.recurrenceType][dateType] = date;
+
+        this.props.recurrencePatternData = this.state.recurPatterns[this.state.recurrenceType];
     },
 
     /**

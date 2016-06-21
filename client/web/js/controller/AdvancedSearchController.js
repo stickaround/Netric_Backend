@@ -29,7 +29,23 @@ netric.inherits(AdvancedSearchController, AbstractController);
  * @private
  * @type {ReactElement}
  */
-AdvancedSearchController.prototype.rootReactNode_ = null;
+AdvancedSearchController.prototype._rootReactNode = null;
+
+/**
+ * The instance of the current entity/browserView
+ *
+ * @private
+ * @type {entity/BrowserView}
+ */
+AdvancedSearchController.prototype._browserView = null;
+
+/**
+ * Flag that will determine if we are showing the save view
+ *
+ * @private
+ * @type {boolean}
+ */
+AdvancedSearchController.prototype._showSaveView = false;
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -40,15 +56,33 @@ AdvancedSearchController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
-    // TODO: Set action buttons if we are in dialog mode
-    /*
     if (this.getType() == controller.types.DIALOG) {
         this.props.dialogActions = [
-            { text: 'Apply', this._handleApply }
-            { text: 'Cancel', onClick: function() { this.close(); }.bind(this) }
+            {
+                text: 'Apply',
+                onClick: function() {
+                    this.props.onApplySearch(this._browserView);
+                }.bind(this)
+            },
+            {
+                text: 'Save as New',
+                onClick: function() {
+                    this._showSaveView = true;
+                    this.render();
+                }.bind(this)
+            },
+            {
+                text: 'Set as Default',
+                onClick: function() {
+                    browserViewSaver.setDefaultView(this._browserView);
+                }.bind(this)
+            },
+            {
+                text: 'Cancel',
+                onClick: function() { this.close(); }.bind(this)
+            }
         ];
     }
-    */
 
     if (callbackWhenLoaded) {
         callbackWhenLoaded();
@@ -67,16 +101,20 @@ AdvancedSearchController.prototype.render = function () {
     var entityFields = new Array();
     let showAppBar = (this.getType() == controller.types.PAGE);
 
+    this._browserView = this.props.browserView;
+
     // Define the data
     var data = {
         title: this.props.title || "Advanced Search",
         objType: this.props.objType,
-        browserView: this.props.browserView,
+        browserView: this._browserView,
+        showSaveView: this._showSaveView,
+        currentDialogAction: this._currentDialogAction,
         onApplySearch: function (browserView) {
             this.props.onApplySearch(browserView);
         }.bind(this),
-        onSaveView: function (browserView, data) {
-            this._saveView(browserView, data);
+        onSaveView: function (browserView, browserViewdata) {
+            this._saveView(browserView, browserViewdata);
         }.bind(this),
         onSetDefaultView: function (browserView) {
             browserViewSaver.setDefaultView(browserView);
@@ -86,10 +124,13 @@ AdvancedSearchController.prototype.render = function () {
     }
 
     // Render browser component
-    this.rootReactNode_ = ReactDOM.render(
+    this._rootReactNode = ReactDOM.render(
         React.createElement(UiAdvancedSearch, data),
         domCon
     );
+
+    // Reset the showSaveView to false
+    this._showSaveView = false;
 }
 
 /**

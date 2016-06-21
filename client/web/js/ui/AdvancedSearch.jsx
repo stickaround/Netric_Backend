@@ -63,7 +63,14 @@ var AdvancedSearch = React.createClass({
          *
          * @type {bool}
          */
-        showAppBar: React.PropTypes.bool
+        showAppBar: React.PropTypes.bool,
+
+        /**
+         * Flag that will determine if we are gonna display the save view dialog
+         *
+         * @type {bool}
+         */
+        showSaveView: React.PropTypes.bool,
     },
 
     getInitialState: function () {
@@ -91,7 +98,7 @@ var AdvancedSearch = React.createClass({
         var display = null;
 
         // Display the save view dialog where the user can input the browserView name, description and isDefault
-        if (this.state.displaySaveView) {
+        if (this.state.displaySaveView || this.props.showSaveView) {
 
             var name = this.props.browserView.name;
             var id = this.props.browserView.id
@@ -181,12 +188,6 @@ var AdvancedSearch = React.createClass({
                         <span className='advanced-search-title'>Column View: </span>
                         {columnViewDisplay}
                     </div>
-                    <div>
-                        <FlatButton key="apply" label='Apply' onClick={this._handleApplyAdvancedSearch}/>
-                        {displayButtons}
-                        <span> | </span>
-                        <FlatButton key="saveNew" label='Save as New View' onClick={this._handleShowSaveDisplay.bind(this, true)}/>
-                    </div>
                 </div>
             );
         }
@@ -236,8 +237,7 @@ var AdvancedSearch = React.createClass({
      */
     _handleApplyAdvancedSearch: function () {
 
-        // Create a new instance of browserView object using the props.browserView as our base object
-        var browserView = Object.create(this.props.browserView);
+        var browserView = this.props.browserView;
 
         // Set the updated condition, orderBy, and ColumnToView data
         browserView.setConditions(this.state.conditionData);
@@ -279,8 +279,7 @@ var AdvancedSearch = React.createClass({
      */
     _handleSaveView: function (data) {
 
-        // Create a new instance of browserView object using the props.browserView as our base object
-        var browserView = Object.create(this.props.browserView);
+        var browserView = this.props.browserView;
 
         // Set the updated condition, orderBy, and ColumnToView data
         browserView.setConditions(this.state.conditionData);
@@ -289,7 +288,7 @@ var AdvancedSearch = React.createClass({
 
         // Save the browserView details.
         if (this.props.onSaveView) {
-            this.props.onSaveView(browserView, data)
+            this.props.onSaveView(browserView, data);
         }
 
         this.setState({
@@ -330,8 +329,7 @@ var AdvancedSearch = React.createClass({
      */
     _handleSetDefault: function () {
 
-        // Create a new instance of browserView object using the props.browserView as our base object
-        let browserView = Object.create(this.props.browserView);
+        let browserView = this.props.browserView;
 
         // Always make sure we have an objType set in the browserView before we set it as the default view.
         browserView.setObjType(this.props.objType)
