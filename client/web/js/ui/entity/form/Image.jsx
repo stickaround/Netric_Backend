@@ -1,15 +1,12 @@
 /**
  * Image component
- *
-
  */
 'use strict';
 
 var React = require('react');
-var Chamel = require("chamel");
-var FlatButton = Chamel.FlatButton;
-var IconButton = Chamel.IconButton;
-var FileUpload = require("../../../ui/fileupload/FileUpload.jsx");
+var Controls = require("../../Controls.jsx");
+var DropDownIcon = Controls.DropDownIcon;
+var FileUpload = require("../../fileupload/FileUpload.jsx");
 var controller = require("../../../controller/controller");
 var server = require('../../../server');
 
@@ -59,10 +56,26 @@ var Image = React.createClass({
         label: React.PropTypes.string,
     },
 
+    /**
+     * Set defaults
+     *
+     * @returns {{}}
+     */
     getDefaultProps: function () {
         return {
             label: 'Image'
         }
+    },
+
+    /**
+     * Return the starting state of this component
+     *
+     * @returns {{}}
+     */
+    getInitialState: function () {
+        return {
+            openMenu: false
+        };
     },
 
     /**
@@ -72,46 +85,60 @@ var Image = React.createClass({
         var elementNode = this.props.elementNode;
         var fieldName = elementNode.getAttribute('name');
         var fieldValue = this.props.entity.getValue(fieldName);
+        var imageSource = server.host + "/images/icons/objects/files/image_48.png";
 
-        var iconButtonDisplay = null;
-        var imageDisplay = null;
+        // Actions available for the image.
+        var iconMenuItems = [
+            {payload: 'upload', text: 'Upload File'},
+            {payload: 'select', text: 'Select Uploaded File'}
+        ];
 
         // If we have a field value, then lets display the image
         if (fieldValue) {
-            let imageSource = server.host + "/files/images/" + this.props.entity.getValue(fieldName) + "/48";
-            imageDisplay = (
-                <img
-                    src={imageSource}
-                    style={{width: "48px", height: "48px", cursor: "pointer"}}
-                    title={"Change " + this.props.label}
-                    onClick={this._handleImageUpload}
-                />);
-            iconButtonDisplay = (
-                <IconButton
-                    onClick={this._clearValue}
-                    tooltip={"Clear " + this.props.label}
-                    className="cfi cfi-close"
-                />
-            );
-        } else {
-            iconButtonDisplay = (
-                <div>
-                    <IconButton
-                        label={this.props.label}
-                        iconClassName='fa fa-picture-o'
-                        onClick={this._handleImageUploadClick}
-                    />
-                    <FlatButton label={this.props.label} onClick={this._handleImageUploadClick}/>
-                </div>
-            );
+            var imageSource = server.host + "/files/images/" + this.props.entity.getValue(fieldName) + "/48";
+
+            // If there is a value saved, then let's display the remove action
+            iconMenuItems.push({payload: 'remove', text: 'Remove File'});
         }
 
         return (
             <div>
-                {imageDisplay}
-                {iconButtonDisplay}
+                <div>
+                    <img
+                        src={imageSource}
+                        style={{width: "48px", height: "48px", cursor: "pointer"}}
+                        title={"Change " + this.props.label}
+                        onClick={this._handleImageUpload}
+                    />
+                </div>
+                <DropDownIcon
+                    iconClassName="fa fa-pencil-square-o"
+                    menuItems={iconMenuItems}
+                    onChange={this._handleSelectMenuItem}/>
             </div>
         );
+    },
+
+    /**
+     * Callback used to handle commands when user selects an action from the menu
+     *
+     * @param {DOMEvent} e Reference to the DOM event being sent
+     * @param {int} key The index of the menu clicked
+     * @param {Object} data The object value of the menu clicked
+     * @private
+     */
+    _handleSelectMenuItem: function (e, key, data) {
+        switch (data.payload) {
+            case 'upload':
+                this._handleImageUploadClick();
+                break;
+            case 'select':
+                this._handleImageSelect();
+                break;
+            case 'remove':
+                this._handleRemoveImage();
+                break;
+        }
     },
 
     /**
@@ -156,11 +183,43 @@ var Image = React.createClass({
     },
 
     /**
-     * Clear the value of this entity
+     * Function that will open an object browser and let the user select an uploaded image
      *
      * @private
      */
-    _clearValue: function () {
+    _handleImageSelect: function () {
+
+        var elementNode = this.props.elementNode;
+        var fieldName = elementNode.getAttribute('name');
+        var field = this.props.entity.def.getField(fieldName);
+
+        // Make sure the field is an object, otherwise fail
+        if (field.type != field.types.object && field.subtype) {
+            throw "Field " + field.name + " is not an object/entity reference";
+        }
+
+        /*
+         * We require it here to avoid a circular dependency where the
+         * controller requires the view and the view requires the controller
+         */
+        var BrowserController = require("../../../controller/EntityBrowserController");
+        var browser = new BrowserController();
+        browser.load({
+            type: controller.types.DIALOG,
+            title: "Select Uploaded Image",
+            objType: field.subtype,
+            onSelect: function (objType, oid, title) {
+                this.props.entity.setValue(fieldName, oid, title);
+            }.bind(this)
+        });
+    },
+
+    /**
+     * Remove the image selected by clearing the value of the entity field
+     *
+     * @private
+     */
+    _handleRemoveImage: function () {
         var elementNode = this.props.elementNode;
         var fieldName = elementNode.getAttribute('name');
 
