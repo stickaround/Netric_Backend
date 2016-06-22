@@ -5,10 +5,7 @@
 
 var React = require('react');
 var Controls = require("../../Controls.jsx");
-var RaisedButton = Controls.RaisedButton;
-var Popover = Controls.Popover;
-var Paper = Controls.Paper;
-var Menu = Controls.Menu;
+var DropDownIcon = Controls.DropDownIcon;
 var FileUpload = require("../../fileupload/FileUpload.jsx");
 var controller = require("../../../controller/controller");
 var server = require('../../../server');
@@ -92,8 +89,8 @@ var Image = React.createClass({
 
         // Actions available for the image.
         var iconMenuItems = [
-            {payload: 'upload', text: 'Upload File', iconClassName: 'fa fa-upload'},
-            {payload: 'select', text: 'Select File Upload', iconClassName: 'fa fa-folder-open'}
+            {payload: 'upload', text: 'Upload File'},
+            {payload: 'select', text: 'Select Uploaded File'}
         ];
 
         // If we have a field value, then lets display the image
@@ -101,7 +98,7 @@ var Image = React.createClass({
             var imageSource = server.host + "/files/images/" + this.props.entity.getValue(fieldName) + "/48";
 
             // If there is a value saved, then let's display the remove action
-            iconMenuItems.push({payload: 'remove', text: 'Remove File', iconClassName: 'fa fa-times'});
+            iconMenuItems.push({payload: 'remove', text: 'Remove File'});
         }
 
         return (
@@ -114,50 +111,12 @@ var Image = React.createClass({
                         onClick={this._handleImageUpload}
                     />
                 </div>
-                <div>
-                    <RaisedButton
-                        onClick={this._handlePopoverDisplay}
-                        label="Change"
-                    />
-                    <Popover
-                        open={this.state.openMenu}
-                        anchorEl={this.state.anchorEl}
-                        anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                        targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                        onRequestClose={this._handlePopoverRequestClose}>
-                        <Paper zDepth={1}>
-                            <Menu menuItems={iconMenuItems} onItemClick={this._handleSelectMenuItem}/>
-                        </Paper>
-                    </Popover>
-                </div>
+                <DropDownIcon
+                    iconClassName="fa fa-pencil-square-o"
+                    menuItems={iconMenuItems}
+                    onChange={this._handleSelectMenuItem}/>
             </div>
         );
-    },
-
-    /**
-     * Callback used to handle commands when user clicks the button to display the menu in the popover
-     *
-     * @param {DOMEvent} e Reference to the DOM event being sent
-     * @private
-     */
-    _handlePopoverDisplay: function (e) {
-
-        // This prevents ghost click.
-        e.preventDefault();
-
-        this.setState({
-            openMenu: this.state.openMenu ? false : true,
-            anchorEl: e.currentTarget
-        });
-    },
-
-    /**
-     * Callback used to close the popover
-     *
-     * @private
-     */
-    _handlePopoverRequestClose: function () {
-        this.setState({openMenu: false});
     },
 
     /**
@@ -180,8 +139,6 @@ var Image = React.createClass({
                 this._handleRemoveImage();
                 break;
         }
-
-        this._handlePopoverRequestClose();
     },
 
     /**
