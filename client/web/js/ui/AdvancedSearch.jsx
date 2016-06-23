@@ -52,13 +52,6 @@ var AdvancedSearch = React.createClass({
         onSaveView: React.PropTypes.func,
 
         /**
-         * Event triggered when the user wants to set the current browserView as the default view
-         *
-         * @type {func}
-         */
-        onSetDefaultView: React.PropTypes.func,
-
-        /**
          * Determine if we should display the appbar which probably means we are not in dialog mode
          *
          * @type {bool}
@@ -66,11 +59,11 @@ var AdvancedSearch = React.createClass({
         showAppBar: React.PropTypes.bool,
 
         /**
-         * Flag that will determine if we are gonna display the save view dialog
+         * Flag that will determine if we are gonna save the view as new view
          *
          * @type {bool}
          */
-        showSaveView: React.PropTypes.bool,
+        eventsObj: React.PropTypes.object
     },
 
     getInitialState: function () {
@@ -93,12 +86,28 @@ var AdvancedSearch = React.createClass({
         }
     },
 
-    render: function () {
+    componentDidMount: function() {
 
-        var display = null;
+        // Event listener for advanced search dialog actions
+        alib.events.listen(this.props.eventsObj, "advancedSearchAction", function (evt) {
+
+            switch(evt.data.actionType) {
+                case 'applySearch':
+                    this._handleApplyAdvancedSearch();
+                    break;
+                case 'displaySaveView':
+                    this._handleShowSaveDisplay(evt.data.createNew);
+                    break;
+            }
+        }.bind(this));
+    },
+
+    render: function () {
+        var display = null,
+            snackbar = null;
 
         // Display the save view dialog where the user can input the browserView name, description and isDefault
-        if (this.state.displaySaveView || this.props.showSaveView) {
+        if (this.state.displaySaveView) {
 
             var name = this.props.browserView.name;
             var id = this.props.browserView.id
@@ -120,13 +129,17 @@ var AdvancedSearch = React.createClass({
             // Display the save view component
             display = (
                 <SaveView
+                    key={id}
                     id={id}
                     name={name}
                     description={description}
                     default={isDefault}
                     onSave={this._handleSaveView}
-                    onCancel={this._handleHideSaveDisplay}/>
+                    eventsObj={this.props.eventsObj}/>
             );
+
+            // Set the snackbar for form notifications
+            snakbar = <Snackbar ref="snackbar" message={this.state.statusText}/>;
         } else { // Display the advance search criteria
 
             // Conditions Display
@@ -155,24 +168,6 @@ var AdvancedSearch = React.createClass({
                     onChange={this._handleCriteriaChange.bind(this, 'columnView')}
                 />
             );
-
-
-            var displayButtons = [];
-
-            // If the props.browserView has an id, then let's display the button that can set the browserView as the default view
-            if (this.props.browserView.id) {
-
-                displayButtons.push(
-                    <FlatButton key="setDefault" label='Set as Default View' onClick={this._handleSetDefault}/>
-                );
-
-                // If this props.browserView is not system generated, then let's display a button that can save the changes made by the user
-                if (!this.props.browserView.system) {
-                    displayButtons.push(
-                        <FlatButton key="save" label='Save Changes' onClick={this._handleShowSaveDisplay.bind(this, false)}/>
-                    );
-                }
-            }
 
             var display = (
                 <div>
@@ -225,7 +220,7 @@ var AdvancedSearch = React.createClass({
             <div>
                 {appBar}
                 {display}
-                <Snackbar ref="snackbar" message={this.state.statusText}/>
+                {snackbar}
             </div>
         );
     },
@@ -319,23 +314,6 @@ var AdvancedSearch = React.createClass({
             case 'columnView':
                 this.setState({'columnToViewData': data});
                 break;
-        }
-    },
-
-    /**
-     * Fuction that will set the current browserView as the default view
-     *
-     * @private
-     */
-    _handleSetDefault: function () {
-
-        let browserView = this.props.browserView;
-
-        // Always make sure we have an objType set in the browserView before we set it as the default view.
-        browserView.setObjType(this.props.objType)
-
-        if(this.props.onSetDefaultView) {
-            this.props.onSetDefaultView(browserView);
         }
     },
 

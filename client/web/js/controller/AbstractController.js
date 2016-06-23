@@ -160,6 +160,58 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 }
 
 /**
+ * Set the properties of this controller
+ *
+ * @param {Object} newProps
+ */
+AbstractController.prototype.setProps = function(newProps) {
+
+	// Override any existing props with new the props
+	for (var i in newProps) {
+		this.props[i] = newProps[i];
+	}
+
+	// Hide dialog if set
+	if (this.dialogComponent_) {
+
+		// Dismiss the current dialog
+		this.dialogComponent_.dismiss();
+
+		this._renderDialog();
+
+		// Re-render the dialog component
+		this.render();
+
+		// Show the dialog component
+		this.dialogComponent_.show();
+	}
+};
+
+/**
+ * Set the properties of this controller
+ *
+ * @param {Object} newProps
+ */
+AbstractController.prototype._renderDialog = function() {
+
+	// Render dialog component component
+	let title = this.props.title || "Browse";
+	let data = {title:title};
+	if (this.props.dialogActions) {
+		data.dialogActions = this.props.dialogActions
+	}
+	this.dialogComponent_ = ReactDOM.render(
+		React.createElement(ControllerDialog, data),
+		alib.dom.createElement("div", document.body)
+	);
+
+	var parentNode = ReactDOM.findDOMNode(this.dialogComponent_.refs.dialogContent);
+
+	var id = (this.getParentRouter()) ? this.getParentRouter().getActiveRoute().getPath() : null;
+	this.domNode_ = alib.dom.createElement("div", parentNode, null, {id:id});
+}
+
+/**
  * Unload the controller
  *
  * This is where we will cleanup

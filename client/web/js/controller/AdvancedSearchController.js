@@ -39,13 +39,7 @@ AdvancedSearchController.prototype._rootReactNode = null;
  */
 AdvancedSearchController.prototype._browserView = null;
 
-/**
- * Flag that will determine if we are showing the save view
- *
- * @private
- * @type {boolean}
- */
-AdvancedSearchController.prototype._showSaveView = false;
+AdvancedSearchController.prototype._eventsObj = {};
 
 /**
  * Function called when controller is first loaded but before the dom ready to render
@@ -56,32 +50,61 @@ AdvancedSearchController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
 
+    this._browserView = this.props.browserView;
+
     if (this.getType() == controller.types.DIALOG) {
-        this.props.dialogActions = [
-            {
-                text: 'Apply',
-                onClick: function() {
-                    this.props.onApplySearch(this._browserView);
-                }.bind(this)
-            },
-            {
-                text: 'Save as New',
-                onClick: function() {
-                    this._showSaveView = true;
-                    this.render();
-                }.bind(this)
-            },
-            {
+        this.props.dialogActions = [];
+
+        // Dialog Action for applying the advance search
+        this.props.dialogActions.push({
+            text: 'Apply',
+            onClick: function () {
+
+                // Trigger the event that will apply the advanced search
+                alib.events.triggerEvent(this._eventsObj, 'advancedSearchAction', {actionType: 'applySearch'});
+            }.bind(this)
+        });
+
+        // Dialog Action for saving the view as new view
+        this.props.dialogActions.push({
+            text: 'Save as New View',
+            onClick: function () {
+
+                // Function that will trigger the display of save view dialog and set the create new as true
+                this._displaySaveViewDialogAction(true);
+            }.bind(this)
+        });
+
+        // If this browserView has an id, then let's display the button that can set the browserView as the default view
+        if (this._browserView.id) {
+
+            // Dialog Action for setting the current view as the default view
+            this.props.dialogActions.push({
                 text: 'Set as Default',
-                onClick: function() {
+                onClick: function () {
                     browserViewSaver.setDefaultView(this._browserView);
                 }.bind(this)
-            },
-            {
-                text: 'Cancel',
-                onClick: function() { this.close(); }.bind(this)
+            });
+
+            // If this browserView is not system generated, then let's display a button that can save the changes made by the user
+            if (!this._browserView.system) {
+                this.props.dialogActions.push({
+                    text: 'Save Changes',
+                    onClick: function () {
+
+                        // Function that will trigger the display of save view dialog and set the create new as false
+                        this._displaySaveViewDialogAction(false);
+                    }.bind(this)
+                });
             }
-        ];
+        }
+
+        this.props.dialogActions.push({
+            text: 'Cancel',
+            onClick: function () {
+                this.close();
+            }.bind(this)
+        });
     }
 
     if (callbackWhenLoaded) {
@@ -101,23 +124,17 @@ AdvancedSearchController.prototype.render = function () {
     var entityFields = new Array();
     let showAppBar = (this.getType() == controller.types.PAGE);
 
-    this._browserView = this.props.browserView;
-
     // Define the data
     var data = {
         title: this.props.title || "Advanced Search",
         objType: this.props.objType,
         browserView: this._browserView,
-        showSaveView: this._showSaveView,
-        currentDialogAction: this._currentDialogAction,
+        eventsObj: this._eventsObj,
         onApplySearch: function (browserView) {
             this.props.onApplySearch(browserView);
         }.bind(this),
         onSaveView: function (browserView, browserViewdata) {
             this._saveView(browserView, browserViewdata);
-        }.bind(this),
-        onSetDefaultView: function (browserView) {
-            browserViewSaver.setDefaultView(browserView);
         }.bind(this),
         showAppBar: showAppBar,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null
@@ -128,9 +145,6 @@ AdvancedSearchController.prototype.render = function () {
         React.createElement(UiAdvancedSearch, data),
         domCon
     );
-
-    // Reset the showSaveView to false
-    this._showSaveView = false;
 }
 
 /**
@@ -166,6 +180,45 @@ AdvancedSearchController.prototype._saveView = function (browserView, data) {
 
     // After saving the browserView, then let's re-render so it will
     browserViewSaver.save(browserView, callbackFunc);
+}
+
+AdvancedSearchController.prototype._displaySaveViewDialogAction = function (createNew) {
+
+    var prevProps = [],
+        newProps = [];
+
+    // Set the current props.dialogActions as our previous props.dialogActions
+    prevProps.dialogActions = this.props.dialogActions;
+
+    // Setup the new dialog action buttons for Save View Dialog
+    newProps.dialogActions = [
+        {
+            text: 'Save',
+            onClick: function () {
+
+                // Trigger the event that will save the view
+                alib.events.triggerEvent(this._eventsObj, 'saveView', {});
+
+                this.setProps(prevProps);
+            }.bind(this)
+        },
+        {
+            text: 'Cancel',
+            onClick: function () {
+                this.setProps(prevProps);
+            }.bind(this)
+        }
+    ];
+
+    // Set the newProps to display the new dialog action buttons for Save View Dialog
+    this.setProps(newProps);
+
+    // Trigger the event that we will display the save view dialog
+    alib.events.triggerEvent(this._eventsObj, 'advancedSearchAction',
+        {
+            actionType: 'displaySaveView',
+            createNew: createNew
+        });
 }
 
 module.exports = AdvancedSearchController;
