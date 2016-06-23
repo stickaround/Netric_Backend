@@ -24,6 +24,10 @@ RUN cpanm install --force MogileFS::Server \
   && cpanm install DBD::Pg \
   && cpanm install MogileFS::Utils
 
+# Replace df -l in DiskUsage.pm since it fails with devicemapper in centos
+# https://code.google.com/p/mogilefs/issues/detail?id=83
+RUN find /usr/local/share/perl -name 'DiskUsage.pm' -exec sed -i 's/df -l/df/g' {} \;
+
 ADD conf/mogilefs.conf /etc/mogilefs/mogilefs.conf
 ADD conf/mogilefsd.conf /etc/mogilefs/mogilefsd.conf
 ADD conf/mogstored.conf /etc/mogilefs/mogstored.conf
