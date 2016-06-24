@@ -79,6 +79,9 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      */
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
+        if (!$file->getValue("dat_ans_key")) {
+            throw new 
+        }
         $metadata = $this->mogileFs->get($file->getValue("dat_ans_key"));
 
         // MogileFs will return 0 paths if no files are available

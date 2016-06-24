@@ -21,7 +21,8 @@ done < "hosts.conf"
 
 # Fix IP if cisco VPN broke it
 # This does not appear to be working so we need to check on it
-#sudo route -nv add -net "$DOCKER_IP" -interface vboxnet0
+echo "sudo route -nv add -net '$DOCKER_IP/24' -interface vboxnet0"
+sudo route -nv add -net "$DOCKER_IP/24" -interface vboxnet0
 
 # Run docker compose
 docker-compose up -d
