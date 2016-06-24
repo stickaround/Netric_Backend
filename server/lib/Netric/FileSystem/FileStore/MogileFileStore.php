@@ -76,12 +76,14 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
+     * @throws Exception\FileNotFoundException if the file is not found
      */
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         if (!$file->getValue("dat_ans_key")) {
-            throw new 
+            throw new Exception\FileNotFoundException($file->getId() . ":" . $file->getName() . " not found. No key");
         }
+
         $metadata = $this->mogileFs->get($file->getValue("dat_ans_key"));
 
         // MogileFs will return 0 paths if no files are available
