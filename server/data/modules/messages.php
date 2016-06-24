@@ -1,25 +1,25 @@
 <?php
 /**
- * Return navigation for entity of object type 'email_message'
+ * Return navigation for entity of messages
  */
 namespace modules\navigation;
 
 return array(
-    "title" => "Email Message",
+    "title" => "Messages",
     "icon" => "envelope-o",
-    "default_route" => "all-emails",
+    "default_route" => "all-messages",
     "navigation" => array(
         array(
-            "title" => "New Email",
+            "title" => "New Message",
             "type" => "entity",
-            "route" => "new-emails",
+            "route" => "new-message",
             "objType" => "email_message",
             "icon" => "plus",
         ),
         array(
-            "title" => "All Emails",
+            "title" => "All Messages",
             "type" => "browse",
-            "route" => "all-emails",
+            "route" => "all-messages",
             "objType" => "email_message",
             "icon" => "tags",
             "browseby" => "groups",
