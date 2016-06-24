@@ -198,6 +198,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
 
         // Put the file on the server
         if (!$this->mogileFs->put($localPath, $key, self::MOGILE_CLASS)) {
+
             $this->addErrorFromMessage("Could not upload file: $localPath");
             return false;
         }
