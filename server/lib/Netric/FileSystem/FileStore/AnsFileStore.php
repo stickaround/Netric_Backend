@@ -125,7 +125,7 @@ class AnsFileStore implements FileStoreInterface
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
-     * @throws exception\FileNotFoundException if we try to read a file not in the store
+     * @throws Exception\FileNotFoundException if we try to read a file not in the store
      */
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
@@ -142,7 +142,7 @@ class AnsFileStore implements FileStoreInterface
             }
             else
             {
-                throw new exception\FileNotFoundException(
+                throw new Exception\FileNotFoundException(
                     "Key '$url' is not in the ANS store: " .
                     $this->getLastError()->getMessage()
                 );
@@ -322,7 +322,7 @@ class AnsFileStore implements FileStoreInterface
                         }
 
                     }
-                } catch (exception\FileNotFoundException $ex) {
+                } catch (Exception\FileNotFoundException $ex) {
                     $this->errors[] = new  Error\Error($ex->getMessage());
                 }
             }

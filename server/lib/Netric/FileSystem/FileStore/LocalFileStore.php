@@ -9,7 +9,7 @@ namespace Netric\FileSystem\FileStore;
 
 use Netric\Error\Error;
 use Netric\Entity\DataMapperInterface;
-use Netric\FileSystem\FileStore\exception;
+use Netric\FileSystem\FileStore\Exception;
 use Netric\Entity\ObjType\FileEntity;
 
 /**
@@ -67,7 +67,7 @@ class LocalFileStore implements FileStoreInterface
      * @param null $numBytes Number of bytes, if null then return while file
      * @param null $offset Starting offset, defaults to current pointer
      * @return mixed
-     * @throws exception\FileNotFoundException if you try to read from a file that is not there
+     * @throws Exception\FileNotFoundException if you try to read from a file that is not there
      */
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
@@ -85,7 +85,7 @@ class LocalFileStore implements FileStoreInterface
             }
             else
             {
-                throw new exception\FileNotFoundException("File '$path' does not exist");
+                throw new Exception\FileNotFoundException("File '$path' does not exist");
             }
         }
 
@@ -225,7 +225,7 @@ class LocalFileStore implements FileStoreInterface
                 unlink($filePath);
             }
         }
-        catch (exception\FileNotFoundException $ex)
+        catch (Exception\FileNotFoundException $ex)
         {
             $this->errors[] = new Error($ex->getMessage());
         }
@@ -243,7 +243,7 @@ class LocalFileStore implements FileStoreInterface
                     unlink($filePath);
                 }
             }
-            catch (exception\FileNotFoundException $ex)
+            catch (Exception\FileNotFoundException $ex)
             {
                 $this->errors[] = new Error($ex->getMessage());
             }
@@ -284,7 +284,7 @@ class LocalFileStore implements FileStoreInterface
         {
             $fullPath = $this->getFullLocalPath($file);
         }
-        catch (exception\FileNotFoundException $ex)
+        catch (Exception\FileNotFoundException $ex)
         {
             // This file does not have dat_local_path defined - never existed
             return false;
@@ -298,7 +298,7 @@ class LocalFileStore implements FileStoreInterface
      *
      * @param FileEntity $file
      * @return string
-     * @throws exception\FileNotFoundException
+     * @throws Exception\FileNotFoundException
      */
     private function getFullLocalPath(FileEntity $file)
     {
@@ -310,7 +310,7 @@ class LocalFileStore implements FileStoreInterface
         else
         {
             // This file does not exist on the local file system
-            throw new exception\FileNotFoundException(
+            throw new Exception\FileNotFoundException(
                 $file->getValue("name") . " was not found on the local disk"
             );
         }
@@ -320,7 +320,7 @@ class LocalFileStore implements FileStoreInterface
      * Get directory for account and create it if not exists.
      *
      * @return string Full path to account directory
-     * @throws exception\PermissionDeniedException
+     * @throws Exception\PermissionDeniedException
      */
     private function getAccountDirectory()
     {
@@ -333,7 +333,7 @@ class LocalFileStore implements FileStoreInterface
 
             if (!chmod($path, 0775))
             {
-                throw new exception\PermissionDeniedException(
+                throw new Exception\PermissionDeniedException(
                     "Permission denied chmod($path)"
                 );
             }
@@ -348,7 +348,7 @@ class LocalFileStore implements FileStoreInterface
 
             if (!chmod($path, 0775))
             {
-                throw new exception\PermissionDeniedException(
+                throw new Exception\PermissionDeniedException(
                     "Permission denied chmod($path)"
                 );
             }
@@ -434,7 +434,7 @@ class LocalFileStore implements FileStoreInterface
             {
                 if (!@mkdir($curr, 0775))
                 {
-                    throw new exception\PermissionDeniedException(
+                    throw new Exception\PermissionDeniedException(
                         "Permission denied mkdir($curr)"
                     );
                 }

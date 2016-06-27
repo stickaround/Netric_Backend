@@ -109,7 +109,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
                     }
                 }
             } else {
-                throw new exception\FileNotFoundException(
+                throw new Exception\FileNotFoundException(
                     "Key '" . $file->getValue("dat_ans_key") . "' is not in the MogileFS store: " .
                     $this->getLastError()->getMessage()
                 );
