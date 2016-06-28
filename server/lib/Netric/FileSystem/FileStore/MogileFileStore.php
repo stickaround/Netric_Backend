@@ -185,6 +185,20 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
             $file->setFileHandle(null);
         }
 
+        // If the filename was not yet set for this file then get from source
+        if (!$file->getValue("name"))
+        {
+            if (strrpos($localPath, "/") !== false) // unix
+                $parts = explode("/", $localPath);
+            else if (strrpos($localPath, "\\") !== false) // windows
+                $parts = explode("\\", $localPath);
+            else
+                $parts = array($localPath);
+
+            // last entry is the file name
+            $file->setValue("name", $parts[count($parts)-1]);
+        }
+
         $size = filesize($localPath);
 
         if ($size <= 0) {

@@ -21,6 +21,9 @@ RUN cpanm install --force MogileFS::Server \
   && cpanm install DBD::SQLite \
   && cpanm install MogileFS::Utils
 
+# Install old version of syscall since there is a bug with mogilefs
+RUN cpanm http://search.cpan.org/CPAN/authors/id/B/BR/BRADFITZ/Sys-Syscall-0.23.tar.gz
+
 RUN mogdbsetup --type=SQLite --yes --dbname=/var/mogdata/mogilefs.sqlite3
 
 # Add user and set ownership
