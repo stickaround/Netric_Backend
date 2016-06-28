@@ -160,6 +160,63 @@ AbstractController.prototype.load = function(data, opt_domNode, opt_router, opt_
 }
 
 /**
+ * Set the properties of this controller
+ *
+ * @param {Object} newProps
+ */
+AbstractController.prototype.setProps = function(newProps) {
+
+	// Override any existing props with new the props
+	for (var i in newProps) {
+		this.props[i] = newProps[i];
+	}
+
+	// Hide dialog if set
+	if (this.dialogComponent_) {
+
+		/*
+		 * We need to dismiss the current dialog component to display the new set of dialog action buttons
+		 * Since the current Dialog Component has a limitation of only displaying the changes of its content
+		 *  but it cannot change the new set of action buttons
+		 */
+		this.dialogComponent_.dismiss();
+
+		// Setup the rendering the new dialog window with the new set of action buttons
+		this._renderDialog();
+
+		// Render the controller
+		this.render();
+
+		// Show the new rendered dialog window with the new set of action buttons
+		this.dialogComponent_.show();
+	}
+};
+
+/**
+ * Render new dialog into the dom
+ *
+ * @private
+ */
+AbstractController.prototype._renderDialog = function() {
+
+	// Render dialog component component
+	let title = this.props.title || "Browse";
+	let data = {title:title};
+	if (this.props.dialogActions) {
+		data.dialogActions = this.props.dialogActions
+	}
+	this.dialogComponent_ = ReactDOM.render(
+		React.createElement(ControllerDialog, data),
+		alib.dom.createElement("div", document.body)
+	);
+
+	var parentNode = ReactDOM.findDOMNode(this.dialogComponent_.refs.dialogContent);
+
+	var id = (this.getParentRouter()) ? this.getParentRouter().getActiveRoute().getPath() : null;
+	this.domNode_ = alib.dom.createElement("div", parentNode, null, {id:id});
+}
+
+/**
  * Unload the controller
  *
  * This is where we will cleanup

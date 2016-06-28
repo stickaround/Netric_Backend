@@ -7,6 +7,7 @@
 'use strict';
 
 var React = require('react');
+var events = require('../../util/events');
 var Controls = require('../Controls.jsx');
 var TextField = Controls.TextField;
 var FlatButton = Controls.FlatButton;
@@ -61,8 +62,16 @@ var SaveView = React.createClass({
          */
         onCancel: React.PropTypes.func,
     },
-    
-    render: function() { 
+
+    componentDidMount: function() {
+
+        // Event listener for saving the view
+        events.listen(this.props.eventsObj, "saveView", function (evt) {
+            this._handleSave();
+        }.bind(this));
+    },
+
+    render: function() {
         
         return (
             <div className="entity-form-field">
@@ -78,10 +87,6 @@ var SaveView = React.createClass({
                         value="default"
                         label="Default"
                         defaultSwitched={this.props.default} />
-                </div>
-                <div>
-                    <FlatButton label='Save' onClick={this._handleSave} />
-                    <FlatButton label='Back' onClick={this._handleCancel} />
                 </div>
             </div>
         );
@@ -112,15 +117,6 @@ var SaveView = React.createClass({
             
             this.props.onSave(data);
         }
-    },
-    
-    /**
-     * Handles the back button click.
-     *
-     * @private
-     */
-    _handleCancel: function() {
-        if(this.props.onCancel) this.props.onCancel();
     }
 });
 

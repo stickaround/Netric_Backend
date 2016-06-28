@@ -29,7 +29,9 @@ var Recurrence = React.createClass({
         if (this.props.editMode) {
 
             return (
-                <a href='javascript: void(0)' onClick={this._handleShowRecurrence}>{this.state.humanDesc}</a>
+                <div className="entity-form-field">
+                    <a href='javascript: void(0)' onClick={this._handleShowRecurrence}>{this.state.humanDesc}</a>
+                </div>
             );
 
         } else {

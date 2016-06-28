@@ -43,6 +43,8 @@ var ControllerDialog = React.createClass({
 
         return (
             <Dialog
+                id="dialog"
+                key="dialog"
                 ref="dialog"
                 title={this.props.title}
                 actions={dialogActions}
