@@ -1,13 +1,13 @@
 <?php
 /**
- * Make sure the bin/scripts/update/once/004/001/005.php script works
+ * Make sure the bin/scripts/update/once/004/001/006.php script works
  */
 namespace BinTest\Update\Once;
 
 use Netric\Console\BinScript;
 use PHPUnit_Framework_TestCase;
 
-class Update_004001005_Test extends PHPUnit_Framework_TestCase
+class Update_004001006_Test extends PHPUnit_Framework_TestCase
 {
     /**
      * Handle to account
@@ -29,7 +29,7 @@ class Update_004001005_Test extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/005.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/006.php";
     }
 
     /**

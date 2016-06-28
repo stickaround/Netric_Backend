@@ -191,6 +191,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             $row = $this->dbh->getRow($result, $i);
             $modules[] = $this->createModuleFromRow($row);
         }
+
         // Settings navigation that will be displayed in the frontend
         $settingsData = array(
             "id" => null,
