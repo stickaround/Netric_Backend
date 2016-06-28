@@ -6,6 +6,7 @@
 'use strict';
 
 var React = require('react');
+var events = require('../util/events');
 var Controls = require('./Controls.jsx');
 var Conditions = require('./entity/Conditions.jsx');
 var ColumnView = require('./advancedsearch/ColumnView.jsx');
@@ -89,7 +90,7 @@ var AdvancedSearch = React.createClass({
     componentDidMount: function() {
 
         // Event listener for advanced search dialog actions
-        alib.events.listen(this.props.eventsObj, "advancedSearchAction", function (evt) {
+        events.listen(this.props.eventsObj, "advancedSearchAction", function (evt) {
 
             switch(evt.data.actionType) {
                 case 'applySearch':
@@ -139,7 +140,7 @@ var AdvancedSearch = React.createClass({
             );
 
             // Set the snackbar for form notifications
-            snakbar = <Snackbar ref="snackbar" message={this.state.statusText}/>;
+            snackbar = <Snackbar ref="snackbar" message={this.state.statusText}/>;
         } else { // Display the advance search criteria
 
             // Conditions Display

@@ -7,6 +7,7 @@
 'use strict';
 
 var React = require('react');
+var events = require('../../util/events');
 var Controls = require('../Controls.jsx');
 var TextField = Controls.TextField;
 var FlatButton = Controls.FlatButton;
@@ -65,7 +66,7 @@ var SaveView = React.createClass({
     componentDidMount: function() {
 
         // Event listener for saving the view
-        alib.events.listen(this.props.eventsObj, "saveView", function (evt) {
+        events.listen(this.props.eventsObj, "saveView", function (evt) {
             this._handleSave();
         }.bind(this));
     },

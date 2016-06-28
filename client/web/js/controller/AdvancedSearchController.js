@@ -7,6 +7,7 @@ var React = require('react');
 var ReactDOM = require("react-dom");
 var netric = require("../base");
 var controller = require("./controller");
+var events = require("../util/events");
 var AbstractController = require("./AbstractController");
 var UiAdvancedSearch = require("../ui/AdvancedSearch.jsx");
 var definitionLoader = require("../entity/definitionLoader");
@@ -61,7 +62,7 @@ AdvancedSearchController.prototype.onLoad = function (opt_callback) {
             onClick: function () {
 
                 // Trigger the event that will apply the advanced search
-                alib.events.triggerEvent(this._eventsObj, 'advancedSearchAction', {actionType: 'applySearch'});
+                events.triggerEvent(this._eventsObj, 'advancedSearchAction', {actionType: 'applySearch'});
             }.bind(this)
         });
 
@@ -182,6 +183,13 @@ AdvancedSearchController.prototype._saveView = function (browserView, data) {
     browserViewSaver.save(browserView, callbackFunc);
 }
 
+/**
+ * Display the Save View form of Advanced Search in the dialog window
+ *
+ * @param createNew Flag that will determine if we are creating a new custom view.
+ *                  Set to false, if we are just saving the changes for the current view
+ * @private
+ */
 AdvancedSearchController.prototype._displaySaveViewDialogAction = function (createNew) {
 
     var prevProps = [],
@@ -197,7 +205,7 @@ AdvancedSearchController.prototype._displaySaveViewDialogAction = function (crea
             onClick: function () {
 
                 // Trigger the event that will save the view
-                alib.events.triggerEvent(this._eventsObj, 'saveView', {});
+                events.triggerEvent(this._eventsObj, 'saveView', {});
 
                 this.setProps(prevProps);
             }.bind(this)
@@ -214,7 +222,7 @@ AdvancedSearchController.prototype._displaySaveViewDialogAction = function (crea
     this.setProps(newProps);
 
     // Trigger the event that we will display the save view dialog
-    alib.events.triggerEvent(this._eventsObj, 'advancedSearchAction',
+    events.triggerEvent(this._eventsObj, 'advancedSearchAction',
         {
             actionType: 'displaySaveView',
             createNew: createNew

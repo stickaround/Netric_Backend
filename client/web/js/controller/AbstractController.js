@@ -174,23 +174,28 @@ AbstractController.prototype.setProps = function(newProps) {
 	// Hide dialog if set
 	if (this.dialogComponent_) {
 
-		// Dismiss the current dialog
+		/*
+		 * We need to dismiss the current dialog component to display the new set of dialog action buttons
+		 * Since the current Dialog Component has a limitation of only displaying the changes of its content
+		 *  but it cannot change the new set of action buttons
+		 */
 		this.dialogComponent_.dismiss();
 
+		// Setup the rendering the new dialog window with the new set of action buttons
 		this._renderDialog();
 
-		// Re-render the dialog component
+		// Render the controller
 		this.render();
 
-		// Show the dialog component
+		// Show the new rendered dialog window with the new set of action buttons
 		this.dialogComponent_.show();
 	}
 };
 
 /**
- * Set the properties of this controller
+ * Render new dialog into the dom
  *
- * @param {Object} newProps
+ * @private
  */
 AbstractController.prototype._renderDialog = function() {
 
