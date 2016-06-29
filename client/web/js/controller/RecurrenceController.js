@@ -32,6 +32,14 @@ netric.inherits(RecurrenceController, AbstractController);
 RecurrenceController.prototype._rootReactNode = null;
 
 /**
+ * Flag that will determine if we will be saving the recurrence pattern
+ *
+ * @private
+ * @type {bool}
+ */
+RecurrenceController.prototype._saveRecurrence = false;
+
+/**
  * Function called when controller is first loaded but before the dom ready to render
  *
  * @param {function} opt_callback If set call this function when we are finished loading
@@ -39,6 +47,23 @@ RecurrenceController.prototype._rootReactNode = null;
 RecurrenceController.prototype.onLoad = function (opt_callback) {
 
     var callbackWhenLoaded = opt_callback || null;
+
+    if (this.getType() == controller.types.DIALOG) {
+        this.props.dialogActions = [
+            {
+                text: 'Save',
+                onClick: function() {
+                    this._saveRecurrence = true;
+                    this.render();
+                }.bind(this)
+            },
+            {
+                text: 'Cancel',
+                onClick: function() { this.close(); }.bind(this)
+            }
+        ];
+    }
+
 
     if (callbackWhenLoaded) {
         callbackWhenLoaded();
@@ -65,6 +90,7 @@ RecurrenceController.prototype.render = function () {
     var data = {
         title: this.props.title || "Recurrence",
         recurrencePattern: this.props.recurrencePattern,
+        saveRecurrence: this._saveRecurrence,
         hideToolbar: hideToolbar,
         onNavBtnClick: function (evt) {
             this.close();
@@ -79,6 +105,9 @@ RecurrenceController.prototype.render = function () {
         React.createElement(UiRecurrence, data),
         domCon
     );
+
+    // Alway reset the saveRecurrence to false
+    this._saveRecurrence = false;
 }
 
 /**
