@@ -415,7 +415,7 @@ class FileSystem implements Error\ErrorAwareInterface
     public function writeFile(FileEntity $file, $data, $append = true)
     {
         // TODO: add append to fileStore->writeFile
-        $this->fileStore->writeFile($file, $data);
+        return $this->fileStore->writeFile($file, $data);
     }
 
     /**

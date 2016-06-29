@@ -378,7 +378,8 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         $testData = "test data";
 
         $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
-        $this->fileSystem->writeFile($file, $testData);
+        $retSizeUploaded = $this->fileSystem->writeFile($file, $testData);
+        $this->assertGreaterThan(0, $retSizeUploaded, $this->fileSystem->getLastError());
         $this->assertEquals($testData, $this->fileSystem->readFile($file));
     }
 }
