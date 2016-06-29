@@ -63,6 +63,9 @@ AdvancedSearchController.prototype.onLoad = function (opt_callback) {
 
                 // Trigger the event that will apply the advanced search
                 events.triggerEvent(this._eventsObj, 'advancedSearchAction', {actionType: 'applySearch'});
+
+                // after applying the search, let's close the dialog window.
+                this.close();
             }.bind(this)
         });
 
@@ -83,7 +86,9 @@ AdvancedSearchController.prototype.onLoad = function (opt_callback) {
             this.props.dialogActions.push({
                 text: 'Set as Default',
                 onClick: function () {
-                    browserViewSaver.setDefaultView(this._browserView);
+
+                    // Trigger the event that will set the curreent browser view as default view
+                    events.triggerEvent(this._eventsObj, 'advancedSearchAction', {actionType: 'setDefaultView'});
                 }.bind(this)
             });
 
@@ -133,9 +138,15 @@ AdvancedSearchController.prototype.render = function () {
         eventsObj: this._eventsObj,
         onApplySearch: function (browserView) {
             this.props.onApplySearch(browserView);
+
+            // After applying the search, then let's close the Advanced Search page.
+            this.close();
         }.bind(this),
         onSaveView: function (browserView, browserViewdata) {
             this._saveView(browserView, browserViewdata);
+        }.bind(this),
+        onSetDefaultView: function (browserView) {
+            browserViewSaver.setDefaultView(browserView);
         }.bind(this),
         showAppBar: showAppBar,
         onNavBackBtnClick: this.props.onNavBackBtnClick || null
