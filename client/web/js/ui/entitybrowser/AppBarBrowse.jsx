@@ -119,7 +119,7 @@ var AppBarBrowse = React.createClass({
 
             // Show default AppBar with nothing selected and no search
             elementRight = (
-                <div>
+                <div className="entity-browsersearch-container">
                     <IconButton
                         key="searchRight"
                         iconClassName="fa fa-search"

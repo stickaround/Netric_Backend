@@ -570,10 +570,6 @@ EntityBrowserController.prototype._displayAdvancedSearch = function () {
 
             // Apply the new browserView
             this._applyAdvancedSearch(browserView);
-
-            // We need to re-render the advanced search to reflect the new browserView title and other changes
-            advancedSearch.unload();
-            this._displayAdvancedSearch();
         }.bind(this)
     });
 }

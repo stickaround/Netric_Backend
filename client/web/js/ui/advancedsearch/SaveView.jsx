@@ -98,6 +98,7 @@ var SaveView = React.createClass({
      * @private
      */
     _handleSave: function() {
+
         var name = this.refs.name.getValue();
         
         // Require the view name.
