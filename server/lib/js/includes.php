@@ -42,7 +42,9 @@
         "/lib/js/WorkFlow/Action/Approval.js", 
         "/lib/js/WorkFlow/Action/CallPage.js", 
         "/lib/js/WorkFlow/Action/AssignRR.js", 
-		"/lib/js/WorkFlow/Action/Update.js", 
+		"/lib/js/WorkFlow/Action/Update.js",
+		"/lib/js/WorkFlow/Action/WaitCondition.js",
+		"/lib/js/WorkFlow/Action/CheckCondition.js",
 		"/lib/js/WorkFlow/ActionsGrid.js", 
 
 		// AntView(s) and routers

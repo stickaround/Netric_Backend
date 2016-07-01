@@ -120,9 +120,19 @@ WorkFlow_ActionsGrid.prototype.print = function(con)
 	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_CALLPAGE); }
 	menuAct.addItem(item);
 
-	// Call Page
+	// Round Robin
 	var item = new alib.ui.MenuItem("Assign Round Robin", {cls:this});
 	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_ASSIGNRR); }
+	menuAct.addItem(item);
+
+	// Wait Condition
+	var item = new alib.ui.MenuItem("Wait Condition", {cls:this});
+	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_WAITCONDITION); }
+	menuAct.addItem(item);
+
+	// Check Condition
+	var item = new alib.ui.MenuItem("Check Condition", {cls:this});
+	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_CHECKCONDITION); }
 	menuAct.addItem(item);
 
 	menuAct.attach(addActLnk);
