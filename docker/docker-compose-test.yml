@@ -6,6 +6,7 @@ netric_web:
      APPLICATION_ENV: development
   volumes:
    - ../server/tests/tmp:/var/www/html/tests/tmp
+   - ../server/:/var/www/html/
   links:
    - memcached
    - gearmand
