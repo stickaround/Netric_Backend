@@ -45,6 +45,7 @@ define("WF_ATYPE_TEST", "7"); // This is an action that can be used for testing
 define("WF_ATYPE_APPROVAL", "8"); // Used to submit any object for approval
 define("WF_ATYPE_CALLPAGE", "9"); // Used to submit any object for approval
 define("WF_ATYPE_ASSIGNRR", "10"); // Round robin assign
+define("WF_ATYPE_WAITCONDITION", "1"); // Round robin assign
 
 /**
  * Main workflow class

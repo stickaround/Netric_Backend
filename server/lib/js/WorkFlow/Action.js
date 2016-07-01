@@ -79,7 +79,7 @@ WorkFlow_Action.prototype.save = function(force)
 			["workflow_id", this.workflow.id],
 			["type", this.type],
 			["when_interval", this.when.interval],
-			["when_unit", this.when.unit],
+			// ["when_unit", this.when.unit], Removed the wait condition and moved it to wf wait condition action
 			["name", this.name],
 			["send_email_fid", this.send_email_fid],
 			["update_field", this.update_field],
@@ -93,6 +93,7 @@ WorkFlow_Action.prototype.save = function(force)
 
 
 		// Add antConditionsObj into args
+		/* Removed the check condition and moved it to wf checko condition action
 		for (var i = 0; i < this.antConditionsObj.getNumConditions(); i++)
         {
             var currentCondition = this.antConditionsObj.getCondition(i);        
@@ -107,6 +108,7 @@ WorkFlow_Action.prototype.save = function(force)
 			args[args.length] = ["condition_" + cid + "_operator", currentCondition.operator];
 			args[args.length] = ["condition_" + cid + "_condvalue", currentCondition.condValue];
 		}
+		*/
 
 		// Add object values
 		for (var i = 0; i < this.getNumObjectValues(); i++)
@@ -375,8 +377,10 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
 	var lbl = alib.dom.createElement("span", td);
 	lbl.innerHTML = "&nbsp;give this action a unique name";
 
+	// Depricated - Removed the wait condition and moved it to wf wait condition action
 	// Timeframe
 	// --------------------------------------------
+	/*
 	var row = alib.dom.createElement("tr", tbody);
 	var td = alib.dom.createElement("td", row);
 	alib.dom.styleSetClass(td, "strong");
@@ -403,9 +407,12 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
 
 	var lbl = alib.dom.createElement("span", td);
 	lbl.innerHTML = " after workflow starts (enter 0 for immediate)";
+	*/
 
+	// Depricated - Removed the check condition and moved it to wf check condition action
 	// Conditions
 	// --------------------------------------------
+	/*
 	var row = alib.dom.createElement("tr", tbody);
 	var lbl = alib.dom.createElement("td", row);
 	lbl.colSpan = 2;
@@ -417,6 +424,7 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
 	var dv_cnd = alib.dom.createElement("div", condCon);
 	var tmpAntObj = new CAntObject(this.workflow.object_type);
 	this.antConditionsObj = tmpAntObj.buildAdvancedQuery(dv_cnd, this.conditions);
+	*/
 
 	// Do
 	// --------------------------------------------
@@ -455,6 +463,16 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
         var app_action = new WorkFlow_Action_CallPage(this.workflow.object_type, actDlg);
         app_action.print(actCon, this);
         break;
+	case WF_ATYPE_WAITCONDITION:
+		var actCon = alib.dom.createElement("div", divDo);
+		var app_action = new WorkFlow_Action_WaitCondition(this.workflow.object_type, actDlg);
+		app_action.print(actCon, this);
+		break;
+	case WF_ATYPE_CHECKCONDITION:
+		var actCon = alib.dom.createElement("div", divDo);
+		var app_action = new WorkFlow_Action_CheckCondition(this.workflow.object_type, actDlg);
+		app_action.print(actCon, this);
+		break;
 	default: // Create new
 		if (this.create_obj == "task")
 		{
@@ -664,6 +682,10 @@ WorkFlow_Action.prototype.getTypeDesc = function()
             return "Call Page";
         case WF_ATYPE_ASSIGNRR:
             return "Assign";
+		case WF_ATYPE_WAITCONDITION:
+			return "Wait";
+		case WF_ATYPE_CHECKCONDITION:
+			return "Execute Workflow";
 	}
 }
 
@@ -690,10 +712,12 @@ WorkFlow_Action.prototype.getTypeName = function()
 
 WorkFlow_Action.prototype.getWhenDesc = function()
 {
-	if (this.when.interval == 0)
+	if (this.type == WF_ATYPE_CHECKCONDITION)
+		return "If";
+	if (this.when.interval == 0) {
 		return "Immediately";
-	else
-	{
+	}
+	else {
 		return this.when.interval + " " + wfGetTimeUnitName(this.when.unit) + " after workflow starts";
 	}
 }
