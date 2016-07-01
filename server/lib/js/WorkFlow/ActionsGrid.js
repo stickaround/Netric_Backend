@@ -127,7 +127,7 @@ WorkFlow_ActionsGrid.prototype.print = function(con)
 
 	// Wait Condition
 	var item = new alib.ui.MenuItem("Wait Condition", {cls:this});
-	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_CHECKCONDITION); }
+	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_WAITCONDITION); }
 	menuAct.addItem(item);
 
 	// Check Condition
