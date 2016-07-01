@@ -79,7 +79,7 @@ WorkFlow_Action.prototype.save = function(force)
 			["workflow_id", this.workflow.id],
 			["type", this.type],
 			["when_interval", this.when.interval],
-			// ["when_unit", this.when.unit], Removed the wait condition and moved it to wf wait condition action
+			// ["when_unit", this.when.unit], Depricated - Removed the wait condition and moved it to wf wait condition action
 			["name", this.name],
 			["send_email_fid", this.send_email_fid],
 			["update_field", this.update_field],
@@ -92,8 +92,8 @@ WorkFlow_Action.prototype.save = function(force)
 		];
 
 
+		/* Depricated - Removed the check condition and moved it to wf checko condition action
 		// Add antConditionsObj into args
-		/* Removed the check condition and moved it to wf checko condition action
 		for (var i = 0; i < this.antConditionsObj.getNumConditions(); i++)
         {
             var currentCondition = this.antConditionsObj.getCondition(i);        
