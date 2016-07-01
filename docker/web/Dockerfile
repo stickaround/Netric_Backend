@@ -44,7 +44,7 @@ COPY bin/netric-setup.sh /
 COPY bin/netric-tests.sh /
 
 # Run composer install to get all required dependencies
-RUN cd /var/www/html && php composer.phar install
+RUN cd /var/www/html && php composer.phar install && php composer.phar update
 
 EXPOSE 80
 EXPOSE 443
