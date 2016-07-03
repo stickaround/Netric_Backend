@@ -18,7 +18,7 @@ memcached:
   image: memcached
 
 gearmand:
-  image: pataquets/gearmand
+  image: kendu/gearman
 
 db1:
   build: postgres/

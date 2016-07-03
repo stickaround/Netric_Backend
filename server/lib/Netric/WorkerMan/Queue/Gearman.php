@@ -120,6 +120,8 @@ class Gearman implements QueueInterface
         if ($this->gmClient->returnCode() != GEARMAN_SUCCESS) {
             throw new \RuntimeException("Cannot run background job: " . $this->gmClient->error());
         }
+
+        return $ret;
     }
 
     /**
