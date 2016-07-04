@@ -161,9 +161,8 @@ class Gearman implements QueueInterface
             return false;
         }
 
-        echo "Job status [{$this->lastJobId}]: " . var_export($this->gmClient->jobStatus($this->lastJobId), true);
-
         if ($this->gmWorker->work()) {
+            echo "\nGearman->dispatchJobs: Found and did work\n";
             return true;
         } else {
             $error = $this->gmWorker->error();
@@ -171,6 +170,8 @@ class Gearman implements QueueInterface
                 throw new \RuntimeException("Job failed: " . $error);
             } else {
                 // No jobs
+                echo "\nGearman->dispatchJobs: Found and did work\n";
+                echo "Job status [{$this->lastJobId}]: " . var_export($this->gmClient->jobStatus($this->lastJobId), true);
                 return false;
             }
         }
