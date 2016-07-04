@@ -3,7 +3,7 @@ netric_web:
   ports:
    - "8081:80"
   environment:
-     APPLICATION_ENV: testing
+     APPLICATION_ENV: development
   volumes:
    - ../server/tests/tmp:/var/www/html/tests/tmp
   links:
@@ -19,6 +19,8 @@ memcached:
 
 gearmand:
   image: kendu/gearman
+  ports:
+     - "4731:4730"
 
 db1:
   build: postgres/

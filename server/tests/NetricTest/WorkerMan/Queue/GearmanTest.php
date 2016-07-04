@@ -14,7 +14,6 @@ class GearmanTest extends AbstractQueueTests
     protected function getQueue()
     {
         $config = $this->account->getServiceManager()->get('Netric\Config\Config');
-        echo "\nConnecting to " . $config->workers->server . "\n";
         return new Gearman($config->workers->server);
     }
 }
