@@ -25,4 +25,4 @@ echo "sudo route -nv add -net '$DOCKER_IP/24' -interface vboxnet1"
 sudo route -nv add -net "$DOCKER_IP/24" -interface vboxnet0
 
 # Run docker compose
-docker-compose up -d
+docker-compose up

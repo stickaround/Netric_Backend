@@ -159,7 +159,7 @@ class Gearman implements QueueInterface
         }
 
         if ($this->gmWorker->work()) {
-            echo "Returned true from work\n";
+            echo "Gearman->work: Returned true from work\n";
             return true;
         } else {
             $error = $this->gmWorker->error();
@@ -167,6 +167,7 @@ class Gearman implements QueueInterface
                 throw new \RuntimeException("Job failed: " . $error);
             } else {
                 // No jobs
+                echo "Gearman->work: There are no jobs\n";
                 return false;
             }
         }

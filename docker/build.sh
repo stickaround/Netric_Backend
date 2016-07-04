@@ -10,6 +10,12 @@ cd ../server
 #php ./composer.phar install
 #php ./composer.phar update
 
+# Remove stopped containers
+docker rm $(docker ps -a -q)
+
+# Remove unused images
+docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+
 # Move back to docker
 cd ../docker/
 
