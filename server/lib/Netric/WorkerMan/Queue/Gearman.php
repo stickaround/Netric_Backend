@@ -121,9 +121,6 @@ class Gearman implements QueueInterface
             throw new \RuntimeException("Cannot run background job: " . $this->gmClient->error());
         }
 
-        echo "Job Status: ";
-        echo var_export($this->gmClient->jobStatus($job), true);
-
         return $job;
     }
 
@@ -162,6 +159,7 @@ class Gearman implements QueueInterface
         }
 
         if ($this->gmWorker->work()) {
+            echo "Returned true from work\n";
             return true;
         } else {
             $error = $this->gmWorker->error();
