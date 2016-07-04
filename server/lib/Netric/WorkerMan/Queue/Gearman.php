@@ -49,51 +49,6 @@ class Gearman implements QueueInterface
 
         // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
         $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
-
-        /*
-        $client->setCreatedCallback("create_change");
-
-        $client->setDataCallback("data_change");
-
-        $client->setStatusCallback("status_change");
-
-        $client->setCompleteCallback("complete_change");
-
-        $client->setFailCallback("fail_change");
-
-        echo "DONE\n";
-
-        function create_change($task)
-        {
-            echo "CREATED: " . $task->jobHandle() . "\n";
-        }
-
-        function status_change($task)
-        {
-            echo "STATUS: " . $task->jobHandle() . " - " . $task->taskNumerator() .
-                "/" . $task->taskDenominator() . "\n";
-        }
-
-        function complete_change($task)
-        {
-            echo "COMPLETE: " . $task->jobHandle() . ", " . $task->data() . "\n";
-        }
-
-        function fail_change($task)
-        {
-            echo "FAILED: " . $task->jobHandle() . "\n";
-        }
-
-        function data_change($task)
-        {
-            echo "DATA: " . $task->data() . "\n";
-        }
-        Function Client_error()
-        {
-            if (! $client->runTasks())
-                return $client->error() ;
-        }
-        */
     }
 
     /**
@@ -162,7 +117,6 @@ class Gearman implements QueueInterface
         }
 
         if ($this->gmWorker->work()) {
-            echo "\nGearman->dispatchJobs: Found and did work\n";
             return true;
         } else {
             $error = $this->gmWorker->error();
@@ -185,6 +139,7 @@ class Gearman implements QueueInterface
      */
     public function sendJobToWorker(\GearmanJob $gmJob)
     {
+        echo "Sent job " . $gmJob->functionName() . "\n";
         if (!isset($this->listeners[$gmJob->functionName()])) {
             throw new \RuntimeException("No listeners for job: " . $gmJob->functionName());
         }
