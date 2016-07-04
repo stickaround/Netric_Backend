@@ -3,7 +3,7 @@ netric_web:
   ports:
    - "8081:80"
   environment:
-     APPLICATION_ENV: development
+     APPLICATION_ENV: testing
   volumes:
    - ../server/tests/tmp:/var/www/html/tests/tmp
   links:
