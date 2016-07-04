@@ -32,6 +32,8 @@ class Gearman implements QueueInterface
      */
     private $listeners = array();
 
+    private $lastJobId = null;
+
     /**
      * Initialize a Gearman job queue
      *
@@ -121,6 +123,7 @@ class Gearman implements QueueInterface
             throw new \RuntimeException("Cannot run background job: " . $this->gmClient->error());
         }
 
+        $this->lastJobId = $job;
         return $job;
     }
 
@@ -158,8 +161,9 @@ class Gearman implements QueueInterface
             return false;
         }
 
+        echo "Job status [{$this->lasJobId}]: " . var_export($this->gmClient->jobStatus($this->lastJobId), true);
+
         if ($this->gmWorker->work()) {
-            echo "Gearman->work: Returned true from work\n";
             return true;
         } else {
             $error = $this->gmWorker->error();
@@ -167,7 +171,6 @@ class Gearman implements QueueInterface
                 throw new \RuntimeException("Job failed: " . $error);
             } else {
                 // No jobs
-                echo "Gearman->work: There are no jobs\n";
                 return false;
             }
         }
