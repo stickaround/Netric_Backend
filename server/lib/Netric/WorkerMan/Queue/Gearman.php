@@ -41,9 +41,11 @@ class Gearman implements QueueInterface
      */
     public function __construct($server)
     {
+        // Create a client instance and add the server
         $this->gmClient = new \GearmanClient();
         $this->gmClient->addServer($server, 4730);
 
+        // Create a worker instance and add the server
         $this->gmWorker = new \GearmanWorker();
         $this->gmWorker->addServer($server, 4730);
 
