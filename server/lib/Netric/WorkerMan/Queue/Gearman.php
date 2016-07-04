@@ -161,7 +161,7 @@ class Gearman implements QueueInterface
             return false;
         }
 
-        echo "Job status [{$this->lasJobId}]: " . var_export($this->gmClient->jobStatus($this->lastJobId), true);
+        echo "Job status [{$this->lastJobId}]: " . var_export($this->gmClient->jobStatus($this->lastJobId), true);
 
         if ($this->gmWorker->work()) {
             return true;
