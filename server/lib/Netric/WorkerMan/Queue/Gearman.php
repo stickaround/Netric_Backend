@@ -42,10 +42,10 @@ class Gearman implements QueueInterface
     public function __construct($server)
     {
         $this->gmClient = new \GearmanClient();
-        $this->gmClient->addServer($server, 4730);
+        $this->gmClient->addServer($server);
 
         $this->gmWorker = new \GearmanWorker();
-        $this->gmWorker->addServer($server, 4730);
+        $this->gmWorker->addServer($server);
 
         // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
         $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
