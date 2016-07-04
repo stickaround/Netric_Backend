@@ -115,13 +115,16 @@ class Gearman implements QueueInterface
      */
     public function doWorkBackground($workerName, array $jobData)
     {
-        $ret = $this->gmClient->doBackground($workerName, json_encode($jobData));
+        $job = $this->gmClient->doBackground($workerName, json_encode($jobData));
 
         if ($this->gmClient->returnCode() != GEARMAN_SUCCESS) {
             throw new \RuntimeException("Cannot run background job: " . $this->gmClient->error());
         }
 
-        return $ret;
+        echo "Job Status: ";
+        echo var_export($this->gmClient->jobStatus($job), true);
+
+        return $job;
     }
 
     /**
