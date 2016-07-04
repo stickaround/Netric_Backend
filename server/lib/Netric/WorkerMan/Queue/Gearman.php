@@ -42,10 +42,10 @@ class Gearman implements QueueInterface
     public function __construct($server)
     {
         $this->gmClient = new \GearmanClient();
-        $this->gmClient->addServer($server);
+        $this->gmClient->addServer($server, 4730);
 
         $this->gmWorker = new \GearmanWorker();
-        $this->gmWorker->addServer($server);
+        $this->gmWorker->addServer($server, 4730);
 
         // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
         $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
@@ -123,9 +123,13 @@ class Gearman implements QueueInterface
             if ($error) {
                 throw new \RuntimeException("Job failed: " . $error);
             } else {
+
+                // Check to see if the job servers are responding property
+                if (!$this->gmWorker->echo()) {
+                    echo "Failing workers " . $this->gmWorker->error() . "\n";
+                }
+
                 // No jobs
-                echo "\nGearman->dispatchJobs: Failed ";
-                echo "[{$this->lastJobId}]: " . var_export($this->gmClient->jobStatus($this->lastJobId), true);
                 return false;
             }
         }
@@ -139,7 +143,6 @@ class Gearman implements QueueInterface
      */
     public function sendJobToWorker(\GearmanJob $gmJob)
     {
-        echo "Sent job " . $gmJob->functionName() . "\n";
         if (!isset($this->listeners[$gmJob->functionName()])) {
             throw new \RuntimeException("No listeners for job: " . $gmJob->functionName());
         }
