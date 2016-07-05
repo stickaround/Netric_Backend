@@ -125,12 +125,6 @@ class Gearman implements QueueInterface
             if ($error) {
                 throw new \RuntimeException("Job failed: " . $error);
             } else {
-
-                // Check to see if the job servers are responding property
-                if (!$this->gmWorker->echo("tester")) {
-                    echo "Failing workers " . $this->gmWorker->error() . "\n";
-                }
-
                 // No jobs
                 return false;
             }

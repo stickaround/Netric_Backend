@@ -61,12 +61,12 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
         // Clear the queue to make sure nothing is left over
         $queue->clearWorkerQueue("Test");
 
-        // This will queue the job
-        $ret = $queue->doWorkBackground("Test", ["mystring"=>"test"]);
-
-        // Now add a worker which will process the queue
+        // Add a worker which will process the queue
         $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
+
+        // This will queue the job
+        $queue->doWorkBackground("Test", ["mystring"=>"test"]);
 
         // Dispatch the job
         $queue->dispatchJobs();
