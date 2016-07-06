@@ -16,9 +16,6 @@ module.exports = {
         alias: [
             {
                 'netric': path.resolve(__dirname + './js')
-            },
-            {
-                'localforage': 'localforage/dist/localforage.js'
             }
         ],
         modulesDirectories: [
@@ -45,14 +42,7 @@ module.exports = {
             {
                 test: /\.scss/,
                 loaders: ['style', 'css', 'sass']
-            },
-            {
-                test: /localforage\/dist\/localforage.js/,
-                loader: 'exports?localforage',
             }
-        ],
-        noParse: [
-            /localforage\/dist\/localforage.js/
         ]
     },
     sassLoader: {
