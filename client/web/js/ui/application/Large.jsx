@@ -6,7 +6,6 @@
 'use strict';
 
 var React = require('react');
-var netric = require("../../main.js");
 var Chamel = require('chamel');
 var Paper = Chamel.Paper;
 
@@ -26,7 +25,7 @@ var Large = React.createClass({
             <img src={this.props.logoSrc} id="app-header-logo" />
           </div>
           <div id="app-header-search" className="app-header-search-con">
-            Search goes here
+            Search goes here and there
           </div>
           <div className="app-header-profile-con">
             <i className="fa fa-camera-retro fa-lg"></i>
