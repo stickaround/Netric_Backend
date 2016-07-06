@@ -52,7 +52,7 @@
   },
   "scripts": {
     "prestart": "npm install",
-    "start": "http-server . -a 0.0.0.0 -p 8000",
+    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config ./webpack.config --colors --profile --progress",
     "pretest": "npm install",
     "test": "node node_modules/karma/bin/karma start test/karma.conf.js",
     "test-single-run": "node node_modules/karma/bin/karma start test/karma.conf.js  --single-run",
