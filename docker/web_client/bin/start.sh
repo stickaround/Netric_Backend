@@ -3,4 +3,4 @@
 set -e
 
 cd /var/www/html
-grunt start
+npm start

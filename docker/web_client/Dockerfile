@@ -16,11 +16,7 @@ COPY bin/start.sh /start.sh
 # Set permissions
 RUN chmod 700 /start.sh
 
-# Build
-RUN npm rebuild node-sass
-RUN cd /var/www/html/ && grunt build
-
 # Expose the web server
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["/start.sh"]

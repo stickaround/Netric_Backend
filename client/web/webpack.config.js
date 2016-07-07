@@ -8,7 +8,7 @@ module.exports = {
         path: path.join(__dirname, 'build'),
         filename: 'netric.js',
         publicPath: '/build/js/',
-        library: "netric",
+        library: "netric"
     },
     resolve: {
         extensions: ['', '.scss', '.js', '.jsx'],
