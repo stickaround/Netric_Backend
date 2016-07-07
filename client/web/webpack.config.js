@@ -7,14 +7,15 @@ module.exports = {
     output: {
         path: path.join(__dirname, 'build'),
         filename: 'netric.js',
-        publicPath: '/build/js/'
+        publicPath: '/build/js/',
+        library: "netric",
     },
     resolve: {
         extensions: ['', '.scss', '.js', '.jsx'],
         packageMains: ['browser', 'web', 'browserify', 'main', 'style'],
         alias: [
             {
-                'netric': path.resolve(__dirname + './js')
+                netric: path.resolve(__dirname + './js')
             }
         ],
         modulesDirectories: [
