@@ -1,13 +1,15 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const TransferWebpackPlugin = require('transfer-webpack-plugin');
+
 module.exports = {
     context: __dirname,
     entry: "./js/main.js",
     output: {
         path: path.join(__dirname, 'build'),
-        filename: 'netric.js',
-        publicPath: '/build/js/',
+        filename: 'js/netric.js',
+        publicPath: '/build/',
         library: "netric"
     },
     resolve: {
@@ -16,6 +18,9 @@ module.exports = {
         alias: [
             {
                 netric: path.resolve(__dirname + './js')
+            },
+            {
+                'localforage': 'localforage/dist/localforage.js'
             }
         ],
         modulesDirectories: [
@@ -40,15 +45,31 @@ module.exports = {
                 exclude: /(node_modules)/
             },
             {
-                test: /\.scss/,
-                loaders: ['style', 'css', 'sass']
+                test: /localforage\/dist\/localforage.js/,
+                loader: 'exports?localforage'
+            },
+            {
+                test: /\.ttf$|\.eot$/,
+                loader: 'file',
+                query: {
+                    name: 'fonts/[name].[ext]'
+                },
+                include: path.resolve(__dirname, "./fonts")
             }
+        ],
+        noParse: [
+            /localforage\/dist\/localforage.js/
         ]
     },
-    sassLoader: {
-        data: '@import "' + path.resolve(__dirname, './../sass/base/_main.scss') + '";'
-    },
     plugins: [
-        new ExtractTextPlugin('docs.css', {allChunks: true})
+        new ExtractTextPlugin('css/netric.css', {allChunks: true}),
+        new TransferWebpackPlugin([{
+            from: 'img',
+            to: 'img'
+        },
+        {
+            from: 'fonts',
+            to: 'fonts'
+        }])
     ]
 };

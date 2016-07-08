@@ -1,10 +1,7 @@
 FROM node:6
 
 # Install build dependencies
-RUN npm install -g grunt
-RUN npm install -g grunt-cli
 RUN npm install -g react-tools
-RUN npm install -g bower
 RUN npm install
 
 # Copy over source

@@ -1,0 +1,11 @@
+{
+  "name": "netric-webapp",
+  "description": "Main Web Application for Netric",
+  "version": "2.0.0",
+  "homepage": "http://www.netric.com",
+  "license": "COMMERCIAL",
+  "private": true,
+  "dependencies": {
+  	"aereus": "ssh://git@src.aereusdev.com/alib.js.git"
+  }
+}

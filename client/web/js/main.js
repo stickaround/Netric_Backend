@@ -10,6 +10,8 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 */
 
+require("../sass/base.scss");
+
 // Build netric object to export
 var netric = require("./base");
 netric.location = require("./location/location");
