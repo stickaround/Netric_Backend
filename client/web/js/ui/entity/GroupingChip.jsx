@@ -25,8 +25,13 @@ var GroupingChip = React.createClass({
 			remEl = (<span> | <i className="fa fa-times" onClick={this._handleRemove}/></span>);
 		}
 
+		var divProps = {
+			id: this.props.id,
+			name: this.props.name,
+		}
+
 		return (
-			<div {...this.props} className='grouping-chip'>
+			<div {...divProps} className='grouping-chip'>
 				{this.props.name}
 				{remEl}
 			</div>
