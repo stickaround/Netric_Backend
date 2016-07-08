@@ -6,7 +6,7 @@
 'use strict';
 
 var React = require('react');
-var Chamel = require('Chamel');
+var Chamel = require('chamel');
 var TextField = Chamel.TextField;
 var IconButton = Chamel.IconButton;
 var TextFieldAutoComplete = require("../../../mixins/TextFieldAutoComplete.jsx");

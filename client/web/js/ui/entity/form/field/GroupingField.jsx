@@ -78,7 +78,7 @@ var GroupingField = React.createClass({
                     );
                 }
             }
-        } else {
+        } else if(fieldValues) {
 
             // Here we will handle fields that has fkey or object field.type
 

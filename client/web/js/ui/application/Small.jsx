@@ -6,7 +6,6 @@
 'use strict';
 
 var React = require('react');
-var netric = require("../../main.js");
 var Chamel = require('chamel');
 var Paper = Chamel.Paper;
 
@@ -14,7 +13,7 @@ var Paper = Chamel.Paper;
  * Small application component
  */
 var Small = React.createClass({
-  
+
   getInitialState: function() {
     return {orgName: this.props.orgName};
   },
