@@ -25,7 +25,7 @@ rm -rf web/dist/
 cp -R ../server/ web/dist/
 
 echo "Building containers"
-docker-compose build
+docker-compose -f docker-compose-dev.yml build
 
 echo "Cleaning"
 rm -rf web/dist/

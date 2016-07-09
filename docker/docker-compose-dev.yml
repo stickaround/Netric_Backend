@@ -3,7 +3,9 @@ netric_web:
   ports:
    - "80:80"
   environment:
-     APPLICATION_ENV: production
+     APPLICATION_ENV: development
+  volumes:
+   - ../server/:/var/www/html/
   links:
    - memcached
    - gearmand
@@ -11,6 +13,13 @@ netric_web:
    - db1
    - mogilefs
    - mogilestore
+
+netric_web_client:
+  build: web_client_dev
+  volumes:
+     - ../client/web/:/var/www/html/
+  links:
+    - netric_web
 
 memcached:
   image: memcached
