@@ -16,6 +16,8 @@ netric_web:
 
 netric_web_client:
   build: web_client_dev
+  ports:
+    - "8080:8080"
   volumes:
      - ../client/web/:/var/www/html/
   links:
