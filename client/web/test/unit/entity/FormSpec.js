@@ -1,7 +1,7 @@
 "use strict";
 
-var Form = require("../../../js/entity/Form");
-var netric = require("../../../js/main");
+var Form = require("../../../src/entity/Form");
+var netric = require("../../../src/main");
 
 /**
  * Test the creating of form instance and the parsing of xml form string

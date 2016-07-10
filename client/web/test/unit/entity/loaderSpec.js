@@ -1,8 +1,8 @@
 'use strict';
 
-var definitionLoader = require("../../../js/entity/definitionLoader");
-var entityLoader = require("../../../js/entity/loader");
-var netric = require("../../../js/main");
+var definitionLoader = require("../../../src/entity/definitionLoader");
+var entityLoader = require("../../../src/entity/loader");
+var netric = require("../../../src/main");
 
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests

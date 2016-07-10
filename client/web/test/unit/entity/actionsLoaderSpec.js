@@ -1,6 +1,6 @@
 'use strict';
 
-var actionsLoader = require("../../../js/entity/actionsLoader");
+var actionsLoader = require("../../../src/entity/actionsLoader");
 
 describe("Get Default Actions", function() {
 	it("Should have loaded the actions object", function(done) {

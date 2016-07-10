@@ -1,7 +1,7 @@
 'use strict';
 
-var netric = require("../../js/main.js");
-var BackendRequest = require("../../js/BackendRequest");
+var netric = require("netric/main");
+var BackendRequest = require("netric/BackendRequest");
 
 /**
  * Check to make sure expected public varibles are set

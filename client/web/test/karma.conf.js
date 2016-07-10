@@ -1,3 +1,8 @@
+const path = require('path');
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const TransferWebpackPlugin = require('transfer-webpack-plugin');
+
 module.exports = function(config){
   config.set({
 
@@ -15,7 +20,8 @@ module.exports = function(config){
     // add preprocessor to the files that should be
     // processed via browserify
     preprocessors: {
-      'test/unit/**/*.js': [ 'browserify' ]
+      'test/unit/*Spec.js': [ 'webpack', 'sourcemap' ],
+      'test/unit/**/*Spec.js': [ 'webpack', 'sourcemap' ]
     },
 
     // see what is going on
@@ -23,16 +29,69 @@ module.exports = function(config){
 
     autoWatch : true,
 
-    frameworks: ['browserify', 'jasmine'],
+    frameworks: ['jasmine'],
 
     browsers : ['Chrome'],
 
     plugins : [
       'karma-chrome-launcher',
       'karma-firefox-launcher',
-      'karma-browserify',
+      'karma-webpack',
+      'karma-sourcemap-loader',
       'karma-jasmine'
     ],
+
+      // karma watches the test entry points
+      // (you don't need to specify the entry option)
+      // webpack watches dependencies
+    webpack: {
+        context: __dirname,
+        entry: "../src/main.js",
+        resolve: {
+            extensions: ['', '.scss', '.js', '.jsx'],
+            packageMains: ['browser', 'web', 'browserify', 'main', 'style', 'netric'],
+            alias: [
+                {
+                    'netric': path.resolve(__dirname + '../src')
+                }
+            ],
+            modulesDirectories: [
+                'node_modules',
+                path.resolve(__dirname, './../node_modules')
+            ]
+        },
+        module: {
+            loaders: [
+                {
+                    test: /\.js$/,
+                    loader: 'babel',
+                    exclude: /(node_modules)/
+                },
+                {
+                    test: /\.(scss|css)$/,
+                    loader: ExtractTextPlugin.extract('style', 'css?sourceMap&modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss!sass?sourceMap')
+                },
+                {
+                    test: /\.jsx$/,
+                    loader: 'babel',
+                    exclude: /(node_modules)/
+                },
+                {
+                    test: /\.ttf$|\.eot$/,
+                    loader: 'file',
+                    query: {
+                        name: 'fonts/[name].[ext]'
+                    }
+                }
+            ]
+        },
+        devtool: 'inline-source-map'
+    },
+
+    webpackMiddleware: {
+      // webpack-dev-middleware configuration
+      // i. e.
+    },
 
     // add additional browserify configuration properties here
     // such as transform and/or debug=true to generate source maps

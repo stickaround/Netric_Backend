@@ -1,6 +1,6 @@
 'use strict';
 
-var log = require("../../js/log.js");
+var log = require("../../src/log.js");
 
 /**
  * Check to make sure expected public varibles are set

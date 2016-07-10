@@ -1,6 +1,6 @@
 'use strict';
 
-var localData = require("../../js/localData");
+var localData = require("../../src/localData");
 
 describe("Set db item string", function() {
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var groupingLoader = require("../../../js/entity/groupingLoader");
+var groupingLoader = require("../../../src/entity/groupingLoader");
 
 describe("Get Groupings Asynchronously", function() {
     var groupings = null;

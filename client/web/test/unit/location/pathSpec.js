@@ -1,6 +1,6 @@
 'use strict';
 
-var location = require("../../../js/location/location");
+var location = require("../../../src/location/location");
 
 describe('path.decode', function () {
   it('properly decodes a path with a query string', function () {

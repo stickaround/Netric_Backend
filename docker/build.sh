@@ -21,13 +21,13 @@ cd ../docker/
 
 # Copy source from server into container
 echo "Copying source"
-rm -rf web/dist/
-cp -R ../server/ web/dist/
+rm -rf server/dist/
+cp -R ../server/ server/dist/
 
 echo "Building containers"
 docker-compose -f docker-compose-dev.yml build
 
 echo "Cleaning"
-rm -rf web/dist/
+rm -rf server/dist/
 
 echo "DONE! Run ./dev.sh to begin development"

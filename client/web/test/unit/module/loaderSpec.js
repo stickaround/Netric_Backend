@@ -1,7 +1,7 @@
 'use strict';
 
-var netric = require("../../../js/main");
-var moduleLoader = require("../../../js/module/loader");
+var netric = require("../../../src/main");
+var moduleLoader = require("../../../src/module/loader");
 
 /**
  * Test loading the account asynchronously and make sure it gets cached for future requests

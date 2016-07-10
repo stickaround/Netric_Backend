@@ -21,27 +21,12 @@ And then install the remaining build dependencies locally:
 Install bower using npm (if bower is not installed):
 
     sudo npm install -g bower
-	
-Now install bower dependencies:
-
-    bower install
-
-This will read the dependencies and the devDependencies (which contains our build requirements) from package.json and install everything needed into a folder called node_modules/.
-
-Webpack is used for automating builds and invoking livereload to make dev much easier and cooler
-
-	sudo npm install -g webpack
-
-Now Build the Project
-	
-	webpack -w
-
-This will build the project and start a liveupdate server locally for dynamic refreshes and compilation every
-time you make a change to a file.
 
 Open an additional shell window (leave the above command running) and run
 
     npm start
+    
+This will build the project and start a hotupdate server locally for dynamic refreshes and compilation every time you make a change to a file.
 
 Then load http://localhost:8080 in your browser.
 

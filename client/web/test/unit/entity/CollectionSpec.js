@@ -1,7 +1,7 @@
 'use strict';
 
-var EntityCollection = require("../../../js/entity/Collection");
-var netric = require("../../../js/main");
+var EntityCollection = require("../../../src/entity/Collection");
+var netric = require("../../../src/main");
 
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests

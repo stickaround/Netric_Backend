@@ -1,8 +1,8 @@
 'use strict';
 
-var accountLoader = require("../../../js/account/loader");
-var moduleLoader = require("../../../js/module/loader");
-var netric = require("../../../js/main");
+var accountLoader = require("../../../src/account/loader");
+var moduleLoader = require("../../../src/module/loader");
+var netric = require("../../../src/main");
 
 /**
  * Test loading the account asynchronously and make sure it gets cached for future requests

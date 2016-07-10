@@ -1,8 +1,8 @@
 ## To Start Netric Services
     
-1. Install docker toolbox
+1. Install docker native (not docker toolbox)
 
-    https://www.docker.com/products/docker-toolbox
+    http://www.docker.com/products/overview
 
 2. Build the environment
     
@@ -14,7 +14,7 @@
 
 4. Run Netric Setup (first time & when updating the database)
 
-    docker exec -it docker_netric_web_1 /netric-setup.sh
+    docker exec -it docker_netric_server_1 /netric-setup.sh
     
 5. Load netric in the browser
 
@@ -26,17 +26,17 @@
 
 ## To Run Server Tests
 
-    docker exec -it docker_netric_web_1 /netric-tests.sh
+    docker exec -it docker_netric_server_1 /netric-tests.sh
 
 You can pass any command line options for phpunit like
     
-    docker exec -it docker_netric_web_1 /netric-tests.sh NetricTest/Entity
+    docker exec -it docker_netric_server_1 /netric-tests.sh NetricTest/Entity
 
 which will run all unit tests in the NetricTest/Entity folder.
 
 ## To log into docker container
     
-    docker exec -it docker_netric_web_1 /bin/bash
+    docker exec -it docker_netric_server_1 /bin/bash
     
 Now you can run phpunit just like you would from a VM
     

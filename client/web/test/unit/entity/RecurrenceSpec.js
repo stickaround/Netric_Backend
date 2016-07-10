@@ -1,8 +1,8 @@
 'use strict';
 
-var Recurrence = require("../../../js/entity/Recurrence");
-var Where = require("../../../js/entity/Where");
-var netric = require("../../../js/main");
+var Recurrence = require("../../../src/entity/Recurrence");
+var Where = require("../../../src/entity/Where");
+var netric = require("../../../src/main");
 
 /**
  * Test the setting up of data for recurrence daily pattern

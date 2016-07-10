@@ -1,5 +1,5 @@
-netric_web:
-  build: web/
+netric_server:
+  build: server/
   ports:
    - "80:80"
   environment:
@@ -14,14 +14,14 @@ netric_web:
    - mogilefs
    - mogilestore
 
-netric_web_client:
-  build: web_client_dev
+netric_client_web_dev:
+  build: client_web_dev
   ports:
     - "8080:8080"
   volumes:
      - ../client/web/:/var/www/html/
   links:
-    - netric_web
+    - netric_server
 
 memcached:
   image: memcached

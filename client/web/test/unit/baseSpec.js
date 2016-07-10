@@ -1,6 +1,6 @@
 'use strict';
 
-var netric = require("../../js/main.js");
+var netric = require("../../src/main.js");
 
 /**
  * Check to make sure expected public varibles are set

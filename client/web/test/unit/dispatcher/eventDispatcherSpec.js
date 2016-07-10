@@ -1,6 +1,6 @@
 'use strict';
 
-var eventDispatcher = require("../../../js/dispatcher/eventDispatcher");
+var eventDispatcher = require("../../../src/dispatcher/eventDispatcher");
 
 describe("Test global application events", function() {
 

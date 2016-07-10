@@ -1,7 +1,7 @@
 'use strict';
 
-var Router = require("../../../js/location/Router");
-var TestController = require("../../../js/controller/TestController");
+var Router = require("../../../src/location/Router");
+var TestController = require("../../../src/controller/TestController");
 
 describe("Router", function() {
 

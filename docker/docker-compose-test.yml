@@ -1,5 +1,5 @@
-netric_web:
-  build: web/
+netric_server:
+  build: server/
   ports:
    - "8081:80"
   environment:

@@ -5,7 +5,7 @@ const TransferWebpackPlugin = require('transfer-webpack-plugin');
 
 module.exports = {
     context: __dirname,
-    entry: "./js/main.js",
+    entry: "./src/main.js",
     output: {
         path: path.join(__dirname, 'build'),
         filename: 'js/netric.js',
@@ -17,10 +17,7 @@ module.exports = {
         packageMains: ['browser', 'web', 'browserify', 'main', 'style'],
         alias: [
             {
-                netric: path.resolve(__dirname + './js')
-            },
-            {
-                'localforage': 'localforage/dist/localforage.js'
+                netric: path.resolve(__dirname + './src')
             }
         ],
         modulesDirectories: [
@@ -45,10 +42,6 @@ module.exports = {
                 exclude: /(node_modules)/
             },
             {
-                test: /localforage\/dist\/localforage.js/,
-                loader: 'exports?localforage'
-            },
-            {
                 test: /\.ttf$|\.eot$/,
                 loader: 'file',
                 query: {
@@ -57,9 +50,6 @@ module.exports = {
                 include: path.resolve(__dirname, "./fonts")
             }
         ],
-        noParse: [
-            /localforage\/dist\/localforage.js/
-        ]
     },
     plugins: [
         new ExtractTextPlugin('css/netric.css', {allChunks: true}),

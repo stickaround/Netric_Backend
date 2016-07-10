@@ -1,10 +1,10 @@
 "use strict";
 
-var Definition = require("../../../js/entity/Definition");
-var Entity = require("../../../js/entity/Entity");
-var Account = require("../../../js/account/Account");
-var Application = require("../../../js/Application");
-var netric = require("../../../js/main");
+var Definition = require("../../../src/entity/Definition");
+var Entity = require("../../../src/entity/Entity");
+var Account = require("../../../src/account/Account");
+var Application = require("../../../src/Application");
+var netric = require("../../../src/main");
 
 /**
  * Test loading definitions asynchronously and make sure it gets cached for future requests
