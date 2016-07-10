@@ -9,6 +9,6 @@ docker-compose -f docker-compose-test.yml down
 ./build.sh
 docker-compose -f docker-compose-test.yml up -d
 sleep 30
-docker exec docker_netric_web_1 /netric-setup.sh
+docker exec docker_netric_server_1 /netric-setup.sh
 ./test.sh
 docker-compose -f docker-compose-test.yml down
