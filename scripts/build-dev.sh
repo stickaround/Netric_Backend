@@ -6,6 +6,9 @@ docker rm $(docker ps -a -q)
 # Remove unused images
 docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
 
+# Move into docker directory
+cd ../docker/
+
 # Copy source from server into container
 echo "Copying source"
 rm -rf server/dist/
@@ -17,4 +20,4 @@ docker-compose -f docker-compose-dev.yml build
 echo "Cleaning"
 rm -rf server/dist/
 
-echo "DONE! Run ./dev.sh to begin development"
+echo "DONE! Run ./start-dev.sh to begin development"

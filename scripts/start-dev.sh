@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-# Setup Docker Machine and Hosts
-#docker-machine start
-#eval $(docker-machine env)
-
-#DOCKER_IP=$(docker-machine ip default)
-#echo "default ip: $DOCKER_IP"
 DOCKER_IP="127.0.0.1"
 
 #Remove existing lines from hosts
@@ -20,10 +14,16 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
   sudo bash -c "echo \"$DOCKER_IP $line\" >>/etc/hosts"
 done < "hosts.conf"
 
-# Fix IP if cisco VPN broke it
-# This does not appear to be working so we need to check on it
-#echo "sudo route -nv add -net '$DOCKER_IP/24' -interface vboxnet1"
-#sudo route -nv add -net "$DOCKER_IP/24" -interface vboxnet0
+# move to the docker directory
+cd ../docker
 
-# Run docker compose
-docker-compose -f docker-compose-dev.yml up
+# Run docker compose daemon
+docker-compose -f docker-compose-dev.yml up -d
+
+# Wait, then run setup
+echo "Waiting 10 seconds before running setup..."
+sleep 10
+docker exec -it docker_netric_server_1 /netric-setup.sh
+
+# Show logs in terminal
+docker-compose -f docker-compose-dev.yml logs

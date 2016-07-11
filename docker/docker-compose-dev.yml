@@ -14,15 +14,6 @@ netric_server:
    - mogilefs
    - mogilestore
 
-netric_client_web_dev:
-  build: client_web_dev
-  ports:
-    - "8080:8080"
-  volumes:
-     - ../client/web/:/var/www/html/
-  links:
-    - netric_server
-
 memcached:
   image: memcached
 
