@@ -26,6 +26,15 @@ Log in with "test@netric.com" and "password" as the password.
 
 ## The Client
 
+Netric can have multiple clients. The main web client is build separately and deployed by
+copying the source from the built webapp into the server directory /server/v2. When we finish
+moving the server into a new directory structure we will simply deploy the built
+webapp into /public/*.
+
+## Clients are split into separate repos:
+netric-client-web: The main webapp
+netric-client-hybrid: Native device applications
+
 We are in the process of splitting out all the server components from the client. 
 Once this is done we will actually split it into a separate repo.
 
@@ -41,3 +50,16 @@ start-dev.sh - start a local development server
 test.sh - run server tests
 
 jenkins-tests.sh - script to execute all tests in jenkins build
+
+# Work-in-Progress
+
+We are working on simplifying the directory structure of netric. When finished the root should 
+look like:
+
+/src - all netric classes
+/public - all served assets and where apache will look for index files
+/vendor - libraries
+/data - non-executable stored data
+/bin - binary scripts to run on the server
+/scripts - development scripts
+/docker - docker files used for building and working with containers
