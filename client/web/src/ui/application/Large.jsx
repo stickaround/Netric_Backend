@@ -1,17 +1,10 @@
-/**
- * Render the application shell for a large device
- *
-
- */
-'use strict';
-
 var React = require('react');
 var Chamel = require('chamel');
 var Paper = Chamel.Paper;
 
 
 /**
- * Large application component
+ * Render the application shell for a large device
  */
 var Large = React.createClass({
   getInitialState: function() {

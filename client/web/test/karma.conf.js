@@ -91,6 +91,9 @@ module.exports = function(config){
     webpackMiddleware: {
       // webpack-dev-middleware configuration
       // i. e.
+        watchOptions: {
+            poll: true
+        }
     },
 
     // add additional browserify configuration properties here

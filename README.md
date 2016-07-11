@@ -22,7 +22,7 @@ Log in with "test@myaereus.com" and "test" as the password (or whatever createde
 
 ## The Web Client
 
-We are in the process of splitting out all the server compoenents from the client.
+We are in the process of splitting out all the server components from the client.
 
 V2 of the netric UI is being built in the ./client/web directory of this repo.
 
@@ -31,8 +31,6 @@ and follow the instructions in READEME.md.
 
 
 ## New Process in /scripts
-setup.sh
-start.sh
+build-local.sh
+run-local.sh
 test.sh - should dump to a results file in ../ for reporting
-
-### Jenkins

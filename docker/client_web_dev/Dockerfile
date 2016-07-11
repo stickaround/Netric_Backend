@@ -13,7 +13,11 @@ COPY bin/start.sh /start.sh
 # Set permissions
 RUN chmod 700 /start.sh
 
+VOLUME /var/www/html/
+
 # Expose the web server
 EXPOSE 8080
+
+WORKDIR /var/www/html/
 
 CMD ["/start.sh"]

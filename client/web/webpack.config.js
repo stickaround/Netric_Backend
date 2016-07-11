@@ -61,5 +61,8 @@ module.exports = {
             from: 'fonts',
             to: 'fonts'
         }])
-    ]
+    ],
+    watchOptions: {
+        poll: true
+    }
 };

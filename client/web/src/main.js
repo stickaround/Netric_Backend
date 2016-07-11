@@ -5,11 +5,14 @@
 //Needed for onTouchTap
 //Can go away when react 1.0 release. check this repo:
 //https://github.com/zilverline/react-tap-event-plugin
-/*
-var injectTapEventPlugin = require("react-tap-event-plugin");
-injectTapEventPlugin();
-*/
 
+/*
+ * var injectTapEventPlugin = require("react-tap-event-plugin");
+ * injectTapEventPlugin();
+ *
+ */
+
+// Eventually everything will need to load like this
 require("../sass/base.scss");
 
 // Build netric object to export
