@@ -35,13 +35,7 @@ webapp into /public/*.
 netric-client-web: The main webapp
 netric-client-hybrid: Native device applications
 
-We are in the process of splitting out all the server components from the client. 
-Once this is done we will actually split it into a separate repo.
-
-V2 of the netric UI is being built in the ./client/web directory of this repo.
-
-Once you have vagrant running the server (see Installation & Development above), 
-navigate to the client directory and follow the instructions in READEME.md.
+Ecah of the respective client repos will contain build and deployment instructions.
 
 ## Scripts found in /scripts
 
