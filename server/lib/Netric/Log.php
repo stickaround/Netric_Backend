@@ -84,10 +84,9 @@ class Log
 	{
 
 		// Make sure the local data path exists if we are logging to a file
-		$data_path = $config->data_path;
-		if ($data_path && file_exists($data_path) && $config->log)
+		if (!empty($config->log_path))
 		{
-			$this->logPath = $data_path . "/" . $config->log;
+			$this->logPath = $config->log_path;
 
 			// Now make sure we have not exceeded the maxiumu size for this log file
 			if (file_exists($this->logPath))
@@ -99,10 +98,7 @@ class Log
 			// Check to see if log file exists and create it if it does not
 			if (!file_exists($this->logPath))
 			{
-				if (touch($this->logPath))
-					chmod($this->logPath, 0777);
-				else
-					$this->logPath = ""; // clear the path which will raise exception on write
+				$this->logPath = ""; // clear the path which will raise exception on write
 			}
 
 			// Now open the file

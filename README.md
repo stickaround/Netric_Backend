@@ -24,6 +24,14 @@ devel.netric.com on your workstation.
 
 Log in with "test@netric.com" and "password" as the password.
 
+### Accessing Servers
+devel.netric.com:80 - load netric
+devel.netric.com:5601 - load kibana to view logs
+devel.netric.com:5432 - connect to postgres with user vagrant and password vagrant
+
+### Debugging
+If using PHPStorm simply start listening on port 9000 for xdebug
+
 ## The Client
 
 Netric can have multiple clients. The main web client is build separately and deployed by

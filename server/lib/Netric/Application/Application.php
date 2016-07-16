@@ -82,6 +82,7 @@ class Application
 
         // Setup log
         $this->log = new Log($config);
+        $this->log->debug("Finished creating the log in application");
 
         // Setup error handler if not in a unit test
         if (!class_exists('\PHPUnit_Framework_TestCase'))

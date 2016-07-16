@@ -9,7 +9,6 @@
  *  @copyright 2014 Aereus
  */
 
-
 // Setup autoloader
 include(__DIR__ . "/init_autoloader.php");
 

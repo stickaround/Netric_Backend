@@ -1,6 +1,4 @@
 FROM php:5.6-apache
-COPY conf/apache2.conf /etc/apache2/apache2.conf
-COPY conf/php-devel-ini.conf /usr/local/etc/php/
 
 # install required php extensions
 RUN apt-get update && apt-get install -y \
@@ -16,6 +14,7 @@ RUN apt-get update && apt-get install -y \
 		libneon27-dev \
 		unzip \
 		git \
+		curl \
     && docker-php-ext-install -j$(nproc) iconv mcrypt pgsql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
@@ -23,6 +22,8 @@ RUN apt-get update && apt-get install -y \
 	&& docker-php-ext-enable memcache \
 	&& pecl install gearman \
     && docker-php-ext-enable gearman \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
     && pecl install mogilefs-0.9.2 \
     && docker-php-ext-enable mogilefs
 
@@ -39,14 +40,46 @@ RUN pear install mail \
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
+# Copy configs for apache and php
+COPY conf/apache2.conf /etc/apache2/apache2.conf
+COPY conf/php-devel-ini.conf /usr/local/etc/php/php.ini
+
+###############################################################################
+# Copy files and run composer to install source
+###############################################################################
+
 COPY dist/ /var/www/html/
 COPY bin/netric-setup.sh /
 COPY bin/netric-tests.sh /
+COPY bin/start.sh /
+
+# Perimissions
+RUN chmod +x /netric-setup.sh
+RUN chmod +x /netric-tests.sh
+RUN chmod +x /start.sh
 
 # Run composer install to get all required dependencies
 RUN cd /var/www/html && php composer.phar install && php composer.phar update
 
+###############################################################################
+# install filebeat for shippping logs to elk
+###############################################################################
+
+#RUN curl -L -O https://download.elastic.co/beats/filebeat/filebeat_1.0.1_amd64.deb \
+# && dpkg -i filebeat_1.0.1_amd64.deb \
+# && rm filebeat_1.0.1_amd64.deb
+
+# config file for filebeaat
+#ADD conf/filebeat.yml /etc/filebeat/filebeat.yml
+
+# CA cert for filebeat and elk
+#RUN mkdir -p /etc/pki/tls/certs
+#ADD conf/logstash-beats.crt /etc/pki/tls/certs/logstash-beats.crt
+
+# Update logs to print to stdout so they can be shipped
+RUN ln -sfT /dev/stdout "/var/log/netric.log"
+
 EXPOSE 80
 EXPOSE 443
 
-CMD ["apache2-foreground"]
+CMD ["/start.sh"]
