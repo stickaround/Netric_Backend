@@ -77,7 +77,8 @@ RUN cd /var/www/html && php composer.phar install && php composer.phar update
 #ADD conf/logstash-beats.crt /etc/pki/tls/certs/logstash-beats.crt
 
 # Update logs to print to stdout so they can be shipped
-RUN ln -sfT /dev/stdout "/var/log/netric.log"
+RUN ln -sf /dev/stdout /var/log/netric
+RUN chmod 777 /var/log/netric
 
 EXPOSE 80
 EXPOSE 443
