@@ -82,24 +82,26 @@ class Log
 	 */
 	public function __construct($config)
 	{
-
 		// Make sure the local data path exists if we are logging to a file
-		if (!empty($config->log_path))
+		if (!empty($config->log))
 		{
-			$this->logPath = $config->log_path;
+			$this->logPath = $config->log;
 
-			// Now make sure we have not exceeded the maxiumu size for this log file
-			if (file_exists($this->logPath))
-			{
-				if (filesize($this->logPath) >= ($this->maxSize * 1024))
-					unlink($this->logPath);
-			}
+            // If we are not working with php streams, then handle creating the file and rotating it
+            if ("php:" != substr($this->logPath, 0, 4)) {
+                // Now make sure we have not exceeded the maximum size for this log file
+                if (file_exists($this->logPath))
+                {
+                    if (filesize($this->logPath) >= ($this->maxSize * 1024))
+                        unlink($this->logPath);
+                }
 
-			// Check to see if log file exists and create it if it does not
-			if (!file_exists($this->logPath))
-			{
-				$this->logPath = ""; // clear the path which will raise exception on write
-			}
+                // Check to see if log file exists and create it if it does not
+                if (!file_exists($this->logPath))
+                {
+                    $this->logPath = ""; // clear the path which will raise exception on write
+                }
+            }
 
 			// Now open the file
 			$this->logFile = fopen($this->logPath, 'a');
@@ -162,8 +164,8 @@ class Log
 			$server = $_SERVER['SERVER_NAME'];
 
 		$eventData = array();
-		$eventData[$this->logDef["LEVEL"]] = $this->getLevelName($lvl);
-		$eventData[$this->logDef["TIME"]] = date('c');
+		$eventData[$this->logDef["LEVEL"]] = "<22.$lvl>"; //$this->getLevelName($lvl);
+		$eventData[$this->logDef["TIME"]] = date('M d H:i:s');
 		$eventData[$this->logDef["DETAILS"]] = $message;
 		$eventData[$this->logDef["SOURCE"]] = $source;
 		$eventData[$this->logDef["SERVER"]] = $server;
@@ -172,6 +174,15 @@ class Log
 
         // If we are logging to a file, then write it here
 		if ($this->logFile) {
+            /*
+             [Mon Jul 18 13:19:31.260660 2016] [:error] [pid 86] [client 172.18.0.1:33174] PHP   8. Zen
+             */
+            /*
+            $logLine = date('M m d H:i:s') . " " .
+            (($server) ? $server : ' - ') . " " .
+            " netric: " . $message;
+            return fwrite($this->logFile, $logLine);
+            */
             return fputcsv($this->logFile, $eventData);
         } else {
             // Otherwise just log to syslog
