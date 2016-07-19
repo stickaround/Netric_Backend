@@ -1112,19 +1112,26 @@ class Entity implements EntityInterface
         $entityFollowers = $otherEntity->getValue("followers");
         foreach ($entityFollowers as $uid)
         {
-            $userName = $otherEntity->getValueName("followers", $uid);
+			// We need to have a valid uid, before we add it as follower
+			if($uid) {
+				$userName = $otherEntity->getValueName("followers", $uid);
 
-            // addMultiValue will prevent duplicates so we just add them all
-            $this->addMultiValue("followers", $uid, $userName);
+				// addMultiValue will prevent duplicates so we just add them all
+				$this->addMultiValue("followers", (int) $uid, $userName);
+			}
+
         }
 
         // Now add any new followers from this comment to follow the entity we've commented on
         $commentFollowers = $this->getValue("followers");
         foreach ($commentFollowers as $uid)
         {
-            $userName = $this->getValueName("followers", $uid);
+			// We need to have a valid uid, before we add it as follower
+			if($uid) {
 
-            $otherEntity->addMultiValue("followers", $uid, $userName);
+				$userName = $this->getValueName("followers", $uid);
+				$otherEntity->addMultiValue("followers", (int) $uid, $userName);
+			}
         }
     }
 }
