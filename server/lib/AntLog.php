@@ -104,13 +104,10 @@ class AntLog
 	 */
 	public function __construct()
 	{
-		$data_path = AntConfig::getInstance()->data_path;
-
 		// Make sure the local data path exists
-		if ($data_path && file_exists($data_path))
+		if (AntConfig::getInstance()->log)
 		{
-			$lname = (AntConfig::getInstance()->log) ? AntConfig::getInstance()->log : "ant.log";
-			$this->logPath = $data_path . "/" . $lname;
+			$this->logPath = AntConfig::getInstance()->log;
 
 			// Now make sure we have not exceeded the maxiumu size for this log file
 			if (file_exists($this->logPath))
