@@ -38,12 +38,18 @@ if ($def) {
         $entity = $entityLoader->create('email_account');
 
         // Make sure to set the id to null, so the system will insert the record and create the new entity
+        $oldid = $row['id'];
         $row['id'] = null;
+        $row['owner_id'] = $row['user_id'];
 
         // Import the email_account details
         $entity->fromArray($row);
 
         // Save the entity with the new email_account details
-        $entityLoader->save($entity);
+        $newid = $entityLoader->save($entity);
+
+        // Update all email messages
+        $db->query("UPDATE objects_email_message_act SET email_account=$newid WHERE email_account=$oldid");
+        $db->query("UPDATE objects_email_message_del SET email_account=$newid WHERE email_account=$oldid");
     }
 }

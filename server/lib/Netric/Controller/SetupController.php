@@ -10,6 +10,7 @@ use Netric\Mvc;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use Netric\Application\Setup\Setup;
+use Netric\Console\BinScript;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -95,6 +96,20 @@ class SetupController extends Mvc\AbstractController
         }
 
         $response->writeLine("-- Update Complete --");
+        return $response;
+    }
+
+    /**
+     * Run a specific script
+     */
+    public function consoleRunAction()
+    {
+        $rootPath = dirname(__FILE__) . "/../../../bin/scripts";
+        $scriptName = $this->getRequest()->getParam("script");
+        $script = new BinScript($this->account->getApplication(), $this->account);
+        $script->run($rootPath . "/" . $scriptName);
+        $response = new ConsoleResponse();
+        $response->setReturnCode(0);
         return $response;
     }
 

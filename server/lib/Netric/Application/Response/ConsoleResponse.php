@@ -36,6 +36,13 @@ class ConsoleResponse implements ResponseInterface
     const TYPE_JSON = 'application/json';
 
     /**
+     * The return code of the script
+     *
+     * @var int
+     */
+    private $returnCode = 0;
+
+    /**
      * Set the content type of this response
      *
      * If not set the response object will try to detect the content-type
@@ -120,5 +127,25 @@ class ConsoleResponse implements ResponseInterface
     public function getOutputBuffer()
     {
         return $this->outputBuffer;
+    }
+
+    /**
+     * Set the return code for the console response
+     *
+     * @param int $code
+     */
+    public function setReturnCode($code)
+    {
+        $this->returnCode = $code;
+    }
+
+    /**
+     * Get the return code of the console response
+     * 
+     * @return int
+     */
+    public function getReturnCode()
+    {
+        return $this->returnCode;
     }
 }
