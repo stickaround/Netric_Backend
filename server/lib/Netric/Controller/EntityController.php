@@ -536,4 +536,84 @@ class EntityController extends Mvc\AbstractAccountController
         $ret = $this->fillDefinitionArray($def);
         return $this->sendOutput($ret);
     }
+
+    /**
+     * POST pass-through for remove
+     */
+    public function postMassEditAction()
+    {
+        return $this->getMassEditAction();
+    }
+
+    public function getMassEditAction()
+    {
+        $ret = array();
+
+        $rawBody = $this->getRequest()->getBody();
+
+        if (!$rawBody)
+        {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        // Check if we have obj_type. If it is not defined, then return an error
+        if (!isset($objData['obj_type']))
+        {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
+        }
+
+        // Check if we have id. If it is not defined, then return an error
+        if (!isset($objData['id']))
+        {
+            return $this->sendOutput(array("error" => "id is a required param"));
+        }
+
+        // Check if we have entity_data. If it is not defined, then return an error
+        if (!isset($objData['entity_data']))
+        {
+            return $this->sendOutput(array("error" => "entity_data is a required param"));
+        }
+
+        $entityData = $objData['entity_data'];
+
+        // IDs can either be a single entry or an array
+        $ids = $objData['id'];
+
+        // Convert a single id to an array so we can handle them all the same way
+        if (!is_array($ids) && $ids)
+        {
+            $ids = array($ids);
+        }
+
+        // Get the entity loader so we can initialize (and check the permissions for) each entity
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+
+        // Get the datamapper
+        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+
+        foreach ($ids as $id)
+        {
+            $entity = $loader->get($objData['obj_type'], $id);
+
+            // Make sure we have a field name to update
+            if($entityData['field_name']) {
+
+                // Set the update field
+                $entity->setValue($entityData['field_name'], $entityData['field_value']);
+
+                // Save the entity
+                $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+                $dataMapper->save($entity);
+
+                // Return the entities that were updated
+                $ret[] = $entity->toArray();
+            }
+        }
+
+        // Return what was edited
+        return $this->sendOutput($ret);
+    }
 }

@@ -169,5 +169,45 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertArrayNotHasKey('test_field', $ret['fields']);
     }
 
+    public function testMassEdit()
+    {
+        // Setup the loaders
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
+        // First create entities to save
+        $entity1 = $loader->create("note");
+        $entity1->setValue("body", "Note 1");
+        $dm->save($entity1);
+        $entityId1 = $entity1->getId();
+
+        $entity2 = $loader->create("note");
+        $entity2->setValue("body", "Note 2");
+        $dm->save($entity2);
+        $entityId2 = $entity2->getId();
+
+        // Setup the data
+        $data = array(
+            'obj_type' => "note",
+            'id' => array($entityId1, $entityId2),
+            'entity_data' => array("field_name" => "body", "field_value" => "test mass edit")
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+
+        $ret = $this->controller->postMassEditAction();
+
+        // Test the results
+        $this->assertEquals($data['entity_data']['field_value'], $ret[0]['body']);
+        $this->assertEquals($data['entity_data']['field_value'], $ret[1]['body']);
+
+        // Lets load the actual actual entities and test them
+        $updatedEntity1 = $loader->get("note", $entityId1);
+        $this->assertEquals($data['entity_data']['field_value'], $updatedEntity1->getValue("body"));
+
+        $updatedEntity2 = $loader->get("note", $entityId2);
+        $this->assertEquals($data['entity_data']['field_value'], $updatedEntity2->getValue("body"));
+    }
 }
