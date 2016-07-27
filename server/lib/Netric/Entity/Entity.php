@@ -410,6 +410,14 @@ class Entity implements EntityInterface
 			$value = (isset($data[$fname])) ? $data[$fname] : "";
 			$valNames = array();
 
+			/**
+			 * If entity is already saved and has an Id, then we need to check if the data field was set
+			 * For instance if we are editing this entity and setting only the specific fields
+			 * Then we do not need to update every entity fields if we do not have data field value for it
+			 */
+			if(!empty($this->getId()) && !isset($data[$fname]))
+				continue;
+
             // If the fieldname is recurrence pattern, let the RecurrencePattern Class handle the checking
             if($fname == 'recurrence_pattern')
                 continue;

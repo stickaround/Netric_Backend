@@ -32,7 +32,7 @@ class EntityController extends Mvc\AbstractAccountController
 		// Load the entity definition
 		$defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
 		$def = $defLoader->get($params['obj_type']);
-		if (!$def) 
+		if (!$def)
 		{
 			return $this->sendOutput(array("error"=>$params['obj_type'] . " could not be loaded"));
 		}
@@ -49,20 +49,20 @@ class EntityController extends Mvc\AbstractAccountController
 	{
         $ret = array();
         $params = $this->getRequest()->getParams();
-        
+
         if (!isset($params["obj_type"]))
             return $this->sendOutput(array("error"=>"obj_type must be set"));
-        
+
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        
+
         $query = new \Netric\EntityQuery($params["obj_type"]);
 
         if(isset($params['offset']))
             $query->setOffset($params['offset']);
-            
+
         if(isset($params['limit']))
             $query->setLimit($params["limit"]);
-        
+
         // Parse values passed from POST or GET params
         \Netric\EntityQuery\FormParser::buildQuery($query, $params);
 
@@ -81,7 +81,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Execute the query
         $res = $index->executeQuery($query);
-        
+
         // Pagination
         // ---------------------------------------------
         $ret["total_num"] = $res->getTotalNum();
@@ -128,13 +128,13 @@ class EntityController extends Mvc\AbstractAccountController
             $ret['paginate']['desc'] = $pag_str;
         }
         */
-        
+
         // Set results
         $entities = array();
         for ($i = 0; $i < $res->getNum(); $i++)
         {
             $ent = $res->getEntity($i);
-            
+
             if(isset($params['updatemode']) && $params['updatemode']) // Only get id and revision
 			{
                 // Return condensed results
@@ -147,13 +147,13 @@ class EntityController extends Mvc\AbstractAccountController
 			else
 			{
                 // TODO: security
-                
+
                 // Print full details
                 $entities[] = $ent->toArray();
             }
         }
         $ret["entities"] = $entities;
-        
+
         return $this->sendOutput($ret);
 	}
 
@@ -185,7 +185,7 @@ class EntityController extends Mvc\AbstractAccountController
         // TODO: Check permissions
 
         $ret = $entity->toArray();
-        
+
         // Check for definition (request may be made by client)
         if (isset($params['loadDef']))
         {
@@ -330,7 +330,7 @@ class EntityController extends Mvc\AbstractAccountController
         {
             $filterArray['user_id'] = $this->account->getUser()->getId();
         }
-        
+
         // Get all groupings from the loader
         $groups = $loader->get($objType, $fieldName, $filterArray);
 
@@ -538,13 +538,18 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * POST pass-through for remove
+     * POST pass-through for mass edit
      */
     public function postMassEditAction()
     {
         return $this->getMassEditAction();
     }
 
+    /**
+     * Function that will handle the mass editing of entities
+     *
+     * @return {array} Returns the array of updated entities
+     */
     public function getMassEditAction()
     {
         $ret = array();
@@ -596,21 +601,18 @@ class EntityController extends Mvc\AbstractAccountController
 
         foreach ($ids as $id)
         {
+            // Load the entity that we are going to update
             $entity = $loader->get($objData['obj_type'], $id);
 
-            // Make sure we have a field name to update
-            if($entityData['field_name']) {
+            // Update the fields with the data
+            $entity->fromArray($entityData);
 
-                // Set the update field
-                $entity->setValue($entityData['field_name'], $entityData['field_value']);
+            // Save the entity
+            $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+            $dataMapper->save($entity);
 
-                // Save the entity
-                $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
-                $dataMapper->save($entity);
-
-                // Return the entities that were updated
-                $ret[] = $entity->toArray();
-            }
+            // Return the entities that were updated
+            $ret[] = $entity->toArray();
         }
 
         // Return what was edited
