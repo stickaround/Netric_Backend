@@ -35,8 +35,10 @@ class Bootstrap
         // Initialize application
         $application = new \Netric\Application\Application($config);
 
+        // Set log path
+        $application->getLog()->setLogPath(__DIR__ . "/tmp/netric.log");
+
         // Initialize account
-        // TODO: Discover why account is not loading
         static::$account = $application->getAccount();
 
         // Get or create an administrator user so permissions are not limiting

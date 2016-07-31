@@ -172,7 +172,8 @@ class AntLog
 			return false;
 
 		if ($this->logPath == "")
-			throw new Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
+			return false;
+			//throw new Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
 
 		global $_SERVER;
 

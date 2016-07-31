@@ -82,7 +82,6 @@ class Application
 
         // Setup log
         $this->log = new Log($config);
-        $this->log->error("Application->__construct: Initialized application");
 
         // Setup error handler if not in a unit test
         if (!class_exists('\PHPUnit_Framework_TestCase'))
@@ -134,7 +133,7 @@ class Application
     public function run($path = "")
     {
         // Get the request
-        $request = Console::isConsole() ? new ConsoleRequest() : new HttpRequest();
+        $request = $this->serviceManager->get("Netric/Request/Request");
 
         // Get the router
         $router = new Router($this);

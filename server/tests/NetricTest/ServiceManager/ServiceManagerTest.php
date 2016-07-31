@@ -49,25 +49,26 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-	 * Check if we can get the config
+	 * Check if we can get a service from the parent service locator
+	 *
+	 * Config is a member of the Application service locator, not the Account
+	 * so thye application locator will check the parent first.
 	 */
-	public function testGetLocalFactoryFunction()
+	public function testGetServiceFromParent()
 	{
-		$sl = $this->account->getServiceManager();
+		$appSl = $this->account->getApplication()->getServiceManager();
+		$accSl = $this->account->getServiceManager();
 
 		// Get config service
-		$config = $sl->get("Config");
-		$this->assertInstanceOf("Netric\Config\Config", $config);
+		$appConfig = $appSl->get("Netric/Config/Config");
+		$this->assertInstanceOf("Netric\\Config\\Config", $appConfig);
 
-		// Test to see if the isLoaded function indicates the service has been loaded
-		$refIm = new \ReflectionObject($sl);
-        $isLoaded = $refIm->getMethod("isLoaded");
-		$isLoaded->setAccessible(true);
-		$this->assertTrue($isLoaded->invoke($sl, "Netric\Config\Config"));
+		// Now try loading it from the account service locator, with the alias
+		$accConfig = $accSl->get("Config");
+		$this->assertInstanceOf("Netric\\Config\\Config", $accConfig);
 
-		// Now that we know it is cached, lets make sure the returned object is correct
-		$config = $sl->get("Config");
-		$this->assertInstanceOf("Netric\Config\Config", $config);
+		// Make sure they are the same
+		$this->assertSame($appConfig, $accConfig);
 	}
     
     /**

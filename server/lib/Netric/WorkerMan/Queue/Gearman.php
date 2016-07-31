@@ -32,7 +32,12 @@ class Gearman implements QueueInterface
      */
     private $listeners = array();
 
-    private $lastJobId = null;
+    /**
+     * The gearman server
+     *
+     * @var string
+     */
+    private $server = "localhost";
 
     /**
      * Initialize a Gearman job queue
@@ -41,16 +46,7 @@ class Gearman implements QueueInterface
      */
     public function __construct($server)
     {
-        // Create a client instance and add the server
-        $this->gmClient = new \GearmanClient();
-        $this->gmClient->addServer($server, 4730);
-
-        // Create a worker instance and add the server
-        $this->gmWorker = new \GearmanWorker();
-        $this->gmWorker->addServer($server, 4730);
-
-        // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
-        $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
+        $this->server = $server;
     }
 
     /**
@@ -62,7 +58,7 @@ class Gearman implements QueueInterface
      */
     public function doWork($workerName, array $jobData)
     {
-        return $this->gmClient->doNormal($workerName, json_encode($jobData));
+        return $this->getGmClient()->doNormal($workerName, json_encode($jobData));
     }
 
     /**
@@ -74,10 +70,10 @@ class Gearman implements QueueInterface
      */
     public function doWorkBackground($workerName, array $jobData)
     {
-        $job = $this->gmClient->doBackground($workerName, json_encode($jobData));
+        $job = $this->getGmClient()->doBackground($workerName, json_encode($jobData));
 
-        if ($this->gmClient->returnCode() != GEARMAN_SUCCESS) {
-            throw new \RuntimeException("Cannot run background job: " . $this->gmClient->error());
+        if ($this->getGmClient()->returnCode() != GEARMAN_SUCCESS) {
+            throw new \RuntimeException("Cannot run background job: " . $this->getGmClient()->error());
         }
 
         $this->lastJobId = $job;
@@ -93,8 +89,12 @@ class Gearman implements QueueInterface
      */
     public function addWorker($workerName, WorkerInterface $worker)
     {
+        $gmWorker = $this->getGmWorker();
+        // Unregister previous worker if set
+        @$gmWorker->unregister($workerName);
         $this->listeners[$workerName] = $worker;
-        $this->gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
+        $ret = $gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
+        return $ret;
     }
 
     /**
@@ -118,14 +118,23 @@ class Gearman implements QueueInterface
             return false;
         }
 
-        if ($this->gmWorker->work()) {
+        $gmWorker = $this->getGmWorker();
+
+        if ($gmWorker->work()) {
             return true;
         } else {
-            $error = $this->gmWorker->error();
+            // If we need to wait, then pause for a second then try again
+            if ($gmWorker->returnCode() == GEARMAN_IO_WAIT) {
+                sleep(1);
+                return $this->dispatchJobs();
+            }
+            
+            $error = $gmWorker->error();
             if ($error) {
                 throw new \RuntimeException("Job failed: " . $error);
             } else {
                 // No jobs
+                $returnCode = $gmWorker->returnCode();
                 return false;
             }
         }
@@ -162,30 +171,66 @@ class Gearman implements QueueInterface
     public function clearWorkerQueue($workerName)
     {
         $purged = 0;
+        $gmWorker = $this->getGmWorker();
 
         // First unregister all listeners with gearman client
-        if (count($this->getWorkers())) {
-            $this->gmWorker->unregisterAll();
-        }
+        @$gmWorker->unregisterAll();
 
         // Register a no-op function to run through the queue (our /dev/null)
-        $this->gmWorker->addFunction($workerName, function($job) { return true; });
+        $gmWorker->addFunction($workerName, function($job) { $job->sendComplete("Done"); return true; });
 
+        // Remove non blocking because it is causing problems with clearing
+        //$gmWorker->removeOptions(GEARMAN_WORKER_NON_BLOCKING);
 
         // If there are no jobs work will return GEARMAN_NO_JOBS
-        while($this->dispatchJobs()) {
+        while($gmWorker->work() || $gmWorker->returnCode() == GEARMAN_IO_WAIT) {
             $purged++;
         }
-        $this->gmWorker->unregister($workerName);
+        $returnCode = $this->getGmWorker()->returnCode();
+        $gmWorker->unregister($workerName);
 
-        // Restore options
-        //$this->gmWorker->removeOptions(GEARMAN_WORKER_NON_BLOCKING);
+        // Put non blocking options back
+        //$gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
 
         // Re-register original listeners
-        foreach ($this->listeners as $workerName=>$worker) {
-            $this->gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
+        foreach ($this->listeners as $listenerName=>$worker) {
+            $gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
         }
 
         return $purged;
+    }
+
+    /**
+     * Get instance of a gearman client
+     *
+     * @return \GearmanClient|null
+     */
+    private function getGmClient()
+    {
+        // Create a client instance and add the server
+        if (!$this->gmClient) {
+            $this->gmClient = new \GearmanClient();
+            $this->gmClient->addServer($this->server, 4730);
+        }
+
+        return $this->gmClient;
+    }
+
+    /**
+     * Get instance of the gearman worker
+     *
+     * @return \GearmanWorker
+     */
+    private function getGmWorker()
+    {
+        if (!$this->gmWorker) {
+            $this->gmWorker = new \GearmanWorker();
+            $this->gmWorker->addServer($this->server, 4730);
+
+            // Turn off blocking so that $this->gmWorker->work will return right away if no jobs
+            $this->gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
+        }
+
+        return $this->gmWorker;
     }
 }

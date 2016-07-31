@@ -124,6 +124,13 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         if ($this->isLoaded($serviceName))
             return $this->loadedServices[$serviceName];
 
+        // Check the parent if it was already loaded
+        if ($this->parentServiceLocator) {
+            if ($this->parentServiceLocator->isLoaded($serviceName)) {
+                return $this->parentServiceLocator->get($serviceName);
+            }
+        }
+
         // Get actual class name by appending 'Factory' and normalizing slashes
         $classPath = $this->getServiceFactoryPath($serviceName);
 
@@ -221,7 +228,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      * @param string $serviceName
      * @return bool true if service is loaded and cached, false if it needs to be instantiated
      */
-    protected function isLoaded($serviceName)
+    public function isLoaded($serviceName)
     {
         if (isset($this->loadedServices[$serviceName]) && $this->loadedServices[$serviceName] != null)
             return true;

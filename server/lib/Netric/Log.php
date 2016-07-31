@@ -8,6 +8,8 @@
 
 namespace Netric;
 
+use Netric\Config\Config;
+
 /**
  * Description of Log
  */
@@ -75,37 +77,24 @@ class Log
      */
     private $appBranch = "release";
 
+    /**
+     * Flag to print logs to the console
+     *
+     * @var bool
+     */
+    private $printToConsole = false;
+
 	/**
 	 * Constructor
 	 *
 	 * @param Config $config
 	 */
-	public function __construct($config)
+	public function __construct(Config $config)
 	{
-		// Make sure the local data path exists if we are logging to a file
-		if (!empty($config->log))
-		{
-			$this->logPath = $config->log;
+        // Set the path to log to
+        if (!empty($config->log))
+            $this->setLogPath($config->log);
 
-            // If we are not working with php streams, then handle creating the file and rotating it
-            if ("php:" != substr($this->logPath, 0, 4)) {
-                // Now make sure we have not exceeded the maximum size for this log file
-                if (file_exists($this->logPath))
-                {
-                    if (filesize($this->logPath) >= ($this->maxSize * 1024))
-                        unlink($this->logPath);
-                }
-
-                // Check to see if log file exists and create it if it does not
-                if (!file_exists($this->logPath))
-                {
-                    $this->logPath = ""; // clear the path which will raise exception on write
-                }
-            }
-
-			// Now open the file
-			$this->logFile = fopen($this->logPath, 'a');
-		}
 
 		// Set current logging level if defined
 		if ($config->log_level)
@@ -119,6 +108,37 @@ class Log
 		//$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
 		openlog("netric", LOG_PID, LOG_LOCAL5);
 	}
+
+    /**
+     * Set the path to use for logging
+     *
+     * @param string $logPath
+     */
+    public function setLogPath($logPath)
+    {
+        // Make sure the local data path exists if we are logging to a file
+        $this->logPath = $logPath;
+
+        // If we are not working with php streams, then handle creating the file and rotating it
+        if ("php:" != substr($this->logPath, 0, 4)) {
+
+            // Make sure we have not exceeded the maximum size for this log file
+            if (file_exists($this->logPath)) {
+                if (filesize($this->logPath) >= ($this->maxSize * 1024))
+                    unlink($this->logPath);
+            }
+
+            // Check to see if log file exists and create it if it does not
+            if (!file_exists($this->logPath)) {
+                if (!touch($this->logPath)) {
+                    throw new \RuntimeException("Could not create log file: " . $this->logPath);
+                }
+            }
+        }
+
+        // Now open the file
+        $this->logFile = fopen($this->logPath, 'a');
+    }
 
 	/**
 	 * Destructor - cleanup file handles
@@ -171,6 +191,12 @@ class Log
 		$eventData[$this->logDef["SERVER"]] = $server;
 		$eventData[$this->logDef["ACCOUNT"]] = "";
 		$eventData[$this->logDef["USER"]] = "";
+
+        // If flag is set to print to the console, then do it now
+        if ($this->printToConsole) {
+            echo "[" . $eventData['TIME'] . "] [:$lvl] " .
+                 "[pid "  . getmypid() . "] netric " . $message . "\n";
+        }
 
         // If we are logging to a file, then write it here
 		if ($this->logFile) {
@@ -446,6 +472,15 @@ class Log
 			}
 		}
 	}
+
+    /**
+     * Set or unset a flag that will print all logs to the console
+     *
+     * @param bool $print
+     */
+    public function setPrintToConsole($print = false) {
+        $this->printToConsole = $print;
+    }
 
 	/**
 	 * Convert an error argument or backtrace to a string for logging

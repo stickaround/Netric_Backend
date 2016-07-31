@@ -13,7 +13,7 @@ use Netric;
 /**
  * Class for constructing, caching, and finding services by name
  */
-class ServiceManager extends AbstractServiceManager implements AccountServiceManagerInterface
+class AccountServiceManager extends AbstractServiceManager implements AccountServiceManagerInterface
 {
     /**
      * Handle to netric account
@@ -25,15 +25,13 @@ class ServiceManager extends AbstractServiceManager implements AccountServiceMan
     /**
      * Class constructor
      *
-     * We are private because the class must be a singleton to assure resources
-     * are initialized only once.
-     *
      * @param Account $account The account we are loading services for
      */
     public function __construct(Account $account)
     {
         $this->account = $account;
-        parent::__construct($account->getApplication());
+        $application = $account->getApplication();
+        parent::__construct($application, $application->getServiceManager());
     }
 
     /**

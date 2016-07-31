@@ -32,6 +32,15 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Cleanup any leftover tasks in the queue
+     */
+    protected function tearDown()
+    {
+        $queue = $this->getQueue();
+        //$queue->clearWorkerQueue("Test");
+    }
+
+    /**
      * Construct a job queue
      *
      * @return QueueInterface
@@ -58,9 +67,6 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
     {
         $queue = $this->getQueue();
 
-        // Clear the queue to make sure nothing is left over
-        $queue->clearWorkerQueue("Test");
-
         // Add a worker which will process the queue
         $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
@@ -79,9 +85,6 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
     {
         $queue = $this->getQueue();
 
-        // Clear the queue to make sure nothing is left over
-        $queue->clearWorkerQueue("Test");
-
         // Now add a worker which will process the queue
         $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
@@ -92,9 +95,6 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
     public function testDispatchJobs()
     {
         $queue = $this->getQueue();
-
-        // Clear the queue to make sure nothing is left over
-        $queue->clearWorkerQueue("Test");
 
         // This will queue the job
         $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
@@ -117,11 +117,11 @@ abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
         $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
         $queue->doWorkBackground("Test", ["mystring"=>"dispatch"]);
 
-        // Now add a worker which will process the queue
+        // Add a worker that should never be called
         $worker = new TestWorker($this->account->getApplication());
         $queue->addWorker("Test", $worker);
 
-        // Clear all reqults
+        // Clear all results
         $this->assertGreaterThanOrEqual(2, $queue->clearWorkerQueue("Test"));
 
         // Make sure the worker was never called

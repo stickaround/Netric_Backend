@@ -24,13 +24,29 @@ devel.netric.com on your workstation.
 
 Log in with "test@netric.com" and "password" as the password.
 
-### Accessing Servers
-devel.netric.com:80 - load netric
-devel.netric.com:5601 - load kibana to view logs
-devel.netric.com:5432 - connect to postgres with user vagrant and password vagrant
+### Testing
+Run ./test.sh [optargs]
+You can pass any arguments after test.sh that you would to phpunit. For example,
+if you only want to test a specific test type:
+
+    ./test.sh NetricTest/Application/Application.php
+
+### Accessing Services
+- devel.netric.com:80 - load netric
+- devel.netric.com:5601 - load kibana to view logs
+- devel.netric.com:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
 If using PHPStorm simply start listening on port 9000 for xdebug
+
+### Remote In
+
+You can remote into the server with the follwoing command:
+
+    docker exec -it docker_netric_server_1 /bin/bash
+    
+This will spawn a new interactive process in the container and run bash which
+is similar what happens when you SSH into a remote machine.
 
 ## The Client
 

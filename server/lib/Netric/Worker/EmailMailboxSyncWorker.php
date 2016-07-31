@@ -41,11 +41,20 @@ class EmailMailboxSyncWorker extends AbstractWorker
             return false;
         }
 
-        // Get the account we are working with
+        // Get the account and user we are working with
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);
-        $user = $account->getServiceManager()->get("EntityLoader");
+        $user = $account->getServiceManager()->get("EntityLoader")->get("user", $workload['user_id']);
+        // Fail if not a valid user
+        if (!$user) {
+            $log->error(
+                "EmailMailboxSyncWorker->work: user_id  {$workload['user_id']} is not valid"
+            );
+            return false;
+        }
         $account->setCurrentUser($user);
+
+        // Get the entity index and the email receiver
         $entityIndex = $account->getServiceManager()->get("EntityQuery_Index");
         $mailReceiver = $account->getServiceManager()->get("Netric/Mail/ReceiverService");
 

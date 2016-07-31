@@ -25,8 +25,9 @@ RUN apt-get update && apt-get install -y \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && pecl install mogilefs-0.9.2 \
-    && docker-php-ext-enable mogilefs
-
+    && docker-php-ext-enable mogilefs \
+    && docker-php-ext-install pcntl \
+    && docker-php-ext-enable pcntl
 
 # install PHP PEAR extensions
 RUN pear install mail \

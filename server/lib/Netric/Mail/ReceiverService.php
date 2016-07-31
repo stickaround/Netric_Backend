@@ -23,6 +23,7 @@ use Netric\Mail\Storage\Pop3;
 use Netric\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
+use PetstoreIO\User;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
@@ -107,6 +108,16 @@ class ReceiverService extends AbstractHasErrors
         $this->entityLoader = $entityLoader;
         $this->groupingsLoader = $groupingsLoader;
         $this->entityIndex = $entityIndex;
+    }
+
+    /**
+     * Set the current user for this service
+     *
+     * @param UserEntity $user
+     */
+    public function setUser(UserEntity $user)
+    {
+        $this->user = $user;
     }
 
     /**

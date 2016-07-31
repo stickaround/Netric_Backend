@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 36;
+$obj_revision = 37;
 
 $isPrivate = true;
 $defaultActivityLevel = 1;
@@ -73,10 +73,9 @@ $obj_fields['date_changed']	= array('title'=>'Date Changed', 'type'=>'timestamp'
 
 $default = array("value"=>"-3", "on"=>"null");
 $obj_fields['user_id'] = array('title'=>'Owner',
-									  'type'=>'fkey',
-									  'subtype'=>'users',
-									  'default'=>$default,
-									  'fkey_table'=>array("key"=>"id", "title"=>"name"));
+									  'type'=>'object',
+									  'subtype'=>'user',
+									  'default'=>$default);
 
 $obj_fields['image_id'] = array('title'=>'Image',
 									  'type'=>'object',
@@ -93,36 +92,8 @@ $obj_fields['groups'] = array('title'=>'Groups',
 																									"ref"=>"label_id")));
 // Customer
 $obj_fields['customer_id'] = array('title'=>'Customer',
-								   'type'=>'fkey',
-								   'subtype'=>'customers',
-								   'fkey_table'=>array("key"=>"id", "title"=>"name"));
-
-// Events
-$obj_fields['anniversary_evnt'] = array('title'=>'Anniversary Calendar Event',
-									   'type'=>'fkey',
-									   'subtype'=>'calendar_events_recurring',
-									   'readonly'=>true,
-									   'fkey_table'=>array("key"=>"id", "title"=>"name"));
-$obj_fields['birthday_spouse_evnt'] = array('title'=>'Spouse Birthday Calendar Event',
-									   'type'=>'fkey',
-									   'subtype'=>'calendar_events_recurring',
-									   'readonly'=>true,
-									   'fkey_table'=>array("key"=>"id", "title"=>"name"));
-$obj_fields['birthday_evnt'] = array('title'=>'Birthday Calendar Event',
-									   'type'=>'fkey',
-									   'subtype'=>'calendar_events_recurring',
-									   'readonly'=>true,
-									   'fkey_table'=>array("key"=>"id", "title"=>"name"));
-
-// Folder
-$obj_fields['folder_id'] = array('title'=>'Files',
 								   'type'=>'object',
-								   'subtype'=>'folder',
-								   'autocreate'=>true, // Create foreign object automatically
-								   'autocreatebase'=>'%userdir%/System/Contact Files', // Where to create (for folders, the path with no trail slash)
-								   'autocreatename'=>'id', // the field to pull the new object name from
-								   'fkey_table'=>array("key"=>"id", "title"=>"name"));
-
+								   'subtype'=>'customer');
 
 // Set views
 $obj_views = array();

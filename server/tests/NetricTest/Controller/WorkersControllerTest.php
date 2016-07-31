@@ -37,14 +37,6 @@ class WorkersControllerTest extends PHPUnit_Framework_TestCase
         // Create the controller
         $this->controller = new Netric\Controller\WorkersController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
-
-        /*
-         * These tests only run in local development mode since docker in centos (testing)
-         * model cannot handle threads for gearman.
-         */
-        if (getenv("APPLICATION_ENV") != "development") {
-            $this->markTestSkipped("Gearman threading only works in docker on debian for some reason");
-        }
     }
 
     public function testConsoleProcessAction()

@@ -1,4 +1,4 @@
-<?php
+a<?php
 return array(
     array("obj_type"=>"invoice", "title"=>"Invoice", "object_table"=>"customer_invoices", "revision"=>"0", "system"=>true),
     array("obj_type"=>"contact_personal", "title"=>"Personal Contact", "object_table"=>"", "revision"=>"0", "system"=>true),
