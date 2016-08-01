@@ -272,19 +272,37 @@ class EntityTest extends PHPUnit_Framework_TestCase
      */
     public function testSyncFollowers()
     {
-        // Add some fake users to a test task
-        $task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
-        $task1->addMultiValue("followers", 123, "John");
-        $task1->addMultiValue("followers", 456, "Dave");
+		// Add some fake users to a test task
+		$task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task1->addMultiValue("followers", 123, "John");
+		$task1->addMultiValue("followers", 456, "Dave");
+
+		// Create a second task and synchronize
+		$task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task2->syncFollowers($task1);
+
+		$this->assertEquals(2, count($task1->getValue("followers")));
+		$this->assertEquals($task1->getValue("followers"), $task2->getValue("followers"));
+    }
+
+	/**
+	 * Test sync followers with invalid followers data
+	 */
+	public function testSyncFollowersWithInvalid()
+	{
+		// Add some fake users to a test task
+		$task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task1->addMultiValue("followers", 123, "John");
+		$task1->addMultiValue("followers", 456, "Dave");
 		$task1->addMultiValue("followers", 0, "invlid zero id");
 		$task1->addMultiValue("followers", "testId", "invlid non-numeric id");
 
-        // Crete a second task and synchronize
-        $task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
-        $task2->syncFollowers($task1);
+		// Create a second task and synchronize
+		$task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task2->syncFollowers($task1);
 
-		// It will count 4 followers here since we added addition 2 invalid followers
-        $this->assertEquals(4, count($task1->getValue("followers")));
+		// It will count 4 followers here since we added additional 2 invalid followers
+		$this->assertEquals(4, count($task1->getValue("followers")));
 
 		/*
 		 * The $task1 and $task2 will not have the same followers
@@ -295,5 +313,5 @@ class EntityTest extends PHPUnit_Framework_TestCase
 
 		// $task2 will only have 2 followers, since the other 2 is invalid
 		$this->assertEquals(2, count($task2->getValue("followers")));
-    }
+	}
 }
