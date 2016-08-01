@@ -395,13 +395,15 @@ class Entity implements EntityInterface
             );
         }
     }
-   
+
 	/**
 	 * Set values from array
 	 *
 	 * @param array $data Associative array of values
+	 * $param bool $onlyProvidedFields Optional. If true, it will check first if field exists in $data array
+	 * 								    before settign a field value
 	 */
-	public function fromArray($data)
+	public function fromArray($data, $onlyProvidedFields=false)
 	{
 		$fields = $this->def->getFields();
 		foreach ($fields as $field)
@@ -410,12 +412,11 @@ class Entity implements EntityInterface
 			$value = (isset($data[$fname])) ? $data[$fname] : "";
 			$valNames = array();
 
-			/**
-			 * If entity is already saved and has an Id, then we need to check if the data field was set
-			 * For instance if we are editing this entity and setting only the specific fields
-			 * Then we do not need to update every entity fields if we do not have data field value for it
+			/*
+			 * If $onlyProvidedFields is set to true, we need to check first if field key exists in $data array
+			 * If field key does not exist, then we do not need update the current field.
 			 */
-			if(!empty($this->getId()) && !isset($data[$fname]))
+			if ($onlyProvidedFields && !isset($data[$fname]))
 				continue;
 
             // If the fieldname is recurrence pattern, let the RecurrencePattern Class handle the checking

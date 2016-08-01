@@ -127,7 +127,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		$existingCust = $loader->get('customer', $cust->getId());
 
 		// Load the updated data into the entity
-		$existingCust->fromArray($updatedData);
+		$existingCust->fromArray($updatedData, true);
 
 		// It should store the updated data from the updated fields provided
 		$this->assertEquals($existingCust->getValue("name"), $updatedData["name"]);

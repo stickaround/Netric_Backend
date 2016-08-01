@@ -604,8 +604,8 @@ class EntityController extends Mvc\AbstractAccountController
             // Load the entity that we are going to update
             $entity = $loader->get($objData['obj_type'], $id);
 
-            // Update the fields with the data
-            $entity->fromArray($entityData);
+            // Update the fields with the data. Make sure we only update the provided fields.
+            $entity->fromArray($entityData, true);
 
             // Save the entity
             $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
