@@ -248,7 +248,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
     {
         $entity = $this->account->getServiceManager()->get("EntityLoader")->create("task");
         $entity->setValue("user_id", 123, "John");
-        $entity->setValue("notes", "Hey [user:456:Dave], check this out please.");
+        $entity->setValue("notes", "Hey [user:456:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
 
         // Use reflection to access the private function
         $refEntity = new \ReflectionObject($entity);
@@ -262,6 +262,9 @@ class EntityTest extends PHPUnit_Framework_TestCase
         $followers = $entity->getValue("followers");
 		sort($followers);
         $this->assertEquals(array(123, 456), $followers);
+
+		// Should only have 2 followers. Since the other 2 followers ([user:0:invalidId] and [user:abc:nonNumericId]) are invalid
+		$this->assertEquals(2, count($followers));
     }
 
     /**
@@ -269,16 +272,46 @@ class EntityTest extends PHPUnit_Framework_TestCase
      */
     public function testSyncFollowers()
     {
-        // Add some fake users to a test task
-        $task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
-        $task1->addMultiValue("followers", 123, "John");
-        $task1->addMultiValue("followers", 456, "Dave");
+		// Add some fake users to a test task
+		$task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task1->addMultiValue("followers", 123, "John");
+		$task1->addMultiValue("followers", 456, "Dave");
 
-        // Crete a second task and synchronize
-        $task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
-        $task2->syncFollowers($task1);
+		// Create a second task and synchronize
+		$task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task2->syncFollowers($task1);
 
-        $this->assertEquals(2, count($task1->getValue("followers")));
-        $this->assertEquals($task1->getValue("followers"), $task2->getValue("followers"));
+		$this->assertEquals(2, count($task1->getValue("followers")));
+		$this->assertEquals($task1->getValue("followers"), $task2->getValue("followers"));
     }
+
+	/**
+	 * Test sync followers with invalid followers data
+	 */
+	public function testSyncFollowersWithInvalid()
+	{
+		// Add some fake users to a test task
+		$task1 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task1->addMultiValue("followers", 123, "John");
+		$task1->addMultiValue("followers", 456, "Dave");
+		$task1->addMultiValue("followers", 0, "invlid zero id");
+		$task1->addMultiValue("followers", "testId", "invlid non-numeric id");
+
+		// Create a second task and synchronize
+		$task2 = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task2->syncFollowers($task1);
+
+		// It will count 4 followers here since we added additional 2 invalid followers
+		$this->assertEquals(4, count($task1->getValue("followers")));
+
+		/*
+		 * The $task1 and $task2 will not have the same followers
+		 * Since $task1 has invalid followers while when syncing the followers into $task2
+		 *  will remove the invalid followers
+		 */
+		$this->assertNotEquals($task1->getValue("followers"), $task2->getValue("followers"));
+
+		// $task2 will only have 2 followers, since the other 2 is invalid
+		$this->assertEquals(2, count($task2->getValue("followers")));
+	}
 }

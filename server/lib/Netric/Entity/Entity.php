@@ -1051,10 +1051,12 @@ class Entity implements EntityInterface
                 $tagged = self::getTaggedObjRef($this->getValue($field->name));
                 foreach ($tagged as $objRef)
                 {
-                    if ($objRef['obj_type'] === 'user' && $objRef['id'])
-                    {
-                        $this->addMultiValue("followers", (int)$objRef['id'], $objRef['name']);
-                    }
+					// We need to have a valid uid, before we add it as follower
+					if ($objRef['obj_type'] === 'user' && $objRef['id'] &&
+						is_numeric($objRef['id']) && $objRef['id'] > 0)
+					{
+						$this->addMultiValue("followers", $objRef['id'], $objRef['name']);
+					}
                 }
                 break;
 
@@ -1069,21 +1071,21 @@ class Entity implements EntityInterface
                     {
                         foreach ($value as $entityId)
                         {
-                            if ($entityId)
+                            if (is_numeric($entityId) && $entityId > 0)
                             {
                                 $this->addMultiValue(
                                     "followers",
-                                    (int) $entityId,
+                                    $entityId,
                                     $this->getValueName($field->name, $entityId)
                                 );
                             }
                         }
                     }
-                    else if ($value)
+                    else if (is_numeric($value) && $value > 0)
                     {
                         $this->addMultiValue(
                             "followers",
-                            (int) $value,
+                            $value,
                             $this->getValueName($field->name, $value)
                         );
                     }
@@ -1112,19 +1114,26 @@ class Entity implements EntityInterface
         $entityFollowers = $otherEntity->getValue("followers");
         foreach ($entityFollowers as $uid)
         {
-            $userName = $otherEntity->getValueName("followers", $uid);
+			// We need to have a valid uid, before we add it as follower
+			if(is_numeric($uid) && $uid > 0) {
+				$userName = $otherEntity->getValueName("followers", $uid);
 
-            // addMultiValue will prevent duplicates so we just add them all
-            $this->addMultiValue("followers", $uid, $userName);
+				// addMultiValue will prevent duplicates so we just add them all
+				$this->addMultiValue("followers", $uid, $userName);
+			}
+
         }
 
         // Now add any new followers from this comment to follow the entity we've commented on
         $commentFollowers = $this->getValue("followers");
         foreach ($commentFollowers as $uid)
         {
-            $userName = $this->getValueName("followers", $uid);
+			// We need to have a valid uid, before we add it as follower
+			if(is_numeric($uid) && $uid > 0) {
 
-            $otherEntity->addMultiValue("followers", $uid, $userName);
+				$userName = $this->getValueName("followers", $uid);
+				$otherEntity->addMultiValue("followers", $uid, $userName);
+			}
         }
     }
 }
