@@ -890,7 +890,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 			case 'timestamp':
 				if (is_numeric($val) && $val > 0)
 				{
-					$strTs = date("Y-m-d h:i:s A e", $val);
+					$strTs = date("Y-m-d h:i:s A T", $val);
 					$setVal = $dbh->escapeTimestamp($strTs);
 				}
 				break;

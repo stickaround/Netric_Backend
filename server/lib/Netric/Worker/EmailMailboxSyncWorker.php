@@ -41,6 +41,8 @@ class EmailMailboxSyncWorker extends AbstractWorker
             return false;
         }
 
+        $log->info("EmailMailboxSyncWorker->work: for {$workload['account_id']}, {$workload['user_id']}");
+
         // Get the account and user we are working with
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);

@@ -106,8 +106,6 @@ class WorkersController extends Mvc\AbstractController
         while (true) {
             //echo "\tScheduling tasks...\n";
 
-            echo "Running schedule with stopping=" . var_export($request->isstopping(), true) . 
-                 " - " . getmu . "\n";
             // Exit if we have received a stop signal
             if ($request->isStopping()) {
                 $response->writeLine("Exiting job scheduler");
