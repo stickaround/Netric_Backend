@@ -8,6 +8,7 @@
 
 namespace Netric\Entity\ObjType;
 
+use Netric\Crypt\BlockCipher;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 
@@ -23,5 +24,12 @@ class EmailAccountEntity extends Entity implements EntityInterface
      */
     public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
     {
+        // If the password was updated for this user then encrypt it
+        if ($this->fieldValueChanged("password"))
+        {
+            $vaultService = $sm->get("Netric/Crypt/VaultService");
+            $blockCipher = new BlockCipher($vaultService->getSecret("EntityEnc"));
+            $this->setValue("password", $blockCipher->encrypt($this->getValue("password")));
+        }
     }
 }

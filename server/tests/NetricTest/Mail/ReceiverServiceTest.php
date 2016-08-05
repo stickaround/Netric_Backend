@@ -229,7 +229,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $imap = new Imap([
             'host'     => $this->emailAccount->getValue("host"),
             'user'     => $this->emailAccount->getValue("username"),
-            'password' => $this->emailAccount->getValue("password")
+            'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
         ]);
         // Delete the first message
         foreach ($imap as $msgNo=>$message) {
@@ -285,7 +285,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $imap = new Imap([
             'host'     => $this->emailAccount->getValue("host"),
             'user'     => $this->emailAccount->getValue("username"),
-            'password' => $this->emailAccount->getValue("password")
+            'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
         ]);
         $msgNum = $imap->getNumberByUniqueId($entity->getValue("message_uid"));
         $message = $imap->getMessage($msgNum);
@@ -326,7 +326,7 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $imap = new Imap([
             'host' => $this->emailAccount->getValue("host"),
             'user' => $this->emailAccount->getValue("username"),
-            'password' => $this->emailAccount->getValue("password")
+            'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
         ]);
         $this->assertEquals(4, $imap->countMessages());
         $imap->close();

@@ -394,16 +394,28 @@ class Message
         if ($this->body->isMultiPart()) {
             $mime   = $this->body->getMime();
             $header = $this->getHeaderByName('content-type', __NAMESPACE__ . '\Header\ContentType');
-            $header->setType('multipart/mixed');
+            // If the type is not already multipart, then change it
+            if (strtok($header->getType(), '/') != 'multipart') {
+                $header->setType('multipart/mixed');
+            }
             $header->addParameter('boundary', $mime->boundary());
             return $this;
         }
 
-        // MIME single part headers
+        // MIME single part headers where we need to fold up unset headers
         $parts = $this->body->getParts();
         if (!empty($parts)) {
             $part = array_shift($parts);
-            $headers->addHeaders($part->getHeadersArray("\r\n"));
+            $partHeaders = $part->getHeadersArray("\r\n");
+
+            // Do not overwrite headers if already set in the message
+            for ($i = 0; $i < count($partHeaders); $i++) {
+                if ($this->getHeaders()->has(strtolower($partHeaders[$i][0]))) {
+                    array_splice($partHeaders, $i, 1);
+                }
+            }
+
+            $headers->addHeaders($partHeaders);
         }
         return $this;
     }

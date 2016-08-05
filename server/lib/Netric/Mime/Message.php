@@ -233,15 +233,9 @@ class Message
                 $fieldValue = $header->getFieldValue();
                 switch (strtolower($fieldName)) {
                     case 'content-type':
-                        $parts = explode(";", $fieldValue);
-                        $properties['type'] = $parts[0];
-
-                        // Check if charset was added like text/plain; charset=UTF-8
-                        if (count($parts) >= 2) {
-                            $charset = explode("=", trim($parts[1]));
-                            if (count($charset) > 1) {
-                                $properties['charset'] = $charset[1];
-                            }
+                        $hParts = Decode::splitHeaderField($fieldValue, null, 'type');
+                        foreach ($hParts as $hPartName=>$hPartValue) {
+                            $properties[$hPartName] = $hPartValue;
                         }
 
                         break;
@@ -269,7 +263,15 @@ class Message
                 }
             }
 
-            $body = $part['body'];
+            // Get the body
+            if (isset($properties['type']) &&
+                isset($properties['boundary']) &&
+                strtok($properties['type'], '/') == 'multipart') {
+                $mpart = self::createFromMessage($part['body'], $properties['boundary'], $EOL);
+                $body = $mpart->generateMessage();
+            } else {
+                $body = $part['body'];
+            }
 
             if (isset($properties['encoding'])) {
                 switch ($properties['encoding']) {

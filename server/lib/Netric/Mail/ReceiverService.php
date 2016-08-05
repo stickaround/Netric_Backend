@@ -5,6 +5,8 @@
  */
 namespace Netric\Mail;
 
+use Netric\Crypt\BlockCipher;
+use Netric\Crypt\VaultService;
 use Netric\EntityQuery;
 use Netric\EntitySync\Collection\CollectionFactoryInterface;
 use Netric\EntitySync\Collection\CollectionInterface;
@@ -20,10 +22,12 @@ use Netric\Mail\Storage;
 use Netric\Mail\Storage\AbstractStorage;
 use Netric\Mail\Storage\Imap;
 use Netric\Mail\Storage\Pop3;
+use Netric\Mail\Headers;
 use Netric\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
-use PetstoreIO\User;
+use Netric\Config\Config;
+use Netric\Mime;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
@@ -82,6 +86,27 @@ class ReceiverService extends AbstractHasErrors
     private $entityIndex = null;
 
     /**
+     * Vault service for getting keys
+     *
+     * @var VaultService|null
+     */
+    private $vaultService = null;
+
+    /**
+     * Email config params
+     *
+     * @var Config|null
+     */
+    private $config = null;
+
+    /**
+     * Delivery service to put messages into an entity
+     *
+     * @var DeliveryService
+     */
+    private $deliveryService = null;
+
+    /**
      * Construct the transport service
      *
      * @param Log $log
@@ -91,6 +116,8 @@ class ReceiverService extends AbstractHasErrors
      * @param EntityLoader $entityLoader Loader to get and save messages
      * @param GroupingsLoader $groupingsLoader For loading mailbox groupings
      * @param IndexInterface $entityIndex The index for querying entities
+     * @param VaultService $vaultService Service for retrieving encrypted keys
+     * @param Config $config Email portion of config for connection defaults
      */
     public function __construct(
         Log $log,
@@ -99,7 +126,10 @@ class ReceiverService extends AbstractHasErrors
         CollectionFactoryInterface $collectionFactory,
         EntityLoader $entityLoader,
         GroupingsLoader $groupingsLoader,
-        IndexInterface $entityIndex
+        IndexInterface $entityIndex,
+        VaultService $vaultService,
+        Config $config,
+        DeliveryService $deliveryService
     ) {
         $this->log = $log;
         $this->user = $user;
@@ -108,6 +138,9 @@ class ReceiverService extends AbstractHasErrors
         $this->entityLoader = $entityLoader;
         $this->groupingsLoader = $groupingsLoader;
         $this->entityIndex = $entityIndex;
+        $this->vaultService = $vaultService;
+        $this->config = $config;
+        $this->deliveryService = $deliveryService;
     }
 
     /**
@@ -260,12 +293,19 @@ class ReceiverService extends AbstractHasErrors
     )
     {
         $importList = array();
-        foreach($mailServer as $id=>$message) {
-            $importList[] = array(
-                "remote_id" => $mailServer->getUniqueId($id),
-                "remote_revision"=>1,
-                "message" => $message
-            );
+        $numMessages = count($mailServer);
+        for ($id = 1; $id <= $numMessages; $id++) {
+            // Wrap in a try/catch in case anything goes weong getting the message
+            try {
+                $message = $mailServer->getMessage($id);
+                $importList[] = array(
+                    "remote_id" => $mailServer->getUniqueId($id),
+                    "remote_revision"=>1,
+                    "message" => $message
+                );
+            } catch (\Exception $ex) {
+                $this->log->warning("Could not import message $id: " . $ex->getMessage());
+            }
         }
 
         $stats = $syncColl->getImportChanged($importList);
@@ -307,7 +347,7 @@ class ReceiverService extends AbstractHasErrors
                             $importMid = $stat['local_id'];
                         }
                     } else {
-                        $importMid = $this->importMessage(
+                        $importMid = $this->deliverMessage(
                             $stat['remote_id'],
                             $message,
                             $emailAccount,
@@ -339,7 +379,7 @@ class ReceiverService extends AbstractHasErrors
                     } else {
                         // If there was an error it $this->importEmail will return zero which
                         // will do nothing. This will cause the system to try again nex time
-                        $this->log->error("ReceiverService->receiveChanges: Error trying to import message");
+                        $this->log->error("ReceiverService->receiveChanges: Error trying to import message {$stat['remote_id']}");
                     }
 
                     break;
@@ -415,19 +455,34 @@ class ReceiverService extends AbstractHasErrors
      */
     private function getMailConnection(EmailAccountEntity $emailAccount)
     {
-        switch ($emailAccount->getValue("type")) {
+        $blockCipher = new BlockCipher($this->vaultService->getSecret("EntityEnc"));
+        $password = "";
+        if ($emailAccount->getValue("password")) {
+            $password = $blockCipher->decrypt($emailAccount->getValue("password"));
+        }
+
+        $type = $emailAccount->getValue("type");
+        $host = $emailAccount->getValue("host");
+
+        // System generated email addresses should use global configs
+        if ($emailAccount->getValue("f_system")) {
+            $type = $this->config->default_type;
+            $host = $this->config->imap_host;
+        }
+
+        switch ($type) {
             case 'imap':
                 return new Imap(array(
-                    'host'     => $emailAccount->getValue("host"),
+                    'host'     => $host,
                     'user'     => $emailAccount->getValue("username"),
-                    'password' => $emailAccount->getValue("password")
+                    'password' => $password
                 ));
                 break;
             case 'pop3':
                 return new Pop3(array(
-                    'host'     => $emailAccount->getValue("host"),
+                    'host'     => $host,
                     'user'     => $emailAccount->getValue("username"),
-                    'password' => $emailAccount->getValue("password")
+                    'password' => $password
                 ));
                 break;
             default:
@@ -444,47 +499,14 @@ class ReceiverService extends AbstractHasErrors
      * @param int $mailboxId The mailbox to place the new imssage into
      * @return int The imported message id, 0 on failure, and -1 if already imported
      */
-    private function importMessage($uniqueId, Storage\Message $message, EmailAccountEntity $emailAccount, $mailboxId)
+    private function deliverMessage($uniqueId, Storage\Message $message, EmailAccountEntity $emailAccount, $mailboxId)
     {
-        // Convert the storage message to a mail-message for mime parsing
-        $mailMessage = new Message();
-        $mailMessage->setHeaders($message->getHeaders());
-        $mailMessage->setBody($message->getContent());
-
-        // Check to make sure this message was not already imported - no duplicates
-        $query = new EntityQuery("email_message");
-        $query->where("mailbox_id")->equals($mailboxId);
-        $query->andWhere("message_uid")->equals($uniqueId);
-        $query->andWhere("email_account")->equals($emailAccount->getId());
-        $query->andWhere("subject")->equals($mailMessage->getSubject());
-        $result = $this->entityIndex->executeQuery($query);
-        $num = $result->getNum();
-        if ($num > 0) {
-            $emailEntity = $result->getEntity(0);
-            return $emailEntity;
-        }
-
-        // Also checked previously deleted and return -1 if found
-        $query = new EntityQuery("email_message");
-        $query->where("mailbox_id")->equals($mailboxId);
-        $query->andWhere("message_uid")->equals($uniqueId);
-        $query->andWhere("email_account")->equals($emailAccount->getId());
-        $query->andWhere("subject")->equals($mailMessage->getSubject());
-        $query->andWhere("f_deleted")->equals(true);
-        $result = $this->entityIndex->executeQuery($query);
-        $num = $result->getNum();
-        if ($num > 0) {
-            return -1;
-        }
-
-        // Create EmailMessageEntity and import Mail\Message
-        $emailEntity = $this->entityLoader->create("email_message");
-        $emailEntity->fromMailMessage($mailMessage);
-        $emailEntity->setValue("email_account", $emailAccount->getId());
-        $emailEntity->setValue("owner_id", $this->user->getId());
-        $emailEntity->setValue("mailbox_id", $mailboxId);
-        $emailEntity->setValue("message_uid", $uniqueId);
-        $emailEntity->setValue("flag_seen", ($message->hasFlag(Storage::FLAG_UNSEEN)) ? false : true);
-        return $this->entityLoader->save($emailEntity);
+        return $this->deliveryService->deliverMessage(
+            $this->user,
+            $uniqueId,
+            $message,
+            $emailAccount,
+            $mailboxId
+        );
     }
 }

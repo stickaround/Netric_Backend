@@ -9,15 +9,15 @@ use Netric\EntitySync\Collection\CollectionFactory;
 use Netric\ServiceManager;
 
 /**
- * Create a service for receiving mail from a mail server
+ * Create a service for delivering mail
  */
-class ReceiverServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class DeliveryServiceFactory implements ServiceManager\AccountServiceLocatorInterface
 {
     /**
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return SenderService
+     * @return DeliveryService
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
@@ -28,21 +28,14 @@ class ReceiverServiceFactory implements ServiceManager\AccountServiceLocatorInte
         $groupingsLoader = $sl->get("Netric/EntityGroupings/Loader");
         $log = $sl->get("Log");
         $index = $sl->get("EntityQuery_Index");
-        $vaultService = $sl->get("Netric/Crypt/VaultService");
-        $config = $sl->get("Config");
-        $deliveryService = $sl->get("Netric/Mail/DeliveryService");
 
-        return new ReceiverService(
+        return new DeliveryService(
             $log,
-            $user,
             $entitySyncServer,
             $collectionFactory,
             $entityLoader,
             $groupingsLoader,
-            $index,
-            $vaultService,
-            $config->email,
-            $deliveryService
+            $index
         );
     }
 }

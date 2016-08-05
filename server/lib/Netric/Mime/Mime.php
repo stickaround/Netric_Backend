@@ -46,6 +46,11 @@ class Mime
     const MULTIPART_RELATED = 'multipart/related';
 
     /**
+     * Regex used to detect the charset of a mime part
+     */
+    const CHARSET_REGEX = '#=\?(?P<charset>[\x21\x23-\x26\x2a\x2b\x2d\x5e\5f\60\x7b-\x7ea-zA-Z0-9]+)\?(?P<encoding>[\x21\x23-\x26\x2a\x2b\x2d\x5e\5f\60\x7b-\x7ea-zA-Z0-9]+)\?(?P<text>[\x21-\x3e\x40-\x7e]+)#';
+
+    /**
      * Test boundary to separate child parts
      *
      * @var string
@@ -413,5 +418,22 @@ class Mime
     public function mimeEnd($EOL = self::LINEEND)
     {
         return $EOL . '--' . $this->boundary . '--' . $EOL;
+    }
+
+    /**
+     * Detect MIME charset
+     *
+     * Extract parts according to https://tools.ietf.org/html/rfc2047#section-2
+     *
+     * @param string $str
+     * @return string
+     */
+    public static function mimeDetectCharset($str)
+    {
+        if (preg_match(self::CHARSET_REGEX, $str, $matches)) {
+            return strtoupper($matches['charset']);
+        }
+
+        return 'ASCII';
     }
 }

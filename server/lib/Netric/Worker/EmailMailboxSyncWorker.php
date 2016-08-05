@@ -34,7 +34,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
             !isset($workload['user_id']) ||
             !isset($workload['mailbox_id'])
         ) {
-            $log->error(
+            $log->info(
                 "EmailMailboxSyncWorker->work: fields required account_id, user_id, mailbox_id " .
                 var_export($workload, true)
             );
@@ -49,7 +49,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $user = $account->getServiceManager()->get("EntityLoader")->get("user", $workload['user_id']);
         // Fail if not a valid user
         if (!$user) {
-            $log->error(
+            $log->info(
                 "EmailMailboxSyncWorker->work: user_id  {$workload['user_id']} is not valid"
             );
             return false;
@@ -68,6 +68,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $num = $results->getTotalNum();
         for ($i = 0; $i < $num; $i++) {
             $emailAccount = $results->getEntity($i);
+            $log->info("EmailMailboxSyncWorker->work: syncMailbox: " . $emailAccount->getValue("address"));
             $mailReceiver->syncMailbox($workload['mailbox_id'], $emailAccount);
             $job->sendStatus($i+1, $num);
         }
