@@ -288,6 +288,10 @@ class EmailMessageEntity extends Entity implements EntityInterface
         if ($headers->get("in-reply-to"))
             $this->setValue("in_reply_to", $headers->get("in-reply-to")->getFieldValue());
 
+        // Date
+        if ($headers->get("date"))
+            $this->setValue("message_date", strtotime($headers->get("date")->getFieldValue()));
+
         // message_size
 
         // orig_header

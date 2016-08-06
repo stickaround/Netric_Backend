@@ -118,13 +118,16 @@ class DeliveryServiceTest extends PHPUnit_Framework_TestCase
         $this->account->setCurrentUser($this->origCurrentUser);
     }
 
-    private function setupMessages()
-    {
-        // Append test messages
-        $testFilesRoot = __DIR__ . '/_files/';
-
-    }
-    
+    /*
+     * Test a funky message sent by groupon where they send the following mime structure
+     *
+     * multipart/related
+     *  multipart/alternative
+     *    text/plain
+     *    test/html
+     *
+     * The multipart/related (first part) is basically useless, but we need to handle it.
+     */
     public function testDeliverComplex()
     {
         $deliveryService = $this->account->getServiceManager()->get("Netric/Mail/DeliveryService");
@@ -140,5 +143,44 @@ class DeliveryServiceTest extends PHPUnit_Framework_TestCase
 
         $this->assertNotEquals(0, $messageId);
         $this->assertNotEquals(-1, $messageId);
+        
+        $emailMessage = $this->account->getServiceManager()->get("EntityLoader")->get("email_message", $messageId);
+        $this->testEntities[] = $emailMessage;
+
+        // Check some snippets of text that should be in the hrml body
+        $this->assertContains("$2,399", $emailMessage->getValue("body"));
+        // Make sure the body which is quoted-printable was decoded
+        $this->assertContains(
+            "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
+            $emailMessage->getValue("body")
+        );
+    }
+
+    public function testDeliverAttachment()
+    {
+        $deliveryService = $this->account->getServiceManager()->get("Netric/Mail/DeliveryService");
+        $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m7.attachment']);
+        $fakeUniqueId = "1234"; // Does not really matter
+        $messageId = $deliveryService->deliverMessage(
+            $this->user,
+            $fakeUniqueId,
+            $storageMessage,
+            $this->emailAccount,
+            $this->inbox->id
+        );
+
+        $this->assertNotEquals(0, $messageId);
+        $this->assertNotEquals(-1, $messageId);
+
+        $emailMessage = $this->account->getServiceManager()->get("EntityLoader")->get("email_message", $messageId);
+        $this->testEntities[] = $emailMessage;
+
+        // Check some snippets of text that should be in the hrml body
+        $attachments = $emailMessage->getValue("attachments");
+        $this->assertEquals(3, count($attachments));
+        $file = $this->account->getServiceManager()->get("EntityLoader")->get("file", $attachments[0]);
+        $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
+        $this->assertGreaterThan(0, $file->getValue("file_size"));
+
     }
 }

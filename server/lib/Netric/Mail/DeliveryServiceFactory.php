@@ -22,20 +22,18 @@ class DeliveryServiceFactory implements ServiceManager\AccountServiceLocatorInte
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $user = $sl->getAccount()->getUser();
-        $collectionFactory = new CollectionFactory($sl);
-        $entitySyncServer = $sl->get("Netric/EntitySync/EntitySync");
         $entityLoader = $sl->get("EntityLoader");
         $groupingsLoader = $sl->get("Netric/EntityGroupings/Loader");
         $log = $sl->get("Log");
         $index = $sl->get("EntityQuery_Index");
+        $fileSystem = $sl->get("Netric/FileSystem/FileSystem");
 
         return new DeliveryService(
             $log,
-            $entitySyncServer,
-            $collectionFactory,
             $entityLoader,
             $groupingsLoader,
-            $index
+            $index,
+            $fileSystem
         );
     }
 }

@@ -169,15 +169,15 @@ class AnsFileStore implements FileStoreInterface
      * Write data to a file
      *
      * @param FileEntity $file The meta-data Entity for this file
-     * @param mixed $data Binary data to write
+     * @param $dataOrStream $data Binary data to write or a stream resource
      * @return int number of bytes written
      */
-    public function writeFile(FileEntity $file, $data)
+    public function writeFile(FileEntity $file, $dataOrStream)
     {
         // 1. Write to temp
         $tempName = $this->getTempName($file);
         $tempPath = $this->tmpPath . "/" . $tempName;
-        $bytesWritten = file_put_contents($tempPath, $data);
+        $bytesWritten = file_put_contents($tempPath, $dataOrStream);
 
         // 2. Upload
         if ($this->uploadFile($file, $tempPath))

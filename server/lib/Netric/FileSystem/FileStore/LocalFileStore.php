@@ -108,10 +108,10 @@ class LocalFileStore implements FileStoreInterface
      * Write data to a file
      *
      * @param FileEntity $file The meta-data Entity for this file
-     * @param mixed $data Binary data to write
+     * @param $dataOrStream $data Binary data to write or a stream resource
      * @return int number of bytes written and -1 if error (call getLastError for details)
      */
-    public function writeFile(FileEntity $file, $data)
+    public function writeFile(FileEntity $file, $dataOrStream)
     {
         $ret = -1;
 
@@ -130,7 +130,19 @@ class LocalFileStore implements FileStoreInterface
         $fullPath = $accPath . '/' . $filePath;
 
         // Write data to the new file
-        $ret = file_put_contents($fullPath, $data);
+        if (is_resource($dataOrStream)) {
+            $tmpFile = fopen($fullPath, 'w');
+            while (!feof($dataOrStream)) {
+                $buf = fread($dataOrStream, 2082);
+                if ($buf) {
+                    fwrite($tmpFile, $buf);
+                }
+            }
+            fclose($tmpFile);
+        } else {
+            file_put_contents($fullPath, $dataOrStream);
+        }
+
         $size = @filesize($fullPath);
         chmod($fullPath, 0777);
 
@@ -142,7 +154,7 @@ class LocalFileStore implements FileStoreInterface
         $file->setValue("dat_ans_key", "");
         $this->entityDataMapper->save($file);
 
-        return $ret;
+        return $size;
     }
 
     /**

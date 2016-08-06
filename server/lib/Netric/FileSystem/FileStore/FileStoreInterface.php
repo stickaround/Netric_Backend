@@ -29,10 +29,10 @@ interface FileStoreInterface extends Error\ErrorAwareInterface
      * Write data to a file
      *
      * @param FileEntity $file The meta-data Entity for this file
-     * @param mixed $data Binary data to write
+     * @param mixed $dataOrStream $data Binary data to write or a stream resource
      * @return int number of bytes written
      */
-    public function writeFile(FileEntity $file, $data);
+    public function writeFile(FileEntity $file, $dataOrStream);
 
     /**
      * Upload a file to the data store

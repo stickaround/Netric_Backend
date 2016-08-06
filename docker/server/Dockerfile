@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable mogilefs \
     && docker-php-ext-install pcntl \
     && docker-php-ext-enable pcntl \
-    && docker-php-ext-install mailparse-2.1.6 \
+    && pecl install mailparse-2.1.6 \
     && docker-php-ext-enable mailparse
 
 # install PHP PEAR extensions

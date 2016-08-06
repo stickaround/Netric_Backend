@@ -408,14 +408,14 @@ class FileSystem implements Error\ErrorAwareInterface
      * Write data to a file
      *
      * @param FileEntity $file The meta-data Entity for this file
-     * @param mixed $data Binary data to write
+     * @param $dataOrStream $data Binary data to write or a stream resource
      * @param bool $append If false then file will be overwritten
      * @return int number of bytes written
      */
-    public function writeFile(FileEntity $file, $data, $append = true)
+    public function writeFile(FileEntity $file, $dataOrStream, $append = true)
     {
         // TODO: add append to fileStore->writeFile
-        return $this->fileStore->writeFile($file, $data);
+        return $this->fileStore->writeFile($file, $dataOrStream);
     }
 
     /**

@@ -84,6 +84,26 @@ abstract class AbstractFileStoreTests extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Make sure we can write to a file
+     */
+    public function testWriteFileStream()
+    {
+        $fileStore = $this->getFileStore();
+        $testFile = $this->createTestFile();
+
+        // Create a temp stream
+        $fileStream = tmpfile();
+        fwrite($fileStream, "test contents");
+        fseek($fileStream, 0);
+
+        $bytesWritten = $fileStore->writeFile($testFile, $fileStream);
+        $this->assertNotEquals(-1, $bytesWritten);
+        $this->assertEquals($testFile->getValue("file_size"), $bytesWritten);
+
+        fclose($fileStream);
+    }
+
+    /**
      * Make sure we can read the entire contents of a file
      */
     public function testReadFile()

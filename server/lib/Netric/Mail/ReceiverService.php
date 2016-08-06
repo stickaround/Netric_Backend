@@ -28,6 +28,7 @@ use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Config\Config;
 use Netric\Mime;
+use PetstoreIO\User;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
@@ -309,6 +310,7 @@ class ReceiverService extends AbstractHasErrors
         }
 
         $stats = $syncColl->getImportChanged($importList);
+        $junkMailId = $this->getJunkMailboxForUser($this->user);
 
         // $stat = array('remote_id', 'remote_revision', 'local_id', 'action', 'local_revision')
         foreach ($stats as $stat) {
@@ -347,6 +349,19 @@ class ReceiverService extends AbstractHasErrors
                             $importMid = $stat['local_id'];
                         }
                     } else {
+
+                        // Check if the message was marked as spam
+                        try {
+                            if (strtolower($message->getHeader('x-spam-flag', 'string')) == "yes") {
+                                if ($junkMailId && $junkMailId != $mailboxId) {
+                                    $mailboxId = $junkMailId;
+                                }
+                            }
+                        } catch (Storage\Exception\InvalidArgumentException $ex){
+                            // Header was not found, keep going
+                        }
+                        
+
                         $importMid = $this->deliverMessage(
                             $stat['remote_id'],
                             $message,
@@ -356,6 +371,7 @@ class ReceiverService extends AbstractHasErrors
                         $this->log->info("ReceiverService->receiveChanges: Imported new $importMid");
                     }
 
+                    // Log delivery result
                     if ($importMid > 0) {
                         $emailEntity = $this->entityLoader->get("email_message", $importMid);
                         $syncColl->logImported(
@@ -364,8 +380,7 @@ class ReceiverService extends AbstractHasErrors
                             $emailEntity->getId(),
                             $emailEntity->getValue("commit_id")
                         );
-                        $this->log->info("ReceiverService->receiveChanges: This was already imported earlier: $importMid");
-
+                        $this->log->info("ReceiverService->receiveChanges: Message delivered to $importMid");
                     } else if ($importMid == -1) {
                         // This message was previously imported and then deleted so delete on the server
                         $msgNum = $mailServer->getNumberByUniqueId($stat['remote_id']);
@@ -508,5 +523,27 @@ class ReceiverService extends AbstractHasErrors
             $emailAccount,
             $mailboxId
         );
+    }
+
+    /**
+     * Get the junk mailbox for a user
+     *
+     * @param UserEntity $user
+     * @return int Id of junk mailbox or null on failure
+     */
+    private function getJunkMailboxForUser(UserEntity $user)
+    {
+        $maiboxes = $this->groupingsLoader->get(
+            "email_message",
+            "mailbox_id",
+            ["user_id"=>$user->getId()]
+        );
+
+        $junk = $maiboxes->getByPath("Junk Mail");
+        if (!$junk) {
+            return null;
+        }
+
+        return $junk->id;
     }
 }
