@@ -14,6 +14,7 @@ use Netric\Log;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Mail\Storage;
+use Netric\Mail;
 use Netric\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Mime;
@@ -204,7 +205,16 @@ class DeliveryService extends AbstractHasErrors
         $parser = new PhpMimeMailParser\Parser();
         //$parser->setPath($filepath);
         //$parser->setStream($message?);
-        $parser->setText($message->getHeaders()->toString() . "\r\n" . $message->getContent());
+
+        // Wrap the headers since if they are invalid, it throws an exception
+        try {
+            $headers = $message->getHeaders()->toString();
+            $parser->setText($headers . "\r\n" . $message->getContent());
+        } catch (Mail\Exception\InvalidArgumentException $ex) {
+            $this->log->error("DeliveryService->importMailParse: Failed to get headers - " . $ex->getMessage());
+        }
+
+        $parser->setText($headers . "\r\n" . $message->getContent());
 
         $plainbody = $parser->getMessageBody('text');
         $htmlbody = $parser->getMessageBody('html');

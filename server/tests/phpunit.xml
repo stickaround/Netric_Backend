@@ -31,16 +31,28 @@
         </testsuite>
         -->
     </testsuites>
-    
+
+    <!-- these are for code-coverage reports, but for some reason it is ignoring
+    the blacklist and throwing errors over code in lib/ZPush that we did not write
     <filter>
-        <!-- 
-        <whitelist>
-            <directory suffix=".php">../../library/Zend</directory>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory>../lib/Netric</directory>
+            <directory>../lib/ZPush/backend/netric</directory>
         </whitelist>
-        -->
+        <blacklist>
+            <directory>../vendor</directory>
+            <directory>../tests</directory>
+            <directory>../lib/ZPush/</directory>
+        </blacklist>
     </filter>
+    -->
 
     <logging>
+        <!-- see filter above for info as to why this is commented out
+        <log type="coverage-html" target="./tmp/coverage/"
+             highlight="true"
+             lowUpperBound="50" highLowerBound="80" />
+             -->
         <log type="junit" target="./tmp/logfile.xml" logIncompleteSkipped="false"/>
     </logging>
 

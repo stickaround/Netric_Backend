@@ -7,6 +7,9 @@
  */
 namespace Netric\EntityQuery\Index;
 
+use Netric\EntityQuery;
+use Netric\EntityQuery\Results;
+
 class ElasticSearch extends IndexAbstract
 {
     /**
@@ -42,15 +45,28 @@ class ElasticSearch extends IndexAbstract
         // TODO: build
         return true;
     }
-    
+
     /**
+     * Execute a query and return the results
+     *
+     * @param EntityQuery &$query The query to execute
+     * @param Results $results Optional results set to use. Otherwise create new.
+     * @return \Netric\EntityQuery\Results
+     */
+    protected function queryIndex(EntityQuery $query, Results $results = null)
+    {
+        return null;
+    }
+
+	/**
 	 * Execute a query and return the results
 	 *
-     * @param string $id Unique id of object to delete
+	 * @param EntityQuery $query A query to execute
+	 * @param Results $results Optional results set to use. Otherwise create new.
 	 * @return \Netric\EntityQuery\Results
 	 */
-	protected function queryIndex(\Netric\EntityQuery $query)
-    {
-        return false;
-    }
+	public function executeQuery(EntityQuery $query, Results $results = null)
+	{
+		return false;
+	}
 }

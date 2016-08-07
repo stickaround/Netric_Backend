@@ -222,6 +222,13 @@ class ReceiverService extends AbstractHasErrors
 
                 // Load the email entity
                 $emailEntity = $this->entityLoader->get("email_message", $stat['id']);
+
+                // The entity was somehow deleted on netric without the sync knowing
+                if (!$emailEntity) {
+                    $this->log->error("ReceiverService->sendChanges: {$stat['id']} was deleted locally without stat knowing");
+                    continue;
+                }
+
                 $msgNum = $mailServer->getNumberByUniqueId($emailEntity->getValue("message_uid"));
 
                 switch ($stat['action']) {

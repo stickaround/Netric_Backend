@@ -9,10 +9,12 @@
  */
 namespace Netric\Permissions\Dacl;
 
+use Netric\DataMapperAbstract;
+
 /**
  * DataMapper for persistant storage of DACLs
  */
-class DataMapperDb extends Netric\DataMapperAbstract 
+class DataMapperDb extends DataMapperAbstract
 {
     // The below was all copied from the old \DACL class so it needs
     // lots of work!  - Sky Stebnicki

@@ -6,6 +6,7 @@ use PHPUnit_Framework_TestCase;
 use Netric\Worker\EmailMailboxSyncWorker;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityGroupings\Group;
 
 /**
  * @group integration
@@ -44,9 +45,11 @@ class EmailMailboxSyncWorkerTest extends PHPUnit_Framework_TestCase
         $sl->get("EntityLoader")->save($this->user);
 
         // Create an email account for testing
+        $config = $sl->get("Config");
         $this->emailAccount = $sl->get("EntityLoader")->create("email_account");
         $this->emailAccount->setValue("owner_id", $this->user->getId());
         $this->emailAccount->setValue("type", "imap");
+        $this->emailAccount->setValue("host", $config->imap_host);
         $sl->get("EntityLoader")->save($this->emailAccount);
     }
 

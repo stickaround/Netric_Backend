@@ -93,8 +93,6 @@ class DeliveryServiceTest extends PHPUnit_Framework_TestCase
         $this->emailAccount->setValue("password", getenv('TESTS_NETRIC_MAIL_PASSWORD'));
         $entityLoader->save($this->emailAccount);
         $this->testEntities[] = $this->emailAccount;
-
-        $this->setupMessages();
     }
 
     protected function tearDown()
