@@ -618,4 +618,85 @@ class EntityController extends Mvc\AbstractAccountController
         // Return what was edited
         return $this->sendOutput($ret);
     }
+
+    /**
+     * POST pass-through for merge entities
+     */
+    public function postMergeEntitiesAction()
+    {
+        return $this->getMergeEntitiesAction();
+    }
+
+    /**
+     * Function that will handle the merging of entities
+     *
+     * @return {array} Returns the array of updated entities
+     */
+    public function getMergeEntitiesAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        if (!$rawBody)
+        {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        // Check if we have obj_type. If it is not defined, then return an error
+        if (!isset($objData['obj_type']))
+        {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
+        }
+
+        // Check if we have entity_data. If it is not defined, then return an error
+        if (!isset($objData['merge_data']))
+        {
+            return $this->sendOutput(array("error" => "merge_data is a required param"));
+        }
+
+        $mergeData = $objData['merge_data'];
+
+        // Get the entity loader so we can initialize (and check the permissions for) each entity
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+
+        // Get the datamapper
+        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+
+        // Create the new entity where we merge all field values
+        $mergedEntity = $loader->create($objData['obj_type']);
+
+        $entityData = array();
+
+        foreach ($mergeData as $entityId => $fields)
+        {
+            $entity = $loader->get($objData['obj_type'], $entityId);
+
+            // Build the entity data and get the field values from the entity we want to merge
+            foreach ($fields as $field)
+            {
+                $fieldValue = $entity->getValue($field);
+                $entityData[$field] = $fieldValue;
+
+                // Let's check if the field value is an array, then we need to get its value names
+                if(is_array($fieldValue))
+                {
+                    $entityData["{$field}_fval"] = $entity->getValueNames($field);
+                }
+            }
+
+            // Let's delete the entity after getting the data that will be used in the merge
+            $dataMapper->delete($entity);
+        }
+
+        // Set the fields with the merged data.
+        $mergedEntity->fromArray($entityData, true);
+
+        // Now save the the entity where all merged data are set
+        $dataMapper->save($mergedEntity);
+
+        // Return the merged entity
+        return $this->sendOutput($mergedEntity->toArray());
+    }
 }
