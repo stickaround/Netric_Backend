@@ -91,6 +91,7 @@ class EntityTest extends PHPUnit_Framework_TestCase
 			"name" => "testFromArray",
 			"last_contacted" => time(),
 			"f_nocall" => true,
+			"company" => "test company",
 			"owner_id" => $this->user->getId(),
 			"owner_id_fval" => array(
 				$this->user->getId() => $this->user->getValue("name")
@@ -107,6 +108,34 @@ class EntityTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($cust->getValue("owner_id"), $data["owner_id"]);
 		$this->assertEquals($cust->getValueName("owner_id"), $data["owner_id_fval"][$data["owner_id"]]);
 		$this->assertEquals($cust->getValue("f_nocall"), $data["f_nocall"]);
+		$this->assertEquals($cust->getValue("company"), $data["company"]);
+
+		// Let's save $cust entity and try using ::fromArray() with an existing entity
+		$dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+		$dataMapper->save($cust);
+
+		// Now let's test the updating of entity with only specific fields
+		$updatedData = array(
+			"name" => "Updated Customer From Array",
+			"owner_id" => 5,
+			"owner_id_fval" => array(
+				5 => "Updated Customer Owner"
+			)
+		);
+
+		$loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+		$existingCust = $loader->get('customer', $cust->getId());
+
+		// Load the updated data into the entity
+		$existingCust->fromArray($updatedData, true);
+
+		// It should store the updated data from the updated fields provided
+		$this->assertEquals($existingCust->getValue("name"), $updatedData["name"]);
+		$this->assertEquals($existingCust->getValue("owner_id"), $updatedData["owner_id"]);
+		$this->assertEquals($existingCust->getValueName("owner_id"), $updatedData["owner_id_fval"][$updatedData["owner_id"]]);
+
+		// Other fields should be the same and were not affected
+		$this->assertEquals($cust->getValue("company"), $data["company"]);
 	}
 
 	/**
