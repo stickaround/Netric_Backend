@@ -127,11 +127,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Check if an object has moved
 	 *
-	 * @param Entity $entity 
+	 * @param Entity $entity
 	 * @param string $id The id of the object that no longer exists - may have moved
 	 * @return string|bool New entity id if moved, otherwise false
 	 */
-	abstract protected function entityHasMoved($entity, $id);
+	//abstract protected function entityHasMoved($entity, $id);
 
 	/**
 	 * Save revision snapshot

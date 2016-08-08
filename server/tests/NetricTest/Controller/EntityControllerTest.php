@@ -238,84 +238,76 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($data['entity_data']['groups_fval'][4], $updatedEntity2->getValueName("groups", 4));
     }
 
-    /**
-     * POST pass-through for merge entities
-     */
-    public function postMergeEntitiesAction()
+    public function testMergeEntities()
     {
-        return $this->getMergeEntitiesAction();
-    }
+        // Setup the loaders
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
-    /**
-     * Function that will handle the merging of entities
-     *
-     * @return {array} Returns the array of updated entities
-     */
-    public function getMergeEntitiesAction()
-    {
-        $rawBody = $this->getRequest()->getBody();
+        // First create entities to merge
+        $entity1 = $loader->create("note");
+        $entity1->setValue("body", "body 1");
+        $entity1->setValue("name", "name 1");
+        $entity1->setValue("title", "title 1");
+        $entity1->setValue("website", "website 1");
+        $entity1->addMultiValue("groups", 1, "note group 1");
+        $dm->save($entity1);
+        $entityId1 = $entity1->getId();
 
-        if (!$rawBody)
-        {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
-        }
+        $entity2 = $loader->create("note");
+        $entity2->setValue("body", "body 2");
+        $entity2->setValue("name", "name 2");
+        $entity2->setValue("path", "path 2");
+        $entity2->setValue("website", "website 2");
+        $entity2->addMultiValue("groups", 2, "note group 2");
+        $dm->save($entity2);
+        $entityId2 = $entity2->getId();
 
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
+        $entity3 = $loader->create("note");
+        $entity3->setValue("body", "body 3");
+        $entity3->setValue("name", "name 3");
+        $entity3->setValue("path", "path 3");
+        $entity3->setValue("website", "website 3");
+        $entity3->addMultiValue("groups", 3, "note group 3");
+        $entity3->addMultiValue("groups", 33, "note group 33");
+        $dm->save($entity3);
+        $entityId3 = $entity3->getId();
 
-        // Check if we have obj_type. If it is not defined, then return an error
-        if (!isset($objData['obj_type']))
-        {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
-        }
+        // Setup the merge data
+        $data = array(
+            'obj_type' => "note",
+            'id' => array($entityId1, $entityId2, $entityId3),
+            'merge_data' => array(
+                $entityId1 => array("body"),
+                $entityId2 => array("path", "website"),
+                $entityId3 => array("groups", "name"),
+            )
+        );
 
-        // Check if we have entity_data. If it is not defined, then return an error
-        if (!isset($objData['merge_data']))
-        {
-            return $this->sendOutput(array("error" => "merge_data is a required param"));
-        }
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
 
-        $mergeData = $objData['merge_data'];
+        $ret = $this->controller->postMergeEntitiesAction();
 
-        // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        // Test the results
+        $this->assertFalse(empty($ret['id']));
+        $this->assertEquals($ret['body'], $entity1->getValue("body"));
+        $this->assertEquals($ret['path'], $entity2->getValue("path"));
+        $this->assertEquals($ret['website'], $entity2->getValue("website"));
+        $this->assertEquals($ret['name'], $entity3->getValue("name"));
+        $this->assertEquals($ret['groups'], $entity3->getValue("groups"));
+        $this->assertEquals($ret['groups_fval'][3], $entity3->getValueName("groups", 3));
+        $this->assertEquals($ret['groups_fval'][33], $entity3->getValueName("groups", 33));
 
-        // Get the datamapper
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        // Test that the entities that were merged have been moved
+        $mId1 = $dm->entityHasMoved($entity1->getDefinition(), $entityId1);
+        $this->assertEquals($mId1, $ret['id']);
 
-        // Create the new entity where we merge all field values
-        $mergedEntity = $loader->create($objData['obj_type']);
+        $mId2 = $dm->entityHasMoved($entity2->getDefinition(), $entityId2);
+        $this->assertEquals($mId2, $ret['id']);
 
-        $entityData = array();
-
-        foreach ($mergeData as $entityId => $fields)
-        {
-            $entity = $loader->get($objData['obj_type'], $entityId);
-
-            // Build the entity data and get the field values from the entity we want to merge
-            foreach ($fields as $field)
-            {
-                $fieldValue = $entity->getValue($field);
-                $entityData[$field] = $fieldValue;
-
-                // Let's check if the field value is an array, then we need to get its value names
-                if(is_array($fieldValue))
-                {
-                    $entityData["{$field}_fval"] = $entity->getValueNames($field);
-                }
-            }
-
-            // Let's delete the entity after getting the data that will be used in the merge
-            $dataMapper->delete($entity);
-        }
-
-        // Set the fields with the merged data.
-        $mergedEntity->fromArray($entityData, true);
-
-        // Now save the the entity where all merged data are set
-        $dataMapper->save($mergedEntity);
-
-        // Return the merged entity
-        return $this->sendOutput($mergedEntity->toArray());
+        $mId3 = $dm->entityHasMoved($entity3->getDefinition(), $entityId3);
+        $this->assertEquals($mId3, $ret['id']);
     }
 }

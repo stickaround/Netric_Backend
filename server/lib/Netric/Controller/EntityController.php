@@ -556,8 +556,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         $rawBody = $this->getRequest()->getBody();
 
-        if (!$rawBody)
-        {
+        if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
 
@@ -565,20 +564,17 @@ class EntityController extends Mvc\AbstractAccountController
         $objData = json_decode($rawBody, true);
 
         // Check if we have obj_type. If it is not defined, then return an error
-        if (!isset($objData['obj_type']))
-        {
+        if (!isset($objData['obj_type'])) {
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         // Check if we have id. If it is not defined, then return an error
-        if (!isset($objData['id']))
-        {
+        if (!isset($objData['id'])) {
             return $this->sendOutput(array("error" => "id is a required param"));
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
-        if (!isset($objData['entity_data']))
-        {
+        if (!isset($objData['entity_data'])) {
             return $this->sendOutput(array("error" => "entity_data is a required param"));
         }
 
@@ -588,8 +584,7 @@ class EntityController extends Mvc\AbstractAccountController
         $ids = $objData['id'];
 
         // Convert a single id to an array so we can handle them all the same way
-        if (!is_array($ids) && $ids)
-        {
+        if (!is_array($ids) && $ids) {
             $ids = array($ids);
         }
 
@@ -642,21 +637,19 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         // Decode the json structure
-        $objData = json_decode($rawBody, true);
+        $requestData = json_decode($rawBody, true);
 
         // Check if we have obj_type. If it is not defined, then return an error
-        if (!isset($objData['obj_type']))
-        {
+        if (!isset($requestData['obj_type'])) {
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         // Check if we have entity_data. If it is not defined, then return an error
-        if (!isset($objData['merge_data']))
-        {
+        if (!isset($requestData['merge_data'])) {
             return $this->sendOutput(array("error" => "merge_data is a required param"));
         }
 
-        $mergeData = $objData['merge_data'];
+        $mergeData = $requestData['merge_data'];
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
@@ -665,13 +658,28 @@ class EntityController extends Mvc\AbstractAccountController
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
 
         // Create the new entity where we merge all field values
-        $mergedEntity = $loader->create($objData['obj_type']);
+        $mergedEntity = $loader->create($requestData['obj_type']);
+
+        /*
+         * Let's save the merged entity initially so we can get its entity id.
+         * We will use the merged entity id as our moved object id when we loop thru the mergedData
+         */
+        echo $mergedEntityId = $dataMapper->save($mergedEntity);
 
         $entityData = array();
 
+        /*
+         * The merge data contains entity ids and the array of field names that will be used to merge the entities
+         * After we load the entity using the entityId, then we will loop thru the field names
+         *  and get its field values so we can assign it to the newly created merged entity ($mergedEntity)
+         *
+         * $mergeData = array (
+         *  entityId => array(fieldName1, fieldName2, fieldName3)
+         * )
+         */
         foreach ($mergeData as $entityId => $fields)
         {
-            $entity = $loader->get($objData['obj_type'], $entityId);
+            $entity = $loader->get($requestData['obj_type'], $entityId);
 
             // Build the entity data and get the field values from the entity we want to merge
             foreach ($fields as $field)
@@ -686,8 +694,10 @@ class EntityController extends Mvc\AbstractAccountController
                 }
             }
 
-            // Let's delete the entity after getting the data that will be used in the merge
-            $dataMapper->delete($entity);
+            $entityDef = $entity->getDefinition();
+
+            // Now let's update the current entity that it has been moved
+            $dataMapper->setEntityMovedTo($entityDef , $entityId, $mergedEntityId);
         }
 
         // Set the fields with the merged data.
