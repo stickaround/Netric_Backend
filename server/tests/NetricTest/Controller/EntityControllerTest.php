@@ -218,7 +218,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(in_array($data['entity_data']['groups'][1], $ret[1]['groups']));
 
 
-        // Lets load the actual actual entities and test them
+        // Lets load the actual entities and test them
         $updatedEntity1 = $loader->get("note", $entityId1);
         $this->assertEquals($data['entity_data']['body'], $updatedEntity1->getValue("body"));
         $this->assertTrue(in_array($data['entity_data']['groups'][0], $updatedEntity1->getValue("groups")));
@@ -301,13 +301,23 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($ret['groups_fval'][33], $entity3->getValueName("groups", 33));
 
         // Test that the entities that were merged have been moved
-        $mId1 = $dm->entityHasMoved($entity1->getDefinition(), $entityId1);
+        $mId1 = $dm->checkEntityHasMoved($entity1->getDefinition(), $entityId1);
         $this->assertEquals($mId1, $ret['id']);
 
-        $mId2 = $dm->entityHasMoved($entity2->getDefinition(), $entityId2);
+        $mId2 = $dm->checkEntityHasMoved($entity2->getDefinition(), $entityId2);
         $this->assertEquals($mId2, $ret['id']);
 
-        $mId3 = $dm->entityHasMoved($entity3->getDefinition(), $entityId3);
+        $mId3 = $dm->checkEntityHasMoved($entity3->getDefinition(), $entityId3);
         $this->assertEquals($mId3, $ret['id']);
+
+        // Lets load the actual entities and check if they are deleted
+        $originalEntity1 = $loader->get("note", $entityId1);
+        $this->assertEquals($originalEntity1->getValue("f_deleted"), 1);
+
+        $originalEntity2 = $loader->get("note", $entityId2);
+        $this->assertEquals($originalEntity2->getValue("f_deleted"), 1);
+
+        $originalEntity3 = $loader->get("note", $entityId3);
+        $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
     }
 }

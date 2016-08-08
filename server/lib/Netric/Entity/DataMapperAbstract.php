@@ -44,6 +44,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private $recurIdentityMapper = null;
 
 	/**
+	 * Caches the results on checking if entity has moved
+	 *
+	 * @var Array
+	 */
+	private $cacheMovedEntities = null;
+
+	/**
 	 * Class constructor
 	 * 
 	 * @param ServiceLocator $sl The ServiceLocator container
@@ -53,6 +60,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	{
 		$this->setAccount($account);
 		$this->setUp();
+
+		// Clear the moved entities cache
+		$this->cacheMovedEntities = array();
 
         $this->recurIdentityMapper = $account->getServiceManager()->get("RecurrenceIdentityMapper");
 		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
@@ -131,7 +141,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 * @param string $id The id of the object that no longer exists - may have moved
 	 * @return string|bool New entity id if moved, otherwise false
 	 */
-	//abstract protected function entityHasMoved($entity, $id);
+	abstract protected function entityHasMoved($entity, $id);
 
 	/**
 	 * Save revision snapshot
@@ -639,5 +649,29 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		{
 			return true;
 		}
+	}
+
+	/**
+	 * Check if an object has moved
+	 *
+	 * @param Entity $entity
+	 * @param string $id The id of the object that no longer exists - may have moved
+	 * @return string|bool New entity id if moved, otherwise false
+	 */
+	public function checkEntityHasMoved($entity, $id)
+	{
+
+		// If we have already checked the this entity, then return the result
+		if(isset($this->cacheMovedEntities[$id])) {
+			return $this->cacheMovedEntities[$id];
+		}
+
+		// Check if entity has moved
+		$movedToId = $this->entityHasMoved($entity, $id);
+
+		// Store the result in the cache
+		$this->cacheMovedEntities[$id] = $movedToId;
+
+		return $movedToId;
 	}
 }

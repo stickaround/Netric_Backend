@@ -1058,7 +1058,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 	 *
 	 * @return string new Entity id if moved, otherwise false
 	 */
-	public function entityHasMoved($def, $id)
+	protected function entityHasMoved($def, $id)
 	{
 		if (!$id)
 			return false;

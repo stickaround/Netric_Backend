@@ -688,16 +688,18 @@ class EntityController extends Mvc\AbstractAccountController
                 $entityData[$field] = $fieldValue;
 
                 // Let's check if the field value is an array, then we need to get its value names
-                if(is_array($fieldValue))
-                {
+                if(is_array($fieldValue)) {
                     $entityData["{$field}_fval"] = $entity->getValueNames($field);
                 }
             }
 
             $entityDef = $entity->getDefinition();
 
-            // Now let's update the current entity that it has been moved
+            // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
             $dataMapper->setEntityMovedTo($entityDef , $entityId, $mergedEntityId);
+
+            // Let's tag the original entity as deleted
+            $dataMapper->delete($entity);
         }
 
         // Set the fields with the merged data.
