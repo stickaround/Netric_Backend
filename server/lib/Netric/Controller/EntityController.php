@@ -664,7 +664,7 @@ class EntityController extends Mvc\AbstractAccountController
          * Let's save the merged entity initially so we can get its entity id.
          * We will use the merged entity id as our moved object id when we loop thru the mergedData
          */
-        echo $mergedEntityId = $dataMapper->save($mergedEntity);
+        $mergedEntityId = $dataMapper->save($mergedEntity);
 
         $entityData = array();
 
