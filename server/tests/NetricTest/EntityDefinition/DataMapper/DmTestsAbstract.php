@@ -9,6 +9,9 @@
 namespace NetricTest\EntityDefinition\DataMapper;
 
 use Netric;
+use Netric\EntityDefinition;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Permissions\Dacl;
 use PHPUnit_Framework_TestCase;
 
 abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase 
@@ -20,6 +23,13 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
      */
     protected $account = null;
 
+    /**
+     * Definitions to cleanup
+     *
+     * @var EntityDefinition[]
+     */
+    protected $testDefinitions = [];
+
 	/**
 	 * Setup each test
 	 */
@@ -28,10 +38,18 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
 	}
 
-	/**
+    protected function tearDown()
+    {
+        $dm = $this->getDataMapper();
+        foreach ($this->testDefinitions as $def) {
+            $dm->deleteDef($def);
+        }
+    }
+
+    /**
 	 * Use this funciton in all the datamappers to construct the datamapper
 	 *
-	 * @return EntityDefinition_DataMapperInterface
+	 * @return Netric\EntityDefinition\DataMapperAbstract;
 	 */
 	protected function getDataMapper()
 	{
@@ -44,8 +62,6 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	public function testFetchByName()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-			return; // skip if no mapper was defined
 
 		$entDef = $dm->fetchByName("customer");
 
@@ -84,6 +100,69 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertEquals('/System/Customer Files', $field->autocreatebase);
 		$this->assertEquals('id', $field->autocreatename);
 
+	}
+
+    /**
+     * Test saving a discretionary access control list (DACL)
+     */
+	public function testSaveDef_Dacl()
+	{
+        $dataMapper = $this->getDataMapper();
+
+        $def = new EntityDefinition("utest_save_dacl");
+        $def->setTitle("Unit Test Dacl");
+        $def->setSystem(false);
+        $dacl = new Netric\Permissions\Dacl();
+        $def->setDacl($dacl);
+
+        // Test inserting with dacl
+        $dataMapper->saveDef($def);
+        $this->testDefinitions[] = $def;
+
+        // Reload and check DACL
+        $reloadedDef = $dataMapper->fetchByName("utest_save_dacl");
+        $this->assertNotNull($reloadedDef->getDacl());
+
+        // Now test updating the dacl
+        $daclEdit = $def->getDacl();
+        $daclEdit->allowGroup(UserEntity::GROUP_USERS, Dacl::PERM_FULL);
+        $id = $dataMapper->saveDef($def);
+
+        // Reload and check DACL
+        $reloadedDef = $dataMapper->fetchByName("utest_save_dacl");
+        $this->assertNotNull($reloadedDef->getDacl());
+        $daclData = $reloadedDef->getDacl()->toArray();
+        $this->assertEquals([UserEntity::GROUP_USERS], $daclData['entries'][0]['groups']);
+	}
+
+    /**
+     * Test unsetting the DACL
+     */
+	public function testSaveDef_EmptyDacl()
+	{
+        $dataMapper = $this->getDataMapper();
+
+        $def = new EntityDefinition("utest_save_empty_dacl");
+        $def->setTitle("Unit Test Dacl");
+        $def->setSystem(false);
+        $dacl = new Netric\Permissions\Dacl();
+        $def->setDacl($dacl);
+
+        // Test inserting with dacl
+        $dataMapper->saveDef($def);
+        $this->testDefinitions[] = $def;
+
+        // Reload and check DACL
+        $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
+        $this->assertNotNull($reloadedDef->getDacl());
+
+        // Now clear the dacl
+        $def->setDacl(null);
+        $id = $dataMapper->saveDef($def);
+
+        // Reload
+        $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
+        $this->assertNull($reloadedDef->getDacl());
 	}
 
 	/**

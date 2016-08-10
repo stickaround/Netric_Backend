@@ -8,6 +8,8 @@
  */
 namespace Netric;
 
+use Netric\Permissions\Dacl;
+
 // Legacy includes
 require_once(dirname(__FILE__) . "/../CAntObjectView.php");
 require_once(dirname(__FILE__) . "/../CAntObjectCond.php");
@@ -28,7 +30,7 @@ class EntityDefinition
 	/**
 	 * List of fields
 	 *
-	 * @var Netric\EntityDefinition\Field[]
+	 * @var EntityDefinition\Field[]
 	 */
 	private $fields = array();
 	
@@ -56,9 +58,11 @@ class EntityDefinition
 	/**
 	 * Is a system object which cannot be deleted
 	 *
+	 * We assume it is
+	 *
 	 * @var {bool}
 	 */
-	public $system = true; // Assume true
+	public $system = true;
 
 	/**
 	 * Optional icon name
@@ -187,6 +191,13 @@ class EntityDefinition
      * @var string
      */
     public $parentField = "";
+
+	/**
+	 * Default access control list for all entities of this type
+	 *
+	 * @var null
+	 */
+	private $dacl = null;
 
 	/**
 	 * Class constructor
@@ -740,4 +751,42 @@ class EntityDefinition
 	{
 		return $this->isPrivate;
 	}
+
+	/**
+	 * Set discretionary access control list
+	 *
+	 * @param Dacl $dacl
+	 */
+	public function setDacl(Dacl $dacl = null)
+	{
+		$this->dacl = $dacl;
+	}
+
+    /**
+     * Get the discretionary access control list for this object type
+     *
+     * @return Dacl
+     */
+    public function getDacl()
+    {
+        return $this->dacl;
+    }
+
+    /**
+     * Set whether or not this is a system entity (can't be deleted)
+     *
+     * @param bool $isSystem
+     */
+    public function setSystem($isSystem)
+    {
+        $this->system = $isSystem;
+    }
+
+    /**
+     * Get flag that indicates if this is a system entity or not (can't be deleted)
+     */
+    public function getSystem()
+    {
+        return $this->system;
+    }
 }

@@ -6,6 +6,7 @@ namespace NetricTest;
 
 use Netric;
 use PHPUnit_Framework_TestCase;
+use Netric\Permissions\Dacl;
 
 class EntityDefinitionTest extends PHPUnit_Framework_TestCase 
 {
@@ -141,5 +142,13 @@ class EntityDefinitionTest extends PHPUnit_Framework_TestCase
 		$definition = new Netric\EntityDefinition("customer");
 		$definition->setTitle($title);
 		$this->assertEquals($title, $definition->getTitle());
+	}
+
+	public function testSEtAndGetDacl()
+	{
+		$dacl = new Dacl();
+		$definition = new Netric\EntityDefinition("customer");
+		$definition->setDacl($dacl);
+		$this->assertEquals($dacl, $definition->getDacl());
 	}
 }

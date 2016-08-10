@@ -188,6 +188,7 @@ return array(
             'application_id' => array('type' => SchemaProperty::TYPE_INT),
             'capped' => array('type' => SchemaProperty::TYPE_INT),
             'head_commit_id' => array("type" => "bigint"),
+            'dacl' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(

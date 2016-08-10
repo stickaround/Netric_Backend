@@ -1,41 +1,90 @@
 <?php
 /**
- * Identity mapper for DACLs to make sure we are only loading each one once
- * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014 Aereus
+ * @copyright 2016 Aereus
  */
 namespace Netric\Permissions;
 
+use Netric\Entity\EntityInterface;
+use Netric\EntityLoader;
+use Netric\Entity\ObjType\UserEntity;
+
 /**
- * DACL Identity Mapper
+ * Identity mapper for DACLs to make sure we are only loading each one once
  */
 class DaclLoader 
 {
-    /**
-	 * Array holding already loaded lists
+	/**
+	 * Entity loader to get parent entities
 	 *
-	 * @var array
+	 * @var EntityLoader
 	 */
-	private $dacls = array();
-    
-    /**
-     * DataMapper
-     * 
-     * @var \Netric\Permissions\Dacl\DataMapperDb
-     */
-    private $dm = null;
+	private $entityLoader = null;
     
     /**
      * Class constructor
      * 
-     * @param \Netric\Permissions\Dacl\DataMapperDb $dataMapper
+     * @param EntityLoader $entityLoader The loader for the entity
      */
-    public function __construct($dataMapper) 
+    public function __construct(EntityLoader $entityLoader)
     {
-        $this->dm = $dataMapper;
+		$this->entityLoader = $entityLoader;
     }
-    
+
+	/**
+	 * Get a DACL for an entity
+	 *
+	 * 1. Check if the entity has its own dacl
+	 * 2. Check to see if the entity has a parent which has a dacl (recurrsive)
+	 * 3. If there is no parent dacl, then use the dacl for the object type
+	 *
+	 * @param EntityInterface $entity
+     * @param bool $fallBackToObjType If true and no entity dacl is found get dacl for all objects of that type
+     * @return Dacl Access control list
+	 */
+	public function getForEntity(EntityInterface $entity, $fallBackToObjType = true)
+	{
+        $daclData = $entity->getValue("dacl");
+        if (!empty($daclData)) {
+            $decoded = json_decode($daclData, true);
+            if ($decoded !== false) {
+                return new Dacl($decoded);
+            }
+        }
+
+        // Check to see if the entity type has a parent
+        $objDef = $entity->getDefinition();
+        if ($objDef->parentField) {
+            $fieldDef = $objDef->getField($objDef->parentField);
+            if ($entity->getValue($objDef->parentField) && $fieldDef->subtype) {
+                $parentEntity = $this->entityLoader->get($fieldDef->subtype, $entity->getValue($objDef->parentField));
+                if ($parentEntity) {
+                    $dacl = $this->getForEntity($parentEntity, false);
+                    if ($dacl) {
+                        return $dacl;
+                    }
+                }
+            }
+        }
+
+        // Now try to get DACL for obj type
+        if ($fallBackToObjType) {
+
+            // Try to get for from the object definition if permissions have been customized
+            if ($objDef->getDacl()) {
+                return $objDef->getDacl();
+            }
+
+            // If none is found, return a default where admin and creator owner has access only
+            $default = new Dacl();
+            $default->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
+            $default->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
+            return $default;
+        }
+
+        return null;
+	}
+
     /**
 	 * Get an access controll list by name
 	 * 
@@ -62,30 +111,5 @@ class DaclLoader
 			return $dacl;
 		}
          */
-	}
-
-	/**
-	 * Initialize a DACL by dada array
-	 * 
-	 * @param string $key The name of the list to pull
-	 * @param array $data Data array to be passed to Dacl::loadByData
-	 * @return Dacl
-	 */
-	public function byData($key, $data)
-	{
-		$dacl = new Dacl($key);
-		$dacl->loadByData($data);
-		return $dacl;
-	}
-
-	/**
-	 * Clear object definition cache by name
-	 * 
-	 * @param string $key The name of the list to pull
-	 * @return CAntObjectFields
-	 */
-	public function unloadDacl($key)
-	{
-		$this->dacls[$key] = null;
 	}
 }

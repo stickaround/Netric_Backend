@@ -13,6 +13,7 @@
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition;
+use Netric\Permissions\Dacl;
 
 class Pgsql extends EntityDefinition\DataMapperAbstract
 {
@@ -84,8 +85,10 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 
 		// Get basic object definition
 		// ------------------------------------------------------
-		$result = $dbh->query("select id, object_table, revision, title, object_table, f_system
-											from app_object_types where name='$objType'");
+		$result = $dbh->query("select 
+			id, object_table, revision, title, object_table, f_system, dacl
+			from app_object_types where name='$objType'"
+		);
 		if ($dbh->getNumRows($result))
 		{
 			$row = $dbh->getRow($result, 0);
@@ -95,6 +98,15 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 			$def->setId($row["id"]);
 			if ($row['object_table'])
 				$def->setCustomTable($row['object_table']);
+
+			// Check if this definition has an access control list
+			if ($row['dacl']) {
+				$daclData = json_decode($row['dacl'], true);
+				if ($daclData) {
+					$dacl = new Dacl($daclData);
+					$def->setDacl($dacl);
+				}
+			}
 
 			// If this is the first load of this object type and not a custom table
 			// then create the object table
@@ -277,6 +289,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 			"f_system" => "'" . (($def->system) ? 't' : 'f') . "'",
 			"application_id" => ($def->applicationId) ? "'" . $def->applicationId. "'" : 'NULL',
 			"capped" => ($def->capped) ? "'" . $def->capped. "'" : 'NULL',
+			"dacl" => ($def->getDacl()) ? "'" . json_encode(($def->getDacl()->toArray())) . "'" : "NULL",
 		);
 
 		if ($def->getId())
@@ -318,7 +331,9 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 		$ret = $this->dbh->query($query);
 		if ($ret && !$def->getId()) {
 			$def->setId($this->dbh->getValue($ret, 0, "id"));
-		}
+		} else if (!$ret) {
+            throw new \RuntimeException("Error saving definition: " . $this->dbh->getLastError());
+        }
 
 		// Check to see if this dynamic object has yet to be initilized
 		if (!$def->useCustomTable)

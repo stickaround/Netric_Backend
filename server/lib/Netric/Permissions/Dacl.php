@@ -1,74 +1,82 @@
 <?php
 /**
- * New discretionary access controll list
- * 
- * TODO: this class is in progress being converted from the old \Dacl class
+ * New discretionary access control list
  * 
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014 Aereus
+ * @copyright 2016 Aereus
  */
 namespace Netric\Permissions;
+
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Permissions\Dacl\Entry;
 
 /**
  * Discretionary access controll list 
  */
 class Dacl 
 {
-    /**
-	 * ID of dacl to inherit permissions from
-	 *
-	 * @var int
-	 */
-	private $inheritFrom = null;
-
-	/**
-	 * Default permissions
-	 *
-	 * @var string[]
-	 */
-	private $defaultPerms  = array("View", "Edit", "Delete");
-
 	/**
 	 * Saved DACLs will all have a unique id
 	 *
 	 * @var int
 	 */
-	public $id = null;
+	private $id = null;
 
 	/**
 	 * Each DACL may have a unique name/key to access it by
 	 *
 	 * @var string
 	 */
-	public $name = null;
-
-	/**
-	 * Used in debugging only
-	 *
-	 * @var bool
-	 */
-	public $debug = false;
+    private $name = null;
 
 	/**
 	 * Associative array with either group or user assoicated with an permission
 	 *
-	 * @var Netric\Permissions\Dacl\Entry[]
+	 * @var Dacl\Entry[]
 	 */
 	private $entries = array();
 
-	/**
-	 * List of permissions for this DACL
-	 *
-	 * @var string[]
-	 */
-	private $permissions = array();
+    /**
+     * The default permission to check if none is supplied
+     */
+    const PERM_DEFAULT = "View";
+
+    /**
+     * Permission entry constants
+     */
+    const PERM_FULL = "Full Control";
+    const PERM_VIEW = "View";
+    const PERM_EDIT = "Edit";
+    const PERM_DELETE = "Delete";
+
+    /**
+     * Default entries to make
+     *
+     * @var array
+     */
+    private $defaultEntries = [
+        self::PERM_VIEW,
+        self::PERM_EDIT,
+        self::PERM_DELETE
+    ];
 
 	/**
 	 * Class constructor
+     *
+     * @param array $data Optional initialization data
 	 */
-	public function __construct()
+	public function __construct(array $data = null)
 	{
+        if ($data) {
+            $this->fromArray($data);
+        }
 
+        // Create deafult entries
+        foreach ($this->defaultEntries as $entName) {
+            if (!isset($this->entries[$entName])) {
+                $this->entries[$entName] = new Entry(['name' => $entName]);
+            }
+        }
 	}
     
 	/**
@@ -77,95 +85,65 @@ class Dacl
 	 * @var array $data Associative array with 'permissions' and 'entries'
 	 * @return bool True on success, false on failure
 	 */
-	public function loadByData($data)
-	{
-		if (!is_array($data))
-			return false;
+	public function fromArray($data)
+    {
+        if (!is_array($data))
+            return false;
 
-		$this->id = $data['id'];
-		$this->name = $data['name'];
-		$this->inheritFrom = $data['inheritFrom'];
-		$this->inheritFromOld = $data['inheritFromOld'];
+        if (isset($data['name'])) {
+            $this->name = $data['name'];
+        }
 
-		if (is_array($data['entries']))
-			$this->setEntries($data['entries']);
+        if (isset($data['id'])) {
+            $this->id = $data['id'];
+        }
 
-		// Make sure this DACL can be accessed by someone
-		if (count($this->entries) == 0)
-		{
-			$this->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_USERS);
-			$this->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_CREATOROWNER);
-			$this->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_ADMINISTRATORS);
-		}
-	}	
 
-	/**
-	 * Create a JSON encoded string representing this dacl
-	 *
-	 * @return string The json encoded string for this dacl
-	 */
-	public function stringifyJson()
-	{
-		$data = array();
 
-		$data['id'] = $this->id;
-		$data['name'] = $this->name;
-		$data['inheritFrom'] = $this->inheritFrom;
-		$data['inheritFromOld'] = $this->inheritFromOld;
-		$data['entries'] = $this->getEntries();
-		
-		return json_encode($data);
-	}
+        if (isset($data['entries']) && is_array($data['entries'])) {
+            $this->setEntries($data['entries']);
+        }
+    }
 
-	/**
-	 * Get array of list entries for this DACL
-	 *
-	 * Entries associate a user or group with a permission
-	 *
-	 * @return array Array of entries
-	 */
-	public function getEntries()
-	{
-		$entries = array();
+    /**
+     * Return this list as an array
+     *
+     * @return array Associative array representing this DACL
+     */
+    public function toArray()
+    {
+        $ret = array(
+            'name' => $this->name,
+            'entries' => []
+        );
 
-		foreach ($this->entries as $pname=>$ent)
-		{
-			foreach ($ent->groups as $grp)
-				$entries[] = array("permission"=>$pname, "group_id"=>$grp);
+        foreach ($this->entries as $entry) {
+            $ret['entries'][] = $entry->toArray();
+        }
 
-			foreach ($ent->users as $uid)
-				$entries[] = array("permission"=>$pname, "user_id"=>$uid);
-		}
-
-		return $entries;
-	}
+        return $ret;
+    }
 
 	/**
 	 * Clear entries
 	 */
 	public function clearEntries()
 	{
-		$this->entries = array();
+		$this->entries = [];
 	}
 
 	/**
 	 * Set local entries from array
+     *
+     * @param array $entries Array of Entries to load from associative data
 	 */
-	private function setEntries($entries)
+	private function setEntries(array $entries)
 	{
-		for ($i = 0; $i < count($entries); $i++)
-		{
-			$ent = $entries[$i];
-
-			if (!isset($this->entries[$ent['permission']]))
-				$this->entries[$ent['permission']] = new Netric\Permissions\Dacl\Entry();
-
-			if (isset($ent['user_id']) && is_numeric($ent['user_id']) && !in_array($ent['user_id'], $this->entries[$ent['permission']]->users))
-				$this->entries[$ent['permission']]->users[] = $ent['user_id'];
-
-			if (isset($ent['group_id']) && is_numeric($ent['group_id']) && !in_array($ent['group_id'], $this->entries[$ent['permission']]->groups))
-				$this->entries[$ent['permission']]->groups[] = $ent['group_id'];
-		}
+        foreach ($entries as $entryData) {
+            $entry = new Dacl\Entry();
+            $entry->fromArray($entryData);
+            $this->entries[$entryData['name']] = $entry;
+        }
 	}
 
 	/**
@@ -215,30 +193,26 @@ class Dacl
 	/**
 	 * Grant access to a user to a specific permission
 	 *
-	 * @param int $USERID The user id to grant access to
+	 * @param int $userId The user id to grant access to
 	 * @param string $permission The permssion to grant access to
 	 */
-	public function allowUser($USERID, $permission="Full Control")
+	public function allowUser($userId, $permission=self::PERM_FULL)
 	{
-		if ("Full Control" == $permission)
-		{
-			foreach ($this->entries as $ent)
-			{
-				if (!in_array($USERID, $ent->users))
-					$ent->users[] = $USERID;
+		if (self::PERM_FULL == $permission) {
+			foreach ($this->entries as $pname=>$ent) {
+                $this->allowUser($userId, $pname);
 			}
-		}
+		} else {
+            // Create entry if it does not exist
+            if (!isset($this->entries[$permission])) {
+                $this->entries[$permission] = new Dacl\Entry();
+            }
 
-		// Add specific permission
-		if (!isset($this->entries[$permission]))
-			$this->entries[$permission] = new Netric\Permissions\Dacl\Entry();
-
-		$ent = $this->entries[$permission];
-		if ($ent && !in_array($USERID, $ent->users))
-			$ent->users[] = $USERID;
-
-		//$this->clearCache();
-		$this->removeInheritFrom();
+            // Add the user
+            if (!in_array($userId, $this->entries[$permission]->users)) {
+                $this->entries[$permission]->users[] = $userId;
+            }
+        }
 	}
 
 	/**
@@ -247,197 +221,113 @@ class Dacl
 	 * @param int $gid The group id to grant access to
 	 * @param string $permission The permssion to grant access to
 	 */
-	public function allowGroup($gid, $permission="Full Control")
+	public function allowGroup($gid, $permission=self::PERM_FULL)
 	{
-		// Add specific permission
-		if (!isset($this->entries[$permission]))
-			$this->entries[$permission] = new Dacl\Entry();
-
-		// Grant group access
-		$ent = $this->entries[$permission];
-		if (!in_array($gid, $ent->groups))
-			$ent->groups[] = $gid;
-
-		if ("Full Control" == $permission)
-		{
-			foreach ($this->entries as $ent)
-			{
-				if (!in_array($gid, $ent->groups))
-					$ent->groups[] = $gid;
+		if (self::PERM_FULL == $permission) {
+			foreach ($this->entries as $pname=>$ent) {
+				$this->allowGroup($gid, $pname);
 			}
-		}
+		} else {
+            // Add specific permission
+            if (!isset($this->entries[$permission])) {
+                $this->entries[$permission] = new Dacl\Entry();
+            }
 
-		//$this->removeInheritFrom();
+            // Grant group access
+            if (!in_array($gid, $this->entries[$permission]->groups)) {
+                $this->entries[$permission]->groups[] = $gid;
+            }
+        }
 	}
 
 	/**
-	 * Deny access to a user to a specific permission
+	 * Remove a user from a specific permission
 	 *
-	 * @param int $USERID The user id to grant access to
-	 * @param string $permission The permssion to grant access to
+	 * @param int $userId The user id to remove
+	 * @param string $permission The permission to clear
 	 */
-	public function denyUser($uid, $permission="Full Control")
+	public function denyUser($userId, $permission=self::PERM_FULL)
 	{
-		if ($this->entries[$permission])
-		{
-			for ($i = 0; $i < count($this->entries[$permission]->users); $i++)
-			{
-				if ($this->entries[$permission]->users[$i] == $uid)
-					array_splice($this->entries[$permission]->users, $i, 1);
-			}
-		}
+        $entries = [];
+
+        if (self::PERM_FULL == $permission) {
+            $entries = $this->entries;
+        } else if (isset($this->entries[$permission])) {
+            $entries[] = $this->entries[$permission];
+        }
+
+        foreach ($entries as $entry) {
+            $entry->removeUser($userId);
+        }
 	}
 
 	/**
-	 * Deny access to a group to a specific permission
+	 * Remove a group from a specific permission entry
 	 *
-	 * @param int $USERID The user id to grant access to
-	 * @param string $permission The permssion to grant access to
+	 * @param int $gid The group id to remove
+	 * @param string $permission The permission to clear
 	 */
 	public function denyGroup($gid, $permission="Full Control")
 	{
-		if ($this->entries[$permission])
-		{
-			for ($i = 0; $i < count($this->entries[$permission]->groups); $i++)
-			{
-				if ($this->entries[$permission]->groups[$i] == $gid)
-				{
-					array_splice($this->entries[$permission]->groups, $i, 1);
-				}
-			}
-		}
+        $entries = [];
+
+        if (self::PERM_FULL == $permission) {
+            $entries = $this->entries;
+        } else if (isset($this->entries[$permission])) {
+            $entries[] = $this->entries[$permission];
+        }
+
+        foreach ($entries as $entry) {
+            $entry->removeGroup($gid);
+        }
 	}
 
 	/**
 	 * Check if a user has access to a permission either directly or through group membership
 	 *
-	 * @param AntUser $user The user to check for access
+	 * @param UserEntity $user The user to check for access
 	 * @param string $permission The permission to check against. Defaults to 'Full Control'
-	 * @param bool isowner Set to true if the $USERID is the owner of the object being secured by this DACL
-	 * @param bool ignoreadmin If set to true then the 'god' access of the administrator is ignored
+	 * @param bool $isowner Set to true if the user is the owner of the object being secured by this DACL
+     * @return bool true if allowed, false if not allowed
 	 */
-	public function isAllowed($user, $permission="Full Control", $isowner=false, $ignoreadmin=false)
+	public function isAllowed(UserEntity $user, $permission=self::PERM_FULL, $isowner = false)
 	{
-		$granted = false;
 		$groups = $user->getGroups();
 		if ($isowner)
 			$groups[] = UserEntity::GROUP_CREATOROWNER; // Add to Creator/Owner group
 
-		// Sometimes used for user-specific objects like calendars
-		if ($ignoreadmin)
-		{
-			$tmp_groups = array();
-			foreach ($groups as $gid)
-			{
-				if ($gid != UserEntity::GROUP_ADMINISTRATORS) // Admin
-					$tmp_groups[] = $gid;
-			}
-			unset($groups);
-			$groups = $tmp_groups;
-		}
-
 		// First check to see if the user has full control
-		if ($permission!="Full Control")
-		{
-			$granted = $this->isAllowed($user, "Full Control", $isowner, $ignoreadmin);
-			if ($granted)
-				return $granted;
-		}
+		if (self::PERM_FULL == $permission) {
+            foreach ($this->entries as $pname=>$entry) {
+                if (!$this->isAllowed($user, $pname, $isowner)) {
+                    return false;
+                }
+            }
 
-        $per = null;
-        if(isset($this->entries[$permission]))
-		    $per = $this->entries[$permission];
+            /*
+             * We got through all the above without returning false, must mean we have
+             * access, unless of course there were no entries at all,
+             */
+            return (count($this->entries) > 0) ? true : false;
+        } else {
+            if(isset($this->entries[$permission])) {
 
-		if ($per)
-		{
-			// Test users
-			if (count($per->users))
-			{
-				foreach ($per->users as $uid)
-				{
-					if ($uid == $user->id)
-						$granted = true;
-				}
-			}
+                // Test users
+                foreach ($this->entries[$permission]->users as $uid) {
+                    if ($uid == $user->getId()) {
+                        return true;
+                    }
+                }
 
-			// Test groups
-			if (count($per->groups))
-			{
-				foreach ($per->groups as $gid)
-				{
-					if (in_array($gid, $groups))
-					{
-						$granted = true;
-					}
-				}
-			}
-		}
+                // Test groups
+                foreach ($this->entries[$permission]->groups as $gid) {
+                    if (in_array($gid, $groups)) {
+                        return true;
+                    }
+                }
+            }
+        }
 
-		return $granted;
-	}
-
-	/**
-	 * Check if a specific user has access to a specific permission
-	 *
-	 * @param int $USERID The user id to check
-	 * @param string $permission The permission to check against
-	 * @return bool true if user has permission, false if access is denied
-	 */
-	public function isAllowedUser($USERID, $permission="Full Control")
-	{
-		$granted = false;
-
-		$per = $this->entries[$permission];
-
-		if ($per)
-			$granted = in_array($USERID, $per->users);
-
-		return $granted;
-	}
-
-	/**
-	 * Check if a specific group has access to a specific permission
-	 *
-	 * @param int $GROUPID The group to check
-	 * @param string $permission The permission to check against
-	 * @return bool true if group has permission, false if access is denied
-	 */
-	public function isAllowedGroup($GROUPID, $permission="Full Control")
-	{
-		$granted = false;
-
-		$per = $this->entries[$permission];
-
-		if ($per)
-			$granted = in_array($GROUPID, $per->groups);
-
-		return $granted;
-	}
-
-	/**
-	 * Set this DACl to inherit permissions from a parent DACL
-	 */
-	public function setInheritFrom($daclid)
-	{
-		if (!$daclid)
-			return false;
-
-		$this->inheritFrom = $daclid;
-
-		return true;
-	}
-
-	/**
-	 * Unlink this DACL to a parent
-	 *
-	 * This will create a unique instance rather than inheriting from a parent DACL
-	 *
-	 * @return bool true on succes, false on failure
-	 */
-	public function removeInheritFrom()
-	{
-        $this->inheritFrom = null;
-
-		return true;
+		return false;
 	}
 }
