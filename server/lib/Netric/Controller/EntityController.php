@@ -698,7 +698,7 @@ class EntityController extends Mvc\AbstractAccountController
             // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
             $dataMapper->setEntityMovedTo($entityDef , $entityId, $mergedEntityId);
 
-            // Let's tag the original entity as deleted
+            // Let's flag the original entity as deleted
             $dataMapper->delete($entity);
         }
 
