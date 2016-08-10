@@ -729,4 +729,37 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	public function testVerifyUniqueName()
 	{
 	}
+
+	/**
+	 * Test the public function for entityHasMoved
+	 */
+	public function testCheckEntityHasMoved()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+			return;
+
+		// Create first entity
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "testSetEntityMovedTo");
+		$oid1 = $dm->save($customer, $this->user);
+
+		// Create second entity
+		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer2->setValue("name", "testSetEntityMovedTo");
+		$oid2 = $dm->save($customer2, $this->user);
+
+		// Set moved to
+		$def = $customer->getDefinition();
+		$ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
+
+		$movedTo = $dm->checkEntityHasMoved($customer->getDefinition(), $oid1);
+
+		// Now make sure the movedTo works
+		$this->assertEquals($oid2, $movedTo);
+
+		// Cleanup
+		$dm->delete($customer, true);
+		$dm->delete($customer2, true);
+	}
 }

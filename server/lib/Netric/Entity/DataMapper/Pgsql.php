@@ -1068,15 +1068,15 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 										and object_id='" . $this->dbh->escape($id) . "'");
 		if ($this->dbh->getNumRows($result))
 		{
-			$id = $this->dbh->getValue($result, 0, "moved_to");
+			$moved_to = $this->dbh->getValue($result, 0, "moved_to");
 
 			// Kill circular references - objects moved to each other
 			if (in_array($id, $this->movedToRef))
 				return false;
 
-			$this->movedToRef[] = $id;
+			$this->movedToRef[] = $moved_to;
 
-			return $id;
+			return $moved_to;
 		}
 
 		return false;
@@ -1094,9 +1094,9 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 	{
 		if (!$fromId || $fromId == $toId) // never allow circular reference or blank values
 			return false;
-			
-		$ret = $this->dbh->query("INSERT INTO objects_moved(object_type_id, object_id, moved_to) 
-									VALUES('" . $def->getId() . "', '" . $this->dbh->escape($fromId) . "', 
+
+		$ret = $this->dbh->query("INSERT INTO objects_moved(object_type_id, object_id, moved_to)
+									VALUES('" . $def->getId() . "', '" . $this->dbh->escape($fromId) . "',
 										'" . $this->dbh->escape($toId) . "');");
 
 		return ($ret == false) ? false : true;
