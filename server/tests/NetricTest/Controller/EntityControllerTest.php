@@ -218,7 +218,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(in_array($data['entity_data']['groups'][1], $ret[1]['groups']));
 
 
-        // Lets load the actual actual entities and test them
+        // Lets load the actual entities and test them
         $updatedEntity1 = $loader->get("note", $entityId1);
         $this->assertEquals($data['entity_data']['body'], $updatedEntity1->getValue("body"));
         $this->assertTrue(in_array($data['entity_data']['groups'][0], $updatedEntity1->getValue("groups")));
@@ -236,5 +236,88 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         // Lets the the value name of the groups
         $this->assertEquals($data['entity_data']['groups_fval'][3], $updatedEntity2->getValueName("groups", 3));
         $this->assertEquals($data['entity_data']['groups_fval'][4], $updatedEntity2->getValueName("groups", 4));
+    }
+
+    public function testMergeEntities()
+    {
+        // Setup the loaders
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+
+        // First create entities to merge
+        $entity1 = $loader->create("note");
+        $entity1->setValue("body", "body 1");
+        $entity1->setValue("name", "name 1");
+        $entity1->setValue("title", "title 1");
+        $entity1->setValue("website", "website 1");
+        $entity1->addMultiValue("groups", 1, "note group 1");
+        $dm->save($entity1);
+        $entityId1 = $entity1->getId();
+
+        $entity2 = $loader->create("note");
+        $entity2->setValue("body", "body 2");
+        $entity2->setValue("name", "name 2");
+        $entity2->setValue("path", "path 2");
+        $entity2->setValue("website", "website 2");
+        $entity2->addMultiValue("groups", 2, "note group 2");
+        $dm->save($entity2);
+        $entityId2 = $entity2->getId();
+
+        $entity3 = $loader->create("note");
+        $entity3->setValue("body", "body 3");
+        $entity3->setValue("name", "name 3");
+        $entity3->setValue("path", "path 3");
+        $entity3->setValue("website", "website 3");
+        $entity3->addMultiValue("groups", 3, "note group 3");
+        $entity3->addMultiValue("groups", 33, "note group 33");
+        $dm->save($entity3);
+        $entityId3 = $entity3->getId();
+
+        // Setup the merge data
+        $data = array(
+            'obj_type' => "note",
+            'id' => array($entityId1, $entityId2, $entityId3),
+            'merge_data' => array(
+                $entityId1 => array("body"),
+                $entityId2 => array("path", "website"),
+                $entityId3 => array("groups", "name"),
+            )
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+
+        $ret = $this->controller->postMergeEntitiesAction();
+
+        // Test the results
+        $this->assertFalse(empty($ret['id']));
+        $this->assertEquals($ret['body'], $entity1->getValue("body"));
+        $this->assertEquals($ret['path'], $entity2->getValue("path"));
+        $this->assertEquals($ret['website'], $entity2->getValue("website"));
+        $this->assertEquals($ret['name'], $entity3->getValue("name"));
+        $this->assertEquals($ret['groups'], $entity3->getValue("groups"));
+        $this->assertEquals($ret['groups_fval'][3], $entity3->getValueName("groups", 3));
+        $this->assertEquals($ret['groups_fval'][33], $entity3->getValueName("groups", 33));
+
+        // Test that the entities that were merged have been moved
+        $mId1 = $dm->checkEntityHasMoved($entity1->getDefinition(), $entityId1);
+        $this->assertEquals($mId1, $ret['id']);
+
+        $mId2 = $dm->checkEntityHasMoved($entity2->getDefinition(), $entityId2);
+        $this->assertEquals($mId2, $ret['id']);
+
+        $mId3 = $dm->checkEntityHasMoved($entity3->getDefinition(), $entityId3);
+        $this->assertEquals($mId3, $ret['id']);
+
+        // Lets load the actual entities and check if they are deleted
+        $originalEntity1 = $loader->get("note", $entityId1);
+        $this->assertEquals($originalEntity1->getValue("f_deleted"), 1);
+
+        $originalEntity2 = $loader->get("note", $entityId2);
+        $this->assertEquals($originalEntity2->getValue("f_deleted"), 1);
+
+        $originalEntity3 = $loader->get("note", $entityId3);
+        $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
     }
 }
