@@ -26,7 +26,7 @@ class Address implements Address\AddressInterface
     {
         $emailAddressValidator = new EmailAddressValidator(Hostname::ALLOW_LOCAL);
         if (! is_string($email) || empty($email)) {
-            throw new Exception\InvalidArgumentException('Email must be a valid email address');
+            throw new Exception\InvalidArgumentException('Email must be a valid email address: ' . var_export($email, true));
         }
 
         if (preg_match("/[\r\n]/", $email)) {

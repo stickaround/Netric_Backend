@@ -33,7 +33,14 @@ class ConfigLoader
         $envLocal = self::importFileArray($configPath . "/" . $appEnv . ".local.ini");
         $local = self::importFileArray($configPath . "/local.php");
 
-        $merged = array_merge($base, $baseLocal, $env, $envLocal, $local, $params);
+        $merged = array_merge(
+            (array) $base,
+            (array) $baseLocal,
+            (array) $env,
+            (array) $envLocal,
+            (array) $local,
+            (array) $params
+        );
 
         // Return merged config
         return new Config($merged);
@@ -72,7 +79,7 @@ class ConfigLoader
 
         } else {
             // Return an empty array to merge
-            return array();
+            return [];
         }
     }
 }

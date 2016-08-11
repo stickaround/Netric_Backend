@@ -35,7 +35,14 @@ class ConfigLoaderTest extends \PHPUnit_Framework_TestCase
         // Not passing an appEnv (second param) should result in development.php not loading
         $config = ConfigLoader::fromFolder(__DIR__ . "/Fixture");
 
+        $this->assertNotNull($config);
+
         // Make sure a property only set in devel.php is not set
         $this->assertNull($config->development_property);
+    }
+    
+    public function testMissingFile()
+    {
+        
     }
 }

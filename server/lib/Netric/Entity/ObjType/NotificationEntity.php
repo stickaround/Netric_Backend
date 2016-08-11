@@ -107,28 +107,35 @@ class NotificationEntity extends Entity implements EntityInterface
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
 
         // Set from
-        $config = $sm->get("Config");
+        $config = $sm->get("Netric/Config/Config");
         $fromEmail = $config->email['noreply'];
 
         // Add special dropbox that enables users to comment by just replying to an email
-        if ($config->email['dropbox_catchall'])
-        {
+        if ($config->email['dropbox_catchall']) {
             $fromEmail = $sm->getAccount()->getName() . "-com-";
             $fromEmail .= $objReference['obj_type'] . "." . $objReference['id'];
             $fromEmail .= $config->email['dropbox_catchall'];
         }
 
-        // Create new Mail\Address object for the Message
-        $from = new Address($fromEmail, $creator->getName());
+        try {
+            // Create a new message and send it
+            $from = new Address($fromEmail, $creator->getName());
+            $message = new Mail\Message();
+            $message->addFrom($from);
+            $message->addTo($user->getValue("email"));
+            $message->setBody($body);
+            $message->setEncoding('UTF-8');
+            $message->setSubject($this->getValue("name"));
+            $this->mailTransport->send($message);
+        } catch (\Exception $ex) {
+            /*
+             * This should never happen, but in case we cannot send the email for
+             * reason we should log it as an error and continue working.
+             */
+            $log = $sm->get("Log");
+            $log->error("Could not send notification: " . $ex->getMessage(), var_export($config, true));
+        }
 
-        // Create a new message
-        $message = new Mail\Message();
-        $message->addFrom($from);
-        $message->addTo($user->getValue("email"));
-        $message->setBody($body);
-        $message->setEncoding('UTF-8');
-        $message->setSubject($this->getValue("name"));
-        $this->mailTransport->send($message);
     }
 
     /**
