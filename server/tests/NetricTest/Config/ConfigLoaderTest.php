@@ -40,9 +40,18 @@ class ConfigLoaderTest extends \PHPUnit_Framework_TestCase
         // Make sure a property only set in devel.php is not set
         $this->assertNull($config->development_property);
     }
-    
-    public function testMissingFile()
+
+    /*
+     * We had a bug where if a param was null (like a file missing) then it was
+     * possible for the whole config to be returned null. We fixed the bug in story
+     * 16717425 and this will make sure by sending null to the params override param.
+     */
+    public function testNullArray()
     {
-        
+        // Sending null for third param, which would merge the arrays with a null element
+        $config = ConfigLoader::fromFolder(__DIR__ . "/Fixture", "", null);
+
+        // Before this resulted in a null config, but now it should be an array
+        $this->assertNotNull($config);
     }
 }
