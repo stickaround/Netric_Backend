@@ -225,6 +225,11 @@ class ReceiverService extends AbstractHasErrors
 
                 // The entity was somehow deleted on netric without the sync knowing
                 if (!$emailEntity) {
+                    /*
+                     * If we do not remove it here, we wuold get stuck in a continuous loop
+                     * due to the while ... getExportedChanges loop above.
+                     */
+                    $syncColl->logExported($stat['id'], null);
                     $this->log->error("ReceiverService->sendChanges: {$stat['id']} was deleted locally without stat knowing");
                     continue;
                 }
