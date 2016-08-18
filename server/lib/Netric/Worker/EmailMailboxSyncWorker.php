@@ -59,6 +59,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
         // Get the entity index and the email receiver
         $entityIndex = $account->getServiceManager()->get("EntityQuery_Index");
         $mailReceiver = $account->getServiceManager()->get("Netric/Mail/ReceiverService");
+        $entityLoader = $account->getServiceManager()->get("EntityLoader");
 
         // Get email accounts
         $query = new EntityQuery("email_account");
@@ -68,9 +69,37 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $num = $results->getTotalNum();
         for ($i = 0; $i < $num; $i++) {
             $emailAccount = $results->getEntity($i);
+
+            /*
+             * If this account is in the process of being synchronized, and that process
+             * started less than an hour ago, then we will just skipe the account.
+             */
+            if ($emailAccount->getValue("f_synchronizing") &&
+                (
+                    empty($emailAccount->getValue("ts_last_full_sync")) ||
+                    $emailAccount->getValue("ts_last_full_sync") > (time() - 60*60)
+                )
+            ) {
+                $log->info(
+                    "EmailMailboxSyncWorker->work: syncMailbox: " .
+                    $emailAccount->getValue("address") .
+                    " is already being synchronized, so skipping for now."
+                );
+                continue;
+            }
+
+            // Update flag to let any other processes know that we are synchronizing
+            $emailAccount->setValue("f_synchronizing", true);
+            $entityLoader->save($emailAccount);
+
             $log->info("EmailMailboxSyncWorker->work: syncMailbox: " . $emailAccount->getValue("address"));
             $mailReceiver->syncMailbox($workload['mailbox_id'], $emailAccount);
             $job->sendStatus($i+1, $num);
+
+            // Update last full sync of account
+            $emailAccount->setValue("ts_last_full_sync", time());
+            $emailAccount->setValue("f_synchronizing", false);
+            $entityLoader->save($emailAccount);
         }
 
         $log->info("EmailMailboxSyncWorker->work: [DONE]");

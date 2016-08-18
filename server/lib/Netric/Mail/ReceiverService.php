@@ -177,7 +177,7 @@ class ReceiverService extends AbstractHasErrors
 
         // Right now we only want to synchronize the Inbox - Sky
         if (strtolower($mailboxPath) != "inbox") {
-            $this->log->warning("ReceiverService->syncMail: $mailboxPath($mailboxId) is not an inbox and we only support inbox");
+            $this->log->info("ReceiverService->syncMail: $mailboxPath($mailboxId) is not an inbox and we only support inbox");
             return false;
         }
 

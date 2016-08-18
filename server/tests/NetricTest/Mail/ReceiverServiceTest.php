@@ -170,7 +170,9 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
 
         // Send unseen message
         $imap->appendMessage(
-            file_get_contents($testFilesRoot . DIRECTORY_SEPARATOR . 'm1.example.org.unseen')
+            file_get_contents($testFilesRoot . DIRECTORY_SEPARATOR . 'm1.example.org.unseen'),
+            null,
+            [Storage::FLAG_FLAGGED]
         );
 
         // Send flagged message
@@ -213,6 +215,34 @@ class ReceiverServiceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(5, $results->getTotalNum());
 
         // Add imported to queue for cleanup
+        for ($i = 0; $i < $results->getTotalNum(); $i++) {
+            $this->testEntities[] = $results->getEntity($i);
+        }
+    }
+
+    public function testSyncMailbox_DownloadSeenFlag()
+    {
+        $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
+
+        $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
+
+        // In setup we set one message to unseen
+        $query = new EntityQuery("email_message");
+        $query->where("mailbox_id")->equals($this->inbox->id);
+        $query->andWhere("owner_id")->equals($this->user->getId());
+        $query->andWhere("flag_seen")->equals(false);
+        $query->andWhere("email_account")->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $results = $index->executeQuery($query);
+        $this->assertEquals(1, $results->getTotalNum());
+
+        // Clean up all messages
+        $query = new EntityQuery("email_message");
+        $query->where("mailbox_id")->equals($this->inbox->id);
+        $query->andWhere("owner_id")->equals($this->user->getId());
+        $query->andWhere("email_account")->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $results = $index->executeQuery($query);
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
             $this->testEntities[] = $results->getEntity($i);
         }

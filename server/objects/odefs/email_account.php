@@ -2,7 +2,7 @@
 /**
  * email_account object definition
  */
-$obj_revision = 5;
+$obj_revision = 6;
 
 $isPrivate = true;
 $defaultActivityLevel = 1;
@@ -108,6 +108,12 @@ $obj_fields = array(
         'type'=>'timestamp',
         'subtype'=>'',
         'readonly'=>false
+    ),
+
+    'f_synchronizing' => array(
+        'title'=>'Sync In Process',
+        'type'=>'bool',
+        'subtype'=>'true'
     ),
 
     'f_system' => array(

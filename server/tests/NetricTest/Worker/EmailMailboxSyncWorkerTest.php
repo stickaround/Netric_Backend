@@ -80,4 +80,56 @@ class EmailMailboxSyncWorkerTest extends PHPUnit_Framework_TestCase
         // Make sure one account was processed
         $this->assertEquals(1, $job->getStatusDenominator());
     }
+
+    /**
+     * Makae sure that only one worker processes an account at the same time
+     */
+    public function testWorkConcurrent()
+    {
+        $worker = new EmailMailboxSyncWorker($this->account->getApplication());
+        $job = new Job();
+        $job->setWorkload([
+            "account_id" => $this->account->getId(),
+            "user_id" => $this->user->getId(),
+            "mailbox_id" => 123
+        ]);
+        
+        // Set working flag
+        $this->emailAccount->setValue("f_synchronizing", true);
+        $sl = $this->account->getServiceManager();
+        $sl->get("EntityLoader")->save($this->emailAccount);
+
+        // Make sure it is a success
+        $this->assertTrue($worker->work($job));
+
+        // Make sure we skipped the account since it is already processing
+        $this->assertEquals(0, $job->getStatusDenominator());
+    }
+
+    /**
+     * Makae sure that only one worker processes an account at the same time
+     */
+    public function testWorkConcurrentExpired()
+    {
+        $worker = new EmailMailboxSyncWorker($this->account->getApplication());
+        $job = new Job();
+        $job->setWorkload([
+            "account_id" => $this->account->getId(),
+            "user_id" => $this->user->getId(),
+            "mailbox_id" => 123
+        ]);
+
+        // Set working flag, but a long time ago which will force it to run again (simulating a failure)
+        $this->emailAccount->setValue("f_synchronizing", true);
+        $this->emailAccount->setValue("ts_last_full_sync", strtotime("-1 day"));
+
+        $sl = $this->account->getServiceManager();
+        $sl->get("EntityLoader")->save($this->emailAccount);
+
+        // Make sure it is a success
+        $this->assertTrue($worker->work($job));
+
+        // Make sure one account was processed even though the f_synchronizing flag was set
+        $this->assertEquals(1, $job->getStatusDenominator());
+    }
 }

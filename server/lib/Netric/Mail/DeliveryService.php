@@ -147,7 +147,7 @@ class DeliveryService extends AbstractHasErrors
         $emailEntity->setValue("owner_id", $user->getId());
         $emailEntity->setValue("mailbox_id", $mailboxId);
         $emailEntity->setValue("message_uid", $uniqueId);
-        $emailEntity->setValue("flag_seen", ($message->hasFlag(Storage::FLAG_UNSEEN)) ? false : true);
+        $emailEntity->setValue("flag_seen", $message->hasFlag(Storage::FLAG_SEEN));
         $mailId = $this->entityLoader->save($emailEntity);
 
         // TODO: Process auto-responders?
@@ -155,6 +155,12 @@ class DeliveryService extends AbstractHasErrors
         return $mailId;
     }
 
+    /**
+     * @deprecated We now use importMailParse
+     *
+     * @param Storage\Part $mime
+     * @return Mime\Message
+     */
     private function getMimeFromBody(Storage\Part $mime)
     {
         $mimeMessage = new Mime\Message();
