@@ -12236,7 +12236,7 @@ function rawurldecode (str)
     // *     example 3: rawurldecode('http%3A%2F%2Fwww.google.nl%2Fsearch%3Fq%3Dphp.js%26ie%3Dutf-8%26oe%3Dutf-8%26aq%3Dt%26rls%3Dcom.ubuntu%3Aen-US%3Aunofficial%26client%3Dfirefox-a');
     // *     returns 3: 'http://www.google.nl/search?q=php.js&ie=utf-8&oe=utf-8&aq=t&rls=com.ubuntu:en-US:unofficial&client=firefox-a'
     // *     example 4: rawurldecode('-22%97bc%2Fbc');
-    // *     returns 4: '-22¿bc/bc'
+    // *     returns 4: '-22ï¿½bc/bc'
     return decodeURIComponent(str + '');
 }
 
@@ -13269,8 +13269,9 @@ CAjax.prototype.exec = function(url, args, async)
 
 	// Set data
 	var data = "";
-	if (typeof args != "undefined" && args!=null)
-	{
+	if (typeof args === 'string') {
+		data = args;
+	} else if (typeof args != "undefined" && args!=null) {
 		/*
 		var data = new Object();
 		if (args.length)
@@ -16906,12 +16907,12 @@ alib.fx.fadeOut = function(e, cbFun, duration)
  * yyyy = long year
  * M = month (1-12)
  * MM = month (01-12)
- * MMM = month abbreviation (Jan, Feb … Dec)
- * MMMM = long month (January, February … December)
+ * MMM = month abbreviation (Jan, Feb ï¿½ Dec)
+ * MMMM = long month (January, February ï¿½ December)
  * d = day (1 - 31)
  * dd = day (01 - 31)
- * ddd = day of the week in words (Monday, Tuesday … Sunday)
- * D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4th…)
+ * ddd = day of the week in words (Monday, Tuesday ï¿½ Sunday)
+ * D - Ordinal day (1st, 2nd, 3rd, 21st, 22nd, 23rd, 31st, 4thï¿½)
  * h = hour in am/pm (0-12)
  * hh = hour in am/pm (00-12)
  * H = hour in day (0-23)

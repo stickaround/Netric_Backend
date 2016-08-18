@@ -166,6 +166,14 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
+     * POST pass-through for get action
+     */
+    public function postGetAction()
+    {
+        return $this->getGetAction();
+    }
+
+    /**
      * Retrieve a single entity
      */
     public function getGetAction()
@@ -219,7 +227,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
-        if (isset($objData['id']))
+        if (isset($objData['id']) && !empty($objData['id']))
         {
             $entity = $loader->get($objData['obj_type'], $objData['id']);
         }
@@ -302,6 +310,14 @@ class EntityController extends Mvc\AbstractAccountController
     public function postRemoveAction()
     {
         return $this->getRemoveAction();
+    }
+
+    /**
+     * POST pass-through for get groupings action
+     */
+    public function postGetGroupingsAction()
+    {
+        return $this->getGetGroupingsAction();
     }
 
     /**

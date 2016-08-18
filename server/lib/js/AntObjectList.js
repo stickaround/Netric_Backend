@@ -195,12 +195,13 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 	{
 		this.cbData.cls.totalNum = resp.totalNum;
 
-		if (resp.objects.length)
+		if (resp.entities.length)
 		{
-            this.cbData.cls.objects = resp.objects;
+            this.cbData.cls.objects = resp.entities;
 		}
 
-		if (resp.pagination)
+		// With the new /svr/entity/query we do not use pagination anymore
+		/*if (resp.pagination)
 		{
 			this.cbData.cls.pagination.next = resp.pagination.next;
 			this.cbData.cls.pagination.prev = resp.pagination.prev;
@@ -211,7 +212,7 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 			this.cbData.cls.pagination.next = 0;
 			this.cbData.cls.pagination.prev = 0;
 			this.cbData.cls.pagination.desc = "";
-		}
+		}*/
 
 		this.cbData.cls.onLoad();
 	};
@@ -219,25 +220,23 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 	// Set basic query vars
 	var args = [["obj_type", this.objType], ["offset", this.offset], ["limit", this.limit]];
 
+
 	// Add conditions
 	for (var i = 0; i < this.conditions.length; i++)
 	{
 		var cond = this.conditions[i];
 
-		args[args.length] = ["conditions[]", i];
-		args[args.length] = ["condition_blogic_"+i, cond.blogic];
-		args[args.length] = ["condition_fieldname_"+i, cond.fieldName];
-		args[args.length] = ["condition_operator_"+i, cond.operator];
-		args[args.length] = ["condition_condvalue_"+i, cond.condValue];
+		args[args.length] = ["where[]", [cond.blogic, cond.fieldName, cond.operator, cond.condValue]];
 	}
 	
 	// Get order by
 	for (var i = 0; i < this.sortOrder.length; i++)
 	{
-		args[args.length] = ["order_by[]", this.sortOrder[i].fieldName+" "+this.sortOrder[i].order];
+		args[args.length] = ["order_by[]", this.sortOrder[i].fieldName + "," + this.sortOrder[i].order];
 	}
 
-	ajax.exec("/controller/ObjectList/query", args, this.async);
+	//ajax.exec("/controller/ObjectList/query", args, this.async);
+	ajax.exec("/svr/entity/query", args, this.async);
 }
 
 /**
