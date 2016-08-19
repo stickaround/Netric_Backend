@@ -104,7 +104,6 @@ class AntLog
 	 */
 	public function __construct()
 	{
-	return;
 		// Make sure the local data path exists
 		if (AntConfig::getInstance()->log)
 		{
@@ -168,7 +167,6 @@ class AntLog
 	 */
 	public function writeLog($lvl, $message)
 	{
-		print_r($message);
 		// Only log events below the current logging level set
 		if ($lvl > $this->level)
 			return false;
