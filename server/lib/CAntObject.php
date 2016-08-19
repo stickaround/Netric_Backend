@@ -4484,7 +4484,7 @@ class CAntObject
 				if ($cnd) $cnd .= " and ";
 				$cnd .= $field->fkeyTable['parent']."='".$parent."' ";
 			}
-			else
+			else if(!empty($field->fkeyTable['parent']))
 			{
 				if ($cnd) $cnd .= " and ";
 				$cnd .= $field->fkeyTable['parent']." is null ";

@@ -11,7 +11,7 @@ return array(
 		'obj_type' => 'project',
 		'name' => 'All Projects',
 		'description' => '',
-		'default' => true,
+		'default' => false,
 		'order_by' => array(
 			'name' => array(
 				'field_name' => 'name',
@@ -25,7 +25,7 @@ return array(
 		'obj_type' => 'project',
 		'name' => 'My Open Projects',
 		'description' => '',
-		'default' => false,
+		'default' => true,
 		'conditions' => array(
             'members' => array(
                 'blogic' => Where::COMBINED_BY_AND,
@@ -48,7 +48,7 @@ return array(
 		),
 		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
     ),
-		
+
 	'my_closed_projects'=> array(
 		'obj_type' => 'project',
 		'name' => 'My Closed Projects',
@@ -76,7 +76,7 @@ return array(
 		),
 		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
 	),
-		
+
 	'all_open_projects'=> array(
 		'obj_type' => 'project',
 		'name' => 'All Open Projects',
@@ -98,8 +98,8 @@ return array(
 		),
 		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
 	),
-		
-	'ongoin_projects'=> array(
+
+	'ongoing_projects'=> array(
 		'obj_type' => 'project',
 		'name' => 'Ongoing Projects (no deadline)',
 		'description' => '',
