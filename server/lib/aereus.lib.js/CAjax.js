@@ -142,8 +142,11 @@ CAjax.prototype.exec = function(url, args, async)
 
 	// Set data
 	var data = "";
-	if (typeof args != "undefined" && args!=null)
-	{
+
+	// If args is already a string, then no need to loop thru it. Instead assign directly as our data
+	if (typeof args === 'string') {
+		data = args;
+	} if (typeof args != "undefined" && args!=null){
 		/*
 		var data = new Object();
 		if (args.length)

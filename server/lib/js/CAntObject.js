@@ -373,7 +373,7 @@ CAntObject.prototype.load = function(id)
         return;
 
     var ajax = new CAjax("json");
-    ajax.m_obj = this;
+	ajax.m_obj = this;
     ajax.onload = function(objData)
     {
         if (objData)
@@ -527,7 +527,7 @@ CAntObject.prototype.load = function(id)
         this.m_obj.dirty = false;
     };
 
-    var url = "/controller/Object/getObject?obj_type="+ this.name +"&oid=" + oid;
+    var url = "/svr/entity/get?obj_type="+ this.name +"&id=" + oid;
     ajax.exec(url);
 }
 
@@ -1706,7 +1706,7 @@ CAntObject.prototype.fieldGetValueInput = function(inp_div, fname, options)
 			// Load remote if label not set
 			if (id == label)
 			{
-				var ajax = new CAjax('json');
+				/*var ajax = new CAjax('json');
 				ajax.cbData.lblsp = lblsp;
 				ajax.onload = function(ret)
 				{
@@ -1718,10 +1718,30 @@ CAntObject.prototype.fieldGetValueInput = function(inp_div, fname, options)
 						this.cbData.lblsp.innerHTML = ret['title'] + " ";
 					}
 				};
+
 				var args = [["obj_type", this.obj_type], ["field", field.name], ["gid", id]];
-				ajax.exec("/controller/Object/getGroupingById", args);
+				ajax.exec("/controller/Object/getGroupingById", args);*/
+
+				var ajax = new CAjax('json');
+				ajax.onload = function(ret) {
+					if(!ret)
+						return;
+
+					for(var idx in ret.groups) {
+						var group = ret.groups[idx];
+						if(group.id == id) {
+							this.cbData.lblsp.innerHTML = group.name + " ";
+							break;
+						}
+					}
+				}.bind(this);
+
+				var args = [
+					["obj_type", this.obj_type],
+					["field_name", field.name]
+				];
+				ajax.exec("/svr/entity/getGroupings", args);
 			}
-				
 
             var alnk = alib.dom.createElement("a", dv);
             alnk.href = "javascript:void(0);";
@@ -1806,7 +1826,7 @@ CAntObject.prototype.save = function(opts)
 {
     var options = (opts) ? opts : new Object();
     var requireFailMessage = false;
-    var args = new Array();
+    var args = new Object();
     
     for (var i = 0; i < this.fields.length; i++)
     {
@@ -1814,32 +1834,33 @@ CAntObject.prototype.save = function(opts)
 
         if (field.type == "fkey_multi" || field.type == "object_multi")
         {
-            var mvals = this.getMultiValues(field.name);
 
-            if (mvals && mvals.length > 0)
-            {
-                for (var m = 0; m < mvals.length; m++)
-                {
-                    args[args.length] = [field.name+"[]", mvals[m]];
-                }
-            }
+			var mvals = this.getMultiValues(field.name);
+
+			if (mvals && mvals.length > 0)
+			{
+				// Set the multi value
+				args[field.name] = mvals;
+				args[field.name + "_fval"] = new Object();
+				for (var m = 0; m < mvals.length; m++)
+				{
+					var mvalue =  mvals[m];
+					args[field.name + "_fval"][mvalue] = this.getValueName(field.name, mvalue);
+				}
+			}
             else
             {
                 // need to clear field multi, so if there's an existing value it will be completely removed
-                args[args.length] = [field.name+"[]", 0];
+                args[field.name] = null;
             }
-        }
-        else if (field.type == "bool")
-        {
-            args[args.length] = [field.name, (this.getValue(field.name))?'t':'f'];
         }
         else if(field.name == "obj_type")
         {
-            args[args.length] = ["field:obj_type", this.getValue(field.name)];
+            args["field:obj_type"] = this.getValue(field.name);
         }
         else
         {
-            args[args.length] = [field.name, this.getValue(field.name)];
+            args[field.name] = this.getValue(field.name);
         }
 
         if (field.required && !this.getValue(field.name) && field.type != "fkey_multi" && field.type != "object_multi")
@@ -1882,8 +1903,7 @@ CAntObject.prototype.save = function(opts)
         obj.day6 = this.recurrencePattern.day6;
         obj.day7 = this.recurrencePattern.day7;
 
-        args[args.length] = ['save_recurrence_pattern',1];
-        args[args.length] = ['objpt_json', JSON.stringify(obj)];   
+        args["recurrence_pattern"] = obj;
     }
 
     // A required field is blank
@@ -1899,7 +1919,7 @@ CAntObject.prototype.save = function(opts)
     ajax.onload = function(ret)
     {
         if (!ret['error'])
-            ret = parseInt(ret);
+            ret = parseInt(ret.id);
         else
             ret = 0;
 
@@ -1909,9 +1929,9 @@ CAntObject.prototype.save = function(opts)
             {
                 if (!this.cbData.cls.id)
                 {
-                    this.cbData.cls.id = ret;
-                    this.cbData.cls.onValueChange("id", ret);
-					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:ret, valueName:ret});
+                    this.cbData.cls.id = ret.id;
+                    this.cbData.cls.onValueChange("id", ret.id);
+					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:ret.id, valueName:ret.name || ret.id});
                 }
             }
             catch(e)
@@ -1942,12 +1962,12 @@ CAntObject.prototype.save = function(opts)
     };    
     
     // Make sure obj_type argument is set here so it will be overwritten by "obj_type" fields.
-    args[args.length] = ["obj_type", this.name];
+    args["obj_type"] = this.name;
     
     if (this.id)
-        args[args.length] = ["oid", this.id];
-    
-    ajax.exec("/controller/Object/saveObject", args);
+        args["id"] = this.id;
+
+	ajax.exec("/svr/entity/save", JSON.stringify(args));
 }
 
 CAntObject.prototype.onsave = function()

@@ -3,7 +3,6 @@
  *
  * @author Sky Stebnicki, sky.stebnicki@aereus.com
  */
- alib.require("netric.Application");
 
 /**
  * Ant namespace
@@ -121,53 +120,56 @@ Ant.m_hHinstRef = new Array();
  */
 Ant.init = function(opt_callback)
 {
-	netric.Application.load(function(appInstance){
-        
-        Ant.isSessionLoaded_ = true; 
+	// Get current authenticated session information
+	var xhr = new alib.net.Xhr();
+	alib.events.listen(xhr, "load", function(evt) { 
 
-        // Set account
-        var account = appInstance.getAccount();
-        Ant.account.id = account.id;
-        Ant.account.name = account.name;
-        Ant.account.companyName = account.orgName;
+		Ant.isSessionLoaded_ = true; 
+		var resp = this.getResponse();
 
-        // Set user
-        if (account.user) {
-        	Ant.user.id = account.user.id;
-        	Ant.user.name = account.user.name;
-        	Ant.user.fullName = account.user.fullName;
-        }
+		// Set data
+		if (resp.account)
+		{
+			Ant.account.id = resp.account.id;
+			Ant.account.name = resp.account.name;
+			Ant.account.companyName = resp.account.companyName;
+		}
 
-        /*
-        TODO: Find out where we can load this from
-        if (resp.theme)
+		if (resp.user)
+		{
+			Ant.user.id = resp.user.id;
+			Ant.user.name = resp.user.name;
+			Ant.user.fullName = resp.user.fullName;
+		}
+
+		if (resp.theme)
 		{
 			Ant.theme.name = resp.theme.name;
 		}
-		*/
-    
-        // Callback
-        Ant.onload();
 
-        // Check for inline callback
+		// Callbacks
+		Ant.onload(resp);
+
+		// Check for inline callback
 		if (opt_callback) 
-			opt_callback(); 
+			opt_callback(resp); 
 
 		// Start keepalive
 		Ant.keepAlive();
+	});
+	xhr.send("/controller/User/getSession");
 
-		// Attach on resize event
-		Ant.antResizeTimer = null;
-		alib.dom.addEvent(window, "resize", function(){ 
-			if (Ant && !Ant.antResizeTimer)
-			{
-				Ant.antResizeTimer = window.setTimeout(function() {
-					try{ Ant.resizeActiveApp(); } catch(e) {};
-					Ant.antResizeTimer = null;
-				}, 1000); // Delay for a second so we don't kill the CPU
-			}
-		});
-    });
+	// Attach on resize event
+	this.antResizeTimer = null;
+	alib.dom.addEvent(window, "resize", function(){ 
+		if (Ant && !Ant.antResizeTimer)
+		{
+			Ant.antResizeTimer = window.setTimeout(function() {
+				try{ Ant.resizeActiveApp(); } catch(e) {};
+				Ant.antResizeTimer = null;
+			}, 1000); // Delay for a second so we don't kill the CPU
+		}
+	});
 }
 
 /**
@@ -7748,6 +7750,8 @@ var WF_ATYPE_STOPWF 	= 5;
 var WF_ATYPE_APPROVAL   = 8;
 var WF_ATYPE_CALLPAGE 	= 9;
 var WF_ATYPE_ASSIGNRR 	= 10;
+var WF_ATYPE_WAITCONDITION 	= 11;
+var WF_ATYPE_CHECKCONDITION 	= 12;
 
 
 function WorkFlow(id)
@@ -8370,7 +8374,7 @@ WorkFlow_Action.prototype.save = function(force)
 			["workflow_id", this.workflow.id],
 			["type", this.type],
 			["when_interval", this.when.interval],
-			["when_unit", this.when.unit],
+			// ["when_unit", this.when.unit], Depricated - Removed the wait condition and moved it to wf wait condition action
 			["name", this.name],
 			["send_email_fid", this.send_email_fid],
 			["update_field", this.update_field],
@@ -8383,6 +8387,7 @@ WorkFlow_Action.prototype.save = function(force)
 		];
 
 
+		/* Depricated - Removed the check condition and moved it to wf checko condition action
 		// Add antConditionsObj into args
 		for (var i = 0; i < this.antConditionsObj.getNumConditions(); i++)
         {
@@ -8398,6 +8403,7 @@ WorkFlow_Action.prototype.save = function(force)
 			args[args.length] = ["condition_" + cid + "_operator", currentCondition.operator];
 			args[args.length] = ["condition_" + cid + "_condvalue", currentCondition.condValue];
 		}
+		*/
 
 		// Add object values
 		for (var i = 0; i < this.getNumObjectValues(); i++)
@@ -8666,8 +8672,10 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
 	var lbl = alib.dom.createElement("span", td);
 	lbl.innerHTML = "&nbsp;give this action a unique name";
 
+	// Depricated - Removed the wait condition and moved it to wf wait condition action
 	// Timeframe
 	// --------------------------------------------
+	/*
 	var row = alib.dom.createElement("tr", tbody);
 	var td = alib.dom.createElement("td", row);
 	alib.dom.styleSetClass(td, "strong");
@@ -8694,9 +8702,12 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
 
 	var lbl = alib.dom.createElement("span", td);
 	lbl.innerHTML = " after workflow starts (enter 0 for immediate)";
+	*/
 
+	// Depricated - Removed the check condition and moved it to wf check condition action
 	// Conditions
 	// --------------------------------------------
+	/*
 	var row = alib.dom.createElement("tr", tbody);
 	var lbl = alib.dom.createElement("td", row);
 	lbl.colSpan = 2;
@@ -8708,6 +8719,7 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
 	var dv_cnd = alib.dom.createElement("div", condCon);
 	var tmpAntObj = new CAntObject(this.workflow.object_type);
 	this.antConditionsObj = tmpAntObj.buildAdvancedQuery(dv_cnd, this.conditions);
+	*/
 
 	// Do
 	// --------------------------------------------
@@ -8746,6 +8758,16 @@ WorkFlow_Action.prototype.showDialog = function(parentDialog)
         var app_action = new WorkFlow_Action_CallPage(this.workflow.object_type, actDlg);
         app_action.print(actCon, this);
         break;
+	case WF_ATYPE_WAITCONDITION:
+		var actCon = alib.dom.createElement("div", divDo);
+		var app_action = new WorkFlow_Action_WaitCondition(this.workflow.object_type, actDlg);
+		app_action.print(actCon, this);
+		break;
+	case WF_ATYPE_CHECKCONDITION:
+		var actCon = alib.dom.createElement("div", divDo);
+		var app_action = new WorkFlow_Action_CheckCondition(this.workflow.object_type, actDlg);
+		app_action.print(actCon, this);
+		break;
 	default: // Create new
 		if (this.create_obj == "task")
 		{
@@ -8955,6 +8977,10 @@ WorkFlow_Action.prototype.getTypeDesc = function()
             return "Call Page";
         case WF_ATYPE_ASSIGNRR:
             return "Assign";
+		case WF_ATYPE_WAITCONDITION:
+			return "Wait";
+		case WF_ATYPE_CHECKCONDITION:
+			return "Execute Workflow";
 	}
 }
 
@@ -8981,10 +9007,12 @@ WorkFlow_Action.prototype.getTypeName = function()
 
 WorkFlow_Action.prototype.getWhenDesc = function()
 {
-	if (this.when.interval == 0)
+	if (this.type == WF_ATYPE_CHECKCONDITION)
+		return "If";
+	if (this.when.interval == 0) {
 		return "Immediately";
-	else
-	{
+	}
+	else {
 		return this.when.interval + " " + wfGetTimeUnitName(this.when.unit) + " after workflow starts";
 	}
 }
@@ -10409,6 +10437,147 @@ WorkFlow_Action_Update.prototype.print = function(con, taskObj)
 }
 
 /**
+ * @fileOverview The wait condition action is used to check when to execute the action
+ *
+ * @author:	Marl Tumulak, marl.tumulak@aereus.com;
+ * 			Copyright (c) 2016 Aereus Corporation. All rights reserved.
+ */
+
+/**
+ * Creates an instance of Wait Condition Action
+ *
+ * @constructor
+ * @param {string} obj_type The type of object that is being approved with this action
+ * @param {CDialog} dlg Optional reference to the dialog being used to edit this action
+ */
+function WorkFlow_Action_WaitCondition(obj_type, dlg)
+{
+    /**
+     * The object that is the subject of this approval request
+     *
+     * @private
+     * @type {CAntObject}
+     */
+    this.mainObject = new CAntObject(obj_type);
+
+    /**
+     * Optional dialog reference
+     *
+     * @private
+     * @type {[CDialog]}
+     */
+    this.dialog = (dlg) ? dlg : null;
+}
+
+/**
+ * Print form
+ *
+ * @public
+ * @this {WorkFlow_Action_WaitCondition}
+ * @param {DOMElement} con The container where we can print the form
+ * @param {WorkFlow_Action} action The parent action
+ */
+WorkFlow_Action_WaitCondition.prototype.print = function(con, action)
+{
+    var innerCon = alib.dom.createElement("fieldset", con);
+    alib.dom.styleSet(innerCon, "margin", "6px 0px 3px 3px");
+    var lbl = alib.dom.createElement("legend", innerCon);
+    lbl.innerHTML = "Wait Condition";
+    var tbl = alib.dom.createElement("table", innerCon);
+    var tbody = alib.dom.createElement("tbody", tbl);
+
+    var row = alib.dom.createElement("tr", tbody);
+    var td = alib.dom.createElement("td", row);
+    alib.dom.styleSetClass(td, "strong");
+    td.innerHTML = "When";
+    var td = alib.dom.createElement("td", row);
+
+    var txtWhenInterval = alib.dom.createElement("input", td);
+    alib.dom.styleSet(txtWhenInterval, "width", "28px");
+    txtWhenInterval.act = action;
+    txtWhenInterval.value = action.when.interval;
+    txtWhenInterval.onchange = function() { this.act.when.interval = this.value; };
+
+    var lbl = alib.dom.createElement("span", td);
+    lbl.innerHTML = "&nbsp;";
+
+    var cbWhenUnit = alib.dom.createElement("select", td);
+    var time_units = wfGetTimeUnits();
+    for (var i = 0; i < time_units.length; i++)
+    {
+        cbWhenUnit[cbWhenUnit.length] = new Option(time_units[i][1], time_units[i][0], false, (action.when.unit==time_units[i][0])?true:false);
+    }
+    cbWhenUnit.act = action;
+    cbWhenUnit.onchange = function() { this.act.when.unit = this.value; };
+
+    var lbl = alib.dom.createElement("span", td);
+    lbl.innerHTML = " after workflow starts (enter 0 for immediate)";
+}
+
+/**
+ * @fileOverview The check condition action is used to check if the workflow should be executed
+ *
+ * @author:	Marl Tumulak, marl.tumulak@aereus.com;
+ * 			Copyright (c) 2016 Aereus Corporation. All rights reserved.
+ */
+
+/**
+ * Creates an instance of Check Condition Action
+ *
+ * @constructor
+ * @param {string} obj_type The type of object that is being approved with this action
+ * @param {CDialog} dlg Optional reference to the dialog being used to edit this action
+ */
+function WorkFlow_Action_CheckCondition(obj_type, dlg)
+{
+    /**
+     * The object that is the subject of this approval request
+     *
+     * @private
+     * @type {CAntObject}
+     */
+    this.mainObject = new CAntObject(obj_type);
+
+    /**
+     * Optional dialog reference
+     *
+     * @private
+     * @type {[CDialog]}
+     */
+    this.dialog = (dlg) ? dlg : null;
+}
+
+/**
+ * Print form
+ *
+ * @public
+ * @this {WorkFlow_Action_CheckCondition}
+ * @param {DOMElement} con The container where we can print the form
+ * @param {WorkFlow_Action} action The parent action
+ */
+WorkFlow_Action_CheckCondition.prototype.print = function(con, action)
+{
+    var innerCon = alib.dom.createElement("fieldset", con);
+    alib.dom.styleSet(innerCon, "margin", "6px 0px 3px 3px");
+    var lbl = alib.dom.createElement("legend", innerCon);
+    lbl.innerHTML = "Check Condition";
+    var tbl = alib.dom.createElement("table", innerCon);
+    var tbody = alib.dom.createElement("tbody", tbl);
+
+    var row = alib.dom.createElement("tr", tbody);
+    var lbl = alib.dom.createElement("td", row);
+    lbl.colSpan = 2;
+    alib.dom.styleSetClass(lbl, "strong");
+    lbl.innerHTML = "Only execute action if the following conditions are met:";
+    var row = alib.dom.createElement("tr", tbody);
+    var condCon = alib.dom.createElement("td", row);
+    condCon.colSpan = 2;
+    var dv_cnd = alib.dom.createElement("div", condCon);
+    var tmpAntObj = new CAntObject(action.workflow.object_type);
+    action.antConditionsObj = tmpAntObj.buildAdvancedQuery(dv_cnd, action.conditions);
+}
+
+/**
 * @fileOverview WorkFlow_ActionsGrid
 *
 * The actions grid creates a table of actions for a given
@@ -10530,9 +10699,19 @@ WorkFlow_ActionsGrid.prototype.print = function(con)
 	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_CALLPAGE); }
 	menuAct.addItem(item);
 
-	// Call Page
+	// Round Robin
 	var item = new alib.ui.MenuItem("Assign Round Robin", {cls:this});
 	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_ASSIGNRR); }
+	menuAct.addItem(item);
+
+	// Wait Condition
+	var item = new alib.ui.MenuItem("Wait Condition", {cls:this});
+	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_WAITCONDITION); }
+	menuAct.addItem(item);
+
+	// Check Condition
+	var item = new alib.ui.MenuItem("Check Condition", {cls:this});
+	item.onclick = function() { this.options.cls.newAction(WF_ATYPE_CHECKCONDITION); }
 	menuAct.addItem(item);
 
 	menuAct.attach(addActLnk);
@@ -12192,7 +12371,7 @@ CAntObject.prototype.load = function(id)
         return;
 
     var ajax = new CAjax("json");
-    ajax.m_obj = this;
+	ajax.m_obj = this;
     ajax.onload = function(objData)
     {
         if (objData)
@@ -12346,7 +12525,7 @@ CAntObject.prototype.load = function(id)
         this.m_obj.dirty = false;
     };
 
-    var url = "/controller/Object/getObject?obj_type="+ this.name +"&oid=" + oid;
+    var url = "/svr/entity/get?obj_type="+ this.name +"&id=" + oid;
     ajax.exec(url);
 }
 
@@ -13525,7 +13704,7 @@ CAntObject.prototype.fieldGetValueInput = function(inp_div, fname, options)
 			// Load remote if label not set
 			if (id == label)
 			{
-				var ajax = new CAjax('json');
+				/*var ajax = new CAjax('json');
 				ajax.cbData.lblsp = lblsp;
 				ajax.onload = function(ret)
 				{
@@ -13537,10 +13716,30 @@ CAntObject.prototype.fieldGetValueInput = function(inp_div, fname, options)
 						this.cbData.lblsp.innerHTML = ret['title'] + " ";
 					}
 				};
+
 				var args = [["obj_type", this.obj_type], ["field", field.name], ["gid", id]];
-				ajax.exec("/controller/Object/getGroupingById", args);
+				ajax.exec("/controller/Object/getGroupingById", args);*/
+
+				var ajax = new CAjax('json');
+				ajax.onload = function(ret) {
+					if(!ret)
+						return;
+
+					for(var idx in ret.groups) {
+						var group = ret.groups[idx];
+						if(group.id == id) {
+							this.cbData.lblsp.innerHTML = group.name + " ";
+							break;
+						}
+					}
+				}.bind(this);
+
+				var args = [
+					["obj_type", this.obj_type],
+					["field_name", field.name]
+				];
+				ajax.exec("/svr/entity/getGroupings", args);
 			}
-				
 
             var alnk = alib.dom.createElement("a", dv);
             alnk.href = "javascript:void(0);";
@@ -13625,7 +13824,7 @@ CAntObject.prototype.save = function(opts)
 {
     var options = (opts) ? opts : new Object();
     var requireFailMessage = false;
-    var args = new Array();
+    var args = new Object();
     
     for (var i = 0; i < this.fields.length; i++)
     {
@@ -13633,32 +13832,33 @@ CAntObject.prototype.save = function(opts)
 
         if (field.type == "fkey_multi" || field.type == "object_multi")
         {
-            var mvals = this.getMultiValues(field.name);
 
-            if (mvals && mvals.length > 0)
-            {
-                for (var m = 0; m < mvals.length; m++)
-                {
-                    args[args.length] = [field.name+"[]", mvals[m]];
-                }
-            }
+			var mvals = this.getMultiValues(field.name);
+
+			if (mvals && mvals.length > 0)
+			{
+				// Set the multi value
+				args[field.name] = mvals;
+				args[field.name + "_fval"] = new Object();
+				for (var m = 0; m < mvals.length; m++)
+				{
+					var mvalue =  mvals[m];
+					args[field.name + "_fval"][mvalue] = this.getValueName(field.name, mvalue);
+				}
+			}
             else
             {
                 // need to clear field multi, so if there's an existing value it will be completely removed
-                args[args.length] = [field.name+"[]", 0];
+                args[field.name] = null;
             }
-        }
-        else if (field.type == "bool")
-        {
-            args[args.length] = [field.name, (this.getValue(field.name))?'t':'f'];
         }
         else if(field.name == "obj_type")
         {
-            args[args.length] = ["field:obj_type", this.getValue(field.name)];
+            args["field:obj_type"] = this.getValue(field.name);
         }
         else
         {
-            args[args.length] = [field.name, this.getValue(field.name)];
+            args[field.name] = this.getValue(field.name);
         }
 
         if (field.required && !this.getValue(field.name) && field.type != "fkey_multi" && field.type != "object_multi")
@@ -13701,8 +13901,7 @@ CAntObject.prototype.save = function(opts)
         obj.day6 = this.recurrencePattern.day6;
         obj.day7 = this.recurrencePattern.day7;
 
-        args[args.length] = ['save_recurrence_pattern',1];
-        args[args.length] = ['objpt_json', JSON.stringify(obj)];   
+        args["recurrence_pattern"] = obj;
     }
 
     // A required field is blank
@@ -13718,7 +13917,7 @@ CAntObject.prototype.save = function(opts)
     ajax.onload = function(ret)
     {
         if (!ret['error'])
-            ret = parseInt(ret);
+            ret = parseInt(ret.id);
         else
             ret = 0;
 
@@ -13728,9 +13927,9 @@ CAntObject.prototype.save = function(opts)
             {
                 if (!this.cbData.cls.id)
                 {
-                    this.cbData.cls.id = ret;
-                    this.cbData.cls.onValueChange("id", ret);
-					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:ret, valueName:ret});
+                    this.cbData.cls.id = ret.id;
+                    this.cbData.cls.onValueChange("id", ret.id);
+					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:ret.id, valueName:ret.name || ret.id});
                 }
             }
             catch(e)
@@ -13761,12 +13960,12 @@ CAntObject.prototype.save = function(opts)
     };    
     
     // Make sure obj_type argument is set here so it will be overwritten by "obj_type" fields.
-    args[args.length] = ["obj_type", this.name];
+    args["obj_type"] = this.name;
     
     if (this.id)
-        args[args.length] = ["oid", this.id];
-    
-    ajax.exec("/controller/Object/saveObject", args);
+        args["id"] = this.id;
+
+	ajax.exec("/svr/entity/save", JSON.stringify(args));
 }
 
 CAntObject.prototype.onsave = function()
@@ -21447,12 +21646,13 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 	{
 		this.cbData.cls.totalNum = resp.totalNum;
 
-		if (resp.objects.length)
+		if (resp.entities.length)
 		{
-            this.cbData.cls.objects = resp.objects;
+            this.cbData.cls.objects = resp.entities;
 		}
 
-		if (resp.pagination)
+		// With the new /svr/entity/query we do not use pagination anymore
+		/*if (resp.pagination)
 		{
 			this.cbData.cls.pagination.next = resp.pagination.next;
 			this.cbData.cls.pagination.prev = resp.pagination.prev;
@@ -21463,7 +21663,7 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 			this.cbData.cls.pagination.next = 0;
 			this.cbData.cls.pagination.prev = 0;
 			this.cbData.cls.pagination.desc = "";
-		}
+		}*/
 
 		this.cbData.cls.onLoad();
 	};
@@ -21471,25 +21671,23 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 	// Set basic query vars
 	var args = [["obj_type", this.objType], ["offset", this.offset], ["limit", this.limit]];
 
+
 	// Add conditions
 	for (var i = 0; i < this.conditions.length; i++)
 	{
 		var cond = this.conditions[i];
 
-		args[args.length] = ["conditions[]", i];
-		args[args.length] = ["condition_blogic_"+i, cond.blogic];
-		args[args.length] = ["condition_fieldname_"+i, cond.fieldName];
-		args[args.length] = ["condition_operator_"+i, cond.operator];
-		args[args.length] = ["condition_condvalue_"+i, cond.condValue];
+		args[args.length] = ["where[]", [cond.blogic, cond.fieldName, cond.operator, cond.condValue]];
 	}
 	
 	// Get order by
 	for (var i = 0; i < this.sortOrder.length; i++)
 	{
-		args[args.length] = ["order_by[]", this.sortOrder[i].fieldName+" "+this.sortOrder[i].order];
+		args[args.length] = ["order_by[]", this.sortOrder[i].fieldName + "," + this.sortOrder[i].order];
 	}
 
-	ajax.exec("/controller/ObjectList/query", args, this.async);
+	//ajax.exec("/controller/ObjectList/query", args, this.async);
+	ajax.exec("/svr/entity/query", args, this.async);
 }
 
 /**
