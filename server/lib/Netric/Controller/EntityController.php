@@ -10,57 +10,55 @@ use \Netric\EntityDefinition;
 
 class EntityController extends Mvc\AbstractAccountController
 {
-	public function getTestAction($params=array())
-	{
+    public function getTestAction($params = array())
+    {
         return $this->sendOutput("test");
-	}
+    }
 
-	/**
-	 * Get the definition (metadata) of an entity
-	 */
-	public function getGetDefinitionAction()
-	{
+    /**
+     * Get the definition (metadata) of an entity
+     */
+    public function getGetDefinitionAction()
+    {
         $params = $this->getRequest()->getParams();
-		if (!$params['obj_type'])
-		{
-			return $this->sendOutput(array("error"=>"obj_type is a required param"));
-		}
+        if (!$params['obj_type']) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
+        }
 
-		// Get the service manager and current user
-		$serviceManager = $this->account->getServiceManager();
+        // Get the service manager and current user
+        $serviceManager = $this->account->getServiceManager();
 
-		// Load the entity definition
-		$defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
-		$def = $defLoader->get($params['obj_type']);
-		if (!$def)
-		{
-			return $this->sendOutput(array("error"=>$params['obj_type'] . " could not be loaded"));
-		}
+        // Load the entity definition
+        $defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+        $def = $defLoader->get($params['obj_type']);
+        if (!$def) {
+            return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
+        }
 
         $ret = $this->fillDefinitionArray($def);
 
         return $this->sendOutput($ret);
-	}
+    }
 
-	/**
-	 * Query entities
-	 */
-	public function postQueryAction()
-	{
+    /**
+     * Query entities
+     */
+    public function postQueryAction()
+    {
         $ret = array();
         $params = $this->getRequest()->getParams();
 
         if (!isset($params["obj_type"]))
-            return $this->sendOutput(array("error"=>"obj_type must be set"));
+            return $this->sendOutput(array("error" => "obj_type must be set"));
 
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
 
         $query = new \Netric\EntityQuery($params["obj_type"]);
 
-        if(isset($params['offset']))
+        if (isset($params['offset']))
             $query->setOffset($params['offset']);
 
-        if(isset($params['limit']))
+        if (isset($params['limit']))
             $query->setLimit($params["limit"]);
 
         // Parse values passed from POST or GET params
@@ -131,21 +129,18 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Set results
         $entities = array();
-        for ($i = 0; $i < $res->getNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
-            if(isset($params['updatemode']) && $params['updatemode']) // Only get id and revision
-			{
+            if (isset($params['updatemode']) && $params['updatemode']) // Only get id and revision
+            {
                 // Return condensed results
                 $entities[] = array(
                     "id" => $ent->getId(),
                     "revision" => $ent->getValue("revision"),
                     "num_comments" => $ent->getValue("num_comments"),
                 );
-			}
-			else
-			{
+            } else {
                 // TODO: security
 
                 // Print full details
@@ -155,7 +150,7 @@ class EntityController extends Mvc\AbstractAccountController
         $ret["entities"] = $entities;
 
         return $this->sendOutput($ret);
-	}
+    }
 
     /**
      * GET pass-through for query
@@ -181,9 +176,8 @@ class EntityController extends Mvc\AbstractAccountController
         $ret = array();
         $params = $this->getRequest()->getParams();
 
-        if (!$params['obj_type'] || !$params['id'])
-        {
-            return $this->sendOutput(array("error"=>"obj_type and id are required params"));
+        if (!$params['obj_type'] || !$params['id']) {
+            return $this->sendOutput(array("error" => "obj_type and id are required params"));
         }
 
 
@@ -195,8 +189,7 @@ class EntityController extends Mvc\AbstractAccountController
         $ret = $entity->toArray();
 
         // Check for definition (request may be made by client)
-        if (isset($params['loadDef']))
-        {
+        if (isset($params['loadDef'])) {
             // TODO: add $ret['definition'] with results from $this->getDefinition
         }
 
@@ -212,27 +205,22 @@ class EntityController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         $ret = array();
-        if (!$rawBody)
-        {
-            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type']))
-        {
-            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        if (!isset($objData['obj_type'])) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
-        if (isset($objData['id']) && !empty($objData['id']))
-        {
+        if (isset($objData['id']) && !empty($objData['id'])) {
             $entity = $loader->get($objData['obj_type'], $objData['id']);
-        }
-        else
-        {
+        } else {
             $entity = $loader->create($objData['obj_type']);
         }
 
@@ -241,17 +229,14 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Save the entity
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
-        if ($dataMapper->save($entity))
-        {
+        if ($dataMapper->save($entity)) {
             // Check to see if any new object_multi objects were sent awaiting save
             $this->savePendingObjectMultiObjects($entity, $objData);
 
             // Return the saved entity
             return $this->sendOutput($entity->toArray());
-        }
-        else
-        {
-            return $this->sendOutput(array("error"=>"Error saving: " . $dataMapper->getLastError()));
+        } else {
+            return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
         }
     }
 
@@ -275,14 +260,12 @@ class EntityController extends Mvc\AbstractAccountController
         $ids = $this->request->getParam("id");
 
         // Convert a single id to an array so we can handle them all the same way
-        if (!is_array($ids) && $ids)
-        {
+        if (!is_array($ids) && $ids) {
             $ids = array($ids);
         }
 
-        if (!$objType)
-        {
-            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        if (!$objType) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
@@ -291,11 +274,9 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the datamapper to delete
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
 
-        foreach ($ids as $did)
-        {
+        foreach ($ids as $did) {
             $entity = $loader->get($objType, $did);
-            if ($dataMapper->delete($entity))
-            {
+            if ($dataMapper->delete($entity)) {
                 $ret[] = $did;
             }
         }
@@ -329,9 +310,8 @@ class EntityController extends Mvc\AbstractAccountController
         $fieldName = $this->request->getParam("field_name");
         $filterString = $this->request->getParam("filter");
 
-        if (!$objType || !$fieldName)
-        {
-            return $this->sendOutput(array("error"=>"obj_type & field_name are required params"));
+        if (!$objType || !$fieldName) {
+            return $this->sendOutput(array("error" => "obj_type & field_name are required params"));
         }
 
         // If filter was passed then decode it as an array
@@ -342,26 +322,22 @@ class EntityController extends Mvc\AbstractAccountController
 
         // If this is a private object then send the current user as a filter
         $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objType);
-        if ($def->isPrivate && !count($filterArray))
-        {
+        if ($def->isPrivate && !count($filterArray)) {
             $filterArray['user_id'] = $this->account->getUser()->getId();
         }
 
         // Get all groupings from the loader
         $groups = $loader->get($objType, $fieldName, $filterArray);
 
-        if ($groups)
-        {
+        if ($groups) {
             return $this->sendOutput(array(
                 "obj_type" => $objType,
                 "field_name" => $fieldName,
                 "filter" => $filterArray,
-                "groups"=> $groups->toArray()
+                "groups" => $groups->toArray()
             ));
-        }
-        else
-        {
-            return $this->sendOutput(array("error"=>"No groupings found for specified obj_type and field"));
+        } else {
+            return $this->sendOutput(array("error" => "No groupings found for specified obj_type and field"));
         }
     }
 
@@ -379,12 +355,11 @@ class EntityController extends Mvc\AbstractAccountController
         $definitions = $loader->getAll();
 
         $ret = array();
-        foreach($definitions as $def) {
+        foreach ($definitions as $def) {
             $ret[] = $this->fillDefinitionArray($def);
         }
 
-        if (sizeOf($ret) == 0)
-        {
+        if (sizeOf($ret) == 0) {
             return $this->sendOutput(array("Definitions could not be loaded"));
         }
 
@@ -436,8 +411,7 @@ class EntityController extends Mvc\AbstractAccountController
         $viewsService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
         $browserViews = $viewsService->getViewsForUser($def->getObjType(), $user);
         $ret['views'] = array();
-        foreach ($browserViews as $view)
-        {
+        foreach ($browserViews as $view) {
             $ret['views'][] = $view->toArray();
         }
 
@@ -461,10 +435,8 @@ class EntityController extends Mvc\AbstractAccountController
         $entityShouldUpdate = false;
 
         // Loop thru fields to check if we have objects waiting to be saved
-        foreach($fields as $field)
-        {
-            switch($field->type)
-            {
+        foreach ($fields as $field) {
+            switch ($field->type) {
                 case "object":
                 case "object_multi":
 
@@ -474,12 +446,12 @@ class EntityController extends Mvc\AbstractAccountController
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if($field->subtype // Make sure that this field has a subtype
-                        && is_array($waitingObjectData))
-                    {
+                    if ($field->subtype // Make sure that this field has a subtype
+                        && is_array($waitingObjectData)
+                    ) {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
-                        foreach($waitingObjectData as $data) {
+                        foreach ($waitingObjectData as $data) {
                             $waitingObjectEntity = $loader->create($field->subtype);
 
                             // Specify the object reference for the awaiting entity to be saved
@@ -489,27 +461,23 @@ class EntityController extends Mvc\AbstractAccountController
                             $waitingObjectEntity->fromArray($data);
 
                             // Save the awaiting entity object
-                            if($dataMapper->save($waitingObjectEntity))
-                            {
+                            if ($dataMapper->save($waitingObjectEntity)) {
 
                                 // Set the reference for the $entity
                                 $entity->addMultiValue($field->name, $waitingObjectEntity->getId(), $waitingObjectEntity->getName());
 
                                 // Lets flag this to true so $entity will be saved after the looping thru the fields
                                 $entityShouldUpdate = true;
-                            }
-                            else
-                            {
-                                return $this->sendOutput(array("error"=>"Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()));
+                            } else {
+                                return $this->sendOutput(array("error" => "Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()));
                             }
                         }
                     }
-                break;
+                    break;
             }
         }
 
-        if($entityShouldUpdate)
-        {
+        if ($entityShouldUpdate) {
             $dataMapper->save($entity);
         }
     }
@@ -522,17 +490,15 @@ class EntityController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         $ret = array();
-        if (!$rawBody)
-        {
-            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type']))
-        {
-            return $this->sendOutput(array("error"=>"obj_type is a required param"));
+        if (!isset($objData['obj_type'])) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         // Get the service manager and current user
@@ -610,8 +576,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the datamapper
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
 
-        foreach ($ids as $id)
-        {
+        foreach ($ids as $id) {
             // Load the entity that we are going to update
             $entity = $loader->get($objData['obj_type'], $id);
 
@@ -647,8 +612,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        if (!$rawBody)
-        {
+        if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
 
@@ -693,18 +657,16 @@ class EntityController extends Mvc\AbstractAccountController
          *  entityId => array(fieldName1, fieldName2, fieldName3)
          * )
          */
-        foreach ($mergeData as $entityId => $fields)
-        {
+        foreach ($mergeData as $entityId => $fields) {
             $entity = $loader->get($requestData['obj_type'], $entityId);
 
             // Build the entity data and get the field values from the entity we want to merge
-            foreach ($fields as $field)
-            {
+            foreach ($fields as $field) {
                 $fieldValue = $entity->getValue($field);
                 $entityData[$field] = $fieldValue;
 
                 // Let's check if the field value is an array, then we need to get its value names
-                if(is_array($fieldValue)) {
+                if (is_array($fieldValue)) {
                     $entityData["{$field}_fval"] = $entity->getValueNames($field);
                 }
             }
@@ -712,7 +674,7 @@ class EntityController extends Mvc\AbstractAccountController
             $entityDef = $entity->getDefinition();
 
             // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
-            $dataMapper->setEntityMovedTo($entityDef , $entityId, $mergedEntityId);
+            $dataMapper->setEntityMovedTo($entityDef, $entityId, $mergedEntityId);
 
             // Let's flag the original entity as deleted
             $dataMapper->delete($entity);
@@ -726,5 +688,48 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Return the merged entity
         return $this->sendOutput($mergedEntity->toArray());
+    }
+
+    /**
+     * Function that will handle the saving of groups
+     *
+     * @return {array} Returns the array of updated entities
+     */
+    public function postSaveGroupAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        $ret = array();
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['obj_type'])) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
+        }
+
+        // Get the service manager and current user
+        $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+
+        // If this is a private object then send the current user as a filter
+        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objData['obj_type']);
+        if ($def->isPrivate && !count($filterArray)) {
+            $filterArray['user_id'] = $this->account->getUser()->getId();
+        }
+
+        // Get all groupings from the loader
+        $groupings = $loader->get($objData['obj_type'], $objData['field_name'], $objData['filter']);
+
+        $group = new \Netric\EntityGroupings\Group();
+        $group->fromArray($objData);
+        $groupings->add($group);
+
+        $loader->save($groupings);
+
+
+        return $this->sendOutput($groupings->getAll());
     }
 }

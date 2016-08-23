@@ -126,6 +126,21 @@ class Group
         
         return $data;
     }
+
+    /**
+     * Import the group data into the class properties
+     *
+     * @return array
+     */
+    public function fromArray($data)
+    {
+        $this->id = $data['id'];
+        $this->name = $data['name'];
+        $this->color = $data['color'];
+        $this->parentId = $data['parent_id'];
+        $this->sortOrder = $data['sort_order'];
+        $this->isHeiarch = $data['is_heiarch'];
+    }
     
     /**
      * Set a property value by name

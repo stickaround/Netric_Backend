@@ -10,6 +10,14 @@ return array(
     "default_route" => "all-notes",
     "navigation" => array(
         array(
+            "title" => "Manage Categories",
+            "type" => "category",
+            "route" => "manage-categories",
+            "objType" => "note",
+            "fieldName" => "groups",
+            "icon" => "tag",
+        ),
+        array(
             "title" => "New Note",
             "type" => "entity",
             "route" => "new-note",
