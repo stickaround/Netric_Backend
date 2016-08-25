@@ -693,13 +693,13 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Function that will handle the saving of groups
      *
-     * @return {array} Returns the array of updated entities
+     * @return {object} Returnt the group that was added/updated
      */
     public function postSaveGroupAction()
     {
         $rawBody = $this->getRequest()->getBody();
-
         $ret = array();
+
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -713,23 +713,79 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Get the service manager and current user
         $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objData['obj_type']);
+
+        // Setup the filter array if it is specified
+        $filterArray = isset($objData['filter']) ? $objData['filter'] : array();
 
         // If this is a private object then send the current user as a filter
-        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objData['obj_type']);
         if ($def->isPrivate && !count($filterArray)) {
             $filterArray['user_id'] = $this->account->getUser()->getId();
         }
 
         // Get all groupings from the loader
-        $groupings = $loader->get($objData['obj_type'], $objData['field_name'], $objData['filter']);
+        $groupings = $loader->get($objData['obj_type'], $objData['field_name'], $filterArray);
 
-        $group = new \Netric\EntityGroupings\Group();
+        // If group id is set, then we just need to retrieve the group and update its values
+        if(isset($objData['id']) && !empty($objData['id'])) {
+            $group = $groupings->getById($objData['id']);
+        } else {
+
+            // Create a new instance of group and add it in the groupings
+            $group = new \Netric\EntityGroupings\Group();
+            $groupings->add($group);
+        }
+
+        // Set the group data and flag this group as dirty
         $group->fromArray($objData);
-        $groupings->add($group);
 
+        // Save the changes made to the groupings
         $loader->save($groupings);
 
+        return $this->sendOutput($group->toArray());
+    }
 
-        return $this->sendOutput($groupings->getAll());
+    /**
+     * Function that will handle the deleting of group
+     *
+     * @return {array} Returns the array of updated entities
+     */
+    public function postRemoveGroupAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['obj_type'])) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
+        }
+
+        // Get the service manager and current user
+        $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objData['obj_type']);
+
+        // Setup the filter array if it is specified
+        $filterArray = isset($objData['filter']) ? $objData['filter'] : array();
+
+        // If this is a private object then send the current user as a filter
+        if ($def->isPrivate && !count($filterArray)) {
+            $filterArray['user_id'] = $this->account->getUser()->getId();
+        }
+
+        // Get all groupings from the loader
+        $groupings = $loader->get($objData['obj_type'], $objData['field_name'], $filterArray);
+
+        $groupings->delete($objData['id']);
+
+        // Save the changes made to the groupings
+        $loader->save($groupings);
+
+        // Return the updated groupings
+        return $this->sendOutput($groupings->toArray());
     }
 }

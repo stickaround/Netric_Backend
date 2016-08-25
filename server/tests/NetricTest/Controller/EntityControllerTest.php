@@ -320,4 +320,111 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $originalEntity3 = $loader->get("note", $entityId3);
         $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
     }
+
+    public function testSaveGroup()
+    {
+        $req = $this->controller->getRequest();
+
+        // Setup the save group data
+        $dataGroup = array(
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'name' => 'test save group',
+            'color' => 'blue',
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataGroup));
+        $retGroup = $this->controller->postSaveGroupAction();
+
+        $this->assertTrue($retGroup['id'] > 0);
+        $this->assertEquals($retGroup['name'], $dataGroup['name']);
+        $this->assertEquals($retGroup['color'], $dataGroup['color']);
+        $this->assertEquals($retGroup['filter_fields']['user_id'], $dataGroup['filter']['user_id']);
+
+        // Setup the save group data with parent
+        $dataWithParent = array(
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'parent_id' => $retGroup['id'],
+            'name' => 'test group with parent',
+            'color' => 'green',
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataWithParent));
+        $retWithParent = $this->controller->postSaveGroupAction();
+
+        $this->assertTrue($retWithParent['id'] > 0);
+        $this->assertEquals($retWithParent['name'], $dataWithParent['name']);
+        $this->assertEquals($retWithParent['color'], $dataWithParent['color']);
+        $this->assertEquals($retWithParent['parent_id'], $retGroup['id']);
+        $this->assertEquals($retWithParent['filter_fields']['user_id'], $dataWithParent['filter']['user_id']);
+
+        // Delete the created groups
+        $addedGroups = array($retWithParent['id'], $retGroup['id']);
+        foreach ($addedGroups as $groupId)
+        {
+            $dataRemove = array(
+                'obj_type' => "note",
+                'field_name' => 'groups',
+                'id' => $groupId,
+                'filter' => array('user_id' => -9)
+            );
+
+            // Set params in the request
+            $req = $this->controller->getRequest();
+            $req->setBody(json_encode($dataRemove));
+            $this->controller->postRemoveGroupAction();
+        }
+    }
+
+    public function testRemoveGroup()
+    {
+        $req = $this->controller->getRequest();
+
+        // Setup the save group data
+        $dataGroup = array(
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'name' => 'test save group',
+            'color' => 'blue',
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataGroup));
+        $retGroup = $this->controller->postSaveGroupAction();
+
+        $this->assertTrue($retGroup['id'] > 0);
+
+        $dataRemove = array(
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'id' => $retGroup['id'],
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataRemove));
+        $retRemove = $this->controller->postRemoveGroupAction();
+
+        // Loop thru the $retRemove and the $retGroup['id'] should not be in the collection
+        $groupFound = false;
+        foreach ($retRemove as $group)
+        {
+            if($group['id'] == $retGroup['id']) {
+                $groupFound = true;
+                break;
+            }
+        }
+
+        $this->assertFalse($groupFound);
+    }
 }

@@ -134,12 +134,26 @@ class Group
      */
     public function fromArray($data)
     {
-        $this->id = $data['id'];
-        $this->name = $data['name'];
-        $this->color = $data['color'];
-        $this->parentId = $data['parent_id'];
-        $this->sortOrder = $data['sort_order'];
-        $this->isHeiarch = $data['is_heiarch'];
+        if(isset($data['id']))
+            $this->id = $data['id'];
+
+        if(isset($data['name']))
+            $this->name = $data['name'];
+
+        if(isset($data['color']))
+            $this->color = $data['color'];
+
+        if(isset($data['parent_id']))
+            $this->parentId = $data['parent_id'];
+
+        if(isset($data['sort_order']))
+            $this->sortOrder = $data['sort_order'];
+
+        if(isset($data['is_heiarch']))
+            $this->isHeiarch = $data['is_heiarch'];
+
+        // Inicate this group has been changed
+        $this->setDirty(true);
     }
     
     /**

@@ -430,47 +430,60 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		$columns = array();
 		$values = array();
 
+		// This will prevent having duplicate fields in the query
+		$addedColumns = array();
+
 		if ($grp->name && $field->fkeyTable['title'])
 		{
-			$columns[] = $field->fkeyTable['title'];
+			$titleField = $field->fkeyTable['title'];
+			$addedColumns[$titleField] = true;
+			$columns[] = $titleField;
 			$values[] = "'".$this->dbh->escape($grp->name)."'";
 		}
         
         if ($grp->color && $this->dbh->columnExists($field->subtype, "color"))
 		{
+			$addedColumns['color'] = true;
 			$columns[] = "color";
 			$values[] = "'".$this->dbh->escape($grp->color)."'";
 		}
 
 		if ($grp->isSystem && $this->dbh->columnExists($field->subtype, "f_system"))
 		{
+			$addedColumns['f_system'] = true;
 			$columns[] = "f_system";
 			$values[] = "'t'";
 		}
 
 		if ($grp->sortOrder && $this->dbh->columnExists($field->subtype, "sort_order"))
 		{
+			$addedColumns['sort_order'] = true;
 			$columns[] = "sort_order";
 			$values[] = $this->dbh->escapeNumber($grp->sortOrder);
 		}
         
         if ($grp->parentId && isset($field->fkeyTable['parent']))
 		{
-			$columns[] = $field->fkeyTable['parent'];
+			$parentField = $field->fkeyTable['parent'];
+			$addedColumns[$parentField] = true;
+			$columns[] = $parentField;
 			$values[] = $this->dbh->escapeNumber($grp->parentId);
 		}
 
 		if ($grp->commitId)
 		{
+			$addedColumns['commit_id'] = true;
 			$columns[] = "commit_id";
 			$values[] = $this->dbh->escapeNumber($grp->commitId);
 		}
 
 		if ($field->subtype == "object_groupings")
 		{
+			$addedColumns['object_type_id'] = true;
 			$columns[] = "object_type_id";
             $values[] = "'" . $def->getId() . "'";
-            
+
+			$addedColumns['field_id'] = true;
 			$columns[] = "field_id";
 			$values[] = "'" . $field->id . "'";
 		}
@@ -478,6 +491,15 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         $data = $grp->toArray();
         foreach ($data["filter_fields"] as $name=>$value)
         {
+			/*
+			 * If the column name already exist then we do not need to assign it again.
+			 * Best example here is the parent_id, we set the parent id above and we also have a filter_fields for parent_id
+			 * Having redundant fields in update query will cause an error in executing the query
+			 */
+			if (isset($addedColumns[$name])) {
+				continue;
+			}
+
             if ($value && $this->dbh->columnExists($field->subtype, $name))
             {
                 $columns[] = $name;
@@ -516,7 +538,6 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             }
             
             $sql = "UPDATE ".$field->subtype." SET " . $upSql . " WHERE id='" . $grp->id . "'";
-            
         }
         else 
         {
