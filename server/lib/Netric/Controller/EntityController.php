@@ -317,24 +317,18 @@ class EntityController extends Mvc\AbstractAccountController
         // If filter was passed then decode it as an array
         $filterArray = ($filterString) ? json_decode($filterString) : array();
 
-        // Get the service manager and current user
+        // Get the entity loader that will be used to get the groupings model
         $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
 
-        // If this is a private object then send the current user as a filter
-        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objType);
-        if ($def->isPrivate && !count($filterArray)) {
-            $filterArray['user_id'] = $this->account->getUser()->getId();
-        }
+        // Get the groupings for this $objType and $fieldName
+        $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
 
-        // Get all groupings from the loader
-        $groups = $loader->get($objType, $fieldName, $filterArray);
-
-        if ($groups) {
+        if ($groupings) {
             return $this->sendOutput(array(
                 "obj_type" => $objType,
                 "field_name" => $fieldName,
                 "filter" => $filterArray,
-                "groups" => $groups->toArray()
+                "groups" => $groupings->toArray()
             ));
         } else {
             return $this->sendOutput(array("error" => "No groupings found for specified obj_type and field"));
@@ -711,33 +705,62 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
-        // Get the service manager and current user
+        if (!isset($objData['field_name'])) {
+            return $this->sendOutput(array("error" => "field_name is a required param"));
+        }
+
+        if (!isset($objData['action'])) {
+            return $this->sendOutput(array("error" => "action is a required param"));
+        }
+
+        // This is the filter for groups. Group filter is used to query only the groups matching the filter
+        $groupFilter = isset($objData['filter']) ? $objData['filter'] : array();
+
+        // Get the entity loader that will be used to get the groupings model
         $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
-        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objData['obj_type']);
 
-        // Setup the filter array if it is specified
-        $filterArray = isset($objData['filter']) ? $objData['filter'] : array();
+        // Get the groupings for this obj_type and field_name
+        $groupings = $this->getGroupings($loader, $objData['obj_type'], $objData['field_name'], $groupFilter);
 
-        // If this is a private object then send the current user as a filter
-        if ($def->isPrivate && !count($filterArray)) {
-            $filterArray['user_id'] = $this->account->getUser()->getId();
+        // $objData['action'] will determine what type of action we will execute
+        switch ($objData['action'])
+        {
+            case 'add':
+
+                // Create a new instance of group and add it in the groupings
+                $group = new \Netric\EntityGroupings\Group();
+                $groupings->add($group);
+
+                // Set the group data
+                $group->fromArray($objData);
+
+                break;
+            case 'edit':
+
+                // $objData['id'] is the Group Id where we need to check it first before updating the group
+                if(isset($objData['id']) && !empty($objData['id']))
+                    $group = $groupings->getById($objData['id']);
+                else
+                    return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
+
+                // Set the group data
+                $group->fromArray($objData);
+
+                break;
+            case 'delete':
+
+                // $objData['id'] is the Group Id where we need to check it first before deleting the group
+                if(isset($objData['id']) && !empty($objData['id']))
+                    $group = $groupings->getById($objData['id']);
+                else
+                    return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
+
+                // Now flag the group as deleted
+                $groupings->delete($objData['id']);
+                break;
+            default:
+                return $this->sendOutput(array("error" => "No action made for entity group."));
         }
-
-        // Get all groupings from the loader
-        $groupings = $loader->get($objData['obj_type'], $objData['field_name'], $filterArray);
-
-        // If group id is set, then we just need to retrieve the group and update its values
-        if(isset($objData['id']) && !empty($objData['id'])) {
-            $group = $groupings->getById($objData['id']);
-        } else {
-
-            // Create a new instance of group and add it in the groupings
-            $group = new \Netric\EntityGroupings\Group();
-            $groupings->add($group);
-        }
-
-        // Set the group data and flag this group as dirty
-        $group->fromArray($objData);
 
         // Save the changes made to the groupings
         $loader->save($groupings);
@@ -746,46 +769,29 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * Function that will handle the deleting of group
+     * Get the groupings model
      *
-     * @return {array} Returns the array of updated entities
+     * @param {Netric\EntityGroupings\Loader} $loader The entity loader that we will be using to get the entity definition
+     * @param {string} $objType The object type where we will be getting the groups
+     * @param {string} $fieldName The name of the field we are working with
+     * @param {array} $groupFilter This will be used to filter the groups and return only the groups that mached the filter
+     * @return {Netric\EntityGroupings} Returns the instance of Netric\EntityGroupings Model
      */
-    public function postRemoveGroupAction()
+    private function getGroupings(\Netric\EntityGroupings\Loader $loader, $objType, $fieldName, &$groupFilter=array())
     {
-        $rawBody = $this->getRequest()->getBody();
 
-        if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
-        }
-
-        // Decode the json structure
-        $objData = json_decode($rawBody, true);
-
-        if (!isset($objData['obj_type'])) {
-            return $this->sendOutput(array("error" => "obj_type is a required param"));
-        }
-
-        // Get the service manager and current user
-        $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
-        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objData['obj_type']);
-
-        // Setup the filter array if it is specified
-        $filterArray = isset($objData['filter']) ? $objData['filter'] : array();
+        // Get the entity defintion of the $objType
+        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objType);
 
         // If this is a private object then send the current user as a filter
-        if ($def->isPrivate && !count($filterArray)) {
-            $filterArray['user_id'] = $this->account->getUser()->getId();
+        if ($def->isPrivate && !count($groupFilter)) {
+            $groupFilter['user_id'] = $this->account->getUser()->getId();
         }
 
-        // Get all groupings from the loader
-        $groupings = $loader->get($objData['obj_type'], $objData['field_name'], $filterArray);
+        // Get all groupings for this object type
+        $groupings = $loader->get($objType, $fieldName, $groupFilter);
 
-        $groupings->delete($objData['id']);
-
-        // Save the changes made to the groupings
-        $loader->save($groupings);
-
-        // Return the updated groupings
-        return $this->sendOutput($groupings->toArray());
+        // Return the groupings object
+        return $groupings;
     }
 }

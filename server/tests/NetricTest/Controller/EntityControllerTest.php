@@ -23,6 +23,13 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
      */
     protected $controller = null;
 
+    /**
+     * Group ids to cleanup
+     *
+     * @var array
+     */
+    private $testGroups = array();
+
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
@@ -30,6 +37,29 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         // Create the controller
         $this->controller = new Netric\Controller\EntityController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
+    }
+
+    /**
+     * Cleanup after a test runs
+     */
+    protected function tearDown()
+    {
+        // Delete the added groups
+        foreach ($this->testGroups as $groupId)
+        {
+            $dataRemove = array(
+                'action' => "delete",
+                'obj_type' => "note",
+                'field_name' => 'groups',
+                'id' => $groupId,
+                'filter' => array('user_id' => -9)
+            );
+
+            // Set params in the request
+            $req = $this->controller->getRequest();
+            $req->setBody(json_encode($dataRemove));
+            $this->controller->postSaveGroupAction();
+        }
     }
 
     public function testGetDefinitionForms()
@@ -323,10 +353,9 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
     public function testSaveGroup()
     {
-        $req = $this->controller->getRequest();
-
         // Setup the save group data
         $dataGroup = array(
+            'action' => "add",
             'obj_type' => "note",
             'field_name' => 'groups',
             'name' => 'test save group',
@@ -346,6 +375,7 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         // Setup the save group data with parent
         $dataWithParent = array(
+            'action' => "add",
             'obj_type' => "note",
             'field_name' => 'groups',
             'parent_id' => $retGroup['id'],
@@ -365,66 +395,28 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($retWithParent['parent_id'], $retGroup['id']);
         $this->assertEquals($retWithParent['filter_fields']['user_id'], $dataWithParent['filter']['user_id']);
 
-        // Delete the created groups
-        $addedGroups = array($retWithParent['id'], $retGroup['id']);
-        foreach ($addedGroups as $groupId)
-        {
-            $dataRemove = array(
-                'obj_type' => "note",
-                'field_name' => 'groups',
-                'id' => $groupId,
-                'filter' => array('user_id' => -9)
-            );
-
-            // Set params in the request
-            $req = $this->controller->getRequest();
-            $req->setBody(json_encode($dataRemove));
-            $this->controller->postRemoveGroupAction();
-        }
-    }
-
-    public function testRemoveGroup()
-    {
-        $req = $this->controller->getRequest();
-
-        // Setup the save group data
-        $dataGroup = array(
-            'obj_type' => "note",
-            'field_name' => 'groups',
-            'name' => 'test save group',
-            'color' => 'blue',
-            'filter' => array('user_id' => -9)
-        );
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode($dataGroup));
-        $retGroup = $this->controller->postSaveGroupAction();
-
-        $this->assertTrue($retGroup['id'] > 0);
-
-        $dataRemove = array(
+        // Test the edit function of SaveGroup
+        $dataEdit = array(
+            'action' => "edit",
             'obj_type' => "note",
             'field_name' => 'groups',
             'id' => $retGroup['id'],
+            'name' => 'test edit group save',
+            'color' => 'green',
             'filter' => array('user_id' => -9)
         );
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode($dataRemove));
-        $retRemove = $this->controller->postRemoveGroupAction();
+        $req->setBody(json_encode($dataEdit));
+        $retEdit = $this->controller->postSaveGroupAction();
 
-        // Loop thru the $retRemove and the $retGroup['id'] should not be in the collection
-        $groupFound = false;
-        foreach ($retRemove as $group)
-        {
-            if($group['id'] == $retGroup['id']) {
-                $groupFound = true;
-                break;
-            }
-        }
+        $this->assertEquals($retEdit['id'], $retGroup['id']);
+        $this->assertEquals($retEdit['name'], $dataEdit['name']);
+        $this->assertEquals($retEdit['color'], $dataEdit['color']);
+        $this->assertEquals($retEdit['filter_fields']['user_id'], $dataEdit['filter']['user_id']);
 
-        $this->assertFalse($groupFound);
+        // Set the added groups here to be deleted later in the tearDown
+        $this->testGroups = array($retWithParent['id'], $retGroup['id']);
     }
 }
