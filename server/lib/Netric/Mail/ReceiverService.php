@@ -182,7 +182,21 @@ class ReceiverService extends AbstractHasErrors
         }
 
         // Get mail server connection
-        $mail = $this->getMailConnection($emailAccount);
+        try {
+            $mail = $this->getMailConnection($emailAccount);
+        } catch (Storage\Exception\RuntimeException $ex) {
+
+            $blockCipher = new BlockCipher($this->vaultService->getSecret("EntityEnc"));
+            $password = "";
+            if ($emailAccount->getValue("password")) {
+                $password = $blockCipher->decrypt($emailAccount->getValue("password"));
+            }
+
+            $this->log->error(
+                "ReceiverService->syncMail: Unable to log in " .
+                $emailAccount->getValue("address") . ":$password - "  . $ex->getMessage());
+            return false;
+        }
 
         // Get object sync partnership and collection
         $syncPartner = $this->entitySync->getPartner("EmailAccounts/" . $emailAccount->getId());

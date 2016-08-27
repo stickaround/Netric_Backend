@@ -71,8 +71,7 @@ class UserEntity extends Entity implements EntityInterface
     public function onAfterSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
     {
         // Update the account email address for the application if changed
-        if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name"))
-        {
+        if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name")) {
             // Delete old username if changed
             $previousName = $this->getPreviousValue("name");
             if ($previousName && $previousName != $this->getValue("name"))
