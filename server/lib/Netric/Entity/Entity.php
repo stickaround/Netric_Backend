@@ -660,10 +660,8 @@ class Entity implements EntityInterface
 		if (!is_array($this->changelog))
 			return false;
 
-		foreach ($this->changelog as $fname=>$log)
-		{
-			if ($fname == $checkfield)
-            {
+		foreach ($this->changelog as $fname=>$log) {
+			if ($fname == $checkfield) {
                 return true;
             }
 		}

@@ -11,6 +11,9 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $entityLoader = $serviceManager->get("Netric/EntityLoader");
 $entityDefinitionLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+$entityIndex = $serviceManager->get("EntityQuery_Index");
+$vaultService = $serviceManager->get("Netric/Crypt/VaultService");
+$blockCypher = new \Netric\Crypt\BlockCipher($vaultService->getSecret("EntityEnc"));
 
 $def = null;
 try {
@@ -35,12 +38,23 @@ if ($def) {
         $row = $db->getRow($results, $i);
 
         // Create a new email_account entity
-        $entity = $entityLoader->create('email_account');
+        $query = new \Netric\EntityQuery("email_account");
+        $query->where("address")->equals($row['address']);
+        $ret = $entityIndex->executeQuery($query);
+        if (!$ret->getNum()) {
+            // skip acount since it was already imported
+            continue;
+        }
+
+        $entity = $entityLoader->create("email_account");
 
         // Make sure to set the id to null, so the system will insert the record and create the new entity
         $oldid = $row['id'];
         $row['id'] = null;
         $row['owner_id'] = $row['user_id'];
+
+        // Decrypt the password
+        $row['password'] = $blockCypher->decrypt($row['password']);
 
         // Import the email_account details
         $entity->fromArray($row);

@@ -22,13 +22,11 @@ use Netric\Mail\Storage;
 use Netric\Mail\Storage\AbstractStorage;
 use Netric\Mail\Storage\Imap;
 use Netric\Mail\Storage\Pop3;
-use Netric\Mail\Headers;
 use Netric\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Config\Config;
 use Netric\Mime;
-use PetstoreIO\User;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
@@ -194,7 +192,7 @@ class ReceiverService extends AbstractHasErrors
 
             $this->log->error(
                 "ReceiverService->syncMail: Unable to log in " .
-                $emailAccount->getValue("address") . ":$password - "  . $ex->getMessage());
+                $emailAccount->getValue("address") . " - "  . $ex->getMessage());
             return false;
         }
 

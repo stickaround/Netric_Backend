@@ -1574,6 +1574,34 @@ abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Some indexes will construct entities from the results
+     * which could make them all come across as dirty unless the
+     * index specifically calls resetIsDirty on the entity.
+     */
+    public function testEntitiesNotDirty()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index)
+            return;
+
+        // Save a test object
+        $testEnt = $this->createTestCustomer();
+
+        // Query collection for boolean
+        $query = new EntityQuery($testEnt->getObjType());
+        $query->where('f_nocall')->equals(true);
+        $res = $index->executeQuery($query);
+        $this->assertTrue($res->getTotalNum()>=1);
+        // Look for the entity above
+        for ($i = 0; $i < $res->getTotalNum(); $i++)
+        {
+            $ent = $res->getEntity($i);
+            $this->assertFalse($ent->isDirty());
+        }
+    }
+
+    /**
 	 * Test hierarcy subqueries
 	 *
 	 * @group testHierarcySubqueries

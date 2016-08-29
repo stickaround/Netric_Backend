@@ -20,9 +20,9 @@ return array(
             "title" => "All Messages",
             "type" => "browse",
             "route" => "all-messages",
-            "objType" => "email_message",
+            "objType" => "email_account",
             "icon" => "tags",
-            "browseby" => "groups",
+            //"browseby" => "groups",
         )
     )
 );

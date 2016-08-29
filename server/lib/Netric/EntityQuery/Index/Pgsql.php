@@ -57,7 +57,6 @@ class Pgsql extends IndexAbstract implements IndexInterface
             }
         }
 
-
         $sql = "UPDATE " . $tableName . " SET tsv_fulltext=";
         $sql .= "to_tsvector('english', '".$this->dbh->escape(strip_tags($buf))."') ";
         $sql .= "WHERE id='" . $this->dbh->escape($entity->getId()) . "'";
@@ -212,6 +211,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             // Set and add entity
             $ent = $this->entityFactory->create($def->getObjType());
             $ent->fromArray($row);
+			$ent->resetIsDirty();
             $results->addEntity($ent);
         }
 
