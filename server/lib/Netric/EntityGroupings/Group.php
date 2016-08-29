@@ -126,6 +126,35 @@ class Group
         
         return $data;
     }
+
+    /**
+     * Import the group data into the class properties
+     *
+     * @return array
+     */
+    public function fromArray($data)
+    {
+        if(isset($data['id']))
+            $this->id = $data['id'];
+
+        if(isset($data['name']))
+            $this->name = $data['name'];
+
+        if(isset($data['color']))
+            $this->color = $data['color'];
+
+        if(isset($data['parent_id']))
+            $this->parentId = $data['parent_id'];
+
+        if(isset($data['sort_order']))
+            $this->sortOrder = $data['sort_order'];
+
+        if(isset($data['is_heiarch']))
+            $this->isHeiarch = $data['is_heiarch'];
+
+        // Inicate this group has been changed
+        $this->setDirty(true);
+    }
     
     /**
      * Set a property value by name

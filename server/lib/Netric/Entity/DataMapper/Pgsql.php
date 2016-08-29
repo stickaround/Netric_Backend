@@ -435,8 +435,8 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 			$columns[] = $field->fkeyTable['title'];
 			$values[] = "'".$this->dbh->escape($grp->name)."'";
 		}
-        
-        if ($grp->color && $this->dbh->columnExists($field->subtype, "color"))
+
+		if ($grp->color && $this->dbh->columnExists($field->subtype, "color"))
 		{
 			$columns[] = "color";
 			$values[] = "'".$this->dbh->escape($grp->color)."'";
@@ -453,8 +453,8 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 			$columns[] = "sort_order";
 			$values[] = $this->dbh->escapeNumber($grp->sortOrder);
 		}
-        
-        if ($grp->parentId && isset($field->fkeyTable['parent']))
+
+		if ($grp->parentId && isset($field->fkeyTable['parent']))
 		{
 			$columns[] = $field->fkeyTable['parent'];
 			$values[] = $this->dbh->escapeNumber($grp->parentId);
@@ -469,21 +469,26 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		if ($field->subtype == "object_groupings")
 		{
 			$columns[] = "object_type_id";
-            $values[] = "'" . $def->getId() . "'";
-            
+			$values[] = "'" . $def->getId() . "'";
+
 			$columns[] = "field_id";
 			$values[] = "'" . $field->id . "'";
 		}
 
-        $data = $grp->toArray();
-        foreach ($data["filter_fields"] as $name=>$value)
-        {
-            if ($value && $this->dbh->columnExists($field->subtype, $name))
-            {
-                $columns[] = $name;
-                $values[] = "'".$this->dbh->escape($value)."'";
-            }
-        }
+		$data = $grp->toArray();
+		foreach ($data["filter_fields"] as $name=>$value)
+		{
+			// Make sure that the column name does not exists yet
+			if (in_array($name, $columns)) {
+				continue;
+			}
+
+			if ($value && $this->dbh->columnExists($field->subtype, $name))
+			{
+				$columns[] = $name;
+				$values[] = "'".$this->dbh->escape($value)."'";
+			}
+		}
         /*
 		if (($this->def->isPrivate || $field->subtype == "object_groupings") && $this->user)
 		{
@@ -516,7 +521,6 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             }
             
             $sql = "UPDATE ".$field->subtype." SET " . $upSql . " WHERE id='" . $grp->id . "'";
-            
         }
         else 
         {

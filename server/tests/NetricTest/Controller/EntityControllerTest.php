@@ -23,6 +23,13 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
      */
     protected $controller = null;
 
+    /**
+     * Group ids to cleanup
+     *
+     * @var array
+     */
+    private $testGroups = array();
+
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
@@ -30,6 +37,29 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
         // Create the controller
         $this->controller = new Netric\Controller\EntityController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
+    }
+
+    /**
+     * Cleanup after a test runs
+     */
+    protected function tearDown()
+    {
+        // Delete the added groups
+        foreach ($this->testGroups as $groupId)
+        {
+            $dataRemove = array(
+                'action' => "delete",
+                'obj_type' => "note",
+                'field_name' => 'groups',
+                'id' => $groupId,
+                'filter' => array('user_id' => -9)
+            );
+
+            // Set params in the request
+            $req = $this->controller->getRequest();
+            $req->setBody(json_encode($dataRemove));
+            $this->controller->postSaveGroupAction();
+        }
     }
 
     public function testGetDefinitionForms()
@@ -319,5 +349,74 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
 
         $originalEntity3 = $loader->get("note", $entityId3);
         $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
+    }
+
+    public function testSaveGroup()
+    {
+        // Setup the save group data
+        $dataGroup = array(
+            'action' => "add",
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'name' => 'test save group',
+            'color' => 'blue',
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataGroup));
+        $retGroup = $this->controller->postSaveGroupAction();
+
+        $this->assertTrue($retGroup['id'] > 0);
+        $this->assertEquals($retGroup['name'], $dataGroup['name']);
+        $this->assertEquals($retGroup['color'], $dataGroup['color']);
+        $this->assertEquals($retGroup['filter_fields']['user_id'], $dataGroup['filter']['user_id']);
+
+        // Setup the save group data with parent
+        $dataWithParent = array(
+            'action' => "add",
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'parent_id' => $retGroup['id'],
+            'name' => 'test group with parent',
+            'color' => 'green',
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataWithParent));
+        $retWithParent = $this->controller->postSaveGroupAction();
+
+        $this->assertTrue($retWithParent['id'] > 0);
+        $this->assertEquals($retWithParent['name'], $dataWithParent['name']);
+        $this->assertEquals($retWithParent['color'], $dataWithParent['color']);
+        $this->assertEquals($retWithParent['parent_id'], $retGroup['id']);
+        $this->assertEquals($retWithParent['filter_fields']['user_id'], $dataWithParent['filter']['user_id']);
+
+        // Test the edit function of SaveGroup
+        $dataEdit = array(
+            'action' => "edit",
+            'obj_type' => "note",
+            'field_name' => 'groups',
+            'id' => $retGroup['id'],
+            'name' => 'test edit group save',
+            'color' => 'green',
+            'filter' => array('user_id' => -9)
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($dataEdit));
+        $retEdit = $this->controller->postSaveGroupAction();
+
+        $this->assertEquals($retEdit['id'], $retGroup['id']);
+        $this->assertEquals($retEdit['name'], $dataEdit['name']);
+        $this->assertEquals($retEdit['color'], $dataEdit['color']);
+        $this->assertEquals($retEdit['filter_fields']['user_id'], $dataEdit['filter']['user_id']);
+
+        // Set the added groups here to be deleted later in the tearDown
+        $this->testGroups = array($retWithParent['id'], $retGroup['id']);
     }
 }
