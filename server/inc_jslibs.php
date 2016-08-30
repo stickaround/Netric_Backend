@@ -4,7 +4,7 @@
  */
 
 // Appended to make sure updates invalidate cached old versions
-$ver = 34;
+$ver = 36;
 
 echo '<script language="javascript" type="text/javascript" src="/js/vendor/react/react-with-addons.min.js?v=' . $ver . '"></script>';
 
