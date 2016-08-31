@@ -4,11 +4,11 @@
  */
 
 // Appended to make sure updates invalidate cached old versions
-$ver = 33;
+$ver = 36;
 
 echo '<script language="javascript" type="text/javascript" src="/js/vendor/react/react-with-addons.min.js?v=' . $ver . '"></script>';
 
-if (AntConfig::getInstance()->debug) 
+if (AntConfig::getInstance()->debug)
 {
 	echo '<script language="javascript" type="text/javascript" src="/lib/aereus.lib.js/alib_full.js?v=' . $ver . '"></script>';
 	echo '<script language="javascript" type="text/javascript" src="/js/netric.js?v=' . $ver . '"></script>';
