@@ -1874,26 +1874,19 @@ CAntObject.prototype.save = function(opts)
 
         var obj = new Object();
     
-        obj.type = this.recurrencePattern.type;
-        obj.save_type = this.recurrencePattern.save_type;
-        obj.object_type = this.recurrencePattern.object_type;
-        obj.object_type_id = this.recurrencePattern.object_type_id;
+        obj.recur_type = this.recurrencePattern.type;
+        obj.obj_type = this.recurrencePattern.obj_type;
         obj.interval = this.recurrencePattern.interval;
-        obj.dateStart = this.recurrencePattern.dateStart;
-        obj.dateEnd = this.recurrencePattern.dateEnd;
-        obj.timeStart = this.recurrencePattern.timeStart;
-        obj.timeEnd = this.recurrencePattern.timeEnd;
-        obj.fAllDay = this.recurrencePattern.fAllDay;
-        obj.dayOfMonth = this.recurrencePattern.dayOfMonth;
-        obj.monthOfYear = this.recurrencePattern.monthOfYear;
-        obj.dayOfWeekMask = this.recurrencePattern.dayOfWeekMask;
+        obj.date_start = this.recurrencePattern.dateStart;
+        obj.date_end = this.recurrencePattern.dateEnd;
+        obj.time_start = this.recurrencePattern.timeStart;
+        obj.time_end = this.recurrencePattern.timeEnd;
+        obj.day_of_month = this.recurrencePattern.dayOfMonth;
+        obj.month_of_year = this.recurrencePattern.monthOfYear;
+        obj.day_of_week_mask = this.recurrencePattern.dayOfWeekMask;
         obj.instance = this.recurrencePattern.instance;
-        
-        obj.object_type_id = this.recurrencePattern.object_type_id;
-        obj.object_type = this.recurrencePattern.object_type;
-        obj.parentId = this.recurrencePattern.parentId;
-        obj.calendarId = this.recurrencePattern.calendarId;
-        obj.dateProcessedTo = this.recurrencePattern.dateProcessedTo;
+
+        obj.date_processed_to = this.recurrencePattern.dateProcessedTo;
         obj.id = this.recurrencePattern.id;
         obj.day1 = this.recurrencePattern.day1;
         obj.day2 = this.recurrencePattern.day2;
@@ -1916,12 +1909,11 @@ CAntObject.prototype.save = function(opts)
     ajax = new CAjax('json');
     ajax.cbData.cls = this;
     ajax.cbData.options = options;
-    ajax.onload = function(ret)
+    ajax.onload = function(data)
     {
+		var ret = 0;
         if (!ret['error'])
-            ret = parseInt(ret.id);
-        else
-            ret = 0;
+            ret = parseInt(data.id);
 
         if (ret > 0)
         {
@@ -1929,9 +1921,9 @@ CAntObject.prototype.save = function(opts)
             {
                 if (!this.cbData.cls.id)
                 {
-                    this.cbData.cls.id = ret.id;
-                    this.cbData.cls.onValueChange("id", ret.id);
-					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:ret.id, valueName:ret.name || ret.id});
+                    this.cbData.cls.id = data.id;
+                    this.cbData.cls.onValueChange("id", data.id);
+					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:data.id, valueName:data.name || data.id});
                 }
             }
             catch(e)
@@ -1959,7 +1951,7 @@ CAntObject.prototype.save = function(opts)
             this.cbData.cls.onsave();
 			alib.events.triggerEvent(this.cbData.cls, "save");
 		}
-    };    
+    };
     
     // Make sure obj_type argument is set here so it will be overwritten by "obj_type" fields.
     args["obj_type"] = this.name;
