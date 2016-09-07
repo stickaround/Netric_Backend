@@ -385,12 +385,11 @@ class CalendarController extends Controller
 
             $cal->setValue("user_id", $this->user->id);
             $cal->setValue("name", "My Calendar");
-            $cal->setValue("f_view", "t");
-            $cal->setValue("def_cal", "t");
+            $cal->setValue("f_view", true);
+            $cal->setValue("def_cal", true);
             $cal->setValue("color", "2A4BD7");
 
-            $dataMapper = $sl->get("Entity_DataMapper");
-            $dataMapper->save($cal);
+            $loader->save($cal);
 
             $ret["myCalendars"][] = array(
                 "id" => $cal->getValue('id'),
@@ -497,14 +496,14 @@ class CalendarController extends Controller
         {
             $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
             $loader = $sl->get("EntityLoader");
+            $fView = ($view === 't') ? true : false;
 
             if (isset($params['calendar_id']) && $params['calendar_id'])
             {
                 $cal = $loader->get("calendar", $params['calendar_id']);
-                $cal->setValue("f_view", $view);
+                $cal->setValue("f_view", $fView);
 
-                $dataMapper = $sl->get("Entity_DataMapper");
-                $dataMapper->save($cal);
+                $loader->save($cal);
                     
                 $ret = $params['calendar_id'];
             }
@@ -512,10 +511,9 @@ class CalendarController extends Controller
             if (isset($params['share_id']) && $params['share_id'])
             {
                 $cal = $loader->get("calendar", $params['share_id']);
-                $cal->setValue("f_view", $view);
+                $cal->setValue("f_view", $fView);
 
-                $dataMapper = $sl->get("Entity_DataMapper");
-                $dataMapper->save($cal);
+                $loader->save($cal);
                     
                 $ret = $params['share_id'];
             }
@@ -565,16 +563,14 @@ class CalendarController extends Controller
                 $cal = $loader->get("calendar", $params['calendar_id']);
                 $cal->setValue("color", $color);
 
-                $dataMapper = $sl->get("Entity_DataMapper");
-                $dataMapper->save($cal);
+                $loader->save($cal);
             }
             
             if (isset($params['share_id']) && $params['share_id']) {
                 $cal = $loader->get("calendar", $params['share_id']);
                 $cal->setValue("color", $color);
 
-                $dataMapper = $sl->get("Entity_DataMapper");
-                $dataMapper->save($cal);
+                $loader->save($cal);
             }
             
             $ret = $color;
@@ -654,11 +650,12 @@ class CalendarController extends Controller
 
                 $cal->setValue("name", $name);
                 $cal->setValue("user_id", $this->user->id);
-                $cal->setValue("f_view", "t");
                 $cal->setValue("color", "2A4BD7");
 
-                $dataMapper = $sl->get("Entity_DataMapper");
-                if ($dataMapper->save($cal))
+                $fView = ($view === 't') ? true : false;
+                $cal->setValue("f_view", "t");
+
+                if ($loader->save($cal))
                     $ret = $cal->getValue("id");
                 else
                     $ret = array("error"=>"There was an error when saving.");
