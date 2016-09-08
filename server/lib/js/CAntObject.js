@@ -501,9 +501,14 @@ CAntObject.prototype.load = function(id)
             }
         }
 
+
+
         // check for recurrence pattern. If exists then load first before calling this.onload
-        if (this.m_obj.recurRules != null)
+        if (this.m_obj.recurRules !== null && objData.recurrence_pattern !== null)
         {
+			this.m_obj.getRecurrencePattern(true, objData.recurrence_pattern);
+
+			/* We do not need to load the recurrence pattern since it is already included in the /svr/entity/get
             if (this.m_obj.getValue(this.m_obj.recurRules.fieldRecurId))
             {
                 var rp = this.m_obj.getRecurrencePattern(true);
@@ -518,11 +523,11 @@ CAntObject.prototype.load = function(id)
             {
                 this.m_obj.onload();
             }
+            */
         }
-        else
-        {
-            this.m_obj.onload();
-        }
+
+		this.m_obj.onload();
+
         this.m_obj.loaded = true;
         this.m_obj.dirty = false;
     };
@@ -1874,34 +1879,46 @@ CAntObject.prototype.save = function(opts)
 
         var obj = new Object();
     
-        obj.type = this.recurrencePattern.type;
-        obj.save_type = this.recurrencePattern.save_type;
-        obj.object_type = this.recurrencePattern.object_type;
-        obj.object_type_id = this.recurrencePattern.object_type_id;
+        obj.recur_type = this.recurrencePattern.type;
+        obj.obj_type = this.recurrencePattern.obj_type;
         obj.interval = this.recurrencePattern.interval;
-        obj.dateStart = this.recurrencePattern.dateStart;
-        obj.dateEnd = this.recurrencePattern.dateEnd;
-        obj.timeStart = this.recurrencePattern.timeStart;
-        obj.timeEnd = this.recurrencePattern.timeEnd;
-        obj.fAllDay = this.recurrencePattern.fAllDay;
-        obj.dayOfMonth = this.recurrencePattern.dayOfMonth;
-        obj.monthOfYear = this.recurrencePattern.monthOfYear;
-        obj.dayOfWeekMask = this.recurrencePattern.dayOfWeekMask;
+        obj.date_start = this.recurrencePattern.dateStart;
+        obj.date_end = this.recurrencePattern.dateEnd;
+        obj.time_start = this.recurrencePattern.timeStart;
+        obj.time_end = this.recurrencePattern.timeEnd;
+        obj.day_of_month = this.recurrencePattern.dayOfMonth;
+        obj.month_of_year = this.recurrencePattern.monthOfYear;
+        obj.day_of_week_mask = this.recurrencePattern.dayOfWeekMask;
         obj.instance = this.recurrencePattern.instance;
-        
-        obj.object_type_id = this.recurrencePattern.object_type_id;
-        obj.object_type = this.recurrencePattern.object_type;
-        obj.parentId = this.recurrencePattern.parentId;
-        obj.calendarId = this.recurrencePattern.calendarId;
-        obj.dateProcessedTo = this.recurrencePattern.dateProcessedTo;
+
+        obj.date_processed_to = this.recurrencePattern.dateProcessedTo;
         obj.id = this.recurrencePattern.id;
-        obj.day1 = this.recurrencePattern.day1;
+
+		obj.day_of_week_mask = 0;
+		var weekdays = {
+			day1: 1,
+			day2: 2,
+			day3: 4,
+			day4: 8,
+			day5: 16,
+			day6: 32,
+			day7: 64
+		}
+
+		// Calculate the day of week mask
+		for (var i = 1; i <= 7; i++) {
+			if(this.recurrencePattern['day' + i] === "t") {
+				obj.day_of_week_mask = obj.day_of_week_mask | weekdays['day' + i];
+			}
+		}
+
+		/*obj.day1 = this.recurrencePattern.day1;
         obj.day2 = this.recurrencePattern.day2;
         obj.day3 = this.recurrencePattern.day3;
         obj.day4 = this.recurrencePattern.day4;
         obj.day5 = this.recurrencePattern.day5;
         obj.day6 = this.recurrencePattern.day6;
-        obj.day7 = this.recurrencePattern.day7;
+        obj.day7 = this.recurrencePattern.day7;*/
 
         args["recurrence_pattern"] = obj;
     }
@@ -1916,12 +1933,11 @@ CAntObject.prototype.save = function(opts)
     ajax = new CAjax('json');
     ajax.cbData.cls = this;
     ajax.cbData.options = options;
-    ajax.onload = function(ret)
+    ajax.onload = function(data)
     {
+		var ret = 0;
         if (!ret['error'])
-            ret = parseInt(ret.id);
-        else
-            ret = 0;
+            ret = parseInt(data.id);
 
         if (ret > 0)
         {
@@ -1929,9 +1945,9 @@ CAntObject.prototype.save = function(opts)
             {
                 if (!this.cbData.cls.id)
                 {
-                    this.cbData.cls.id = ret.id;
-                    this.cbData.cls.onValueChange("id", ret.id);
-					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:ret.id, valueName:ret.name || ret.id});
+                    this.cbData.cls.id = data.id;
+                    this.cbData.cls.onValueChange("id", data.id);
+					alib.events.triggerEvent(this.cbData.cls, "fieldchange", {fieldName: "id", value:data.id, valueName:data.name || data.id});
                 }
             }
             catch(e)
@@ -1959,7 +1975,7 @@ CAntObject.prototype.save = function(opts)
             this.cbData.cls.onsave();
 			alib.events.triggerEvent(this.cbData.cls, "save");
 		}
-    };    
+    };
     
     // Make sure obj_type argument is set here so it will be overwritten by "obj_type" fields.
     args["obj_type"] = this.name;
@@ -2802,6 +2818,8 @@ CAntObject.prototype.onToggleEdit = function(setmode)
 }
 
 /**
+ * DEPRICATED - The loading of recurrence pattern is already included in this.load()
+ *
  * Load recurrence pattern for this object
  */
 CAntObject.prototype.loadRecurrencePattern = function(id)
@@ -2811,8 +2829,11 @@ CAntObject.prototype.loadRecurrencePattern = function(id)
 
 /**
  * get recurrence object
+ *
+ * @param {bool} create Flag that will determine if we will create a recurrence pattern
+ * @param {object} recurrencePatternData Contains the data of recurrence pattern that will be used to create a recurrence
  */
-CAntObject.prototype.getRecurrencePattern = function(create, rpid)
+CAntObject.prototype.getRecurrencePattern = function(create, recurrencePatternData)
 {
 	if (this.recurRules==null) // recurrence is not supported for this object type
 		return null;
@@ -2829,22 +2850,36 @@ CAntObject.prototype.getRecurrencePattern = function(create, rpid)
 	{
 		return this.recurrencePattern;
 	}
-	else  // create pattern object
+	else
 	{
-		if (typeof rpid == 'undefined')
-			var rpid = null;
+		// Create a default recurrence pattern
 		this.recurrencePattern = new CRecurrencePattern();
 		this.recurrencePattern.object_type = this.name;
 		this.recurrencePattern.object_type_id = this.object_type_id;
 		this.recurrencePattern.parentId = this.id;
-		this.recurrencePattern.fieldDateStart = this.recurRules.fieldDateStart;	
-		this.recurrencePattern.fieldTimeStart = this.recurRules.fieldTimeStart; 	
-		this.recurrencePattern.fieldDateEnd = this.recurRules.fieldDateEnd;		
-		this.recurrencePattern.fieldTimeEnd = this.recurRules.fieldTimeEnd;	
-		this.recurrencePattern.fieldRecurId = this.recurRules.fieldRecurId;	
-		if (rpid)
-			this.recurrencePattern.load(rpid);
+
+		/*
+		 if (typeof rpid == 'undefined')
+		 var rpid = null;
+		 this.recurrencePattern = new CRecurrencePattern();
+		 this.recurrencePattern.object_type = this.name;
+		 this.recurrencePattern.object_type_id = this.object_type_id;
+		 this.recurrencePattern.parentId = this.id;
+		 this.recurrencePattern.fieldDateStart = this.recurRules.fieldDateStart;
+		 this.recurrencePattern.fieldTimeStart = this.recurRules.fieldTimeStart;
+		 this.recurrencePattern.fieldDateEnd = this.recurRules.fieldDateEnd;
+		 this.recurrencePattern.fieldTimeEnd = this.recurRules.fieldTimeEnd;
+		 this.recurrencePattern.fieldRecurId = this.recurRules.fieldRecurId;
+		 if (rpid)
+		 this.recurrencePattern.load(rpid);
+		 */
 	}
-	
+
+	// Check if there is a recurrence pattern data provided
+	if(recurrencePatternData)
+		this.recurrencePattern.fromArray(recurrencePatternData);
+
+	// Set the rules
+	this.recurrencePattern.setRecurrenceRules(this.recurRules);
 	return this.recurrencePattern;
 }

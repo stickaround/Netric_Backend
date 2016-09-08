@@ -5,6 +5,7 @@
 require_once("lib/Object/CalendarEvent.php");
 require_once("calendar/calendar_functions.awp");
 require_once("controllers/ObjectListController.php");
+require_once('lib/ServiceLocatorLoader.php');
 
 /**
  * Class for controlling calendar and calendar event functions
@@ -18,10 +19,29 @@ class CalendarController extends Controller
      */
     public function getEvents($params)
     {
-
         $calendars = array();
         $dbh = $this->ant->dbh;
 
+        // Get calendars marked for view
+        $query = new Netric\EntityQuery("calendar");
+        $query->andWhere("user_id", "is_equal", $this->user->id);
+        $query->andWhere("f_view", "is_equal", "t");
+
+        Netric\EntityQuery\FormParser::buildQuery($query, null);
+
+        $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+        $index = $sl->get("EntityQuery_Index");
+
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        for ($i = 0; $i < $res->getNum(); $i++)
+        {
+            $cal = $res->getEntity($i);
+            $calendars[] = $cal->getValue("id");
+        }
+
+        /*
         // Get calendars marked for view
         $calList = new CAntObjectList($dbh, "calendar", $this->user);
         $calList->addCondition("and", "user_id", "is_equal", $this->user->id);
@@ -46,6 +66,7 @@ class CalendarController extends Controller
             $row = $dbh->GetNextRow($result, $i);
             $calendars[] = $row['calendar'];
         }
+        */
 
         // Set conditions
         if (isset($params['conditions']))
@@ -70,7 +91,6 @@ class CalendarController extends Controller
             $params['condition_fieldname_' . $curInd] = "calendar";
             $params['condition_operator_' . $curInd] = "is_equal";
             $params['condition_condvalue_' . $curInd] = $calendars[$i];
-
         }
 
         // Now pass the query through to the object list controller
@@ -87,16 +107,16 @@ class CalendarController extends Controller
 	{
         $dbh = $this->ant->dbh;
         
-		if ($params['calid'])
+		if (isset($params['calid']))
         {
-            $result = $dbh->Query("select name from calendars where id='".$params['calid']."'");
-            if ($dbh->GetNumberRows($result))
-                $ret = $dbh->GetValue($result, 0, "name");
-            else
-                $ret = -1;
+            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+            $loader = $sl->get("EntityLoader");
+            $cal = $loader->get("calendar", $params['calid']);
+
+            $ret = $cal->getValue("name");
         }
         else
-            $ret = array("error"=>"name is a required param");
+            $ret = array("error"=>"calid is a required param");
         
         $this->sendOutputJson($ret);
         return $ret;
@@ -333,8 +353,55 @@ class CalendarController extends Controller
 			"myCalendars" => array(),
 			"otherCalendars" => array(),
 		);
-        
-		// Get users calendar
+
+        $query = new Netric\EntityQuery("calendar");
+        $query->andWhere("user_id", "is_equal", $this->user->id);
+
+        Netric\EntityQuery\FormParser::buildQuery($query, null);
+
+        $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+        $index = $sl->get("EntityQuery_Index");
+
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        for ($i = 0; $i < $res->getNum(); $i++)
+        {
+            $cal = $res->getEntity($i);
+            $color = ($cal->getValue('color')) ? $cal->getValue('color') : '2A4BD7';
+            $ret["myCalendars"][] = array(
+                "id" => $cal->getValue('id'),
+                "name" => $cal->getValue('name'),
+                "f_view" => $cal->getValue('f_view'),
+                "color" => $color,
+                "default" => ($cal->getValue('def_cal')=='t') ? true : false,
+            );
+        }
+
+        if (count($ret["myCalendars"]) === 0)
+        {
+            $loader = $sl->get("EntityLoader");
+            $cal = $loader->create("calendar");
+
+            $cal->setValue("user_id", $this->user->id);
+            $cal->setValue("name", "My Calendar");
+            $cal->setValue("f_view", true);
+            $cal->setValue("def_cal", true);
+            $cal->setValue("color", "2A4BD7");
+
+            $loader->save($cal);
+
+            $ret["myCalendars"][] = array(
+                "id" => $cal->getValue('id'),
+                "name" => $cal->getValue('name'),
+                "f_view" => $cal->getValue('f_view'),
+                "color" => $cal->getValue('color'),
+                "default" => ($cal->getValue('def_cal')=='t') ? true : false,
+            );
+        }
+
+        /*
+        // Get users calendar
 		// ----------------------------------------------
 		$calList = new CAntObjectList($dbh, "calendar", $this->user);
 		$calList->addCondition("and", "user_id", "is_equal", $this->user->id);
@@ -351,6 +418,7 @@ class CalendarController extends Controller
 				"default" => ($cal->getValue('def_cal')=='t') ? true : false, 
 			);
 		}
+
 
 		// Add default my calendar if none exists
 		if (!count($ret["myCalendars"]))
@@ -371,6 +439,7 @@ class CalendarController extends Controller
 				"default" => ($cal->getValue('def_cal')=='t') ? true : false, 
 			);
 		}
+        */
 
 		// Get shared calendars
 		// ----------------------------------------------
@@ -425,22 +494,26 @@ class CalendarController extends Controller
         $view= $params['f_view'];
         if (($params['calendar_id'] || $params['share_id']) && $view)
         {
+            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+            $loader = $sl->get("EntityLoader");
+            $fView = ($view === 't') ? true : false;
+
             if (isset($params['calendar_id']) && $params['calendar_id'])
             {
-                if ($view == 't')
-                    $dbh->Query("update calendars set f_view='t' where id='".$params['calendar_id']."'");
-                else
-                    $dbh->Query("update calendars set f_view='f' where id='".$params['calendar_id']."'");
+                $cal = $loader->get("calendar", $params['calendar_id']);
+                $cal->setValue("f_view", $fView);
+
+                $loader->save($cal);
                     
                 $ret = $params['calendar_id'];
             }
             
             if (isset($params['share_id']) && $params['share_id'])
             {
-                if ($view == 't')
-                    $dbh->Query("update calendar_sharing set f_view='t' where id='".$params['share_id']."'");
-                else
-                    $dbh->Query("update calendar_sharing set f_view='f' where id='".$params['share_id']."'");
+                $cal = $loader->get("calendar", $params['share_id']);
+                $cal->setValue("f_view", $fView);
+
+                $loader->save($cal);
                     
                 $ret = $params['share_id'];
             }
@@ -483,11 +556,22 @@ class CalendarController extends Controller
         
         if (($params['calendar_id'] || $params['share_id']) && $color)
         {
-            if (isset($params['calendar_id']) && $params['calendar_id'])
-                $dbh->Query("update calendars set color='".$dbh->Escape($color)."' where id='".$params['calendar_id']."'");
+            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+            $loader = $sl->get("EntityLoader");
+
+            if (isset($params['calendar_id']) && $params['calendar_id']) {
+                $cal = $loader->get("calendar", $params['calendar_id']);
+                $cal->setValue("color", $color);
+
+                $loader->save($cal);
+            }
             
-            if (isset($params['share_id']) && $params['share_id'])
-                $dbh->Query("update calendar_sharing set color='".$dbh->Escape($color)."' where id='".$params['share_id']."'");
+            if (isset($params['share_id']) && $params['share_id']) {
+                $cal = $loader->get("calendar", $params['share_id']);
+                $cal->setValue("color", $color);
+
+                $loader->save($cal);
+            }
             
             $ret = $color;
         }
@@ -542,6 +626,42 @@ class CalendarController extends Controller
         $name = stripslashes($params['name']);
         if ($name)
         {
+            $query = new Netric\EntityQuery("calendar");
+            $query->andWhere("name", "is_equal", $params['name']);
+
+            Netric\EntityQuery\FormParser::buildQuery($query, null);
+
+            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
+            $index = $sl->get("EntityQuery_Index");
+
+            // Execute the query
+            $res = $index->executeQuery($query);
+
+            if ($res->getNum())
+            {
+                // Return the calendar info if already exist
+                $cal = $res->getEntity(0);
+                $ret = $cal->getValue("id");
+            }
+            else
+            {
+                $loader = $sl->get("EntityLoader");
+                $cal = $loader->create("calendar");
+
+                $cal->setValue("name", $name);
+                $cal->setValue("user_id", $this->user->id);
+                $cal->setValue("color", "2A4BD7");
+
+                $fView = ($view === 't') ? true : false;
+                $cal->setValue("f_view", "t");
+
+                if ($loader->save($cal))
+                    $ret = $cal->getValue("id");
+                else
+                    $ret = array("error"=>"There was an error when saving.");
+            }
+
+            /*
             $result = $dbh->Query("select * from calendars where name = '{$params['name']}'");
             if ($dbh->GetNumberRows($result))
             {
@@ -565,6 +685,7 @@ class CalendarController extends Controller
                     $ret = array("error"=>"There was an error when saving.");
                 }
             }
+            */
         }
         else
             $ret = array("error"=>"calendar name is a required param.");

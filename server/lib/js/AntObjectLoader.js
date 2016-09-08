@@ -1231,9 +1231,7 @@ AntObjectLoader.prototype.onObjectLoaded = function()
 	console.log(this.mainObject.getValue("groups"));
 	if (this.queueValues && this.queueValues.length)
 	{
-		for (var i = 0; i < this.queueValues.length; i++)
-		{
-			console.log(this.queueValues[i].field);
+		for (var i = 0; i < this.queueValues.length; i++) {
 			this.mainObject.setValue(this.queueValues[i].field, this.queueValues[i].value);
 		}
 

@@ -1247,8 +1247,12 @@ class RecurrencePattern implements ErrorAwareInterface
 	 */
 	public function validatePattern()
 	{
-		if (!$this->dateStart) // Required by all
+		// Required by all
+		if (!$this->dateStart) {
+			$this->lastError = "date start is a required param for all recurrence";
 			return false;
+		}
+
 
 		switch ($this->recurType)
 		{

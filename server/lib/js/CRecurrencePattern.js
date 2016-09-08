@@ -50,6 +50,8 @@ function CRecurrencePattern(rpid)
 	
 	this.dbvalLoaded = false;
 	this.dbvalLoadCount = null;
+
+	this.loadedFromArray = false;
 	
 	this.m_dlgElements = new Object();
 	
@@ -57,6 +59,61 @@ function CRecurrencePattern(rpid)
 	{
 		this.load(rpid);
 	}
+}
+
+/**************************************************************************
+ * Function: 	fromArray
+ *
+ * Purpose:		Import the values from array
+ **************************************************************************/
+CRecurrencePattern.prototype.fromArray = function(recurrencePattern)
+{
+	this.id = recurrencePattern.id;
+	this.type = recurrencePattern.recur_type;
+	this.interval = recurrencePattern.interval;
+	this.dateStart = recurrencePattern.date_start;
+	this.dateEnd = recurrencePattern.date_end;
+	this.dayOfMonth = recurrencePattern.day_of_month;
+	this.monthOfYear = recurrencePattern.month_of_year;
+	this.dayOfWeekMask = recurrencePattern.day_of_week_mask;
+	this.fActive = recurrencePattern.f_active;
+	this.object_type = recurrencePattern.obj_type;
+
+	// Setup the days of week
+	if (this.dayOfWeekMask) {
+		var weekdays = {
+			day1: 1,
+			day2: 2,
+			day3: 4,
+			day4: 8,
+			day5: 16,
+			day6: 32,
+			day7: 64
+		}
+
+		this.day1 = ((this.dayOfWeekMask & weekdays.day1).toString() === "0") ? "f" : "t";
+		this.day2 = ((this.dayOfWeekMask & weekdays.day2).toString() === "0") ? "f" : "t";
+		this.day3 = ((this.dayOfWeekMask & weekdays.day3).toString() === "0") ? "f" : "t";
+		this.day4 = ((this.dayOfWeekMask & weekdays.day4).toString() === "0") ? "f" : "t";
+		this.day5 = ((this.dayOfWeekMask & weekdays.day5).toString() === "0") ? "f" : "t";
+		this.day6 = ((this.dayOfWeekMask & weekdays.day6).toString() === "0") ? "f" : "t";
+		this.day7 = ((this.dayOfWeekMask & weekdays.day7).toString() === "0") ? "f" : "t";
+	}
+
+	this.loadedFromArray = true;
+}
+
+/**************************************************************************
+ * Function: 	setRecurrenceRules
+ *
+ * Purpose:		Set the recurrence rules for the recurrence pattern
+ **************************************************************************/
+CRecurrencePattern.prototype.setRecurrenceRules = function(recurrenceRules)
+{
+	this.fieldDateStart = recurrenceRules.fieldDateStart;
+	this.fieldTimeStart = recurrenceRules.fieldTimeStart;
+	this.fieldDateEnd = recurrenceRules.fieldDateEnd;
+	this.fieldTimeEnd = recurrenceRules.fieldTimeEnd;
 }
 
 
@@ -171,10 +228,12 @@ CRecurrencePattern.prototype.onsave = function(ret)
 }
 
 /**************************************************************************
-* Function: 	save	
-*
-* Purpose:		Save recurrence pattern to backend
-**************************************************************************/
+ * DEPRICATED - The saving of recurrence pattern is now included in CAntObject.js::save()
+ *
+ * Function: 	save
+ *
+ * Purpose:		Save recurrence pattern to backend
+ **************************************************************************/
 CRecurrencePattern.prototype.save = function(silent)
 {
 	var obj = new Object();
@@ -242,7 +301,7 @@ CRecurrencePattern.prototype.showDialog = function()
 {
 	var me = this;
 	
-	if( this.id>0 )
+	if( this.id>0 && !this.loadedFromArray)
 	{
 		// load values
 		if( !this.dbvalLoaded )
