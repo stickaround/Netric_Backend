@@ -49,9 +49,7 @@ $obj_fields['user_id'] = array('title'=>'Owner',
                                       'default'=>$default);
 
 $obj_fields['recur_id'] = array('title'=>'Recurrance',
-                                      'type'=>'fkey',
-                                      'subtype'=>'calendar_events_recurring',
-                                      'fkey_table'=>array("key"=>"id", "title"=>"name"),
+                                      'type'=>'integer',
                                         'readonly'=>true);
 
 $obj_fields['recurrence_pattern'] = array('title'=>'Recurrence',
