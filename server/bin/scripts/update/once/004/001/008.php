@@ -7,7 +7,6 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
-$dm = $serviceManager->get("Netric/Entity/Recurrence/RecurrenceDataMapper");
 $loader = $serviceManager->get("Netric/EntityLoader");
 
 // Specify what object type we are going to move
@@ -53,14 +52,11 @@ for ($i = 0; $i < $db->getNumRows($result); $i++) {
     if ($row['day7'] === 't')
         $recurrencePattern->setDayOfWeek(RecurrencePattern::WEEKDAY_SATURDAY, true);
 
-    // Save the recurrence pattern
-    $recurId = $dm->save($recurrencePattern);
-
-    // Load the calendar event that was associated to this recurrence and update the new recurrence id 
+    // Load the calendar event that was associated to this recurrence and update the new recurrence id
     $event = $loader->get($objType, $row['event_id']);
 
-    // Set the new recurrence id
-    $event->setValue("recur_id", $recurId, $recurId);
+    // Set the new recurrence to this calendar event
+    $event->setRecurrencePattern($recurrencePattern);
 
     // Save the calendar event
     $loader->save($event);
