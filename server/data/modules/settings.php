@@ -29,6 +29,13 @@ return array(
             "objType" => "user",
             "route" => "users",
             "icon" => "users"
+        ),
+        array(
+            "title" => "User Teams",
+            "type" => "browse",
+            "objType" => "user_teams",
+            "route" => "user-teams",
+            "icon" => "street-view"
         )
     )
 );

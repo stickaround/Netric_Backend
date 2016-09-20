@@ -51,5 +51,5 @@ return array(
     array("obj_type"=>"notification", "title"=>"Notification", "object_table"=>"", "revision"=>"0", "system"=>true, "capped"=>"200000"),
     array("obj_type"=>"workflow", "title"=>"Workflow", "object_table"=>"workflows", "revision"=>"0", "system"=>true),
     array("obj_type"=>"workflow_action", "title"=>"Workflow Action", "object_table"=>"workflow_actions", "revision"=>"0", "system"=>true),
-
+    array("obj_type"=>"user_teams", "title"=>"User Teams", "object_table"=>"user_teams", "revision"=>"0", "system"=>true),
 );
