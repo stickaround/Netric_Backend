@@ -13,9 +13,12 @@ $loader = $serviceManager->get("Netric/EntityLoader");
 $objType = "calendar_event";
 
 // Query the calendar event recurrences
-$result = $db->query("SELECT calendar_events.id AS event_id, type AS recur_type, calendar_events_recurring.date_start,
-              calendar_events_recurring.date_end, calendar_events_recurring.all_day,
-              interval, day AS day_of_month, month AS month_of_year,
+$result = $db->query("SELECT calendar_events.id AS event_id,
+              calendar_events_recurring.*,
+              calendar_events_recurring.type AS recur_type,
+              calendar_events_recurring.day AS day_of_month,
+              calendar_events_recurring.month AS month_of_year,
+
               week_days[1] as day1, week_days[2] as day2, week_days[3] as day3,
 			  week_days[4] as day4, week_days[5] as day5, week_days[6] as day6,
 			  week_days[7] as day7
@@ -30,6 +33,10 @@ for ($i = 0; $i < $db->getNumRows($result); $i++) {
 
     // Setup the object type
     $row['obj_type'] = $objType;
+
+    // Unset the $row['id'] so it will create a new recurrence pattern entity
+    if(isset($row['id']))
+        unset($row['id']);
 
     // Create a new instance of recurrence pattern
     $recurrencePattern = new RecurrencePattern();
@@ -51,6 +58,19 @@ for ($i = 0; $i < $db->getNumRows($result); $i++) {
         $recurrencePattern->setDayOfWeek(RecurrencePattern::WEEKDAY_FRIDAY, true);
     if ($row['day7'] === 't')
         $recurrencePattern->setDayOfWeek(RecurrencePattern::WEEKDAY_SATURDAY, true);
+
+    $RECUR_MONTHNTH = 4;
+    $RECUR_YEARNTH = 6;
+
+    // We need to check if we are dealing with MonthNth or YearNth and make sure we pass instance value
+    if ($recurrencePattern->getRecurType() == $RECUR_MONTHNTH || $recurrencePattern->getRecurType() == $RECUR_YEARNTH) {
+
+        // If $row['instance'] is not set or is empty, then we need to set the instance value to 1 (default)
+        if (!isset($row['instance']) || is_empty($row['instance'])) {
+
+            $recurrencePattern->setInstance(1);
+        }
+    }
 
     // Load the calendar event that was associated to this recurrence and update the new recurrence id
     $event = $loader->get($objType, $row['event_id']);
