@@ -9,10 +9,8 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $loader = $serviceManager->get("Netric/EntityLoader");
 
-// We need to check first if f_imported_to_entity column is existing before we try to add it
-$resultColumn = $db->query("SELECT * FROM information_schema.COLUMNS WHERE COLUMN_NAME = 'f_imported_to_entity' AND TABLE_NAME = 'calendar_events_recurring'");
-
-if ($db->getNumRows($resultColumn) === 0) {
+// We need to check first if f_imported_to_entity column is existing, if not then add the column
+if (!$db->columnExists("calendar_events_recurring", "f_imported_to_entity")) {
 
     // Add the f_imported_to_entity column with type boolean. This will be used to check if the recur event has been imported already.
     $db->query("ALTER TABLE calendar_events_recurring ADD COLUMN f_imported_to_entity boolean;");
