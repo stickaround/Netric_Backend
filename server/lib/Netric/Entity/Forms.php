@@ -195,8 +195,8 @@ class Forms
             throw new \Exception("Invalid object type");
 
         // Check form xml from a file found in /objects/{objType}/{device}.php
-        $basePath = $this->config->get("application_path") . "/objects";
-        $formPath = $basePath . "/oforms/" . $objType . "/" . $device . ".php";
+        $basePath = $this->config->get("application_path") . "/data";
+        $formPath = $basePath . "/entity_forms/" . $objType . "/" . $device . ".php";
         if (file_exists($formPath))
         {
             $xml = file_get_contents($formPath);
