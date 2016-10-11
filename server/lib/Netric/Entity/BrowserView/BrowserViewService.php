@@ -269,7 +269,7 @@ class BrowserViewService
         $views = array();
 
         // Check for system object
-        $basePath = $this->config->get("application_path") . "/objects";
+        $basePath = $this->config->get("application_path") . "/data";
         if (file_exists($basePath . "/browser_views/" . $objType . ".php"))
         {
             $viewsData = include($basePath . "/browser_views/" . $objType . ".php");

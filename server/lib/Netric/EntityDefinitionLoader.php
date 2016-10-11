@@ -350,24 +350,24 @@ class EntityDefinitionLoader
 		$numViews = 0;
 
 		// Check for system object
-		$basePath = $this->dataMapper->getAccount()->getServiceManager()->get("Config")->application_path . "/objects";
-		if (file_exists($basePath . "/oforms/" . $objType . "/default.php"))
+		$basePath = $this->dataMapper->getAccount()->getServiceManager()->get("Config")->application_path . "/data";
+		if (file_exists($basePath . "/entity_forms/" . $objType . "/default.php"))
 		{
-			$xml = file_get_contents($basePath . "/oforms/" . $objType . "/default.php");
+			$xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/default.php");
 			if ($xml)
 				$def->setForm($xml, "default");
 		}
 
-		if (file_exists($basePath . "/oforms/" . $objType . "/mobile.php"))
+		if (file_exists($basePath . "/entity_forms/" . $objType . "/mobile.php"))
 		{
-			$xml = file_get_contents($basePath . "/oforms/" . $objType . "/mobile.php");
+			$xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/mobile.php");
 			if ($xml)
 				$def->setForm($xml, "mobile");
 		}
 
-		if (file_exists($basePath . "/oforms/" . $objType . "/infobox.php"))
+		if (file_exists($basePath . "/entity_forms/" . $objType . "/infobox.php"))
 		{
-			$xml = file_get_contents($basePath . "/oforms/" . $objType . "/infobox.php");
+			$xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/infobox.php");
 			if ($xml)
 				$def->setForm($xml, "infobox");
 		}
