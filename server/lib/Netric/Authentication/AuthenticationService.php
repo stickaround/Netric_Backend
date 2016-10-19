@@ -279,6 +279,7 @@ class AuthenticationService
 	{
 		// Get authentication from either headers/get/post
 		$authStr = $this->request->getParam("Authentication");
+
 		$authData = array();
 
 		// Extract the parts

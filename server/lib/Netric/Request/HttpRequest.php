@@ -75,15 +75,16 @@ class HttpRequest implements RequestInterface
 	 * @param string $name The name of the param to get
 	 * @return string|array The value of the named param
 	 */
-	public function getParam($name)
-	{
+	public function getParam($name) {
 		// Check through any http request objects
-		foreach ($this->httpStores as $httpStore)
-		{
+		foreach ($this->httpStores as $httpStore) {
+
+			// Make query case insensitive
+			$paramName = isset($httpStore[$name]) ? $name : strtolower($name);
+
 			// Return the first match
-			if (isset($httpStore[$name]) && $httpStore[$name])
-			{
-				return $httpStore[$name];
+			if (isset($httpStore[$paramName]) && $httpStore[$paramName]) {
+				return $httpStore[$paramName];
 			}
 		}
 
