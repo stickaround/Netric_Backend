@@ -42,26 +42,17 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $ret["total_num"] = $res->getTotalNum();
         $ret["offset"] = $res->getOffset();
         $ret["limit"] = $query->getLimit();
+        $ret['num'] = $res->getNum();
 
         // Set results
         $entities = array();
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
-            if (isset($params['updatemode']) && $params['updatemode']) // Only get id and revision
-            {
-                // Return condensed results
-                $entities[] = array(
-                    "id" => $ent->getId(),
-                    "revision" => $ent->getValue("revision"),
-                    "num_comments" => $ent->getValue("num_comments"),
-                );
-            } else {
-                // TODO: security
+            // TODO: security
 
-                // Print full details
-                $entities[] = $ent->toArray();
-            }
+            // Print full details
+            $entities[] = $ent->toArray();
         }
         $ret["entities"] = $entities;
 

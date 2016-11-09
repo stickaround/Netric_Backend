@@ -186,7 +186,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // TODO: Check permissions
 
-        $ret = $entity->toArray();
+        $ret = ($entity) ? $entity->toArray() : [];
 
         // Check for definition (request may be made by client)
         if (isset($params['loadDef'])) {

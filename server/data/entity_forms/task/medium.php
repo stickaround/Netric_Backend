@@ -1,11 +1,12 @@
 <tabs>
-    <tab name='General'>
+    <tab name='General'> 
         <row>
             <column>
                 <field name='name' hidelabel="t" class='headline'></field>
             </column>
         </row>
         <fieldset name='Details'>
+           
             <row>
                 <column>
                     <field name='done'></field>

@@ -10,6 +10,7 @@ use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\Entity\Recurrence;
 use Netric\EntityQuery\Plugin\PluginInterface;
+use Netric\Entity\Entity;
 
 abstract class IndexAbstract
 {
@@ -357,6 +358,14 @@ abstract class IndexAbstract
                 return;
         }
         */
+
+        // If querying an object type then only leave the number if the value has the object type
+        if (($field->type == "object" || $field->type == "object_multi") && $field->subtype) {
+            $objRefParts = Entity::decodeObjRef($value);
+            if ($objRefParts) {
+                $value = $objRefParts['id'];
+            }
+        }
 
         return $value;
     }

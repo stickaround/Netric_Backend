@@ -63,6 +63,7 @@ class Where
     const OP_GT                              = 'is_greater';
     const OPERATOR_GREATER_THAN_OR_EQUAL_TO  = 'is_greater_or_equal';
     const OP_GTE                             = 'is_greater_or_equal';
+    const OPERATOR_CONTAINS                  = 'contains';
     // TODO: add the rest here
 
     /**
@@ -142,7 +143,7 @@ class Where
 	 */
 	public function contains($value)
 	{
-        $this->operator = "contains";
+        $this->operator = self::OPERATOR_CONTAINS;
         $this->value = $value;
 	}
 
