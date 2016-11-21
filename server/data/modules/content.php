@@ -14,14 +14,14 @@ return array(
             "type" => "entity",
             "route" => "new-content",
             "objType" => "content_feed",
-            "icon" => "plus",
+            "icon" => "AddIcon",
         ),
         array(
             "title" => "All Contents",
             "type" => "browse",
             "route" => "all-contents",
             "objType" => "content_feed",
-            "icon" => "list-ul",
+            "icon" => "ViewListIcon",
             "browseby" => "groups",
         )
     )

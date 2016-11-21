@@ -14,28 +14,28 @@ return array(
             "type" => "browse",
             "objType" => "workflow",
             "route" => "workflows",
-            "icon" => "cogs",
+            "icon" => "SettingsApplicationIcon",
         ),
         array(
             "title" => "New User",
             "type" => "entity",
             "route" => "new-user",
             "objType" => "user",
-            "icon" => "user-plus",
+            "icon" => "AddIcon",
         ),
         array(
             "title" => "Users",
             "type" => "browse",
             "objType" => "user",
             "route" => "users",
-            "icon" => "users"
+            "icon" => "GroupIcon"
         ),
         array(
             "title" => "User Teams",
             "type" => "browse",
             "objType" => "user_teams",
             "route" => "user-teams",
-            "icon" => "street-view"
+            "icon" => "StreetViewIcon"
         )
     )
 );
