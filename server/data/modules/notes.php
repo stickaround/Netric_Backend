@@ -15,21 +15,21 @@ return array(
             "route" => "manage-categories",
             "objType" => "note",
             "fieldName" => "groups",
-            "icon" => "tag",
+            "icon" => "StyleIcon",
         ),
         array(
             "title" => "New Note",
             "type" => "entity",
             "route" => "new-note",
             "objType" => "note",
-            "icon" => "plus",
+            "icon" => "AddIcon",
         ),
         array(
             "title" => "All Notes",
             "type" => "browse",
             "route" => "all-notes",
             "objType" => "note",
-            "icon" => "tags",
+            "icon" => "ViewListIcon",
             "browseby" => "groups",
         )
     )

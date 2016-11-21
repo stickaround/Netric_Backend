@@ -14,14 +14,14 @@ return array(
             "type" => "entity",
             "route" => "new-task",
             "objType" => "task",
-            "icon" => "plus",
+            "icon" => "AddIcon",
         ),
         array(
             "title" => "All Tasks",
             "type" => "browse",
             "route" => "all-tasks",
             "objType" => "task",
-            "icon" => "list-ul",
+            "icon" => "ViewListIcon",
             "browseby" => "groups",
         ),
         array(
@@ -29,14 +29,14 @@ return array(
             "type" => "entity",
             "route" => "new-project",
             "objType" => "project",
-            "icon" => "plus",
+            "icon" => "AddIcon",
         ),
         array(
             "title" => "All Projects",
             "type" => "browse",
             "route" => "all-projects",
             "objType" => "project",
-            "icon" => "list-ul",
+            "icon" => "ViewListIcon",
             "browseby" => "groups",
         )
     )
