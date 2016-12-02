@@ -428,7 +428,7 @@ class ReceiverService extends AbstractHasErrors
                     if (isset($stat['local_id'])) {
 
                         $emailEntity = $this->entityLoader->get("email_message", $stat['local_id']);
-                        if ($emailEntity->getValue("f_deleted") === false) {
+                        if ($emailEntity && $emailEntity->getValue("f_deleted") === false) {
                             $this->entityLoader->delete($emailEntity);
                             $this->log->info("ReceiverService->receiveChanges: Imported delete {$stat['local_id']}");
                         }
