@@ -267,7 +267,6 @@ class ReceiverService extends AbstractHasErrors
                             }
 
                             $this->log->info("Exported: change:{$stat['id']}:{$emailEntity->getValue("commit_id")}");
-
                         } else {
                             // Log that this mail server does not support writing changes
                             $this->log->info("Skipping export because server does not support WritableInterface: {$stat['id']}");
