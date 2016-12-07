@@ -207,7 +207,7 @@ class ReceiverService extends AbstractHasErrors
         $syncColl = $this->getSyncCollection($syncPartner, $emailAccount->getId(), $mailboxId);
 
         // First send changes to server
-        $this->sendChanges($syncColl, $mail);
+        $this->sendChanges($syncColl, $mail);            
 
         // Now get new messages from the server and import
         $this->receiveChanges($syncColl, $mail, $emailAccount, $mailboxId);
@@ -246,45 +246,56 @@ class ReceiverService extends AbstractHasErrors
                     continue;
                 }
 
-                $msgNum = $mailServer->getNumberByUniqueId($emailEntity->getValue("message_uid"));
+                $msgNum = null;
 
-                switch ($stat['action']) {
-                    case 'change':
+                try {
+                    $msgNum = $mailServer->getNumberByUniqueId($emailEntity->getValue("message_uid"));
+                } catch (\Exception $ex) {
+                    $this->log->info("ReceiverService->sendChanges: {$stat['id']} was deleted remotely on the server without stat knowing. " . $ex->getMessage());
+                }
 
-                        if ($mailServer instanceof WritableInterface) {
-                            // Handle seen flag
-                            if ($emailEntity->getValue("flag_seen") === true) {
-                                $mailServer->setFlags($msgNum, [Storage::FLAG_SEEN]);
+                if ($msgNum) {
+                    switch ($stat['action']) {
+                        case 'change':
+
+                            if ($mailServer instanceof WritableInterface) {
+                                // Handle seen flag
+                                if ($emailEntity->getValue("flag_seen") === true) {
+                                    $mailServer->setFlags($msgNum, [Storage::FLAG_SEEN]);
+                                } else {
+                                    $mailServer->setFlags($msgNum, [Storage::FLAG_UNSEEN]);
+                                }
+
+                                // Handle flagged flag
+                                if ($emailEntity->getValue("flag_flagged") === true) {
+                                    $mailServer->setFlags($msgNum, [Storage::FLAG_FLAGGED]);
+                                } else {
+                                    $mailServer->setFlags($msgNum, [Storage::FLAG_PASSED]);
+                                }
+
+                                $this->log->info("Exported: change:{$stat['id']}:{$emailEntity->getValue("commit_id")}");
                             } else {
-                                $mailServer->setFlags($msgNum, [Storage::FLAG_UNSEEN]);
+                                // Log that this mail server does not support writing changes
+                                $this->log->info("Skipping export because server does not support WritableInterface: {$stat['id']}");
                             }
 
-                            // Handle flagged flag
-                            if ($emailEntity->getValue("flag_flagged") === true) {
-                                $mailServer->setFlags($msgNum, [Storage::FLAG_FLAGGED]);
-                            } else {
-                                $mailServer->setFlags($msgNum, [Storage::FLAG_PASSED]);
-                            }
+                            // Log that we exported this change so we never try to export it again
+                            $syncColl->logExported($stat['id'], $emailEntity->getValue("commit_id"));
+                            break;
 
-                            $this->log->info("Exported: change:{$stat['id']}:{$emailEntity->getValue("commit_id")}");
-                        } else {
-                            // Log that this mail server does not support writing changes
-                            $this->log->info("Skipping export because server does not support WritableInterface: {$stat['id']}");
-                        }
+                        case 'delete':
+                            $mailServer->removeMessage($msgNum);
+                            $syncColl->logExported($stat['id'], null);
+                            $this->log->info("Exported: delete:{$stat['id']}");
+                            break;
 
-                        // Log that we exported this change so we never try to export it again
-                        $syncColl->logExported($stat['id'], $emailEntity->getValue("commit_id"));
-                        break;
-
-                    case 'delete':
-                        $mailServer->removeMessage($msgNum);
-                        $syncColl->logExported($stat['id'], null);
-                        $this->log->info("Exported: delete:{$stat['id']}");
-                        break;
-
-                    default:
-                        // An action was sent that we do not know how to handle
-                        throw new \RuntimeException("Sync action {$stat['action']} is not handled!");
+                        default:
+                            // An action was sent that we do not know how to handle
+                            throw new \RuntimeException("Sync action {$stat['action']} is not handled!");
+                    }
+                } else {
+                    // If the message can no longer be found on the server - deleted since we did a sync
+                    $syncColl->logExported($stat['id'], $emailEntity->getValue("commit_id"));
                 }
 
                 // Export last commit so we don't try to re-sync these changes next time
