@@ -259,18 +259,26 @@ class ReceiverService extends AbstractHasErrors
                         case 'change':
 
                             if ($mailServer instanceof WritableInterface) {
-                                // Handle seen flag
-                                if ($emailEntity->getValue("flag_seen") === true) {
-                                    $mailServer->setFlags($msgNum, [Storage::FLAG_SEEN]);
-                                } else {
-                                    $mailServer->setFlags($msgNum, [Storage::FLAG_UNSEEN]);
-                                }
+                                // Wrapping all flag sets in a try catch since setting the same flag twice causes an exception
+                                try {
+                                    // Handle seen flag
+                                    if ($emailEntity->getValue("flag_seen") === true) {
+                                        $mailServer->setFlags($msgNum, [Storage::FLAG_SEEN]);
+                                    } else {
+                                        $mailServer->setFlags($msgNum, [Storage::FLAG_UNSEEN]);
+                                    }
 
-                                // Handle flagged flag
-                                if ($emailEntity->getValue("flag_flagged") === true) {
-                                    $mailServer->setFlags($msgNum, [Storage::FLAG_FLAGGED]);
-                                } else {
-                                    $mailServer->setFlags($msgNum, [Storage::FLAG_PASSED]);
+                                    // Handle flagged flag
+                                    if ($emailEntity->getValue("flag_flagged") === true) {
+                                        $mailServer->setFlags($msgNum, [Storage::FLAG_FLAGGED]);
+                                    } else {
+                                        $mailServer->setFlags($msgNum, [Storage::FLAG_PASSED]);
+                                    }
+                                } catch (Storage\Exception\RuntimeException $ex) {
+                                    $this->log->info(
+                                        "ReceiverService->sendChanges: Tried to set flag on $msgNum but server failed - probably alraedy set: " .
+                                        $ex->getMessage()
+                                    );
                                 }
 
                                 $this->log->info("Exported: change:{$stat['id']}:{$emailEntity->getValue("commit_id")}");
