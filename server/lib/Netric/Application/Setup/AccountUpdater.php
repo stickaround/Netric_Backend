@@ -154,7 +154,6 @@ class AccountUpdater extends AbstractHasErrors
     public function runUpdates()
     {
         // Now run scripts that are set to run on every update
-        $start = microtime(true);
         $this->runAlwaysUpdates();
 
         // Run the one time scripts first

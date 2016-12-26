@@ -18,13 +18,6 @@ return array(
             "icon" => "StyleIcon",
         ),
         array(
-            "title" => "New Note",
-            "type" => "entity",
-            "route" => "new-note",
-            "objType" => "note",
-            "icon" => "AddIcon",
-        ),
-        array(
             "title" => "All Notes",
             "type" => "browse",
             "route" => "all-notes",

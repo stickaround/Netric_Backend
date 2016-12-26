@@ -1,6 +1,9 @@
 #!/bin/bash
-
 set -e
+
+cd /var/www/html/
+php composer.phar install
+php composer.phar update
 
 cd /var/www/html/bin
 

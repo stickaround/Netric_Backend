@@ -19,8 +19,9 @@ foreach ($defaultGroups as $objType=>$fields) {
         $groupings = $groupingsLoader->get($objType, $fieldName);
 
         // Only create default groupings if none exist
-        if (count($groupings->getAll()) == 0)
+        if (count($groupings->getAll()) > 0) {
             continue;
+        }
 
         // Loop through each group and add
         foreach ($groupsData as $groupData) {
@@ -38,7 +39,6 @@ foreach ($defaultGroups as $objType=>$fields) {
 
                 if (isset($groupData['sort_oder']))
                     $group->sortOrder = $groupData['sort_oder'];
-
 
                 $groupings->add($group);
             }

@@ -10,13 +10,6 @@ return array(
     "default_route" => "all-contents",
     "navigation" => array(
         array(
-            "title" => "New Content",
-            "type" => "entity",
-            "route" => "new-content",
-            "objType" => "content_feed",
-            "icon" => "AddIcon",
-        ),
-        array(
             "title" => "All Contents",
             "type" => "browse",
             "route" => "all-contents",

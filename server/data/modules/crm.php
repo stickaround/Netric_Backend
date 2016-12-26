@@ -10,26 +10,12 @@ return array(
     "default_route" => "all-customers",
     "navigation" => array(
         array(
-            "title" => "New Customer",
-            "type" => "entity",
-            "route" => "new-customer",
-            "objType" => "customer",
-            "icon" => "AddIcon",
-        ),
-        array(
             "title" => "All Customers",
             "type" => "browse",
             "route" => "all-customers",
             "objType" => "customer",
             "icon" => "ViewListIcon",
             "browseby" => "groups",
-        ),
-        array(
-            "title" => "New Lead",
-            "type" => "entity",
-            "route" => "new-lead",
-            "objType" => "lead",
-            "icon" => "AddIcon",
         ),
         array(
             "title" => "All Leads",
@@ -40,13 +26,6 @@ return array(
             "browseby" => "groups",
         ),
         array(
-            "title" => "New Opportunity",
-            "type" => "entity",
-            "route" => "new-opportunity",
-            "objType" => "opportunity",
-            "icon" => "AddIcon",
-        ),
-        array(
             "title" => "All Opportunities",
             "type" => "browse",
             "route" => "all-opportunity",
@@ -55,26 +34,12 @@ return array(
             "browseby" => "groups",
         ),
         array(
-            "title" => "New Campaign",
-            "type" => "entity",
-            "route" => "new-campaign",
-            "objType" => "marketing_campaign",
-            "icon" => "AddIcon",
-        ),
-        array(
             "title" => "All Campaigns",
             "type" => "browse",
             "route" => "all-campaigns",
             "objType" => "marketing_campaign",
             "icon" => "ViewListIcon",
             "browseby" => "groups",
-        ),
-        array(
-            "title" => "New Case",
-            "type" => "entity",
-            "route" => "new-case",
-            "objType" => "case",
-            "icon" => "AddIcon",
         ),
         array(
             "title" => "All Cases",

@@ -17,13 +17,6 @@ return array(
             "icon" => "SettingsApplicationIcon",
         ),
         array(
-            "title" => "New User",
-            "type" => "entity",
-            "route" => "new-user",
-            "objType" => "user",
-            "icon" => "AddIcon",
-        ),
-        array(
             "title" => "Users",
             "type" => "browse",
             "objType" => "user",

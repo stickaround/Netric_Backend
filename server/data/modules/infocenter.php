@@ -10,13 +10,6 @@ return array(
     "default_route" => "all-documents",
     "navigation" => array(
         array(
-            "title" => "New Document",
-            "type" => "entity",
-            "route" => "new-document",
-            "objType" => "infocenter_document",
-            "icon" => "plus",
-        ),
-        array(
             "title" => "All Documents",
             "type" => "browse",
             "route" => "all-documents",

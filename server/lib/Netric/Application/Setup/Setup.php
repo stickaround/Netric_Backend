@@ -80,7 +80,7 @@ class Setup extends AbstractHasErrors
         if (!$schemaDataMapper->update($account->getId()))
         {
             // Die if we could not create the schema for the account
-            throw new \RuntimeException("Cannot add account " . $schemaDataMapper->getLastError()->getMessage());
+            throw new \RuntimeException("Cannot update account " . $schemaDataMapper->getLastError()->getMessage());
         }
 
         // Run all update scripts and return the last version run

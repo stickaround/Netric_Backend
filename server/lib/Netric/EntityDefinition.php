@@ -613,16 +613,16 @@ class EntityDefinition
 			'comments' => array(
 				'title'=>'Comments',
 				'type'=>'object_multi', 
-				'subtype'=>'comment', 
-				'readonly'=>false, 
-				'system'=>true, 
+				'subtype'=>'comment',
+				'readonly'=>false,
+				'system'=>true,
 			),
 			'num_comments' => array(
 				'title'=>'Num Comments',
-				'type'=>'number', 
-				'subtype'=>'integer', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'type'=>'number',
+				'subtype'=>'integer',
+				'readonly'=>true,
+				'system'=>true,
 			),
 			'commit_id' => array(
 				'title'=>'Commit Revision',
@@ -638,6 +638,13 @@ class EntityDefinition
 				'readonly'=>true, 
 				'system'=>true, 
 			),
+            'f_seen' => array(
+                'title'=>'Seen',
+                'type'=>'bool',
+                'subtype'=>'',
+                'readonly'=>true,
+                'system'=>true,
+            ),
 			'revision' => array(
 				'title'=>'Revision',
 				'type'=>'number',
