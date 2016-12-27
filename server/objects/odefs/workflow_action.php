@@ -2,7 +2,7 @@
 /**
  * workflow_action object definition
  */
-$obj_revision = 2;
+$obj_revision = 3;
 
 $obj_fields = array(
     // Textual name

@@ -2,7 +2,7 @@
 /**
  * dashboard object definition
  */
-$obj_revision = 23;
+$obj_revision = 24;
 $defaultActivityLevel = 2;
 
 $obj_fields = array();

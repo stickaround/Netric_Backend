@@ -2,7 +2,7 @@
 /**
  * cms_page_template
  */
-$obj_revision = 6;
+$obj_revision = 7;
 
 $obj_fields = array(
 	// Textual name

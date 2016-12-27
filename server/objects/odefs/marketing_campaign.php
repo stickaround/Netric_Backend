@@ -4,7 +4,7 @@
  *
  * Name: campaign
  */
-$obj_revision = 14;
+$obj_revision = 15;
 $parentField = "parent_id";
 
 $obj_fields = array();

@@ -2,7 +2,7 @@
 /**
  * Payment object used to track payments to sales_orders or invoices
  */
-$obj_revision = 5;
+$obj_revision = 6;
 
 
 // Amount Paid, Date Paid, Payment Method (check, visa), Ref/Check Number

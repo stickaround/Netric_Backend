@@ -4,7 +4,7 @@
  *
  * TODO: it is undecided if we are going to use templates as of yet
  */
-$obj_revision = 5;
+$obj_revision = 6;
 
 $obj_fields = array(
 	// Textual name

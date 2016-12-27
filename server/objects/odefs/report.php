@@ -2,7 +2,7 @@
 /**
  * report object definition
  */
-$obj_revision = 20;
+$obj_revision = 21;
 
 $obj_fields = array();
 $obj_fields['name']					= array('title'=>'Name', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false);

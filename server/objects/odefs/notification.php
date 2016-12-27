@@ -2,7 +2,7 @@
 /**
  * notification object definition
  */
-$obj_revision = 10;
+$obj_revision = 11;
 
 $isPrivate = true;
 $defaultActivityLevel = 1;

@@ -2,7 +2,7 @@
 /**
  * status_update is essentually a wall post
  */
-$obj_revision = 8;
+$obj_revision = 9;
 
 $listTitle = "id";
 $defaultActivityLevel = 5; // Display all comments

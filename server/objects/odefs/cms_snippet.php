@@ -2,7 +2,7 @@
 /**
  * cms_snippet object definition
  */
-$obj_revision = 12;
+$obj_revision = 13;
 
 $obj_fields = array(
 	'name' => array(

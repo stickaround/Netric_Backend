@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 24;
+$obj_revision = 25;
 
 $defaultActivityLevel = 5; // Display all comments
 $storeRevisions = false; // no need for revisins to be stored

@@ -4,7 +4,7 @@
  *
  * Name: project_story
  */
-$obj_revision = 14;
+$obj_revision = 15;
 
 $obj_fields = array();
 $obj_fields['name']				= array('title'=>'Title', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false);

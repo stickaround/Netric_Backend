@@ -9,7 +9,7 @@
 *				Copyright (c) 2011 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 8;
+$obj_revision = 9;
 
 $obj_fields = array();
 $obj_fields['name']			    = array('title'=>'Name', 'type'=>'text', 'subtype'=>'256', 'readonly'=>false);

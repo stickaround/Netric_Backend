@@ -2,7 +2,7 @@
 /**
  * html_template object definition
  */
-$obj_revision = 8;
+$obj_revision = 9;
 
 $obj_fields = array();
 $obj_fields['name']					= array('title'=>'Name', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false);

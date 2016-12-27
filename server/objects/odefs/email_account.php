@@ -2,7 +2,7 @@
 /**
  * email_account object definition
  */
-$obj_revision = 6;
+$obj_revision = 7;
 
 $isPrivate = true;
 $defaultActivityLevel = 1;

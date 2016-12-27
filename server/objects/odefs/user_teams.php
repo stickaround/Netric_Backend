@@ -2,7 +2,7 @@
 /**
  * user_teams object definition
  */
-$obj_revision = 1;
+$obj_revision = 2;
 
 $isPrivate = true;
 $defaultActivityLevel = 1;

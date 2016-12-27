@@ -2,7 +2,7 @@
 /**
  * email_campaign object definition
  */
-$obj_revision = 19;
+$obj_revision = 21;
 $defaultActivityLevel = 5;
 
 $obj_fields = array(

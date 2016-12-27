@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 26;
+$obj_revision = 27;
 
 $obj_fields = array(
 	'name' => array(

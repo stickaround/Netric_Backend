@@ -2,7 +2,7 @@
 /**
  * phone_call
  */
-$obj_revision = 7;
+$obj_revision = 8;
 $defaultActivityLevel = 5; // Display all comments
 
 $obj_fields = array(

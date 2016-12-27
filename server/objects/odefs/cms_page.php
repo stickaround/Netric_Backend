@@ -2,7 +2,7 @@
 /**
  * cms_page
  */
-$obj_revision = 15;
+$obj_revision = 16;
 $parentField = "parent_id";
 $unameSettings = "site_id:parent_id:name";
 

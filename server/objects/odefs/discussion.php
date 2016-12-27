@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 13;
+$obj_revision = 14;
 $defaultActivityLevel = 5;
 
 $obj_fields = array();

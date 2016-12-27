@@ -4,7 +4,7 @@
  *
  * Name: folder
  */
-$obj_revision = 15;
+$obj_revision = 16;
 $storeRevisions = false; // no need for revisins to be stored
 
 $icon = "folder";

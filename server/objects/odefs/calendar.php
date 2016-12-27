@@ -2,7 +2,7 @@
 /**
  * calendar object definition
  */
-$obj_revision = 13;
+$obj_revision = 14;
 
 $obj_fields = array(
 	"name" => array(

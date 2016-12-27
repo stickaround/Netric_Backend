@@ -4,7 +4,7 @@
  *
  * Name: file
  */
-$obj_revision = 21;
+$obj_revision = 22;
 $icon = "file";
 $parentField = "folder_id";
 
