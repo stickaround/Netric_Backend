@@ -45,7 +45,7 @@
 	 
 	// && strpos(strtolower($_SERVER['HTTP_USER_AGENT']), "webkit")===false
 	if($mobile_browser>0 && !$requestedPage)
-		$requestedPage = base64_encode("/mobile/main.php");
+		header("Location: /mobile/"));
 
 	// Get forwarded variables
 	// -------------------------------------------------------------------------------
