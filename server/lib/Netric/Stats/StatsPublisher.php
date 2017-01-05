@@ -91,7 +91,12 @@ class StatsPublisher
             $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
             // Setup the new config
-            $config = $configLoader->fromFolder(__DIR__ . "/../../config", $applicationEnvironment);
+            $config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
+
+            // If config failed to load then there is something wrong with our installation
+            if ($config === null) {
+                throw new \RuntimeException("Could not load config files from: " . __DIR__ . "/../../../config");
+            }
 
             if ($config->stats['enabled'])
             {
