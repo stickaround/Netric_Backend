@@ -15,15 +15,6 @@
 </row>
 <row>
     <column>
-        <fieldset name='Conditions'>
-            <plugin name='Conditions'></plugin>
-        </fieldset>
-    </column>
-</row>
-<row>
-    <column>
-        <fieldset name='Actions'>
-            <plugin name='Actions'></plugin>
-        </fieldset>
+        <workflow/>
     </column>
 </row>

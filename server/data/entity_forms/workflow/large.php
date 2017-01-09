@@ -30,15 +30,6 @@
         <helptour id="help.entity.form.workflow.conditions" type="inline">
             Use the form below to set any conditions required in order for this workflow to start. For example: if you only want a workflow to launch if a sales opportunity status was changed from 'Open' to 'Lost,' then you would add a condition below ['And' 'Status' 'is equal' 'Lost'] which would make sure the workflow only starts when those conditions are met. You can add multiple conditions if desired. If this workflow should launch on all objects without condition then leave this blank and continue below.
         </helptour>
-        <fieldset name='Conditions'>
-            <plugin name='Conditions'></plugin>
-        </fieldset>
-    </column>
-</row>
-<row>
-    <column>
-        <fieldset name='Actions'>
-            <plugin name='Actions'></plugin>
-        </fieldset>
+        <workflow />
     </column>
 </row>
