@@ -238,7 +238,11 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 				$field->optionalValues[$row2['key']] = $row2['value'];
 			}
 
-			// Backward compatibility for checking the optional vals (drop-down). Check for the old table structure by using the subtype as the table
+			/*
+			 * Check to see if optional values are in a custom table rather than the generic
+			 * app_object_field_options table. We are trying to move everything over to the new
+			 * generic table but it will take some time.
+			 */
 			if ($row['type'] === "fkey" && !empty($row['subtype']))
 			{
 				$resultBackComp = $dbh->query("select * from {$row['subtype']}");
