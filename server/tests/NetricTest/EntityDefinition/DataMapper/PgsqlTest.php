@@ -130,23 +130,33 @@ class PgsqlTest extends DmTestsAbstract
         $dbh = $this->dbh;
 
         $def = $dm->fetchByName("customer");
-        $field = $def->getField("status_id");
+        $customerFields = $def->getFields();
 
-        // Insert sample optional value in the custom table
-        $dbh->query("INSERT INTO {$field->subtype} (name) VALUES('test_optional_value_custom_table')");
+        // Loop thru customer fields and find a field with fkey type
+        foreach ($customerFields as $field)
+        {
+            if ($field->type === "fkey") {
 
-        // Insert sample optional values in the generic table
-        $dbh->query("INSERT INTO app_object_field_options(field_id, key, value) VALUES('{$field->id}', 'test_optional_value_generic', 'test_optional_value_generic')");
+                // Insert sample optional value in the custom table
+                $dbh->query("INSERT INTO {$field->subtype} (name) VALUES('test_optional_value_custom_table')");
 
-        // Fetch the customer object again and test the status field
-        $customerDefinition = $dm->fetchByName("customer");
-        $statusField = $customerDefinition->getField("status_id");
-        $this->assertTrue(sizeof($statusField->optionalValues) > 1);
-        $this->assertTrue(in_array("test_optional_value_custom_table", $statusField->optionalValues));
-        $this->assertTrue(in_array("test_optional_value_generic", $statusField->optionalValues));
+                // Insert sample optional values in the generic table
+                $dbh->query("INSERT INTO app_object_field_options(field_id, key, value) VALUES('{$field->id}', 'test_optional_value_generic', 'test_optional_value_generic')");
 
-        // Clean the inserted data
-        $dbh->query("DELETE FROM {$field->subtype} WHERE name = 'test_optional_value_custom_table'");
-        $dbh->query("DELETE FROM app_object_field_options WHERE field_id = {$field->id} and key = 'test_optional_value_generic'");
+                // Fetch the customer object again and test the status field
+                $customerDefinition = $dm->fetchByName("customer");
+                $customerField = $customerDefinition->getField($field->name);
+                $this->assertTrue(sizeof($customerField->optionalValues) > 1);
+                $this->assertTrue(in_array("test_optional_value_custom_table", $customerField->optionalValues));
+                $this->assertTrue(in_array("test_optional_value_generic", $customerField->optionalValues));
+
+                // Clean the inserted data
+                $dbh->query("DELETE FROM {$field->subtype} WHERE name = 'test_optional_value_custom_table'");
+                $dbh->query("DELETE FROM app_object_field_options WHERE field_id = {$field->id} and key = 'test_optional_value_generic'");
+
+                // After we tested a field with fkey type, then let's break the loop
+                break;
+            }
+        }
     }
 }
