@@ -238,6 +238,23 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 				$field->optionalValues[$row2['key']] = $row2['value'];
 			}
 
+			// Backward compatibility for checking the optional vals (drop-down). Check for the old table structure by using the subtype as the table
+			if ($row['type'] === "fkey" && !empty($row['subtype']))
+			{
+				$resultBackComp = $dbh->query("select * from {$row['subtype']}");
+				for ($index = 0; $index < $dbh->getNumRows($resultBackComp); $index++)
+				{
+					$rowOptionalValue = $dbh->getRow($resultBackComp, $index);
+					if (!isset($this->fields[$row['name']]['optional_values']))
+						$this->fields[$row['name']]['optional_values'] = array();
+
+					if (!$field->optionalValues)
+						$field->optionalValues = array();
+
+					$field->optionalValues[$rowOptionalValue['name']] = $rowOptionalValue['name'];
+				}
+			}
+
 			$def->addField($field);
 		}
 
