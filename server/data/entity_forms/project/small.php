@@ -12,11 +12,5 @@
        tooltip='Once the project has been completed, enter the date here.'></field>
 <field name='groups' hidelabel='t'></field>
 <field name='notes' multiline='t'></field>
-<tabs>
-	<tab name='Tasks'>
-		<objectsref obj_type='task' ref_field='project'></objectsref>
-	</tab>
-	<tab name='Activity'>
-		<field name='activity'></field>
-	</tab>
-</tabs>
+<objectsref obj_type='task' ref_field='project'></objectsref>
+<field name='activity'></field>
