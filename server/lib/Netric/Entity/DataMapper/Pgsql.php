@@ -240,7 +240,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         $field = $def->getField($fieldName);
         
 		if ($field->type != "fkey" && $field->type != "fkey_multi")
-			throw new \Exception("$fieldName is not a grouping field!");
+			throw new \Exception("$fieldName:" . $field->type . " is not a grouping (fkey or fkey_multi) field!");
 
 		$dbh = $this->dbh;
 
