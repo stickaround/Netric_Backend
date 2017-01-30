@@ -13,4 +13,8 @@
 <field name='groups' hidelabel='t'></field>
 <field name='notes' multiline='t'></field>
 <objectsref obj_type='task' ref_field='project'></objectsref>
+<objectsref obj_type='project_story' ref_field='project_id'></objectsref>
+<objectsref obj_type='case' ref_field='project_id'></objectsref>
+<objectsref obj_type='discussion'></objectsref>
+<attachments></attachments>
 <field name='activity'></field>
