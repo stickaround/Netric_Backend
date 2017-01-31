@@ -68,6 +68,7 @@ class AuthenticationController extends Mvc\AbstractAccountController
 			$ret = array(
 				"result" => "SUCCESS",
 				"session_token" => $sessionStr,
+				"user_id" => $authService->getIdentity()
 			);
 		}
 		else
