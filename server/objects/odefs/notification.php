@@ -2,7 +2,7 @@
 /**
  * notification object definition
  */
-$obj_revision = 11;
+$obj_revision = 13;
 
 $isPrivate = true;
 $defaultActivityLevel = 1;
@@ -69,6 +69,18 @@ $obj_fields = array(
 		'default'=>array(
 			"on"=>"null",
 			"value"=>"f",
+		),
+	),
+
+	// Flag indicating if the notification has been showed already
+	'f_shown' => array(
+		'title'=>'Showed',
+		'type'=>'bool',
+		'subtype'=>'',
+		'readonly'=>false,
+		'default'=>array(
+			"on"=>"null",
+			"value"=>false,
 		),
 	),
 

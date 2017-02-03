@@ -7,8 +7,15 @@ namespace modules\navigation;
 return array(
     "title" => "Messages",
     "icon" => "envelope-o",
-    "default_route" => "all-messages",
+    "default_route" => "all-notifications",
     "navigation" => array(
+        array(
+            "title" => "Notifications",
+            "type" => "browse",
+            "route" => "all-notifications",
+            "objType" => "notification",
+            "icon" => "announcement"
+        ),
         array(
             "title" => "All Messages",
             "type" => "browse",
