@@ -72,7 +72,7 @@ $obj_fields = array(
 		),
 	),
 
-	// Flag indicating if the notification has been showed already in mobile
+	// Flag indicating if the notification has been showed already
 	'f_shown' => array(
 		'title'=>'Showed',
 		'type'=>'bool',
@@ -80,7 +80,7 @@ $obj_fields = array(
 		'readonly'=>false,
 		'default'=>array(
 			"on"=>"null",
-			"value"=>"f",
+			"value"=>false,
 		),
 	),
 
