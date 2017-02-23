@@ -73,6 +73,7 @@
 
     <php>
         <ini name="date.timezone" value="UTC"/>
+        
         <!-- mail is added to the contianer hosts file -->
         <env name="TESTS_NETRIC_MAIL_HOST" value="mail" />
         <env name="TESTS_NETRIC_MAIL_DOMAIN" value="test.com" />
@@ -113,7 +114,7 @@
         <env name="TESTS_NETRIC_MAIL_POP3_SSL" value="true" />
         <env name="TESTS_NETRIC_MAIL_POP3_TLS" value="true" />
         <env name="TESTS_NETRIC_MAIL_POP3_WRONG_PORT" value="80" />
-        <env name="TESTS_NETRIC_MAIL_POP3_INVALID_PORT" value="3141" />
+        <env name="TESTS_NETRIC_MAIL_POP3_INVALID_PORT" value="3141" />T
 
         <!-- Netric\Mail\Storage\Imap / Netric\Mail\Transport\Imap
 

@@ -6,11 +6,15 @@ else
     STORAGE_PORT=${MGFS_STORE_PORT}
 fi
 
-echo "Port is $STORAGE_PORT"
+if [ -z "${MGFS_STORE_HOST}" ]; then
+    STORAGE_HOST='mogilestore'
+else
+    STORAGE_HOST=${MGFS_STORE_HOST}
+fi
 
 # Wait until the node is available
-until $(curl --output /dev/null --silent --head --fail http://mogilestore:${STORAGE_PORT}); do
-  >&2 echo "MogileStorage node (http://mogilestore:${STORAGE_PORT}) is unavailable - sleeping"
+until $(curl --output /dev/null --silent --head --fail http://${STORAGE_HOST}:${STORAGE_PORT}); do
+  >&2 echo "MogileStorage node (http://${STORAGE_HOST}:${STORAGE_PORT}) is unavailable - sleeping"
   sleep 1
 done
 
@@ -21,7 +25,7 @@ sed -i "s/{{STORAGE_PORT}}/$STORAGE_PORT/g" /etc/mogilefs/mogstored.conf
 sudo -u mogile mogilefsd --daemon -c /etc/mogilefs/mogilefsd.conf
 
 # Setup devices
-mogadm host add node1 --ip=mogilestore --port=${STORAGE_PORT} --status alive
+mogadm host add node1 --ip=${STORAGE_HOST} --port=${STORAGE_PORT} --status alive
 mogadm host list
 mogadm device add node1 1
 mogadm device add node1 2

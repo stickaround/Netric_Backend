@@ -29,9 +29,12 @@ class MogileFileStoreFactory implements ServiceManager\AccountServiceLocatorInte
         $config = $sl->get("Netric/Config/Config");
         $tmpPath = $config->data_path . "/" . "tmp";
 
+        // Set the port
+        $port = ($config->files->port) ? $config->files->port : 7001;
+
         // Establish mogile connection
         $mfsClient = new MogileFs();
-        $mfsClient->connect($config->files->server, 7001, $config->files->account);
+        $mfsClient->connect($config->files->server, $port, $config->files->account);
 
         return new MogileFileStore(
             $accountId,

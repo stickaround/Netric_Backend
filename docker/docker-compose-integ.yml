@@ -1,0 +1,61 @@
+netric_server_integ:
+  build: server/
+  ports:
+   - "8082:80"
+  environment:
+     APPLICATION_ENV: integration
+  links:
+   - memcached_integ
+   - gearmand_integ
+   - mail_integ
+   - db1_integ
+   - mogilefs_integ
+   - mogilestore_integ
+
+memcached_integ:
+  image: memcached
+
+gearmand_integ:
+  image: kendu/gearman
+  ports:
+     - "4732:4730"
+
+db1_integ:
+  build: postgres/
+  ports:
+  - "54322:5432"
+  environment:
+    POSTGRES_USER: vagrant
+    POSTGRES_PASSWORD: vagrant
+
+mail_integ:
+  build: mail/
+  environment:
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1_integ
+      DB_NAME: antsystem
+      DB_PORT: 5432
+  links:
+  - db1_integ
+
+mogilefs_integ:
+  build: mogilefs/
+  ports:
+   - "7002:7001"
+   - "7501:7500"
+  environment:
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1_integ
+      DB_NAME: mogilefs
+      DB_PORT: 54322
+      MGFS_STORE_PORT: 7500
+      MGFS_STORE_HOST: mogilestore_integ
+  links:
+  - mogilestore_integ
+
+mogilestore_integ:
+  build: mogilestore/
+  ports:
+    - "7511:7500"

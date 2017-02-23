@@ -1,11 +1,12 @@
 <?php
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014 Aereus
+ * @copyright 2014-2017 Aereus
  */
 namespace Netric\Controller;
 
 use Netric\Application\Response\ConsoleResponse;
+use Netric\Application\Response\HttpResponse;
 use Netric\Mvc;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
@@ -111,6 +112,14 @@ class SetupController extends Mvc\AbstractController
         $response = new ConsoleResponse();
         $response->setReturnCode(0);
         return $response;
+    }
+
+    /**
+     * Get the current version
+     */
+    public function getVersionAction()
+    {
+        return $this->sendOutput(2);
     }
 
     /**

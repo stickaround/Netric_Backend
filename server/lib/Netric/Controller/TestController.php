@@ -16,6 +16,12 @@ class TestController extends Mvc\AbstractAccountController
         return $this->sendOutput("test");
 	}
 
+	public function postTestAction()
+	{
+		$rawBody = $this->getRequest()->getBody();
+		return $this->sendOutput(json_decode($rawBody, true));
+	}
+
 	/**
 	 * For console requests
 	 */
