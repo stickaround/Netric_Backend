@@ -43,7 +43,7 @@ mogilefs_integ:
   build: mogilefs/
   ports:
    - "7002:7001"
-   - "7511:7500"
+   - "7521:7500"
   environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant
@@ -58,4 +58,4 @@ mogilefs_integ:
 mogilestore_integ:
   build: mogilestore/
   ports:
-    - "7511:7500"
+    - "7531:7500"
