@@ -2447,10 +2447,14 @@ class CAntObject
 
 		// Get old values
 		$oldvalraw = $this->getValue($name);
+		$oldval = $oldvalraw;
+		// Commenting this out because it creates a circcular bug which we have solved in the new Netric\Entity
+		/*
 		if (isset($field) && ($field->type == 'fkey_multi' || $field->type == 'object_multi'))
 			$oldval = $this->getForeignValue($name);
 		else
 			$oldval = $oldvalraw;
+		*/
 
 		// Clear foreign value cache
 		$this->fValues[$name] = null;
