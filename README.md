@@ -7,17 +7,20 @@ This is the source code for both the client and the server.
 
     http://www.docker.com/products/overview
 
-2. Build the environment
+2. Build the environment (in linux/mac)
     
     ./server/build-dev.sh
     
-3. Run dev environment
+3. Run dev environment (in linux/mac)
 
     ./start-dev.sh
     
 4. Load netric in the browser
 
     http://devel.netric.com
+
+If you are using windows then you'll need to open the scripts and run the commands manually. 
+We have not yet created scripts for windows but feel free to add them if you want :)
 
 That's all there is to it, you should now be able to navigate to 
 devel.netric.com on your workstation.
