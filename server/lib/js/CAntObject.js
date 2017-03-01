@@ -475,18 +475,18 @@ CAntObject.prototype.load = function(id)
                         if(this.m_obj.newWindowArgs)
                         {
                             var boolValue = this.m_obj.newWindowArgs[field.name][0];
-                            if(boolValue=="t")
+                            if(boolValue==="t" || boolValue===true)
                                 boolValue = true;
-                            else if(boolValue=="f")
+                            else if(boolValue==="f" || boolValue===false)
                                 boolValue = false;
                                 
                             this.m_obj.setValue(field.name, boolValue);
                         }                            
                         else
-                            this.m_obj.setValue(field.name, (objData[field.name]=='t')?true:false);
+                            this.m_obj.setValue(field.name, (objData[field.name]==='t' || objData[field.name]===true)?true:false);
 
 						// If readonly flag the edit the security to disable edit
-						if (field.name == "f_readonly" && objData[field.name]=='t')
+						if (field.name == "f_readonly" && (objData[field.name]=='t' || objData[field.name]===true))
 							this.m_obj.security.edit = false;
                     }
                     else
@@ -1301,10 +1301,10 @@ CAntObject.prototype.querySetValueInput = function(dv, fname, val_field, options
     else if (field.type == "bool")
     {
         var inp = alib.dom.createElement("select", dv);
-        inp[inp.length] = new Option("True", 't', false, (val_field=='t')?true:false);
-        inp[inp.length] = new Option("False", 'f', false, (val_field!='t')?true:false);
+        inp[inp.length] = new Option("True", 't', false, (val_field=='t' || val_field===true)?true:false);
+        inp[inp.length] = new Option("False", 'f', false, (val_field!='t' || val_field!==true)?true:false);
         dv.appendChild(inp);
-        inp.checked = (val_field == 't') ? true : false;
+        inp.checked = (val_field == 't' || val_field === true) ? true : false;
         dv.inptType = "select";
         if (val_field)
             inp.val_field = val_field;
@@ -2172,10 +2172,12 @@ CAntObject.prototype.setValue = function(name, value, valueName)
 		{
 		case 1:
 		case 't':
+			case true:
 			value = true;
 			break;
 		case 0:
 		case 'f':
+			case false:
 			value = false;
 			break;
 		}
