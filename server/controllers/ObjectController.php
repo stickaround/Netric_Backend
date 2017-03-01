@@ -915,7 +915,7 @@ class ObjectController extends Controller
     {
         $dbh = $this->ant->dbh;
         
-        if ($params['obj_type'] && $params['field'] && is_numeric($params['id']))
+        if ($params['obj_type'] && $params['field'] && isset($params['id']))
         {            
             $obj = new CAntObject($dbh, $params['obj_type'], null, $this->user);
             $field = $obj->def->getField($params['field']);
