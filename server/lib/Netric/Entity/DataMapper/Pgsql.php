@@ -1008,7 +1008,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		 */
 		if ($fdef->type == "object" && $fdef->subtype && $this->getAccount()->getServiceManager() && $value)
 		{
-			$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($fdef->subtype, $value);
+			$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($fdef->subtype, $value, true);
 			if ($entity) {
 				$ret[(string)$value] = $entity->getName();
 			} else {
@@ -1045,7 +1045,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
 				if ($oname)
 				{
-					$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
+					$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id'], true);
 
 					// Update if field is not referencing an entity that no longer exists
 					if ($entity)

@@ -17,7 +17,7 @@ class EntityLoader
 	private $loadedEntities = array();
 
 	/**
-	 * Store the single instance of the loader 
+	 * Store the single instance of the loader
 	 */
     private static $m_pInstance;
 
@@ -71,19 +71,19 @@ class EntityLoader
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
 	 */
 	public static function getInstance(DataMapperInterface $dm, $defLoader)
-	{ 
-		if (!self::$m_pInstance) 
-			self::$m_pInstance = new EntityLoader($dm, $defLoader); 
+	{
+		if (!self::$m_pInstance)
+			self::$m_pInstance = new EntityLoader($dm, $defLoader);
 
 		// If we have switched accounts then reload the cache
 		if ($dm->getAccount()->getName() != self::$m_pInstance->dataMapper->getAccount()->getName())
 		{
-			self::$m_pInstance->loadedEntities = array(); 
-			self::$m_pInstance->dataMapper = $dm; 
-			self::$m_pInstance->definitionLoader = $defLoader; 
+			self::$m_pInstance->loadedEntities = array();
+			self::$m_pInstance->dataMapper = $dm;
+			self::$m_pInstance->definitionLoader = $defLoader;
 		}
 
-		return self::$m_pInstance; 
+		return self::$m_pInstance;
 	}
 
 	/**
@@ -117,9 +117,10 @@ class EntityLoader
 	 *
 	 * @param string $objType The type of object we are getting
 	 * @param string $id The unique id of the object
+	 * @param boolean $isReferencedEntity Flag that will determine if we are getting a referenced entity
 	 * @return EntityInterface
 	 */
-	public function get($objType, $id)
+	public function get($objType, $id, $isReferencedEntity = false)
 	{
 		if ($this->isLoaded($objType, $id)) {
 			return $this->loadedEntities[$objType][$id];
@@ -151,8 +152,16 @@ class EntityLoader
 		// Stat a cache miss
 		StatsPublisher::increment("entity.cache.miss");
 
-		// Load from datamapper
-		if ($this->dataMapper->getById($entity, $id))
+        /*
+         * If this is a referenced entity, then we do no need to load it into the datamapper
+         * Because it will result in a circular reference
+         */
+		if ($isReferencedEntity)
+			$entityLoaded = true;
+		else
+			$entityLoaded = $this->dataMapper->getById($entity, $id); // Load from datamapper
+
+		if ($entityLoaded)
 		{
 			$this->loadedEntities[$objType][$id] = $entity;
 			$this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id, $entity->toArray());
