@@ -66,11 +66,13 @@ Ecah of the respective client repos will contain build and deployment instructio
 
 ## Scripts found in /scripts
 
-build-dev.sh - build a local development environment
-start-dev.sh - start a local development server
-test.sh - run server tests
+Note: Make sure you have python 3+ installed and working
 
-jenkins-tests.sh - script to execute all tests in jenkins build
+	python build-dev.py # build a local development environment
+	python start-dev.py # start a local development server
+	python test.py # run server tests
+
+	./jenkins-tests.sh # script to execute all tests in jenkins build
 
 # Work-in-Progress
 
