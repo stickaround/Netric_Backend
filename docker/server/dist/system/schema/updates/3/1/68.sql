@@ -1,1 +1,0 @@
-ALTER TABLE app_object_type_fields ADD COLUMN f_object_table boolean;

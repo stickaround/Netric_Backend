@@ -23,4 +23,4 @@ call(["docker-compose", "-f", "docker-compose-dev.yml", "build"])
 # Cleanup
 shutil.rmtree('./server/dist/')
 
-echo "DONE! Run ./start-dev.py to begin development"
+print("DONE! Run ./start-dev.py to begin development")
