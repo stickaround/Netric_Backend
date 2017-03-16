@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y \
     libdbd-pg-perl \
     postgresql-client \
     sysstat \
-    sqlite3
+    sqlite3 \
+    dos2unix
 
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -34,6 +35,16 @@ ADD conf/mogilefs.conf /etc/mogilefs/mogilefs.conf
 ADD conf/mogilefsd.conf /etc/mogilefs/mogilefsd.conf
 ADD conf/mogstored.conf /etc/mogilefs/mogstored.conf
 ADD bin/start.sh /start.sh
+
+###############################################################################
+# Make sure that windows has not screwed up the script line endings
+###############################################################################
+RUN apt-get update && apt-get install -y dos2unix
+RUN dos2unix /etc/mogilefs/mogilefs.conf
+RUN dos2unix /etc/mogilefs/mogilefsd.conf
+RUN dos2unix /etc/mogilefs/mogstored.conf
+RUN dos2unix /start.sh
+RUN apt-get --purge remove -y dos2unix
 
 # Tracker port
 EXPOSE 7001

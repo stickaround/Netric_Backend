@@ -1,7 +1,7 @@
 import shutil
 from subprocess import call
 from distutils import dir_util
-from os import chdir
+import os;
 
 # TODO: Remove stopped containers
 #call(["docker", "rm", "$(docker ps -a -q)"])
@@ -10,10 +10,16 @@ from os import chdir
 #call(["docker", "rmi", "$(docker images | grep "^<none>" | awk "{print $3}")"])
 
 # Change to docker directory
-chdir("../docker")
+os.chdir("../docker")
 
 # Copy source from server into container for building
 print("Copying source")
+distDir = "./server/dist"
+try:
+    os.stat(os.path.dirname(distDir))
+except:
+    os.mkdir(os.path.dirname(distDir)) 
+    
 dir_util.copy_tree("../server/", "./server/dist")
 
 # Build the containers

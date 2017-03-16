@@ -65,6 +65,17 @@ RUN chmod +x /start.sh
 RUN cd /var/www/html && php composer.phar install && php composer.phar update
 
 ###############################################################################
+# Make sure that windows has not screwed up the script line endings
+###############################################################################
+RUN apt-get update && apt-get install -y dos2unix
+RUN dos2unix /netric-setup.sh
+RUN dos2unix /netric-tests.sh
+RUN dos2unix /start.sh
+RUN dos2unix /etc/apache2/apache2.conf
+RUN dos2unix /usr/local/etc/php/php.ini
+RUN apt-get --purge remove -y dos2unix
+
+###############################################################################
 # install filebeat for shippping logs to elk
 ###############################################################################
 
