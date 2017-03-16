@@ -12,14 +12,14 @@ use Netric\Stats\StatsPublisher;
 class EntityLoader
 {
 	/**
- 	 * Cached entities
+	 * Cached entities
 	 */
 	private $loadedEntities = array();
 
 	/**
 	 * Store the single instance of the loader
 	 */
-    private static $m_pInstance;
+	private static $m_pInstance;
 
 	/**
 	 * Datamapper for entities
@@ -35,12 +35,12 @@ class EntityLoader
 	 */
 	private $definitionLoader = null;
 
-    /**
-     * Entity factory used for instantiating new entities
-     *
-     * @var \Netric\Entity\EntityFactory
-     */
-    protected $entityFactory = null;
+	/**
+	 * Entity factory used for instantiating new entities
+	 *
+	 * @var \Netric\Entity\EntityFactory
+	 */
+	protected $entityFactory = null;
 
 	/**
 	 * Cache
@@ -59,7 +59,7 @@ class EntityLoader
 	{
 		$this->dataMapper = $dm;
 		$this->definitionLoader = $defLoader;
-        $this->entityFactory = $dm->getAccount()->getServiceManager()->get("EntityFactory");
+		$this->entityFactory = $dm->getAccount()->getServiceManager()->get("EntityFactory");
 		$this->cache = $dm->getAccount()->getServiceManager()->get("Cache");
 		return $this;
 	}
@@ -117,10 +117,9 @@ class EntityLoader
 	 *
 	 * @param string $objType The type of object we are getting
 	 * @param string $id The unique id of the object
-	 * @param boolean $isReferencedEntity Flag that will determine if we are getting a referenced entity
 	 * @return EntityInterface
 	 */
-	public function get($objType, $id, $isReferencedEntity = false)
+	public function get($objType, $id)
 	{
 		if ($this->isLoaded($objType, $id)) {
 			return $this->loadedEntities[$objType][$id];
@@ -152,16 +151,8 @@ class EntityLoader
 		// Stat a cache miss
 		StatsPublisher::increment("entity.cache.miss");
 
-        /*
-         * If this is a referenced entity, then we do no need to load it into the datamapper
-         * Because it will result in a circular reference
-         */
-		if ($isReferencedEntity)
-			$entityLoaded = true;
-		else
-			$entityLoaded = $this->dataMapper->getById($entity, $id); // Load from datamapper
-
-		if ($entityLoaded)
+		// Load from datamapper
+		if ($this->dataMapper->getById($entity, $id))
 		{
 			$this->loadedEntities[$objType][$id] = $entity;
 			$this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id, $entity->toArray());
@@ -184,7 +175,7 @@ class EntityLoader
 	 */
 	public function create($objType)
 	{
-        return $this->entityFactory->create($objType);
+		return $this->entityFactory->create($objType);
 	}
 
 	/**
@@ -195,28 +186,28 @@ class EntityLoader
 	 */
 	public function save(EntityInterface $entity)
 	{
-        $ret = $this->dataMapper->save($entity);
+		$ret = $this->dataMapper->save($entity);
 
-        if ($entity->getId()) {
-            $this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
-        }
+		if ($entity->getId()) {
+			$this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
+		}
 
-        return $ret;
+		return $ret;
 	}
 
-    /**
-     * Save an entity
-     *
-     * @param EntityInterface $entity The entity to delete
-     * @param bool $forceHard If true the force a hard delete - purge!
-     * @return \Netric\Entity\Entity
-     */
-    public function delete(EntityInterface $entity, $forceHard = false)
-    {
+	/**
+	 * Save an entity
+	 *
+	 * @param EntityInterface $entity The entity to delete
+	 * @param bool $forceHard If true the force a hard delete - purge!
+	 * @return \Netric\Entity\Entity
+	 */
+	public function delete(EntityInterface $entity, $forceHard = false)
+	{
 		$this->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
 
-        return $this->dataMapper->delete($entity, $forceHard);
-    }
+		return $this->dataMapper->delete($entity, $forceHard);
+	}
 
 	/**
 	 * Clear cache
