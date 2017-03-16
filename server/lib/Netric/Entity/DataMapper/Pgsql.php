@@ -1044,14 +1044,19 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 				}
 
 				/* Removed this code since it is causing a circular reference
-				if ($oname)
-				{
-					$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
+				 *
+				 * When an entity (e.g. User) has a referenced entity (e.g File),
+				 * EntityLoader will try to get the referenced entity data from the datamapper (if referenced entity is not yet cached)
+				 * And then File entity will try to get the User Entity which will cause a circular reference
+					if ($oname)
+					{
+						$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
 
-					// Update if field is not referencing an entity that no longer exists
-					if ($entity)
-						$ret[(string)$idval] = $entity->getName();
-				}*/
+						// Update if field is not referencing an entity that no longer exists
+						if ($entity)
+							$ret[(string)$idval] = $entity->getName();
+					}
+				*/
 
 				/*
 				 * Set the value to null since we cant get the referenced entity name for now.
