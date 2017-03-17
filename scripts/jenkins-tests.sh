@@ -9,7 +9,7 @@ docker-compose -f docker-compose-test.yml down
 
 # Build containers
 cd ../scripts
-./build-dev.sh
+python ./build-dev.py
 
 # Bring docker up
 cd ../docker
