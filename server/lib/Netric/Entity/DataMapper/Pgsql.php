@@ -1060,7 +1060,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
 				/*
 				 * Set the value to null since we cant get the referenced entity name for now.
-				 * Let the front end handle the getting of the name of referenced entity.
+				 * Let the caller handle getting the name of the referenced entity
 				 */
 				$ret[(string)$idval] = null;
 			}
