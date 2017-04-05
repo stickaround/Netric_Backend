@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export DOCKER_HOST=tcp://localhost:2375
+#export DOCKER_HOST=tcp://localhost:2375
 
 # Move up to the docker directory
 cd ../docker
