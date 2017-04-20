@@ -34,15 +34,6 @@ RUN echo "dovecot   unix  -       n       n       -       -       pipe"  >> /etc
 
 ADD bin/start.sh /start.sh
 
-###############################################################################
-# Make sure that windows has not screwed up the script line endings
-###############################################################################
-RUN apt-get install -y dos2unix
-RUN find /etc/postfix -type f -print0 | xargs -0 dos2unix
-RUN find /etc/dovecot -type f -print0 | xargs -0 dos2unix
-RUN dos2unix /start.sh
-RUN apt-get --purge remove -y dos2unix
-
 # SMTP ports
 EXPOSE 25
 EXPOSE 587

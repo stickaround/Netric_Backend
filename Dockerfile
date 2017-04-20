@@ -1,5 +1,9 @@
 FROM php:5.6-apache
 
+###############################################################################
+# Setup PHP and apache
+###############################################################################
+
 # install required php extensions
 RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
@@ -44,17 +48,17 @@ RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 
 # Copy configs for apache and php
-COPY conf/apache2.conf /etc/apache2/apache2.conf
-COPY conf/php-devel-ini.conf /usr/local/etc/php/php.ini
+COPY docker/server/conf/apache2.conf /etc/apache2/apache2.conf
+COPY docker/server/conf/php-devel-ini.conf /usr/local/etc/php/php.ini
 
 ###############################################################################
 # Copy files and run composer to install source
 ###############################################################################
 
-COPY dist/ /var/www/html/
-COPY bin/netric-setup.sh /
-COPY bin/netric-tests.sh /
-COPY bin/start.sh /
+COPY server/ /var/www/html/
+COPY docker/server/bin/netric-setup.sh /
+COPY docker/server/bin/netric-tests.sh /
+COPY docker/server/bin/start.sh /
 
 # Perimissions
 RUN chmod +x /netric-setup.sh
