@@ -21,7 +21,7 @@ docker exec docker_netric_server_1 /netric-setup.sh
 
 # Now run tests
 cd ../scripts
-./test.sh
+python test.py
 
 # Cleanup
 cd ../docker
