@@ -46,6 +46,7 @@ RUN pear install mail \
 # Enable required apache modules
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
+RUN ln -s /etc/apache2/mods-available/ssl.load /etc/apache2/mods-enabled/
 
 # Copy configs for apache and php
 COPY docker/server/conf/apache2.conf /etc/apache2/apache2.conf
