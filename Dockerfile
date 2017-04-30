@@ -51,6 +51,12 @@ RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
 COPY docker/server/conf/apache2.conf /etc/apache2/apache2.conf
 COPY docker/server/conf/php-devel-ini.conf /usr/local/etc/php/php.ini
 
+# Copy SSL
+RUN mkdir -p /etc/apache2/ssl
+COPY docker/server/ssl/gd_bundle.crt /etc/apache2/ssl/gd_bundle.crt
+COPY docker/server/ssl/netric.crt /etc/apache2/ssl/netric.crt
+COPY docker/server/ssl/netric.key /etc/apache2/ssl/netric.key
+
 ###############################################################################
 # Copy files and run composer to install source
 ###############################################################################

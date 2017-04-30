@@ -1,5 +1,5 @@
 netric_server:
-  build: server/
+  build: ../
   environment:
      APPLICATION_ENV: production
   links:

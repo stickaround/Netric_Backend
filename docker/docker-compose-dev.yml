@@ -2,7 +2,7 @@ version: '2'
 
 services:
   netric_server:
-    build: server/
+    build: ../
     ports:
      - "80:80"
     environment:
