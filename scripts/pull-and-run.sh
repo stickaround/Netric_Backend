@@ -13,5 +13,5 @@ docker pull docker.aereusdev.com:5001/netric:${TARGET}
 docker stop netric
 docker rm netric
 docker run -d -p 50010:80 -p 50011:443 --restart=unless-stopped --name netric \
-	-e APP_ENV="production" \
+	-e APPLICATION_ENV="production" \
 	docker.aereusdev.com:5001/netric:${TARGET}
