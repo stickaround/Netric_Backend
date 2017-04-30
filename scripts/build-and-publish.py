@@ -3,11 +3,11 @@ import sys
 import time
 import subprocess
 
-# Change to root directory
-os.chdir("../")
-
 buildTarget = os.environ.get('BUILD_TARGET')
 currentPath = os.path.dirname(os.path.realpath(__file__ + "/.."))
+
+# Change to root directory
+os.chdir("../")
 
 # Make sure the build target is set
 if buildTarget is None:
@@ -33,6 +33,7 @@ subprocess.call([
     "docker.aereusdev.com:5001/netric-client-web:" + buildTarget,
     "chmod", "-R", "777", "./build/"
 ]);
+print('Built webapp into:' + currentPath + '/server/mobile')
 
 # Not build the server which will include the built webapp above
 subprocess.call(["docker", "build", "-t", "docker.aereusdev.com:5001/netric:" + buildTarget, "."])

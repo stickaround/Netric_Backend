@@ -75,22 +75,6 @@ RUN chmod +x /start.sh
 # Run composer install to get all required dependencies
 RUN cd /var/www/html && php composer.phar install && php composer.phar update
 
-
-###############################################################################
-# install filebeat for shippping logs to elk
-###############################################################################
-
-#RUN curl -L -O https://download.elastic.co/beats/filebeat/filebeat_1.0.1_amd64.deb \
-# && dpkg -i filebeat_1.0.1_amd64.deb \
-# && rm filebeat_1.0.1_amd64.deb
-
-# config file for filebeaat
-#ADD conf/filebeat.yml /etc/filebeat/filebeat.yml
-
-# CA cert for filebeat and elk
-#RUN mkdir -p /etc/pki/tls/certs
-#ADD conf/logstash-beats.crt /etc/pki/tls/certs/logstash-beats.crt
-
 # Update logs to print to stdout so they can be shipped
 RUN ln -sf /dev/stdout /var/log/netric
 RUN chmod 777 /var/log/netric
