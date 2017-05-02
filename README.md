@@ -9,35 +9,32 @@ This is the source code for both the client and the server.
 
 2. Build the environment (in linux/mac)
     
-    ./server/build-dev.sh
+    python build-dev.py
     
 3. Run dev environment (in linux/mac)
 
-    ./start-dev.sh
+    python start-dev.py
     
 4. Load netric in the browser
 
-    http://devel.netric.com
-
-If you are using windows then you'll need to open the scripts and run the commands manually. 
-We have not yet created scripts for windows but feel free to add them if you want :)
+    http://127.0.0.1
 
 That's all there is to it, you should now be able to navigate to 
-devel.netric.com on your workstation.
+http://127.0.0.1 on your workstation.
 
 Log in with "test@netric.com" and "password" as the password.
 
 ### Testing
-Run ./test.sh [optargs]
+Run python test.py [optargs]
 You can pass any arguments after test.sh that you would to phpunit. For example,
 if you only want to test a specific test type:
 
-    ./test.sh NetricTest/Application/Application.php
+    python test.py NetricTest/Application/Application.php
 
 ### Accessing Services
-- devel.netric.com:80 - load netric
-- devel.netric.com:5601 - load kibana to view logs
-- devel.netric.com:5432 - connect to postgres with user vagrant and password vagrant
+- http://127.0.0.1:80 - load netric
+- http://127.0.0.1:5601 - load kibana to view logs
+- localhost:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
 If using PHPStorm simply start listening on port 9000 for xdebug
