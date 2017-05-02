@@ -6,7 +6,6 @@
 namespace Netric\Controller;
 
 use Netric\Application\Response\ConsoleResponse;
-use Netric\Application\Response\HttpResponse;
 use Netric\Mvc;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
@@ -64,34 +63,26 @@ class SetupController extends Mvc\AbstractController
     /**
      * Update account(s) and application to latest version
      */
-    public function consoleUpdateAction()
-    {
+    public function consoleUpdateAction() {
         $response = new ConsoleResponse();
 
         // Update the application database
         $response->write("Updating application");
         $applicationSetup = new Setup();
-        if ($applicationSetup->updateApplication($this->getApplication()))
-        {
+        if ($applicationSetup->updateApplication($this->getApplication())) {
             $response->write("\t\t[done]\n");
-        }
-        else
-        {
+        } else {
             throw new \Exception("Failed to update application: " . $applicationSetup->getLastError()->getMessage());
         }
 
         // Loop through each account and update it
         $accounts = $this->getApplication()->getAccounts();
-        foreach ($accounts as $account)
-        {
+        foreach ($accounts as $account) {
             $response->write("Updating account " . $account->getName());
             $setup = new Setup();
-            if ($setup->updateAccount($account))
-            {
+            if ($setup->updateAccount($account)) {
                 $response->write("\t[done]\n");
-            }
-            else
-            {
+            } else {
                 throw new \Exception("Failed to update account: " . $setup->getLastError()->getMessage());
             }
         }

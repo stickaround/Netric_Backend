@@ -15,15 +15,16 @@ $entityLoader = $serviceManager->get("Netric/EntityLoader");
 $entityIndex = $serviceManager->get("Netric/EntityQuery/Index/Index");
 $localStore = $serviceManager->get("Netric/FileSystem/FileStore/LocalFileStore");
 $remoteStore = $serviceManager->get("Netric/FileSystem/FileStore/FileStore");
+$entityLoader = $serviceManager->get("EntityLoader");
 $log =$serviceManager->get("Log");
 
 /*
  * If the store is not local then we need to upload any local files
  */
-if ($localStore != $remoteStore) {
+if ($localStore !== $remoteStore) {
     // Undeleted
     $query = new \Netric\EntityQuery("file");
-    $query->where("dat_ans_key")->equals("");
+    $query->where('dat_ans_key')->equals("");
     $query->andWhere('dat_local_path')->doesNotEqual("");
 
     // Move undeleted files
@@ -31,6 +32,7 @@ if ($localStore != $remoteStore) {
     $num = $result->getTotalNum();
     for ($i = 0; $i < $num; $i++) {
         $file = $result->getEntity($i);
+
 
         // If for some reason the file was deleted while processing
         if (!$file) {
@@ -47,12 +49,16 @@ if ($localStore != $remoteStore) {
             file_put_contents($fileName, $localStore->readFile($file));
 
             if (filesize($fileName) <= 0) {
+                // Delete temp files made for email attachments
+                if ("ematt" === substr($file->getName(), 0, strlen("ematt"))) {
+                    $entityLoader->delete($file, true);
+                }
+
                 throw new RuntimeException(
                     "Failed to copy file to local temp file: " .
                     $file->getId() . ":" .
                     $file->getName() . " - " . $file->getValue("dat_local_path")
                 );
-                // TODO: should we delete the orphaned file?
             } else {
                 // Save the file to the remote store
                 if ($remoteStore->uploadFile($file, $fileName)) {
@@ -90,12 +96,16 @@ if ($localStore != $remoteStore) {
             file_put_contents($fileName, $localStore->readFile($file));
 
             if (filesize($fileName) <= 0) {
+                // Delete temp files made for email attachments
+                if ("ematt" === substr($file->getName(), 0, strlen("ematt"))) {
+                    $entityLoader->delete($file, true);
+                }
+
                 throw new RuntimeException(
                     "Failed to copy file to local temp file: " .
                     $file->getId() . ":" .
                     $file->getName() . " - " . $file->getValue("dat_local_path")
                 );
-                // TODO: should we delete the orphaned file?
             } else {
                 // Save the file to the remote store
                 if ($remoteStore->uploadFile($file, $fileName)) {

@@ -179,7 +179,7 @@ class EntityLoader
 	}
 
 	/**
-	 * Delete an entity
+	 * Save an entity
 	 *
 	 * @param EntityInterface $entity The entity to save
 	 * @return int|string|null Id of entity saved or null on failure

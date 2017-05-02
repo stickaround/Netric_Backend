@@ -77,8 +77,7 @@ class Setup extends AbstractHasErrors
         $schemaDataMapper = $account->getServiceManager()->get('Netric/Application/Schema/SchemaDataMapper');
 
         // Update or create the schema for this account
-        if (!$schemaDataMapper->update($account->getId()))
-        {
+        if (!$schemaDataMapper->update($account->getId())) {
             // Die if we could not create the schema for the account
             throw new \RuntimeException("Cannot update account " . $schemaDataMapper->getLastError()->getMessage());
         }

@@ -64,7 +64,7 @@ class Settings
         // First try to get from cache (it's much faster that way)
         $ret = $this->getCached($name);
 
-        if ($ret === null)
+        if (!$ret)
         {
             $ret = $this->getDb($name);
         }

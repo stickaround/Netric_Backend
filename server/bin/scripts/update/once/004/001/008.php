@@ -8,6 +8,7 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $loader = $serviceManager->get("Netric/EntityLoader");
+$log =$serviceManager->get("Log");
 
 // We need to check first if f_imported_to_entity column is existing, if not then add the column
 if (!$db->columnExists("calendar_events_recurring", "f_imported_to_entity")) {
@@ -87,9 +88,15 @@ for ($i = 0; $i < $db->getNumRows($result); $i++) {
     $event->setRecurrencePattern($recurrencePattern);
 
     // Save the calendar event
-    if ($loader->save($event)) {
-
-        // Update the calendar_events_recurring that it has been imported
-        $db->query("UPDATE calendar_events_recurring SET f_imported_to_entity = TRUE WHERE id = $calendarEventRecurringId");
+    try {
+        if ($loader->save($event)) {
+            echo "Saved " . $event->getId() . "\n";
+            // Update the calendar_events_recurring that it has been imported
+            $db->query("UPDATE calendar_events_recurring SET f_imported_to_entity = TRUE WHERE id = $calendarEventRecurringId");
+        }
+    } catch (\InvalidArgumentException $ex) {
+        // Some old recurrence patterns are invalid, just skip them
+        $log->error("Tried to convert an invalid recurrence pattern $calendarEventRecurringId: " . $ex->getMessage());
     }
+
 }
