@@ -14,5 +14,5 @@ docker stop netric
 docker rm netric
 docker run -d -p 50010:80 -p 50011:443 --restart=unless-stopped --name netric \
 	-e APPLICATION_ENV="production" \
-	--log-driver=syslog --log-opt tag=netric-${TARGET} \
+	--log-driver=syslog --log-opt tag=netric-${TARGET} --log-opt syslog-facility=local2 \
 	docker.aereusdev.com:5001/netric:${TARGET}

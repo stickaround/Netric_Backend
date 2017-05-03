@@ -433,14 +433,14 @@ class Log
 
 		$body = "$errMsg = \"$errno: $errstr in $errfile on line $errline\";\n";
 		if (isset($_COOKIE['uname']))
-			$body .= "USER_NAME: ".$_COOKIE['uname']."\n";
+            $body .= "USER_NAME: ".$_COOKIE['uname']."\n";
 		$body .= "Type: System\n";
 		if (isset($_COOKIE['db']))
-			$body .= "DATABASE: ".$_COOKIE['db']."\n";
+            $body .= "DATABASE: ".$_COOKIE['db']."\n";
 		if (isset($_COOKIE['dbs']))
-			$body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
+            $body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
 		if (isset($_COOKIE['aname']))
-			$body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
+            $body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
 
 		$body .= "When: ".date('Y-m-d H:i:s')."\n";
 		$body .= "URL: ".$_SERVER['REQUEST_URI']."\n";
