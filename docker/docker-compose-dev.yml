@@ -89,6 +89,18 @@ services:
       - "5000:5000"
       - "12200:12200"
       - "12201:12201/udp"
+      - "5141:5141"
+      - "5141:5141/udp"
+
+  logstash:
+    image: docker pull docker.elastic.co/logstash/logstash:5.4.0
+    container_name: logstash
+    ports:
+          - "12200:12200"
+          - "12201:12201/udp"
+          - "5141:5141"
+          - "5141:5141/udp"
+
 
   elastic1:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2

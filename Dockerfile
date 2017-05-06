@@ -76,7 +76,7 @@ RUN chmod +x /start.sh
 RUN cd /var/www/html && php composer.phar install && php composer.phar update
 
 # Update logs to print to stdout so they can be shipped
-RUN ln -sf /dev/stdout /var/log/netric
+RUN ln -sf /dev/stderr /var/log/netric
 RUN chmod 777 /var/log/netric
 
 EXPOSE 80

@@ -10,6 +10,9 @@ namespace Netric;
 
 use Netric\Config\Config;
 
+// Set the facility level we use. 18 is for local2 which is where we log all server application logs
+define('NETRIC_SYSLOG_FACILITY', '18');
+
 /**
  * Description of Log
  */
@@ -21,6 +24,13 @@ class Log
 	 * @var string
 	 */
 	private $logPath = "";
+
+    /**
+     * Optional remote server if using syslog
+     *
+     * @var string
+     */
+	private $syslogRemoteServer = "";
 
 	/**
 	 * Maximum size in MB for this log file
@@ -91,22 +101,28 @@ class Log
 	 */
 	public function __construct(Config $config)
 	{
-        // Set the path to log to
-        if (!empty($config->log))
+        // Set the path to log to if we are not using syslog
+        if (!empty($config->log) && $config->log !== 'syslog')
             $this->setLogPath($config->log);
 
-
 		// Set current logging level if defined
-		if ($config->log_level)
-			$this->level = $config->log_level;
+		if ($config->log_level) {
+            $this->level = $config->log_level;
+        }
 
         // Set the current version/branch we are running
-        if ($config->version)
+        if ($config->version) {
             $this->appBranch = $config->version;
+        }
+
+        // Default to local syslog, but if we define the remote server then send via socket
+        if ($config->log === 'syslog' && $config->log_syslog_server) {
+            $this->syslogRemoteServer = $config->log_syslog_server;
+        }
 
 		// Open a connection to the syslog
 		//$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
-		openlog("netric", LOG_PID, LOG_LOCAL5);
+		//openlog("netric", LOG_PID, LOG_LOCAL5);
 	}
 
     /**
@@ -168,6 +184,9 @@ class Log
 		if ($lvl > $this->level)
 			return false;
 
+		$this->syslog($lvl, $message);
+		return;
+
 		//if ($this->logPath == "")
 		//	throw new \Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
 
@@ -184,7 +203,7 @@ class Log
 			$server = $_SERVER['SERVER_NAME'];
 
 		$eventData = array();
-		$eventData[$this->logDef["LEVEL"]] = "<22.$lvl>"; //$this->getLevelName($lvl);
+		$eventData[$this->logDef["LEVEL"]] = "<" . NETRIC_SYSLOG_FACILITY . "." . $lvl . ">";
 		$eventData[$this->logDef["TIME"]] = date('M d H:i:s');
 		$eventData[$this->logDef["DETAILS"]] = $message;
 		$eventData[$this->logDef["SOURCE"]] = $source;
@@ -212,7 +231,8 @@ class Log
             return fputcsv($this->logFile, $eventData);
         } else {
             // Otherwise just log to syslog
-            return syslog($lvl, "branch={$this->appBranch}, page=$source, message=$message");
+             $this->syslog($lvl, $message);
+            //return syslog($lvl, "branch={$this->appBranch}, page=$source, message=$message");
         }
 
 	}
@@ -265,22 +285,17 @@ class Log
 	 */
 	public function getLevelName($lvl)
 	{
-		switch ($lvl)
-		{
-		case self::LOG_EMERG:
-		case self::LOG_ALERT:
-		case self::LOG_CRIT:
-		case self::LOG_ERR:
-			return 'ERROR';
-		case self::LOG_WARNING:
-			return 'WARNING';
-		case self::LOG_DEBUG:
-			return 'DEBUG';
-		case self::LOG_NOTICE:
-		case self::LOG_INFO:
-		default:
-			return 'INFO';
-		}
+        // taken from syslog + http:// nl3.php.net/syslog for log levels
+        switch( $lvl ) {
+            case LOG_EMERG:   return "EMERGENCY"; break; // system is unusable
+            case LOG_ALERT:   return "ALERT";     break; // action must be taken immediately
+            case LOG_CRIT:    return "CRITICAL";  break; // critical conditions
+            case LOG_ERR:     return "ERROR";     break; // error conditions
+            case LOG_WARNING: return "WARNING";   break; // warning conditions
+            case LOG_NOTICE:  return "NOTICE";    break; // normal, but significant, condition
+            case LOG_INFO:    return "INFO";      break; // informational message
+            case LOG_DEBUG:   return "DEBUG";     break; // debug-level message
+        }
 	}
 
 	/**
@@ -431,7 +446,7 @@ class Log
 		$errline = $exception->getLine();
 		$backtrace = $exception->getTraceAsString();
 
-		$body = "$errMsg = \"$errno: $errstr in $errfile on line $errline\";\n";
+		$body = "errNo = \"$errno: $errstr in $errfile on line $errline\";\n";
 		if (isset($_COOKIE['uname']))
             $body .= "USER_NAME: ".$_COOKIE['uname']."\n";
 		$body .= "Type: System\n";
@@ -446,7 +461,7 @@ class Log
 		$body .= "URL: ".$_SERVER['REQUEST_URI']."\n";
 		$body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
 		$body .= "----------------------------------------------\n";
-		$body .= $errMsg."\nTrace: $backtrace";
+		$body .= $errstr."\nTrace: $backtrace";
 		$body .= "\n----------------------------------------------\n";
 
 		// Log the error
@@ -478,8 +493,44 @@ class Log
      *
      * @param bool $print
      */
-    public function setPrintToConsole($print = false) {
+    public function setPrintToConsole($print = false)
+    {
         $this->printToConsole = $print;
+    }
+
+    /**
+     * Send a log to a remote syslog server
+     *
+     * @param int $level
+     * @param string $message
+     * @param string $component
+     */
+    private function syslog($level = LOG_NOTICE, $message)
+    {
+
+        // Use local syslog unless a remote server was configured
+        if(empty($this->syslogRemoteServer)) {
+            syslog($level, $message);
+        }
+
+        //$message = "[". $this->getLevelName($level)."] ".$message;
+
+        $errno = null;
+        $errstr = "";
+        // udp://
+        $fp = fsockopen($this->syslogRemoteServer, 5141, $errno, $errstr);
+
+        // Non-blocking I/O might be a good solution for speed
+        //stream_set_blocking($fp, 0);
+
+        // See 'pri' of https://tools.ietf.org/html/rfc5424#section-6.2.1
+        // multiplying the Facility number by 8 + adding the level
+        $pri = (LOG_LOCAL2 * 8) + $level;
+        foreach(explode("\n", $message) as $line) {
+            $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $line;
+            fwrite($fp, $syslog_message);
+        }
+        fclose($fp);
     }
 
 	/**
