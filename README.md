@@ -6,16 +6,23 @@ This is the source code for both the client and the server.
 1. Install docker native (not docker toolbox)
 
     http://www.docker.com/products/overview
+    
+2. Install python and pywatch
 
-2. Build the environment (in linux/mac)
+    http://python-guide-pt-br.readthedocs.io/en/latest/starting/install3/osx/
+    
+    pip install pywatch (pip3 install pywatch on osx)
+    
+
+3. Build the environment (in linux/mac)
     
     python build-dev.py
     
-3. Run dev environment (in linux/mac)
+4. Run dev environment (in linux/mac)
 
     python start-dev.py
     
-4. Load netric in the browser
+5. Load netric in the browser
 
     http://127.0.0.1
 

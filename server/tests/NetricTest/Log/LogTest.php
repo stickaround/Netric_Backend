@@ -2,9 +2,9 @@
 /**
  * Test entity/object class
  */
-namespace NetricTest;
+namespace NetricTest\Log;
 
-use Netric;
+use Netric\Log\Log;
 use PHPUnit_Framework_TestCase;
 use Netric\Config\Config;
 

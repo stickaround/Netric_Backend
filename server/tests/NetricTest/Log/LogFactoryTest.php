@@ -1,6 +1,6 @@
 <?php
 
-namespace NetricTest;
+namespace NetricTest\Log;
 
 use Netric;
 
