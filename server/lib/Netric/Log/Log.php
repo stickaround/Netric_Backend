@@ -29,6 +29,15 @@ class Log
      */
 	private $syslogRemoteServer = "";
 
+    /**
+     * Optional remote syslog server port
+     *
+     * Defaults to 541 which is the reserved port for syslog
+     *
+     * @var int
+     */
+	private $syslogRemotePort = 541;
+
 	/**
 	 * Maximum size in MB for this log file
 	 *
@@ -115,6 +124,10 @@ class Log
         // Default to local syslog, but if we define the remote server then send via socket
         if ($config->log === 'syslog' && $config->log_syslog_server) {
             $this->syslogRemoteServer = $config->log_syslog_server;
+
+            if ($config->log_syslog_server_port) {
+                $this->syslogRemotePort = $config->log_syslog_server_port;
+            }
         }
 
 		// Open a connection to the syslog
@@ -516,7 +529,7 @@ class Log
         $errno = null;
         $errstr = "";
         // udp://
-        $fp = fsockopen($this->syslogRemoteServer, 5141, $errno, $errstr);
+        $fp = fsockopen($this->syslogRemoteServer, $this->syslogRemotePort, $errno, $errstr);
 
         // Non-blocking I/O might be a good solution for speed
         //stream_set_blocking($fp, 0);

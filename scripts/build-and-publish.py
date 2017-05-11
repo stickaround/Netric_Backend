@@ -34,7 +34,7 @@ subprocess.call([
     "chmod", "-R", "777", "./build/"
 ]);
 print('Built webapp into:' + currentPath + '/server/mobile')
-
+r
 # Not build the server which will include the built webapp above
 subprocess.call(["docker", "build", "-t", "docker.aereusdev.com:5001/netric:" + buildTarget, "."])
 subprocess.call(["docker", "push", "docker.aereusdev.com:5001/netric:" + buildTarget])
