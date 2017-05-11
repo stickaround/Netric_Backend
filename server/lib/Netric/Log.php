@@ -10,9 +10,6 @@ namespace Netric;
 
 use Netric\Config\Config;
 
-// Set the facility level we use. 18 is for local2 which is where we log all server application logs
-define('NETRIC_SYSLOG_FACILITY', '18');
-
 /**
  * Description of Log
  */
@@ -203,7 +200,7 @@ class Log
 			$server = $_SERVER['SERVER_NAME'];
 
 		$eventData = array();
-		$eventData[$this->logDef["LEVEL"]] = "<" . NETRIC_SYSLOG_FACILITY . "." . $lvl . ">";
+		$eventData[$this->logDef["LEVEL"]] = "<" . LOG_LOCAL3 . "." . $lvl . ">";
 		$eventData[$this->logDef["TIME"]] = date('M d H:i:s');
 		$eventData[$this->logDef["DETAILS"]] = $message;
 		$eventData[$this->logDef["SOURCE"]] = $source;
@@ -503,7 +500,6 @@ class Log
      *
      * @param int $level
      * @param string $message
-     * @param string $component
      */
     private function syslog($level = LOG_NOTICE, $message)
     {
@@ -525,11 +521,14 @@ class Log
 
         // See 'pri' of https://tools.ietf.org/html/rfc5424#section-6.2.1
         // multiplying the Facility number by 8 + adding the level
-        $pri = (LOG_LOCAL2 * 8) + $level;
+        $pri = (LOG_LOCAL4 * 8) + $level;
+        /*
         foreach(explode("\n", $message) as $line) {
             $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $line;
             fwrite($fp, $syslog_message);
-        }
+        }*/
+        $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $message;
+        fwrite($fp, $syslog_message);
         fclose($fp);
     }
 

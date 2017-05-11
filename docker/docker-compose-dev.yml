@@ -12,11 +12,7 @@ services:
     volumes:
      - ../server/:/var/www/html/
     depends_on:
-     - elk
-    logging:
-     driver: gelf
-     options:
-       gelf-address: "udp://localhost:12201"
+     - logstash
     links:
      - memcached
      - gearmand
@@ -24,7 +20,7 @@ services:
      - db1
      - mogilefs
      - mogilestore
-     - elk
+     - logstash
 
   memcached:
     image: memcached
@@ -39,12 +35,6 @@ services:
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
-    depends_on:
-     - elk
-    logging:
-     driver: gelf
-     options:
-       gelf-address: "udp://localhost:12201"
 
   mail:
     build: mail/
@@ -68,43 +58,26 @@ services:
         MGFS_STORE_PORT: 7500
     links:
     - mogilestore
-    logging:
-     driver: gelf
-     options:
-       gelf-address: "udp://localhost:12201"
 
   mogilestore:
     build: mogilestore/
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://localhost:12201"
 
-  elk:
-    build: elk/
+  logstash:
+    build: logstash/
+    container_name: logstash
     ports:
-      - "5601:5601"
-      - "9201:9201"
-      - "5044:5044"
-      - "5000:5000"
       - "12200:12200"
       - "12201:12201/udp"
       - "5141:5141"
       - "5141:5141/udp"
+    links:
+      - elasticsearch
+    depends_on:
+      - elasticsearch
 
-  logstash:
-    image: docker pull docker.elastic.co/logstash/logstash:5.4.0
-    container_name: logstash
-    ports:
-          - "12200:12200"
-          - "12201:12201/udp"
-          - "5141:5141"
-          - "5141:5141/udp"
-
-
-  elastic1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
-    container_name: elastic1
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    container_name: elasticsearch
     ulimits:
       memlock:
         soft: -1
@@ -118,7 +91,16 @@ services:
     ports:
       - 9200:9200
     environment:
-        - http.host=0.0.0.0
-        - cluster.name=docker-cluster
-        - bootstrap.memory_lock=true
-        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.host=0.0.0.0
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  kibana:
+    build: kibana/
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch
