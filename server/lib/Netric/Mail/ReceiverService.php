@@ -16,7 +16,7 @@ use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntitySync\EntitySync;
 use Netric\EntityQuery\Where;
-use Netric\Log;
+use Netric\Log\Log;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
 use Netric\Mail\Storage;
 use Netric\Mail\Storage\AbstractStorage;

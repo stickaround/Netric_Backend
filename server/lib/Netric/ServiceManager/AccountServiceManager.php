@@ -81,7 +81,7 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
 
         "EntityGroupings_Loader" => "Netric/EntityGroupings/Loader",
 
-        "Log" => "Netric/Log",
+        "Log" => "Netric/Log/Log",
 
         "EntityQuery_Index" => "Netric/EntityQuery/Index/Index",
 

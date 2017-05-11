@@ -10,7 +10,7 @@ use Netric\Error\AbstractHasErrors;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\FileSystem\FileSystem;
-use Netric\Log;
+use Netric\Log\Log;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Mail\Storage;

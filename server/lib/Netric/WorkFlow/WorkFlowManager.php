@@ -13,7 +13,7 @@ use Netric\EntityQuery\Results;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Entity\EntityInterface;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
-use Netric\Log;
+use Netric\Log\Log;
 use Netric\Error\AbstractHasErrors;
 
 /**

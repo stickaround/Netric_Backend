@@ -14,13 +14,13 @@ class LogFactoryTest extends PHPUnit_Framework_TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\Log',
+            'Netric\Log\Log',
             $sm->get('Log')
         );
 
         $this->assertInstanceOf(
-            'Netric\Log',
-            $sm->get('Netric\Log')
+            'Netric\Log\Log',
+            $sm->get('Netric\Log\Log')
         );
     }
 }

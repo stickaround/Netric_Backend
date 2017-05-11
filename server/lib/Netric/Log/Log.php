@@ -6,7 +6,7 @@
  * @copyright 2014 Aereus
  */
 
-namespace Netric;
+namespace Netric\Log;
 
 use Netric\Config\Config;
 
@@ -174,6 +174,7 @@ class Log
 	 *
 	 * @param int $lvl The level of the event being logged
 	 * @param string $message The message to log
+     * @return bool true on success, false on failure
 	 */
 	public function writeLog($lvl, $message)
 	{
@@ -181,8 +182,8 @@ class Log
 		if ($lvl > $this->level)
 			return false;
 
-		$this->syslog($lvl, $message);
-		return;
+        return $this->syslog($lvl, $message);
+
 
 		//if ($this->logPath == "")
 		//	throw new \Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
@@ -500,6 +501,7 @@ class Log
      *
      * @param int $level
      * @param string $message
+     * @return true on success, false on failure
      */
     private function syslog($level = LOG_NOTICE, $message)
     {
@@ -530,6 +532,8 @@ class Log
         $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $message;
         fwrite($fp, $syslog_message);
         fclose($fp);
+
+        return true;
     }
 
 	/**

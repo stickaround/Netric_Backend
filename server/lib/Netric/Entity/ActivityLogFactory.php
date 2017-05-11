@@ -18,7 +18,7 @@ class ActivityLogFactory implements ServiceManager\AccountServiceLocatorInterfac
      * Service creation factory
      *
      * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @return ActivityLog
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

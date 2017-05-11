@@ -13,7 +13,7 @@ use Netric\Request\ConsoleRequest;
 use Netric\Request\HttpRequest;
 use Netric\Mvc\Router;
 use Netric\Config\Config;
-use Netric\Log;
+use Netric\Log\Log;
 use Netric\Cache\AlibCache;
 use Netric\Account\AccountIdentityMapper;
 use Netric\ServiceManager\ApplicationServiceManager;
@@ -380,7 +380,7 @@ class Application
     /**
      * Get the application log
      *
-     * @return \Netric\Log
+     * @return \Netric\Log\Log
      */
     public function getLog()
     {

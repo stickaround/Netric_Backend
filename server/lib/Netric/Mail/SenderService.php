@@ -10,7 +10,7 @@ use Netric\Entity\ActivityLog;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Mail\Transport\TransportInterface;
-use Netric\Log;
+use Netric\Log\Log;
 
 /**
  * Service used for sending email messages
