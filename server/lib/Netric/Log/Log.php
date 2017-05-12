@@ -195,6 +195,7 @@ class Log
 		if ($lvl > $this->level)
 			return false;
 
+		// For now all we'll do is call syslog
         return $this->syslog($lvl, $message);
 
 
