@@ -84,7 +84,7 @@ class Application
         $this->log = new Log($config);
 
         // TODO: Remove this log
-        $this->log->warning("3 Application starting\nMore details down here");
+        $this->log->warning("4ApplicationStarting\nMore details down here");
 
         // Setup error handler if not in a unit test
         if (!class_exists('\PHPUnit_Framework_TestCase'))
