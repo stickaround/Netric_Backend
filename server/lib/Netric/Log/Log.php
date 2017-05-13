@@ -192,7 +192,7 @@ class Log
 	public function writeLog($lvl, $message)
 	{
 		// Only log events below the current logging level set
-		if ($lvl >= $this->level)
+		if ($lvl > $this->level)
 			return false;
 
 		// For now all we'll do is call syslog
