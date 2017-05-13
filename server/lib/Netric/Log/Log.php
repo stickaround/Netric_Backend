@@ -543,7 +543,8 @@ class Log
             $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $line;
             fwrite($fp, $syslog_message);
         }*/
-        $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $message;
+
+        $syslog_message = "<{$pri}>" . gmdate("Y-m-d\TH:i:s\Z") . 'netric ' . $this->appBranch . ': ' . $message;
         fwrite($fp, $syslog_message);
         fclose($fp);
 
