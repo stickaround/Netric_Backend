@@ -21,6 +21,11 @@ services:
      - mogilefs
      - mogilestore
      - logstash
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"
+
 
   memcached:
     image: memcached

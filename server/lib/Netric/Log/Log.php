@@ -39,13 +39,6 @@ class Log
 	private $syslogRemotePort = 541;
 
 	/**
-	 * Maximum size in MB for this log file
-	 *
-	 * @param int
-	 */
-	public $maxSize = 500;
-
-	/**
 	 * Log file handle
 	 *
 	 * @var int File handle
@@ -87,6 +80,20 @@ class Log
 	private $level = self::LOG_ERR;
 
     /**
+     * Log writers
+     */
+    const WRITER_STDERR = 'stderr';
+    const WRITER_SYSLOG = 'syslog';
+    const WRITER_FILE = 'file';
+
+    /**
+     * Which writer we are going to use for logging
+     *
+     * @var string
+     */
+    private $writer = self::WRITER_STDERR;
+
+    /**
      * Current application release
      *
      * @var string
@@ -107,9 +114,8 @@ class Log
 	 */
 	public function __construct(Config $config)
 	{
-        // Set the path to log to if we are not using syslog
-        if (!empty($config->log) && $config->log !== 'syslog')
-            $this->setLogPath($config->log);
+        // Determine which writer we are using based on the config
+        $this->setLogWriter($config->log);
 
 		// Set current logging level if defined
 		if ($config->log_level) {
@@ -122,48 +128,48 @@ class Log
         }
 
         // Default to local syslog, but if we define the remote server then send via socket
-        if ($config->log === 'syslog' && $config->log_syslog_server) {
+        if ($this->writer === self::WRITER_SYSLOG && $config->log_syslog_server) {
             $this->syslogRemoteServer = $config->log_syslog_server;
-
             if ($config->log_syslog_server_port) {
                 $this->syslogRemotePort = $config->log_syslog_server_port;
             }
         }
-
-		// Open a connection to the syslog
-		//$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
-		//openlog("netric", LOG_PID, LOG_LOCAL5);
 	}
+
+    /**
+     * Determine which writer we are going to use
+     *
+     * @param string $log
+     */
+	public function setLogWriter($log)
+    {
+        if (self::WRITER_SYSLOG === $log) {
+            $this->writer = self::WRITER_SYSLOG;
+        } else if (self::WRITER_STDERR === $log) {
+            $this->writer = self::WRITER_STDERR;
+            $this->logPath = "php://stderr";
+        } else {
+            $this->writer = self::WRITER_FILE;
+            $this->setLogFilePath($log);
+        }
+    }
 
     /**
      * Set the path to use for logging
      *
      * @param string $logPath
      */
-    public function setLogPath($logPath)
+    public function setLogFilePath($logPath)
     {
         // Make sure the local data path exists if we are logging to a file
         $this->logPath = $logPath;
 
-        // If we are not working with php streams, then handle creating the file and rotating it
-        if ("php:" != substr($this->logPath, 0, 4)) {
-
-            // Make sure we have not exceeded the maximum size for this log file
-            if (file_exists($this->logPath)) {
-                if (filesize($this->logPath) >= ($this->maxSize * 1024))
-                    unlink($this->logPath);
-            }
-
-            // Check to see if log file exists and create it if it does not
-            if (!file_exists($this->logPath)) {
-                if (!touch($this->logPath)) {
-                    throw new \RuntimeException("Could not create log file: " . $this->logPath);
-                }
+        // Check to see if log file exists and create it if it does not
+        if (!file_exists($this->logPath)) {
+            if (!touch($this->logPath)) {
+                throw new \RuntimeException("Could not create log file: " . $this->logPath);
             }
         }
-
-        // Now open the file
-        $this->logFile = fopen($this->logPath, 'a');
     }
 
 	/**
@@ -195,12 +201,24 @@ class Log
 		if ($lvl > $this->level)
 			return false;
 
-		// For now all we'll do is call syslog
-        return $this->syslog($lvl, $message);
+		// Prepare the log
+        $logDetails = array(
+            'time' => time(),
+            'level' => $lvl,
+            'level_name' => $this->getLevelName($lvl),
+            'client_ip' => $_SERVER['REMOTE_ADDR'],
+            'client_port' => $_SERVER['REMOTE_PORT'],
+            'message' => $message,
+        );
 
-
-		//if ($this->logPath == "")
-		//	throw new \Exception('AntLog: Data path "' . $this->logPath . '" does not exist or is not writable');
+        // Determine what writer to use
+        switch ($this->writer) {
+            case self::WRITER_SYSLOG:
+                return $this->writerSyslog($logDetails);
+            case self::WRITER_STDERR:
+            case self::WRITER_FILE:
+                return $this->writerFile($logDetails);
+        }
 
 		global $_SERVER;
 
@@ -225,6 +243,7 @@ class Log
 
         // If flag is set to print to the console, then do it now
         if ($this->printToConsole) {
+
             echo "[" . $eventData['TIME'] . "] [:$lvl] " .
                  "[pid "  . getmypid() . "] netric " . $message . "\n";
         }
@@ -299,21 +318,37 @@ class Log
 	{
         // taken from syslog + http:// nl3.php.net/syslog for log levels
         switch( $lvl ) {
-            case LOG_EMERG:   return "EMERGENCY"; break; // system is unusable
-            case LOG_ALERT:   return "ALERT";     break; // action must be taken immediately
-            case LOG_CRIT:    return "CRITICAL";  break; // critical conditions
-            case LOG_ERR:     return "ERROR";     break; // error conditions
-            case LOG_WARNING: return "WARNING";   break; // warning conditions
-            case LOG_NOTICE:  return "NOTICE";    break; // normal, but significant, condition
-            case LOG_INFO:    return "INFO";      break; // informational message
-            case LOG_DEBUG:   return "DEBUG";     break; // debug-level message
+            case self::LOG_EMERG:
+                // system is unusable
+                return "emergency";
+            case self::LOG_ALERT:
+                // action must be taken immediately
+                return "alert";
+            case self::LOG_CRIT:
+                // critical conditions
+                return "critical";
+            case self::LOG_ERR:
+                // error conditions
+                return "error";
+            case self::LOG_WARNING:
+                // warning conditions
+                return "warning";
+            case self::LOG_NOTICE:
+                // normal, but significant, condition
+                return "notice";
+            case self::LOG_INFO:
+                // informational message
+                return "info";
+            case self::LOG_DEBUG:
+                // debug-level message
+                return "debug";
         }
 	}
 
 	/**
 	 * PHP error handler function is called with set_error_handler early in execution
 	 *
-	 * @param int $errorno The error code
+	 * @param int $errno The error code
 	 * @param string $errstr The error message
 	 * @param string $errfile The file originating the error
 	 * @param int $errline The line that triggered the error
@@ -511,18 +546,58 @@ class Log
     }
 
     /**
+     * Convert an error argument or backtrace to a string for logging
+     */
+    private function getPhpErrorArgumentStr($arg)
+    {
+        switch (strtolower(gettype($arg)))
+        {
+            case 'string':
+                return( '"'.str_replace( array("\n"), array(''), $arg ).'"' );
+
+            case 'boolean':
+                return (bool)$arg;
+
+            case 'object':
+                return 'object('.get_class($arg).')';
+
+            case 'array':
+                $ret = 'array(';
+                $separtor = '';
+
+                foreach ($arg as $k => $v)
+                {
+                    //$ret .= $separtor.$this->getPhpErrorArgumentStr).' => '.$this->getPhpErrorArgumentStr);
+                    $separtor = ', ';
+                }
+                $ret .= ')';
+
+                return $ret;
+
+            case 'resource':
+                return 'resource('.get_resource_type($arg).')';
+
+            default:
+                return var_export($arg, true);
+        }
+    }
+
+    /**
      * Send a log to a remote syslog server
      *
      * @param int $level
      * @param string $message
      * @return true on success, false on failure
      */
-    private function syslog($level = LOG_NOTICE, $message)
+    private function writerSyslog(array $logDetails)
     {
+        // Open a connection to the syslog
+        //$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
+        //openlog("netric", LOG_PID, LOG_LOCAL5);
 
         // Use local syslog unless a remote server was configured
         if(empty($this->syslogRemoteServer)) {
-            syslog($level, $message);
+            syslog($logDetails['level'], $logDetails['message']);
         }
 
         //$message = "[". $this->getLevelName($level)."] ".$message;
@@ -537,54 +612,64 @@ class Log
 
         // See 'pri' of https://tools.ietf.org/html/rfc5424#section-6.2.1
         // multiplying the Facility number by 8 + adding the level
-        $pri = (LOG_LOCAL4 * 8) + $level;
-        /*
-        foreach(explode("\n", $message) as $line) {
-            $syslog_message = "<{$pri}>" . date('M d H:i:s ') . 'netric ' . $this->appBranch . ': ' . $line;
-            fwrite($fp, $syslog_message);
-        }*/
+        $pri = (LOG_LOCAL4 * 8) + $logDetails['level'];
 
-        $syslog_message = "<{$pri}>" . gmdate("Y-m-d\TH:i:s\Z") . 'netric ' . $this->appBranch . ': ' . $message;
-        fwrite($fp, $syslog_message);
+
+        // Version is required and rfc5424 is version 1
+        $syslogMessage = "<{$pri}>";
+        $syslogMessage .= gmdate("Y-m-d\TH:i:s\Z");
+        $syslogMessage .= ' docker netric: ' . $logDetails['message'];
+
+        /*
+        $syslogVersion = 1;
+        $syslog_message = "<$pri>";
+        $syslog_message .= $syslogVersion;
+        $syslog_message .= " ";
+        $syslog_message .= gmdate("Y-m-d\TH:i:s\Z");
+        $syslog_message .= " ";
+        $syslog_message .= "docker";
+        $syslog_message .= " ";
+        $syslog_message .= "netric_" . $this->appBranch;
+        $syslog_message .= " - - -";
+        $syslog_message .= " ";
+        $syslog_message .= $message;
+        */
+        fwrite($fp, $syslogMessage);
         fclose($fp);
 
         return true;
     }
 
-	/**
-	 * Convert an error argument or backtrace to a string for logging
-	 */
-	private function getPhpErrorArgumentStr($arg)
-	{
-		switch (strtolower(gettype($arg))) 
-		{
-		case 'string':
-			return( '"'.str_replace( array("\n"), array(''), $arg ).'"' );
+    /**
+     * Write a log entry to a file
+     *
+     * @param array $logDetails
+     * @return bool
+     */
+    private function writerFile(array $logDetails)
+    {
+        if (!$this->logFile) {
+            $this->logFile = fopen($this->logPath, 'a');
+        }
 
-		case 'boolean':
-			return (bool)$arg;
+        $messageData = [
+            'time' => gmdate("Y-m-d\TH:i:s\Z"),
+            'severity' => $logDetails['level_name'],
+            'client_ip' => $logDetails['client_ip'],
+            'client_port' => $logDetails['client_port'],
+            'message' => $logDetails['message']
+        ];
 
-		case 'object':
-			return 'object('.get_class($arg).')';
+        $formattedMessage = "[" . date("D M d H:i:s.u Y", $logDetails['time']) . "]";
+        $formattedMessage .= " [:" . $logDetails['level_name'] . "]";
+        $formattedMessage .= " [pid " . getmypid() . "]";
+        $formattedMessage .= " [client " . $logDetails['client_ip'] . ":" . $logDetails['client_port'] . "]";
+        $formattedMessage .= " " . $messageData . "\n";
+        fwrite($this->logFile, $formattedMessage);
 
-		case 'array':
-			$ret = 'array(';
-			$separtor = '';
 
-			foreach ($arg as $k => $v) 
-			{
-				//$ret .= $separtor.$this->getPhpErrorArgumentStr).' => '.$this->getPhpErrorArgumentStr);
-				$separtor = ', ';
-			}
-			$ret .= ')';
 
-			return $ret;
-
-		case 'resource':
-			return 'resource('.get_resource_type($arg).')';
-
-		default:
-			return var_export($arg, true);
-		}
-	}
+        //fwrite($this->logFile, json_encode($fileData) . "\n");
+        return true;
+    }
 }

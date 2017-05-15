@@ -1,0 +1,133 @@
+ERROR,2017-05-14T18:47:15-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570313,devel.netric.com,,
+ERROR,2017-05-14T18:47:20-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570314,devel.netric.com,,
+ERROR,2017-05-14T18:47:24-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570315,devel.netric.com,,
+ERROR,2017-05-14T18:47:30-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570316,devel.netric.com,,
+ERROR,2017-05-14T18:47:35-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570317,devel.netric.com,,
+ERROR,2017-05-14T18:47:41-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570318,devel.netric.com,,
+ERROR,2017-05-14T18:47:46-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570319,devel.netric.com,,
+ERROR,2017-05-14T18:47:50-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570320,devel.netric.com,,
+ERROR,2017-05-14T18:47:56-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570321,devel.netric.com,,
+ERROR,2017-05-14T18:48:00-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570322,devel.netric.com,,
+ERROR,2017-05-14T18:48:06-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570323,devel.netric.com,,
+ERROR,2017-05-14T18:48:10-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570324,devel.netric.com,,
+ERROR,2017-05-14T18:48:15-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494812570325,devel.netric.com,,
+ERROR,2017-05-14T20:53:05-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-05-14 20:53:05
+Host: devel.netric.com
+Page: /authenticate.php
+Error
+----------------------------------------------
+ERROR:  column ""customer_number"" does not exist
+LINE 1: select customer_number from accounts where id='1'
+               ^
+----------------------------------------------
+Query
+----------------------------------------------
+select customer_number from accounts where id='1'
+----------------------------------------------
+",/authenticate.php,devel.netric.com,,
+ERROR,2017-05-14T21:32:32-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653699,devel.netric.com,,
+ERROR,2017-05-14T21:32:36-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653700,devel.netric.com,,
+ERROR,2017-05-14T21:32:42-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653701,devel.netric.com,,
+ERROR,2017-05-14T21:32:47-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653702,devel.netric.com,,
+ERROR,2017-05-14T21:32:51-07:00,"Unable to connect to database db1 antsystem",/controller/ObjectList/query,devel.netric.com,,
+ERROR,2017-05-14T21:32:53-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653703,devel.netric.com,,
+ERROR,2017-05-14T21:32:59-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653704,devel.netric.com,,
+ERROR,2017-05-14T21:40:19-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653749,devel.netric.com,,
+ERROR,2017-05-14T21:40:24-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653750,devel.netric.com,,
+ERROR,2017-05-14T21:40:28-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653751,devel.netric.com,,
+ERROR,2017-05-14T21:40:32-07:00,"Unable to connect to database db1 antsystem",/controller/Chat/getFriendList,devel.netric.com,,
+ERROR,2017-05-14T21:40:34-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653752,devel.netric.com,,
+ERROR,2017-05-14T21:40:40-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494820653753,devel.netric.com,,
+ERROR,2017-05-14T21:40:44-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-05-14 21:40:44
+Host: devel.netric.com
+Page: /controller/User/getUpdateStream?_=1494820653754
+Error
+----------------------------------------------
+ERROR:  relation ""accounts"" does not exist
+LINE 1: SELECT id, name, ""database"", server, version FROM accounts W...
+                                                          ^
+----------------------------------------------
+Query
+----------------------------------------------
+SELECT id, name, ""database"", server, version FROM accounts WHERE name='devel'
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1494820653754,devel.netric.com,,
+ERROR,2017-05-14T21:58:12-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-05-14 21:58:12
+Host: devel.netric.com
+Page: /authenticate.php
+Error
+----------------------------------------------
+ERROR:  column ""customer_number"" does not exist
+LINE 1: select customer_number from accounts where id='1'
+               ^
+----------------------------------------------
+Query
+----------------------------------------------
+select customer_number from accounts where id='1'
+----------------------------------------------
+",/authenticate.php,devel.netric.com,,
+ERROR,2017-05-15T05:15:42-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-05-15 05:15:42
+Host: devel.netric.com
+Page: /authenticate.php
+Error
+----------------------------------------------
+ERROR:  column ""customer_number"" does not exist
+LINE 1: select customer_number from accounts where id='1'
+               ^
+----------------------------------------------
+Query
+----------------------------------------------
+select customer_number from accounts where id='1'
+----------------------------------------------
+",/authenticate.php,devel.netric.com,,
+ERROR,2017-05-15T05:19:19-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549364,devel.netric.com,,
+ERROR,2017-05-15T05:19:20-07:00,"Unable to connect to database db1 antsystem",/controller/Chat/getFriendList,devel.netric.com,,
+ERROR,2017-05-15T05:19:24-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549365,devel.netric.com,,
+ERROR,2017-05-15T05:19:29-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549366,devel.netric.com,,
+ERROR,2017-05-15T05:19:34-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549367,devel.netric.com,,
+ERROR,2017-05-15T05:19:40-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549368,devel.netric.com,,
+ERROR,2017-05-15T05:23:44-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549402,devel.netric.com,,
+ERROR,2017-05-15T05:23:49-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549403,devel.netric.com,,
+ERROR,2017-05-15T05:23:50-07:00,"Unable to connect to database db1 antsystem",/controller/Chat/getFriendList,devel.netric.com,,
+ERROR,2017-05-15T05:23:54-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549404,devel.netric.com,,
+ERROR,2017-05-15T05:24:00-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549405,devel.netric.com,,
+ERROR,2017-05-15T05:24:06-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549406,devel.netric.com,,
+ERROR,2017-05-15T05:24:11-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1494850549407,devel.netric.com,,
+ERROR,2017-05-15T05:32:43-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-05-15 05:32:43
+Host: devel.netric.com
+Page: /controller/ObjectList/query
+Error
+----------------------------------------------
+ERROR:  operator does not exist: time with time zone <= timestamp with time zone
+LINE 4:      AND (ts_run IS NULL or ts_run<=now()) AND worker_job_qu...
+                                          ^
+HINT:  No operator matches the given name and argument type(s). You might need to add explicit type casts.
+----------------------------------------------
+Query
+----------------------------------------------
+SELECT worker_job_queue.id, worker_job_queue.function_name, worker_job_queue.workload, 
+					worker_job_queue.account_id, accounts.version
+					FROM worker_job_queue, accounts WHERE accounts.id=worker_job_queue.account_id 
+					AND (ts_run IS NULL or ts_run<=now()) AND worker_job_queue.id='1' AND version is null LIMIT 1
+----------------------------------------------
+",/controller/ObjectList/query,devel.netric.com,,
