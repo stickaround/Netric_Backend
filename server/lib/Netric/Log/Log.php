@@ -652,7 +652,7 @@ class Log
             $this->logFile = fopen($this->logPath, 'a');
         }
 
-        /* If we wanted to write JSON this would be how
+        /* If we wanted to write JSON this would be how */
         $messageData = [
             'time' => gmdate("Y-m-d\TH:i:s\Z"),
             'severity' => $logDetails['level_name'],
@@ -660,15 +660,16 @@ class Log
             'client_port' => $logDetails['client_port'],
             'message' => $logDetails['message']
         ];
-        fwrite($this->logFile, json_encode($fileData) . "\n");
-        */
+        fwrite($this->logFile, json_encode($messageData) . "\n");
 
+        /*
         $formattedMessage = "[" . date("D M d H:i:s.u Y", $logDetails['time']) . "]";
         $formattedMessage .= " [:" . $logDetails['level_name'] . "]";
         $formattedMessage .= " [pid " . getmypid() . "]";
         $formattedMessage .= " [client " . $logDetails['client_ip'] . ":" . $logDetails['client_port'] . "]";
         $formattedMessage .= " " . $logDetails['message'] . "\n";
         fwrite($this->logFile, $formattedMessage);
+        */
 
         return true;
     }
