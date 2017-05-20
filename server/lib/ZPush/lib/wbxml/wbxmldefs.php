@@ -6,29 +6,11 @@
 *
 * Created   :   01.10.2007
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2016 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation with the following additional
-* term according to sec. 7:
-*
-* According to sec. 7 of the GNU Affero General Public License, version 3,
-* the terms of the AGPL are supplemented with the following terms:
-*
-* "Zarafa" is a registered trademark of Zarafa B.V.
-* "Z-Push" is a registered trademark of Zarafa Deutschland GmbH
-* The licensing of the Program under the AGPL does not imply a trademark license.
-* Therefore any rights, title and interest in our trademarks remain entirely with us.
-*
-* However, if you propagate an unmodified version of the Program you are
-* allowed to use the term "Z-Push" to indicate that you distribute the Program.
-* Furthermore you may use our trademarks where it is necessary to indicate
-* the intended purpose of a product or service provided you use it in accordance
-* with honest practices in industrial or commercial matters.
-* If you want to propagate modified versions of the Program under the name "Z-Push",
-* you may only do so if you have a written permission by Zarafa Deutschland GmbH
-* (to acquire a permission please contact Zarafa at trademark@zarafa.com).
+* as published by the Free Software Foundation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -40,28 +22,6 @@
 *
 * Consult LICENSE file for details
 ************************************************/
-
-
-define('WBXML_SWITCH_PAGE',     0x00);
-define('WBXML_END',             0x01);
-define('WBXML_ENTITY',          0x02);
-define('WBXML_STR_I',           0x03);
-define('WBXML_LITERAL',         0x04);
-define('WBXML_EXT_I_0',         0x40);
-define('WBXML_EXT_I_1',         0x41);
-define('WBXML_EXT_I_2',         0x42);
-define('WBXML_PI',              0x43);
-define('WBXML_LITERAL_C',       0x44);
-define('WBXML_EXT_T_0',         0x80);
-define('WBXML_EXT_T_1',         0x81);
-define('WBXML_EXT_T_2',         0x82);
-define('WBXML_STR_T',           0x83);
-define('WBXML_LITERAL_A',       0x84);
-define('WBXML_EXT_0',           0xC0);
-define('WBXML_EXT_1',           0xC1);
-define('WBXML_EXT_2',           0xC2);
-define('WBXML_OPAQUE',          0xC3);
-define('WBXML_LITERAL_AC',      0xC4);
 
 define('EN_TYPE',               1);
 define('EN_TAG',                2);
@@ -77,6 +37,31 @@ define('EN_FLAGS_CONTENT',      1);
 define('EN_FLAGS_ATTRIBUTES',   2);
 
 class WBXMLDefs {
+
+    const WBXML_SWITCH_PAGE = 0x00;
+    const WBXML_END =         0x01;
+    const WBXML_ENTITY =      0x02; //not used in ActiveSync
+    const WBXML_STR_I =       0x03;
+    const WBXML_LITERAL =     0x04; //not used in ActiveSync
+    const WBXML_EXT_I_0 =     0x40; //not used in ActiveSync
+    const WBXML_EXT_I_1 =     0x41; //not used in ActiveSync
+    const WBXML_EXT_I_2 =     0x42; //not used in ActiveSync
+    const WBXML_PI =          0x43; //not used in ActiveSync
+    const WBXML_LITERAL_C =   0x44; //not used in ActiveSync
+    const WBXML_EXT_T_0 =     0x80; //not used in ActiveSync
+    const WBXML_EXT_T_1 =     0x81; //not used in ActiveSync
+    const WBXML_EXT_T_2 =     0x82; //not used in ActiveSync
+    const WBXML_STR_T =       0x83; //not used in ActiveSync
+    const WBXML_LITERAL_A =   0x84; //not used in ActiveSync
+    const WBXML_EXT_0 =       0xC0; //not used in ActiveSync
+    const WBXML_EXT_1 =       0xC1; //not used in ActiveSync
+    const WBXML_EXT_2 =       0xC2; //not used in ActiveSync
+    const WBXML_OPAQUE =      0xC3;
+    const WBXML_LITERAL_AC =  0xC4; //not used in ActiveSync
+
+    const WBXML_WITH_ATTRIBUTES = 0x80; //not used in ActiveSync
+    const WBXML_WITH_CONTENT = 0x40;
+
     /**
      * The WBXML DTDs
      */
@@ -617,7 +602,7 @@ class WBXMLDefs {
                         0x13 => "BodyType", //12.0, 12.1 and 14.0
                         0x14 => "DevicePassword", //12.0, 12.1 and 14.0
                         0x15 => "Password", //12.0, 12.1 and 14.0
-                        0x16 => "DeviceInformaton", //12.0, 12.1 and 14.0
+                        0x16 => "DeviceInformation", //12.0, 12.1 and 14.0
                         0x17 => "Model", //12.0, 12.1 and 14.0
                         0x18 => "IMEI", //12.0, 12.1 and 14.0
                         0x19 => "FriendlyName", //12.0, 12.1 and 14.0
@@ -765,5 +750,3 @@ class WBXMLDefs {
               )
           );
 }
-
-?>

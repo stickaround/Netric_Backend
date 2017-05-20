@@ -20,29 +20,11 @@
 *
 * Created   :   01.10.2007
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2016 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation with the following additional
-* term according to sec. 7:
-*
-* According to sec. 7 of the GNU Affero General Public License, version 3,
-* the terms of the AGPL are supplemented with the following terms:
-*
-* "Zarafa" is a registered trademark of Zarafa B.V.
-* "Z-Push" is a registered trademark of Zarafa Deutschland GmbH
-* The licensing of the Program under the AGPL does not imply a trademark license.
-* Therefore any rights, title and interest in our trademarks remain entirely with us.
-*
-* However, if you propagate an unmodified version of the Program you are
-* allowed to use the term "Z-Push" to indicate that you distribute the Program.
-* Furthermore you may use our trademarks where it is necessary to indicate
-* the intended purpose of a product or service provided you use it in accordance
-* with honest practices in industrial or commercial matters.
-* If you want to propagate modified versions of the Program under the name "Z-Push",
-* you may only do so if you have a written permission by Zarafa Deutschland GmbH
-* (to acquire a permission please contact Zarafa at trademark@zarafa.com).
+* as published by the Free Software Foundation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -64,7 +46,7 @@ abstract class Backend implements IBackend {
      *
      * @access public
      */
-    public function Backend() {
+    public function __construct() {
     }
 
     /**
@@ -105,7 +87,7 @@ abstract class Backend implements IBackend {
      * Methods to be implemented
      *
      * public function Logon($username, $domain, $password);
-     * public function Setup($store, $checkACLonly = false, $folderid = false);
+     * public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false);
      * public function Logoff();
      * public function GetHierarchy();
      * public function GetImporter($folderid = false);
@@ -183,8 +165,22 @@ abstract class Backend implements IBackend {
      * @return SyncObject   $settings
      */
     public function Settings($settings) {
-        if ($settings instanceof SyncOOF || $settings instanceof SyncUserInformation)
+        if ($settings instanceof SyncOOF) {
+            $isget = !empty($settings->bodytype);
+            $settings = new SyncOOF();
+            if ($isget) {
+                //oof get
+                $settings->oofstate = 0;
+                $settings->Status = SYNC_SETTINGSSTATUS_SUCCESS;
+            } else {
+                //oof set
+                $settings->Status = SYNC_SETTINGSSTATUS_PROTOCOLLERROR;
+            }
+        }
+        if ($settings instanceof SyncUserInformation) {
+            $settings->emailaddresses = array(ZPush::GetBackend()->GetUserDetails(Request::GetAuthUser())['emailaddress']);
             $settings->Status = SYNC_SETTINGSSTATUS_SUCCESS;
+        }
         return $settings;
     }
 
@@ -199,7 +195,6 @@ abstract class Backend implements IBackend {
     public function ResolveRecipients($resolveRecipients) {
         $r = new SyncResolveRecipients();
         $r->status = SYNC_RESOLVERECIPSSTATUS_PROTOCOLERROR;
-        $r->recipient = array();
         return $r;
     }
 
@@ -224,6 +219,44 @@ abstract class Backend implements IBackend {
     public function GetCurrentUsername() {
         return $this->GetUserDetails(Request::GetAuthUser());
     }
+
+    /**
+     * Indicates if the Backend supports folder statistics.
+     *
+     * @access public
+     * @return boolean
+     */
+    public function HasFolderStats() {
+        return false;
+    }
+
+    /**
+     * Returns a status indication of the folder.
+     * If there are changes in the folder, the returned value must change.
+     * The returned values are compared with '===' to determine if a folder needs synchronization or not.
+     *
+     * @param string $store         the store where the folder resides
+     * @param string $folderid      the folder id
+     *
+     * @access public
+     * @return string
+     */
+    public function GetFolderStat($store, $folderid) {
+        // As this is not implemented, the value returned will change every hour.
+        // This will only be called if HasFolderStats() returns true.
+        return "not implemented-".gmdate("Y-m-d-H");
+    }
+
+    /**
+     * Returns a KoeSignatures object.
+     *
+     * @access public
+     * @return KoeSignatures
+     */
+    public function GetKoeSignatures() {
+        return new KoeSignatures();
+    }
+
 
     /**----------------------------------------------------------------------------------------------------------
      * Protected methods for BackendStorage
@@ -311,5 +344,28 @@ abstract class Backend implements IBackend {
         }
     }
 
+    /**
+     * Returns the policy name for the user.
+     * If the backend returns false, the 'default' policy is used.
+     * If the backend returns any other name than 'default' the policygroup with
+     * that name (defined in the policies.ini file) will be applied for this user.
+     *
+     * @access public
+     * @return string|boolean
+     */
+    public function GetUserPolicyName() {
+        return false;
+    }
+
+    /**
+     * Returns the backend ID of the folder of the KOE GAB.
+     *
+     * @param string $foldername
+     *
+     * @access public
+     * @return string|boolean
+     */
+    public function GetKoeGabBackendFolderId($foldername) {
+        return false;
+    }
 }
-?>

@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 /***********************************************
 * File      :   z-push-top.php
@@ -9,29 +9,11 @@
 *
 * Created   :   07.09.2011
 *
-* Copyright 2007 - 2015 Zarafa Deutschland GmbH
+* Copyright 2007 - 2016 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation with the following additional
-* term according to sec. 7:
-*
-* According to sec. 7 of the GNU Affero General Public License, version 3,
-* the terms of the AGPL are supplemented with the following terms:
-*
-* "Zarafa" is a registered trademark of Zarafa B.V.
-* "Z-Push" is a registered trademark of Zarafa Deutschland GmbH
-* The licensing of the Program under the AGPL does not imply a trademark license.
-* Therefore any rights, title and interest in our trademarks remain entirely with us.
-*
-* However, if you propagate an unmodified version of the Program you are
-* allowed to use the term "Z-Push" to indicate that you distribute the Program.
-* Furthermore you may use our trademarks where it is necessary to indicate
-* the intended purpose of a product or service provided you use it in accordance
-* with honest practices in industrial or commercial matters.
-* If you want to propagate modified versions of the Program under the name "Z-Push",
-* you may only do so if you have a written permission by Zarafa Deutschland GmbH
-* (to acquire a permission please contact Zarafa at trademark@zarafa.com).
+* as published by the Free Software Foundation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -44,24 +26,17 @@
 * Consult LICENSE file for details
 ************************************************/
 
-include('lib/exceptions/exceptions.php');
-include('lib/core/zpushdefs.php');
-include('lib/core/zpush.php');
-include('lib/core/zlog.php');
-include('lib/core/interprocessdata.php');
-include('lib/core/topcollector.php');
-include('lib/utils/utils.php');
-include('lib/request/request.php');
-include('lib/request/requestprocessor.php');
-if (!defined('ZPUSH_CONFIG')) define('ZPUSH_CONFIG', '../../config/zpush.config.php');
-include_once(ZPUSH_CONFIG);
-include('version.php');
+require_once 'vendor/autoload.php';
 
 /************************************************
  * MAIN
  */
     declare(ticks = 1);
     define('BASE_PATH_CLI',  dirname(__FILE__) ."/");
+    set_include_path(get_include_path() . PATH_SEPARATOR . BASE_PATH_CLI);
+
+    if (!defined('ZPUSH_CONFIG')) define('ZPUSH_CONFIG', BASE_PATH_CLI . 'config.php');
+    include_once(ZPUSH_CONFIG);
 
     try {
         ZPush::CheckConfig();
@@ -86,7 +61,7 @@ include('version.php');
             system("stty sane");
         }
         else
-            echo "Z-Push shared memory interprocess communication is not available.\n";
+            echo "Z-Push interprocess communication (IPC) is not available or TopCollector is disabled.\n";
     }
     catch (ZPushException $zpe) {
         fwrite(STDERR, get_class($zpe) . ": ". $zpe->getMessage() . "\n");
@@ -135,7 +110,7 @@ class ZPushTop {
      *
      * @access public
      */
-    public function ZPushTop() {
+    public function __construct() {
         $this->starttime = time();
         $this->currenttime = time();
         $this->action = "";
@@ -227,6 +202,9 @@ class ZPushTop {
      * @return boolean
      */
     public function IsAvailable() {
+        if (defined('TOPCOLLECTOR_DISABLED') && constant('TOPCOLLECTOR_DISABLED') === true) {
+            return false;
+        }
         return $this->topCollector->IsActive();
     }
 
@@ -488,7 +466,7 @@ class ZPushTop {
                 else if ($cmds[0] == "clear" ) {
                     $this->topCollector->ClearLatest(true);
                     $this->topCollector->CollectData(true);
-                    $this->topCollector->ReInitSharedMem();
+                    $this->topCollector->ReInitIPC();
                 }
                 else if ($cmds[0] == "filter" || $cmds[0] == "f") {
                     if (!isset($cmds[1]) || $cmds[1] == "") {
@@ -792,5 +770,3 @@ class ZPushTop {
     }
 
 }
-
-?>

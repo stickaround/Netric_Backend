@@ -8,29 +8,11 @@
 *
 * Created   :   01.10.2007
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2016 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation with the following additional
-* term according to sec. 7:
-*
-* According to sec. 7 of the GNU Affero General Public License, version 3,
-* the terms of the AGPL are supplemented with the following terms:
-*
-* "Zarafa" is a registered trademark of Zarafa B.V.
-* "Z-Push" is a registered trademark of Zarafa Deutschland GmbH
-* The licensing of the Program under the AGPL does not imply a trademark license.
-* Therefore any rights, title and interest in our trademarks remain entirely with us.
-*
-* However, if you propagate an unmodified version of the Program you are
-* allowed to use the term "Z-Push" to indicate that you distribute the Program.
-* Furthermore you may use our trademarks where it is necessary to indicate
-* the intended purpose of a product or service provided you use it in accordance
-* with honest practices in industrial or commercial matters.
-* If you want to propagate modified versions of the Program under the name "Z-Push",
-* you may only do so if you have a written permission by Zarafa Deutschland GmbH
-* (to acquire a permission please contact Zarafa at trademark@zarafa.com).
+* as published by the Free Software Foundation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -48,80 +30,10 @@ ob_start(null, 1048576);
 // ignore user abortions because this can lead to weird errors - see ZP-239
 ignore_user_abort(true);
 
-include_once('lib/exceptions/exceptions.php');
-include_once('lib/utils/utils.php');
-include_once('lib/utils/compat.php');
-include_once('lib/utils/timezoneutil.php');
-include_once('lib/utils/stringstreamwrapper.php');
-include_once('lib/core/zpushdefs.php');
-include_once('lib/core/stateobject.php');
-include_once('lib/core/interprocessdata.php');
-include_once('lib/core/pingtracking.php');
-include_once('lib/core/topcollector.php');
-include_once('lib/core/loopdetection.php');
-include_once('lib/core/asdevice.php');
-include_once('lib/core/statemanager.php');
-include_once('lib/core/devicemanager.php');
-include_once('lib/core/zpush.php');
-include_once('lib/core/zlog.php');
-include_once('lib/interface/ibackend.php');
-include_once('lib/interface/ichanges.php');
-include_once('lib/interface/iexportchanges.php');
-include_once('lib/interface/iimportchanges.php');
-include_once('lib/interface/isearchprovider.php');
-include_once('lib/interface/istatemachine.php');
-include_once('lib/core/streamer.php');
-include_once('lib/core/streamimporter.php');
-include_once('lib/core/synccollections.php');
-include_once('lib/core/hierarchycache.php');
-include_once('lib/core/changesmemorywrapper.php');
-include_once('lib/core/syncparameters.php');
-include_once('lib/core/bodypreference.php');
-include_once('lib/core/contentparameters.php');
-include_once('lib/wbxml/wbxmldefs.php');
-include_once('lib/wbxml/wbxmldecoder.php');
-include_once('lib/wbxml/wbxmlencoder.php');
-include_once('lib/syncobjects/syncobject.php');
-include_once('lib/syncobjects/syncbasebody.php');
-include_once('lib/syncobjects/syncbaseattachment.php');
-include_once('lib/syncobjects/syncmailflags.php');
-include_once('lib/syncobjects/syncrecurrence.php');
-include_once('lib/syncobjects/syncappointment.php');
-include_once('lib/syncobjects/syncappointmentexception.php');
-include_once('lib/syncobjects/syncattachment.php');
-include_once('lib/syncobjects/syncattendee.php');
-include_once('lib/syncobjects/syncmeetingrequestrecurrence.php');
-include_once('lib/syncobjects/syncmeetingrequest.php');
-include_once('lib/syncobjects/syncmail.php');
-include_once('lib/syncobjects/syncnote.php');
-include_once('lib/syncobjects/synccontact.php');
-include_once('lib/syncobjects/syncfolder.php');
-include_once('lib/syncobjects/syncprovisioning.php');
-include_once('lib/syncobjects/synctaskrecurrence.php');
-include_once('lib/syncobjects/synctask.php');
-include_once('lib/syncobjects/syncoofmessage.php');
-include_once('lib/syncobjects/syncoof.php');
-include_once('lib/syncobjects/syncuserinformation.php');
-include_once('lib/syncobjects/syncdeviceinformation.php');
-include_once('lib/syncobjects/syncdevicepassword.php');
-include_once('lib/syncobjects/syncitemoperationsattachment.php');
-include_once('lib/syncobjects/syncsendmail.php');
-include_once('lib/syncobjects/syncsendmailsource.php');
-include_once('lib/syncobjects/syncvalidatecert.php');
-include_once('lib/syncobjects/syncresolverecipients.php');
-include_once('lib/syncobjects/syncresolverecipient.php');
-include_once('lib/syncobjects/syncresolverecipientsoptions.php');
-include_once('lib/syncobjects/syncresolverecipientsavailability.php');
-include_once('lib/syncobjects/syncresolverecipientscertificates.php');
-include_once('lib/syncobjects/syncresolverecipientspicture.php');
-include_once('lib/default/backend.php');
-include_once('lib/default/searchprovider.php');
-include_once('lib/request/request.php');
-include_once('lib/request/requestprocessor.php');
+require_once 'vendor/autoload.php';
 
 if (!defined('ZPUSH_CONFIG')) define('ZPUSH_CONFIG', 'config.php');
 include_once(ZPUSH_CONFIG);
-include_once('version.php');
 
 
     // Attempt to set maximum execution time
@@ -135,14 +47,19 @@ include_once('version.php');
         ZLog::Initialize();
 
         ZLog::Write(LOGLEVEL_DEBUG,"-------- Start");
-        ZLog::Write(LOGLEVEL_INFO,
-                    sprintf("Version='%s' method='%s' from='%s' cmd='%s' getUser='%s' devId='%s' devType='%s'",
-                                    @constant('ZPUSH_VERSION'), Request::GetMethod(), Request::GetRemoteAddr(),
-                                    Request::GetCommand(), Request::GetGETUser(), Request::GetDeviceID(), Request::GetDeviceType()));
+        ZLog::Write(LOGLEVEL_DEBUG,
+                sprintf("cmd='%s' devType='%s' devId='%s' getUser='%s' from='%s' version='%s' method='%s'",
+                        Request::GetCommand(), Request::GetDeviceType(), Request::GetDeviceID(), Request::GetGETUser(), Request::GetRemoteAddr(), @constant('ZPUSH_VERSION'), Request::GetMethod() ));
+
+        // always request the authorization header
+        if (! Request::HasAuthenticationInfo() || !Request::GetGETUser())
+            throw new AuthenticationRequiredException("Access denied. Please send authorisation information");
 
         // Stop here if this is an OPTIONS request
-        if (Request::IsMethodOPTIONS())
+        if (Request::IsMethodOPTIONS()) {
+            RequestProcessor::Authenticate();
             throw new NoPostRequestException("Options request", NoPostRequestException::OPTIONS_REQUEST);
+        }
 
         ZPush::CheckAdvancedConfig();
 
@@ -155,10 +72,6 @@ include_once('version.php');
 
         // Load the backend
         $backend = ZPush::GetBackend();
-
-        // always request the authorization header
-        if (! Request::AuthenticationInfo() || !Request::GetGETUser())
-            throw new AuthenticationRequiredException("Access denied. Please send authorisation information");
 
         // check the provisioning information
         if (PROVISIONING === true && Request::IsMethodPOST() && ZPush::CommandNeedsProvisioning(Request::GetCommandCode()) &&
@@ -178,6 +91,10 @@ include_once('version.php');
 
         // Do the actual request
         header(ZPush::GetServerHeader());
+
+        if (RequestProcessor::isUserAuthenticated()) {
+            header("X-Z-Push-Version: ". @constant('ZPUSH_VERSION'));
+        }
 
         // announce the supported AS versions (if not already sent to device)
         if (ZPush::GetDeviceManager()->AnnounceASVersion()) {
@@ -238,9 +155,20 @@ include_once('version.php');
     }
 
     catch (Exception $ex) {
+        // Extract any previous exception message for logging purpose.
+        $exclass = get_class($ex);
+        $exception_message = $ex->getMessage();
+        if($ex->getPrevious()){
+            do {
+                $current_exception = $ex->getPrevious();
+                $exception_message .= ' -> ' . $current_exception->getMessage();
+            } while($current_exception->getPrevious());
+        }
+
         if (Request::GetUserAgent())
             ZLog::Write(LOGLEVEL_INFO, sprintf("User-agent: '%s'", Request::GetUserAgent()));
-        $exclass = get_class($ex);
+
+        ZLog::Write(LOGLEVEL_FATAL, sprintf('Exception: (%s) - %s', $exclass, $exception_message));
 
         if(!headers_sent()) {
             if ($ex instanceof ZPushException) {
@@ -252,11 +180,14 @@ include_once('version.php');
             else
                 header('HTTP/1.1 500 Internal Server Error');
         }
-        else
-            ZLog::Write(LOGLEVEL_FATAL, "Exception: ($exclass) - headers were already sent. Message: ". $ex->getMessage());
 
         if ($ex instanceof AuthenticationRequiredException) {
-            ZPush::PrintZPushLegal($exclass, sprintf('<pre>%s</pre>',$ex->getMessage()));
+            // Only print ZPush legal message for GET requests because
+            // some devices send unauthorized OPTIONS requests
+            // and don't expect anything in the response body
+            if (Request::IsMethodGET()) {
+                ZPush::PrintZPushLegal($exclass, sprintf('<pre>%s</pre>',$ex->getMessage()));
+            }
 
             // log the failed login attemt e.g. for fail2ban
             if (defined('LOGAUTHFAIL') && LOGAUTHFAIL != false)
@@ -265,7 +196,7 @@ include_once('version.php');
 
         // This could be a WBXML problem.. try to get the complete request
         else if ($ex instanceof WBXMLException) {
-            ZLog::Write(LOGLEVEL_FATAL, "Request could not be processed correctly due to a WBXMLException. Please report this including WBXML debug data logged. Be aware that the debug data could contain confidential information.");
+            ZLog::Write(LOGLEVEL_FATAL, "Request could not be processed correctly due to a WBXMLException. Please report this including the 'WBXML debug data' logged. Be aware that the debug data could contain confidential information.");
         }
 
         // Try to output some kind of error information. This is only possible if
@@ -291,5 +222,12 @@ include_once('version.php');
         ZPush::GetDeviceManager()->Save();
 
     // end gracefully
-    ZLog::WriteEnd();
-?>
+    ZLog::Write(LOGLEVEL_INFO,
+            sprintf("cmd='%s' memory='%s/%s' time='%ss' devType='%s' devId='%s' getUser='%s' from='%s' idle='%ss' version='%s' method='%s' httpcode='%s'",
+                    Request::GetCommand(), Utils::FormatBytes(memory_get_peak_usage(false)), Utils::FormatBytes(memory_get_peak_usage(true)),
+                    number_format(microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"], 2),
+                    Request::GetDeviceType(), Request::GetDeviceID(), Request::GetGETUser(), Request::GetRemoteAddr(),
+                    RequestProcessor::GetWaitTime(), @constant('ZPUSH_VERSION'), Request::GetMethod(), http_response_code() ));
+
+    ZLog::Write(LOGLEVEL_DEBUG, "-------- End");
+

@@ -6,29 +6,11 @@
 *
 * Created   :   01.10.2007
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2016 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation with the following additional
-* term according to sec. 7:
-*
-* According to sec. 7 of the GNU Affero General Public License, version 3,
-* the terms of the AGPL are supplemented with the following terms:
-*
-* "Zarafa" is a registered trademark of Zarafa B.V.
-* "Z-Push" is a registered trademark of Zarafa Deutschland GmbH
-* The licensing of the Program under the AGPL does not imply a trademark license.
-* Therefore any rights, title and interest in our trademarks remain entirely with us.
-*
-* However, if you propagate an unmodified version of the Program you are
-* allowed to use the term "Z-Push" to indicate that you distribute the Program.
-* Furthermore you may use our trademarks where it is necessary to indicate
-* the intended purpose of a product or service provided you use it in accordance
-* with honest practices in industrial or commercial matters.
-* If you want to propagate modified versions of the Program under the name "Z-Push",
-* you may only do so if you have a written permission by Zarafa Deutschland GmbH
-* (to acquire a permission please contact Zarafa at trademark@zarafa.com).
+* as published by the Free Software Foundation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -324,6 +306,10 @@ define("SYNC_FOLDERHIERARCHY_COUNT","FolderHierarchy:Count");
 define("SYNC_FOLDERHIERARCHY_VERSION","FolderHierarchy:Version");
 // only for internal use - never to be streamed to the mobile
 define("SYNC_FOLDERHIERARCHY_IGNORE_STORE","FolderHierarchy:IgnoreStore");
+define("SYNC_FOLDERHIERARCHY_IGNORE_NOBCKENDFLD","FolderHierarchy:IgnoreNoBackendFolder");
+define("SYNC_FOLDERHIERARCHY_IGNORE_BACKENDID","FolderHierarchy:IgnoreBackendId");
+define("SYNC_FOLDERHIERARCHY_IGNORE_FLAGS","FolderHierarchy:IgnoreFlags");
+define("SYNC_FOLDERHIERARCHY_IGNORE_TYPEREAL","FolderHierarchy:TypeReal");
 
 // MeetingResponse
 define("SYNC_MEETINGRESPONSE_CALENDARID","MeetingResponse:CalendarId");
@@ -487,7 +473,8 @@ define("SYNC_PROVISION_UNAPPROVEDINROMAPPLIST", "Provision:UnapprovedInROMApplic
 define("SYNC_PROVISION_APPNAME", "Provision:ApplicationName");
 define("SYNC_PROVISION_APPROVEDAPPLIST", "Provision:ApprovedApplicationList");
 define("SYNC_PROVISION_HASH", "Provision:Hash");
-
+// only for internal use - never to be streamed to the mobile
+define("SYNC_PROVISION_POLICYNAME", "Provision:PolicyName");
 
 //Search
 define("SYNC_SEARCH_SEARCH", "Search:Search");
@@ -578,7 +565,7 @@ define("SYNC_SETTINGS_REPLYMESSAGE", "Settings:ReplyMessage");
 define("SYNC_SETTINGS_BODYTYPE", "Settings:BodyType");
 define("SYNC_SETTINGS_DEVICEPW", "Settings:DevicePassword");
 define("SYNC_SETTINGS_PW", "Settings:Password");
-define("SYNC_SETTINGS_DEVICEINFORMATION", "Settings:DeviceInformaton");
+define("SYNC_SETTINGS_DEVICEINFORMATION", "Settings:DeviceInformation");
 define("SYNC_SETTINGS_MODEL", "Settings:Model");
 define("SYNC_SETTINGS_IMEI", "Settings:IMEI");
 define("SYNC_SETTINGS_FRIENDLYNAME", "Settings:FriendlyName");
@@ -678,6 +665,7 @@ define("SYNC_NOTES_MESSAGECLASS", "Notes:MessageClass");
 define("SYNC_NOTES_LASTMODIFIEDDATE", "Notes:LastModifiedDate");
 define("SYNC_NOTES_CATEGORIES", "Notes:Categories");
 define("SYNC_NOTES_CATEGORY", "Notes:Category");
+define("SYNC_NOTES_IGNORE_COLOR","Notes:IgnoreColor");
 
 //RightsManagement //post 14.0
 define("SYNC_RIGHTSMANAGEMENT_SUPPORT", "RightsManagement:RightsManagementSupport");
@@ -997,6 +985,7 @@ define("HTTP_CODE_200", 200);
 define("HTTP_CODE_401", 401);
 define("HTTP_CODE_449", 449);
 define("HTTP_CODE_500", 500);
+define("HTTP_CODE_503", 503);
 
 define("WINDOW_SIZE_MAX", 512);
 
@@ -1064,5 +1053,3 @@ define("NOTEIVERB_FORWARD", 104);
 define("AS_REPLYTOSENDER", 1);
 define("AS_REPLYTOALL", 2);
 define("AS_FORWARD", 3);
-
-?>
