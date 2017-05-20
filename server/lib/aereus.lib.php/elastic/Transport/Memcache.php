@@ -18,7 +18,7 @@ class Elastica_Transport_Memcache extends Elastica_Transport_Abstract
     {
         $request = $this->getRequest();
 
-        $memcache = new Memcache();
+        $memcache = new Memcached();
         $memcache->connect($params['host'], $params['port']);
 
         // Finds right function name

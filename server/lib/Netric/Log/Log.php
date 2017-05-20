@@ -206,8 +206,8 @@ class Log
             'time' => time(),
             'level' => $lvl,
             'level_name' => $this->getLevelName($lvl),
-            'client_ip' => $_SERVER['REMOTE_ADDR'],
-            'client_port' => $_SERVER['REMOTE_PORT'],
+            'client_ip' => (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : null,
+            'client_port' => (isset($_SERVER['REMOTE_PORT'])) ? $_SERVER['REMOTE_PORT'] : null,
             'message' => $message,
         );
 

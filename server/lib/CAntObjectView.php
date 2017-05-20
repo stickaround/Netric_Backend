@@ -54,7 +54,7 @@ class CAntObjectView
 	/**
 	 * Constructor
 	 */
-	function CAntObjectView()
+	function __construct()
 	{
 		$this->view_fields = array();
 		$this->conditions = array();

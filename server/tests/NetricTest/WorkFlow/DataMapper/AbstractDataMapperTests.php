@@ -504,7 +504,10 @@ abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
         $workFlowInstanceClone = $dataMapper->getWorkFlowInstanceById($instanceId);
 
         $this->assertEquals($workFlowInstance->getId(), $workFlowInstanceClone->getId());
-        $this->assertEquals($workFlowInstance->getTimeStarted(), $workFlowInstanceClone->getTimeStarted());
+        $this->assertEquals(
+            $workFlowInstance->getTimeStarted()->format('Y-m-d H:i:s'),
+            $workFlowInstanceClone->getTimeStarted()->format('Y-m-d H:i:s')
+        );
         $this->assertEquals($workFlowInstance->getObjTypeId(), $workFlowInstanceClone->getObjTypeId());
         $this->assertEquals($workFlowInstance->getEntityId(), $workFlowInstanceClone->getEntityId());
         $this->assertEquals($workFlowInstance->isCompleted(), $workFlowInstanceClone->isCompleted());

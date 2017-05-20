@@ -128,7 +128,7 @@ class CCache
         
 		if($alibMemCached)
 		{
-			$this->memCached = new Memcache();
+			$this->memCached = new Memcached();
 
 			// Make sure servers are not already added
 			//if (!count($this->memCached->getServerList()))

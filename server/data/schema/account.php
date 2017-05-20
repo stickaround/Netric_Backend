@@ -682,8 +682,7 @@ return array(
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(
             array('properties' => array("customer_id")),
-            array('properties' => array("parent_id")),
-            array('properties' => array("type_id")),
+            array('properties' => array("ccard_type")),
         )
     ),
 
@@ -1159,10 +1158,12 @@ return array(
             'forward' => array('type' => SchemaProperty::TYPE_CHAR_256),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("address")),
-        )
+        ),
     ),
 
 
@@ -1178,8 +1179,10 @@ return array(
             'scope' => array('type' => SchemaProperty::TYPE_CHAR_32),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("scope")),
         )
     ),
@@ -1198,7 +1201,7 @@ return array(
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
         )
     ),
@@ -1211,7 +1214,7 @@ return array(
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
         )
     ),
@@ -1230,9 +1233,10 @@ return array(
             'mailbox' => array('type' => SchemaProperty::TYPE_CHAR_128),
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
         ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'PRIMARY_KEY' => 'id',"INDEXES" => array(
             array('properties' => array("user_id", "users", "id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("parent_box")),
         )
     ),
@@ -1247,7 +1251,7 @@ return array(
             'antmail_version' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("message_id", "objects_email_messages", "id")),
         )
     ),
@@ -1260,7 +1264,7 @@ return array(
             'ts_delivered' => array('type' => SchemaProperty::TYPE_TIMESTAMP),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
         )
     ),
@@ -1272,7 +1276,7 @@ return array(
             'mailbox_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'KEYS' => array(
             array('properties' => array("mailbox_id", "email_mailboxes", "id")),
             array('properties' => array("thread_id", "email_threads", "id")),
         )
@@ -1295,7 +1299,7 @@ return array(
             'twitter' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'KEYS' => array(
             array('properties' => array("user_id", "users", "id")),
         )
     ),
@@ -1308,7 +1312,7 @@ return array(
             'parent_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
             array('properties' => array("parent_id", "favorites_categories", "id")),
         )
@@ -1324,7 +1328,7 @@ return array(
             'notes' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
             array('properties' => array("favorite_category", "favorites_categories", "id")),
         )
@@ -1351,7 +1355,7 @@ return array(
             'group_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("document_id", "ic_documents", "id")),
             array('properties' => array("group_id", "ic_groups", "id")),
         )
@@ -1454,10 +1458,12 @@ return array(
             'field_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("assoc_type_id", "assoc_object_id", "field_id")),
             array('properties' => array("type_id", "object_id", "field_id")),
             array('properties' => array("type_id", "assoc_type_id", "field_id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("object_id")),
             array('properties' => array("type_id")),
         )
@@ -1617,7 +1623,7 @@ return array(
             'field_name' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'field_value' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array('revision_id', "object_revisions", "id")),
         )
     ),
@@ -1665,10 +1671,13 @@ return array(
             'grouping_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
         ),
         'PRIMARY_KEY' => 'id',
+        "KEYS" => array(
+            array('properties' => array("object_type_id", "object_id")),
+            array('properties' => array("field_id")),
+        ),
         "INDEXES" => array(
             array('properties' => array("object_type_id", "object_id")),
             array('properties' => array("field_id")),
-            array('properties' => array("grouping_id", "object_groupings", "id")),
         )
     ),
 
@@ -1704,7 +1713,7 @@ return array(
             'category_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("product_id", "products", "id")),
             array('properties' => array("category_id", "product_categories", "id")),
         )
@@ -1744,9 +1753,11 @@ return array(
             'path' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
+        "KEYS" => array(
+            array('properties' => array("family", "product_families", "id")),
+        ),
         "INDEXES" => array(
             array('properties' => array("image_id")),
-            array('properties' => array("family", "product_families", "id")),
         )
     ),
 
@@ -1874,17 +1885,6 @@ return array(
         ),
         "INDEXES" => array(
         )
-    ),
-
-    "project_bug_types" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
     ),
 
     "project_priorities" => array(
@@ -2071,7 +2071,7 @@ return array(
             'task_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'KEYS' => array(
             array('properties' => array("project_id", "projects", "id")),
             array('properties' => array("project_id", "projects", "id")),
             array('properties' => array("bug_id", "project_bugs", "id")),
@@ -2099,7 +2099,7 @@ return array(
             'group_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("project_id", "projects", "id")),
             array('properties' => array("group_id", "project_groups", "id")),
         )
@@ -2114,7 +2114,7 @@ return array(
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'KEYS' => array(
             array('properties' => array("project_id", "projects", "id")),
             array('properties' => array("template_id", "project_templates", "id")),
         )
@@ -2132,7 +2132,7 @@ return array(
             'invite_by' => array('type' => SchemaProperty::TYPE_CHAR_128),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'KEYS' => array(
             array('properties' => array("user_id", "users", "id")),
             array('properties' => array("project_id", "projects", "id")),
             array('properties' => array("position_id", "project_positions", "id")),
@@ -2219,7 +2219,7 @@ return array(
             'path' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
+        'KEYS' => array(
             array(
                 "property"=>'user_id',
                 'references_bucket'=>'users',
@@ -2314,8 +2314,6 @@ return array(
             'chart_dim1_grp' => array('type' => SchemaProperty::TYPE_CHAR_32),
             'chart_dim2' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'chart_dim2_grp' => array('type' => SchemaProperty::TYPE_CHAR_32),
-            'chart_type' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'chart_type' => array('type' => SchemaProperty::TYPE_CHAR_128),
             'f_display_table' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "true"),
             'f_display_chart' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "true"),
             'scope' => array('type' => SchemaProperty::TYPE_CHAR_32),
@@ -2402,7 +2400,7 @@ return array(
             'amount' => array('type' => SchemaProperty::TYPE_NUMERIC),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("order_id", "sales_orders", "id")),
             array('properties' => array("product_id", "products", "id")),
         )
@@ -2444,7 +2442,7 @@ return array(
             'group_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
             array('properties' => array("group_id", "user_groups", "id")),
             array('properties' => array("dacl_id", "security_dacl", "id")),
@@ -2475,7 +2473,7 @@ return array(
             'stock_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
             array('properties' => array("stock_id", "stocks", "id")),
         )
@@ -2489,9 +2487,11 @@ return array(
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
+        "KEYS" => array(
+            array('properties' => array("key_name", "user_id"), 'type' => 'UNIQUE'),
+        ),
         "INDEXES" => array(
             array('properties' => array("user_id")),
-            array('properties' => array("key_name", "user_id"), 'type' => 'UNIQUE'),
         )
     ),
 
@@ -2507,8 +2507,10 @@ return array(
             'dashboard' => array('type' => SchemaProperty::TYPE_CHAR_128),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        'KEYS' => array(
             array('properties' => array("user_id", "users", "id")),
+        ),
+        'INDEXES' => array(
             array('properties' => array("dashboard")),
         )
     ),
@@ -2523,8 +2525,10 @@ return array(
             'word' => array('type' => SchemaProperty::TYPE_CHAR_128),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("word")),
         )
     ),
@@ -2612,7 +2616,7 @@ return array(
             'group_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("user_id", "users", "id")),
             array('properties' => array("group_id", "user_groups", "id")),
         )
@@ -2634,7 +2638,7 @@ return array(
             'path' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("owner_id", "users", "id")),
         )
     ),
@@ -2650,9 +2654,11 @@ return array(
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
         ),
         'PRIMARY_KEY' => 'id',
+        "KEYS" => array(
+            array('properties' => array("user_id", "users", "id")),
+        ),
         "INDEXES" => array(
             array('properties' => array("parent_id")),
-            array('properties' => array("user_id", "users", "id")),
         )
     ),
 
@@ -2716,8 +2722,10 @@ return array(
             'revision' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("object_type", "f_active")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("uname")),
         )
     ),
@@ -2743,10 +2751,12 @@ return array(
             'data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("workflow_id", "workflows", "id")),
             array('properties' => array("start_wfid", "workflows", "id")),
             array('properties' => array("stop_wfid", "workflows", "id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("parent_action_id")),
             array('properties' => array("uname")),
         )
@@ -2777,7 +2787,7 @@ return array(
             'wf_action_id' => array('type' => SchemaProperty::TYPE_BIGINT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("workflow_id", "workflows", "id")),
             array('properties' => array("wf_action_id", "workflow_actions", "id")),
         )
@@ -2795,11 +2805,13 @@ return array(
             'f_completed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("object_type_id", "app_object_types", "id")),
+            array('properties' => array("workflow_id", "workflows", "id")),
+        ),
+        "INDEXES" => array(
             array('properties' => array("object_type")),
             array('properties' => array("object_uid")),
-            array('properties' => array("workflow_id", "workflows", "id")),
         )
     ),
 
@@ -2813,9 +2825,11 @@ return array(
             'action_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
+        "KEYS" => array(
+            array('properties' => array("action_id", "workflow_actions", "id")),
+        ),
         "INDEXES" => array(
             array('properties' => array("parent_id")),
-            array('properties' => array("action_id", "workflow_actions", "id")),
         )
     ),
 
@@ -2920,7 +2934,7 @@ return array(
             'furl' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("feed_id", "xml_feeds", "id")),
         )
     ),
@@ -2969,9 +2983,11 @@ return array(
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
         ),
         'PRIMARY_KEY' => 'id',
+        "KEYS" => array(
+            array('properties' => array("feed_id", "xml_feeds", "id")),
+        ),
         "INDEXES" => array(
             array('properties' => array("parent_id")),
-            array('properties' => array("feed_id", "xml_feeds", "id")),
         )
     ),
 
@@ -2982,7 +2998,7 @@ return array(
             'category_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
+        "KEYS" => array(
             array('properties' => array("post_id", "xml_feed_posts", "id")),
             array('properties' => array("category_id", "xml_feed_post_categories", "id")),
         )
@@ -2999,11 +3015,7 @@ return array(
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array(
-                "property"=>'report_id',
-                'references_bucket'=>'reports',
-                'references_property'=>'id',
-            ),
+            array("property"=>'report_id', 'references_bucket'=>'reports', 'references_property'=>'id'),
         ),
         "INDEXES" => array(
         )
@@ -3335,7 +3347,7 @@ return array(
         "INDEXES" => array(
             array('properties' => array("collection_id")),
             array('properties' => array("unique_id")),
-            array('properties' => array("new_commit_id", "new_commit_id IS NOT NULL")),
+            array('properties' => array("new_commit_id", "new_commit_id")),
             array('properties' => array("collection_type", "commit_id")),
             array('properties' => array("collection_type", "new_commit_id")),
         )

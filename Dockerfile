@@ -1,4 +1,6 @@
-FROM php:5.6-apache
+FROM php:7.1-apache
+#FROM php:5.6-apache
+# we would like to upgrade to 7, but gearman does not yet have an extension for 7+ that works as of 5/16/2017
 
 ###############################################################################
 # Setup PHP and apache
@@ -22,18 +24,35 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) iconv mcrypt pgsql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-	&& pecl install memcache \
-	&& docker-php-ext-enable memcache \
-	&& pecl install gearman \
-    && docker-php-ext-enable gearman \
+	&& pecl install memcached \
+	&& docker-php-ext-enable memcached \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
-    && pecl install mogilefs-0.9.2 \
-    && docker-php-ext-enable mogilefs \
     && docker-php-ext-install pcntl \
     && docker-php-ext-enable pcntl \
-    && pecl install mailparse-2.1.6 \
+    && pecl install mailparse \
     && docker-php-ext-enable mailparse
+
+# Install gearman since the pecl version will not work with PHP7
+RUN cd /tmp \
+    && git clone https://github.com/wcgallego/pecl-gearman.git \
+    && cd pecl-gearman \
+    && git checkout gearman-2.0.3 \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && docker-php-ext-enable gearman
+
+# Install mogilefs since the pecl version will not work with PHP7
+RUN cd /tmp \
+    && git clone https://github.com/lstrojny/pecl-mogilefs.git \
+    && cd pecl-mogilefs \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && docker-php-ext-enable mogilefs
 
 # install PHP PEAR extensions
 RUN pear install mail \

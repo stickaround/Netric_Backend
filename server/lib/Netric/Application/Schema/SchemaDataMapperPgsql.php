@@ -294,6 +294,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         // TODO: right now we don't do anything with keys
         return true;
 
+        /*
         // The first element of the definition should be an array of columns
         if (!is_array($keyDefinition[1]))
         {
@@ -308,6 +309,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         $sql = ($keyDefinition[0] == 'UNIQUE') ?  'CREATE UNIQUE INDEX' : 'CREATE INDEX';
         $sql .= " {$tableName}_{$foreignKeyName}_idx ON {$tableName} (" . implode(', ', $keyDefinition[1]) . ");";
         return ($this->dbh->query($sql)) ? true : false;
+        */
     }
 
     /**

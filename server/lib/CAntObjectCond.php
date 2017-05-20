@@ -6,7 +6,7 @@ class CAntObjectCond
 	var $operator;
 	var $value;
 
-	function CAntObjectCond($blogic=null, $fieldName, $operator, $value)
+	function __construct($blogic=null, $fieldName, $operator, $value)
 	{
 		$this->fieldName = $fieldName;
 		$this->operator = $operator;

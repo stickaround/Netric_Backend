@@ -10,6 +10,7 @@ use Netric\FileSystem\FileSystem;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition;
+use PhpMimeMailParser\Exception;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -227,18 +228,22 @@ class Entity implements EntityInterface
             switch ($field->type)
             {
                 case 'bool':
-                    if (is_string($value))
-                    {
+                    if (is_string($value)) {
                         $value = ($value == 't') ? true : false;
                     }
                     break;
 				case 'date':
 				case 'timestamp':
-					if ($value && !is_numeric($value))
-					{
+					if ($value && !is_numeric($value)) {
 						$value = strtotime($value);
 					}
 					break;
+                case 'fkey_multi':
+                case 'object_multi':
+                    if ($value && !is_array($value)) {
+                        $value = array($value);
+                    }
+
             }
         }
 
@@ -271,7 +276,7 @@ class Entity implements EntityInterface
         $oldval = $this->getValue($strName);
         $oldvalName = $this->getValueNames($strName);
 
-        if (!isset($this->values[$strName]))
+        if (!isset($this->values[$strName]) || $this->values[$strName] == '')
             $this->values[$strName] = array();
 
         // Check to make sure we do not already have this value added
@@ -289,7 +294,7 @@ class Entity implements EntityInterface
         		return;
         	}
         }
-        
+
         // Set the value
         $this->values[$strName][] = $value;
 

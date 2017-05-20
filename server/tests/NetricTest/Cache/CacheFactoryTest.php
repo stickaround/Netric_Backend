@@ -14,12 +14,12 @@ class CacheFactoryTest extends PHPUnit_Framework_TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\Cache\AlibCache',
+            'Netric\Cache\MemcachedCache',
             $sm->get('Cache')
         );
 
         $this->assertInstanceOf(
-            'Netric\Cache\AlibCache',
+            'Netric\Cache\MemcachedCache',
             $sm->get('Netric\Cache\Cache')
         );
     }

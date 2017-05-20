@@ -13,6 +13,9 @@ include(__DIR__ . "/../init_autoloader.php");
 
 $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
+// chdir to the root
+chdir(dirname(__DIR__));
+
 // Get system config
 $config = Netric\Config\ConfigLoader::fromFolder(
     __DIR__ . "/../config",

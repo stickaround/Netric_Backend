@@ -5,7 +5,7 @@ class CAntObjectSort
     var $order; // Deprecated
     var $direction; // replaced order
 
-    function CAntObjectSort($fieldName, $direction)
+    function __construct($fieldName, $direction)
     {
         $this->fieldName = $fieldName;
         $this->direction = $direction;

@@ -18,7 +18,7 @@ class CacheFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return Cache
+     * @return CacheInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

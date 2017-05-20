@@ -8,13 +8,10 @@ use Netric\Account\Account;
 use Netric\Application\Exception;
 use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;
-use Netric\Console\Console;
-use Netric\Request\ConsoleRequest;
-use Netric\Request\HttpRequest;
 use Netric\Mvc\Router;
 use Netric\Config\Config;
 use Netric\Log\Log;
-use Netric\Cache\AlibCache;
+use Netric\Cache\MemcachedCache;
 use Netric\Account\AccountIdentityMapper;
 use Netric\ServiceManager\ApplicationServiceManager;
 
@@ -108,10 +105,11 @@ class Application
         $this->dm = new DataMapperPgsql($config->db["host"],
             $config->db["sysdb"],
             $config->db["user"],
-            $config->db["password"]);
+            $config->db["password"]
+        );
 
         // Setup application cache
-        $this->cache = new AlibCache();
+        $this->cache = new MemcachedCache($config->cache);
 
         // Setup account identity mapper
         $this->accountsIdentityMapper = new AccountIdentityMapper($this->dm, $this->cache);
