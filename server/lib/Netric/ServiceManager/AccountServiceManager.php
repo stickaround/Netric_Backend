@@ -160,7 +160,7 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
      * @deprecated This is legacy code used only for the entity datamapper at this point
      *
      * @return \AntFs
-     */
+     *
     private function factoryAntFs()
     {
         require_once(dirname(__FILE__) . "/../../AntConfig.php");
@@ -178,6 +178,7 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
 
         return $antfs;
     }
+     * */
 
     /**
      * Get Help class

@@ -91,6 +91,9 @@ RUN chmod +x /netric-setup.sh
 RUN chmod +x /netric-tests.sh
 RUN chmod +x /start.sh
 
+# Make sure data/log is owned by www-data
+RUN chown -R www-data:www-data /var/www/html/data/
+
 # Run composer install to get all required dependencies
 RUN cd /var/www/html && php composer.phar install && php composer.phar update
 

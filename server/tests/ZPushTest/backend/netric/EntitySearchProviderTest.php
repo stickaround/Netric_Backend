@@ -83,8 +83,6 @@ class EntitySearchProviderTest extends PHPUnit_Framework_TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
-        $this->account = \NetricTest\Bootstrap::getAccount();
-
         // Setup entity datamapper for handling users
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
@@ -132,6 +130,11 @@ class EntitySearchProviderTest extends PHPUnit_Framework_TestCase
         $this->testEntities[] = $calendar;
         $this->testCalendar = $calendar;
 
+        // Initialize zpush - copied from zpush index file
+        if (!defined ( 'REAL_BASE_PATH' )) {
+            \ZPush::CheckConfig();
+        }
+
         // Setup the provider service
         $this->provider = new \EntitySearchProvider($this->account, $this->user);
     }
@@ -155,7 +158,7 @@ class EntitySearchProviderTest extends PHPUnit_Framework_TestCase
         $foundItem = null;
 
         foreach ($items as $item) {
-            if ($item[SYNC_GAL_DISPLAYNAME] == self::TEST_USER) {
+            if (is_array($item) && $item[SYNC_GAL_DISPLAYNAME] == self::TEST_USER) {
                 $foundItem = $item;
             }
         }
@@ -191,7 +194,7 @@ class EntitySearchProviderTest extends PHPUnit_Framework_TestCase
         $foundItem = null;
 
         foreach ($items as $item) {
-            if ($item['longid'] == $email->getId()) {
+            if (is_array($item) && $item['longid'] == $email->getId()) {
                 $foundItem = $item;
             }
         }
@@ -205,6 +208,6 @@ class EntitySearchProviderTest extends PHPUnit_Framework_TestCase
 
     public function testTerminateSearch()
     {
-        $this->assertTrue($this->provider->TerminateSearch());
+        $this->assertTrue($this->provider->TerminateSearch(1));
     }
 }

@@ -4,11 +4,11 @@
  *
  * Once this is done, z-push will use it to store state
  * information in a database rather than a local file system
- * which will make multi-server use possibile.
+ * which will make multi-server use possible.
  */
 $zPushRoot = dirname(__FILE__) ."/../../";
 
-// Interfaces we are extending
+// Interfaces we are implementing
 require_once($zPushRoot . 'lib/interface/istatemachine.php');
 
 /**
@@ -81,19 +81,21 @@ class SyncStateMachine implements IStateMachine
 
     /**
      * Cleans up all older states
+     *
      * If called with a $counter, all states previous state counter can be removed
      * If called without $counter, all keys (independently from the counter) can be removed
      *
      * @param string    $devid              the device id
      * @param string    $type               the state type
      * @param string    $key
-     * @param string    $counter            (opt)
+     * @param string $counter Sll states previous state counter can be removed
+     * @param string $thisCounterOnly Only clean this counter
      *
      * @access public
      * @return
      * @throws StateInvalidException
      */
-    public function CleanStates($devid, $type, $key, $counter = false)
+    public function CleanStates($devid, $type, $key, $counter = false, $thisCounterOnly = false)
     {
 
     }
@@ -154,7 +156,7 @@ class SyncStateMachine implements IStateMachine
     /**
      * Sets the current version of the state files
      *
-     * @param int       $version            the new supported version
+     * @param int $version the new supported version
      *
      * @access public
      * @return boolean

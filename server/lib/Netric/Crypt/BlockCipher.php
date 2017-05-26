@@ -91,7 +91,7 @@ class BlockCipher
      * Determine which algorithm to use based on the prefix of the text
      *
      * We store the algorithm in the first char followed by a -. Version 2 of our
-     * algorhithm would look like 2-<encrypedtext>. Legacy encryption will not have
+     * algorithm would look like 2-<encrypedtext>. Legacy encryption will not have
      * a prefix.
      *
      * @param string $text
@@ -128,13 +128,13 @@ class BlockCipher
     {
         return trim(
             base64_encode(
-                mcrypt_encrypt(
+                @mcrypt_encrypt(
                     MCRYPT_RIJNDAEL_256,
                     $this->key,
                     $text,
                     MCRYPT_MODE_ECB,
-                    mcrypt_create_iv(
-                        mcrypt_get_iv_size(
+                    @mcrypt_create_iv(
+                        @mcrypt_get_iv_size(
                             MCRYPT_RIJNDAEL_256,
                             MCRYPT_MODE_ECB
                         ),
@@ -154,13 +154,13 @@ class BlockCipher
     private function decryptLegacy($text)
     {
         return trim(
-            mcrypt_decrypt(
+            @mcrypt_decrypt(
                 MCRYPT_RIJNDAEL_256,
                 $this->key,
                 base64_decode($text),
                 MCRYPT_MODE_ECB,
-                mcrypt_create_iv(
-                    mcrypt_get_iv_size(
+                @mcrypt_create_iv(
+                    @mcrypt_get_iv_size(
                         MCRYPT_RIJNDAEL_256,
                         MCRYPT_MODE_ECB
                     ),

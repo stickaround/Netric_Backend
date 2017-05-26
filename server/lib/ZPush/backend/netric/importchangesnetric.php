@@ -55,13 +55,13 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
     /**
      * Constructor
      *
-     * @param Netric\Log $log Logger for recording what is going on
+     * @param Netric\Log\LogInterface $log Logger for recording what is going on
      * @param Netric\EntitySync\Collection\CollectionInterface $collection Track changes
      * @param EntityProvider $entityProvider Write and read entities from netric
      * @param string $folderId
      */
     public function __construct(
-        Netric\Log $log,
+        Netric\Log\LogInterface $log,
         Netric\EntitySync\Collection\CollectionInterface $collection,
         EntityProvider $entityProvider,
         $folderId = null
@@ -175,13 +175,14 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
     /**
      * Imports a deletion. This may conflict if the local object has been modified
      *
-     * @param string        $id
+     * @param string $id
+     * @param bool $asSoftDelete Use if we are not hard deleting
      *
      * @access public
      * @return boolean
      * @throws StatusException
      */
-    public function ImportMessageDeletion($id)
+    public function ImportMessageDeletion($id, $asSoftDelete = false)
     {
         // Do nothing if it is in a dummy folder
         if ($this->folderId == SYNC_FOLDER_TYPE_DUMMY) {

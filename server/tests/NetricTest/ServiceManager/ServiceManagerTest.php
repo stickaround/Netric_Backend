@@ -70,16 +70,4 @@ class ServiceManagerTest extends PHPUnit_Framework_TestCase
 		// Make sure they are the same
 		$this->assertSame($appConfig, $accConfig);
 	}
-    
-    /**
-	 * Test getting entity datamapper
-	 */
-	public function testFactoryAntFs()
-	{
-		$sl = $this->account->getServiceManager();
-
-		// Get config service
-		$antfs = $sl->get("AntFs");
-		$this->assertInstanceOf("\AntFs", $antfs);
-	}
 }

@@ -61,7 +61,7 @@ class ImportChangesNetricTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->log = $this->getMockBuilder('\Netric\Log')
+        $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -74,6 +74,11 @@ class ImportChangesNetricTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->folderId = \EntityProvider::FOLDER_TYPE_TASK . "-test";
+
+        // Initialize zpush - copied from zpush index file
+        if (!defined ( 'REAL_BASE_PATH' )) {
+            \ZPush::CheckConfig();
+        }
 
         $this->importer = new \ImportChangesNetric(
             $this->log,

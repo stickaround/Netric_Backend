@@ -13,7 +13,7 @@ use Netric\Config\Config;
 /**
  * Description of Log
  */
-class Log 
+class Log implements LogInterface
 {
 	/**
 	 * Path to the log file

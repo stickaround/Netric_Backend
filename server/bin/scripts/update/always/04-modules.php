@@ -8,7 +8,7 @@ if (!$account)
     throw new \RuntimeException("This must be run only against a single account");
 
 // Get modules from data
-$modules = require("data/account/modules.php");
+$modules = require(__DIR__ . "/../../../../data/account/modules.php");
 
 // Get the module service
 $serviceLocator = $account->getServiceManager();

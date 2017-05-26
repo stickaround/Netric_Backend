@@ -123,6 +123,11 @@ class EntityProviderTest extends PHPUnit_Framework_TestCase
         $this->testEntities[] = $calendar;
         $this->testCalendar = $calendar;
 
+        // Initialize zpush - copied from zpush index file
+        if (!defined ( 'REAL_BASE_PATH' )) {
+            \ZPush::CheckConfig();
+        }
+
         // Setup the provider service
         $this->provider = new \EntityProvider($this->account, $this->user);
     }

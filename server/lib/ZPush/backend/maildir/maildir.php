@@ -18,29 +18,11 @@
 *
 * Created   :   01.10.2007
 *
-* Copyright 2007 - 2013 Zarafa Deutschland GmbH
+* Copyright 2007 - 2016 Zarafa Deutschland GmbH
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License, version 3,
-* as published by the Free Software Foundation with the following additional
-* term according to sec. 7:
-*
-* According to sec. 7 of the GNU Affero General Public License, version 3,
-* the terms of the AGPL are supplemented with the following terms:
-*
-* "Zarafa" is a registered trademark of Zarafa B.V.
-* "Z-Push" is a registered trademark of Zarafa Deutschland GmbH
-* The licensing of the Program under the AGPL does not imply a trademark license.
-* Therefore any rights, title and interest in our trademarks remain entirely with us.
-*
-* However, if you propagate an unmodified version of the Program you are
-* allowed to use the term "Z-Push" to indicate that you distribute the Program.
-* Furthermore you may use our trademarks where it is necessary to indicate
-* the intended purpose of a product or service provided you use it in accordance
-* with honest practices in industrial or commercial matters.
-* If you want to propagate modified versions of the Program under the name "Z-Push",
-* you may only do so if you have a written permission by Zarafa Deutschland GmbH
-* (to acquire a permission please contact Zarafa at trademark@zarafa.com).
+* as published by the Free Software Foundation.
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -55,10 +37,6 @@
 
 // config file
 require_once("backend/maildir/config.php");
-
-include_once('lib/default/diffbackend/diffbackend.php');
-include_once('include/mimeDecode.php');
-require_once('include/z_RFC822.php');
 
 class BackendMaildir extends BackendDiff {
     /**----------------------------------------------------------------------------------------------------------
@@ -356,6 +334,9 @@ class BackendMaildir extends BackendDiff {
         $rfc822 = file_get_contents($this->getPath() . "/" . $fn);
 
         $message = Mail_mimeDecode::decode(array('decode_headers' => true, 'decode_bodies' => true, 'include_bodies' => true, 'input' => $rfc822, 'crlf' => "\n", 'charset' => 'utf-8'));
+
+        Utils::CheckAndFixEncoding($message->headers["subject"]);
+        Utils::CheckAndFixEncoding($message->headers["from"]);
 
         $output = new SyncMail();
 
@@ -718,5 +699,3 @@ class BackendMaildir extends BackendDiff {
         return MAILDIR_BASE . "/" . $this->store . "/" . MAILDIR_SUBDIR . "/cur";
     }
 }
-
-?>

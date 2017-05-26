@@ -19,7 +19,7 @@ class ExportChangesNetricTest extends PHPUnit_Framework_TestCase
     /**
      * Logger interface
      *
-     * @var \Netric\Log
+     * @var \Netric\Log\LogInterface
      */
     private $log = null;
 
@@ -37,7 +37,6 @@ class ExportChangesNetricTest extends PHPUnit_Framework_TestCase
      */
     private $entityProvider = null;
 
-
     /**
      * Folder id for testing
      *
@@ -51,7 +50,7 @@ class ExportChangesNetricTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->log = $this->getMockBuilder('\Netric\Log')
+        $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
                           ->disableOriginalConstructor()
                           ->getMock();
 
@@ -62,6 +61,11 @@ class ExportChangesNetricTest extends PHPUnit_Framework_TestCase
         $this->entityProvider = $this->getMockBuilder('\EntityProvider')
                                      ->disableOriginalConstructor()
                                      ->getMock();
+
+        // Initialize zpush - copied from zpush index file
+        if (!defined ( 'REAL_BASE_PATH' )) {
+            \ZPush::CheckConfig();
+        }
 
         $this->folderId = \EntityProvider::FOLDER_TYPE_TASK . "-test";
     }

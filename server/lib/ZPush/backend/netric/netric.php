@@ -230,7 +230,7 @@ class BackendNetric implements IBackend
      * @param string $folderid If set, only ACLs on this folderid are relevant
      * @return boolean true on success
      */
-    public function Setup($store, $checkACLonly = false, $folderid = false)
+    public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false)
     {
         if (!isset($this->user))
             return false;
@@ -316,6 +316,75 @@ class BackendNetric implements IBackend
                 $this->entityProvider
             );
         }
+    }
+
+    /**
+     * Indicates if the Backend supports folder statistics.
+     *
+     * @access public
+     * @return boolean
+     */
+    public function HasFolderStats()
+    {
+        // TODO: implement
+        return false;
+    }
+
+    /**
+     * Returns a status indication of the folder.
+     * If there are changes in the folder, the returned value must change.
+     * The returned values are compared with '===' to determine if a folder needs synchronization or not.
+     *
+     * @param string $store         the store where the folder resides
+     * @param string $folderid      the folder id
+     *
+     * @access public
+     * @return string
+     */
+    public function GetFolderStat($store, $folderid)
+    {
+        // TODO: implement
+        return "";
+    }
+
+    /**
+     * Returns the policy name for the user.
+     * If the backend returns false, the 'default' policy is used.
+     * If the backend returns any other name than 'default' the policygroup with
+     * that name (defined in the policies.ini file) will be applied for this user.
+     *
+     * @access public
+     * @return string|boolean
+     */
+    public function GetUserPolicyName()
+    {
+        return false;
+    }
+
+    /**
+     * Returns the backend ID of the folder of the KOE GAB.
+     *
+     * @param string $foldername
+     *
+     * @access public
+     * @return string|boolean
+     */
+    public function GetKoeGabBackendFolderId($foldername)
+    {
+        // TODO: maybe implment
+        return false;
+    }
+
+    /**
+     * Returns a KoeSignatures object.
+     *
+     * @access public
+     * @return KoeSignatures
+     */
+    public function GetKoeSignatures()
+    {
+        // TODO: maybe implement
+        return null;
     }
 
     /**

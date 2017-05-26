@@ -74,13 +74,13 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
     /**
      * Constructor
      *
-     * @param Netric\Log $log Logger for recording what is going on
+     * @param Netric\Log\LogInterface $log Logger for recording what is going on
      * @param Netric\EntitySync\Collection\CollectionInterface $collection Track changes
      * @param EntityProvider $entityProvider Write and read entities from netric
      * @param string $folderId
      */
     public function __construct(
-        Netric\Log $log,
+        Netric\Log\LogInterface $log,
         Netric\EntitySync\Collection\CollectionInterface $collection,
         EntityProvider $entityProvider,
         $folderId = null

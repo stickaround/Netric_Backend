@@ -6,10 +6,7 @@ namespace ZPushTest\backend\netric;
 
 use PHPUnit_Framework_TestCase;
 use Netric\Mail\Transport\InMemory;
-use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail\SenderService;
-use Netric\Mail\Message;
-use Netric\Account\Account;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -93,6 +90,11 @@ class BackendNetricTest extends PHPUnit_Framework_TestCase
         $dm->save($user);
         $this->user = $user;
         $this->testEntities[] = $user; // cleanup automatically
+
+        // Initialize zpush - copied from zpush index file
+        if (!defined ( 'REAL_BASE_PATH' )) {
+            \ZPush::CheckConfig();
+        }
 
         // Setup the banckend service
         $this->backend = new \BackendNetric();

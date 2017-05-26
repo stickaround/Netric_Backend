@@ -59,11 +59,11 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
     /**
      * Constructor
      *
-     * @param Netric\Log $log Logger for recording what is going on
+     * @param Netric\Log\LogInterface $log Logger for recording what is going on
      * @param EntityProvider $entityProvider Write and read entities from netric
      */
     public function __construct(
-        Netric\Log $log,
+        Netric\Log\LogInterface $log,
         EntityProvider $entityProvider
     )
     {
@@ -158,7 +158,10 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
                     break;
 
                 case "delete":
-                    if($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportFolderDeletion($change["id"]))
+                    $syncFolder = new \SyncFolder();
+                    $syncFolder->serverid = $change['id'];
+                    $syncFolder->displayname = "Delete-" . $change['id'];
+                    if($this->flags & BACKEND_DISCARD_DATA || $this->importer->ImportFolderDeletion($syncFolder))
                     {
                         // Delete action only requires id in the stat data
                         $this->updateState(
