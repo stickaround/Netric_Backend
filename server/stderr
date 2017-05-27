@@ -131,3 +131,21 @@ SELECT worker_job_queue.id, worker_job_queue.function_name, worker_job_queue.wor
 					AND (ts_run IS NULL or ts_run<=now()) AND worker_job_queue.id='1' AND version is null LIMIT 1
 ----------------------------------------------
 ",/controller/ObjectList/query,devel.netric.com,,
+ERROR,2017-05-27T11:42:49-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-05-27 11:42:49
+Host: devel.netric.com
+Page: /authenticate.php
+Error
+----------------------------------------------
+ERROR:  column ""customer_number"" does not exist
+LINE 1: select customer_number from accounts where id='1'
+               ^
+----------------------------------------------
+Query
+----------------------------------------------
+select customer_number from accounts where id='1'
+----------------------------------------------
+",/authenticate.php,devel.netric.com,,
