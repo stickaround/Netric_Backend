@@ -217,7 +217,7 @@ class Log implements LogInterface
         );
 
 		// Add request to the log if available
-		if ($_SERVER['REQUEST_URI']) {
+		if isset($_SERVER['REQUEST_URI'])) {
 		    $logDetails['request'] = $_SERVER['REQUEST_URI'];
         }
 
