@@ -86,7 +86,7 @@ class AuthenticationController extends Mvc\AbstractAccountController
 	/**
 	 * Authenticate a new user - POST version
 	 */
-	public function postAuthenticateAction($params=array())
+	public function postAuthenticateAction()
 	{
 		return $this->getAuthenticateAction();
 	}

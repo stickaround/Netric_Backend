@@ -39,8 +39,9 @@ if you only want to test a specific test type:
     python test.py NetricTest/Application/Application.php
 
 ### Accessing Services
-- http://127.0.0.1:80 - load netric
-- http://127.0.0.1:5601 - load kibana to view logs
+- http://localhost:80 - load netric
+- http://localhost:5601 - load kibana to view logs
+- http://localhost:8888 - view quest profiles
 - localhost:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging

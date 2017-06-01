@@ -74,8 +74,7 @@ class UserEntity extends Entity implements EntityInterface
         if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name")) {
             // Delete old username if changed
             $previousName = $this->getPreviousValue("name");
-            if ($previousName && $previousName != $this->getValue("name"))
-            {
+            if ($previousName && $previousName != $this->getValue("name")) {
                 $sm->getAccount()->setAccountUserEmail($previousName, null);
             }
 
@@ -99,8 +98,7 @@ class UserEntity extends Entity implements EntityInterface
         $salt = $this->getValue("password_salt");
 
         // Check for salt and create if missing
-        if (!$salt)
-        {
+        if (!$salt) {
             $salt = $authService->generateSalt();
             $this->setValue("password_salt", $salt);
         }
@@ -121,16 +119,19 @@ class UserEntity extends Entity implements EntityInterface
     public function getGroups()
     {
         $groups = $this->getValue("groups");
-        if (!$groups || !is_array($groups))
+        if (!$groups || !is_array($groups)) {
             $groups = array();
+        }
 
         // Add to authenticated users group if we have determined this is a valid user
-        if ($this->getId() &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups))
+        if ($this->getId() &&  !$this->isAnonymous() && !in_array(self::GROUP_USERS, $groups)) {
             $groups[] = self::GROUP_USERS;
+        }
 
         // Of course every user is part of everyone
-        if (!in_array(self::GROUP_EVERYONE, $groups))
+        if (!in_array(self::GROUP_EVERYONE, $groups)) {
             $groups[] = self::GROUP_EVERYONE;
+        }
 
         return $groups;
     }

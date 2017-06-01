@@ -44,21 +44,13 @@ class Log implements LogInterface
 	 * @var int File handle
 	 */
 	private $logFile = null;
-    
+
     /**
-     * Define log csv definition - what columns store what
-     * 
-     * @var array
+     * If this is set we will add it to every log to make tracking all calls/events easier
+     *
+     * @var string
      */
-    private $logDef = array(
-        "LEVEL"=>0,
-        "TIME"=>1,
-        "DETAILS"=>2,
-        "SOURCE"=>3,
-        "SERVER"=>4,
-        "ACCOUNT"=>5,
-        "USER"=>6,
-    );
+	private $requestId = "";
 
 	/**
 	 * Log levels
@@ -155,6 +147,16 @@ class Log implements LogInterface
     }
 
     /**
+     * Set the requestID to correlate log entries
+     *
+     * @param string $requestId
+     */
+    public function setRequestId($requestId)
+    {
+        $this->requestId = $requestId;
+    }
+
+    /**
      * Set the path to use for logging
      *
      * @param string $logPath
@@ -192,24 +194,49 @@ class Log implements LogInterface
 	 * which in turn just sets the level and writes to this method.
 	 *
 	 * @param int $lvl The level of the event being logged
-	 * @param string $message The message to log
+	 * @param string|array $message The message to log
      * @return bool true on success, false on failure
 	 */
 	public function writeLog($lvl, $message)
 	{
 		// Only log events below the current logging level set
-		if ($lvl > $this->level)
-			return false;
+		if ($lvl > $this->level) {
+            return false;
+        }
 
 		// Prepare the log
         $logDetails = array(
-            'time' => time(),
+            'time' => gmdate("Y-m-d\TH:i:s\Z"),
             'level' => $lvl,
-            'level_name' => $this->getLevelName($lvl),
+            'severity' => $this->getLevelName($lvl),
             'client_ip' => (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : null,
             'client_port' => (isset($_SERVER['REMOTE_PORT'])) ? $_SERVER['REMOTE_PORT'] : null,
-            'message' => $message,
+            'message' => (is_array($message)) ? "Structured" : $message,
+            'application_name' => 'netric-server',
+            'application_version' => ($this->appBranch) ? $this->appBranch : 'release'
         );
+
+		// Add request to the log if available
+		if ($_SERVER['REQUEST_URI']) {
+		    $logDetails['request'] = $_SERVER['REQUEST_URI'];
+        }
+
+        // If the request ID was set the log it
+        if ($this->requestId) {
+		    $logDetails['request_id'] = $this->requestId;
+        }
+
+        /*
+         * If this is a structured log entry then add each key to the logDetails
+         * Note that these MAY override any of the keys above. That is intentional
+         * and useful for things like when you want to pass through client logs
+         * from and override application_name to the client's name.
+         */
+        if (is_array($message)) {
+            foreach ($message as $key=>$val) {
+                $logDetails[$key] = $val;
+            }
+        }
 
         // Determine what writer to use
         switch ($this->writer) {
@@ -220,6 +247,10 @@ class Log implements LogInterface
                 return $this->writerFile($logDetails);
         }
 
+        // No supported writers appear to be configured
+        return false;
+
+        /*
 		global $_SERVER;
 
 		$source = "ANT";
@@ -252,26 +283,27 @@ class Log implements LogInterface
 		if ($this->logFile) {
             /*
              [Mon Jul 18 13:19:31.260660 2016] [:error] [pid 86] [client 172.18.0.1:33174] PHP   8. Zen
-             */
+             *
             /*
             $logLine = date('M m d H:i:s') . " " .
             (($server) ? $server : ' - ') . " " .
             " netric: " . $message;
             return fwrite($this->logFile, $logLine);
-            */
+            *
             return fputcsv($this->logFile, $eventData);
         } else {
             // Otherwise just log to syslog
              $this->syslog($lvl, $message);
             //return syslog($lvl, "branch={$this->appBranch}, page=$source, message=$message");
         }
-
+        */
 	}
 
 	/**
 	 * Log an informational message
 	 * 
-	 * @param string $message The message to insert into the log
+	 * @param string|array $message The message to insert into the log
+     * @return bool true if success
 	 */
 	public function info($message)
 	{
@@ -281,7 +313,8 @@ class Log implements LogInterface
 	/**
 	 * Log a warning message
 	 * 
-	 * @param string $message The message to insert into the log
+	 * @param string|array $message The message to insert into the log
+     * @return bool true if success
 	 */
 	public function warning($message)
 	{
@@ -291,7 +324,8 @@ class Log implements LogInterface
 	/**
 	 * Log an error message
 	 * 
-	 * @param string $message The message to insert into the log
+	 * @param string|array $message The message to insert into the log
+     * @return bool true if success
 	 */
 	public function error($message)
 	{
@@ -301,7 +335,8 @@ class Log implements LogInterface
 	/**
 	 * Log a debug message
 	 * 
-	 * @param string $message The message to insert into the log
+	 * @param string|array $message The message to insert into the log
+     * @return bool true if success
 	 */
 	public function debug($message)
 	{
@@ -483,7 +518,7 @@ class Log implements LogInterface
 	/**
 	 * Log an unhandled exception
 	 *
-	 * @param \ExceptionInterface $exception
+	 * @param \Exception $exception
 	 */
 	public function phpUnhandledExceptionHandler($exception)
 	{
@@ -652,15 +687,7 @@ class Log implements LogInterface
             $this->logFile = fopen($this->logPath, 'a');
         }
 
-        /* If we wanted to write JSON this would be how */
-        $messageData = [
-            'time' => gmdate("Y-m-d\TH:i:s\Z"),
-            'severity' => $logDetails['level_name'],
-            'client_ip' => $logDetails['client_ip'],
-            'client_port' => $logDetails['client_port'],
-            'message' => $logDetails['message']
-        ];
-        fwrite($this->logFile, json_encode($messageData) . "\n");
+        fwrite($this->logFile, json_encode($logDetails) . "\n");
 
         /*
         $formattedMessage = "[" . date("D M d H:i:s.u Y", $logDetails['time']) . "]";

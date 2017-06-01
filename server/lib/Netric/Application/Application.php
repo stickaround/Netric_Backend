@@ -69,32 +69,37 @@ class Application
     private $serviceManager = null;
 
     /**
+     * The unique ID of this request
+     *
+     * @var string
+     */
+    private $requestId = null;
+
+    /**
      * Initialize application
      *
      * @param Config $config
      */
     public function __construct(Config $config)
     {
+        // start profiling if enabled
+        if (extension_loaded('xhprof')) {
+            xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
+        }
+
         $this->config = $config;
 
         // Setup log
         $this->log = new Log($config);
 
-        // TODO: Remove this log
-        $this->log->warning("4ApplicationStarting\nMore details down here");
+        // Watch for error notices and log them
+        set_error_handler(array($this->log, "phpErrorHandler"));
 
-        // Setup error handler if not in a unit test
-        if (!class_exists('\PHPUnit_Framework_TestCase'))
-        {
-            // Watch for error notices and log them
-            set_error_handler(array($this->log, "phpErrorHandler"));
+        // Log unhandled exceptions
+        set_exception_handler(array($this->log, "phpUnhandledExceptionHandler"));
 
-            // Log unhandled exceptions
-            set_exception_handler(array($this->log, "phpUnhandledExceptionHandler"));
-
-            // Watch for fatals which cause script execution to fail
-            register_shutdown_function(array($this->log, "phpShutdownErrorChecker"));
-        }
+        // Watch for fatals which cause script execution to fail
+        register_shutdown_function(array($this->log, "phpShutdownErrorChecker"));
 
         // Setup the application service manager
         $this->serviceManager = new ApplicationServiceManager($this);
@@ -133,6 +138,12 @@ class Application
      */
     public function run($path = "")
     {
+        // We give each request a unique ID in order to track calls and logs through the system
+        $this->requestId = uniqid();
+
+        // Add to every log to make tracking down problems easier
+        $this->log->setRequestId($this->requestId);
+
         // Get the request
         $request = $this->serviceManager->get("Netric/Request/Request");
 
@@ -146,6 +157,9 @@ class Application
 
         // Execute through the router
         $router->run($request);
+
+        // Handle any profiling needed for this request
+        $this->profileRequest();
     }
 
     /**
@@ -156,6 +170,16 @@ class Application
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * Get the unique ID of this request
+     *
+     * @return string
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
     }
 
     /**
@@ -477,5 +501,63 @@ class Application
     public function deleteEmailUser($accountId, $emailAddress)
     {
         return $this->dm->deleteEmailUser($accountId, $emailAddress);
+    }
+
+    /**
+     * Handle profiling this request if enabled
+     */
+    private function profileRequest()
+    {
+        if (!extension_loaded('xhprof') || $this->config->profile->enabled === false) {
+            return;
+        }
+
+        // Stop profiler and get data
+        $xhprofData = xhprof_disable();
+
+        // Loop through each function profiled
+        foreach ($xhprofData as $functionAndCalledFrom=>$stats) {
+            // If the total walltime (duration) of the function is worth tracking then log
+            if ((int) $stats['wt'] >= (int) $this->config->profile->min_wall) {
+
+                // xhprof puts the key in the following form: <calledFrom>==><calss_function_called>
+                // Offset 0 will be 'called_from' and 1 will be 'function_name'
+                $parts = explode("==>", $functionAndCalledFrom);
+
+                // If there is no function name then this is the main root profile
+                if (empty($parts[1])) {
+                    $parts[1] = "main()";
+                    $parts[0] = "";
+                }
+
+                $profileData = array(
+                    "type" => "profile",
+                    "function_name" => $parts[1],
+                    "called_from" => $parts[0],
+                    "num_calls" => $stats['ct'],
+                    "duration" => $stats['wt'],
+                    "cputime" => $stats['cpu'],
+                    "memoryused" => $stats['mu'],
+                    "peakmemoryused" => $stats['pmu'],
+                );
+                $this->log->warning($profileData);
+            }
+        }
+
+        /*
+         * TODO: Add a setting for saving the full profile dump in development environments
+         * Then we can create a container in netric just for xhprof so that developers
+         * can load up any request to see the full profile and determine where performance
+         * issues might be taking place.
+         */
+        //if ($this->config->profile->save_profile) {
+            $file_name = __DIR__ . '/../../../data/profile_runs/' . $this->getRequestId() . '.netric.xhprof';
+            $file = fopen($file_name, 'w');
+            if ($file) {
+                // Use PHP serialize function to store the XHProf's
+                fwrite($file, serialize($xhprofData));
+                fclose($file);
+            }
+        //}
     }
 }

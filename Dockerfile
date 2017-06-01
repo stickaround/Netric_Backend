@@ -1,6 +1,4 @@
 FROM php:7.1-apache
-#FROM php:5.6-apache
-# we would like to upgrade to 7, but gearman does not yet have an extension for 7+ that works as of 5/16/2017
 
 ###############################################################################
 # Setup PHP and apache
@@ -53,6 +51,16 @@ RUN cd /tmp \
     && make \
     && make install \
     && docker-php-ext-enable mogilefs
+
+# Install xhprof for php7
+RUN cd /tmp \
+    && git clone https://github.com/longxinH/xhprof.git \
+    && cd xhprof/extension/ \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install \
+    && docker-php-ext-enable xhprof
 
 # install PHP PEAR extensions
 RUN pear install mail \

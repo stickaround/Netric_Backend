@@ -51,7 +51,7 @@ else
 {
 */
 
-$autoLoader = new Zend\Loader\StandardAutoloader(array(
+//NEW://$autoLoader = new Zend\Loader\StandardAutoloader(array(
     /*
     'prefixes' => array(
         'MyVendor' => __DIR__ . '/MyVendor',
@@ -65,19 +65,19 @@ $autoLoader = new Zend\Loader\StandardAutoloader(array(
         'Zend' => $zf2Path,
     ),
     */
-    'fallback_autoloader' => true,
-));
-$autoLoader->registerNamespace('Netric', __DIR__ . '/lib/Netric');
-$autoLoader->registerNamespace('NetricPublic', __DIR__ . '/public');
+//NEW://    'fallback_autoloader' => true,
+//NEW://));
+//NEW://$autoLoader->registerNamespace('Netric', __DIR__ . '/lib/Netric');
+//NEW://$autoLoader->registerNamespace('NetricPublic', __DIR__ . '/public');
 
 /*
 if ($zf2Path)
     $autoLoader->registerNamespace('Zend', $zf2Path);
 */
 
-$autoLoader->register();
+//NEW://$autoLoader->register();
 //}
 
-if (!class_exists('Zend\Loader\StandardAutoloader')) {
-    throw new RuntimeException('Unable to load ZF2. Define a ZF2_PATH environment variable.');
-}
+//NEW://if (!class_exists('Zend\Loader\StandardAutoloader')) {
+//NEW://    throw new RuntimeException('Unable to load ZF2. Define a ZF2_PATH environment variable.');
+//NEW://}

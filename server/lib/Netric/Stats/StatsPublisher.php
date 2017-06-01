@@ -66,6 +66,13 @@ class StatsPublisher
     protected static $prefixNamespace = '';
 
     /**
+     * Flag to indicate if we should be sending stats or not
+     *
+     * @var boolean
+     */
+    protected static $statsEnabled = false;
+
+    /**
      * Setup the parameters based on the dev environment if no params are passed
      *
      * @param string $host The host of the StatsD service
@@ -97,6 +104,8 @@ class StatsPublisher
             if ($config === null) {
                 throw new \RuntimeException("Could not load config files from: " . __DIR__ . "/../../../config");
             }
+
+            static::$statsEnabled = $config->stats->enabled;
 
             if ($config->stats['enabled'])
             {
@@ -287,6 +296,11 @@ class StatsPublisher
      */
     protected static function sendAsUDP($data)
     {
+        // If stats are not enabled then we should not be sending anything
+        if (!static::$statsEnabled) {
+            return;
+        }
+
         // Wrap this in a try/catch -
         // failures in any of this should be silently ignored
         try {
@@ -300,7 +314,6 @@ class StatsPublisher
             fclose($fp);
         } catch (Exception $e) {
         }
-
     }
 
     /**

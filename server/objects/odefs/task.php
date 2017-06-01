@@ -42,17 +42,22 @@ $obj_fields['deadline']	= array('title'=>'Date Due', 'type'=>'date', 'subtype'=>
 $obj_fields['start_date']	= array('title'=>'Start Date', 'type'=>'date', 'subtype'=>'', 'readonly'=>false);
 
 // References
-$obj_fields['milestone_id'] = array('title'=>'Milestone',
-									  'type'=>'object',
-									  'subtype'=>'project_milestone',
-									  "filter"=>array("project"=>"project_id"), // this.project = project_milestone.project_id
-									  'fkey_table'=>array("key"=>"id", "title"=>"name"));
+$obj_fields['milestone_id'] = array(
+	'title'=>'Milestone',
+	'type'=>'object',
+	'subtype'=>'project_milestone',
+	"filter"=>array("project"=>"project_id"), // this.project = project_milestone.project_id
+	'fkey_table'=>array("key"=>"id", "title"=>"name")
+);
 
-$obj_fields['depends_task_id'] = array('title'=>'Depends On',
-								  'type'=>'object',
-								  'subtype'=>'task',
-								  "filter"=>array("project_id"=>"project_id"), // this.project = project_milestone.project_id
-								  'fkey_table'=>array("key"=>"id", "title"=>"name"));
+$obj_fields['depends_task_id'] = array(
+	'title'=>'Depends On',
+	'type'=>'object',
+	'subtype'=>'task',
+    // this.project = project_milestone.project_id
+	"filter"=>array("project_id"=>"project_id"),
+	'fkey_table'=>array("key"=>"id", "title"=>"name")
+);
 
 $default = array("value"=>"-3", "on"=>"null");
 $obj_fields['user_id'] = array('title'=>'Assigned To',

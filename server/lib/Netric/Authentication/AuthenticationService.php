@@ -13,7 +13,7 @@ use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
 
 /**
- * Handle authentication from the cleint
+ * Handle authentication from the client
  *
  * @package Netric\Authentication
  */
@@ -198,7 +198,7 @@ class AuthenticationService
 	 *
 	 * @param string $username Unique username
 	 * @param string $password Clear text password for the selected user
-	 * @return on success a session string, null on failure
+	 * @return string on success a session string, null on failure
 	 */
 	public function authenticate($username, $password)
 	{
@@ -247,7 +247,7 @@ class AuthenticationService
 			return null;
 		}
 
-		// Cache for future calls to getIdentntiy because validation can be expensive
+		// Cache for future calls to getIdentity because validation can be expensive
 		$this->validatedIdentityUid = $user->getId();
 
 		// Create a session string
@@ -256,6 +256,8 @@ class AuthenticationService
 
 	/**
 	 * Generate an authentication string to send to the client
+     *
+     * @return string Signed session token
 	 */
 	public function getSignedSession($uid, $expires, $password, $salt)
 	{
@@ -280,8 +282,6 @@ class AuthenticationService
 		// Get authentication from either headers/get/post
 		$authStr = $this->request->getParam("Authentication");
 
-		$authData = array();
-
 		// Extract the parts
 		$authData = explode(":", $authStr);
 
@@ -299,6 +299,7 @@ class AuthenticationService
 	 * @param string $uid The unique id of the authenticated user
 	 * @param string $expires A timestamp or -1 for no expiration
 	 * @param string $password A pre-hashed encoded password (needs to be hashed once more)
+     * @return string Authorize string
 	 */
 	public function packSessionString($uid, $expires, $password)
 	{
@@ -317,10 +318,11 @@ class AuthenticationService
 	 */
 	public function getExpiresTs()
 	{
-		if (self::DEFAULT_EXPIRES > 0)
-			return time() + self::DEFAULT_EXPIRES;
-		else
-			return -1;
+		if (self::DEFAULT_EXPIRES > 0) {
+            return time() + self::DEFAULT_EXPIRES;
+        } else {
+            return -1;
+        }
 	}
 
 	/**
@@ -403,7 +405,7 @@ class AuthenticationService
 		 * This Would definitely add to the security, but it also requires a user load
 		 * every single request from cache. This may not be a problem however because
 		 * it can be assumed if we are checking authenticated state that we will shortly
-		 * be laoding the user. If we always use the \Netric\EntityLoader then it will
+		 * be loading the user. If we always use the \Netric\EntityLoader then it will
 		 * always load only once.
 		 */
 

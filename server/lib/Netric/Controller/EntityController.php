@@ -259,6 +259,16 @@ class EntityController extends Mvc\AbstractAccountController
         // IDs can either be a single entry or an array
         $ids = $this->request->getParam("id");
 
+        // Check if raw body was sent
+        if (!$objType && !$ids) {
+            $rawBody = $this->getRequest()->getBody();
+            $reqData = json_decode($rawBody, true);
+            if ($reqData && is_array($reqData)) {
+                $objType = $reqData['obj_type'];
+                $ids = $reqData['ids'];
+            }
+        }
+
         // Convert a single id to an array so we can handle them all the same way
         if (!is_array($ids) && $ids) {
             $ids = array($ids);

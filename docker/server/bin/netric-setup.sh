@@ -11,5 +11,5 @@ cd /var/www/html/bin
 # netric was previously installed
 ./netric setup/install --username=test@netric.com --password=password
 
-# Run update to make sure eveything is at the latest
+# Run update to make sure everything is at the latest version
 ./netric setup/update

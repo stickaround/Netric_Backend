@@ -3,6 +3,9 @@
   "description": "Netric Server",
   "license": "Commercial",
   "homepage": "http://www.netric.com/",
+  "autoload": {
+    "psr-4": {"Netric\\": "lib/Netric"}
+  },
   "require": {
     "php": ">=5.4",
     "facebook/php-sdk-v4" : "4.0.*",

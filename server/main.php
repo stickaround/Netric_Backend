@@ -5,7 +5,7 @@
 	require_once("email/email_functions.awp");
 	require_once("lib/Email.php");
 	require_once("lib/aereus.lib.php/CCache.php");
-	
+
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;
 	$USERID =  $USER->id;
@@ -34,6 +34,7 @@
 		$row = $dbh->GetRow($result, $i);
 		$apps[] = $row;
 	}
+
 ?>
 <!DOCTYPE HTML>
 <html>

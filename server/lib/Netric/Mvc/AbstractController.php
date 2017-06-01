@@ -167,6 +167,7 @@ abstract class AbstractController
 	protected function sendOutputJson($data)
 	{
 		$this->setContentType("json");
+		$data['request_id'] = $this->application->getRequestId();
 		$enc = json_encode($data);
 
 		switch (json_last_error()) 
