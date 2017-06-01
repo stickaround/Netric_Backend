@@ -217,7 +217,7 @@ class Log implements LogInterface
         );
 
 		// Add request to the log if available
-		if isset($_SERVER['REQUEST_URI'])) {
+		if (isset($_SERVER['REQUEST_URI'])) {
 		    $logDetails['request'] = $_SERVER['REQUEST_URI'];
         }
 
@@ -444,6 +444,7 @@ class Log implements LogInterface
 		$errMsg = "$err: $errstr in $errfile on line $errline";
 
 		// start backtrace
+        $trace = "";
 		foreach ($backtrace as $v) 
 		{
 			if (isset($v['class'])) 
@@ -491,25 +492,10 @@ class Log implements LogInterface
 
 		default:
 
-			$body = "";
-			if (isset($_COOKIE['uname']))
-				$body .= "USER_NAME: ".$_COOKIE['uname']."\n";
-			$body .= "Type: System\n";
-			if (isset($_COOKIE['db']))
-				$body .= "DATABASE: ".$_COOKIE['db']."\n";
-			if (isset($_COOKIE['dbs']))
-				$body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
-			if (isset($_COOKIE['aname']))
-				$body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
 
-			$body .= "When: ".date('Y-m-d H:i:s')."\n";
-			$body .= "URL: ".$_SERVER['REQUEST_URI']."\n";
-			$body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
-			$body .= "----------------------------------------------\n".nl2br($errMsg)."\nTrace: ".nl2br($trace);
-			$body .= "\n----------------------------------------------\n";
 
 			// Log the error
-			$this->error($body);
+			$this->error($errMsg . "\nTrace:\n" . $trace);
 
 			break;
 		}
@@ -540,7 +526,6 @@ class Log implements LogInterface
             $body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
 
 		$body .= "When: ".date('Y-m-d H:i:s')."\n";
-		$body .= "URL: ".$_SERVER['REQUEST_URI']."\n";
 		$body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
 		$body .= "----------------------------------------------\n";
 		$body .= $errstr."\nTrace: $backtrace";
