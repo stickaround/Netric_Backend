@@ -2,7 +2,7 @@
 /**
  * Add system types to the database
  */
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 
 // Get object types for each account
 $types = require(__DIR__ . "/../../../../data/account/object-types.php");
