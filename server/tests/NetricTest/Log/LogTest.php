@@ -5,10 +5,10 @@
 namespace NetricTest\Log;
 
 use Netric\Log\Log;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Config\Config;
 
-class LogTest extends PHPUnit_Framework_TestCase 
+class LogTest extends TestCase
 {
     /**
      * Tennant account

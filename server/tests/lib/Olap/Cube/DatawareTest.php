@@ -13,7 +13,7 @@ require_once(dirname(__FILE__).'/../../../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../../lib/Olap.php');
 
-class Olap_Cube_DatawareTest extends PHPUnit_Framework_TestCase
+class Olap_Cube_DatawareTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

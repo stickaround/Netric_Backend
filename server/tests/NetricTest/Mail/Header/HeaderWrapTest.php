@@ -10,16 +10,17 @@
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header\HeaderWrap;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class HeaderWrapTest extends \PHPUnit_Framework_TestCase
+class HeaderWrapTest extends TestCase
 {
     public function testWrapUnstructuredHeaderAscii()
     {
         $string = str_repeat('foobarblahblahblah baz bat', 4);
-        $header = $this->getMock('Netric\Mail\Header\UnstructuredInterface');
+        $header = $this->getMockBuilder('Netric\Mail\Header\UnstructuredInterface')->getMock();;
         $header->expects($this->any())
             ->method('getEncoding')
             ->will($this->returnValue('ASCII'));
@@ -35,7 +36,7 @@ class HeaderWrapTest extends \PHPUnit_Framework_TestCase
     public function testWrapUnstructuredHeaderMime()
     {
         $string = str_repeat('foobarblahblahblah baz bat', 3);
-        $header = $this->getMock('Netric\Mail\Header\UnstructuredInterface');
+        $header = $this->getMockBuilder('Netric\Mail\Header\UnstructuredInterface')->getMock();;
         $header->expects($this->any())
             ->method('getEncoding')
             ->will($this->returnValue('UTF-8'));

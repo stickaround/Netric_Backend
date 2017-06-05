@@ -4,12 +4,12 @@
  */
 namespace NetricTest\Application\Schema;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Application\Application;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaProperty;
 
-abstract class AbstractSchemaDataMapperTests extends PHPUnit_Framework_TestCase
+abstract class AbstractSchemaDataMapperTests extends TestCase
 {
     /**
      * Application object to test

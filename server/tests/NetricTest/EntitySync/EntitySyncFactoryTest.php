@@ -4,9 +4,9 @@ namespace NetricTest\EntitySync;
 
 use Netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class EntitySyncFactoryTest extends PHPUnit_Framework_TestCase
+class EntitySyncFactoryTest extends TestCase
 {
     public function testCreateService()
     {

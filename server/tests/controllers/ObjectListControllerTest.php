@@ -6,7 +6,7 @@ require_once(dirname(__FILE__).'/../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../controllers/ObjectListController.php');
 
-class ObjectListControllerTest extends PHPUnit_Framework_TestCase
+class ObjectListControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

@@ -10,11 +10,12 @@
 namespace NetricTest\Mail;
 
 use Netric\Mail\MessageFactory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class MessageFactoryTest extends \PHPUnit_Framework_TestCase
+class MessageFactoryTest extends TestCase
 {
     public function testConstructMessageWithOptions()
     {
@@ -116,7 +117,7 @@ class MessageFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionForOptionsNotArrayOrTraversable($options)
     {
-        $this->setExpectedException('Netric\Mail\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Exception\InvalidArgumentException');
         MessageFactory::getInstance($options);
     }
 }

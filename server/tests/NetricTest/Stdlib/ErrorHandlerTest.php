@@ -5,7 +5,7 @@
  */
 namespace NetricTest\Stdlib;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Stdlib\ErrorHandler;
 
 class ErrorHandlerTest extends TestCase
@@ -56,7 +56,7 @@ class ErrorHandlerTest extends TestCase
     {
         ErrorHandler::start();
         strpos(); // Invalid argument list
-        $this->setExpectedException('ErrorException');
+        $this->expectException('ErrorException');
         ErrorHandler::stop(true);
     }
     public function testAddError()

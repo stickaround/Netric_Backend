@@ -21,7 +21,7 @@ class TestMockRpcSvr
 	}
 }
 
-class RpcSvrTest extends PHPUnit_Framework_TestCase
+class RpcSvrTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

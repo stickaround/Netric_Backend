@@ -2,10 +2,10 @@
 
 namespace NetricTest;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric;
 
-class EntityGroupingsTest extends PHPUnit_Framework_TestCase
+class EntityGroupingsTest extends TestCase
 {
     /**
      * Test adding a grouping

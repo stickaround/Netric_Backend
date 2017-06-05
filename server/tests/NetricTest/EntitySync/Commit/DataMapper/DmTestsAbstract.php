@@ -12,9 +12,9 @@
  */
 namespace NetricTest\EntitySync\Commit\DataMapper;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase 
+abstract class DmTestsAbstract extends TestCase
 {
     /**
      * Tennant account

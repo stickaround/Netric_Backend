@@ -374,9 +374,9 @@ class AuthenticationService
 	 * but it can be swapped out manually for things such as
 	 * unit testing.
 	 *
-	 * @param \Netric\Request\RequestInterface $request
+	 * @param RequestInterface $request
 	 */
-	public function setRequest(\Netric\Request\RequestInterface $request)
+	public function setRequest(RequestInterface $request)
 	{
 		$this->request = $request;
 	}

@@ -10,6 +10,7 @@ namespace Netric\EntityQuery\Index;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Aggregation;
+use Netric\EntityDefinition\EntityDefinition;
 
 class Pgsql extends IndexAbstract implements IndexInterface
 {
@@ -315,10 +316,10 @@ class Pgsql extends IndexAbstract implements IndexInterface
      * Create a condition sql query string based on the query object
      * 
      * @param \Netric\EntityQuery $query
-     * @param \Netric\EntityDefinition $def
+     * @param EntityDefinition $def
      * @return string
      */
-	private function buildConditionString(\Netric\EntityQuery &$query, \Netric\EntityDefinition &$def)
+	private function buildConditionString(\Netric\EntityQuery &$query, EntityDefinition &$def)
 	{
 		$dbh = $this->dbh;
 		$cond_str = "";
@@ -431,11 +432,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
 	 * Process filter conditions
 	 *
 	 * @param \Netric\EntityQuery $query
-     * @param \Netric\EntityDefinition $def
+     * @param EntityDefinition $def
      * @return string
      * @throws \RuntimeException If a problem is encountered with the query
 	 */
-	public function buildAdvancedConditionString(\Netric\EntityQuery &$query, \Netric\EntityDefinition &$def=null)
+	public function buildAdvancedConditionString(\Netric\EntityQuery &$query, EntityDefinition &$def=null)
 	{
 		$dbh = $this->dbh;
 		$cond_str = "";

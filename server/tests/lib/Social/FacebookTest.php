@@ -10,7 +10,7 @@ require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../../lib/Social.php');
 
-class AntSocial_FacebookTest extends PHPUnit_Framework_TestCase 
+class AntSocial_FacebookTest extends TestCase 
 {
 	var $ant = null;
 	var $user = null;

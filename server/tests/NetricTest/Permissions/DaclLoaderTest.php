@@ -1,7 +1,7 @@
 <?php
 namespace NetricTest\Permissions;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Permissions;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
@@ -9,7 +9,7 @@ use Netric\Account\Account;
 use Netric\Permissions\DaclLoader;
 use Netric\Permissions\Dacl;
 
-class DaclLoaderTest extends PHPUnit_Framework_TestCase
+class DaclLoaderTest extends TestCase
 {
     /**
      * Active test account

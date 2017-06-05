@@ -6,7 +6,7 @@ require_once(dirname(__FILE__).'/../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../controllers/ObjectSyncController.php');
 
-class ObjectSyncControllerTest extends PHPUnit_Framework_TestCase
+class ObjectSyncControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

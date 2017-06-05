@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../controllers/ChatController.php');
 
 
-class ChatControllerTest extends PHPUnit_Framework_TestCase
+class ChatControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

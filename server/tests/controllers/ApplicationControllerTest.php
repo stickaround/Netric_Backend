@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/ApplicationController.php');
 
-class ApplicationControllerTest extends PHPUnit_Framework_TestCase
+class ApplicationControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

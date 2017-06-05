@@ -6,7 +6,7 @@ namespace NetricTest\EntitySync\Collection;
 
 use Netric\EntitySync;
 use Netric\EntitySync\Collection;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 class GroupingCollectionTest extends AbstractCollectionTests 
 {

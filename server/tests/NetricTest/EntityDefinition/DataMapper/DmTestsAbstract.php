@@ -9,12 +9,12 @@
 namespace NetricTest\EntityDefinition\DataMapper;
 
 use Netric;
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase 
+abstract class DmTestsAbstract extends TestCase
 {
     /**
      * Tennant account
@@ -163,22 +163,5 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
         // Reload
         $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
         $this->assertNull($reloadedDef->getDacl());
-	}
-
-	/**
-	 * Get groupings
-	 */
-	public function testGetGroupings()
-	{
-		$dm = $this->getDataMapper();
-		if (!$dm)
-			return; // skip if no mapper was defined
-
-		// TODO: needs to be defined
-		/*
-		$entDef = $dm->fetchByName("customer");
-
-		$groups = $dm->getGroupings($entDef, "groups", array());
-		 */
 	}
 }

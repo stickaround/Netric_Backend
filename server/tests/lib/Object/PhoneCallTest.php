@@ -7,7 +7,7 @@ require_once(dirname(__FILE__).'/../../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 
-class AntObject_PhoneCallTest extends PHPUnit_Framework_TestCase
+class AntObject_PhoneCallTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

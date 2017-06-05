@@ -84,7 +84,7 @@ ini_set('include_path', ini_get('include_path')
 
 require_once(dirname(__FILE__).'/../../async/backend/ant/ant.php');
 
-class ImporterTest extends PHPUnit_Framework_TestCase
+class ImporterTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

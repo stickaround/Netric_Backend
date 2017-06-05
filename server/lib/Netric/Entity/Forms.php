@@ -9,7 +9,7 @@ namespace Netric\Entity;
 
 use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Config\Config;
 
 

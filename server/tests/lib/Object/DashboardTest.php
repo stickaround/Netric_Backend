@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../lib/Object/Dashboard.php');
 
-class CAntObject_DashboardTest extends PHPUnit_Framework_TestCase
+class CAntObject_DashboardTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

@@ -8,12 +8,12 @@ use Netric\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\Mime;
 use Netric\Mail;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group integration
  */
-class EmailThreadTest extends PHPUnit_Framework_TestCase
+class EmailThreadTest extends TestCase
 {
     /**
      * Tenant account

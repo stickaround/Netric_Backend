@@ -8,16 +8,40 @@
  */
 namespace Netric\Entity;
 
+use Netric\Account\Account;
+
 interface DataMapperInterface
 {
-	/**
-	 * Open object by id
-	 *
-     * @var Entity $entity The entity to load data into
-     * @var string $id The Id of the object
-	 * @return bool true on success, false on failure
-	 */
-	public function getById(&$entity, $id);
+    /**
+     * Get an entity by id
+     *
+     * @param EntityInterface $entity The enitity to save
+     * @param int $id The unique id of the entity to load
+     * @return bool true if found and loaded successfully, false if not found or failed
+     */
+    public function getById(EntityInterface $entity, $id);
+
+    /**
+     * Get account associated with this request
+     *
+     * @return Account
+     */
+    public function getAccount();
+
+    /**
+     * Get an entity by a unique name path
+     *
+     * Unique names can be namespaced, and we can reference entities with a full
+     * path since the namespace can be a parentField. For example, the 'page' entity
+     * type has a unique name namespace of parentId so we could path /page1/page2/page1
+     * and the third page1 is a different entity than the first.
+     *
+     * @param string $objType The entity to populate if we find the data
+     * @param string $uniqueNamePath The path to the entity
+     * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
+     * @return EntityInterface $entity if found or null if not found
+     */
+    public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = []);
 
 	/**
 	 * Delete an entity

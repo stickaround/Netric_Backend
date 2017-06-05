@@ -5,9 +5,10 @@
 namespace NetricTest\Controller;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use Netric\Entity\EntityInterface;
+use PHPUnit\Framework\TestCase;
 
-class EntityControllerTest extends PHPUnit_Framework_TestCase
+class EntityControllerTest extends TestCase
 {
     /**
      * Account used for testing
@@ -29,6 +30,13 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
      * @var array
      */
     private $testGroups = array();
+
+    /**
+     * Test entities that should be cleaned up on tearDown
+     *
+     * @var EntityInterface[]
+     */
+    private $testEntities = [];
 
     protected function setUp()
     {
@@ -60,6 +68,88 @@ class EntityControllerTest extends PHPUnit_Framework_TestCase
             $req->setBody(json_encode($dataRemove));
             $this->controller->postSaveGroupAction();
         }
+
+        // Cleanup any test entities
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        foreach ($this->testEntities as $entity) {
+            $loader->delete($entity, true);
+        }
+    }
+
+    public function testGetGetEntityAction()
+    {
+        // Create a test entity for querying
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $customer = $loader->create("customer");
+        $customer->setValue("name", "Test");
+        $loader->save($customer);
+        $this->testEntities[] = $customer;
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('obj_type', 'customer');
+        $req->setParam('id', $customer->getId());
+
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($customer->getId(), $ret['id'], var_export($ret, true));
+
+    }
+
+    public function testPostGetEntityAction()
+    {
+        // Create a test entity for querying
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $customer = $loader->create("customer");
+        $customer->setValue("name", "Test");
+        $loader->save($customer);
+        $this->testEntities[] = $customer;
+
+        $data = array(
+            'obj_type' => "customer",
+            'id' => $customer->getId(),
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $req->setParam('content-type', 'application/json');
+
+        $ret = $this->controller->postGetAction();
+        $this->assertEquals($customer->getId(), $ret['id'], var_export($ret, true));
+
+    }
+
+    public function testPostGetEntityActionUname()
+    {
+        // Create a test entity for querying
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $site = $loader->create("cms_site");
+        $site->setValue("name", "www.testsite.com");
+        $loader->save($site);
+        $this->testEntities[] = $site;
+
+        $page = $loader->create("cms_page");
+        $page->setValue("name", "testPostGetEntityAction");
+        $page->setValue("site_id", $site->getId());
+        $loader->save($page);
+        $this->testEntities[] = $page;
+
+        $data = array(
+            'obj_type' => "cms_page",
+            'uname' => $page->getValue("uname"),
+            'uname_conditions' => [
+                'site_id' => $site->getId(),
+            ],
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $req->setParam('content-type', 'application/json');
+
+        $ret = $this->controller->postGetAction();
+        $this->assertEquals($page->getId(), $ret['id'], var_export($ret, true));
+
     }
 
     public function testGetDefinitionForms()

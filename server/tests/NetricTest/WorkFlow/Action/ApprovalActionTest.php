@@ -20,6 +20,12 @@ class ApprovalActionTest extends AbstractActionTests
      */
     public function testExecute()
     {
+        // Stop here and mark this test as incomplete.
+        $this->markTestIncomplete(
+          'This test has not been implemented yet.'
+        );
+
         // TODO: define test here
+        $this->assertTrue(true);
     }
 }

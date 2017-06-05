@@ -11,11 +11,12 @@ namespace NetricTest\Mail;
 
 use Netric\Mail\Address;
 use Netric\Mail\AddressList;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class AddressListTest extends \PHPUnit_Framework_TestCase
+class AddressListTest extends TestCase
 {
     public function setUp()
     {

@@ -7,8 +7,9 @@
 namespace NetricTest\Mime;
 
 use Netric\Mime;
+use PHPUnit\Framework\TestCase;
 
-class PartTest extends \PHPUnit_Framework_TestCase
+class PartTest extends TestCase
 {
     /**
      * MIME part test object
@@ -158,13 +159,13 @@ class PartTest extends \PHPUnit_Framework_TestCase
 
     public function testConstructGetInvalidArgumentException()
     {
-        $this->setExpectedException('Netric\Mime\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mime\Exception\InvalidArgumentException');
         $part = new Mime\Part(1);
     }
 
     public function testSetContentGetInvalidArgumentException()
     {
-        $this->setExpectedException('Netric\Mime\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mime\Exception\InvalidArgumentException');
         $part = new Mime\Part();
         $part->setContent(1);
     }

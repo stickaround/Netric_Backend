@@ -4,9 +4,9 @@
  */
 namespace NetricTest\WorkFlow\DataMapper;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class WorkFlowManagerFactoryTest extends PHPUnit_Framework_TestCase
+class WorkFlowManagerFactoryTest extends TestCase
 {
     public function testCreateService()
     {

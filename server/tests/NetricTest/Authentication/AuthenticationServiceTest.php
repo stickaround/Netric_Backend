@@ -5,14 +5,14 @@
 namespace NetricTest\Authentication;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Authentication\AuthenticationService;
 use Netric\Request\RequestInterface;
 
 /**
  * @group integration
  */
-class AuthenticationServiceTest extends PHPUnit_Framework_TestCase 
+class AuthenticationServiceTest extends TestCase
 {   
     /**
      * Account used for testing
@@ -174,16 +174,20 @@ class AuthenticationServiceTest extends PHPUnit_Framework_TestCase
 
     public function testGetIdentity()
     {
-        $userId = 1;
         $expires = -1; // Never
         $pass = self::TEST_USER_PASS;
         $salt = "testsalt";
 
-        $sessionStr = $this->authService->getSignedSession($userId, $expires, $pass, $salt);
+        $sessionStr = $this->authService->getSignedSession($this->user->getId(), $expires, $pass, $salt);
 
         // Create a mock request and pretend $sessionStr was in the 'Authenticaton' header field
-        $req = $this->getMockBuilder('RequestInterface')
+        $req = $this->getMockBuilder(RequestInterface::class)
                      ->getMock();
         $req->method('getParam')->willReturn($sessionStr);
+        $this->authService->setRequest($req);
+
+        // Now get the identity (userid) of the authenticated user
+        $authUserId = $this->authService->getIdentity();
+        $this->assertEquals($this->user->getId(), $authUserId);
     }
 }

@@ -3,9 +3,9 @@ namespace NetricTest\WorkerMan;
 
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Queue;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class WorkFlowTest extends PHPUnit_Framework_TestCase
+class WorkFlowTest extends TestCase
 {
     /**
      * Reference to account running for unit tests

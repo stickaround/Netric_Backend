@@ -6,9 +6,9 @@
 namespace NetricTest\Entity\Recurrence;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RecurrenceDataMapperFactoryTest extends PHPUnit_Framework_TestCase
+class RecurrenceDataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {

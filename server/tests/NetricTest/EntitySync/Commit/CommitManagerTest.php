@@ -5,9 +5,9 @@
 namespace NetricTest\EntitySync\Commit;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CommitManagerTest extends PHPUnit_Framework_TestCase 
+class CommitManagerTest extends TestCase
 {
 	/**
      * Tennant account

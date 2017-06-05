@@ -10,9 +10,10 @@ use Netric\Mail\Message;
 use Netric\Mime\Message as MimeMessage;
 use Netric\Mime\Mime;
 use Netric\Mime\Part as MimePart;
+use PHPUnit\Framework\TestCase;
 
 
-class MessageTest extends \PHPUnit_Framework_TestCase
+class MessageTest extends TestCase
 {
     /** @var Message */
     public $message;
@@ -514,7 +515,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testSettingNonScalarNonMimeNonStringSerializableValueForBodyRaisesException($body)
     {
-        $this->setExpectedException('Netric\Mail\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Exception\InvalidArgumentException');
         $this->message->setBody($body);
     }
 
@@ -724,7 +725,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
             '',
             '<html><body><iframe src="http://example.com/"></iframe></body></html> <!--',
         ];
-        $this->setExpectedException('Netric\Mail\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Exception\InvalidArgumentException');
         $this->message->{$recipientMethod}(implode(Headers::EOL, $subject));
     }
 

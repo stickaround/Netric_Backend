@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/AntFs.php');
 
-class AntLogTest extends PHPUnit_Framework_TestCase 
+class AntLogTest extends TestCase
 {
 	var $obj = null;
 	var $dbh = null;

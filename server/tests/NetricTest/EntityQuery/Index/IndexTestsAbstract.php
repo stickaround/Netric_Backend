@@ -11,12 +11,12 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use Netric\EntityQuery;
 use Netric\Entity\EntityInterface;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group integration
  */
-abstract class IndexTestsAbstract extends PHPUnit_Framework_TestCase 
+abstract class IndexTestsAbstract extends TestCase
 {
     /**
      * Tenant account

@@ -12,7 +12,7 @@ require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/AdminController.php');
 
 
-class AdminControllerTest extends PHPUnit_Framework_TestCase
+class AdminControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

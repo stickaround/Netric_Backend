@@ -10,11 +10,12 @@
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\FileOptions;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class FileOptionsTest extends \PHPUnit_Framework_TestCase
+class FileOptionsTest extends TestCase
 {
     public function setUp()
     {

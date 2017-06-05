@@ -12,10 +12,12 @@
  */
 namespace Netric\EntityDefinition\DataMapper;
 
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\DataMapperAbstract;
+use Netric\EntityDefinition\Field;
 use Netric\Permissions\Dacl;
 
-class Pgsql extends EntityDefinition\DataMapperAbstract
+class Pgsql extends DataMapperAbstract
 {
 	/**
 	 * The database host
@@ -80,7 +82,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 			throw new \Exception('objType is a required param');
 
 		$dbh = $this->dbh;
-		$def = new \Netric\EntityDefinition($objType);
+		$def = new EntityDefinition($objType);
 
 
 		// Get basic object definition
@@ -141,7 +143,7 @@ class Pgsql extends EntityDefinition\DataMapperAbstract
 			}
 				
 			// Build field
-			$field = new EntityDefinition\Field();
+			$field = new Field();
 			$field->id = $row['id'];
 			$field->name = $row['name'];
 			$field->title = $row['title'];

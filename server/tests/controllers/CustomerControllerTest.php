@@ -3,7 +3,7 @@ require_once 'PHPUnit/Autoload.php';
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../controllers/CustomerController.php');
 
-class CustomerControllerTest extends PHPUnit_Framework_TestCase
+class CustomerControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

@@ -1,9 +1,9 @@
 <?php
 namespace NetricTest\Crypt;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class VaultServiceTest extends PHPUnit_Framework_TestCase
+class VaultServiceTest extends TestCase
 {
     public function testGetSecret()
     {

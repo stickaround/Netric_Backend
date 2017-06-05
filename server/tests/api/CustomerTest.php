@@ -10,7 +10,7 @@ require_once(dirname(__FILE__).'/../../controllers/CustomerController.php');
 require_once(dirname(__FILE__).'/../../controllers/ObjectController.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');        
 
-class AntApi_CustomerTest extends PHPUnit_Framework_TestCase
+class AntApi_CustomerTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

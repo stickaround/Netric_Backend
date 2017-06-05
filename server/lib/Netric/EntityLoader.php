@@ -4,17 +4,26 @@
  */
 namespace Netric;
 
-use Netric\Entity\Entity;
 use Netric\Entity\DataMapperInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Stats\StatsPublisher;
+use Netric\Cache\CacheInterface;
 
 class EntityLoader
 {
 	/**
  	 * Cached entities
+     *
+     * @var EntityInterface[]
 	 */
 	private $loadedEntities = array();
+
+    /**
+     * Cache of unique names to entity id
+     *
+     * @var array
+     */
+    private $uniqueNamesToIds = array();
 
 	/**
 	 * Store the single instance of the loader 
@@ -45,14 +54,14 @@ class EntityLoader
 	/**
 	 * Cache
 	 *
-	 * @var Cache
+	 * @var CacheInterface
 	 */
 	private $cache = null;
 
 	/**
 	 * Class constructor
 	 *
-	 * @param Entity_DataMapper $dm The entity datamapper
+	 * @param DataMapperInterface $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
 	 */
 	public function __construct(DataMapperInterface $dm, EntityDefinitionLoader $defLoader)
@@ -65,10 +74,13 @@ class EntityLoader
 	}
 
 	/**
-	 * Factory
+	 * Singleton factory
+     *
+     * This will be deprecated when we no longer need to support it in legacy code
 	 *
-	 * @param Entity_DataMapperInterface $dm The entity datamapper
+	 * @param DataMapperInterface $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
+     * @return EntityLoader
 	 */
 	public static function getInstance(DataMapperInterface $dm, $defLoader)
 	{ 
@@ -166,6 +178,25 @@ class EntityLoader
 		// Could not be loaded
 		return null;
 	}
+
+    /**
+     * Get an entity by a unique name path
+     *
+     * Unique names can be namespaced, and we can reference entities with a full
+     * path since the namespace can be a parentField. For example, the 'page' entity
+     * type has a unique name namespace of parentId so we could path /page1/page2/page1
+     * and the third page1 is a different entity than the first.
+     *
+     * @param string $objType The entity to populate if we find the data
+     * @param string $uniqueNamePath The path to the entity
+     * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
+     * @return EntityInterface $entity if found or null if not found
+     */
+    public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
+    {
+        // TODO: We should definitely handle caching here since this function can be expensive
+        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $namespaceFieldValues);
+    }
 
 	/**
 	 * Shortcut for constructing an Entity

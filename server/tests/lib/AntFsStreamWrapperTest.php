@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/AntFs.php');
 require_once(dirname(__FILE__).'/../../lib/AntFsStreamWrapper.php');
 
-class AntFsStreamWrapperTest extends PHPUnit_Framework_TestCase 
+class AntFsStreamWrapperTest extends TestCase
 {
 	var $obj = null;
 	var $dbh = null;

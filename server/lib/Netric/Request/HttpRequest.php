@@ -53,9 +53,15 @@ class HttpRequest implements RequestInterface
 	 */
 	public function __construct()
 	{
-		$headers = (function_exists("apache_request_headers"))
-			 ? \apache_request_headers()
-			 : $headers = array();
+		$headers = [];
+
+		// Add request headers to the params
+		if (function_exists("apache_request_headers")) {
+		    $requestHeaders = apache_request_headers();
+		    foreach ($requestHeaders as $headerName=>$headerValue) {
+		        $headers[strtolower($headerName)] = $headerValue;
+            }
+        }
 
 		// Add uploaded files
 		$this->params['files'] = (isset($_FILES) && count($_FILES)) ? $_FILES : array();
@@ -174,7 +180,7 @@ class HttpRequest implements RequestInterface
 	/**
 	 * Set the raw body with the request data
 	 *
-	 * @param {array} Request data that will be set as raw body
+	 * @param mixed $data Request data that will be set as raw body
 	 */
 	public function setBody($data)
 	{

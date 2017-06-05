@@ -5,9 +5,9 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class WorkflowTest extends PHPUnit_Framework_TestCase
+class WorkflowTest extends TestCase
 {
     /**
      * Tenant account

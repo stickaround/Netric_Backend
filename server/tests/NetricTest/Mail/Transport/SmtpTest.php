@@ -15,11 +15,12 @@ use Netric\Mail\Transport\Smtp;
 use Netric\Mail\Transport\SmtpOptions;
 use Netric\Mail\Transport\Envelope;
 use NetricTest\Mail\Fixture\SmtpProtocolSpy;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class SmtpTest extends \PHPUnit_Framework_TestCase
+class SmtpTest extends TestCase
 {
     /** @var Smtp */
     public $transport;
@@ -57,7 +58,7 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendMailWithoutMinimalHeaders()
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Netric\Mail\Transport\Exception\RuntimeException',
             'transport expects either a Sender or at least one From address in the Message; none provided'
         );
@@ -71,7 +72,7 @@ class SmtpTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendMailWithoutRecipient()
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Netric\Mail\Transport\Exception\RuntimeException',
             'at least one recipient if the message has at least one header or body'
         );

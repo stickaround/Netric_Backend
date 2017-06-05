@@ -5,9 +5,9 @@
 namespace BinTest\Update\Once;
 
 use Netric\Console\BinScript;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class Update_004001002_Test extends PHPUnit_Framework_TestCase
+class Update_004001002_Test extends TestCase
 {
     /**
      * Handle to account

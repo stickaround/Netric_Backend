@@ -10,7 +10,7 @@ require_once(dirname(__FILE__).'/../../lib/AntRoutine.php');
 require_once(dirname(__FILE__).'/../../services/AccountSync.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');
 
-class AccountSyncTest extends PHPUnit_Framework_TestCase
+class AccountSyncTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

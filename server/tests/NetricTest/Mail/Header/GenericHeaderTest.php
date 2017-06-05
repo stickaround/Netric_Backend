@@ -9,7 +9,7 @@
 
 namespace NetricTest\Mail\Header;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Mail\Header\GenericHeader;
 
 class GenericHeaderTest extends TestCase
@@ -19,7 +19,7 @@ class GenericHeaderTest extends TestCase
      */
     public function testSplitHeaderLineRaisesExceptionOnInvalidHeader()
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         GenericHeader::splitHeaderLine(
             'Content-Type' . chr(32) . ': text/html; charset = "iso-8859-1"' . "\nThis is a test"
         );
@@ -40,7 +40,7 @@ class GenericHeaderTest extends TestCase
     public function testRaisesExceptionOnInvalidFieldName($fieldName)
     {
         $header = new GenericHeader();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException', 'name');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException', 'name');
         $header->setFieldName($fieldName);
     }
 

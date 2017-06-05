@@ -10,9 +10,9 @@ use Netric\EntityQuery;
 use Netric\EntityLoader;
 use Netric\Entity\ObjType;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FileSystemTest extends PHPUnit_Framework_TestCase
+class FileSystemTest extends TestCase
 {
     /**
      * Reference to account running for unit tests
@@ -229,11 +229,6 @@ class FileSystemTest extends PHPUnit_Framework_TestCase
         // Queue files for cleanup
         $this->testFiles[] = $importedFile;
         $this->queueFolderForCleanup($this->fileSystem->openFolder("/testOpenFileById"));
-    }
-
-    public function testOpenFile()
-    {
-
     }
 
     /**

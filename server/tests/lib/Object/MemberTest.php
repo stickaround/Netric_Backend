@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../lib/Object/Member.php');
 
-class CAntObject_MemberTest extends PHPUnit_Framework_TestCase
+class CAntObject_MemberTest extends TestCase
 {
 	var $ant = null;
 	var $user = null;

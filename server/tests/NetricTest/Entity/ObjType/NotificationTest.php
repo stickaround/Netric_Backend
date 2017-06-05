@@ -7,11 +7,11 @@ namespace NetricTest\Entity\ObjType;
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;
 use Netric\EntityQuery;
 
-class NotificationTest extends PHPUnit_Framework_TestCase
+class NotificationTest extends TestCase
 {
     /**
      * Tennant account

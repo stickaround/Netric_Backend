@@ -4,9 +4,9 @@ namespace NetricTest\Db;
 
 use Netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class DbFactoryTest extends PHPUnit_Framework_TestCase
+class DbFactoryTest extends TestCase
 {
     public function testCreateService()
     {

@@ -5,9 +5,9 @@
 namespace NetricTest\Settings;
 
 use Netric\Settings;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SettingsFactoryTest extends PHPUnit_Framework_TestCase
+class SettingsFactoryTest extends TestCase
 {
     public function testCreateService()
     {

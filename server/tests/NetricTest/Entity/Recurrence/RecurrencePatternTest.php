@@ -5,9 +5,9 @@
 namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RecurrencePatternTest extends PHPUnit_Framework_TestCase 
+class RecurrencePatternTest extends TestCase
 {
     /**
      * Tennant account

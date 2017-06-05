@@ -4,9 +4,9 @@
  */
 namespace NetricTest\Entity\Notifier;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class NotifierFactoryTest extends PHPUnit_Framework_TestCase
+class NotifierFactoryTest extends TestCase
 {
     public function testCreateService()
     {

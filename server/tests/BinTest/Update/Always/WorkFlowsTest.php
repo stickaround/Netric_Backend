@@ -5,9 +5,9 @@
 namespace BinTest\Update\Always;
 
 use Netric\Console\BinScript;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class WorkFlowsTest extends PHPUnit_Framework_TestCase
+class WorkFlowsTest extends TestCase
 {
     /**
      * Handle to account

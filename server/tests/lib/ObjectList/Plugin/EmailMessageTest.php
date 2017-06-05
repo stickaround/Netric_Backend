@@ -8,7 +8,7 @@ require_once('lib/AntUser.php');
 require_once('lib/CAntObject.php');
 require_once('lib/CAntObjectList.php');
 
-class AntObjectList_Plugin_EmailMessageTest extends PHPUnit_Framework_TestCase 
+class AntObjectList_Plugin_EmailMessageTest extends TestCase 
 {
 	var $obj = null;
 	var $dbh = null;

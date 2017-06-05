@@ -6,9 +6,9 @@ namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence\RecurrenceDataMapper;
 use Netric\Entity\Recurrence\RecurrencePattern;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RecurrenceDataMapperTest extends PHPUnit_Framework_TestCase
+class RecurrenceDataMapperTest extends TestCase
 {
     /**
      * Tennant account

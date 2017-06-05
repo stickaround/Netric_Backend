@@ -10,11 +10,12 @@
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class SubjectTest extends \PHPUnit_Framework_TestCase
+class SubjectTest extends TestCase
 {
     public function testHeaderFolding()
     {
@@ -54,7 +55,7 @@ class SubjectTest extends \PHPUnit_Framework_TestCase
         $expectedException,
         $expectedExceptionMessage
     ) {
-        $this->setExpectedException($expectedException, $expectedExceptionMessage);
+        $this->expectException($expectedException, $expectedExceptionMessage);
         Header\Subject::fromString('Subject:' . $decodedValue);
     }
 

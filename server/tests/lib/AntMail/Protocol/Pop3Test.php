@@ -5,7 +5,7 @@
 require_once(dirname(__FILE__).'/../../../../lib/AntConfig.php');
 require_once('lib/AntMail/Protocol/Pop3.php');
 
-class AntMail_Protocol_Pop3Test extends PHPUnit_Framework_TestCase
+class AntMail_Protocol_Pop3Test extends TestCase
 {
 	var $host = null;
 	var $username = null;

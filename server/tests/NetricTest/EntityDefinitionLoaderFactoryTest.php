@@ -4,9 +4,9 @@ namespace NetricTest;
 
 use Netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class EntityDefinitionLoaderFactoryTest extends PHPUnit_Framework_TestCase
+class EntityDefinitionLoaderFactoryTest extends TestCase
 {
     public function testCreateService()
     {

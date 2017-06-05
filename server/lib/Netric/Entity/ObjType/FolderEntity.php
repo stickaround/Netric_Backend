@@ -9,7 +9,7 @@
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager;
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;

@@ -1,11 +1,11 @@
 <?php
 namespace NetricTest;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric;
 use Netric\EntityQuery;
 
-class EntityQueryTest extends PHPUnit_Framework_TestCase
+class EntityQueryTest extends TestCase
 {
     /**
      * Test addition a filter condition to a collection

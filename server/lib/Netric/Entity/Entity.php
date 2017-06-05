@@ -4,13 +4,10 @@
  */
 namespace Netric\Entity;
 
-use My\Space\ExceptionNamespaceTest;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\FileSystem\FileSystem;
-use Netric\EntityDefinition\Field;
 use Netric\Entity\Recurrence\RecurrencePattern;
-use Netric\EntityDefinition;
-use PhpMimeMailParser\Exception;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * Base class sharing common functionality of all stateful entities

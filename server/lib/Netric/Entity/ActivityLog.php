@@ -8,7 +8,7 @@
 namespace Netric\Entity;
 
 use Netric\Entity\ObjType\ActivityEntity;
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityGroupings;
 use Netric\EntityGroupings\Group;

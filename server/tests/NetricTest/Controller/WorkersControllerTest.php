@@ -5,9 +5,9 @@
 namespace NetricTest\Controller;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class WorkersControllerTest extends PHPUnit_Framework_TestCase
+class WorkersControllerTest extends TestCase
 {
     /**
      * Account used for testing

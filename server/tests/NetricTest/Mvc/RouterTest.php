@@ -10,9 +10,9 @@
 namespace NetricTest\Mvc;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RouterTest extends PHPUnit_Framework_TestCase 
+class RouterTest extends TestCase
 {   
     /**
      * Test automatic pagination

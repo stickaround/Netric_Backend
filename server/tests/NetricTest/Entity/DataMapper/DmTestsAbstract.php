@@ -12,9 +12,9 @@ use Netric;
 use Netric\Entity\Entity;
 use Netric\Entity\DataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase 
+abstract class DmTestsAbstract extends TestCase 
 {
 	/**
      * Tennant account
@@ -29,7 +29,13 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
      * @var \Netric\User
      */
     protected $user = null;
-    
+
+    /**
+     * Test entities created that needt to be cleaned up
+     *
+     * @var EntityInterface
+     */
+    protected $testEntities = [];
 
 	/**
 	 * Setup each test
@@ -38,6 +44,17 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+	}
+
+	/**
+	 * Cleanup any test entities we created
+	 */
+	protected function tearDown()
+	{
+		$dm = $this->getDataMapper();
+		foreach ($this->testEntities as $entity) {
+			$dm->delete($entity, true);
+		}
 	}
     
     /**
@@ -107,6 +124,9 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$contactedTime = $customer->getValue("last_contacted");
 		$cid = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Get entity definition
 		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 
@@ -125,14 +145,13 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertEquals($ent->getValueName("groups"), "Unit Test Group");
 		$this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
-		// Cleanup
+		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
         $dm->saveGroupings($groupingsStat);
         
         $groupingsGroups->delete($groupsGrp->id);
         $dm->saveGroupings($groupingsGroups);
-        
-		$dm->delete($ent, true);
+
 	}
 
 	/**
@@ -170,6 +189,9 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$cid = $dm->save($customer, $this->user);
 		$this->assertNotEquals(false, $cid);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Get entity definition
 		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 
@@ -188,12 +210,11 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertEquals($ent->getValueName("groups"), $groupsGrp->name);
 		$this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
-		// Cleanup
+		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
         $dm->saveGroupings($groupingsStat);
         $groupingsGroups->delete($groupsGrp->id);
         $dm->saveGroupings($groupingsGroups);
-		$dm->delete($ent, true);
 	}
 
 	public function testSaveClearMultiVal()
@@ -228,6 +249,9 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$customer->clearMultiValues("groups");
 		$cid = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Create new entity
 		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 
@@ -238,12 +262,11 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertEquals(array(), $ent->getValueNames("groups"));
 		$this->assertEquals('', $ent->getValueName("groups"));
 
-		// Cleanup
+		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
 		$dm->saveGroupings($groupingsStat);
 		$groupingsGroups->delete($groupsGrp->id);
 		$dm->saveGroupings($groupingsGroups);
-		$dm->delete($ent, true);
 	}
 
 	/**
@@ -322,19 +345,21 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$customer->setValue("name", "testSetEntityMovedTo");
 		$oid1 = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Create second entity
 		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
 		$customer2->setValue("name", "testSetEntityMovedTo");
 		$oid2 = $dm->save($customer2, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer2;
+
 		// Set moved to
         $def = $customer->getDefinition();
 		$ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
 		$this->assertTrue($ret);
-
-		// Cleanup
-		$dm->delete($customer, true);
-		$dm->delete($customer2, true);
 	}
 
 	/**
@@ -351,10 +376,16 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$customer->setValue("name", "testSetEntityMovedTo");
 		$oid1 = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Create second entity
 		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
 		$customer2->setValue("name", "testSetEntityMovedTo");
 		$oid2 = $dm->save($customer2, $this->user);
+
+		// Queue for cleanup
+		$this->testEntities[] = $customer2;
 
 		// Set moved to
         $def = $customer->getDefinition();
@@ -368,10 +399,6 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 
 		// Now make sure the movedTo works
 		$this->assertEquals($oid2, $movedTo);
-
-		// Cleanup
-		$dm->delete($customer, true);
-		$dm->delete($customer2, true);
 	}
 	
 	/**
@@ -380,8 +407,6 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 	public function testGetRevisions()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-			return;
 
 		// Save first time
 		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
@@ -400,10 +425,8 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertEquals("First", $revisions[1]->getValue("name"));
 		$this->assertEquals("Second", $revisions[2]->getValue("name"));
 
-		// Cleanup
+		// Delete and make sure revisions got deleted
 		$dm->delete($customer, true);
-
-		// Make sure revisions got deleted
 		$this->assertEquals(0, count($dm->getRevisions("customer", $cid)));
 	}
 
@@ -577,10 +600,10 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$customer->setValue("name", "testNotDirty");
 		$dm->save($customer, $this->user);
 
-		$this->assertFalse($customer->isDirty());
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
 
-		// Cleanup
-		$dm->delete($customer, true);
+		$this->assertFalse($customer->isDirty());
 	}
 
 	/**
@@ -597,15 +620,15 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$customer->setValue("name", "testNotDirty");
 		$oid = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Load into a new entity
 		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 		$ret = $dm->getById($ent, $oid);
 
 		// Even though we just loaded all the data into the entity, it should not be marked as dirty
 		$this->assertFalse($ent->isDirty());
-
-		// Cleanup
-		$dm->delete($ent, true);
 	}
 
 	/**
@@ -706,6 +729,9 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		// Save should call private updateForeignKeyNames in the DataMapperAbstract
 		$cid = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Load the entity from the datamapper
 		$ent = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
 		$ret = $dm->getById($ent, $cid);
@@ -715,19 +741,11 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$this->assertEquals($ent->getValueName("groups", $groupsGrp->id), $groupsGrp->name);
 		$this->assertEquals($ent->getValueName("owner_id", $this->user->getId()), $this->user->getName());
 
-		// Cleanup
+		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
 		$dm->saveGroupings($groupingsStat);
 		$groupingsGroups->delete($groupsGrp->id);
 		$dm->saveGroupings($groupingsGroups);
-		$dm->delete($ent, true);
-	}
-
-	/**
-	 * TODO: Test verifyUniqueName
-	 */
-	public function testVerifyUniqueName()
-	{
 	}
 
 	/**
@@ -744,10 +762,16 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 		$customer->setValue("name", "testSetEntityMovedTo");
 		$oid1 = $dm->save($customer, $this->user);
 
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
 		// Create second entity
 		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
 		$customer2->setValue("name", "testSetEntityMovedTo");
 		$oid2 = $dm->save($customer2, $this->user);
+
+		// Queue for cleanup
+		$this->testEntities[] = $customer2;
 
 		// Set moved to
 		$def = $customer->getDefinition();
@@ -757,9 +781,102 @@ abstract class DmTestsAbstract extends PHPUnit_Framework_TestCase
 
 		// Now make sure the movedTo works
 		$this->assertEquals($oid2, $movedTo);
-
-		// Cleanup
-		$dm->delete($customer, true);
-		$dm->delete($customer2, true);
 	}
+
+	/**
+	 * Make sure that veryfyUniqueName works
+	 */
+	public function testVerifyUniqueName()
+	{
+		$dm = $this->getDataMapper();
+
+		$uniqueName = uniqid();
+
+		// Try saving an entity with an obviously unique name
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$isUnique = $dm->verifyUniqueName($customer, $uniqueName);
+		$this->assertEquals(true, $isUnique);
+	}
+
+	/**
+	 * Make sure that veryfyUniqueName works
+	 */
+	public function testVerifyUniqueNameFail()
+	{
+		$dm = $this->getDataMapper();
+
+		$uniqueName = uniqid();
+
+		// Try saving an entity with an obviously unique name
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("uname", $uniqueName);
+		$oid1 = $dm->save($customer, $this->user);
+
+		// Queue for cleanup
+		$this->testEntities[] = $customer;
+
+		// Create a second entity and make sure we could not set the same uname
+		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$isUnique = $dm->verifyUniqueName($customer2, $uniqueName);
+		$this->assertEquals(false, $isUnique);
+	}
+
+    /**
+     * Make sure that the datamapper is setting a unique name for entities
+     */
+	public function testSetUniqueName()
+    {
+        $dm = $this->getDataMapper();
+
+        // Try saving an entity with an obviously unique name
+        $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer->setValue("name", "test unique name");
+        $dm->save($customer, $this->user);
+
+        // Queue for cleanup
+        $this->testEntities[] = $customer;
+
+        $this->assertNotEmpty($customer->getValue("uname"));
+    }
+
+    /**
+     * Test getting an entity by a unique name
+     */
+    public function testGetByUniqueName()
+    {
+        $entityFactory = $this->account->getServiceManager()->get("EntityFactory");
+        $dm = $this->getDataMapper();
+
+        // Create site
+        $site = $entityFactory->create("cms_site");
+        $site->setValue("name", 'www.test.com');
+        $dm->save($site);
+        $this->testEntities[] = $site; // for cleanup
+
+        // Create root page for site
+        $homePage = $entityFactory->create("cms_page");
+        $homePage->setValue("name", 'testgetbyunamehome'); // for uname
+        $homePage->setValue("site_id", $site->getId());
+        $dm->save($homePage);
+        $this->testEntities[] = $homePage; // for cleanup
+
+        // Create a subpage for the site
+        $subPage = $entityFactory->create("cms_page");
+        $subPage->setValue("name", "testgetbyunamefile");  // for uname
+        $subPage->setValue('parent_id', $homePage->getId());
+        $subPage->setValue("site_id", $site->getId());
+        $dm->save($subPage);
+        $this->testEntities[] = $subPage; // for cleanup
+
+        // Try to get the file by path
+        $pathParts = [
+            $homePage->getValue('uname'),
+            $subPage->getValue('uname'),
+        ];
+        $fullPath = implode('/', $pathParts);
+        $retrievedPage = $dm->getByUniqueName("cms_page", $fullPath, ['site_id' => $site->getId()]);
+
+        $this->assertEquals($subPage->getId(), $retrievedPage->getId());
+    }
 }
+

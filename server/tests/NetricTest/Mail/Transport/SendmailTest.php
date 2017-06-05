@@ -11,11 +11,12 @@ namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Message;
 use Netric\Mail\Transport\Sendmail;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class SendmailTest extends \PHPUnit_Framework_TestCase
+class SendmailTest extends TestCase
 {
     public $transport;
     public $to;

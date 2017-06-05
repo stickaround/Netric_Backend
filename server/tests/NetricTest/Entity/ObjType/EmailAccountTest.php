@@ -6,9 +6,9 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use Netric\Crypt\BlockCipher;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class EmailAccountEntityTest extends PHPUnit_Framework_TestCase
+class EmailAccountEntityTest extends TestCase
 {
     /**
      * Tenant account

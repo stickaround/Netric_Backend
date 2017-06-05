@@ -7,8 +7,9 @@ namespace NetricTest\Mail;
 
 use Netric\Mail;
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
-class HeadersTest extends \PHPUnit_Framework_TestCase
+class HeadersTest extends TestCase
 {
     public function testHeadersImplementsProperClasses()
     {
@@ -63,7 +64,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
     public function testHeadersFromStringFactoryThrowsExceptionOnMalformedHeaderLine()
     {
-        $this->setExpectedException('Netric\Mail\Exception\RuntimeException', 'does not match');
+        $this->expectException('Netric\Mail\Exception\RuntimeException', 'does not match');
         Mail\Headers::fromString("Fake = foo-bar\r\n\r\n");
     }
 
@@ -123,7 +124,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
     public function testHeadersAddHeaderLineThrowsExceptionOnMissingFieldValue()
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Netric\Mail\Header\Exception\InvalidArgumentException',
             'Header must match with the format "name:value"'
         );
@@ -171,7 +172,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
     public function testHeadersAddHeadersThrowsExceptionOnInvalidArguments()
     {
-        $this->setExpectedException('Netric\Mail\Exception\InvalidArgumentException', 'Expected array or Trav');
+        $this->expectException('Netric\Mail\Exception\InvalidArgumentException', 'Expected array or Trav');
         $headers = new Mail\Headers();
         $headers->addHeaders('foo');
     }
@@ -324,28 +325,28 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
     public function testHeaderCrLfAttackFromString()
     {
-        $this->setExpectedException('Netric\Mail\Exception\RuntimeException');
+        $this->expectException('Netric\Mail\Exception\RuntimeException');
         Mail\Headers::fromString("Fake: foo-bar\r\n\r\nevilContent");
     }
 
     public function testHeaderCrLfAttackAddHeaderLineSingle()
     {
         $headers = new Mail\Headers();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $headers->addHeaderLine("Fake: foo-bar\r\n\r\nevilContent");
     }
 
     public function testHeaderCrLfAttackAddHeaderLineWithValue()
     {
         $headers = new Mail\Headers();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $headers->addHeaderLine('Fake', "foo-bar\r\n\r\nevilContent");
     }
 
     public function testHeaderCrLfAttackAddHeaderLineMultiple()
     {
         $headers = new Mail\Headers();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $headers->addHeaderLine('Fake', ["foo-bar\r\n\r\nevilContent"]);
         $headers->forceLoading();
     }
@@ -353,21 +354,21 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
     public function testHeaderCrLfAttackAddHeadersSingle()
     {
         $headers = new Mail\Headers();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $headers->addHeaders(["Fake: foo-bar\r\n\r\nevilContent"]);
     }
 
     public function testHeaderCrLfAttackAddHeadersWithValue()
     {
         $headers = new Mail\Headers();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $headers->addHeaders(['Fake' => "foo-bar\r\n\r\nevilContent"]);
     }
 
     public function testHeaderCrLfAttackAddHeadersMultiple()
     {
         $headers = new Mail\Headers();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $headers->addHeaders(['Fake' => ["foo-bar\r\n\r\nevilContent"]]);
         $headers->forceLoading();
     }

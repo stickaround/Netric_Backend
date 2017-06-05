@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../lib/Controller.php');
 
-class CAntObject_ContentFeedPostTest extends PHPUnit_Framework_TestCase
+class CAntObject_ContentFeedPostTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

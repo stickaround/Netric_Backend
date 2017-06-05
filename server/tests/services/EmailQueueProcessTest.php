@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/AntService.php');
 require_once(dirname(__FILE__).'/../../services/EmailQueueProcess.php');
 
-class EmailQueueProcessTest extends PHPUnit_Framework_TestCase
+class EmailQueueProcessTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

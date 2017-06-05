@@ -9,12 +9,12 @@
 namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group integration
  */
-abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase 
+abstract class AbstractDataMapperTests extends TestCase
 {
 	/**
      * Tennant account

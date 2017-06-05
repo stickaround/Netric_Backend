@@ -5,9 +5,9 @@
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\BulkSmtpFactory;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class BulkSmtpFactoryTest extends PHPUnit_Framework_TestCase
+class BulkSmtpFactoryTest extends TestCase
 {
     /**
      * Save old bulk email settings so we can revert after the test

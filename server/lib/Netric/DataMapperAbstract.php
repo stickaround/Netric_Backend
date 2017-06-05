@@ -9,13 +9,14 @@
 namespace Netric;
 
 use Netric\Error;
+use Netric\Account\Account;
 
 abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 {
 	/**
 	 * Handle to current account we are mapping data for
 	 *
-	 * @var Netric\Account
+	 * @var Account
 	 */
 	protected $account = "";
 
@@ -29,7 +30,7 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	/**
 	 * Get account
 	 * 
-	 * @return Netric\Account
+	 * @return Account
 	 */
 	public function getAccount()
 	{
@@ -39,9 +40,9 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	/**
 	 * Set account
 	 * 
-	 * @param Netric\Account $account The account of the current tennant
+	 * @param Account $account The account of the current tennant
 	 */
-	public function setAccount($account)
+	public function setAccount(Account $account)
 	{
 		$this->account = $account; 
 	}

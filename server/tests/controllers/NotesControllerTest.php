@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/NotesController.php');
 
 
-class NotesControllerTest extends PHPUnit_Framework_TestCase
+class NotesControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

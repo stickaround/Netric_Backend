@@ -9,9 +9,9 @@ use Netric\Application\Application;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Account\AccountIdentityMapper;
 use Netric\Application\Setup\Setup;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AccountUpdaterTest extends PHPUnit_Framework_TestCase
+class AccountUpdaterTest extends TestCase
 {
     /**
      * Reference to account running for unit tests

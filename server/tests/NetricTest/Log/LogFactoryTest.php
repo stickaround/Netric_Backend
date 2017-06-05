@@ -4,9 +4,9 @@ namespace NetricTest\Log;
 
 use Netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class LogFactoryTest extends PHPUnit_Framework_TestCase
+class LogFactoryTest extends TestCase
 {
     public function testCreateService()
     {

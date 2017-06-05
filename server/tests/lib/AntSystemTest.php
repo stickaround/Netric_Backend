@@ -8,7 +8,7 @@
 	require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
     require_once(dirname(__FILE__).'/../../lib/System/SchemaUpdater.php');
 
-	class AntSystemTest extends PHPUnit_Framework_TestCase 
+	class AntSystemTest extends TestCase
 	{
 		var $ant = null;
 		var $user = null;

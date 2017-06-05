@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../lib/Object/CalendarEventProposal.php');
 
-class CAntObject_CalendarEventProposalTest extends PHPUnit_Framework_TestCase
+class CAntObject_CalendarEventProposalTest extends TestCase
 {
 	var $ant = null;
 	var $user = null;

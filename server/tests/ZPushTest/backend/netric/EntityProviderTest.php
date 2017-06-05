@@ -5,7 +5,7 @@
 namespace ZPushTest\backend\netric;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -17,7 +17,7 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 require_once('backend/netric/netric.php');
 require_once('backend/netric/entityprovider.php');
 
-class EntityProviderTest extends PHPUnit_Framework_TestCase
+class EntityProviderTest extends TestCase
 {
     /**
      * Handle to account
@@ -744,11 +744,6 @@ class EntityProviderTest extends PHPUnit_Framework_TestCase
 
         $ret = $this->provider->deleteFolder(\EntityProvider::FOLDER_TYPE_EMAIL . '-' . $group->id);
         $this->assertTrue($ret);
-    }
-
-    public function testSaveSyncFolder()
-    {
-        // We do not currently support adding a folder
     }
 
     public function testGetFolder()

@@ -6,9 +6,9 @@ namespace NetricTest\Account\Module\DataMapper;
 
 use Netric\Account\Module\DataMapper;
 use Netric\Account\Module\Module;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
+abstract class AbstractDataMapperTests extends TestCase
 {
     /**
      * Temp or test modules to cleanup on tearDown

@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../../../lib/AntMail/Parser/CssToInline.php');
 
-class AntMail_Parser_CssToInlineTest extends PHPUnit_Framework_TestCase 
+class AntMail_Parser_CssToInlineTest extends TestCase
 {
 	var $ant = null;
 	var $user = null;

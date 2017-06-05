@@ -5,7 +5,7 @@
 namespace NetricTest\Entity\Notifier;
 
 use Netric\EntityQuery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Entity\Notifier\Notifier;
 use Netric\EntityLoader;
 use Netric\Account\Account;
@@ -13,7 +13,7 @@ use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 
-class NotifierTest extends PHPUnit_Framework_TestCase
+class NotifierTest extends TestCase
 {
     /**
      * Tenant account

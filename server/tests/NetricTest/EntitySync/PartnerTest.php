@@ -6,13 +6,13 @@ namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
 use Netric\EntitySync\Partner;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class PartnerTest
  * @package NetricTest\EntitySync
  */
-class PartnerTest extends PHPUnit_Framework_TestCase 
+class PartnerTest extends TestCase
 {
 	/**
      * Tennant accountAbstractCollectionTests

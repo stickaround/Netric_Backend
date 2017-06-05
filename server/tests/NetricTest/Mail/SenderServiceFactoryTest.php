@@ -1,9 +1,9 @@
 <?php
 namespace NetricTest\Mail;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SenderServiceFactoryTest extends PHPUnit_Framework_TestCase
+class SenderServiceFactoryTest extends TestCase
 {
     public function testCreateService()
     {

@@ -12,7 +12,7 @@ require_once(dirname(__FILE__).'/../../../lib/PaymentGatewayManager.php');
 require_once(dirname(__FILE__).'/../../../lib/aereus.lib.php/antapi.php');
 require_once(dirname(__FILE__).'/../../../lib/AntMail/DeliveryAgent.php');
 
-class CAntObject_EmailThreadTest extends PHPUnit_Framework_TestCase
+class CAntObject_EmailThreadTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

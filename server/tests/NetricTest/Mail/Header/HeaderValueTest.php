@@ -9,7 +9,7 @@
 
 namespace NetricTest\Mail\Header;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Mail\Header\HeaderValue;
 
 class HeaderValueTest extends TestCase
@@ -91,7 +91,7 @@ class HeaderValueTest extends TestCase
      */
     public function testAssertValidRaisesExceptionForInvalidValues($value)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\RuntimeException', 'Invalid');
+        $this->expectException('Netric\Mail\Header\Exception\RuntimeException', 'Invalid');
         HeaderValue::assertValid($value);
     }
 }

@@ -10,8 +10,9 @@
 namespace NetricTest\Mail;
 
 use Netric\Mail\Address;
+use PHPUnit\Framework\TestCase;
 
-class AddressTest extends \PHPUnit_Framework_TestCase
+class AddressTest extends TestCase
 {
     public function testDoesNotRequireNameForInstantiation()
     {
@@ -41,7 +42,7 @@ class AddressTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetAddressInvalidAddressObject($email, $name)
     {
-        $this->setExpectedException('Netric\Mail\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Exception\InvalidArgumentException');
         new Address($email, $name);
     }
 

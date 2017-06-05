@@ -7,8 +7,9 @@
 namespace NetricTest\Config;
 
 use Netric\Config\ConfigLoader;
+use PHPUnit\Framework\TestCase;
 
-class ConfigLoaderTest extends \PHPUnit_Framework_TestCase
+class ConfigLoaderTest extends TestCase
 {
     public function testFromFolder()
     {

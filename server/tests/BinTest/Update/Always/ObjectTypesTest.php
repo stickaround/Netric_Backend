@@ -5,9 +5,9 @@
 namespace BinTest\Update\Always;
 
 use Netric\Console\BinScript;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ObjectTypesTest extends PHPUnit_Framework_TestCase
+class ObjectTypesTest extends TestCase
 {
     /**
      * Handle to account

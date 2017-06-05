@@ -11,11 +11,12 @@ namespace NetricTest\Mail\Protocol\Smtp\Auth;
 
 use ReflectionClass;
 use Netric\Mail\Protocol\Smtp\Auth\Crammd5;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class Crammd5Test extends \PHPUnit_Framework_TestCase
+class Crammd5Test extends TestCase
 {
     /**
      * @var Crammd5

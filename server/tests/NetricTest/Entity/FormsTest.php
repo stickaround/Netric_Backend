@@ -7,9 +7,9 @@
 namespace NetricTest\Entity;
 
 use Netric\Entity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FormsTest extends PHPUnit_Framework_TestCase
+class FormsTest extends TestCase
 {
     /**
      * Tennant account

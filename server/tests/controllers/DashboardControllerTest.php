@@ -12,7 +12,7 @@ require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/DashboardController.php');
 
 
-class DashboardControllerTest extends PHPUnit_Framework_TestCase
+class DashboardControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

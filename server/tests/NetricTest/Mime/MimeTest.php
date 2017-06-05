@@ -7,8 +7,9 @@
 namespace NetricTest\Mime;
 
 use Netric\Mime;
+use PHPUnit\Framework\TestCase;
 
-class MimeTest extends \PHPUnit_Framework_TestCase
+class MimeTest extends TestCase
 {
     /**
      * Stores the original set timezone
@@ -187,18 +188,24 @@ n in das Wasser, Schw=C3=A4nzchen in die H=C3=B6h!'],
      */
     public function testLineLengthInQuotedPrintableHeaderEncoding()
     {
+        $allGood = true;
+
         $subject = "Alle meine Entchen schwimmen in dem See, schwimmen in dem See, Köpfchen in das Wasser, Schwänzchen in die Höh!";
         $encoded = Mime\Mime::encodeQuotedPrintableHeader($subject, "UTF-8", 100);
         foreach (explode(Mime\Mime::LINEEND, $encoded) as $line) {
             if (strlen($line) > 100) {
-                $this->fail("Line '" . $line . "' is " . strlen($line) . " chars long, only 100 allowed.");
+                $allGood = false;
+                $message = "Line '" . $line . "' is " . strlen($line) . " chars long, only 100 allowed.";
             }
         }
         $encoded = Mime\Mime::encodeQuotedPrintableHeader($subject, "UTF-8", 40);
         foreach (explode(Mime\Mime::LINEEND, $encoded) as $line) {
             if (strlen($line) > 40) {
-                $this->fail("Line '" . $line . "' is " . strlen($line) . " chars long, only 40 allowed.");
+                $allGood = false;
+                $message = "Line '" . $line . "' is " . strlen($line) . " chars long, only 40 allowed.";
             }
         }
+
+        $this->assertTrue($allGood, $messages);
     }
 }

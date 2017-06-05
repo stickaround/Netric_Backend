@@ -6,9 +6,9 @@ namespace NetricTest\Application;
 
 use Netric;
 use Netric\Config\ConfigLoader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ApplicationTest extends PHPUnit_Framework_TestCase
+class ApplicationTest extends TestCase
 {
     /**
      * Application object to test

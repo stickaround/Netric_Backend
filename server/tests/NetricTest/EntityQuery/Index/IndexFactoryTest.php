@@ -4,9 +4,9 @@ namespace NetricTest\EntityQuery\Index;
 
 use Netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class IndexFactoryTest extends PHPUnit_Framework_TestCase
+class IndexFactoryTest extends TestCase
 {
     public function testCreateService()
     {

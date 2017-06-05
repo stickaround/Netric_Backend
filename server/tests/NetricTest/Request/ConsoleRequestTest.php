@@ -2,9 +2,9 @@
 namespace NetricTest\Request;
 
 use Netric\Request\ConsoleRequest;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ConsoleRequestTest extends PHPUnit_Framework_TestCase
+class ConsoleRequestTest extends TestCase
 {
     /**
      * Make sure we can parse args into an array of params

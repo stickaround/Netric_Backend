@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../controllers/ApplicationController.php');
 require_once(dirname(__FILE__).'/../../controllers/CalendarController.php');
 
 
-class CalendarControllerTest extends PHPUnit_Framework_TestCase
+class CalendarControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

@@ -5,9 +5,9 @@
 namespace NetricTest\EntityQuery;
 
 use Netric\EntityQuery\Where;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class WhereTest extends PHPUnit_Framework_TestCase
+class WhereTest extends TestCase
 {
     /**
      * Make sure we can convert the condition to an array

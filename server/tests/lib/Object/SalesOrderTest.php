@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../../lib/PaymentGateway.php');
 require_once(dirname(__FILE__).'/../../../lib/PaymentGatewayManager.php');
 require_once(dirname(__FILE__).'/../../../lib/aereus.lib.php/antapi.php');
 
-class CAntObject_SalesOrderTest extends PHPUnit_Framework_TestCase
+class CAntObject_SalesOrderTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

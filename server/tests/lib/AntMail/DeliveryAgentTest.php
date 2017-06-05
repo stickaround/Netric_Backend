@@ -8,7 +8,7 @@ require_once('lib/Ant.php');
 require_once('lib/AntUser.php');
 require_once('lib/Object/EmailMessage.php');
 
-class AntMail_DeliveryAgentTest extends PHPUnit_Framework_TestCase
+class AntMail_DeliveryAgentTest extends TestCase
 {
 	var $ant = null;
 	var $user = null;

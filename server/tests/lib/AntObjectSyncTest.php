@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/AntObjectSync.php');
 require_once(dirname(__FILE__).'/../../lib/Object/Folder.php');
 require_once(dirname(__FILE__).'/../../lib/Object/File.php');
 
-class AntObjectSyncTest extends PHPUnit_Framework_TestCase 
+class AntObjectSyncTest extends TestCase
 {
 	var $obj = null;
 	var $dbh = null;

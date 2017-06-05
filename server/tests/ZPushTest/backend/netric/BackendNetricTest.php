@@ -4,7 +4,7 @@
  */
 namespace ZPushTest\backend\netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;
 use Netric\Mail\SenderService;
 
@@ -18,7 +18,7 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 require_once('backend/netric/netric.php');
 require_once('backend/netric/entityprovider.php');
 
-class BackendNetricTest extends PHPUnit_Framework_TestCase
+class BackendNetricTest extends TestCase
 {
     /**
      * Handle to account

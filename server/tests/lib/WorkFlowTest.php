@@ -7,7 +7,7 @@ require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');
 
-class WorkFlowTest extends PHPUnit_Framework_TestCase 
+class WorkFlowTest extends TestCase 
 {
 	var $dbh = null;
 	var $user = null;

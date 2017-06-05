@@ -12,12 +12,12 @@ use Netric\EntityLoader;
 use Netric\WorkFlow\WorkFlowManager;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\WorkFlowInstance;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /*
  * @group integration
  */
-class WorkFlowManagerTest extends PHPUnit_Framework_TestCase
+class WorkFlowManagerTest extends TestCase
 {
     /**
      * Test entities to delete

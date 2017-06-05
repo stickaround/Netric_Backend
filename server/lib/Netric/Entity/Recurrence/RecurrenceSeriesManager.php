@@ -8,7 +8,6 @@
 namespace Netric\Entity\Recurrence;
 
 use Netric\Entity;
-use Netric\EntityDefinition;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityLoader;
 use Netric\Error;

@@ -10,7 +10,7 @@
 namespace NetricTest\EntityQuery\Index\Aggregation;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 class PgsqlTest extends AggregateTestsAbstract 
 {

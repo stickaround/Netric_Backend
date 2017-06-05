@@ -11,11 +11,12 @@ namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Message;
 use Netric\Mail\Transport\InMemory;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class InMemoryTest extends \PHPUnit_Framework_TestCase
+class InMemoryTest extends TestCase
 {
     public function getMessage()
     {

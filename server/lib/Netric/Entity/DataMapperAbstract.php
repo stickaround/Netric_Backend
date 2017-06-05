@@ -8,10 +8,12 @@
  */
 namespace Netric\Entity;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
-use Netric\Entity\EntityAggregator;
+use Netric\EntityDefinition\Field;
+use Netric\EntityQuery;
+use Netric\EntitySync\Commit\CommitManager;
+use Netric\Entity\EntityInterface;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
@@ -32,7 +34,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 /**
 	  * Commit manager used to crate global commits for sync
 	  *
-	  * @var \Netric\EntityDefinition\Commit\Manager
+	  * @var CommitManager
 	  */
 	 protected $commitManager = null;
 
@@ -46,7 +48,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Caches the results on checking if entity has moved
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	private $cacheMovedEntities = null;
 
@@ -195,6 +197,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $user = $this->getAccount()->getUser();
         $entity->setFieldsDefault($event, $user);
 
+        // Create a unique name if the entity supports it
+        $this->setUniqueName($entity);
+
         // Update foreign key names
         $this->updateForeignKeyNames($entity);
 
@@ -294,10 +299,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Get an entity by id
 	 *
-	 * @param Entity $entity The enitity to save
+	 * @param EntityInterface $entity The enitity to save
+     * @param int $id The unique id of the entity to load
 	 * @return bool true if found and loaded successfully, false if not found or failed
 	 */
-	public function getById(&$entity, $id)
+	public function getById(EntityInterface $entity, $id)
 	{
 		$ret = $this->fetchById($entity, $id);
 
@@ -331,6 +337,107 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 		return $ret;
 	}
+
+    /**
+     * Get an entity by a unique name path
+     *
+     * Unique names can be namespaced, and we can reference entities with a full
+     * path since the namespace can be a parentField. For example, the 'page' entity
+     * type has a unique name namespace of parentId so we could path /page1/page2/page1
+     * and the third page1 is a different entity than the first.
+     *
+     * @param string $objType The entity to populate if we find the data
+     * @param string $uniqueNamePath The path to the entity
+     * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
+     * @return EntityInterface $entity if found or null if not found
+     */
+	public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
+    {
+        $serviceManager = $this->getAccount()->getServiceManager();
+        $definitionLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+        $entityFactory = $serviceManager->get("Netric/Entity/EntityFactory");
+        $def = $definitionLoader->get($objType);
+
+        // Sanitize in case the user passed in bad paths like '/my//path'
+        $uniqueNamePath = str_replace("//", "/", $uniqueNamePath);
+
+        // Remove a trailing '/'
+        if ($uniqueNamePath[strlen($uniqueNamePath) - 1] === '/') {
+            $uniqueNamePath = substr($uniqueNamePath, 0, -1);
+        }
+
+        // Remove a root '/'
+        if ($uniqueNamePath[0] === '/') {
+            $uniqueNamePath = substr($uniqueNamePath, 1);
+        }
+
+        // Now split the full sanitized path into segments
+        $segments = explode("/", $uniqueNamePath);
+
+        // Pop the uname of the current level off the path
+        $uname = array_pop($segments);
+
+        // Check if this object has a parent field and there are more unames upstream in the path
+        $parentFieldCondition = [];
+        if ($def->parentField && count($segments) >= 1) {
+            $parentField = $def->getField($def->parentField);
+            if ($parentField->type == "object" && !empty($parentField->subtype)) {
+                $parentEntity = $this->getByUniqueName(
+                    $parentField->subtype,
+                    implode('/', $segments),
+                    $namespaceFieldValues
+                );
+
+                // If we can't find the parent then the path does not exist
+                if (!$parentEntity) {
+                    return null;
+                }
+
+                $parentFieldCondition[$def->parentField] = $parentEntity->getId();
+            }
+        }
+
+        $filterValues = array_merge($namespaceFieldValues, $parentFieldCondition,  ['uname' => $uname]);
+        $matches = $this->getIdsFromFieldValues($objType, $filterValues);
+        if (count($matches) == 1) {
+            $entity = $entityFactory->create($objType);
+            $this->getById($entity, $matches[0]);
+            return $entity;
+        } else {
+            // Could not find a unique match
+            return null;
+        }
+    }
+
+    /**
+     * Look for IDs based on field values
+     *
+     * @param string $objType The type of entity we are querying
+     * @param array $conditionValues Array of field values to query for
+     * @return string[] Array of IDs that match the field values
+     */
+    private function getIdsFromFieldValues($objType, array $conditionValues)
+    {
+        $entityIds = [];
+
+        // Search objects to see if the uname exists
+        $query = new EntityQuery($objType);
+
+        foreach ($conditionValues as $fieldName=>$fieldCondValue) {
+            $query->andWhere($fieldName)->equals($fieldCondValue);
+        }
+
+        // Query for matching IDs
+        $serviceManager = $this->getAccount()->getServiceManager();
+        $index = $serviceManager->get("EntityQuery_Index");
+        $result = $index->executeQuery($query);
+        for ($i = 0; $i < $result->getTotalNum(); $i++) {
+            $entity = $result->getEntity($i);
+            $entityIds[] = $entity->getId();
+        }
+
+        return $entityIds;
+    }
 
 	/**
 	 * Delete an entity
@@ -592,61 +699,113 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             }
         }
     }
+
+    /**
+     * When saving an entity create a unqiue name if not already set
+     *
+     * @param EntityInterface $entity
+     * @return bool true if changed, false if failed
+     */
+    private function setUniqueName(EntityInterface $entity)
+    {
+    	$serviceManager = $this->getAccount()->getServiceManager();
+        $def = $entity->getDefinition();
+
+        // If we are not using unique names with this object just return
+		if (!$def->unameSettings) {
+			return false;
+		}
+
+		// If we have already created a uname then don't do it again
+		if ($entity->getValue("uname")) {
+			return false;
+		}
+
+		$uname = "";
+		$unameSettings = explode(":", $def->unameSettings);
+
+		// Create desired uname from the right field
+		// Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
+		$lastPart = end($unameSettings);
+		if ($lastPart == "name") {
+			$uname = $entity->getName();
+		} else {
+			$uname = $entity->getValue($lastPart); // last one is the uname field
+		}
+
+		// The uname must be populated before we try to save anything
+		if (!$uname) {
+			return;
+		}
+
+		// Now escape the uname field to a uri fiendly name
+		$uname = strtolower($uname);
+		$uname = str_replace(" ", "-", $uname);
+		$uname = str_replace("&", "_and_", $uname);
+		$uname = preg_replace('/[^A-Za-z0-9_-]/', '', $uname);
+
+		$isUnique = $this->verifyUniqueName($entity, $uname);
+
+		// If the unique name already exists, then append with id or a random number
+		if (!$isUnique) {
+			$uname .= "-";
+			$uname .= ($this->id) ? $this->id : uniqid(); 
+		}
+
+		// Set the uname
+		$entity->setValue("uname", $uname);
+		return true;
+    }
         
 	/**
-	 * Make sure that a uname is still unique
+	 * Make sure that a uname is still 7unique
 	 *
 	 * This should safe-gard against values being saved in the object that change the namespace
 	 * of the unique name causing unique collision.
 	 *
 	 * @param Entity $entity The entity to save
 	 * @param string $uname The name to test for uniqueness
-	 * @param bool $reset If true then reset 'uname' field with new unique name
+     * @return bool true if the uniqueName is truly unique or false if there is a collision
 	 */
 	public function verifyUniqueName($entity, $uname)
 	{
-		if (!$uname)
-			return false;
-
+		$serviceManager = $this->getAccount()->getServiceManager();
 		$def = $entity->getDefinition();
 
 		// If we are not using unique names with this object just succeed
-		if (!$def->unameSettings)
+		if (!$def->unameSettings) {
 			return true;
+		}
 
-        /*
-         * TODO: this needs to be fixed
-         */
-        //$this->getAccount()->getServiceManager()->get("EntityLoader");
-
-		// TODO: we need to move this to collections but collections are not yet built
 		// Search objects to see if the uname exists
-		$olist = new CAntObjectList($this->dbh, $this->object_type, $this->user);
-		$olist->addCondition("and", "uname", "is_equal", $uname);
+		$query = new EntityQuery($def->getObjType());
+		$query->where("uname")->equals($uname);
 
 		// Exclude this object from the query because of course it will be a duplicate
-		if ($this->id)
-			$olist->addCondition("and", "id", "is_not_equal", $this->id);
+		if ($entity->getId()) {
+			$query->andWhere("id")->doesNotEqual($entity->getId());
+		}
 
-		// Loop through all namespaces if set with ':' in the settings
+		/*
+		 * Loop through all namespaces if set with ':' in the settings
+		 * The first part of the settings is "<opt_namespace_field>:"
+		 * and it can have as many namespaces as needed with the last entry
+		 * being the entity field that is used to generate the unique name.
+		 */
 		$nsParts = explode(":", $def->unameSettings);
-		if (count($nsParts) > 1)
-		{
+		if (count($nsParts) > 1) {
 			// Use all but last, which is the uname field
-			for ($i = 0; $i < (count($nsParts) - 1); $i++)
-			{
-				$olist->addCondition("and", $nsParts[$i], "is_equal", $this->getValue($nsParts[$i]));
+			for ($i = 0; $i < (count($nsParts) - 1); $i++) {
+				$query->andWhere($nsParts[$i])->equals($entity->getValue($nsParts[$i]));
 			}
 		}
 
 		// Check if any objects match
-		$olist->getObjects(0, 1);
-		if ($olist->getNumObjects() > 0)
-		{
+		$index = $serviceManager->get("EntityQuery_Index");
+		$result = $index->executeQuery($query);
+		if ($result->getTotalNum() > 0) {
 			return false;
-		}
-		else
-		{
+		} else {
 			return true;
 		}
 	}

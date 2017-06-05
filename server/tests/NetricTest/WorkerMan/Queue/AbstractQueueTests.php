@@ -4,12 +4,12 @@ namespace NetricTest\WorkerMan\Queue;
 use Netric\Worker\TestWorker;
 use Netric\WorkerMan\Queue\QueueInterface;
 use Netric\WorkerMan\Queue;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group integration
  */
-abstract class AbstractQueueTests extends PHPUnit_Framework_TestCase
+abstract class AbstractQueueTests extends TestCase
 {
     /**
      * Reference to account running for unit tests

@@ -5,7 +5,7 @@
 require_once(dirname(__FILE__).'/../../../../lib/AntConfig.php');
 require_once('lib/AntMail/Protocol/Imap.php');
 
-class AntMail_Protocol_ImapTest extends PHPUnit_Framework_TestCase
+class AntMail_Protocol_ImapTest extends TestCase
 {
 	var $host = null;
 	var $username = null;

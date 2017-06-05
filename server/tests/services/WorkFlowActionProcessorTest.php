@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../lib/AntService.php');
 require_once(dirname(__FILE__).'/../../services/WorkFlowActionProcessor.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 
-class WorkFlowActionProcessorTest extends PHPUnit_Framework_TestCase
+class WorkFlowActionProcessorTest extends TestCase
 {
 	var $user = null;
 	var $dbh = null;

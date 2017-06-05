@@ -11,11 +11,12 @@ namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Address;
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class SenderTest extends \PHPUnit_Framework_TestCase
+class SenderTest extends TestCase
 {
     public function testFromStringCreatesValidReceivedHeader()
     {
@@ -59,7 +60,7 @@ class SenderTest extends \PHPUnit_Framework_TestCase
         $expectedException,
         $expectedExceptionMessage
     ) {
-        $this->setExpectedException($expectedException, $expectedExceptionMessage);
+        $this->expectException($expectedException, $expectedExceptionMessage);
         Header\Sender::fromString('Sender:' . $decodedValue);
     }
 
@@ -91,7 +92,7 @@ class SenderTest extends \PHPUnit_Framework_TestCase
     public function testSetAddressInvalidValue($email, $name)
     {
         $header = new Header\Sender();
-        $this->setExpectedException('Netric\Mail\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Exception\InvalidArgumentException');
         $header->setAddress($email, $name);
     }
 

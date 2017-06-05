@@ -1,7 +1,7 @@
 <?php
 namespace ZPushTest\backend\netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -13,7 +13,7 @@ require_once(dirname(__FILE__) . '/../../../../config/zpush.config.php');
 require_once('backend/netric/netric.php');
 require_once('backend/netric/entityprovider.php');
 
-class ExportFolderChagesNetricTest extends PHPUnit_Framework_TestCase
+class ExportFolderChagesNetricTest extends TestCase
 {
     /**
      * Logger interface

@@ -9,8 +9,8 @@
 
 namespace NetricTest\Mail\Header;
 
-use PHPUnit_Framework_TestCase as TestCase;
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 class DateTest extends TestCase
 {
@@ -30,7 +30,7 @@ class DateTest extends TestCase
      */
     public function testFromStringRaisesExceptionOnCrlfInjectionAttempt($header)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         Header\Date::fromString($header);
     }
 
@@ -39,7 +39,7 @@ class DateTest extends TestCase
      */
     public function testPreventsCRLFInjectionViaConstructor()
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $address = new Header\Date("This\ris\r\na\nCRLF Attack");
     }
 }

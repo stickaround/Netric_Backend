@@ -10,7 +10,7 @@ require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/ContactController.php');
 
 
-class ContactControllerTest extends PHPUnit_Framework_TestCase
+class ContactControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

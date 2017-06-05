@@ -4,14 +4,14 @@
  */
 namespace NetricTest\WorkFlow\Action;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 
-abstract class AbstractActionTests extends PHPUnit_Framework_TestCase
+abstract class AbstractActionTests extends TestCase
 {
     /**
      * Reference to account running for unit tests

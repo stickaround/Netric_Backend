@@ -9,7 +9,6 @@ namespace Netric\Entity\ObjType;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\EntityDefinition;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
 use Netric\Mail\Address;

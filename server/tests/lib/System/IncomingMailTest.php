@@ -11,7 +11,7 @@ require_once('lib/Ant.php');
 require_once('lib/AntUser.php');
 require_once('lib/System/IncomingMail.php');
 
-class System_IncomingMailTest extends PHPUnit_Framework_TestCase
+class System_IncomingMailTest extends TestCase
 {
 	private $ant = null;
 	private $user = null;

@@ -7,7 +7,7 @@
 	require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 	require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 
-	class AntUserTest extends PHPUnit_Framework_TestCase 
+	class AntUserTest extends TestCase
 	{
 		var $user = null;
 		var $dbh = null;

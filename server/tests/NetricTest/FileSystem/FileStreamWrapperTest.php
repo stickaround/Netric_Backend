@@ -11,9 +11,9 @@ use Netric\EntityQuery;
 use Netric\EntityLoader;
 use Netric\Entity\ObjType;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FileStreamWrapperTest extends PHPUnit_Framework_TestCase
+class FileStreamWrapperTest extends TestCase
 {
     /**
      * Reference to account running for unit tests

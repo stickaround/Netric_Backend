@@ -9,9 +9,9 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Account\Account;
 use Netric\EntityGroupings\Group;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class DeliveryServiceTest extends PHPUnit_Framework_TestCase
+class DeliveryServiceTest extends TestCase
 {
     /**
      * The user that owns the email account

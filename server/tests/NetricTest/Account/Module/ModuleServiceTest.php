@@ -6,9 +6,9 @@ namespace NetricTest\Account\Module;
 
 use Netric\Account\Module\Module;
 use Netric\Account\Module\ModuleService;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ModuleServiceTest extends PHPUnit_Framework_TestCase
+class ModuleServiceTest extends TestCase
 {
     /**
      * Module service instance to test

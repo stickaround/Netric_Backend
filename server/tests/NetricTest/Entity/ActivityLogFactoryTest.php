@@ -5,9 +5,9 @@
 namespace NetricTest\Settings;
 
 use Netric\Entity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ActivityLogFactoryTest extends PHPUnit_Framework_TestCase
+class ActivityLogFactoryTest extends TestCase
 {
     public function testCreateService()
     {

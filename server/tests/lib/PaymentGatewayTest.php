@@ -14,7 +14,7 @@ require_once(dirname(__FILE__).'/../../lib/PaymentGatewayManager.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');
 
 //class PaymentGatewayTest extends UnitTestCase 
-class PaymentGatewayTest extends PHPUnit_Framework_TestCase 
+class PaymentGatewayTest extends TestCase 
 {
 	var $dbh = null;
 	var $user = null;

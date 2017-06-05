@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');    
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');        
 
-class AntApi_AuthenticateUserTest extends PHPUnit_Framework_TestCase
+class AntApi_AuthenticateUserTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

@@ -10,6 +10,7 @@
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 /**
  * This test is primarily to test that AbstractAddressList headers perform
@@ -17,7 +18,7 @@ use Netric\Mail\Header;
  *
  * @group      Netric_Mail
  */
-class ToTest extends \PHPUnit_Framework_TestCase
+class ToTest extends TestCase
 {
     public function testHeaderFoldingOccursProperly()
     {
@@ -47,7 +48,7 @@ class ToTest extends \PHPUnit_Framework_TestCase
      */
     public function testFromStringRaisesExceptionWhenCrlfInjectionIsDetected($header)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         Header\To::fromString($header);
     }
 }

@@ -3,10 +3,10 @@ namespace NetricTest\Stats;
 
 use Netric\Stats\StatsPublisher;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 
-class StatsPublisherTest extends PHPUnit_Framework_TestCase {
+class StatsPublisherTest extends TestCase {
     public function testIncrement() {
         StatsPublisherMocker::increment("test-inc");
         $this->assertSame("test-inc:1|c", StatsPublisherMocker::getWrittenData());

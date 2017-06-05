@@ -13,11 +13,12 @@ use Netric\Mail\Headers;
 use Netric\Mail\Message;
 use Netric\Mail\Transport\Smtp;
 use NetricTest\Mail\Fixture\SmtpProtocolSpy;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class SmtpTest extends \PHPUnit_Framework_TestCase
+class SmtpTest extends TestCase
 {
     /** @var Smtp */
     public $transport;

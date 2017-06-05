@@ -5,9 +5,9 @@
 namespace NetricTest\FileSystem;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class LocalFileStoreFactoryTest extends PHPUnit_Framework_TestCase
+class LocalFileStoreFactoryTest extends TestCase
 {
     /**
      * Reference to account running for unit tests

@@ -1,13 +1,13 @@
 <?php
 namespace NetricTest\Permissions;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Permissions;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Permissions\Dacl;
 
-class DaclTest extends PHPUnit_Framework_TestCase
+class DaclTest extends TestCase
 {
     /**
      * Active test account

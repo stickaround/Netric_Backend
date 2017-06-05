@@ -6,7 +6,7 @@ require_once(dirname(__FILE__).'/../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../controllers/AntFsController.php');
 
-class AntFsControllerTest extends PHPUnit_Framework_TestCase
+class AntFsControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

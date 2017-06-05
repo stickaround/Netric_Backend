@@ -4,7 +4,7 @@ require_once 'PHPUnit/Autoload.php';
 require_once(dirname(__FILE__).'/../../controllers/SalesController.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');
 
-class SalesControllerTest extends PHPUnit_Framework_TestCase
+class SalesControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

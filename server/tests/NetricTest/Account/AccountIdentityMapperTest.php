@@ -5,11 +5,11 @@
 namespace NetricTest\Account;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Application\DataMapperInterface;
 use Netric\Account\Account;
 
-class AccountIdentityMapperTest extends PHPUnit_Framework_TestCase
+class AccountIdentityMapperTest extends TestCase
 {
     /**
      * Tennant account

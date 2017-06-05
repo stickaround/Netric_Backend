@@ -6,9 +6,9 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use Netric\Entity\ObjType\UserEntity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class MemberTest extends PHPUnit_Framework_TestCase
+class MemberTest extends TestCase
 {
     /**
      * Tennant account

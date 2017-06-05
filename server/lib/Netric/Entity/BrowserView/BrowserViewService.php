@@ -9,7 +9,6 @@ namespace Netric\Entity\BrowserView;
 
 use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition;
 use Netric\Config\Config;
 use Netric\Settings\Settings;
 use Netric;

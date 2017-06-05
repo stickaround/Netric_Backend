@@ -9,9 +9,9 @@ use Netric\Entity\ActivityLog;
 use Netric\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ActivityLogTest extends PHPUnit_Framework_TestCase
+class ActivityLogTest extends TestCase
 {
     /**
      * Tenant account

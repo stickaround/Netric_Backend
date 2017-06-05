@@ -10,9 +10,9 @@
 namespace NetricTest\Controller;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class TestControllerTest extends PHPUnit_Framework_TestCase 
+class TestControllerTest extends TestCase
 {   
     /**
      * Test automatic pagination

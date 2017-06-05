@@ -10,9 +10,9 @@
 namespace NetricTest\EntityQuery;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ResultsTest extends PHPUnit_Framework_TestCase 
+class ResultsTest extends TestCase
 {   
     /**
      * Test automatic pagination

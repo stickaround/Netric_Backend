@@ -15,7 +15,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/WorkerMan.php');
 require_once(dirname(__FILE__).'/../../lib/AntFs.php');
 
-class Workers_Lib_ObjectsTest extends PHPUnit_Framework_TestCase
+class Workers_Lib_ObjectsTest extends TestCase
 {
 	var $dbh = null;
 	var $ant = null;

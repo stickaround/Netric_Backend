@@ -1,7 +1,7 @@
 <?php
 namespace ZPushTest\backend\netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -14,7 +14,7 @@ require_once('backend/netric/netric.php');
 require_once('backend/netric/exportchangesnetric.php');
 require_once('backend/netric/entityprovider.php');
 
-class ExportChangesNetricTest extends PHPUnit_Framework_TestCase
+class ExportChangesNetricTest extends TestCase
 {
     /**
      * Logger interface

@@ -13,7 +13,7 @@ require_once(dirname(__FILE__).'/../../../lib/aereus.lib.php/antapi.php');
 require_once(dirname(__FILE__).'/../../../lib/AntMail/DeliveryAgent.php');
 require_once(dirname(__FILE__).'/../../../lib/WorkerMan.php');
 
-class CAntObject_EmailCampaignTest extends PHPUnit_Framework_TestCase
+class CAntObject_EmailCampaignTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

@@ -7,9 +7,9 @@ namespace NetricTest\Entity;
 use Netric\Entity;
 use Netric\Entity\EntityAggregator;
 use Netric\EntityLoader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class EntityAggregatorTest extends PHPUnit_Framework_TestCase
+class EntityAggregatorTest extends TestCase
 {
     /**
      * Tenant account

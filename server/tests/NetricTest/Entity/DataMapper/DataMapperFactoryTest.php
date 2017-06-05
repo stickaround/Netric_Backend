@@ -4,9 +4,9 @@ namespace NetricTest\Entity\DataMapper;
 
 use Netric;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class DataMapperFactoryTest extends PHPUnit_Framework_TestCase
+class DataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {

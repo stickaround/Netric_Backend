@@ -5,13 +5,13 @@ use Netric;
 use Netric\EntityQuery;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Plugin;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\WorkerMan;
 
 /**
  * @group integration
  */
-class EmailThreadQueryPluginTest extends PHPUnit_Framework_TestCase
+class EmailThreadQueryPluginTest extends TestCase
 {
     /**
      * Tenant account

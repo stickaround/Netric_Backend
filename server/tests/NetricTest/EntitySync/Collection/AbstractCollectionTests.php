@@ -4,13 +4,13 @@
  */
 namespace NetricTest\EntitySync\Collection;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\EntitySync;
 
 /*
  * @group integration
  */
-abstract class AbstractCollectionTests extends PHPUnit_Framework_TestCase 
+abstract class AbstractCollectionTests extends TestCase
 {
 	/**
      * Tennant accountAbstractCollectionTests

@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/EmailController.php');
 
 
-class EmailControllerTest extends PHPUnit_Framework_TestCase
+class EmailControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

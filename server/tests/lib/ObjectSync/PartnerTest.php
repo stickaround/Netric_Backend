@@ -14,7 +14,7 @@ require_once('lib/CAntObject.php');
 require_once('lib/CAntObjectList.php');
 require_once('lib/AntObjectSync.php');
 
-class AntObjectSync_PartnerTest_DEPRICATED  extends PHPUnit_Framework_TestCase
+class AntObjectSync_PartnerTest_DEPRICATED  extends TestCase
 {
 	var $obj = null;
 	var $dbh = null;

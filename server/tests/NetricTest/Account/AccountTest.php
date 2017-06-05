@@ -5,9 +5,9 @@
 namespace NetricTest\Account;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AccountTest extends PHPUnit_Framework_TestCase
+class AccountTest extends TestCase
 {
     public function testGetServiceManager()
     {

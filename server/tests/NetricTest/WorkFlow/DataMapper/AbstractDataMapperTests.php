@@ -5,7 +5,7 @@
 namespace NetricTest\WorkFlow\DataMapper;
 
 use Netric\WorkFlow\WorkFlowInstance;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\EntityQuery\Where;
@@ -13,7 +13,7 @@ use Netric\WorkFlow\WorkFlow;
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 
-abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
+abstract class AbstractDataMapperTests extends TestCase
 {
     /**
      * Action factory is needed to construct a new workflow

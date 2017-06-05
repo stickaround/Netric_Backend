@@ -16,11 +16,12 @@ use Netric\Mail\Header\Cc;
 use Netric\Mail\Header\From;
 use Netric\Mail\Header\ReplyTo;
 use Netric\Mail\Header\To;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class AddressListHeaderTest extends \PHPUnit_Framework_TestCase
+class AddressListHeaderTest extends TestCase
 {
     public static function getHeaderInstances()
     {

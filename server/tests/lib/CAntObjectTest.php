@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObjectList.php');
 require_once(dirname(__FILE__).'/../../customer/customer_functions.awp');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/CAntObjectApi.php');
 
-class CAntObjectTest extends PHPUnit_Framework_TestCase
+class CAntObjectTest extends TestCase
 {
 	var $obj = null;
 	var $dbh = null;

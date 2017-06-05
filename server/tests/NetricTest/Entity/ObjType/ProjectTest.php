@@ -8,9 +8,9 @@ use Netric\Entity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\Pgsql;
 use Netric\Entity\ObjType\UserEntity;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ProjectTest extends PHPUnit_Framework_TestCase
+class ProjectTest extends TestCase
 {
     /**
      * Tennant account

@@ -5,9 +5,9 @@
 namespace NetricTest\ServiceManager;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ServiceManagerTest extends PHPUnit_Framework_TestCase 
+class ServiceManagerTest extends TestCase
 {
     /**
      * Handle to account

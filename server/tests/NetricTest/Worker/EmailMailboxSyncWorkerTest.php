@@ -2,7 +2,7 @@
 namespace NetricTest\Worker;
 
 use Netric\WorkerMan\Job;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Worker\EmailMailboxSyncWorker;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
@@ -11,7 +11,7 @@ use Netric\EntityGroupings\Group;
 /**
  * @group integration
  */
-class EmailMailboxSyncWorkerTest extends PHPUnit_Framework_TestCase
+class EmailMailboxSyncWorkerTest extends TestCase
 {
     /**
      * Reference to account running for unit tests

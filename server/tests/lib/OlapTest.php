@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/Olap.php');    
 
 
-class OlapTest extends PHPUnit_Framework_TestCase
+class OlapTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

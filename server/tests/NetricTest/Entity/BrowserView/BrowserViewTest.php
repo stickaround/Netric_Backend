@@ -6,9 +6,9 @@ namespace NetricTest\Entity\BrowserView;
 
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityQuery\Where;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class BrowserViewTest extends PHPUnit_Framework_TestCase
+class BrowserViewTest extends TestCase
 {
     /**
      * Tennant account

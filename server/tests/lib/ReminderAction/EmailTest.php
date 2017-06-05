@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../lib/Object/Reminder.php');
 
-class ReminderAction_EmailTest extends PHPUnit_Framework_TestCase 
+class ReminderAction_EmailTest extends TestCase 
 {
 	var $ant = null;
 	var $user = null;

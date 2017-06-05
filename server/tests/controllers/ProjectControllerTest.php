@@ -14,7 +14,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntFs.awp');
 require_once(dirname(__FILE__).'/../../project/project_functions.awp');
 
 
-class ProjectControllerTest extends PHPUnit_Framework_TestCase
+class ProjectControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

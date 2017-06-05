@@ -8,9 +8,9 @@ use Netric\Entity\Recurrence;
 use Netric\Entity;
 use Netric\EntityLoader;
 use Netric\EntityQuery;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RecurrenceSeriesManagerTest extends PHPUnit_Framework_TestCase
+class RecurrenceSeriesManagerTest extends TestCase
 {
     /**
      * Tennant account

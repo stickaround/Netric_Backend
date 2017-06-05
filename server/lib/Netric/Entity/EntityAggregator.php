@@ -7,7 +7,7 @@
  */
 namespace Netric\Entity;
 
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityGroupings;
 use Netric\EntityQuery;

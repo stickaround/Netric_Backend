@@ -10,11 +10,12 @@
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class ReceivedTest extends \PHPUnit_Framework_TestCase
+class ReceivedTest extends TestCase
 {
     public function testFromStringCreatesValidReceivedHeader()
     {
@@ -66,7 +67,7 @@ class ReceivedTest extends \PHPUnit_Framework_TestCase
      */
     public function testRaisesExceptionViaFromStringOnDetectionOfCrlfInjection($header)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $received = Header\Received::fromString($header);
     }
 
@@ -86,7 +87,7 @@ class ReceivedTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructorRaisesExceptionOnValueWithCRLFInjectionAttempt($value)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         new Header\Received($value);
     }
 }

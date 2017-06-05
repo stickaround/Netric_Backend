@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../lib/AntChat.php');
 /**
  * test suite for AntChat class
  */
-class AntChatTest extends PHPUnit_Framework_TestCase
+class AntChatTest extends TestCase
 {
 	var $obj = null;
 	var $dbh = null;

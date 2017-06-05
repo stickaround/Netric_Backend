@@ -9,7 +9,7 @@
  */
 namespace NetricTest\EntitySync\Commit\DataMapper;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 class PgsqlTest extends DmTestsAbstract 
 {

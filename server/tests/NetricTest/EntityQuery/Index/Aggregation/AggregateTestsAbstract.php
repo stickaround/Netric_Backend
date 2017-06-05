@@ -9,9 +9,9 @@
 namespace NetricTest\EntityQuery\Index\Aggregation;
 
 use Netric\EntityQuery\Aggregation;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class AggregateTestsAbstract extends PHPUnit_Framework_TestCase 
+abstract class AggregateTestsAbstract extends TestCase
 {
     /**
      * Tennant account

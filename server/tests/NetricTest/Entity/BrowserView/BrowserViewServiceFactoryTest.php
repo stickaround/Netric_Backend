@@ -7,9 +7,9 @@ namespace NetricTest\Entity\BrowserView;
 
 use NetricTest;
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class BrowserViewServiceFactoryTest extends PHPUnit_Framework_TestCase
+class BrowserViewServiceFactoryTest extends TestCase
 {
     public function testCreateService()
     {

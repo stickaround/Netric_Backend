@@ -5,11 +5,11 @@
 namespace NetricTest\FileSystem\FileStore;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore;
 use Netric\Entity\DataMapperInterface;
 
-abstract class AbstractFileStoreTests extends PHPUnit_Framework_TestCase
+abstract class AbstractFileStoreTests extends TestCase
 {
     /**
      * Test files

@@ -1,9 +1,9 @@
 <?php
 namespace NetricTest\WorkerMan;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ConfigFactoryTest extends PHPUnit_Framework_TestCase
+class ConfigFactoryTest extends TestCase
 {
     public function testCreateService()
     {

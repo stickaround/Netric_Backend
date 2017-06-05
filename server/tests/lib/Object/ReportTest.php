@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../../controllers/DatacenterController.php');
 require_once(dirname(__FILE__).'/../../../lib/aereus.lib.php/antapi.php');
 
-class CAntObject_ReportTest extends PHPUnit_Framework_TestCase
+class CAntObject_ReportTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

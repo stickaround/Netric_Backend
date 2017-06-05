@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../../lib/Ant.php');
 require_once(dirname(__FILE__).'/../../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../../lib/AntMail/Account.php');
 
-class AntMail_AccountTest extends PHPUnit_Framework_TestCase 
+class AntMail_AccountTest extends TestCase
 {
 	var $ant = null;
 	var $user = null;

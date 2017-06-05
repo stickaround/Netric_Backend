@@ -5,9 +5,9 @@ use Netric\Application\DataMapperInterface;
 use Netric\Account\Account;
 use Netric\Application\Application;
 use Netric\Config\ConfigLoader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractDataMapperTests extends PHPUnit_Framework_TestCase
+abstract class AbstractDataMapperTests extends TestCase
 {
     /**
      * Application object to test

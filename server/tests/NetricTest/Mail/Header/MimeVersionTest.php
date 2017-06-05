@@ -10,11 +10,12 @@
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class MimeVersionTest extends \PHPUnit_Framework_TestCase
+class MimeVersionTest extends TestCase
 {
     public function testSettingManually()
     {
@@ -46,7 +47,7 @@ class MimeVersionTest extends \PHPUnit_Framework_TestCase
      */
     public function testFromStringRaisesExceptionOnDetectionOfCrlfInjection($header)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $mime = Header\MimeVersion::fromString($header);
     }
 
@@ -67,7 +68,7 @@ class MimeVersionTest extends \PHPUnit_Framework_TestCase
     public function testRaisesExceptionOnInvalidVersionFromSetVersion($value)
     {
         $header = new Header\MimeVersion();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $header->setVersion($value);
     }
 }

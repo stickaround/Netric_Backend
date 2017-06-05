@@ -7,9 +7,9 @@ namespace NetricTest\Controller;
 use Netric;
 use Netric\Entity\ObjType;
 use Netric\FileSystem\FileSystem;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FilesControllerTest extends PHPUnit_Framework_TestCase
+class FilesControllerTest extends TestCase
 {
     /**
      * Account used for testing

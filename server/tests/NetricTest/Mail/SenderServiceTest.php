@@ -6,9 +6,9 @@ use Netric\Mail\Transport\InMemory;
 use Netric\Mail\SenderService;
 use Netric\Mail\Message;
 use Netric\Account\Account;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SenderServiceTest extends PHPUnit_Framework_TestCase
+class SenderServiceTest extends TestCase
 {
     /**
      * In-Memory transport for testing

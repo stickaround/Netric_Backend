@@ -8,6 +8,9 @@
  */
 namespace Netric;
 
+use Netric\Cache\CacheInterface;
+use Netric\EntityDefinition\EntityDefinition;
+
 /**
  * Class to handle to loading of object definitions
  */
@@ -30,7 +33,7 @@ class EntityDefinitionLoader
 	/**
 	 * Cache
 	 *
-	 * @var \Netric\Cache\CacheInterface\CacheInterface
+	 * @var \Netric\Cache\CacheInterface
 	 */
 	private $cache = null;
     
@@ -38,7 +41,7 @@ class EntityDefinitionLoader
      * Setup IdentityMapper for loading objects
      * 
      * @param DataMapperInterface $dm Datamapper for entity definitions
-     * @param Netric\Cache\CacheInterface $cache Optional cache object
+     * @param CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
     public function __construct($dm, Cache\CacheInterface $cache=null)

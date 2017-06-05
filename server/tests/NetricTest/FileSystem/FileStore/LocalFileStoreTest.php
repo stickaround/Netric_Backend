@@ -5,7 +5,7 @@
 namespace NetricTest\FileSystem\FileStore;
 
 use Netric;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore\LocalFileStore;
 
 class LocalFileStoreTest extends AbstractFileStoreTests

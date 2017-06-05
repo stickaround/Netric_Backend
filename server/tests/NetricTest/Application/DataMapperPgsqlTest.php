@@ -5,7 +5,7 @@ use Netric\Application\DataMapperInterface;
 use Netric\Application\DataMapperPgsql;
 use Netric\Config\ConfigLoader;
 use Netric\Db\Pgsql;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 class DataMapperPgsqlTest extends AbstractDataMapperTests
 {

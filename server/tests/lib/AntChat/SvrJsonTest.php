@@ -9,7 +9,7 @@ require_once(dirname(__FILE__).'/../../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../../lib/RpcSvr.php');
 require_once(dirname(__FILE__).'/../../../lib/AntChat/SvrJson.php');
 
-class AntChat_SvrJsonTest extends PHPUnit_Framework_TestCase
+class AntChat_SvrJsonTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

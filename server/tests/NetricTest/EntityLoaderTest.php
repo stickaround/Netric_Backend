@@ -4,10 +4,11 @@
  */
 namespace NetricTest;
 
-use Netric;
-use PHPUnit_Framework_TestCase;
+use Netric\Entity\DataMapperInterface;
+use Netric\EntityLoader;
+use PHPUnit\Framework\TestCase;
 
-class EntityLoaderTest extends PHPUnit_Framework_TestCase 
+class EntityLoaderTest extends TestCase
 {
 	/**
      * Tennant account
@@ -56,4 +57,25 @@ class EntityLoaderTest extends PHPUnit_Framework_TestCase
 		// Cleanup
 		$dm->delete($cust, true);
 	}
+
+	public function testByUniqueName()
+    {
+        $entityFactory = $this->account->getServiceManager()->get("Netric/Entity/EntityFactory");
+        $task = $entityFactory->create("task");
+
+
+        // Configure a mock datamapper
+        $dm = $this->getMockBuilder(DataMapperInterface::class)->getMock();;
+        $dm->method('getByUniqueName')
+            ->willReturn($task);
+        $dm->method('getAccount')
+            ->willReturn($this->account);
+
+        $defLoader = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader");
+        $loader = new EntityLoader($dm, $defLoader);
+
+        $entity = $loader->getByUniqueName("task", "my_test");
+
+        $this->assertEquals($task, $entity);
+    }
 }

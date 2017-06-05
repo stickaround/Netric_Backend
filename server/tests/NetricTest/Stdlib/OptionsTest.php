@@ -11,8 +11,9 @@ use NetricTest\Stdlib\Fixture\TestOptions;
 use NetricTest\Stdlib\Fixture\TestOptionsDerived;
 use NetricTest\Stdlib\Fixture\TestOptionsNoStrict;
 use NetricTest\Stdlib\Fixture\TestOptionsWithoutGetter;
+use PHPUnit\Framework\TestCase;
 
-class OptionsTest extends \PHPUnit_Framework_TestCase
+class OptionsTest extends TestCase
 {
     public function testConstructionWithArray()
     {
@@ -32,7 +33,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
     }
     public function testInvalidFieldThrowsException()
     {
-        $this->setExpectedException('BadMethodCallException');
+        $this->expectException('BadMethodCallException');
         new TestOptions(['foo' => 'bar']);
     }
     public function testNonStrictOptionsDoesNotThrowException()
@@ -56,13 +57,13 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
     public function testUnsetThrowsInvalidArgumentException()
     {
         $options = new TestOptions;
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         unset($options->foobarField);
     }
     public function testGetThrowsBadMethodCallException()
     {
         $options = new TestOptions();
-        $this->setExpectedException('BadMethodCallException');
+        $this->expectException('BadMethodCallException');
         $options->fieldFoobar;
     }
     public function testSetFromArrayAcceptsArray()
@@ -74,7 +75,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
     }
     public function testSetFromArrayThrowsInvalidArgumentException()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $options = new TestOptions;
         $options->setFromArray('asd');
     }
@@ -90,7 +91,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
     }
     public function testParentPrivateProperty()
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Netric\Stdlib\Exception\BadMethodCallException',
             'The option "parent_private" does not have a callable "setParentPrivate" ("setparentprivate")'
             . ' setter method which must be defined'
@@ -109,7 +110,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
     }
     public function testDerivedPrivateProperty()
     {
-        $this->setExpectedException(
+        $this->expectException(
             'Netric\Stdlib\Exception\BadMethodCallException',
             'The option "derived_private" does not have a callable "setDerivedPrivate" ("setderivedprivate")'
             .' setter method which must be defined'
@@ -118,7 +119,7 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
     }
     public function testExceptionMessageContainsActualUsedSetter()
     {
-        $this->setExpectedException(
+        $this->expectException(
             'BadMethodCallException',
             'The option "foo bar" does not have a callable "setFooBar" ("setfoo bar")'
             . ' setter method which must be defined'
@@ -142,12 +143,14 @@ class OptionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testIssetDoesNotThrowExceptionWhenMatchingGetterDoesNotExist()
     {
+        $allGood = true;
         $options   = new TestOptionsWithoutGetter();
         try {
             isset($options->foo);
         } catch (Exception\BadMethodCallException $exception) {
-            $this->fail("Unexpected BadMethodCallException raised");
+            $allGood = false;
         }
+        $this->assertTrue($allGood);
     }
     /**
      * @group 7287

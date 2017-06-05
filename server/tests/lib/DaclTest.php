@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../lib/Dacl.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 
-class DaclTest extends PHPUnit_Framework_TestCase 
+class DaclTest extends TestCase
 {
 	var $user = null;
 	var $dbh = null;

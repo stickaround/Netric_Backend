@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../controllers/ObjectController.php');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/antapi.php');        
 require_once(dirname(__FILE__).'/../../lib/Olap.php');	
 
-class AntApi_ObjectListTest extends PHPUnit_Framework_TestCase
+class AntApi_ObjectListTest extends TestCase
 {
 	var $dbh = null;
 	var $user = null;

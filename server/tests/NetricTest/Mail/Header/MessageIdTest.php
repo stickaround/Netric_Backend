@@ -10,11 +10,12 @@
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class MessageIdTest extends \PHPUnit_Framework_TestCase
+class MessageIdTest extends TestCase
 {
     public function testSettingManually()
     {
@@ -51,7 +52,7 @@ class MessageIdTest extends \PHPUnit_Framework_TestCase
      */
     public function testFromStringPreventsCrlfInjectionOnDetection($header)
     {
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $messageid = Header\MessageId::fromString($header);
     }
 
@@ -73,7 +74,7 @@ class MessageIdTest extends \PHPUnit_Framework_TestCase
     public function testInvalidIdentifierRaisesException($id)
     {
         $header = new Header\MessageId();
-        $this->setExpectedException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
         $header->setId($id);
     }
 }

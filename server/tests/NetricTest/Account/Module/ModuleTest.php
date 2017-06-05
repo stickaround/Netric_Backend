@@ -5,9 +5,9 @@
 namespace NetricTest\Account\Module;
 
 use Netric\Account\Module\Module;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ModuleTest extends PHPUnit_Framework_TestCase
+class ModuleTest extends TestCase
 {
     public function testFromArray()
     {

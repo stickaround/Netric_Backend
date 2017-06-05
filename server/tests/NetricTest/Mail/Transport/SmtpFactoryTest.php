@@ -5,9 +5,9 @@
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\SmtpFactory;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SmtpFactoryTest extends PHPUnit_Framework_TestCase
+class SmtpFactoryTest extends TestCase
 {
     /**
      * Save old settings so we can revert after the test

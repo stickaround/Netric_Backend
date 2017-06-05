@@ -9,9 +9,9 @@ use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Mime;
 use Netric\Mail;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class EmailMessageTest extends PHPUnit_Framework_TestCase
+class EmailMessageTest extends TestCase
 {
     /**
      * Tenant account

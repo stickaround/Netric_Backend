@@ -4,11 +4,11 @@
  */
 namespace NetricTest\WorkFlow\Action;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\Exception\ActionNotFoundException;
 
-class ActionFactoryTest extends PHPUnit_Framework_TestCase
+class ActionFactoryTest extends TestCase
 {
     /**
      * Reference to account running for unit tests

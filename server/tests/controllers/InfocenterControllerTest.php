@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/InfocenterController.php');
 
 
-class InfocenterControllerTest extends PHPUnit_Framework_TestCase
+class InfocenterControllerTest extends TestCase
 {
     var $dbh = null;
     var $user = null;

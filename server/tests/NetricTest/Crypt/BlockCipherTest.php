@@ -1,10 +1,10 @@
 <?php
 namespace NetricTest\Crypt;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Netric\Crypt\BlockCipher;
 
-class BlockCipherTest extends PHPUnit_Framework_TestCase
+class BlockCipherTest extends TestCase
 {
     public function testEncrypt()
     {

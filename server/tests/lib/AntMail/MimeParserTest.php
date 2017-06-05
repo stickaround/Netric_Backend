@@ -8,7 +8,7 @@ require_once('lib/Ant.php');
 require_once('lib/AntUser.php');
 require_once('lib/AntMail/MimeParser.php');
 
-class AntMail_MimeParserTest extends PHPUnit_Framework_TestCase
+class AntMail_MimeParserTest extends TestCase
 {
 	var $ant = null;
 	var $user = null;

@@ -13,11 +13,12 @@ use Netric\Mail\Header\ContentType;
 use Netric\Mail\Header\Exception\InvalidArgumentException;
 use Netric\Mail\Header\HeaderInterface;
 use Netric\Mail\Header\UnstructuredInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group      Netric_Mail
  */
-class ContentTypeTest extends \PHPUnit_Framework_TestCase
+class ContentTypeTest extends TestCase
 {
     public function testImplementsHeaderInterface()
     {
@@ -84,7 +85,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testFromStringThrowException($headerLine, $expectedException, $exceptionMessage)
     {
-        $this->setExpectedException($expectedException, $exceptionMessage);
+        $this->expectException($expectedException, $exceptionMessage);
         ContentType::fromString($headerLine);
     }
 
@@ -106,7 +107,7 @@ class ContentTypeTest extends \PHPUnit_Framework_TestCase
         $header = new ContentType();
         $header->setType('text/html');
 
-        $this->setExpectedException($expectedException, $exceptionMessage);
+        $this->expectException($expectedException, $exceptionMessage);
         $header->addParameter($paramName, $paramValue);
     }
 

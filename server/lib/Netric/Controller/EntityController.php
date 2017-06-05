@@ -6,7 +6,7 @@ namespace Netric\Controller;
 
 use Netric\Entity\EntityInterface;
 use \Netric\Mvc;
-use \Netric\EntityDefinition;
+use \Netric\EntityDefinition\EntityDefinition;
 
 class EntityController extends Mvc\AbstractAccountController
 {
@@ -169,20 +169,46 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * Retrieve a single entity
+     * Retrieve a single entity2
      */
     public function getGetAction()
     {
-        $ret = array();
-        $params = $this->getRequest()->getParams();
+        $params = [];
 
-        if (!$params['obj_type'] || !$params['id']) {
-            return $this->sendOutput(array("error" => "obj_type and id are required params"));
+        // Check if the get request was a post with application/json data
+        if ($this->request->getParam("content-type") === 'application/json') {
+            $body = json_decode($this->request->getBody(), true);
+            $params['obj_type'] = (isset($body['obj_type'])) ? $body['obj_type'] : null;
+            $params['id'] = (isset($body['id'])) ? $body['id'] : null;
+            $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
+            $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
+        } else {
+            $params = $this->getRequest()->getParams();
         }
 
+        // Make sure we have the minimum required params
+        if (!$params['obj_type'] || (!$params['id'] && !$params['uname'])) {
+            return $this->sendOutput(
+                array(
+                    "error" => "obj_type and id or uname are required params",
+                    "params" => $params
+                )
+            );
+        }
 
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
-        $entity = $loader->get($params['obj_type'], $params['id']);
+
+        if (isset($params['uname'])) {
+            // Retrieve the entity bu a unique name and optional conditions
+            $entity = $loader->getByUniqueName(
+                $params['obj_type'],
+                $params['uname'],
+                $params['uname_conditions']
+            );
+        } else {
+            // Retrieve the entity by id
+            $entity = $loader->get($params['obj_type'], $params['id']);
+        }
 
         // TODO: Check permissions
 
@@ -192,7 +218,6 @@ class EntityController extends Mvc\AbstractAccountController
         if (isset($params['loadDef'])) {
             // TODO: add $ret['definition'] with results from $this->getDefinition
         }
-
 
         return $this->sendOutput($ret);
     }
@@ -373,7 +398,7 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Get the additional info (browser_mode, forms, views, default_view) for the object definition.
      *
-     * @param Netric\EntityDefinition $def Definition of the object type
+     * @param EntityDefinition $def Definition of the object type
      *
      * @return array Object Type defintion with all the additional info of the object type
      */
