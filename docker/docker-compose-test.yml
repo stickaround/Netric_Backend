@@ -1,59 +1,59 @@
-netric_server:
-  build: ../
-  ports:
-   - "8081:80"
-  environment:
-     APPLICATION_ENV: testing
-  volumes:
-   - ../server/tests/tmp:/var/www/html/tests/tmp
-  links:
-   - memcached
-   - gearmand
-   - mail
-   - db1
-   - mogilefs
-   - mogilestore
+version: '2'
 
-memcached:
-  image: memcached
+services:
+  netric_server:
+    build: ../
+    ports:
+     - "8081:80"
+    environment:
+       APPLICATION_ENV: testing
+    volumes:
+     - ../server/tests/tmp:/var/www/html/tests/tmp
+    links:
+     - memcached
+     - gearmand
+     - mail
+     - db1
+     - mogilefs
+     - mogilestore
 
-gearmand:
-  image: kendu/gearman
-  ports:
-     - "4731:4730"
+  memcached:
+    image: memcached
 
-db1:
-  build: postgres/
-  ports:
-  - "54321:5432"
-  environment:
-    POSTGRES_USER: vagrant
-    POSTGRES_PASSWORD: vagrant
+  gearmand:
+    image: kendu/gearman
 
-mail:
-  build: mail/
-  environment:
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: db1
-      DB_NAME: antsystem
-      DB_PORT: 54321
-  links:
-  - db1
+  db1:
+    build: postgres/
+    ports:
+    - "5432:5432"
+    environment:
+      POSTGRES_USER: vagrant
+      POSTGRES_PASSWORD: vagrant
 
-mogilefs:
-  build: mogilefs/
-  environment:
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: db1
-      DB_NAME: mogilefs
-      DB_PORT: 54321
-      MGFS_STORE_PORT: 7500
-  links:
-  - mogilestore
+  mail:
+    build: mail/
+    environment:
+        DB_USER: vagrant
+        DB_PASSWORD: vagrant
+        DB_HOST: db1
+        DB_NAME: antsystem
+        DB_PORT: 5432
+    links:
+    - db1
 
-mogilestore:
-  build: mogilestore/
-  ports:
-    - "7510:7500"
+  mogilefs:
+    build: mogilefs/
+    environment:
+        DB_USER: vagrant
+        DB_PASSWORD: vagrant
+        DB_HOST: db1
+        DB_NAME: mogilefs
+        DB_PORT: 5432
+        MGFS_STORE_PORT: 7500
+    links:
+    - mogilestore
+
+  mogilestore:
+    build: mogilestore/
+

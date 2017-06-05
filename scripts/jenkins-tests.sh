@@ -5,7 +5,7 @@
 cd ../docker
 
 # Just in case docker is running, stop any instances
-docker-compose -f docker-compose-dev.yml down
+docker-compose -f docker-compose-test.yml down
 
 # Build containers
 cd ../scripts
@@ -13,7 +13,7 @@ python ./build-dev.py
 
 # Bring docker up
 cd ../docker
-docker-compose -f docker-compose-dev.yml up -d
+docker-compose -f docker-compose-test.yml up -d
 
 # Wait 30 seconds, then run setup
 sleep 30
@@ -25,4 +25,4 @@ python test.py
 
 # Cleanup
 cd ../docker
-docker-compose -f docker-compose-dev.yml down
+docker-compose -f docker-compose-test.yml down
