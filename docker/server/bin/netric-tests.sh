@@ -9,7 +9,3 @@ cd /var/www/html/tests
 
 # Make sure permissions are set in generated data files
 chmod -R 777 ./tmp
-chmod -R 777 ../data/tmp
-chmod -R 777 ../data/log
-chmod -R 777 ../data/profile_runs
-chmod -R 777 ../data/z-push
