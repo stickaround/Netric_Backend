@@ -44,3 +44,4 @@ Thumbs.db
 # Composer *
 #################
 composer.lock
+.gitignore
