@@ -172,25 +172,3 @@ else
 
 header("Location: " . $page);
 exit();
-
-/*
-echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">
-	  <html>
-		<head>
-			<title>Loading applicaiton...</title>
-			<script language='javascript' type='text/javascript'>
-			function LoadPage()
-			{
-				document.location='$page';
-			}
-			</script>
-		</head>
-		<body onload=\"LoadPage();\" style='background-color:#FFF;'>
-		<div style='width:100px;height:25px;border:1px solid blue;padding-top:3px;padding-left:3px;
-					font-weight:bold;'>
-			Loading...
-		</div>
-		</body>
-	   </html>";
-?>
- */

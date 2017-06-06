@@ -14,9 +14,10 @@ interface CacheInterface
      *
      * @param string $key Unique key for referencing the value
      * @param string $value The value to store
+     * @param int $expires Number of seconds to expire cache or 0 for never
      * @return boolean true on success, false on failure
      */
-    public function set($key, $value);
+    public function set($key, $value, $expires=0);
 
     /**
      * Get a value from cache by key

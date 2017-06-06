@@ -32,12 +32,13 @@ class AlibCache implements CacheInterface
     }
     /**
      * Set a value to the cache
-     * 
+     *
      * @param string $key Unique key for referencing the value
-     * @param string $value The value to stroe
+     * @param string $value The value to store
+     * @param int $expires Number of seconds to expire cache or 0 for never
      * @return boolean true on success, false on failure
      */
-    public function set($key, $value)
+    public function set($key, $value, $expires=0)
     {
         return $this->cache->set($key, $value);
     }
