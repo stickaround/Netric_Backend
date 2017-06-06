@@ -74,11 +74,11 @@ RewriteRule ^videomail$ /email/vmail_player.php [QSA]
 RewriteRule ^videomail/([0-9a-zA-Z-_']+)$ /email/vmail_player.php?mid=$1 [QSA]
 RewriteRule ^controller/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /controllerLoader.php?controller=$1&function=$2 [QSA]
 
+# Legacy External API is [language]/[controller]/[action]
+RewriteRule ^api/php/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /controllerLoader.php?apim=$1&controller=$2&function=$3 [QSA]
+
 # New API is [version]/[controller]/[action]
 RewriteRule ^api/([0-9]+)/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /router.php?version=$1&controller=$2&function=$3 [QSA]
-
-# Legacy External API is [language]/[controller]/[action]
-RewriteRule ^api/([a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /controllerLoader.php?apim=$1&controller=$2&function=$3 [QSA]
 
 # New conroller loader namespace = svr/*
 RewriteRule ^svr/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /router.php?controller=$1&function=$2 [QSA]
