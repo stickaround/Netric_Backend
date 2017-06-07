@@ -601,8 +601,11 @@ class Entity implements EntityInterface
 	 */
 	public function afterSave(AccountServiceManagerInterface $sm)
 	{
-		// Process any temp files or attachments associated with this entity
-		$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
+		// No need to process temp files if the current entity is already a folder to avoid circular reference
+		if ($this->objType === "folder") {
+			// Process any temp files or attachments associated with this entity
+			$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
+		}
 
 		// Call derived extensions
 		$this->onAfterSave($sm);
@@ -841,7 +844,15 @@ class Entity implements EntityInterface
 	 */
 	static public function decodeObjRef($value)
 	{
-		$parts = explode(":", $value);
+		$cleanedValue = $value;
+
+		// Clean up the $value if the objRef is encapsulated in a square bracket
+		preg_match("/\[([^\]]*)\]/", $cleanedValue, $matches);
+
+		if ($matches[1])
+			$cleanedValue = $matches[1];
+
+		$parts = explode(":", $cleanedValue);
 		if (count($parts)>1)
 		{
 			$ret = array(
@@ -850,26 +861,26 @@ class Entity implements EntityInterface
 				'name' => null,
 			);
 
-            // Was encoded with obj_type:id:name (new)
-            if (count($parts) === 3)
-            {
-                $ret['id'] = $parts[1];
-                $ret['name'] = $parts[2];
-            }
-            else
-            {
-                // Check for full name added after bar '|' (old)
-                $parts2 = explode("|", $parts[1]);
-                if (count($parts2)>1)
-                {
-                    $ret['id'] = $parts2[0];
-                    $ret['name'] = $parts2[1];
-                }
-                else
-                {
-                    $ret['id'] = $parts[1];
-                }
-            }
+			// Was encoded with obj_type:id:name (new)
+			if (count($parts) === 3)
+			{
+				$ret['id'] = $parts[1];
+				$ret['name'] = $parts[2];
+			}
+			else
+			{
+				// Check for full name added after bar '|' (old)
+				$parts2 = explode("|", $parts[1]);
+				if (count($parts2)>1)
+				{
+					$ret['id'] = $parts2[0];
+					$ret['name'] = $parts2[1];
+				}
+				else
+				{
+					$ret['id'] = $parts[1];
+				}
+			}
 
 			return $ret;
 		}
