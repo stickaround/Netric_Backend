@@ -766,11 +766,11 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 							}
 							else
 							{
-								$parts = explode(":", $val);
-								if (count($parts)==2)
+								$parts = $entity->decodeObjRef($val);
+								if ($parts['obj_type'] && $parts['id'])
 								{
-									$subtype = $parts[0];
-									$objid = $parts[1];
+									$subtype = $parts['obj_type'];
+									$objid = $parts['id'];
 								}
 							}
 
@@ -803,14 +803,14 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 						}
 						else
 						{
-							$parts = explode(":", $mvalues);
-							if (count($parts)==2)
+							$parts = $entity->decodeObjRef($mvalues);
+							if ($parts['obj_type'] && $parts['id'])
 							{
-								$assocDef = $defLoader->get($parts[0]);
-								if ($assocDef->getId() && $parts[1])
+								$assocDef = $defLoader->get($parts['obj_type']);
+								if ($assocDef->getId() && $parts['id'])
 								{
 									$dbh->query("insert into object_associations(object_id, type_id, assoc_type_id, assoc_object_id, field_id)
-												 values('".$entity->getId()."', '".$def->getId()."', '".$assocDef->getId()."', '".$parts[1]."', '".$fdef->id."');");
+												 values('".$entity->getId()."', '".$def->getId()."', '".$assocDef->getId()."', '".$parts['id']."', '".$fdef->id."');");
 								}
 							}
 						}
