@@ -630,7 +630,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 						$refName = $refParts['name'];
 
 						// If we have found the ref name in the object reference, then we will use it
-						if ($refName) {
+						if ($refName)
+						{
 							$entity->setValue($field->name, $value, $refName);
 							continue;
 						}
@@ -666,7 +667,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 								$refName = $refParts['name'];
 
 								// If we have found the ref name in the object reference, then we will use it
-								if ($refName) {
+								if ($refName)
+								{
 									$entity->setValue($field->name, $value, $refName);
 									continue;
 								}
