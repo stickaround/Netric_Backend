@@ -1620,23 +1620,26 @@ abstract class IndexTestsAbstract extends TestCase
         $dm->getById($customerEntity, $cid);
         $this->assertEquals($customerEntity->getName(), $customerName);
 
-
         // Create reminder and set the customer as our object reference
         $customerReminder = "Customer Reminder";
         $reminder = $this->account->getServiceManager()->get("EntityLoader")->create("reminder");
         $reminder->setValue("name", $customerReminder);
-        $reminder->setValue("obj_reference", "[customer:$cid:$customerName]");
+        $reminder->setValue("obj_reference", "customer:$cid:$customerName");
         $rid = $dm->save($reminder, $this->user);
+
+        // Set the entities so it will be cleaned up properly
+        $this->testEntities[] = $customer;
+        $this->testEntities[] = $reminder;
 
         $reminderEntity = $this->account->getServiceManager()->get("EntityFactory")->create("reminder");
         $dm->getById($reminderEntity, $rid);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);
-        $this->assertEquals($reminderEntity->getValue("obj_reference"), "[customer:$cid:$customerName]");
+        $this->assertEquals($reminderEntity->getValue("obj_reference"), "customer:$cid:$customerName");
         $this->assertEquals($reminderEntity->getValueName("obj_reference"), $customerName);
 
         // Now query the customer's reminder using the obj reference used
         $query = new Netric\EntityQuery("reminder");
-        $query->where("obj_reference")->equals("[customer:$cid:$customerName]");
+        $query->where("obj_reference")->equals("customer:$cid:$customerName");
         $query->where("id")->equals($rid);
 
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
@@ -1649,10 +1652,6 @@ abstract class IndexTestsAbstract extends TestCase
         $resultEntity = $res->getEntity(0);
         $this->assertEquals($rid, $resultEntity->getId());
         $this->assertEquals("Customer Reminder", $resultEntity->getName());
-
-        // Cleanup
-        $this->testEntities[] = $customer;
-        $this->testEntities[] = $reminder;
     }
 
     /**
