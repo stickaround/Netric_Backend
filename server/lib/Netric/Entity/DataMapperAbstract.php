@@ -627,6 +627,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                         $refParts = Entity::decodeObjRef($value);
                         $objType = $refParts['obj_type'];
                         $id = $refParts['id'];
+						$refName = $refParts['name'];
+
+						// If we have found the ref name in the object reference, then we will use it
+						if ($refName) {
+							$entity->setValue($field->name, $value, $refName);
+							continue;
+						}
                     }
 
                     // Get referenced object name
@@ -656,6 +663,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                                 $refParts = Entity::decodeObjRef($valPart);
                                 $objType = $refParts['obj_type'];
                                 $id = $refParts['id'];
+								$refName = $refParts['name'];
+
+								// If we have found the ref name in the object reference, then we will use it
+								if ($refName) {
+									$entity->setValue($field->name, $value, $refName);
+									continue;
+								}
                             }
 
                             // Get referenced object name

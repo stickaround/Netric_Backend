@@ -849,7 +849,7 @@ class Entity implements EntityInterface
 		// Clean up the $value if the objRef is encapsulated with a square bracket
 		preg_match("/\[([^\]]*)\]/", $cleanedValue, $matches);
 
-		if ($matches[1])
+		if (isset($matches[1]) && $matches[1])
 			$cleanedValue = $matches[1];
 
 		$parts = explode(":", $cleanedValue);
