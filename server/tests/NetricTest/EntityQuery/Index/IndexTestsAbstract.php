@@ -45,6 +45,7 @@ abstract class IndexTestsAbstract extends TestCase
 	protected function setUp() 
 	{
         $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
 	}
 
     /**
@@ -1599,6 +1600,59 @@ abstract class IndexTestsAbstract extends TestCase
             $ent = $res->getEntity($i);
             $this->assertFalse($ent->isDirty());
         }
+    }
+
+    /**
+     * Make sure that we are able to query the object reference entity
+     */
+    public function testQueryObjectReference()
+    {
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+
+        // Create an entity and initialize values
+        $customerName = "Test Customer";
+        $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer->setValue("name", $customerName);
+        $customer->setValue("owner_id", $this->user->getId());
+        $cid = $dm->save($customer, $this->user);
+
+        $customerEntity = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
+        $dm->getById($customerEntity, $cid);
+        $this->assertEquals($customerEntity->getName(), $customerName);
+
+
+        // Create reminder and set the customer as our object reference
+        $customerReminder = "Customer Reminder";
+        $reminder = $this->account->getServiceManager()->get("EntityLoader")->create("reminder");
+        $reminder->setValue("name", $customerReminder);
+        $reminder->setValue("obj_reference", "[customer:$cid:$customerName]");
+        $rid = $dm->save($reminder, $this->user);
+
+        $reminderEntity = $this->account->getServiceManager()->get("EntityFactory")->create("reminder");
+        $dm->getById($reminderEntity, $rid);
+        $this->assertEquals($reminderEntity->getName(), $customerReminder);
+        $this->assertEquals($reminderEntity->getValue("obj_reference"), "[customer:$cid:$customerName]");
+        $this->assertEquals($reminderEntity->getValueName("obj_reference"), $customerName);
+
+        // Now query the customer's reminder using the obj reference used
+        $query = new Netric\EntityQuery("reminder");
+        $query->where("obj_reference")->equals("[customer:$cid:$customerName]");
+        $query->where("id")->equals($rid);
+
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        $this->assertEquals(1, $res->getTotalNum());
+
+        // This should be the test reminder we created that was associated with the customer
+        $resultEntity = $res->getEntity(0);
+        $this->assertEquals($rid, $resultEntity->getId());
+        $this->assertEquals("Customer Reminder", $resultEntity->getName());
+
+        // Cleanup
+        $this->testEntities[] = $customer;
+        $this->testEntities[] = $reminder;
     }
 
     /**
