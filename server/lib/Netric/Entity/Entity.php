@@ -601,11 +601,8 @@ class Entity implements EntityInterface
 	 */
 	public function afterSave(AccountServiceManagerInterface $sm)
 	{
-		// No need to process temp files if the current entity is already a folder to avoid circular reference
-		if ($this->objType === "folder") {
-			// Process any temp files or attachments associated with this entity
-			$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
-		}
+		// Process any temp files or attachments associated with this entity
+		$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
 
 		// Call derived extensions
 		$this->onAfterSave($sm);
