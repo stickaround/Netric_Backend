@@ -601,11 +601,8 @@ class Entity implements EntityInterface
 	 */
 	public function afterSave(AccountServiceManagerInterface $sm)
 	{
-		// No need to process temp files if the current entity is already a folder to avoid circular reference
-		if ($this->objType === "folder") {
-			// Process any temp files or attachments associated with this entity
-			$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
-		}
+		// Process any temp files or attachments associated with this entity
+		$this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
 
 		// Call derived extensions
 		$this->onAfterSave($sm);
@@ -849,7 +846,7 @@ class Entity implements EntityInterface
 		// Clean up the $value if the objRef is encapsulated with a square bracket
 		preg_match("/\[([^\]]*)\]/", $cleanedValue, $matches);
 
-		if ($matches[1])
+		if (isset($matches[1]) && $matches[1])
 			$cleanedValue = $matches[1];
 
 		$parts = explode(":", $cleanedValue);
