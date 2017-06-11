@@ -35,6 +35,7 @@ ADD conf/mogilefs.conf /etc/mogilefs/mogilefs.conf
 ADD conf/mogilefsd.conf /etc/mogilefs/mogilefsd.conf
 ADD conf/mogstored.conf /etc/mogilefs/mogstored.conf
 ADD bin/start.sh /start.sh
+RUN chmod +x /start.sh
 
 ###############################################################################
 # Make sure that windows has not screwed up the script line endings

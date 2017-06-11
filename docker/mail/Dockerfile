@@ -33,6 +33,7 @@ RUN echo "dovecot   unix  -       n       n       -       -       pipe"  >> /etc
     echo '    flags=DRhu user=vmail:vmail argv=/usr/lib/dovecot/deliver -d ${recipient}' >> /etc/postfix/master.cf
 
 ADD bin/start.sh /start.sh
+RUN chmod +x /start.sh
 
 # SMTP ports
 EXPOSE 25
