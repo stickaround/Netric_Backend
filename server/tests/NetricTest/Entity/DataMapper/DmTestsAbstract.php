@@ -878,5 +878,47 @@ abstract class DmTestsAbstract extends TestCase
 
         $this->assertEquals($subPage->getId(), $retrievedPage->getId());
     }
+
+	/**
+	 * Make sure that we are able to save the object reference and update the referenced entity
+	 */
+	public function testEntityObjectReference()
+	{
+		$dm = $this->getDataMapper();
+		if (!$dm)
+		{
+			// Do not run if we don't have a datamapper to work with
+			$this->assertTrue(true);
+			return;
+		}
+
+		// Create an entity and initialize values
+		$customerName = "Test Customer";
+		$customer = $this->createCustomer();
+		$customer->setValue("name", $customerName);
+		$customer->setValue("owner_id", $this->user->getId());
+		$cid = $dm->save($customer, $this->user);
+
+		$customerEntity = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
+		$dm->getById($customerEntity, $cid);
+
+		// Create reminder and set the customer as our object reference
+		$customerReminder = "Customer Reminder";
+		$reminder = $this->account->getServiceManager()->get("EntityLoader")->create("reminder");
+		$reminder->setValue("name", $customerReminder);
+		$reminder->setValue("obj_reference", "customer:$cid:$customerName");
+		$rid = $dm->save($reminder, $this->user);
+
+		// Set the entities so it will be cleaned up properly
+		$this->testEntities[] = $customer;
+		$this->testEntities[] = $reminder;
+
+		$reminderEntity = $this->account->getServiceManager()->get("EntityFactory")->create("reminder");
+		$dm->getById($reminderEntity, $rid);
+		$this->assertEquals($customerEntity->getName(), $customerName);
+		$this->assertEquals($reminderEntity->getName(), $customerReminder);
+		$this->assertEquals($reminderEntity->getValue("obj_reference"), "customer:$cid:$customerName");
+		$this->assertEquals($reminderEntity->getValueName("obj_reference"), $customerName);
+	}
 }
 
