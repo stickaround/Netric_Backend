@@ -91,7 +91,7 @@ class UserEntity extends Entity implements EntityInterface
      *
      * This will generate a salt and encrypt the password
      *
-     * @param Netric\Authetication\AuthenticationService $authService For encryption of passwords and salt generation
+     * @param AuthenticationService $authService For encryption of passwords and salt generation
      */
     private function encryptPassword(AuthenticationService $authService)
     {
