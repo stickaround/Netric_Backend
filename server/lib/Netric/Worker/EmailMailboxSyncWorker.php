@@ -72,7 +72,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
 
             /*
              * If this account is in the process of being synchronized, and that process
-             * started less than an hour ago, then we will just skipe the account.
+             * started less than an hour ago, then we will just skip the account.
              */
             if ($emailAccount->getValue("f_synchronizing") &&
                 (

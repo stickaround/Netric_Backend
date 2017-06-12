@@ -23,7 +23,7 @@ $config = Netric\Config\ConfigLoader::fromFolder(
 );
 
 // Get system log
-$log = new \Netric\Log($config);
+$log = new \Netric\Log\Log($config);
 
 global $pids;
 $pids = [];
@@ -68,6 +68,21 @@ switch ($_SERVER['argv'][1]) {
         }
 
         // The forked process ($pid) will continue  below
+
+        break;
+
+    // Start the process in the foreground - usually used in docker containers
+    case "start-fg":
+        if ($runningPid) {
+            die("netricd is already running");
+        }
+
+        $pid = getmypid();
+
+        $log->debug("netricd: Started foreground: " . $pid);
+
+        // Write to the pid file
+        file_put_contents($pidFile, $pid);
 
         break;
 
