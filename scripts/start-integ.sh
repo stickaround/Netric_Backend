@@ -7,7 +7,7 @@ cd ../docker
 docker login -u aereusdev -p p7pfsGRe docker.aereusdev.com:5001
 
 # Pull the latest versions
-docker-compose -f src/netric/docker-compose-integ.yml pull
+docker-compose -f docker-compose-integ.yml pull
 
 # First rebuild
 docker-compose -f docker-compose-integ.yml build
