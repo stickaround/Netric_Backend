@@ -93,11 +93,13 @@ COPY server/ /var/www/html/
 COPY docker/server/bin/netric-setup.sh /
 COPY docker/server/bin/netric-tests.sh /
 COPY docker/server/bin/start.sh /
+COPY docker/server/bin/start-daemon.sh /
 
 # Perimissions
 RUN chmod +x /netric-setup.sh
 RUN chmod +x /netric-tests.sh
 RUN chmod +x /start.sh
+RUN chmod +x /start-daemon.sh
 
 # Make sure data/log is owned by www-data
 RUN chown -R www-data:www-data /var/www/html/data/
