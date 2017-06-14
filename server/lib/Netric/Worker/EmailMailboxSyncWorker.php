@@ -70,6 +70,10 @@ class EmailMailboxSyncWorker extends AbstractWorker
         for ($i = 0; $i < $num; $i++) {
             $emailAccount = $results->getEntity($i);
 
+
+            // Make sure we have the latest version of the emailAccount
+            $entityLoader->reload($emailAccount);
+
             /*
              * If this account is in the process of being synchronized, and that process
              * started less than an hour ago, then we will just skip the account.

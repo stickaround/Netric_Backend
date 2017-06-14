@@ -885,12 +885,6 @@ abstract class DmTestsAbstract extends TestCase
 	public function testEntityObjectReference()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-		{
-			// Do not run if we don't have a datamapper to work with
-			$this->assertTrue(true);
-			return;
-		}
 
 		// Create an entity and initialize values
 		$customerName = "Test Customer";

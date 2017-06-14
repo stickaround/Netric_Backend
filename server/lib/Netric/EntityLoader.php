@@ -121,7 +121,8 @@ class EntityLoader
 	 */
 	private function getCached($objType, $id)
 	{
-		return $this->cache->get($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id);
+	    $key = $this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id;
+		return $this->cache->get($key);
 	}
 
 	/**
@@ -129,16 +130,17 @@ class EntityLoader
 	 *
 	 * @param string $objType The type of object we are getting
 	 * @param string $id The unique id of the object
+     * @param EntityInterface $entityToFill Optional entity to fill rather than creating a new one
 	 * @return EntityInterface
 	 */
-	public function get($objType, $id)
+	public function get($objType, $id, EntityInterface $entityToFill = null)
 	{
 		if ($this->isLoaded($objType, $id)) {
 			return $this->loadedEntities[$objType][$id];
 		}
 
 		// Create entity to load data into
-		$entity = $this->create($objType);
+		$entity = ($entityToFill) ? $entityToFill : $this->create($objType);
 
 		// First check to see if the object is cached
 		$data = $this->getCached($objType, $id);
@@ -231,7 +233,7 @@ class EntityLoader
      *
      * @param EntityInterface $entity The entity to delete
      * @param bool $forceHard If true the force a hard delete - purge!
-     * @return \Netric\Entity\Entity
+     * @return bool True on success, false on failure
      */
     public function delete(EntityInterface $entity, $forceHard = false)
     {
@@ -253,4 +255,19 @@ class EntityLoader
 
 		$ret = $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id);
 	}
+
+    /**
+     * Clear any cache and reload from the database to make sure we have the latest version
+     *
+     * @param EntityInterface $entity The entity to refresh
+     * @throws \RuntimeException If an invalid entity was passed in
+     */
+    public function reload(EntityInterface $entity)
+    {
+        if (!$entity->getObjType() || !$entity->getId()) {
+            throw new \RuntimeException("Cannot refresh an entity that was not saved - no obj_type or ID");
+        }
+        $this->clearCache($entity->getObjType(), $entity->getId());
+        $this->get($entity->getObjType(), $entity->getId(), $entity);
+    }
 }

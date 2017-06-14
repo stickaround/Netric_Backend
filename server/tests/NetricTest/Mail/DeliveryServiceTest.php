@@ -116,7 +116,7 @@ class DeliveryServiceTest extends TestCase
         $this->account->setCurrentUser($this->origCurrentUser);
     }
 
-    /*
+    /**
      * Test a funky message sent by groupon where they send the following mime structure
      *
      * multipart/related
@@ -180,5 +180,44 @@ class DeliveryServiceTest extends TestCase
         $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
         $this->assertGreaterThan(0, $file->getValue("file_size"));
 
+    }
+
+    /**
+     * Test delivering duplicate and make sure it does not add it to the inbox
+     */
+    public function testDeliverNoDuplicates()
+    {
+        $deliveryService = $this->account->getServiceManager()->get("Netric/Mail/DeliveryService");
+        $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m1.example.org.unseen']);
+        $fakeUniqueId = "1234";
+
+        // Deliver the message for the first time
+        $messageId = $deliveryService->deliverMessage(
+            $this->user,
+            $fakeUniqueId,
+            $storageMessage,
+            $this->emailAccount,
+            $this->inbox->id
+        );
+
+        // Queue for cleanup
+        $emailMessage = $this->account->getServiceManager()->get("EntityLoader")->get("email_message", $messageId);
+        $this->testEntities[] = $emailMessage;
+
+        // Assure that the response is not 0  (failure) or -1 (already delivered)
+        $this->assertNotEquals(0, $messageId);
+        $this->assertNotEquals(-1, $messageId);
+
+        // Now try to deliver it again
+        $messageId = $deliveryService->deliverMessage(
+            $this->user,
+            $fakeUniqueId,
+            $storageMessage,
+            $this->emailAccount,
+            $this->inbox->id
+        );
+
+        // Should return the already imported message to fix the sync
+        $this->assertEquals($emailMessage->getId(), $messageId);
     }
 }

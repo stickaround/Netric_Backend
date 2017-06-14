@@ -5,6 +5,7 @@
 namespace NetricTest;
 
 use Netric\Entity\DataMapperInterface;
+use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +18,13 @@ class EntityLoaderTest extends TestCase
      */
     private $account = null;
 
+    /**
+     * Entities to delete on tearDown
+     *
+     * @var EntityInterface[]
+     */
+    private $testEntities = [];
+
 	/**
 	 * Setup each test
 	 */
@@ -25,7 +33,18 @@ class EntityLoaderTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
 	}
 
-	/**
+    /**
+     * Cleanup any test entities
+     */
+	protected function tearDown()
+    {
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        foreach ($this->testEntities as $entity) {
+            $loader->delete($entity, true);
+        }
+    }
+
+    /**
 	 * Test loading an object definition
 	 */
 	public function testGet()
@@ -77,5 +96,36 @@ class EntityLoaderTest extends TestCase
         $entity = $loader->getByUniqueName("task", "my_test");
 
         $this->assertEquals($task, $entity);
+    }
+
+    /**
+     * Reload makes sure than an entity is refreshed with the latest version
+     */
+    public function testReload()
+    {
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $entityFactory = $this->account->getServiceManager()->get("Netric/Entity/EntityFactory");
+
+        // Create a new entity which will save it in cache
+        $task1 = $entityFactory->create("task");
+        $task1->setValue("name", 'test_reload');
+        $loader->save($task1);
+        $this->testEntities[] = $task1; // cleanup
+
+        // Now save changes directly to the database bypassing the cache
+        $task2 = $entityFactory->create("task");
+        $dataMapper->getById($task2, $task1->getId());
+        $task2->setValue("name", "test_reload_edited");
+        $dataMapper->save($task2);
+
+        // First assert that they are different
+        $this->assertNotEquals($task2->getValue("name"), $task1->getValue("name"));
+
+        // Now reload task 1
+        $loader->reload($task1);
+
+        // Make sure the values match what was in the database
+        $this->assertEquals($task2->getValue("name"), $task1->getValue("name"));
     }
 }

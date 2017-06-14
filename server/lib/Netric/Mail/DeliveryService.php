@@ -111,14 +111,20 @@ class DeliveryService extends AbstractHasErrors
      */
     public function deliverMessage(UserEntity $user, $uniqueId, Storage\Message $message, EmailAccountEntity $emailAccount, $mailboxId)
     {
-        $subject = (isset($message->subject)) ? $message->subject : "Untitled";
+
 
         // Check to make sure this message was not already imported - no duplicates
         $query = new EntityQuery("email_message");
         $query->where("mailbox_id")->equals($mailboxId);
         $query->andWhere("message_uid")->equals($uniqueId);
         $query->andWhere("email_account")->equals($emailAccount->getId());
-        $query->andWhere("subject")->equals($subject);
+        if ($message->getHeaders()->has("message-id")) {
+            $messageId = $message->getHeader("message-id", "string");
+            $query->andWhere("message_id")->equals($messageId);
+        } else {
+            $subject = $message->getHeader("subject", "string");
+            $query->andWhere("subject")->equals($subject);
+        }
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
         if ($num > 0) {
@@ -131,7 +137,13 @@ class DeliveryService extends AbstractHasErrors
         $query->where("mailbox_id")->equals($mailboxId);
         $query->andWhere("message_uid")->equals($uniqueId);
         $query->andWhere("email_account")->equals($emailAccount->getId());
-        $query->andWhere("subject")->equals($subject);
+        if ($message->getHeaders()->has("message-id")) {
+            $messageId = $message->getHeader("message-id", "string");
+            $query->andWhere("message_id")->equals($messageId);
+        } else {
+            $subject = $message->getHeader("subject", "string");
+            $query->andWhere("subject")->equals($subject);
+        }
         $query->andWhere("f_deleted")->equals(true);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();

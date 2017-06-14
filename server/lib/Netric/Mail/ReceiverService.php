@@ -338,7 +338,7 @@ class ReceiverService extends AbstractHasErrors
         $importList = array();
         $numMessages = count($mailServer);
         for ($id = 1; $id <= $numMessages; $id++) {
-            // Wrap in a try/catch in case anything goes weong getting the message
+            // Wrap in a try/catch in case anything goes wrong getting the message
             try {
                 $message = $mailServer->getMessage($id);
                 $importList[] = array(
