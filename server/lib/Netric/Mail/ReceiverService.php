@@ -529,7 +529,7 @@ class ReceiverService extends AbstractHasErrors
         // System generated email addresses should use global configs
         if ($emailAccount->getValue("f_system")) {
             $type = $this->config->default_type;
-            $host = $this->config->imap_host;
+            $host = $this->config->backend_host;
         }
 
         switch (trim(strtolower($type))) {
