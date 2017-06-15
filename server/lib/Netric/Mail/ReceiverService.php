@@ -521,6 +521,11 @@ class ReceiverService extends AbstractHasErrors
         $type = $emailAccount->getValue("type");
         $host = $emailAccount->getValue("host");
 
+        // TODO: We should remove this and just fix the data in an update script
+        if ($host === 'localhost') {
+            $host = "";
+        }
+
         // System generated email addresses should use global configs
         if ($emailAccount->getValue("f_system")) {
             $type = $this->config->default_type;
