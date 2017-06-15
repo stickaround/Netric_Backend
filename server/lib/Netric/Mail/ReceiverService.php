@@ -527,7 +527,7 @@ class ReceiverService extends AbstractHasErrors
             $host = $this->config->imap_host;
         }
 
-        switch ($type) {
+        switch (trim(strtolower($type))) {
             case 'imap':
                 return new Imap(array(
                     'host'     => $host,

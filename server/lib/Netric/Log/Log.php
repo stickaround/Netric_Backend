@@ -211,10 +211,13 @@ class Log implements LogInterface
             'severity' => $this->getLevelName($lvl),
             'client_ip' => (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : null,
             'client_port' => (isset($_SERVER['REMOTE_PORT'])) ? $_SERVER['REMOTE_PORT'] : null,
-            'message' => (is_array($message)) ? "Structured" : $message,
             'application_name' => 'netric-server',
             'application_version' => ($this->appBranch) ? $this->appBranch : 'release'
         );
+
+		if (!is_array($message)) {
+		    $logDetails['message'] = $message;
+        }
 
 		// Add request to the log if available
 		if (isset($_SERVER['REQUEST_URI'])) {
