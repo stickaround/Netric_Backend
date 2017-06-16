@@ -1,7 +1,4 @@
 <?php
-/**
- * This is the base netric system class
- */
 namespace Netric\Application;
 
 use Netric\Account\Account;
@@ -12,38 +9,42 @@ use Netric\Mvc\Router;
 use Netric\Config\Config;
 use Netric\Log\Log;
 use Netric\Cache\MemcachedCache;
+use Netric\Cache\CacheInterface;
 use Netric\Account\AccountIdentityMapper;
 use Netric\ServiceManager\ApplicationServiceManager;
+use Netric\Entity\DataMapperInterface;
 
+/**
+ * Main application instance class
+ */
 class Application
 {
     /**
      * Initialized configuration class
      *
-     * @var \Netric\Config
+     * @var Config
      */
     protected $config = null;
 
     /**
      * Application log
      *
-     * @var \Netric\Log
+     * @var Log
      */
     protected $log = null;
 
     /**
      * Application DataMapper
      *
-     * @var \Netric\Application\DataMapperInterface
+     * @var DataMapperInterface
      */
     private $dm = null;
-
 
     /**
      * Application cache
      * \
      *
-     * @var \Netric\Cache\CacheInterface
+     * @var CacheInterface
      */
     private $cache = null;
 
@@ -520,8 +521,10 @@ class Application
             // If the total walltime (duration) of the function is worth tracking then log
             if ((int) $stats['wt'] >= (int) $this->config->profile->min_wall) {
 
-                // xhprof puts the key in the following form: <calledFrom>==><calss_function_called>
-                // Offset 0 will be 'called_from' and 1 will be 'function_name'
+                /*
+                 * xhprof puts the key in the following form: <calledFrom>==><calss_function_called>
+                 * Offset 0 will be 'called_from' and 1 will be 'function_name'
+                 */
                 $parts = explode("==>", $functionAndCalledFrom);
 
                 // If there is no function name then this is the main root profile

@@ -192,7 +192,7 @@ class ReceiverService extends AbstractHasErrors
 
             $this->log->error(
                 "ReceiverService->syncMail: Unable to log in " .
-                $emailAccount->getValue("address") . " - "  . $ex->getMessage());
+                $emailAccount->getValue("address") . ":$password - "  . $ex->getMessage());
             return false;
         }
 
