@@ -35,6 +35,12 @@ RUN echo "dovecot   unix  -       n       n       -       -       pipe"  >> /etc
 ADD bin/start.sh /start.sh
 RUN chmod +x /start.sh
 
+# Create a self signed cert
+RUN openssl req \
+  -x509 -nodes -days 365 -sha256 \
+  -subj '/C=US/ST=Washington/L=Seattle/CN=mail.aereus.com' \
+  -newkey rsa:2048 -keyout /etc/ssl/certs/mailcert.key -out /etc/ssl/certs/mailcert.pem
+
 # SMTP ports
 EXPOSE 25
 EXPOSE 587

@@ -192,7 +192,7 @@ class ReceiverService extends AbstractHasErrors
 
             $this->log->error(
                 "ReceiverService->syncMail: Unable to log in " .
-                $emailAccount->getValue("address") . ":$password - "  . $ex->getMessage());
+                $emailAccount->getValue("address") . " - "  . $ex->getMessage());
             return false;
         }
 
@@ -537,7 +537,8 @@ class ReceiverService extends AbstractHasErrors
                 return new Imap(array(
                     'host'     => $host,
                     'user'     => $emailAccount->getValue("username"),
-                    'password' => $password
+                    'password' => $password,
+                    'tls'
                 ));
                 break;
             case 'pop3':
