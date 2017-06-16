@@ -120,18 +120,21 @@ class EmailMessageEntity extends Entity implements EntityInterface
         {
             $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
 
-            // If this is the last message, then delete the thread
-            if (intval($thread->getValue("num_messages")) === 1)
-            {
-                $thread->setValue("num_messages", 0);
-                $this->entityLoader->delete($thread);
-            }
-            else
-            {
-                // Otherwise reduce the number of messages
-                $numMessages = $thread->getValue("num_messages");
-                $thread->setValue("num_messages", --$numMessages);
-                $this->entityLoader->save($thread);
+            // Decrement the number of messages in the thread if it exists
+            if ($thread) {
+                // If this is the last message, then delete the thread
+                if (intval($thread->getValue("num_messages")) === 1)
+                {
+                    $thread->setValue("num_messages", 0);
+                    $this->entityLoader->delete($thread);
+                }
+                else
+                {
+                    // Otherwise reduce the number of messages
+                    $numMessages = $thread->getValue("num_messages");
+                    $thread->setValue("num_messages", --$numMessages);
+                    $this->entityLoader->save($thread);
+                }
             }
         }
     }
