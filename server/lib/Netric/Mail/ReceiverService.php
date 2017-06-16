@@ -422,7 +422,12 @@ class ReceiverService extends AbstractHasErrors
                             $emailEntity->getId(),
                             $emailEntity->getValue("commit_id")
                         );
-                        $this->log->info("ReceiverService->receiveChanges: Message delivered to $importMid");
+                        $this->log->info(
+                            "ReceiverService->receiveChanges: Message " .
+                            $emailEntity->getValue("message_uid") .
+                            " - " .
+                            $emailEntity->getValue("message_id") .
+                            " delivered to $importMid");
                     } else if ($importMid == -1) {
                         // This message was previously imported and then deleted so delete on the server
                         $msgNum = $mailServer->getNumberByUniqueId($stat['remote_id']);
