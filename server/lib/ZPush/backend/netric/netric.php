@@ -193,13 +193,6 @@ class BackendNetric implements IBackend
         $this->log = $application->getLog();
         $this->account = $application->getAccount(null, $domain);
 
-        // Set stateMachine stores
-        $stateMachine = $this->GetStateMachine();
-        $stateMachine->setDatabase($this->account->getServiceManager()->get("Db"));
-        $stateMachine->setSettingsService(
-            $this->account->getServiceManager()->get("Netric/Settings/Settings")
-        );
-
         if (!$this->account) {
             throw new FatalException(
                 sprintf("Logon('%s'): Account could not be loaded", $domain)
@@ -221,6 +214,11 @@ class BackendNetric implements IBackend
         {
             throw new AuthenticationRequiredException("Bad username and/or password");
         }
+
+        // Set stateMachine stores for this account
+        $stateMachine = $this->GetStateMachine();
+        $stateMachine->setDatabase($sm->get("Db"));
+        $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
 
         // The deviceId is required
         if (!$this->deviceId)
