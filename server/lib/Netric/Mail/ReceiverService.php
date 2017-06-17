@@ -7,7 +7,6 @@ namespace Netric\Mail;
 
 use Netric\Crypt\BlockCipher;
 use Netric\Crypt\VaultService;
-use Netric\EntityQuery;
 use Netric\EntitySync\Collection\CollectionFactoryInterface;
 use Netric\EntitySync\Collection\CollectionInterface;
 use Netric\EntitySync\Partner;
@@ -18,7 +17,7 @@ use Netric\EntitySync\EntitySync;
 use Netric\EntityQuery\Where;
 use Netric\Log\Log;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
-use Netric\Mail\Storage;
+use Netric\Mail\Storage\Exception\InvalidArgumentException;
 use Netric\Mail\Storage\AbstractStorage;
 use Netric\Mail\Storage\Imap;
 use Netric\Mail\Storage\Pop3;
@@ -26,7 +25,6 @@ use Netric\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Config\Config;
-use Netric\Mime;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
@@ -399,10 +397,9 @@ class ReceiverService extends AbstractHasErrors
                                     $mailboxId = $junkMailId;
                                 }
                             }
-                        } catch (Storage\Exception\InvalidArgumentException $ex){
+                        } catch (InvalidArgumentException $ex) {
                             // Header was not found, keep going
                         }
-                        
 
                         $importMid = $this->deliverMessage(
                             $stat['remote_id'],

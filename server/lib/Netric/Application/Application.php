@@ -187,7 +187,7 @@ class Application
      * Get current account
      *
      * @param string $accountId If set the pull an account by id, otherwise automatically get from url or config
-     * @param string $name If set try to get an account by the unique name
+     * @param string $accountName If set try to get an account by the unique name
      * @throws \Exception when an invalid account id or name is passed
      * @return Account
      */

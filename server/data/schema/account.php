@@ -346,25 +346,6 @@ return array(
         )
     ),
 
-    "async_states" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'key' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
-            'value' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
-            'user_id' => array('type' => SchemaProperty::TYPE_INT),
-            'att_id' => array('type' => SchemaProperty::TYPE_INT),
-            'time_id' => array('type' => SchemaProperty::TYPE_INT),
-            'response' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("user_id")),
-            array('properties' => array("key")),
-            array('properties' => array("att_id")),
-            array('properties' => array("time_id")),
-        )
-    ),
-
     "calendar_event_coord" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -3351,5 +3332,30 @@ return array(
             array('properties' => array("collection_type", "commit_id")),
             array('properties' => array("collection_type", "new_commit_id")),
         )
+    ),
+
+    "async_users" => array(
+        "PROPERTIES" => array(
+            'username' => array('type' => SchemaProperty::TYPE_CHAR_256),
+            'device_id' => array('type' => SchemaProperty::TYPE_CHAR_64),
+        ),
+        'PRIMARY_KEY' => array('username', 'device_id'),
+    ),
+
+    "async_device_states" => array(
+        "PROPERTIES" => array(
+            'id_state' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+            'device_id' => array('type' => SchemaProperty::TYPE_CHAR_64),
+            'uuid' => array('type' => SchemaProperty::TYPE_CHAR_64),
+            'state_type' => array('type' => SchemaProperty::TYPE_CHAR_64),
+            'counter' => array('type' => SchemaProperty::TYPE_INT),
+            'state_data' => array('type' => SchemaProperty::TYPE_BINARY_STRING),
+            'created_at' => array('type' => SchemaProperty::TYPE_TIMESTAMP),
+            'updated_at' => array('type' => SchemaProperty::TYPE_TIMESTAMP),
+        ),
+        'PRIMARY_KEY' => array('id_state'),
+        "INDEXES" => array(
+            array('properties' => array('device_id', 'uuid', 'state_type', 'counter'), 'type' => 'UNIQUE'),
+        ),
     ),
 );

@@ -425,7 +425,7 @@ class Pgsql implements DbInterface
     /**
      * Get the next row in a result set
      * 
-     * @param type $result
+     * @param resource $result
      * @param type $num
      * @param type $argument
      * @return associative array

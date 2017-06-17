@@ -24,6 +24,7 @@ require_once($zPushRoot . 'backend/netric/importchangesnetric.php');
 require_once($zPushRoot . 'backend/netric/exportchangesnetric.php');
 require_once($zPushRoot . 'backend/netric/entityprovider.php');
 require_once($zPushRoot . 'backend/netric/entitysearchprovider.php');
+require_once($zPushRoot . 'backend/netric/netricstatemachine.php');
 
 // Include netric autoloader for all netric libraries
 require_once(dirname(__FILE__)."/../../../../init_autoloader.php");
@@ -43,6 +44,13 @@ class BackendNetric implements IBackend
      * @var Netric\Log
      */
     private $log = null;
+
+    /**
+     * Instance of netric application
+     *
+     * @var Netric\Application\Application
+     */
+    private $application = null;
 
     /**
      * Current account/tenant
@@ -101,6 +109,13 @@ class BackendNetric implements IBackend
     private $syncCollections = array();
 
     /**
+     * Responsible for storing sync states between device sync
+     *
+     * @var NetricStateMachine
+     */
+    private $stateMachine = null;
+
+    /**
      * Cleanup and save final changes
      */
     public function __destruct()
@@ -114,13 +129,28 @@ class BackendNetric implements IBackend
      * Returns a IStateMachine implementation used to save states
      *
      * @access public
-     * @return boolean/object       if false is returned, the default Statemachine is
+     * @return boolean|IStateMachine If false is returned, the default Statemachine is
      *                              used else the implementation of IStateMachine
      */
     public function GetStateMachine()
     {
-        // Use the default file state machine
-        return false;
+        if (!$this->stateMachine) {
+            $application = $this->getApplication();
+            $log = $application->getLog();
+
+            /*
+             * Attempt to get account prior to the user logging in.
+             * This should work because it will step through the same logic
+             * as the main netric app does - third.level.domain > config.default_account...
+             */
+            $account = $application->getAccount();
+            $db = $account->getServiceManager()->get("Db");
+            $cache = $account->getServiceManager()->get("Cache");
+            $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+            $this->stateMachine = new NetricStateMachine($log, $db, $cache, $settings);
+        }
+
+        return $this->stateMachine;
     }
 
     /**
@@ -150,23 +180,25 @@ class BackendNetric implements IBackend
     /**
      * Authenticates the user
      *
-     * @param string        $username
-     * @param string        $domain
-     * @param string        $password
+     * @param string $username
+     * @param string $domain
+     * @param string $password
      *
-     * @access public
      * @return boolean
      * @throws FatalException   e.g. some required libraries are unavailable
      */
     public function Logon($username, $domain, $password)
     {
-        // Setup config
-        $configLoader = new Netric\Config\ConfigLoader();
-        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
-        $config = $configLoader->fromFolder(dirname(__FILE__)."/../../../../config", $applicationEnvironment);
-        $application = new Netric\Application\Application($config);
+        $application = $this->getApplication();
         $this->log = $application->getLog();
         $this->account = $application->getAccount(null, $domain);
+
+        // Set stateMachine stores
+        $stateMachine = $this->GetStateMachine();
+        $stateMachine->setDatabase($this->account->getServiceManager()->get("Db"));
+        $stateMachine->setSettingsService(
+            $this->account->getServiceManager()->get("Netric/Settings/Settings")
+        );
 
         if (!$this->account) {
             throw new FatalException(
@@ -963,5 +995,27 @@ class BackendNetric implements IBackend
             $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
              ZLog::Write(LOGLEVEL_INFO,"Saved partnership: " . $this->partnership->getId());
         }
+    }
+
+    /**
+     * Get netric application instance
+     *
+     * @return Netric\Application\Application
+     */
+    private function getApplication()
+    {
+        if (!$this->application) {
+            // Setup config
+            $configLoader = new Netric\Config\ConfigLoader();
+            $applicationEnvironment = (getenv('APPLICATION_ENV')) ?
+                getenv('APPLICATION_ENV') : "production";
+            $config = $configLoader->fromFolder(
+                dirname(__FILE__)."/../../../../config",
+                $applicationEnvironment
+            );
+            $this->application = new Netric\Application\Application($config);
+        }
+
+        return $this->application;
     }
 }

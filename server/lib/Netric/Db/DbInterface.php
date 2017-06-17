@@ -52,8 +52,18 @@ interface DbInterface
     /**
      * Execute an SQL query
      *
-     * @param $sql The sql to run
-     * @return result
+     * @param string $sql The sql to run
+     * @return resource
      */
     public function query($sql);
+
+    /**
+     * Get a row for the result set
+     *
+     * @param resource $result
+     * @param int $num
+     * @param mixed $argument
+     * @return array An associative array with each key representing a column
+     */
+    public function getRow($result, $num = 0, $argument = NULL);
 }
