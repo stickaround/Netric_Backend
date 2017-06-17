@@ -419,10 +419,28 @@ class Pgsql extends IndexAbstract implements IndexInterface
 		// Filtered search
 		// -------------------------------------------------------------
 		$adv_cond = $this->buildAdvancedConditionString($query, $def);
-		if ($cond_str && $adv_cond)
-			$cond_str .= " and ($adv_cond) ";
-		else if (!$cond_str && $adv_cond)
-			$cond_str = " ($adv_cond) ";
+
+		// Check here if we need to encapsulate the $adv_cond with parenthesis
+		if ($adv_cond)
+		{
+			/*
+			 * The result condition string from ::buildAdvancedConditionString() is not encapsulated with parenthesis
+			 * That is why we need to encapsulate the condition string here.
+			 * But when the conditions have an "or" condition, then it adds a closing parenthesis
+			 *
+			 * This will make sure that we just add the opening/closing parenthesis as needed
+			 */
+			if (trim($adv_cond)[0] !== "(")
+				$adv_cond = "($adv_cond";
+
+			if(substr(trim($adv_cond), -1) !== ")")
+				$adv_cond = "$adv_cond)";
+
+			if ($cond_str)
+				$cond_str .= " and $adv_cond ";
+			else
+				$cond_str = $adv_cond;
+		}
 
 		return $cond_str;
 	}

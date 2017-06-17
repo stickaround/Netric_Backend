@@ -1655,6 +1655,91 @@ abstract class IndexTestsAbstract extends TestCase
     }
 
     /**
+     * Make sure "OR" and "AND" query conditions will work
+     */
+    public function testQueryConditions()
+    {
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+
+        // Create an entity and initialize values
+        $customerName1 = "Test Customer 1";
+        $customer1 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer1->setValue("name", $customerName1);
+        $customer1->setValue("owner_id", $this->user->getId());
+        $customer1->setValue("type_id", "1");
+        $customer1->setValue("city", "new city");
+        $cid1 = $dm->save($customer1, $this->user);
+
+        $customerName2 = "Test Customer 2";
+        $customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer2->setValue("name", $customerName2);
+        $customer2->setValue("owner_id", $this->user->getId());
+        $customer2->setValue("type_id", "1");
+        $customer2->setValue("city", "old city");
+        $cid2 = $dm->save($customer2, $this->user);
+
+        $customerName3 = "Test Customer 3";
+        $customer3 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer3->setValue("name", $customerName3);
+        $customer3->setValue("owner_id", $this->user->getId());
+        $customer3->setValue("type_id", "2");
+        $customer3->setValue("city", "new city");
+        $cid3 = $dm->save($customer3, $this->user);
+
+        $customerName4 = "Test Customer 4";
+        $customer4 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer4->setValue("name", $customerName3);
+        $customer4->setValue("owner_id", $this->user->getId());
+        $customer4->setValue("type_id", "2");
+        $customer4->setValue("city", "old city");
+        $cid4 = $dm->save($customer4, $this->user);
+
+        // Set the entities so it will be cleaned up properly
+        $this->testEntities[] = $customer1;
+        $this->testEntities[] = $customer2;
+        $this->testEntities[] = $customer3;
+        $this->testEntities[] = $customer4;
+
+        // Qquery the customers using and where conditions. This should only query the customer 1
+        $query = new Netric\EntityQuery("customer");
+        $query->where("type_id")->equals(1);
+        $query->where("city")->equals("new city");
+
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        $this->assertEquals(1, $res->getTotalNum());
+        $resultEntity = $res->getEntity(0);
+        $this->assertEquals(1, $resultEntity->getValue("type_id"));
+        $this->assertEquals("new city", $resultEntity->getValue("city"));
+
+        // Query the customers using or where conditions. This should query all the customers
+        $query = new Netric\EntityQuery("customer");
+        $query->orWhere("type_id")->equals(1);
+        $query->orWhere("type_id")->equals(2);
+
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        // We should be be able to query all 4 customers
+        $this->assertEquals(4, $res->getTotalNum());
+
+        // Query the customers using the combination of or/and where conditions.
+        $query = new Netric\EntityQuery("customer");
+        $query->where("type_id")->equals(1);
+        $query->orWhere("city")->equals("old city");
+
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        // We should be be able to query all 3 customers
+        $this->assertEquals(3, $res->getTotalNum());
+    }
+
+    /**
 	 * Test hierarcy subqueries
 	 *
 	 * @group testHierarcySubqueries

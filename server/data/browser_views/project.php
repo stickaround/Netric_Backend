@@ -7,6 +7,34 @@ namespace data\browser_views;
 use Netric\EntityQuery\Where;
 
 return array(
+	'my_open_projects'=> array(
+		'obj_type' => 'project',
+		'name' => 'My Open Projects',
+		'description' => '',
+		'default' => true,
+		'conditions' => array(
+			'members' => array(
+				'blogic' => Where::COMBINED_BY_AND,
+				'field_name' => 'members',
+				'operator' => Where::OPERATOR_EQUAL_TO,
+				'value' => -3
+			),
+			'completed' => array(
+				'blogic' => Where::COMBINED_BY_AND,
+				'field_name' => 'date_completed',
+				'operator' => Where::OPERATOR_EQUAL_TO,
+				'value' => ''
+			),
+		),
+		'order_by' => array(
+			'name' => array(
+				'field_name' => 'name',
+				'direction' => 'asc',
+			),
+		),
+		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
+	),
+
 	'all_projects'=> array(
 		'obj_type' => 'project',
 		'name' => 'All Projects',
@@ -17,37 +45,15 @@ return array(
 				'field_name' => 'name',
 				'direction' => 'asc',
 			),
+			'members' => array(
+				'blogic' => Where::COMBINED_BY_AND,
+				'field_name' => 'members',
+				'operator' => Where::OPERATOR_EQUAL_TO,
+				'value' => -3
+			),
 		),
 		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
 	),
-
-    'my_open_projects'=> array(
-		'obj_type' => 'project',
-		'name' => 'My Open Projects',
-		'description' => '',
-		'default' => true,
-		'conditions' => array(
-            'members' => array(
-                'blogic' => Where::COMBINED_BY_AND,
-                'field_name' => 'members',
-                'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => -3
-            ),
-        	'completed' => array(
-        		'blogic' => Where::COMBINED_BY_AND,
-        		'field_name' => 'date_completed',
-        		'operator' => Where::OPERATOR_EQUAL_TO,
-        		'value' => ''
-        	),
-        ),
-		'order_by' => array(
-			'name' => array(
-    			'field_name' => 'name',
-    			'direction' => 'asc',
-    		),
-		),
-		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
-    ),
 
 	'my_closed_projects'=> array(
 		'obj_type' => 'project',

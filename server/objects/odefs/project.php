@@ -1,83 +1,90 @@
 <?php
 /**************************************************************************************
-*
-*	Object Definition: case
-*
-*	Purpose:	$this refers to CAntObjectFields class which inlcludes this file
-*
-*	Author: 	Sky Stebnicki, sky.stebnicki@aereus.com
-*				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
-*
-**************************************************************************************/
-$obj_revision = 20;
+ *
+ *    Object Definition: case
+ *
+ *    Purpose:    $this refers to CAntObjectFields class which inlcludes this file
+ *
+ *    Author:    Sky Stebnicki, sky.stebnicki@aereus.com
+ *                Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
+ *
+ **************************************************************************************/
+$obj_revision = 21;
 
 $parentField = "parent";
 
 $obj_fields = array();
-$obj_fields['name']			    = array('title'=>'Title', 'type'=>'text', 'subtype'=>'128', 'readonly'=>false);
-$obj_fields['notes']		    = array('title'=>'Description', 'type'=>'text', 'subtype'=>'', 'readonly'=>false);
-$obj_fields['news']		        = array('title'=>'News', 'type'=>'text', 'subtype'=>'', 'readonly'=>false);
+$obj_fields['name'] = array('title' => 'Title', 'type' => 'text', 'subtype' => '128', 'readonly' => false);
+$obj_fields['notes'] = array('title' => 'Description', 'type' => 'text', 'subtype' => '', 'readonly' => false);
+$obj_fields['news'] = array('title' => 'News', 'type' => 'text', 'subtype' => '', 'readonly' => false);
 
 // Timestamps
-$default = array("value"=>"now", "on"=>"create");
-$obj_fields['date_started']	= array('title'=>'Start Date', 'type'=>'date', 'subtype'=>'', 'readonly'=>false, 'default'=>$default);
-$obj_fields['date_deadline']	= array('title'=>'Deadline', 'type'=>'date', 'subtype'=>'', 'readonly'=>false);
-$obj_fields['date_completed']	= array('title'=>'Completed', 'type'=>'date', 'subtype'=>'', 'readonly'=>false);
-$default = array("value"=>"now", "on"=>"create");
-$obj_fields['ts_created']	= array('title'=>'Time Entered', 'type'=>'timestamp', 'subtype'=>'', 'readonly'=>true, 'default'=>$default);
+$default = array("value" => "now", "on" => "create");
+$obj_fields['date_started'] = array('title' => 'Start Date', 'type' => 'date', 'subtype' => '', 'readonly' => false, 'default' => $default);
+$obj_fields['date_deadline'] = array('title' => 'Deadline', 'type' => 'date', 'subtype' => '', 'readonly' => false);
+$obj_fields['date_completed'] = array('title' => 'Completed', 'type' => 'date', 'subtype' => '', 'readonly' => false);
+$default = array("value" => "now", "on" => "create");
+$obj_fields['ts_created'] = array('title' => 'Time Entered', 'type' => 'timestamp', 'subtype' => '', 'readonly' => true, 'default' => $default);
 
 // References
-$obj_fields['parent'] = array('title'=>'Parent',
-									  'type'=>'object',
-									  'subtype'=>'project',
-									  'fkey_table'=>array("key"=>"id", "title"=>"name"));
+$obj_fields['parent'] = array('title' => 'Parent',
+    'type' => 'object',
+    'subtype' => 'project',
+    'fkey_table' => array("key" => "id", "title" => "name"));
 
-$obj_fields['priority'] = array('title'=>'Priority',
-									  'type'=>'fkey',
-									  'subtype'=>'project_priorities',
-									  'fkey_table'=>array("key"=>"id", "title"=>"name"));
+$obj_fields['priority'] = array('title' => 'Priority',
+    'type' => 'fkey',
+    'subtype' => 'project_priorities',
+    'fkey_table' => array("key" => "id", "title" => "name"));
 
-$obj_fields['user_id'] = array('title'=>'Owner',
-									  'type'=>'object',
-									  'subtype'=>'user');
+$obj_fields['user_id'] = array('title' => 'Owner',
+    'type' => 'object',
+    'subtype' => 'user');
 
-$obj_fields['customer_id'] = array('title'=>'Contact',
-								   'type'=>'object',
-								   'subtype'=>'customer');
+$obj_fields['customer_id'] = array('title' => 'Contact',
+    'type' => 'object',
+    'subtype' => 'customer');
 
-$obj_fields['template_id'] = array('title'=>'Template',
-								   'type'=>'fkey',
-                                   'subtype'=>'project_templates',
-                                   'readonly'=>true,
-								   'fkey_table'=>array("key"=>"id", "title"=>"name"));
+$obj_fields['template_id'] = array('title' => 'Template',
+    'type' => 'fkey',
+    'subtype' => 'project_templates',
+    'readonly' => true,
+    'fkey_table' => array("key" => "id", "title" => "name"));
 
-$obj_fields['groups'] = array('title'=>'Groups',
-								  'type'=>'fkey_multi',
-								  'subtype'=>'project_groups',
-								  'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
-																									"ref_table"=>array(
-																									"table"=>"project_group_mem", 
-																									"this"=>"project_id", 
-																									"ref"=>"group_id"
-																												   )));
+$obj_fields['groups'] = array('title' => 'Groups',
+    'type' => 'fkey_multi',
+    'subtype' => 'project_groups',
+    'fkey_table' => array("key" => "id", "title" => "name", "parent" => "parent_id",
+        "ref_table" => array(
+            "table" => "project_group_mem",
+            "this" => "project_id",
+            "ref" => "group_id"
+        )));
 
-$obj_fields['members'] = array('title'=>'Members',
-								  'type'=>'fkey_multi',
-								  'subtype'=>'users',
-								  'fkey_table'=>array("key"=>"id", "title"=>"name", 
-																				"ref_table"=>array(
-																				"table"=>"project_membership", 
-																				"this"=>"project_id", 
-																				"ref"=>"user_id"
-																							   )));
+$obj_fields['members'] = array('title' => 'Members',
+    'type' => 'fkey_multi',
+    'subtype' => 'users',
+    'fkey_table' => array("key" => "id", "title" => "name",
+        "ref_table" => array(
+            "table" => "project_membership",
+            "this" => "project_id",
+            "ref" => "user_id"
+        )));
 
-$obj_fields['folder_id'] = array('title'=>'Files',
-								   'type'=>'object',
-								   'subtype'=>'folder',
-								   'autocreate'=>true, // Create foreign object automatically
-								   'autocreatebase'=>'/System/Project Files', // Where to create (for folders, the path with no trail slash)
-								   'autocreatename'=>'id', // the field to pull the new object name from
-								   'fkey_table'=>array("key"=>"id", "title"=>"name"));
+$obj_fields['folder_id'] = array('title' => 'Files',
+    'type' => 'object',
+    'subtype' => 'folder',
+    'autocreate' => true, // Create foreign object automatically
+    'autocreatebase' => '/System/Project Files', // Where to create (for folders, the path with no trail slash)
+    'autocreatename' => 'id', // the field to pull the new object name from
+    'fkey_table' => array("key" => "id", "title" => "name"));
+
+
+$obj_fields['project_members'] = array(
+    'title' => 'Members',
+    'type' => 'object_multi',
+    'subtype' => 'user',
+);
 
 // Set views
 $obj_views = array();
