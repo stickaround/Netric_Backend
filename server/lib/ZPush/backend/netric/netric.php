@@ -220,13 +220,6 @@ class BackendNetric implements IBackend
         $stateMachine->setDatabase($sm->get("Db"));
         $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
 
-        // The deviceId is required
-        if (!$this->deviceId)
-            $this->deviceId = Request::GetDeviceID();
-
-        if (!$this->deviceId)
-            throw new AuthenticationRequiredException("No device ID is defined in this request and it is required");
-
         // Setup the entity provider
         $this->entityProvider = new EntityProvider($this->account, $this->user);
 
@@ -747,7 +740,16 @@ class BackendNetric implements IBackend
     {
         $parent = null;
 
-        if (!$this->partnership && $this->deviceId)
+        // The deviceId is required
+        if (!$this->deviceId) {
+            $this->deviceId = Request::GetDeviceID();
+
+            if (!$this->deviceId) {
+                throw new StatusException("No device ID is defined in this request and it is required");
+            }
+        }
+
+        if (!$this->partnership)
         {
             $serviceManager = $this->account->getServiceManager();
             $entitySync = $serviceManager->get("EntitySync");
