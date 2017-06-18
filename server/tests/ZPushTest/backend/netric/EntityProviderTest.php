@@ -547,7 +547,7 @@ class EntityProviderTest extends TestCase
         $note->subject = "A Unit Test Note";
         $note->asbody = new\SyncBaseBody();
         $note->asbody->type = SYNC_BODYPREFERENCE_HTML;
-        $note->asbody->data = "<p>My Body</p>";
+        $note->asbody->data = \StringStreamWrapper::Open("<p>My Body</p>");
         $note->categories = array($savedGroup->name);
         $id = $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . "-my", null, $note);
         $this->assertNotNull($id);
@@ -562,17 +562,18 @@ class EntityProviderTest extends TestCase
         // Test values
         $this->assertNotEmpty($entity->getValue("user_id"));
         $this->assertEquals('html', $entity->getValue("body_type"));
-        $this->assertEquals($note->asbody->data, $entity->getValue("body"));
+        $originalBody = stream_get_contents($note->asbody->data, -1, 0);
+        $this->assertEquals($originalBody, $entity->getValue("body"));
         $this->assertEquals($note->categories, array("utttest"));
 
-        // Save changes without setting body type and meta data
+        // Save changes without setting body type and meta data for legacy active sync
         $note->asbody = "<p>My Edited Body</p>";
         $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . "-my", $id, $note);
 
         // Test the new value
         $openedEntity = $this->entityLoader->get("note", $id);
         $this->assertEquals('plain', $entity->getValue("body_type"));
-        $this->assertEquals($note->asbody, $entity->getValue("body"));;
+        $this->assertEquals($note->asbody, $entity->getValue("body"));
     }
 
     public function testMoveEntity_Email()

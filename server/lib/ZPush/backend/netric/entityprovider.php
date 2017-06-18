@@ -899,7 +899,9 @@ class EntityProvider
             $syncNote->asbody->type = SYNC_BODYPREFERENCE_HTML;
         }
 
-        $syncNote->asbody->data = $noteEntity->getValue('body');
+        $bodyContent = $noteEntity->getValue('body');
+        $syncNote->asbody->data = StringStreamWrapper::Open($bodyContent);
+        $syncNote->asbody->estimatedDataSize = strlen($bodyContent);
 
         if ($noteEntity->getValue('ts_updated'))
             $syncNote->lastmodified = $noteEntity->getValue('ts_updated');
@@ -965,44 +967,46 @@ class EntityProvider
             $output->nativebodytype = $bpReturnType;
             $output->asbody->truncated = 0;
 
+
             // Set the body based on the preference
+            $bodyData = null;
             switch($bpReturnType)
             {
                 case SYNC_BODYPREFERENCE_PLAIN:
-                    $output->asbody->data = $plainBody;
+                    $bodyData = $plainBody;
                     break;
 
                 case SYNC_BODYPREFERENCE_HTML:
 
                     // If the there is no html then force this to be a plain text message
-                    if (empty($htmlBody))
-                    {
-                        $output->asbody->data = $plainBody;
+                    if (empty($htmlBody)) {
+                        $bodyData = $plainBody;
                         $output->asbody->type = SYNC_BODYPREFERENCE_PLAIN;
-                    }
-                    else
-                    {
-                        $output->asbody->data = $htmlBody;
+                    } else {
+                        $bodyData = $htmlBody;
                     }
                     break;
 
                 case SYNC_BODYPREFERENCE_MIME:
-                    $output->asbody->data = $emailEntity->toMailMessage()->toString();
+                    $bodyData = $emailEntity->toMailMessage()->toString();
                     break;
 
                 case SYNC_BODYPREFERENCE_RTF:
-                    $output->asbody->data = base64_encode($plainBody);
+                    $bodyData = base64_encode($plainBody);
                     break;
             }
 
             // Truncate body, if requested
-            if(strlen($output->asbody->data) > $truncsize) {
-                $output->asbody->data = Utils::Utf8_truncate($output->asbody->data, $truncsize);
+            if($truncsize && strlen($bodyData) > $truncsize) {
+                $bodyData = Utils::Utf8_truncate($bodyData, $truncsize);
                 $output->asbody->truncated = 1;
             }
 
+            // Wrap the body data in a stream
+            $output->asbody->data = StringStreamWrapper::Open($bodyData);
+
             // Set the total size of the body being sent
-            $output->asbody->estimatedDataSize = strlen($output->asbody->data);
+            $output->asbody->estimatedDataSize = strlen($bodyData);
 
             // Check if the device is requesting a preview rather than the full body
             $bodyPreference = $contentParameters->BodyPreference($output->asbody->type);
@@ -1218,17 +1222,17 @@ class EntityProvider
 
         if (isset($syncNote->asbody) &&
             isset($syncNote->asbody->type) &&
-            isset($syncNote->asbody->data) &&
-            strlen($syncNote->asbody->data) > 0
+            isset($syncNote->asbody->data)
         ) {
+            $bodyContent = stream_get_contents($syncNote->asbody->data);
             switch ($syncNote->asbody->type) {
                 case SYNC_BODYPREFERENCE_PLAIN:
                 default:
-                    $entity->setValue('body', $syncNote->asbody->data);
+                    $entity->setValue('body', $bodyContent);
                     $entity->setValue('body_type', 'plain');
                     break;
                 case SYNC_BODYPREFERENCE_HTML:
-                    $entity->setValue('body', $syncNote->asbody->data);
+                    $entity->setValue('body', $bodyContent);
                     $entity->setValue('body_type', 'html');
                     break;
                 case SYNC_BODYPREFERENCE_RTF:
@@ -1241,6 +1245,24 @@ class EntityProvider
             ZLog::Write(LOGLEVEL_DEBUG,"EntityProvider->saveNote either type or data are not set. Setting to empty body");
             $entity->setValue('body', $syncNote->asbody);
             $entity->setValue('body_type', 'plain');
+        }
+
+        /*
+         * If this is coming from iOS, it may not have provided a subject
+         * because iOS notes do not have any kind of name or title so we take
+         * the first line of the body that is not empty and strip all tags
+         */
+        if (!isset($syncNote->subject) || empty($syncNote->subject) && strlen($entity->getValue('body'))) {
+            $body = $entity->getValue("body");
+            $firstLine = $this->getFirstPlainLineOfText($body);
+
+            // Set untitled if we were unable to get the newline
+            if (!$firstLine) {
+                $firstLine = "Untitled";
+            }
+
+            // Set the name of the new to the first line
+            $entity->setValue("name", $firstLine);
         }
 
         ZLog::Write(LOGLEVEL_INFO,"EntityProvider->saveNote: returning " . $entity->getId());
@@ -1846,5 +1868,32 @@ class EntityProvider
         );
     }
 
+    /**
+     * Get the first plain line of text from a blob of text
+     *
+     * For example:
+     *  "my text\n With a body"
+     * Would return:
+     *  "my text"
+     *
+     * @param string $text
+     * @return string
+     */
+    private function getFirstPlainLineOfText($text)
+    {
+        $firstLine = "";
+        $plainText = strip_tags($text);
+        for ($i =0; $i < strlen($plainText); $i++) {
+            // If we have encountered a new line and previously set data in $first line then break
+            if ($plainText[$i] === '\n' && strlen($firstLine)) {
+                break;
+            }
 
+            if ($plainText[$i] != '\r' && $plainBody[$i] != ' ') {
+                $firstLine .= $plainText[$i];
+            }
+        }
+
+        return $firstLine;
+    }
 }

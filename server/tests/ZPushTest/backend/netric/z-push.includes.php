@@ -8,8 +8,4 @@ ini_set(
 
 require_once dirname(__FILE__) . '/../../../../lib/ZPush/vendor/autoload.php';
 
-// BEGIN: copied from lib/ZPush/index.php
-
-// END: copied from lib/ZPush/index.php
-
 define('ZPUSH_CONFIG', dirname(__FILE__) . '/../../../../config/zpush.config.php');
