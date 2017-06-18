@@ -1889,7 +1889,7 @@ class EntityProvider
                 break;
             }
 
-            if ($plainText[$i] != '\r' && $plainBody[$i] != ' ') {
+            if ($plainText[$i] != '\r' && $plainText[$i] != ' ') {
                 $firstLine .= $plainText[$i];
             }
         }
