@@ -41,7 +41,7 @@ class BackendNetric implements IBackend
     /**
      * Netric log
      *
-     * @var Netric\Log
+     * @var Netric\Log\LogInterface
      */
     private $log = null;
 

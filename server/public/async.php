@@ -5,6 +5,8 @@
  * including it.
  */
 
+die("Killing due to load issues");
+
 /*
  * Tell z-push to use a custom location for the config file
  */
