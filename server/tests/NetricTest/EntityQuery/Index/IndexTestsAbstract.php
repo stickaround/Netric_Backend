@@ -1700,7 +1700,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->testEntities[] = $customer3;
         $this->testEntities[] = $customer4;
 
-        // Qquery the customers using and where conditions. This should only query the customer 1
+        // Query the customers using and where conditions. This should only query the customer 1
         $query = new Netric\EntityQuery("customer");
         $query->where("type_id")->equals(1);
         $query->where("city")->equals("new city");
@@ -1737,6 +1737,38 @@ abstract class IndexTestsAbstract extends TestCase
 
         // We should be be able to query all 3 customers
         $this->assertEquals(3, $res->getTotalNum());
+    }
+
+    /**
+     * Make sure "OR" and "AND" query conditions will work
+     */
+    public function testObjectMultiEqualsCondition()
+    {
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+
+        // Create an entity and initialize values
+        $projectName = "Test Project";
+        $projectEntity = $this->account->getServiceManager()->get("EntityLoader")->create("project");
+        $projectEntity->setValue("name", $projectName);
+        $projectEntity->addMultiValue("members", 35, "Member One");
+        $projectEntity->addMultiValue("members", 40, "Member Two");
+        $projectEntity->addMultiValue("members", 45, "Member Three");
+        $pid = $dm->save($projectEntity, $this->user);
+
+        // Set the entities so it will be cleaned up properly
+        $this->testEntities[] = $projectEntity;
+
+        // Query the project by members
+        $query = new Netric\EntityQuery("project");
+        $query->where("members")->equals(45);
+
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        $resultEntity = $res->getEntity(0);
+        $this->assertEquals($pid, $resultEntity->getId());
+        $this->assertEquals($projectName, $resultEntity->getName());
     }
 
     /**

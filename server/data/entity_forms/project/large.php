@@ -49,7 +49,7 @@
                 <attachments></attachments>
             </tab>
             <tab name='Members'>
-                <plugin name='Members' field='project_members'></plugin>
+                <plugin name='Members' field='members'></plugin>
             </tab>
         </tabs>
     </column>

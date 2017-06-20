@@ -9,7 +9,7 @@
  *                Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
  *
  **************************************************************************************/
-$obj_revision = 21;
+$obj_revision = 22;
 
 $parentField = "parent";
 
@@ -61,15 +61,11 @@ $obj_fields['groups'] = array('title' => 'Groups',
             "ref" => "group_id"
         )));
 
-$obj_fields['members'] = array('title' => 'Members',
-    'type' => 'fkey_multi',
-    'subtype' => 'users',
-    'fkey_table' => array("key" => "id", "title" => "name",
-        "ref_table" => array(
-            "table" => "project_membership",
-            "this" => "project_id",
-            "ref" => "user_id"
-        )));
+$obj_fields['members'] = array(
+    'title' => 'Members',
+    'type' => 'object_multi',
+    'subtype' => 'user',
+);
 
 $obj_fields['folder_id'] = array('title' => 'Files',
     'type' => 'object',
@@ -78,13 +74,6 @@ $obj_fields['folder_id'] = array('title' => 'Files',
     'autocreatebase' => '/System/Project Files', // Where to create (for folders, the path with no trail slash)
     'autocreatename' => 'id', // the field to pull the new object name from
     'fkey_table' => array("key" => "id", "title" => "name"));
-
-
-$obj_fields['project_members'] = array(
-    'title' => 'Members',
-    'type' => 'object_multi',
-    'subtype' => 'user',
-);
 
 // Set views
 $obj_views = array();

@@ -927,9 +927,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                     and assoc_object_id='" . $objRef['id'] . "') ";
                     }
                 }
-                else if ($condValue) // only query assocaited type
-                {
-                    $refDef = $this->getDefinition($condValue);
+				else if ($field->subtype) // only query associated subtype
+				{
+					$refDef = $this->getDefinition($field->subtype);
                     if ($refDef && $refDef->getId())
                     {
                         $buf .= " EXISTS (select 1 from object_associations 
