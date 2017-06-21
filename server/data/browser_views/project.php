@@ -44,13 +44,7 @@ return array(
 			'name' => array(
 				'field_name' => 'name',
 				'direction' => 'asc',
-			),
-			'members' => array(
-				'blogic' => Where::COMBINED_BY_AND,
-				'field_name' => 'members',
-				'operator' => Where::OPERATOR_EQUAL_TO,
-				'value' => -3
-			),
+			)
 		),
 		'table_columns' => array('name', 'priority', 'date_started', 'date_deadline', 'date_completed')
 	),

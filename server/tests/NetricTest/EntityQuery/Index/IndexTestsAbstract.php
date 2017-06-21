@@ -1657,7 +1657,7 @@ abstract class IndexTestsAbstract extends TestCase
     /**
      * Make sure "OR" and "AND" query conditions will work
      */
-    public function testQueryConditions()
+    public function testBooleanOperatorsWithConditions()
     {
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
