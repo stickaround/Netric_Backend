@@ -16,7 +16,7 @@ for ($i = 0; $i < $db->getNumRows($result); $i++) {
     $row = $db->getRow($result, $i);
 
     $projectId = $row['project_id'];
-    $projectMemberships[$projectId][] = $row;
+    $projectMemberships[$projectId][] = $row; 
 }
 
 foreach ($projectMemberships as $projectId => $members) {

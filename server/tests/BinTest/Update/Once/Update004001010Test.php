@@ -30,7 +30,7 @@ class Update004001010Test extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/010.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/010.php"; 
     }
 
     /**
