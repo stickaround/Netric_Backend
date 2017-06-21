@@ -161,12 +161,9 @@ class EntityQuery
      */
     public function orWhere($fieldName, $operator="", $value="")
     {
-        $where = new Where($fieldName);
-		$where->bLogic = "or";
-        if ($operator)
-            $where->operator = $operator;
-        $where->value = $value;
-        $this->addCondition($where);
+        $where = $this->where($fieldName, $operator, $value);
+        $where->bLogic = "or";
+
         return $where;
     }
 

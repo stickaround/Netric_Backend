@@ -48,6 +48,9 @@
             <tab name='Files'>
                 <attachments></attachments>
             </tab>
+            <tab name='Members'>
+                <plugin name='Members' field='members'></plugin>
+            </tab>
         </tabs>
     </column>
     <column type="sidebar">
