@@ -49,7 +49,7 @@ class EntityMaintainerWorker extends AbstractWorker
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);
 
-        $maintainerServices = $account->getServiceManager()->get('Entity/EntityMaintainerService');
+        $maintainerServices = $account->getServiceManager()->get('Netric/Entity/EntityMaintainerService');
 
         // TODO: Perform any cleanup here
 
