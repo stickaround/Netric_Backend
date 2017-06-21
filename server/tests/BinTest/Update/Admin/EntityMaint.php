@@ -1,13 +1,13 @@
 <?php
 /**
- * Make sure the bin/scripts/update/once/004/001/006.php script works
+ * Make sure the bin/scripts/update/always/02-groupings.php script works
  */
-namespace BinTest\Update\Once;
+namespace BinTest\Update\Admin;
 
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
-class Update_004001006_Test extends TestCase
+class GroupingsTest extends TestCase
 {
     /**
      * Handle to account
@@ -29,7 +29,7 @@ class Update_004001006_Test extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/006.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/admin/entitymaint.php";
     }
 
     /**

@@ -6,4 +6,4 @@
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
-$db->query("DROP TABLE async_states;");
+$db->query("DROP TABLE IF EXISTS async_states;");

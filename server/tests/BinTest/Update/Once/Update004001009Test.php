@@ -1,13 +1,14 @@
 <?php
-/**
- * Make sure the bin/scripts/update/once/004/001/004.php script works
- */
+
 namespace BinTest\Update\Once;
 
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
-class Update_004001004_Test extends TestCase
+/**
+ * Make sure the bin/scripts/update/once/004/001/009.php script works
+ */
+class Update004001009Test extends TestCase
 {
     /**
      * Handle to account
@@ -29,14 +30,13 @@ class Update_004001004_Test extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/004.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/009.php";
     }
 
     /**
      * Make sure the file exists
      *
-     * This is more a test of the test to make sure we set the path right, but why
-     * not just use unit tests for our tests? :)
+     * This is more a test of the test to make sure we set the path right
      */
     public function testExists()
     {
