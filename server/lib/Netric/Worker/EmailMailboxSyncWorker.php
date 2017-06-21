@@ -18,7 +18,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
      * Synchronize changes with a remote server
      *
      * @param Job $job
-     * @return mixed The reversed string
+     * @return bool true on success, false on failure
      */
     public function work(Job $job)
     {

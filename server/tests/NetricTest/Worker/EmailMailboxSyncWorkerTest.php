@@ -107,7 +107,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
     }
 
     /**
-     * Makae sure that only one worker processes an account at the same time
+     * Make sure that only one worker processes an account at the same time
      */
     public function testWorkConcurrentExpired()
     {

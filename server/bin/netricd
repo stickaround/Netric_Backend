@@ -212,7 +212,7 @@ pcntl_signal(SIGUSR1, "sig_handler");
  */
 $pid = pcntl_fork();
 if (!$pid) {
-    pcntl_exec("bin//netric", ["workers/schedule", "--daemon=true"]);
+    pcntl_exec("bin/netric", ["workers/schedule", "--daemon=true"]);
     exit();
 } else {
     // We add pids to a global array so we can manage as needed
