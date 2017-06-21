@@ -11,6 +11,9 @@
  */
 namespace Netric\EntityDefinition;
 
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\Field;
+
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
     /**
@@ -32,27 +35,27 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Delete object definition
 	 *
-	 * @param EntityDefintion $def The definition to delete
+	 * @param EntityDefinition $def The definition to delete
 	 * @return bool true on success, false on failure
 	 */
-	abstract public function deleteDef(&$def);
+	abstract public function deleteDef(EntityDefinition $def);
  
 	/**
 	 * Save a definition
 	 *
-	 * @param EntityDefintion $def The definition to save
+	 * @param EntityDefinition $def The definition to save
 	 * @return string|bool entity id on success, false on failure
 	 */
-	abstract public function saveDef($def);
+	abstract public function saveDef(EntityDefinition $def);
 
 	/**
 	 * Associate an object with an application
 	 *
-	 * @param EntityDefintion $def The definition to associate with an application
+	 * @param EntityDefinition $def The definition to associate with an application
 	 * @param string $applicationId The unique id of the application we are associating with
 	 * @return bool true on success, false on failure
 	 */
-	abstract public function associateWithApp($def, $applicatoinId);
+	abstract public function associateWithApp(EntityDefinition $def, $applicatoinId);
 
 	/**
 	 * Create a dynamic index for a field in this object type
@@ -60,10 +63,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 * This is primarily used in /services/ObjectDynIdx.php to build
 	 * dynamic indexes from usage stats.
 	 *
-	 * @param EntityDefintionn $def The EntityDefinition we are saving
-	 * @param EntityDefinition_Field The Field to verity we have a column for
+	 * @param EntityDefinition $def The EntityDefinition we are saving
+	 * @param Field The Field to verity we have a column for
 	 */
-	abstract public function createFieldIndex(&$def, $field);
+	abstract public function createFieldIndex(EntityDefinition $def,Field $field);
 
     /**
 	 * Get object definition based on an object type
@@ -77,10 +80,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Delete object definition
 	 *
-	 * @param EntityDefintion $def The definition to delete
+	 * @param EntityDefinition $def The definition to delete
 	 * @return bool true on success, false on failure
 	 */
-	public function delete(&$def)
+	public function delete(EntityDefinition $def)
 	{
 		$this->deleteDef($def);
 
@@ -91,10 +94,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Save a definition
 	 *
-	 * @param EntityDefintion $def The definition to save
+	 * @param EntityDefinition $def The definition to save
 	 * @return string|bool entity id on success, false on failure
 	 */
-	public function save($def)
+	public function save(EntityDefinition $def)
 	{
 		/*
 		 * Increment revision

@@ -425,6 +425,7 @@ class EntityDefinition
 			"obj_type" => $this->objType,
 			"title" => $this->title,
 			"revision" => $this->revision,
+            "capped" => $this->capped,
 			"default_activity_level" => $this->defaultActivityLevel,
 			"is_private" => $this->isPrivate,
 			"recur_rules" => $this->recurRules,
@@ -492,6 +493,9 @@ class EntityDefinition
 
 		if (isset($data['system']))
 			$this->system = $data['system'];
+
+        if (isset($data['capped']) && is_numeric($data['capped']))
+            $this->capped = $data['capped'];
 
 		if (isset($data['default_activity_level']))
 			$this->defaultActivityLevel = $data['default_activity_level'];

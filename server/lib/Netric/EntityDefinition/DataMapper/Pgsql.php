@@ -74,7 +74,7 @@ class Pgsql extends DataMapperAbstract
 	 *
      * @var string $objType The name of the object type
      * @var string $id The Id of the object
-	 * @return DomainEntity
+	 * @return EntityDefinition
 	 */
 	public function fetchByName($objType)
 	{
@@ -88,7 +88,7 @@ class Pgsql extends DataMapperAbstract
 		// Get basic object definition
 		// ------------------------------------------------------
 		$result = $dbh->query("select 
-			id, object_table, revision, title, object_table, f_system, dacl
+			id, object_table, revision, title, object_table, f_system, dacl, capped
 			from app_object_types where name='$objType'"
 		);
 		if ($dbh->getNumRows($result))
@@ -98,6 +98,7 @@ class Pgsql extends DataMapperAbstract
 			$def->revision = $row["revision"];
 			$def->system = ($row["f_system"] != 'f') ? true : false;
 			$def->setId($row["id"]);
+			$def->capped = ($row['capped']) ? $row['capped'] : false;
 			if ($row['object_table'])
 				$def->setCustomTable($row['object_table']);
 
@@ -270,10 +271,10 @@ class Pgsql extends DataMapperAbstract
 	/**
 	 * Delete object definition
 	 *
-	 * @param EntityDefintion $def The definition to delete
+	 * @param EntityDefinition $def The definition to delete
 	 * @return bool true on success, false on failure
 	 */
-	public function deleteDef(&$def)
+	public function deleteDef(EntityDefinition $def)
 	{
 		// System objects cannot be deleted
 		if ($def->system)
@@ -296,10 +297,10 @@ class Pgsql extends DataMapperAbstract
 	/**
 	 * Save a definition
 	 *
-	 * @param EntityDefintion $def The definition to save
+	 * @param EntityDefinition $def The definition to save
 	 * @return string|bool entity id on success, false on failure
 	 */
-	public function saveDef($def)
+	public function saveDef(EntityDefinition $def)
 	{
 		// Define type update
 		$data= array(
@@ -374,7 +375,7 @@ class Pgsql extends DataMapperAbstract
 	 * Get grouping data from a path
 	 *
 	 * @param string $fieldName The field containing the grouping information
-	 * @param string $nameValue The unique value of the group to retrieve
+	 * @param string $path The unique path of the entity to retrieve
 	 * @return array See getGroupingData return value for definition of grouping data entries
 	 */
 	public function getGroupingEntryByPath($fieldName, $path)
@@ -422,12 +423,12 @@ class Pgsql extends DataMapperAbstract
 	/**
 	 * Get data for a grouping field (fkey)
 	 *
-	 * @param EntityDefintion $def The eneity type definition we are working with
-	 * @param EntityDefinition_Field The grouping field
+	 * @param EntityDefinition $def The eneity type definition we are working with
+	 * @param Field $field The grouping field
 	 * @param array $filter Array of conditions used to slice the groupings
 	 * @return array of grouping in an associate array("id", "title", "viewname", "color", "system", "children"=>array)
 	 */
-	public function getGroupingsData($def, $field, $filter=array())
+	public function getGroupingsData(EntityDefinition $def, Field $field, $filter=array())
 	{
 		$data = array();
 
@@ -924,9 +925,9 @@ class Pgsql extends DataMapperAbstract
 	/**
 	 * Save fields
 	 *
-	 * @param EntityDefintionn $def The EntityDefinition we are saving
+	 * @param EntityDefinition $def The EntityDefinition we are saving
 	 */
-	private function saveFields(&$def)
+	private function saveFields(EntityDefinition $def)
 	{
 		$dbh = $this->dbh;
 
@@ -954,11 +955,11 @@ class Pgsql extends DataMapperAbstract
 	/**
 	 * Save a field
 	 *
-	 * @param EntityDefintionn $def The EntityDefinition we are saving
-	 * @param EntityDefinition\Field $field The field definition to save
+	 * @param EntityDefinition $def The EntityDefinition we are saving
+	 * @param Field $field The field definition to save
 	 * @param int $sort_order The order id of this field
 	 */
-	private function saveField(&$def, $field, $sort_order)
+	private function saveField(EntityDefinition $def, Field $field, $sort_order)
 	{
 		$dbh = $this->dbh;
 
@@ -1408,10 +1409,10 @@ class Pgsql extends DataMapperAbstract
 	 * This is primarily used in /services/ObjectDynIdx.php to build
 	 * dynamic indexes from usage stats.
 	 *
-	 * @param EntityDefintionn $def The EntityDefinition we are saving
-	 * @param EntityDefinition_Field The Field to verity we have a column for
+	 * @param EntityDefinition $def The EntityDefinition we are saving
+	 * @param Field The Field to verity we have a column for
 	 */
-	public function createFieldIndex(&$def, $field)
+	public function createFieldIndex(EntityDefinition $def, Field $field)
 	{
 		if (!$field)
 			return false;
@@ -1506,7 +1507,7 @@ class Pgsql extends DataMapperAbstract
 	 * @param string $applicationId The unique id of the application we are associating with
 	 * @return bool true on success, false on failure
 	 */
-	public function associateWithApp($def, $applicatoinId)
+	public function associateWithApp(EntityDefinition $def, $applicatoinId)
 	{
 		$dbh = $this->dbh;
 		$otid = $def->getId();

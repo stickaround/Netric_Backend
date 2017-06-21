@@ -9,7 +9,7 @@
 *				Copyright (c) 2010 Aereus Corporation, All Rights Reserved.
 *
 **************************************************************************************/
-$obj_revision = 40;
+$obj_revision = 41;
 $storeRevisions = false; // no need for revisins to be stored
 
 $obj_fields = array(
