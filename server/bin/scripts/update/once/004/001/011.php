@@ -41,7 +41,8 @@ for ($i = 0; $i < $totalNum; $i++) {
         $messageQuery = new \Netric\EntityQuery("email_message");
         $messageQuery->where("email_account")->equals($emailAccount->getId());
         $messageRet = $entityIndex->executeQuery($messageQuery);
-        for ($m = 0; $m < $messageRet->getTotalNum(); $m++) {
+        $numMessagesToDelete= $messageRet->getTotalNum();
+        for ($m = 0; $m < $numMessagesToDelete; $m++) {
             $emailMessage = $messageRet->getEntity($m);
             $entityLoader->delete($emailMessage);
         }
@@ -50,8 +51,9 @@ for ($i = 0; $i < $totalNum; $i++) {
         $entityLoader->delete($emailAccount);
 
         $log->info(
-            "Update 004.001.011 deleted email account " . $emailAccount->getId() .
-            " and " . $messageRet->getTotalNum() . " messages"
+            "Update 004.001.011 deleted email account " .
+            $emailAccount->getValue("address") . ":" . $emailAccount->getId() .
+            " and $numMessagesToDelete messages"
         );
     }
 }
