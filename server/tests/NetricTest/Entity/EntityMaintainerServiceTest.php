@@ -44,7 +44,7 @@ class EntityMaintainerServiceTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Create a temporary definition with a max cap of 1 entity
-        $def = new EntityDefinition("utest_maint");
+        $def = new EntityDefinition("utest_maint" . rand());
         $def->setTitle("Unit Test Maintenance");
         $def->capped = 1;
         $def->setSystem(false);
@@ -76,15 +76,15 @@ class EntityMaintainerServiceTest extends TestCase
      */
     protected function tearDown()
     {
-        // Cleanup the entity definition
-        $dataMapper = $this->account->getServiceManager()->get("Netric/EntityDefinition/DataMapper/DataMapper");
-        $dataMapper->deleteDef($this->testDefinition);
-
         // Cleanup test entities
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         foreach ($this->testEntities as $ent) {
             $entityLoader->delete($ent, true);
         }
+
+        // Cleanup the entity definition
+        $dataMapper = $this->account->getServiceManager()->get("Netric/EntityDefinition/DataMapper/DataMapper");
+        $dataMapper->deleteDef($this->testDefinition);
     }
 
     /**

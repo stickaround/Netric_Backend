@@ -41,7 +41,7 @@ if ($def) {
         $query = new \Netric\EntityQuery("email_account");
         $query->where("address")->equals($row['address']);
         $ret = $entityIndex->executeQuery($query);
-        if (!$ret->getNum()) {
+        if ($ret->getNum()) {
             // skip acount since it was already imported
             continue;
         }
