@@ -55,8 +55,7 @@ class ConsoleResponse implements ResponseInterface
     public function setContentType($contentType)
     {
         // Make sure we use only a supported type
-        switch ($contentType)
-        {
+        switch ($contentType) {
             case self::TYPE_TEXT_PLAIN:
             case self::TYPE_JSON:
                 $this->contentType = $contentType;
@@ -130,22 +129,33 @@ class ConsoleResponse implements ResponseInterface
     }
 
     /**
-     * Set the return code for the console response
+     * Set a return code to the caller
      *
      * @param int $code
+     * @param string $message Optional message to go with the code
      */
-    public function setReturnCode($code)
+    public function setReturnCode($code, $message = "")
     {
         $this->returnCode = $code;
     }
 
     /**
      * Get the return code of the console response
-     * 
+     *
      * @return int
      */
     public function getReturnCode()
     {
         return $this->returnCode;
+    }
+
+    /**
+     * Print the contents of this response to stdout
+     */
+    public function printOutput()
+    {
+        foreach ($this->outputBuffer as $line) {
+            echo $line;
+        }
     }
 }

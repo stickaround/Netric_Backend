@@ -226,7 +226,7 @@ class Entity implements EntityInterface
             {
                 case 'bool':
                     if (is_string($value)) {
-                        $value = ($value == 't') ? true : false;
+                        $value = ($value === 't' || $value === 'true') ? true : false;
                     }
                     break;
 				case 'date':

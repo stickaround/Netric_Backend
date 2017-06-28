@@ -6,6 +6,8 @@ namespace Netric\Controller;
 
 use Netric\Mvc;
 use Netric\FileSystem\FileSystem;
+use Netric\FileSystem\FileStreamWrapper;
+use Netric\Application\Response\HttpResponse;
 
 /**
  * Class FilesController
@@ -172,5 +174,127 @@ class FilesController extends Mvc\AbstractAccountController
     public function putUploadAction()
     {
         return $this->postUploadAction();
+    }
+
+    /**
+     * Download a file
+     *
+     * @return HttpResponse
+     */
+    public function getDownloadAction()
+    {
+        $request = $this->getRequest();
+        $fileId = $request->getParam("file_id");
+
+        $response = new HttpResponse($request);
+
+        if (!$fileId) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
+            return $response;
+        }
+
+        $fileEntity = $this->fileSystem->openFileById($fileId);
+
+        if (!$fileEntity) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
+            return $response;
+        }
+
+        // Set size in bytes, where to start from (offset), and how many bytes to read (all)
+        $fileSize = $fileEntity->getValue('file_size');
+        $numBytes = null;
+        $offset = null;
+
+        // Set file headers
+        $response->setContentDisposition('inline', $fileEntity->getName());
+        $response->setContentType($fileEntity->getMimeType());
+        $response->setHeader('Last-Modified', gmdate('D, d M Y H:i:s', strtotime($fileEntity->getValue("ts_updated"))) . ' GMT');
+        $response->setHeader('Content-Length', $fileSize);
+
+        // Required if we are going to cache this
+        //header("Pragma: public");
+        //header("Etag: " . md5($fileEntity->getId() . "-" . $fileEntity->getName()));
+
+        // TODO: These should go into the response
+        //header("Accept-Ranges: bytes");
+        //header("Content-Range: bytes 0-$fileSize/$fileSize");
+
+        /*
+         * Handle multi-range
+         * http://www.w3.org/Protocols/rfc2616/rfc2616-sec19.html#sec19.2k
+         *
+        if (isset($_SERVER['HTTP_RANGE']))
+        {
+            // Extract the range string
+            list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+
+
+            // Make sure the client hasn't sent us a multibyte range
+            if (strpos($range, ',') !== false) {
+
+                // (?) Shoud this be issued here, or should the first
+                // range be used? Or should the header be ignored and
+                // we output the whole content?
+                header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                header("Content-Range: bytes $numBytes-$offset/$fileSize");
+                // (?) Echo some info to the client?
+                exit;
+            }
+
+            // If the range starts with an '-' we start from the beginning
+            // If not, we forward the file pointer
+            // And make sure to get the end byte if spesified
+            if ($range[0] == '-') {
+                // The n-number of the last bytes is requested
+                $offset = $fileSize - substr($range, 1);
+            } else {
+                $range  = explode('-', $range);
+                $offset = $range[0];
+                $numBytes   = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $fileSize - 1;
+            }
+
+            // Check the range and make sure it's treated according to the specs.
+            // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+            // End bytes can not be larger than $end.
+            $numBytes = (($numBytes + $offset) > $fileSize) ? $fileSize : $numBytes;
+
+            // Validate the requested range and return an error if it's not correct.
+            if ($offset > ($numBytes) || $c_start > $fileSize - 1 || $c_end >= $fullLength) {
+
+                header('HTTP/1.1 416 Requested Range Not Satisfiable');
+                header("Content-Range: bytes $start-$end/$fullLength");
+                // (?) Echo some info to the client?
+                exit;
+            }
+
+            $start  = $c_start;
+            $end    = $c_end;
+            fseek($fp, $start);
+
+
+            // Notify the client the byte range we'll be outputting
+            header('HTTP/1.1 206 Partial Content');
+            header("Content-Range: bytes $start-$end/$fullLength");
+            header("Content-Length: " . (($end - $start) + 1));
+        }
+        else
+        {
+        */
+
+        // Check if the file has been modified since the last time it was downloaded
+        if(
+            array_key_exists("HTTP_IF_MODIFIED_SINCE", $_SERVER) &&
+            $fileEntity->getValue("ts_updated") && !$offset && !$numBytes
+        ) {
+            $if_modified_since = strtotime(preg_replace('/;.*$/','',$_SERVER["HTTP_IF_MODIFIED_SINCE"]));
+            if($if_modified_since >= strtotime($fileEntity->getValue("ts_updated"))) {
+                header("HTTP/1.0 304 Not Modified");
+                exit();
+            }
+        }
+
+        // Read the stream and output it to the client
+        $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
+        return $response;
     }
 }

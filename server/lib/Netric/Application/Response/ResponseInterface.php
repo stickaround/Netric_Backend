@@ -34,6 +34,47 @@ interface ResponseInterface
     public function setHeader($header, $value);
 
     /**
+     * Set a return code to the caller
+     *
+     * @param int $code
+     * @param string $message Optional message to go with the code
+     */
+    public function setReturnCode($code, $message = "");
+
+    /**
+     * Get the return/response/status code of this request
+     *
+     * @return int
+     */
+    public function getReturnCode();
+
+    /**
+     * Send output in the response
+     *
+     * @param mixed $content The content to output
+     */
+    public function write($content);
+
+    /**
+     * Indicate if we should buffer output or print it immediate when $this->write is called
+     *
+     * @param bool $flag
+     */
+    public function suppressOutput($flag);
+
+    /**
+     * Get the output contents
+     *
+     * @return string
+     */
+    public function getOutputBuffer();
+
+    /**
+     * Print the contents of this response to stdout
+     */
+    public function printOutput();
+
+    /**
      * Set a stream for a response
      *
      * @param resource $stream

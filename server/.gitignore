@@ -1,9 +1,9 @@
-nbproject
+nbproject/
 ._*
 .vagrant
 .~lock.*
 .buildpath
 .DS_Store
-.idea
+.idea/
 .project
 .settings

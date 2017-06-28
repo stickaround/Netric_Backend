@@ -280,4 +280,36 @@ class FilesControllerTest extends TestCase
         // Test the second file
         $this->assertEquals("files-upload-test2.txt", $file2->getValue("name"));
     }
+
+    /**
+     * Try downloading a file
+     */
+    public function testGetDownloadAction()
+    {
+        // Import a test file
+        $fileToImport = __DIR__ . "/fixtures/files-upload-test.txt";
+        $importedFile = $this->fileSystem->importFile($fileToImport, "/testdownload");
+        $this->testFiles[] = $importedFile;
+        $this->testFolders[] = $this->fileSystem->openFolder("/testdownload");
+
+        // Set which file to download in the request
+        $req = $this->controller->getRequest();
+        $req->setParam("file_id", $importedFile->getId());
+
+        /*
+         * Now stream the file contents into $ret
+         */
+        $response = $this->controller->getDownloadAction();
+
+        // Suppress the output into a buffer
+        $response->suppressOutput(true);
+        $response->stream();
+        $headers = $response->getHeaders();
+
+        // Make sure the contents match
+        $this->assertEquals(file_get_contents($fileToImport), $response->getOutputBuffer());
+        $this->assertTrue(isset($headers['Content-Type']));
+        $this->assertTrue(isset($headers['Content-Disposition']));
+        $this->assertTrue(isset($headers['Content-Length']));
+    }
 }

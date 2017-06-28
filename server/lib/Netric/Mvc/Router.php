@@ -32,6 +32,7 @@
  */
 namespace Netric\Mvc;
 
+use Netric\Application\Response\ResponseInterface;
 use Netric\Request\RequestInterface;
 use Netric\Application\Application;
 
@@ -100,23 +101,19 @@ class Router
         $fName = $this->setControllerAndGetAction($request);
 
 		// Create new instance of class if it does not exist
-		if ($this->className && !$this->controllerClass && class_exists($this->className))
-		{
+		if ($this->className && !$this->controllerClass && class_exists($this->className)) {
 			$clsname = $this->className;
 			$this->controllerClass = new $clsname($this->application, $this->application->getAccount());
             
             if(isset($this->controllerClass->testMode))
                 $this->controllerClass->testMode = $this->testMode;
-		}
-        else
-        {
+		} else {
             // TODO: return 404	Not Found
             die($this->className . "->" . $fName . " not found!");
         }
 
 		$requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
-		if (method_exists($this->controllerClass, $fName) && $requestMethod!='OPTIONS')
-		{
+		if (method_exists($this->controllerClass, $fName) && $requestMethod!='OPTIONS') {
 			/*
 			 * TODO: $params are no longer needed for action functions
 			 * since every controller now has a $this->request object
@@ -136,20 +133,19 @@ class Router
 			$params['raw_body'] = file_get_contents("php://input");
 
 			// GET params
-			foreach ($_GET as $varname=>$varval)
-			{
-				if ($varname != 'function' && $varname != 'authentication')
-					$params[$varname] = $varval;
+			foreach ($_GET as $varname=>$varval) {
+				if ($varname != 'function' && $varname != 'authentication') {
+                    $params[$varname] = $varval;
+                }
 			}
             
       		// If testing, add session
       		// I'm not sure why we are doing this - Sky Stebnicki
-            if($this->testMode)
-            {
-                foreach ($_REQUEST as $varname=>$varval)
-                {
-                    if ($varname != 'function')
+            if($this->testMode) {
+                foreach ($_REQUEST as $varname=>$varval) {
+                    if ($varname != 'function') {
                         $params[$varname] = $varval;
+                    }
                 }
             }
             
@@ -161,21 +157,19 @@ class Router
 			$hasPermission = $this->currentUserHasPermission();
 
 			// Call class method and pass request params
-			if ($hasPermission)
-			{
-				return call_user_func(array($this->controllerClass, $fName), $params);
-			}
-			else
-			{
+			if ($hasPermission) {
+				$response = call_user_func(array($this->controllerClass, $fName), $params);
+				if (is_object($response) && $response instanceof ResponseInterface) {
+                    $response->printOutput();
+                }
+			} else {
 				// TODO: return 401	Authorization Required
 				if (!$this->controllerClass->testMode)
 					echo "Authorization Required";
 				return false;
 			}
 
-		}
-		else
-		{
+		} else {
 			// TODO: return 404	Not Found
 			return false;
 		}
