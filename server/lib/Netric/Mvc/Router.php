@@ -162,6 +162,7 @@ class Router
 				if (is_object($response) && $response instanceof ResponseInterface) {
                     $response->printOutput();
                 }
+                return $response;
 			} else {
 				// TODO: return 401	Authorization Required
 				if (!$this->controllerClass->testMode)
