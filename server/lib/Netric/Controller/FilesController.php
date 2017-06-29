@@ -194,13 +194,16 @@ class FilesController extends Mvc\AbstractAccountController
 
         $response = new HttpResponse($request);
 
+        // File id is a required param
         if (!$fileId) {
-            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND, "No file id supplied");
             return $response;
         }
 
+        // Load the file
         $fileEntity = $this->fileSystem->openFileById($fileId);
 
+        // Let the caller know if the file does not exist
         if (!$fileEntity) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
             return $response;
@@ -215,12 +218,9 @@ class FilesController extends Mvc\AbstractAccountController
                 " does not have permissions to " .
                 $fileEntity->getId() . ":" . $fileEntity->getName()
             );
-            // TODO: We should return a 403 here but for now we just log error which should be a warn
+            // TODO: We should return a 403 here but for now we just log error
+            // but once we return 403 we should change it to a warn
         }
-
-        // Set size in bytes, where to start from (offset), and how many bytes to read (all)
-        $numBytes = null;
-        $offset = null;
 
         // Set file headers
         $response->setContentDisposition('inline', $fileEntity->getName());
@@ -233,19 +233,9 @@ class FilesController extends Mvc\AbstractAccountController
             $response->setCacheable(md5($this->account->getName() . ".file." . $fileEntity->getId()));
         }
 
-        // Check if the file has been modified since the last time it was downloaded
-        if(
-            array_key_exists("HTTP_IF_MODIFIED_SINCE", $_SERVER) &&
-            $fileEntity->getValue("ts_updated") && !$offset && !$numBytes
-        ) {
-            $if_modified_since = strtotime(preg_replace('/;.*$/','',$_SERVER["HTTP_IF_MODIFIED_SINCE"]));
-            if($if_modified_since >= strtotime($fileEntity->getValue("ts_updated"))) {
-                header("HTTP/1.0 304 Not Modified");
-                exit();
-            }
-        }
+        // TODO: Check if we need to do any image processing here
 
-        // Read the stream and output it to the client
+        // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
         return $response;
     }

@@ -158,6 +158,20 @@ class HttpResponse implements ResponseInterface
     private $outputStream = null;
 
     /**
+     * Flag to indicate if we should allow this response to be cached
+     *
+     * @var bool
+     */
+    private $isCacheable = false;
+
+    /**
+     * DateTime last modified
+     *
+     * @var DateTime null
+     */
+    private $lastModified = null;
+
+    /**
      * Constructor
      *
      * @param RequestInterface $request Original request so we can tailor the response
@@ -324,6 +338,7 @@ class HttpResponse implements ResponseInterface
     {
         $this->setHeader("Pragma", "public");
         $this->setHeader("Etag", $uniqueEtag);
+        $this->isCacheable = true;
     }
 
     /**
@@ -333,6 +348,7 @@ class HttpResponse implements ResponseInterface
      */
     public function setLastModified(DateTime $modified)
     {
+        $this->lastModified = $modified;
         $this->setHeader(
             'Last-Modified',
             gmdate('D, d M Y H:i:s', $modified->getTimestamp() . ' GMT')
@@ -431,6 +447,25 @@ class HttpResponse implements ResponseInterface
      */
     public function printOutput()
     {
+        // If this is cacheable and not modified, return without sending any data
+        if ($this->isCacheable && $this->lastModified) {
+            // Check if the file has been modified since the last time it was downloaded
+            // And we are not trying to stream a segment of a file with HTTP_RANGE
+            if(
+                array_key_exists("HTTP_IF_MODIFIED_SINCE", $_SERVER) &&
+                !isset($_SERVER['HTTP_RANGE'])
+            ) {
+                // TODO: work on the below
+                /*
+                $if_modified_since = strtotime(preg_replace('/;.*$/','',$_SERVER["HTTP_IF_MODIFIED_SINCE"]));
+                if($if_modified_since >= strtotime($fileEntity->getValue("ts_updated"))) {
+                    header("HTTP/1.0 304 Not Modified");
+                    exit();
+                }
+                */
+            }
+        }
+
         if ($this->outputStream) {
             $this->stream();
         } else {
