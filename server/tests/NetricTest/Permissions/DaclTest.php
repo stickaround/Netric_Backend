@@ -165,4 +165,20 @@ class DaclTest extends TestCase
         $this->assertEquals(1, count($groups));
         $this->assertEquals([UserEntity::GROUP_USERS], $groups);
     }
+
+    public function testGroupIsAllowed()
+    {
+        $dacl = new Permissions\Dacl();
+        $dacl->allowGroup(UserEntity::GROUP_USERS);
+
+        // Make sure anonymous access is not allowed if only authenticated users were given access
+        $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW));
+
+        // Now give everyone view only access and test
+        $dacl->allowGroup(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW);
+        $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW));
+
+        // But not edit
+        $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_EDIT));
+    }
 }

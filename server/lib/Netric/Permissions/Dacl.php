@@ -330,4 +330,32 @@ class Dacl
 
 		return false;
 	}
+
+    /**
+     * Check if a specific group has permissions
+     *
+     * @param int $groupId
+     * @param string $permission
+     * @return bool true if allowed, false if no permission
+     */
+	public function groupIsAllowed($groupId, $permission=self::PERM_FULL)
+    {
+        if (self::PERM_FULL == $permission) {
+            foreach ($this->entries as $pname=>$entry) {
+                if (!$this->groupIsAllowed($groupId, $pname)) {
+                    return false;
+                }
+            }
+        } else {
+            // Test through each group to see if permission is granted to the given group
+            foreach ($this->entries[$permission]->groups as $gid) {
+                if ($gid === $groupId) {
+                    return true;
+                }
+            }
+        }
+
+
+        return false;
+    }
 }

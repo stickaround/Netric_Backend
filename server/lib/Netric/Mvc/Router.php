@@ -159,9 +159,12 @@ class Router
 			// Call class method and pass request params
 			if ($hasPermission) {
 				$response = call_user_func(array($this->controllerClass, $fName), $params);
+
+				// New controllers should all return a ResponseInterface which handles output
 				if (is_object($response) && $response instanceof ResponseInterface) {
                     $response->printOutput();
                 }
+
                 return $response;
 			} else {
 				// TODO: return 401	Authorization Required
