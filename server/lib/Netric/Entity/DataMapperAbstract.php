@@ -192,7 +192,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$commitId = $this->commitManager->createCommit("entities/" . $def->getObjType());
 		$entity->setValue('commit_id', $commitId);
 
-        // Set defaults
+        // Set defaults including ts_updated
         $event = ($entity->getId()) ? "update" : "create";
         $user = $this->getAccount()->getUser();
         $entity->setFieldsDefault($event, $user);

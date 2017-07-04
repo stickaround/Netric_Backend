@@ -9,4 +9,5 @@ if (!$account)
 
 $entityMaintainerService = $account->getServiceManager()->get(EntityMaintainerService::class);
 
-$entityMaintainerService->trimAllCappedTypes();
+// Run all maintenance tasks
+$entityMaintainerService->runAll();

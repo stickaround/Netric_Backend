@@ -88,6 +88,17 @@ class EntityMaintainerServiceTest extends TestCase
     }
 
     /**
+     * Make sure that runAll actually runs all the cleanup tasks
+     */
+    public function testRunAll()
+    {
+        $allStats = $this->maintainerService->runAll();
+
+        $this->assertArrayHasKey('trimmed', $allStats);
+        $this->assertArrayHasKey('purged', $allStats);
+    }
+
+    /**
      * Make sure we can trim all capped object types
      */
     public function testTrimAllCappedTypes()
@@ -126,10 +137,73 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader->save($entity2);
         $this->testEntities[] = $entity2;
 
-        // Run trimCappedForType
+        // Run trimCappedForType (getAll definitions will return only this->testDefinition)
         $trimmed = $this->maintainerService->trimCappedForType($this->testDefinition);
 
         // assert that the number of deleted is 1
         $this->assertEquals(1, count($trimmed));
+    }
+
+    /**
+     * Make sure we can delete all old deleted entities
+     */
+    public function testPurgeAllStaleDeleted()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+
+        // Create then soft delete two entities
+        $entity1 = $entityLoader->create($this->testDefinition->getObjType());
+        $entityLoader->save($entity1);
+        $entityLoader->delete($entity1, false);
+
+        // Get a cutoff
+        $cutoff = new \DateTime();
+
+        // Pause for a second to make sure the second entity is after the cutoff
+        sleep(1);
+
+        // This entity will be deleted after the cutoff so it should be left alone
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
+        $entityLoader->save($entity2);
+        $entityLoader->delete($entity2, false);
+        $this->testEntities[] = $entity2;
+
+        // Run trimCappedForType
+        $purged = $this->maintainerService->purgeAllStaleDeleted($cutoff);
+
+        // assert that the number of deleted is 1
+        $this->assertEquals(1, count($purged[$this->testDefinition->getObjType()]));
+    }
+
+    /**
+     * Make sure we can delete all old deleted entities
+     */
+    public function testPurgeStaleDeletedForType()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+
+        // Create then soft delete two entities
+        $entity1 = $entityLoader->create($this->testDefinition->getObjType());
+        $entityLoader->save($entity1);
+        $entityLoader->delete($entity1, false);
+        $this->testEntities[] = $entity1;
+
+        // Get a cutoff
+        $cutoff = new \DateTime();
+
+        // Pause for a second to make sure the second entity is after the cutoff
+        sleep(1);
+
+        // This entity will be deleted after the cutoff so it should be left alone
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
+        $entityLoader->save($entity2);
+        $entityLoader->delete($entity2, false);
+        $this->testEntities[] = $entity2;
+
+        // Purge entities deleted before the cutoff date
+        $purged = $this->maintainerService->purgeStaleDeletedForType($this->testDefinition, $cutoff);
+
+        // Assert that we deleted the first entity but not the second
+        $this->assertEquals(1, count($purged));
     }
 }

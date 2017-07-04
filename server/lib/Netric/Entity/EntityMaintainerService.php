@@ -12,6 +12,8 @@ use Netric\Log\LogInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
 use Netric\EntityLoader;
+use DateInterval;
+use DateTime;
 
 /**
  * Service responsible maintaining entities in the background
@@ -64,6 +66,19 @@ class EntityMaintainerService extends AbstractHasErrors
         $this->entityLoader = $entityLoader;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
         $this->entityIndex = $entityIndex;
+    }
+
+    /**
+     * Run all maintenance tasks
+     *
+     * @return array
+     */
+    public function runAll()
+    {
+        $ret = [];
+        $ret['trimmed'] = $this->trimAllCappedTypes();
+        $ret['purged'] = $this->purgeAllStaleDeleted();
+        return $ret;
     }
 
     /**
@@ -137,13 +152,68 @@ class EntityMaintainerService extends AbstractHasErrors
     }
 
     /**
+     * Loop through all entity types and purge old deleted entries
+     *
+     * @param DateTime $cutoff If set then this will be the earliest
+     *                         cutoff to start purging, default = today -1 year
+     * @return array
+     */
+    public function purgeAllStaleDeleted(DateTime $cutoff = null)
+    {
+        $allDefinitions = $this->entityDefinitionLoader->getAll();
+
+        $ret = [];
+
+        foreach ($allDefinitions as $def) {
+            $ret[$def->getObjType()] = $this->purgeStaleDeletedForType($def, $cutoff);
+        }
+
+        return $ret;
+    }
+
+    /**
      * Purge soft deleted entities older than a year
      *
      * @param EntityDefinition $def
+     * @param DateTime $cutoff If set then this will be the earliest
+     *                         cutoff to start purging, default = today -1 year
+     * @return int[] Array of deleted entity IDs
      */
-    public function purgeStaleDeletedForType(EntityDefinition $def)
+    public function purgeStaleDeletedForType(EntityDefinition $def, DateTime $cutoff = null)
     {
-        // TODO: Implement
-        throw new \RuntimeException("Not yet implemented");
+        // Buffer storing which entities get deleted to return to the caller
+        $deletedEntities = [];
+
+        if ($cutoff === null) {
+            // Get a date that is one year ago today
+            $cutoff = new DateTime();
+            $cutoff->sub(new DateInterval('P1Y'));
+        }
+
+        $query = new EntityQuery($def->getObjType());
+        $query->where('f_deleted')->equals(true);
+        $query->andWhere("ts_updated")->isLessOrEqualTo($cutoff->getTimestamp());
+        $result = $this->entityIndex->executeQuery($query);
+        $totalNum = $result->getTotalNum();
+
+        $this->log->info(
+            "EntityMaintainerService->purgeStaleDeletedForType: purging $totalNum stale " .
+            "entities from " . $def->getObjType()
+        );
+
+        // Hard delete all the stale entities
+        for ($i = 0; $i < $totalNum; $i++) {
+            $entity = $result->getEntity($i);
+            $deletedEntities[] = $entity->getId();
+            $this->entityLoader->delete($entity, true);
+
+            // Log it
+            $this->log->info(
+                "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
+                ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
+            );
+        }
+
+        return $deletedEntities;
     }
 }
