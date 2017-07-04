@@ -36,6 +36,8 @@ class HttpResponse implements ResponseInterface
      */
     private $responseCode = self::STATUS_CODE_OK;
     const STATUS_CODE_OK = 200;
+    const STATUS_CODE_OK_PARTIAL = 206;
+    const STATUS_CODE_NOT_MODIFIED = 301;
     const STATUS_CODE_FORBIDDEN = 403;
     const STATUS_CODE_NOT_FOUND = 404;
 
@@ -363,8 +365,8 @@ class HttpResponse implements ResponseInterface
     public function stream($inputStream = null)
     {
         // Set start and end points for the stream to default of -1 which will return the whole stream
-        $maxLength = -1;
-        $offset = -1;
+        $begin = 0;
+        $end = -1;
 
         /*
          * If this is a stream then handle multi-range
@@ -372,14 +374,33 @@ class HttpResponse implements ResponseInterface
          */
         if ($this->getContentLength()) {
             $contentLength = $this->getContentLength();
+
+            if ($this->request->getParam('HTTP_RANGE')) {
+                $httpRange = $this->request->getParam('HTTP_RANGE');
+                $matches = null;
+                if (preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $httpRange, $matches)) {
+                    $begin = $matches[1];
+                    $end = ($matches[2]) ? intval($matches[2]) : $contentLength;
+                }
+
+                // Set headers for the partial content
+                if ($end) {
+                    $this->setReturnCode(self::STATUS_CODE_OK_PARTIAL);
+                    $this->setHeader('Content-Range', "bytes $begin-$end/$contentLength");
+                    $this->setHeader('Content-Length', (($end - $begin) + 1));
+                    $this->setHeader('Cache-Control', 'public, must-revalidate, max-age=0');
+                    $this->setHeader('Pragma', 'no-cache');
+                    $this->setHeader('Accept-Ranges', 'bytes');
+                }
+            }
+            /*
             //header("Accept-Ranges: bytes"); // TODO: do we need this duplicate header?
             $this->setHeader('Accept-Range', '0-' . $contentLength . '/' . $contentLength);
 
-            if (isset($_SERVER['HTTP_RANGE']))
+            if ($this->request->getParam('HTTP_RANGE'))
             {
-                /*
                 // Extract the range string
-                list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+                list(, $range) = explode('=', $this->request->getParam('HTTP_RANGE'), 2);
 
                 // Make sure the client hasn't sent us a multibyte range
                 if (strpos($range, ',') !== false) {
@@ -398,7 +419,7 @@ class HttpResponse implements ResponseInterface
                 // And make sure to get the end byte if specified
                 if ($range[0] == '-') {
                     // The n-number of the last bytes is requested
-                    $offset = $fileSize - substr($range, 1);
+                    $offset = $contentLength - substr($range, 1);
                 } else {
                     $range  = explode('-', $range);
                     $offset = $range[0];
@@ -427,18 +448,19 @@ class HttpResponse implements ResponseInterface
                 header('HTTP/1.1 206 Partial Content');
                 header("Content-Range: bytes $start-$end/$fullLength");
                 header("Content-Length: " . (($end - $start) + 1));
-                */
+
             }
+            */
         }
 
         $this->printHeaders();
 
         if ($inputStream) {
-            fwrite($inputStream, stream_get_contents($this->outputStream, $maxLength, $offset));
+            fwrite($inputStream, stream_get_contents($this->outputStream, $end, $begin));
         } else if ($this->supressOutput) {
-            $this->outputBuffer = stream_get_contents($this->outputStream, $maxLength, $offset);
+            $this->outputBuffer = stream_get_contents($this->outputStream, $end, $begin);
         } else {
-            echo stream_get_contents($this->outputStream, $maxLength, $offset);
+            echo stream_get_contents($this->outputStream, $end, $begin);
         }
     }
 
@@ -449,20 +471,19 @@ class HttpResponse implements ResponseInterface
     {
         // If this is cacheable and not modified, return without sending any data
         if ($this->isCacheable && $this->lastModified) {
+
             // Check if the file has been modified since the last time it was downloaded
             // And we are not trying to stream a segment of a file with HTTP_RANGE
             if(
-                array_key_exists("HTTP_IF_MODIFIED_SINCE", $_SERVER) &&
-                !isset($_SERVER['HTTP_RANGE'])
+                $this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
+                !$this->request->getParam('HTTP_RANGE')
             ) {
-                // TODO: work on the below
-                /*
-                $if_modified_since = strtotime(preg_replace('/;.*$/','',$_SERVER["HTTP_IF_MODIFIED_SINCE"]));
-                if($if_modified_since >= strtotime($fileEntity->getValue("ts_updated"))) {
-                    header("HTTP/1.0 304 Not Modified");
-                    exit();
+                $if_modified_since = strtotime(preg_replace('/;.*$/','',$this->request->getParam('HTTP_IF_MODIFIED_SINCE')));
+                if($if_modified_since >= $this->lastModified->getTimestamp()) {
+                    $this->setReturnCode(self::STATUS_CODE_NOT_MODIFIED, 'Not Modified');
+                    $this->printHeaders();
+                    return;
                 }
-                */
             }
         }
 
@@ -474,7 +495,7 @@ class HttpResponse implements ResponseInterface
 
             if ($this->contentType === self::TYPE_JSON && is_array($this->outputBuffer)) {
                 $this->printBodyJson();
-            } else {
+            } else if ($this->outputBuffer) {
                 // Print plain text
                 echo $this->outputBuffer;
             }

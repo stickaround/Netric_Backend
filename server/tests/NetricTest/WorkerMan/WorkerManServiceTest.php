@@ -55,5 +55,4 @@ class WorkFlowTest extends TestCase
         $service->doWorkBackground("Test", array("mystring"=>"test"));
         $this->assertTrue($service->processJobQueue());
     }
-
 }

@@ -112,6 +112,18 @@ return array(
         ),
         'PRIMARY_KEY' => 'name',
     ),
+    "worker_process_lock" => array(
+        "PROPERTIES" => array(
+            'id' => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
+            'process_name' => array('type'=>SchemaProperty::TYPE_CHAR_256),
+            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIME_WITH_TIME_ZONE),
+        ),
+        'PRIMARY_KEY' => 'id',
+        "INDEXES" => array(
+            array('properties'=>array("ts_entered")),
+            array('properties'=>array("process_name"), 'type' => 'UNIQUE'),
+        ),
+    ),
     "worker_job_queue" => array(
         "PROPERTIES" => array(
             'id' => array('type'=>SchemaProperty::TYPE_BIGSERIAL),

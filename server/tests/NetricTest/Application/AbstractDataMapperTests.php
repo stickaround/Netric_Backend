@@ -234,4 +234,59 @@ abstract class AbstractDataMapperTests extends TestCase
             $dataMapper->deleteEmailUser($aid, 'testdelete@' . self::TEST_EMAIL_DOMAIN)
         );
     }
+
+    public function testAcquireLock()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        // Create a unit test unique lcok name
+        $utestLockName = "utest_app_dm_lock";
+
+        // First clean up any leftover process locks
+        $dataMapper->releaseLock($utestLockName);
+
+        // Create a new lock with the default expires
+        $this->assertTrue($dataMapper->acquireLock($utestLockName));
+
+        // A second call should return false since it is locked
+        $this->assertFalse($dataMapper->acquireLock($utestLockName));
+    }
+
+    public function testAcquireLockExpired()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        // Create a unit test unique lcok name
+        $utestLockName = "utest_app_dm_lock_expired";
+
+        // Create a new lock with the default expires
+        $dataMapper->acquireLock($utestLockName, 1);
+
+        // Pause for 2 milliseconds
+        usleep(2000);
+
+        // A second call should be expired and return true
+        $this->assertTrue($dataMapper->acquireLock($utestLockName, 1));
+
+        // Cleanup
+        $dataMapper->releaseLock($utestLockName);
+    }
+
+    public function testReleaseLock()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        // Create a unit test unique lock name
+        $utestLockName = "utest_app_dm_lock";
+
+        // Create then release a process lock
+        $dataMapper->acquireLock($utestLockName);
+        $dataMapper->releaseLock($utestLockName);
+
+        // We should be able to lock the process again now that it was released
+        $this->assertTrue($dataMapper->acquireLock($utestLockName));
+
+        // Cleanup
+        $dataMapper->releaseLock($utestLockName);
+    }
 }

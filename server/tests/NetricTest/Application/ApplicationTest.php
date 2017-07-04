@@ -6,6 +6,7 @@ namespace NetricTest\Application;
 
 use Netric;
 use Netric\Config\ConfigLoader;
+use Netric\Application\Application;
 use PHPUnit\Framework\TestCase;
 
 class ApplicationTest extends TestCase
@@ -13,7 +14,7 @@ class ApplicationTest extends TestCase
     /**
      * Application object to test
      *
-     * @var Netric\Application
+     * @var Application
      */
     private $application = null;
 
@@ -48,7 +49,7 @@ class ApplicationTest extends TestCase
 
     public function testGetAccountsByEmail()
     {
-        // TODO: Add this test
+        $this->markTestIncomplete("Implement testGetAccountsByEmail");
     }
 
     public function testCreateAccount()
@@ -95,5 +96,37 @@ class ApplicationTest extends TestCase
 
         // Make sure we cannot open the account - it should be deleted
         $this->assertNull($this->application->getAccount($account->getId()));
+    }
+
+    public function testAcquireLock()
+    {
+        // Create a unit test unique process name
+        $utesrLockName = "utest_app_lock";
+
+        // First clean up any leftover process locks
+        $this->application->releaseLock($utesrLockName);
+
+        // Create a new lock with the default expires which should return true
+        $this->assertTrue($this->application->acquireLock($utesrLockName));
+
+        // Cleanup
+        $this->application->releaseLock($utesrLockName);
+
+    }
+
+    public function testReleaseLock()
+    {
+        // Create a unit test unique process name
+        $utesrLockName = "utest_app_lock";
+
+        // Create then release a process lock
+        $this->application->acquireLock($utesrLockName);
+        $this->application->releaseLock($utesrLockName);
+
+        // We should be able to lock the process again now that it was released
+        $this->assertTrue($this->application->acquireLock($utesrLockName));
+
+        // Cleanup
+        $this->application->releaseLock($utesrLockName);
     }
 }

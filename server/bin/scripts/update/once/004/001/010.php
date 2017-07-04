@@ -8,6 +8,7 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $loader = $serviceManager->get("Netric/EntityLoader");
 
+$projectMemberships = [];
 $result = $db->query("SELECT * from project_membership");
 
 for ($i = 0; $i < $db->getNumRows($result); $i++) {

@@ -226,14 +226,37 @@ class FilesController extends Mvc\AbstractAccountController
         $response->setContentDisposition('inline', $fileEntity->getName());
         $response->setContentType($fileEntity->getMimeType());
         $response->setContentLength($fileEntity->getValue('file_size'));
-        $response->setLastModified(new DateTime($fileEntity->getValue("ts_updated")));
+        $dateLastModified = new DateTime();
+        $dateLastModified->setTimestamp($fileEntity->getValue("ts_updated"));
+        $response->setLastModified($dateLastModified);
 
         // Allow caching if everyone has access
         if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
-            $response->setCacheable(md5($this->account->getName() . ".file." . $fileEntity->getId()));
+            $response->setCacheable(
+                md5($this->account->getName() .
+                    ".file." . $fileEntity->getId() .
+                    '.r' . $fileEntity->getValue("revision")
+                )
+            );
         }
 
-        // TODO: Check if we need to do any image processing here
+        // Handle image resizing
+        if (($request->getParam('max_width') || $request->getParam('max_height')) &&
+            ($fileEntity->getMimeType() === 'image/png' || $fileEntity->getMimeType() === 'image/jpeg')) {
+            /*
+            $resizedFileEntity = $this->fileSystem->copyResizeImageFile(
+                $fileEntity,
+                $request->getParam('max_width'),
+                $request->getParam('max_height')
+            );
+
+            // If we were able to resize the entity then return it instead
+            if ($resizedFileEntity) {
+                $fileEntity = $resizedFileEntity;
+            }
+            */
+            $this->getApplication()->getLog(self::class . "=>getDownloadAction: resized images not yet implemented");
+        }
 
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));

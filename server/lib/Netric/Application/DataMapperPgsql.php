@@ -549,4 +549,61 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
             return false;
         }
     }
+
+    /**
+     * Obtain a lock so that only one instance of a process can run at once
+     *
+     * @param string $uniqueLockName Globally unique lock name
+     * @param int $expiresInMs Expire after defaults to 1 day or 86400000 milliseconds
+     * @return bool true if lock obtained, false if the process name is already locked (running)
+     */
+    public function acquireLock($uniqueLockName, $expiresInMs=86400000)
+    {
+        if (!$uniqueLockName) {
+            throw new \InvalidArgumentException("Unique lock name is required to obtain a lock");
+        }
+
+        // Get the process lock
+        $sql = "SELECT id, ts_entered FROM worker_process_lock " .
+               "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
+        $result = $this->dbh->query($sql);
+        if (!$this->dbh->getNumRows($result)) {
+            $sql = "INSERT INTO worker_process_lock(process_name, ts_entered) " .
+                   "VALUES('" . $this->dbh->escape($uniqueLockName) . "', 'now');";
+            if ($this->dbh->query($sql)){
+                return true;
+            } else {
+                // Something fell apart
+                throw new \RuntimeException("Could not create lock: " . $this->dbh->getLastError());
+            }
+        } else {
+            $row = $this->dbh->getRow($result);
+            $timeEntered = strtotime($row['ts_entered']);
+
+            // Check to see if the process has expired (run too long)
+            if ((time() - $timeEntered) >= $expiresInMs) {
+                // Update the lock and return true so the caller can start a new process
+                $this->dbh->query(
+                    "UPDATE worker_process_lock SET ts_entered='now' WHERE id=" .
+                    $this->dbh->escapeNumber($row['id'])
+                );
+            } else {
+                // The process is still legitimately running
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Clear a lock so that only one instance of a process can run at once
+     *
+     * @param string $uniqueLockName Globally unique lock name
+     */
+    public function releaseLock($uniqueLockName)
+    {
+        $sql = "DELETE FROM worker_process_lock " .
+               "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
+        $this->dbh->query($sql);
+    }
+
 }

@@ -3,7 +3,7 @@
  * Http Request
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @copyright 2015-2017 Aereus
  */
 namespace Netric\Request;
 
@@ -68,7 +68,7 @@ class HttpRequest implements RequestInterface
 
 		// Combine all sources of request data
 		$this->httpStores = array(
-			$headers, $_COOKIE, $_POST, $_GET, $this->params,
+            $headers, $_COOKIE, $_POST, $_GET, $_SERVER,
 		);
 
 		$this->method = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
@@ -82,6 +82,11 @@ class HttpRequest implements RequestInterface
 	 * @return string|array The value of the named param
 	 */
 	public function getParam($name) {
+	    // First check if the param is manually set in $this->param
+        if (isset($this->params[strtolower($name)])) {
+            return $this->params[strtolower($name)];
+        }
+
 		// Check through any http request objects
 		foreach ($this->httpStores as $httpStore) {
 
@@ -141,7 +146,7 @@ class HttpRequest implements RequestInterface
 	 */
 	public function setParam($name, $value)
 	{
-		$this->params[$name] = $value;
+		$this->params[strtolower($name)] = $value;
 	}
 
 	/**

@@ -139,4 +139,20 @@ interface DataMapperInterface
      * @return bool true on success, false on failure
      */
     public function deleteEmailUser($accountId, $emailAddress);
+
+    /**
+     * Obtain a lock so that only one instance of a process can run at once
+     *
+     * @param string $uniqueLockName Globally unique lock name
+     * @param int $expiresInMs Expire after defaults to 1 day or 86400000 milliseconds
+     * @return bool true if lock obtained, false if the process name is already locked (running)
+     */
+    public function acquireLock($uniqueLockName, $expiresInMs=86400000);
+
+    /**
+     * Clear a lock so that only one instance of a process can run at once
+     *
+     * @param string $uniqueLockName Globally unique lock name
+     */
+    public function releaseLock($uniqueLockName);
 }

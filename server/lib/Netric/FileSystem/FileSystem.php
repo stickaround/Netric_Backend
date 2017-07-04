@@ -109,8 +109,7 @@ class FileSystem implements Error\ErrorAwareInterface
     {
         // Open FileSystem folder - second param creates it if not exists
         $parentFolder = $this->openFolder($remoteFolderPath, true);
-        if (!$parentFolder)
-        {
+        if (!$parentFolder) {
             throw new \RuntimeException("Could not open " . $remoteFolderPath);
         }
 
@@ -122,20 +121,39 @@ class FileSystem implements Error\ErrorAwareInterface
         $file->setValue("folder_id", $parentFolder->getId());
         // In some cases you may want to name the file something other than the local file name
         // such as when importing randomly named temp files.
-        if ($fileNameOverride)
+        if ($fileNameOverride) {
             $file->setValue("name", $fileNameOverride);
+        }
+
         $this->entityDataMapper->save($file);
 
         // Upload the file to the FileStore
         $result = $this->fileStore->uploadFile($file, $localFilePath);
 
         // If it fails then try to get the last error
-        if (!$result && $this->fileStore->getLastError())
-        {
+        if (!$result && $this->fileStore->getLastError()) {
             $this->errors[] = $this->fileStore->getLastError();
         }
 
         return ($result) ? $file : null;
+    }
+
+    /**
+     * Copy an image resized to a specified path
+     *
+     * @param FileEntity $source The file to copy
+     * @param int $maxWidth
+     * @param int $maxHeight
+     * @param string $toPath Where to put the image
+     */
+    public function copyResizeImageFile(FileEntity $source, $maxWidth=-1, $maxHeight=-1, $toPath='"/System/Temp"')
+    {
+        throw new \RuntimeException("Function not yet implemented");
+        // TODO: We need to implement this
+        // 1. Download source to local scratch folder
+        // 2. Resize the image
+        // 3. Import to a new file
+        // 4. Delete the source data
     }
 
     /**
@@ -532,7 +550,6 @@ class FileSystem implements Error\ErrorAwareInterface
 
         return $retval;
     }
-
 
     /**
      * Get a child folder by name
