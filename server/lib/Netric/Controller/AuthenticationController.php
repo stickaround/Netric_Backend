@@ -32,6 +32,13 @@ class AuthenticationController extends Mvc\AbstractAccountController
 		$username = $this->request->getParam("username");
 		$password = $this->request->getParam("password");
 
+		// Check if the request was sent as a json object
+        if ($this->request->getParam('Content-Type') === 'application/json') {
+            $body = json_decode($this->request->getBody(), true);
+            $username = $body['username'];
+            $password = $body['password'];
+        }
+
 		if (!$username || !$password)
 		{
 			return $this->sendOutput(
@@ -159,7 +166,13 @@ class AuthenticationController extends Mvc\AbstractAccountController
 	 */
 	public function postGetAccountsAction()
 	{
-		$email = $this->request->getParam("email");
+        $email = $this->request->getParam("email");
+
+        // Check if the request was sent as a json object
+	    if ($this->request->getParam('Content-Type') === 'application/json') {
+	        $body = json_decode($this->request->getBody(), true);
+	        $email = $body['email'];
+        }
 
 		// TODO: Figure out a way to authorize the requestor so that
 		// a bot cannto use this endpoint to validate email addresses.
@@ -168,7 +181,15 @@ class AuthenticationController extends Mvc\AbstractAccountController
 
 		if ($email)
 			$ret = $this->account->getApplication()->getAccountsByEmail($email);
-		
+
 		return $this->sendOutput($ret);
 	}
+
+    /**
+     * Get all accounts associated with a domain and return the name and instance URL
+     */
+    public function getGetAccountsAction()
+    {
+       return $this->postGetAccountsAction();
+    }
 }

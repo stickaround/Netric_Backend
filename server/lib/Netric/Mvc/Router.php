@@ -188,7 +188,7 @@ class Router
      */
     private function setControllerAndGetAction(RequestInterface $request)
     {
-        $functionName = "default";
+        $functionName = "";
 
         // Check if controller and action were set with .htaccess
         if ($request->getParam("controller") && $request->getParam("function")) {

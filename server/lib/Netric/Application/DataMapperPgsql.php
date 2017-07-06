@@ -262,6 +262,10 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         if (!is_numeric($accountId))
             throw new \RuntimeException("Account id must be a number");
 
+        // Remove any users
+        $this->dbh->query("DELETE FROM email_users WHERE account_id=" . $this->dbh->escapeNumber($accountId));
+
+        // Now delete the actual account
         $ret = $this->dbh->query("DELETE FROM accounts WHERE id=" . $this->dbh->escapeNumber($accountId));
         if (!$ret)
             $this->errors[] = new Error("Error deleting account", $this->dbh->getLastError());
