@@ -182,11 +182,16 @@ class EntityMaintainerServiceTest extends TestCase
     {
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
 
-        // Create then soft delete two entities
+        // Create an entity to purge after deleted
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
         $entityLoader->save($entity1);
         $entityLoader->delete($entity1, false);
         $this->testEntities[] = $entity1;
+
+        // Create an entity that is before the cutoff but not deleted
+        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
+        $entityLoader->save($entity2);
+        $this->testEntities[] = $entity2;
 
         // Get a cutoff
         $cutoff = new \DateTime();
@@ -195,15 +200,47 @@ class EntityMaintainerServiceTest extends TestCase
         sleep(1);
 
         // This entity will be deleted after the cutoff so it should be left alone
-        $entity2 = $entityLoader->create($this->testDefinition->getObjType());
-        $entityLoader->save($entity2);
-        $entityLoader->delete($entity2, false);
-        $this->testEntities[] = $entity2;
+        $entity3 = $entityLoader->create($this->testDefinition->getObjType());
+        $entityLoader->save($entity3);
+        $entityLoader->delete($entity3, false);
+        $this->testEntities[] = $entity3;
 
         // Purge entities deleted before the cutoff date
         $purged = $this->maintainerService->purgeStaleDeletedForType($this->testDefinition, $cutoff);
 
         // Assert that we deleted the first entity but not the second
         $this->assertEquals(1, count($purged));
+    }
+
+    public function testDeleteOldSpamMessages()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+
+        $timeEnteredAndCutoff = time();
+
+        // Create a spam message to delete that is made a little earlier than $timeEnteredAndCutoff
+        $entity1 = $entityLoader->create('email_message');
+        $entity1->setValue("ts_entered", $timeEnteredAndCutoff - 1000);
+        $entity1->setValue("flag_spam", true);
+        $entityLoader->save($entity1);
+        $this->testEntities[] = $entity1;
+
+        // Create a second message that is not yet old enough to delete
+        $entity2 = $entityLoader->create('email_message');
+        $entity2->setValue("ts_entered", $timeEnteredAndCutoff + 1000);
+        $entity2->setValue("flag_spam", true);
+        $entityLoader->save($entity2);
+        $this->testEntities[] = $entity2;
+
+        // Get a cutoff
+        $cutoff = new \DateTime();
+        $cutoff->setTimestamp($timeEnteredAndCutoff);
+
+        // Delete messages created before or on the cutoff date
+        $deleted = $this->maintainerService->deleteOldSpamMessages($cutoff);
+
+        // Assert that the message above was deleted but the second one was not
+        $this->assertTrue(in_array($entity1->getId(), $deleted));
+        $this->assertFalse(in_array($entity2->getId(), $deleted));
     }
 }

@@ -52,8 +52,9 @@ class EntityMaintainerService extends AbstractHasErrors
      * EntityMaintainerService constructor
      *
      * @param LogInterface $log
-     * @param EntityLoader $entityLoader
-     * @param IndexInterface $entityIndex
+     * @param EntityLoader $entityLoader Loader for entities
+     * @param EntityDefinitionLoader $entityDefinitionLoader Loader to get entity definitions
+     * @param IndexInterface $entityIndex Index for queries
      */
     public function __construct(
         LogInterface $log,
@@ -78,6 +79,7 @@ class EntityMaintainerService extends AbstractHasErrors
         $ret = [];
         $ret['trimmed'] = $this->trimAllCappedTypes();
         $ret['purged'] = $this->purgeAllStaleDeleted();
+        $ret['deleted_spam'] = $this->deleteOldSpamMessages();
         return $ret;
     }
 
@@ -211,6 +213,51 @@ class EntityMaintainerService extends AbstractHasErrors
             $this->log->info(
                 "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
                 ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
+            );
+        }
+
+        return $deletedEntities;
+    }
+
+    /**
+     * Delete old spam messages
+     *
+     * Later we may want to extend this to all types of entities if they have
+     * a flag_spam property set to true. This could be particularly useful for things
+     * like lead and case objects that need spam detection.
+     *
+     * @param DateTime|null $cutoff
+     * @return array
+     */
+    public function deleteOldSpamMessages(DateTime $cutoff = null)
+    {
+        // Buffer storing which entities get deleted to return to the caller
+        $deletedEntities = [];
+
+        if ($cutoff === null) {
+            // Get a date that is one year ago today
+            $cutoff = new DateTime();
+            $cutoff->sub(new DateInterval('P1Y'));
+        }
+
+        $query = new EntityQuery('email_message');
+        $query->where('flag_spam')->equals(true);
+        $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
+        $result = $this->entityIndex->executeQuery($query);
+        $totalNum = $result->getTotalNum();
+
+        $this->log->info("EntityMaintainerService->deleteSpam: purging $totalNum spam messages");
+
+        // Hard delete all the stale entities
+        for ($i = 0; $i < $totalNum; $i++) {
+            $entity = $result->getEntity($i);
+            $deletedEntities[] = $entity->getId();
+            $this->entityLoader->delete($entity);
+
+            // Log it
+            $this->log->info(
+                "EntityMaintainerService->deleteSpam: deleted " .
+                ($i + 1) . " of " . $totalNum . "  spam messages "
             );
         }
 
