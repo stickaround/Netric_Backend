@@ -11,6 +11,7 @@ namespace Netric\Entity\ObjType;
 use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Description of User
@@ -44,9 +45,9 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
+    public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("password"))
@@ -66,9 +67,9 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
+    public function onAfterSave(AccountServiceManagerInterface $sm)
     {
         // Update the account email address for the application if changed
         if ($this->fieldValueChanged("email") || $this->fieldValueChanged("name")) {
@@ -84,6 +85,20 @@ class UserEntity extends Entity implements EntityInterface
                 $this->getValue("email") 
             );
         }
+    }
+
+    /**
+     * Callback function used for derrived subclasses and called just before a hard delete occurs
+     *
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+     */
+    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
+    {
+        /*
+         * Delete any dangling of this user to any email addresses since that is used
+         * for universal login when someone users their email address to log in to multiple accounts
+         */
+        $sm->getAccount()->setAccountUserEmail($this->getValue("name"), null);
     }
 
     /**

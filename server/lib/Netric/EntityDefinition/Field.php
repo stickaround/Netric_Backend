@@ -334,7 +334,7 @@ class Field implements \ArrayAccess
 			switch ($on)
 			{
 			case 'create':
-				if ($value)
+				if ($value !== null)
 					break;
 				else
 					$ret = $this->default['value'];
@@ -359,17 +359,13 @@ class Field implements \ArrayAccess
 					$ret = $this->default['value'];
 				break;
 			case 'null':
-				if ($ret==="" || $ret===null || $ret==$this->default['value'])
-				{
-
-					if (isset($this->default['coalesce']) && $this->default['coalesce'] && is_array($this->default['coalesce']) && $obj)
-					{
+				if ($ret==="" || $ret===null || $ret===$this->default['value']) {
+					if (isset($this->default['coalesce']) && $this->default['coalesce'] && is_array($this->default['coalesce']) && $obj) {
 						$ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias")?true:false);
-						if (!$ret)
-							$ret = $this->default['value'];
-					}
-					else
-					{
+						if (!$ret) {
+                            $ret = $this->default['value'];
+                        }
+					} else {
 						$ret = $this->default['value'];
 					}
 				}

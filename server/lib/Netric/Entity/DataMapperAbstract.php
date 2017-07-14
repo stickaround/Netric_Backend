@@ -226,20 +226,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 		// Save data to DataMapper implementation
 		$ret = null;
-		try
-		{
+		try {
 			$ret = $this->saveData($entity);
-		}
-		catch (DefinitionStaleException $ex)
-		{
+		} catch (DefinitionStaleException $ex) {
 			/*
 			 * We tried to save but there was something wrong with the definition (field not added?)
 			 * Sometimes we need to force the system fields to reset in order to update
 			 * the entity database -- especially if a new field was added to system fields.
 			 * Try to update the definition in case it is out of sync
 			 */
-			if ($serviceManager)
-			{
+			if ($serviceManager) {
 				$entityDefLoader = $serviceManager->get("EntityDefinitionLoader");
 				$entityDefLoader->forceSystemReset($def->getObjType());
 
@@ -249,8 +245,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Save revision for historical reference
-		if ($def->storeRevisions)
-			$this->saveRevision($entity);
+		if ($def->storeRevisions) {
+            $this->saveRevision($entity);
+        }
 
 		// Save data to EntityQuery Index
 		$serviceManager->get("EntityQuery_Index")->save($entity);

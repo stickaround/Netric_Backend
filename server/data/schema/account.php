@@ -1405,6 +1405,7 @@ return array(
             'creator_id' => array('type' => SchemaProperty::TYPE_BIGINT),
             'creator_id_fval' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'f_deleted' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
+            'f_seen' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "true"),
             'uname' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'path' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'dacl' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),

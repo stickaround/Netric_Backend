@@ -26,13 +26,11 @@ return array(
     ),
     'project_story' => array(
         'status_id' => array(
-            array("name"=>"New", "sort_oder"=>1, "color"=>"2A4BD7"),
+            array("name"=>"Todo", "sort_oder"=>1, "color"=>"2A4BD7"),
             array("name"=>"In-Progress", "sort_oder"=>2, "color"=>"FF9233"),
-            array("name"=>"Ready for testing", "sort_oder"=>3, "color"=>"FFEE33"),
-            array("name"=>"Test Passed", "sort_oder"=>4, "color"=>"575757"),
-            array("name"=>"Test Failed", "sort_oder"=>5, "color"=>"29D0D0"),
+            array("name"=>"In-Test", "sort_oder"=>3, "color"=>"FFEE33"),
+            array("name"=>"In-Review", "sort_oder"=>4, "color"=>"575757"),
             array("name"=>"Completed", "sort_oder"=>6, "color"=>"1D6914"),
-            array("name"=>"Rejected", "sort_oder"=>7, "color"=>"AD2323"),
         ),
         'priority_id' => array(
             array("name"=>"Low", "sort_oder"=>1, "color"=>"1D6914"),

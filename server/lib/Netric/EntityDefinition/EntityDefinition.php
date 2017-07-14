@@ -642,12 +642,18 @@ class EntityDefinition
 				'readonly'=>true, 
 				'system'=>true, 
 			),
+
+            // Default is true on null for this so not every entity is marked as unseen (annoying)
             'f_seen' => array(
                 'title'=>'Seen',
                 'type'=>'bool',
                 'subtype'=>'',
                 'readonly'=>true,
                 'system'=>true,
+                'default'=>array(
+                    "value"=>true,
+                    "on"=>"null"
+                ),
             ),
 			'revision' => array(
 				'title'=>'Revision',
