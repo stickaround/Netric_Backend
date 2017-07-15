@@ -379,7 +379,7 @@ class EntityProvider
 
                 // We cannot delete a system folder
                 if ($group->isSystem) {
-                    ZLog::Write(LOGLEVEL_ERROR, "EntityProvider->deleteFolder: Cannot delete system grouping {$group->name}");
+                    $this->log->error("EntityProvider->deleteFolder: Cannot delete system grouping {$group->name}");
                     return false;
                 }
 
@@ -703,7 +703,8 @@ class EntityProvider
         $contact->mobilephonenumber = $contactEntity->getValue('phone_cell');
         $contact->nickname = $contactEntity->getValue('nick_name');
 
-        ZLog::Write(LOGLEVEL_INFO, "EntityProvider->getContact: returning " . $contactEntity->getId());
+        $this->log->info("EntityProvider->getContact: returning " . $contactEntity->getId());
+
         return $contact;
     }
 
@@ -842,7 +843,7 @@ class EntityProvider
             }
         }
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider:getAppointment returning " . $entityEvent->getId());
+        $this->log->info("EntityProvider:getAppointment returning " . $entityEvent->getId());
 
         return $appt;
     }
@@ -869,7 +870,7 @@ class EntityProvider
         if ($taskEntity->getValue('start_date'))
             $task->startdate = $taskEntity->getValue('start_date');
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider:getTask returning " . $taskEntity->getId());
+        $this->log->info("EntityProvider:getTask returning " . $taskEntity->getId());
 
         return $task;
     }
@@ -915,7 +916,7 @@ class EntityProvider
             }
         }
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider:getNote returning " . $noteEntity->getId());
+        $this->log->info("EntityProvider->getNote returning " . $noteEntity->getId());
 
         return $syncNote;
     }
@@ -1175,7 +1176,7 @@ class EntityProvider
              */
         }
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider->saveContact: returning " . $entity->getId());
+        $this->log->info("EntityProvider->saveContact: returning " . $entity->getId() . ':' . $entity->getName());
 
         return $this->entityLoader->save($entity);
     }
@@ -1242,7 +1243,8 @@ class EntityProvider
             }
         }
         else {
-            ZLog::Write(LOGLEVEL_DEBUG,"EntityProvider->saveNote either type or data are not set. Setting to empty body");
+
+            $this->log->debug("EntityProvider->saveNote either type or data are not set. Setting to empty body");
             $entity->setValue('body', $syncNote->asbody);
             $entity->setValue('body_type', 'plain');
         }
@@ -1265,7 +1267,7 @@ class EntityProvider
             $entity->setValue("name", $firstLine);
         }
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider->saveNote: returning " . $entity->getId());
+        $this->log->info("EntityProvider->saveNote: returning " . $entity->getId());
 
         return $this->entityLoader->save($entity);
     }
@@ -1296,7 +1298,7 @@ class EntityProvider
         if ($syncTask->duedate)
             $entity->setValue('deadline', date("Y-m-d", $syncTask->duedate));
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider->saveTask: returning " . $entity->getId());
+        $this->log->info("EntityProvider->saveTask: returning " . $entity->getId());
 
         return $this->entityLoader->save($entity);
     }
@@ -1509,7 +1511,7 @@ class EntityProvider
             $entity->setRecurrencePattern($rp);
         }
 
-        ZLog::Write(LOGLEVEL_INFO,"EntityProvider->saveAppointment: returning " . $entity->getId());
+        $this->log->info("EntityProvider->saveAppointment: returning " . $entity->getId());
 
         return $this->entityLoader->save($entity);
     }

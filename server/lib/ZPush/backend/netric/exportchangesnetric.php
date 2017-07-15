@@ -127,7 +127,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
             $this->changes = $this->collection->getExportChanged(false, $cutoffDate);
         }
 
-         ZLog::Write(LOGLEVEL_DEBUG, "ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");
+        $this->log->info("ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");
 
         return true;
     }
@@ -140,7 +140,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
      */
     public function GetChangeCount()
     {
-         ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric:GetChagesCount: returning " . count($this->changes) . " changes");
+        $this->log->info("ExportChangeNetric:GetChagesCount: returning " . count($this->changes) . " changes");
         return count($this->changes);
     }
 
@@ -175,7 +175,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
 
                     // Make sure the message is valid and has all the fields needed
                     if (!$message->Check(true)) {
-                        ZLog::Write(LOGLEVEL_ERROR, "ExportChangeNetric->Synchronize: {$change['id']} is invalid syncObject");
+                        $this->log->error("ExportChangeNetric->Synchronize: {$change['id']} is invalid syncObject");
                     }
 
                     if($message) {
@@ -183,11 +183,11 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                             // Update the collection to set change to successfully exported
                             $this->collection->setLastCommitId($change['commit_id']);
                             $this->collection->logExported($change['id'], $change['commit_id']);
-                             ZLog::Write(LOGLEVEL_DEBUG, "ExportChangeNetric->Synchronize exported change {$change['id']} commit " . $change['commit_id']);
+                            $this->log->info("ExportChangeNetric->Synchronize exported change {$change['id']} commit " . $change['commit_id']);
                         }
                     } else {
                         // Looks like the message was deleted, do not try to export again
-                        ZLog::Write(LOGLEVEL_WARN, "ExportChangeNetric->Synchronize: Could not load {$change['id']} for folder: " . $this->folderId);
+                        $this->log->warning("ExportChangeNetric->Synchronize: Could not load {$change['id']} for folder: " . $this->folderId);
                     }
                     break;
 
@@ -197,14 +197,13 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                         if(
                             $this->flags & BACKEND_DISCARD_DATA ||
                             $this->importer->ImportMessageDeletion($change["id"]) == true
-                        )
-                        {
+                        ) {
 
                             $this->collection->logExported($change['id'], null);
-                            ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric->Synchronize: exported delete {$change['id']}");
+                            $this->log->info("ExportChangeNetric->Synchronize: exported delete {$change['id']}");
                         }
                     } else {
-                        ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric->Synchronize: stale in netric but never sent to device {$change['id']}");
+                        $this->log->info("ExportChangeNetric->Synchronize: stale in netric but never sent to device {$change['id']}");
                     }
 
                     break;
@@ -226,7 +225,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
 
             $this->step++;
 
-             ZLog::Write(LOGLEVEL_INFO, "ExportChangeNetric->Synchronize: synchronized {$this->step} of " . count($this->changes));
+            $this->log->info("ExportChangeNetric->Synchronize: synchronized {$this->step} of " . count($this->changes));
 
             return array(
                 "steps" => count($this->changes),

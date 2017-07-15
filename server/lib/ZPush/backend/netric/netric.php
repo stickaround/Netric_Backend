@@ -226,12 +226,12 @@ class BackendNetric implements IBackend
         // Return auth results
         if ($this->user)
         {
-             ZLog::Write(LOGLEVEL_INFO,"Login: $username, $domain, [success]");
+            $this->log->info("Login: $username, $domain, [success]");
             return true;
         }
         else
         {
-             ZLog::Write(LOGLEVEL_INFO,"Login: $username, $domain, [failed]");
+            $this->log->info("Login: $username, $domain, [failed]");
             return false;
         }
     }
@@ -289,7 +289,7 @@ class BackendNetric implements IBackend
     public function GetHierarchy()
     {
         $folders = $this->entityProvider->getAllFolders();
-        ZLog::Write(LOGLEVEL_INFO,"GetHierarchy: returning with " . count($folders));
+        $this->log->info("GetHierarchy: returning with " . count($folders));
         return $folders;
     }
 
@@ -304,7 +304,7 @@ class BackendNetric implements IBackend
      */
     public function GetImporter($folderid = false)
     {
-         ZLog::Write(LOGLEVEL_INFO,"BackendNetric->GetImporter For $folderid");
+         $this->log->info("BackendNetric->GetImporter For $folderid");
         return new ImportChangesNetric(
             $this->log,
             $this->getSyncCollection($folderid),
@@ -325,7 +325,7 @@ class BackendNetric implements IBackend
     public function GetExporter($folderid = false)
     {
         if ($folderid) {
-             ZLog::Write(LOGLEVEL_INFO,"BackendNetric->GetExporter Got entity exporter for $folderid");
+             $this->log->info("BackendNetric->GetExporter Got entity exporter for $folderid");
             return new ExportChangeNetric(
                 $this->log,
                 $this->getSyncCollection($folderid),
@@ -333,7 +333,7 @@ class BackendNetric implements IBackend
                 $folderid
             );
         } else {
-             ZLog::Write(LOGLEVEL_INFO,"BackendNetric->GetExporter Got folder exporter");
+             $this->log->info("BackendNetric->GetExporter Got folder exporter");
             return new ExportFolderChangeNetric(
                 $this->log,
                 $this->entityProvider
@@ -461,7 +461,7 @@ class BackendNetric implements IBackend
      */
     public function Fetch($folderid, $id, $contentParameters)
     {
-         ZLog::Write(LOGLEVEL_INFO,"Fetch: $folderid, $id");
+         $this->log->info("Fetch: $folderid, $id");
         return $this->entityProvider->getSyncObject($folderid, $id, $contentParameters);
     }
 
@@ -607,7 +607,7 @@ class BackendNetric implements IBackend
                 sleep(5);
         }
 
-         ZLog::Write(LOGLEVEL_INFO,"ChangeSync: returning with " . count($notifications) . " changed folders");
+         $this->log->info("ChangeSync: returning with " . count($notifications) . " changed folders");
         return $notifications;
     }
 
@@ -639,7 +639,7 @@ class BackendNetric implements IBackend
     public function ResolveRecipients($resolveRecipients)
     {
         // TODO: This is a function of search
-        ZLog::Write(LOGLEVEL_ERROR,"Called ResolveRecipients but not supported");
+        $this->log->error("Called ResolveRecipients but not supported");
         return false;
         /*
         if ($resolveRecipients instanceof SyncResolveRecipients) {
@@ -658,7 +658,7 @@ class BackendNetric implements IBackend
             return $resolveRecipients;
         }
 
-         ZLog::Write(LOGLEVEL_INFO,>warning("Not a valid SyncResolveRecipients object.");
+         $this->log->info(>warning("Not a valid SyncResolveRecipients object.");
         // return a SyncResolveRecipients object so that sync doesn't fail
         $r = new SyncResolveRecipients();
         $r->status = SYNC_RESOLVERECIPSSTATUS_PROTOCOLERROR;
@@ -913,7 +913,7 @@ class BackendNetric implements IBackend
             $oof->oofmessage[] = $oofmessage;
         }
         else {
-            ZLog::Write(LOGLEVEL_WARN, "Unable to get out of office information");
+            $this->log->warning("Unable to get out of office information");
         }
 
         //unset body type for oof in order not to stream it
@@ -952,7 +952,7 @@ class BackendNetric implements IBackend
             @mapi_setprops($this->defaultstore, $props);
             $result = mapi_last_hresult();
             if ($result != NOERROR) {
-                ZLog::Write(LOGLEVEL_ERROR, sprintf("Setting oof information failed (%X)", $result));
+                $this->log->error(sprintf("Setting oof information failed (%X)", $result));
                 return false;
             }
         }
@@ -971,7 +971,7 @@ class BackendNetric implements IBackend
      */
     private function settingsUserInformation(&$userinformation) {
         if (!isset($this->user)) {
-            ZLog::Write(LOGLEVEL_WARN, "The store or user are not available for getting user information");
+            $this->log->warning("The store or user are not available for getting user information");
             return false;
         }
 
@@ -993,7 +993,7 @@ class BackendNetric implements IBackend
         if ($this->partnership) {
             $serviceManager = $this->account->getServiceManager();
             $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
-             ZLog::Write(LOGLEVEL_INFO,"Saved partnership: " . $this->partnership->getId());
+             $this->log->info("Saved partnership: " . $this->partnership->getId());
         }
     }
 

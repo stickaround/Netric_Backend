@@ -40,6 +40,13 @@ class EntitySearchProvider implements ISearchProvider
     private $account = null;
 
     /**
+     * Application log
+     *
+     * @var \Netric\Log\Log|null
+     */
+    private $log = null;
+
+    /**
      * Constructor
      *
      * @param \Netric\Account\Account $account Current netric account
@@ -56,6 +63,7 @@ class EntitySearchProvider implements ISearchProvider
         }
 
         $this->account = $account;
+        $this->log = $account->getApplication()->getLog();
         $this->user = $user;
     }
 
@@ -124,7 +132,7 @@ class EntitySearchProvider implements ISearchProvider
 
             // Skip if the user does not have an email address
             if (!$user->getValue("email")) {
-                ZLog::Write(LOGLEVEL_WARN, "EntitySearchProvider->GetGALSearchResults: User " . $user->getId() . " does not have an email address and will be ignored.");
+                $this->log->info("EntitySearchProvider->GetGALSearchResults: User " . $user->getId() . " does not have an email address and will be ignored.");
                 continue;
             }
 

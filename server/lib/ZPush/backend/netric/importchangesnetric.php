@@ -166,7 +166,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          */
         $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
-        ZLog::Write(LOGLEVEL_INFO, "ImportChangesNetric->ImportMessageChange: $id, {$this->folderId} imported");
+        $this->log->info("ImportChangesNetric->ImportMessageChange: $id, {$this->folderId} imported");
 
         return $id;
 
@@ -208,7 +208,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          * this will cause the exporter to 'see' the overriding item as a change, and send it back to the PIM
          */
         if($conflict && $this->flags == SYNC_CONFLICT_OVERWRITE_PIM) {
-            ZLog::Write(LOGLEVEL_INFO, sprintf("ImportChangesNetric->ImportMessageDeletion($id): Conflict detected. Data from PIM will be dropped! Object was deleted."));
+            $this->log->info(sprintf("ImportChangesNetric->ImportMessageDeletion($id): Conflict detected. Data from PIM will be dropped! Object was deleted."));
             return false;
         }
 
@@ -295,7 +295,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
             $stat = $this->provider->getEntityStat($this->folderId, $id);
             $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
-            ZLog::Write(LOGLEVEL_INFO, "ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");
+            $this->log->info("ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");
 
         }
 
