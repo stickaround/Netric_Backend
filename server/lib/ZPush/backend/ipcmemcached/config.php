@@ -26,11 +26,12 @@
 
 // Comma separated list of available memcache servers.
 // Servers can be added as 'hostname:port,otherhost:port'
-define('MEMCACHED_SERVERS','localhost:11211');
+define('MEMCACHED_SERVERS','10.4.26.26:11211');
 
 // Memcached down indicator
 // In case memcached is not available, a lock file will be written to disk
 define('MEMCACHED_DOWN_LOCK_FILE', '/tmp/z-push-memcache-down');
+
 // indicates how long the lock file will be maintained (in seconds)
 define('MEMCACHED_DOWN_LOCK_EXPIRATION', 30);
 

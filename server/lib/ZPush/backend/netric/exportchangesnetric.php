@@ -84,8 +84,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
         Netric\EntitySync\Collection\CollectionInterface $collection,
         EntityProvider $entityProvider,
         $folderId = null
-    )
-    {
+    ) {
         $this->log = $log;
         $this->collection = $collection;
         $this->provider = $entityProvider;
@@ -114,8 +113,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
         }
 
         // Do nothing if it is a dummy folder
-        if ($this->folderId != SYNC_FOLDER_TYPE_DUMMY)
-        {
+        if ($this->folderId != SYNC_FOLDER_TYPE_DUMMY) {
             // Check for cutoff date
             $cutoffDate = null;
             if ($this->cutoffDate) {

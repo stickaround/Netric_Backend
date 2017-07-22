@@ -8,6 +8,7 @@ namespace Netric\Application\Setup;
 use Netric\Account\Account;
 use Netric\Error\AbstractHasErrors;
 use Netric\Console\BinScript;
+use Netric\Log\LogInterface;
 
 /**
  * Run updates on an account
@@ -59,6 +60,13 @@ class AccountUpdater extends AbstractHasErrors
     private $rootPath = "";
 
     /**
+     * Application log
+     *
+     * @var LogInterface
+     */
+    private $log = null;
+
+    /**
      * Constructor
      *
      * @param Account $account
@@ -66,6 +74,7 @@ class AccountUpdater extends AbstractHasErrors
     public function __construct(Account $account)
     {
         $this->account = $account;
+        $this->log = $account->getApplication()->getLog();
         $this->version = new \stdClass();
         $this->updatedToVersion= new \stdClass();
 
@@ -196,6 +205,10 @@ class AccountUpdater extends AbstractHasErrors
             // It's possible to run through this without executing the scripts
             if (substr($update, -3) == "php" && $this->executeUpdates)
             {
+                $this->log->info(
+                    "AccountUpdater->runAlwaysUpdates: Running $updatePath.\"/\".$update" .
+                    " for " . $this->account->getName()
+                );
                 // Execute a script only on the current account
                 $script = new BinScript($this->account->getApplication(), $this->account);
                 $script->run($updatePath."/".$update);
@@ -230,8 +243,9 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         // Get minor version directories
-        foreach ($majors as $dir)
+        foreach ($majors as $dir) {
             $this->processMinorDirs($dir, $updatePath);
+        }
 
         // Save the last updated version
         $this->saveUpdatedVersion();
@@ -339,6 +353,12 @@ class AccountUpdater extends AbstractHasErrors
                 // It's possible to run through this without executing the scripts
                 if($this->executeUpdates)
                 {
+                    $this->log->info(
+                        "AccountUpdater->runOnceUpdates->processMinorDirs->processPoints: " .
+                        "Running $path.\"/\".$update " .
+                        "for " . $this->account->getName()
+                    );
+
                     // Execute a script only on the current account
                     $script = new BinScript($this->account->getApplication(), $this->account);
                     $script->run($path."/".$update);

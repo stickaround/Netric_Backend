@@ -84,7 +84,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
      */
     public function InitializeExporter(&$importer)
     {
-        ZLog::Write(LOGLEVEL_DEBUG, "InitializeExporter Initializing");
+        $this->log->debug("InitializeExporter Initializing");
         $this->changes = array();
         $this->step = 0;
         $this->importer = $importer;
@@ -105,7 +105,7 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
         // Get a diff of any changes made compared to the state from last sync
         $this->changes = $this->getDiffTo($hierarchy);
 
-        ZLog::Write(LOGLEVEL_INFO, "ExportFolderChangeNetric:InitializeExporter Got hierarchy with " . count($this->changes) . " changes");
+        $this->log->info("ExportFolderChangeNetric:InitializeExporter Got hierarchy with " . count($this->changes) . " changes");
 
         return true;
     }

@@ -60,8 +60,7 @@ class NetricStateMachine implements IStateMachine
         DbInterface $db = null,
         CacheInterface $cache = null,
         Settings $settings = null
-    )
-    {
+    ) {
         $this->log = $log;
         $this->db = $db;
         $this->settings = $settings;

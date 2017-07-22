@@ -30,4 +30,6 @@ foreach ($projectMemberships as $projectId => $members) {
     }
 
     $loader->save($projectEntity);
+
+    $log->info("Update 004.001.010 changed project_membership to users for $projectId:{$member['user_id']}");
 }

@@ -27,6 +27,9 @@ require_once(dirname(__FILE__)."/../../../../init_autoloader.php");
 
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity\EntityInterface;
+use Netric\Log\LogInterface;
+use Netric\Account\Account;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Save and load sync objects from netric entities
@@ -45,14 +48,14 @@ class EntityProvider
     /**
      * Current account/tenant
      *
-     * @var Netric\Account\Account
+     * @var Account
      */
     private $account = null;
 
     /**
      * Current netric user
      *
-     * @var Netric\Entity\ObjType\UserEntity
+     * @var UserEntity
      */
     private $user = null;
 
@@ -66,17 +69,17 @@ class EntityProvider
     /**
      * Log
      *
-     * @var \Netric\Log
+     * @var LogInterface
      */
     private $log = null;
 
     /**
      * Setup the provider
      *
-     * @param \Netric\Account\Account $account
-     * @param \Netric\Entity\ObjType\UserEntity $user
+     * @param Account $account
+     * @param UserEntity $user
      */
-    public function __construct(Netric\Account\Account $account, Netric\Entity\ObjType\UserEntity $user)
+    public function __construct(Account $account, UserEntity $user)
     {
         $this->account = $account;
         $this->user = $user;
