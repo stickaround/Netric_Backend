@@ -44,6 +44,10 @@ for ($i = 0; $i < $totalNum; $i++) {
         for ($m = 0; $m < $numMessagesToDelete; $m++) {
             $emailMessage = $messageRet->getEntity($m);
             $entityLoader->delete($emailMessage);
+            $log->info(
+                "Update 004.001.011 deleted email message $m of $numMessagesToDelete for " .
+                $emailAccount->getValue("address") . ":" . $emailAccount->getId()
+            );
         }
 
         // Now delete the account
