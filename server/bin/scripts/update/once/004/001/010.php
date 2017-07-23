@@ -7,6 +7,7 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $loader = $serviceManager->get("Netric/EntityLoader");
+$log = $account->getApplication()->getLog();
 
 $projectMemberships = [];
 $result = $db->query("SELECT * from project_membership");
