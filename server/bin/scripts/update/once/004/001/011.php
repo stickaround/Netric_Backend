@@ -43,7 +43,12 @@ for ($i = 0; $i < $totalNum; $i++) {
         $numMessagesToDelete= $messageRet->getTotalNum();
         for ($m = 0; $m < $numMessagesToDelete; $m++) {
             $emailMessage = $messageRet->getEntity($m);
-            $entityLoader->delete($emailMessage);
+
+            // Make sure the message still exists
+            if ($emailMessage) {
+                $entityLoader->delete($emailMessage);
+            }
+
             $log->info(
                 "Update 004.001.011 deleted email message $m of $numMessagesToDelete for " .
                 $emailAccount->getValue("address") . ":" . $emailAccount->getId()
