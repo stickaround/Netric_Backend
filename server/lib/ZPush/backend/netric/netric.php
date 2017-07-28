@@ -226,12 +226,12 @@ class BackendNetric implements IBackend
         // Return auth results
         if ($this->user)
         {
-            $this->log->info("Login: $username, $domain, [success]");
+            $this->log->info("ZPUSH->Login: $username, $domain, [success]");
             return true;
         }
         else
         {
-            $this->log->info("Login: $username, $domain, [failed]");
+            $this->log->info("ZPUSH->Login: $username, $domain, [failed]");
             return false;
         }
     }
@@ -289,7 +289,7 @@ class BackendNetric implements IBackend
     public function GetHierarchy()
     {
         $folders = $this->entityProvider->getAllFolders();
-        $this->log->info("GetHierarchy: returning with " . count($folders));
+        $this->log->info("ZPUSH->GetHierarchy: returning with " . count($folders));
         return $folders;
     }
 
@@ -304,7 +304,7 @@ class BackendNetric implements IBackend
      */
     public function GetImporter($folderid = false)
     {
-         $this->log->info("BackendNetric->GetImporter For $folderid");
+         $this->log->info("ZPUSH->BackendNetric->GetImporter For $folderid");
         return new ImportChangesNetric(
             $this->log,
             $this->getSyncCollection($folderid),
@@ -325,7 +325,7 @@ class BackendNetric implements IBackend
     public function GetExporter($folderid = false)
     {
         if ($folderid) {
-             $this->log->info("BackendNetric->GetExporter Got entity exporter for $folderid");
+             $this->log->info("ZPUSH->BackendNetric->GetExporter Got entity exporter for $folderid");
             return new ExportChangeNetric(
                 $this->log,
                 $this->getSyncCollection($folderid),
@@ -333,7 +333,7 @@ class BackendNetric implements IBackend
                 $folderid
             );
         } else {
-             $this->log->info("BackendNetric->GetExporter Got folder exporter");
+             $this->log->info("ZPUSH->BackendNetric->GetExporter Got folder exporter");
             return new ExportFolderChangeNetric(
                 $this->log,
                 $this->entityProvider
@@ -461,7 +461,7 @@ class BackendNetric implements IBackend
      */
     public function Fetch($folderid, $id, $contentParameters)
     {
-         $this->log->info("Fetch: $folderid, $id");
+         $this->log->info("ZPUSH->Fetch: $folderid, $id");
         return $this->entityProvider->getSyncObject($folderid, $id, $contentParameters);
     }
 
@@ -607,7 +607,7 @@ class BackendNetric implements IBackend
                 sleep(5);
         }
 
-         $this->log->info("ChangeSync: returning with " . count($notifications) . " changed folders");
+         $this->log->info("ZPUSH->ChangeSync: returning with " . count($notifications) . " changed folders");
         return $notifications;
     }
 
@@ -639,7 +639,7 @@ class BackendNetric implements IBackend
     public function ResolveRecipients($resolveRecipients)
     {
         // TODO: This is a function of search
-        $this->log->error("Called ResolveRecipients but not supported");
+        $this->log->error("ZPUSH->Called ResolveRecipients but not supported");
         return false;
         /*
         if ($resolveRecipients instanceof SyncResolveRecipients) {
@@ -913,7 +913,7 @@ class BackendNetric implements IBackend
             $oof->oofmessage[] = $oofmessage;
         }
         else {
-            $this->log->warning("Unable to get out of office information");
+            $this->log->warning("ZPUSH->Unable to get out of office information");
         }
 
         //unset body type for oof in order not to stream it
@@ -971,7 +971,7 @@ class BackendNetric implements IBackend
      */
     private function settingsUserInformation(&$userinformation) {
         if (!isset($this->user)) {
-            $this->log->warning("The store or user are not available for getting user information");
+            $this->log->warning("ZPUSH->The store or user are not available for getting user information");
             return false;
         }
 
@@ -993,7 +993,7 @@ class BackendNetric implements IBackend
         if ($this->partnership) {
             $serviceManager = $this->account->getServiceManager();
             $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
-             $this->log->info("Saved partnership: " . $this->partnership->getId());
+             $this->log->info("ZPUSH->Saved partnership: " . $this->partnership->getId());
         }
     }
 

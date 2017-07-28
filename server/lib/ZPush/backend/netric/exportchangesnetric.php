@@ -125,7 +125,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
             $this->changes = $this->collection->getExportChanged(false, $cutoffDate);
         }
 
-        $this->log->info("ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");
+        $this->log->info("ZPUSH->ExportChangeNetric:InitializeExporter Initialized {$this->folderId} with " . count($this->changes) . " content changes");
 
         return true;
     }
@@ -138,7 +138,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
      */
     public function GetChangeCount()
     {
-        $this->log->info("ExportChangeNetric:GetChagesCount: returning " . count($this->changes) . " changes");
+        $this->log->info("ZPUSH->ExportChangeNetric:GetChagesCount: returning " . count($this->changes) . " changes");
         return count($this->changes);
     }
 
@@ -173,7 +173,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
 
                     // Make sure the message is valid and has all the fields needed
                     if (!$message->Check(true)) {
-                        $this->log->error("ExportChangeNetric->Synchronize: {$change['id']} is invalid syncObject");
+                        $this->log->error("ZPUSH->ExportChangeNetric->Synchronize: {$change['id']} is invalid syncObject");
                     }
 
                     if($message) {
@@ -181,11 +181,11 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                             // Update the collection to set change to successfully exported
                             $this->collection->setLastCommitId($change['commit_id']);
                             $this->collection->logExported($change['id'], $change['commit_id']);
-                            $this->log->info("ExportChangeNetric->Synchronize exported change {$change['id']} commit " . $change['commit_id']);
+                            $this->log->info("ZPUSH->ExportChangeNetric->Synchronize exported change {$change['id']} commit " . $change['commit_id']);
                         }
                     } else {
                         // Looks like the message was deleted, do not try to export again
-                        $this->log->warning("ExportChangeNetric->Synchronize: Could not load {$change['id']} for folder: " . $this->folderId);
+                        $this->log->warning("ZPUSH->ExportChangeNetric->Synchronize: Could not load {$change['id']} for folder: " . $this->folderId);
                     }
                     break;
 
@@ -198,10 +198,10 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                         ) {
 
                             $this->collection->logExported($change['id'], null);
-                            $this->log->info("ExportChangeNetric->Synchronize: exported delete {$change['id']}");
+                            $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: exported delete {$change['id']}");
                         }
                     } else {
-                        $this->log->info("ExportChangeNetric->Synchronize: stale in netric but never sent to device {$change['id']}");
+                        $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: stale in netric but never sent to device {$change['id']}");
                     }
 
                     break;
@@ -223,7 +223,7 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
 
             $this->step++;
 
-            $this->log->info("ExportChangeNetric->Synchronize: synchronized {$this->step} of " . count($this->changes));
+            $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: synchronized {$this->step} of " . count($this->changes));
 
             return array(
                 "steps" => count($this->changes),

@@ -25,5 +25,7 @@ docker run -P -d --restart=on-failure --name netricd \
 #    --log-opt syslog-facility=local2 docker.aereusdev.com:5001/netric:${TARGET} /start-daemon.sh
 
 # Run setup in the background and it will die when finished
+docker stop netricsetup
+docker rm netricsetup
 docker run -P -d --name netricsetup -e APPLICATION_ENV="production" \
     docker.aereusdev.com:5001/netric:${TARGET} /netric-setup.sh

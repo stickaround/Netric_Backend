@@ -166,7 +166,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
          */
         $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
-        $this->log->info("ImportChangesNetric->ImportMessageChange: $id, {$this->folderId} imported");
+        $this->log->info("ZPUSH->ImportChangesNetric->ImportMessageChange: $id, {$this->folderId} imported");
 
         return $id;
 
@@ -295,7 +295,7 @@ class ImportChangesNetric extends ChangesNetric implements IImportChanges
             $stat = $this->provider->getEntityStat($this->folderId, $id);
             $this->collection->logImported($id, $stat['mod'], $stat['id'], $stat['mod']);
 
-            $this->log->info("ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");
+            $this->log->info("ZPUSH->ImportChangesNetric->ImportMessageMove: $id from {$this->folderId} to {$newfolder}");
 
         }
 

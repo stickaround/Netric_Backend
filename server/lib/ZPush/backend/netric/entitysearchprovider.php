@@ -132,7 +132,7 @@ class EntitySearchProvider implements ISearchProvider
 
             // Skip if the user does not have an email address
             if (!$user->getValue("email")) {
-                $this->log->info("EntitySearchProvider->GetGALSearchResults: User " . $user->getId() . " does not have an email address and will be ignored.");
+                $this->log->info("ZPUSH->EntitySearchProvider->GetGALSearchResults: User " . $user->getId() . " does not have an email address and will be ignored.");
                 continue;
             }
 

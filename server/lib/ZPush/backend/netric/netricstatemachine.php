@@ -219,7 +219,7 @@ class NetricStateMachine implements IStateMachine
             $counter = 0;
         }
 
-        $this->log->debug("NetricStateMachine->SetState(): devid: $devid type: $type key: $key " .
+        $this->log->debug("ZPUSH->NetricStateMachine->SetState(): devid: $devid type: $type key: $key " .
             "counter: " . var_export($counter, true) . "");
 
         $sql = "SELECT device_id FROM async_device_states WHERE " .
@@ -324,7 +324,7 @@ class NetricStateMachine implements IStateMachine
     public function LinkUserDevice($username, $devid)
     {
         $db = $this->getDatabase();
-        $this->log->debug("NetricStateMachine->LinkUserDevice(): devid: $devid username: $username");
+        $this->log->debug("ZPUSH->NetricStateMachine->LinkUserDevice(): devid: $devid username: $username");
 
         $sql = "SELECT username FROM async_users WHERE " .
                 "username = '" . $db->escape($username) . "' AND " .
@@ -332,16 +332,16 @@ class NetricStateMachine implements IStateMachine
         $results = $db->query($sql);
         if ($db->getNumRows($results)) {
             // User is already linked
-            $this->log->debug("NetricStateMachine->LinkUserDevice(): already linked so nothing changed");
+            $this->log->debug("ZPUSH->NetricStateMachine->LinkUserDevice(): already linked so nothing changed");
             return false;
         } else {
             $sql = "INSERT INTO async_users (username, device_id) " .
                    "VALUES ('" . $db->escape($username) . "', '" . $db->escape($devid) . "')";
             if ($db->query($sql)) {
-                $this->log->debug("NetricStateMachine->LinkUserDevice(): Linked device $devid to $username");
+                $this->log->debug("ZPUSH->NetricStateMachine->LinkUserDevice(): Linked device $devid to $username");
                 return true;
             } else {
-                $this->log->error("NetricStateMachine->LinkUserDevice(): Unable to link device $devid to $username");
+                $this->log->error("ZPUSH->NetricStateMachine->LinkUserDevice(): Unable to link device $devid to $username");
                 return false;
             }
         }
@@ -357,7 +357,7 @@ class NetricStateMachine implements IStateMachine
     public function UnLinkUserDevice($username, $devid)
     {
         $db = $this->getDatabase();
-        $this->log->debug("NetricStateMachine->UnLinkUserDevice(): devid: $devid username: $username");
+        $this->log->debug("ZPUSH->NetricStateMachine->UnLinkUserDevice(): devid: $devid username: $username");
 
         // First check to see if the user exists
         $sql = "SELECT username FROM async_users WHERE " .
@@ -383,7 +383,7 @@ class NetricStateMachine implements IStateMachine
             }
         } else {
             // User device link does not exist
-            $this->log->debug("NetricStateMachine->UnLinkUserDevice(): nothing to unlink");
+            $this->log->debug("ZPUSH->NetricStateMachine->UnLinkUserDevice(): nothing to unlink");
             return false;
         }
     }
@@ -399,7 +399,7 @@ class NetricStateMachine implements IStateMachine
     public function GetAllDevices($username = false)
     {
         $db = $this->getDatabase();
-        $this->log->debug("NetricStateMachine->GetAllDevices(): username: " . var_export($username, true));
+        $this->log->debug("ZPUSH->NetricStateMachine->GetAllDevices(): username: " . var_export($username, true));
 
         if ($username === false) {
             // We also need to find potentially obsolete states that have no link to the async_users table anymore
@@ -444,7 +444,7 @@ class NetricStateMachine implements IStateMachine
             $this->SetStateVersion($version);
         }
 
-        $this->log->debug("NetricStateMachine->GetStateVersion(): supporting version '$version'");
+        $this->log->debug("ZPUSH->NetricStateMachine->GetStateVersion(): supporting version '$version'");
 
         return $version;
     }
@@ -459,7 +459,7 @@ class NetricStateMachine implements IStateMachine
     public function SetStateVersion($version)
     {
         $settings = $this->getSettings();
-        $this->log->debug("NetricStateMachine->SetStateVersion(): version '$version'");
+        $this->log->debug("ZPUSH->NetricStateMachine->SetStateVersion(): version '$version'");
         return $settings->set("async/version", $version);
     }
 
@@ -473,7 +473,7 @@ class NetricStateMachine implements IStateMachine
     public function GetAllStatesForDevice($devid)
     {
         $db = $this->getDatabase();
-        $this->log->debug("NetricStateMachine->GetAllStatesForDevice(): devid '$devid'");
+        $this->log->debug("ZPUSH->NetricStateMachine->GetAllStatesForDevice(): devid '$devid'");
 
         $sql = "SELECT state_type, uuid, counter FROM async_device_states WHERE " .
                "device_id = '" . $db->escape($devid) . "' ORDER BY id_state";
