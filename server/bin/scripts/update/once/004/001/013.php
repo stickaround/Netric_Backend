@@ -5,7 +5,6 @@
  * that was previously saved in the objects_* tables to f_seen=true where null. Entities will do
  * this automatically for all future saves due to the field default.
  */
-
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");

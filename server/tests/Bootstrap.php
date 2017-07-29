@@ -18,6 +18,7 @@ chdir(__DIR__);
 class Bootstrap
 {
     protected static $account;
+    protected static $user;
 
     public static function init()
     {
@@ -50,12 +51,15 @@ class Bootstrap
             $user->addMultiValue("groups", UserEntity::GROUP_ADMINISTRATORS);
             $loader->save($user);
         }
+        static::$user = $user;
 
         static::$account->setCurrentUser($user);
     }
 
     public static function getAccount()
     {
+        // Set the user each time since tests may have modified it
+        static::$account->setCurrentUser(static::$user);
         return static::$account;
     }
 

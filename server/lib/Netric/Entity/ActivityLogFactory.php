@@ -25,7 +25,8 @@ class ActivityLogFactory implements ServiceManager\AccountServiceLocatorInterfac
         $entityLoader = $sl->get("EntityLoader");
         $groupingsLoader = $sl->get("EntityGroupings_Loader");
         $currentUser = $sl->getAccount()->getUser();
+        $log = $sl->getAccount()->getApplication()->getLog();
 
-        return new ActivityLog($entityLoader, $groupingsLoader, $currentUser);
+        return new ActivityLog($log, $entityLoader, $groupingsLoader, $currentUser);
     }
 }

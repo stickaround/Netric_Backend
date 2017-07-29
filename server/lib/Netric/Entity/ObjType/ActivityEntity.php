@@ -10,6 +10,7 @@ namespace Netric\Entity\ObjType;
 
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Activty entity used for logging activity logs
@@ -33,9 +34,9 @@ class ActivityEntity extends Entity implements EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
+    public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         // Set association for the object which is used for queries
         if ($this->getValue('obj_reference'))
@@ -48,6 +49,19 @@ class ActivityEntity extends Entity implements EntityInterface
                     $this->getValueName('obj_reference')
                 );
             }
+        }
+
+        // Make sure the required data is set
+        if (empty($this->getValue("subject")) ||
+            empty($this->getValue("verb")) ||
+            empty($this->getValue("obj_reference"))) {
+            throw new \InvalidArgumentException(
+                "subject, verb, and obj_reference are required: " .
+                $this->getValue("subject") . "," .
+                $this->getValue("verb") . "," .
+                $this->getValue("obj_reference") . "," .
+                var_export($this->toArray(), true)
+            );
         }
     }
 }

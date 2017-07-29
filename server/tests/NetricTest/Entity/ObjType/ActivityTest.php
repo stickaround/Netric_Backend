@@ -48,6 +48,8 @@ class ActivityTest extends TestCase
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("activity");
 
         // onBeforeSave copies obj_reference to the 'associations' field
+        $entity->setValue("subject", "user:123", "Fake User");
+        $entity->setValue("verb", 'create');
         $entity->setValue("obj_reference", "customer:123", "Fake Customer Name");
         $entity->onBeforeSave($this->account->getServiceManager());
 
