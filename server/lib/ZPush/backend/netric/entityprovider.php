@@ -677,9 +677,18 @@ class EntityProvider
         $contactEntity = $entityLoader->get("contact_personal", $id);
 
         $contact = new SyncContact();
+        $contact->email1address = $contactEntity->getValue('email');
+        $contact->firstname = $contactEntity->getValue('first_name');
+        $contact->lastname = $contactEntity->getValue('last_name');
+        $contact->mobilephonenumber = $contactEntity->getValue('phone_cell');
+        $contact->nickname = $contactEntity->getValue('nick_name');
+
+        /*
         $contact->body = $contactEntity->getValue('notes');
         $contact->bodysize = strlen($contactEntity->getValue('notes'));
         $contact->bodytruncated = 0;
+        $contact->email2address = $contactEntity->getValue('email2');
+        $contact->email3address = $contactEntity->getValue('email_spouse');
         $contact->businessphonenumber = $contactEntity->getValue('phone_work');
         $contact->businesscity = $contactEntity->getValue('business_city');
         //$contact->businesscountry = $row['businesscountry'];
@@ -688,10 +697,6 @@ class EntityProvider
         $contact->businessstreet = $contactEntity->getValue('business_street');
         //$contact->categories = $row['categories'];
         $contact->companyname = $contactEntity->getValue('company');
-        $contact->email1address = $contactEntity->getValue('email');
-        $contact->email2address = $contactEntity->getValue('email2');
-        $contact->email3address = $contactEntity->getValue('email_spouse');
-        $contact->firstname = $contactEntity->getValue('first_name');
         $contact->homecity = $contactEntity->getValue('city');
         $contact->homepostalcode = $contactEntity->getValue('zip');
         $contact->homestate = $contactEntity->getValue('state');
@@ -699,12 +704,10 @@ class EntityProvider
         $contact->homefaxnumber = $contactEntity->getValue('fax');
         $contact->homephonenumber = $contactEntity->getValue('phone_home');
         $contact->jobtitle = $contactEntity->getValue('job_title');
-        $contact->lastname = $contactEntity->getValue('last_name');
         $contact->middlename = $contactEntity->getValue('middle_name');
         $contact->pagernumber = $contactEntity->getValue('pager');
         $contact->spouse = $contactEntity->getValue('spouse_name');
-        $contact->mobilephonenumber = $contactEntity->getValue('phone_cell');
-        $contact->nickname = $contactEntity->getValue('nick_name');
+        */
 
         $this->log->info("ZPUSH->EntityProvider->getContact: returning " . $contactEntity->getId());
 
