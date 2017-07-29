@@ -682,11 +682,6 @@ class EntityProvider
         $contact->lastname = $contactEntity->getValue('last_name');
         $contact->mobilephonenumber = $contactEntity->getValue('phone_cell');
         $contact->nickname = $contactEntity->getValue('nick_name');
-
-        /*
-        $contact->body = $contactEntity->getValue('notes');
-        $contact->bodysize = strlen($contactEntity->getValue('notes'));
-        $contact->bodytruncated = 0;
         $contact->email2address = $contactEntity->getValue('email2');
         $contact->email3address = $contactEntity->getValue('email_spouse');
         $contact->businessphonenumber = $contactEntity->getValue('phone_work');
@@ -707,6 +702,11 @@ class EntityProvider
         $contact->middlename = $contactEntity->getValue('middle_name');
         $contact->pagernumber = $contactEntity->getValue('pager');
         $contact->spouse = $contactEntity->getValue('spouse_name');
+
+        /*
+        $contact->body = $contactEntity->getValue('notes');
+        $contact->bodysize = strlen($contactEntity->getValue('notes'));
+        $contact->bodytruncated = 0;
         */
 
         $this->log->info("ZPUSH->EntityProvider->getContact: returning " . $contactEntity->getId());
