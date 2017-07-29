@@ -134,8 +134,6 @@ class BackendNetric implements IBackend
      */
     public function GetStateMachine()
     {
-        return false;
-
         if (!$this->stateMachine) {
             $application = $this->getApplication();
             $log = $application->getLog();

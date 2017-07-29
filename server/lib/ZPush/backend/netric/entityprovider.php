@@ -886,7 +886,7 @@ class EntityProvider
      *
      * @param string $id The unique id of the task to get
      * @param ContentParameters $contentParameters flag
-     * @return SyncTask
+     * @return SyncNote
      */
     private function getNote($id, $contentParameters)
     {
