@@ -11,12 +11,12 @@ $loader = $serviceManager->get("Netric/EntityLoader");
 $log = $account->getApplication()->getLog();
 
 $iterations = 0;
-$deleted = 0;
+$numDeleted = 0;
 
-// Continue looping through pages to delete because we don't want to take the sever down with 93 million+ blank entities
-while ($iterations < 1000 && $deleted > 1) {
+// Continue looping through pages to delete because we don't want to take the sever down with 1billion+ blank entities
+while ($iterations < 1000 && $numDeleted > 1) {
     $iterations++;
-    $sql = "select id from objects_activity_act where ts_entered is not null limit 10000";
+    $sql = "SELECT id FROM objects_activity_act WHERE ts_entered IS NULL limit 10000";
     $results = $db->query($sql);
     $totalNum = $db->getNumRows($results);
     for ($i = 0; $i < $totalNum; $i++) {
@@ -26,7 +26,7 @@ while ($iterations < 1000 && $deleted > 1) {
         // Hard delete it if it exists
         if ($activity) {
             $loader->delete($activity, true);
-            $deleted++;
+            $numDeleted++;
             $log->info(
                 "Update 004.001.013 deleted activity " .
                 $activity->getId() .
@@ -38,6 +38,6 @@ while ($iterations < 1000 && $deleted > 1) {
 
     // Break the loop if no activities were found
     if ($totalNum === 0) {
-        $deleted = 0;
+        $numDeleted = 0;
     }
 }

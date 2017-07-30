@@ -344,6 +344,10 @@ class AccountUpdater extends AbstractHasErrors
             closedir($dir_handle);
         }
 
+        // Set the latest updated to variables
+        $this->updatedToVersion->major = (int) $major;
+        $this->updatedToVersion->minor = (int) $minor;
+
         // Pull updates/points from minor dirs
         foreach ($updates as $update)
         {
@@ -366,14 +370,15 @@ class AccountUpdater extends AbstractHasErrors
 
                 // Update the point
                 $this->updatedToVersion->point = (int) substr($update, 0, -4);
+
+                // Save the last updated version
+                $this->saveUpdatedVersion();
             }
         }
 
-        $this->updatedToVersion->major = (int) $major;
-        $this->updatedToVersion->minor = (int) $minor;
-
         // If we didn't find any updates to run, then set to 0
-        if (!isset($this->updatedToVersion->point))
+        if (!isset($this->updatedToVersion->point)) {
             $this->updatedToVersion->point = 0;
+        }
     }
 }

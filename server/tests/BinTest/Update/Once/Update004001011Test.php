@@ -109,6 +109,6 @@ class Update004001011Test extends TestCase
         $loadedMessage1 = $entityLoader->get("email_message", $emailMessage1->getId());
         $loadedMessage2 = $entityLoader->get("email_message", $emailMessage2->getId());
         $this->assertFalse($loadedMessage1->isDeleted());
-        $this->assertTrue($loadedMessage2->isDeleted());
+        $this->assertNull($loadedMessage2);
     }
 }

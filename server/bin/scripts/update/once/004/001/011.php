@@ -46,7 +46,7 @@ for ($i = 0; $i < $totalNum; $i++) {
 
             // Make sure the message still exists
             if ($emailMessage) {
-                $entityLoader->delete($emailMessage);
+                $entityLoader->delete($emailMessage, true);
             }
 
             $log->info(
