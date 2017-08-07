@@ -9,6 +9,7 @@ use Netric\Log\LogInterface;
 use Netric\Permissions\Dacl;
 use Netric\EntityDefinitionLoader;
 use Netric\FileSystem\FileSystem;
+use Netric\Account\Account;
 
 /**
  * Class EntityMaintainerServiceTest
@@ -36,6 +37,13 @@ class EntityMaintainerServiceTest extends TestCase
      * @var EntityMaintainerService
      */
     private $maintainerService = null;
+
+    /**
+     * Account tests are running under
+     *
+     * @var Account
+     */
+    private $account = null;
 
     /**
      * Setup test objects and data
