@@ -4,7 +4,7 @@
   "license": "Commercial",
   "homepage": "http://www.netric.com/",
   "autoload": {
-    "psr-4": {"Netric\\": "lib/Netric"}
+    "psr-4": {"Netric\\": "src/Netric"}
   },
   "require": {
     "php": ">=5.4",

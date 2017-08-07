@@ -6,7 +6,7 @@
 	require_once("lib/CAntObject.php");
 	require_once("lib/CAntObjectList.php");
 	require_once("users/user_functions.php");		
-	require_once("email/email_functions.awp");		
+	require_once("email/email_functions.awp");
 	require_once("email/email_functions.awp");
 	// Aereus LIB
 	require_once("lib/aereus.lib.php/facebook/facebook.php");

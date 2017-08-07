@@ -2,6 +2,9 @@
 	if (!defined("APPLICATION_PATH"))
 		require_once("../AntConfig.php");
 
+	// Either make a random cache breaker, or use the parent /inc_jslibs.php version
+	$verHash = (AntConfig::getInstance()->debug) ? rand() : $ver;
+
 	$libs = array(
 		"/lib/js/Ant.js", 
 
@@ -207,7 +210,7 @@
 		}
 		else
 		{
-			echo '<script type="text/javascript" src="'.$lib.'"></script>'."\n";
+			echo '<script type="text/javascript" src="'.$lib.'?v=' . $verHash . '"></script>'."\n";
 		}
 	}
         

@@ -256,14 +256,14 @@ abstract class AbstractDataMapperTests extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        // Create a unit test unique lcok name
+        // Create a unit test unique lock name
         $utestLockName = "utest_app_dm_lock_expired";
 
         // Create a new lock with the default expires
-        $dataMapper->acquireLock($utestLockName, 1);
+        $dataMapper->acquireLock($utestLockName);
 
-        // Pause for 2 milliseconds
-        usleep(2000);
+        // Pause for 1 second to bump to the next second
+        sleep(1);
 
         // A second call should be expired and return true
         $this->assertTrue($dataMapper->acquireLock($utestLockName, 1));

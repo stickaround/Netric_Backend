@@ -7,7 +7,6 @@
  * @package   Definition
  * @copyright Copyright (c) 2003-2011 Aereus Corporation (http://www.aereus.com)
  */
-require_once("settings/settings_functions.php");
 require_once("lib/aereus.lib.php/CCache.php");
 require_once('lib/ServiceLocatorLoader.php');
 

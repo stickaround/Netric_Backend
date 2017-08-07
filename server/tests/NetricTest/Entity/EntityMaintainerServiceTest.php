@@ -8,6 +8,7 @@ use Netric\Entity\EntityMaintainerService;
 use Netric\Log\LogInterface;
 use Netric\Permissions\Dacl;
 use Netric\EntityDefinitionLoader;
+use Netric\FileSystem\FileSystem;
 
 /**
  * Class EntityMaintainerServiceTest
@@ -62,12 +63,14 @@ class EntityMaintainerServiceTest extends TestCase
 
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $entityIndex = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
         $log = $this->getMockBuilder(LogInterface::class)->getMock();
         $this->maintainerService = new EntityMaintainerService(
             $log,
             $entityLoader,
             $entityDefinitionLoader,
-            $entityIndex
+            $entityIndex,
+            $fileSystem
         );
     }
 
@@ -96,6 +99,8 @@ class EntityMaintainerServiceTest extends TestCase
 
         $this->assertArrayHasKey('trimmed', $allStats);
         $this->assertArrayHasKey('purged', $allStats);
+        $this->assertArrayHasKey('deleted_spam', $allStats);
+        $this->assertArrayHasKey('deleted_temp_files', $allStats);
     }
 
     /**
@@ -242,5 +247,43 @@ class EntityMaintainerServiceTest extends TestCase
         // Assert that the message above was deleted but the second one was not
         $this->assertTrue(in_array($entity1->getId(), $deleted));
         $this->assertFalse(in_array($entity2->getId(), $deleted));
+    }
+
+    /**
+     * Make sure we can clean the temp folder
+     */
+    public function testCleanTempFolder()
+    {
+        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
+
+        // Import a file imto a temp folder
+        $testData = "test data";
+        $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", true);
+        $fileSystem->writeFile($file1, $testData);
+        $this->testEntities[] = $file1;
+        $fileId1 = $file1->getId();
+
+        // Get a cutoff
+        $cutoff = new \DateTime();
+
+        // Create a second file with a later time than cutoff so we can make sure it is not purged
+        $file2 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile2.txt", true);
+        $fileSystem->writeFile($file2, $testData);
+        $this->testEntities[] = $file2;
+        $fileId2 = $file2->getId();
+
+        // Bump the ts_created timestamp of the second file to make it later than the cutoff
+        $file2->setValue('ts_entered', ((int) $file2->getValue('ts_entered') + 10));
+        $entityLoader->save($file2);
+
+        // Run cleanTempFolder
+        $deleted = $this->maintainerService->cleanTempFolder($cutoff, "/testCleanTempFolder");
+
+        // Assure that we deleted the first file
+        $this->assertTrue(in_array($fileId1, $deleted));
+
+        // Make sure we did not prematurely delete the second file
+        $this->assertFalse(in_array($fileId2, $deleted));
     }
 }

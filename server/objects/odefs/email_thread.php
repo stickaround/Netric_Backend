@@ -30,17 +30,16 @@ $obj_fields['f_flagged']		= array('title'=>'Flagged', 'type'=>'bool', 'subtype'=
 
 // Timestamps
 $default = array("value"=>"now", "on"=>"update");
-$obj_fields['time_updated']	= array('title'=>'Time Changed', 'type'=>'timestamp', 'subtype'=>'', 'readonly'=>true, 'default'=>$default);
+$obj_fields['time_updated']	= array();
 $default = array("value"=>"now", "on"=>"create");
 $obj_fields['ts_delivered']	= array('title'=>'Time Delivered', 'type'=>'timestamp', 'subtype'=>'', 'readonly'=>true, 'default'=>$default);
 
 // References
-$default = array("value"=>"-3", "on"=>"null");
 $obj_fields['owner_id'] = array(
     'title'=>'User',
     'type'=>'object',
     'subtype'=>'user',
-    'default'=>$default
+    'default'=>array("value"=>"-3", "on"=>"null")
 );
 /*
 $obj_fields['mailbox_id'] = array('title'=>'Groups',

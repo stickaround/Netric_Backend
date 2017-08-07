@@ -3,9 +3,9 @@
 ini_set(
     'include_path',
     ini_get('include_path') . PATH_SEPARATOR .
-    dirname(__FILE__) . '/../../../../lib/ZPush'
+    dirname(__FILE__) . '/../../../../src/ZPush'
 );
 
-require_once dirname(__FILE__) . '/../../../../lib/ZPush/vendor/autoload.php';
+require_once dirname(__FILE__) . '/../../../../src/ZPush/vendor/autoload.php';
 
 define('ZPUSH_CONFIG', dirname(__FILE__) . '/../../../../config/zpush.config.php');

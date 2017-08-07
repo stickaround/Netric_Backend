@@ -5,7 +5,6 @@
 require_once('lib/AntLog.php');
 require_once('lib/AntSystem.php'); 
 require_once('lib/Worker.php'); 
-require_once('lib/CAntFs.awp'); 
 require_once("lib/aereus.lib.php/AnsClient.php");
 
 /**

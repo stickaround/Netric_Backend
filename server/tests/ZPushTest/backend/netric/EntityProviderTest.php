@@ -76,8 +76,6 @@ class EntityProviderTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
-        $this->account = \NetricTest\Bootstrap::getAccount();
-
         // Setup entity datamapper for handling users
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
@@ -401,8 +399,8 @@ class EntityProviderTest extends TestCase
             new \ContentParameters()
         );
 
-        $this->assertEquals($syncMessage->subject, $email->getValue("subject"));
-        $this->assertEquals($syncMessage->from, $email->getValue('sent_from'));
+        $this->assertEquals($email->getValue("subject"), $syncMessage->subject);
+        $this->assertEquals($email->getValue('sent_from'), $syncMessage->from);
     }
 
     public function testSaveSyncObject_Task()

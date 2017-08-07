@@ -10,7 +10,7 @@ require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/ProjectController.php');
 require_once(dirname(__FILE__).'/../../userfiles/file_functions.awp');
-require_once(dirname(__FILE__).'/../../lib/CAntFs.awp');
+require_once(dirname(__FILE__) . '/../../lib/CAntFs.awp');
 require_once(dirname(__FILE__).'/../../project/project_functions.awp');
 
 

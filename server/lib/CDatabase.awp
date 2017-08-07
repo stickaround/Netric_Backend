@@ -1,7 +1,6 @@
 <?php	
 if (!class_exists("AntConfig"))
 	throw new Exception("lib/AntConfig.php required before including CDatabase.awp");
-require_once("settings/settings_functions.php");
 require_once("lib/AntSystem.php");
 
 class CDatabase
@@ -72,27 +71,13 @@ class CDatabase
 	{
 		$this->port = AntConfig::getInstance()->db['port'];
 
-		/* No longer needed because we required server and database name when creating the database class
-		if (!$dbname)
-		{
-			$this->GetAccountDatabase();
-
-			// Make sure that accountId is set
-			if (!$this->accountId)
-				$this->getAccountParams(null, $this->dbname);
-		}
-		else
-		{
-		 */
-			$this->server = $server;
-			$this->dbname = $dbname;
-			$this->user = ($user) ? $user : AntConfig::getInstance()->db['user'];
-			$this->password = ($password) ? $password : AntConfig::getInstance()->db['password'];
-			$dbtype = ($dbtype) ? $dbtype : AntConfig::getInstance()->db['type'];
-		//}
+        $this->server = $server;
+        $this->dbname = $dbname;
+        $this->user = ($user) ? $user : AntConfig::getInstance()->db['user'];
+        $this->password = ($password) ? $password : AntConfig::getInstance()->db['password'];
+        $dbtype = ($dbtype) ? $dbtype : AntConfig::getInstance()->db['type'];
 
 		$this->dbHandle = false;
-		//$this->connect();
 	}
 	
 	function __destruct() 
@@ -192,38 +177,6 @@ class CDatabase
 		return $this->dbname;
 	}
 
-	function GetAccountDatabase()
-	{
-		global $_SESSION, $_SERVER, $_GET, $settings_db_server, 
-				$settings_db_user, $settings_db_password, $settings_db_type, $settings_db_app;
-
-		$this->user = $settings_db_user;
-		$this->password = $settings_db_password;
-
-		if ($_SESSION['DATABASE'])
-		{
-			$this->server = ($_SESSION['DATABASE_SERVER']) ? $_SESSION['DATABASE_SERVER'] : $settings_db_server;
-			$this->dbname = $_SESSION['DATABASE'];
-			$this->accountId = $_SESSION['ACCOUNT_ID'];
-		}
-		else
-		{
-			$ret = $this->getAccountParams();
-
-			if ($ret)
-			{
-				return $true;
-			}
-			else
-			{
-				//return $settings_db_app;
-				$this->server = $settings_db_server;
-				$this->dbname = $settings_db_app;
-				return true;
-			}
-		}
-	}
-
 	/**
 	 * Get parameters by account name
 	 *
@@ -233,8 +186,6 @@ class CDatabase
 	 */
 	private function getAccountParams($account_name=null, $account_db=null)
 	{
-		global $settings_db_server, $settings_db_type;
-
 		if (!$account_name && !$account_db)
 			$account_db = $this->dbname;
 
@@ -247,7 +198,7 @@ class CDatabase
 				$this->dbname = $acctinf['database'];
 				$this->accountId = $acctinf['id'];
 				$svr = $acctinf['server'];
-				$this->server = ($svr) ? $svr : $settings_db_server;
+				$this->server = $svr;
 				return true;
 			}
 			else

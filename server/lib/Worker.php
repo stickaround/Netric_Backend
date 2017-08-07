@@ -65,7 +65,7 @@ class Worker
 
 	function __construct($dbh=null)
 	{
-		global $g_workerFunctions, $settings_version;
+		global $g_workerFunctions;
 
 		$this->dbh = $dbh;
 		$this->sysDbh = new CDatabase(AntConfig::getInstance()->db['syshost'], AntConfig::getInstance()->db['sysdb']);

@@ -32,6 +32,9 @@ class ApplicationTest extends TestCase
         $config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
 
         $this->application = new Netric\Application\Application($config);
+
+        // Keep logs from writing to stderr
+        $this->application->getLog()->setLogWriter(__DIR__ . "/../../tmp/netric.log");
     }
 
     public function testGetConfig()

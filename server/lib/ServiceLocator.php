@@ -10,7 +10,6 @@ require_once("lib/AntLog.php");
 require_once("lib/CDatabase.awp");
 require_once("lib/AntSystem.php");
 require_once("lib/CAntObject.php");
-require_once("settings/settings_functions.php");		
 require_once("lib/aereus.lib.php/CCache.php");
 
 // For datamapper factories

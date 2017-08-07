@@ -4,7 +4,7 @@
  */
 namespace NetricPublic;
 
-require_once(__DIR__ "/../init_application.php");
+require_once(__DIR__ . "/../init_application.php");
 
 use Zend\Loader\StandardAutoloader;
 use RuntimeException;

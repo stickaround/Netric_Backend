@@ -11,9 +11,9 @@
 define('ZPUSH_CONFIG', __DIR__ . '/../config/zpush.config.php');
 
 /*
- * Set execution path relative to lib/ZPush
+ * Set execution path relative to src/ZPush
  */
-chdir(dirname(__DIR__) . "/lib/ZPush");
+chdir(dirname(__DIR__) . "/src/ZPush");
 
 /*
  * Load index of z-push and hand off execution

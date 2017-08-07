@@ -311,7 +311,7 @@
 	var g_xmlCalReminders = null;
 
 	/**
-	 * @depricated
+	 * @deprecated
 	 *
 	function XmlCheckCalReminders()
 	{

@@ -152,14 +152,14 @@ Ant.EntityDefinition.prototype.load = function(forceNoAsync)
 	else
 	{
 		// Setup callback
-		alib.events.listen(xhr, "load", function(evt) { 
+		alib.events.listen(xhr, "load", function(evt) {
 			var data = this.getResponse();
 			evt.data.defCls.fromData(data);
 		}, {defCls:this});
 	}
 
 	// Timed out
-	alib.events.listen(xhr, "error", function(evt) { 
+	alib.events.listen(xhr, "error", function(evt) {
 	}, {defCls:this});
 
 	var ret = xhr.send("/controller/Object/getDefinition", "POST", {obj_type:this.objType});

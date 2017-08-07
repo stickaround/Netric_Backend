@@ -10,7 +10,7 @@
     define('TIMEZONE', 'UTC');
 
     // Defines the base path on the server
-    define('BASE_PATH', dirname(__FILE__). '/../lib/ZPush/');
+    define('BASE_PATH', dirname(__FILE__). '/../src/ZPush/');
 
     // Try to set unlimited timeout
     define('SCRIPT_TIMEOUT', 0);

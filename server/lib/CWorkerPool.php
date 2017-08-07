@@ -20,7 +20,6 @@
 
 ======================================================================================*/
 require_once("lib/CDatabase.awp");
-require_once("settings/settings_functions.php");		
 require_once("lib/aereus.lib.php/CCache.php");
 //require_once("lib/aereus.lib.php/CSessions.php");
 require_once("lib/CWorker.php");

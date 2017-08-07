@@ -49,7 +49,7 @@ class FilesControllerTest extends TestCase
     /**
      * Test files to cleanup
      *
-     * @var ObjType\File[]
+     * @var ObjType\FileEntity[]
      */
     private $testFiles = array();
 
@@ -67,7 +67,7 @@ class FilesControllerTest extends TestCase
         $dm = $sl->get("Entity_DataMapper");
 
         // Get FileSystem
-        $this->fileSystem = $sl->get("Netric/FileSystem/FileSystem");
+        $this->fileSystem = $sl->get(FileSystem::class);
     }
 
     /**
@@ -311,5 +311,52 @@ class FilesControllerTest extends TestCase
         $this->assertTrue(isset($headers['Content-Type']));
         $this->assertTrue(isset($headers['Content-Disposition']));
         $this->assertTrue(isset($headers['Content-Length']));
+    }
+
+    /**
+     * Try downloading a resized image file
+     */
+    public function testGetDownloadAction_ResizedImage()
+    {
+        // Import a test file
+        $fileToImport = __DIR__ . "/../../data/image.png";
+        $importedFile = $this->fileSystem->importFile($fileToImport, "/testdownload");
+        $this->testFiles[] = $importedFile;
+        $this->testFolders[] = $this->fileSystem->openFolder("/testdownload");
+
+        // Set which file to download in the request and that it should be resized to 64 px
+        $req = $this->controller->getRequest();
+        $req->setParam("file_id", $importedFile->getId());
+        $req->setParam("max_width",64);
+        $req->setParam("max_height",64);
+
+        // Now stream the file contents into $ret
+        $response = $this->controller->getDownloadAction();
+
+        // Create a temp file to store the resized image into
+        $tempFilePath = __DIR__ . '/../../data/tmp/files_controller_temp.png';
+        $outputStream = fopen($tempFilePath, 'w');
+
+        // Suppress the output into a file
+        $response->suppressOutput(true);
+        $response->stream($outputStream);
+        $headers = $response->getHeaders();
+        fclose($outputStream);
+
+        // Read the image size from disk
+        $sizes = getimagesize($tempFilePath);
+        //unlink($tempFilePath);
+
+        // Get the newly created resized file entity (will copy $importedFile)
+        $newFileRef = Netric\Entity\Entity::decodeObjRef($headers['X-Entity']);
+        $resizedFile = $this->fileSystem->openFileById($newFileRef['id']);
+        $this->testFiles[] = $resizedFile;
+
+        // Make sure the returned entity is different than the uploaded one
+        $this->assertNotEquals($importedFile->getId(), $resizedFile->getId());
+
+        // Make sure the image is valid and resized
+        $this->assertEquals(64, $sizes[0]);
+        $this->assertEquals(64, $sizes[1]);
     }
 }

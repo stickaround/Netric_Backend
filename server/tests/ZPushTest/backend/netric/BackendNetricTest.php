@@ -99,6 +99,12 @@ class BackendNetricTest extends TestCase
         // Setup the banckend service
         $this->backend = new \BackendNetric();
 
+        // Mock the log so we are not printing to stderr
+        $log = $this->getMockBuilder('\Netric\Log\LogInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->backend->setLog($log);
+
         // Set deviceId so we do not need to utilize the $_GET['device_id'] param
         $this->backend->setDeviceId("UNIT_TEST_FAKE_DEVICE");
 

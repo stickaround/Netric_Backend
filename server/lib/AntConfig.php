@@ -13,8 +13,8 @@
  * @package   Config
  * @copyright Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("Netric/Config/Config.php");
-require_once("Netric/Config/ConfigLoader.php");
+require_once(__DIR__ . "/../src/Netric/Config/Config.php");
+require_once(__DIR__ . "/../src/Netric/Config/ConfigLoader.php");
 
 // Define path to application directory
 defined('APPLICATION_PATH')

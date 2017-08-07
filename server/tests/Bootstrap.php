@@ -5,8 +5,6 @@ namespace NetricTest;
 include("../init_autoloader.php");
 
 use Zend\Loader\StandardAutoloader;
-use RuntimeException;
-use Netric;
 use Netric\Entity\ObjType\UserEntity;
 
 error_reporting(E_ALL | E_STRICT);
@@ -37,7 +35,7 @@ class Bootstrap
         $application = new \Netric\Application\Application($config);
 
         // Set log path
-        $application->getLog()->setLogFilePath(__DIR__ . "/tmp/netric.log");
+        $application->getLog()->setLogWriter(__DIR__ . "/tmp/netric.log");
 
         // Initialize account
         static::$account = $application->getAccount();

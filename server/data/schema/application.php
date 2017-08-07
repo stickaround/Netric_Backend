@@ -116,7 +116,7 @@ return array(
         "PROPERTIES" => array(
             'id' => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
             'process_name' => array('type'=>SchemaProperty::TYPE_CHAR_256),
-            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIME_WITH_TIME_ZONE),
+            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(
@@ -131,8 +131,8 @@ return array(
             'workload' => array('type'=>SchemaProperty::TYPE_BINARY_STRING),
             'f_running' => array('type'=>SchemaProperty::TYPE_BOOL),
             'account_id' => array('type'=>SchemaProperty::TYPE_BIGINT),
-            'ts_run' => array('type'=>SchemaProperty::TYPE_TIME_WITH_TIME_ZONE),
-            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIME_WITH_TIME_ZONE),
+            'ts_run' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
+            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
         ),
         'PRIMARY_KEY' => 'id',
         "INDEXES" => array(

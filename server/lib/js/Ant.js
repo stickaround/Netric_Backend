@@ -617,7 +617,7 @@ Ant.ShowLogin = function()
             alert("There was a problem logging in. Please try again!");
             
         };
-        ajax.exec("/security/wapi.php", args); 
+        ajax.exec("/security/wapi.php", args);
 	}
     
     // element events

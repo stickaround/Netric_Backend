@@ -57,8 +57,6 @@ class Email
 	 */
 	public function send($recipients, $headers, $body)
 	{
-		global $settings_no_pear;
-
 		// Sometimes we do not want to actually send emails
 		if (AntConfig::getInstance()->email['supress'] && !$this->ignoreSupression)
 			return true;

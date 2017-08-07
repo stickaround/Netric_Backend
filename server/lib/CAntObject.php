@@ -13,14 +13,12 @@
  * @package   CAntObject
  * @copyright Copyright (c) 2003-2011 Aereus Corporation (http://www.aereus.com)
  */
-require_once("settings/settings_functions.php");
 require_once("lib/Ant.php");
 require_once("lib/AntLog.php");
 require_once("lib/Email.php");
 require_once("lib/Stats.php");
 require_once("lib/AntObjectDefLoader.php");
 require_once("lib/CRecurrencePattern.php");
-require_once("lib/CAntFs.awp");
 require_once("lib/aereus.lib.php/CCache.php");
 require_once("lib/CAntObjectIndex.php");
 require_once("lib/CAntObjectView.php");
@@ -132,14 +130,14 @@ class CAntObject
 	 * @var int
 	 */
 	public  $owner_id;
-    
+
     /**
      * Stores the save query string
      *
      * @var String
      */
     public $save_query;
-    
+
     /**
      * Flag used to run object index when saving
      *
@@ -225,7 +223,7 @@ class CAntObject
 	 * @var int
 	 */
 	public $skipObjectSyncStatCol = null;
-	
+
 	/**
 	 * Array that stores a record of all changes while object is in memory
 	 *
@@ -249,7 +247,7 @@ class CAntObject
 		global $OBJECT_FIELD_ACLS, $USER, $G_CACHE_ANTOBJTYPES;
 		if (!$user && $USER)
 			$user = $USER;
-			
+
 		$this->object_type = $obj_type;
 		$this->dbh = $dbh;
 		$this->processed_workflows = array();
@@ -278,7 +276,7 @@ class CAntObject
 		$this->object_type_id = $this->def->getId();
 		$this->title = $this->def->title;
 		$this->fSystem = $this->def->system;
-		
+
 		// Set plural title
 		if ("y" == substr($this->title, strlen($this->title)-1, 1))
 		{
@@ -312,12 +310,12 @@ class CAntObject
 		if ((!$this->form_layout_xml || $this->form_layout_xml=='*') && $this->def->getForm("default"))
 			$this->form_layout_xml = $this->def->getForm("default");
 
-		// Convert uname to proper id        
+		// Convert uname to proper id
 		if ($id)
 		{
             $pos = strpos($id, "uname:");
 			if ($pos !== false)
-            {                
+            {
                 $id = $this->openByName($id, false); // Get id but do not load
             }
 		}
@@ -398,9 +396,9 @@ class CAntObject
 
 		if ($id)
 		{
-			// Convert uname to proper id        
+			// Convert uname to proper id
 			if (strpos($id, "uname:") !== false)
-			{                
+			{
 				$obj->openByName($id);
 			}
 			else
@@ -427,13 +425,13 @@ class CAntObject
 
 		if (!$this->id)
 			return false;
-        
+
         $objdata = null;
 
 		if ($cachedata!=null)
 		{
 			$objdata = $cachedata;
-				
+
 			if ($objdata)
 				Stats::increment("antobject.cache.indexhit");
 			else
@@ -503,7 +501,7 @@ class CAntObject
 			{
                 if (is_array($objdata[$fname."_fval"]))
                         $this->fValues[$fname] = $objdata[$fname."_fval"]; // already decoded
-                else 
+                else
                     $this->fValues[$fname] = $this->decodeFval($objdata[$fname."_fval"]); // Put into an associative array
 			}
 		}
@@ -570,7 +568,7 @@ class CAntObject
 	public function loadByPath($path)
 	{
 		$obj = null; // return value
-		
+
 		// If the object does not not have a parent then just return the name
 		if (!$this->def->parentField)
 			return $this->loadByName($path);
@@ -713,7 +711,7 @@ class CAntObject
 			if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi")
 			{
 				$mvals = null;
-                
+
 				if (!$ret[$fname . "_fval"] || ($ret[$fname . "_fval"]=='[]' && $ret[$fname]!='[]' && $ret[$fname]!=''))
 				{
 					$mvals = $this->getForeignKeyDataFromDb($fname, $ret[$fname]);
@@ -751,7 +749,7 @@ class CAntObject
 				}
 
 				// Get object with no subtype - we may want to store this locally eventually
-				// so check to see if the data is not already defined 
+				// so check to see if the data is not already defined
 				if (!$ret[$fname] && $fdef->type == "object" && !$fdef->subtype)
 				{
 					if (!$mvals && $ret[$fname . "_fval"])
@@ -964,7 +962,7 @@ class CAntObject
 
         // need to properly explode the $uname
         $pos = strpos($uname, "uname:");
-        if ($pos !== false) 
+        if ($pos !== false)
 			$uname = substr($uname, strlen("uname:")); // skip over uname
 
 		$olist = new CAntObjectList($this->dbh, $this->object_type, $this->user);
@@ -1010,7 +1008,7 @@ class CAntObject
 		return false;
 	}
 
-    
+
 	/**
 	 * Open an object by the unique id
 	 *
@@ -1020,13 +1018,13 @@ class CAntObject
     public function openById($id, $load=true)
     {
         $dbh = $this->dbh;
-        
+
         if($id > 0)
         {
             $this->id  = $id;
             if ($load)
                 $this->load();
-                
+
             return true;
         }
         else
@@ -1143,7 +1141,7 @@ class CAntObject
 		// ------------------------------------------------------------------
 		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
 		$loader = $sl->get("EntityLoader");
-		
+
 		if ($this->id)
 			$entity = $loader->get($this->object_type, $this->id);
 		else
@@ -1238,8 +1236,8 @@ class CAntObject
 			$changed = false; // Flag to reduce unnecessary saves
 			foreach ($fields as $fname=>$fdef)
 			{
-				if ($fdef->type=="object" && $fdef->subtype=="folder" 
-					&& $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename 
+				if ($fdef->type=="object" && $fdef->subtype=="folder"
+					&& $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
 					&& !$this->getValue($fname) && $this->getValue($fdef->autocreatename))
 				{
 					$antfs = new AntFs($this->dbh, $this->user);
@@ -1277,7 +1275,7 @@ class CAntObject
 		//AntLog::getInstance()->info("In CAntObjects value before saveColVasl: " . $this->getValue("status_id"));
 
 		$data = $this->saveColVals();
-        
+
         // Try to manipulate data to correctly build the sql statement based on custom table definitions
 		if (!$this->def->isCustomTable() && !$data["f_deleted"])
 			$data["f_deleted"] = $dbh->EscapeNumber($this->object_type_id);
@@ -1306,7 +1304,7 @@ class CAntObject
 		else
 		{
 			$copyid = false; // Use this to preserve object id if moving between active or archived object tables (not custom)
-			
+
 			// Clean out old record if it exists in a different partition
 			if ($this->id && !$this->def->isCustomTable())
 			{
@@ -1332,7 +1330,7 @@ class CAntObject
 			$seqName = ($this->def->isCustomTable()) ? $objTable . "_id_seq" : "objects_id_seq";
 			if ($this->id)
 				$query .= "select '".$this->id."' as id;";
-			else 
+			else
 				$query .= "select currval('$seqName') as id;";
 			//echo $query;
             $this->save_query = $query;
@@ -1357,8 +1355,8 @@ class CAntObject
 			// Handle autocreate folders - only has to fire the very first time
 			foreach ($all_fields as $fname=>$fdef)
 			{
-				if ($fdef->type=="object" && $fdef->subtype=="folder" 
-					&& $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename 
+				if ($fdef->type=="object" && $fdef->subtype=="folder"
+					&& $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
 					&& !$this->getValue($fname) && $this->getValue($fdef->autocreatename))
 				{
 					$antfs = new AntFs($dbh, $this->user);
@@ -1412,8 +1410,8 @@ class CAntObject
 				{
 					// Cleanup
 					$dbh->Query("delete from object_associations
-								 where object_id='".$this->id."' and 
-								 type_id='".$this->object_type_id."' 
+								 where object_id='".$this->id."' and
+								 type_id='".$this->object_type_id."'
 								 and field_id='".$fdef->id."'");
 
 					// Set values
@@ -1587,18 +1585,18 @@ class CAntObject
 		{
 			$setVal = "";
             $fVal = "";
-            
+
             if(isset($this->values[$fname]))
                 $fVal = $this->values[$fname];
-			
+
             $new = $fdef->getDefault($fVal, 'create', $this, $this->user);
-			
+
             // Update fvals if we changed a reference
-            if ($new != $val && ($fdef->type=='fkey' || $fdef->type=='fkey_multi' || $fdef->type=='object' || $fdef->type=='object_multi'))            
+            if ($new != $val && ($fdef->type=='fkey' || $fdef->type=='fkey_multi' || $fdef->type=='object' || $fdef->type=='object_multi'))
                 $this->reloadFVals($fname);
-                
+
             $val = $new;
-            
+
 			switch ($fdef->type)
 			{
 			case 'auto': // Calculated fields
@@ -1642,11 +1640,11 @@ class CAntObject
 				break;
 			case 'bool':
 				//$setVal = "'".(($val=='t')?'t':'f')."'";
-                
+
                 $bVal = "f"; // Set the default values to 'f'
                 if($val=="t" || $val=="true") // Check if boolean value is 't' or 'true'
                     $bVal = "t";
-                    
+
                 $setVal = "'$bVal'";
 				break;
 			case 'text':
@@ -1673,7 +1671,7 @@ class CAntObject
 				$ret[$fname . "_fval"] = ($fvals) ? "'".$dbh->Escape(json_encode($fvals))."'" : "'".$dbh->Escape(json_encode(array()))."'";
 			}
 		}
-		return $ret;        
+		return $ret;
 	}
 
 	/**
@@ -1746,7 +1744,7 @@ class CAntObject
 			foreach ($this->changelog as $fname=>$log)
 			{
 				$values[] = array(
-					"fname"=>$fname, 
+					"fname"=>$fname,
 					"val"=>(is_array($log['newvalraw'])) ? implode(",", $log['newvalraw']) : $log['newvalraw'],
 				);
 			}
@@ -1899,7 +1897,7 @@ class CAntObject
 		if ($this->id)
 		{
 			$purge = true;
-            
+
 			if($this->getValue("f_deleted") !='t')
 			{
 				// Keep from commiting changes on save.
@@ -1920,7 +1918,7 @@ class CAntObject
 				// Update sync stats
 				$this->updateObjectSyncStat('d');
 			}
-			
+
 			if ($purge)
 			{
 				// Remove revision history
@@ -1928,7 +1926,7 @@ class CAntObject
 
 				// Delete the record
 				$dbh->Query("delete from ".$this->object_table." where id='".$this->id."'");
-	
+
 				// Remove unique DACL. Of course, we don't want to delete the dacl for all object types, just for this id
 				if ($this->daclIsUnique && $this->dacl)
 					$this->dacl->remove();
@@ -1980,11 +1978,11 @@ class CAntObject
 			}
 
 			$this->removed($purge);
-			
+
 			return true;
 		}
 		else if ($this->requestedId)
-		{ 
+		{
 			// Object has been deleted, clear from index
 			$this->id = $this->requestedId;
 			$this->removeIndex();
@@ -2186,7 +2184,7 @@ class CAntObject
 				$CALID = GetDefaultCalendar($dbh, $uid);
 				$CID = $this->id;
 
-				if ($this->getValue('birthday'))	
+				if ($this->getValue('birthday'))
 				{
 					$reid = ContactAddCalDate($dbh, $uid, "Birthday", 'birthday', $CID, $CALID);
 					$this->setValue("birthday_evnt", $reid);
@@ -2208,7 +2206,7 @@ class CAntObject
 					$this->setValue("anniversary_evnt", '');
 				}
 
-				if ($this->getValue('birthday_spouse'))	
+				if ($this->getValue('birthday_spouse'))
 				{
 					$reid = ContactAddCalDate($dbh, $uid, "Spouse Birthday (".$this->getValue('spouse_name').")", 'birthday_spouse', $CID, $CALID);
 					$this->setValue("birthday_spouse_evnt", $reid);
@@ -2288,12 +2286,12 @@ class CAntObject
 	{
         if($this->skipWorkflow) // if set to true, skip the execution of workflow
             return;
-            
+
 		$dbh = $this->dbh;
 
 		// Now check for workflow
 		require_once("lib/WorkFlow.php");
-		$wflist = new WorkFlow_List($dbh, "object_type='".$this->object_type."' and f_active='t' and f_on_$event='t'");        
+		$wflist = new WorkFlow_List($dbh, "object_type='".$this->object_type."' and f_active='t' and f_on_$event='t'");
 
 		for ($w = 0; $w < $wflist->getNumWorkFlows(); $w++)
 		{
@@ -2386,7 +2384,7 @@ class CAntObject
 		{
 			$oldvalraw = $oldval;
 			$newvalraw = $value;
-            
+
 			if ($field->type == 'fkey' || $field->type == 'object')
 			{
 				$oldval = $this->getForeignValue($name, null, false);
@@ -2442,7 +2440,7 @@ class CAntObject
 		// Do not allow null vales to be stored
 		if ($value == "" || $value==NULL)
 			return false;
-        
+
         $field = $this->def->getField($name);
 
 		// Get old values
@@ -2493,10 +2491,10 @@ class CAntObject
 				$newval = $this->values[$name];
 
 			$this->changelog[$name] = array(
-				"field"=>$name, 
-				"oldval"=>$oldval, 
-				"newval"=>$newval, 
-				"oldvalraw"=>$oldvalraw, 
+				"field"=>$name,
+				"oldval"=>$oldval,
+				"newval"=>$newval,
+				"oldvalraw"=>$oldvalraw,
 				"newvalraw"=>$this->values[$name]
 			);
 		}
@@ -2528,11 +2526,11 @@ class CAntObject
 				if ($buf_arr[$i] != $value)
 					$this->values[$name][] = $buf_arr[$i];
 			}
-            
+
             // Remove the fVals too
             unset($this->fValues[$name][$value]);
             unset($this->delFValues[$name]);
-            
+
             // if MValue is already empty, set it in delFValues so it will be included in the update query
             if(sizeof($this->values[$name]) == 0)
                 $this->delFValues[$name] = 1;
@@ -2547,10 +2545,10 @@ class CAntObject
 				$newval = $this->values[$name];
 
 			$this->changelog[$name] = array(
-				"field"=>$name, 
-				"oldval"=>$oldval, 
-				"newval"=>$newval, 
-				"oldvalraw"=>$oldvalraw, 
+				"field"=>$name,
+				"oldval"=>$oldval,
+				"newval"=>$newval,
+				"oldvalraw"=>$oldvalraw,
 				"newvalraw"=>$this->values[$name]
 			);
 		}
@@ -2565,7 +2563,7 @@ class CAntObject
 	{
 		$this->values[$name] = null;
 		$this->values[$name] = array();
-        
+
         $this->delFValues[$name] = 1;
         unset($this->fValues[$name]);
 	}
@@ -2598,7 +2596,7 @@ class CAntObject
 				continue; // skip processing if we are only working with one field
 
 			$val = $this->getValue($fname);
-            
+
 			$res = $this->loadForeignValLabel($fname, $val);
 			if ($res)
 			{
@@ -2660,7 +2658,7 @@ class CAntObject
                 if (is_numeric($val))
 				    $where .= "id='$val'";
 			}
-            
+
             if(!empty($where))
 			    $query .= "WHERE $where \n";
 
@@ -2668,17 +2666,17 @@ class CAntObject
 			$result = $this->dbh->Query($query);
 			for ($i = 0; $i < $this->dbh->GetNumberRows($result); $i++)
 			{
-				$row = $this->dbh->GetRow($result, $i);                
+				$row = $this->dbh->GetRow($result, $i);
 				$ret[(string)$row['id']] = $row['name'];
 			}
 		}
-        
+
 		if (($field->type == "object" || $field->type == "object_multi") && $val!=null)
 		{
 			$this->fValues[$fname] = array();
 
 			$vals = (is_array($val)) ? $val : array($val);
-            
+
 			foreach ($vals as $valEnt)
 			{
 				$oname = null;
@@ -2710,7 +2708,7 @@ class CAntObject
 				}
 			}
 		}
-        
+
 		return $ret;
 	}
 
@@ -2742,14 +2740,14 @@ class CAntObject
 
 			return $buf;
 		}
-        
+
 		// Unable to find cached value
 		if ($val==null)
 			$val = $this->getValue($name);
 
 		$retStr = "";
 		$ret = false;
-		
+
         // Get specific label for this id(val)
 		$ret = $this->loadForeignValLabel($name, $val);
 
@@ -2766,7 +2764,7 @@ class CAntObject
 
 		/*
 		$field = $this->fields->getField($name);
-		if ($val==null && $field->type != 'fkey_multi' && ($field->type!='object' 
+		if ($val==null && $field->type != 'fkey_multi' && ($field->type!='object'
 			|| ($field->type=='object' && $field->subtype)) && $field->type != 'object_multi')
 			$val = $this->getValue($name);
 
@@ -2777,7 +2775,7 @@ class CAntObject
 
 			if (count($parts) == 1 && $field->subtype)
 				$parts = array($field->subtype, $parts[0]);
-	
+
 			if (count($parts)==2)
 			{
 				$ret = objGetAttribFromName($this->dbh, $parts[0]);
@@ -2849,7 +2847,7 @@ class CAntObject
 	 */
 	public function getValue($name, $getforeign=false)
 	{
-		$fdef = $this->def->getField($name);	
+		$fdef = $this->def->getField($name);
 		if (!$fdef)
 			return null;
 
@@ -2860,7 +2858,7 @@ class CAntObject
 		else
 		{
             $val = null;
-            
+
             if(isset($this->values[$name]))
 			    $val = $this->values[$name];
 		}
@@ -2884,7 +2882,7 @@ class CAntObject
 
 				if ($fdef->type == "date")
 					$val = date("m/d/Y", $val);
-				
+
 				$this->values[$name] = $val;
 			}
 		}
@@ -2990,7 +2988,7 @@ class CAntObject
 		{
 			$cache = CCache::getInstance();
 			$ret = $cache->get($this->dbh->dbname."/object/getname/".$this->object_type."/".$oid);
-			
+
 			if (!$ret && $this->def->getField($this->def->listTitle))
 			{
 				$result = $this->dbh->Query("SELECT " . $this->def->listTitle . " as name FROM " . $this->getObjectTable() . " WHERE id='$oid'");
@@ -3157,12 +3155,12 @@ class CAntObject
 	{
         $default_set = false;
         $this->views_set = true;
-        $meView = array();        
-        $userView = array();        
+        $meView = array();
+        $userView = array();
         $teamView = array();
         $everyoneView = array();
         $this->views = array();
-        
+
 		$dbh = $this->dbh;
 		$user_default = ($this->user) ? $this->user->getSetting("/objects/views/default/".$this->object_type) : null;
 		//$users_default_keys = array();
@@ -3171,7 +3169,7 @@ class CAntObject
 		// --------------------------------------------------------------
 		$query = "select id, name, description, f_default, user_id, filter_key, report_id, team_id, scope
                 from app_object_views where object_type_id='".$this->object_type_id."'";
-                
+
         $whereClause = array();
         $whereClause[] = "(scope = 'everyone')";
 		if ($this->user)
@@ -3180,20 +3178,20 @@ class CAntObject
 				$whereClause[] = "(user_id='" . $this->user->id . "')";
 			if (is_numeric($this->user->teamId))
 				$whereClause[] = "(team_id='" . $this->user->teamId . "')";
-            
+
             if($fromViewManager)
                 $whereClause[] = "(owner_id='" . $this->user->id . "')";
 		}
-		
+
         if(!empty($viewId))
             $whereClause[] = "(id = '$viewId')";
-        
+
         if(sizeof($whereClause) > 0)
             $query .= "and (" . implode("or", $whereClause) . ");";
-        
+
 		$result = $dbh->Query($query);
 		$num = $dbh->GetNumberRows($result);
-        
+
 		for ($i = 0; $i < $num; $i++)
 		{
 			$row = $dbh->GetRow($result, $i);
@@ -3207,15 +3205,15 @@ class CAntObject
             $view->f_system = false;
             $view->objDef = $this;
             $view->loadAttribs($dbh);
-            
+
             if ($user_default)
                 $view->fDefault = ($user_default==$row['id']) ? true : false;
             else
                 $view->fDefault = ($row['f_default'] == 't') ? true : false;
-            
+
             $view->userid = ($row['user_id']) ? $row['user_id'] : null;
             $userObj = new AntUser($this->dbh, $row['user_id']);
-            
+
             switch(strtolower($row['scope']))
             {
                 case "user": // Get User Details
@@ -3228,7 +3226,7 @@ class CAntObject
                     break;
                 case "team": // Get Team Details
                     $userObj = new AntUser($this->dbh, $row['user_id']);
-                    
+
                     // Manually set users team id
                     $userObj->teamId = $row['team_id'];
                     $view->teamName = $userObj->getTeamName();
@@ -3257,23 +3255,30 @@ class CAntObject
 			{
                 if(!empty($viewId) && $viewId!==$systemView->id)
                     continue;
-                
-				$view = new CAntObjectView();
-				$view->id = $systemView->id;
-				$view->name = $systemView->name;
-				$view->description = $systemView->description;
 
-				if ($default_set)
+				$view = new CAntObjectView();
+				$view->id = $systemView->getId();
+				$view->name = $systemView->getName();
+				$view->description = $systemView->getDescription();
+
+                if ($default_set)
 					$view->fDefault = false;
 				else if ($user_default)
                 	$view->fDefault = ($user_default==$view->id) ? true : false;
 				else
-					$view->fDefault = $systemView->fDefault;
+					$view->fDefault = $systemView->isDefault();
+
 				$view->userid = null;
 				$view->objDef = $this;
-				$view->view_fields = $systemView->view_fields;
-				$view->conditions = $systemView->conditions;
-				$view->sort_order = $systemView->sort_order;
+				$view->view_fields = $systemView->getTableColumns();
+				$sysConds = $systemView->getConditions();
+				foreach ($sysConds as $where) {
+                    $view->conditions[] = new CAntObjectCond($where->bLogic, $where->fieldName, $where->operator, $where->value);
+                }
+				$orderBys = $systemView->getOrderBy();
+				foreach ($orderBys as $order) {
+                    $view->sort_order[] = new CAntObjectSort($order->fieldName, $order->direction);
+                }
                 $view->f_system = true;
                 $view->scope = "Everyone";
                 $view->userName = "All Users";
@@ -3281,7 +3286,7 @@ class CAntObject
 
 				if ($view->fDefault)
 					$default_set = true;
-                    
+
                 $everyoneView[] = $view;
 			}
 		}
@@ -3298,7 +3303,7 @@ class CAntObject
 			$view->userid = null;
             $view->f_system = true;
 			$view->objDef = $this;
-            
+
 			$fields = $this->def->getFields();
 			$i = 0;
 			foreach ($fields as $field=>$fdef)
@@ -3311,10 +3316,10 @@ class CAntObject
 				if ($i > 10)
 					break;
 			}
-            
+
             $everyoneView[] = $view;
 		}
-        
+
         $this->views = array_merge($meView, $userView, $teamView, $everyoneView);
 	}
 
@@ -3350,8 +3355,8 @@ class CAntObject
 		case 'text.phone':
 			$val = $this->removeMask($val, $fdef);
 
-			if(strlen($val) == 7)		
-				$val = preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $val);	
+			if(strlen($val) == 7)
+				$val = preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $val);
 			elseif(strlen($val) == 10)
 				$val = preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $val);
 
@@ -3374,7 +3379,7 @@ class CAntObject
 		default:
 			break;
 		}
-	
+
 		return $val;
 	}
 
@@ -3392,12 +3397,12 @@ class CAntObject
 		switch($type_full)
 		{
 		case 'text.phone':
-			$val = preg_replace("/[^0-9]/", "", $val); 	
+			$val = preg_replace("/[^0-9]/", "", $val);
 			break;
 		default:
 			break;
 		}
-	
+
 		return $val;
 	}
 
@@ -3459,7 +3464,7 @@ class CAntObject
 
 		if ($this->object_type_id && $assoc_obj->object_type_id && $assoc_obj->id && $fdef)
 		{
-			// fdef 
+			// fdef
 			if ($fdef->type=='object_multi')
 				$this->setMValue($field, $obj_type.":".$oid);
 			else if ($fdef->type=='object' && !$fdef->subtype)
@@ -3527,7 +3532,7 @@ class CAntObject
 	 * Add a new activity object and associate with this object
 	 *
 	 * Future Theory: subject (what did the action), verb (what the action was), object (what the verb was performed on), notes
-	 * 
+	 *
 	 * @param string $verb The action performed like 'created', 'read', 'updated', 'deleted', 'sent', 'processed', 'completed'
 	 * @param string $name The label for this activity
 	 * @param string $notes Details for the activity
@@ -3739,7 +3744,7 @@ class CAntObject
 			{
 				$retval = true;
 			}
-			
+
 			$this->cache->set($this->dbh->dbname."/object/".$this->object_type."/".$this->id."/hascomments", ($retval)?"t":"f");
 		}
 
@@ -3840,7 +3845,7 @@ class CAntObject
 			if (!$isUnique)
 			{
 				$uname .= "-";
-				$uname .= ($this->id) ? $this->id : uniqid(); 
+				$uname .= ($this->id) ? $this->id : uniqid();
 			}
 		}
 		else if ($this->id)
@@ -3848,7 +3853,7 @@ class CAntObject
 			// uname is required but we are working with objects that do not need unique uri names then just use the id
 			$uname = $this->id;
 		}
-		
+
 
 		return $uname;
 	}
@@ -4051,7 +4056,7 @@ class CAntObject
 
 		// Create object data table
 		// -----------------------------------------------
-		
+
 		// Active
 		$tblName = "object_data_".$this->object_type_id;
 		$dbh->Query("CREATE TABLE $tblName(CHECK(type_id='".$this->object_type_id."' and f_deleted='f')) INHERITS (object_data);");
@@ -4099,7 +4104,7 @@ class CAntObject
 			if ($name == $this->indexType)
 				return $id;
 		}
-		
+
 		return 1; // Default to db which is always type 1
 	}
 
@@ -4128,7 +4133,7 @@ class CAntObject
 			$this->recurrencePattern->fieldDateEnd = $this->def->recurRules['field_date_end'];
 			$this->recurrencePattern->fieldTimeEnd = $this->def->recurRules['field_time_end'];
 		}
-		
+
 		return $this->recurrencePattern;
 	}
 
@@ -4220,7 +4225,7 @@ class CAntObject
 		if ('mobile' == $scope)
 		{
 			$ret = "";
-			
+
 			// Check for custom mobile form
 			if ("" == $ret)
 			{
@@ -4234,7 +4239,7 @@ class CAntObject
 						$ret = $val;
 				}
 			}
-			
+
 			// Get default
 			if ("" == $ret)
 				$ret = $this->def->getForm("mobile");
@@ -4242,7 +4247,7 @@ class CAntObject
 		else if ('infobox' == $scope)
 		{
 			$ret = "";
-			
+
 			// Check for custom mobile form
 			if ("" == $ret)
 			{
@@ -4256,7 +4261,7 @@ class CAntObject
 						$ret = $val;
 				}
 			}
-			
+
 			// Get default
 			if ("" == $ret)
 				$ret = $this->def->getForm("infobox");
@@ -4272,7 +4277,7 @@ class CAntObject
 			}
 		}
 		else
-		{	
+		{
 			$ret = "";
 
 			// Check for user specific form
@@ -4288,7 +4293,7 @@ class CAntObject
 						$ret = $val;
 				}
 			}
-			
+
 			// Check for team specific form
 			if ("" == $ret && $user->teamId)
 			{
@@ -4316,7 +4321,7 @@ class CAntObject
 						$ret = $val;
 				}
 			}
-			
+
 			// Get default
 			if ("" == $ret)
 				$ret =  $this->def->getForm("default");
@@ -4384,7 +4389,7 @@ class CAntObject
 	public function getGroupingEntryByName($fieldName, $nameValue, $parent="")
 	{
 		$dat = $this->getGroupingData($fieldName, array(), array(), 1, $parent, $nameValue);
-		
+
         if(sizeof($dat) > 0)
             return $dat[0];
         else
@@ -4394,7 +4399,7 @@ class CAntObject
 	/**
 	 * Get data for a grouping field (fkey)
 	 *
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
 	 * @param array $conditions Array of conditions used to slice the groupings
 	 * @param string $parent the parent id to query for subvalues
 	 * @param string $nameValue namevalue to query for a single grouping by name
@@ -4404,7 +4409,7 @@ class CAntObject
 	{
 		$data = array();
 		$field = $this->def->getField($fieldName);
-		
+
 		// If field is not found in the new EntityDefinition then no need to continue
 		if(!isset($field)) {
 			return false;
@@ -4446,8 +4451,8 @@ class CAntObject
 						else
 							$tbl = $obj_rfield->subtype;
 
-						$root = objFldHeiarchRoot($dbh, $obj_rfield->fkeyTable['key'], 
-													$obj_rfield->fkeyTable['parent'], 
+						$root = objFldHeiarchRoot($dbh, $obj_rfield->fkeyTable['key'],
+													$obj_rfield->fkeyTable['parent'],
 													$tbl, $filter[$object_field]);
 						if ($root && $root!=$filter[$object_field])
 						{
@@ -4465,7 +4470,7 @@ class CAntObject
 				}
 			}
 		}
-        
+
 		// Filter results to this user of the object is private
 		if ($this->def->isPrivate && $this->user)
 		{
@@ -4500,7 +4505,7 @@ class CAntObject
 			if ($cnd) $cnd .= " and ";
 			$cnd .= "lower(" . $field->fkeyTable['title'] . ")='".strtolower($dbh->Escape($nameValue))."'";
 		}
-        
+
         // Add conditions for advanced filtering
         if(isset($conditions) && is_array($conditions))
         {
@@ -4523,10 +4528,10 @@ class CAntObject
 		for ($i = 0; $i < $num; $i++)
 		{
 			$row = $dbh->GetRow($result, $i);
-            
+
 			$item = array();
 			$viewname = $prefix.str_replace(" ", "_", str_replace("/", "-", $row[$field->fkeyTable['title']]));
-            
+
 			$item['id'] = $row[$field->fkeyTable['key']];
 			$item['uname'] = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
 			$item['title'] = (isset($field->fkeyTable['title'])) ? $row[$field->fkeyTable['title']] : null;
@@ -4537,13 +4542,13 @@ class CAntObject
 			$item['color'] = isset($row['color']) ? $row['color'] : null;
 			$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
             $item['system'] = (isset($row['f_system']) && $row['f_system']=='t') ? true : false;
-            
+
             if(isset($row['type']))
                 $item['type'] = $row['type'];
-                
+
             if(isset($row['mailbox']))
                 $item['mailbox'] = $row['mailbox'];
-            
+
             if(isset($row['sort_order']))
                 $item['sort_order'] = $row['sort_order'];
 
@@ -4561,20 +4566,20 @@ class CAntObject
 
 			$data[] = $item;
 		}
-        
+
 		// Make sure that default groupings exist (if any)
 		if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
 			$ret = $this->verifyDefaultGroupings($fieldName, $data, $nameValue);
 		else
 			$ret = $data;
-            
+
 		return $ret;
 	}
 
 	/**
 	 * Insert a new entry into the table of a grouping field (fkey)
 	 *
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
 	 * @param string $title the required title of this grouping
 	 * @param string $parentId the parent id to query for subvalues
 	 * @param bool $system If true this is a system group that cannot be deleted
@@ -4662,7 +4667,7 @@ class CAntObject
 		{
 			$fields[] = "object_type_id";
             $values[] = "'".$this->object_type_id."'";
-            
+
 			$fields[] = "field_id";
 			$values[] = "'".$field->id."'";
 		}
@@ -4680,19 +4685,19 @@ class CAntObject
 				$values[] = $this->dbh->EscapeNumber($this->user->id);
 			}
 		}
-        
+
         if (isset($args['type']))
         {
             $fields[] = "type";
             $values[] = "'".$this->dbh->Escape($args['type'])."'";
         }
-        
+
         if (isset($args['mailbox']))
         {
             $fields[] = "mailbox";
             $values[] = "'".$this->dbh->Escape($args['mailbox'])."'";
         }
-        
+
         if (isset($args['feed_id']))
         {
             $fields[] = "feed_id";
@@ -4717,10 +4722,10 @@ class CAntObject
 				$item['viewname'] = $title;
 				$item['color'] = $color;
 				$item['system'] = $system;
-                
+
                 if (isset($args['type']))
                     $item['type'] = $args['type'];
-                    
+
                 if (isset($args['mailbox']))
                     $item['mailbox'] = $args['mailbox'];
 
@@ -4737,7 +4742,7 @@ class CAntObject
     /**
      * Get the grouping entry by id
      *
-     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
      * @param int $entryId the id to delete
      * @return bool true on sucess, false on failure
      */
@@ -4750,7 +4755,7 @@ class CAntObject
 
         if (!is_numeric($entryId) || !$field)
             return false;
-        
+
         $ret = array();
         $query = "select * from {$field->subtype} where id='$entryId'";
         $result = $this->dbh->Query($query);
@@ -4762,7 +4767,7 @@ class CAntObject
 
 			$ret = array();
 			$viewname = str_replace(" ", "_", str_replace("/", "-", $row[$field->fkeyTable['title']]));
-            
+
 			$ret['id'] = $row[$field->fkeyTable['key']];
 			$ret['uname'] = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
 			$ret['title'] = $row[$field->fkeyTable['title']];
@@ -4780,7 +4785,7 @@ class CAntObject
 	/**
      * Get the grouping full path by id
      *
-     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
      * @param int $entryId the id to get
      * @return string The full path delimited with '/'
      */
@@ -4793,7 +4798,7 @@ class CAntObject
 
         if (!is_numeric($entryId) || !$field)
             return false;
-        
+
         $ret = "";
         $query = "SELECT * FROM {$field->subtype} WHERE id='$entryId'";
         $result = $this->dbh->Query($query);
@@ -4812,11 +4817,11 @@ class CAntObject
 
         return $ret;
     }
-    
+
 	/**
 	 * Delete and entry from the table of a grouping field (fkey)
 	 *
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
 	 * @param int $entryId the id to delete
 	 * @return bool true on sucess, false on failure
 	 */
@@ -4839,7 +4844,7 @@ class CAntObject
 		if (isset($field->fkeyTable['parent']) && $field->fkeyTable['parent'])
 		{
             $query = "SELECT id FROM ".$field->subtype." WHERE ".$field->fkeyTable['parent']."='$entryId'";
-            
+
 			$result = $this->dbh->Query($query);
 			$num = $this->dbh->GetNumberRows($result);
 			for ($i = 0; $i < $num; $i++)
@@ -4860,7 +4865,7 @@ class CAntObject
 	/**
 	 * Update an entry in the table of a grouping field (fkey)
 	 *
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
 	 * @param int $entryId the id to delete
 	 * @param string $title the new name of the entry id
 	 * @return bool true on sucess, false on failure
@@ -4912,7 +4917,7 @@ class CAntObject
 
 		return true;
 	}
-    
+
     /**
      * Save an object
      *
@@ -4923,7 +4928,7 @@ class CAntObject
      * @return string $formLayoutXml
      */
     public function saveForm($objType, $default, $mobile, $teamId, $userId, $formLayoutXml)
-    {        
+    {
         $otid = objGetAttribFromName($this->dbh, $objType, "id");
         if ($objType)
         {
@@ -4934,7 +4939,7 @@ class CAntObject
                 if(!$this->dbh->GetNumberRows($this->dbh->Query("select id from app_object_type_frm_layouts where type_id='$otid' and scope='default'")))
                 {
                     $this->dbh->Query("insert into app_object_type_frm_layouts(type_id, scope, form_layout_xml) values
-                                    ('$otid', '$scope', '".$this->dbh->Escape($formLayoutXml)."');");    
+                                    ('$otid', '$scope', '".$this->dbh->Escape($formLayoutXml)."');");
                 }
                 else
                 {
@@ -4948,7 +4953,7 @@ class CAntObject
                 if(!$this->dbh->GetNumberRows($this->dbh->Query("select id from app_object_type_frm_layouts where type_id='$otid' and scope='mobile'")))
                 {
                     $this->dbh->Query("insert into app_object_type_frm_layouts(type_id, scope, form_layout_xml) values
-                                    ('$otid', '$scope', '".$this->dbh->Escape($formLayoutXml)."');");    
+                                    ('$otid', '$scope', '".$this->dbh->Escape($formLayoutXml)."');");
                 }
                 else
                 {
@@ -4962,7 +4967,7 @@ class CAntObject
                 if(!$this->dbh->GetNumberRows($this->dbh->Query("select id from app_object_type_frm_layouts where type_id='$otid' and scope='team' and team_id='$teamId'")))
                 {
                     $this->dbh->Query("insert into app_object_type_frm_layouts(type_id, scope, team_id, form_layout_xml) values
-                                    ('$otid', '$scope', '$teamId', '".$this->dbh->Escape($formLayoutXml)."');");    
+                                    ('$otid', '$scope', '$teamId', '".$this->dbh->Escape($formLayoutXml)."');");
                 }
                 else
                 {
@@ -4976,7 +4981,7 @@ class CAntObject
                 if(!$this->dbh->GetNumberRows($this->dbh->Query("select id from app_object_type_frm_layouts where type_id='$otid' and scope='user' and user_id='$userId'")))
                 {
                     $this->dbh->Query("insert into app_object_type_frm_layouts(type_id, scope, user_id, form_layout_xml) values
-                                    ('$otid', '$scope', '$userId', '".$this->dbh->Escape($formLayoutXml)."');");    
+                                    ('$otid', '$scope', '$userId', '".$this->dbh->Escape($formLayoutXml)."');");
                 }
                 else
                 {
@@ -4988,10 +4993,10 @@ class CAntObject
         }
         else
             $ret = "-1";
-            
+
         return $ret;
     }
-    
+
     /**
      * Delete an object
      *
@@ -4999,41 +5004,41 @@ class CAntObject
      * @param string $default
      * @param int $mobile
      * @param int $teamId
-     * @return int $userId     
+     * @return int $userId
      */
     public function deleteForm($objType, $default, $mobile, $teamId, $userId)
-    {        
+    {
         $otid = objGetAttribFromName($this->dbh, $objType, "id");
         if ($objType)
-        {   
+        {
             if($default != null)
                 $this->dbh->Query("delete from app_object_type_frm_layouts where type_id='$otid' and scope='default'");
-            
+
             if($mobile != null)
                 $this->dbh->Query("delete from app_object_type_frm_layouts where type_id='$otid' and scope='mobile'");
-            
+
             if($teamId != null)
                 $this->dbh->Query("delete from app_object_type_frm_layouts where type_id='$otid' and scope='team' and team_id='$teamId'");
-            
+
             if($userId != null)
                 $this->dbh->Query("delete from app_object_type_frm_layouts where type_id='$otid' and scope='user' and user_id='$userId'");
-            
+
             $ret = 1;
         }
         else
             $ret = "-1";
-            
+
         return $ret;
     }
-    
+
     /**
      * Get the forms
      *
-     * @param string $objType     
+     * @param string $objType
      */
     public function getForms($objType)
-    {        
-        $otid = objGetAttribFromName($this->dbh, $objType, "id");        
+    {
+        $otid = objGetAttribFromName($this->dbh, $objType, "id");
         if($objType)
         {
             $result = $this->dbh->Query("select type_id, scope, user_id, team_id from app_object_type_frm_layouts order by id");
@@ -5041,13 +5046,13 @@ class CAntObject
             for ($i = 0; $i < $num; $i++)
             {
                 $row = $this->dbh->GetRow($result, $i);
-                    
+
                 // only return forms with matching type_id
                 if($otid == $row['type_id'])
                 {
-                    if ($ret) 
+                    if ($ret)
                         $ret .= ", ";
-                
+
                     $ret .= "[\"".$row['type_id']."\", \"".$row['scope']."\", \"".$row['team_id']."\", \"".UserGetTeamName($this->dbh, $row['team_id'])."\", \"".$row['user_id']."\"]";
                 }
             }
@@ -5056,20 +5061,20 @@ class CAntObject
         }
         else
             $ret = "-1";
-            
+
         return $ret;
     }
-    
+
     /**
      * Save the view
      *
-     * @param $array $params     
+     * @param $array $params
      */
     public function saveView($params)
     {
         $otid = $this->object_type_id;
         if ($otid)
-        {            
+        {
             $userId = $this->user->id;
             $description = null;
             $filter_key = null;
@@ -5077,28 +5082,28 @@ class CAntObject
             $team_id = null;
             $scope = null;
             $f_default = null;
-            
+
             if(isset($params['user_id']) && !empty($params['user_id']))
                 $userId = $params['user_id'];
-                
+
             if(isset($params['description']))
                 $description = $params['description'];
-                
+
             if(isset($params['filter_key']))
                 $filter_key = $params['filter_key'];
-                
+
             if(isset($params['report_id']))
                 $report_id = $params['report_id'];
-                
+
             if(isset($params['team_id']))
                 $team_id = $params['team_id'];
-                
+
             if(isset($params['scope']))
                 $scope = $params['scope'];
-                
+
             if(isset($params['f_default']))
                 $f_default = $params['f_default'];
-            
+
             // owner_id field is the creator's id.
             // user_id field will determine which user should use the object view
             $query = "insert into app_object_views(name, description, filter_key, user_id, object_type_id, report_id, team_id, scope, f_default, owner_id)
@@ -5107,7 +5112,7 @@ class CAntObject
                                ".$this->dbh->EscapeNumber($team_id).", '".$this->dbh->Escape($scope)."', '".$this->dbh->EscapeBool($f_default)."',
                                " .$this->dbh->EscapeNumber($this->user->id). ");
                         select currval('app_object_views_id_seq') as id;";
-                                        
+
             $result = $this->dbh->Query($query);
             if ($this->dbh->GetNumberRows($result))
                 $view_id = $this->dbh->GetValue($result, 0, "id");
@@ -5164,14 +5169,14 @@ class CAntObject
 
             if (isset($params['vid']) && $params['vid'])
                 $this->dbh->Query("delete from app_object_views where id='".$params['vid']."'");
-                
+
             if(isset($params['f_default']) && $params['f_default']) // Update other views in the same category with default value to no
                     $this->resetDefaultView($view_id, $params);
         }
 
         return $view_id;
     }
-    
+
     /**
      * Sets the default value to no
      *
@@ -5181,7 +5186,7 @@ class CAntObject
     private function resetDefaultView($view_id, $params)
     {
         $whereClause = array();
-        
+
         $whereClause[] = "scope = '" . $this->dbh->Escape($params['scope']) . "'";
         $whereClause[] = "object_type_id=" . $this->dbh->EscapeNumber($this->object_type_id);
         switch(strtolower($params['scope']))
@@ -5200,16 +5205,16 @@ class CAntObject
             default:
                 break;
         }
-        
+
         $query = "update app_object_views set f_default = 'f' where id!=$view_id and " . implode(" and ", $whereClause);
         $this->dbh->Query($query);
     }
-    
+
     /**
      * Save the activity type
      *
-     * @param string $objType     
-     * @param $array $params     
+     * @param string $objType
+     * @param $array $params
      */
     public function saveActivityType($id, $name)
     {
@@ -5227,7 +5232,7 @@ class CAntObject
             else
                 $ret = -1;
         }
-        
+
         return $ret;
     }
 
@@ -5266,7 +5271,7 @@ class CAntObject
 				}
 			}
 			 */
-            
+
 			$data[$fname] = $val;
 		}
 
@@ -5301,7 +5306,7 @@ class CAntObject
 
 
 		/*
-		$results = $this->dbh->Query("SELECT id, revision FROM object_revisions WHERE 
+		$results = $this->dbh->Query("SELECT id, revision FROM object_revisions WHERE
 										object_type_id='".$this->object_type_id."' AND object_id='".$this->id."' ORDER BY revision");
 		$num = $this->dbh->GetNumberRows($results);
 		for ($i = 0; $i < $num; $i++)
@@ -5333,7 +5338,7 @@ class CAntObject
 	/**
 	 * Insert a new entry into the table of a grouping field (fkey)
 	 *
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
      * @param array $groupings A list of current groupings
 	 * @param array $nameValue Spefic Mailbox Name
 	 * @return array of groupings added
@@ -5354,18 +5359,18 @@ class CAntObject
 					if($nameValue !== $checkbox)
 						continue;
 				}
-				
+
 				$found = false;
 				foreach ($groupings as $item)
 				{
-					$parentId = null;                        
+					$parentId = null;
 					if(isset($item['parent_id']))
 						$parentId = $item['parent_id'];
-						
+
 					if($item['title'] == $checkbox && !$parentId && $item['system'])
 						$found = true;
 				}
-				
+
 				if (!$found) // Need to set sort order for default mailboxes - no_check_existing is needed to prevent an infinite loop
 					$groupings[] = $this->addGroupingEntry($fieldName, $checkbox, null, $sortOrder, null, true, array("no_check_existing"=>true));
 			}
@@ -5382,7 +5387,7 @@ class CAntObject
 	 *
 	 * For a working example refer to the CAntObject_EmailMessage example
 	 *
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
 	 * @return array of groupings to add or empty if no none
 	 */
 	public function getVerifyDefaultGroupingsData($fieldName)
@@ -5431,7 +5436,7 @@ class CAntObject
 	{
 		if (!$this->id || !is_numeric($movedTo) || $this->id == $movedTo) // never allow circular reference or blank values
 			return false;
-			
+
 		$this->dbh->Query("INSERT INTO objects_moved(object_type_id, object_id, moved_to) 
 							VALUES('".$this->object_type_id."', '".$this->id."', '$movedTo');");
 
@@ -5443,7 +5448,7 @@ class CAntObject
 	 *
 	 * First checks to see if the object definition has an icon.
 	 *
-	 * If no icon defined in the object definition check /images/icons/objects/{objectname}_16 
+	 * If no icon defined in the object definition check /images/icons/objects/{objectname}_16
 	 * to see if icons exists for this object type.
 	 *
 	 * This function may also be overridden by any object subclasses for custom icon handling
@@ -5474,7 +5479,7 @@ class CAntObject
 				$path .= "/" . (($width) ? $width : 0); // enter as null if height id defined
 			if ($height)
 				$path .= "/" . $height;
-		
+
 			return $path;
 		}
 		else if ($this->getIconName())
@@ -5506,7 +5511,7 @@ class CAntObject
 	{
 		if ($val == null || $val=="")
 			return null;
-		
+
 		return json_decode($val, true);
 		/*
 		$obj = json_decode($val);
@@ -5515,7 +5520,7 @@ class CAntObject
 			return null;
 
 		$ret = array();
-		foreach($obj as $var=>$value) 
+		foreach($obj as $var=>$value)
 		{
 			$ret[$var] = $value;
 		}
@@ -5577,7 +5582,7 @@ class CAntObject
 	{
 		if (!$this->ant)
 			$this->ant = new Ant($this->dbh->accountId);
-		
+
 		return $this->ant->getAccBaseUrl($inclProto);
 	}
 
@@ -5604,13 +5609,13 @@ class CAntObject
 
 		// Do not stat activity because it causes a big hit on performance
 		if ($this->object_type == "activity")
-			return; 
+			return;
 
 		// Add worker job to log the update in the device stat table
 		$data = array(
-			"oid"=>$this->id, 
-			"obj_type"=>$this->object_type, 
-			"field_name"=>$fieldName, 
+			"oid"=>$this->id,
+			"obj_type"=>$this->object_type,
+			"field_name"=>$fieldName,
 			"field_val"=>$fieldVal,
 			"action"=>$action,
 			"debug"=>$this->debug,
@@ -5624,7 +5629,7 @@ class CAntObject
 		{
 			require_once("lib/WorkerMan.php");
 			$wman = new WorkerMan($this->dbh);
-			
+
 			if (AntConfig::getInstance()->obj_sync_lazy_stat)
 				$jobid = $wman->runBackground("lib/object/syncstat", serialize($data));
 			else
@@ -5694,7 +5699,7 @@ class CAntObject
 
 		$this->cache->set($this->dbh->dbname . "/RecentObjects/" . $this->user->id, $recent);
 	}
-    
+
     /**
      * Replaces the special characters with blank
      *
@@ -5703,7 +5708,7 @@ class CAntObject
     public function escapeFilename($filename)
     {
         $filename = preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $filename);
-        
+
         return $filename;
     }
 
