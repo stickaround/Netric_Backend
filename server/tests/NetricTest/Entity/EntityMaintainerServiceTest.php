@@ -257,6 +257,10 @@ class EntityMaintainerServiceTest extends TestCase
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
 
+        // Create test folder
+        $testTempFolder = $fileSystem->openFolder("/testCleanTempFolder", true);
+        $this->testEntities[] = $testTempFolder;
+
         // Import a file imto a temp folder
         $testData = "test data";
         $file1 = $fileSystem->createFile("/testCleanTempFolder", "testTempFile.txt", true);
