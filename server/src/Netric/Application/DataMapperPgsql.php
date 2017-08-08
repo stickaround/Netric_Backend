@@ -622,6 +622,6 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     {
         $sql = "UPDATE worker_process_lock SET ts_entered='now' " .
             "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
-        return $this->dbh->query($sql);
+        return ($this->dbh->query($sql)) ? true : false;
     }
 }
