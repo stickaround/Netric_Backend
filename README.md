@@ -3,6 +3,8 @@ This is the source code for both the client and the server.
 
 ## Running Local Development Server
 
+Note: On some windows installations python is invoked by typing 'py'
+
 1. Install docker native (not docker toolbox)
 
     http://www.docker.com/products/overview

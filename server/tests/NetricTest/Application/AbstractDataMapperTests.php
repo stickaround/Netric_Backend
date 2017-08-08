@@ -262,11 +262,8 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create a new lock with the default expires
         $dataMapper->acquireLock($utestLockName);
 
-        // Pause for 1 second to bump to the next second
-        sleep(1);
-
         // A second call should be expired and return true
-        $this->assertTrue($dataMapper->acquireLock($utestLockName, 1));
+        $this->assertTrue($dataMapper->acquireLock($utestLockName, 0));
 
         // Cleanup
         $dataMapper->releaseLock($utestLockName);
@@ -285,6 +282,23 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // We should be able to lock the process again now that it was released
         $this->assertTrue($dataMapper->acquireLock($utestLockName));
+
+        // Cleanup
+        $dataMapper->releaseLock($utestLockName);
+    }
+
+    public function testExtendLock()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        // Create a unit test unique lock name
+        $utestLockName = "utest_app_dm_lock_extended";
+
+        // Create a new lock with the default expires
+        $dataMapper->acquireLock($utestLockName);
+
+        // Make sure that a call to update the executed time to now succeeds to renew the lock
+        $this->assertTrue($dataMapper->extendLock($utestLockName));
 
         // Cleanup
         $dataMapper->releaseLock($utestLockName);

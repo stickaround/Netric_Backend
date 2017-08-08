@@ -558,10 +558,10 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * Obtain a lock so that only one instance of a process can run at once
      *
      * @param string $uniqueLockName Globally unique lock name
-     * @param int $expiresInMs Expire after defaults to 1 day or 86400000 milliseconds
+     * @param int $expiresInSeconds Expire after defaults to 1 day or 86400 seconds
      * @return bool true if lock obtained, false if the process name is already locked (running)
      */
-    public function acquireLock($uniqueLockName, $expiresInMs=86400000)
+    public function acquireLock($uniqueLockName, $expiresInSeconds=86400)
     {
         if (!$uniqueLockName) {
             throw new \InvalidArgumentException("Unique lock name is required to obtain a lock");
@@ -586,7 +586,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
             $now = time();
 
             // Check to see if the process has expired (run too long)
-            if (($now - $timeEntered) >= $expiresInMs) {
+            if (($now - $timeEntered) >= $expiresInSeconds) {
                 // Update the lock and return true so the caller can start a new process
                 $this->dbh->query(
                     "UPDATE worker_process_lock SET ts_entered='now' WHERE id=" .
@@ -612,4 +612,16 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         $this->dbh->query($sql);
     }
 
+    /**
+     * Refresh the lock to extend the expires timeout
+     *
+     * @param string $uniqueLockName Globally unique lock name
+     * @return bool true on success, false on failure
+     */
+    public function extendLock($uniqueLockName)
+    {
+        $sql = "UPDATE worker_process_lock SET ts_entered='now' " .
+            "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
+        return $this->dbh->query($sql);
+    }
 }

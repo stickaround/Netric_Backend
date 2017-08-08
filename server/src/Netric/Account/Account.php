@@ -239,16 +239,12 @@ class Account
          * since the loader handles making sure there is only one instance
          * of each user object in memory.
          */
-        if ($userId)
-        {
+        if ($userId) {
             $user = $loader->get("user", $userId);
-            if ($user != false)
-            {
+            if ($user != false) {
                 return $user;
             }
-        }
-        elseif ($username) 
-        {
+        } elseif ($username) {
             $query = new EntityQuery("user");
             $query->where('name')->equals($username);
             $index = $this->getServiceManager()->get("EntityQuery_Index");
