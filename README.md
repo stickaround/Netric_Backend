@@ -47,6 +47,7 @@ if you only want to test a specific test type:
 - localhost:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
+
 If using PHPStorm simply start listening on port 9000 for xdebug
 
 ### Remote In

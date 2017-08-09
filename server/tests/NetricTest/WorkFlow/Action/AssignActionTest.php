@@ -255,7 +255,8 @@ class AssignActionTest extends AbstractActionTests
             $hits[$task->getValue('user_id')]++;
         }
 
-        // Make sure probabilities are in acceptable ranges ~9 to each
+        // It should try to somewhat randomly assign to each of the three passed users
+        // Make sure each user got at least 9 entries.
         $this->assertGreaterThan(9, $hits[$user1Id]);
         $this->assertGreaterThan(9, $hits[$user2Id]);
         $this->assertGreaterThan(9, $hits[$user3Id]);

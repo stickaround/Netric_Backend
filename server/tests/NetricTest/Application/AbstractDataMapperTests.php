@@ -35,6 +35,9 @@ abstract class AbstractDataMapperTests extends TestCase
      */
     const TEST_EMAIL_DOMAIN = 'unittest.com';
 
+    /**
+     * Setup each test
+     */
     protected function setUp()
     {
         $configLoader = new ConfigLoader();
@@ -52,6 +55,9 @@ abstract class AbstractDataMapperTests extends TestCase
         }
     }
 
+    /**
+     * Cleanup after each test
+     */
     protected function tearDown()
     {
         $dataMapper = $this->getDataMapper();

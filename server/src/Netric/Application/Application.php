@@ -47,7 +47,6 @@ class Application
 
     /**
      * Application cache
-     * \
      *
      * @var CacheInterface
      */

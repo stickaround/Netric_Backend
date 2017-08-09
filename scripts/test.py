@@ -14,11 +14,6 @@ print("Running server tests...")
 #parser.add_argument('--unit', '-u')
 #rgs = parser.parse_args()
 
-#if args.watch is not None:
-#    # Append any arguments passed from the user
-#    subprocessArgs = ["pywatch", "'docker exec docker_netric_server_1 /netric-tests.sh'", "../lib", "../tests"]
-#else:
-
 # Append any arguments passed from the user
 subprocessArgs = ["docker", "exec", "docker_netric_server_1", "/netric-tests.sh"]
 if sys.argv.count:

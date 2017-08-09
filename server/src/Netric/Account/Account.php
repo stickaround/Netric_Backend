@@ -41,7 +41,7 @@ class Account
     private $application = null;
     
     /**
-     * Handle to service manager for this account
+     * Service manager for this account
      * 
      * @var AccountServiceManagerInterface
      */

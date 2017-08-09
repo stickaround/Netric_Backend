@@ -27,11 +27,11 @@ class AccountController extends Mvc\AbstractAccountController
 
         $modules = array();
 
-        // Loop thgouh each module for the current user
+        // Loop through each module for the current user
         foreach ($userModules as $module) {
             /*
-             * We will only get the module that has xml navigation
-             *  since the xml navigation will be used as the navigation link in the frontend
+             * We will only get the module that has saved custom navigation
+             * otherwise the client will use the module default navigation
              */
             if ($module->getNavigation()) {
                 // Convert the Module object into an array

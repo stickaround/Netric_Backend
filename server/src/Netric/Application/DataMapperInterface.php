@@ -161,6 +161,7 @@ interface DataMapperInterface
      * Refresh the lock to extend the expires timeout
      *
      * @param string $uniqueLockName Globally unique lock name
+     * @return bool true on success, false on failure
      */
     public function extendLock($uniqueLockName);
 }

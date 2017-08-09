@@ -7,7 +7,7 @@ php composer.phar update
 
 cd /var/www/html/bin
 
-# Make sure we can write to log and tmp
+# Make sure we can write to required files
 chown -R www-data:www-data data/log
 chown -R www-data:www-data data/tmp
 
