@@ -29,30 +29,48 @@ class EntityMaintainerWorker extends AbstractWorker
      */
     public function work(Job $job)
     {
-        $workload = $job->getWorkload();
         $application = $this->getApplication();
         $log = $application->getLog();
+        $workerLockUniqueName = 'EntityMaintainerWorker';
 
         $log->info("EntityMaintainerWorker->work: [STARTED]");
 
-        // Make sure we have the required data
-        if (!isset($workload['account_id'])) {
-            $log->error(
-                "EntityMaintainerWorker->work: fields required account_id " .
-                var_export($workload, true)
-            );
-            return false;
-        }
-
-        $log->info("EmailMailboxSyncWorker->work: for {$workload['account_id']}, {$workload['user_id']}");
-
         // Get the account and user we are working with
         $application = $this->getApplication();
-        $account = $application->getAccount($workload['account_id']);
 
-        $maintainerServices = $account->getServiceManager()->get(EntityMaintainerService::class);
+        // Obtain a lock to make sure that only one instance of this worker runs on the system
+        if (!$application->acquireLock($workerLockUniqueName, 86400)) {
+            $log->info("EntityMaintainerWorker->work: could not obtain lock, must already be running or stuck");
+            return true;
+        }
 
-        // TODO: Perform any cleanup here
+        /*
+         * Get all accounts for this application. If we are executing under a specific version
+         * like 'beta' then Application::getAccounts will filter out only the accounts
+         * set to use that version automatically.
+         */
+        $accounts = $application->getAccounts();
+        foreach ($accounts as $account) {
+            // Get the maintainer service for this account
+            $maintainerService = $account->getServiceManager()->get(EntityMaintainerService::class);
+
+            // Log that we have started since processing may take a while
+            $log->info("EntityMaintainerWorker->work: maintaining " . $account->getName());
+
+            // Process all maintenance tasks
+            $processed = $maintainerService->runAll();
+
+            // Log what we did
+            $log->info(
+                "EntityMaintainerWorker->work: done " .
+                $account->getName() .
+                ": " .
+                var_export($processed, true)
+            );
+        }
+
+        // Release the lock so we can run again/elsewhere
+        $application->releaseLock($workerLockUniqueName);
 
         return true;
     }

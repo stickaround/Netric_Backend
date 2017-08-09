@@ -248,7 +248,7 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
 
         // Execute repeatedly and check the probability distribution
-        $hits = [$user1Id=>0, $user2Id=>0, $user3Id=>0];
+        $hits = [$user1Id=>0, $user2Id=>0, $user3Id=>0];:quote_attrs()
         for ($i = 0; $i < 50; $i++)
         {
             $action->execute($workFlowInstance);
