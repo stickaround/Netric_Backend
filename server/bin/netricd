@@ -221,7 +221,7 @@ if (!$pid) {
     pcntl_exec("bin/netric", ["workers/schedule", "--daemon=true"]);
     exit();
 } else {
-    // We add pids to a global array so we can manage as needed
+    // Add the process ID to a global array so we can manage as needed
     $pids[] = $pid;
 }
 
