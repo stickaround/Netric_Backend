@@ -98,23 +98,40 @@ class WorkersController extends Mvc\AbstractController
      */
     public function consoleScheduleAction()
     {
+        $application = $this->getApplication();
+        $config = $application->getConfig();
         $response = new ConsoleResponse();
         $request = $this->getRequest();
 
-        // TODO: handle looping and scheduling actions
+        // Set a lock name to assure we only have one instance of the scheduler running (per version)
+        $uniqueLockName = 'WorkerScheduleAction-' . $config->version;
 
-        while (true) {
-            //echo "\tScheduling tasks...\n";
+        // We only ever want one scheduler running so create a lock that expires in 2 minutes
+        if (!$application->acquireLock($uniqueLockName, 120)) {
+            $response->writeLine("Exiting because another instance is running");
+            return $response;
+        }
+
+        $running = true;
+        while ($running) {
+            // TODO: handle looping and scheduling actions
+
+            // Renew the lock to make sure we do not expire since it times out in 2 minutes
+            $application->extendLock($uniqueLockName);
 
             // Exit if we have received a stop signal
             if ($request->isStopping()) {
-                $response->writeLine("Exiting job scheduler");
-                return $response;
+                // Immediate break the main while loop
+                $running = false;
             } else {
-                sleep(3);
+                // Sleep for a minute before checking for the next scheduled job
+                sleep(60);
             }
         }
 
+        // Make sure we release the lock so that the scheduler can always be run
+        $application->releaseLock($uniqueLockName);
+        $response->writeLine("Exiting job scheduler");
         return $response;
     }
 }
