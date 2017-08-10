@@ -71,6 +71,23 @@ class WorkerService
     }
 
     /**
+     * Add scheduled jobs to the queue and return immediately with a job handle (id)
+     *
+     * Work can be deferred until a later date, this will get work that should execute on
+     * or before the provided date and submit the work as jobs.
+     *
+     * @param \DateTime $timeRunBy Get jobs that should have run on or before
+     *        this date. If the value is null then now in UTC will be used.
+     * @return array("A unique id/handle to the queued job")
+     */
+    public function doScheduledWork(\DateTime $timeRunBy = null)
+    {
+        $jobIds = [];
+        // TODO: Get all scheduled work and process it in the background
+        return $jobIds;
+    }
+
+    /**
      * Schedule a job to run in the background at a future time
      *
      * @param string $workerName The name of the worker to run
@@ -79,7 +96,7 @@ class WorkerService
      */
     public function scheduleWork($workerName, array $jobData, \DateTime $timeStart)
     {
-        // TODO: we have to figure this out
+        // TODO: Save this to worker_scheduled
     }
 
     /**
@@ -87,7 +104,7 @@ class WorkerService
      *
      * @param \DateTime $timeRunBy Get jobs that should have run on or before
      *        this date. If the value is null then now in UTC will be used.
-     * @return array(array('worker_name'=>string, 'jobData'=>array(), 'ts_execute'=\DateTime))
+     * @return array(array('id', 'worker_name'=>string, 'jobData'=>array(), 'ts_execute'=\DateTime))
      */
     public function getScheduledWork(\DateTime $timeRunBy = null)
     {
@@ -97,6 +114,18 @@ class WorkerService
     /**
      * Get all work that is scheduled to be run at a future time
      *
+     * I think these are the tables we need to build:
+     *  worker_background_jobs
+     * - id
+     * - worker_name
+     * - job_data
+     * - job_handle_id
+     *
+     * worker_scheduled
+     * - id
+     * - worker_name
+     * - job_data
+     * - ts_execute
      * @param string $workerName If set only get scheduled work if the name matches
      * @return array(array('worker_name'=>string, 'jobData'=>array(), 'ts_execute'=\DateTime))
      */

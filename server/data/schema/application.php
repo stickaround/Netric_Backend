@@ -124,6 +124,7 @@ return array(
             array('properties'=>array("process_name"), 'type' => 'UNIQUE'),
         ),
     ),
+    // This has been deprecated for gearman
     "worker_job_queue" => array(
         "PROPERTIES" => array(
             'id' => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
