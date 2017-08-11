@@ -105,7 +105,7 @@ class WorkerService
                 $scheduled['worker_name'],
                 $scheduled['job_data']
             );
-            $this->scheduler->markCompleted( $scheduled['id']);
+            $this->scheduler->markCompleted($scheduled['id']);
         }
         return $jobIds;
     }
