@@ -19,7 +19,7 @@ class RecurrencePattern implements ErrorAwareInterface
 	/**
 	 * Type of recurrence applied to this pattern
 	 *
-	 * @var const self::RECUR_*
+	 * @var self::RECUR_*
 	 */
 	private $recurType = null;
 	const RECUR_DAILY = 1;

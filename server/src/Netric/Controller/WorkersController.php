@@ -9,6 +9,7 @@ use Netric\Mvc;
 use Netric\Application\Response\ConsoleResponse;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\WorkerMan\WorkerService;
 
 /**
  * Controller used for interacting with workers from the command line (or API)
@@ -52,7 +53,7 @@ class WorkersController extends Mvc\AbstractController
         $serviceManager = $application->getServiceManager();
 
         // Get the worker service
-        $workerService = $serviceManager->get("Netric/WorkerMan/WorkerService");
+        $workerService = $serviceManager->get(WorkerService::class);
 
         // Process the jobs for an hour
         $timeStart = time();
@@ -103,6 +104,12 @@ class WorkersController extends Mvc\AbstractController
         $response = new ConsoleResponse();
         $request = $this->getRequest();
 
+        // Get application level service locator
+        $serviceManager = $application->getServiceManager();
+
+        // Get the worker service
+        $workerService = $serviceManager->get(WorkerService::class);
+
         // Set a lock name to assure we only have one instance of the scheduler running (per version)
         $uniqueLockName = 'WorkerScheduleAction-' . $config->version;
 
@@ -114,7 +121,8 @@ class WorkersController extends Mvc\AbstractController
 
         $running = true;
         while ($running) {
-            // TODO: handle looping and scheduling actions
+            // Get and run all scheduled jobs
+            $workerService->doScheduledWork();
 
             // Renew the lock to make sure we do not expire since it times out in 2 minutes
             $application->extendLock($uniqueLockName);

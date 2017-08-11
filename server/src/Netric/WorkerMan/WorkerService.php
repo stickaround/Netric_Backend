@@ -71,6 +71,22 @@ class WorkerService
     }
 
     /**
+     * Schedule a job to run in the background at a future time
+     *
+     * @param string $workerName The name of the worker to run
+     * @param array $jobData Any data passed to the worker
+     * @param \DateTime $timeStart The time when the job should start
+     */
+    public function scheduleWork($workerName, array $jobData, \DateTime $timeStart)
+    {
+        $this->scheduler->scheduleAtTime(
+            $workerName,
+            $timeStart,
+            $jobData
+        );
+    }
+
+    /**
      * Add scheduled jobs to the queue and return immediately with a job handle (id)
      *
      * Work can be deferred until a later date, this will get work that should execute on
@@ -83,20 +99,15 @@ class WorkerService
     public function doScheduledWork(\DateTime $timeRunBy = null)
     {
         $jobIds = [];
-        // TODO: Get all scheduled work and process it in the background
+        $scheduledWork = $this->scheduler->getScheduledToRun();
+        foreach ($scheduledWork as $scheduled) {
+            $jobIds[] = $this->doWorkBackground(
+                $scheduled['worker_name'],
+                $scheduled['job_data']
+            );
+            $this->scheduler->markCompleted( $scheduled['id']);
+        }
         return $jobIds;
-    }
-
-    /**
-     * Schedule a job to run in the background at a future time
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Any data passed to the worker
-     * @param \DateTime $timeStart The time when the job should start
-     */
-    public function scheduleWork($workerName, array $jobData, \DateTime $timeStart)
-    {
-        // TODO: Save this to worker_scheduled
     }
 
     /**

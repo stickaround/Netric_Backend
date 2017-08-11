@@ -5,6 +5,8 @@
 namespace NetricTest\Controller;
 
 use Netric;
+use Netric\WorkerMan\WorkerService;
+use Netric\Controller\WorkersController;
 use PHPUnit\Framework\TestCase;
 
 class WorkersControllerTest extends TestCase
@@ -19,26 +21,25 @@ class WorkersControllerTest extends TestCase
     /**
      * Controller instance used for testing
      *
-     * @var \Netric\Controller\WorkersController
+     * @var WorkersController
      */
     protected $controller = null;
 
     /**
-     * Test user
-     *
-     * @var \Netric\Entity\ObjType\UserEntity
+     * Setup the controller for tests
      */
-    private $user = null;
-
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Create the controller
-        $this->controller = new Netric\Controller\WorkersController($this->account->getApplication(), $this->account);
+        $this->controller = new WorkersController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
     }
 
+    /**
+     * Make sure we can process a single job
+     */
     public function testConsoleProcessAction()
     {
         // Set params in the request
@@ -48,7 +49,7 @@ class WorkersControllerTest extends TestCase
 
         // Setup a test job
         $appServiceManager = $this->account->getApplication()->getServiceManager();
-        $workerService = $appServiceManager->get("Netric/WorkerMan/WorkerService");
+        $workerService = $appServiceManager->get(WorkerService::class);
         $workerService->doWorkBackground("Test", array("mystring"=>"test"));
 
         // Run the process action
@@ -59,5 +60,13 @@ class WorkersControllerTest extends TestCase
         );
         $outputBuffer = $ret->getOutputBuffer();
         $this->assertEquals("Processed 1 jobs", trim(array_pop($outputBuffer)));
+    }
+
+    /**
+     * Test processing a scheduled job
+     */
+    public function testConsoleScheduleAction()
+    {
+        $this->markTestIncomplete('Need to do this');
     }
 }

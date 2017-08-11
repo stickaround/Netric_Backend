@@ -55,4 +55,14 @@ class WorkFlowTest extends TestCase
         $service->doWorkBackground("Test", array("mystring"=>"test"));
         $this->assertTrue($service->processJobQueue());
     }
+
+    public function testScheduleWork()
+    {
+        $this->markTestIncomplete('TODO');
+    }
+
+    public function testDoScheduledWork()
+    {
+        $this->markTestIncomplete('TODO');
+    }
 }
