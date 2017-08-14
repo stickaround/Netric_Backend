@@ -175,7 +175,7 @@ interface DataMapperInterface
      * @param DateTime|null $executeDate
      * @return int The id of the queue entry
      */
-    public function addWorkJob($workerName, $jobData, DateTime $executeDate = null);
+    //public function addWorkJob($workerName, $jobData, DateTime $executeDate = null);
 
     /**
      * Get jobs from the queue - right now this only returns jobs that were scheduled
@@ -183,7 +183,7 @@ interface DataMapperInterface
      * @param DateTime|null $executeDate Jobs that are set to execute on or after this day (now if null)
      * @return int ID of the queued job
      */
-    public function getWorkJobs(DateTime $executeDate = null);
+    //public function getWorkJobs(DateTime $executeDate = null);
 
     /**
      * Save an entry that will execute a job at a recurring interval
@@ -195,13 +195,12 @@ interface DataMapperInterface
      * @param DateTime|null $lastRun
      * @return int ID of the recurring entry
      */
-    public function saveWorkRecurring($workerName, $jobData, $unit, $interval, DateTime $lastRun = null);
-
+    //public function saveWorkRecurring($workerName, $jobData, $unit, $interval, DateTime $lastRun = null);
 
     /**
      * Get all recurring work entries
      *
      * @return array()
      */
-    public function getWorkRecurring();
+    //public function getWorkRecurring();
 }

@@ -36,7 +36,6 @@ class SchedulerService
      */
     public function scheduleAtTime($workerName, DateTime $execute, array $data=[])
     {
-        return $this->dataMapper->saveScheduledJob($workerName, $execute, $data);
     }
 
     /**
@@ -49,7 +48,6 @@ class SchedulerService
      */
     public function scheduleAtInterval($workerName, $unit, $interval, array $data=[])
     {
-        return $this->dataMapper->saveScheduledJob($workerName, $execute, $data);
     }
 
     /**
