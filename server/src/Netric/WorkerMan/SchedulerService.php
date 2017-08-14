@@ -2,29 +2,31 @@
 namespace Netric\WorkerMan;
 
 use DateTime;
-use Netric\Application\DataMapperInterface;
+use Netric\WorkerMan\Scheduler\SchedulerDataMapperInterface;
+use Netric\WorkerMan\Scheduler\ScheduledJob;
+use Netric\WorkerMan\Scheduler\RecurringJob;
 
 /**
- * Class SchedulerService will handle scheduling things to happen at a specific time or intervals
+ * Class SchedulerService will handle scheduling jobs to happen at a specific time or intervals
  */
 class SchedulerService
 {
     /**
-     * Define units for intervals
-     */
-    const UNIT_SECOND = 1;
-    const UNIT_MINUTE = 3;
-    const UNIT_HOUR = 5;
-    const UNIT_DAY = 7;
-    const UNIT_WEEK = 9;
-    const UNIT_MONTH = 11;
-
-    /**
-     * Application DataMapper
+     * Scheduler DataMapper
      *
-     * @param DataMapperInterface
+     * @param SchedulerDataMapperInterface
      */
     private $dataMapper = null;
+
+    /**
+     * Setup the WorkerService
+     *
+     * @param SchedulerDataMapperInterface $dataMapper Used to get and save data
+     */
+    public function __construct(SchedulerDataMapperInterface $dataMapper)
+    {
+        $this->dataMapper = $dataMapper;
+    }
 
     /**
      * Schedule a job to run at a specific date and time
@@ -36,30 +38,45 @@ class SchedulerService
      */
     public function scheduleAtTime($workerName, DateTime $execute, array $data=[])
     {
-        return $this->dataMapper->saveScheduledJob($workerName, $execute, $data);
+        $scheduledJob = new ScheduledJob();
+        $scheduledJob->setWorkerName($workerName);
+        $scheduledJob->setExecuteTime($execute);
+        $scheduledJob->setJobData($data);
+        return $this->dataMapper->saveScheduledJob($scheduledJob);
     }
 
     /**
      * Schedule a job to run at a specific interval
      *
      * @param string $workerName
-     * @param int $unit One of self::UNIT_*
-     * @param int $interval How many $units to wait between runs
      * @param array $data Data to pass to the job when run
+     * @param int $unit One of RecurringJob::UNIT_*
+     * @param int $interval How many $units to wait between runs
+     * @return int Recurrence id
      */
-    public function scheduleAtInterval($workerName, $unit, $interval, array $data=[])
+    public function scheduleAtInterval($workerName, array $data=[],  $unit, $interval)
     {
-        return $this->dataMapper->saveScheduledJob($workerName, $execute, $data);
+        $recurringJob = new RecurringJob();
+        $recurringJob->setWorkerName($workerName);
+        $recurringJob->setJobData($data);
+        $recurringJob->setInterval($interval);
+        $recurringJob->setIntervalUnit($unit);
+        return $this->dataMapper->saveRecurringJob($recurringJob);
     }
 
     /**
      * Get scheduled jobs up to now or a specific data if passed
      *
      * @param DateTime|null $toDate If null then 'now' will be used to get jobs that should run now
-     * @return array(array('id'=>Unique id of scheduled task, 'worker_name'=>the worker to run,'job_data'=>array))
+     * @return ScheduledJob[]
      */
     public function getScheduledToRun(DateTime $toDate = null)
     {
+        // TODO: Process recurring jobs to see if we need to make any new instances of scheduled jobs
+        // NOTE: Be sure to set the $recurrenceId of the scheduled job so when it gets marked as
+        //       complete we can update the last executed time of the recurrence
+
+        // TODO: Get all scheduled jobs that should be executed now or before now
     }
 
     /**
@@ -69,5 +86,7 @@ class SchedulerService
      */
     public function markCompleted($scheduledId)
     {
+        // TODO: If the job is part of a recurring series then make the last execute time of the recurrence
+        // TODO: Delete the job from the scheduled queue (or put it into some sort of log)
     }
 }

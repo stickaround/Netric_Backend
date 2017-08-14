@@ -111,41 +111,6 @@ class WorkerService
     }
 
     /**
-     * Get all work that should be run before $timeRunBy
-     *
-     * @param \DateTime $timeRunBy Get jobs that should have run on or before
-     *        this date. If the value is null then now in UTC will be used.
-     * @return array(array('id', 'worker_name'=>string, 'jobData'=>array(), 'ts_execute'=\DateTime))
-     */
-    public function getScheduledWork(\DateTime $timeRunBy = null)
-    {
-        // TODO: Get all scheduled jobs
-    }
-
-    /**
-     * Get all work that is scheduled to be run at a future time
-     *
-     * I think these are the tables we need to build:
-     *  worker_background_jobs
-     * - id
-     * - worker_name
-     * - job_data
-     * - job_handle_id
-     *
-     * worker_scheduled
-     * - id
-     * - worker_name
-     * - job_data
-     * - ts_execute
-     * @param string $workerName If set only get scheduled work if the name matches
-     * @return array(array('worker_name'=>string, 'jobData'=>array(), 'ts_execute'=\DateTime))
-     */
-    public function getScheduledQueue($workerName = '')
-    {
-        // TODO: Get all scheduled jobs
-    }
-
-    /**
      * Process the job queue or wait for new jobs
      *
      * @return bool true on success, false on a failure
