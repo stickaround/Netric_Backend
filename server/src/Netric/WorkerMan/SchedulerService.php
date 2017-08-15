@@ -67,7 +67,8 @@ class SchedulerService
     /**
      * Get scheduled jobs up to now or a specific data if passed
      *
-     * @param DateTime|null $toDate If null then 'now' will be used to get jobs that should run now
+     * @param DateTime|null $toDate If null then 'now' will be used to get jobs
+     *                      that should run now
      * @return ScheduledJob[]
      */
     public function getScheduledToRun(DateTime $toDate = null)
@@ -82,11 +83,25 @@ class SchedulerService
     /**
      * Mark a job as complete which may flag or delete the task depending on the type
      *
-     * @param int $scheduledId
+     * @param ScheduledJob $scheduledJob
      */
-    public function markCompleted($scheduledId)
+    public function markCompleted(ScheduledJob $scheduledJob)
     {
-        // TODO: If the job is part of a recurring series then make the last execute time of the recurrence
+        if (!$scheduledJob->getId()) {
+            throw new \RuntimeException("Cannot mark an unsaved job as complete");
+        }
+
+        /*
+         * If the job is part of a recurring series then make the
+         * last execute time of the recurrence
+         */
+        if ($scheduledJob->getRecurrenceId()) {
+            $recurId = $scheduledJob->getRecurrenceId();
+            $recurringJob = $this->dataMapper->getRecurringJob($recurId);
+            $recurringJob->setTimeLastExecuted((new DateTime()));
+            $this->dataMapper->saveRecurringJob($recurringJob);
+        }
+
         // TODO: Delete the job from the scheduled queue (or put it into some sort of log)
     }
 }

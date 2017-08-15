@@ -1,5 +1,5 @@
 <?php
-namespace NetricTest\WorkerMan;
+namespace NetricTest\WorkerMan\Scheduler;
 
 use Netric\WorkerMan\Scheduler\RecurringJob;
 use PHPUnit\Framework\TestCase;
@@ -8,8 +8,18 @@ use DateTime;
 /**
  * Test the RecurringJob model
  */
-class RecurringJobTest extends TestCase
+class RecurringJobTest extends AbstractScheduledJobTests
 {
+    /**
+     * This is used by the AbstractScheduledJobTests class to run each test
+     *
+     * @return ScheduledJob
+     */
+    protected function createNewJob()
+    {
+        return new RecurringJob();
+    }
+
     /**
      * Verify that we can set and get the worker name
      */

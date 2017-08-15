@@ -1,10 +1,13 @@
 <?php
 namespace NetricTest\WorkerMan;
 
+use Netric\WorkerMan\Scheduler\RecurringJob;
 use Netric\WorkerMan\SchedulerService;
+use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\SchedulerDataMapperInterface;
 use PHPUnit\Framework\TestCase;
 use DateTime;
+use Zend\Validator\Date;
 
 /**
  * Class SchedulerServiceTest
@@ -67,7 +70,12 @@ class SchedulerServiceTest extends TestCase
 
         // Add the job to the queue
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtInterval('Test', $now, ['myvar'=>'testval']);
+        $id = $this->scheduler->scheduleAtInterval(
+            'Test',
+            ['myvar'=>'testval'],
+            RecurringJob::UNIT_HOUR,
+            1
+        );
 
         $this->assertNotNull($id);
     }
@@ -79,6 +87,34 @@ class SchedulerServiceTest extends TestCase
 
     public function testMarkCompleted()
     {
+        // Create a recurring job that the scheduled job will be an instance of
+        $recurringJob = new RecurringJob();
+        $recurringJob->setId(111);
 
+        // Create a scheduled job to return from the mock datamapper
+        $scheduledJob = new ScheduledJob();
+        $scheduledJob->setId(222);
+        $scheduledJob->setWorkerName("Test");
+        $scheduledJob->setExecuteTime((new DateTime()));
+        $scheduledJob->setJobData([]);
+
+        /*
+         * Make the scheduled job an instance of our recurring job so we
+         * can test that marking the scheduled job sets the last execute time of the
+         * recurring job
+         */
+        $scheduledJob->setRecurrenceId($recurringJob->getId());
+
+        // Make the mock datamapper reurn our recurring and scheduled jobs
+        $this->mockDataMapper->method('getRecurringJob')->willReturn($recurringJob);
+        $this->mockDataMapper->method('getScheduledJob')->willReturn($scheduledJob);
+
+        // Set a scheduled job as completed
+        $this->scheduler->markCompleted($scheduledJob);
+
+        // Make sure tat the last execute time of the recurring job was set
+        $this->assertNotNull($recurringJob->getTimeLastExecuted());
+
+        // Make sure the scheduled job was deleted
     }
 }

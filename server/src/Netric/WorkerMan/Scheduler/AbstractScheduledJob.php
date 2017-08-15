@@ -37,6 +37,28 @@ abstract class AbstractScheduledJob
     protected $jobData = [];
 
     /**
+     * Set the unique id of this job
+     *
+     * The ID can either be of a recurrence or a scheduled job
+     *
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Get the unique ID of the scheduled job or recurrence id
+     *
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * Set the worker name for this job
      *
      * @param string $workerName

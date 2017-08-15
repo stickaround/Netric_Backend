@@ -1,5 +1,5 @@
 <?php
-namespace NetricTest\WorkerMan;
+namespace NetricTest\WorkerMan\Scheduler;
 
 use Netric\WorkerMan\Scheduler\AbstractScheduledJob;
 use PHPUnit\Framework\TestCase;
@@ -11,11 +11,28 @@ use DateTime;
 abstract class AbstractScheduledJobTests extends TestCase
 {
     /**
+     * This is required by any extended classes to get an instance of a scheduled job
+     *
+     * @return AbstractScheduledJob
+     */
+    abstract protected function createNewJob();
+
+    /**
+     * Make sure we can set the ID for both scheduled or recurring jobs
+     */
+    public function testSetAndGetId()
+    {
+        $scheduledJob = $this->createNewJob();
+        $scheduledJob->setId(1234);
+        $this->assertEquals(1234, $scheduledJob->getId());
+    }
+
+    /**
      * Verify that we can set and get the worker name
      */
     public function testSetAndGetWorkerName()
     {
-        $scheduledJob = new ScheduledJob();
+        $scheduledJob = $this->createNewJob();
         $scheduledJob->setWorkerName("Test");
         $this->assertEquals("Test", $scheduledJob->getWorkerName());
     }
@@ -26,7 +43,7 @@ abstract class AbstractScheduledJobTests extends TestCase
     public function testSetAndGetJobData()
     {
         $jobData = ['account_id'=>1234, 'user_id'=>4321];
-        $scheduledJob = new ScheduledJob();
+        $scheduledJob = $this->createNewJob();
         $scheduledJob->setJobData($jobData);
         $this->assertEquals($jobData, $scheduledJob->getJobData());
     }
