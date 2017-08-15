@@ -1,10 +1,10 @@
 <?php
 /*
  * Short description for file
- * 
+ *
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * 
+ *
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014 Aereus
  */
@@ -17,29 +17,29 @@ use DateTime;
  *
  * @author Sky Stebnicki
  */
-interface DataMapperInterface 
+interface DataMapperInterface
 {
     /**
      * Get an account by id
-     * 
+     *
      * @param string $id The unique id of the account to get
      * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
     public function getAccountById($id, &$account);
-    
+
     /**
      * Get an account by the unique name
-     * 
+     *
      * @param string $name
      * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
     public function getAccountByName($name, &$account);
-    
+
     /**
      * Get an associative array of account data
-     * 
+     *
      * @param string $version If set the only get accounts that are at a current version
      * @return array
      */
@@ -166,41 +166,4 @@ interface DataMapperInterface
      * @return bool true on success, false on failure
      */
     public function extendLock($uniqueLockName);
-
-    /**
-     * Add an entry to the worker job queue
-     *
-     * @param string $workerName
-     * @param array $jobData
-     * @param DateTime|null $executeDate
-     * @return int The id of the queue entry
-     */
-    //public function addWorkJob($workerName, $jobData, DateTime $executeDate = null);
-
-    /**
-     * Get jobs from the queue - right now this only returns jobs that were scheduled
-     *
-     * @param DateTime|null $executeDate Jobs that are set to execute on or after this day (now if null)
-     * @return int ID of the queued job
-     */
-    //public function getWorkJobs(DateTime $executeDate = null);
-
-    /**
-     * Save an entry that will execute a job at a recurring interval
-     *
-     * @param $workerName
-     * @param $jobData
-     * @param $unit
-     * @param $interval
-     * @param DateTime|null $lastRun
-     * @return int ID of the recurring entry
-     */
-    //public function saveWorkRecurring($workerName, $jobData, $unit, $interval, DateTime $lastRun = null);
-
-    /**
-     * Get all recurring work entries
-     *
-     * @return array()
-     */
-    //public function getWorkRecurring();
 }
