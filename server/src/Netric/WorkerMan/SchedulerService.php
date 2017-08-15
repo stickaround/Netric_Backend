@@ -34,7 +34,7 @@ class SchedulerService
      * @param string $workerName The unique name of the worker to schedule
      * @param DateTime $execute Specific time to execute in the future
      * @param array $data Data to pass to the job when run
-     * @return int Scheduled id
+     * @return int Scheduled job ID
      */
     public function scheduleAtTime($workerName, DateTime $execute, array $data=[])
     {
@@ -52,7 +52,7 @@ class SchedulerService
      * @param array $data Data to pass to the job when run
      * @param int $unit One of RecurringJob::UNIT_*
      * @param int $interval How many $units to wait between runs
-     * @return int Recurrence id
+     * @return int Recurring job id
      */
     public function scheduleAtInterval($workerName, array $data=[],  $unit, $interval)
     {
