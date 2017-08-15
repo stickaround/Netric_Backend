@@ -80,12 +80,37 @@ class SchedulerServiceTest extends TestCase
         $this->assertNotNull($id);
     }
 
+    /**
+     * Test getting all scheduled jobs
+     */
     public function testGetScheduledToRun()
     {
+        // Create a scheduled job to return from the mock datamapper
+        $scheduledJob = new ScheduledJob();
+        $scheduledJob->setId(111);
+        $scheduledJob->setWorkerName("Test");
+        $scheduledJob->setExecuteTime((new DateTime()));
+        $scheduledJob->setJobData([]);
 
+        // Right now the datamapper will only return the one job
+        $this->mockDataMapper->method('getQueuedScheduledJobs')->willReturn([$scheduledJob]);
+
+        // Make sure getScheduledRun called the datamapper correctly
+        $this->assertEquals([$scheduledJob], $this->scheduler->getScheduledToRun());
     }
 
-    public function testMarkCompleted()
+    /**
+     * TODO: Test getting scheduled recurring jobs
+     */
+
+    /**
+     * TODO: Make sure that marking a job as executed excludes it from scheduledToRun
+     */
+
+    /**
+     * Make sure we can set a job (and associated recurrence) as executed
+     */
+    public function testSetJobAsExecuted()
     {
         // Create a recurring job that the scheduled job will be an instance of
         $recurringJob = new RecurringJob();
@@ -105,16 +130,19 @@ class SchedulerServiceTest extends TestCase
          */
         $scheduledJob->setRecurrenceId($recurringJob->getId());
 
-        // Make the mock datamapper reurn our recurring and scheduled jobs
+        // Make the mock datamapper return and save our recurring and scheduled jobs
         $this->mockDataMapper->method('getRecurringJob')->willReturn($recurringJob);
         $this->mockDataMapper->method('getScheduledJob')->willReturn($scheduledJob);
+        $this->mockDataMapper->method('saveRecurringJob')->willReturn($recurringJob->getId());
+        $this->mockDataMapper->method('saveScheduledJob')->willReturn($scheduledJob->getId());
 
         // Set a scheduled job as completed
-        $this->scheduler->markCompleted($scheduledJob);
+        $this->scheduler->setJobAsExecuted($scheduledJob);
 
         // Make sure tat the last execute time of the recurring job was set
-        $this->assertNotNull($recurringJob->getTimeLastExecuted());
+        $this->assertNotNull($recurringJob->getTimeExecuted());
 
-        // Make sure the scheduled job was deleted
+        // Make sure the the execute time of the scheduled job was set
+        $this->assertNotNull($scheduledJob->getTimeExecuted());
     }
 }

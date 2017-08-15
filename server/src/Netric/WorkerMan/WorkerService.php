@@ -105,8 +105,9 @@ class WorkerService
                 $scheduled['worker_name'],
                 $scheduled['job_data']
             );
-            // TODO: We need to figure out how to pop a job from the queue and update recurring
-            $this->scheduler->markRun($scheduled['id']);
+
+            // Make sure we don't try to execute this job again
+            $this->scheduler->setJobAsExecuted($scheduled['id']);
         }
         return $jobIds;
     }

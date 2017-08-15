@@ -1,6 +1,8 @@
 <?php
 namespace Netric\WorkerMan\Scheduler;
 
+use DateTime;
+
 /**
  * Class AbstractScheduledJob
  *
@@ -35,6 +37,16 @@ abstract class AbstractScheduledJob
      * @var array
      */
     protected $jobData = [];
+
+    /**
+     * Date and time when the job was run
+     *
+     * If this is a recurring job then this value represents the
+     * date and time when an instance of the recurrence was last run.
+     *
+     * @var DateTime
+     */
+    protected $timeExecuted = null;
 
     /**
      * Set the unique id of this job
@@ -100,5 +112,25 @@ abstract class AbstractScheduledJob
     public function getJobData()
     {
         return $this->jobData;
+    }
+
+    /**
+     * Set the last date and time when the job or job instance was run
+     *
+     * @param DateTime $timeExecuted
+     */
+    public function setTimeExecuted(DateTime $timeExecuted)
+    {
+        $this->timeExecuted = $timeExecuted;
+    }
+
+    /**
+     * Get the last date and time when the job or job instance was run
+     *
+     * @return DateTime
+     */
+    public function getTimeExecuted()
+    {
+        return $this->timeExecuted;
     }
 }

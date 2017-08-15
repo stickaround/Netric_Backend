@@ -60,15 +60,4 @@ class RecurringJobTest extends AbstractScheduledJobTests
         $recurringJob->setInterval(30);
         $this->assertEquals(30, $recurringJob->getInterval());
     }
-
-    /**
-     * Make sure we can get and set the last time a recurrence instance was executed
-     */
-    public function testSetAndGetTimeLastExecuted()
-    {
-        $scheduledJob = new RecurringJob();
-        $now = new DateTime();
-        $scheduledJob->setTimeLastExecuted($now);
-        $this->assertEquals($now, $scheduledJob->getTimeLastExecuted());
-    }
 }

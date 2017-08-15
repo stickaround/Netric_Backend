@@ -33,13 +33,6 @@ class RecurringJob extends AbstractScheduledJob
     private $interval = 0;
 
     /**
-     * Date and time when an instance of this recurrence was last run
-     *
-     * @var DateTime
-     */
-    private $timeLastExecuted = null;
-
-    /**
      * Set the interval unit (minutes, days, weeks, etc...)
      *
      * @param int $unit A unit constant from self::UNIT_*
@@ -83,26 +76,4 @@ class RecurringJob extends AbstractScheduledJob
     {
         return $this->interval;
     }
-
-    /**
-     * Set the last date and time when an instance of this recurring job was run
-     *
-     * @param DateTime $timeLastExecuted
-     */
-    public function setTimeLastExecuted(DateTime $timeLastExecuted)
-    {
-        $this->timeLastExecuted = $timeLastExecuted;
-    }
-
-
-    /**
-     * Get the last date and time when an instance of this recurring job was run
-     *
-     * @return DateTime
-     */
-    public function getTimeLastExecuted()
-    {
-        return $this->timeLastExecuted;
-    }
-
 }

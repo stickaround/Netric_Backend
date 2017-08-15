@@ -73,19 +73,27 @@ class SchedulerService
      */
     public function getScheduledToRun(DateTime $toDate = null)
     {
-        // TODO: Process recurring jobs to see if we need to make any new instances of scheduled jobs
-        // NOTE: Be sure to set the $recurrenceId of the scheduled job so when it gets marked as
-        //       complete we can update the last executed time of the recurrence
+        // We will default to now if no date was passed
+        if ($toDate === null) {
+            $toDate = new DateTime();
+        }
 
-        // TODO: Get all scheduled jobs that should be executed now or before now
+        // Process recurring jobs to see if we need to make any instances of scheduled jobs
+        $this->createScheduledFromRecurringJobs($toDate);
+
+        // Return all queued jobs - including instances of recurring jobs created above
+        return $this->dataMapper->getQueuedScheduledJobs($toDate);
     }
 
     /**
-     * Mark a job as complete which may flag or delete the task depending on the type
+     * When a job has started we remove it from the queue
+     *
+     * In the case where a scheduled job is part of a recurring series, then
+     * this function will also update the last executed timestamp of the recurring job.
      *
      * @param ScheduledJob $scheduledJob
      */
-    public function markCompleted(ScheduledJob $scheduledJob)
+    public function setJobAsExecuted(ScheduledJob $scheduledJob)
     {
         if (!$scheduledJob->getId()) {
             throw new \RuntimeException("Cannot mark an unsaved job as complete");
@@ -98,10 +106,29 @@ class SchedulerService
         if ($scheduledJob->getRecurrenceId()) {
             $recurId = $scheduledJob->getRecurrenceId();
             $recurringJob = $this->dataMapper->getRecurringJob($recurId);
-            $recurringJob->setTimeLastExecuted((new DateTime()));
+            $recurringJob->setTimeExecuted(new DateTime());
             $this->dataMapper->saveRecurringJob($recurringJob);
         }
 
-        // TODO: Delete the job from the scheduled queue (or put it into some sort of log)
+        // Set the scheduled job as executed which should remove it from any queues for nex time
+        $scheduledJob->setTimeExecuted(new DateTime());
+        $this->dataMapper->saveScheduledJob($scheduledJob);
+    }
+
+    /**
+     * Process recurring jobs and schedule them to run if appropriate
+     *
+     * This will loop through any recurring jobs and if they should be run on
+     * or before the $toDate supplied param, then add a scheduled job to the queue
+     * to be executed.
+     *
+     * @param DateTime $toDate
+     */
+    private function createScheduledFromRecurringJobs(DateTime $toDate)
+    {
+        // Get jobs that have not been executed after $toDate
+        //$recurringJobs = $this->dataMapper->getRecurringJobsNotExecutedAfter($toDate);
+        // Get jobs who have not been executed after
+        // getRecurringJobs
     }
 }
