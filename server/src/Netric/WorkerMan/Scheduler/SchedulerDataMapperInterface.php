@@ -54,6 +54,11 @@ interface SchedulerDataMapperInterface
      */
     public function getRecurringJob($recurringJobId);
 
-    
+
+    /**
+     * Get all recurring jobs
+     *
+     * @return RecurringJob[]
+     */
     public function getAllRecurringJobs();
 }

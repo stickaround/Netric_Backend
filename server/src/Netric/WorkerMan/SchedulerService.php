@@ -99,17 +99,6 @@ class SchedulerService
             throw new \RuntimeException("Cannot mark an unsaved job as complete");
         }
 
-        /*
-         * If the job is part of a recurring series then make the
-         * last execute time of the recurrence
-         */
-        if ($scheduledJob->getRecurrenceId()) {
-            $recurId = $scheduledJob->getRecurrenceId();
-            $recurringJob = $this->dataMapper->getRecurringJob($recurId);
-            $recurringJob->setTimeExecuted(new DateTime());
-            $this->dataMapper->saveRecurringJob($recurringJob);
-        }
-
         // Set the scheduled job as executed which should remove it from any queues for nex time
         $scheduledJob->setTimeExecuted(new DateTime());
         $this->dataMapper->saveScheduledJob($scheduledJob);
@@ -127,8 +116,87 @@ class SchedulerService
     private function createScheduledFromRecurringJobs(DateTime $toDate)
     {
         // Get jobs that have not been executed after $toDate
-        //$recurringJobs = $this->dataMapper->getRecurringJobsNotExecutedAfter($toDate);
-        // Get jobs who have not been executed after
-        // getRecurringJobs
+        $recurringJobs = $this->dataMapper->getAllRecurringJobs();
+
+        // Check each recurrence pattern to see if it is time to schedule a new job
+        foreach ($recurringJobs as $recurringJob) {
+            /*
+             * We only need to check if there are no executed jobs later than $toDate
+             * or no jobs have ever been executed.
+             */
+            if ($recurringJob->getTimeExecuted() === null ||
+                $recurringJob->getTimeExecuted() < $toDate) {
+                // Check to recurrence pattern to see if we should execute
+                $nextExecuteTime = $this->getNextRecurrenceExecuteTime($recurringJob);
+                if ($nextExecuteTime <= $toDate) {
+                    // Create a new scheduled job from the pattern
+                    $scheduledJob = new ScheduledJob();
+                    $scheduledJob->setRecurrenceId($recurringJob->getId());
+                    $scheduledJob->setWorkerName($recurringJob->getWorkerName());
+                    $scheduledJob->setJobData($recurringJob->getJobData());
+                    $scheduledJob->setExecuteTime($nextExecuteTime);
+                    $this->dataMapper->saveScheduledJob($scheduledJob);
+
+                    // Indicate that we have just executed by creating a scheduled job
+                    $recurringJob->setTimeExecuted(new DateTime());
+                    $this->dataMapper->saveRecurringJob($recurringJob);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the date and time when this recurring pattern should execute next
+     *
+     * @param RecurringJob $recurringJob
+     * @return DateTime The exact date and time when the next job should execute
+     */
+    private function getNextRecurrenceExecuteTime(RecurringJob $recurringJob)
+    {
+        $nextExecuteTime = new DateTime();
+
+        $lastExecuted = $recurringJob->getTimeExecuted();
+
+        // If the recurrence has never started, then trigger the job now
+        if ($lastExecuted === null) {
+            return $nextExecuteTime;
+        } else {
+            // Start with the last execution time
+            $nextExecuteTime = $lastExecuted;
+        }
+
+        // Initialize the prefix and postfix for our interval spec string
+        $intervalSpecPrefix = "";
+        $intervalSpecPostfix = "";
+
+        // Construct the prefix and postfix based on the interval unit unit
+        switch ($recurringJob->getIntervalUnit()) {
+            case RecurringJob::UNIT_MINUTE:
+                $intervalSpecPostfix = "M";
+                $intervalSpecPrefix = "PT"; // Period & Time
+                break;
+            case RecurringJob::UNIT_HOUR:
+                $intervalSpecPostfix = "H";
+                $intervalSpecPrefix = "PT"; // Period & Time
+                break;
+            case RecurringJob::UNIT_DAY:
+                $intervalSpecPostfix = "D";
+                $intervalSpecPrefix = "P"; // Period only
+                break;
+            case RecurringJob::UNIT_MONTH:
+                $intervalSpecPostfix = "D";
+                $intervalSpecPrefix = "P"; // Period only
+                break;
+            default:
+                throw new \RuntimeException(
+                    "Interval unit not known: " . $recurringJob->getIntervalUnit()
+                );
+
+        }
+
+        // Add the interval to the last executed date and return it as the next execute time
+        $intervalSpec = $intervalSpecPrefix . $recurringJob->getInterval() . $intervalSpecPostfix;
+        $nextExecuteTime->add(new \DateInterval($intervalSpec));
+        return $nextExecuteTime;
     }
 }

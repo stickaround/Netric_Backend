@@ -131,16 +131,11 @@ class SchedulerServiceTest extends TestCase
         $scheduledJob->setRecurrenceId($recurringJob->getId());
 
         // Make the mock datamapper return and save our recurring and scheduled jobs
-        $this->mockDataMapper->method('getRecurringJob')->willReturn($recurringJob);
         $this->mockDataMapper->method('getScheduledJob')->willReturn($scheduledJob);
-        $this->mockDataMapper->method('saveRecurringJob')->willReturn($recurringJob->getId());
         $this->mockDataMapper->method('saveScheduledJob')->willReturn($scheduledJob->getId());
 
         // Set a scheduled job as completed
         $this->scheduler->setJobAsExecuted($scheduledJob);
-
-        // Make sure tat the last execute time of the recurring job was set
-        $this->assertNotNull($recurringJob->getTimeExecuted());
 
         // Make sure the the execute time of the scheduled job was set
         $this->assertNotNull($scheduledJob->getTimeExecuted());
