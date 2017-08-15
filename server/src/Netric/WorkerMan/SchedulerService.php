@@ -38,6 +38,11 @@ class SchedulerService
      */
     public function scheduleAtTime($workerName, DateTime $execute, array $data=[])
     {
+        $scheduledJob = new ScheduledJob();
+        $scheduledJob->setWorkerName($workerName);
+        $scheduledJob->setExecuteTime($execute);
+        $scheduledJob->setJobData($data);
+        return $this->dataMapper->saveScheduledJob($scheduledJob);
     }
 
     /**
@@ -51,6 +56,12 @@ class SchedulerService
      */
     public function scheduleAtInterval($workerName, array $data=[],  $unit, $interval)
     {
+        $recurringJob = new RecurringJob();
+        $recurringJob->setWorkerName($workerName);
+        $recurringJob->setJobData($data);
+        $recurringJob->setInterval($interval);
+        $recurringJob->setIntervalUnit($unit);
+        return $this->dataMapper->saveRecurringJob($recurringJob);
     }
 
     /**
