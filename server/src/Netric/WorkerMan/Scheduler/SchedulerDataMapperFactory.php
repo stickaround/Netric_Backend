@@ -18,6 +18,6 @@ class SchedulerDataMapperFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $sl)
     {
         $applicationDb = $sl->get('Netric/Db/ApplicationDb');
-        return new PgsqlSchedulerDataMapper($applicationDb);
+        return new SchedulerDataMapperPgsql($applicationDb);
     }
 }

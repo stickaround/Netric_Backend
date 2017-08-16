@@ -18,21 +18,7 @@ class SchedulerServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $config = $sl->get(Config::class);
-
-        $queue = null;
-
-        switch ($config->workers->queue) {
-            case 'gearman':
-                $queue = new Queue\Gearman($config->workers->server);
-                break;
-            default:
-                throw new \RuntimeException("Worker queue not supported: " . $config->workers->queue);
-                break;
-        }
-
-        $schedulerService = $sl->get(SchedulerService::class);
-
-        return new WorkerService($sl->getApplication(), $queue, $schedulerService);
+        $dataMapper = $sl->get('Netric/WorkerMan/Scheduler/SchedulerDataMapper');
+        return new SchedulerService($dataMapper);
     }
 }

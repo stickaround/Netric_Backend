@@ -7,6 +7,7 @@ namespace Netric\WorkerMan;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\WorkerMan\SchedulerService;
 
 /**
  * Handle setting up a worker service
@@ -21,8 +22,21 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        // Get the application data mapper since it implements the SchedulerDataMapperInterface
-        $dataMapper = $sl->get('Netric/WorkerMan/Scheduler/SchedulerDataMapper');
-        return new SchedulerService($dataMapper);
+        $config = $sl->get('Netric\Config\Config');
+
+        $queue = null;
+
+        switch ($config->workers->queue) {
+            case 'gearman':
+                $queue = new Queue\Gearman($config->workers->server);
+                break;
+            default:
+                throw new \RuntimeException("Worker queue not supported: " . $config->workers->queue);
+                break;
+        }
+
+        $schedulerService = $sl->get(SchedulerService::class);
+
+        return new WorkerService($sl->getApplication(), $queue, $schedulerService);
     }
 }

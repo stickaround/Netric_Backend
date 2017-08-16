@@ -4,15 +4,29 @@ namespace Netric\WorkerMan\Scheduler;
 use DateTime;
 use Netric\Db\DbInterface;
 
-class PgsqlSchedulerDataMapper implements SchedulerDataMapperInterface
+/**
+ * A PGSQL DataMapper that stores all the data in the main application database.
+ * Later we may want to move this to an isolated datababse or possibly a different
+ * storage interface. In some cases, if we end up using a queue that supports schedueld
+ * tasks like rabit MQ, then we might not even use a separate datastore (all future talk of course)
+ */
+class SchedulerDataMapperPgsql implements SchedulerDataMapperInterface
 {
+    /**
+     * Database where the tables reside
+     *
+     * @var DbInterface|null
+     */
+    private $db = null;
+
     /**
      * PgsqlSchedulerDataMapper constructor.
      *
-     * @param DbInterface $schedulerDb Handle to database for managing job state
+     * @param DbInterface $applicationDbb Handle to database for managing job state
      */
-    public function __construct(DbInterface $schedulerDb)
+    public function __construct(DbInterface $applicationDbb)
     {
+        $this->db = $applicationDbb;
     }
 
     /**
@@ -23,7 +37,6 @@ class PgsqlSchedulerDataMapper implements SchedulerDataMapperInterface
      */
     public function saveScheduledJob(ScheduledJob $job)
     {
-
     }
 
     /**
@@ -33,7 +46,6 @@ class PgsqlSchedulerDataMapper implements SchedulerDataMapperInterface
      */
     public function getScheduledJob($scheduledJobId)
     {
-
     }
 
     /**
