@@ -35,15 +35,28 @@ class WorkerService
     private $workers = null;
 
     /**
+     * Scheduler service used for managing recurring and scheduled jobs
+     *
+     * @var SchedulerService|null
+     */
+    private $scheduler = null;
+
+    /**
      * Setup the WorkerService
      *
      * @param Application $application Instance of current running netric application
      * @param QueueInterface $queue The Queue used to push jobs and pull info
+     * @param SchedulerService $schedulerService Service for managing recurring and scheduled jobs
      */
-    public function __construct(Application $application, QueueInterface $queue)
+    public function __construct(
+        Application $application,
+        QueueInterface $queue,
+        SchedulerService $schedulerService
+    )
     {
         $this->application = $application;
         $this->jobQueue = $queue;
+        $this->scheduler = $schedulerService;
     }
 
     /**

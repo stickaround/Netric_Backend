@@ -2,6 +2,7 @@
 namespace Netric\WorkerMan;
 
 use DateTime;
+use DateInterval;
 use Netric\WorkerMan\Scheduler\SchedulerDataMapperInterface;
 use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\RecurringJob;
@@ -127,7 +128,7 @@ class SchedulerService
             if ($recurringJob->getTimeExecuted() === null ||
                 $recurringJob->getTimeExecuted() < $toDate) {
                 // Check to recurrence pattern to see if we should execute
-                $nextExecuteTime = $this->getNextRecurrenceExecuteTime($recurringJob);
+                $nextExecuteTime = $recurringJob->getNextExecuteTime();
                 if ($nextExecuteTime <= $toDate) {
                     // Create a new scheduled job from the pattern
                     $scheduledJob = new ScheduledJob();
@@ -145,58 +146,5 @@ class SchedulerService
         }
     }
 
-    /**
-     * Get the date and time when this recurring pattern should execute next
-     *
-     * @param RecurringJob $recurringJob
-     * @return DateTime The exact date and time when the next job should execute
-     */
-    private function getNextRecurrenceExecuteTime(RecurringJob $recurringJob)
-    {
-        $nextExecuteTime = new DateTime();
 
-        $lastExecuted = $recurringJob->getTimeExecuted();
-
-        // If the recurrence has never started, then trigger the job now
-        if ($lastExecuted === null) {
-            return $nextExecuteTime;
-        } else {
-            // Start with the last execution time
-            $nextExecuteTime = $lastExecuted;
-        }
-
-        // Initialize the prefix and postfix for our interval spec string
-        $intervalSpecPrefix = "";
-        $intervalSpecPostfix = "";
-
-        // Construct the prefix and postfix based on the interval unit unit
-        switch ($recurringJob->getIntervalUnit()) {
-            case RecurringJob::UNIT_MINUTE:
-                $intervalSpecPostfix = "M";
-                $intervalSpecPrefix = "PT"; // Period & Time
-                break;
-            case RecurringJob::UNIT_HOUR:
-                $intervalSpecPostfix = "H";
-                $intervalSpecPrefix = "PT"; // Period & Time
-                break;
-            case RecurringJob::UNIT_DAY:
-                $intervalSpecPostfix = "D";
-                $intervalSpecPrefix = "P"; // Period only
-                break;
-            case RecurringJob::UNIT_MONTH:
-                $intervalSpecPostfix = "D";
-                $intervalSpecPrefix = "P"; // Period only
-                break;
-            default:
-                throw new \RuntimeException(
-                    "Interval unit not known: " . $recurringJob->getIntervalUnit()
-                );
-
-        }
-
-        // Add the interval to the last executed date and return it as the next execute time
-        $intervalSpec = $intervalSpecPrefix . $recurringJob->getInterval() . $intervalSpecPostfix;
-        $nextExecuteTime->add(new \DateInterval($intervalSpec));
-        return $nextExecuteTime;
-    }
 }

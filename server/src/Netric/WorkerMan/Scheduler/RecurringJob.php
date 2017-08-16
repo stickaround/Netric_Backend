@@ -2,6 +2,7 @@
 namespace Netric\WorkerMan\Scheduler;
 
 use DateTime;
+use DateInterval;
 
 /**
  * Class RecurringJob represents a recurring patterns for jobs to run at regular intervals
@@ -75,5 +76,58 @@ class RecurringJob extends AbstractScheduledJob
     public function getInterval()
     {
         return $this->interval;
+    }
+
+    /**
+     * Get the date and time when this recurring pattern should execute next
+     *
+     * @return DateTime The exact date and time when the next job should execute
+     */
+    public function getNextExecuteTime()
+    {
+        $nextExecuteTime = new DateTime();
+
+        $lastExecuted = $this->getTimeExecuted();
+
+        // If the recurrence has never started, then trigger the job now
+        if ($lastExecuted === null) {
+            // Set the next execute time to way in the past to assure it runs
+            $nextExecuteTime->sub(new DateInterval("P1Y"));
+            return $nextExecuteTime;
+        } else {
+            // Start with the last execution time
+            $nextExecuteTime = $lastExecuted;
+        }
+
+        // Construct the prefix and postfix based on the interval unit unit
+        switch ($this->getIntervalUnit()) {
+            case RecurringJob::UNIT_MINUTE:
+                $intervalSpecPostfix = "M";
+                $intervalSpecPrefix = "PT"; // Period & Time
+                break;
+            case RecurringJob::UNIT_HOUR:
+                $intervalSpecPostfix = "H";
+                $intervalSpecPrefix = "PT"; // Period & Time
+                break;
+            case RecurringJob::UNIT_DAY:
+                $intervalSpecPostfix = "D";
+                $intervalSpecPrefix = "P"; // Period only
+                break;
+            case RecurringJob::UNIT_MONTH:
+                $intervalSpecPostfix = "D";
+                $intervalSpecPrefix = "P"; // Period only
+                break;
+            default:
+                throw new \RuntimeException(
+                    "Interval unit not known: " . $this->getIntervalUnit()
+                );
+
+        }
+
+        // Add the interval to the last executed date and return it as the next execute time
+        $intervalSpec = $intervalSpecPrefix . $this->getInterval() . $intervalSpecPostfix;
+        $nextExecuteTime->add(new DateInterval($intervalSpec));
+
+        return $nextExecuteTime;
     }
 }

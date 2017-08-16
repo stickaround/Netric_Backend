@@ -4,8 +4,9 @@ namespace NetricTest\WorkerMan;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\Queue;
 use PHPUnit\Framework\TestCase;
+use Netric\WorkerMan\SchedulerService;
 
-class WorkFlowTest extends TestCase
+class WorkerServicetest extends TestCase
 {
     /**
      * Reference to account running for unit tests
@@ -21,39 +22,42 @@ class WorkFlowTest extends TestCase
      */
     protected $actionFactory = null;
 
+    /**
+     * Test instance of a worker service with mocked dependencies
+     *
+     * @var WorkerService
+     */
+    private $workerService = null;
+
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
-    }
 
-    public function testConstruct()
-    {
+        // Mock the scheduler service
+        $schedulerService = $this->getMockBuilder(SchedulerService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $queue = new Queue\InMemory();
-        $service = new WorkerService($this->account->getApplication(), $queue);
-        $this->assertInstanceOf('\Netric\WorkerMan\WorkerService', $service);
+
+        $this->workerService = new WorkerService($this->account->getApplication(), $queue, $schedulerService);
     }
 
     public function testDoWork()
     {
-        $queue = new Queue\InMemory();
-        $service = new WorkerService($this->account->getApplication(), $queue);
-        $this->assertTrue($service->doWork("Test", array("mystring"=>"test")));
+        $this->assertTrue($this->workerService ->doWork("Test", array("mystring"=>"test")));
     }
 
     public function testDoWorkBackground()
     {
-        $queue = new Queue\InMemory();
-        $service = new WorkerService($this->account->getApplication(), $queue);
-        $this->assertEquals("1", $service->doWorkBackground("Test", array("mystring"=>"test")));
+        $this->assertEquals("1", $this->workerService ->doWorkBackground("Test", array("mystring"=>"test")));
     }
 
     public function testProcessJobQueue()
     {
-        $queue = new Queue\InMemory();
-        $service = new WorkerService($this->account->getApplication(), $queue);
-        $service->doWorkBackground("Test", array("mystring"=>"test"));
-        $this->assertTrue($service->processJobQueue());
+        $this->workerService ->doWorkBackground("Test", array("mystring"=>"test"));
+        $this->assertTrue($this->workerService ->processJobQueue());
     }
 
     public function testScheduleWork()

@@ -2,18 +2,21 @@
 namespace NetricTest\WorkerMan\Scheduler;
 
 use Netric\WorkerMan\Scheduler\RecurringJob;
-use PHPUnit\Framework\TestCase;
 use DateTime;
+use DateInterval;
 
 /**
  * Test the RecurringJob model
+ *
+ * We extend AbstractScheduledJobTests to inherit
+ * some default tests.
  */
 class RecurringJobTest extends AbstractScheduledJobTests
 {
     /**
      * This is used by the AbstractScheduledJobTests class to run each test
      *
-     * @return ScheduledJob
+     * @return RecurringJob
      */
     protected function createNewJob()
     {
@@ -59,5 +62,73 @@ class RecurringJobTest extends AbstractScheduledJobTests
         $recurringJob = new RecurringJob();
         $recurringJob->setInterval(30);
         $this->assertEquals(30, $recurringJob->getInterval());
+    }
+
+    /**
+     * Test to make sure next execute time works with a minute unit
+     */
+    public function testGetNextExecuteTime_Minute()
+    {
+        $now = new DateTime();
+
+        $recurringJob = new RecurringJob();
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_MINUTE);
+        $recurringJob->setInterval(2);
+        $recurringJob->setTimeExecuted($now);
+
+        // Next time execute should be two minutes from now
+        $nextExecute = $recurringJob->getNextExecuteTime();
+        $this->assertEquals($now->add(new DateInterval("PT1M")), $nextExecute);
+    }
+
+    /**
+     * Test to make sure next execute time works with a hour unit
+     */
+    public function testGetNextExecuteTime_Hour()
+    {
+        $now = new DateTime();
+
+        $recurringJob = new RecurringJob();
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_HOUR);
+        $recurringJob->setInterval(1);
+        $recurringJob->setTimeExecuted($now);
+
+        // Next time execute should be one hour from now
+        $nextExecute = $recurringJob->getNextExecuteTime();
+        $this->assertEquals($now->add(new DateInterval("PT1H")), $nextExecute);
+    }
+
+    /**
+     * Test to make sure next execute time works with a day unit
+     */
+    public function testGetNextExecuteTime_Day()
+    {
+        $now = new DateTime();
+
+        $recurringJob = new RecurringJob();
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_DAY);
+        $recurringJob->setInterval(4);
+        $recurringJob->setTimeExecuted($now);
+
+        // Next time execute should be four days from now
+        $nextExecute = $recurringJob->getNextExecuteTime();
+        $this->assertEquals($now->add(new DateInterval("P4D")), $nextExecute);
+    }
+
+    /**
+     * Test to make sure next execute time works with a month unit
+     */
+    public function testGetNextExecuteTime_Month()
+    {
+        $now = new DateTime();
+
+        $recurringJob = new RecurringJob();
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_MONTH);
+        $recurringJob->setInterval(2);
+        $recurringJob->setTimeExecuted($now);
+
+        // Next time execute should be two months from now
+        $nextExecute = $recurringJob->getNextExecuteTime();
+        $this->assertEquals($now->add(new DateInterval("P2M")), $nextExecute);
     }
 }

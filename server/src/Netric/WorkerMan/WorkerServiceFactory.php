@@ -21,19 +21,8 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $config = $sl->get('Netric\Config\Config');
-
-        $queue = null;
-
-        switch ($config->workers->queue) {
-            case 'gearman':
-                $queue = new Queue\Gearman($config->workers->server);
-                break;
-            default:
-                throw new \RuntimeException("Worker queue not supported: " . $config->workers->queue);
-                break;
-        }
-
-        return new WorkerService($sl->getApplication(), $queue);
+        // Get the application data mapper since it implements the SchedulerDataMapperInterface
+        $dataMapper = $sl->get('Netric/WorkerMan/Scheduler/SchedulerDataMapper');
+        return new SchedulerService($dataMapper);
     }
 }

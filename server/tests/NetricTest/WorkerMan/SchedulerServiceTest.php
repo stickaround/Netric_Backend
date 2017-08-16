@@ -7,7 +7,7 @@ use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\SchedulerDataMapperInterface;
 use PHPUnit\Framework\TestCase;
 use DateTime;
-use Zend\Validator\Date;
+use DateInterval;
 
 /**
  * Class SchedulerServiceTest
@@ -100,12 +100,94 @@ class SchedulerServiceTest extends TestCase
     }
 
     /**
-     * TODO: Test getting scheduled recurring jobs
+     * Test getting scheduled recurring jobs
      */
+    public function testGetScheduledToRunRecurring_FirstRun()
+    {
+        // Create a scheduled job to return from the mock datamapper
+        $recurringJob = new RecurringJob();
+        $recurringJob->setId(111);
+        $recurringJob->setWorkerName("Test");
+        $recurringJob->setJobData([]);
+
+        // Run job every 1 day
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_DAY);
+        $recurringJob->setInterval(1);
+
+        // Make sure that getAllRecurringJobs returns only the test Job above
+        $this->mockDataMapper->method('getAllRecurringJobs')->willReturn([$recurringJob]);
+
+        /*
+         * The service should analyze the recurring job and create a new
+         * ScheduledJob based on the RecurringJob.
+         */
+        $this->mockDataMapper->expects($this->once())
+            ->method('saveScheduledJob')
+            ->with($this->isInstanceOf(ScheduledJob::class));
+
+        // Run with recurring jobs
+        $this->scheduler->getScheduledToRun();
+    }
 
     /**
-     * TODO: Make sure that marking a job as executed excludes it from scheduledToRun
+     * Test getting scheduled recurring jobs sets last executed time of recurrence
      */
+    public function testGetScheduledToRunRecurringSetsLastExecuted()
+    {
+        // Create a scheduled job to return from the mock datamapper
+        $recurringJob = new RecurringJob();
+        $recurringJob->setId(2);
+        $recurringJob->setWorkerName("Test");
+        $recurringJob->setJobData([]);
+
+        // Run job every 1 day
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_DAY);
+        $recurringJob->setInterval(1);
+
+        // Make sure that getAllRecurringJobs returns only the test Job above
+        $this->mockDataMapper->method('getAllRecurringJobs')->willReturn([$recurringJob]);
+
+        // Run with recurring jobs which should set last executed in the recurrence
+        $this->scheduler->getScheduledToRun();
+
+        $this->assertNotNull($recurringJob->getTimeExecuted());
+    }
+
+    /**
+     * Make sure that recurring jobs will not create duplicates
+     *
+     * Create a recurring job that was last executed through tomorrow so no
+     * new scheduled jobs should be created. In the 'real world' this would
+     * effectively mean that the recurrence was already processed today
+     * or should not be run today due to the recurrence pattern
+     */
+    public function testGetScheduledToRunRecurring_NoOverlap()
+    {
+        $tomorrow = new DateTime();
+        $tomorrow->add(new DateInterval("P1D"));
+
+        $recurringJob = new RecurringJob();
+        $recurringJob->setId(111);
+        $recurringJob->setTimeExecuted($tomorrow);
+        $recurringJob->setWorkerName("Test");
+        $recurringJob->setJobData([]);
+
+        // Run job every 1 day
+        $recurringJob->setIntervalUnit(RecurringJob::UNIT_DAY);
+        $recurringJob->setInterval(1);
+
+        // Make sure that getAllRecurringJobs returns only the test Job above
+        $this->mockDataMapper->method('getAllRecurringJobs')->willReturn([$recurringJob]);
+
+        // A ScheduledJob should not be created since the recurrence was
+        // already executed through tomorrow
+        $this->mockDataMapper->expects($this->never())
+            ->method('saveScheduledJob')
+            ->with($this->anything());
+
+        // Run with recurring jobs
+        $this->scheduler->getScheduledToRun();
+    }
 
     /**
      * Make sure we can set a job (and associated recurrence) as executed
