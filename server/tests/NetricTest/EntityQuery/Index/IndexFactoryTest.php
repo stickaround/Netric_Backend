@@ -2,7 +2,7 @@
 
 namespace NetricTest\EntityQuery\Index;
 
-use Netric;
+use Netric\EntityQuery\Index\Pgsql;
 
 use PHPUnit\Framework\TestCase;
 
@@ -14,12 +14,12 @@ class IndexFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntityQuery\Index\Pgsql',
+            Pgsql::class,
             $sm->get('EntityQuery_Index')
         );
 
         $this->assertInstanceOf(
-            'Netric\EntityQuery\Index\Pgsql',
+            Pgsql::class,
             $sm->get('Netric\EntityQuery\Index\Index')
         );
     }
