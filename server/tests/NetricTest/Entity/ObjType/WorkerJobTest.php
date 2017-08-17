@@ -41,18 +41,4 @@ class WorkerJobTest extends TestCase
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("worker_job");
         $this->assertInstanceOf(WorkerJobEntity::class, $entity);
     }
-
-    /**
-     * This entity will execute a worker before save if ts_execute
-     * is earlier than now and is null
-     */
-    public function testOnBeforeSave()
-    {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("worker_job");
-
-        //$entity->onBeforeSave($this->account->getServiceManager());
-
-        //$this->assertEquals("Fake Customer Name", $entity->getValueName("associations", "customer:123"));
-        $this->markTestSkipped("TODO");
-    }
 }

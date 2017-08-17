@@ -17,6 +17,7 @@ class WorkerJobEntity extends Entity implements EntityInterface
     /*
      * Right now this entity does nothing special, if we wanted to extend the
      * base entity we could easily do so with:
+     *
      * onBeforeSave
      * onAfterSave
      * onBeforeDeleteHard

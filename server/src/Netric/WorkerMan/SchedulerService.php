@@ -2,10 +2,11 @@
 namespace Netric\WorkerMan;
 
 use DateTime;
-use DateInterval;
-use Netric\WorkerMan\Scheduler\SchedulerDataMapperInterface;
+use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityLoader;
 use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\RecurringJob;
+use Netric\Entity\Recurrence\RecurrencePattern;
 
 /**
  * Class SchedulerService will handle scheduling jobs to happen at a specific time or intervals
@@ -13,20 +14,28 @@ use Netric\WorkerMan\Scheduler\RecurringJob;
 class SchedulerService
 {
     /**
-     * Scheduler DataMapper
+     * Entity index to query worker_job(s)
      *
-     * @param SchedulerDataMapperInterface
+     * @param IndexInterface
      */
-    private $dataMapper = null;
+    private $entityIndex = null;
+
+    /**
+     * Loader to load and save entities
+     *
+     * @var EntityLoader|null
+     */
+    private $entityLoader = null;
 
     /**
      * Setup the WorkerService
      *
-     * @param SchedulerDataMapperInterface $dataMapper Used to get and save data
+     * @param IndexInterface $entityIndex To query for worker jobs
      */
-    public function __construct(SchedulerDataMapperInterface $dataMapper)
+    public function __construct(IndexInterface $entityIndex, EntityLoader $entityLoader)
     {
-        $this->dataMapper = $dataMapper;
+        $this->entityIndex = $entityIndex;
+        $this->entityLoader = $entityLoader;
     }
 
     /**
@@ -39,11 +48,11 @@ class SchedulerService
      */
     public function scheduleAtTime($workerName, DateTime $execute, array $data=[])
     {
-        $scheduledJob = new ScheduledJob();
-        $scheduledJob->setWorkerName($workerName);
-        $scheduledJob->setExecuteTime($execute);
-        $scheduledJob->setJobData($data);
-        return $this->dataMapper->saveScheduledJob($scheduledJob);
+        $scheduledJob = $this->entityLoader->create('worker_job');
+        $scheduledJob->setValue('worker_name', $workerName);
+        $scheduledJob->setValue('ts_execute', $execute->getTimestamp());
+        $scheduledJob->seValue('job_data', json_encode($data));
+        return $this->entityLoader->save($scheduledJob);
     }
 
     /**
@@ -51,18 +60,22 @@ class SchedulerService
      *
      * @param string $workerName
      * @param array $data Data to pass to the job when run
-     * @param int $unit One of RecurringJob::UNIT_*
+     * @param int $type One of RecurrencePattern::RECUR_*
      * @param int $interval How many $units to wait between runs
      * @return int Recurring job id
      */
-    public function scheduleAtInterval($workerName, array $data=[],  $unit, $interval)
+    public function scheduleAtInterval($workerName, array $data=[], $type, $interval)
     {
-        $recurringJob = new RecurringJob();
-        $recurringJob->setWorkerName($workerName);
-        $recurringJob->setJobData($data);
-        $recurringJob->setInterval($interval);
-        $recurringJob->setIntervalUnit($unit);
-        return $this->dataMapper->saveRecurringJob($recurringJob);
+        $scheduledJob = $this->entityLoader->create('worker_job');
+        $scheduledJob->setValue('worker_name', $workerName);
+        $scheduledJob->seValue('job_data', json_encode($data));
+
+        // Create a new recurrence pattern from unit and interval
+        $recurrence = new RecurrencePattern();
+        $recurrence->setInterval($interval);
+        $recurrence->setRecurType($type);
+
+        return $this->entityLoader->save($scheduledJob);
     }
 
     /**

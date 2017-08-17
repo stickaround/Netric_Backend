@@ -18,7 +18,9 @@ class SchedulerServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $dataMapper = $sl->get('Netric/WorkerMan/Scheduler/SchedulerDataMapper');
-        return new SchedulerService($dataMapper);
+        $entityIndex = $sl->get('Netric/EntityQuery/Index/Index');
+        $entityLoader = $sl->get("EntityLoader");
+
+        return new SchedulerService($entityIndex, $entityLoader);
     }
 }
