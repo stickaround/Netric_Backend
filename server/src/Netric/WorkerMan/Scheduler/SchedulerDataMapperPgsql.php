@@ -136,6 +136,7 @@ class SchedulerDataMapperPgsql implements SchedulerDataMapperInterface
 
         $sql = "DELETE FROM worker_scheduled_jobs WHERE id=" . $job->getId();
 
+        $this->db->q
         // Run the query and return true on success or false on failure
         return ($this->db->query($sql)) ? true : false;
     }
@@ -163,7 +164,7 @@ class SchedulerDataMapperPgsql implements SchedulerDataMapperInterface
         if (!$toDate) {
             $toDate = new DateTime();
         }
-
+                
         $sql = "SELECT 
                     id, worker_name, job_data, ts_entered, 
                     ts_executed, ts_execute, recurrence_id
@@ -202,7 +203,6 @@ class SchedulerDataMapperPgsql implements SchedulerDataMapperInterface
      */
     public function getRecurringJob($recurringJobId)
     {
-
     }
 
 
@@ -213,7 +213,7 @@ class SchedulerDataMapperPgsql implements SchedulerDataMapperInterface
      */
     public function getAllRecurringJobs()
     {
-
+        // TODO: We need to fill this out
     }
 
     /**
