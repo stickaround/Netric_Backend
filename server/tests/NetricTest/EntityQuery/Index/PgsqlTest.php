@@ -27,14 +27,7 @@ class PgsqlTest extends IndexTestsAbstract
 	 * @return EntityDefinition_DataMapperInterface
 	 */
 	protected function getIndex()
-	{      
-        /*
-        $sm = $this->account->getServiceManager();
-        $dbh = $sm->get("Db");
-        $this->dbh = $dbh;
-		return new \Netric\EntityQuery\Index\Pgsql($this->account, $dbh);
-         * 
-         */
+	{
         $this->dbh = $this->account->getServiceManager()->get("Db");
         return new \Netric\EntityQuery\Index\Pgsql($this->account);
 	}

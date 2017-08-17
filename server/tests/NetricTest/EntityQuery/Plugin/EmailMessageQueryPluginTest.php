@@ -1,12 +1,11 @@
 <?php
 namespace NetricTest\EntityQuery\Plugin;
 
-use Netric;
 use Netric\EntityQuery;
-use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Plugin;
 use PHPUnit\Framework\TestCase;
 use Netric\WorkerMan;
+use Netric\WorkerMan\SchedulerService;
 
 /**
  * @group integration
@@ -21,20 +20,6 @@ class EmailMessageQueryPluginTest extends TestCase
     protected $account = null;
 
     /**
-     * Test entities to delete
-     *
-     * @var EntityInterface[]
-     */
-    private $testEntities = array();
-
-    /**
-     * Test groupings to delete
-     *
-     * @var array(array('obj_type', 'field', 'grouping_id'))
-     */
-    private $testGroupings = array();
-
-    /**
      * Setup each test
      */
     protected function setUp()
@@ -44,9 +29,14 @@ class EmailMessageQueryPluginTest extends TestCase
 
     public function testOnBeforeQuery()
     {
+        // Mock the scheduler service
+        $schedulerService = $this->getMockBuilder(SchedulerService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         // Setup an in-memory worker queue for testing
         $queue = new WorkerMan\Queue\InMemory();
-        $service = new WorkerMan\WorkerService($this->account->getApplication(), $queue);
+        $service = new WorkerMan\WorkerService($this->account->getApplication(), $queue, $schedulerService);
 
         // Create plugin
         $plugin = new Plugin\EmailMessageQueryPlugin();

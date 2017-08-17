@@ -14,31 +14,11 @@ use Netric\Entity\EntityInterface;
  */
 class WorkerJobEntity extends Entity implements EntityInterface
 {
-    /**
-     * Callback function used for derived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
+    /*
+     * Right now this entity does nothing special, if we wanted to extend the
+     * base entity we could easily do so with:
+     * onBeforeSave
+     * onAfterSave
+     * onBeforeDeleteHard
      */
-    public function onBeforeSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Callback function used for derived subclasses
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onAfterSave(AccountServiceManagerInterface $sm)
-    {
-    }
-
-    /**
-     * Called right before the entity is purged (hard delete)
-     *
-     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
-     */
-    public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
-    {
-
-    }
 }

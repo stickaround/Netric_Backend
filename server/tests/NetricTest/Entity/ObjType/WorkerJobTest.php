@@ -3,7 +3,7 @@ namespace NetricTest\Entity\ObjType;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\ObjType\ActivityEntity;
+use Netric\Entity\ObjType\WorkerJobEntity;
 use Netric\Account\Account;
 
 class WorkerJobTest extends TestCase
@@ -39,7 +39,7 @@ class WorkerJobTest extends TestCase
     {
         $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("worker_job");
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("worker_job");
-        $this->assertInstanceOf(ActivityEntity::class, $entity);
+        $this->assertInstanceOf(WorkerJobEntity::class, $entity);
     }
 
     /**
