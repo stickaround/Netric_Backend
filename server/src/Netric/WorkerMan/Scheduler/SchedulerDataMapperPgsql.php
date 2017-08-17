@@ -192,7 +192,6 @@ class SchedulerDataMapperPgsql implements SchedulerDataMapperInterface
      */
     public function saveRecurringJob(RecurringJob $recurringJob)
     {
-
     }
 
     /**

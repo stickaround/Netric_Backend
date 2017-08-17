@@ -25,7 +25,7 @@ return array(
         ),
         'ts_entered' => array(
             'title'=>'Date', '
-        type'=>'timestamp',
+            type'=>'timestamp',
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array(

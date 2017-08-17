@@ -42,7 +42,7 @@ return array(
         ),
         'user_id' => array(
             'title'=>'User', '
-        type'=>'object',
+            type'=>'object',
             'subtype'=>'user',
             'readonly'=>true,
             'default'=>array("value"=>"-3", "on"=>"null")
