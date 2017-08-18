@@ -35,28 +35,18 @@ class WorkerService
     private $workers = null;
 
     /**
-     * Scheduler service used for managing recurring and scheduled jobs
-     *
-     * @var SchedulerService|null
-     */
-    private $scheduler = null;
-
-    /**
      * Setup the WorkerService
      *
      * @param Application $application Instance of current running netric application
      * @param QueueInterface $queue The Queue used to push jobs and pull info
-     * @param SchedulerService $schedulerService Service for managing recurring and scheduled jobs
      */
     public function __construct(
         Application $application,
-        QueueInterface $queue,
-        SchedulerService $schedulerService
+        QueueInterface $queue
     )
     {
         $this->application = $application;
         $this->jobQueue = $queue;
-        $this->scheduler = $schedulerService;
     }
 
     /**
@@ -81,48 +71,6 @@ class WorkerService
     public function doWorkBackground($workerName, array $jobData)
     {
         return $this->jobQueue->doWorkBackground($workerName, $jobData);
-    }
-
-    /**
-     * Schedule a job to run in the background at a future time
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Any data passed to the worker
-     * @param \DateTime $timeStart The time when the job should start
-     */
-    public function scheduleWork($workerName, array $jobData, \DateTime $timeStart)
-    {
-        $this->scheduler->scheduleAtTime(
-            $workerName,
-            $timeStart,
-            $jobData
-        );
-    }
-
-    /**
-     * Add scheduled jobs to the queue and return immediately with a job handle (id)
-     *
-     * Work can be deferred until a later date, this will get work that should execute on
-     * or before the provided date and submit the work as jobs.
-     *
-     * @param \DateTime $timeRunBy Get jobs that should have run on or before
-     *        this date. If the value is null then now in UTC will be used.
-     * @return array("A unique id/handle to the queued job")
-     */
-    public function doScheduledWork(\DateTime $timeRunBy = null)
-    {
-        $jobIds = [];
-        $scheduledWork = $this->scheduler->getScheduledToRun();
-        foreach ($scheduledWork as $scheduled) {
-            $jobIds[] = $this->doWorkBackground(
-                $scheduled['worker_name'],
-                $scheduled['job_data']
-            );
-
-            // Make sure we don't try to execute this job again
-            $this->scheduler->setJobAsExecuted($scheduled['id']);
-        }
-        return $jobIds;
     }
 
     /**

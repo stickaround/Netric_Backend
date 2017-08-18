@@ -215,8 +215,9 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $recurRules = $def->recurRules;
 
         // Do nothing if the object type passed is not recurring
-        if (!$recurRules)
-            return;
+        if (!$recurRules) {
+            return;            
+        }
 
         /*
          * Loop through each condition to see if it pertains to the start and end date
@@ -224,16 +225,13 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
          */
         $processTo = 0;
         $conditions = $query->getWheres();
-        foreach ($conditions as $cond)
-        {
+        foreach ($conditions as $cond) {
             if ($cond->fieldName == $recurRules['field_date_start']
-                || $cond->fieldName == $recurRules['field_date_end'])
-            {
-                // Handle next 'x' number of 'y' conditions
-                if (is_numeric($cond->value))
-                {
+                || $cond->fieldName == $recurRules['field_date_end']) {
+                if (is_numeric($cond->value)) {
+                    // Handle next 'x' number of 'days|weeks|months|years' conditions
                     $inter = "";
-                    switch ($cond['operator'])
+                    switch ($cond->operator)
                     {
                     case 'next_x_days':
                         $inter = "days";
@@ -250,38 +248,36 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
                     }
 
                     // If we have an interval setup for a next_x_* then extend $processTo
-                    if ($inter && @strtotime($cond->value)!==false)
-                    {
+                    if ($inter && @strtotime($cond->value) !== false) {
                         $dateString = "+ " . $cond->value . " " . $inter;
                         $processTo = strtotime($dateString, time());
+                    } else {
+                        // The where condition is probably just a timestamp
+                        if ($cond->value > $processTo) {
+                            $processTo = $cond->value;
+                        }
                     }
-                }
-                else if ($cond->value)
-                {
+                } else if ($cond->value) {
                     /*
                      * Condition values are text entered by users so let's make sure
                      * is a valid timestamp before processing.
                      */
-                    if (@strtotime($cond->value)!==false)
-                    {
+                    if (@strtotime($cond->value) !== false) {
                         /*
                          * If $cond->value contains a timestamp later than any
                          * previously entered (or any at all), then update $processTo
                          */
                         $valTimestamp = strtotime($cond->value);
-                        if ($valTimestamp > $processTo)
-                        {
+                        if ($valTimestamp > $processTo) {
                             $processTo = $valTimestamp;
                         }
                     }
                 }
             }
-
         }
 
         // If any of the conditions contained values impacted by recurRules then process
-        if ($processTo > 0)
-        {
+        if ($processTo > 0) {
             $dateTo = new \DateTime();
             $dateTo->setTimestamp($processTo);
             $objType = $def->getObjType();

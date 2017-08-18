@@ -32,7 +32,8 @@ class SchedulerService
     /**
      * Setup the WorkerService
      *
-     * @param IndexInterface $entityIndex To query for worker jobs
+     * @param IndexInterface $entityIndex To query for worker job entities
+     * @param EntityLoader $entityLoader Used to create and delete worker job entities
      */
     public function __construct(IndexInterface $entityIndex, EntityLoader $entityLoader)
     {
@@ -52,7 +53,7 @@ class SchedulerService
     {
         $scheduledJob = $this->entityLoader->create('worker_job');
         $scheduledJob->setValue('worker_name', $workerName);
-        $scheduledJob->setValue('ts_execute', $execute->getTimestamp());
+        $scheduledJob->setValue('ts_scheduled', $execute->getTimestamp());
         $scheduledJob->setValue('job_data', json_encode($data));
         return $this->entityLoader->save($scheduledJob);
     }
@@ -77,6 +78,7 @@ class SchedulerService
         $recurrence = new RecurrencePattern();
         $recurrence->setInterval($interval);
         $recurrence->setRecurType($type);
+        $recurrence->setDateStart(new DateTime());
         $scheduledJob->setRecurrencePattern($recurrence);
 
         return $this->entityLoader->save($scheduledJob);
@@ -99,7 +101,7 @@ class SchedulerService
         }
 
         $query = new EntityQuery("worker_job");
-        $query->where('ts_scheduled')->isLessOrEqualTo($toDate->format("Y-m-d H:i:s Z"));
+        $query->where('ts_scheduled')->isLessOrEqualTo($toDate->getTimestamp());
         $query->setLimit(1000);
         $result = $this->entityIndex->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
@@ -126,5 +128,31 @@ class SchedulerService
         // Set the scheduled job as executed which should remove it from any queues for nex time
         $scheduledJob->setValue("ts_executed", time());
         $this->entityLoader->save($scheduledJob);
+    }
+
+    /**
+     * Add scheduled jobs to the queue and return immediately with a job handle (id)
+     *
+     * Work can be deferred until a later date, this will get work that should execute on
+     * or before the provided date and submit the work as jobs.
+     *
+     * @param \DateTime $timeRunBy Get jobs that should have run on or before
+     *        this date. If the value is null then now in UTC will be used.
+     * @return array("A unique id/handle to the queued job")
+     */
+    public function doScheduledWork(\DateTime $timeRunBy = null)
+    {
+        $jobIds = [];
+        $scheduledWork = $this->scheduler->getScheduledToRun();
+        foreach ($scheduledWork as $scheduled) {
+            $jobIds[] = $this->doWorkBackground(
+                $scheduled['worker_name'],
+                $scheduled['job_data']
+            );
+
+            // Make sure we don't try to execute this job again
+            $this->scheduler->setJobAsExecuted($scheduled['id']);
+        }
+        return $jobIds;
     }
 }

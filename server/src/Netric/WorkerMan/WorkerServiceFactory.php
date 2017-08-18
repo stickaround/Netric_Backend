@@ -35,8 +35,6 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
                 break;
         }
 
-        $schedulerService = $sl->get(SchedulerService::class);
-
-        return new WorkerService($sl->getApplication(), $queue, $schedulerService);
+        return new WorkerService($sl->getApplication(), $queue);
     }
 }

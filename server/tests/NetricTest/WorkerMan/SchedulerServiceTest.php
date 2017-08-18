@@ -135,7 +135,6 @@ class SchedulerServiceTest extends TestCase
         );
         $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
 
-
         // Get scheduled jobs for the next three days
         $runTo = new DateTime();
         $runTo->add(new DateInterval("P3D"));

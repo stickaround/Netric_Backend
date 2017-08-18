@@ -6,8 +6,8 @@ return array(
     'is_private' => false,
     'store_revisions' => false,
     'recur_rules' => array(
-        "field_time_start"=>"ts_scheduled",
-        "field_time_end"=>"ts_scheduled",
+        "field_time_start"=>"",
+        "field_time_end"=>"",
         "field_date_start"=>"ts_scheduled",
         "field_date_end"=>"ts_scheduled",
         "field_recur_id"=>"recur_id",

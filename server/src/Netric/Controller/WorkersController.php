@@ -121,8 +121,21 @@ class WorkersController extends Mvc\AbstractController
 
         $running = true;
         while ($running) {
-            // Get and run all scheduled jobs
-            $workerService->doScheduledWork();
+            /*
+             * Get all accounts - this function queries the DB each time so we
+             * do not need to refresh since this is a long-lived process
+             */
+            $accounts = $application->getAccounts();
+            foreach ($accounts as $account) {
+                /*
+                 * The ScheduleRunner worker will check for any scheduled jobs
+                 * for each account and spawn more background processes. This helps
+                 * us distribute the load. If ScheduledWork is taking too long, we
+                 * can simply add more worker machines to the cluster.
+                 */
+                $jobData = ['account_id'=>$account->getId()];
+                $workerService->doWorkBackground("ScheduleRunner", $jobData);
+            }
 
             // Renew the lock to make sure we do not expire since it times out in 2 minutes
             $application->extendLock($uniqueLockName);
