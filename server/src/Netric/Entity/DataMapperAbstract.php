@@ -302,11 +302,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function getById(EntityInterface $entity, $id)
 	{
-		$ret = $this->fetchById($entity, $id);
+		if (!empty($id) && !is_numeric($id)) {
+			throw new \InvalidArgumentException("$id is not a valid entity id");
+		}
 
-        if (!empty($id) && !is_numeric($id)) {
-            throw new \InvalidArgumentException("$id is not a valid entity id");
-        }
+		$ret = $this->fetchById($entity, $id);
 
 		if (!$ret)
 		{
@@ -413,7 +413,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param array $conditionValues Array of field values to query for
      * @return string[] Array of IDs that match the field values
      */
-    private function getIdsFromFieldValues($objType, array $conditionValues)
+    public function getIdsFromFieldValues($objType, array $conditionValues)
     {
         $entityIds = [];
 

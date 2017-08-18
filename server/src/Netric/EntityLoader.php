@@ -201,6 +201,18 @@ class EntityLoader
     }
 
 	/**
+	 * Look for IDs based on field values
+	 *
+	 * @param string $objType The type of entity we are querying
+	 * @param array $conditionValues Array of field values to query for
+	 * @return string[] Array of IDs that match the field values
+	 */
+	public function getIdsFromFieldValues($objType, array $conditionValues)
+	{
+		return $this->dataMapper->getIdsFromFieldValues($objType, $conditionValues);
+	}
+
+	/**
 	 * Shortcut for constructing an Entity
 	 *
 	 * @param string $objType The name of the object type
