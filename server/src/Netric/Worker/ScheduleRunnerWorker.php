@@ -37,8 +37,15 @@ class ScheduleRunnerWorker extends AbstractWorker
 
         $scheduledJobs = $schedulerService->getScheduledToRun();
         foreach ($scheduledJobs as $jobEntity) {
-            // TODO: Run the job in the background (inclduing json_decode the job_data)
-            // TODO: Mark the job as executed
+            $workerName = $jobEntity->getValue("worker_name");
+            $jobData = json_decode($jobEntity->getValue("job_data"), true);
+            $jobData['account_id'] = $workload['account_id'];
+
+            // Queue the work to do by the next available worker
+            $workerService->doWorkBackground($workerName, $jobData);
+
+            // Flag the job as executed so we do not try to run it again
+            $schedulerService->setJobAsExecuted($jobEntity);
         }
 
         return $this->result;

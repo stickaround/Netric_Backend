@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\Worker\EmailMailboxSyncWorker;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
+use NetricTest\Bootstrap;
 
 /**
  * @group integration
@@ -35,7 +36,7 @@ class ScheduleRunnerWorkerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
         // Create a test user
