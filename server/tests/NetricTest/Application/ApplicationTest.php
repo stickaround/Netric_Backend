@@ -52,7 +52,22 @@ class ApplicationTest extends TestCase
 
     public function testGetAccountsByEmail()
     {
-        $this->markTestIncomplete("Implement testGetAccountsByEmail");
+        // First cleanup in case we left an account around
+        $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
+        if ($cleanupAccount)
+            $this->application->deleteAccount(self::TEST_ACCT_NAME);
+
+        // Create a new test account
+        $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
+
+        // Get accounts associated with the amil addres(or username if the same)
+        $accounts = $this->application->getAccountsByEmail("test@test.com");
+        
+        // Make sure the above user was associated with at least one account
+        $this->assertGreaterThanOrEqual(1, count($accounts));
+
+        // Cleanup
+        $this->application->deleteAccount(self::TEST_ACCT_NAME);
     }
 
     public function testCreateAccount()

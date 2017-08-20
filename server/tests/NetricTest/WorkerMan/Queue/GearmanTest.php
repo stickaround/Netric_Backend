@@ -3,7 +3,7 @@ namespace NetricTest\WorkerMan\Queue;
 
 use Netric\WorkerMan\Queue\Gearman;
 use Netric\WorkerMan\Queue\QueueInterface;
-use Netric\Worker\TestWorker;
+use Netric\WorkerMan\Worker\TestWorker;
 
 class GearmanTest extends AbstractQueueTests
 {

@@ -82,7 +82,6 @@ class AssignAction extends AbstractAction implements ActionInterface
         if ($params['field'])
         {
             $userId = null;
-
             if (isset($params['team_id'])) {
                 $userId = $this->getNextUserFromTeam($params['team_id']);
             } else if (isset($params['group_id'])) {
@@ -97,7 +96,7 @@ class AssignAction extends AbstractAction implements ActionInterface
                 return true;
             }
         }
-
+        
         // Could not assign it
         return false;
     }
@@ -147,8 +146,9 @@ class AssignAction extends AbstractAction implements ActionInterface
     {
         $users = explode(',', $listOfUsers);
 
-        if (!count($users))
-            return null;
+        if (!count($users)) {
+            return null;            
+        }
 
         return $users[mt_rand(0,(count($users)-1))];
     }

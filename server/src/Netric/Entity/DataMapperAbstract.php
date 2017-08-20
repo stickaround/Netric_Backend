@@ -172,7 +172,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	public function save($entity, $user=null)
 	{
         $serviceManager = $this->getAccount()->getServiceManager();
-        $def = $entity->getDefinition();
+		$def = $entity->getDefinition();
 
         // First validate that this entity is ok to be written
         $entityValidator = $serviceManager->get('Netric\Entity\Validator\EntityValidator');
@@ -198,7 +198,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $entity->setFieldsDefault($event, $user);
 
         // Create a unique name if the entity supports it
-        $this->setUniqueName($entity);
+		$this->setUniqueName($entity);
 
         // Update foreign key names
         $this->updateForeignKeyNames($entity);

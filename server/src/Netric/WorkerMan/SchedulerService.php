@@ -89,9 +89,10 @@ class SchedulerService
      *
      * @param DateTime|null $toDate If null then 'now' will be used to get jobs
      *                      that should run now
+     * @param string $workerName If set just look for a specific worker
      * @return WorkerJobEntity[]
      */
-    public function getScheduledToRun(DateTime $toDate = null)
+    public function getScheduledToRun(DateTime $toDate = null, $workerName = "")
     {
         $jobsToReturn = [];
 
@@ -102,6 +103,12 @@ class SchedulerService
 
         $query = new EntityQuery("worker_job");
         $query->where('ts_scheduled')->isLessOrEqualTo($toDate->getTimestamp());
+        
+        // If we are looking for a specific worker name then add it to the filter
+        if ($workerName) {
+            $query->andWhere('worker_name')->equals($workerName);
+        }
+
         $query->setLimit(1000);
         $result = $this->entityIndex->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {

@@ -34,19 +34,14 @@ class WorkerServicetest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
-        // Mock the scheduler service
-        $schedulerService = $this->getMockBuilder(SchedulerService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $queue = new Queue\InMemory();
 
-        $this->workerService = new WorkerService($this->account->getApplication(), $queue, $schedulerService);
+        $this->workerService = new WorkerService($this->account->getApplication(), $queue);
     }
 
     public function testDoWork()
     {
-        $this->assertTrue($this->workerService ->doWork("Test", array("mystring"=>"test")));
+        $this->assertTrue($this->workerService->doWork("Test", array("mystring"=>"test")));
     }
 
     public function testDoWorkBackground()
@@ -56,17 +51,7 @@ class WorkerServicetest extends TestCase
 
     public function testProcessJobQueue()
     {
-        $this->workerService ->doWorkBackground("Test", array("mystring"=>"test"));
-        $this->assertTrue($this->workerService ->processJobQueue());
-    }
-
-    public function testScheduleWork()
-    {
-        $this->markTestIncomplete('TODO');
-    }
-
-    public function testDoScheduledWork()
-    {
-        $this->markTestIncomplete('TODO');
+        $this->workerService->doWorkBackground("Test", array("mystring"=>"test"));
+        $this->assertTrue($this->workerService->processJobQueue());
     }
 }

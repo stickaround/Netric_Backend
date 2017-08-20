@@ -3,7 +3,7 @@ namespace NetricTest\Worker;
 
 use Netric\WorkerMan\Job;
 use PHPUnit\Framework\TestCase;
-use Netric\Worker\EmailMailboxSyncWorker;
+use Netric\WorkerMan\Worker\EmailMailboxSyncWorker;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\Group;

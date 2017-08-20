@@ -97,10 +97,10 @@ class WorkerService
         $this->workers = array();
 
         // Load up all workers from the ../Worker directory
-        foreach (glob(__DIR__ . "/../Worker/*Worker.php") as $filename) {
+        foreach (glob(__DIR__ . "/Worker/*Worker.php") as $filename) {
             // Add each worker as a listener
             $workerName = substr(basename($filename), 0, -(strlen("Worker.php")));
-            $workerClass = "\\Netric\\Worker\\" . $workerName . "Worker";
+            $workerClass = "\\Netric\\WorkerMan\\Worker\\" . $workerName . "Worker";
             $this->workers[$workerName] = new $workerClass($this->application);
             $this->jobQueue->addWorker($workerName, $this->workers[$workerName]);
         }

@@ -352,7 +352,10 @@ class Application
         $setup = new Setup();
         $setup->setupAccount($account, $adminUserName, $adminUserPassword);
 
-        // TODO: 3. Change status to active
+        // If the username is an email address then set the email address to be the username
+        if (strpos($adminUserName, '@') !== false) {
+            $this->setAccountUserEmail($accountId, $adminUserName, $adminUserName);
+        }
 
         // Return the new account
         return $account;

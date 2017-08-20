@@ -26,6 +26,13 @@ class WorkersControllerTest extends TestCase
     protected $controller = null;
 
     /**
+     * Mock worker service to interact with
+     * 
+     * @var WorkerService
+     */
+    private $workerService = null;
+
+    /**
      * Setup the controller for tests
      */
     protected function setUp()
@@ -35,6 +42,12 @@ class WorkersControllerTest extends TestCase
         // Create the controller
         $this->controller = new WorkersController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
+
+        // Create a mock workerservice
+        $this->workerService = $this->getMockBuilder(WorkerService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->controller->setWorkerService($this->workerService);
     }
 
     /**
@@ -47,17 +60,11 @@ class WorkersControllerTest extends TestCase
         $req->setParam("runtime", 1); // Only run for 1 second
         $req->setParam("suppressoutput", 1); // Do not allow echo
 
-        // Setup a test job
-        $appServiceManager = $this->account->getApplication()->getServiceManager();
-        $workerService = $appServiceManager->get(WorkerService::class);
-        $workerService->doWorkBackground("Test", array("mystring"=>"test"));
+        // Simulate indicating that we processed a job
+        $this->workerService->method('processJobQueue')->willReturn(true);
 
         // Run the process action
         $ret = $this->controller->consoleProcessAction();
-        $this->assertInstanceOf(
-            'Netric\Application\Response\ConsoleResponse',
-            $ret
-        );
         $outputBuffer = $ret->getOutputBuffer();
         $this->assertEquals("Processed 1 jobs", trim(array_pop($outputBuffer)));
     }
@@ -67,6 +74,55 @@ class WorkersControllerTest extends TestCase
      */
     public function testConsoleScheduleAction()
     {
-        $this->markTestIncomplete('Need to do this');
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        // Not not loop indefinitely
+        $req->setParam("runonce", 1);
+        // Do not allow echo
+        $req->setParam("suppressoutput", 1); 
+        // Limit the global application lock to 1 second
+        $req->setParam("locktimeout", 1); 
+
+        // Make sure that doWorkBackground was called once
+        $this->workerService->expects($this->once())
+            ->method('doWorkBackground')
+            ->with(
+                $this->equalTo('ScheduleRunner'), 
+                $this->equalTo(['account_id'=>$this->account->getId()])
+            );
+
+        // Run the process to invoke the exepects tests above
+        $ret = $this->controller->consoleScheduleAction();
+    }
+
+    /**
+     * Test to make sure only one instance of the scheudle action can be run
+     */
+    public function testConsoleScheduleAction_Locked()
+    {
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        // Do not allow echo
+        $req->setParam("suppressoutput", 1); 
+
+        
+        // Make sure that doWorkBackground is ONLY CALLED ONCE
+        $this->workerService->expects($this->never())
+            ->method('doWorkBackground')
+            ->with(
+                $this->equalTo('ScheduleRunner'), 
+                $this->equalTo(['account_id'=>$this->account->getId()])
+            );
+
+        // Artificially renew the lock
+        $uniqueLockName = 'WorkerScheduleAction-';
+        $uniqueLockName .= $this->account->getApplication()->getConfig()->version;
+        $this->account->getApplication()->acquireLock($uniqueLockName, 1);
+        
+        // This should just exit due to the lock
+        $ret = $this->controller->consoleScheduleAction();
+
+        // It will automatically release in 1 second, but clean-up anyway
+        $this->account->getApplication()->releaseLock($uniqueLockName);
     }
 }

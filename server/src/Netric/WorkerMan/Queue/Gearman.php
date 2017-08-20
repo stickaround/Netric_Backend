@@ -110,7 +110,7 @@ class Gearman implements QueueInterface
     /**
      * Loop through the work queue and dispatch each job to the appropriate worker (pop)
      *
-     * @return bool true on success, false on failure
+     * @return bool true on success, false if there were no jobs to run
      */
     public function dispatchJobs()
     {
