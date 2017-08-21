@@ -30,7 +30,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
     /**
      * Entity loader to load and save entities
-     *
+
      * @var EntityLoader|null
      */
     private $entityLoader = null;

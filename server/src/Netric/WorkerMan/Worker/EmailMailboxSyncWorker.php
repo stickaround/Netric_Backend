@@ -3,7 +3,7 @@
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
-namespace Netric\Worker;
+namespace Netric\WorkerMan\Worker;
 
 use Netric\EntityQuery;
 use Netric\WorkerMan\Job;

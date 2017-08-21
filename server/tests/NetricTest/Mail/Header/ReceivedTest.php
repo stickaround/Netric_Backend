@@ -30,14 +30,6 @@ class ReceivedTest extends TestCase
         $this->assertEquals('Received', $receivedHeader->getFieldName());
     }
 
-    public function testReceivedGetFieldValueReturnsProperValue()
-    {
-        $this->markTestIncomplete('Received needs to be completed');
-
-        $receivedHeader = new Header\Received();
-        $this->assertEquals('xxx', $receivedHeader->getFieldValue());
-    }
-
     public function testReceivedToStringReturnsHeaderFormattedString()
     {
         $this->markTestIncomplete('Received needs to be completed');

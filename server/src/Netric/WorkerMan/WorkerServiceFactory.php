@@ -7,6 +7,7 @@ namespace Netric\WorkerMan;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\WorkerMan\SchedulerService;
 
 /**
  * Handle setting up a worker service

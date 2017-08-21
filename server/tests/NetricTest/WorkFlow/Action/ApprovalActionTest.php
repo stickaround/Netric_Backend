@@ -2,6 +2,8 @@
 namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
+use Netric\WorkFlow\WorkFlowInstance;
+use RuntimeException;
 
 class ApprovalActionTest extends AbstractActionTests
 {
@@ -20,12 +22,16 @@ class ApprovalActionTest extends AbstractActionTests
      */
     public function testExecute()
     {
-        // Stop here and mark this test as incomplete.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->expectException(RuntimeException::class);
 
-        // TODO: define test here
-        $this->assertTrue(true);
+        $approvalAction = $this->getAction();
+
+        $workflowInstance = $this->getMockBuilder(WorkFlowInstance::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        // Sending through a mock workflow intance to make sure an exception is throw
+        // since it is not implemented yet and should not be called.
+        $approvalAction->execute($workflowInstance);
     }
 }

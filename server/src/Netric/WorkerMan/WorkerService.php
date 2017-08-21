@@ -40,7 +40,10 @@ class WorkerService
      * @param Application $application Instance of current running netric application
      * @param QueueInterface $queue The Queue used to push jobs and pull info
      */
-    public function __construct(Application $application, QueueInterface $queue)
+    public function __construct(
+        Application $application,
+        QueueInterface $queue
+    )
     {
         $this->application = $application;
         $this->jobQueue = $queue;
@@ -71,18 +74,6 @@ class WorkerService
     }
 
     /**
-     * Schedule a job to run in the background at a future time
-     *
-     * @param string $workerName The name of the worker to run
-     * @param array $jobData Any data passed to the worker
-     * @param \DateTime $timeStart The time when the job should start
-     */
-    public function scheduleWork($workerName, array $jobData, \DateTime $timeStart)
-    {
-        // TODO: we have to figure this out
-    }
-
-    /**
      * Process the job queue or wait for new jobs
      *
      * @return bool true on success, false on a failure
@@ -106,10 +97,10 @@ class WorkerService
         $this->workers = array();
 
         // Load up all workers from the ../Worker directory
-        foreach (glob(__DIR__ . "/../Worker/*Worker.php") as $filename) {
+        foreach (glob(__DIR__ . "/Worker/*Worker.php") as $filename) {
             // Add each worker as a listener
             $workerName = substr(basename($filename), 0, -(strlen("Worker.php")));
-            $workerClass = "\\Netric\\Worker\\" . $workerName . "Worker";
+            $workerClass = "\\Netric\\WorkerMan\\Worker\\" . $workerName . "Worker";
             $this->workers[$workerName] = new $workerClass($this->application);
             $this->jobQueue->addWorker($workerName, $this->workers[$workerName]);
         }

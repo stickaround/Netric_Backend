@@ -5,6 +5,8 @@
 namespace NetricTest\Controller;
 
 use Netric;
+use Netric\WorkerMan\WorkerService;
+use Netric\Controller\WorkersController;
 use PHPUnit\Framework\TestCase;
 
 class WorkersControllerTest extends TestCase
@@ -19,26 +21,38 @@ class WorkersControllerTest extends TestCase
     /**
      * Controller instance used for testing
      *
-     * @var \Netric\Controller\WorkersController
+     * @var WorkersController
      */
     protected $controller = null;
 
     /**
-     * Test user
-     *
-     * @var \Netric\Entity\ObjType\UserEntity
+     * Mock worker service to interact with
+     * 
+     * @var WorkerService
      */
-    private $user = null;
+    private $workerService = null;
 
+    /**
+     * Setup the controller for tests
+     */
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Create the controller
-        $this->controller = new Netric\Controller\WorkersController($this->account->getApplication(), $this->account);
+        $this->controller = new WorkersController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
+
+        // Create a mock workerservice
+        $this->workerService = $this->getMockBuilder(WorkerService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->controller->setWorkerService($this->workerService);
     }
 
+    /**
+     * Make sure we can process a single job
+     */
     public function testConsoleProcessAction()
     {
         // Set params in the request
@@ -46,18 +60,69 @@ class WorkersControllerTest extends TestCase
         $req->setParam("runtime", 1); // Only run for 1 second
         $req->setParam("suppressoutput", 1); // Do not allow echo
 
-        // Setup a test job
-        $appServiceManager = $this->account->getApplication()->getServiceManager();
-        $workerService = $appServiceManager->get("Netric/WorkerMan/WorkerService");
-        $workerService->doWorkBackground("Test", array("mystring"=>"test"));
+        // Simulate indicating that we processed a job
+        $this->workerService->method('processJobQueue')->willReturn(true);
 
         // Run the process action
         $ret = $this->controller->consoleProcessAction();
-        $this->assertInstanceOf(
-            'Netric\Application\Response\ConsoleResponse',
-            $ret
-        );
         $outputBuffer = $ret->getOutputBuffer();
         $this->assertEquals("Processed 1 jobs", trim(array_pop($outputBuffer)));
+    }
+
+    /**
+     * Test processing a scheduled job
+     */
+    public function testConsoleScheduleAction()
+    {
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        // Not not loop indefinitely
+        $req->setParam("runonce", 1);
+        // Do not allow echo
+        $req->setParam("suppressoutput", 1); 
+        // Limit the global application lock to 1 second
+        $req->setParam("locktimeout", 1); 
+
+        // Make sure that doWorkBackground was called once
+        $this->workerService->expects($this->once())
+            ->method('doWorkBackground')
+            ->with(
+                $this->equalTo('ScheduleRunner'), 
+                $this->equalTo(['account_id'=>$this->account->getId()])
+            );
+
+        // Run the process to invoke the exepects tests above
+        $ret = $this->controller->consoleScheduleAction();
+    }
+
+    /**
+     * Test to make sure only one instance of the scheudle action can be run
+     */
+    public function testConsoleScheduleAction_Locked()
+    {
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        // Do not allow echo
+        $req->setParam("suppressoutput", 1); 
+
+        
+        // Make sure that doWorkBackground is ONLY CALLED ONCE
+        $this->workerService->expects($this->never())
+            ->method('doWorkBackground')
+            ->with(
+                $this->equalTo('ScheduleRunner'), 
+                $this->equalTo(['account_id'=>$this->account->getId()])
+            );
+
+        // Artificially renew the lock
+        $uniqueLockName = 'WorkerScheduleAction-';
+        $uniqueLockName .= $this->account->getApplication()->getConfig()->version;
+        $this->account->getApplication()->acquireLock($uniqueLockName, 1);
+        
+        // This should just exit due to the lock
+        $ret = $this->controller->consoleScheduleAction();
+
+        // It will automatically release in 1 second, but clean-up anyway
+        $this->account->getApplication()->releaseLock($uniqueLockName);
     }
 }

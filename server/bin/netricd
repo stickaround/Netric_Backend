@@ -25,6 +25,7 @@ $config = Netric\Config\ConfigLoader::fromFolder(
 // Get system log
 $log = new \Netric\Log\Log($config);
 
+// Keep track of child process IDs
 global $pids;
 $pids = [];
 
@@ -209,13 +210,18 @@ pcntl_signal(SIGUSR1, "sig_handler");
 /*
  * Start the scheduler process which basically looks for scheduled tasks
  * and injects them into the WorkerMan to be handled by the workers below.
+ *
+ * The scheduler will lock itself to make sure only one instance is running
+ * no matter how many servers run netricd. This gives us the ability to scale
+ * background processes on a virtually unlimited number of hosts without
+ * having to worry about duplicated scheduling.
  */
 $pid = pcntl_fork();
 if (!$pid) {
     pcntl_exec("bin/netric", ["workers/schedule", "--daemon=true"]);
     exit();
 } else {
-    // We add pids to a global array so we can manage as needed
+    // Add the process ID to a global array so we can manage as needed
     $pids[] = $pid;
 }
 

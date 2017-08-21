@@ -1,43 +1,45 @@
 <?php
 /*
  * Short description for file
- * 
+ *
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * 
+ *
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014 Aereus
  */
 namespace Netric\Application;
+
+use DateTime;
 
 /**
  * Description of DataMapperInterface
  *
  * @author Sky Stebnicki
  */
-interface DataMapperInterface 
+interface DataMapperInterface
 {
     /**
      * Get an account by id
-     * 
+     *
      * @param string $id The unique id of the account to get
      * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
     public function getAccountById($id, &$account);
-    
+
     /**
      * Get an account by the unique name
-     * 
+     *
      * @param string $name
      * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
     public function getAccountByName($name, &$account);
-    
+
     /**
      * Get an associative array of account data
-     * 
+     *
      * @param string $version If set the only get accounts that are at a current version
      * @return array
      */

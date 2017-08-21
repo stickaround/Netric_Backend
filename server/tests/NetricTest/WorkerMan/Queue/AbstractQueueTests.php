@@ -1,7 +1,7 @@
 <?php
 namespace NetricTest\WorkerMan\Queue;
 
-use Netric\Worker\TestWorker;
+use Netric\WorkerMan\Worker\TestWorker;
 use Netric\WorkerMan\Queue\QueueInterface;
 use Netric\WorkerMan\Queue;
 use PHPUnit\Framework\TestCase;

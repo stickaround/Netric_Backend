@@ -8,16 +8,18 @@ use Netric\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
-use Netric\Entity\Recurrence;
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\Entity\Entity;
+use Netric\Account\Account;
+use Netric\Entity\EntityFactory;
+
 
 abstract class IndexAbstract
 {
     /**
      * Handle to current account
-     * 
-     * @var \Netric\Account\Account
+     *
+     * @var Account
      */
     protected $account = null;
 
@@ -29,13 +31,6 @@ abstract class IndexAbstract
     protected $entityFactory = null;
 
     /**
-     * Recurrence series manager to test
-     *
-     * @var Recurrence\RecurrenceSeriesManager
-     */
-    private $recurSeriesManager = null;
-
-    /**
      * Index of plugins loaded by objName
      *
      * @var array('obj_name'=>PluginInterface)
@@ -44,42 +39,40 @@ abstract class IndexAbstract
 
     /**
      * Setup this index for the given account
-     * 
-     * @param \Netric\Account\Account $account
+     *
+     * @param Account $account
      */
-    public function __construct(\Netric\Account\Account $account)
+    public function __construct(Account $account)
     {
         $this->account = $account;
-        $this->entityFactory = $account->getServiceManager()->get("EntityFactory");
-        $seriesManagerName = "Netric/Entity/Recurrence/RecurrenceSeriesManager";
-        //$this->recurSeriesManager = $account->getServiceManager()->get($seriesManagerName);
-        
+        $this->entityFactory = $account->getServiceManager()->get(EntityFactory::class);
+
         // Setup the index
         $this->setUp($account);
     }
-    
+
     /**
      * Setup this index for the given account
-     * 
-     * @param \Netric\Account\Account $account
+     *
+     * @param Account $account
      */
-    abstract protected function setUp(\Netric\Account\Account $account);
-    
+    abstract protected function setUp(Account $account);
+
     /**
-	 * Save an object to the index
-	 *
+     * Save an object to the index
+     *
      * @param \Netric\Entity\Entity $entity Entity to save
-	 * @return bool true on success, false on failure
-	 */
-	abstract public function save(\Netric\Entity\Entity $entity);
-    
+     * @return bool true on success, false on failure
+     */
+    abstract public function save(\Netric\Entity\Entity $entity);
+
     /**
-	 * Delete an object from the index
-	 *
+     * Delete an object from the index
+     *
      * @param string $id Unique id of object to delete
-	 * @return bool true on success, false on failure
-	 */
-	abstract public function delete($id);
+     * @return bool true on success, false on failure
+     */
+    abstract public function delete($id);
 
     /**
      * Execute a query and return the results
@@ -99,10 +92,7 @@ abstract class IndexAbstract
      */
     public function executeQuery(EntityQuery $query, Results $results = null)
     {
-        // First check to see if we have any recurring patterns to update
-        //$this->recurSeriesManager->createInstancesFromQuery($query, $results);
-
-        // Trigger any plguins for before the query completed
+        // Trigger any plugins for before the query completed
         $this->beforeExecuteQuery($query);
 
         // Get results form the index for a query
@@ -113,27 +103,27 @@ abstract class IndexAbstract
 
         return $ret;
     }
-    
-    /**
-	 * Split a full text string into an array of terms
-	 *
-	 * @param string $qstring The entered text
-	 * @return array Array of terms
-	 */
-	public function queryStringToTerms($qstring)
-	{
-		if (!$qstring)
-			return array();
 
-		$res = array();
-		//preg_match_all('/(?<!")\b\w+\b|\@(?<=")\b[^"]+/', $qstr, $res, PREG_PATTERN_ORDER);
-		preg_match_all('~(?|"([^"]+)"|(\S+))~', $qstring, $res);
-		return $res[0]; // not sure why but for some reason results are in a multi-dimen array, we just need the first
-	}
-    
+    /**
+     * Split a full text string into an array of terms
+     *
+     * @param string $qstring The entered text
+     * @return array Array of terms
+     */
+    public function queryStringToTerms($qstring)
+    {
+        if (!$qstring)
+            return array();
+
+        $res = array();
+        //preg_match_all('/(?<!")\b\w+\b|\@(?<=")\b[^"]+/', $qstr, $res, PREG_PATTERN_ORDER);
+        preg_match_all('~(?|"([^"]+)"|(\S+))~', $qstring, $res);
+        return $res[0]; // not sure why but for some reason results are in a multi-dimen array, we just need the first
+    }
+
     /**
      * Get a definition by name
-     * 
+     *
      * @param string $objType
      */
     public function getDefinition($objType)
@@ -141,19 +131,19 @@ abstract class IndexAbstract
         $defLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
         return $defLoader->get($objType);
     }
-    
+
     /**
-	 * Get ids of all parent ids in a parent-child relationship
-	 *
-	 * @param string $table The table to query
-	 * @param string $parent_field The field containing the id of the parent entry
-	 * @param int $this_id The id of the child element
-	 */
-	public function getHeiarchyUp(\Netric\EntityDefinition\Field $field, $this_id)
-	{
-		$dbh = $this->dbh;
-		$parent_arr = array($this_id);
-        
+     * Get ids of all parent ids in a parent-child relationship
+     *
+     * @param string $table The table to query
+     * @param string $parent_field The field containing the id of the parent entry
+     * @param int $this_id The id of the child element
+     */
+    public function getHeiarchyUp(\Netric\EntityDefinition\Field $field, $this_id)
+    {
+        $dbh = $this->dbh;
+        $parent_arr = array($this_id);
+
         // TODO: finish
         /*
 		if ($this_id && $parent_field)
@@ -173,37 +163,37 @@ abstract class IndexAbstract
 		}
          */
 
-		return $parent_arr;
-	}
+        return $parent_arr;
+    }
 
-	/**
-	 * Get ids of all child entries in a parent-child relationship
-     * 
+    /**
+     * Get ids of all child entries in a parent-child relationship
+     *
      * This function may be over-ridden in specific indexes for performance reasons
-	 *
-	 * @param string $table The table to query
-	 * @param string $parent_field The field containing the id of the parent entry
-	 * @param int $this_id The id of the child element
-	 */
-	public function getHeiarchyDownGrp(\Netric\EntityDefinition\Field $field, $this_id)
-	{
-		$children_arr = array($this_id);
-        
-        
+     *
+     * @param string $table The table to query
+     * @param string $parent_field The field containing the id of the parent entry
+     * @param int $this_id The id of the child element
+     */
+    public function getHeiarchyDownGrp(\Netric\EntityDefinition\Field $field, $this_id)
+    {
+        $children_arr = array($this_id);
 
-		return $children_arr;
-	}
 
-	/**
-	 * Get ids of all parent entries in a parent-child relationship of an object
-	 *
-	 * @param string $table The table to query
-	 * @param string $parent_field The field containing the id of the parent entry
-	 * @param int $this_id The id of the child element
-	 */
-	public function getHeiarchyUpObj($objType, $oid)
-	{
-		$ret = array($oid);
+
+        return $children_arr;
+    }
+
+    /**
+     * Get ids of all parent entries in a parent-child relationship of an object
+     *
+     * @param string $table The table to query
+     * @param string $parent_field The field containing the id of the parent entry
+     * @param int $this_id The id of the child element
+     */
+    public function getHeiarchyUpObj($objType, $oid)
+    {
+        $ret = array($oid);
 
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $ent = $loader->get($objType, $oid);
@@ -220,26 +210,26 @@ abstract class IndexAbstract
             }
         }
 
-		return $ret;
-	}
-    
-    /**
-	 * Get ids of all child entries in a parent-child relationship of an object
-	 *
-	 * @param string $table The table to query
-	 * @param string $parent_field The field containing the id of the parent entry
-	 * @param int $this_id The id of the child element
-	 * @param int[] $aProtectCircular Hold array of already referenced objects to chk for array
-	 */
-	public function getHeiarchyDownObj($objType, $oid, $aProtectCircular=array())
-	{
-		// Check for circular refrences
-		if (in_array($oid, $aProtectCircular))
-			throw new \Exception("Circular reference found in $objType:$oid");
-			//return array();
+        return $ret;
+    }
 
-		$ret = array($oid);
-		$aProtectCircular[] = $oid;
+    /**
+     * Get ids of all child entries in a parent-child relationship of an object
+     *
+     * @param string $table The table to query
+     * @param string $parent_field The field containing the id of the parent entry
+     * @param int $this_id The id of the child element
+     * @param int[] $aProtectCircular Hold array of already referenced objects to chk for array
+     */
+    public function getHeiarchyDownObj($objType, $oid, $aProtectCircular=array())
+    {
+        // Check for circular refrences
+        if (in_array($oid, $aProtectCircular))
+            throw new \Exception("Circular reference found in $objType:$oid");
+        //return array();
+
+        $ret = array($oid);
+        $aProtectCircular[] = $oid;
 
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $ent = $loader->get($objType, $oid);
@@ -264,8 +254,8 @@ abstract class IndexAbstract
             }
         }
 
-		return $ret;
-	}
+        return $ret;
+    }
 
     /**
      * Sanitize condition values for querying
@@ -381,6 +371,10 @@ abstract class IndexAbstract
         if ($plugin) {
             $plugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query);
         }
+
+        // Recurrence plugin
+        $recurrencePlugin = $this->getPlugin("Recurrence");
+        $recurrencePlugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query);
     }
 
     /**
@@ -394,6 +388,10 @@ abstract class IndexAbstract
         if ($plugin) {
             $plugin->onAfterExecuteQuery($this->account->getServiceManager(), $query);
         }
+
+        // Recurrence plugin
+        $recurrencePlugin = $this->getPlugin("Recurrence");
+        $recurrencePlugin->onAfterExecuteQuery($this->account->getServiceManager(), $query);
     }
 
     /**

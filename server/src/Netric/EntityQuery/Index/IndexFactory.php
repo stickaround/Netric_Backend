@@ -18,7 +18,7 @@ class IndexFactory implements ServiceManager\AccountServiceLocatorInterface
      * Service creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return DbInterface
+     * @return IndexInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {

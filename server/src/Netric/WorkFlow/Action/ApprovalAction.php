@@ -8,6 +8,7 @@ namespace Netric\WorkFlow\Action;
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 use Netric\WorkFlow\WorkFlowInstance;
+use RuntimeException;
 
 /**
  * Action to request approval on an entity
@@ -25,6 +26,7 @@ class ApprovalAction extends AbstractAction implements ActionInterface
         // Get merged params
         $params = $this->getParams($entity);
 
-        // TODO: Finish action
+        // TODO: This still needs to be implemented
+        throw new RuntimeException("This action has not yet been implemented");
     }
 }

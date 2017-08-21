@@ -1,0 +1,308 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex b96b886c..f1e70590 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -3,6 +3,8 @@[m [mThis is the source code for both the client and the server.[m
+ [m
+ ## Running Local Development Server[m
+ [m
+[32m+[m[32mNote: On some windows installations python is invoked by typing 'py'[m
+[32m+[m
+ 1. Install docker native (not docker toolbox)[m
+ [m
+     http://www.docker.com/products/overview[m
+[1mdiff --git a/docker/server/bin/netric-setup.sh b/docker/server/bin/netric-setup.sh[m
+[1mindex bf2bf8d7..660b1842 100755[m
+[1m--- a/docker/server/bin/netric-setup.sh[m
+[1m+++ b/docker/server/bin/netric-setup.sh[m
+[36m@@ -7,6 +7,10 @@[m [mphp composer.phar update[m
+ [m
+ cd /var/www/html/bin[m
+ [m
+[32m+[m[32m# Make sure we can write to log and tmp[m
+[32m+[m[32mchown -R www-data:www-data data/log[m
+[32m+[m[32mchown -R www-data:www-data data/tmp[m
+[32m+[m
+ # Run install in case this is our first run - it will exit gracefully if[m
+ # netric was previously installed[m
+ ./netric setup/install --username=test@netric.com --password=password[m
+[1mdiff --git a/scripts/test.py b/scripts/test.py[m
+[1mindex b4cbd21c..08ad1f5c 100644[m
+[1m--- a/scripts/test.py[m
+[1m+++ b/scripts/test.py[m
+[36m@@ -21,7 +21,7 @@[m [mprint("Running server tests...")[m
+ [m
+ # Append any arguments passed from the user[m
+ subprocessArgs = ["docker", "exec", "docker_netric_server_1", "/netric-tests.sh"][m
+[31m-if sys.argv.count > 1:[m
+[32m+[m[32mif sys.argv.count:[m
+     userArgs = list(sys.argv)[m
+     userArgs.pop(0)[m
+     subprocessArgs += userArgs[m
+[1mdiff --git a/server/data/entity_forms/infocenter_document/large.php b/server/data/entity_forms/infocenter_document/large.php[m
+[1mindex f60236bd..73c25dae 100644[m
+[1m--- a/server/data/entity_forms/infocenter_document/large.php[m
+[1m+++ b/server/data/entity_forms/infocenter_document/large.php[m
+[36m@@ -1,28 +1,20 @@[m
+ <row>[m
+     <column>[m
+[31m-        <tabs>[m
+[31m-            <tab name='General'>[m
+[31m-                <row>[m
+[31m-                    <column>[m
+[31m-                        <field name='title' hidelabel="t" class='headline'></field>[m
+[31m-                    </column>[m
+[31m-                </row>[m
+[31m-                <row>[m
+[31m-                    <column>[m
+[31m-                        <field name='groups'></field>[m
+[31m-                    </column>[m
+[31m-                </row>[m
+[31m-                <row>[m
+[31m-                    <column>[m
+[31m-                        <field hidelabel='t' multiline='t' rich='t' name='body'></field>[m
+[31m-                    </column>[m
+[31m-                </row>[m
+[31m-                <row>[m
+[31m-                    <column>[m
+[31m-                        <field name='comments'></field>[m
+[31m-                    </column>[m
+[31m-                </row>[m
+[31m-            </tab>[m
+[31m-        </tabs>[m
+[32m+[m[32m        <field name='title' hidelabel="t" class='headline'></field>[m
+[32m+[m[32m    </column>[m
+[32m+[m[32m</row>[m
+[32m+[m[32m<row>[m
+[32m+[m[32m    <column>[m
+[32m+[m[32m        <field name='groups'></field>[m
+[32m+[m[32m    </column>[m
+[32m+[m[32m</row>[m
+[32m+[m[32m<row>[m
+[32m+[m[32m    <column>[m
+[32m+[m[32m        <field hidelabel='t' multiline='t' rich='t' name='body'></field>[m
+[32m+[m[32m    </column>[m
+[32m+[m[32m</row>[m
+[32m+[m[32m<row>[m
+[32m+[m[32m    <column>[m
+[32m+[m[32m        <field name='comments'></field>[m
+     </column>[m
+ </row>[m
+[1mdiff --git a/server/src/Netric/Account/Account.php b/server/src/Netric/Account/Account.php[m
+[1mindex a1b8cadd..bf7058af 100644[m
+[1m--- a/server/src/Netric/Account/Account.php[m
+[1m+++ b/server/src/Netric/Account/Account.php[m
+[36m@@ -239,16 +239,12 @@[m [mclass Account[m
+          * since the loader handles making sure there is only one instance[m
+          * of each user object in memory.[m
+          */[m
+[31m-        if ($userId)[m
+[31m-        {[m
+[32m+[m[32m        if ($userId) {[m[41m[m
+             $user = $loader->get("user", $userId);[m
+[31m-            if ($user != false)[m
+[31m-            {[m
+[32m+[m[32m            if ($user != false) {[m[41m[m
+                 return $user;[m
+             }[m
+[31m-        }[m
+[31m-        elseif ($username) [m
+[31m-        {[m
+[32m+[m[32m        } elseif ($username) {[m[41m[m
+             $query = new EntityQuery("user");[m
+             $query->where('name')->equals($username);[m
+             $index = $this->getServiceManager()->get("EntityQuery_Index");[m
+[1mdiff --git a/server/src/Netric/Application/Application.php b/server/src/Netric/Application/Application.php[m
+[1mindex fd67aeee..149f7a9e 100644[m
+[1m--- a/server/src/Netric/Application/Application.php[m
+[1m+++ b/server/src/Netric/Application/Application.php[m
+[36m@@ -515,12 +515,12 @@[m [mclass Application[m
+      * Obtain a lock so that only one instance of a process can run at once[m
+      *[m
+      * @param string $uniqueLockName Globally unique lock name[m
+[31m-     * @param int $expiresInMs Expire after defaults to 1 day or 86400000 milliseconds[m
+[32m+[m[32m     * @param int $expiresInSeconds Expire after defaults to 1 day or 86400 seconds[m[41m[m
+      * @return bool true if lock obtained, false if the process name is already locked (running)[m
+      */[m
+[31m-    public function acquireLock($uniqueLockName, $expiresInMs=86400000)[m
+[32m+[m[32m    public function acquireLock($uniqueLockName, $expiresInSeconds=86400)[m[41m[m
+     {[m
+[31m-        return $this->dm->acquireLock($uniqueLockName, $expiresInMs);[m
+[32m+[m[32m        return $this->dm->acquireLock($uniqueLockName, $expiresInSeconds);[m[41m[m
+     }[m
+ [m
+     /**[m
+[36m@@ -533,6 +533,17 @@[m [mclass Application[m
+         $this->dm->releaseLock($uniqueLockName);[m
+     }[m
+ [m
+[32m+[m[32m    /**[m[41m[m
+[32m+[m[32m     * Refresh the lock to extend the expires timeout[m[41m[m
+[32m+[m[32m     *[m[41m[m
+[32m+[m[32m     * @param string $uniqueLockName Globally unique lock name[m[41m[m
+[32m+[m[32m     * @return bool true on success, false on failure[m[41m[m
+[32m+[m[32m     */[m[41m[m
+[32m+[m[32m    public function extendLock($uniqueLockName)[m[41m[m
+[32m+[m[32m    {[m[41m[m
+[32m+[m[32m        return $this->dm->extendLock($uniqueLockName);[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[41m[m
+     /**[m
+      * Handle profiling this request if enabled[m
+      */[m
+[1mdiff --git a/server/src/Netric/Application/DataMapperInterface.php b/server/src/Netric/Application/DataMapperInterface.php[m
+[1mindex 788d2183..1eec1a52 100644[m
+[1m--- a/server/src/Netric/Application/DataMapperInterface.php[m
+[1m+++ b/server/src/Netric/Application/DataMapperInterface.php[m
+[36m@@ -144,15 +144,23 @@[m [minterface DataMapperInterface[m
+      * Obtain a lock so that only one instance of a process can run at once[m
+      *[m
+      * @param string $uniqueLockName Globally unique lock name[m
+[31m-     * @param int $expiresInMs Expire after defaults to 1 day or 86400000 milliseconds[m
+[32m+[m[32m     * @param int $expiresInSeconds Expire after defaults to 1 day or 86400 seconds[m[41m[m
+      * @return bool true if lock obtained, false if the process name is already locked (running)[m
+      */[m
+[31m-    public function acquireLock($uniqueLockName, $expiresInMs=86400000);[m
+[32m+[m[32m    public function acquireLock($uniqueLockName, $expiresInSeconds=86400);[m[41m[m
+ [m
+     /**[m
+      * Clear a lock so that only one instance of a process can run at once[m
+      *[m
+      * @param string $uniqueLockName Globally unique lock name[m
+[32m+[m[32m     * @return bool true on success, false on failure[m[41m[m
+      */[m
+     public function releaseLock($uniqueLockName);[m
+[32m+[m[41m[m
+[32m+[m[32m    /**[m[41m[m
+[32m+[m[32m     * Refresh the lock to extend the expires timeout[m[41m[m
+[32m+[m[32m     *[m[41m[m
+[32m+[m[32m     * @param string $uniqueLockName Globally unique lock name[m[41m[m
+[32m+[m[32m     */[m[41m[m
+[32m+[m[32m    public function extendLock($uniqueLockName);[m[41m[m
+ }[m
+[1mdiff --git a/server/src/Netric/Application/DataMapperPgsql.php b/server/src/Netric/Application/DataMapperPgsql.php[m
+[1mindex bb16bb52..63ab021f 100644[m
+[1m--- a/server/src/Netric/Application/DataMapperPgsql.php[m
+[1m+++ b/server/src/Netric/Application/DataMapperPgsql.php[m
+[36m@@ -558,10 +558,10 @@[m [mclass DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface[m
+      * Obtain a lock so that only one instance of a process can run at once[m
+      *[m
+      * @param string $uniqueLockName Globally unique lock name[m
+[31m-     * @param int $expiresInMs Expire after defaults to 1 day or 86400000 milliseconds[m
+[32m+[m[32m     * @param int $expiresInSeconds Expire after defaults to 1 day or 86400 seconds[m[41m[m
+      * @return bool true if lock obtained, false if the process name is already locked (running)[m
+      */[m
+[31m-    public function acquireLock($uniqueLockName, $expiresInMs=86400000)[m
+[32m+[m[32m    public function acquireLock($uniqueLockName, $expiresInSeconds=86400)[m[41m[m
+     {[m
+         if (!$uniqueLockName) {[m
+             throw new \InvalidArgumentException("Unique lock name is required to obtain a lock");[m
+[36m@@ -586,7 +586,7 @@[m [mclass DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface[m
+             $now = time();[m
+ [m
+             // Check to see if the process has expired (run too long)[m
+[31m-            if (($now - $timeEntered) >= $expiresInMs) {[m
+[32m+[m[32m            if (($now - $timeEntered) >= $expiresInSeconds) {[m[41m[m
+                 // Update the lock and return true so the caller can start a new process[m
+                 $this->dbh->query([m
+                     "UPDATE worker_process_lock SET ts_entered='now' WHERE id=" .[m
+[36m@@ -612,4 +612,16 @@[m [mclass DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface[m
+         $this->dbh->query($sql);[m
+     }[m
+ [m
+[32m+[m[32m    /**[m[41m[m
+[32m+[m[32m     * Refresh the lock to extend the expires timeout[m[41m[m
+[32m+[m[32m     *[m[41m[m
+[32m+[m[32m     * @param string $uniqueLockName Globally unique lock name[m[41m[m
+[32m+[m[32m     * @return bool true on success, false on failure[m[41m[m
+[32m+[m[32m     */[m[41m[m
+[32m+[m[32m    public function extendLock($uniqueLockName)[m[41m[m
+[32m+[m[32m    {[m[41m[m
+[32m+[m[32m        $sql = "UPDATE worker_process_lock SET ts_entered='now' " .[m[41m[m
+[32m+[m[32m            "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";[m[41m[m
+[32m+[m[32m        return ($this->dbh->query($sql)) ? true : false;[m[41m[m
+[32m+[m[32m    }[m[41m[m
+ }[m
+[1mdiff --git a/server/src/Netric/Controller/AccountController.php b/server/src/Netric/Controller/AccountController.php[m
+[1mindex 20f53428..a329b74e 100644[m
+[1m--- a/server/src/Netric/Controller/AccountController.php[m
+[1m+++ b/server/src/Netric/Controller/AccountController.php[m
+[36m@@ -27,16 +27,13 @@[m [mclass AccountController extends Mvc\AbstractAccountController[m
+ [m
+         $modules = array();[m
+ [m
+[31m-        // Loop thru each module for the current user[m
+[31m-        foreach ($userModules as $module)[m
+[31m-        {[m
+[32m+[m[32m        // Loop thgouh each module for the current user[m
+[32m+[m[32m        foreach ($userModules as $module) {[m
+             /*[m
+              * We will only get the module that has xml navigation[m
+              *  since the xml navigation will be used as the navigation link in the frontend[m
+              */[m
+[31m-            if ($module->getNavigation())[m
+[31m-            {[m
+[31m-[m
+[32m+[m[32m            if ($module->getNavigation()) {[m
+                 // Convert the Module object into an array[m
+                 $modules[] = $module->toArray();[m
+             }[m
+[1mdiff --git a/server/tests/NetricTest/Application/AbstractDataMapperTests.php b/server/tests/NetricTest/Application/AbstractDataMapperTests.php[m
+[1mindex 61cc7c50..cb30cc92 100644[m
+[1m--- a/server/tests/NetricTest/Application/AbstractDataMapperTests.php[m
+[1m+++ b/server/tests/NetricTest/Application/AbstractDataMapperTests.php[m
+[36m@@ -262,11 +262,8 @@[m [mabstract class AbstractDataMapperTests extends TestCase[m
+         // Create a new lock with the default expires[m
+         $dataMapper->acquireLock($utestLockName);[m
+ [m
+[31m-        // Pause for 1 second to bump to the next second[m
+[31m-        sleep(1);[m
+[31m-[m
+         // A second call should be expired and return true[m
+[31m-        $this->assertTrue($dataMapper->acquireLock($utestLockName, 1));[m
+[32m+[m[32m        $this->assertTrue($dataMapper->acquireLock($utestLockName, 0));[m
+ [m
+         // Cleanup[m
+         $dataMapper->releaseLock($utestLockName);[m
+[36m@@ -289,4 +286,21 @@[m [mabstract class AbstractDataMapperTests extends TestCase[m
+         // Cleanup[m
+         $dataMapper->releaseLock($utestLockName);[m
+     }[m
+[32m+[m
+[32m+[m[32m    public function testExtendLock()[m
+[32m+[m[32m    {[m
+[32m+[m[32m        $dataMapper = $this->getDataMapper();[m
+[32m+[m
+[32m+[m[32m        // Create a unit test unique lock name[m
+[32m+[m[32m        $utestLockName = "utest_app_dm_lock_extended";[m
+[32m+[m
+[32m+[m[32m        // Create a new lock with the default expires[m
+[32m+[m[32m        $dataMapper->acquireLock($utestLockName);[m
+[32m+[m
+[32m+[m[32m        // Make sure that a call to update the executed time to now succeeds to renew the lock[m
+[32m+[m[32m        $this->assertTrue($dataMapper->extendLock($utestLockName));[m
+[32m+[m
+[32m+[m[32m        // Cleanup[m
+[32m+[m[32m        $dataMapper->releaseLock($utestLockName);[m
+[32m+[m[32m    }[m
+ }[m
+\ No newline at end of file[m
+[1mdiff --git a/server/tests/NetricTest/WorkFlow/Action/AssignActionTest.php b/server/tests/NetricTest/WorkFlow/Action/AssignActionTest.php[m
+[1mindex e124ad1b..28dbca7a 100644[m
+[1m--- a/server/tests/NetricTest/WorkFlow/Action/AssignActionTest.php[m
+[1m+++ b/server/tests/NetricTest/WorkFlow/Action/AssignActionTest.php[m
+[36m@@ -255,10 +255,10 @@[m [mclass AssignActionTest extends AbstractActionTests[m
+             $hits[$task->getValue('user_id')]++;[m
+         }[m
+ [m
+[31m-        // Make sure probabilities are in acceptable ranges ~10 to each[m
+[31m-        $this->assertGreaterThan(10, $hits[$user1Id]);[m
+[31m-        $this->assertGreaterThan(10, $hits[$user2Id]);[m
+[31m-        $this->assertGreaterThan(10, $hits[$user3Id]);[m
+[32m+[m[32m        // Make sure probabilities are in acceptable ranges ~9 to each[m
+[32m+[m[32m        $this->assertGreaterThan(9, $hits[$user1Id]);[m
+[32m+[m[32m        $this->assertGreaterThan(9, $hits[$user2Id]);[m
+[32m+[m[32m        $this->assertGreaterThan(9, $hits[$user3Id]);[m
+ [m
+         // Cleanup[m
+         $groupings->delete($group->id);[m

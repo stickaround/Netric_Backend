@@ -1,7 +1,7 @@
 <?php
 namespace NetricTest\Worker;
 
-use Netric\Worker\EntityMaintainerWorker;
+use Netric\WorkerMan\Worker\EntityMaintainerWorker;
 use Netric\WorkerMan\Job;
 use PHPUnit\Framework\TestCase;
 
