@@ -9,6 +9,9 @@
 $zPushRoot = dirname(__FILE__) ."/../../";
 require_once($zPushRoot . 'lib/log/log.php');
 
+// Include netric autoloader for all netric libraries
+require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
+
 use Netric\Application\Application;
 use Netric\Config\ConfigLoader;
 use Netric\Log\LogInterface;
