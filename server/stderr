@@ -16,3 +16,120 @@ Query
 select customer_number from accounts where id='1'
 ----------------------------------------------
 ",/authenticate.php,localhost,,
+ERROR,2017-08-21T05:04:19-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:19
+URL: /controller/User/getUpdateStream?_=1503252102134
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102134,localhost,,
+ERROR,2017-08-21T05:04:19-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102134,localhost,,
+ERROR,2017-08-21T05:04:23-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:23
+URL: /controller/User/getUpdateStream?_=1503252102135
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102135,localhost,,
+ERROR,2017-08-21T05:04:23-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102135,localhost,,
+ERROR,2017-08-21T05:04:25-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:25
+URL: /controller/User/userCheckin
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/userCheckin,localhost,,
+ERROR,2017-08-21T05:04:25-07:00,"Unable to connect to database db1 antsystem",/controller/User/userCheckin,localhost,,
+ERROR,2017-08-21T05:04:30-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:30
+URL: /controller/User/getUpdateStream?_=1503252102136
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102136,localhost,,
+ERROR,2017-08-21T05:04:30-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102136,localhost,,
+ERROR,2017-08-21T05:04:33-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:33
+URL: /controller/ObjectList/query
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/ObjectList/query,localhost,,
+ERROR,2017-08-21T05:04:33-07:00,"Unable to connect to database db1 antsystem",/controller/ObjectList/query,localhost,,
+ERROR,2017-08-21T05:04:34-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:34
+URL: /controller/User/getUpdateStream?_=1503252102137
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102137,localhost,,
+ERROR,2017-08-21T05:04:34-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102137,localhost,,
+ERROR,2017-08-21T05:04:39-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:39
+URL: /controller/User/getUpdateStream?_=1503252102138
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102138,localhost,,
+ERROR,2017-08-21T05:04:39-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102138,localhost,,
+ERROR,2017-08-21T05:04:43-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:43
+URL: /controller/User/getUpdateStream?_=1503252102139
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102139,localhost,,
+ERROR,2017-08-21T05:04:43-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102139,localhost,,
+ERROR,2017-08-21T05:04:47-07:00,"USER_NAME: dGVzdEBuZXRyaWMuY29t
+Type: System
+DATABASE: bmV0cmlj
+ACCOUNT_NAME: bG9jYWw=
+When: 2017-08-21 05:04:47
+URL: /controller/User/getUpdateStream?_=1503252102140
+PAGE: /controllerLoader.php
+----------------------------------------------
+WARNING: pg_connect(): Unable to connect to PostgreSQL server: FATAL:  database &quot;antsystem&quot; does not exist in /var/www/html/lib/CDatabase.awp on line 122
+Trace: in class CDatabase::connect()
+----------------------------------------------
+",/controller/User/getUpdateStream?_=1503252102140,localhost,,
+ERROR,2017-08-21T05:04:47-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102140,localhost,,
