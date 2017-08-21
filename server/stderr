@@ -1,0 +1,18 @@
+ERROR,2017-08-20T11:01:37-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-08-20 11:01:37
+Host: localhost
+Page: /authenticate.php
+Error
+----------------------------------------------
+ERROR:  column ""customer_number"" does not exist
+LINE 1: select customer_number from accounts where id='1'
+               ^
+----------------------------------------------
+Query
+----------------------------------------------
+select customer_number from accounts where id='1'
+----------------------------------------------
+",/authenticate.php,localhost,,
