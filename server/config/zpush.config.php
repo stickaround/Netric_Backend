@@ -44,6 +44,17 @@
     define('STATE_DIR', dirname(__FILE__). '/../data/z-push/');
 
 /**********************************************************************************
+ *  IPC - InterProcessCommunication
+ *
+ *  Is either provided by using shared memory on a single host or
+ *  using the memcache provider for multi-host environments.
+ *  When another implementation should be used, the class can be set here explicitly.
+ *  If empty Z-Push will try to use available providers.
+ */
+// TODO: This needs to be moved to memcached
+ define('IPC_PROVIDER', '');
+
+/**********************************************************************************
  *  Logging settings
  *
  *  The LOGBACKEND specifies where the logs are sent to.

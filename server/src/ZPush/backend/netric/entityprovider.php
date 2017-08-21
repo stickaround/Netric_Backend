@@ -191,6 +191,11 @@ class EntityProvider
             case self::FOLDER_TYPE_TASK:
             default:
                 // Not supported
+                $this->log->warning(
+                    "ZPUSH->EntityProvider->moveEntity: Tried to move " .
+                    $folderId . ":" . $id . " to " . $newFolderId . ":" . $id . " " .
+                    "but that is not supported"
+                );
                 return false;
 
         }
@@ -403,6 +408,10 @@ class EntityProvider
             case self::FOLDER_TYPE_NOTE:
             case self::FOLDER_TYPE_TASK:
             default:
+                $this->log->warning(
+                    "ZPUSH->Entityprovider->deleteFolder: " .
+                    "tried to delete $parentId.$folderId which is not supported"
+                );
                 // Not supported
                 return false;
 
@@ -499,6 +508,11 @@ class EntityProvider
             "mailbox_id",
             array("user_id"=>$this->user->getId())
         );
+
+        // Log if a user is not provided
+        if (!$this->user->getId()) {
+            $this->log->error("ZPUSH->EntityProvider->getEmailFolders: Called without a user");
+        }
 
         $groups = $groupings->getAll();
         foreach ($groups as $group)
