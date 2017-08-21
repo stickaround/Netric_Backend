@@ -68,7 +68,8 @@
  *
  *  LOGAUTHFAIL is logged to the LOGBACKEND.
  */
-    define('LOGBACKEND', 'filelog');
+    require_once( __DIR__ . '/../src/ZPush/backend/netric/lognetric.php');
+    define('LOGBACKEND', LogNetric::class);
     define('LOGLEVEL', LOGLEVEL_DEBUG);
     define('LOGAUTHFAIL', false);
 

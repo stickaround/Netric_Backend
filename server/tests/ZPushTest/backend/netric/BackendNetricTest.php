@@ -352,7 +352,7 @@ class BackendNetricTest extends TestCase
     }
 
     /**
-     * Make sure we can get a sync collection for tasks
+     * Make sure we can get a sync collection for contacts
      */
     public function testGetSyncCollection_Contact()
     {

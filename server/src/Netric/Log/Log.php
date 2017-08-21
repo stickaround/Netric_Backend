@@ -211,6 +211,7 @@ class Log implements LogInterface
             'severity' => $this->getLevelName($lvl),
             'client_ip' => (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : null,
             'client_port' => (isset($_SERVER['REMOTE_PORT'])) ? $_SERVER['REMOTE_PORT'] : null,
+            'environment' => (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production",
             'application_name' => 'netric-server',
             'application_version' => ($this->appBranch) ? $this->appBranch : 'release'
         );

@@ -6,7 +6,7 @@
  * because it is responsible for setting up and initializing the netric application and account.
  * 
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
- *  @copyright 2014 Aereus
+ *  @copyright 2014-2017 Aereus
  */
 
 // Setup autoloader

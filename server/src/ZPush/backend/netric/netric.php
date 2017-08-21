@@ -1026,7 +1026,7 @@ class BackendNetric implements IBackend
                 dirname(__FILE__)."/../../../../config",
                 $applicationEnvironment
             );
-            $this->application = new Netric\Application\Application($config);
+            $this->application = Netric\Application\Application::init($config);
         }
 
         return $this->application;
