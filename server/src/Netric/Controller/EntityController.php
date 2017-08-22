@@ -836,38 +836,53 @@ class EntityController extends Mvc\AbstractAccountController
     public function getLoadAppDashForUserAction()
     {
         $dashName = $this->request->getParam("dashboard_name");
+        $userId = $this->request->getParam("user_id");
+        $userId = $this->account->getUser()->getId();
+        $objType = "dashboard";
+        $dashboardId = null;
 
         // Check if we have obj_type. If it is not defined, then return an error
-        if (!$dashName) {
+        if (!$dashName)
+        {
             return $this->sendOutput(array("error" => "Dashboard name is required."));
         }
 
-        $objType = "dashboard";
-        $uname = $dashName . "-" . $this->account->getUser()->getId();
+        if (!$userId)
+        {
+            $userId = $this->account->getUser()->getId();
+        }
 
+        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
-        $entityIds = $loader->getIdsFromFieldValues($objType, array("uname" => $uname));
 
-        $dashboardId = null;
-        if (count($entityIds) === 0)
+        if ($dashName)
+        {
+            // Retrieve the entity by a unique name and optional conditions
+            $entity = $loader->getByUniqueName(
+                $objType,
+                $dashboardName,
+                ["owner_id" => $userId]
+            );
+
+            if ($entity) {
+                $dashboardId = $entity->getId();
+            }
+        }
+
+        if (!$dashboardId)
         {
             $entity = $loader->create($objType);
 
             // Create the dashboard using template found in /applications/dashboards if found
-            $entity->setValue("name", ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1))));
+            $entity->setValue("name", $dashboardName);
             $entity->setValue("description", "User specific implementation of application dashboard - $dashName. Simply delete this dashboard to reset use to default application dashboard.");
             $entity->setValue("scope", "user");
             $entity->setValue("app_dash", $dashName);
-            $entity->setValue("uname", $uname);
 
             // TODO - Copy dashboard layout to the newly created dashboard
 
             $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
             $dashboardId = $dataMapper->save($entity);
-        }
-        else
-        {
-            $dashboardId = $entityIds[0];
         }
 
         return $this->sendOutput($dashboardId);

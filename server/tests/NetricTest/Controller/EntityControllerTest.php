@@ -515,12 +515,12 @@ class EntityControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setParam('dashboard_name', 'home.activity');
+        $req->setParam('user_id', $req->setParam('dashboard_name', 'home.activity'));
 
         $ret = $this->controller->getLoadAppDashForUserAction();
 
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dashboardEntity = $loader->get("dashboard", $ret);
-        $this->assertEquals($dashboardEntity->getValue("uname"), "home.activity-" . $this->account->getUser()->getId());
         $this->assertEquals($dashboardEntity->getValue("name"), "Activity");
     }
 }

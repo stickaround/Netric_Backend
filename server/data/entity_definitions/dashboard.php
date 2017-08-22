@@ -2,7 +2,8 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 25,
+    'revision' => 28,
+    'uname_settings' => 'owner_id:name',
     'fields' => array(
         'name' => array(
             'title'=>'Name',
