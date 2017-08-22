@@ -3,7 +3,7 @@
  * Add scheduled jobs
  */
 use Netric\EntityQuery;
-use Netric\WOrkerMan\SchedulerService;
+use Netric\WorkerMan\SchedulerService;
 
 $account = $this->getAccount();
 if (!$account)
