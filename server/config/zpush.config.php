@@ -89,7 +89,7 @@
     // Users have to be encapusulated in quotes, several users are comma separated, like:
     //   $specialLogUsers = array('info@domain.com', 'myusername');
     define('LOGUSERLEVEL', LOGLEVEL_DEVICEID);
-    $specialLogUsers = array();
+    $specialLogUsers = array('sky.stebnicki');
 
     // Filelog settings
     define('LOGFILEDIR', dirname(__FILE__). '/../data/log/');
