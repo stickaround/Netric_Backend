@@ -413,7 +413,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param array $conditionValues Array of field values to query for
      * @return string[] Array of IDs that match the field values
      */
-    public function getIdsFromFieldValues($objType, array $conditionValues)
+    private function getIdsFromFieldValues($objType, array $conditionValues)
     {
         $entityIds = [];
 
