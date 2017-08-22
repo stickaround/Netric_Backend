@@ -31,6 +31,7 @@ require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 
 // Include provider to conver sync objects to entities
 require_once(dirname(__FILE__) . "/entityprovider.php");
+require_once(dirname(__FILE__) . '/netricApplicationInit.php');
 
 
 /**
@@ -1018,15 +1019,7 @@ class BackendNetric implements IBackend
     private function getApplication()
     {
         if (!$this->application) {
-            // Setup config
-            $configLoader = new Netric\Config\ConfigLoader();
-            $applicationEnvironment = (getenv('APPLICATION_ENV')) ?
-                getenv('APPLICATION_ENV') : "production";
-            $config = $configLoader->fromFolder(
-                dirname(__FILE__)."/../../../../config",
-                $applicationEnvironment
-            );
-            $this->application = Netric\Application\Application::init($config);
+            $this->application = NetricApplicationInit::getApplication();
         }
 
         return $this->application;

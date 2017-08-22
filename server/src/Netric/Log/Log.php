@@ -157,6 +157,16 @@ class Log implements LogInterface
     }
 
     /**
+     * Get the unique request ID if set
+     *
+     * @return string
+     */
+    public function getRequestId()
+    {
+        return $this->requestId;
+    }
+
+    /**
      * Set the path to use for logging
      *
      * @param string $logPath

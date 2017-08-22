@@ -39,15 +39,6 @@ class Application
     static protected $log = null;
 
     /**
-     * Saved application instance
-     * 
-     * In most cases we only want one application instance running
-     * 
-     * @var Application
-     */
-    static protected $applicationInstance = null;
-
-    /**
      * Application DataMapper
      *
      * @var DataMapperInterface
@@ -132,11 +123,6 @@ class Application
         // Setup application cache
         $this->cache = new MemcachedCache($config->cache);
 
-        // Set a static instance to try and keep a single copy running if possible
-        if (!self::$applicationInstance) {
-            self::$applicationInstance = $this;
-        }
-
         // Setup account identity mapper
         $this->accountsIdentityMapper = new AccountIdentityMapper($this->dm, $this->cache);
     }
@@ -149,18 +135,7 @@ class Application
      */
     static public function init(Config $config)
     {
-        self::$applicationInstance = new Application($config);
-        return self::$applicationInstance;
-    }
-
-    /**
-     * Return the global instance of this application if previously initialized
-     *
-     * @return void
-     */
-    static public function getApplicationInstance()
-    {
-        return self::$applicationInstance;
+        return new Application($config);
     }
 
     /**

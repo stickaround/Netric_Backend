@@ -12,6 +12,9 @@ require_once($zPushRoot . 'lib/log/log.php');
 // Include netric autoloader for all netric libraries
 require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 
+// Require backend application initialization
+require_once(dirname(__FILE__) . '/netricApplicationInit.php');
+
 use Netric\Application\Application;
 use Netric\Config\ConfigLoader;
 use Netric\Log\LogInterface;
@@ -103,25 +106,8 @@ class LogNetric extends \Log
      */
     private function getNetricLog()
     {
-        // First check to see if the netric application was previously initailized
-        if (Application::getApplicationInstance()) {
-            // This is the easiest solution, just use the application log
-            return Application::getApplicationInstance()->getLog();
-        } else {
-            /*  
-             * The netric application was not yet initialized so we'll need to
-             * construct our own instance of the netric application logger
-             */
-             // Setup config
-             $configLoader = new ConfigLoader();
-             $applicationEnvironment = (getenv('APPLICATION_ENV')) ?
-                 getenv('APPLICATION_ENV') : "production";
-             $config = $configLoader->fromFolder(
-                 dirname(__FILE__)."/../../../../config",
-                 $applicationEnvironment
-             );
-             return Application::init($config)->getLog();
-        }
+        $application = NetricApplicationInit::getApplication();
+        return $application->getLog();
     }
 
     /**
