@@ -15,8 +15,6 @@ require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 // Require backend application initialization
 require_once(dirname(__FILE__) . '/netricApplicationInit.php');
 
-use Netric\Application\Application;
-use Netric\Config\ConfigLoader;
 use Netric\Log\LogInterface;
 
 /**
@@ -29,12 +27,24 @@ class LogNetric extends \Log
      * @var string
      */
     private $lastMessageWritten = "";
+
+    /**
+     * Log path
+     *
+     * This is only used for dumping WBXML
+     *
+     * @var string
+     */
+    private $logFilePath = "";
     
     /**
      * Log constructor cannot take any arguments because we do not control instantiation
      */
     public function __construct() {
         parent::__construct();
+
+        // Set output directory for dumping WBXML files
+        $this->logFilePath = dirname(__FILE__) . "/../../../../data/log";
     }
 
     /**
@@ -74,10 +84,12 @@ class LogNetric extends \Log
             case LOGLEVEL_INFO:
                 $netricLog->info($logMessage);
                 break;
+            case LOGLEVEL_WBXMLSTACK:
+                $this->dumpWbXml($message);
+                break;
             case LOGLEVEL_DEBUG:
             case LOGLEVEL_WBXML:
             case LOGLEVEL_DEVICEID:
-            case LOGLEVEL_WBXMLSTACK:
             default:
                 $netricLog->debug($logMessage);
                 break;
@@ -96,7 +108,7 @@ class LogNetric extends \Log
      */
     public function WriteForUser($loglevel, $message) {
         // Always pass the logleveldebug so it uses syslog level LOG_DEBUG
-        $this->Write(LOGLEVEL_DEBUG, $message); 
+        $this->Write($loglevel, $message);
     }
 
     /**
@@ -124,5 +136,26 @@ class LogNetric extends \Log
         }
         $log .= ' ' . $message;
         return $log;
+    }
+
+    /**
+     * Output each line of the communications between the client and the server
+     *
+     * TODO: It would be much better if we could figure out a way to send this to a remote log
+     *
+     * @param string $line
+     */
+    private function dumpWbXml($line)
+    {
+        try {
+            $requestId = $this->getNetricLog()->getRequestId();
+            $file = fopen($this->logFilePath . '/' . $requestId . '.wbxml', 'a');
+            fwrite($file, $line . "\n");
+            fclose($file);
+        } catch (Exception $ex) {
+            // Log the error so we know something went wrong
+            $this->Write(LOGLEVEL_ERROR, $ex->getMessage());
+        }
+
     }
 }
