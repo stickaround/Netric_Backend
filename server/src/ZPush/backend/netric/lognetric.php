@@ -149,7 +149,7 @@ class LogNetric extends \Log
     {
         try {
             $requestId = $this->getNetricLog()->getRequestId();
-            $file = fopen($this->logFilePath . '/' . $requestId . '.wbxml', 'a');
+            $file = fopen($this->logFilePath . '/' . $requestId . '.wbxml', 'a+');
             fwrite($file, $line . "\n");
             fclose($file);
         } catch (Exception $ex) {
