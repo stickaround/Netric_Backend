@@ -518,10 +518,8 @@ class EntityProvider
         $groupings = $gloader->get(
             "email_message",
             "mailbox_id",
-            array("owner_id"=>$this->user->getId())
+            array("user_id"=>$this->user->getId())
         );
-
-
 
         $groups = $groupings->getAll();
         foreach ($groups as $group)

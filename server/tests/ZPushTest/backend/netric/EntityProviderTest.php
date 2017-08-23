@@ -218,15 +218,19 @@ class EntityProviderTest extends TestCase
         $sm = $this->account->getServiceManager();
         $entityGroupingsLoader = $sm->get("EntityGroupings_Loader");
         $groupings = $entityGroupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
+
         $newGroup = $groupings->create();
         $newGroup->name = "utttest mailbox";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
+        $newGroup->user_id = $this->user->getId();
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest mailbox");
 
         // Get groupings as folders
         $folders = $this->provider->getEmailFolders();
+
+        // There should be two folders - one for the Inbox made is $this->setUp and the one created above
+        $this->assertEquals(2, count($folders));
 
         $found = false;
         foreach ($folders as $folder) {
@@ -694,7 +698,7 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->markEntitySeen(
-            $emailFolders[1]->serverid,
+            $emailFolders[0]->serverid,
             $id,
             true
         );
@@ -708,6 +712,7 @@ class EntityProviderTest extends TestCase
     {
         // Get folders, at least one will be there because we created Inbox in $this->setUp
         $emailFolders = $this->provider->getEmailFolders();
+
         // Mailboxes are stored in '[obj_type]-[id]' format so get the id beflow
         $folderParts = explode("-", $emailFolders[0]->serverid);
         $mailboxId = $folderParts[1];
@@ -719,7 +724,7 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $entity;
 
         $ret = $this->provider->deleteEntity(
-            $emailFolders[1]->serverid,
+            $emailFolders[0]->serverid,
             $id
         );
         $this->assertTrue($ret);
