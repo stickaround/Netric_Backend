@@ -829,4 +829,55 @@ class EntityController extends Mvc\AbstractAccountController
         // Return the groupings object
         return $groupings;
     }
+
+    /**
+     * Get a user-specific dashboard object id for a given application dashboard name
+     */
+    public function getLoadAppDashForUserAction()
+    {
+        $dashName = $this->request->getParam("dashboard_name");
+        $dashboardId = null;
+
+        // Check if we have dashboard_name. If it is not defined, then return an error
+        if (!$dashName)
+        {
+            return $this->sendOutput(array("error" => "Dashboard name is required."));
+        }
+
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
+        $userId = $this->account->getUser()->getId();
+        $objType = "dashboard";
+
+        if ($dashName)
+        {
+            $entity = $loader->getByUniqueName(
+                $objType,
+                $dashboardName,
+                ["owner_id" => $userId]
+            );
+
+            if ($entity) {
+                $dashboardId = $entity->getId();
+            }
+        }
+
+        if (!$dashboardId)
+        {
+            $entity = $loader->create($objType);
+
+            // Create the dashboard using template found in /applications/dashboards if found
+            $entity->setValue("name", $dashboardName);
+            $entity->setValue("description", "User specific implementation of application dashboard - $dashName. Simply delete this dashboard to reset use to default application dashboard.");
+            $entity->setValue("scope", "user");
+            $entity->setValue("app_dash", $dashName);
+
+            // TODO - Copy dashboard layout to the newly created dashboard
+
+            $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+            $dashboardId = $dataMapper->save($entity);
+        }
+
+        return $this->sendOutput($dashboardId);
+    }
 }
