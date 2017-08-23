@@ -836,8 +836,6 @@ class EntityController extends Mvc\AbstractAccountController
     public function getLoadAppDashForUserAction()
     {
         $dashName = $this->request->getParam("dashboard_name");
-        $userId = $this->account->getUser()->getId();
-        $objType = "dashboard";
         $dashboardId = null;
 
         // Check if we have dashboard_name. If it is not defined, then return an error
@@ -846,8 +844,10 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => "Dashboard name is required."));
         }
 
-        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
+        $userId = $this->account->getUser()->getId();
+        $objType = "dashboard";
 
         if ($dashName)
         {
