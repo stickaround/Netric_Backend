@@ -515,7 +515,6 @@ class EntityControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setParam('dashboard_name', 'home.activity');
-        $req->setParam('user_id', $req->setParam('dashboard_name', 'home.activity'));
 
         $ret = $this->controller->getLoadAppDashForUserAction();
 

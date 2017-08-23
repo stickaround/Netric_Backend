@@ -836,20 +836,14 @@ class EntityController extends Mvc\AbstractAccountController
     public function getLoadAppDashForUserAction()
     {
         $dashName = $this->request->getParam("dashboard_name");
-        $userId = $this->request->getParam("user_id");
         $userId = $this->account->getUser()->getId();
         $objType = "dashboard";
         $dashboardId = null;
 
-        // Check if we have obj_type. If it is not defined, then return an error
+        // Check if we have dashboard_name. If it is not defined, then return an error
         if (!$dashName)
         {
             return $this->sendOutput(array("error" => "Dashboard name is required."));
-        }
-
-        if (!$userId)
-        {
-            $userId = $this->account->getUser()->getId();
         }
 
         $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
@@ -857,7 +851,6 @@ class EntityController extends Mvc\AbstractAccountController
 
         if ($dashName)
         {
-            // Retrieve the entity by a unique name and optional conditions
             $entity = $loader->getByUniqueName(
                 $objType,
                 $dashboardName,
