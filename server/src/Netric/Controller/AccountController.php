@@ -44,7 +44,7 @@ class AccountController extends Mvc\AbstractAccountController
             "id" => $this->account->getId(),
             "name" => $this->account->getName(),
             "orgName" => "", // TODO: $this->account->get
-            "defaultModule" => "notes", // TODO: this should be home until it is configurable
+            "defaultModule" => "home", // TODO: this should be home until it is configurable
             "modules" => $modules
         );
 
