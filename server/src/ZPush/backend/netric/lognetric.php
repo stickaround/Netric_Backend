@@ -85,10 +85,10 @@ class LogNetric extends \Log
                 $netricLog->info($logMessage);
                 break;
             case LOGLEVEL_WBXMLSTACK:
+            case LOGLEVEL_WBXML:
                 $this->dumpWbXml($message);
                 break;
             case LOGLEVEL_DEBUG:
-            case LOGLEVEL_WBXML:
             case LOGLEVEL_DEVICEID:
             default:
                 $netricLog->debug($logMessage);
@@ -107,7 +107,6 @@ class LogNetric extends \Log
      * @return void
      */
     public function WriteForUser($loglevel, $message) {
-        // Always pass the logleveldebug so it uses syslog level LOG_DEBUG
         $this->Write($loglevel, $message);
     }
 
@@ -149,7 +148,7 @@ class LogNetric extends \Log
     {
         try {
             $requestId = $this->getNetricLog()->getRequestId();
-            $file = fopen($this->logFilePath . '/' . $requestId . '.wbxml', 'a');
+            $file = fopen($this->logFilePath . '/' . $requestId . '.wbxml', 'a+');
             fwrite($file, $line . "\n");
             fclose($file);
         } catch (Exception $ex) {
