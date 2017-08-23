@@ -302,11 +302,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function getById(EntityInterface $entity, $id)
 	{
-		$ret = $this->fetchById($entity, $id);
+		if (!empty($id) && !is_numeric($id)) {
+			throw new \InvalidArgumentException("$id is not a valid entity id");
+		}
 
-        if (!empty($id) && !is_numeric($id)) {
-            throw new \InvalidArgumentException("$id is not a valid entity id");
-        }
+		$ret = $this->fetchById($entity, $id);
 
 		if (!$ret)
 		{

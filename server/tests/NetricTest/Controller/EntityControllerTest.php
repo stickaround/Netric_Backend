@@ -509,4 +509,17 @@ class EntityControllerTest extends TestCase
         // Set the added groups here to be deleted later in the tearDown
         $this->testGroups = array($retWithParent['id'], $retGroup['id']);
     }
+
+    public function testGetLoadAppDashForUserAction()
+    {
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('dashboard_name', 'home.activity');
+
+        $ret = $this->controller->getLoadAppDashForUserAction();
+
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $dashboardEntity = $loader->get("dashboard", $ret);
+        $this->assertEquals($dashboardEntity->getValue("name"), "Activity");
+    }
 }
