@@ -497,22 +497,31 @@ class EntityProvider
      */
     public function getEmailFolders($id = "")
     {
+        // Log if a user is not provided
+        if (!$this->user->getId()) {
+            $this->log->error("ZPUSH->EntityProvider->getEmailFolders: Called without a user");
+        }
+
         // Folders to return
         $folders = array();
 
-        // Get email groupings for email folders
+        /*
+         * Get email groupings for email folders.
+         * When passing the filer (last param with owner value)
+         * the key name is the name of the property in the entity, in this case
+         * email_message.owner_id and the value to query for. The entity definition
+         * for the grouping will map the entity field value to the grouping value if
+         * the names are different like - groupings.user_id=email_message.owner_id
+         */
         $serviceManager = $this->account->getServiceManager();
         $gloader = $serviceManager->get("EntityGroupings_Loader");
         $groupings = $gloader->get(
             "email_message",
             "mailbox_id",
-            array("user_id"=>$this->user->getId())
+            array("owner_id"=>$this->user->getId())
         );
 
-        // Log if a user is not provided
-        if (!$this->user->getId()) {
-            $this->log->error("ZPUSH->EntityProvider->getEmailFolders: Called without a user");
-        }
+
 
         $groups = $groupings->getAll();
         foreach ($groups as $group)

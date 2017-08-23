@@ -258,7 +258,13 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 				{
 					if ($cnd) $cnd .= " and ";
 
-					// Replacing the below block for now to add simple filters
+                    /*
+                     * When passing the filter (last param with owner value)
+                     * the key name is the name of the property in the entity, in this case
+                     * email_message.owner_id and the value to query for. The entity definition
+                     * for the grouping will map the entity field value to the grouping value if
+                     * the names are different like - groupings.user_id=email_message.owner_id
+                     */
 					$cnd .= " $grouping_field='".$filters[$object_field]."' ";
 
 					/**

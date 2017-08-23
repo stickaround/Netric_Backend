@@ -169,7 +169,7 @@ class SyncCollections implements Iterator {
             }
 
             if ($spa->GetUuidCounter() == 0) {
-                ZLog::Write(LOGLEVEL_DEBUG, "SyncCollections->LoadCollection(): Found collection with move state only, ignoring.");
+                ZLog::Write(LOGLEVEL_DEBUG, "SyncCollections->LoadCollection($folderid): Found collection with move state only, ignoring.");
                 return true;
             }
         }

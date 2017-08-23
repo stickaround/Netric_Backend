@@ -201,7 +201,14 @@ class ExportChangeNetric extends ChangesNetric implements IExportChanges
                             $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: exported delete {$change['id']}");
                         }
                     } else {
-                        $this->log->info("ZPUSH->ExportChangeNetric->Synchronize: stale in netric but never sent to device {$change['id']}");
+                        $this->log->info(
+                            "ZPUSH->ExportChangeNetric->Synchronize: 
+                            {$this->folderId}.{$change['id']} was deleted in netric before it
+                            could be sent to the device"
+                        );
+
+                        // Log it as exported so we don't get this change again
+                        $this->collection->logExported($change['id'], null);
                     }
 
                     break;
