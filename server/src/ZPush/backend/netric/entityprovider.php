@@ -480,8 +480,19 @@ class EntityProvider
         $noteFolders = $this->getNoteFolders();
         $calendarFolders = $this->getCalendarFolders();
 
+        /* TODO: This is a temp test to see if it fixes an issue in Android
+                 where it is deleting new contacts if email is not being synchronized
         return array_merge(
             $emailFolders,
+            $taskFolders,
+            $contactFolders,
+            $noteFolders,
+            $calendarFolders
+        );
+        */
+
+        // See what happens without email folders
+        return array_merge(
             $taskFolders,
             $contactFolders,
             $noteFolders,
