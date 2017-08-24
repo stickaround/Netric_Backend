@@ -164,4 +164,35 @@ class ExportFolderChagesNetricTest extends TestCase
         );
         $this->assertEquals($expectedState, $exporter->GetState());
     }
+
+    /**
+     * Make sure that calling synchronize again on a synchronized hierarchy
+     * results in 0 changes to prevent an endless loop.
+     */
+    public function testSynchronize_AlreadySynchronized()
+    {
+        // Create a SyncFolder for testing and return from mock entity provider
+        $syncFolder = new \SyncFolder();
+        $syncFolder->serverid = 'test';
+        $syncFolder->displayname = "Test";
+        $syncFolder->parentid = "0";
+        $this->entityProvider->method('getFolder')->willReturn($syncFolder);
+        $this->entityProvider->method('getAllFolders')->willReturn([$syncFolder]);
+
+        // Create exporter
+        $exporter = new \ExportFolderChangeNetric(
+            $this->log,
+            $this->entityProvider
+        );
+
+        // Assume we had previously exported the same folders
+        $state = [['id' => 'test', 'mod' => 'Test', 'parent' => '0', 'flags'=>0]];
+        $exporter->Config($state);
+
+        // Initialize the netric exporter with the in-memory importer
+        $exporter->InitializeExporter(new \ChangesMemoryWrapper());
+
+        // Synchronize - should return no changes
+        $this->assertFalse($exporter->Synchronize());
+    }
 }
