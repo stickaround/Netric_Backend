@@ -254,9 +254,10 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		{
 			foreach ($field->fkeyTable['filter'] as $grouping_field=>$object_field)
 			{
-				if (isset($filters[$object_field]))
-				{
-					if ($cnd) $cnd .= " and ";
+				if (isset($filters[$object_field])) {
+					if ($cnd) {
+					    $cnd .= " and ";
+                    }
 
                     /*
                      * When passing the filter (last param with owner value)
@@ -267,41 +268,13 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                      */
 					$cnd .= " $grouping_field='".$filters[$object_field]."' ";
 
-					/**
-					 * This appears to be a powerful feature, but I don't know if we are even
-					 * using it anywhere so I am commenting it out for the time being.
-					 * - Sky Stebnicki
-					 *
-					// Check for parent
-					$obj_rfield = $this->def->getField($object_field);
-					if ($obj_rfield->fkeyTable && $obj_rfield->fkeyTable['parent'])
-					{
-					if ($obj_rfield->type == "object")
-					{
-					$refo = new CAntObject($dbh, $obj_rfield->subtype);
-					$tbl = $refo->object_table;
-					}
-					else
-					$tbl = $obj_rfield->subtype;
-
-					$root = objFldHeiarchRoot($dbh, $obj_rfield->fkeyTable['key'],
-					$obj_rfield->fkeyTable['parent'],
-					$tbl, $filters[$object_field]);
-					if ($root && $root!=$filters[$object_field])
-					{
-					$cnd .= " ($referenced_field='".$filters[$object_field]."' or $referenced_field='".$root."')";
-					}
-					else
-					{
-					$cnd .= " $referenced_field='".$filters[$object_field]."' ";
-					}
-					}
-					else
-					{
-					$cnd .= " $referenced_field='".$filters[$object_field]."' ";
-					}
-					 */
-				}
+				} else if (isset($filters[$grouping_field])) {
+				    // A filer can also come in as the grouping field name rather than the object
+                    if ($cnd) {
+                        $cnd .= " and ";
+                    }
+                    $cnd .= " $grouping_field='".$filters[$grouping_field]."' ";
+                }
 			}
 		}
 

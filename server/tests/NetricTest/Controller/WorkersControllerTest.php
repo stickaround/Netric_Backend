@@ -114,13 +114,13 @@ class WorkersControllerTest extends TestCase
                 $this->equalTo(['account_id'=>$this->account->getId()])
             );
 
-        // Artificially renew the lock
+        // Artificially lock the test for 1 second
         $uniqueLockName = 'WorkerScheduleAction-';
         $uniqueLockName .= $this->account->getApplication()->getConfig()->version;
         $this->account->getApplication()->acquireLock($uniqueLockName, 1);
         
         // This should just exit due to the lock
-        $ret = $this->controller->consoleScheduleAction();
+        $this->controller->consoleScheduleAction();
 
         // It will automatically release in 1 second, but clean-up anyway
         $this->account->getApplication()->releaseLock($uniqueLockName);

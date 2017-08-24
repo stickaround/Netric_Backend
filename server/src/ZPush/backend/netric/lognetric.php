@@ -85,6 +85,9 @@ class LogNetric extends \Log
                 $netricLog->info($logMessage);
                 break;
             case LOGLEVEL_WBXMLSTACK:
+                // TODO: We don't really need to log the stack
+                // TODO: since it is encoded in WBXML which is not readable
+                break;
             case LOGLEVEL_WBXML:
                 $this->dumpWbXml($message);
                 break;
@@ -148,7 +151,11 @@ class LogNetric extends \Log
     {
         try {
             $requestId = $this->getNetricLog()->getRequestId();
-            $file = fopen($this->logFilePath . '/' . $requestId . '.wbxml', 'a+');
+            $deviceId = $this->GetDevid();
+            $deviceId = str_replace('[', '', $deviceId);
+            $deviceId = str_replace(']', '', $deviceId);
+            $logFileName = ($deviceId) ? $deviceId : $requestId;
+            $file = fopen($this->logFilePath . '/' . $logFileName . '.wbxml', 'a+');
             fwrite($file, $line . "\n");
             fclose($file);
         } catch (Exception $ex) {
