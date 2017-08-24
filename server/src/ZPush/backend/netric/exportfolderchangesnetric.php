@@ -194,18 +194,6 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
      */
 
     /**
-     * Comparing function used for sorting of the differential engine
-     *
-     * @param array $a
-     * @param array $b
-     * @return boolean
-     */
-    static public function RowCmp($a, $b) {
-        // TODO implement different comparing functions
-        return $a["id"] < $b["id"] ? 1 : -1;
-    }
-
-    /**
      * Differential mechanism compares the current syncState to the sent $new
      *
      * This is only used for folder hierarchy since we have to combine them
@@ -218,72 +206,38 @@ class ExportFolderChangeNetric extends ChangesNetric implements IExportChanges
     {
         $changes = array();
 
-        // Sort both arrays in the same way by ID
-        usort($this->syncState, array("ExportFolderChangeNetric", "RowCmp"));
-        usort($new, array("ExportFolderChangeNetric", "RowCmp"));
+        // Convert array to map to make it easy to diff
+        $newMap = [];
+        foreach ($new as $newState) {
+            $newMap[$newState['id']] = $newState;
+        }
+        $syncStateMap = [];
+        foreach ($this->syncState as $state) {
+            $syncStateMap[$state['id']] = $state;
+        }
 
-        $inew = 0;
-        $iold = 0;
-
-        // Get changes by comparing our list of messages with
-        // our previous state
-        while(1) {
-            $change = array();
-
-            if($iold >= count($this->syncState) || $inew >= count($new))
-                break;
-
-            if($this->syncState[$iold]["id"] == $new[$inew]["id"]) {
-                // Both messages are still available, compare flags and mod
-                if(isset($this->syncState[$iold]["flags"]) && isset($new[$inew]["flags"]) && $this->syncState[$iold]["flags"] != $new[$inew]["flags"]) {
-                    // Flags changed
-                    $change["type"] = "flags";
-                    $change["id"] = $new[$inew]["id"];
-                    $change["flags"] = $new[$inew]["flags"];
-                    $changes[] = $change;
-                }
-
-                if($this->syncState[$iold]["mod"] != $new[$inew]["mod"]) {
-                    $change["type"] = "change";
-                    $change["id"] = $new[$inew]["id"];
-                    $changes[] = $change;
-                }
-
-                $inew++;
-                $iold++;
-            } else {
-                if($this->syncState[$iold]["id"] > $new[$inew]["id"]) {
-                    // Message in state seems to have disappeared (delete)
-                    $change["type"] = "delete";
-                    $change["id"] = $this->syncState[$iold]["id"];
-                    $changes[] = $change;
-                    $iold++;
-                } else {
-                    // Message in new seems to be new (add)
-                    $change["type"] = "change";
-                    $change["flags"] = SYNC_NEWMESSAGE;
-                    $change["id"] = $new[$inew]["id"];
-                    $changes[] = $change;
-                    $inew++;
-                }
+        // Get any new folders (groups in netric) in $new
+        foreach ($newMap as $id=>$newState) {
+            if (!isset($syncStateMap[$id])) {
+                // New folder found in $newState
+                $changes[] = [
+                    'type' => 'change',
+                    'flags' => SYNC_NEWMESSAGE,
+                    'id' => $id,
+                ];
             }
+            // TODO: Should we check for a name change in mod?
         }
 
-        while($iold < count($this->syncState)) {
-            // All data left in 'syncstate' have been deleted
-            $change["type"] = "delete";
-            $change["id"] = $this->syncState[$iold]["id"];
-            $changes[] = $change;
-            $iold++;
-        }
-
-        while($inew < count($new)) {
-            // All data left in new have been added
-            $change["type"] = "change";
-            $change["flags"] = SYNC_NEWMESSAGE;
-            $change["id"] = $new[$inew]["id"];
-            $changes[] = $change;
-            $inew++;
+        // Find any folders that have been deleted (in syncState but not in new)
+        foreach ($syncStateMap as $id=>$state) {
+            if (!isset($newMap[$id])) {
+                // New folder found in $newState
+                $changes[] = [
+                    'type' => 'delete',
+                    'id' => $id,
+                ];
+            }
         }
 
         return $changes;
