@@ -124,37 +124,6 @@ return array(
             array('properties'=>array("process_name"), 'type' => 'UNIQUE'),
         ),
     ),
-    "worker_scheduled_jobs" => array(
-        "PROPERTIES" => array(
-            'id' => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-            'worker_name' => array('type'=>SchemaProperty::TYPE_CHAR_512),
-            'job_data' => array('type'=>SchemaProperty::TYPE_BINARY_STRING),
-            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
-            'ts_executed' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
-            'ts_execute' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
-            'recurrence_id' => array('type'=>SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties'=>array("ts_execute")),
-            array('properties'=>array("ts_executed")),
-        ),
-    ),
-    "worker_recurring_jobs" => array(
-        "PROPERTIES" => array(
-            'id' => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
-            'worker_name' => array('type'=>SchemaProperty::TYPE_CHAR_512),
-            'job_data' => array('type'=>SchemaProperty::TYPE_BINARY_STRING),
-            'ts_entered' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
-            'ts_last_executed' => array('type'=>SchemaProperty::TYPE_TIMESTAMP),
-            'interval' => array('type'=>SchemaProperty::TYPE_INT),
-            'interval_unit' => array('type'=>SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties'=>array("ts_last_executed")),
-        ),
-    ),
 
     // This has been deprecated for gearman
     // and can be deleted once we upgrade V1 to V2

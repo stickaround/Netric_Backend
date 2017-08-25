@@ -164,4 +164,86 @@ class ExportFolderChagesNetricTest extends TestCase
         );
         $this->assertEquals($expectedState, $exporter->GetState());
     }
+
+    /**
+     * Make sure that calling synchronize again on a synchronized hierarchy
+     * results in 0 changes to prevent an endless loop.
+     */
+    public function testSynchronize_AlreadySynchronized()
+    {
+        // Create a SyncFolder for testing and return from mock entity provider
+        $syncFolder = new \SyncFolder();
+        $syncFolder->serverid = 'test';
+        $syncFolder->displayname = "Test";
+        $syncFolder->parentid = "0";
+        $this->entityProvider->method('getFolder')->willReturn($syncFolder);
+        $this->entityProvider->method('getAllFolders')->willReturn([$syncFolder]);
+
+        // Create exporter
+        $exporter = new \ExportFolderChangeNetric(
+            $this->log,
+            $this->entityProvider
+        );
+
+        // Assume we had previously exported the same folders
+        $state = [['id' => 'test', 'mod' => 'Test', 'parent' => '0', 'flags'=>0]];
+        $exporter->Config($state);
+
+        // Initialize the netric exporter with the in-memory importer
+        $exporter->InitializeExporter(new \ChangesMemoryWrapper());
+
+        // Synchronize - should return no changes
+        $this->assertFalse($exporter->Synchronize());
+    }
+
+    /**
+     * Make sure that we don't get false positives if getAllFolders comes back
+     * out of order due to a user changing the order or a name.
+     */
+    public function testSynchronize_AlreadySynchronizedUnordered()
+    {
+        // Create a SyncFolders for testing and return from mock entity provider
+        $syncFolder1 = new \SyncFolder();
+        $syncFolder1->serverid = '1-1';
+        $syncFolder1->displayname = "Test";
+        $syncFolder1->parentid = "0"; // This is how the IDs come out of the provider
+
+        $syncFolder2 = new \SyncFolder();
+        $syncFolder2->serverid = '1-2'; // This is how the IDs come out of the provider
+        $syncFolder2->displayname = "Test";
+        $syncFolder2->parentid = "0";
+
+        // Return the folders out of order
+        $this->entityProvider->method('getAllFolders')->willReturn([$syncFolder2, $syncFolder1]);
+
+        // Create exporter
+        $exporter = new \ExportFolderChangeNetric(
+            $this->log,
+            $this->entityProvider
+        );
+
+        // Assume we had previously exported the same folders
+        // (in opposite order from getAllFolders)
+        $state = [
+            [
+                'id' => $syncFolder1->serverid,
+                'mod' => $syncFolder1->displayname,
+                'parent' => $syncFolder1->parentid,
+                'flags'=>0
+            ],
+            [
+                'id' => $syncFolder2->serverid,
+                'mod' => $syncFolder2->displayname,
+                'parent' => $syncFolder2->parentid,
+                'flags'=>0
+            ]
+        ];
+        $exporter->Config($state);
+
+        // Initialize the netric exporter with the in-memory importer
+        $exporter->InitializeExporter(new \ChangesMemoryWrapper());
+
+        // Synchronize - should return no changes
+        $this->assertFalse($exporter->Synchronize());
+    }
 }
