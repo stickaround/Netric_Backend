@@ -173,7 +173,7 @@ class EntityGroupings
 	}
 
 	/**
-	 * Retrive grouping data by a unique name
+	 * Retrieve grouping data by a unique name
 	 *
 	 * @param string $nameValue The unique value of the group to retrieve
 	 * @param int $paren Optional parent id for querying unique names of sub-groupings

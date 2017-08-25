@@ -521,7 +521,13 @@ class EntityProvider
             array("user_id"=>$this->user->getId())
         );
 
-        $groups = $groupings->getAll();
+        /*
+         * For now we are just limiting this to the inbox because apparently the
+         * Samsung S8 is having a lot of trouble with the hierarchy
+         * TODO: Comments this out to get all folders again
+         */
+        //$groups = $groupings->getAll();
+        $groups = [$groupings->getByName("Inbox")];
         foreach ($groups as $group)
         {
             $folder = new SyncFolder();

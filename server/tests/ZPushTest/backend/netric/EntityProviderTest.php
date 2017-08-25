@@ -219,19 +219,31 @@ class EntityProviderTest extends TestCase
         $entityGroupingsLoader = $sm->get("EntityGroupings_Loader");
         $groupings = $entityGroupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
 
+        /*
+         * TODO: We have removed the ability to have multiple folders and just return the inbox
         $newGroup = $groupings->create();
         $newGroup->name = "utttest mailbox";
         $newGroup->user_id = $this->user->getId();
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest mailbox");
+        */
 
         // Get groupings as folders
         $folders = $this->provider->getEmailFolders();
 
+        // Cleanup first
+        /*
+         * TODO: We have removed the ability to have multiple folders and just return the inbox
         // There should be two folders - one for the Inbox made is $this->setUp and the one created above
         $this->assertEquals(2, count($folders));
+        */
+        // We only return the inbox
+        $this->assertEquals(1, count($folders));
 
+
+        /*
+         * TODO: We have removed the ability to have multiple folders and just return the inbox
         $found = false;
         foreach ($folders as $folder) {
             if ($folder->serverid == \EntityProvider::FOLDER_TYPE_EMAIL . "-" . $savedGroup->id) {
@@ -244,6 +256,7 @@ class EntityProviderTest extends TestCase
 
         // Test result
         $this->assertTrue($found);
+        */
     }
 
     /**
