@@ -235,10 +235,12 @@ class BackendNetric implements IBackend
             throw new AuthenticationRequiredException("Bad username and/or password");
         }
 
-        // Set stateMachine stores for this account
+        // Set stateMachine stores for this account if it is not false
         $stateMachine = $this->GetStateMachine();
-        $stateMachine->setDatabase($sm->get("Db"));
-        $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
+        if ($stateMachine) {
+            $stateMachine->setDatabase($sm->get("Db"));
+            $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
+        }
 
         // Setup the entity provider
         $this->entityProvider = new EntityProvider($this->account, $this->user, $this->log);
