@@ -148,7 +148,11 @@ class BackendNetric implements IBackend
         $application = $this->getApplication();
 
         // TODO: In integ we are forcing the default statemachine for testing
-        if (!$this->stateMachine && getenv('APPLICATION_ENV') !== 'integration') {
+        if (getenv('APPLICATION_ENV') === 'integration') {
+            return false;
+        }
+
+        if (!$this->stateMachine) {
             $log = ($this->log) ? $this->log : $application->getLog();
 
             /*
