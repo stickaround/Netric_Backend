@@ -2,7 +2,7 @@ version: '2'
 
 services:
   netric_server:
-    image: docker.aereusdev.com:5001/netric:latest
+    image: dockerhub.aereusdev.com/netric:latest
     ports:
      - "80:80"
      - "443:443"

@@ -4,7 +4,7 @@
 cd ../docker
 
 # Login to the aereus docker host
-docker login -u aereusdev -p p7pfsGRe docker.aereusdev.com:5001
+docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
 
 # Pull the latest versions
 docker-compose -f docker-compose-integ.yml pull
