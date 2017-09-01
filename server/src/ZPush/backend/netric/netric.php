@@ -147,11 +147,6 @@ class BackendNetric implements IBackend
     {
         $application = $this->getApplication();
 
-        // TODO: In integ we are forcing the default statemachine for testing
-        if (getenv('APPLICATION_ENV') === 'integration') {
-            return false;
-        }
-
         if (!$this->stateMachine) {
             $log = ($this->log) ? $this->log : $application->getLog();
 
@@ -235,12 +230,10 @@ class BackendNetric implements IBackend
             throw new AuthenticationRequiredException("Bad username and/or password");
         }
 
-        // Set stateMachine stores for this account if it is not false
+        // Set stateMachine stores for this account
         $stateMachine = $this->GetStateMachine();
-        if ($stateMachine) {
-            $stateMachine->setDatabase($sm->get("Db"));
-            $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
-        }
+        $stateMachine->setDatabase($sm->get("Db"));
+        $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
 
         // Setup the entity provider
         $this->entityProvider = new EntityProvider($this->account, $this->user, $this->log);

@@ -133,3 +133,21 @@ Trace: in class CDatabase::connect()
 ----------------------------------------------
 ",/controller/User/getUpdateStream?_=1503252102140,localhost,,
 ERROR,2017-08-21T05:04:47-07:00,"Unable to connect to database db1 antsystem",/controller/User/getUpdateStream?_=1503252102140,localhost,,
+ERROR,2017-08-26T19:26:03-07:00,"User: 
+Type: Database
+Database: antsystem
+Schema: 
+When: 2017-08-26 19:26:03
+Host: localhost
+Page: /authenticate.php
+Error
+----------------------------------------------
+ERROR:  column ""customer_number"" does not exist
+LINE 1: select customer_number from accounts where id='1'
+               ^
+----------------------------------------------
+Query
+----------------------------------------------
+select customer_number from accounts where id='1'
+----------------------------------------------
+",/authenticate.php,localhost,,
