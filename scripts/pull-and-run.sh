@@ -11,10 +11,16 @@ fi
 docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
 docker pull dockerhub.aereusdev.com/netric:${TARGET}
 
+# Rename the old container so we can keep it running while we bring up the new container
+docker rename netric netric_dep
+
 # Run the webserver
-docker stop netric
-docker rm netric
-docker run -d -p 50010:80 -p 50011:443 --restart=unless-stopped --name netric \
+docker run -d -p 80 -p 443 --restart=unless-stopped --name netric \
 	-e APPLICATION_ENV="production" \
-   --log-driver=syslog --log-opt tag=netric-${TARGET} --log-opt syslog-facility=local2 \
+    -e VIRTUAL_HOST="aereus.netric.com" \ 
+    -e VIRTUAL_PORT="443"
 	dockerhub.aereusdev.com/netric:${TARGET}
+
+# Stop the old container and cleanup
+docker stop netric_dep
+docker rm netric_dep
