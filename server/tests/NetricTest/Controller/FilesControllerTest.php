@@ -5,7 +5,12 @@
 namespace NetricTest\Controller;
 
 use Netric;
-use Netric\Entity\ObjType;
+use Netric\EntityLoader;
+use Netric\Account\Account;
+use Netric\Controller\FilesController;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\ObjType\FolderEntity;
+use Netric\Entity\ObjType\FileEntity;
 use Netric\FileSystem\FileSystem;
 use PHPUnit\Framework\TestCase;
 
@@ -14,21 +19,21 @@ class FilesControllerTest extends TestCase
     /**
      * Account used for testing
      *
-     * @var \Netric\Account\Account
+     * @var Account
      */
     protected $account = null;
 
     /**
      * Controller instance used for testing
      *
-     * @var \Netric\Controller\FilesController
+     * @var FilesController
      */
     protected $controller = null;
 
     /**
      * Test user
      *
-     * @var \Netric\Entity\ObjType\UserEntity
+     * @var UserEntity
      */
     private $user = null;
 
@@ -42,32 +47,55 @@ class FilesControllerTest extends TestCase
     /**
      * Test folders to cleanup
      *
-     * @var ObjType\Folder[]
+     * @var FolderEntity[]
      */
-    private $testFolders = array();
+    private $testFolders = [];
 
     /**
      * Test files to cleanup
      *
-     * @var ObjType\FileEntity[]
+     * @var FileEntity[]
      */
-    private $testFiles = array();
+    private $testFiles = [];
 
+    /**
+     * Common constants used
+     *
+     * @cons string
+     */
+    const TEST_USER = "test_files_controller";
+    const TEST_USER_PASS = "testpass";
 
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
+        $loader = $sl->get(EntityLoader::class);
 
         // Create the controller
         $this->controller = new Netric\Controller\FilesController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
 
-        // Setup entity datamapper for handling users
-        $dm = $sl->get("Entity_DataMapper");
-
         // Get FileSystem
         $this->fileSystem = $sl->get(FileSystem::class);
+
+        // Make sure old test user does not exist
+        $query = new \Netric\EntityQuery("user");
+        $query->where('name')->equals(self::TEST_USER);
+        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $res = $index->executeQuery($query);
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
+            $user = $res->getEntity($i);
+            $dm->delete($user, true);
+        }
+
+        // Create a temporary user
+        $user = $loader->create("user");
+        $user->setValue("name", self::TEST_USER);
+        $user->setValue("password", self::TEST_USER_PASS);
+        $user->setValue("active", true);
+        $loader->save($user);
+        $this->user = $user;
     }
 
     /**
@@ -76,17 +104,21 @@ class FilesControllerTest extends TestCase
     protected function tearDown()
     {
         // Clean-up test files
-        foreach ($this->testFiles as $file)
-        {
+        foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file);
         }
 
         // Delete all test folders in reverse order - in case they are children of each other
         $folders = array_reverse($this->testFolders);
-        foreach ($folders as $folder)
-        {
+        foreach ($folders as $folder) {
             $this->fileSystem->deleteFolder($folder);
         }
+
+        // Remote the temp user
+        $this->account = \NetricTest\Bootstrap::getAccount();
+        $sl = $this->account->getServiceManager();
+        $entityLoader = $sl->get(EntityLoader::class);
+        $entityLoader->delete($this->user, true);
     }
 
     /**
@@ -358,5 +390,50 @@ class FilesControllerTest extends TestCase
         // Make sure the image is valid and resized
         $this->assertEquals(64, $sizes[0]);
         $this->assertEquals(64, $sizes[1]);
+    }
+
+    /**
+     * Test that we can download a profile image for a user
+     */
+    public function testGetUserImageAction()
+    {
+        // Import a test profile image
+        $fileToImport = __DIR__ . "/../../data/image.png";
+        $importedFile = $this->fileSystem->importFile($fileToImport, "/testdownload");
+        $this->testFiles[] = $importedFile;
+        $this->testFolders[] = $this->fileSystem->openFolder("/testdownload");
+
+        // Set the newly imported file as the user's profile pic
+        $this->user->setValue('image_id', $importedFile->getId());
+        $loader = $this->account->getServiceManager()->get(EntityLoader::class);
+        $loader->save($this->user);
+
+        // Set which file to download in the request and that it should be resized to 64 px
+        $req = $this->controller->getRequest();
+        $req->setParam("user_id", $this->user->getId());
+        $req->setParam("max_width",64);
+        $req->setParam("max_height",64);
+
+        // Now stream the file contents into $ret
+        $response = $this->controller->getUserImageAction();
+
+        // Create a temp file to store the resized image into
+        $tempFilePath = __DIR__ . '/../../data/tmp/files_controller_temp.png';
+        $outputStream = fopen($tempFilePath, 'w');
+
+        // Suppress the output into a file
+        $response->suppressOutput(true);
+        $response->stream($outputStream);
+        $headers = $response->getHeaders();
+        fclose($outputStream);
+
+        // Get the newly created resized file entity (will copy $importedFile)
+        $newFileRef = Netric\Entity\Entity::decodeObjRef($headers['X-Entity']);
+        $resizedFile = $this->fileSystem->openFileById($newFileRef['id']);
+        $this->testFiles[] = $resizedFile;
+
+        // Make sure we didn't stream an empty file
+        $fileSize = \filesize($tempFilePath);
+        $this->assertGreaterThan(0, $fileSize);
     }
 }

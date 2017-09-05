@@ -6,6 +6,7 @@ namespace Netric\Controller;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Mvc;
+use Netric\EntityLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\ImageResizer;
 use Netric\FileSystem\FileStreamWrapper;
@@ -283,5 +284,46 @@ class FilesController extends Mvc\AbstractAccountController
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
         return $response;
+    }
+
+    /**
+     * Redirect to a user's profile image
+     *
+     * @return HttpResponse
+     */
+    public function getUserImageAction()
+    {
+        $request = $this->getRequest();
+        $response = new HttpResponse($request);
+        $userId = $request->getParam("user_id");
+
+        // If the user id was not passed we use current
+        if (!$userId) {
+            $userId = $this->account->getUser()->getId(); 
+        }
+
+        // We will need the entityLoader to load up a user
+        $serviceManager = $this->getApplication()->getAccount()->getServiceManager();
+        $entiyLoader = $serviceManager->get(EntityLoader::class);
+
+        // Get the user entity for the user id
+        $userToGetImageFor = $entiyLoader->get('user', $userId);
+        $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
+
+        // 404 if the user was not found or there was no image_id uploaded
+        if (!$imageId) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
+            return $response;
+        }
+
+        // Set the request file id
+        $request->setParam('file_id', $imageId);
+
+        /*
+         * Now do a backend redirect where no response is sent to the browser
+         * but the newly modified request will be sent to $this->getDownloadAction()
+         * becaues we want to preserve caching with the user profile links
+         */
+        return $this->getDownloadAction();
     }
 }

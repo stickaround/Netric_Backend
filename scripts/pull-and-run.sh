@@ -15,9 +15,9 @@ docker pull dockerhub.aereusdev.com/netric:${TARGET}
 docker rename netric netric_dep
 
 # Run the webserver
-docker run -d -p 80 --restart=unless-stopped --name netric \
-	-e APPLICATION_ENV="production" \
-	-e VIRTUAL_HOST=aereus.netric.com \ 
+docker run -d -p 80 -p 443 --restart=unless-stopped --name netric \
+    -e APPLICATION_ENV="production" \
+    -e VIRTUAL_HOST=aereus.netric.com \ 
     -e LETSENCRYPT_HOST=aereus.netric.com \ 
     -e LETSENCRYPT_EMAIL=sky.stebnicki@netric.com \ 
 	dockerhub.aereusdev.com/netric:${TARGET}

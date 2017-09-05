@@ -70,6 +70,10 @@ RUN pear install mail \
 	&& pear install mail_mime \
 	&& pear install Net_SMTP
 
+# Install composer
+RUN curl -sS https://getcomposer.org/installer \
+    | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Enable required apache modules
 RUN ln -s /etc/apache2/mods-available/expires.load /etc/apache2/mods-enabled/
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
@@ -105,7 +109,7 @@ RUN chmod +x /start-daemon.sh
 RUN chown -R www-data:www-data /var/www/html/data/
 
 # Run composer install to get all required dependencies
-RUN cd /var/www/html && php composer.phar install && php composer.phar update
+RUN cd /var/www/html && composer install && composer update
 
 # Update logs to print to stdout so they can be shipped
 RUN ln -sf /dev/stderr /var/log/netric

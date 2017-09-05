@@ -56,12 +56,11 @@ RewriteRule files/images/([0-9]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&contr
 RewriteRule files/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1 [QSA]
 RewriteRule files/([0-9]+)/(.*)$ /router.php?version=2&controller=files&function=download&file_id=$1&file_name=$2 [QSA]
 
-#RewriteRule files/webdav$ /userfiles/webdav.php
-#RewriteRule files/webdav/$ /userfiles/webdav.php
-#RewriteRule files/webdav/(.*)$ /userfiles/webdav.php?path=$1
-RewriteRule files/userimages/current/([0-9]+)/([0-9]+)$ /controller/User/loadUserImage?w=$1&h=$2
-RewriteRule files/userimages/([0-9-]+)/([0-9]+)/([0-9]+)$ /controller/User/loadUserImage?uid=$1&w=$2&h=$3
-RewriteRule files/userimages/([a-zA-Z_.]+)/([0-9]+)/([0-9]+)$ /controller/User/loadUserImage?uname=$1&w=$2&h=$3
+RewriteRule files/userimages/current/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&max_width=$1&max_height=$2 [QSA]
+RewriteRule files/userimages/([0-9-]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&user_id=$1&max_width=$2&max_height=$3 [QSA]
+
+# We no longer support getting user images by username
+#RewriteRule files/userimages/([a-zA-Z_.]+)/([0-9]+)/([0-9]+)$ /controller/User/loadUserImage?uname=$1&w=$2&h=$3
 
 RewriteRule wapi/([a-zA-Z-_']+)$ /$1/wapi.php
 RewriteRule wapi/([a-zA-Z-_']+)/([a-zA-Z-_']+)$ /$1/wapi.php?function=$2

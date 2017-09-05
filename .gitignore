@@ -32,9 +32,10 @@ Thumbs.db
 
 # IDE Files #
 ######################
-/.idea/
+/.idea
 /.buildpath
 /.project
+/.vscode
 
 
 # Vagrant files #
