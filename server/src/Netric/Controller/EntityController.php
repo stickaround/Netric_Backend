@@ -198,13 +198,32 @@ class EntityController extends Mvc\AbstractAccountController
 
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
-        if (isset($params['uname']) && !isset($params['id'])) {
+        if (isset($params['uname']) && (!isset($params['id']) || empty($params['id']))) {
+
+            $objType = $params['obj_type'];
+            $uname = $params['uname'];
+            $conditions = $params['uname_conditions'];
+
+            // If we are dealing with dashboard entity, then we need to follow specific format for dashboard uname
+            if ($objType === "dashboard")
+            {
+                $dashboardName = ucwords(str_replace("-", " ", substr($uname, strpos($uname, '.')+1)));
+                $uname = $dashboardName;
+
+                $conditions = ["owner_id" => $this->account->getUser()->getId()];
+            }
+
             // Retrieve the entity bu a unique name and optional conditions
             $entity = $loader->getByUniqueName(
-                $params['obj_type'],
-                $params['uname'],
-                $params['uname_conditions']
+                $objType,
+                $uname,
+                $conditions
             );
+
+            if (!$entity && $objType === "dashboard")
+            {
+                $entity = $this->createAppDashForUser($params['uname'], $dashboardName);
+            }
         } else {
             // Retrieve the entity by id
             $entity = $loader->get($params['obj_type'], $params['id']);
@@ -758,8 +777,7 @@ class EntityController extends Mvc\AbstractAccountController
         $groupings = $this->getGroupings($loader, $objData['obj_type'], $objData['field_name'], $groupFilter);
 
         // $objData['action'] will determine what type of action we will execute
-        switch ($objData['action'])
-        {
+        switch ($objData['action']) {
             case 'add':
 
                 // Create a new instance of group and add it in the groupings
@@ -773,7 +791,7 @@ class EntityController extends Mvc\AbstractAccountController
             case 'edit':
 
                 // $objData['id'] is the Group Id where we need to check it first before updating the group
-                if(isset($objData['id']) && !empty($objData['id']))
+                if (isset($objData['id']) && !empty($objData['id']))
                     $group = $groupings->getById($objData['id']);
                 else
                     return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
@@ -785,7 +803,7 @@ class EntityController extends Mvc\AbstractAccountController
             case 'delete':
 
                 // $objData['id'] is the Group Id where we need to check it first before deleting the group
-                if(isset($objData['id']) && !empty($objData['id']))
+                if (isset($objData['id']) && !empty($objData['id']))
                     $group = $groupings->getById($objData['id']);
                 else
                     return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
@@ -812,7 +830,7 @@ class EntityController extends Mvc\AbstractAccountController
      * @param {array} $groupFilter This will be used to filter the groups and return only the groups that mached the filter
      * @return {Netric\EntityGroupings} Returns the instance of Netric\EntityGroupings Model
      */
-    private function getGroupings(\Netric\EntityGroupings\Loader $loader, $objType, $fieldName, &$groupFilter=array())
+    private function getGroupings(\Netric\EntityGroupings\Loader $loader, $objType, $fieldName, &$groupFilter = array())
     {
 
         // Get the entity defintion of the $objType
@@ -832,52 +850,40 @@ class EntityController extends Mvc\AbstractAccountController
 
     /**
      * Get a user-specific dashboard object id for a given application dashboard name
+     *
+     * @param {string} $uniqueName The unique name of the dashboard
+     * @param {string} $dashboardName The name of the dashboard
      */
-    public function getLoadAppDashForUserAction()
+    private function createAppDashForUser($uniqueName, $dashboardName)
     {
-        $dashName = $this->request->getParam("dashboard_name");
-        $dashboardId = null;
+        /*$dashName = $this->request->getParam("dashboard_name");
 
-        // Check if we have dashboard_name. If it is not defined, then return an error
-        if (!$dashName)
-        {
-            return $this->sendOutput(array("error" => "Dashboard name is required."));
-        }
-
+        $dashboardEntity = null;
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
-        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
         $userId = $this->account->getUser()->getId();
+        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
         $objType = "dashboard";
 
         if ($dashName)
         {
-            $entity = $loader->getByUniqueName(
+            $dashboardEntity = $loader->getByUniqueName(
                 $objType,
                 $dashboardName,
                 ["owner_id" => $userId]
             );
+        }*/
 
-            if ($entity) {
-                $dashboardId = $entity->getId();
-            }
-        }
+        $dashboardEntity = $loader->create("dashboard");
 
-        if (!$dashboardId)
-        {
-            $entity = $loader->create($objType);
+        // Create the dashboard using template found in /applications/dashboards if found
+        $dashboardEntity->setValue("name", $dashboardName);
+        $dashboardEntity->setValue("description", "User specific implementation of application dashboard - $uniqueName. Simply delete this dashboard to reset use to default application dashboard.");
+        $dashboardEntity->setValue("scope", "user");
+        $dashboardEntity->setValue("app_dash", $uniqueName);
 
-            // Create the dashboard using template found in /applications/dashboards if found
-            $entity->setValue("name", $dashboardName);
-            $entity->setValue("description", "User specific implementation of application dashboard - $dashName. Simply delete this dashboard to reset use to default application dashboard.");
-            $entity->setValue("scope", "user");
-            $entity->setValue("app_dash", $dashName);
+        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        $dashboardId = $dataMapper->save($dashboardEntity);
 
-            // TODO - Copy dashboard layout to the newly created dashboard
-
-            $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
-            $dashboardId = $dataMapper->save($entity);
-        }
-
-        return $this->sendOutput($dashboardId);
+        return $dashboardEntity;
     }
 }

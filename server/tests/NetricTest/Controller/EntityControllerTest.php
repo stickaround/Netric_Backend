@@ -93,6 +93,19 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->getGetAction();
         $this->assertEquals($customer->getId(), $ret['id'], var_export($ret, true));
 
+
+
+        // Test The getting of entity using unique name
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('dashboard_name', 'home.activity');
+
+        $ret = $this->controller->getGetAction();
+        $dashboardEntity = $loader->get("dashboard", $ret['id']);
+
+        $this->assertEquals($dashboardEntity->getValue("name"), "Activity");
+
+        $this->testEntities[] = $dashboardEntity;
     }
 
     public function testPostGetEntityAction()
@@ -508,18 +521,5 @@ class EntityControllerTest extends TestCase
 
         // Set the added groups here to be deleted later in the tearDown
         $this->testGroups = array($retWithParent['id'], $retGroup['id']);
-    }
-
-    public function testGetLoadAppDashForUserAction()
-    {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('dashboard_name', 'home.activity');
-
-        $ret = $this->controller->getLoadAppDashForUserAction();
-
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $dashboardEntity = $loader->get("dashboard", $ret);
-        $this->assertEquals($dashboardEntity->getValue("name"), "Activity");
     }
 }
