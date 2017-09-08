@@ -24,12 +24,13 @@ Note: On some windows installations python is invoked by typing 'py'
 
     python start-dev.py
     
+5. Add localhost domain to etc/hosts or System32/drivers/etc/hosts
+    
+    127.0.0.1 local.aereusdev.com
+    
 5. Load netric in the browser
 
-    http://127.0.0.1
-
-That's all there is to it, you should now be able to navigate to 
-http://127.0.0.1 on your workstation.
+    http://local.aereusdev.com
 
 Log in with "test@netric.com" and "password" as the password.
 
