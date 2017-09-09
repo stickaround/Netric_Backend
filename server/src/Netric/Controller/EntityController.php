@@ -198,32 +198,22 @@ class EntityController extends Mvc\AbstractAccountController
 
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
-        if (isset($params['uname']) && (!isset($params['id']) || empty($params['id']))) {
+        if (isset($params['uname']) && (!isset($params['id']) || !empty($params['uname']))) {
 
-            $objType = $params['obj_type'];
-            $uname = $params['uname'];
-            $conditions = $params['uname_conditions'];
-
-            // If we are dealing with dashboard entity, then we need to follow specific format for dashboard uname
-            if ($objType === "dashboard")
-            {
-                $dashboardName = ucwords(str_replace("-", " ", substr($uname, strpos($uname, '.')+1)));
-                $uname = $dashboardName;
-
-                $conditions = ["owner_id" => $this->account->getUser()->getId()];
-            }
+            $uname = ucwords(str_replace("-", " ", substr($params['uname'], strpos($params['uname'], '.')+1)));
 
             // Retrieve the entity bu a unique name and optional conditions
             $entity = $loader->getByUniqueName(
-                $objType,
+                $params['obj_type'],
                 $uname,
-                $conditions
+                $params['uname_conditions']
             );
 
-            if (!$entity && $objType === "dashboard")
+            if (!$entity && $params['obj_type'] === "dashboard")
             {
-                $entity = $this->createAppDashForUser($params['uname'], $dashboardName);
+                $entity = $this->createAppDashForUser($params['uname'], $uname);
             }
+
         } else {
             // Retrieve the entity by id
             $entity = $loader->get($params['obj_type'], $params['id']);
@@ -856,23 +846,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function createAppDashForUser($uniqueName, $dashboardName)
     {
-        /*$dashName = $this->request->getParam("dashboard_name");
-
-        $dashboardEntity = null;
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
-        $userId = $this->account->getUser()->getId();
-        $dashboardName = ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1)));
-        $objType = "dashboard";
-
-        if ($dashName)
-        {
-            $dashboardEntity = $loader->getByUniqueName(
-                $objType,
-                $dashboardName,
-                ["owner_id" => $userId]
-            );
-        }*/
-
         $dashboardEntity = $loader->create("dashboard");
 
         // Create the dashboard using template found in /applications/dashboards if found
@@ -882,7 +856,7 @@ class EntityController extends Mvc\AbstractAccountController
         $dashboardEntity->setValue("app_dash", $uniqueName);
 
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
-        $dashboardId = $dataMapper->save($dashboardEntity);
+        $dataMapper->save($dashboardEntity);
 
         return $dashboardEntity;
     }

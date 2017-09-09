@@ -9,13 +9,6 @@ return array(
             'type' => 'object',
             'subtype' => 'dashboard'
         ),
-        'widget_id' => array(
-            'title'=>'Widget Id',
-            'type'=>'number',
-            'subtype'=>'',
-            'required'=>true,
-            'readonly'=>false
-        ),
         'widget' => array(
             'title'=>'Widget',
             'type'=>'text',
