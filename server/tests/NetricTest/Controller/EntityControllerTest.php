@@ -80,32 +80,29 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
-        $customer = $loader->create("customer");
-        $customer->setValue("name", "Test");
-        $loader->save($customer);
-        $this->testEntities[] = $customer;
+        $dashboardEntity = $loader->create("dashboard");
+        $dashboardEntity->setValue("name", "activity");
+        $loader->save($dashboardEntity);
+        $this->testEntities[] = $dashboardEntity;
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', 'customer');
-        $req->setParam('id', $customer->getId());
+        $req->setParam('obj_type', 'dashboard');
+        $req->setParam('id', $dashboardEntity->getId());
 
         $ret = $this->controller->getGetAction();
-        $this->assertEquals($customer->getId(), $ret['id'], var_export($ret, true));
-
-
+        $this->assertEquals($dashboardEntity->getId(), $ret['id'], var_export($ret, true));
 
         // Test The getting of entity using unique name
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('dashboard_name', 'home.activity');
+        $req->setParam('obj_type', 'dashboard');
+        $req->setParam('uname', 'activity');
+        $req->setParam('uname_conditions', ["owner_id" => $this->account->getUser()->getId()]);
 
         $ret = $this->controller->getGetAction();
         $dashboardEntity = $loader->get("dashboard", $ret['id']);
-
-        $this->assertEquals($dashboardEntity->getValue("name"), "Activity");
-
-        $this->testEntities[] = $dashboardEntity;
+        $this->assertEquals($dashboardEntity->getValue("name"), "activity");
     }
 
     public function testPostGetEntityAction()

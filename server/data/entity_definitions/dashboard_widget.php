@@ -9,8 +9,8 @@ return array(
             'type' => 'object',
             'subtype' => 'dashboard'
         ),
-        'widget' => array(
-            'title'=>'Widget',
+        'widget_name' => array(
+            'title'=>'Widget Name',
             'type'=>'text',
             'subtype'=>'256',
             'readonly'=>true

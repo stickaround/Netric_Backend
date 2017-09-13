@@ -199,21 +199,12 @@ class EntityController extends Mvc\AbstractAccountController
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
         if (isset($params['uname']) && (!isset($params['id']) || !empty($params['uname']))) {
-
-            $uname = ucwords(str_replace("-", " ", substr($params['uname'], strpos($params['uname'], '.')+1)));
-
             // Retrieve the entity bu a unique name and optional conditions
             $entity = $loader->getByUniqueName(
                 $params['obj_type'],
-                $uname,
+                $params['uname'],
                 $params['uname_conditions']
             );
-
-            if (!$entity && $params['obj_type'] === "dashboard")
-            {
-                $entity = $this->createAppDashForUser($params['uname'], $uname);
-            }
-
         } else {
             // Retrieve the entity by id
             $entity = $loader->get($params['obj_type'], $params['id']);
@@ -836,28 +827,5 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Return the groupings object
         return $groupings;
-    }
-
-    /**
-     * Get a user-specific dashboard object id for a given application dashboard name
-     *
-     * @param {string} $uniqueName The unique name of the dashboard
-     * @param {string} $dashboardName The name of the dashboard
-     */
-    private function createAppDashForUser($uniqueName, $dashboardName)
-    {
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
-        $dashboardEntity = $loader->create("dashboard");
-
-        // Create the dashboard using template found in /applications/dashboards if found
-        $dashboardEntity->setValue("name", $dashboardName);
-        $dashboardEntity->setValue("description", "User specific implementation of application dashboard - $uniqueName. Simply delete this dashboard to reset use to default application dashboard.");
-        $dashboardEntity->setValue("scope", "user");
-        $dashboardEntity->setValue("app_dash", $uniqueName);
-
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
-        $dataMapper->save($dashboardEntity);
-
-        return $dashboardEntity;
     }
 }
