@@ -175,9 +175,10 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $params = [];
 
-        // Check if the get request was a post with application/json data
-        if ($this->request->getParam("content-type") === 'application/json') {
-            $body = json_decode($this->request->getBody(), true);
+        // Check if the parameters are posted via Post.
+        $rawBody = $this->getRequest()->getBody();
+        if ($rawBody) {
+            $body = json_decode($rawBody, true);
             $params['obj_type'] = (isset($body['obj_type'])) ? $body['obj_type'] : null;
             $params['id'] = (isset($body['id'])) ? $body['id'] : null;
             $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
