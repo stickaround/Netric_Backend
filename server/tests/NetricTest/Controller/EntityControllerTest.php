@@ -92,6 +92,16 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->getGetAction();
         $this->assertEquals($dashboardEntity->getId(), $ret['id'], var_export($ret, true));
+    }
+
+    public function testGetGetEntityActionUname()
+    {
+        // Create a test entity for querying
+        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $dashboardEntity = $loader->create("dashboard");
+        $dashboardEntity->setValue("name", "activity");
+        $loader->save($dashboardEntity);
+        $this->testEntities[] = $dashboardEntity;
 
         // Test The getting of entity using unique name
         // Set params in the request
