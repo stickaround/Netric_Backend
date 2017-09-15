@@ -53,4 +53,5 @@ return array(
     array("obj_type"=>"workflow_action", "title"=>"Workflow Action", "object_table"=>"workflow_actions", "revision"=>"0", "system"=>true),
     array("obj_type"=>"user_teams", "title"=>"User Teams", "object_table"=>"user_teams", "revision"=>"0", "system"=>true),
     array("obj_type"=>"worker_job", "title"=>"Worker Job", "object_table"=>"", "revision"=>"0", "system"=>true),
+    array("obj_type"=>"dashboard_widget", "title"=>"Dashboard Widget", "object_table"=>"", "revision"=>"0", "system"=>true),
 );
