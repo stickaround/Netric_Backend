@@ -25,4 +25,9 @@
             <field name='num_columns'></field>
         </column>
     </row>
+    <row>
+        <column>
+            <plugin name='DashboardWidgets'></plugin>
+        </column>
+    </row>
 </fieldset>
