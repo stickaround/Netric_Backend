@@ -10,7 +10,7 @@ node {
                 clientImage = docker.image("netric-client-web:latest")
                 
                 echo "BRanch:"
-                echo env.BRANCH_NAME
+                echo env
 
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest *
                 if (env.BRANCH_NAME == 'develop') {
