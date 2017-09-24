@@ -15,9 +15,8 @@ node {
                 } else {
                     clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:stable")
                 }*/
-
-                clientImage.tag("latest")
-                clientImage.pull()
+                
+                clientImage.pull("latest")
             }
 
             /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
