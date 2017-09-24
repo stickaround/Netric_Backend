@@ -21,7 +21,7 @@ node {
 
             /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
             clientImage.inside {
-                sh 'cp -r /var/ww/app/build/* ./server/mobile/'
+                sh 'cp -r /var/www/app/build/* ./server/mobile/'
             }
 
             dockerImage.build('netric');
