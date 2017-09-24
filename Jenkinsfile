@@ -24,7 +24,7 @@ node {
                 sh 'cp -r /var/www/app/build/* ./server/mobile/'
             }
 
-            dockerImage.build('netric');
+            dockerImage docker.build('netric');
         }
 
         stage('Test') {
