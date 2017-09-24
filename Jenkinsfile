@@ -9,6 +9,9 @@ node {
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 clientImage = docker.image("netric-client-web:latest")
                 
+                echo "BRanch:"
+                echo $env.BRANCH_NAME
+
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest *
                 if (env.BRANCH_NAME == 'develop') {
                     clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:latest")
