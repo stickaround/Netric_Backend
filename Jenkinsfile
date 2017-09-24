@@ -16,9 +16,10 @@ node {
                     clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:stable")
                 }*/
 
-                echo "Pulling latest"
-                clientImage.pull("latest")
+                
             }
+
+            clientImage.pull("latest")
 
             /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
             echo "Running inside"
