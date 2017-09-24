@@ -104,13 +104,10 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     public function getAccountById($id, &$account) 
     {
         $result = $this->dbh->query("SELECT * FROM accounts WHERE id=".$this->dbh->escapeNumber($id));
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
             return $account->fromArray($row);
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -125,13 +122,10 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     public function getAccountByName($name, &$account)
     {
         $result = $this->dbh->query("SELECT * FROM accounts WHERE name='".$this->dbh->escape($name)."'");
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
             return $account->fromArray($row);
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -147,14 +141,14 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         $ret = array();
         
         $sql = "SELECT * FROM accounts WHERE active is not false";
-        if ($version)
+        if ($version) {
             $sql .= " AND version='" . $this->dbh->escape($version) . "'";
+        }
 
         $result = $this->dbh->query($sql);
         $num = $this->dbh->getNumRows($result);
         
-        for ($i = 0; $i < $num; $i++)
-        {
+        for ($i = 0; $i < $num; $i++) {
             $row = $this->dbh->getRow($result, $i);
             $ret[] = array(
                 "id" => $row['id'],
@@ -184,8 +178,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
                                      FROM accounts, account_users WHERE
                                         accounts.id=account_users.account_id AND 
                                         account_users.email_address='" . $this->dbh->escape($emailAddress) . "';");
-        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++)
-        {
+        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++) {
             $row = $this->dbh->getRow($result, $i);
             $ret[] = array(
                 'account' => $row['account'],
@@ -217,13 +210,14 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
                                     username='" . $this->dbh->escape($username) . "'");
 
         // Insert into account_users table
-        if ($emailAddress)
-        {
-            $ret = $this->dbh->query("INSERT INTO account_users(account_id, email_address, username)
-                                      VALUES(
-                                        '$accountId', '" . $this->dbh->escape($emailAddress) . "', 
-                                        '" . $this->dbh->escape($username) . "'
-                                      );");
+        if ($emailAddress) {
+            $ret = $this->dbh->query(
+                "INSERT INTO account_users(account_id, email_address, username)
+                VALUES(
+                    '$accountId', '" . $this->dbh->escape($emailAddress) . "', 
+                    '" . $this->dbh->escape($username) . "'
+                );"
+            );
         }
 
         return $ret;
@@ -242,8 +236,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
             "INSERT INTO accounts(name, database)
 			 VALUES('".$this->dbh->escape($name)."', '".$this->dbh->escape($this->defaultAccountDatabase)."')
 			 RETURNING id;");
-        if ($this->dbh->getNumRows($ret))
-        {
+        if ($this->dbh->getNumRows($ret)) {
             return $this->dbh->getValue($ret, 0, "id");
         }
 
@@ -259,16 +252,18 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      */
     public function deleteAccount($accountId)
     {
-        if (!is_numeric($accountId))
+        if (!is_numeric($accountId)) {
             throw new \RuntimeException("Account id must be a number");
+        }
 
         // Remove any users
         $this->dbh->query("DELETE FROM email_users WHERE account_id=" . $this->dbh->escapeNumber($accountId));
 
         // Now delete the actual account
         $ret = $this->dbh->query("DELETE FROM accounts WHERE id=" . $this->dbh->escapeNumber($accountId));
-        if (!$ret)
+        if (!$ret) {
             $this->errors[] = new Error("Error deleting account", $this->dbh->getLastError());
+        }
 
         return ($ret) ? true : false;
     }

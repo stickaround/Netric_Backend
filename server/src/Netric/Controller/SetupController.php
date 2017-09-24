@@ -25,10 +25,10 @@ class SetupController extends Mvc\AbstractController
         $request = $this->getRequest();
         $application = $this->getApplication();
         $config = $application->getConfig();
+        $response = new ConsoleResponse();
 
         // Check to see if account already exists which means we're alraedy installed
         if ($application->getAccount(null, $config->default_account)) {
-            $response = new ConsoleResponse();
             $response->writeLine("Netric already installed. Run update instead.");
             return $response;
         }
@@ -41,8 +41,12 @@ class SetupController extends Mvc\AbstractController
             );
         }
 
-        // Create the system database if it does not exist
-        if (!$application->initDb()) {
+        /*
+         * Create the system database if it does not exist
+         * the 10 passed as the first param means retry for 10 second
+         * in case the database is still starting up
+         */
+        if (!$application->initDb(10)) {
             throw new \RuntimeException("Could not create application database");
         }
 
@@ -51,7 +55,7 @@ class SetupController extends Mvc\AbstractController
             throw new \RuntimeException("Could not create default account");
         }
 
-        $response = new ConsoleResponse();
+        
         $response->writeLine(
             "-- Install Complete: " .
             "username=" . $request->getParam("username") . ", " .

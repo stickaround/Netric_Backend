@@ -383,11 +383,20 @@ class Application
 
     /**
      * Create the application database if it does not exist
+     *
+     * @param int $numRetries If > 0 then retry after 1 second for each iteration
      */
-    public function initDb()
+    public function initDb($numRetries = 0)
     {
         // Create database if it does not exist
         if (!$this->dm->createDatabase()) {
+            // If we are set to retry on failure, then wait a second and try again
+            if ($numRetries > 0) {
+                sleep(1);
+                return $this->initDb(--$numRetries);
+            }
+
+            // Let the caller know that we cannot create the database
             throw new \RuntimeException(
                 "Could not create application database: " .
                 $this->dm->getLastError()->getMessage()
