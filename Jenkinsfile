@@ -8,6 +8,8 @@ node {
             checkout scm
             echo env.BRANCH_NAME
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
+                clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web")
+                
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest *
                 if (env.BRANCH_NAME == 'develop') {
                     clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:latest")
@@ -15,8 +17,8 @@ node {
                     clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:stable")
                 }*/
 
-                clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:latest")
-                clientImage.pull()
+                
+                clientImage.pull("latest")
             }
 
             /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
