@@ -7,7 +7,7 @@ node {
         stage('Build') {
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:latest")
+                clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web")
                 
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest *
                 if (env.BRANCH_NAME == 'develop') {
