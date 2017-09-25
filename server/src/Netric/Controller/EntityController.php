@@ -199,7 +199,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
 
-        if (isset($params['uname']) && (!isset($params['id']) || !empty($params['uname']))) {
+        if (isset($params['uname']) && !isset($params['id'])) {
             // Retrieve the entity bu a unique name and optional conditions
             $entity = $loader->getByUniqueName(
                 $params['obj_type'],
