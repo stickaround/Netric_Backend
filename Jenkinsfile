@@ -27,7 +27,6 @@ node {
 
         stage('Test') {
             sh 'docker-compose -f docker/docker-compose-test.yml up -d'
-            /* TODO: figure out pause before running setup here */
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
             sh 'docker-compose -f docker/docker-compose-test.yml down'
@@ -48,9 +47,9 @@ node {
 
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
-                sh 'scp scripts/pull-and-run.sh aereus@web1.aereus.com:/home/aereus/pull-and-run.sh'
-                sh 'ssh aereus@web1.aereus.com pull-and-run.sh latest'
-                sh 'ssh aereus@web1.aereus.com rm /home/aereus/pull-and-run.sh'
+                sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run.sh aereus@web1.aereus.com:/home/aereus/pull-and-run.sh'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com pull-and-run.sh latest'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run.sh'
             }
         }
 
