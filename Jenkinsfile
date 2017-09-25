@@ -7,17 +7,12 @@ node {
         stage('Build') {
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                clientImage = docker.image("netric-client-web:latest")
-                
-                echo "BRanch:"
-                echo env
-
-                /* If this is the master branch, punlish to stable, if it is develop publish to latest *
-                if (env.BRANCH_NAME == 'develop') {
-                    clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:latest")
+                /* If this is the master branch, punlish to stable, if it is develop publish to latest */
+                if (env.BRANCH_NAME == 'master') {
+                    clientImage = docker.image("netric-client-web:stable")
                 } else {
-                    clientImage = docker.image("https://dockerhub.aereusdev.com/netric-client-web:stable")
-                }*/
+                    clientImage = docker.image("netric-client-web:latest")
+                }
 
                 clientImage.pull()
             }
@@ -41,14 +36,18 @@ node {
         stage('Publish') {
             dockerImage = docker.build('netric')
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                /* If this is the master branch, punlish to stable, if it is develop publish to latest 
-                if (env.BRANCH_NAME == 'develop') {
-                    dockerImage.push("latest")
-                } else {
+                /* If this is the master branch, punlish to stable, if it is develop publish to latest */
+                if (env.BRANCH_NAME == 'master') {
                     dockerImage.push("stable")
-                }*/
+                } else {
+                    dockerImage.push("latest")
+                }
+            }
+        }
 
-                dockerImage.push("latest")
+        stage('Deploy') {
+            sshagent (credentials: ['aereus']) {
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com uname -a'
             }
         }
 
