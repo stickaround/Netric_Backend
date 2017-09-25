@@ -2,10 +2,10 @@
 
 # This script should be run on each server that needs to pull and install the latest version of docker
 
-if [ -z "${DEPLOY_TARGET}" ]; then
+if [ -z "$1" ]; then
     TARGET='stable'
 else
-    TARGET=${DEPLOY_TARGET}
+    TARGET=$1
 fi
 
 docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com

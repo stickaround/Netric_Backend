@@ -26,7 +26,6 @@ node {
         }
 
         stage('Test') {
-            sh 'docker-compose -f docker/docker-compose-test.yml down'
             sh 'docker-compose -f docker/docker-compose-test.yml up -d'
             /* TODO: figure out pause before running setup here */
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
@@ -49,16 +48,9 @@ node {
 
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
-                sh 'ssh aereus@web1.aereus.com uname -a'
-                
-                /*
-                sh 'docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com'
-                sh 'docker pull dockerhub.aereusdev.com/netric:latest'
-                sh 'docker rename netric netric_dep'
-                sh 'docker run -d -p 80 --restart=unless-stopped --name netric -e APPLICATION_ENV="production" -e VIRTUAL_HOST=aereus.netric.com -e LETSENCRYPT_HOST=aereus.netric.com -e LETSENCRYPT_EMAIL=sky.stebnicki@netric.com dockerhub.aereusdev.com/netric:latest'
-                sh 'docker stop netric_dep'
-                sh 'docker rm netric_dep'
-                */
+                sh 'scp scripts/pull-and-run.sh aereus@web1.aereus.com:/home/aereus/pull-and-run.sh'
+                sh 'ssh aereus@web1.aereus.com pull-and-run.sh latest'
+                sh 'ssh aereus@web1.aereus.com rm /home/aereus/pull-and-run.sh'
             }
         }
 
