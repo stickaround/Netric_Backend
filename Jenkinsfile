@@ -50,7 +50,7 @@ node {
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run.sh aereus@web1.aereus.com:/home/aereus/pull-and-run.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com pull-and-run.sh latest'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run.sh latest'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run.sh'
             }
         }
