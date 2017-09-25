@@ -256,7 +256,7 @@ class FilesController extends Mvc\AbstractAccountController
         $maxWidth = $request->getParam('max_width');
         $maxHeight = $request->getParam('max_height');
         if (($maxWidth || $maxHeight) &&
-            ($fileEntity->getType() === 'png' || $fileEntity->getType() === 'jpeg')) {
+            ($fileEntity->getType() === 'png' || $fileEntity->getType() === 'jpg')) {
             // Change null max_* to -1 so that the resizer knows to not try and downscale to 0
             if (!$maxWidth) {
                 $maxWidth = -1;
