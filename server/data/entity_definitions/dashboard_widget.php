@@ -2,7 +2,7 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 1,
+    'revision' => 2,
     'fields' => array(
         'dashboard_id' => array(
             'title' => 'Dashboard',
@@ -32,7 +32,7 @@ return array(
         'data' => array(
             'title'=>'Data',
             'type'=>'text',
-            'subtype'=>'32',
+            'subtype'=>'',
             'readonly'=>true,
             'default'=>array("value"=>"", "on"=>"null")
         ),
