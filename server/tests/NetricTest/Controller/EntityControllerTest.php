@@ -94,23 +94,30 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($dashboardEntity->getId(), $ret['id'], var_export($ret, true));
     }
 
-    public function testGetGetEntityActionUname()
+    public function testPostGetEntityActionDashboardUname()
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
         $dashboardEntity = $loader->create("dashboard");
         $dashboardEntity->setValue("name", "activity");
+        $dashboardEntity->setValue("owner_id", $this->account->getUser()->getId());
         $loader->save($dashboardEntity);
         $this->testEntities[] = $dashboardEntity;
 
         // Test The getting of entity using unique name
         // Set params in the request
+        $data = array(
+            'obj_type' => "dashboard",
+            'uname' => $dashboardEntity->getValue("uname"),
+            'uname_conditions' => [
+                'owner_id' => $this->account->getUser()->getId(),
+            ],
+        );
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', 'dashboard');
-        $req->setParam('uname', 'activity');
-        $req->setParam('uname_conditions', ["owner_id" => $this->account->getUser()->getId()]);
+        $req->setBody(json_encode($data));
+        $req->setParam('content-type', 'application/json');
 
-        $ret = $this->controller->getGetAction();
+        $ret = $this->controller->postGetAction();
         $dashboardEntity = $loader->get("dashboard", $ret['id']);
         $this->assertEquals($dashboardEntity->getValue("name"), "activity");
     }

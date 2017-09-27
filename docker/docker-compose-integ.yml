@@ -41,20 +41,21 @@ services:
     links:
     - db1
 
-  mogilefs:
-    build: mogilefs/
+ mogilefs:
+    image: dockerhub.aereusdev.com/mogiletracker:latest
     environment:
         DB_USER: vagrant
         DB_PASSWORD: vagrant
         DB_HOST: db1
         DB_NAME: mogilefs
         DB_PORT: 5432
-        MGFS_STORE_PORT: 7500
+        DB_INIT: "true"
+        INIT_STORAGE_HOST: mogilestore
     links:
     - mogilestore
 
   mogilestore:
-    build: mogilestore/
+    image: dockerhub.aereusdev.com/mogilestore:latest
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0

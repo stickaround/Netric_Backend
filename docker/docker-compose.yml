@@ -34,16 +34,17 @@ mail:
   - db1
 
 mogilefs:
-  build: mogilefs/
-  environment:
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: db1
-      DB_NAME: mogilefs
-      DB_PORT: 5432
-      MGFS_STORE_PORT: 7500
-  links:
-  - mogilestore
+    image: dockerhub.aereusdev.com/mogiletracker:latest
+    environment:
+        DB_USER: vagrant
+        DB_PASSWORD: vagrant
+        DB_HOST: db1
+        DB_NAME: mogilefs
+        DB_PORT: 5432
+        DB_INIT: "true"
+        INIT_STORAGE_HOST: mogilestore
+    links:
+    - mogilestore
 
-mogilestore:
-  build: mogilestore/
+  mogilestore:
+    image: dockerhub.aereusdev.com/mogilestore:latest
