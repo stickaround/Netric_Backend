@@ -291,7 +291,7 @@ class Account
 
         // Prepend protocol
         if ($includeProtocol)
-            $url .= ($config->force_https) ? "https://" : "http://";
+            $url .= ($config->use_https) ? "https://" : "http://";
 
         // Add account third level
         $url .= $this->name . ".";

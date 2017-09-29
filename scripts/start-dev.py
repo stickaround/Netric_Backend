@@ -20,4 +20,3 @@ print("Done. Go to http://devel.netric.com and use 'test@netric.com' and 'passwo
 #print("Waiting 10 seconds to note the above, then we'll tail the logs")
 #time.sleep(10)
 #subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "logs", "-f"])
-

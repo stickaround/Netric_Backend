@@ -249,7 +249,7 @@ class Application
         // Add instanceUri
         for ($i = 0; $i < count($accounts); $i++)
         {
-            $proto = ($this->config->force_https) ? "https://" : "http://";
+            $proto = ($this->config->use_https) ? "https://" : "http://";
             $accounts[$i]['instanceUri'] = $proto . $accounts[$i]["account"] . "." . $this->config->localhost_root;
         }
 
