@@ -45,6 +45,11 @@ node {
             }
         }
 
+        /*
+
+        We no longer need to deploy because the watcher in production will automatically pull updates from
+        dockerhub.aereusdev.com
+
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
                 /* Push to web1 as web server */
@@ -59,6 +64,8 @@ node {
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com rm /home/aereus/pull-and-run-daemon.sh'
             }
         }
+
+        */
 
         stage('Cleanup') {
             echo 'prune and cleanup'
