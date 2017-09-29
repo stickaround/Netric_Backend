@@ -4,7 +4,7 @@ services:
   netric_server:
     build: ../
     ports:
-     - "8081:80"
+     - "80"
     environment:
        APPLICATION_ENV: testing
     volumes:

@@ -16,7 +16,6 @@ cd ../docker
 docker-compose -f docker-compose-test.yml up -d
 
 # Wait 30 seconds, then run setup
-sleep 30
 docker exec docker_netric_server_1 /netric-setup.sh
 
 # Now run tests
