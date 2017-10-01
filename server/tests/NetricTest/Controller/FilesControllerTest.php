@@ -86,7 +86,7 @@ class FilesControllerTest extends TestCase
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
-            $dm->delete($user, true);
+            $loader->delete($user, true);
         }
 
         // Create a temporary user

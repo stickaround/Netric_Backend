@@ -17,6 +17,8 @@ docker rm netricd
 
 docker run -P -d --restart=on-failure --name netricd \
     -e APPLICATION_ENV="production" \
+    --log-driver=syslog --log-opt tag=netric-daemon \
+    --log-opt syslog-facility=local2 \
     dockerhub.aereusdev.com/netric:${TARGET} /start-daemon.sh
 
 # Optionally use syslog for the log driver
@@ -28,4 +30,6 @@ docker run -P -d --restart=on-failure --name netricd \
 docker stop netricsetup
 docker rm netricsetup
 docker run -P -d --name netricsetup -e APPLICATION_ENV="production" \
+    --log-driver=syslog --log-opt tag=netric-daemon \
+    --log-opt syslog-facility=local2 \
     dockerhub.aereusdev.com/netric:${TARGET} /netric-setup.sh
