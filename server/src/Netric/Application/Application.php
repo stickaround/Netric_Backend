@@ -392,6 +392,7 @@ class Application
         if (!$this->dm->createDatabase()) {
             // If we are set to retry on failure, then wait a second and try again
             if ($numRetries > 0) {
+                $this->getLog()->info("Could not create the system database, waiting a second to try again");
                 sleep(1);
                 return $this->initDb(--$numRetries);
             }

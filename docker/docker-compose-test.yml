@@ -3,8 +3,6 @@ version: '2'
 services:
   netric_server:
     build: ../
-    ports:
-     - "80"
     environment:
        APPLICATION_ENV: testing
     volumes:
@@ -25,8 +23,6 @@ services:
 
   db1:
     build: postgres/
-    ports:
-    - "5432:5432"
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
