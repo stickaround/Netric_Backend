@@ -10,12 +10,12 @@ services:
     volumes:
      - ../server/tests/tmp:/var/www/html/tests/tmp
     links:
-     - memcached
-     - gearmand
-     - mail
-     - db1
-     - mogilefs
-     - mogilestore
+      - memcached
+      - gearmand
+      - mail
+      - db1
+      - mogilefs
+      - mogilestore
 
   memcached:
     image: memcached
