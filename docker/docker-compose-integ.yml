@@ -23,7 +23,7 @@ services:
     image: kendu/gearman
 
   db1:
-    build: postgres/
+    image: dockerhub.aereusdev.com/pgsql:latest
     ports:
     - "5432:5432"
     environment:
@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: vagrant
 
   mail:
-    build: mail/
+    image: dockerhub.aereusdev.com/mail:latest
     environment:
         DB_USER: vagrant
         DB_PASSWORD: vagrant
@@ -41,7 +41,7 @@ services:
     links:
     - db1
 
- mogilefs:
+ c:
     image: dockerhub.aereusdev.com/mogiletracker:latest
     environment:
         DB_USER: vagrant
@@ -56,25 +56,3 @@ services:
 
   mogilestore:
     image: dockerhub.aereusdev.com/mogilestore:latest
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
-    container_name: elasticsearch
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    mem_limit: 1g
-    cap_add:
-      - IPC_LOCK
-    ports:
-      - 9200:9200
-    environment:
-      - http.host=0.0.0.0
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

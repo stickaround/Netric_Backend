@@ -17,13 +17,13 @@ gearmand:
   image: kendu/gearman
 
 db1:
-  build: postgres/
+  image: dockerhub.aereusdev.com/pgsql:latest
   environment:
     POSTGRES_USER: vagrant
     POSTGRES_PASSWORD: vagrant
 
 mail:
-  build: mail/
+  image: dockerhub.aereusdev.com/mail:latest
   environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant

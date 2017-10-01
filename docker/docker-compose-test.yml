@@ -22,7 +22,7 @@ services:
     image: kendu/gearman
 
   db1:
-    build: postgres/
+    image: dockerhub.aereusdev.com/pgsql:latest
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant

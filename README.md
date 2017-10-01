@@ -15,20 +15,25 @@ Note: On some windows installations python is invoked by typing 'py'
     
     pip install pywatch (pip3 install pywatch on osx)
     
+3. Log into dockerhub
 
-3. Build the environment (in linux/mac)
+    docker login dockerhub.aereusdev.com
+    user: aereusdev
+    password: p7pfsGRe
+    
+4. Build the environment (in linux/mac)
     
     python build-dev.py
     
-4. Run dev environment (in linux/mac)
+5. Run dev environment (in linux/mac)
 
     python start-dev.py
     
-5. Add localhost domain to etc/hosts or System32/drivers/etc/hosts
+6. Add localhost domain to etc/hosts or System32/drivers/etc/hosts
     
     127.0.0.1 local.aereusdev.com
     
-5. Load netric in the browser
+7. Load netric in the browser
 
     http://local.aereusdev.com
 
@@ -42,16 +47,16 @@ if you only want to test a specific test type:
     python test.py NetricTest/Application/Application.php
 
 ### Accessing Services
-- http://localhost:80 - load netric
-- http://localhost:5601 - load kibana to view logs
-- http://localhost:8888 - view quest profiles
-- localhost:5432 - connect to postgres with user vagrant and password vagrant
+- http://local.aereusdev.com:80 - load netric
+- http://local.aereusdev.com:5601 - load kibana to view logs
+- http://local.aereusdev.com:8888 - view quest profiles
+- local.aereusdev.com:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
 
 If using PHPStorm simply start listening on port 9000 for xdebug
 
-### Remote In
+### Server Shell Access
 
 You can remote into the server with the follwoing command:
 
@@ -68,8 +73,8 @@ moving the server into a new directory structure we will simply deploy the built
 webapp into /public/*.
 
 ## Clients are split into separate repos:
-netric-client-web: The main webapp
-netric-client-hybrid: Native device applications
+netric.client.web: The main webapp
+netric.client.hybrid: Native device applications
 
 Ecah of the respective client repos will contain build and deployment instructions.
 
@@ -89,9 +94,15 @@ We are working on simplifying the directory structure of netric. When finished t
 look like:
 
 /src - all netric classes
+
 /public - all served assets and where apache will look for index files
+
 /vendor - libraries
+
 /data - non-executable stored data
+
 /bin - binary scripts to run on the server
+
 /scripts - development scripts
+
 /docker - docker files used for building and working with containers
