@@ -37,7 +37,6 @@ Thumbs.db
 /.project
 /.vscode
 
-
 # Vagrant files #
 ######################
 .vagrant
@@ -46,3 +45,6 @@ Thumbs.db
 #################
 composer.lock
 .gitignore
+
+# Vendor directory
+/server/vendor
