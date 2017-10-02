@@ -184,14 +184,12 @@ class WorkersController extends Mvc\AbstractController
      * @param Application $application
      * @param RequestInterface $request
      * @param string $uniqueLockName
-     * @param int $lockTimeout
      * @return void
      */
     private function queueScheduledJobs(
         Application $application, 
         RequestInterface $request, 
-        $uniqueLockName,
-        $lockTimeout
+        $uniqueLockName
     )
     {
         $running = true;
