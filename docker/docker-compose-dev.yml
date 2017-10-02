@@ -8,6 +8,7 @@ services:
      - "443:443"
     environment:
        APPLICATION_ENV: development
+       RUN_SETUP: 1
        XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=1 remote_autostart=1"
     volumes:
      - ../server/:/var/www/html/
