@@ -47,25 +47,24 @@ node {
             }
         }
 
-        /*
 
-        We no longer need to deploy because the watcher in production will automatically pull updates from
-        dockerhub.aereusdev.com
 
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
+                /*
+                  * We no longer need to deploy because the watcher in production will automatically
+                  * pull updates from dockerhub.aereusdev.com
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run.sh aereus@web1.aereus.com:/home/aereus/pull-and-run.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run.sh latest'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run.sh'
+                */
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-daemon.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-daemon.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-daemon.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-daemon.sh latest'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com rm /home/aereus/pull-and-run-daemon.sh'
             }
         }
-
-        */
 
         stage('Cleanup') {
             echo 'prune and cleanup'
