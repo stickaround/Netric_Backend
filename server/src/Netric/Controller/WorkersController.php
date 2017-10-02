@@ -59,9 +59,9 @@ class WorkersController extends Mvc\AbstractController
      */
     public function consoleProcessAction()
     {
-        $response = new ConsoleResponse();
         $request = $this->getRequest();
         $application = $this->getApplication();
+        $response = new ConsoleResponse($application->getLog());
 
         /*
          * Check if we are suppressing output of the response.
@@ -101,7 +101,7 @@ class WorkersController extends Mvc\AbstractController
 
             // Check to see if the request has been sent a stop signal
             if ($request->isStopping()) {
-                $response->writeLine("Exiting job processor");
+                $response->writeLine("WorkersController->consoleProcessAction: Exiting job processor");
                 break;
             }
 
@@ -109,10 +109,11 @@ class WorkersController extends Mvc\AbstractController
             sleep(1);
         }
 
+        $textToWrite = "WorkersController->consoleProcessAction: Processed $numProcessed jobs";
         if (!$request->getParam("daemon")) {
-            $response->writeLine("Processed $numProcessed jobs");
+            $response->writeLine($textToWrite);
         } else {
-            $application->getLog()->info("Processed $numProcessed jobs");
+            $application->getLog()->info($textToWrite);
         }
 
         return $response;
