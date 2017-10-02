@@ -109,6 +109,10 @@ class AntLog
 		{
 			$this->logPath = AntConfig::getInstance()->log;
 
+			if ($this->logPath === 'stderr') {
+			    $this->logPath = "php://stderr";
+            }
+
 			// Now make sure we have not exceeded the maxiumu size for this log file
 			if (file_exists($this->logPath))
 			{
