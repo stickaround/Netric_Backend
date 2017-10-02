@@ -125,7 +125,7 @@ class WorkersController extends Mvc\AbstractController
     {
         $application = $this->getApplication();
         $config = $application->getConfig();
-        $response = new ConsoleResponse();
+        $response = new ConsoleResponse($application->getLog());
         $request = $this->getRequest();
 
         /*
@@ -155,7 +155,7 @@ class WorkersController extends Mvc\AbstractController
 
         // We only ever want one scheduler running so create a lock that expires in 2 minutes
         if (!$application->acquireLock($uniqueLockName, $lockTimeout)) {
-            $response->writeLine("Exiting because another instance is running");
+            $response->writeLine("WorkersController->consoleScheduleAction: Exiting because another instance is running");
             return $response;
         }
 
@@ -165,7 +165,7 @@ class WorkersController extends Mvc\AbstractController
         // Make sure we release the lock so that the scheduler can always be run
         $application->releaseLock($uniqueLockName);
 
-        $exitMessage = "Exiting job scheduler";
+        $exitMessage = "WorkersController->consoleScheduleAction: Exiting job scheduler";
         if (!$request->getParam("daemon")) {
             $response->writeLine($exitMessage);
         } else {

@@ -5,6 +5,8 @@
  */
 namespace Netric\Application\Response;
 
+use Netric\Log\LogInterface;
+
 /**
  * Response for a console
  */
@@ -41,6 +43,23 @@ class ConsoleResponse implements ResponseInterface
      * @var int
      */
     private $returnCode = 0;
+
+    /**
+     * Logger interface to send all console output to (duplicate)
+     *
+     * @var LogInterface
+     */
+    private $log = null;
+
+    /**
+     * Setup optional dependencies
+     *
+     * @param LogInterface $log Optional log to forward all output to
+     */
+    public function __construct(LogInterface $log = null)
+    {
+        $this->log = $log;
+    }
 
     /**
      * Set the content type of this response
@@ -87,6 +106,10 @@ class ConsoleResponse implements ResponseInterface
      */
     public function write($text)
     {
+        if ($this->log) {
+            $this->log->info($text);
+        }
+
         if ($this->suppressOutput) {
             $this->outputBuffer[] = $text;
         } else {
@@ -101,6 +124,10 @@ class ConsoleResponse implements ResponseInterface
      */
     public function writeLine($text)
     {
+        if ($this->log) {
+            $this->log->info($text);
+        }
+        
         if ($this->suppressOutput) {
             $this->outputBuffer[] = $text;
         } else {
