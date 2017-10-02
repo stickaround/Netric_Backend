@@ -19,7 +19,7 @@ class MogileFileStoreFactory implements ServiceManager\AccountServiceLocatorInte
      * Service creation factory
      *
      * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return LocalFileStore
+     * @return MogileFileStore
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
