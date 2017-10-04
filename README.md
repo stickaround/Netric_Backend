@@ -76,7 +76,7 @@ webapp into /public/*.
 netric.client.web: The main webapp
 netric.client.hybrid: Native device applications
 
-Ecah of the respective client repos will contain build and deployment instructions.
+Each of the respective client repos will contain build and deployment instructions.
 
 ## Scripts found in /scripts
 

@@ -7,23 +7,28 @@ namespace modules\navigation;
 return array(
     "title" => "Work",
     "icon" => "check-square-o",
-    "default_route" => "all-tasks",
+    "default_route" => "tasks",
     "navigation" => array(
         array(
-            "title" => "All Tasks",
+            "title" => "Tasks",
             "type" => "browse",
-            "route" => "all-tasks",
+            "route" => "tasks",
             "objType" => "task",
             "icon" => "ViewListIcon",
-            "browseby" => "groups",
         ),
         array(
-            "title" => "All Projects",
+            "title" => "Projects",
             "type" => "browse",
-            "route" => "all-projects",
+            "route" => "projects",
             "objType" => "project",
             "icon" => "ViewListIcon",
-            "browseby" => "groups",
-        )
+        ),
+        array(
+            "title" => "Stories",
+            "type" => "browse",
+            "route" => "stories",
+            "objType" => "project_story",
+            "icon" => "ViewListIcon",
+        ),
     )
 );
