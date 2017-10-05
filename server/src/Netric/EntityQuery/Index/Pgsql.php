@@ -875,7 +875,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function buildIsEqual($field, $fieldName, $condValue, $objectTable, $def)
     {
         $buf = "";
-        
+
         switch ($field->type)
         {
         case 'object':
@@ -915,29 +915,50 @@ class Pgsql extends IndexAbstract implements IndexInterface
             else
             {
                 $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
-                if ($objRef)
-                {
-                    $refDef = $this->getDefinition($objRef['obj_type']);
-                    if ($refDef && $refDef->getId() && $objRef['id'])
-                    {
-                        $buf .= " EXISTS (select 1 from object_associations 
+				$referenceObjType = null;
+				$referenceId = null;
+
+				/*
+				 * If we have successfully decoded the $condValue (e.g user:1:TestUser
+				 * Then we need to make sure we have refernce id and obj_type
+				 */
+				if ($objRef && isset($objRef['id']) && isset($objRef['obj_type']))
+				{
+					$referenceObjType = $objRef['obj_type'];
+					$referenceId = $objRef['id'];
+				}
+				else if ($field->subtype)
+				{
+					/*
+					 * If the $condValue provided is the actual value of the where condition
+					 * Then we will just use the field's subtype as our referenced objType
+					 */
+					$referenceObjType = $field->subtype;
+					$referenceId = $condValue;
+				}
+
+				// If we have referencedObjType then we can now build the where condition
+				if ($referenceObjType)
+				{
+					// Get the definition of the referenced objType
+					$refDef = $this->getDefinition($referenceObjType);
+
+					if ($refDef && $refDef->getId() && $referenceId)
+					{
+						$buf .= " EXISTS (select 1 from object_associations
                                     where object_associations.object_id=".$objectTable.".id
                                     and type_id='" . $def->getId() . "' and field_id='".$field->id."'
-                                    and assoc_type_id='" . $refDef->getId() . "' 
-                                    and assoc_object_id='" . $objRef['id'] . "') ";
-                    }
-                }
-				else if ($field->subtype) // only query associated subtype
-				{
-					$refDef = $this->getDefinition($field->subtype);
-                    if ($refDef && $refDef->getId())
-                    {
-                        $buf .= " EXISTS (select 1 from object_associations 
+                                    and assoc_type_id='" . $refDef->getId() . "'
+                                    and assoc_object_id='" . $referenceId . "') ";
+					}
+					else // only query associated subtype if there is no referenced id provided
+					{
+						$buf .= " EXISTS (select 1 from object_associations
                                     where object_associations.object_id=".$objectTable.".id and
                                     type_id='" . $def->getId() . "' and field_id='".$field->id."'
                                     and assoc_type_id='" . $refDef->getId() . "') ";
-                    }
-                }
+					}
+				}
             }
             break;
         case 'object_dereference':

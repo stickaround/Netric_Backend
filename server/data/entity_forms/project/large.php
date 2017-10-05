@@ -18,11 +18,6 @@
                         <status_update/>
                     </column>
                 </row>
-                <row>
-                    <column>
-                        <field name='activity'></field>
-                    </column>
-                </row>
             </tab>
 
             <tab name='Task'>

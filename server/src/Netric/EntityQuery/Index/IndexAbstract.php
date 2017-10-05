@@ -303,12 +303,13 @@ abstract class IndexAbstract
         // Replace user vars
         if ($user)
         {
+
             // Replace current user
             if (intval($value) === UserEntity::USER_CURRENT && (
                     ($field->type == "object" && $field->subtype == "user") ||
                     (
-                        ($field->type == "fkey" || $field->type == "fkey_multi")
-                        && $field->subtype == "users"
+                        ($field->type == "fkey" || $field->type == "fkey_multi" || $field->type == "object_multi")
+                        && $field->subtype == "user"
                     )
                 )
             )

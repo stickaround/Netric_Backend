@@ -2,7 +2,7 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 23,
+    'revision' => 24,
     'parent_field' => "parent",
     'child_dacls' => array("case", "task", "project_milestone"),
     'fields' => array(
@@ -88,6 +88,7 @@ return array(
             'title' => 'Members',
             'type' => 'object_multi',
             'subtype' => 'user',
+            'default' => array("value" => "-3", "on" => "create")
         ),
         'folder_id' => array(
             'type' => 'object',
