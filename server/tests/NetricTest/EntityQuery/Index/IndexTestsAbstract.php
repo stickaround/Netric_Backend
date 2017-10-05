@@ -510,7 +510,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($project->getObjType());
         $query->where('members')->equals($this->user->getId());
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
+        $this->assertEquals($project->getId(), $res->getEntity(0)->getId());
     }
 
     /**
