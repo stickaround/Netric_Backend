@@ -305,17 +305,8 @@ abstract class IndexAbstract
         {
 
             // Replace current user
-            if (intval($value) === UserEntity::USER_CURRENT && (
-                    ($field->type == "object" && $field->subtype == "user") ||
-                    (
-                        ($field->type == "fkey" || $field->type == "fkey_multi" || $field->type == "object_multi")
-                        && $field->subtype == "user"
-                    )
-                )
-            )
-            {
+            if (intval($value) === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field))
                 $value = $user->getId();
-            }
 
             /*
              * TODO: Handle the below conditions
@@ -359,6 +350,31 @@ abstract class IndexAbstract
         }
 
         return $value;
+    }
+
+    /**
+     * Evaluate if the field can contain user values
+     *
+     * @param EntityDefinition\Field $field The field that we will be evaluating
+     * @return True if the field can contain user values, False if not
+     */
+    private function fieldContainsUserValues(EntityDefinition\Field $field)
+    {
+        // If field subtype is not a user, then we do not need to proceed
+        if ($field->subtype !== "user")
+            return false;
+
+        switch ($field->type)
+        {
+            case "fkey":
+            case "fkey_multi":
+            case "object":
+            case "object_multi":
+                return true;
+                break;
+        }
+
+        return false;
     }
 
     /**

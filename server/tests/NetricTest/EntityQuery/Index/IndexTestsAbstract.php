@@ -485,6 +485,35 @@ abstract class IndexTestsAbstract extends TestCase
     }
 
     /**
+     * Check if we can query an object multi when a subtype is set
+     */
+    public function testWhereEqualsObjectMulti()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index)
+            return;
+        //$this->assertTrue(false, "Index could not be setup!");
+
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+
+        // Create a test project with a member
+        $project = $this->account->getServiceManager()->get("EntityLoader")->create("project");
+        $project->setValue("name", "Unit Test Project");
+        $project->setValue("members", $this->user->getId(), $this->user->getName());
+        $pid = $dm->save($project);
+
+        // Make sure this gets cleaned up
+        $this->testEntities[] = $project;
+
+        // Query for project members
+        $query = new EntityQuery($project->getObjType());
+        $query->where('members')->equals($this->user->getId());
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
+    }
+
+    /**
      * Try to query an object reference where there is no subtype for the field
      */
     public function testWhereEqualsObjectReference()

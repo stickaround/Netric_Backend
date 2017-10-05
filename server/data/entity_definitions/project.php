@@ -1,6 +1,8 @@
 <?php
 namespace data\entity_definitions;
 
+use Netric\Entity\ObjType\UserEntity;
+
 return array(
     'revision' => 24,
     'parent_field' => "parent",
@@ -88,7 +90,7 @@ return array(
             'title' => 'Members',
             'type' => 'object_multi',
             'subtype' => 'user',
-            'default' => array("value" => "-3", "on" => "create")
+            'default' => array("value" => UserEntity::USER_CURRENT, "on" => "create")
         ),
         'folder_id' => array(
             'type' => 'object',
