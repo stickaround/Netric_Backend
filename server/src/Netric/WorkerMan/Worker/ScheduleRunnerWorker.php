@@ -90,6 +90,10 @@ class ScheduleRunnerWorker extends AbstractWorker
         }
 
         $scheduledJobs = $this->schedulerService->getScheduledToRun();
+        $application->getLog()->info(
+            "ScheduleRunnerWorker->work: Scheduling " . count($scheduledJobs) . " jobs to run"
+        );
+
         foreach ($scheduledJobs as $jobEntity) {
             $workerName = $jobEntity->getValue("worker_name");
             $jobData = json_decode($jobEntity->getValue("job_data"), true);

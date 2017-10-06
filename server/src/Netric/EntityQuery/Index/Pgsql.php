@@ -945,7 +945,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             {
                 // Create subquery
                 $subQuery = new \Netric\EntityQuery($field->subtype);
-                $subQuery->where($ref_field, $operator, $condValue);
+                $subQuery->where($ref_field)->equals($condValue);
                 $subIndex = new \Netric\EntityQuery\Index\Pgsql($this->account);
                 $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
                 $refDef = $this->getDefinition($field->subtype);
