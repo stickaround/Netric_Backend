@@ -38,6 +38,8 @@ services:
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
+    ports:
+      - "5432:5432"
 
   mail:
     image: dockerhub.aereusdev.com/mail:latest
