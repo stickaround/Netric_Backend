@@ -13,7 +13,7 @@ services:
     volumes:
      - ../server/:/var/www/html/
     depends_on:
-     - logstash
+      - logstash
     logging:
       driver: gelf
       options:
@@ -50,7 +50,9 @@ services:
         DB_NAME: antsystem
         DB_PORT: 5432
     links:
-    - db1
+      - db1
+    depends_on:
+      - db1
 
   mogilefs:
     image: dockerhub.aereusdev.com/mogiletracker:latest

@@ -6,7 +6,7 @@ services:
     environment:
        APPLICATION_ENV: testing
     volumes:
-     - ../server/tests/tmp:/var/www/html/tests/tmp
+      - ../server/tests/tmp:/var/www/html/tests/tmp
     links:
       - memcached
       - gearmand
@@ -28,7 +28,7 @@ services:
       POSTGRES_PASSWORD: vagrant
 
   mail:
-    build: mail/
+    image: dockerhub.aereusdev.com/mail:latest
     environment:
         DB_USER: vagrant
         DB_PASSWORD: vagrant
@@ -36,7 +36,9 @@ services:
         DB_NAME: antsystem
         DB_PORT: 5432
     links:
-    - db1
+      - db1
+    depends_on:
+      - db1
 
   mogilefs:
     image: dockerhub.aereusdev.com/mogiletracker:latest
