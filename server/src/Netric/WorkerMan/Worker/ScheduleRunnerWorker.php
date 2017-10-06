@@ -104,6 +104,10 @@ class ScheduleRunnerWorker extends AbstractWorker
 
             // Flag the job as executed so we do not try to run it again
             $this->schedulerService->setJobAsExecuted($jobEntity);
+
+            $application->getLog()->info(
+                "ScheduleRunnerWorker->work: Executed $workerName for " . $jobData['account_id']
+            );
         }
 
         return $idsOfRunJobs;
