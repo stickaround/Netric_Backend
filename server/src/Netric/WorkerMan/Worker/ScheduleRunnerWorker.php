@@ -52,7 +52,7 @@ class ScheduleRunnerWorker extends AbstractWorker
         }
 
          /*
-          * We cannot load the scheudler service from the service locator because it is
+          * We cannot load the scheduler service from the service locator because it is
           * account specific and we will not know the account we are processing for until
           * we get the job workload (see work() below for more details)
           */
