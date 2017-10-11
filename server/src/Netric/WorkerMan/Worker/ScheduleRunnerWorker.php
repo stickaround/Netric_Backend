@@ -35,7 +35,7 @@ class ScheduleRunnerWorker extends AbstractWorker
      *
      * @param Application $application
      * @param SchedulerService $schedulerService For getting and updating scheduled work
-     * @param WorkerSerivce $workerService For sending jobs to be run in the background
+     * @param WorkerService $workerService For sending jobs to be run in the background
      */
      public function __construct(
          Application $application, 
