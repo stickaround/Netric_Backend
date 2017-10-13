@@ -5,6 +5,7 @@ node {
 
     try {
         stage('Build') {
+            deleteDir()
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest */
