@@ -1,6 +1,8 @@
 # Local Configs *
 #################
 *.local.ini
+
+.idea/
  
 # Packages #
 ############
