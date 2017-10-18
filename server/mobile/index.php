@@ -4,6 +4,8 @@
 
     if (file_exists("webpack-manifest.json")) {
         $manifest = json_decode(file_get_contents("webpack-manifest.json"), true);
+    } else {
+        throw new Exception("Netric webapp not installed");
     }
 ?>
 <!DOCTYPE html>
@@ -24,13 +26,9 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <link rel="stylesheet" id='netric-css-base' href="<?php print($manifest['netric.css']); ?>" />
         <title>Netric</title>
-		<script type="text/javascript" src="js/vendor/aereus/alib_full.cmp.js"></script>
         <script type="text/javascript" src="<?php print($manifest['netric.js']); ?>"></script>
 		<script>
             function startApplication() {
-                // Change the universal login to use local server
-                netric.server.universalLoginUri = "https://aereus.netric.com";
-
                 netric.Application.load(function(app){
                     app.run(document.getElementById("netric-app"));
                 }, "https://aereus.netric.com");
