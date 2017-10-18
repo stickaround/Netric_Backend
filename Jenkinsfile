@@ -40,7 +40,7 @@ node {
         stage('Publish') {
             dockerImage = docker.build('netric')
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                /* If this is the master branch, punlish to stable, if it is develop publish to latest */
+                /* If this is the master branch, publish to stable, if it is develop publish to latest */
                 if (env.BRANCH_NAME == 'master') {
                     dockerImage.push("stable")
                 } else {
@@ -48,7 +48,6 @@ node {
                 }
             }
         }
-
 
 
         stage('Deploy') {
