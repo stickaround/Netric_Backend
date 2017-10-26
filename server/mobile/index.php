@@ -31,7 +31,7 @@
             function startApplication() {
                 netric.Application.load(function(app){
                     app.run(document.getElementById("netric-app"));
-                }, "https://aereus.netric.com");
+                }, "https://aereus.netric.com", "/mobile");
             }
         </script>
     </head>
