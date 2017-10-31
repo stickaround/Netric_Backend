@@ -138,6 +138,7 @@ class EntityMaintainerService extends AbstractHasErrors
         $query = new EntityQuery($def->getObjType());
         $query->orderBy("ts_updated");
         $query->setLimit(1);
+        $this->log->info("EntityMaintainerService->trimCappedForType: getting count for " . $def->getObjType());
         $result = $this->entityIndex->executeQuery($query);
         $totalNum = $result->getTotalNum();
 
