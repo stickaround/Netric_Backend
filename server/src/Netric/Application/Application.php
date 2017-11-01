@@ -601,8 +601,10 @@ class Application
 
             // Send total request time to StatsD in ms (wall time is in microseconds)
             if ($parts[1] === 'main()') {
-                $statName = str_replace("/", ".", $_SERVER['REQUEST_URI']);
-                StatsPublisher::timing('api' . $statName, round($stats['wt'] * 1000));
+                $statNamePath = 'api' . str_replace("/", ".", $_SERVER['REQUEST_URI']);
+                StatsPublisher::timing($statNamePath . '.responsetime', round($stats['wt'] * 1000));
+                StatsPublisher::gauge($statNamePath . '.memoryused', $stats['memoryused']);
+                StatsPublisher::increment($statNamePath . '.hits');
             }
         }
 
