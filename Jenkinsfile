@@ -68,16 +68,12 @@ node {
         }
 
         stage('Cleanup') {
-            echo 'prune and cleanup'
             sh 'docker system prune -f'
-
-            mail body: 'project build successful: ${env.BUILD_URL}',
-                from: 'builds@aereus.com',
-                subject: 'project build successful',
-                to: 'sky.stebnicki@aereus.com'
         }
 
     } catch (err) {
+        sh 'docker system prune -f'
+
         currentBuild.result = "FAILURE"
         mail body: "project build error is here: ${env.BUILD_URL}" ,
         subject: 'project build failed',
