@@ -48,3 +48,7 @@ composer.lock
 
 # Vendor directory
 /server/vendor
+server/data/profile_runs/
+server/tests/NetricTest/FileSystem/FileStore/tmp/
+data/profile_runs/
+tests/NetricTest/FileSystem/FileStore/tmp/
