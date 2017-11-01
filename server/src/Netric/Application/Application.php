@@ -14,6 +14,7 @@ use Netric\Cache\CacheInterface;
 use Netric\Account\AccountIdentityMapper;
 use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\DataMapperInterface;
+use Netric\Stats\StatsPublisher;
 
 /**
  * Main application instance class
@@ -596,6 +597,12 @@ class Application
                     "peakmemoryused" => $stats['pmu'],
                 );
                 self::$log->warning($profileData);
+            }
+
+            // Send total request time to StatsD in ms (wall time is in microseconds)
+            if ($parts[1] === 'main()') {
+                $statName = str_replace("/", ".", $_SERVER['REQUEST_URI']);
+                StatsPublisher::timing('api' . $statName, round($stats['wt'] * 1000));
             }
         }
 
