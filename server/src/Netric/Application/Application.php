@@ -611,7 +611,7 @@ class Application
 
             // Just track all service calls
             StatsPublisher::timing('api.responsetime', round($xhprofData['main()']['wt'] * 1000));
-            StatsPublisher::gauge('api.memoryused', $xhprofData['main()']['mu']);
+            StatsPublisher::timing('api.memoryused', $xhprofData['main()']['mu']);
             StatsPublisher::increment('api.hits');
         }
 
