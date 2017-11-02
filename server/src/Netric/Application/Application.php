@@ -574,16 +574,17 @@ class Application
             // If the total walltime (duration) of the function is worth tracking then log
             if ((int) $stats['wt'] >= (int) $this->config->profile->min_wall) {
 
-                /*
-                 * xhprof puts the key in the following form: <calledFrom>==><calss_function_called>
-                 * Offset 0 will be 'called_from' and 1 will be 'function_name'
-                 */
-                $parts = explode("==>", $functionAndCalledFrom);
 
-                // If there is no function name then this is the main root profile
-                if (empty($parts[1])) {
-                    $parts[1] = "main()";
-                    $parts[0] = "";
+                $functionCalled = $functionAndCalledFrom;
+                $calledFrom = "";
+
+                /*
+                 * xhprof puts the key in the following form: <calledFrom>==><class_function_called>
+                 * unless it is the main wrapper entry for the entire page, the key name will
+                 * just be main()
+                 */
+                if ($functionCalled !== 'main()') {
+                    list($functionCalled, $calledFrom) = explode("==>", $functionAndCalledFrom);
                 }
 
                 $profileData = array(
@@ -598,14 +599,14 @@ class Application
                 );
                 self::$log->warning($profileData);
             }
+        }
 
-            // Send total request time to StatsD in ms (wall time is in microseconds)
-            if ($parts[1] === 'main()') {
-                $statNamePath = 'api' . str_replace("/", ".", $_SERVER['REQUEST_URI']);
-                StatsPublisher::timing($statNamePath . '.responsetime', round($stats['wt'] * 1000));
-                StatsPublisher::gauge($statNamePath . '.memoryused', $stats['memoryused']);
-                StatsPublisher::increment($statNamePath . '.hits');
-            }
+        // Send total request time to StatsD in ms (wall time is in microseconds)
+        if (isset($xhprofData['main()'])) {
+            $statNamePath = 'api' . str_replace("/", ".", $_SERVER['REQUEST_URI']);
+            StatsPublisher::timing($statNamePath . '.responsetime', round($xhprofData['main()']['wt'] * 1000));
+            StatsPublisher::gauge($statNamePath . '.memoryused', $xhprofData['main()']['mu']);
+            StatsPublisher::increment($statNamePath . '.hits');
         }
 
         /*
