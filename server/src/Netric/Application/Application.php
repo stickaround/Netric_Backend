@@ -562,7 +562,7 @@ class Application
      */
     private function profileRequest()
     {
-        if (!extension_loaded('xhprof') || $this->config->profile->enabled !== false) {
+        if (!extension_loaded('xhprof') || !$this->config->profile->enabled) {
             return;
         }
 
