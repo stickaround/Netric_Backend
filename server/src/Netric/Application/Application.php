@@ -603,10 +603,16 @@ class Application
 
         // Send total request time to StatsD in ms (wall time is in microseconds)
         if (isset($xhprofData['main()'])) {
-            $statNamePath = 'api' . str_replace("/", ".", $_SERVER['REQUEST_URI']);
+            $statNamePath = 'route' . str_replace("/", ".", $_SERVER['REQUEST_URI']);
+
             StatsPublisher::timing($statNamePath . '.responsetime', round($xhprofData['main()']['wt'] * 1000));
             StatsPublisher::gauge($statNamePath . '.memoryused', $xhprofData['main()']['mu']);
             StatsPublisher::increment($statNamePath . '.hits');
+
+            // Just track all service calls
+            StatsPublisher::timing('api.memoryused', $xhprofData['main()']['mu']);
+            StatsPublisher::gauge('api.responsetime', round($xhprofData['main()']['wt'] * 1000));
+            StatsPublisher::increment('api.hits');
         }
 
         /*
