@@ -589,8 +589,8 @@ class Application
 
                 $profileData = array(
                     "type" => "profile",
-                    "function_name" => $parts[1],
-                    "called_from" => $parts[0],
+                    "function_name" => $functionCalled,
+                    "called_from" => $calledFrom,
                     "num_calls" => $stats['ct'],
                     "duration" => $stats['wt'],
                     "cputime" => $stats['cpu'],
