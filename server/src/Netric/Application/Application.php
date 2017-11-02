@@ -606,7 +606,7 @@ class Application
             $statNamePath = 'route' . str_replace("/", ".", $_SERVER['REQUEST_URI']);
 
             StatsPublisher::timing($statNamePath . '.responsetime', round($xhprofData['main()']['wt'] * 1000));
-            StatsPublisher::gauge($statNamePath . '.memoryused', $xhprofData['main()']['mu']);
+            StatsPublisher::timing($statNamePath . '.memoryused', $xhprofData['main()']['mu']);
             StatsPublisher::increment($statNamePath . '.hits');
 
             // Just track all service calls
