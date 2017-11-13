@@ -147,6 +147,20 @@ class AuthenticationController extends Mvc\AbstractAccountController
 		$ret = array(
 			"result" => ($authService->getIdentity()) ? "OK" : "FAIL"
 		);
+
+        if (!Console::isConsole() && $ret['OK'] && !isset($_COOKIE['Authentication'])) {
+            // Set the cookie for future requests to the server
+            setcookie(
+                'Authentication',
+                $this->request->getParam('Authentication'),
+                $authService->getExpiresTs(),
+                '/'
+            );
+        } else if (isset($_COOKIE['Authentication'])) {
+            // Clear all cookies if check fails
+            unset($_COOKIE['Authentication']);
+            setcookie('Authentication', null, -1, '/');
+        }
 		
 		return $this->sendOutput($ret);
 	}
@@ -175,7 +189,7 @@ class AuthenticationController extends Mvc\AbstractAccountController
         }
 
 		// TODO: Figure out a way to authorize the requestor so that
-		// a bot cannto use this endpoint to validate email addresses.
+		// a bot cannot use this endpoint to validate email addresses.
 
 		$ret = array();
 
