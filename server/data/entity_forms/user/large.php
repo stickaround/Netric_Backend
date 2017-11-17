@@ -1,42 +1,50 @@
 <row>
     <column type="half">
         <row>
+            <column type="half">
+                <field name='image_id' hidelabel='t' profile_image='t'></field>
+            </column>
             <column>
-                <row>
-                    <field name='image_id' hidelabel='t' profile_image='t'></field>
-                </row>
-                <row>
-                    <header field='full_name'/>
-                </row>
-                <row>
-                    <text field='job_title' class="profile-label"/>
-                </row>
-                <row>
-                    <text field='city' class="profile-label"/>
-                </row>
-                <row>
-                    <text field='state' class="profile-label"/>
-                </row>
+                <header field='full_name'/>
             </column>
         </row>
-        <header>Admin</header>
+        <row showif="editMode=false">
+            <column>
+                <fieldset name='User Info'>
+                    <field name='job_title'/>
+                    <field name='city'/>
+                    <field name='state'/>
+                </fieldset>
+            </column>
+        </row>
+        <row showif="editMode=1">
+            <column>
+                <fieldset name='User Password'>
+                    <plugin name='Password' field_name='password'></plugin>
+                </fieldset>
+            </column>
+        </row>
         <row>
             <column>
-                <field name='team_id'/>
-                <field name='active'/>
-                <field name='groups' hidelabel='t'/>
-                <field name='manager_id'/>
+                <fieldset name='Admin'>
+                    <field name='team_id'/>
+                    <field name='active'/>
+                    <field name='groups' hidelabel='t'/>
+                    <field name='manager_id'/>
+                </fieldset>
             </column>
         </row>
-        <header>Contact</header>
         <row>
             <column>
-                <field label='Carier' name='phone_mobile_carrier'/>
-                <field label='Mobile' name='phone_mobile'/>
-                <field label='Office' name='phone_office'/>
-                <field label='Ext' name='phone_ext'/>
+                <fieldset name='Contact'>
+                    <field label='Carier' name='phone_mobile_carrier'/>
+                    <field label='Mobile' name='phone_mobile'/>
+                    <field label='Office' name='phone_office'/>
+                    <field label='Ext' name='phone_ext'/>
+                </fieldset>
             </column>
         </row>
+
     </column>
     <column>
         <row>
