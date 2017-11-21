@@ -1,57 +1,59 @@
 <row>
     <column>
-        <tabs>
-            <tab name='General'>
-                <row>
-                    <column>
-                        <field name='name' hidelabel="t" class='headline'></field>
-                    </column>
-                </row>
-                <row>
-                    <column>
-                        <field name='notes' multiline='t'></field>
-                        <all_additional></all_additional>
-                    </column>
-                </row>
-                <row>
-                    <column>
-                        <status_update/>
-                    </column>
-                </row>
-                <row>
-                    <column>
-                        <field name='activity'></field>
-                    </column>
-                </row>
-            </tab>
+        <row>
+            <column>
+                <field name='name' hidelabel="t" class='headline'></field>
+            </column>
+        </row>
+        <row>
+            <column>
+                <field name='notes' multiline='t'></field>
+                <all_additional></all_additional>
+            </column>
+        </row>
+        <row>
+            <tabs>
+                <tab name='General'>
+                    <row>
+                        <column>
+                            <status_update/>
+                        </column>
+                    </row>
+                    <row>
+                        <column>
+                            <field name='activity'></field>
+                        </column>
+                    </row>
+                </tab>
 
-            <tab name='Task'>
-                <objectsref obj_type='task' ref_field='project'></objectsref>
-            </tab>
+                <tab name='Task'>
+                    <objectsref obj_type='task' ref_field='project'></objectsref>
+                </tab>
 
-            <tab name='Cases'>
-                <objectsref obj_type='case' ref_field='project_id'></objectsref>
-            </tab>
+                <tab name='Cases'>
+                    <objectsref obj_type='case' ref_field='project_id'></objectsref>
+                </tab>
 
-            <tab name='Stories'>
-                <objectsref obj_type='project_story' ref_field='project_id'></objectsref>
-            </tab>
+                <tab name='Stories'>
+                    <objectsref obj_type='project_story' ref_field='project_id'></objectsref>
+                </tab>
 
-            <tab name='Discussions'>
-                <objectsref obj_type='discussion'></objectsref>
-            </tab>
+                <tab name='Discussions'>
+                    <objectsref obj_type='discussion'></objectsref>
+                </tab>
 
-            <tab name='Milestones'>
-                <objectsref obj_type='project_milestone' ref_field='project_id'></objectsref>
-            </tab>
+                <tab name='Milestones'>
+                    <objectsref obj_type='project_milestone' ref_field='project_id'></objectsref>
+                </tab>
 
-            <tab name='Files'>
-                <attachments></attachments>
-            </tab>
-            <tab name='Members'>
-                <plugin name='Members' field='members'></plugin>
-            </tab>
-        </tabs>
+                <tab name='Files'>
+                    <attachments></attachments>
+                </tab>
+                <tab name='Members'>
+                    <plugin name='Members' field='members'></plugin>
+                </tab>
+            </tabs>
+        </row>
     </column>
     <column type="sidebar">
         <header>Details</header>
