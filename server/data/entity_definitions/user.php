@@ -2,7 +2,7 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 40,
+    'revision' => 41,
     'fields' => array(
         // User name
         'name' => array(
@@ -24,7 +24,7 @@ return array(
         ),
 
         'password' => array(
-            'title'=>'Description',
+            'title'=>'Password',
             'type'=>'text',
             'subtype'=>'password',
             'readonly'=>false

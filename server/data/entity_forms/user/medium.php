@@ -2,7 +2,7 @@
     <column>
         <field name='name' validator='username'/>
         <field name='full_name'/>
-        <plugin name='Password' field_name='password'></plugin>
+        <field name='password'/>
         <field name='job_title'/>
         <field label='Email' name='email'/>
     </column>

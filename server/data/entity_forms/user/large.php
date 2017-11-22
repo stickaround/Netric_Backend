@@ -20,7 +20,7 @@
         <row showif="editMode=1">
             <column>
                 <fieldset name='User Password'>
-                    <plugin name='Password' field_name='password'></plugin>
+                    <field name='password'/>
                 </fieldset>
             </column>
         </row>
