@@ -1,5 +1,6 @@
 <field name='name' validator='username'/>
 <field name='full_name'/>
+<field name='password'/>
 <field name='job_title'/>
 <field label='Email' name='email'/>
 <field name='city'/>
