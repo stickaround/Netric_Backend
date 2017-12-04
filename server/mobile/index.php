@@ -7,19 +7,18 @@
     } else {
         throw new Exception("Netric webapp not installed");
     }
+
+    // Setup autoloader
+    include(__DIR__ . "/../init_autoloader.php");
+
+    // Get netric config
+    $configLoader = new Netric\Config\ConfigLoader();
+    $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+    $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 ?>
 <!DOCTYPE html>
 <html>
     <head>
-        <!--
-        Customize this policy to fit your own app's needs. For more guidance, see:
-            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-        Some notes:
-            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-                * Enable inline JS: add 'unsafe-inline' to default-src
-        -->
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://*.netric.com https://*.netric.com http://netric.myaereus.com; media-src *; font-src *">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
@@ -31,7 +30,7 @@
             function startApplication() {
                 netric.Application.load(function(app){
                     app.run(document.getElementById("netric-app"));
-                }, "https://aereus.netric.com", "/mobile");
+                }, <?php echo $config->loginserver; ?>, "/mobile");
             }
         </script>
     </head>
