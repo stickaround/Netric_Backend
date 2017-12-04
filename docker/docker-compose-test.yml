@@ -1,12 +1,11 @@
 version: '2'
-
 services:
   netric_server:
     build: ../
     environment:
-       APPLICATION_ENV: testing
+      APPLICATION_ENV: testing
     volumes:
-      - ../server/tests/tmp:/var/www/html/tests/tmp
+      - '../server/tests/tmp:/var/www/html/tests/tmp'
     links:
       - memcached
       - gearmand
@@ -14,44 +13,38 @@ services:
       - db1
       - mogilefs
       - mogilestore
-
   memcached:
     image: memcached
-
   gearmand:
     image: kendu/gearman
-
   db1:
-    image: dockerhub.aereusdev.com/pgsql:latest
+    image: 'dockerhub.aereusdev.com/pgsql:latest'
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
-
   mail:
-    image: dockerhub.aereusdev.com/mail:latest
+    image: 'dockerhub.aereusdev.com/mail:latest'
     environment:
-        DB_USER: vagrant
-        DB_PASSWORD: vagrant
-        DB_HOST: db1
-        DB_NAME: antsystem
-        DB_PORT: 5432
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: antsystem
+      DB_PORT: 5432
     links:
       - db1
     depends_on:
       - db1
-
   mogilefs:
-    image: dockerhub.aereusdev.com/mogiletracker:latest
+    image: 'dockerhub.aereusdev.com/mogiletracker:latest'
     environment:
-        DB_USER: vagrant
-        DB_PASSWORD: vagrant
-        DB_HOST: db1
-        DB_NAME: mogilefs
-        DB_PORT: 5432
-        DB_INIT: "true"
-        INIT_STORAGE_HOST: mogilestore
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: mogilefs
+      DB_PORT: 5432
+      DB_INIT: 'true'
+      INIT_STORAGE_HOST: mogilestore
     links:
-    - mogilestore
-
+      - mogilestore
   mogilestore:
-    image: dockerhub.aereusdev.com/mogilestore:latest
+    image: 'dockerhub.aereusdev.com/mogilestore:latest'
