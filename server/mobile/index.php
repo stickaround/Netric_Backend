@@ -1,20 +1,20 @@
 <?php
     // Built files are hashed for cache breaking so use the manifest to get the absolute name and path
-    $manifest = ['netric.js'=>'/mobile/js/netric.js', 'netric.css'=>'/mobile/css/netric.css'];
+$manifest = ['netric.js' => '/mobile/js/netric.js', 'netric.css' => '/mobile/css/netric.css'];
 
-    if (file_exists("webpack-manifest.json")) {
-        $manifest = json_decode(file_get_contents("webpack-manifest.json"), true);
-    } else {
-        throw new Exception("Netric webapp not installed");
-    }
+if (file_exists("webpack-manifest.json")) {
+    $manifest = json_decode(file_get_contents("webpack-manifest.json"), true);
+} else {
+    throw new Exception("Netric webapp not installed");
+}
 
     // Setup autoloader
-    include(__DIR__ . "/../init_autoloader.php");
+include(__DIR__ . "/../init_autoloader.php");
 
     // Get netric config
-    $configLoader = new Netric\Config\ConfigLoader();
-    $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
-    $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
+$configLoader = new Netric\Config\ConfigLoader();
+$applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+$config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 ?>
 <!DOCTYPE html>
 <html>
@@ -30,7 +30,7 @@
             function startApplication() {
                 netric.Application.load(function(app){
                     app.run(document.getElementById("netric-app"));
-                }, <?php echo $config->loginserver; ?>, "/mobile");
+                }, "<?php echo $config->loginserver; ?>", "/mobile");
             }
         </script>
     </head>

@@ -49,7 +49,6 @@ node {
             }
         }
 
-
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
                 /*
