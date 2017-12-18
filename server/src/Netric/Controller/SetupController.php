@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014-2017 Aereus
@@ -37,16 +38,17 @@ class SetupController extends Mvc\AbstractController
         if (!$request->getParam("username") || !$request->getParam("password")) {
             throw new \InvalidArgumentException(
                 "Please enter --username=myuser and --password=mypass arguments " .
-                "for the default account before installing the application."
+                    "for the default account before installing the application."
             );
         }
 
         /*
          * Create the system database if it does not exist
-         * the 15 passed as the first param means retry for 15 seconds
+         * the 30 passed as the first param means retry for 30 seconds
          * in case the database is still starting up
+         * TODO: This is probably not the best place for checking if the DB is ready
          */
-        if (!$application->initDb(15)) {
+        if (!$application->initDb(30)) {
             throw new \RuntimeException("Could not create application database");
         }
 
@@ -55,11 +57,11 @@ class SetupController extends Mvc\AbstractController
             throw new \RuntimeException("Could not create default account");
         }
 
-        
+
         $response->writeLine(
             "-- Install Complete: " .
-            "username=" . $request->getParam("username") . ", " .
-            "password=" . $request->getParam("password") ." --"
+                "username=" . $request->getParam("username") . ", " .
+                "password=" . $request->getParam("password") . " --"
         );
         return $response;
     }
@@ -67,7 +69,8 @@ class SetupController extends Mvc\AbstractController
     /**
      * Update account(s) and application to latest version
      */
-    public function consoleUpdateAction() {
+    public function consoleUpdateAction()
+    {
         $response = new ConsoleResponse();
 
         // Update the application database

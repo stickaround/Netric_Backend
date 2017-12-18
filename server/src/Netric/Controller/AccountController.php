@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controller for account interactoin
  */
@@ -23,20 +24,16 @@ class AccountController extends Mvc\AbstractAccountController
         $user = $this->account->getUser();
 
         // Get the modules specific for the current user
+        // NOTE: This will only retrieve modules that either have a custom
+        // navigation defined in the database OR can be found in /data/modules/...
         $userModules = $moduleService->getForUser($user);
 
         $modules = array();
 
         // Loop through each module for the current user
         foreach ($userModules as $module) {
-            /*
-             * We will only get the module that has saved custom navigation
-             * otherwise the client will use the module default navigation
-             */
-            if ($module->getNavigation()) {
-                // Convert the Module object into an array
-                $modules[] = $module->toArray();
-            }
+            // Convert the Module object into an array
+            $modules[] = $module->toArray();
         }
 
         // Setup the return details
