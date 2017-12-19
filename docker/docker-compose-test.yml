@@ -14,7 +14,7 @@ services:
       - mogilefs
       - mogilestore
     depends_on:
-      - mofilefs
+      - mogilefs
       - db1
       - gearmand
   memcached:
