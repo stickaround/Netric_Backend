@@ -72,7 +72,7 @@ node {
         }
 
     } catch (err) {
-        sh 'docker system prune -f'
+        //sh 'docker system prune -f'
 
         currentBuild.result = "FAILURE"
         mail body: "project build error is here: ${env.BUILD_URL}" ,
