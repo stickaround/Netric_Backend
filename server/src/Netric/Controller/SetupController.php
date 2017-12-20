@@ -44,11 +44,11 @@ class SetupController extends Mvc\AbstractController
 
         /*
          * Create the system database if it does not exist
-         * the 30 passed as the first param means retry for 30 seconds
+         * the 60 passed as the first param means retry for 60 seconds
          * in case the database is still starting up
          * TODO: This is probably not the best place for checking if the DB is ready
          */
-        if (!$application->initDb(30)) {
+        if (!$application->initDb(60)) {
             throw new \RuntimeException("Could not create application database");
         }
 
