@@ -30,6 +30,7 @@ node {
             sh 'docker-compose -f docker/docker-compose-test.yml pull'
             sh 'docker-compose -f docker/docker-compose-test.yml build'
             sh 'docker-compose -f docker/docker-compose-test.yml up -d'
+            sh 'docker-compose -f docker/docker-compose-test.yml logs'
             // Give mogilefs time to settle
             sleep 10
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
