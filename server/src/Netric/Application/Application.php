@@ -390,19 +390,22 @@ class Application
     public function initDb($numRetries = 0)
     {
         // Create database if it does not exist
-        if (!$this->dm->createDatabase()) {
+        try {
+            // Failures will result in a \RuntimeException, otherwise assume success
+            $this->dm->createDatabase();
+        } catch (\RuntimeException $ex) {
             // If we are set to retry on failure, then wait a second and try again
             if ($numRetries > 0) {
                 $this->getLog()->info("Could not create the system database, waiting a second to try again");
                 sleep(1);
                 return $this->initDb(--$numRetries);
+            } else {
+                // Let the caller know that we cannot create the database
+                throw new \RuntimeException(
+                    "Could not create application database: " .
+                    $this->dm->getLastError()->getMessage()
+                );
             }
-
-            // Let the caller know that we cannot create the database
-            throw new \RuntimeException(
-                "Could not create application database: " .
-                $this->dm->getLastError()->getMessage()
-            );
         }
 
         // Initialize with setup
