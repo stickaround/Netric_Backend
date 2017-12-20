@@ -47,5 +47,6 @@ services:
       INIT_STORAGE_HOST: mogilestore
     links:
       - mogilestore
+      - db1
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'

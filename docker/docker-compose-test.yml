@@ -13,10 +13,6 @@ services:
       - db1
       - mogilefs
       - mogilestore
-    depends_on:
-      - mogilefs
-      - db1
-      - gearmand
   memcached:
     image: memcached
   gearmand:
@@ -50,5 +46,6 @@ services:
       INIT_STORAGE_HOST: mogilestore
     links:
       - mogilestore
+      - db1
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'

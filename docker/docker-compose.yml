@@ -9,19 +9,15 @@ netric_server:
    - db1
    - mogilefs
    - mogilestore
-
 memcached:
   image: memcached
-
 gearmand:
   image: kendu/gearman
-
 db1:
   image: dockerhub.aereusdev.com/pgsql:latest
   environment:
     POSTGRES_USER: vagrant
     POSTGRES_PASSWORD: vagrant
-
 mail:
   image: dockerhub.aereusdev.com/mail:latest
   environment:
@@ -32,7 +28,6 @@ mail:
       DB_PORT: 5432
   links:
   - db1
-
 mogilefs:
     image: dockerhub.aereusdev.com/mogiletracker:latest
     environment:
@@ -45,6 +40,6 @@ mogilefs:
         INIT_STORAGE_HOST: mogilestore
     links:
     - mogilestore
-
-  mogilestore:
-    image: dockerhub.aereusdev.com/mogilestore:latest
+    - db1
+mogilestore:
+  image: dockerhub.aereusdev.com/mogilestore:latest
