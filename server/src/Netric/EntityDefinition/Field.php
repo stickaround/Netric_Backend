@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Field definition
  * 
@@ -180,23 +181,23 @@ class Field implements \ArrayAccess
 			$this->mask = $data["mask"];
 
 		if (isset($data["required"]))
-			$this->required = ($data["required"]===true || (string)$data["required"]=="true" || (string)$data["required"]=="t") ? true : false;
+			$this->required = ($data["required"] === true || (string)$data["required"] == "true" || (string)$data["required"] == "t") ? true : false;
 
 		if (isset($data["system"]))
-			$this->system = ($data["system"]===true || (string)$data["system"]=="true" || (string)$data["system"]=="t") ? true : false;
+			$this->system = ($data["system"] === true || (string)$data["system"] == "true" || (string)$data["system"] == "t") ? true : false;
 
 		if (isset($data["readonly"]))
-			$this->readonly = ($data["readonly"]===true || (string)$data["readonly"]=="true" || (string)$data["readonly"]=="t") ? true : false;
+			$this->readonly = ($data["readonly"] === true || (string)$data["readonly"] == "true" || (string)$data["readonly"] == "t") ? true : false;
 
 		if (isset($data["unique"]))
-			$this->unique = ($data["unique"]===true || (string)$data["unique"]=="true" || (string)$data["unique"]=="t") ? true : false;
+			$this->unique = ($data["unique"] === true || (string)$data["unique"] == "true" || (string)$data["unique"] == "t") ? true : false;
 
 		if (isset($data["autocreate"]))
 			$this->autocreate = $data["autocreate"];
-		
+
 		if (isset($data["autocreatename"]))
 			$this->autocreatename = $data["autocreatename"];
-		
+
 		if (isset($data["autocreatebase"]))
 			$this->autocreatebase = $data["autocreatebase"];
 
@@ -213,17 +214,16 @@ class Field implements \ArrayAccess
 			$this->fkeyTable = $data["fkey_table"];
 
 		// Check object groupings
-		if (("fkey" == $this->type || "fkey_multi" == $this->type) && "object_groupings" == $this->subtype && $this->fkeyTable == null)
-		{
+		if ( ("fkey" == $this->type || "fkey_multi" == $this->type) && "object_groupings" == $this->subtype && $this->fkeyTable == null) {
 			$this->fkeyTable = array(
-				"key"=>"id", 
-				"title"=>"name", 
-				"parent"=>"parent_id",
-					"ref_table"=>array(
-						"table"=>"object_grouping_mem", 
-						"this"=>"object_id", 
-						"ref"=>"grouping_id"
-					)
+				"key" => "id",
+				"title" => "name",
+				"parent" => "parent_id",
+				"ref_table" => array(
+					"table" => "object_grouping_mem",
+					"this" => "object_id",
+					"ref" => "grouping_id"
+				)
 			);
 		}
 	}
@@ -265,13 +265,11 @@ class Field implements \ArrayAccess
 	public function setUseWhen($value)
 	{
 		// Modify name of the field if this is a new field
-		if ($value && !$this->id)
-		{
+		if ($value && !$this->id) {
 			$postpend = "";
 			$parts = explode(":", $value);
-			if (count($parts) > 1)
-			{
-				$postpend = "_".$parts[0]."_";
+			if (count($parts) > 1) {
+				$postpend = "_" . $parts[0] . "_";
 
 				$parts[1] = str_replace("-", "minus", $parts[1]);
 				$parts[1] = str_replace("+", "plus", $parts[1]);
@@ -279,8 +277,7 @@ class Field implements \ArrayAccess
 				$postpend .= $parts[1];
 			}
 
-			if ($postpend)
-			{
+			if ($postpend) {
 				$this->name = $this->name . $postpend;
 			}
 		}
@@ -308,22 +305,18 @@ class Field implements \ArrayAccess
 	 * @param Entity $obj If set, update the object directly
 	 * @param AntUser $user If set, use this for user variables
 	 */
-	public function getDefault($value, $event='update', $obj=null, $user=null)
+	public function getDefault($value, $event = 'update', $obj = null, $user = null)
 	{
 		$ret = $value;
-		
-		if ($this->default && is_array($this->default) && count($this->default))
-		{
-			if($this->default['on'])
+
+		if ($this->default && is_array($this->default) && count($this->default)) {
+			if ($this->default['on'])
 				$on = $this->default['on'];
 
 			// Check if condition is part of the default
-			if (isset($this->default['where']) && $this->default['where'] && $obj)
-			{
-				if (is_array($this->default['where']))
-				{
-					foreach ($this->default['where'] as $condFName=>$condVal)
-					{
+			if (isset($this->default['where']) && $this->default['where'] && $obj) {
+				if (is_array($this->default['where'])) {
+					foreach ($this->default['where'] as $condFName => $condVal) {
 						if ($obj->getValue($condFName) != $condVal)
 							$on = ""; // Do not set default
 					}
@@ -331,85 +324,75 @@ class Field implements \ArrayAccess
 			}
 
 			// Determin appropriate event and action
-			switch ($on)
-			{
-			case 'create':
-				if ($value !== null)
-					break;
-				else
-					$ret = $this->default['value'];
-				// Fall through to also use update
-			case 'update':
-				if ($on == "update")
-				{
-					if (isset($this->default['coalesce']) && is_array($this->default['coalesce']) && $obj)
-					{
-						$ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias")?true:false);
-						if (!$ret)
-							$ret = $this->default['value'];
-					}
+			switch ($on) {
+				case 'create':
+					if ($value !== null)
+						break;
 					else
-					{
 						$ret = $this->default['value'];
+				// Fall through to also use update
+				case 'update':
+					if ($on == "update") {
+						if (isset($this->default['coalesce']) && is_array($this->default['coalesce']) && $obj) {
+							$ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias") ? true : false);
+							if (!$ret)
+								$ret = $this->default['value'];
+						} else {
+							$ret = $this->default['value'];
+						}
 					}
-				}
-				break;
-			case 'delete':
-				if ($on == "delete")
-					$ret = $this->default['value'];
-				break;
-			case 'null':
-				if ($ret==="" || $ret===null || $ret===$this->default['value']) {
-					if (isset($this->default['coalesce']) && $this->default['coalesce'] && is_array($this->default['coalesce']) && $obj) {
-						$ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias")?true:false);
-						if (!$ret) {
-                            $ret = $this->default['value'];
-                        }
-					} else {
+					break;
+				case 'delete':
+					if ($on == "delete")
 						$ret = $this->default['value'];
+					break;
+				case 'null':
+					if ($ret === "" || $ret === null || $ret === $this->default['value']) {
+						if (isset($this->default['coalesce']) && $this->default['coalesce'] && is_array($this->default['coalesce']) && $obj) {
+							$ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias") ? true : false);
+							if (!$ret) {
+								$ret = $this->default['value'];
+							}
+						} else {
+							$ret = $this->default['value'];
+						}
 					}
-				}
-				break;
+					break;
 			}
 		}
 
 		// Convert values
-		switch ($this->type)
-		{
-		case 'date':
-			if ("now" == $ret)
-				$ret = mktime(0, 0, 0, date("n"), date("j"), date("Y"));
-			break;
-		case 'time':
-		case 'timestamp':
-			if ("now" == $ret)
-				$ret = time();
-			break;
+		switch ($this->type) {
+			case 'date':
+				if ("now" == $ret)
+					$ret = mktime(0, 0, 0, date("n"), date("j"), date("Y"));
+				break;
+			case 'time':
+			case 'timestamp':
+				if ("now" == $ret)
+					$ret = time();
+				break;
 		}
 
 		// Look for variables
-        if (is_string($ret))
-        {
-            if ("<%username%>" == (string)$ret)
-            {
-                if ($user)
-                    $ret = $user->getValue('name');
-                else
-                    $ret = "";
-            }
+		if (is_string($ret)) {
+			if ("<%username%>" == (string)$ret) {
+				if ($user)
+					$ret = $user->getValue('name');
+				else
+					$ret = "";
+			}
 
-            if ("<%userid%>" == (string)$ret)
-            {
-                if ($user)
-                    $ret = $user->getId();
-                else
-                    $ret = "";
-            }
-        }
+			if ("<%userid%>" == (string)$ret) {
+				if ($user)
+					$ret = $user->getId();
+				else
+					$ret = "";
+			}
+		}
 
-		if ((($this->type == "fkey" && $this->subtype == "users") 
-			  || ($this->type == "object" && $this->subtype == "user")) && $ret == "-3")
-		{
+		if ( ( ($this->type == "fkey" && $this->subtype == "users")
+			|| ($this->type == "object" && $this->subtype == "user")) && $ret == "-3") {
 			if ($user)
 				$ret = $user->getId();
 			else
@@ -425,43 +408,31 @@ class Field implements \ArrayAccess
 	 *
 	 * @param
 	 */
-	public function getDefaultCoalesce($cfields, $obj, $alias=false)
+	public function getDefaultCoalesce($cfields, $obj, $alias = false)
 	{
 		$ret = "";
 
-		foreach ($cfields as $field_to_pull)
-		{
-			if (is_array($field_to_pull))
-			{
-				foreach ($field_to_pull as $subcol)
-				{
+		foreach ($cfields as $field_to_pull) {
+			if (is_array($field_to_pull)) {
+				foreach ($field_to_pull as $subcol) {
 					$buf = $obj->getValue($subcol);
-					if ($buf)
-					{
+					if ($buf) {
 						if ($ret) $ret .= " ";
 
-						if ($alias)
-						{
+						if ($alias) {
 							$ret = $subcol;
 							break;
-						}
-						else
-						{
+						} else {
 							$ret .= $buf;
 						}
 					}
 				}
 
-			}
-			else
-			{
-				if ($alias)
-				{
+			} else {
+				if ($alias) {
 					$ret = $field_to_pull;
 					break;
-				}
-				else
-				{
+				} else {
 					$ret = $obj->getValue($field_to_pull);
 				}
 			}
@@ -479,21 +450,24 @@ class Field implements \ArrayAccess
 	 * ArrayAccess Implementation Functions
 	 * -------------------------------------------------------------------
 	 */
-	public function offsetSet($offset, $value) 
+	public function offsetSet($offset, $value)
 	{
 		if (is_null($offset)) {
-		$this->container[] = $value;
+			$this->container[] = $value;
 		} else {
-		$this->container[$offset] = $value;
+			$this->container[$offset] = $value;
 		}
 	}
-	public function offsetExists($offset) {
+	public function offsetExists($offset)
+	{
 		return isset($this->container[$offset]);
 	}
-	public function offsetUnset($offset) {
+	public function offsetUnset($offset)
+	{
 		unset($this->container[$offset]);
 	}
-	public function offsetGet($offset) {
+	public function offsetGet($offset)
+	{
 		return isset($this->container[$offset]) ? $this->container[$offset] : null;
 	}
 }
