@@ -2,7 +2,7 @@
 	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 	require_once("src/AntLegacy/Email.php");
 	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
@@ -334,7 +334,7 @@
 
 			if (code == 13 && this.value) // keycode for a return
 			{
-				Ant.Execute('/objects/app_search.js', 'CSearch', 'Global Search', [["search", this.value]]);
+				Ant.Execute('/js/legacy/objects/app_search.js', 'CSearch', 'Global Search', [["search", this.value]]);
 				this.value = "";
 			}
 		}

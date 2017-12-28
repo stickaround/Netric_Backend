@@ -7,12 +7,12 @@
 	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../settings/settings_functions.php");		
 	require_once("../users/user_functions.php");		
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 	// ANT LIB
 	require_once("../lib/CDatabase.awp");
 	require_once("../lib/CAntObject.php");
 	require_once("../lib/CRecurrencePattern.php");
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	

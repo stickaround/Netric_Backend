@@ -47,7 +47,7 @@ class CAntCustomerLead
 	
 	function CAntCustomerLead($url, $username, $password, $account='') 
 	{
-		$this->m_url = $url . "/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
+		$this->m_url = $url . "/public/legacy/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
 		$this->m_values = array();
 	}
 

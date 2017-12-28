@@ -26,13 +26,13 @@
 
 	// Customer and contacts
 
-	require_once("../customer/customer_functions.awp");
+	require_once("../src/AntLegacy/customer/customer_functions.awp");
 
 	require_once("../contacts/contact_functions.awp");
 
 	// Application
 
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 
 	
 

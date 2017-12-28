@@ -49,7 +49,7 @@ function FeedGetURL($dbh, $FID)
 	
 	if (is_numeric($FID))
 	{
-		$retval = AntConfig::getInstance()->localhost."/feeds/?fid=$FID";
+		$retval = AntConfig::getInstance()->localhost."/public/legacy/feeds/?fid=$FID";
 	}
 	
 	return $retval;

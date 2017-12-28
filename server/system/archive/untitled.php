@@ -1,7 +1,7 @@
 <?php
 	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../settings/settings_functions.php");		
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 	// ANT LIBz
 	require_once("../lib/CDatabase.awp");
 	require_once("../lib/aereus.lib.php/CAnsClient.php");

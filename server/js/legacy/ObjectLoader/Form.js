@@ -358,7 +358,7 @@ AntObjectLoader_Form.prototype.buildToolbar = function()
 				return;
 			}
 
-			window.open("/print/engine.php?obj_type=" + this.mObject.obj_type + "&objects[]=" + this.mObject.id);
+			window.open("/public/legacy/print/engine.php?obj_type=" + this.mObject.obj_type + "&objects[]=" + this.mObject.id);
 		}
 	});
     if (!this.loaderCls.isMobile && this.mainObject.name!="dashboard" && this.mainObject.id) // only in desktop mode and no printing dashboards yet

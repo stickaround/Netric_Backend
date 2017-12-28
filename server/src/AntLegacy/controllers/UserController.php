@@ -1,8 +1,8 @@
 <?php
 require_once('src/AntLegacy/Email.php');
 require_once('src/AntLegacy/aereus.lib.php/CCache.php');
-require_once('contacts/contact_functions.awp');
-require_once('email/email_functions.awp');
+require_once('src/AntLegacy/contact_functions.awp');
+require_once('src/AntLegacy/email_functions.php');
 require_once('src/AntLegacy/AntSystem.php');
 require_once('src/AntLegacy/AntFs.php');
 require_once('src/AntLegacy/Social.php');

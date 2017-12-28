@@ -56,7 +56,7 @@
 
 		//ALib.m_debug = true;
 		//AJAX_TRACE_RESPONSE = true;
-		var rpc = new CAjaxRpc("/project/xml_actions.php", "save_members", args, funct, [this], AJAX_POST);
+		var rpc = new CAjaxRpc("/public/legacy/project/xml_actions.php", "save_members", args, funct, [this], AJAX_POST);
 	},
 
 	onsave:function()
@@ -87,7 +87,7 @@
 
 		//ALib.m_debug = true;
 		//AJAX_TRACE_RESPONSE = true;
-		var rpc = new CAjaxRpc("/project/xml_actions.php", "get_positions", [["project_id", this.mainObject.id]], funct, [this]);
+		var rpc = new CAjaxRpc("/public/legacy/project/xml_actions.php", "get_positions", [["project_id", this.mainObject.id]], funct, [this]);
 	},
 
 	load:function()
@@ -129,7 +129,7 @@
 
 		//ALib.m_debug = true;
 		//AJAX_TRACE_RESPONSE = true;
-		var rpc = new CAjaxRpc("/project/xml_actions.php", "get_members", [["project_id", this.mainObject.id]], funct, [this]);
+		var rpc = new CAjaxRpc("/public/legacy/project/xml_actions.php", "get_members", [["project_id", this.mainObject.id]], funct, [this]);
 	},
 
 	buildInterface:function()
@@ -299,7 +299,7 @@
 
 				//ALib.m_debug = true;
 				//AJAX_TRACE_RESPONSE = true;
-				var rpc = new CAjaxRpc("/project/xml_actions.php", "position_delete", 
+				var rpc = new CAjaxRpc("/public/legacy/project/xml_actions.php", "position_delete",
 										[["pid", this.pid]], funct, [this.cls, this.pid]);
 			}
 		}
@@ -372,7 +372,7 @@
 
 				//ALib.m_debug = true;
 				//AJAX_TRACE_RESPONSE = true;
-				var rpc = new CAjaxRpc("/project/xml_actions.php", "position_add", 
+				var rpc = new CAjaxRpc("/public/legacy/project/xml_actions.php", "position_add",
 										[["name", name], ["project_id", cls.mainObject.id]], funct, [cls, name]);
 			}
 		}

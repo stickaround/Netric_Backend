@@ -7,11 +7,11 @@
 	require_once("src/AntLegacy/content_table.awp");
 	require_once("src/AntLegacy/Button.awp");
 	require_once("src/AntLegacy/calendar/calendar_functions.awp");
-	require_once("contacts/contact_functions.awp");
+	require_once("src/AntLegacy/contact_functions.awp");
 	require_once("users/user_functions.php");
 	require_once("src/AntLegacy/Email.php");
 	require_once("src/AntLegacy/js_iframe_resize.awp");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 	require_once("src/AntLegacy/CPageShellPublic.php");
 	
 	$dbh = $ANT->dbh;

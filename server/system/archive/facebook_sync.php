@@ -6,8 +6,8 @@
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/CAntObjectList.php");
 	require_once("users/user_functions.php");		
-	require_once("email/email_functions.awp");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
+	require_once("src/AntLegacy/email_functions.php");
 	// Aereus LIB
 	require_once("src/AntLegacy/aereus.lib.php/facebook/facebook.php");
 

@@ -515,7 +515,7 @@ CAntObjectImpWizard.prototype.save = function()
             this.cbData.dlg.hide();
         };
         args[args.length] = ["function", "save_template"];
-        ajax.exec("/objects/xml_import_actions.php", args);
+        ajax.exec("/public/legacy/objects/xml_import_actions.php", args);
 	}
 	else
 	{
@@ -744,7 +744,7 @@ CAntObjectImpWizard.prototype.loadTemplates = function()
 		this.cls.populateTemplates();
 	};
 
-	var url = "/objects/xml_import_actions.php?function=get_templates&obj_type="+this.mainObject.name;
+	var url = "/public/legacy/objects/xml_import_actions.php?function=get_templates&obj_type="+this.mainObject.name;
 	ajax.exec(url);
 }
 
@@ -798,20 +798,7 @@ CAntObjectImpWizard.prototype.setTemplate = function(id)
 **************************************************************************/
 CAntObjectImpWizard.prototype.deleteTemplates = function(cbTemplates)
 {
-	/*function cbdone(ret, cls, cbTemplates)
-	{
-		if (ret)
-		{
-			for (var i = 0; i < cbTemplates.options.length; i++)
-			{
-				if (cbTemplates.options[i].selected)
-					cbTemplates.options[i] = null;
-			}
-		}
-	}
-	var args = [["tid", cbTemplates.value]];
-	var rpc = new CAjaxRpc("/email/xml_import_actions.php", "delete_import_template", args, cbdone, [this, cbTemplates]);*/
-    
+
     ajax = new CAjax('json');
     ajax.cbData.cls = this;
     ajax.cbData.cbTemplates = cbTemplates;
@@ -827,5 +814,5 @@ CAntObjectImpWizard.prototype.deleteTemplates = function(cbTemplates)
         }
     };
     var args = [["function", "delete_import_template"], ["tid", cbTemplates.value]];
-    ajax.exec("/email/xml_import_actions.php", args);
+    ajax.exec("/public/legacy/email/xml_import_actions.php", args);
 }

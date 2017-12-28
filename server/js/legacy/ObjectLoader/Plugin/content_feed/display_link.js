@@ -52,7 +52,7 @@
 		alib.dom.styleSetClass(td_lbl, "formLabel");
 		td_lbl.innerHTML = "XML URL:";
 		var td_inp = alib.dom.createElement("td", row);
-		var lnk = "http://" + document.domain + "/feeds/?fid="+this.mainObject.id;
+		var lnk = "http://" + document.domain + "/public/legacy/feeds/?fid="+this.mainObject.id;
 		td_inp.innerHTML = "<a href='"+lnk+"' target='_blank'>"+lnk+"</a>";
 
 		var row = alib.dom.createElement("tr", tbody);
@@ -61,7 +61,7 @@
 		alib.dom.styleSetClass(td_lbl, "formLabel");
 		td_lbl.innerHTML = "RSS URL:";
 		var td_inp = alib.dom.createElement("td", row);
-		var lnk = "http://" + document.domain + "/feeds/rss.awp?fid="+this.mainObject.id;
+		var lnk = "http://" + document.domain + "/public/legacy/feeds/rss.awp?fid="+this.mainObject.id;
 		td_inp.innerHTML = "<a href='"+lnk+"' target='_blank'>"+lnk+"</a>";
 	}
 }

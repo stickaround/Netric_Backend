@@ -6,7 +6,7 @@
 	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 	//require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 	require_once("src/AntLegacy/aereus.lib.php/facebook/facebook.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
 	$dbh = $ANT->dbh;

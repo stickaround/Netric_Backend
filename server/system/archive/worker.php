@@ -8,8 +8,8 @@
 	require_once("src/AntLegacy/CAntObjectList.php");
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/Email.php");
-	require_once("customer/CCustomer.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/customer/CCustomer.php");
+	require_once("src/AntLegacy/email_functions.php");
 	require_once("src/AntLegacy/aereus.lib.php/CAnsClient.php");
 	require_once("src/AntLegacy/aereus.lib.php/AnsClient.php");
 	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");

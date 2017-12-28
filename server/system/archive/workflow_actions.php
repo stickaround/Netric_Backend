@@ -3,7 +3,7 @@
 	require_once("src/AntLegacy/ant_error_handler.php");
 	require_once("settings/settings_functions.php");		
 	require_once("users/user_functions.php");		
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 	// ANT LIB
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/CDatabase.awp");

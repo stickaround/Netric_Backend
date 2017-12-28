@@ -4,7 +4,7 @@
  */
 require_once('userfiles/file_functions.awp');
 require_once('src/AntLegacy/AntFs.php');
-require_once('project/project_functions.awp');
+require_once('src/AntLegacy/project/project_functions.awp');
 
 /**
  * Class for controlling customer functions

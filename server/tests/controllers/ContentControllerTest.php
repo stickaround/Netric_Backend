@@ -5,7 +5,7 @@ require_once(dirname(__FILE__).'/../../lib/AntConfig.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObjectList.php');
 require_once(dirname(__FILE__).'/../../lib/WorkFlow.php');
-require_once(dirname(__FILE__).'/../../email/email_functions.awp');
+require_once(dirname(__FILE__).'/../../src/AntLegacy/email_functions.php');
 require_once(dirname(__FILE__).'/../../community/feed_functions.awp');
 require_once(dirname(__FILE__).'/../../lib/Controller.php');
 require_once(dirname(__FILE__).'/../../controllers/ContentController.php');

@@ -6,7 +6,7 @@
     require_once('src/AntLegacy/CAntObject.php');
     require_once('src/AntLegacy/CAntObjectList.php');
     require_once('src/AntLegacy/WorkFlow.php');
-    require_once('email/email_functions.awp');
+    require_once('src/AntLegacy/email_functions.php');
     require_once('src/AntLegacy/Controller.php');
     
     ini_set("max_execution_time", "7200");    

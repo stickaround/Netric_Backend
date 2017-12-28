@@ -34,8 +34,8 @@ class CAntCustomer
 	
 	function CAntCustomer($server, $username, $password, $account="aereus") 
 	{
-		$this->m_url = "http://".$server."/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
-		$this->m_urlGet = "http://".$server."/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=customer";
+		$this->m_url = "http://".$server."/public/legacy/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
+		$this->m_urlGet = "http://".$server."/public/legacy/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=customer";
 		$this->m_values = array();
 		$this->m_attribs = array();
 	}

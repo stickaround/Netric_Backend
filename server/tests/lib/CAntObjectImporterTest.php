@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../lib/AntUser.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObject.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObjectList.php');
 require_once(dirname(__FILE__).'/../../lib/CAntObjectImporter.php');
-require_once(dirname(__FILE__).'/../../customer/customer_functions.awp');
+require_once(dirname(__FILE__).'/../../src/AntLegacy/customer/customer_functions.awp');
 require_once(dirname(__FILE__).'/../../lib/aereus.lib.php/CAntObjectApi.php');
 
 class CAntObjectImporterTest extends TestCase

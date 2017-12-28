@@ -368,7 +368,7 @@ Ant.setNewEmailMessages = function()
 	// Get xml file	
 	try
 	{
-		ajax.exec("/email/xml_check_for_new.awp");
+		ajax.exec("/public/legacy/email/xml_check_for_new.awp");
 	}
 	catch (e)
 	{

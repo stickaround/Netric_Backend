@@ -10,7 +10,7 @@
  */
 require_once("src/AntLegacy/AntUser.php");		
 require_once("src/AntLegacy/Object/EmailMessage.php");
-require_once("email/email_functions.awp");
+require_once("src/AntLegacy/email_functions.php");
 require_once("src/AntLegacy/AntService.php");		
 
 class EmailQueueProcess extends AntService

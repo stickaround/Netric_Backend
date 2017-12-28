@@ -185,37 +185,6 @@ class AntApi_Blog
 	}
 
 	/*************************************************************************************
-	*	Function:	getCategories
-	*
-	*	Purpose:	Get categories for this blog
-	*
-	**************************************************************************************
-	function getCategories()
-	{
-		$this->m_arrPosts = array();
-		$feedReader = new CFeedReader("http://".$this->m_server."/feeds/?fid=".$this->fid, "time_entered DESC"); //, $cnd, null, $ALIB_WF_PUSHED
-		$num = $feedReader->getNumPosts();
-		for ($i = 0; $i < $num; $i++)
-		{
-			$this->m_arrCategories[$i] = $feedReader->getPostVarValue('id', $i);
-		}	
-		return count($this->m_arrPosts);
-	}
-	*/
-
-	/*************************************************************************************
-	*	Function:	getPost	
-	*
-	*	Purpose:	Return a AntApi_BlogPost object
-	*
-	**************************************************************************************
-	function getPost($ind)
-	{
-		return new AntApi_BlogPost($this->m_server, $this->m_user, $this->m_pass, $this->fid, $this->m_arrPosts[$ind]);
-	}
-	*/
-
-	/*************************************************************************************
 	*	Function:	getValue	
 	*
 	*	Purpose:	Get the value for an attributed

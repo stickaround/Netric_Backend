@@ -1,7 +1,7 @@
 <?php
 $CAL_ACLS = array("View Public Events", "View Private Events", "Delete Events", "Edit Events");
 
-require_once("email/email_functions.awp");
+require_once("src/AntLegacy/email_functions.php");
 require_once("src/AntLegacy/Email.php");
 
 function CalGetTimeBlock($time_str)

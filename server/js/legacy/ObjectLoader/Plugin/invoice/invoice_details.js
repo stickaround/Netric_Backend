@@ -255,7 +255,7 @@
 		var form = alib.dom.createElement("form", condv);
 		form.setAttribute("method", "post");
 		form.setAttribute("target", "_blank");
-		form.setAttribute("action", "/customer/print_invoice.php");
+		form.setAttribute("action", "/public/legacy/customer/print_invoice.php");
 
 		// Owner id
 		var hiddenField = alib.dom.createElement("input");              

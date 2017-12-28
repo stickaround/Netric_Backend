@@ -2,7 +2,7 @@
 	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 	require_once("src/AntLegacy/Email.php");
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("contacts/contact_functions.awp");

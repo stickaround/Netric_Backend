@@ -168,7 +168,7 @@ function objectPreloadDef(type, force)
 		CAntObjectDefs[CAntObjectDefs.length] = def;
 	}
 
-	var url = "/objects/xml_get_objectdef.php?oname=" + type;
+	var url = "/public/legacy/objects/xml_get_objectdef.php?oname=" + type;
 	ajax.exec(url);
 }
 

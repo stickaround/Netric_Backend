@@ -3,7 +3,7 @@
 	require_once("../../settings/settings_functions.php");
 	require_once("../../lib/CDatabase.awp");
 	
-	require_once("../../customer/customer_functions.awp");
+	require_once("../../src/AntLegacy/customer/customer_functions.awp");
 	
 	ini_set("max_execution_time", "28800");	
 	ini_set('default_socket_timeout', "28800"); 

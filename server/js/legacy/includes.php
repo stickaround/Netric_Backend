@@ -11,19 +11,18 @@
 		"/js/legacy/global.js",
 		"/js/legacy/CReport.js", 
 		"/js/legacy/Report.js", 
-		"/customer/CCustActivity.js", 
+		"/js/legacy/customer/CCustActivity.js",
 		"/customer/CCustomerBrowser.js", 
 		"/js/legacy/CWidgetBox.js", 
 		"/js/legacy/CFlashObj.js", 
 		"/js/legacy/CVideoPlayer.js", 
 		"/users/CUserBrowser.js",
-		"/objects/CActivity.js", 
-		"/contacts/contact_functions.js", 
-		"/project/CProjectStart.js",
-		"/customer/customer_functions.js", 
+		"/js/legacy/objects/CActivity.js",
+		"/js/legacy/contact_functions.js",
+		"/js/legacy/customer/customer_functions.js",
 		"/calendar/calendar_functions.js", 
-		"/project/project_functions.js", 
-		"/email/email_functions.js",  
+		"/js/legacy/project/project_functions.js",
+		"/js/legacy/email/email_functions.js",
 		"/js/legacy/CRecurrencePattern.js", 
 
 		// Base
@@ -151,13 +150,11 @@
 		"/js/legacy/ObjectLoader/Plugin/global/Uname.js", // Global Uname plugin for forms
 		"/js/legacy/ObjectLoader/Plugin/global/StatusUpdate.js", // Status update plugin - used for projects and big items
 		"/js/legacy/ObjectLoader/Plugin/global/Reminders.js", // Status update plugin - used for projects and big items
-		"/objects/loaders/EmailThread.js",
-		"/objects/loaders/EmailMessage.js",
-        "/objects/loaders/EmailMessageCmp.js",
-        //"/objects/loaders/User.js",
-        "/objects/loaders/Report.js",
-        "/objects/loaders/Dashboard.js",
-		//"/objects/loaders/Calendar.js",
+		"/js/legacy/objects/loaders/EmailThread.js",
+		"/js/legacy/objects/loaders/EmailMessage.js",
+        "/js/legacy/objects/loaders/EmailMessageCmp.js",
+        "/js/legacy/objects/loaders/Report.js",
+        "/js/legacy/objects/loaders/Dashboard.js",
 
 		// Object fileds fields - used mostly for forms
         "/js/legacy/Object/FieldInput.js", 
@@ -176,7 +173,7 @@
         
         // Email Includes
         "/js/legacy/spell/spellcheck.js",
-        "/email/CVideoWizard.js",
+        "/js/legacy/email/CVideoWizard.js",
 
 		// Wizards
 		"/js/legacy/AntWizard.js", 
@@ -184,21 +181,22 @@
 	);
                   
 	$dashboardWidgets = array(
-							"/widgets/CWidWelcome.js", 
-							"/widgets/CWidWeather.js", 
-							"/widgets/CWidStocks.js", 
-							"/widgets/CWidTasks.js", 
-							"/widgets/CWidFriends.js",
-							"/widgets/CWidSettings.js", 
-							"/widgets/CWidBookmarks.js", 
-							"/widgets/CWidRssManager.js", 
-							"/widgets/CWidWebsearch.js",
-							"/widgets/CWidCalendar.js", 
-							"/widgets/CWidRss.js", 
-							"/widgets/CWidReport.js", 
-							"/widgets/CWidgetBrowser.js",
-							"/widgets/CWidWebpage.js", 
-							"/widgets/CWidActivity.js");    
+		"/js/legacy/widgets/CWidWelcome.js",
+		"/js/legacy/widgets/CWidWeather.js",
+		"/js/legacy/widgets/CWidStocks.js",
+		"/js/legacy/widgets/CWidTasks.js",
+		"/js/legacy/widgets/CWidFriends.js",
+		"/js/legacy/widgets/CWidSettings.js",
+		"/js/legacy/widgets/CWidBookmarks.js",
+		"/js/legacy/widgets/CWidRssManager.js",
+		"/js/legacy/widgets/CWidWebsearch.js",
+		"/js/legacy/widgets/CWidCalendar.js",
+		"/js/legacy/widgets/CWidRss.js",
+		"/js/legacy/widgets/CWidReport.js",
+		"/js/legacy/widgets/CWidgetBrowser.js",
+		"/js/legacy/widgets/CWidWebpage.js",
+		"/js/legacy/widgets/CWidActivity.js"
+	);
 
 	// Combine all scripts into a single file
 	foreach ($libs as $lib)

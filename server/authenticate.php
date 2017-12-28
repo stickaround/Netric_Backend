@@ -10,7 +10,7 @@ require_once("src/AntLegacy/CDatabase.awp");
 require_once("src/AntLegacy/AntSystem.php");
 require_once("src/AntLegacy/CBrowser.awp");
 require_once("users/user_functions.php");
-require_once("customer/customer_functions.awp");
+require_once("src/AntLegacy/customer/customer_functions.awp");
 require_once("src/AntLegacy/AntUser.php");
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 

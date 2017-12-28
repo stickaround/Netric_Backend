@@ -6,7 +6,7 @@ require_once('src/AntLegacy/CAntObject.php');
 require_once('src/AntLegacy/AntFs.php');
 require_once('src/AntLegacy/WorkerMan.php');
 require_once('src/AntLegacy/Controller.php');
-require_once('email/email_functions.awp');
+require_once('src/AntLegacy/email_functions.php');
 require_once('src/AntLegacy/Object/Approval.php');
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 

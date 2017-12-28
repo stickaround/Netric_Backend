@@ -4,7 +4,7 @@
  */
 require_once("src/AntLegacy/CAntFs.awp");
 require_once("userfiles/file_functions.awp");
-require_once("infocenter/ic_functions.php");
+require_once("src/AntLegacy/infocenter/ic_functions.php");
 
 /**
  * Class for controlling customer functions

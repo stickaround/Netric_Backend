@@ -241,59 +241,6 @@ class CAntObjectFields
 
 		$this->systemViews = $this->entityDefinition->getViews();
 
-		/*
-		// Check for system object
-		$basePath = AntConfig::getInstance()->application_path . "/objects";
-		if (file_exists($basePath . "/odefs/" . $obj_name . ".php"))
-		{
-			include($basePath . "/odefs/" . $obj_name . ".php");
-
-			$this->systemViews = $obj_views; // TODO: replace with below include
-
-			if (isset($aggregates))
-				$this->aggregates = $aggregates;
-
-			if (isset($defaultActivityLevel))
-				$this->defaultActivityLevel = $defaultActivityLevel;
-
-			if (isset($isPrivate))
-				$this->isPrivate = $isPrivate;
-
-			if (isset($recurRules))
-				$this->recurRules = $recurRules;
-
-			if (isset($inheritDaclRef))
-				$this->inheritDaclRef = $inheritDaclRef;
-
-			if (isset($parentField))
-				$this->parentField = $parentField;
-
-			if (isset($unameSettings))
-				$this->unameSettings = $unameSettings;
-
-			if (isset($listTitle))
-				$this->listTitle = $listTitle;
-
-			if (isset($icon))
-				$this->icon = $icon;
-
-			//if (file_exists(AntConfig::getInstance()->application_path . "/objects/oviews/".$obj_name.".php"))
-				//include(AntConfig::getInstance()->application_path . "/objects/oviews/".$obj_name.".php");
-
-			if (file_exists($basePath . "/oforms/" . $obj_name . "/default.php"))
-				$default_form_xml = file_get_contents($basePath . "/oforms/" . $obj_name . "/default.php");
-
-			if (file_exists($basePath . "/oforms/" . $obj_name . "/mobile.php"))
-				$default_form_mobile_xml = file_get_contents($basePath . "/oforms/" . $obj_name . "/mobile.php");
-
-			if (file_exists($basePath . "/oforms/" . $obj_name . "/infobox.php"))
-				$default_form_infobox_xml = file_get_contents($basePath . "/oforms/" . $obj_name . "/infobox.php");
-
-			if ($obj_revision > $this->revision)
-				$this->updateDefinition($obj_fields, $obj_revision);
-		}
-		*/
-
 		if ($det_view_fields)
 		{
 			$this->detailViewFields = $det_view_fields;

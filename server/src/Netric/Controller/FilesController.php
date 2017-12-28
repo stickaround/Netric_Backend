@@ -327,8 +327,6 @@ class FilesController extends Mvc\AbstractAccountController
         // Set netric entity headers
         $response->setHeader('X-Entity', $fileEntity->getObjRef());
 
-        die(var_export($fileEntity, true));
-
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));
         return $response;

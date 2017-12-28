@@ -3,10 +3,9 @@
 * Datacenter application actions
 */
 require_once("src/AntLegacy/aereus.lib.php/CChart.php");
-require_once("datacenter/datacenter_functions.awp");
 require_once("src/AntLegacy/calendar/calendar_functions.awp");
-require_once("contacts/contact_functions.awp");
-require_once("customer/customer_functions.awp");
+require_once("src/AntLegacy/contact_functions.awp");
+require_once("src/AntLegacy/customer/customer_functions.awp");
 require_once("src/AntLegacy/Object/Report.php");
 
 /**

@@ -5,7 +5,7 @@
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/CAntObjectFields.php");
 	require_once("src/AntLegacy/global_functions.php");
-	require_once("objects/object_functions.php");
+	require_once("src/AntLegacy/objects/object_functions.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

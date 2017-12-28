@@ -7,7 +7,7 @@ require_once('src/AntLegacy/CAntObject.php');
 require_once('src/AntLegacy/CDatabase.awp');
 require_once('src/AntLegacy/Controller.php');
 require_once('security/security_functions.php');
-require_once('customer/customer_functions.awp');
+require_once('src/AntLegacy/customer/customer_functions.awp');
 
 
 /**

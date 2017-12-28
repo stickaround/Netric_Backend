@@ -4,7 +4,7 @@
 	require_once("../users/user_functions.php");
 	require_once("../src/AntLegacy/calendar/calendar_functions.awp");
 	require_once("../lib/Email.php");
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 
 	$dbh_sys = new CDatabase(AntConfig::getInstance()->db['syshost'], AntConfig::getInstance()->db['sysdb']);
 

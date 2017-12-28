@@ -294,7 +294,7 @@ UpdateBillingWizard.prototype.testCcard = function()
 	dv_load.innerHTML = "Checking billing info, please wait...";
 	dlg.statusDialog(dv_load, 250, 100);
 	var ajax = new CAjax();
-	var url = "/objects/xml_get_objectdef.php?function=renew_test_ccard";
+	var url = "/public/legacy/objects/xml_get_objectdef.php?function=renew_test_ccard";
 	root = ajax.exec(url, args, false); // disable async so response is returned immediately
 	dlg.hide();
 	if (root.getNumChildren())

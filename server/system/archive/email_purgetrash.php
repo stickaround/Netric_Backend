@@ -3,7 +3,7 @@
 	require_once("../settings/settings_functions.php");		
 	// ANT LIBz
 	require_once("../lib/CDatabase.awp");
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	

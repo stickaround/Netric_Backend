@@ -2,10 +2,10 @@
 	require_once("src/AntLegacy/AntConfig.php");
 	require_once("../userfiles/file_functions.awp");
 	require_once("../users/user_functions.php");		
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 	// ANT LIB
 	require_once("../lib/CDatabase.awp");
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 	require_once("../lib/aereus.lib.php/CAnsClient.php");
 	require_once("../lib/aereus.lib.php/AnsClient.php"); // new v2
 

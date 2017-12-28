@@ -32,7 +32,7 @@ class AntApi_Customer extends AntApi_Object
     
 	function __construct($server, $username, $password) 
 	{
-		$this->m_wapiUrl = "http://".$server."/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
+		$this->m_wapiUrl = "http://".$server."/public/legacy/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
         $this->m_controller = "http://".$server."/controller/";
 		parent::__construct($server, $username, $password, "customer");
 	}

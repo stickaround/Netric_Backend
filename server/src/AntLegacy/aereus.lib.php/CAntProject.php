@@ -178,7 +178,7 @@ class CAntProject
 // Functions
 if ($_GET['function'])
 {
-	$capi = new CAntProject("http://testserv.aereus.com/customer/wapi.php", "test", "Test");
+	$capi = new CAntProject("http://testserv.aereus.com/public/legacy/customer/wapi.php", "test", "Test");
 	///$projects = $capi->getProjects(10003);
 
 	foreach ($projects as $project)

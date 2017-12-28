@@ -15,7 +15,7 @@ require_once("../users/user_functions.php");
 require_once("../lib/CAntFs.awp");
 require_once("../lib/Email.php");
 require_once("../lib/Button.awp");
-require_once("../email/email_functions.awp");
+require_once("../src/AntLegacy/email_functions.php");
 require_once("../userfiles/file_functions.awp");
 
 $dbh = new CDatabase();
@@ -220,7 +220,7 @@ case "inprocess":
 	break;
 case "flv":
 case "f4v":
-	$vars = "xmlFilePath=".rawurlencode("/email/xml_vmail_file.php?fid=".$VIDEO_FILE_ID);
+	$vars = "xmlFilePath=".rawurlencode("/public/legacy/email/xml_vmail_file.php?fid=".$VIDEO_FILE_ID);
 	$vars .= "&feedbackVideoButtonScale=2";
 	$vars .= "&navButtonsAppearance=All Visible";
 	$vars .= "&galleryRows=3";

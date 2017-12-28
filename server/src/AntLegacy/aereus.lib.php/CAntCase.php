@@ -33,7 +33,7 @@ class CAntCase
 	function CAntCase($server, $username, $password, $account="aereus") 
 	{
 		$this->m_url = "http://".$server."/project/wapi.php?auth=".base64_encode($username).":".md5($password);
-		$this->m_urlGet = "http://".$server."/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=case";
+		$this->m_urlGet = "http://".$server."/public/legacy/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=case";
 		$this->m_values = array();
 		$this->m_attribs = array();
 	}

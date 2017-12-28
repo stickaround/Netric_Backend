@@ -6,7 +6,7 @@ require_once("src/AntLegacy/Controller.php");
 require_once("src/AntLegacy/CAntObject.php");
 require_once("src/AntLegacy/CAntObjectList.php");
 require_once("src/AntLegacy/WorkFlow.php");
-require_once("email/email_functions.awp");
+require_once("src/AntLegacy/email_functions.php");
 
 // Dashboard includes
 require_once("settings/settings_functions.php");        
@@ -14,8 +14,8 @@ require_once("src/AntLegacy/CDatabase.awp");
 require_once("src/AntLegacy/aereus.lib.php/CChart.php");
 require_once("users/user_functions.php");
 require_once("src/AntLegacy/calendar/calendar_functions.awp");
-require_once("contacts/contact_functions.awp");
-require_once("customer/customer_functions.awp");
+require_once("src/AntLegacy/contact_functions.awp");
+require_once("src/AntLegacy/customer/customer_functions.awp");
 
 /**
 * Actions for interacting with basic application functions

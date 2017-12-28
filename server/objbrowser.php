@@ -6,7 +6,7 @@
 	require_once("src/AntLegacy/Button.awp");
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/WorkFlow.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

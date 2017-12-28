@@ -35,7 +35,7 @@ class CAntBLog
 		$this->m_pass = $password;
 		$this->m_server = $server;
 		$this->m_url = "http://".$server."/content/wapi.php?auth=".base64_encode($username).":".md5($password);
-		$this->m_urlGet = "http://".$server."/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=$obj_type";
+		$this->m_urlGet = "http://".$server."/public/legacy/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=$obj_type";
 		$this->aid = $aid;
 		$this->fid = $fid;
 		$this->m_arrPosts = array();
@@ -85,7 +85,7 @@ class CAntBLog
 	{
 		$cond = ($category) ? "category=$category" : null;
 		$this->m_arrPosts = array();
-		$feedReader = new CFeedReader("http://".$this->m_server."/feeds/?fid=".$this->fid, "time_entered DESC", $cond); //, null, $ALIB_WF_PUSHED
+		$feedReader = new CFeedReader("http://".$this->m_server."/public/legacy/feeds/?fid=".$this->fid, "time_entered DESC", $cond); //, null, $ALIB_WF_PUSHED
 		$num = $feedReader->getNumPosts();
 		for ($i = 0; $i < $num; $i++)
 		{
@@ -168,37 +168,6 @@ class CAntBLog
 	{
 		return new CAntBlogPost($this->m_server, $this->m_user, $this->m_pass, $this->fid, $pid);
 	}
-
-	/*************************************************************************************
-	*	Function:	getCategories
-	*
-	*	Purpose:	Get categories for this blog
-	*
-	**************************************************************************************
-	function getCategories()
-	{
-		$this->m_arrPosts = array();
-		$feedReader = new CFeedReader("http://".$this->m_server."/feeds/?fid=".$this->fid, "time_entered DESC"); //, $cnd, null, $ALIB_WF_PUSHED
-		$num = $feedReader->getNumPosts();
-		for ($i = 0; $i < $num; $i++)
-		{
-			$this->m_arrCategories[$i] = $feedReader->getPostVarValue('id', $i);
-		}	
-		return count($this->m_arrPosts);
-	}
-	*/
-
-	/*************************************************************************************
-	*	Function:	getPost	
-	*
-	*	Purpose:	Return a CAntBlogPost object
-	*
-	**************************************************************************************
-	function getPost($ind)
-	{
-		return new CAntBlogPost($this->m_server, $this->m_user, $this->m_pass, $this->fid, $this->m_arrPosts[$ind]);
-	}
-	*/
 
 	/*************************************************************************************
 	*	Function:	getValue	
@@ -300,7 +269,7 @@ class CAntBlogPost
 		$this->m_server = $server;
 		$this->attribs = array();
 
-		$feedReader = new CFeedReader("http://$server/feeds/?fid=$fid", "time_entered DESC", "id=".$pid); //, null, $ALIB_WF_PUSHED
+		$feedReader = new CFeedReader("http://$server/public/legacy/feeds/?fid=$fid", "time_entered DESC", "id=".$pid); //, null, $ALIB_WF_PUSHED
 		if ($feedReader->getNumPosts())
 		{
 			$this->id = $feedReader->getPostVarValue('id', 0);

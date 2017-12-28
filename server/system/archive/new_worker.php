@@ -9,8 +9,8 @@
 	require_once("src/AntLegacy/CAntObjectList.php");
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/Email.php");
-	require_once("customer/CCustomer.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/customer/CCustomer.php");
+	require_once("src/AntLegacy/email_functions.php");
 
 	ini_set("max_execution_time", "0");	
 	ini_set("max_input_time", "0");	

@@ -6,7 +6,7 @@
 	require_once("src/AntLegacy/CAntObject.php");
 	require_once("src/AntLegacy/CAntObjectList.php");
 	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
-	require_once("customer/customer_functions.awp");
+	require_once("src/AntLegacy/customer/customer_functions.awp");
 
 	$dbh = $ANT->dbh;
 	$RUN = ($_GET['wizard']) ? $_GET['wizard'] : "account";

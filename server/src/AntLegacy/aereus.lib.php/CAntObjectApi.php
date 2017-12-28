@@ -58,7 +58,7 @@ class CAntObjectApi
 	function connect($server, $username, $password)
 	{		
         $this->m_url = "http://".$server."/controller/Object/";
-		$this->m_urlGet = "http://".$server."/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=".$this->obj_type;
+		$this->m_urlGet = "http://".$server."/public/legacy/objects/xml_get_object.php?auth=".base64_encode($username).":".md5($password)."&obj_type=".$this->obj_type;
 
 		$this->m_server = $server;
 		$this->m_user = $username;
@@ -224,7 +224,7 @@ class CAntObjectApi
 	**************************************************************************************/
 	function getDefinition()
 	{
-		$url = "http://".$this->m_server."/objects/xml_get_objectdef.php?auth=".base64_encode($this->m_user).":".md5($this->m_pass);
+		$url = "http://".$this->m_server."/public/legacy/objects/xml_get_objectdef.php?auth=".base64_encode($this->m_user).":".md5($this->m_pass);
 		$url .= "&oname=".$this->obj_type."&getpubfrm=1";
 
 		$ch = curl_init($url); // URL of gateway for cURL to post to

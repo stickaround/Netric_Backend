@@ -1,6 +1,6 @@
 <?php
 require_once("src/AntLegacy/AntUser.php");
-require_once("email/email_functions.awp");
+require_once("src/AntLegacy/email_functions.php");
 
 class EmailCleanup extends AntService
 {

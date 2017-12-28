@@ -51,7 +51,7 @@ class CAntObjectListApi
 		else
 			$this->obj = new CAntObjectApi($server, $username, $password, $obj_type);
 
-		$this->m_url = "http://".$server."/objects/xml_query.php?auth=".base64_encode($username).":".md5($password)."&obj_type=$obj_type&updatemode=1";
+		$this->m_url = "http://".$server."/public/legacy/objects/xml_query.php?auth=".base64_encode($username).":".md5($password)."&obj_type=$obj_type&updatemode=1";
 	}
 
 	/*************************************************************************************

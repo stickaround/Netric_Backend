@@ -181,7 +181,7 @@ CRecurrencePattern.prototype.load = function(rpid)
 			
 		};
 	
-		var url = "/objects/xml_get_rp.php?rpid=" + this.id;
+		var url = "/public/legacy/objects/xml_get_rp.php?rpid=" + this.id;
 		ajax.exec(url);
 		
 	}

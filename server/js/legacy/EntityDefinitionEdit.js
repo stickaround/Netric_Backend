@@ -1049,12 +1049,12 @@ Ant.EntityDefinitionEdit.prototype.newForm = function(type)
 {
 	if(type == "team")
 	{
-		var url = "/objects/form_editor.php?obj_type="+this.obj_type+"&scope=Team";
+		var url = "/public/legacy/objects/form_editor.php?obj_type="+this.obj_type+"&scope=Team";
 		window.open(url, "", "fullscreen=yes");
 	}
 	if(type == "user")
 	{
-		var url = "/objects/form_editor.php?obj_type="+this.obj_type+"&scope=User";
+		var url = "/public/legacy/objects/form_editor.php?obj_type="+this.obj_type+"&scope=User";
 		window.open(url, "", "fullscreen=yes");
 	}
 }
@@ -1134,7 +1134,7 @@ Ant.EntityDefinitionEdit.prototype.createFrmTbl = function(forms)
 		form_lnk.form = frm_obj;
 		form_lnk.onclick = function() 
 		{
-			var form_url = "/objects/form_editor.php?obj_type="+this.cls.obj_type;
+			var form_url = "/public/legacy/objects/form_editor.php?obj_type="+this.cls.obj_type;
 			if(this.form.scope == "default")
 				form_url += "&scope=Default";
 			if(this.form.scope == "mobile")
@@ -1173,7 +1173,7 @@ Ant.EntityDefinitionEdit.prototype.addDefaultForms = function()
 		form_lnk.cls = this;
 		form_lnk.onclick = function()
 		{
-			var form_url = "/objects/form_editor.php?obj_type="+this.cls.obj_type+"&scope=Default";
+			var form_url = "/public/legacy/objects/form_editor.php?obj_type="+this.cls.obj_type+"&scope=Default";
 			window.open(form_url, "", "fullscreen=yes");
 		}
 		row.addCell(edit_frm);
@@ -1194,7 +1194,7 @@ Ant.EntityDefinitionEdit.prototype.addDefaultForms = function()
 		form_lnk.cls = this;
 		form_lnk.onclick = function() 
 		{
-			var form_url = "/objects/form_editor.php?obj_type="+this.cls.obj_type+"&scope=Mobile&mobile=0";
+			var form_url = "/public/legacy/objects/form_editor.php?obj_type="+this.cls.obj_type+"&scope=Mobile&mobile=0";
 			window.open(form_url, "", "fullscreen=yes");
 		}
 		row.addCell(edit_frm);

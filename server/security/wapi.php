@@ -13,7 +13,7 @@
 	require_once("../ant.php");
 	require_once("../lib/CDatabase.awp");
 	require_once("../lib/Email.php");
-	require_once("../email/email_functions.awp");
+	require_once("../src/AntLegacy/email_functions.php");
 	require_once("../lib/Ant.php");
 	require_once("../lib/AntUser.php");
 	require_once("../lib/global_functions.php");

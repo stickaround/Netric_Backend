@@ -4517,7 +4517,7 @@ AntObjectBrowser.prototype.actionExport = function()
 	var form = alib.dom.createElement("form", condv);
 	form.setAttribute("method", "post");
 	form.setAttribute("target", "_blank");
-	form.setAttribute("action", "/objects/export_csv.php?obj_type="+this.obj_type);
+	form.setAttribute("action", "/public/legacy/objects/export_csv.php?obj_type="+this.obj_type);
 
 	//this.getFormConditions(form);
 
@@ -4568,7 +4568,7 @@ AntObjectBrowser.prototype.actionPrint = function()
 	var form = alib.dom.createElement("form", condv);
 	form.setAttribute("method", "post");
 	form.setAttribute("target", "_blank");
-	form.setAttribute("action", "/print/engine.php?obj_type="+this.obj_type);
+	form.setAttribute("action", "/public/legacy/print/engine.php?obj_type="+this.obj_type);
 
 	//this.getFormConditions(form);
 

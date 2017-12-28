@@ -28,7 +28,7 @@ class CAntOpportunity
 	
 	function CAntOpportunity($server, $username, $password, $account="aereus") 
 	{
-		$this->m_url = "https://".$server."/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
+		$this->m_url = "https://".$server."/public/legacy/customer/wapi.php?auth=".base64_encode($username).":".md5($password);
 	}
 
 	function __destruct() 

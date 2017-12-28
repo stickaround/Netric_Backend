@@ -2237,7 +2237,7 @@ class EmailController extends Controller
 							$attData = array(
 								'name' => $file->getName(),
 								'size' => number_format($file->getSize()/1000, 0)."k",
-								'link_download' => "/email/attachment.awp?attid=".$att->getValue('id')."&tnefatt=$m&disposition=attachment",
+								'link_download' => "/public/legacy/email/attachment.awp?attid=".$att->getValue('id')."&tnefatt=$m&disposition=attachment",
 								'link_view' => "",
 								'preview' => "<img border='0' src='".EmailGetAttachmentIcon($file->getName())."'>",
 							);
@@ -2249,10 +2249,11 @@ class EmailController extends Controller
 				case 'image/gif':
 				case 'image/png':
 				case 'image/jpeg':
+				case 'image/jpeg':
 				case 'image/pjpeg':
 					if (!$att->getValue('file_id'))
 					{
-						$lnk = "/email/attachment.awp?attid=".$att->getValue('id');
+						$lnk = "/public/legacy/email/attachment.awp?attid=".$att->getValue('id');
 						$lnk_thumb = "/email/attachment_image.awp?attid=".$att->getValue('id');
 					}
 					else
@@ -2275,7 +2276,7 @@ class EmailController extends Controller
 				default:
 
 					if (!$att->getValue('file_id'))
-						$lnk = "/email/attachment.awp?attid=" . $att->getValue('id');
+						$lnk = "/public/legacy/email/attachment.awp?attid=" . $att->getValue('id');
 					else
 						$lnk = "/antfs/" . $att->getValue('file_id') . "/".rawurlencode($attname); // send file name
 					

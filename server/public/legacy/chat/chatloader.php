@@ -7,8 +7,8 @@
     require_once("users/user_functions.php");
     require_once("src/AntLegacy/date_time_functions.php");
     require_once("src/AntLegacy/CDropdownMenu.awp");
-    require_once("contacts/contact_functions.awp");
-    require_once("customer/customer_functions.awp");
+    require_once("src/AntLegacy/contact_functions.awp");
+    require_once("src/AntLegacy/customer/customer_functions.awp");
     require_once("src/AntLegacy/CAutoComplete.awp");    
     require_once("src/AntLegacy/aereus.lib.php/CPageCache.php");
 

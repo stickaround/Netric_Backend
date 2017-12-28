@@ -1,12 +1,12 @@
 <?php 
 	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
-	require_once("contacts/contact_functions.awp");
-	require_once("customer/customer_functions.awp");
+	require_once("src/AntLegacy/contact_functions.awp");
+	require_once("src/AntLegacy/customer/customer_functions.awp");
 	require_once("src/AntLegacy/Email.php");
-	require_once("email/email_functions.awp");
+	require_once("src/AntLegacy/email_functions.php");
 	require_once("src/AntLegacy/CAntObject.php");
-	require_once("customer/CCustomer.php");
+	require_once("src/AntLegacy/customer/CCustomer.php");
 	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
 	require_once("src/AntLegacy/aereus.lib.php/CAntOpportunity.php");
 	require_once("src/AntLegacy/CPageShellPublic.php");

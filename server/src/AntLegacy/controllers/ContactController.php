@@ -2,7 +2,7 @@
 /**
  * Contact application actions
  */
-require_once("contacts/contact_functions.awp");
+require_once("src/AntLegacy/contact_functions.awp");
 
 /**
  * Class for controlling Contact functions
