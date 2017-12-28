@@ -527,7 +527,7 @@ class Dacl
 	{
 		$params = 'width=800,height=600,toolbar=no,menubar=no,scrollbars=yes,location=no,directories=no,status=no,resizable=yes';
 
-		return "window.open('/security/dacl.php?id=".$this->id."', 'dacl_'+".$this->id.", '$params');";
+		return "window.open('/public/legacy/security/dacl.php?id=".$this->id."', 'dacl_'+".$this->id.", '$params');";
 	}
 
 	/**

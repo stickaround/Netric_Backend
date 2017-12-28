@@ -6,7 +6,7 @@
  * @package   IMAP
  * @copyright Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once('security/security_functions.php');
+require_once('src/AntLegacy/security_functions.php');
 require_once('src/AntLegacy/AntObjectSync.php');
  
 class AntMail_Account

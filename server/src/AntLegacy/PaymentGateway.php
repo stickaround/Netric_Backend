@@ -9,7 +9,7 @@
  * @package   CAntObjectInvoice
  * @copyright Copyright (c) 2003-2011 Aereus Corporation (http://www.aereus.com)
  */
-require_once("security/security_functions.php");
+require_once("src/AntLegacy/security_functions.php");
 require_once("src/AntLegacy/PaymentGateway/LinkPoint.php");
 require_once("src/AntLegacy/PaymentGateway/AuthDotNet.php");
 require_once("src/AntLegacy/PaymentGateway/Test.php");

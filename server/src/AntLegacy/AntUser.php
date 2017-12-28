@@ -8,7 +8,7 @@ require_once("src/AntLegacy/AntMail/Account.php");
 require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 //require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 require_once("src/AntLegacy/aereus.lib.php/antapi.php");
-require_once('security/security_functions.php');
+require_once('src/AntLegacy/security_functions.php');
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
 // Define reserved group ids

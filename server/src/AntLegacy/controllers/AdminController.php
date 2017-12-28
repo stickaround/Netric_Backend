@@ -2,7 +2,7 @@
 require_once("src/AntLegacy/Dacl.php");
 require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
 require_once("src/AntLegacy/CAntObjectFields.php");
-require_once('security/security_functions.php');
+require_once('src/AntLegacy/security_functions.php');
 
 /**
 * Actions for interacting with Admin Controller
