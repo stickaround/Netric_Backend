@@ -325,6 +325,7 @@ class ReceiverService extends AbstractHasErrors
      * @param AbstractStorage $mailServer Current mail server connection
      * @param EmailAccountEntity $emailAccount The email account to sync
      * @param int $mailboxId The mailbox to place the message into
+     * @throws \RuntimeException if we cannot get the mssage from the mailbox
      */
     private function receiveChanges(
         CollectionInterface $syncColl,
@@ -333,7 +334,7 @@ class ReceiverService extends AbstractHasErrors
         $mailboxId
     )
     {
-        $importList = array();
+        $importList = [];
         $numMessages = count($mailServer);
         for ($id = 1; $id <= $numMessages; $id++) {
             // Wrap in a try/catch in case anything goes wrong getting the message

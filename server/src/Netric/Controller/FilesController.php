@@ -65,13 +65,29 @@ class FilesController extends Mvc\AbstractAccountController
     }
 
     /**
+     * Override to allow anonymous users to access this controller for authentication
+     *
+     * @return \Netric\Permissions\Dacl
+     */
+    public function getAccessControlList()
+    {
+        $dacl = new \Netric\Permissions\Dacl();
+
+        // By default allow authenticated users to access a controller
+        $dacl->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_EVERYONE);
+
+        return $dacl;
+    }
+
+    /**
      * Upload a new file to the filesystem via POST
      *
-     * @return array Response
+     * @return array array|Response
      */
     public function postUploadAction()
     {
         $request = $this->getRequest();
+        $log = $this->account->getApplication()->getLog();
 
         // Make sure we have the resources to upload this file
 		ini_set("max_execution_time", "7200");
@@ -157,6 +173,31 @@ class FilesController extends Mvc\AbstractAccountController
                         " was not uploaded via POST."
                     )
                 );
+            }
+
+            /*
+             * Check security here to make sure the user has access to the folderPath
+             * If the folder does not exist, then fileSystem->importFile will also verify
+             * that the user has permission to the parent folder before creating a child folder
+             */
+            $folderEntity = $this->fileSystem->openFolder($folderPath);
+            if ($folderEntity) {
+                $user = $this->account->getUser();
+                $daclLoader = $this->account->getServiceManager()->get(DaclLoader::class);
+                $dacl = $daclLoader->getForEntity($folderEntity);
+                if (!$dacl->isAllowed($user)) {
+                    // Log a warning to flag repeat offenders
+                    $log->warning(
+                        "User " . $user->getName() . " tried to upload to $folderPath but does not have access"
+                    );
+
+                    // Return a 403
+                    $response = new HttpResponse($request);
+                    $response->setReturnCode(
+                        HttpResponse::STATUS_CODE_FORBIDDEN,
+                        "Access to folder $folderPath denied for user " . $user->getName());
+                    return $response;
+                }
             }
 
             // Import into netric file system

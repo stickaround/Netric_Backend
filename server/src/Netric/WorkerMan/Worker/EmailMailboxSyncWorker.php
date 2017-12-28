@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
@@ -29,14 +30,12 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $log->info("EmailMailboxSyncWorker->work: [STARTED]");
 
         // Make sure we have the required data
-        if (
-            !isset($workload['account_id']) ||
+        if (!isset($workload['account_id']) ||
             !isset($workload['user_id']) ||
-            !isset($workload['mailbox_id'])
-        ) {
+            !isset($workload['mailbox_id'])) {
             $log->info(
                 "EmailMailboxSyncWorker->work: fields required account_id, user_id, mailbox_id " .
-                var_export($workload, true)
+                    var_export($workload, true)
             );
             return false;
         }
@@ -70,7 +69,6 @@ class EmailMailboxSyncWorker extends AbstractWorker
         for ($i = 0; $i < $num; $i++) {
             $emailAccount = $results->getEntity($i);
 
-
             // Make sure we have the latest version of the emailAccount
             $entityLoader->reload($emailAccount);
 
@@ -78,16 +76,12 @@ class EmailMailboxSyncWorker extends AbstractWorker
              * If this account is in the process of being synchronized, and that process
              * started less than an hour ago, then we will just skip the account.
              */
-            if ($emailAccount->getValue("f_synchronizing") &&
-                (
-                    empty($emailAccount->getValue("ts_last_full_sync")) ||
-                    $emailAccount->getValue("ts_last_full_sync") > (time() - 60*60)
-                )
-            ) {
+            if ($emailAccount->getValue("f_synchronizing") && (empty($emailAccount->getValue("ts_last_full_sync")) ||
+                $emailAccount->getValue("ts_last_full_sync") > (time() - 60 * 60))) {
                 $log->info(
                     "EmailMailboxSyncWorker->work: syncMailbox: " .
-                    $emailAccount->getValue("address") .
-                    " is already being synchronized, so skipping for now."
+                        $emailAccount->getValue("address") .
+                        " is already being synchronized, so skipping for now."
                 );
                 continue;
             }
@@ -98,7 +92,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
 
             $log->info("EmailMailboxSyncWorker->work: syncMailbox: " . $emailAccount->getValue("address"));
             $mailReceiver->syncMailbox($workload['mailbox_id'], $emailAccount);
-            $job->sendStatus($i+1, $num);
+            $job->sendStatus($i + 1, $num);
 
             // Update last full sync of account
             $emailAccount->setValue("ts_last_full_sync", time());
