@@ -115,6 +115,7 @@ class ReceiverService extends AbstractHasErrors
      * @param IndexInterface $entityIndex The index for querying entities
      * @param VaultService $vaultService Service for retrieving encrypted keys
      * @param Config $config Email portion of config for connection defaults
+     * @param DeliveryService Service that handles delivering the received messages
      */
     public function __construct(
         Log $log,
@@ -336,6 +337,7 @@ class ReceiverService extends AbstractHasErrors
     {
         $importList = [];
         $numMessages = count($mailServer);
+        $badMessagesToPurge = [];
         for ($id = 1; $id <= $numMessages; $id++) {
             // Wrap in a try/catch in case anything goes wrong getting the message
             try {
@@ -346,8 +348,23 @@ class ReceiverService extends AbstractHasErrors
                     "message" => $message
                 );
             } catch (\Exception $ex) {
-                $this->log->warning("Could not import message $id: " . $ex->getMessage());
+                // If this is a system account, then purge the malformed message
+                if ($emailAccount->getValue('f_system')) {
+                    $badMessagesToPurge[] = $id;
+                }
+
+                $this->log->warning(
+                    "Could not import message $id " .
+                    "for " . $emailAccount->getValue('address') . ":" .
+                    $ex->getMessage()
+                );
             }
+        }
+
+        // Cleanup all the queued messages to delete
+        foreach ($badMessagesToPurge as $midToDelete) {
+            $mailServer->removeMessage($midToDelete);
+            $this->log->warning("Purged bad message from the server $id");
         }
 
         $stats = $syncColl->getImportChanged($importList);

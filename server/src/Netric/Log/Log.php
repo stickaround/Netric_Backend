@@ -634,12 +634,9 @@ class Log implements LogInterface
             syslog($logDetails['level'], $logDetails['message']);
         }
 
-        //$message = "[". $this->getLevelName($level)."] ".$message;
-
-        $errno = null;
-        $errstr = "";
-        // udp://
-        $fp = fsockopen($this->syslogRemoteServer, $this->syslogRemotePort, $errno, $errstr);
+        $sockErrorNumber = null;
+        $sockErrorString = "";
+        $fp = fsockopen($this->syslogRemoteServer, $this->syslogRemotePort, $sockErrorNumber, $sockErrorString);
 
         // Non-blocking I/O might be a good solution for speed
         //stream_set_blocking($fp, 0);
@@ -648,26 +645,11 @@ class Log implements LogInterface
         // multiplying the Facility number by 8 + adding the level
         $pri = (LOG_LOCAL4 * 8) + $logDetails['level'];
 
-
         // Version is required and rfc5424 is version 1
         $syslogMessage = "<{$pri}>";
-        $syslogMessage .= gmdate("Y-m-d\TH:i:s\Z");
+        $syslogMessage .= date("M d H:i:s");
         $syslogMessage .= ' docker netric: ' . $logDetails['message'];
 
-        /*
-        $syslogVersion = 1;
-        $syslog_message = "<$pri>";
-        $syslog_message .= $syslogVersion;
-        $syslog_message .= " ";
-        $syslog_message .= gmdate("Y-m-d\TH:i:s\Z");
-        $syslog_message .= " ";
-        $syslog_message .= "docker";
-        $syslog_message .= " ";
-        $syslog_message .= "netric_" . $this->appBranch;
-        $syslog_message .= " - - -";
-        $syslog_message .= " ";
-        $syslog_message .= $message;
-        */
         fwrite($fp, $syslogMessage);
         fclose($fp);
 
@@ -687,16 +669,6 @@ class Log implements LogInterface
         }
 
         fwrite($this->logFile, json_encode($logDetails) . "\n");
-
-        /*
-        $formattedMessage = "[" . date("D M d H:i:s.u Y", $logDetails['time']) . "]";
-        $formattedMessage .= " [:" . $logDetails['level_name'] . "]";
-        $formattedMessage .= " [pid " . getmypid() . "]";
-        $formattedMessage .= " [client " . $logDetails['client_ip'] . ":" . $logDetails['client_port'] . "]";
-        $formattedMessage .= " " . $logDetails['message'] . "\n";
-        fwrite($this->logFile, $formattedMessage);
-        */
-
         return true;
     }
 }
