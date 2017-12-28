@@ -17,9 +17,10 @@ docker rm netricd
 
 docker run -P -d --restart=on-failure --name netricd \
     -e APPLICATION_ENV="production" \
-    --log-driver=syslog --log-opt tag=netric-daemon \
-    --log-opt syslog-facility=local2 \
     dockerhub.aereusdev.com/netric:${TARGET} /start-daemon.sh
+# Commenting out the syslog driver because it appears to not be working on db2
+#   --log-driver=syslog --log-opt tag=netric-daemon \
+#    --log-opt syslog-facility=local2 \
 
 # Optionally use syslog for the log driver
 #docker run -P -d --restart=on-failure --name netricd \

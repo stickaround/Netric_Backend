@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
@@ -30,7 +31,7 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
     public static function fromString($headerLine)
     {
         list($name, $value) = self::splitHeaderLine($headerLine);
-        $value  = HeaderWrap::mimeDecodeValue($value);
+        $value = HeaderWrap::mimeDecodeValue($value);
         $header = new static($name, $value);
 
         return $header;
@@ -50,12 +51,18 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
             throw new Exception\InvalidArgumentException('Header must match with the format "name:value"');
         }
 
-        if (! HeaderName::isValid($parts[0])) {
+        if (!HeaderName::isValid($parts[0])) {
             throw new Exception\InvalidArgumentException('Invalid header name detected');
         }
 
-        if (! HeaderValue::isValid($parts[1])) {
-            throw new Exception\InvalidArgumentException('Invalid header value detected: ' . $parts[1]);
+        if (!HeaderValue::isValid($parts[1])) {
+            // Try filtering out bad characters
+            $parts[1] = HeaderValue::filter($parts[1]);
+
+            // If it's still bad then throw an exception
+            if (!HeaderValue::isValid($parts[1])) {
+                throw new Exception\InvalidArgumentException('Invalid header value detected: ' . $parts[1]);
+            }
         }
 
         $parts[0] = $parts[0];
@@ -97,7 +104,7 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         // Pre-filter to normalize valid characters, change underscore to dash
         $fieldName = str_replace(' ', '-', ucwords(str_replace(['_', '-'], ' ', $fieldName)));
 
-        if (! HeaderName::isValid($fieldName)) {
+        if (!HeaderName::isValid($fieldName)) {
             throw new Exception\InvalidArgumentException(
                 'Header name must be composed of printable US-ASCII characters, except colon.'
             );
@@ -121,16 +128,16 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
      */
     public function setFieldValue($fieldValue)
     {
-        $fieldValue = (string) $fieldValue;
+        $fieldValue = (string)$fieldValue;
 
-        if (! HeaderWrap::canBeEncoded($fieldValue)) {
+        if (!HeaderWrap::canBeEncoded($fieldValue)) {
             throw new Exception\InvalidArgumentException(
                 'Header value must be composed of printable US-ASCII characters and valid folding sequences.'
             );
         }
 
         $this->fieldValue = $fieldValue;
-        $this->encoding   = null;
+        $this->encoding = null;
 
         return $this;
     }
@@ -152,7 +159,7 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
 
     public function getEncoding()
     {
-        if (! $this->encoding) {
+        if (!$this->encoding) {
             $this->encoding = Mime::isPrintable($this->fieldValue) ? 'ASCII' : 'UTF-8';
         }
 
