@@ -1,11 +1,11 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
-	require_once("lib/COlapCube.php");
-	require_once("lib/aereus.lib.php/CChart.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
+	require_once("src/AntLegacy/COlapCube.php");
+	require_once("src/AntLegacy/aereus.lib.php/CChart.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

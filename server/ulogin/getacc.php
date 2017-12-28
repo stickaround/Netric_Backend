@@ -4,9 +4,9 @@
  *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  */
-require_once("../lib/AntConfig.php");
-require_once("lib/CDatabase.awp");
-require_once("lib/AntSystem.php");
+require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/AntSystem.php");
 
 $ret = array("account"=>"", "username"=>"");
 

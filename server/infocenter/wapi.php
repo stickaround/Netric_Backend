@@ -1,5 +1,5 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../lib/CDatabase.awp");
 	require_once("ic_functions.php");
 

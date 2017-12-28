@@ -8,10 +8,10 @@
  * @package		EmailQueueProcess
  * @copyright	Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/AntUser.php");		
-require_once("lib/Object/EmailMessage.php");
+require_once("src/AntLegacy/AntUser.php");		
+require_once("src/AntLegacy/Object/EmailMessage.php");
 require_once("email/email_functions.awp");
-require_once("lib/AntService.php");		
+require_once("src/AntLegacy/AntService.php");		
 
 class EmailQueueProcess extends AntService
 {

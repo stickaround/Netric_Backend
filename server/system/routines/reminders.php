@@ -8,7 +8,7 @@
  * @copyright	Copyright (c) 2003-2011 Aereus Corporation (http://www.aereus.com)
  */
 require_once(dirname(__FILE__)."/../../lib/AntConfig.php");
-require_once("lib/Ant.php");
+require_once("src/AntLegacy/Ant.php");
 require_once("services/Reminders.php");
 
 ini_set("memory_limit", "-1");	

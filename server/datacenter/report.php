@@ -1,5 +1,5 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 
@@ -24,11 +24,11 @@
 	}
 	</style>
 	<?php
-		include("lib/aereus.lib.js/js_lib.php");
+		include("js/legacy/aereus.lib.js/js_lib.php");
 		// ANT lib
-		include("lib/js/includes.php");
+		include("js/legacy/includes.php");
 	?>
-	<script language="javascript" type="text/javascript" src="/lib/js/CReportWizard.js"></script>
+	<script language="javascript" type="text/javascript" src="/js/legacy/CReportWizard.js"></script>
 	<script language='javascript' type='text/javascript'>
 
 	var g_rid = <?php print($RID?$RID:"null"); ?>;

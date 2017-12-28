@@ -1,5 +1,5 @@
 <?php
-	include("../lib/AntConfig.php");
+	include("src/AntLegacy/AntConfig.php");
 ?>
 <!DOCTYPE html> 
 <head>

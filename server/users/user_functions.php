@@ -1,6 +1,6 @@
 <?php
-require_once("lib/aereus.lib.php/CCache.php");
-require_once("lib/global_functions.php");
+require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+require_once("src/AntLegacy/global_functions.php");
 
 $TEAM_ACLS = array("View Team", "Edit Team", "Delete Team");
 

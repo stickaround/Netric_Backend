@@ -9,7 +9,7 @@
 	 * For now we will leave this in place because it appears to be working well
 	 */
 
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../ant.php");
 	require_once("../lib/CDatabase.awp");
 	require_once("../lib/Email.php");

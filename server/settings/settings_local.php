@@ -108,7 +108,7 @@ $settings_db_mailport = "5432";
 /*******************************************************************************
 *	ALIB Settings
 ********************************************************************************/
-$ALIBPATH = "/lib/aereus.lib.js/";		// Path to js library
+$ALIBPATH = "/js/legacy/aereus.lib.js/";		// Path to js library
 // Aereus Network Storage
 $ALIB_ANS_SERVER="";
 $ALIB_ANS_ACCOUNT="ant";

@@ -1,11 +1,11 @@
 <?php
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CAntFs.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
-	require_once("lib/aereus.lib.php/CAntCustomer.php");
+	require_once("src/AntLegacy/CAntFs.awp");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
 	require_once("customer/customer_functions.awp");
 
 	$dbh = $ANT->dbh;
@@ -18,15 +18,15 @@
 <title>Account Wizard</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="STYLESHEET" type="text/css" href="/css/<?php print($USER->themeCss); ?>">
-<script language="javascript" type="text/javascript" src="/admin/CRenewWizard.js"></script>
-<script language="javascript" type="text/javascript" src="/wizards/UpdateBillingWizard.js"></script>
-<script language="javascript" type="text/javascript" src="/lib/js/CAntAccountWizard.js"></script>
-<script language="javascript" type="text/javascript" src="/lib/js/CAntUserWizard.js"></script>
+<script language="javascript" type="text/javascript" src="/js/legacy/admin/CRenewWizard.js"></script>
+<script language="javascript" type="text/javascript" src="/js/legacy/wizards/UpdateBillingWizard.js"></script>
+<script language="javascript" type="text/javascript" src="/js/legacy/CAntAccountWizard.js"></script>
+<script language="javascript" type="text/javascript" src="/js/legacy/CAntUserWizard.js"></script>
 <?php
 	// Aereus lib
-	require_once("lib/aereus.lib.js/js_lib.php");
+	require_once("src/AntLegacy/aereus.lib.js/js_lib.php");
 	// ANT lib
-	include("lib/js/includes.php");
+	include("js/legacy/includes.php");
 ?>
 <style type='text/css'>
 body, html

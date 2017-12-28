@@ -1,17 +1,17 @@
 <?php 
 	// ant
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/content_table.awp");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/content_table.awp");
 	require_once("users/user_functions.php");
-	require_once("lib/Email.php");
-	require_once("lib/Button.awp");
-	require_once("lib/AntUser.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/Button.awp");
+	require_once("src/AntLegacy/AntUser.php");
 	require_once("email/email_functions.awp");
 	// ALIB
-	require_once("lib/aereus.lib.php/CCache.php");
-	//require_once("lib/aereus.lib.php/CSessions.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+	//require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 	// App
 	require_once("customer_functions.awp");
 	include_once("CCustomer.php");
@@ -34,7 +34,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="STYLESHEET" type="text/css" href="/css/ant_os.css">
 <?php
-	include("../lib/aereus.lib.js/js_lib.php");
+	include("../js/legacy/aereus.lib.js/js_lib.php");
 ?>
 </head>
 <body>

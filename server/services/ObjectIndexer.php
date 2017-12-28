@@ -14,9 +14,9 @@
  * @package		ObjectDynIdx
  * @copyright	Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/AntUser.php");		
-require_once("lib/CAntObject.php");		
-require_once("lib/AntRoutine.php");		
+require_once("src/AntLegacy/AntUser.php");		
+require_once("src/AntLegacy/CAntObject.php");		
+require_once("src/AntLegacy/AntRoutine.php");		
 
 class ObjectIndexer extends AntRoutine
 {

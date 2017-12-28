@@ -5,12 +5,12 @@
 	header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 	header("Access-Control-Allow-Headers: Authentication");
 
-    //require_once("lib/AntConfig.php");
-    require_once("lib/AntConfig.php");
+    //require_once("src/AntLegacy/AntConfig.php");
+    require_once("src/AntLegacy/AntConfig.php");
     require_once("ant.php");
     require_once("ant_user.php");    
-    require_once("lib/RpcSvr.php");    
-    require_once("lib/Controller.php");    
+    require_once("src/AntLegacy/RpcSvr.php");
+    require_once("src/AntLegacy/Controller.php");
     
     $dbh = $ANT->dbh;    
     $USERID =  $USER->id;    
@@ -21,7 +21,7 @@
 
 	if ($apimodule)
 	{
-		$path = "controllers/api/$apimodule/".$controller."Controller.php";
+		$path = "src/AntLegacy/controllers/api/$apimodule/".$controller."Controller.php";
 
 		// Get api version of the interface for this module
 		$controller = "Api_".ucfirst(strtolower($apimodule))."_".$controller;
@@ -29,7 +29,7 @@
 	}
 	else
 	{
-		$path = "controllers/".$controller."Controller.php";
+		$path = "src/AntLegacy/controllers/".$controller."Controller.php";
 	}
 
 	// Load controller class

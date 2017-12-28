@@ -6,7 +6,7 @@
  */
 
 // ant
-require_once("../lib/AntConfig.php");
+require_once(__DIR__ . "/../../src/AntLegacy/AntConfig.php");
 require_once("../settings/settings_functions.php");
 require_once("../lib/CDatabase.awp");
 require_once("../lib/WindowFrame.awp");
@@ -192,8 +192,8 @@ $html = str_replace("<%SOCIAL%>", $soc_htm, $html);
 
 // Video
 // ----------------------------------------------------------------------------------------
-$vdo_htm = '<script type="text/javascript" src="/lib/js/qtobject.js"></script>';
-$vdo_htm .= '<script type="text/javascript" src="/lib/js/AC_RunActiveContent.js"></script>';
+$vdo_htm = '<script type="text/javascript" src="/js/legacy/qtobject.js"></script>';
+$vdo_htm .= '<script type="text/javascript" src="/js/legacy/AC_RunActiveContent.js"></script>';
 
 // Check if still processing
 if ($VIDEO_FILE_JOBID)

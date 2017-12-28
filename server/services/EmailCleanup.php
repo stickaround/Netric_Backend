@@ -1,5 +1,5 @@
 <?php
-require_once("lib/AntUser.php");		
+require_once("src/AntLegacy/AntUser.php");
 require_once("email/email_functions.awp");
 
 class EmailCleanup extends AntService

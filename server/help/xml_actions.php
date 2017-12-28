@@ -1,11 +1,11 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/Email.php");
-	require_once("lib/aereus.lib.php/CAntCase.php");
-	require_once("lib/aereus.lib.php/CAntCustomer.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntCase.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

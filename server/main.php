@@ -1,10 +1,10 @@
 <?php
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/Email.php");
-	require_once("lib/aereus.lib.php/CCache.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;
@@ -309,76 +309,6 @@
 	// Calendar section
 	// -------------------------------------------------------------------------------
 	var g_xmlCalReminders = null;
-
-	/**
-	 * @deprecated
-	 *
-	function XmlCheckCalReminders()
-	{
-		//var xmlLocal = null;
-		
-		var url = "/calendar/xml_get_popup_reminders.awp";
-		
-		// branch for native XMLHttpRequest object
-		if (window.XMLHttpRequest) 
-			g_xmlCalReminders = new XMLHttpRequest();
-		else if (window.ActiveXObject) 
-			g_xmlCalReminders = new ActiveXObject("Microsoft.XMLHTTP");
-		
-		if (g_xmlCalReminders) 
-		{
-			function ProcessUpdateCallback()
-			{
-				
-			}
-			g_xmlCalReminders.onreadystatechange = function ()
-			{
-				if (g_xmlCalReminders.readyState == 4) 
-				{
-					// only if "OK"
-					if (g_xmlCalReminders.status == 200) 
-					{
-						response  = g_xmlCalReminders.responseXML.documentElement;
-						var reminders = response.getElementsByTagName("reminder");
-						for(var i = 0; i < reminders.length; ++i)
-						{
-							if (response.getElementsByTagName('event_id')[i].firstChild)
-								var evntid = response.getElementsByTagName('event_id')[i].firstChild.nodeValue;
-							if (response.getElementsByTagName('event_name')[i].firstChild)
-								var event_name = response.getElementsByTagName('event_name')[i].firstChild.nodeValue;
-							if (response.getElementsByTagName('location')[i].firstChild)
-								var location = response.getElementsByTagName('location')[i].firstChild.nodeValue;
-							if (response.getElementsByTagName('dates')[i].firstChild)
-								var dates = response.getElementsByTagName('dates')[i].firstChild.nodeValue;
-							if (response.getElementsByTagName('times')[i].firstChild)
-								var times = response.getElementsByTagName('times')[i].firstChild.nodeValue;
-							
-							var remider = window.open('http://<?php print(AntConfig::getInstance()->localhost); ?>/calendar/pop_reminder.awp?evntid='+unescape(evntid), 'reminder'+evntid, 
-														'top=200,left=100,width=450,height=350,toolbar=no,menubar=no,scrollbars=no,location=no,directories=no,status=no,resizable=yes');
-							// Check if popup was blocked
-							if (!remider)
-							{
-								var alrtmsg = "Event Reminder: " + unescape(event_name) + "\n";
-								alrtmsg += "Location: " + unescape(location) + "\n";
-								alrtmsg += "Dates: " + unescape(dates) + "\n";
-								alrtmsg += "Times: " + unescape(times) + "\n";
-								alrtmsg += "Hint: A popup blocker prevented me from opening a new window. If you allow popups for \n";
-								alrtmsg += "this site I can give you more information next time!\n";
-								alert(alrtmsg)
-							}
-						}
-					} 
-
-					//delete xmlLocal;
-					//xmlLocal = null;
-					setTimeout('XmlCheckCalReminders()', 30000);
-				}
-			};
-			g_xmlCalReminders.open("GET", url, true);
-			g_xmlCalReminders.send(null);
-		}
-	}
-	 */
 
 	function loadSearch()
 	{

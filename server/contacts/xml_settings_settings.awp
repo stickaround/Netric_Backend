@@ -1,6 +1,6 @@
 <?php
 	header("Content-type: text/xml");			// Returns XML document
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 

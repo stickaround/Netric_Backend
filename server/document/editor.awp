@@ -1,13 +1,13 @@
 <?php
 	// ANT
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/content_table.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/Button.awp");
-	require_once("lib/CDropdownMenu.awp");
+	require_once("src/AntLegacy/content_table.awp");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/Button.awp");
+	require_once("src/AntLegacy/CDropdownMenu.awp");
 	require_once("email/email_functions.awp");
 	require_once("contacts/contact_functions.awp");
 	
@@ -190,13 +190,13 @@
 	<title>Aereus Credo</title>
 	<meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
 	<link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme($dbh, $USERID, 'css'); ?>">
-	<script type="text/javascript" src="/email/email_functions.js"></script>
-	<script type="text/javascript" src="/calendar/calendar_functions.js"></script>
-	<script type="text/javascript" src="/project/project_functions.js"></script>
-	<script type="text/javascript" src="/customer/customer_functions.js"></script>
-	<script type="text/javascript" src="/contacts/contact_functions.js"></script>
+	<script type="text/javascript" src="/js/legacy/email/email_functions.js"></script>
+	<script type="text/javascript" src="/js/legacy/calendar/calendar_functions.js"></script>
+	<script type="text/javascript" src="/js/legacy/project/project_functions.js"></script>
+	<script type="text/javascript" src="/js/legacy/customer/customer_functions.js"></script>
+	<script type="text/javascript" src="/js/legacy/contacts/contact_functions.js"></script>
 <?php
-	include("../lib/aereus.lib.js/js_lib.php");
+	include("../js/legacy/aereus.lib.js/js_lib.php");
 ?>
 	<script type="text/javascript">	
 <?php

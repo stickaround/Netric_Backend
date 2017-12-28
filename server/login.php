@@ -1,9 +1,9 @@
 <?php    
-	//require_once("lib/AntConfig.php");    
+	//require_once("src/AntLegacy/AntConfig.php");
 	//require_once("settings/settings_functions.php");
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
     require_once("ant.php");
-	require_once("lib/CDatabase.awp");
+	require_once("src/AntLegacy/CDatabase.awp");
 	require_once("users/user_functions.php");
 	
 	$requestedPage = (isset($_REQUEST['p'])) ? $_REQUEST['p'] : null;
@@ -103,7 +103,7 @@
 	<link rel="shortcut icon" href="/favicon.ico" type="image/ico">	
 	<link rel="stylesheet" href="/css/login.css" />
 	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
-	<script language="javascript" type="text/javascript" src="/lib/aereus.lib.js/alib_full.cmp.js"></script>
+	<script language="javascript" type="text/javascript" src="/js/legacy/aereus.lib.js/alib_full.cmp.js"></script>
 
 	<script type="text/javascript">
 	

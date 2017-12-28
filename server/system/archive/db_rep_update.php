@@ -1,5 +1,5 @@
 <?php
-require_once("../lib/AntConfig.php");
+require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 require_once("../lib/CDatabase.awp");
 
 // Only set this to true if you are joining the cluster or restoring

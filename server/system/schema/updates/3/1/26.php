@@ -2,11 +2,11 @@
 /**
  * Handle moving folder references to new directory
  */
-require_once("lib/CAntObject.php");
-require_once("lib/CDatabase.awp");
-require_once("lib/Ant.php");
-require_once("lib/AntUser.php");
-require_once("lib/AntFs.php");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/AntUser.php");
+require_once("src/AntLegacy/AntFs.php");
 
 if (!$ant)
 	die("This script must be called from the system schema manager and ant mut be set");

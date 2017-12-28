@@ -1,10 +1,10 @@
 <?php
 	// ANT Includes 
 	require_once('../../lib/AntConfig.php');
-	require_once('lib/Ant.php');
-	require_once('lib/AntUser.php');
-	require_once('lib/CAntObject.php');
-	require_once('lib/aereus.lib.php/CAntObjectApi.php');
+	require_once('src/AntLegacy/Ant.php');
+	require_once('src/AntLegacy/AntUser.php');
+	require_once('src/AntLegacy/CAntObject.php');
+	require_once('src/AntLegacy/aereus.lib.php/CAntObjectApi.php');
 
 	$dbh = new CDatabase();
 	$USER = new AntUser($dbh, USER_SYSTEM);

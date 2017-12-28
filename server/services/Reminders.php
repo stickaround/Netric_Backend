@@ -6,11 +6,11 @@
  * @package		EmailQueueProcess
  * @copyright	Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/AntUser.php");		
-require_once("lib/CAntObjectList.php");		
-require_once("lib/AntService.php");
-require_once("lib/AntRoutine.php");
-require_once("lib/Object/Reminder.php");
+require_once("src/AntLegacy/AntUser.php");		
+require_once("src/AntLegacy/CAntObjectList.php");		
+require_once("src/AntLegacy/AntService.php");
+require_once("src/AntLegacy/AntRoutine.php");
+require_once("src/AntLegacy/Object/Reminder.php");
 
 class AntService_Reminders extends AntRoutine
 {

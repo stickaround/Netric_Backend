@@ -1,8 +1,8 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("userfiles/file_functions.awp");
 	require_once("users/user_functions.php");
-	require_once("lib/AntLog.php");
+	require_once("src/AntLegacy/AntLog.php");
     require_once('../lib/aereus.lib.php/AnalogClient.php');
     // ANT LIB
 	require_once("../lib/CDatabase.awp");

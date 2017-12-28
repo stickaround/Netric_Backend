@@ -1,5 +1,5 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("../userfiles/file_functions.awp");
 	require_once("../users/user_functions.php");		
 	require_once("../email/email_functions.awp");

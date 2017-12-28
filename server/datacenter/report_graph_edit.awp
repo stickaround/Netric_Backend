@@ -1,6 +1,6 @@
 <?php
 	require_once("../validate_user.php");
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../settings/settings_functions.php");		
 	require_once("datacenter_functions.awp");
 
@@ -20,7 +20,7 @@
 	<link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme($dbh, $USERID, 'css'); ?>">
 
 	<?php
-		include("../lib/aereus.lib.js/js_lib.php");
+		include("../js/legacy/aereus.lib.js/js_lib.php");
 	?>
 	<script language='javascript' type='text/javascript'>
 	var g_gid = <?php print(($GID) ? $GID : 'null'); ?>;

@@ -1,14 +1,14 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/content_table.awp");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/CToolTip.awp");
-	require_once("lib/Dacl.php");
-	require_once("lib/CDropdownMenu.awp");
-	require_once("lib/CToolTable.awp");
-	require_once("lib/Button.awp");
+	require_once("src/AntLegacy/content_table.awp");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/CToolTip.awp");
+	require_once("src/AntLegacy/Dacl.php");
+	require_once("src/AntLegacy/CDropdownMenu.awp");
+	require_once("src/AntLegacy/CToolTable.awp");
+	require_once("src/AntLegacy/Button.awp");
 	
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;
@@ -139,7 +139,7 @@
 	<style type='text/css'>
 	</style>
 <?php
-	include("../lib/aereus.lib.js/js_lib.php");
+	include("../js/legacy/aereus.lib.js/js_lib.php");
 ?>
 	<script language="javascript" type="text/javascript" src="customer_functions.js"></script>
 	<script language="javascript" type="text/javascript">

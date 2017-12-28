@@ -1,10 +1,10 @@
 <?php
 	require_once("../validate_user.php");
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../settings/settings_functions.php");		
-	require_once("../lib/CDatabase.awp");
-	require_once("../lib/content_table.awp");
-	require_once("../lib/Button.awp");
+	require_once("src/AntLegacy/CDatabase.awp");
+	require_once("src/AntLegacy/content_table.awp");
+	require_once("src/AntLegacy/Button.awp");
 	require_once("../users/user_functions.php");
 	require_once("datacenter_functions.awp");
 
@@ -22,7 +22,7 @@
 	<title>Query</title>
 	<link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme($dbh, $USERID, 'css'); ?>">
 	<?php
-		include("../lib/aereus.lib.js/js_lib.php");
+		include("../js/legacy/aereus.lib.js/js_lib.php");
 	?>
 	<script language='javascript' type='text/javascript'>
 	var g_qid = <?php print(($QID) ? $QID : 'null'); ?>;

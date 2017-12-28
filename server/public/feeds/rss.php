@@ -4,8 +4,8 @@
  */
 require_once("../../lib/AntConfig.php");
 require_once("ant.php");
-require_once("lib/CAntObject.php");
-require_once("lib/CAntObjectList.php");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CAntObjectList.php");
 
 $FID = $_GET['fid'];
 if (!is_numeric($FID))

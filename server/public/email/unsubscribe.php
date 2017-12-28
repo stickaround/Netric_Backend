@@ -1,8 +1,8 @@
 <?php 
 require_once("../../lib/AntConfig.php");
 require_once("ant.php");
-require_once("lib/AntUser.php");
-require_once("lib/CPageShellPublic.php");
+require_once("src/AntLegacy/AntUser.php");
+require_once("src/AntLegacy/CPageShellPublic.php");
 
 // Get params
 $EID = $_GET['eid']; // email_campain id

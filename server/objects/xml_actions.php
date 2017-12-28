@@ -1,9 +1,9 @@
 <?php
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
-	require_once("lib/WorkFlow.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
+	require_once("src/AntLegacy/WorkFlow.php");
 	require_once("email/email_functions.awp");
 
 	$dbh = $ANT->dbh;

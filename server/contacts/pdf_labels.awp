@@ -1,11 +1,11 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CToolMenu.awp");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/Button.awp");
-	require_once('lib/CDropdownMenu.awp');
+	require_once("src/AntLegacy/CToolMenu.awp");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/Button.awp");
+	require_once('src/AntLegacy/CDropdownMenu.awp');
 	require_once("contact_functions.awp");
 	
 	$dbh = $ANT->dbh;

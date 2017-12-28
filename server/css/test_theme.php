@@ -6,8 +6,8 @@
 <meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
 <link rel="STYLESHEET" type="text/css" href="/css/ant_base.css">
 <?php
-	$ALIBPATH = "/lib/aereus.lib.js/";
-	include("../lib/aereus.lib.js/js_lib.php");
+	$ALIBPATH = "/js/legacy/aereus.lib.js/";
+	include("../js/legacy/aereus.lib.js/js_lib.php");
 ?>
 <script language='javascript'>
 function main()

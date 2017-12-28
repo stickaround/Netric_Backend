@@ -1,10 +1,10 @@
 <?php
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/Email.php");
-	require_once("lib/aereus.lib.php/CCache.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 	
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;
@@ -49,11 +49,11 @@
 	</style>
 
 	<?php if (AntConfig::getInstance()->debug) { ?>
-		<script language="javascript" type="text/javascript" src="/lib/aereus.lib.js/alib_full.js"></script>
-		<?php include("lib/js/includes.php"); ?>
+		<script language="javascript" type="text/javascript" src="/js/legacy/aereus.lib.js/alib_full.js"></script>
+		<?php include("js/legacy/includes.php"); ?>
 	<?php } else { ?>
-		<script language="javascript" type="text/javascript" src="/lib/aereus.lib.js/alib_full.cmp.js"></script>
-		<script language="javascript" type="text/javascript" src="/lib/js/ant_full.cmp.js"></script>
+		<script language="javascript" type="text/javascript" src="/js/legacy/aereus.lib.js/alib_full.cmp.js"></script>
+		<script language="javascript" type="text/javascript" src="/js/legacy/ant_full.cmp.js"></script>
 	<?php } ?>
 
 	<script LANGUAGE="javascript" TYPE="text/javascript">

@@ -1,17 +1,17 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CAntFs.awp");
+	require_once("src/AntLegacy/CAntFs.awp");
 	require_once("email/email_functions.awp");
-	require_once("lib/Email.php");
-	require_once("lib/CAntObjectFields.php");
-	require_once("lib/CAntFs.awp");
-	require_once("lib/WorkFlow.php");
-	require_once("lib/aereus.lib.php/CCache.php");
-	require_once("lib/CAntObject.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/CAntObjectFields.php");
+	require_once("src/AntLegacy/CAntFs.awp");
+	require_once("src/AntLegacy/WorkFlow.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+	require_once("src/AntLegacy/CAntObject.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/aereus.lib.php/CCache.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;
@@ -26,9 +26,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <?php
 	// Aereus lib
-	include("lib/aereus.lib.js/js_lib.php");
+	include("js/legacy/aereus.lib.js/js_lib.php");
 	// ANT lib
-	include("lib/js/includes.php");
+	include("js/legacy/includes.php");
 ?>
 <link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme($dbh, $USERID, 'css'); ?>">
 <script language="javascript" type="text/javascript">

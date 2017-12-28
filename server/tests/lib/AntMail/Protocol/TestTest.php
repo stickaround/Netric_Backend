@@ -3,7 +3,7 @@
 
 // ANT Includes
 require_once(dirname(__FILE__).'/../../../../lib/AntConfig.php');
-require_once('lib/AntMail/Protocol/Test.php');
+require_once('src/AntLegacy/AntMail/Protocol/Test.php');
 
 class AntMail_Protocol_TestTest extends TestCase
 {

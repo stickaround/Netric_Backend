@@ -1078,7 +1078,7 @@ CDataCenterDb.prototype.tabWorkflows = function(con)
 		if (strObjTypes) strObjTypes += ":";
 		strObjTypes += this.m_dbid + "." + this.m_objects[i].name;
 	}
-	var url = "/admin/xml_get_workflows.php?otypes="+strObjTypes;
+	var url = "/js/legacy/admin/xml_get_workflows.php?otypes="+strObjTypes;
 	ajax.exec(url);
 	
 	tbl.print(dv);
@@ -1112,7 +1112,7 @@ CDataCenterDb.prototype.openWorkflow = function(id, obj_type, cbonsave, assoc)
 {
 	var params = 'width=800,height=600,toolbar=no,menubar=no,scrollbars=yes,location=no,directories=no,status=no,resizable=yes';
 	var onsave = (cbonsave) ? Base64.encode(cbonsave) : '';
-	var url = '/admin/workflow/'+obj_type;
+	var url = '/js/legacy/admin/workflow/'+obj_type;
 	if (id)
 		url += '/'+id;
 

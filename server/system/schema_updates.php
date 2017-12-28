@@ -9,12 +9,12 @@ chdir(dirname(__DIR__));
  * This contains a list of SQL schema updates for the datbase
  * **********************************************************************/
 require_once("init_application.php");
-require_once("lib/AntConfig.php");
-require_once("lib/Ant.php");
+require_once("src/AntLegacy/AntConfig.php");
+require_once("src/AntLegacy/Ant.php");
 require_once("settings/settings_functions.php");		
-require_once("lib/CDatabase.awp");
-require_once("lib/CAntObject.php");
-require_once("lib/AntUser.php");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/AntUser.php");
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("display_errors", "On");	

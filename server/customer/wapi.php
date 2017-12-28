@@ -1,10 +1,10 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php"); 
 	require_once("ant_user.php");
 	require_once("customer_functions.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
 	require_once("security/security_functions.php");
 
 	$dbh = $ANT->dbh;

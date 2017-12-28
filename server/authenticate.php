@@ -4,19 +4,19 @@
 //          1 if username and password are correct
 
 // ANT
-require_once("lib/AntConfig.php");
+require_once("src/AntLegacy/AntConfig.php");
 require_once("ant.php");
-require_once("lib/CDatabase.awp");
-require_once("lib/AntSystem.php");
-require_once("lib/CBrowser.awp");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/AntSystem.php");
+require_once("src/AntLegacy/CBrowser.awp");
 require_once("users/user_functions.php");
 require_once("customer/customer_functions.awp");
-require_once("lib/AntUser.php");
-require_once('lib/ServiceLocatorLoader.php');
+require_once("src/AntLegacy/AntUser.php");
+require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
 // ALIB
-//require_once("lib/aereus.lib.php/CCache.php");
-//require_once("lib/aereus.lib.php/CSessions.php");
+//require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+//require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 
 // Get new netric authentication service
 if(!isset($dbh))
@@ -68,7 +68,7 @@ if ($username && $pass && $account)
 			$ret = $uid;
 		else
 			$ret = AntUser::authenticate($username, $pass, $dbh);
-	}
+    }
 	else
 	{
 		$ret = false;

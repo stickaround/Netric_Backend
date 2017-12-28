@@ -1,14 +1,14 @@
 <?php
-	require_once("../lib/AntConfig.php");
-	require_once("lib/Ant.php");
-	require_once("lib/ant_error_handler.php");
-	require_once("lib/CAntFs.awp");
-	require_once("lib/AntUser.php");
-	require_once("lib/CWorker.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/Email.php");
+	require_once("src/AntLegacy/AntConfig.php");
+	require_once("src/AntLegacy/Ant.php");
+	require_once("src/AntLegacy/ant_error_handler.php");
+	require_once("src/AntLegacy/CAntFs.awp");
+	require_once("src/AntLegacy/AntUser.php");
+	require_once("src/AntLegacy/CWorker.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/Email.php");
 	require_once("customer/CCustomer.php");
 	require_once("email/email_functions.awp");
 

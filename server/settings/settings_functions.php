@@ -1,5 +1,5 @@
 <?php
-	require_once("lib/aereus.lib.php/CCache.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
 	// get the antsystem account id (external to local database)
 	/*

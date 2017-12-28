@@ -6,8 +6,8 @@
  * @package   Project_TaskTrack
  * @copyright Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/Olap/Cube/CustomInterface.php");
-require_once("lib/CAntObject.php");
+require_once("src/AntLegacy/Olap/Cube/CustomInterface.php");
+require_once("src/AntLegacy/CAntObject.php");
 
 class CustCube_Project_TaskTrack extends Olap_Cube_CustomInterface
 {

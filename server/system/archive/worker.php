@@ -1,20 +1,20 @@
 <?php
-	require_once("../lib/AntConfig.php");
-	require_once("lib/Ant.php");
-	require_once("lib/ant_error_handler.php");
-	require_once("lib/CAntFs.awp");
-	require_once("lib/AntUser.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/Email.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
+	require_once("src/AntLegacy/Ant.php");
+	require_once("src/AntLegacy/ant_error_handler.php");
+	require_once("src/AntLegacy/CAntFs.awp");
+	require_once("src/AntLegacy/AntUser.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/Email.php");
 	require_once("customer/CCustomer.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/aereus.lib.php/CAnsClient.php");
-	require_once("lib/aereus.lib.php/AnsClient.php");
-	require_once("lib/aereus.lib.php/CAntCustomer.php");
-	require_once("lib/aereus.lib.php/CAntOpportunity.php");
-	require_once('lib/aereus.lib.php/antapi.php');
+	require_once("src/AntLegacy/aereus.lib.php/CAnsClient.php");
+	require_once("src/AntLegacy/aereus.lib.php/AnsClient.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntOpportunity.php");
+	require_once('src/AntLegacy/aereus.lib.php/antapi.php');
 
 	require_once("PEAR.php");
 	require_once('Mail.php');

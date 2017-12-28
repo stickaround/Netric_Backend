@@ -1,11 +1,11 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 	require_once("email/email_functions.awp");
 	require_once("contacts/contact_functions.awp");
-	require_once("calendar/calendar_functions.awp");
-	require_once("lib/CPageShell.php");
+	require_once("src/AntLegacy/calendar/calendar_functions.awp");
+	require_once("src/AntLegacy/CPageShell.php");
 
 	// ANT system vars
 	$dbh = $ANT->dbh;

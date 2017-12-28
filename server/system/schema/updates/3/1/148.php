@@ -7,14 +7,14 @@
  * that could cause name collision, so the new FileSystem in netric moved to storing
  * local files in the account id which is always unique.
  */
-require_once("lib/AntConfig.php");
-require_once("lib/CDatabase.awp");
-require_once("lib/CAntObject.php");
-require_once("lib/CAntObjectList.php");
-require_once("lib/Ant.php");
-require_once("lib/AntUser.php");
-require_once("lib/WorkFlow.php");
-require_once("lib/WorkFlow/Action.php");
+require_once("src/AntLegacy/AntConfig.php");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CAntObjectList.php");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/AntUser.php");
+require_once("src/AntLegacy/WorkFlow.php");
+require_once("src/AntLegacy/WorkFlow/Action.php");
 
 if (!$ant)
     die("Update failed because $ ant is not defined");

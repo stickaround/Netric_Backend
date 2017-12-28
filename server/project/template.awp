@@ -1,21 +1,21 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
     require_once("ant.php");
     require_once("ant_user.php");
-	require_once("lib/CDatabase.awp");
-	require_once("lib/content_table.awp");
+	require_once("src/AntLegacy/CDatabase.awp");
+	require_once("src/AntLegacy/content_table.awp");
 	require_once("users/user_functions.php");
-	require_once("lib/CToolTabs.awp");
-	require_once("lib/CToolTable.awp");
-	require_once("lib/date_time_functions.php");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/CDropdownWindow.awp");
-	require_once("lib/Button.awp");
-	require_once("lib/CAutoComplete.awp");
-	require_once("userfiles/file_functions.awp");
+	require_once("src/AntLegacy/CToolTabs.awp");
+	require_once("src/AntLegacy/CToolTable.awp");
+	require_once("src/AntLegacy/date_time_functions.php");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/CDropdownWindow.awp");
+	require_once("src/AntLegacy/Button.awp");
+	require_once("src/AntLegacy/CAutoComplete.awp");
+	require_once("src/AntLegacy/file_functions.awp");
 	// ALIB
-	require_once("lib/aereus.lib.php/CCache.php");
-	//require_once("lib/aereus.lib.php/CSessions.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+	//require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 	require_once("project_functions.awp");
 	
 	$dbh = $ANT->dbh;
@@ -38,9 +38,9 @@
 	<link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme(&$dbh, $USERID, 'css') ?>">
 <?php
 	// Aereus lib
-	include("lib/aereus.lib.js/js_lib.php");
+	include("js/legacy/aereus.lib.js/js_lib.php");
 	// ANT lib
-	include("lib/js/includes.php");
+	include("js/legacy/includes.php");
 ?>
 	<script type="text/javascript" language="javascript">
 	function DeleteTemplateTask(id)

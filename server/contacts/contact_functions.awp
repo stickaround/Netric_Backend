@@ -1,10 +1,10 @@
 <?php
 $CONTACT_GROUP_ACLS = array("View Contacts", "Delete Contacts", "Edit Contacts");
 
-require_once("lib/CAntObject.php");
-require_once("lib/CAntObjectList.php");
-require_once("userfiles/file_functions.awp");
-require_once("calendar/calendar_functions.awp");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CAntObjectList.php");
+require_once("src/AntLegacy/file_functions.awp");
+require_once("src/AntLegacy/calendar/calendar_functions.awp");
 require_once("customer/customer_functions.awp");
 
 function ContactGetLabelName(&$dbh, $LID)

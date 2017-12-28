@@ -1,16 +1,16 @@
 <?php 
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("contacts/contact_functions.awp");
 	require_once("customer/customer_functions.awp");
-	require_once("lib/Email.php");
+	require_once("src/AntLegacy/Email.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/CAntObject.php");
+	require_once("src/AntLegacy/CAntObject.php");
 	require_once("customer/CCustomer.php");
-	require_once("lib/aereus.lib.php/CAntCustomer.php");
-	require_once("lib/aereus.lib.php/CAntOpportunity.php");
-	require_once("lib/CPageShellPublic.php");
-	require_once("lib/Sweetcaptcha.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntCustomer.php");
+	require_once("src/AntLegacy/aereus.lib.php/CAntOpportunity.php");
+	require_once("src/AntLegacy/CPageShellPublic.php");
+	require_once("src/AntLegacy/Sweetcaptcha.php");
 	
 	$dbh = $ANT->dbh;
 	$ACCOUNT = $ANT->accountId;

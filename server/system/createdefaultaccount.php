@@ -10,8 +10,8 @@ chdir(dirname(__DIR__));
  * This is usually used for development to create a local development instance of ANT.
  */
 require_once("init_application.php");
-require_once("lib/Ant.php");
-require_once("lib/AntUser.php");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/AntUser.php");
 
 //error_reporting(E_ERROR | E_WARNING | E_PARSE);
 ini_set("memory_limit", "200M");

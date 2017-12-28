@@ -1,14 +1,14 @@
 <?php
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 	require_once("users/user_functions.php");
-	require_once("lib/date_time_functions.php");
+	require_once("src/AntLegacy/date_time_functions.php");
 	require_once("contacts/contact_functions.awp");
 	require_once("customer/customer_functions.awp");
-	require_once("lib/CAutoComplete.awp");
-	require_once("lib/sms.php");
-	require_once("lib/aereus.lib.php/CPageCache.php");
+	require_once("src/AntLegacy/CAutoComplete.awp");
+	require_once("src/AntLegacy/sms.php");
+	require_once("src/AntLegacy/aereus.lib.php/CPageCache.php");
 	
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

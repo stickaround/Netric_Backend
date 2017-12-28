@@ -1,8 +1,8 @@
 <?php 
 require_once("../../lib/AntConfig.php");
 require_once("ant.php");
-require_once("lib/CPageShellPublic.php");
-require_once("lib/Object/Invoice.php");
+require_once("src/AntLegacy/CPageShellPublic.php");
+require_once("src/AntLegacy/Object/Invoice.php");
 
 $invid = $_REQUEST['invid'];	
 

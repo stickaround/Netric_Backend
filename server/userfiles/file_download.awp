@@ -1,11 +1,11 @@
 <?php
-require_once("../lib/AntConfig.php");
+require_once("src/AntLegacy/AntConfig.php");
 require_once("ant.php");
 require_once("users/user_functions.php");
-require_once("lib/aereus.lib.php/CAnsClient.php");
-require_once("lib/aereus.lib.php/AnsClient.php");
-require_once("lib/CAntFs.awp");
-require_once("file_functions.awp");
+require_once("src/AntLegacy/aereus.lib.php/CAnsClient.php");
+require_once("src/AntLegacy/aereus.lib.php/AnsClient.php");
+require_once("src/AntLegacy/CAntFs.awp");
+require_once("src/AntLegacy/file_functions.awp");
 
 $dbh = $ANT->dbh;
 $ans = new CAnsCLient();

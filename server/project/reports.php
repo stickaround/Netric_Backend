@@ -2,19 +2,19 @@
 	// DEPRICATED
 	// THis is only kept around to see an example of the gantt chart
 
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CAutoComplete.awp");
-	require_once("lib/CDropdownMenu.awp");
-	require_once("lib/CToolTable.awp");	
-	require_once("lib/content_table.awp");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/CAntFs.awp");
-	require_once("lib/CAutoCompleteCal.awp");
-	require_once("lib/CDropdownMenu.awp");
-	require_once("lib/Dacl.php");
-	require_once("calendar/calendar_functions.awp");
+	require_once("src/AntLegacy/CAutoComplete.awp");
+	require_once("src/AntLegacy/CDropdownMenu.awp");
+	require_once("src/AntLegacy/CToolTable.awp");	
+	require_once("src/AntLegacy/content_table.awp");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/CAntFs.awp");
+	require_once("src/AntLegacy/CAutoCompleteCal.awp");
+	require_once("src/AntLegacy/CDropdownMenu.awp");
+	require_once("src/AntLegacy/Dacl.php");
+	require_once("src/AntLegacy/calendar/calendar_functions.awp");
 	require_once("project_functions.awp");
 
 	// Aereus.lib.php libraries
@@ -46,7 +46,7 @@
 	
 	<link rel="STYLESHEET" type="text/css" href="/css/<?php echo UserGetTheme($dbh, $USERID, 'css') ?>">
 <?php
-	include("../lib/aereus.lib.js/js_lib.php");
+	include("../js/legacy/aereus.lib.js/js_lib.php");
 ?>
 	<script language="javascript" type="text/javascript">
 	function DeleteProject(act, id)

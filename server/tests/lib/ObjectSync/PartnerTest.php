@@ -7,12 +7,12 @@
 
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../lib/AntConfig.php');
-require_once('lib/CDatabase.awp');
-require_once('lib/Ant.php');
-require_once('lib/AntUser.php');
-require_once('lib/CAntObject.php');
-require_once('lib/CAntObjectList.php');
-require_once('lib/AntObjectSync.php');
+require_once('src/AntLegacy/CDatabase.awp');
+require_once('src/AntLegacy/Ant.php');
+require_once('src/AntLegacy/AntUser.php');
+require_once('src/AntLegacy/CAntObject.php');
+require_once('src/AntLegacy/CAntObjectList.php');
+require_once('src/AntLegacy/AntObjectSync.php');
 
 class AntObjectSync_PartnerTest_DEPRICATED  extends TestCase
 {

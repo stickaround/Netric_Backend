@@ -1,7 +1,7 @@
 <?php
-	require_once("../lib/AntConfig.php");
-	require_once("lib/AntSystem.php");
-	require_once("lib/Ant.php");
+	require_once("src/AntLegacy/AntConfig.php");
+	require_once("src/AntLegacy/AntSystem.php");
+	require_once("src/AntLegacy/Ant.php");
 
 	$FUNCTION = $_REQUEST['function'];
 

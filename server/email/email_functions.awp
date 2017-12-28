@@ -1,9 +1,9 @@
 <?php
 require_once("contacts/contact_functions.awp");
-require_once("userfiles/file_functions.awp");
+require_once("src/AntLegacy/file_functions.awp");
 require_once("users/user_functions.php");
-require_once("lib/parsers/MimeMailParser.php");
-require_once("lib/parsers/imc/CImcCalendar.php");
+require_once("src/AntLegacy/parsers/MimeMailParser.php");
+require_once("src/AntLegacy/parsers/imc/CImcCalendar.php");
 //define('SM_PATH', '/var/www/html/ant.aereus.com/email/');
 define('SM_PATH', APPLICATION_PATH."/email/");
 require_once('plugins/attachment_tnef/constants.php');
@@ -11,7 +11,7 @@ require_once('plugins/attachment_tnef/functions.php');
 require_once('plugins/attachment_tnef/class/tnef.php');
 //include_once('mimeDecode.php');
 // Aereus lib
-require_once("lib/aereus.lib.php/CCache.php");
+require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
 function EmailGetHeaders(&$dbh, $MID, $fltr='', $hdr='')
 {

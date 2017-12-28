@@ -1,15 +1,15 @@
 <?php
 	require_once("../validate_user.php");
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("../settings/settings_functions.php");
-	require_once("../lib/content_table.awp");
-	require_once("../lib/CDatabase.awp");
-	require_once("../lib/CToolTabs.awp");
-	require_once("../lib/WindowFrame.awp");
+	require_once("src/AntLegacy/content_table.awp");
+	require_once("src/AntLegacy/CDatabase.awp");
+	require_once("src/AntLegacy/CToolTabs.awp");
+	require_once("src/AntLegacy/WindowFrame.awp");
 	require_once("../users/user_functions.php");
-	require_once("../lib/CToolTable.awp");
-	require_once("../lib/Button.awp");
-	require_once("../lib/CDropdownMenu.awp");
+	require_once("src/AntLegacy/CToolTable.awp");
+	require_once("src/AntLegacy/Button.awp");
+	require_once("src/AntLegacy/CDropdownMenu.awp");
 	require_once("../email/email_functions.awp");
 	
 	$dbh = new CDatabase();

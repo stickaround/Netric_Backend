@@ -1,10 +1,10 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/Email.php");
+	require_once("src/AntLegacy/Email.php");
 	require_once("userfiles/file_functions.awp");
-	require_once("lib/CAntFs.awp");
+	require_once("src/AntLegacy/CAntFs.awp");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

@@ -8,8 +8,8 @@
  * @copyright	Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
  */
 require_once(dirname(__FILE__)."/../../lib/AntConfig.php");
-require_once("lib/Ant.php");
-require_once("lib/WorkerMan.php");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/WorkerMan.php");
 
 ini_set("max_execution_time", "0");
 ini_set("max_input_time", "0");

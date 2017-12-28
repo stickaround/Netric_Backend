@@ -2,9 +2,9 @@
 /**
  * Delete an account
  */
-require_once("../lib/AntConfig.php");
-require_once("lib/CDatabase.awp");
-require_once("lib/AntSystem.php");
+require_once("src/AntLegacy/AntConfig.php");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/AntSystem.php");
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 

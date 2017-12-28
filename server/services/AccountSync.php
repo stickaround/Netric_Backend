@@ -6,12 +6,12 @@
  * @package		ObjectDynIdx
  * @copyright	Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/Ant.php");
-require_once("lib/AntUser.php");
-require_once("lib/CAntObject.php");
-require_once("lib/AntService.php");		
-require_once("lib/aereus.lib.php/antapi.php");
-require_once("lib/Email.php");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/AntUser.php");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/AntService.php");		
+require_once("src/AntLegacy/aereus.lib.php/antapi.php");
+require_once("src/AntLegacy/Email.php");
 
 class AccountSync extends AntRoutine
 {

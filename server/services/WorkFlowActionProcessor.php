@@ -11,8 +11,8 @@
  * @subpackage	ActionProcessor
  * @copyright	Copyright (c) 2003-2011 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/CAntObject.php");
-require_once("lib/WorkFlow.php");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/WorkFlow.php");
 
 /**
  * Service implementation class

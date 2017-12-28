@@ -12,9 +12,9 @@
  * @copyright	Copyright (c) 2003-2011 Aereus Corporation (http://www.aereus.com)
  */
 require_once("../../lib/AntConfig.php");
-require_once("lib/Ant.php");
-require_once("lib/AntUser.php");
-require_once("lib/AntService.php");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/AntUser.php");
+require_once("src/AntLegacy/AntService.php");
 require_once("services/EmailQueueProcess.php");
 
 ini_set("memory_limit", "-1");	

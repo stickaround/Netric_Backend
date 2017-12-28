@@ -9,7 +9,7 @@
 	*
 	******************************************************************************/
 
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("../settings/settings_functions.php");		
 	require_once("../userfiles/file_functions.awp");
 	require_once("../users/user_functions.php");

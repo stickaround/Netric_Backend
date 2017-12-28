@@ -66,7 +66,7 @@ RewriteRule app/([0-9a-zA-Z-_']+)/([0-9a-zA-Z-_']+)$ /apploader.php?app=$1&view=
 RewriteRule ^obj/([0-9a-zA-Z-_'.]+)$ /objloader.php?obj_type=$1 [QSA]
 RewriteRule ^obj/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.:]+)$ /objloader.php?obj_type=$1&oid=$2 [QSA]
 RewriteRule ^objb/([0-9a-zA-Z-_'.]+)$ /objbrowser.php?obj_type=$1 [QSA]
-RewriteRule ^chatloader/([0-9a-zA-Z-_'.]+)$ /chat/chatloader.php?chat_type=$1 [QSA]
+RewriteRule ^chatloader/([0-9a-zA-Z-_'.]+)$ /public/legacy/chat/chatloader.php?chat_type=$1 [QSA]
 RewriteRule ^videomail$ /email/vmail_player.php [QSA]
 RewriteRule ^videomail/([0-9a-zA-Z-_']+)$ /email/vmail_player.php?mid=$1 [QSA]
 RewriteRule ^controller/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /controllerLoader.php?controller=$1&function=$2 [QSA]

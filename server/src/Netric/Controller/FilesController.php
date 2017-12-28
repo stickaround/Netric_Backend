@@ -266,13 +266,18 @@ class FilesController extends Mvc\AbstractAccountController
         $daclLoader = $this->account->getServiceManager()->get(DaclLoader::class);
         $dacl = $daclLoader->getForEntity($fileEntity);
         if (!$dacl->isAllowed($user)) {
-            // TODO: We should return a 403 here but for now we just log error
-            // but once we return 403 we should change it to a warn
-            $log->error(
+            $log->warning(
                 "FilesController->getDownloadAction: User " . $user->getName() .
                 " does not have permissions to " .
                 $fileEntity->getId() . ":" . $fileEntity->getName()
             );
+
+            // Return a 403
+            $response = new HttpResponse($request);
+            $response->setReturnCode(
+                HttpResponse::STATUS_CODE_FORBIDDEN,
+                "Access to file $fileId denied for user " . $user->getName());
+            return $response;
         }
 
         // Set standard file headers
@@ -321,6 +326,8 @@ class FilesController extends Mvc\AbstractAccountController
 
         // Set netric entity headers
         $response->setHeader('X-Entity', $fileEntity->getObjRef());
+
+        die(var_export($fileEntity, true));
 
         // Wrap the file in a stream wrapper and return the response
         $response->setStream(FileStreamWrapper::open($this->fileSystem, $fileEntity));

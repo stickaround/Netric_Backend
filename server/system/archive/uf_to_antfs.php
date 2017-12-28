@@ -3,7 +3,7 @@
  * Move files to the new AntFs subsystem from user_files
  * if and only if the data resides in an Ans server
  */
-require_once("../lib/AntConfig.php");
+require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 require_once("../userfiles/file_functions.awp");
 require_once("../users/user_functions.php");		
 require_once("../email/email_functions.awp");

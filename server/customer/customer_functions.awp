@@ -8,8 +8,8 @@
 *	Author: Sky Stebnicki, sky.stebnicki@aereus.com, 2008
 *
 ************************************************************************************************************/
-require_once("lib/CAntObject.php");
-require_once("lib/CAntObjectList.php");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CAntObjectList.php");
 require_once("customer/CCustomer.php");
 
 $CUST_LEAD_QUEUE_ACLS =	array("Create New Lead", "Delete Leads", "View Leads", "Edit Leads", 

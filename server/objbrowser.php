@@ -1,11 +1,11 @@
 <?php
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CToolMenu.awp");
-	require_once("lib/Button.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/WorkFlow.php");
+	require_once("src/AntLegacy/CToolMenu.awp");
+	require_once("src/AntLegacy/Button.awp");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/WorkFlow.php");
 	require_once("email/email_functions.awp");
 
 	$dbh = $ANT->dbh;
@@ -24,11 +24,11 @@
 <link rel="STYLESHEET" id='ant_css_base' type="text/css" href="/css/ant_base.css">
 <link rel="STYLESHEET" id='ant_css_theme' type="text/css" href="/css/<?php echo $USER->themeCss; ?>">
 <?php if (AntConfig::getInstance()->debug) { ?>
-	<script language="javascript" type="text/javascript" src="/lib/aereus.lib.js/alib_full.js"></script>
-	<?php include("lib/js/includes.php"); ?>
+	<script language="javascript" type="text/javascript" src="/js/legacy/aereus.lib.js/alib_full.js"></script>
+	<?php include("js/legacy/includes.php"); ?>
 <?php } else { ?>
-	<script language="javascript" type="text/javascript" src="/lib/aereus.lib.js/alib_full.cmp.js"></script>
-	<script language="javascript" type="text/javascript" src="/lib/js/ant_full.cmp.js"></script>
+	<script language="javascript" type="text/javascript" src="/js/legacy/aereus.lib.js/alib_full.cmp.js"></script>
+	<script language="javascript" type="text/javascript" src="/js/legacy/ant_full.cmp.js"></script>
 <?php } ?>
 <script language="javascript" type="text/javascript">
 <?php

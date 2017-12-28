@@ -1,7 +1,7 @@
 <?php
 
 // ALIB
-require_once("lib/AntConfig.php");
+require_once("src/AntLegacy/AntConfig.php");
 require_once("ant.php");
 
 // ANT

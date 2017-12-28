@@ -2,12 +2,12 @@
 /**
  * This page handles printing objects
  */
-require_once("../lib/AntConfig.php");
+require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 require_once("ant.php");
 require_once("ant_user.php");
-require_once('lib/pdf/class.ezpdf.php'); 
-require_once("lib/CAntObject.php");
-require_once("lib/CAntObjectList.php");
+require_once('src/AntLegacy/pdf/class.ezpdf.php');
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CAntObjectList.php");
 
 ini_set("max_execution_time", "7200");	
 

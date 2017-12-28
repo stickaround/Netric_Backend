@@ -3,10 +3,10 @@
 
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../lib/AntConfig.php');
-require_once('lib/CDatabase.awp');
-require_once('lib/Ant.php');
-require_once('lib/AntUser.php');
-require_once('lib/Object/EmailMessage.php');
+require_once('src/AntLegacy/CDatabase.awp');
+require_once('src/AntLegacy/Ant.php');
+require_once('src/AntLegacy/AntUser.php');
+require_once('src/AntLegacy/Object/EmailMessage.php');
 
 class AntMail_DeliveryAgentTest extends TestCase
 {

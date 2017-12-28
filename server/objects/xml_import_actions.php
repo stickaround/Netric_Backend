@@ -1,14 +1,14 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/AntUser.php");
-	require_once("lib/AntFs.php");
-	require_once("lib/CAntObjectList.php");
-	require_once("lib/WorkFlow.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/AntUser.php");
+	require_once("src/AntLegacy/AntFs.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
+	require_once("src/AntLegacy/WorkFlow.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/WorkerMan.php");
+	require_once("src/AntLegacy/WorkerMan.php");
 
 	ini_set("max_execution_time", "7200");	
 	ini_set("max_input_time", "7200");	

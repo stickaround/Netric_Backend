@@ -4,10 +4,10 @@
  *
  * $ant is a global variable to this script and is already created by the calling class
  */
-require_once("lib/CAntObject.php");
-require_once("lib/CDatabase.awp");
-require_once("lib/Ant.php");
-require_once("lib/AntUser.php");
+require_once("src/AntLegacy/CAntObject.php");
+require_once("src/AntLegacy/CDatabase.awp");
+require_once("src/AntLegacy/Ant.php");
+require_once("src/AntLegacy/AntUser.php");
 
 if (!$ant)
 	die("Update failed because \$ant is not defined");

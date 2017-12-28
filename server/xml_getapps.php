@@ -1,13 +1,13 @@
 <?php
-	require_once("lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/Email.php");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectFields.php");
-	require_once("lib/global_functions.php");
-	require_once("lib/WorkFlow.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectFields.php");
+	require_once("src/AntLegacy/global_functions.php");
+	require_once("src/AntLegacy/WorkFlow.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;

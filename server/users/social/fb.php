@@ -2,12 +2,12 @@
 	require_once("../../lib/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once("lib/Email.php");
-	require_once("lib/aereus.lib.php/CCache.php");
-	//require_once("lib/aereus.lib.php/CSessions.php");
-	require_once("lib/aereus.lib.php/facebook/facebook.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+	//require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
+	require_once("src/AntLegacy/aereus.lib.php/facebook/facebook.php");
 	require_once("email/email_functions.awp");
-	require_once("lib/aereus.lib.php/CCache.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 
 	$dbh = $ANT->dbh;
 

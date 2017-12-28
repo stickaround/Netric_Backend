@@ -1,13 +1,13 @@
 <?php
-	require_once("../lib/AntConfig.php");
-	require_once("lib/ant_error_handler.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
+	require_once("src/AntLegacy/ant_error_handler.php");
 	require_once("settings/settings_functions.php");		
 	require_once("users/user_functions.php");		
 	require_once("email/email_functions.awp");
 	// ANT LIB
-	require_once("lib/CAntObject.php");
-	require_once("lib/CDatabase.awp");
-	require_once("lib/WorkFlow.php");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CDatabase.awp");
+	require_once("src/AntLegacy/WorkFlow.php");
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	

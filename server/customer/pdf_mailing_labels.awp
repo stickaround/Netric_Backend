@@ -1,11 +1,11 @@
 <?php
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
 	require_once("ant_user.php");
-	require_once('lib/pdf/class.ezpdf.php'); 
-	require_once("lib/CDatabase.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
+	require_once('src/AntLegacy/pdf/class.ezpdf.php');
+	require_once("src/AntLegacy/CDatabase.awp");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
 
 	ini_set("memory_limit", "800M");	
 	ini_set("max_input_time", "7200");	

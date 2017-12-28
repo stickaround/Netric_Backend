@@ -1,5 +1,5 @@
 <?php
-	require_once("lib/AntUser.php");
+	require_once("src/AntLegacy/AntUser.php");
 
 	$USER = $ANT->getUser();
 

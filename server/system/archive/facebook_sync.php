@@ -1,15 +1,15 @@
 <?php
-	require_once("../lib/AntConfig.php");
-	require_once("lib/Ant.php");
-	require_once("lib/AntUser.php");
-	require_once("lib/CDatabase.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/CAntObjectList.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
+	require_once("src/AntLegacy/Ant.php");
+	require_once("src/AntLegacy/AntUser.php");
+	require_once("src/AntLegacy/CDatabase.awp");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/CAntObjectList.php");
 	require_once("users/user_functions.php");		
 	require_once("email/email_functions.awp");
 	require_once("email/email_functions.awp");
 	// Aereus LIB
-	require_once("lib/aereus.lib.php/facebook/facebook.php");
+	require_once("src/AntLegacy/aereus.lib.php/facebook/facebook.php");
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	ini_set("memory_limit", "500M");	

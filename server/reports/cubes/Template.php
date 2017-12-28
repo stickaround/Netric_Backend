@@ -8,7 +8,7 @@
  * @package   Template
  * @copyright Copyright (c) 2003-2012 Aereus Corporation (http://www.aereus.com)
  */
-require_once("lib/Olap/Cube/CustomInterface.php");
+require_once("src/AntLegacy/Olap/Cube/CustomInterface.php");
 
 class CustCube_Template extends Olap_Cube_CustomInterface
 {

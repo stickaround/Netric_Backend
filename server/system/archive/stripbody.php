@@ -2,7 +2,7 @@
 
 	//require_once("../../validate_user.php");
 
-	require_once("../lib/AntConfig.php");
+	require_once("src/AntLegacy/AntConfig.php");
 
 	require_once("../settings/settings_functions.php");		
 

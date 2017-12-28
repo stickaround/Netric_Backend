@@ -1,18 +1,18 @@
 <?php 
 	// ant
-	require_once("../lib/AntConfig.php");
+	require_once(__DIR__ . "/../src/AntLegacy/AntConfig.php");
 	require_once("ant.php");
-	require_once("lib/WindowFrame.awp");
-	require_once("lib/content_table.awp");
-	require_once("lib/CAntFs.awp");
-	require_once("lib/CAntObject.php");
-	require_once("lib/Email.php");
-	require_once("lib/Button.awp");
+	require_once("src/AntLegacy/WindowFrame.awp");
+	require_once("src/AntLegacy/content_table.awp");
+	require_once("src/AntLegacy/CAntFs.awp");
+	require_once("src/AntLegacy/CAntObject.php");
+	require_once("src/AntLegacy/Email.php");
+	require_once("src/AntLegacy/Button.awp");
 	require_once("email/email_functions.awp");
-	require_once("lib/CPageShellPublic.php");
+	require_once("src/AntLegacy/CPageShellPublic.php");
 	// ALIB
-	require_once("lib/aereus.lib.php/CCache.php");
-	//require_once("lib/aereus.lib.php/CSessions.php");
+	require_once("src/AntLegacy/aereus.lib.php/CCache.php");
+	//require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 	// App
 	require_once("customer_functions.awp");
 	

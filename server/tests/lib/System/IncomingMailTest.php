@@ -6,10 +6,10 @@
 
 // ANT Includes 
 require_once(dirname(__FILE__).'/../../../lib/AntConfig.php');
-require_once('lib/CDatabase.awp');
-require_once('lib/Ant.php');
-require_once('lib/AntUser.php');
-require_once('lib/System/IncomingMail.php');
+require_once('src/AntLegacy/CDatabase.awp');
+require_once('src/AntLegacy/Ant.php');
+require_once('src/AntLegacy/AntUser.php');
+require_once('src/AntLegacy/System/IncomingMail.php');
 
 class System_IncomingMailTest extends TestCase
 {
