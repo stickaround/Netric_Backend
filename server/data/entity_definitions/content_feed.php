@@ -2,7 +2,7 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 19,
+    'revision' => 20,
     'list_title' => 'title',
     'fields' => array(
         'title' => array(
@@ -42,8 +42,8 @@ return array(
             'readonly' => false
         ),
         'user_id' => array(
-            'title' => 'User', '
-            type' => 'object',
+            'title' => 'User',
+            'type' => 'object',
             'subtype' => 'user',
             'readonly' => true,
             'default' => array("value" => "-3", "on" => "null")
