@@ -10,6 +10,9 @@
  *
  *  # To update netric (application + all accounts) to the latest version
  *  netric setup/update
+ *
+ * # To run admin jobs type
+ * netric setup/run --script=admin/entitymaint
  */
 
 ini_set("display_errors", "On");

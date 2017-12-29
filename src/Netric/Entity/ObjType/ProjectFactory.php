@@ -24,7 +24,7 @@ class ProjectFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("project");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("project");
         $indexInterface = new Pgsql($sl->getAccount());
         $entityLoader = $sl->get("Netric/EntityLoader");
         return new ProjectEntity($def, $entityLoader, $indexInterface);

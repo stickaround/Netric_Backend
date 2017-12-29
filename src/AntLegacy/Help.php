@@ -22,7 +22,7 @@ class Help
 		if ($user)
 			$this->user = $user;
 
-		$root = dirname(__FILE__)."/../../views/help/tours/";
+		$root = dirname(__FILE__)."/../../dada/views/help/tours/";
 
 		if (file_exists($root . $tourId . ".php"))
 		{

@@ -150,9 +150,6 @@ class AntUser
 				$this->timezoneName = $this->userObj->getValue("timezone");
 			//timezone_name_from_abbr($this->timezoneCode) : "";
 
-			if (!$this->timezoneName)
-				$this->timezoneName = "America/Los_Angeles"; // Default to pacific time if we failed to get the timestamp
-
 			$this->dbh->SetTimezone($this->timezoneName);
 		}
 	}

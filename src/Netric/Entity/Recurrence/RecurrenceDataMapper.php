@@ -12,7 +12,7 @@
 namespace Netric\Entity\Recurrence;
 
 use Netric\Db;
-use Netric\EntityDefinitionLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Error;
 
 class RecurrenceDataMapper extends \Netric\DataMapperAbstract

@@ -10,6 +10,7 @@ namespace NetricTest\EntityDefinition\DataMapper;
 
 use Netric;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
@@ -30,31 +31,31 @@ abstract class DmTestsAbstract extends TestCase
      */
     protected $testDefinitions = [];
 
-	/**
-	 * Setup each test
+    /**
+	 * Use this function in all the derived classes to construct the datamapper
+	 *
+	 * @return EntityDefinitionDataMapperInterface
 	 */
-	protected function setUp() 
-	{
-        $this->account = \NetricTest\Bootstrap::getAccount();
-	}
+	abstract protected function getDataMapper();
 
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
+        $this->account = \NetricTest\Bootstrap::getAccount();
+    }
+
+    /**
+     * Cleanup
+     */
     protected function tearDown()
     {
         $dm = $this->getDataMapper();
         foreach ($this->testDefinitions as $def) {
-            $dm->deleteDef($def);
+            $dm->delete($def);
         }
     }
-
-    /**
-	 * Use this funciton in all the datamappers to construct the datamapper
-	 *
-	 * @return Netric\EntityDefinition\DataMapperAbstract;
-	 */
-	protected function getDataMapper()
-	{
-		return false;
-	}
 
 	/**
 	 * Test loading data into the definition from an array

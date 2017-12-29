@@ -59,6 +59,15 @@ class EntityDefinition
 	 */
 	public $system = true;
 
+    /**
+     * Hash of last loaded entity definition
+     *
+     * For system definitions we hash the last loaded definition from the file system
+     * to know if we should update it from source code.
+     * @var string
+     */
+	public $systemDefinitionHash = "";
+
 	/**
 	 * Optional icon name
 	 *
@@ -363,7 +372,7 @@ class EntityDefinition
 	 * Get the type of a field by name
 	 *
 	 * @param string $name The name of the field to get the type for
-	 * @return arrary('type'=>[type], 'subtype'=>[subtype])
+	 * @return array('type'=>[type], 'subtype'=>[subtype])
 	 */
 	public function getFieldType($name)
 	{
@@ -430,6 +439,7 @@ class EntityDefinition
 			"object_table" => ($this->useCustomTable) ? $this->object_table : "",
 			"icon" => $this->icon,
 			"system" => $this->system,
+            "system_definition_hash" => $this->systemDefinitionHash,
 			"application_id" => $this->applicationId,
 			"fields" => array(),
 			"aggregates" => array(),
@@ -504,6 +514,9 @@ class EntityDefinition
 
 		if (isset($data['system']))
 			$this->system = $data['system'];
+
+        if (isset($data['system_definition_hash']))
+            $this->systemDefitionHash = $data['system_definition_hash'];
 
         if (isset($data['capped']) && is_numeric($data['capped']))
             $this->capped = $data['capped'];

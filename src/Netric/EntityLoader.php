@@ -1,14 +1,15 @@
 <?php
-/**
- * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
- */
 namespace Netric;
 
 use Netric\Entity\DataMapperInterface;
 use Netric\Entity\EntityInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 
+/**
+ * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
+ */
 class EntityLoader
 {
 	/**

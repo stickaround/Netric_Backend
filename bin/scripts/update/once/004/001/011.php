@@ -13,7 +13,7 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
 $entityLoader = $serviceManager->get("Netric/EntityLoader");
-$entityDefinitionLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+$entityDefinitionLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
 $entityIndex = $serviceManager->get("EntityQuery_Index");
 $log = $serviceManager->get("Log");
 

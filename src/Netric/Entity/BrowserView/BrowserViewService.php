@@ -11,6 +11,7 @@ use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Config\Config;
 use Netric\Settings\Settings;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric;
 
 /**
@@ -46,7 +47,7 @@ class BrowserViewService
     /**
      * Entity defition loader to map type id to type name
      *
-     * @var Netric\EntityDefinitionLoader
+     * @var EntityDefinitionLoader
      */
     private $definitionLoader = null;
 
@@ -62,10 +63,10 @@ class BrowserViewService
      *
      * @param \Netric\Db\DbInterface
      * @param Config $config The configuration object
-     * @param \Netric\EntityDefinitionLoader $defLoader To get definitions of entities by $objType
+     * @param EntityDefinitionLoader $defLoader To get definitions of entities by $objType
      * @param Settings $settings Account or user settings service
      */
-    public function __construct(DbInterface $dbh, Config $config, Netric\EntityDefinitionLoader $defLoader, Settings $settings)
+    public function __construct(DbInterface $dbh, Config $config, EntityDefinitionLoader $defLoader, Settings $settings)
     {
         $this->dbh = $dbh;
         $this->config = $config;

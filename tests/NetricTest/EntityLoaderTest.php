@@ -90,7 +90,7 @@ class EntityLoaderTest extends TestCase
         $dm->method('getAccount')
             ->willReturn($this->account);
 
-        $defLoader = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader");
+        $defLoader = $this->account->getServiceManager()->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $loader = new EntityLoader($dm, $defLoader);
 
         $entity = $loader->getByUniqueName("task", "my_test");

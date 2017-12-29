@@ -12,3 +12,4 @@
 <all_additional></all_additional>
 <attachments></attachments>
 <field name='notes' hidelabel='t' multiline='t'></field>
+<field name='comments'></field>

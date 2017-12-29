@@ -23,7 +23,7 @@ class CaseFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("case");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("case");
         return new CaseEntity($def);
     }
 }

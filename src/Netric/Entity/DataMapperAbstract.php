@@ -351,7 +351,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
     {
         $serviceManager = $this->getAccount()->getServiceManager();
-        $definitionLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+        $definitionLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $entityFactory = $serviceManager->get("Netric/Entity/EntityFactory");
         $def = $definitionLoader->get($objType);
 

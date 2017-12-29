@@ -7,7 +7,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityMaintainerService;
 use Netric\Log\LogInterface;
 use Netric\Permissions\Dacl;
-use Netric\EntityDefinitionLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\Account\Account;
 

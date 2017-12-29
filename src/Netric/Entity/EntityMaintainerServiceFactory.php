@@ -25,7 +25,7 @@ class EntityMaintainerServiceFactory implements AccountServiceLocatorInterface
         $log = $sl->get("Log");
         $entityLoader = $sl->get("EntityLoader");
         $entityIndex = $sl->get("EntityQuery_Index");
-        $entityDefinitionLoader = $sl->get("Netric/EntityDefinitionLoader");
+        $entityDefinitionLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $fileSystem = $sl->get(FileSystem::class);
         return new EntityMaintainerService($log, $entityLoader, $entityDefinitionLoader, $entityIndex, $fileSystem);
     }

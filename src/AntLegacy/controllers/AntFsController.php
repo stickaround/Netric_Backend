@@ -145,8 +145,10 @@ class AntFsController extends Controller
     /**
      * Upload a file into AntFs
      *
+     * @deprecated We now use src/Netric/Controller/FileController::postUploadAction
+     *
      * @param array $params An assocaitive array of parameters passed to this function.
-     */
+     *
     public function upload($params)
     {
         // Make sure we have the resources to upload this file
@@ -225,6 +227,7 @@ class AntFsController extends Controller
         else
             return $this->sendOutputJson($ret);
     }
+    */
 
     /**
      * Retrieve source for a file preview
@@ -241,11 +244,11 @@ class AntFsController extends Controller
 
         $file = $this->antfs->openFileById($params['fid']);
 
-        $ret["urlDownload"] = $this->ant->getAccBaseUrl()."/antfs/".$params['fid'];
+        $ret["urlDownload"] = $this->ant->getAccBaseUrl()."/files/".$params['fid'];
 
         if ($file->isImage())
         {
-            $ret["urlImage"] = $this->ant->getAccBaseUrl()."/controller/AntFs/streamImage?w=800&fid=".$params['fid'];
+            $ret["urlImage"] = $this->ant->getAccBaseUrl()."/files/images/" . $params['fid'] . "/800";
         }
         else
         {

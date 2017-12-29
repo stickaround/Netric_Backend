@@ -1,11 +1,16 @@
 <?php
 
-namespace NetricTest;
+namespace NetricTest\EntityDefinition;
 
-use Netric;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Make sure the entity definition loader works
+ *
+ * @group integration
+ */
 class EntityDefinitionLoaderFactoryTest extends TestCase
 {
     public function testCreateService()
@@ -14,13 +19,8 @@ class EntityDefinitionLoaderFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntityDefinitionLoader',
-            $sm->get('EntityDefinitionLoader')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntityDefinitionLoader',
-            $sm->get('Netric\EntityDefinitionLoader')
+            EntityDefinitionLoader::class,
+            $sm->get(EntityDefinitionLoader::class)
         );
     }
 }

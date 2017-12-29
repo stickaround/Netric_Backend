@@ -26,7 +26,7 @@ class BrowserViewServiceFactory implements ServiceManager\AccountServiceLocatorI
     {
         $dbh = $sl->get("Netric/Db/Db");
         $config = $sl->get("Netric/Config/Config");
-        $defLoader = $sl->get("Netric/EntityDefinitionLoader");
+        $defLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $settings = $sl->get('Netric/Settings/Settings');
         return new BrowserViewService($dbh, $config, $defLoader, $settings);
     }

@@ -23,7 +23,7 @@ class UserFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("user");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("user");
         return new UserEntity($def);
     }
 }

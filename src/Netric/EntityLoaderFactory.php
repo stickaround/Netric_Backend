@@ -23,7 +23,7 @@ class EntityLoaderFactory implements ServiceManager\AccountServiceLocatorInterfa
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $dm = $sl->get("Netric/Entity/DataMapper/DataMapper");
-        $definitionLoader = $sl->get("Netric/EntityDefinitionLoader");
+        $definitionLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
 
         return new EntityLoader($dm, $definitionLoader);
     }

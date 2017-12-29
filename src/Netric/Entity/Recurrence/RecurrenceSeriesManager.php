@@ -12,7 +12,7 @@ use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityLoader;
 use Netric\Error;
 use Netric\EntityQuery;
-use Netric\EntityDefinitionLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 
 /**
  * Class creates and deletes entities from a RecurrencePattern series

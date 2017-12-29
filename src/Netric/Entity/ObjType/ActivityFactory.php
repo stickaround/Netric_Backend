@@ -23,7 +23,7 @@ class ActivityFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("activity");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("activity");
         return new ActivityEntity($def);
     }
 }

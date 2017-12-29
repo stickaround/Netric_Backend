@@ -23,7 +23,7 @@ class FolderFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("folder");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("folder");
         $entityloader = $sl->get("Netric/EntityLoader");
         return new FolderEntity($def, $entityloader);
     }

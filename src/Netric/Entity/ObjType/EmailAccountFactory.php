@@ -23,7 +23,7 @@ class EmailAccountFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("email_account");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("email_account");
         return new EmailAccountEntity($def);
     }
 }

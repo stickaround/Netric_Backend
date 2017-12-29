@@ -22,7 +22,7 @@ class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceLocato
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $entDefLoader = $sl->get("Netric/EntityDefinitionLoader");
+        $entDefLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $dbh = $sl->get("Netric/Db/Db");
         return new RecurrenceDataMapper($sl->getAccount(), $dbh, $entDefLoader);
     }

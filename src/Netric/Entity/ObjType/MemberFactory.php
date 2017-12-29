@@ -23,7 +23,7 @@ class MemberFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("member");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("member");
         return new MemberEntity($def);
     }
 }

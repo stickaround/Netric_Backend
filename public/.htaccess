@@ -50,14 +50,14 @@ RewriteRule ^antfs/([0-9]+)$ /router.php?version=2&controller=files&function=dow
 RewriteRule ^antfs/([0-9]+)/(.*)$ /router.php?version=2&controller=files&function=download&file_id=$1&file_name=$2 [QSA]
 
 # Path to download userfiles
-RewriteRule files/images/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1 [QSA]
-RewriteRule files/images/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1&max_width=$2 [QSA]
-RewriteRule files/images/([0-9]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1&max_width=$2&max_height=$3 [QSA]
-RewriteRule files/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1 [QSA]
-RewriteRule files/([0-9]+)/(.*)$ /router.php?version=2&controller=files&function=download&file_id=$1&file_name=$2 [QSA]
+RewriteRule ^files/images/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1 [QSA]
+RewriteRule ^files/images/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1&max_width=$2 [QSA]
+RewriteRule ^files/images/([0-9]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1&max_width=$2&max_height=$3 [QSA]
+RewriteRule ^files/userimages/current/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&max_width=$1&max_height=$2 [QSA]
+RewriteRule ^files/userimages/([0-9-]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&user_id=$1&max_width=$2&max_height=$3 [QSA]
+RewriteRule ^files/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1 [QSA]
+RewriteRule ^files/([0-9]+)/(.*)$ /router.php?version=2&controller=files&function=download&file_id=$1&file_name=$2 [QSA]
 
-RewriteRule files/userimages/current/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&max_width=$1&max_height=$2 [QSA]
-RewriteRule files/userimages/([0-9-]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&user_id=$1&max_width=$2&max_height=$3 [QSA]
 
 # We no longer support getting user images by username
 #RewriteRule files/userimages/([a-zA-Z_.]+)/([0-9]+)/([0-9]+)$ /controller/User/loadUserImage?uname=$1&w=$2&h=$3

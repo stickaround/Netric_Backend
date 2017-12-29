@@ -26,7 +26,7 @@ class RecurrenceSeriesManagerFactory implements ServiceManager\AccountServiceLoc
         $entityLoader = $sl->get("Netric/EntityLoader");
         $entityDataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");
         $entityIndex = $sl->get("Netric/EntityQuery/Index/Index");
-        $entityDefinitionLoader = $sl->get("Netric/EntityDefinitionLoader");
+        $entityDefinitionLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
         return new RecurrenceSeriesManager(
             $recurIdentityMapper,
             $entityLoader,

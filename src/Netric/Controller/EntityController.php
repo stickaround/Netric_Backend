@@ -29,7 +29,7 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+        $defLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $def = $defLoader->get($params['obj_type']);
         if (!$def) {
             return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
@@ -382,7 +382,7 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $loader = $serviceManager->get("Netric/EntityDefinitionLoader");
+        $loader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
         $definitions = $loader->getAll();
 
         $ret = array();
@@ -536,7 +536,7 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $defLoader = $serviceManager->get("Netric/EntityDefinitionLoader");
+        $defLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
 
         $def = $defLoader->get($objData['obj_type']);
         $def->fromArray($objData);
@@ -817,7 +817,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
 
         // Get the entity defintion of the $objType
-        $def = $this->account->getServiceManager()->get("Netric/EntityDefinitionLoader")->get($objType);
+        $def = $this->account->getServiceManager()->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($objType);
 
         // If this is a private object then send the current user as a filter
         if ($def->isPrivate && !count($groupFilter)) {

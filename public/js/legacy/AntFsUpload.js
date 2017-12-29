@@ -158,7 +158,8 @@ AntFsUpload.prototype.showDialog = function()
 
 	dlg.customDialog(dv, 460, 85);
 
-	var url = "/controller/AntFs/upload?auth="+this.authStr;
+	//var url = "/controller/AntFs/upload?auth="+this.authStr;
+    var url = "/svr/files/upload?fval=1";
 	if (this.process_function)
 		url += "&process_function="+this.process_function;
 	if (this.folderId)
@@ -173,52 +174,52 @@ AntFsUpload.prototype.showDialog = function()
 	try
 	{
 		swfu = new SWFUpload({
-					// Backend Settings
-					upload_url: url,
-					//post_params: {"PHPSESSID": "pdopmbhp2faiunsspjr64j14d4"},
+			// Backend Settings
+			upload_url: url,
+			//post_params: {"PHPSESSID": "pdopmbhp2faiunsspjr64j14d4"},
 
-					// File Upload Settings
-					file_size_limit : "2GB",	// 2MB
-					//file_types : "*.jpg",
-					//file_types_description : "JPG Images",
-					file_upload_limit : "0",
-					//assume_success_timeout : 75,
+			// File Upload Settings
+			file_size_limit : "2GB",	// 2MB
+			//file_types : "*.jpg",
+			//file_types_description : "JPG Images",
+			file_upload_limit : "0",
+			//assume_success_timeout : 75,
 
-					// Event Handler Settings - these functions as defined in Handlers.js
-					//  The handlers are not part of SWFUpload but are part of my website and control how
-					//  my website reacts to the SWFUpload events.
-					file_queue_error_handler : AntFsUpload_fileQueueError,
-					file_dialog_complete_handler : fileDialogComplete,
-					upload_progress_handler : AntFsUpload_uploadProgress,
-					upload_error_handler : AntFsUpload_uploadError,
-					upload_success_handler : AntFsUpload_uploadSuccess,
-					upload_complete_handler : AntFsUpload_uploadComplete,
-					swfupload_loaded_handler : AntFsUpload_uploadFlashLoaded,
+			// Event Handler Settings - these functions as defined in Handlers.js
+			//  The handlers are not part of SWFUpload but are part of my website and control how
+			//  my website reacts to the SWFUpload events.
+			file_queue_error_handler : AntFsUpload_fileQueueError,
+			file_dialog_complete_handler : fileDialogComplete,
+			upload_progress_handler : AntFsUpload_uploadProgress,
+			upload_error_handler : AntFsUpload_uploadError,
+			upload_success_handler : AntFsUpload_uploadSuccess,
+			upload_complete_handler : AntFsUpload_uploadComplete,
+			swfupload_loaded_handler : AntFsUpload_uploadFlashLoaded,
 
-					// Button Settings
-					button_image_url : "/images/buttons/flash_bg_100x18.png",
-					button_placeholder : spanButtonPlaceholder,
-					button_placeholder_id : "",
-					button_width: 100,
-					button_height: 18,
-					button_text : '<span class="button">Select Files</span>',
-					button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 12pt; }',
-					button_text_top_padding: 0,
-					button_text_left_padding: 3,
-					button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
-					button_cursor: SWFUpload.CURSOR.HAND,
+			// Button Settings
+			button_image_url : "/images/buttons/flash_bg_100x18.png",
+			button_placeholder : spanButtonPlaceholder,
+			button_placeholder_id : "",
+			button_width: 100,
+			button_height: 18,
+			button_text : '<span class="button">Select Files</span>',
+			button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 12pt; }',
+			button_text_top_padding: 0,
+			button_text_left_padding: 3,
+			button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
+			button_cursor: SWFUpload.CURSOR.HAND,
 
-					// Flash Settings
-					flash_url : "/js/legacy/SWFUpload/Flash/swfupload.swf",
+			// Flash Settings
+			flash_url : "/js/legacy/SWFUpload/Flash/swfupload.swf",
 
-					custom_settings : {
-						upload_target : divFileProgressContainer,
-						isMulti : false
-					},
+			custom_settings : {
+				upload_target : divFileProgressContainer,
+				isMulti : false
+			},
 
-					// Debug Settings
-					debug: false 
-					});
+			// Debug Settings
+			debug: false
+		});
 	}
 	catch (ex) { alert(ex); }
 }
@@ -274,7 +275,7 @@ AntFsUpload.prototype.showTmpUpload = function(button_con, files_con, button_tex
 	var decoration = alib.dom.styleGet(alnk, "text-decoration");
 	document.body.removeChild(alnk);
 
-	var url = "/controller/AntFs/upload?path="+escape("%tmp%")+"&auth="+this.authStr;
+    var url = "/svr/files/upload?path="+escape("%tmp%");
 	if (this.process_function)
 		url += "&process_function="+this.process_function;
 

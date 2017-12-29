@@ -280,24 +280,6 @@ class FilesController extends Mvc\AbstractAccountController
             return $response;
         }
 
-        // Set standard file headers
-        $response->setContentDisposition('inline', $fileEntity->getName());
-        $response->setContentType($fileEntity->getMimeType());
-        $response->setContentLength($fileEntity->getValue('file_size'));
-        $dateLastModified = new DateTime();
-        $dateLastModified->setTimestamp($fileEntity->getValue("ts_updated"));
-        $response->setLastModified($dateLastModified);
-
-        // Allow caching if everyone has access
-        if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
-            $response->setCacheable(
-                md5($this->account->getName() .
-                    ".file." . $fileEntity->getId() .
-                    '.r' . $fileEntity->getValue("revision")
-                )
-            );
-        }
-
         // Handle image resizing
         $maxWidth = $request->getParam('max_width');
         $maxHeight = $request->getParam('max_height');
@@ -324,7 +306,25 @@ class FilesController extends Mvc\AbstractAccountController
             }
         }
 
-        // Set netric entity headers
+        // Set standard file headers
+        $response->setContentDisposition('inline', $fileEntity->getName());
+        $response->setContentType($fileEntity->getMimeType());
+        $response->setContentLength($fileEntity->getValue('file_size'));
+        $dateLastModified = new DateTime();
+        $dateLastModified->setTimestamp($fileEntity->getValue("ts_updated"));
+        $response->setLastModified($dateLastModified);
+
+        // Allow caching if everyone has access
+        if ($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW)) {
+            $response->setCacheable(
+                md5($this->account->getName() .
+                    ".file." . $fileEntity->getId() .
+                    '.r' . $fileEntity->getValue("revision")
+                )
+            );
+        }
+
+        // Set netric entity header
         $response->setHeader('X-Entity', $fileEntity->getObjRef());
 
         // Wrap the file in a stream wrapper and return the response

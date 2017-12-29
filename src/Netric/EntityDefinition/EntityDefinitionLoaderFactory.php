@@ -5,7 +5,7 @@
  * @author Marl Tumulak <marl.tumulak@aereus.com>
  * @copyright 2016 Aereus
  */
-namespace Netric;
+namespace Netric\EntityDefinition;
 
 use Netric\ServiceManager;
 

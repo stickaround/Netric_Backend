@@ -23,7 +23,7 @@ class TaskFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinitionLoader")->get("task");
+        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("task");
         return new TaskEntity($def);
     }
 }

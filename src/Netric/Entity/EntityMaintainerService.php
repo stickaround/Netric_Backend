@@ -7,7 +7,7 @@ namespace Netric\Entity;
 
 use Netric\Error\AbstractHasErrors;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinitionLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Log\LogInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
