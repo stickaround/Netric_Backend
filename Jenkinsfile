@@ -20,7 +20,7 @@ node {
 
             /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
             clientImage.inside {
-                sh 'cp -r /var/www/app/build/* ./server/mobile/'
+                sh 'cp -r /var/www/app/build/* ./public/mobile/'
             }
 
             dockerImage = docker.build('netric');
@@ -35,7 +35,7 @@ node {
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
             sh 'docker-compose -f docker/docker-compose-test.yml down'
-            junit 'server/tests/tmp/logfile.xml'
+            junit 'tests/tmp/logfile.xml'
         }
 
         stage('Publish') {

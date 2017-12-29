@@ -1,11 +1,16 @@
 import os
 import time
 import subprocess
+import socket
+import sys;
 
 os.environ["DEBUSSY"] = "127.0.0.1"
 
 # Get IP of host which is used in the docker-compose-dev.yml for setting debug
-os.environ["HOST_IP"] = ""
+# We do this with a dummy socket
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(('google.com', 0))
+os.environ["HOST_IP"] = s.getsockname()[0]
 
 # Change to docker directory
 os.chdir("../docker")

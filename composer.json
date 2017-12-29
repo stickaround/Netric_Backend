@@ -1,0 +1,24 @@
+{
+  "name": "netric/netric-server",
+  "description": "Netric Server",
+  "license": "Commercial",
+  "homepage": "http://www.netric.com/",
+  "autoload": {
+    "psr-4": {"Netric\\": "src/Netric"}
+  },
+  "require": {
+    "php": ">=7.0",
+    "facebook/php-sdk-v4" : "4.0.*",
+    "zendframework/zend-crypt": "~2.5",
+    "zendframework/zend-validator": "~2.5",
+    "zendframework/zend-console": "~2.5",
+    "zendframework/zend-http": "~2.5",
+    "zendframework/zend-loader": "~2.5",
+    "zircote/swagger-php": "^2.0",
+    "php-mime-mail-parser/php-mime-mail-parser": "^2.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "6.2.*",
+    "johnkary/phpunit-speedtrap": "^2.0.0-BETA1"
+  }
+}

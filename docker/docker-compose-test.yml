@@ -5,7 +5,7 @@ services:
     environment:
       APPLICATION_ENV: testing
     volumes:
-      - '../server/tests/tmp:/var/www/html/tests/tmp'
+      - '../tests/tmp:/var/www/html/tests/tmp'
     links:
       - memcached
       - gearmand
