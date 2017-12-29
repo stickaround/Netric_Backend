@@ -11,7 +11,7 @@ services:
        RUN_SETUP: 1
        XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=1 remote_autostart=1"
     volumes:
-     - ../server/:/var/www/html/
+     - ../:/var/www/html/
     depends_on:
       - logstash
     logging:
@@ -118,6 +118,6 @@ services:
     build: xhprof/
     container_name: xhprof
     volumes:
-         - ../server/data/profile_runs:/profiles
+         - ../data/profile_runs:/profiles
     ports:
       - "8888:80"

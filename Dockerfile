@@ -93,7 +93,7 @@ COPY docker/server/ssl/netric.key /etc/apache2/ssl/netric.key
 # Copy files and run composer to install source
 ###############################################################################
 
-COPY server/ /var/www/html/
+COPY ./ /var/www/html/
 COPY docker/server/bin/netric-setup.sh /
 COPY docker/server/bin/netric-tests.sh /
 COPY docker/server/bin/start.sh /

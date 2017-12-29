@@ -36,19 +36,18 @@ Thumbs.db
 /.buildpath
 /.project
 /.vscode
+nbproject/
+.~lock.*
+.buildpath
+.project
+.settings
 
-# Vagrant files #
-######################
-.vagrant
 
 # Composer *
 #################
 composer.lock
-.gitignore
 
 # Vendor directory
-/server/vendor
-server/data/profile_runs/
-server/tests/NetricTest/FileSystem/FileStore/tmp/
+vendor
 data/profile_runs/
 tests/NetricTest/FileSystem/FileStore/tmp/
