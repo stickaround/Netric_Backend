@@ -1,4 +1,13 @@
 <?php
+namespace NetricTest\EntityQuery;
+
+use Netric;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\Entity\Entity;
+use Netric\EntityQuery\Results;
+use Netric\EntityQuery;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Test querying ElasticSearch server
  *
@@ -7,42 +16,49 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
-namespace NetricTest\EntityQuery;
-
-use Netric;
-use PHPUnit\Framework\TestCase;
-
 class ResultsTest extends TestCase
-{   
+{
     /**
      * Test automatic pagination
      */
     public function testPagination()
     {
-        $query = new Netric\EntityQuery("customer");
+        $testDefinition = new EntityDefinition("test");
+
+        $query = new EntityQuery("test");
         $query->setOffset(0);
         $query->setLimit(2);
-        
-        $results = new Netric\EntityQuery\Results($query);
+
+        // Simulate results and add entities
+        $results = new Results($query);
+        $results->addEntity(new Entity($testDefinition));
+        $results->addEntity(new Entity($testDefinition));
         $results->setTotalNum(5);
-        
-        $ent = $results->getEntity(3); // Should push us to the next page
+
+        // Should push us to the second page
+        $ent = $results->getEntity(2);
         $this->assertEquals(2, $results->getOffset());
         
-        // Do it again but skip a bunch of pages this time
-        $query->setOffset(0);
-        $query->setLimit(50);
-        $results = new Netric\EntityQuery\Results($query);
-        $results->setTotalNum(150);
+        // Should push us to the last
+        $ent = $results->getEntity(4);
+        $this->assertEquals(4, $results->getOffset());
         
-        $ent = $results->getEntity(149); // Should push us to the next page
-        $this->assertEquals(100, $results->getOffset());
-        
-        $ent = $results->getEntity(75); // Should push us to the next page
-        $this->assertEquals(50, $results->getOffset());
-        
-        // Now test less than
-        $ent = $results->getEntity(5); // Should push us to the next page
+        // Now rewind back to the first page
+        $ent = $results->getEntity(0);
         $this->assertEquals(0, $results->getOffset());
+    }
+
+    /**
+     * Make sure that trying to get an entity out of bounds will throw an execption
+     */
+    public function testGetEntityOutOfBounds()
+    {
+        $query = new EntityQuery("customer");
+        $results = new Results($query);
+
+        $this->expectException(\RuntimeException::class);
+
+        // Get number way outside the bounds (should throw an exception)
+        $results->getEntity(1000);
     }
 }

@@ -1,7 +1,4 @@
 <?php
-/**
- * Test calling the files controller
- */
 namespace NetricTest\Controller;
 
 use Netric;
@@ -14,6 +11,9 @@ use Netric\Entity\ObjType\FileEntity;
 use Netric\FileSystem\FileSystem;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Test calling the files controller
+ */
 class FilesControllerTest extends TestCase
 {
     /**
@@ -139,7 +139,7 @@ class FilesControllerTest extends TestCase
 
         $req = $this->controller->getRequest();
         $testUploadedFiles = array(
-            array("tmp_name"=>$tempFile, "name"=>"files-upload-test.txt")
+            array("tmp_name" => $tempFile, "name" => "files-upload-test.txt")
         );
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload");
@@ -359,8 +359,8 @@ class FilesControllerTest extends TestCase
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
         $req->setParam("file_id", $importedFile->getId());
-        $req->setParam("max_width",64);
-        $req->setParam("max_height",64);
+        $req->setParam("max_width", 64);
+        $req->setParam("max_height", 64);
 
         // Now stream the file contents into $ret
         $response = $this->controller->getDownloadAction();
@@ -411,8 +411,8 @@ class FilesControllerTest extends TestCase
         // Set which file to download in the request and that it should be resized to 64 px
         $req = $this->controller->getRequest();
         $req->setParam("user_id", $this->user->getId());
-        $req->setParam("max_width",64);
-        $req->setParam("max_height",64);
+        $req->setParam("max_width", 64);
+        $req->setParam("max_height", 64);
 
         // Now stream the file contents into $ret
         $response = $this->controller->getUserImageAction();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is the PostgreSQL implementation of a datamapper
  *
@@ -93,12 +94,21 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             default_activity_level, is_private, store_revisions,
             recur_rules, inherit_dacl_ref, parent_field, uname_settings,
             list_title, icon, system_definition_hash
-			from app_object_types where name='$objType'"
-        );
+			from app_object_types where name='$objType'");
+
+        // Check if there was an error
+        if (!$result) {
+            throw new \RuntimeException(
+                "Error in query when tryting to load $objType" .
+                    $dbh->getSchema() . " - " .
+                    $dbh->getLastError()
+            );
+        }
+
         if ($dbh->getNumRows($result)) {
             $row = $dbh->getRow($result, 0);
             $def->title = $row["title"];
-            $def->revision = (int) $row["revision"];
+            $def->revision = (int)$row["revision"];
             $def->system = ($row["f_system"] != 'f') ? true : false;
             $def->systemDefinitionHash = $row['system_definition_hash'];
             $def->setId($row["id"]);
@@ -333,12 +343,12 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             "is_private" => "'" . (($def->isPrivate) ? 't' : 'f') . "'",
             "store_revisions" => "'" . (($def->storeRevisions) ? 't' : 'f') . "'",
             "recur_rules" => ($def->recurRules) ? "'" . json_encode($def->recurRules) . "'" : "NULL",
-            "inherit_dacl_ref" => ($def->inheritDaclRef) ? "'" . $this->dbh->escape($def->inheritDaclRef) ."'" : 'NULL ',
-            "parent_field" => ($def->parentField) ? "'" . $this->dbh->escape($def->parentField) ."'" : 'NULL ',
-            "uname_settings" => ($def->unameSettings) ? "'" . $this->dbh->escape($def->unameSettings) ."'" : 'NULL ',
-            "list_title" => ($def->listTitle) ? "'" . $this->dbh->escape($def->listTitle) ."'" : 'NULL ',
-            "icon" => ($def->icon) ? "'" . $this->dbh->escape($def->icon) ."'" : 'NULL ',
-            "system_definition_hash" => ($def->systemDefinitionHash) ? "'" . $this->dbh->escape($def->systemDefinitionHash) ."'" : 'NULL ',
+            "inherit_dacl_ref" => ($def->inheritDaclRef) ? "'" . $this->dbh->escape($def->inheritDaclRef) . "'" : 'NULL ',
+            "parent_field" => ($def->parentField) ? "'" . $this->dbh->escape($def->parentField) . "'" : 'NULL ',
+            "uname_settings" => ($def->unameSettings) ? "'" . $this->dbh->escape($def->unameSettings) . "'" : 'NULL ',
+            "list_title" => ($def->listTitle) ? "'" . $this->dbh->escape($def->listTitle) . "'" : 'NULL ',
+            "icon" => ($def->icon) ? "'" . $this->dbh->escape($def->icon) . "'" : 'NULL ',
+            "system_definition_hash" => ($def->systemDefinitionHash) ? "'" . $this->dbh->escape($def->systemDefinitionHash) . "'" : 'NULL ',
         );
 
         if ($def->getId()) {
@@ -481,9 +491,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                             $tbl = $obj_rfield->subtype;
                         }
 
-                        $root = objFldHeiarchRoot($dbh, $obj_rfield->fkeyTable['key'],
+                        $root = objFldHeiarchRoot(
+                            $dbh,
+                            $obj_rfield->fkeyTable['key'],
                             $obj_rfield->fkeyTable['parent'],
-                            $tbl, $filter[$object_field]);
+                            $tbl,
+                            $filter[$object_field]
+                        );
                         if ($root && $root != $filter[$object_field]) {
                             $cnd .= " ($referenced_field='" . $filter[$object_field] . "' or $referenced_field='" . $root . "')";
                         } else {
@@ -581,7 +595,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
         // Make sure that default groupings exist (if any)
         if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
-            $ret = $this->verifyDefaultGroupings($field->name, $data, $nameValue);
+        $ret = $this->verifyDefaultGroupings($field->name, $data, $nameValue);
         else
             $ret = $data;
 

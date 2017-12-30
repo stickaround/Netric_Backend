@@ -1,4 +1,10 @@
 <?php
+namespace NetricTest\Mvc;
+
+use Netric;
+use PHPUnit\Framework\TestCase;
+use Netric\Request\HttpRequest;
+use Netric\Request\ConsoleRequest;
 
 /**
  * Test querying ElasticSearch server
@@ -8,13 +14,6 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
-namespace NetricTest\Mvc;
-
-use Netric;
-use PHPUnit\Framework\TestCase;
-use Netric\Request\HttpRequest;
-use Netric\Request\ConsoleRequest;
-
 class RouterTest extends TestCase
 {
     /**

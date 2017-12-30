@@ -1,4 +1,9 @@
 <?php
+namespace NetricTest\Controller;
+
+use Netric;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Test querying ElasticSearch server
  *
@@ -7,11 +12,6 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
-namespace NetricTest\Controller;
-
-use Netric;
-use PHPUnit\Framework\TestCase;
-
 class SetupControllerTest extends TestCase
 {
     /**

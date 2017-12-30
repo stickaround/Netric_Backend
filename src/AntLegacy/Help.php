@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class used to provide help services
  */
@@ -17,22 +18,19 @@ class Help
 	 * @param string $tourId The path and name of the file
 	 * @return string The html of the tour item
 	 */
-	public function getTourItem($tourId, $user=null)
+	public function getTourItem($tourId, $user = null)
 	{
 		if ($user)
 			$this->user = $user;
 
-		$root = dirname(__FILE__)."/../../dada/views/help/tours/";
+		$root = dirname(__FILE__) . "/../../data/views/help/tours/";
 
-		if (file_exists($root . $tourId . ".php"))
-		{
+		if (file_exists($root . $tourId . ".php")) {
 			ob_start();
 			include $root . $tourId . ".php";
 			$html = ob_get_clean();
 			//$html = file_get_contents($root . $tourId . ".php");
-		}
-		else
-		{
+		} else {
 			$html = "";
 		}
 
@@ -47,7 +45,7 @@ class Help
 	 */
 	public function tourItemExists($tourId)
 	{
-		$root = dirname(__FILE__)."/../../views/help/tours/";
+		$root = dirname(__FILE__) . "/../../data/views/help/tours/";
 
 		return file_exists($root . $tourId . ".php");
 	}

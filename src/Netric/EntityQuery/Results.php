@@ -1,21 +1,12 @@
 <?php
-/*
- * Results of entity query will be managed here
- * 
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2014 Aereus
- */
-
 namespace Netric\EntityQuery;
 
 use Netric\Stats\StatsPublisher;
 
 /**
- * Description of Results
- *
- * @author Sky Stebnicki
+ * Results of entity query will be managed here
  */
-class Results 
+class Results
 {
     /**
      * The query used to construct these results
@@ -23,21 +14,21 @@ class Results
      * @var \Netric\EntityQuery
      */
     private $query = null;
-    
+
     /**
      * DataMapper reference used for automatic pagination after initial load
      * 
      * @var Index\IndexInterface
      */
     private $index = null;
-    
+
     /**
      * Array of entities that are loaded in this collection
      * 
      * @param \Netric\Models\Entity
      */
     private $entities = array();
-    
+
     /**
      * The starting offset of the next page
      * 
@@ -46,7 +37,7 @@ class Results
      * @var int
      */
     private $nextPageOffset = -1;
-    
+
     /**
      * The starting offset of the previous page
      * 
@@ -55,33 +46,33 @@ class Results
      * @var int
      */
     private $prevPageOffset = -1;
-    
+
     /**
      * Total number of entities in the collection
      * 
      * @var int
      */
     private $totalNum = 0;
-    
+
     /**
      * Aggregation data
      * 
      * @var array("name"=>array(data))
      */
     private $aggregations = array();
-    
+
     /**
      * Class constructor
      * 
      * @param string $objType Unique name of the object type we are querying
      */
-    public function __construct(\Netric\EntityQuery $query, Index\IndexInterface &$index = null) 
+    public function __construct(\Netric\EntityQuery $query, Index\IndexInterface &$index = null)
     {
-        $this->query = $query;        
+        $this->query = $query;
         if ($index)
             $this->index = $index;
     }
-    
+
     /**
      * Get the object type for this collection
      * 
@@ -91,7 +82,7 @@ class Results
     {
         return $this->query->getObjType();
     }
-    
+
     /**
      *  Set local reference to datamapper for loading objects and auto pagination
      * 
@@ -101,7 +92,7 @@ class Results
     {
         $this->index = $index;
     }
-    
+
     /**
      * Get the offset of the next page for automatic pagination
      * 
@@ -111,7 +102,7 @@ class Results
     {
         return $this->nextPageOffset;
     }
-    
+
     /**
      * Get the offset of the previous page for automatic pagination
      * 
@@ -121,7 +112,7 @@ class Results
     {
         return $this->prevPageOffset;
     }
-    
+
     /**
      * Set the offset
      * 
@@ -131,7 +122,7 @@ class Results
     {
         $this->query->setOffset($offset);
     }
-    
+
     /**
      * Get current offset
      * 
@@ -141,7 +132,7 @@ class Results
     {
         return $this->query->getOffset();
     }
-    
+
     /**
      * Set the total number of entities for the defined query
      * 
@@ -153,7 +144,7 @@ class Results
     {
         $this->totalNum = $num;
     }
-    
+
     /**
      * Get the total number of entities in this collection
      * 
@@ -163,7 +154,7 @@ class Results
     {
         return $this->totalNum;
     }
-    
+
     /**
      * Get the number of entities in the current loaded page
      * 
@@ -173,7 +164,7 @@ class Results
     {
         return count($this->entities);
     }
-    
+
     /**
      * Add an entity to this collection
      * 
@@ -185,7 +176,7 @@ class Results
         StatsPublisher::increment("entity.cache.queryres");
         $this->entities[] = $entity;
     }
-    
+
     /**
      * Reset the entities array
      */
@@ -193,23 +184,24 @@ class Results
     {
         $this->entities = array();
     }
-    
+
     /**
      * Retrieve an entity from the collection
      * 
      * @param int $offset The offset of the entity to get in the collection
      * @return \Netric\Entity\EntityInterface
      */
-    public function getEntity($offset=0)
+    public function getEntity($offset = 0)
     {
-        if ($offset >= ($this->getOffset() + $this->query->getLimit()) || $offset < $this->getOffset())
-        {
+        if ($offset >= ($this->getOffset() + $this->query->getLimit()) ||
+            $offset < $this->getOffset()) {
+
             // Get total number of pages
-			$leftover = $this->totalNum % $this->query->getLimit();
-			if ($leftover)
-				$numpages = (($this->totalNum - $leftover) / $this->query->getLimit()) + 1;
-			else
-				$numpages = $this->totalNum / $this->query->getLimit();
+            $leftover = $this->totalNum % $this->query->getLimit();
+            if ($leftover)
+                $numpages = (($this->totalNum - $leftover) / $this->query->getLimit()) + 1;
+            else
+                $numpages = $this->totalNum / $this->query->getLimit();
 			
             // Get current page offset
             $page = floor($offset / $this->query->getLimit());
@@ -226,13 +218,21 @@ class Results
         
         // Adjust offset for pagination
         $offset = $offset - $this->getOffset();
-        
-        if ($offset >= count($this->entities))
-            return false; // TODO: can expand to get next page for progressive load
-        
+
+        // Make sure the user has not requested a bad offset
+        if ($offset >= count($this->entities)) {
+            throw new \RuntimeException(
+                "getEntity at index $offset is beyond the bounds of this page" .
+                    "totalNum:" . $this->totalNum . ', ' .
+                    "numLoadedEntities: " . count($this->entities) . ', ' .
+                    "resultsOffset:" . $this->getOffset() . ', ' .
+                    "queryLimit:" . $this->query->getLimit()
+            );
+        }
+
         return $this->entities[$offset];
     }
-      
+
     /**
      * Set aggregation data
      * 
@@ -243,7 +243,7 @@ class Results
     {
         $this->aggregations[$name] = $value;
     }
-    
+
     /**
      * Get aggregation data for this query by name
      * 
@@ -256,7 +256,7 @@ class Results
         else
             return false;
     }
-    
+
     /**
      * Get aggregations data for this query
      * 
@@ -266,7 +266,7 @@ class Results
     {
         return $this->aggregations;
     }
-    
+
     /**
      * Check if this query has any aggregations
      * 
@@ -274,6 +274,6 @@ class Results
      */
     public function hasAggregations()
     {
-        return (count($this->aggregations)>0) ? true : false;
+        return (count($this->aggregations) > 0) ? true : false;
     }
 }
