@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 11,
     'inherit_dacl_ref' => "project_id",
     'fields' => array(
         'name' => array(

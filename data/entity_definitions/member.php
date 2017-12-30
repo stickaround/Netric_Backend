@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 11,
     'parent_field' => 'parent_id',
     'fields' => array(
         'name' => array(

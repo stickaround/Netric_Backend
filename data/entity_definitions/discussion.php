@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 15,
     'default_activity_level' => 5,
     'fields' => array(
         'name' => array(

@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 11,
     'fields' => array(
         // Textual name or subject
         'name' => array(

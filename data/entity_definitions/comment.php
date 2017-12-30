@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 26,
     'fields' => array(
         'comment' => array(
             'title'=>'Comment',

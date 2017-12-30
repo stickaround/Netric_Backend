@@ -18,9 +18,7 @@ foreach ($types as $objDefData)
 {
     // First try loading to see if it already exists
     try {
-        $existing = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
-        // Make sure it has all the latest changes from the local data/entity_definitions/
-        $entityDefinitionDataMapper->updateSystemDefinition($existing);
+        $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
     } catch (\Exception $ex) {
         // If it fails, then we need to add it here
         $def = new EntityDefinition($objDefData['obj_type']);
@@ -30,4 +28,7 @@ foreach ($types as $objDefData)
             throw new \RuntimeException("Could not save " . $entityDefinitionDataMapper->getLastError());
         }
     }
+
+    // Make sure it has all the latest changes from the local data/entity_definitions/
+    $entityDefinitionDataMapper->updateSystemDefinition($def);
 }

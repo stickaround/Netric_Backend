@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 29,
     'is_private' => false,
     'default_activity_level' => 1,
     'store_revisions' => false,

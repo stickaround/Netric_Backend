@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 45,
     'inherit_dacl_ref' => 'project',
     'recur_rules' => array(
         "field_time_start"=>"",

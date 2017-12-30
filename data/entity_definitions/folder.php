@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 17,
     'store_revisions' => true,
     'parent_field' => 'parent_id',
     'icon' => 'folder',

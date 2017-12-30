@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 28,
     'uname_settings' => 'owner_id:name',
     'fields' => array(
         'name' => array(

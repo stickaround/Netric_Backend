@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 2,
     'fields' => array(
         'dashboard_id' => array(
             'title' => 'Dashboard',

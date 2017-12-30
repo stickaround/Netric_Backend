@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 22,
     'parent_field' => 'parent_id',
     'uname_settings' => 'feed_id:title',
     'fields' => array(

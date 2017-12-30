@@ -4,7 +4,6 @@ namespace data\entity_definitions;
 use Netric\Entity\ObjType\UserEntity;
 
 return array(
-    'revision' => 24,
     'parent_field' => "parent",
     'child_dacls' => array("case", "task", "project_milestone"),
     'fields' => array(

@@ -2,7 +2,6 @@
 namespace data\entity_definitions;
 
 return array(
-    'revision' => 2,
     'is_private' => false,
     'store_revisions' => false,
     'recur_rules' => array(
