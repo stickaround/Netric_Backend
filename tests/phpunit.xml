@@ -69,6 +69,32 @@
                 </array>
             </arguments>
         </listener>
+        <listener class="Netric\PHPUnit\XHProfTestListener">
+        <arguments>
+            <array>
+                <element key="xhprofWeb">
+                    <string>http://local.aereusdev.com:8888</string>
+                    </element>
+                <element key="xhprofRunsFolder">>
+                    <string>/var/www/html/data/profile_runs</string>
+                </element>
+                <element key="appNamespace">
+                    <string>netric-phpunit</string>
+                </element>
+                <element key="xhprofFlags">
+                    <string>XHPROF_FLAGS_CPU,XHPROF_FLAGS_MEMORY</string>
+                </element>
+                <element key="slowThreshold">
+                    <integer>2000</integer>
+                </element>
+                <!--
+                <element key="xhprofIgnore">
+                    <string>call_user_func,call_user_func_array</string>
+                </element>
+                -->
+            </array>
+        </arguments>
+    </listener>
     </listeners>
 
     <php>

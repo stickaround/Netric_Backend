@@ -26,13 +26,11 @@ class AssignActionTest extends AbstractActionTests
      */
     protected function tearDown()
     {
-        foreach ($this->testEntities as $entity)
-        {
+        foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }
 
-        foreach ($this->testWorkFlows as $workFlow)
-        {
+        foreach ($this->testWorkFlows as $workFlow) {
             $this->workFlowDataMapper->delete($workFlow);
         }
 
@@ -93,9 +91,8 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
 
         // Execute repeatedly and check the probability distribution
-        $hits = [$user1Id=>0, $user2Id=>0, $user3Id=>0];
-        for ($i = 0; $i < 100; $i++)
-        {
+        $hits = [$user1Id => 0, $user2Id => 0, $user3Id => 0];
+        for ($i = 0; $i < 100; $i++) {
             $action->execute($workFlowInstance);
             $hits[$task->getValue('user_id')]++;
         }
@@ -115,8 +112,7 @@ class AssignActionTest extends AbstractActionTests
         $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         $groupings = $groupingsLoader->get("user", "team_id");
         $group = $groupings->getByName("Test");
-        if ($group)
-        {
+        if ($group) {
             $groupings->delete($group->id);
             $groupingsLoader->save($groupings);
         }
@@ -170,9 +166,8 @@ class AssignActionTest extends AbstractActionTests
         );
 
         // Execute repeatedly and check the probability distribution
-        $hits = [$user1Id=>0, $user2Id=>0, $user3Id=>0];
-        for ($i = 0; $i < 50; $i++)
-        {
+        $hits = [$user1Id => 0, $user2Id => 0, $user3Id => 0];
+        for ($i = 0; $i < 50; $i++) {
             $action->execute($workFlowInstance);
             $hits[$task->getValue('user_id')]++;
         }
@@ -196,8 +191,7 @@ class AssignActionTest extends AbstractActionTests
         $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         $groupings = $groupingsLoader->get("user", "groups");
         $group = $groupings->getByName("Test");
-        if ($group)
-        {
+        if ($group) {
             $groupings->delete($group->id);
             $groupingsLoader->save($groupings);
         }
@@ -248,9 +242,8 @@ class AssignActionTest extends AbstractActionTests
         $this->assertTrue(in_array($task->getValue("user_id"), $usersArray));
 
         // Execute repeatedly and check the probability distribution
-        $hits = [$user1Id=>0, $user2Id=>0, $user3Id=>0];
-        for ($i = 0; $i < 50; $i++)
-        {
+        $hits = [$user1Id => 0, $user2Id => 0, $user3Id => 0];
+        for ($i = 0; $i < 50; $i++) {
             $action->execute($workFlowInstance);
             $hits[$task->getValue('user_id')]++;
         }

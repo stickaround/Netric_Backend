@@ -1,7 +1,4 @@
 <?php
-/**
- * Base tests for all actions
- */
 namespace NetricTest\WorkFlow\Action;
 
 use PHPUnit\Framework\TestCase;
@@ -11,6 +8,9 @@ use Netric\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 
+/**
+ * Base tests for all actions
+ */
 abstract class AbstractActionTests extends TestCase
 {
     /**
@@ -61,7 +61,7 @@ abstract class AbstractActionTests extends TestCase
 
         // Create a test user
         $this->testUser = $this->entityLoader->create("user");
-        $this->testUser->setValue("name", "test-" . rand());
+        $this->testUser->setValue("name", "wftest-" . rand());
         $this->testUser->setValue("email", "test@test.com");
         $this->entityLoader->save(($this->testUser));
         $this->account->setCurrentUser($this->testUser);
@@ -116,25 +116,18 @@ abstract class AbstractActionTests extends TestCase
         // Now get the array back and make sure it matches the original
         $retrievedData = $action->toArray();
 
-        foreach ($actionData as $key=>$value)
-        {
-            if (is_array($value))
-            {
+        foreach ($actionData as $key => $value) {
+            if (is_array($value)) {
                 // Test expected nested array values
-                foreach ($value as $subValueKey=>$subValue)
-                {
-                    foreach ($subValue as $entryKey=>$entryValue)
-                    {
-                        if (is_array($entryValue))
-                        {
+                foreach ($value as $subValueKey => $subValue) {
+                    foreach ($subValue as $entryKey => $entryValue) {
+                        if (is_array($entryValue)) {
                             // We can only go so deep, just check to make sure there same number of elements
                             $this->assertEquals(
                                 count($entryValue),
                                 count($retrievedData[$key][$subValueKey][$entryKey])
                             );
-                        }
-                        else
-                        {
+                        } else {
                             $this->assertEquals(
                                 $entryValue,
                                 $retrievedData[$key][$subValueKey][$entryKey]
@@ -142,9 +135,7 @@ abstract class AbstractActionTests extends TestCase
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 $this->assertEquals($value, $retrievedData[$key]);
             }
         }
