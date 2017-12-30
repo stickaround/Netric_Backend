@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test querying ElasticSearch server
  *
@@ -13,7 +14,7 @@ use Netric;
 use PHPUnit\Framework\TestCase;
 
 class TestControllerTest extends TestCase
-{   
+{
     /**
      * Test automatic pagination
      */

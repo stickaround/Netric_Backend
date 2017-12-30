@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test querying ElasticSearch server
  *
@@ -11,9 +12,11 @@ namespace NetricTest\Mvc;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\Request\HttpRequest;
+use Netric\Request\ConsoleRequest;
 
 class RouterTest extends TestCase
-{   
+{
     /**
      * Test automatic pagination
      */
@@ -28,7 +31,7 @@ class RouterTest extends TestCase
         $svr = new Netric\Mvc\Router($account->getApplication());
         $svr->testMode = true;
         $ret = $svr->run($request);
-		$this->assertEquals($ret, "test");
+        $this->assertEquals($ret, "test");
     }
 
     public function testAccessControl()
@@ -41,7 +44,7 @@ class RouterTest extends TestCase
         $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
-        $request = $account->getServiceManager()->get("Netric/Request/Request");
+        $request = new HttpRequest();
         $request->setParam("controller", "test");
         $request->setParam("function", "test");
 
@@ -50,6 +53,33 @@ class RouterTest extends TestCase
         $ret = $svr->run($request);
         // Request should fail because test requires an authenticated user
         $this->assertEquals($ret, false);
+
+        // Restore original
+        $account->setCurrentUser($origCurrentUser);
+    }
+
+    /**
+     * The console request should be allowed to call anything
+     */
+    public function testAccessControl_Console()
+    {
+        $account = \NetricTest\Bootstrap::getAccount();
+
+        // Setup anonymous user which should be blocked
+        $origCurrentUser = $account->getUser();
+        $loader = $account->getServiceManager()->get("EntityLoader");
+        $user = $loader->get("user", \Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
+        $account->setCurrentUser($user);
+
+        $request = new ConsoleRequest();
+        $request->setParam("controller", "test");
+        $request->setParam("function", "test");
+
+        $svr = new Netric\Mvc\Router($account->getApplication());
+        $svr->testMode = true;
+        $ret = $svr->run($request);
+        // Request should fail succeed even though we do not have an authenticated user
+        $this->assertEquals($ret, 'test');
 
         // Restore original
         $account->setCurrentUser($origCurrentUser);
