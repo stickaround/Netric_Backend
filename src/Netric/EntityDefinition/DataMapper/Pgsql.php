@@ -85,23 +85,55 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $dbh = $this->dbh;
         $def = new EntityDefinition($objType);
 
-
         // Get basic object definition
         // ------------------------------------------------------
         $result = $dbh->query("select 
-			id, object_table, revision, title, object_table, f_system, system_definition_hash, dacl, capped
+			id, object_table, revision, title, object_table, 
+			f_system, system_definition_hash, dacl, capped,
+            default_activity_level, is_private, store_revisions,
+            recur_rules, inherit_dacl_ref, parent_field, uname_settings,
+            list_title, icon, system_definition_hash
 			from app_object_types where name='$objType'"
         );
         if ($dbh->getNumRows($result)) {
             $row = $dbh->getRow($result, 0);
             $def->title = $row["title"];
-            $def->revision = $row["revision"];
+            $def->revision = (int) $row["revision"];
             $def->system = ($row["f_system"] != 'f') ? true : false;
             $def->systemDefinitionHash = $row['system_definition_hash'];
             $def->setId($row["id"]);
             $def->capped = ($row['capped']) ? $row['capped'] : false;
+
             if ($row['object_table'])
                 $def->setCustomTable($row['object_table']);
+
+            if ($row["default_activity_level"])
+                $def->defaultActivityLevel = $row["default_activity_level"];
+
+            if (isset($row["is_private"]))
+                $def->isPrivate = ($row["is_private"] == 't') ? true : false;
+
+            if (isset($row["store_revisions"]))
+                $def->storeRevisions = ($row["store_revisions"] == 't') ? true : false;
+
+            if (isset($row["inherit_dacl_ref"]))
+                $def->inheritDaclRef = $row["inherit_dacl_ref"];
+
+            if (isset($row["parent_field"]))
+                $def->parentField = $row["parent_field"];
+
+            if (isset($row["uname_settings"]))
+                $def->unameSettings = $row["uname_settings"];
+
+            if ($row["list_title"])
+                $def->listTitle = $row["list_title"];
+
+            if ($row["icon"])
+                $def->icon = $row["icon"];
+
+            if ($row['recur_rules']) {
+                $def->recurRules = json_decode($row['recur_rules'], true);
+            }
 
             // Check if this definition has an access control list
             if ($row['dacl']) {
@@ -291,14 +323,22 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $data = array(
             "name" => "'" . $def->getObjType() . "'",
             "title" => "'" . $def->title . "'",
-            //"revision" => $def->revision + 1, // Increment revision in $def after updates are complete for initializing schema
-            // No longer incrementing because this was causing update problems with unit tests and every time a user added a field
             "revision" => $def->revision, // Increment revision in $def after updates are complete for initializing schema
             "object_table" => (($def->isCustomTable()) ? "'" . $def->getTable() . "'" : "NULL"),
             "f_system" => "'" . (($def->system) ? 't' : 'f') . "'",
             "application_id" => ($def->applicationId) ? "'" . $def->applicationId . "'" : 'NULL',
             "capped" => ($def->capped) ? "'" . $def->capped . "'" : 'NULL',
             "dacl" => ($def->getDacl()) ? "'" . json_encode(($def->getDacl()->toArray())) . "'" : "NULL",
+            "default_activity_level" => ($def->defaultActivityLevel) ? "'" . $def->defaultActivityLevel . "'" : 'NULL',
+            "is_private" => "'" . (($def->isPrivate) ? 't' : 'f') . "'",
+            "store_revisions" => "'" . (($def->storeRevisions) ? 't' : 'f') . "'",
+            "recur_rules" => ($def->recurRules) ? "'" . json_encode($def->recurRules) . "'" : "NULL",
+            "inherit_dacl_ref" => ($def->inheritDaclRef) ? "'" . $this->dbh->escape($def->inheritDaclRef) ."'" : 'NULL ',
+            "parent_field" => ($def->parentField) ? "'" . $this->dbh->escape($def->parentField) ."'" : 'NULL ',
+            "uname_settings" => ($def->unameSettings) ? "'" . $this->dbh->escape($def->unameSettings) ."'" : 'NULL ',
+            "list_title" => ($def->listTitle) ? "'" . $this->dbh->escape($def->listTitle) ."'" : 'NULL ',
+            "icon" => ($def->icon) ? "'" . $this->dbh->escape($def->icon) ."'" : 'NULL ',
+            "system_definition_hash" => ($def->systemDefinitionHash) ? "'" . $this->dbh->escape($def->systemDefinitionHash) ."'" : 'NULL ',
         );
 
         if ($def->getId()) {
@@ -335,7 +375,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         if ($ret && !$def->getId()) {
             $def->setId($this->dbh->getValue($ret, 0, "id"));
         } else if (!$ret) {
-            throw new \RuntimeException("Error saving definition: " . $this->dbh->getLastError());
+            throw new \RuntimeException("Error saving definition with query - $query Error:" . $this->dbh->getLastError());
         }
 
         // Check to see if this dynamic object has yet to be initilized

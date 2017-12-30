@@ -34,6 +34,7 @@ namespace Netric\Mvc;
 
 use Netric\Application\Response\ResponseInterface;
 use Netric\Request\RequestInterface;
+use Netric\Request\ConsoleRequest;
 use Netric\Application\Application;
 
 /**
@@ -154,7 +155,7 @@ class Router
 				$this->controllerClass->output = $params['output'];
 
 			// Check permissions to make sure the current user has access to the controller
-			$hasPermission = $this->currentUserHasPermission();
+			$hasPermission = $this->currentUserHasPermission($request);
 
 			// Call class method and pass request params
 			if ($hasPermission) {
@@ -232,15 +233,16 @@ class Router
 	/**
 	 * Check permissions to verify that the current user has access to this resource
 	 *
+     * @param RequestInterface $request The request being made to run
 	 * @return bool true if current user can call the controller, otherwise false
 	 */
-	private function currentUserHasPermission()
+	private function currentUserHasPermission(RequestInterface $request)
 	{
 		// Get the DACL for the selected controller
 		$dacl = $this->controllerClass->getAccessControlList();
 
-		// Check to see if there is an account and identity associated with this request
-		if (!$this->application->getAccount()) {
+		// If running from the console then allow the request
+		if ($request instanceof ConsoleRequest) {
 			// No account which means this is probably a console request
 			return true;
 		}

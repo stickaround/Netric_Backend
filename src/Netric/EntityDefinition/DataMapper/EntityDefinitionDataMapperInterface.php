@@ -15,7 +15,7 @@ interface EntityDefinitionDataMapperInterface
      *
      * @var string $objType The name of the object type
      * @var string $id The Id of the object
-     * @return DomainEntity
+     * @return EntityDefinition
      */
     public function fetchByName($objType);
 
@@ -39,7 +39,7 @@ interface EntityDefinitionDataMapperInterface
      * Associate an object with an application
      *
      * @param EntityDefinition $def The definition to associate with an application
-     * @param string $applicationId The unique id of the application we are associating with
+     * @param string $applicatoinId The unique id of the application we are associating with
      * @return bool true on success, false on failure
      */
     public function associateWithApp(EntityDefinition $def, $applicatoinId);
@@ -51,7 +51,7 @@ interface EntityDefinitionDataMapperInterface
      * dynamic indexes from usage stats.
      *
      * @param EntityDefinition $def The EntityDefinition we are saving
-     * @param Field The Field to verity we have a column for
+     * @param Field $field The Field to verity we have a column for
      */
     public function createFieldIndex(EntityDefinition $def, Field $field);
 
@@ -77,4 +77,22 @@ interface EntityDefinitionDataMapperInterface
      * @return array Collection of objects
      */
     public function getAllObjectTypes();
+
+    /**
+     * Get the latest hash for a system definition from the file system
+     *
+     * This is often used for cache breaking in loaders
+     *
+     * @param string $objType
+     * @return string
+     */
+    public function getLatestSystemDefinitionHash(string $objType);
+
+    /**
+     * Update a definition from the local system in data/entity_definitions
+     *
+     * @param EntityDefinition $def
+     * @throws \InvalidArgumentException If a non-system definition is passed in
+     */
+    public function updateSystemDefinition(EntityDefinition $def);
 }

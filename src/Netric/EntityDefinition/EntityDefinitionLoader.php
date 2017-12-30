@@ -85,6 +85,7 @@ class EntityDefinitionLoader
         if (!$def)
             return null;
 
+        /*
         // Check if this is a system object and if it is
         $sysData = $this->getSysDef($objType);
 
@@ -126,6 +127,7 @@ class EntityDefinitionLoader
                     $def->icon = $sysData["icon"];
             }
         }
+        */
 
         // Load system views
         $this->setSysViews($def);
@@ -140,7 +142,7 @@ class EntityDefinitionLoader
 
         // Cache the loaded definition for future requests
         $this->loadedDefinitions[$objType] = $def;
-        $this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
+        $this->cache->set($this->getUniqueKeyForObjType($objType), $def->toArray());
 
         return $def;
     }
@@ -166,6 +168,21 @@ class EntityDefinitionLoader
         }
     }
 
+    /**
+     * Generate a unique key for an object type for key/value caching
+     *
+     * @param string $objType
+     * @return string
+     */
+    private function getUniqueKeyForObjType($objType)
+    {
+        $hash = $this->dataMapper->getLatestSystemDefinitionHash($objType);
+        if (!$hash) {
+            $hash = 'custom';
+        }
+        return $this->dataMapper->getAccount()->getId() . "/entitydefinition/" . $hash . "-" . $objType;
+    }
+
 
     /**
      * Check to see if the entity has already been loaded
@@ -189,7 +206,7 @@ class EntityDefinitionLoader
     private function getCached($objType)
     {
         // Load the cache DataMapper and put it into $this->loadedEntities
-        $ret = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/" . $objType);
+        $ret = $this->cache->get($this->getUniqueKeyForObjType($objType));
 
         if ($ret) {
             $def = new EntityDefinition($objType);
@@ -327,7 +344,7 @@ class EntityDefinitionLoader
     public function clearCache($objType)
     {
         $this->loadedDefinitions[$objType] = null;
-        $ret = $this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/" . $objType);
+        $this->cache->remove($this->getUniqueKeyForObjType($objType));
 
         // Remove cached all Object Types
         $this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/allObjectTypes");

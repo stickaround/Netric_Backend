@@ -104,6 +104,103 @@ abstract class DmTestsAbstract extends TestCase
 	}
 
     /**
+     * Make sure we can save definitions
+     */
+    public function testSave()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        $def = new EntityDefinition("utest_save");
+        $def->setTitle("Unit Test Save");
+        $def->setSystem(false);
+        $dacl = new Dacl();
+        $def->setDacl($dacl);
+
+        // Test inserting with dacl
+        $dataMapper->save($def);
+        $this->testDefinitions[] = $def;
+
+        // Reload
+        $reloadedDef = $dataMapper->fetchByName("utest_save");
+
+        // Were we given an ID?
+        $this->assertNotNull($reloadedDef->id);
+
+        // Make sure we got a default field
+        $this->assertNotNull($reloadedDef->getField("ts_entered"));
+    }
+
+    /**
+     * Make sure we can delete a definition
+     */
+    public function testDelete()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        $def = new EntityDefinition("utest_delete");
+        $def->setTitle("Unit Test Delete");
+        $def->setSystem(false);
+        $dacl = new Dacl();
+        $def->setDacl($dacl);
+
+        // Test inserting with dacl
+        $dataMapper->save($def);
+
+        // Delete
+        $dataMapper->delete($def);
+
+        // Expect an exception if we try to load this again
+        $this->expectException(\RuntimeException::class);
+
+        // Try to reload
+        $dataMapper->fetchByName("utest_delete");
+    }
+
+    /**
+     * Make sure we can delete a definition by name
+     */
+    public function testDeleteByName()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        $def = new EntityDefinition("utest_delete_by_name");
+        $def->setTitle("Unit Test Delete");
+        $def->setSystem(false);
+        $dacl = new Dacl();
+        $def->setDacl($dacl);
+
+        // Test inserting with dacl
+        $dataMapper->save($def);
+
+        // Delete
+        $dataMapper->deleteByName('utest_delete_by_name');
+
+        // Expect an exception if we try to load this again
+        $this->expectException(\RuntimeException::class);
+
+        // Try to reload
+        $dataMapper->fetchByName("utest_delete_by_name");
+    }
+
+    /**
+     * Make sure the constructed DataMapper can get an account
+     */
+    public function testGetAccount()
+    {
+        $dataMapper = $this->getDataMapper();
+        $this->assertNotNull($dataMapper->getAccount());
+    }
+
+    /**
+     * Make sure the DataMapper can get all object types
+     */
+    public function testGetAllObjectTypes()
+    {
+        $dataMapper = $this->getDataMapper();
+        $this->assertGreaterThan(0, count($dataMapper->getAllObjectTypes()));
+    }
+
+    /**
      * Test saving a discretionary access control list (DACL)
      */
 	public function testSaveDef_Dacl()
@@ -165,4 +262,40 @@ abstract class DmTestsAbstract extends TestCase
         $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
         $this->assertNull($reloadedDef->getDacl());
 	}
+
+	/**
+     * Test getting the latest hash for a system definition
+     */
+	public function testGetLatestSystemDefinitionHash()
+    {
+        $this->assertNotNull($this->getDataMapper()->getLatestSystemDefinitionHash('task'));
+    }
+
+    /**
+     * Make sure non-system definitions do not return a hash
+     */
+    public function testGetLatestSystemDefinitionHash_Custom()
+    {
+        $this->assertEmpty($this->getDataMapper()->getLatestSystemDefinitionHash('custom_def'));
+    }
+
+    /**
+     * Test forcing a system definition to update from system source code
+     */
+    public function testUpdateSystemDefinition()
+    {
+        $dataMapper = $this->getDataMapper();
+
+        $taskDefinition = $dataMapper->fetchByName('task');
+        $previousRevision = (int)$taskDefinition->revision;
+
+        // Clear out the system hash which will force it to update and increment the revision
+        $taskDefinition->systemDefinitionHash = "";
+        $dataMapper->updateSystemDefinition($taskDefinition);
+
+        // Make sure we were updated
+        $reloadedTaskDefinition = $dataMapper->fetchByName('task');
+        $this->assertNotEmpty($reloadedTaskDefinition->systemDefinitionHash);
+        $this->assertGreaterThan($previousRevision, $reloadedTaskDefinition->revision);
+    }
 }

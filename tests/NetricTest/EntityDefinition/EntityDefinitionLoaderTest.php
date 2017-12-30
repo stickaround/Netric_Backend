@@ -54,35 +54,6 @@ class EntityDefinitionLoaderTest extends TestCase
     }
 
     /**
-     * Make sure that if the system definition was changed
-     */
-    public function testGetReloadNewFromSystem()
-    {
-        $taskDefinition = new EntityDefinition('task');
-        $taskDefinition->id = 123;
-
-        // Configure a mock cache
-        $cache = $this->getMockBuilder(CacheInterface::class)->getMock();
-        $cache->method('get')->willReturn(null);
-
-        // Configure a mock DataMapper
-        $dm = $this->getMockBuilder(EntityDefinitionDataMapperInterface::class)->getMock();
-        $dm->method('fetchByName')->willReturn($taskDefinition);
-        $dm->method('save')->willReturn(true);
-        $dm->method('getAccount')->willReturn($this->account);
-
-        // Save should only be called once even if we call get twice
-        $dm->expects($this->once())->method('save');
-
-        // Load the object through the loader which should cache it
-        $loader = new EntityDefinitionLoader($dm, $cache);
-        $loader->get("task");
-
-        // The second call should not call save again since the hash should have been updated
-        $loader->get("task");
-    }
-
-    /**
      * Test if object is being loaded from cache
      */
     public function testGetCached()

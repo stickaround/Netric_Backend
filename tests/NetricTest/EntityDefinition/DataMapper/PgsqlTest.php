@@ -12,6 +12,9 @@ namespace NetricTest\EntityDefinition\DataMapper;
 use Netric;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class PgsqlTest extends DmTestsAbstract
 {
     /**
