@@ -85,50 +85,6 @@ class EntityDefinitionLoader
         if (!$def)
             return null;
 
-        /*
-        // Check if this is a system object and if it is
-        $sysData = $this->getSysDef($objType);
-
-        if ($sysData) {
-            // Check to see if the sysData has changed since the last time we loaded it
-            $systemDefinitionHash = md5(json_encode($sysData));
-            if ($systemDefinitionHash != $def->systemDefinitionHash) {
-
-                // System definition has been updated, save to datamapper
-                $def->fromArray($sysData);
-                $this->dataMapper->save($def);
-            } else {
-                // Set custom code level variables not in the dataMapper
-                if (isset($sysData["default_activity_level"]))
-                    $def->defaultActivityLevel = $sysData["default_activity_level"];
-
-                if (isset($sysData["is_private"]))
-                    $def->isPrivate = $sysData["is_private"];
-
-                if (isset($sysData["store_revisions"]))
-                    $def->storeRevisions = $sysData["store_revisions"];
-
-                if (isset($sysData["recur_rules"]))
-                    $def->recurRules = $sysData["recur_rules"];
-
-                if (isset($sysData["inherit_dacl_ref"]))
-                    $def->inheritDaclRef = $sysData["inherit_dacl_ref"];
-
-                if (isset($sysData["parent_field"]))
-                    $def->parentField = $sysData["parent_field"];
-
-                if (isset($sysData["uname_settings"]))
-                    $def->unameSettings = $sysData["uname_settings"];
-
-                if (isset($sysData["list_title"]))
-                    $def->listTitle = $sysData["list_title"];
-
-                if (isset($sysData["icon"]))
-                    $def->icon = $sysData["icon"];
-            }
-        }
-        */
-
         // Load system views
         $this->setSysViews($def);
 
@@ -180,7 +136,7 @@ class EntityDefinitionLoader
         if (!$hash) {
             $hash = 'custom';
         }
-        return $this->dataMapper->getAccount()->getId() . "/entitydefinition/" . $hash . "-" . $objType;
+        return $this->dataMapper->getAccount()->getId() . '/entitydefinition/' . $hash . "-" . $objType;
     }
 
 
