@@ -6,24 +6,25 @@ FROM php:7.1-apache
 
 # install required php extensions
 RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng12-dev \
-		libz-dev \
-		libmemcached-dev \
-		libpq-dev \
-		libgearman-dev \
-		libxml2-dev \
-		libneon27-dev \
-		unzip \
-		git \
-		curl \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng12-dev \
+    libz-dev \
+    libmemcached-dev \
+    libpq-dev \
+    libgearman-dev \
+    libxml2-dev \
+    libneon27-dev \
+    unzip \
+    git \
+    curl \
     && docker-php-ext-install -j$(nproc) iconv mcrypt pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pdo_mysql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
-	&& pecl install memcached \
-	&& docker-php-ext-enable memcached \
+    && pecl install memcached \
+    && docker-php-ext-enable memcached \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     && docker-php-ext-install pcntl \
@@ -64,11 +65,11 @@ RUN cd /tmp \
 
 # install PHP PEAR extensions
 RUN pear install mail \
-	&& pear install Auth_SASL \
-	&& pear install HTTP_Request2 \
-	&& pear install File_IMC-0.5.0 \
-	&& pear install mail_mime \
-	&& pear install Net_SMTP
+    && pear install Auth_SASL \
+    && pear install HTTP_Request2 \
+    && pear install File_IMC-0.5.0 \
+    && pear install mail_mime \
+    && pear install Net_SMTP
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer \

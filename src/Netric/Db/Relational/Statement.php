@@ -11,25 +11,25 @@ class Statement
      *
      * @var \PDOStatement
      */
-    private $oPDOStatement = null;
+    private $pdoStatement = null;
 
     /**
-     * Prepared query params
+     * Associative array of param variables for the query
      *
      * @var string[]
      */
-    private $aParams = [];
+    private $params = [];
 
     /**
      * Instantiate the Statement
      *
-     * @param \PDOStatement $oStatement
-     * @param array $aParams - the array of key/value pairs
+     * @param \PDOStatement $pdoStatement
+     * @param array $params Array of name/value pairs for the query
      */
-    public function __construct(\PDOStatement $oStatement, array $aParams = [])
+    public function __construct(\PDOStatement $pdoStatement, array $params = [])
     {
-        $this->oPDOStatement = $oStatement;
-        $this->aParams = $aParams;
+        $this->pdoStatement = $pdoStatement;
+        $this->params = $params;
     }
 
     /**
@@ -39,58 +39,50 @@ class Statement
      */
     public function execute()
     {
-        // Binding the parameters will cause the values inside the parameter list to be
-        // cast appropriately.
+        // Binding the parameters will cause the values inside the parameter list 
+        // to be cast correctly for their type.
         $this->bindAllParameters();
 
-        if ($this->oPDOStatement->execute()) {
-            return new Result($this->oPDOStatement);
+        if ($this->pdoStatement->execute()) {
+            return new Result($this->pdoStatement);
         } else {
             return null;
         }
     }
 
     /**
-     * Binds the parameters to ensure that they are cast appropriately
+     * Binds the parameters to ensure that they are cast correctly for their type.
      */
     private function bindAllParameters()
     {
-        $bIncrementByOne = false;
-        // If this is a simple array of parameters, like: [ 'value1', 'value2' ], then in order
-        // to bind correctly based on the '?' placeholder, we need to increment the index so assignment
-        // is not invalid.
-        if (array_key_exists(0, $this->aParams)) {
-            $bIncrementByOne = true;
-        }
-        // In order to facilitate appropriate type cast checks, we need to bind values 
-        // to their appropriate type, otherwise PDO will enclose the values in single quotes;
-        // this will break things in SQLite and possibly other RDBs.
-        foreach ($this->aParams as $mField => $mValue) {
-            // Parameter placeholder values start at 1, so we need to increment the parameter key by one
-            if ($bIncrementByOne === true) {
-                $mField += 1;
-            }
-            switch (gettype($mValue)) {
+        /*
+         * Bind the values to specific types so that the PDO driver knows how to
+         * escame them. Otherwise everything will be wrapped into single quites
+         * which will break most RDBs. 
+         */
+        foreach ($this->params as $paramName => $paramValue) {
+            // POD requires the param names to be ':paramname' with the ':' prefix
+            $bindParamName = ':' . $paramName;
+            switch (gettype($paramValue)) {
                 case "integer":
-                    $this->oPDOStatement->bindValue($mField, $mValue, \PDO::PARAM_INT);
+                    $this->pdoStatement->bindValue($bindParamName, $paramValue, \PDO::PARAM_INT);
                     break;
                 case "string":
                 case "double":
-                    // There is no PDO::PARAM constant for DOUBLE, so it needs
-                    // to cast it as a string
-                    $this->oPDOStatement->bindValue($mField, $mValue, \PDO::PARAM_STR);
+                    // There is no PDO::PARAM constant for DOUBLE, just use string
+                    $this->pdoStatement->bindValue($bindParamName, $paramValue, \PDO::PARAM_STR);
                     break;
                 case "boolean":
-                    $this->oPDOStatement->bindValue($mField, $mValue, \PDO::PARAM_BOOL);
+                    $this->pdoStatement->bindValue($bindParamName, $paramValue, \PDO::PARAM_BOOL);
                     break;
                 case "NULL":
-                    $this->oPDOStatement->bindValue($mField, $mValue, \PDO::PARAM_NULL);
+                    $this->pdoStatement->bindValue($bindParamName, $paramValue, \PDO::PARAM_NULL);
                     break;
                 case "resource":
                 case "object":
-                    throw new RuntimeException("Unable to validate $mField as queryable parameter.");
+                    throw new RuntimeException("Unable to validate $paramName as queryable parameter.");
                 default:
-                    $this->oPDOStatement->bindValue($mField, $mValue);
+                    $this->pdoStatement->bindValue($bindParamName, $paramValue);
             }
         }
     }

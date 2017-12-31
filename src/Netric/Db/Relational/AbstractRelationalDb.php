@@ -1,36 +1,23 @@
 <?php
 namespace Netric\Db\Relational;
 
+use Netric\Db\Relational\Exception\DatabaseException;
+use Netric\Db\Relational\Exception\DatabaseQueryException;
+
 /**
  * Base database class that wraps a PDO connection to the database
  */
-class AbstractRelationalDb
+abstract class AbstractRelationalDb
 {
-    /**
-     * Supported drivers
-     */
-    const DRIVER_MYSQL = "mysql";
-    const DRIVER_SQLITE = "sqlite";
-
-    /**
-     * Define which driver we should use if not provided in the config
-     */
-    const DEFAULT_DRIVER = self::DRIVER_MYSQL;
-
     /**
      * Default connection timeout, in seconds
      */
     const CONNECT_TIMEOUT = 2;
 
     /**
-     * Duration after which a query is considered a slow query and may be logged
-     */
-    const SLOW_QUERY_THRESHOLD = 500;
-
-    /**
      * Number of times to attempt a connection
      */
-    const MAX_ATTEMPTS = 2;
+    const MAX_CONNECT_ATTEMPTS = 2;
 
     /**
      * @var \PDO $oConnection PDO Connection
@@ -38,218 +25,261 @@ class AbstractRelationalDb
     private $oConnection = null;
 
     /**
-     * @var string $sDataSourceName Compiled data source string
+     * @var string $databaseUser
      */
-    private $sDataSourceName;
+    private $databaseUser;
 
     /**
-     * @var string $sUser
+     * @var string $databasePassword
      */
-    private $sUser;
+    private $databasePassword;
 
     /**
-     * @var string $sPassword
+     * @var integer $timeoutInSeconds Connection timeout in seconds
      */
-    private $sPassword;
+    private $timeoutInSeconds;
 
     /**
-     * @var integer $iTimeout Connection timeout in seconds
+     * @var string $databaseName Used to build our timing key
      */
-    private $iTimeout;
+    private $databaseName;
 
     /**
-     * @var string $sRDbName Used to build our timing key
+     * Host or file where databases are found
+     *
+     * @var string
      */
-    private $sRDbName;
+    private $hostOrFileName;
 
     /**
-     * @var boolean $bLogTiming Indicates if we should log query times or not
+     * @var array $connectionAttributes the PDO connection attributes to use with the connection
      */
-    private $bLogTiming;
-
-    /**
-     * @var array $aConnectionAttributes the PDO connection attributes to use with the connection
-     */
-    private $aConnectionAttributes;
+    private $connectionAttributes;
 
     /**
      * Validate and store the RDb parameters
      *
-     * @param string $sDriver Supported drivers as defined by self::DRIVER_*
-     * @param string $sHostOrFile Either a hostname or file path based on driver
-     * @param string $sRDbName
-     * @param string $sUser
-     * @param string $sPassword
-     * @param integer $iTimeout (in seconds, optional, defaults to 2)
-     * @param boolean $bLogTiming Indicates if we should log query times
-     * @param array $aConnectionAttributes the PDO attributes to use with the connection
+     * @param string $hostOrFileName Either a hostname or file path based on driver
+     * @param string $databaseName
+     * @param string $databaseUser
+     * @param string $databasePassword
+     * @param integer $timeoutInSeconds
      */
     public function __construct(
-        $sDriver,
-        $sHostOrFile,
-        $sRDbName = "",
-        $sUser = "",
-        $sPassword = "",
-        $iTimeout = self::CONNECT_TIMEOUT,
-        $bLogTiming = true,
-        array $aConnectionAttributes = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
-        ]
+        $hostOrFileName,
+        $databaseName = "",
+        $databaseUser = "",
+        $databasePassword = "",
+        $timeoutInSeconds = self::CONNECT_TIMEOUT
     ) {
-        if ($sDriver === self::DRIVER_MYSQL) {
-            $sDataSourceName = $sDriver . ":dbname=" . $sRDbName . ";host=" . $sHostOrFile;
-        } elseif ($sDriver === self::DRIVER_SQLITE) {
-            $sDataSourceName = $sDriver . ":" . $sHostOrFile;
-        } else {
-            throw new \RuntimeException($sDriver . " is not a supported RDb driver!");
-        }
-        $this->sDataSourceName = $sDataSourceName;
-        $this->sUser = $sUser;
-        $this->sPassword = $sPassword;
-        $this->iTimeout = $iTimeout;
-        $this->bLogTiming = $bLogTiming;
-        $this->sRDbName = $sRDbName;
+        $this->hostOrFileName = $hostOrFileName;
+        $this->databaseUser = $databaseUser;
+        $this->databasePassword = $databasePassword;
+        $this->timeoutInSeconds = $timeoutInSeconds;
+        $this->databaseName = $databaseName;
 
-        // Build the connection attributes ensuring we include our configured timeout
-        // NB: Using array_merge is very bad here because it works differently with numeric indices
-        $this->aConnectionAttributes = $aConnectionAttributes;
+        // Set all errors to be exceptions
+        $this->connectionAttributes = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 
         // If we haven't set an explicit timeout in the connection attributes, use the timeout provided in the constructor
-        if (!isset($this->aConnectionAttributes[\PDO::ATTR_TIMEOUT])) {
-            $this->aConnectionAttributes[\PDO::ATTR_TIMEOUT] = $iTimeout;
+        if (!isset($this->connectionAttributes[\PDO::ATTR_TIMEOUT])) {
+            $this->connectionAttributes[\PDO::ATTR_TIMEOUT] = $timeoutInSeconds;
         }
     }
 
     /**
-     * @param string $sDataSourceName the data source name
-     * @param string $sUser the database user to connect with
-     * @param string $sPassword the password for the database user
-     * @param array $aPDOConfiguration any specific PDO configuration options to use
-     * @return \PDO the PDO connection
+     * Required function for all derived classes to rovide their PDO connections string
+     *
+     * @return string
      */
-    protected function createPDO($sDataSourceName, $sUser, $sPassword, array $aPDOConfiguration)
+    abstract protected function getDataSourceName();
+
+    /**
+     * Get the current configured host or file name
+     *
+     * @return string
+     */
+    protected function getHostOrFileName()
     {
-        return new \PDO(
-            $sDataSourceName,
-            $sUser,
-            $sPassword,
-            $aPDOConfiguration
-        );
+        return $this->hostOrFileName;
     }
 
     /**
-     * Method to help lazy load the PDO database connection
+     * Get the current configured database name
      *
-     * @return \PDO $this->oConnection
+     * @return string
+     */
+    protected function getDatabaseName()
+    {
+        return $this->databaseName;
+    }
+
+    /**
+     * Lazy-load the PDO database connection since we don't want to connect on every new
      *
+     * @return \PDO $this->pdoConnection
      * @throws DatabaseException
      */
     private function getConnection()
     {
-        if (!is_null($this->oConnection)) {
-            return $this->oConnection;
+        if (!is_null($this->pdoConnection)) {
+            return $this->pdoConnection;
         }
+
         $oLastException = null;
-        for ($iAttempt = 1; $iAttempt <= self::MAX_ATTEMPTS; $iAttempt++) {
+        for ($numAttempts = 1; $numAttempts <= self::MAX_CONNECT_ATTEMPTS; $numAttempts++) {
             try {
-                $this->oConnection = $this->createPDO(
-                    $this->sDataSourceName,
-                    $this->sUser,
-                    $this->sPassword,
-                    $this->aConnectionAttributes
+                $this->pdoConnection = new \PDO(
+                    $this->getDataSourceName(),
+                    $this->databaseUser,
+                    $this->databasePassword,
+                    $this->connectionAttributes
                 );
+                return $this->pdoConnection;
             } catch (\Exception $oException) {
                 $oLastException = $oException;
-                Log::info([
-                    'message' => 'Could not connect via RDb.',
-                    'dataSourceName' => $this->sDataSourceName,
-                    'attemptsRemaining' => (self::MAX_ATTEMPTS - $iAttempt),
-                    'exception' => $oException,
-                ]);
             }
-            if (!empty($this->oConnection)) {
-                return $this->oConnection;
+
+            if (!empty($this->pdoConnection)) {
+                return $this->pdoConnection;
             }
         }
-        // If we're here, no connection could be established
-        throw new DatabaseException('Could not establish database connection after ' . self::MAX_ATTEMPTS . ' attempts. Exception: ' . $oLastException->getMessage());
+
+        // Bummer! No connection could be established
+        throw new Exception\DatabaseConnectionException(
+            'Could not establish connection after ' .
+                self::MAX_CONNECT_ATTEMPTS . ' attempts. Exception: ' .
+                $oLastException->getMessage()
+        );
     }
 
     /**
      * Prepares a SQL statement
      *
-     * E.g.
-     * $oRDbConnection->prepare(
-     *      "SELECT amount FROM thrust WHERE thrustid = :thrustid",
-     *      [ 'thrustid' => 1 ]
-     * );
+     * @param string $sqlQuery
+     * @param array $params
      *
-     * @param string $sSql
-     * @param array $aParams
-     *
-     * @return \icf\core\rdb\Statement Wrapper to a PDOStatement
+     * @return Statement
      */
-    public function prepare($sSql, array $aParams = [])
+    private function prepareStatement($sqlQuery, array $params = [])
     {
-        $oPDOConnection = $this->getConnection();
-        $oPDOStatement = $oPDOConnection->prepare($sSql);
-        return new Statement($oPDOStatement, $aParams);
+        $pdoConnection = $this->getConnection();
+        $pdoStatement = $pdoConnection->prepare($sqlQuery);
+        return new Statement($pdoStatement, $params);
     }
 
     /**
      * Prepares and executes a statement returning a Results object
      *
-     * E.g.
-     * $oRDbConnection->query(
-     *      "SELECT amount FROM thrust WHERE thrustid = :thrustid",
-     *      [ 'thrustid' => 1 ]
+     * Example:
+     * $database->query(
+     *      "SELECT id FROM users WHERE nane = :name",
+     *      [ 'name' => 1 ]
      * )->fetchAll();
      *
-     * @param string $sSql
-     * @param array $aParams
-     * @param array $aTableNames What tables are in use for this query (for StatsD)
-     *
-     * @return Result Result set
-     *
-     * @throws RuntimeException
+     * @param string $sqlQuery
+     * @param array $params
+     * @return Result
      */
-    public function query($sSql, array $aParams = [], array $aTableNames = [])
+    public function query($sqlQuery, array $params = [])
     {
-        $oStatement = $this->prepare($sSql, $aParams);
+        $statement = $this->prepareStatement($sqlQuery, $params);
 
-        if ($this->bLogTiming) {
-            $sKey = $this->getTimingKey($aTableNames);
-            $fStartTime = microtime(true);
-        }
+        // Start timing in case we want to log slow queries
+        $startTime = microtime(true);
 
-        // $oStatement->execute returns a rdb\Result object
         try {
-            $oResult = $oStatement->execute();
+            $result = $statement->execute();
 
-            if (isset($fStartTime) && isset($sKey)) {
-                $iQueryTime = (int)((microtime(true) - $fStartTime) * 1000);
-                StatsD::timing($sKey, $iQueryTime);
+            // TODO: Possibly log timing here
+            // $queryTimeInMs = (int)((microtime(true) - $startTime) * 1000);
 
-                if ($iQueryTime > self::SLOW_QUERY_THRESHOLD) {
-                    Log::info([
-                        'message' => 'RDb: Slow query exceeded threshold',
-                        'threshold' => self::SLOW_QUERY_THRESHOLD,
-                        'duration' => $iQueryTime,
-                        'query' => $sSql,
-                    ]);
-                }
-            }
-
-            return $oResult;
+            return $result;
         } catch (\PDOException $oPdoException) {
             /*
-             * $oStatement->execute will throw a PDOException if a query fails.
-             * We will wrap the details of this into a standard RuntimeException
+             * $statement->execute will throw a PDOException if a query fails.
+             * We will wrap the details of this into a DatabaseQueryException
              * and allow the client to handle the failure without having to be
              * aware of PDOException.
              */
-            throw new RuntimeException($oPdoException->getMessage(), 0, $oPdoException);
+            throw new DatabaseQueryException(
+                $oPdoException->getMessage() . ", query=" . $sqlQuery
+            );
         }
+    }
+
+    /**
+     * Insert a row into a table
+     *
+     * @param string $tableName
+     * @param array $params Associative array where key = columnName
+     * @throws DatabaseQueryException from $this->query if the query fails
+     * @return int ID created for the primary key (if exists) otherwize 0
+     */
+    public function insert(string $tableName, array $params)
+    {
+        $this->beginTransaction();
+        
+        // Assume the insert does not have an ID to return
+        $insertedId = 0;
+
+        // Get all columns param keys and add to insert statement
+        $columns = array_keys($params);
+        $sql = 'INSERT INTO ' . $tableName . '(' . implode(',', $columns) . ')';
+        // Add values as params by prefixing each with ':'
+        $sql .= ' VALUES(:' . implode(',:', $columns) . ')';
+
+        // Run query, get next value (if selected), and commit
+        $this->query($sql, $params);
+
+        // Wrap get last id in try catch since we do not know if the table has a serial id
+        try {
+            $insertedId = $this->getLastInsertId();
+        } catch (DatabaseException $ex) {
+            // Do nothing becuase we expect this to happen in some cases
+        }
+
+        $this->commitTransaction();
+
+        return $insertedId;
+    }
+
+    /**
+     * Update a table row by simple mathcing conditional params
+     *
+     * @param string $tableName
+     * @param array $params
+     * @param array $whereParams
+     * @return int Number of rows updated
+     */
+    public function update(string $tableName, array $params, array $whereParams)
+    {
+        $sql = 'UPDATE ' . $tableName . ' SET ';
+        
+        // Add update statements
+        $updateStatements = [];
+        foreach ($params as $colName => $colValue) {
+            $updateStatements[] = $colName . '=:' . $colName;
+        }
+        $sql .= implode(',', $updateStatements);
+
+        // Add where conditions to limit the update
+        $whereStatements = [];
+        $escapedWhereParams = [];
+        foreach ($whereParams as $colName => $colCondValue) {
+            $whereStatements[] = $colName . '=:cond_' . $colName;
+            $escapedWhereParams['cond_' . $colName] = $colCondValue;
+        }
+
+        if (count($whereStatements) > 0) {
+            $sql .= ' WHERE ' . implode(' AND ', $whereStatements);
+        }
+
+        // Run the update and return the id as the result
+        $result = $this->query($sql, array_merge($params, $escapedWhereParams));
+
+        // Let the user know how many rows were updated
+        return $result->rowCount();
     }
 
     /**
@@ -257,10 +287,9 @@ class AbstractRelationalDb
      *
      * @return bool
      */
-    public function startTransaction()
+    public function beginTransaction()
     {
-        $oPDOConnection = $this->getConnection();
-        return $oPDOConnection->beginTransaction();
+        return $this->getConnection()->beginTransaction();
     }
 
     /**
@@ -268,10 +297,9 @@ class AbstractRelationalDb
      *
      * @return bool
      */
-    public function commit()
+    public function commitTransaction()
     {
-        $oPDOConnection = $this->getConnection();
-        return $oPDOConnection->commit();
+        return $this->getConnection()->commit();
     }
 
     /**
@@ -279,92 +307,29 @@ class AbstractRelationalDb
      *
      * @return bool
      */
-    public function rollback()
+    public function rollbackTransaction()
     {
-        $oPDOConnection = $this->getConnection();
-        return $oPDOConnection->rollBack();
+        return $this->getConnection()->rollBack();
     }
 
     /**
-     * Get the last insert id
+     * Get the last inserted id of a sequence
      *
-     * @param string $sName explicitly get last insert for sequence name
+     * @param string $sequenceName If null then primary key is used
      * @return int
      */
-    public function lastInsertId($sName = null)
+    public function getLastInsertId($sequenceName = null)
     {
-        $oPDOConnection = $this->getConnection();
-        return $oPDOConnection->lastInsertId($sName);
-    }
-
-    /**
-     * Returns a quoted string that is theoretically safe to pass in
-     * an SQL statement. May return FALSE if this is not supported
-     * by the driver.
-     *
-     * Note that this is deprecated in favor of prepared statements
-     *
-     * @param string $sString
-     * @return string|false
-     * @deprecated
-     */
-    public function quote($sString)
-    {
-        $oPDOConnection = $this->getConnection();
-        return $oPDOConnection->quote($sString);
-    }
-
-    /**
-     * Gets the key used for StatsD logging
-     *
-     * @param $aTableNames
-     *
-     * @return string|null Key to use or null if we cannot StatsD
-     */
-    private function getTimingKey($aTableNames)
-    {
-        $oServiceLocator = ServiceLocator::getInstance();
-
-        if ($oServiceLocator->isAliasRegistered('config')) {
-            $oConfig = ServiceLocator::get('config');
-        } else {
-            Log::warning(['message' => 'Attempted to access config alias, but it was not defined. Skipping query time log.']);
-            return null;
+        $pdoConnection = $this->getConnection();
+        try {
+            return $pdoConnection->lastInsertId($sequenceName);
+        } catch (\PDOException $exception) {
+            throw new DatabaseException(
+                'Unable to get the last inserted ID. This often happens if this ' .
+                    'was called after the transaction was committed, or the ' .
+                    'table does not have a serialized primary key.'
+            );
         }
-
-        $sAppName = '';
-        if (!empty($oConfig)) {
-            $sAppName = $oConfig->get('appname');
-        }
-
-        if (empty($sAppName)) {
-            Log::error(['message' => 'appname not set in config. Skipping query time log.']);
-            return null;
-        }
-
-        if (empty($aTableNames)) {
-            $aTableNames = ['unknown'];
-        }
-
-        // appname.sql.dbname.tables_we_query_or_join_against
-        $aParts = [
-            $sAppName,
-            'sql',
-            $this->sRDbName,
-            implode('_', $aTableNames)
-        ];
-
-        return implode('.', $aParts);
-    }
-
-    /**
-     * Gets the RDb name for this RDb
-     *
-     * @return string
-     */
-    public function getRDbName()
-    {
-        return $this->sRDbName;
     }
 
     /**
@@ -372,16 +337,10 @@ class AbstractRelationalDb
      */
     public function close()
     {
-        if (!empty($this->oConnection)) {
-            // Send a command to kill the connection
-            try {
-                $this->query('KILL CONNECTION_ID()');
-            } catch (\Exception $oException) {
-                // We ignore the exception because this can be used for sqlite and other implementations that do not have this command
-            }
+        // TODO: Might want to kill the connection with a query
+        // 'KILL CONNECTION_ID()'
 
-            // Close connection
-            $this->oConnection = null;
-        }
+        // Close connection
+        $this->pdoConnection = null;
     }
 }

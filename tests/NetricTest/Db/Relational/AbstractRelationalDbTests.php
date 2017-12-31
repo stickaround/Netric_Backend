@@ -2,12 +2,8 @@
 namespace NetricTest\Db\Relational;
 
 use PHPUnit\Framework\TestCase;
-use icf\core\exception\RuntimeException;
-use icf\core\model\DataMapperRDb;
-use icf\core\model\IdentityMapper;
-use icf\core\rdb\RDbInterface;
-use icf\core\rdb\Statement;
-use icf\core\test\model\testasset\ExampleInsideEntity;
+use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Db\Relational\Exception\DatabaseException;
 
 /**
  * Test all relational databases
@@ -16,266 +12,273 @@ use icf\core\test\model\testasset\ExampleInsideEntity;
  *
  * @group integration
  */
-abstract class AbtractRelatinoalDbTest extends TestCase
+abstract class AbstractRelationalDbTests extends TestCase
 {
     /**
-     * Must be implemented in all derived classes
+     * Namespaces to cleanup
      *
-     * @return RDbInterface
+     * @return []
      */
-    abstract protected function getRDbHandle();
-
-    public function testPrepareInsert()
-    {
-        $oRDb = $this->getRDbHandle();
-        // Should return a Result object after a successful insert
-        $this->assertNotNull($this->insertIntoTestTable($oRDb));
-    }
+    private $namespacesToCleanup = [];
 
     /**
-     * @group integration
-     */
-    public function testQuery()
-    {
-        $oRDb = $this->getRDbHandle();
-
-        // Insert into the test table a user named 'joe'
-        $this->insertIntoTestTable($oRDb);
-
-        // Query the table for the user
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = :name",
-            [":name" => "joe"]
-        );
-        $this->assertTrue(count($oResult->fetchAll()) > 0);
-
-        // Make sure a non-existent user returns 0 rows
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = ?",
-            ["noexist"]
-        );
-        $this->assertEquals(0, count($oResult->fetchAll()));
-
-        // Test that the PDO exception for parameter indices starting at 0 can be overridden 
-        // by explicitly declaring the index.
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = ?",
-            [1 => "joe"]
-        );
-        $this->assertEquals(1, count($oResult->fetchAll()));
-    }
-
-    /**
-     * When attempting to bind a value that is not expected, test that
-     * Statement throws a RuntimeException
+     * Must be implemented in all driver classes
      *
-     * @group integration
+     * @return RelationalDbInterface
      */
-    public function testInvalidParameterValue()
+    abstract protected function getDatabase();
+
+    public function setUp()
     {
-        $oRDb = $this->getRDbHandle();
-
-        // Insert into the test table a user named 'joe'
-        $this->insertIntoTestTable($oRDb);
-
-        // Query the table for the user
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = :name",
-            [":name" => "joe"]
+        $database = $this->getDatabase();
+        $database->query('DROP TABLE IF EXISTS utest_people');
+        $database->query(
+            'CREATE TABLE utest_people(
+                id SERIAL PRIMARY KEY,
+                name TEXT
+            )'
         );
-        $this->assertTrue(count($oResult->fetchAll()) > 0);
 
-        // Create the incorrect query.
-        $oBadValue = new \stdClass();
-        $this->expectException(RuntimeException::class);
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = :name",
-            [
-                'name' => $oBadValue
-            ]
-        );
+        $database->query('DROP TABLE IF EXISTS utest_nopkey');
+        $database->query('CREATE TABLE utest_nopkey(name TEXT)');
     }
 
-    /**
-     * @group integration
-     */
-    public function testLastInsertId()
+    public function tearDown()
     {
-        $oRDb = $this->getRDbHandle();
+        $database = $this->getDatabase();
+        $database->query('DROP TABLE IF EXISTS utest_people');
+        $database->query('DROP TABLE IF EXISTS utest_nopkey');
 
-        // Add something and then get the last id
-        $this->insertIntoTestTable($oRDb);
-        $lastInsertId = $oRDb->lastInsertId();
-        $this->assertTrue($lastInsertId > 0);
-
-        // Make sure it increments again
-        $this->insertIntoTestTable($oRDb);
-        $this->assertEquals(++$lastInsertId, $oRDb->lastInsertId()); 
-
-        // And one more increment for fun
-        // Make sure it increments again
-        $this->insertIntoTestTable($oRDb);
-        $this->assertEquals(++$lastInsertId, $oRDb->lastInsertId());
-    }
-
-    /**
-     * @group integration
-     */
-    public function testTransactionCommmit()
-    {
-        $oRDb = $this->getRDbHandle();
-
-        $oRDb->startTransaction();
-
-        // Insert into the test table a user named 'joe'
-        $this->insertIntoTestTable($oRDb);
-
-        $oRDb->commit();
-
-        // Query the table for the user
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = :name",
-            [":name" => "joe"]
-        );
-        $this->assertTrue(count($oResult->fetchAll()) > 0);
-
-        // Make sure a non-existent user returns 0 rows
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = ?",
-            ["noexist"]
-        );
-        $this->assertEquals(0, count($oResult->fetchAll()));
-
-        // Test that the PDO exception for parameter indices starting at 0 can be overridden
-        // by explicitly declaring the index.
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = ?",
-            [1 => "joe"]
-        );
-        $this->assertEquals(1, count($oResult->fetchAll()));
-    }
-
-    /**
-     * @group integration
-     */
-    public function testTransactionRollback()
-    {
-        $oRDb = $this->getRDbHandle();
-
-        $oRDb->startTransaction();
-
-        // Insert into the test table a user named 'joe'
-        $this->insertIntoTestTable($oRDb);
-
-        $oRDb->rollback();
-
-        // Make sure the insert did not get committed
-        $oResult = $oRDb->query(
-            "SELECT * FROM test WHERE name = :name",
-            [":name" => "joe"]
-        );
-        $this->assertEquals(0, count($oResult->fetchAll()));
-    }
-
-    /**
-     * @throws \icf\core\exception\DomainEntityException
-     * @throws \icf\core\exception\RevisionChangeException
-     * @group integration
-     */
-    public function testOrmTransactionCommit()
-    {
-        $oRDb = $this->getRDbHandle();
-        $oRDbDataMapper = new DataMapperRDb($oRDb);
-        $oIdentityMapper = new IdentityMapper(ExampleInsideEntity::class, [$oRDbDataMapper], []);
-
-        $iTestValue = 1234;
-
-        $oRDb->startTransaction();
-
-        $oEntity = $oIdentityMapper->createEntity();
-        $oEntity->set('field1', $iTestValue);
-        $oIdentityMapper->saveEntity($oEntity);
-
-        $oRDb->commit();
-
-        // Query the table for the user
-        $oResult = $oRDb->query(
-            "SELECT * FROM exampleinside WHERE first_inside_field = :first_inside_field",
-            [":first_inside_field" => $iTestValue]
-        );
-        $this->assertTrue(count($oResult->fetchAll()) > 0);
-    }
-
-    /**
-     * @throws \icf\core\exception\DomainEntityException
-     * @throws \icf\core\exception\RevisionChangeException
-     * @group integration
-     */
-    public function testOrmTransactionRollback()
-    {
-        $oRDb = $this->getRDbHandle();
-        $oRDbDataMapper = new DataMapperRDb($oRDb);
-        $oIdentityMapper = new IdentityMapper(ExampleInsideEntity::class, [$oRDbDataMapper], []);
-
-        $iTestValue = 1234;
-
-        $oRDb->startTransaction();
-
-        $oEntity = $oIdentityMapper->createEntity();
-        $oEntity->set('field1', $iTestValue);
-        $oIdentityMapper->saveEntity($oEntity);
-
-        $oRDb->rollback();
-
-        // Query the table for the user
-        $oResult = $oRDb->query(
-            "SELECT * FROM exampleinside WHERE first_inside_field = :first_inside_field",
-            [":first_inside_field" => $iTestValue]
-        );
-        $this->assertEquals(0, count($oResult->fetchAll()));
-    }
-
-    /**
-     * Creates the table(s) needed for the tests
-     * 
-     * @param RDbInterface $oRDb
-     */
-    protected function setupTables(RDbInterface $oRDb)
-    {
-        $oRDb->query('PRAGMA journal_mode = OFF');
-        $oRDb->query('DROP TABLE IF EXISTS test');
-        $this->assertNotNull($oRDb->query(
-            "CREATE TABLE IF NOT EXISTS test(
-                  id INTEGER PRIMARY KEY,
-                  name TEXT
-              )"
-        ));
-
-        $oRDb->query('DROP TABLE IF EXISTS exampleinside');
-        $oRDb->query('CREATE TABLE exampleinside(example_inside_id BIGINT PRIMARY KEY, first_inside_field INT)');
-    }
-
-    /**
-     * Removes the table(s) needed for the tests
-     * 
-     * @param RDbInterface $oRDb
-     */
-    protected function dropTables(RDbInterface $oRDb)
-    {
-        $oRDb->query('DROP TABLE IF EXISTS test');
+        foreach ($this->namespacesToCleanup as $namespace) {
+            try {
+                $database->deleteNamespace($namespace);
+            } catch (DatabaseException $ex) {
+                print('Could not delete namespace! ' . $ex->getMessage());
+            }
+        }
     }
 
     /**
      * Add a record to the test table
      *
-     * @param RDbInterface $oRDb
+     * @param RelationalDbInterface $database
      * @return Statement
      */
-    private function insertIntoTestTable(RDbInterface $oRDb)
+    private function insertIntoTestTable(RelationalDbInterface $database)
     {
         // Create an insert statement and return it
-        return $oRDb->query(
-            "INSERT INTO test(name) VALUES('joe')"
+        return $database->query(
+            'INSERT INTO utest_people(name) VALUES(:name)',
+            ['name' => 'david']
+        );
+    }
+
+    /**
+     * Check if we can run a raw query
+     *
+     * @return void
+     */
+    public function testQuery()
+    {
+        $database = $this->getDatabase();
+
+        // Insert into the test table a user named 'david'
+        $this->insertIntoTestTable($database);
+
+        // Query the table for the user
+        $result = $database->query(
+            'SELECT * FROM utest_people WHERE name = :name',
+            ["name" => "david"]
+        );
+        $this->assertTrue(count($result->fetchAll()) > 0);
+
+        // Make sure a non-existent user returns 0 rows
+        $result = $database->query(
+            "SELECT * FROM utest_people WHERE name = :name",
+            ["name" => "noexist"]
+        );
+        $this->assertEquals(0, count($result->fetchAll()));
+    }
+
+    /**
+     * Test inserting a new row into the database
+     *
+     * @return void
+     */
+    public function testInsert()
+    {
+        $database = $this->getDatabase();
+
+        $lastId = $database->insert(
+            'utest_people',
+            ['name' => 'sky']
+        );
+
+        $this->assertGreaterThan(0, $lastId);
+    }
+
+    /**
+     * Test inserting a new row into a table without a serialized pkay
+     *
+     * @return void
+     */
+    public function testInsert_NoPkey()
+    {
+        $database = $this->getDatabase();
+
+        $lastId = $database->insert(
+            'utest_nopkey',
+            ['name' => 'sky']
+        );
+
+        $this->assertEquals(0, $lastId);
+    }
+
+    /**
+     * Test updating the database with conditions
+     *
+     * @return void
+     */
+    public function testUpdate()
+    {
+        $database = $this->getDatabase();
+
+        // Insert a few rows to make sure conditions limit
+        $database->insert('utest_people', ['name' => 'Name1']);
+        $database->insert('utest_people', ['name' => 'Name2']);
+        $lastId = $database->insert('utest_people', ['name' => 'Name3']);
+
+        $data = ['name' => 'Sky'];
+        $conditions = ['id' => $lastId];
+        $numUpdated = $database->update('utest_people', $data, $conditions);
+
+        // Update should have only updated the last record
+        $this->assertEquals(1, $numUpdated);
+    }
+
+    /**
+     * Test getting the last inserted serialized pkey
+     *
+     * @return void
+     */
+    public function testGetLastInsertId()
+    {
+        $database = $this->getDatabase();
+
+        // Add something and then get the last id
+        $database->beginTransaction();
+        $this->insertIntoTestTable($database);
+        $lastInsertId = $database->getLastInsertId();
+        $database->commitTransaction();
+        $this->assertTrue($lastInsertId > 0);
+
+        // Make sure it increments again
+        $database->beginTransaction();
+        $this->insertIntoTestTable($database);
+        $nextInsertedId = $database->getLastInsertId();
+        $database->commitTransaction();
+        $this->assertEquals(++$lastInsertId, $nextInsertedId);
+    }
+
+    /**
+     * Make sure an exception is thrown if getLastInsertedId is called
+     * on a table without a primary key.
+     *
+     * @return void
+     */
+    public function testGetLastInsertId_NoPkey()
+    {
+        $database = $this->getDatabase();
+
+        // Add something and then get the last id
+        $database->beginTransaction();
+        $database->query(
+            'INSERT INTO utest_nopkey(name) VALUES(:name)',
+            ['name' => 'david']
+        );
+        $this->expectException(DatabaseException::class);
+        $lastInsertId = $database->getLastInsertId();
+        $database->commitTransaction();
+        $this->assertTrue($lastInsertId > 0);
+    }
+
+    public function testTransactionCommmit()
+    {
+        $database = $this->getDatabase();
+
+        $database->beginTransaction();
+
+        // Insert into the test table a user named 'david'
+        $this->insertIntoTestTable($database);
+
+        $database->commitTransaction();
+
+        // Query the table for the user
+        $result = $database->query(
+            "SELECT * FROM utest_people WHERE name = :name",
+            ["name" => "david"]
+        );
+        $this->assertTrue(count($result->fetchAll()) > 0);
+
+        // Make sure a non-existent user returns 0 rows
+        $result = $database->query(
+            "SELECT * FROM utest_people WHERE name = :name",
+            ["name" => "noexist"]
+        );
+        $this->assertEquals(0, count($result->fetchAll()));
+    }
+
+    public function testTransactionRollback()
+    {
+        $database = $this->getDatabase();
+
+        $database->beginTransaction();
+
+        // Insert into the test table a user named 'david'
+        $this->insertIntoTestTable($database);
+
+        $database->rollbackTransaction();
+
+        // Make sure the insert did not get committed
+        $result = $database->query(
+            "SELECT * FROM utest_people WHERE name = :name",
+            ["name" => "david"]
+        );
+        $this->assertEquals(0, count($result->fetchAll()));
+    }
+
+    /**
+     * Test deleting a unique namespace/schema for an account or user
+     *
+     * @return void
+     */
+    public function testCreateNamespace()
+    {
+        $database = $this->getDatabase();
+        $this->namespacesToCleanup[] = 'utest_created';
+        $ret = $database->createNamespace('utest_created');
+        $this->assertTrue($ret);
+    }
+
+    /**
+     * Test setting a unique namespace/schema for an account or user
+     *
+     * @return void
+     */
+    public function testSetNamespace()
+    {
+        $database = $this->getDatabase();
+        $this->namespacesToCleanup[] = 'utest_set_namespace';
+        $database->createNamespace('utest_set_namespace');
+
+        // Try querying tables found in the old namespace
+        $this->expectException(DatabaseException::class);
+
+        // This table is not in the utest_set_namespace namespace
+        $database->setNamespace('utest_set_namespace');
+        $database->query(
+            "SELECT * FROM utest_people WHERE name = :name",
+            ["name" => "david"]
         );
     }
 }
