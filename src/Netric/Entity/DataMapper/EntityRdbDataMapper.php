@@ -712,9 +712,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     }
                     $ret[$fname] = $tmpval;
                     break;
+                case 'bool':
+                    $ret[$fname] = ($val === true);
+                    break;
                 case 'object':
                 case 'fkey':
-                case 'bool':
                 default:
                     $ret[$fname] = $val;
                     break;

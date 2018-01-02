@@ -810,15 +810,7 @@ abstract class DmTestsAbstract extends TestCase
 		// Try saving an entity with an obviously unique name
 		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
 		$customer->setValue("uname", $uniqueName);
-		$oid1 = $dm->save($customer, $this->user);
-
-		/*
-		$conn = pg_connect('host=db1 port=5432 dbname=netric user=vagrant password=vagrant');
-		$ret = pg_query($conn, 'SELECT * from acc_1.customers WHERE id=' . $oid1);
-
-		echo "\n----- stored data for $oid1-----\n";
-		echo var_export(pg_fetch_all($ret), true);
-		*/
+		$dm->save($customer, $this->user);
 
 
 		// Queue for cleanup
@@ -883,7 +875,11 @@ abstract class DmTestsAbstract extends TestCase
             $subPage->getValue('uname'),
         ];
         $fullPath = implode('/', $pathParts);
-        $retrievedPage = $dm->getByUniqueName("cms_page", $fullPath, ['site_id' => $site->getId()]);
+        $retrievedPage = $dm->getByUniqueName(
+            "cms_page",
+            $fullPath,
+            ['site_id' => $site->getId()]
+        );
 
         $this->assertEquals($subPage->getId(), $retrievedPage->getId());
     }

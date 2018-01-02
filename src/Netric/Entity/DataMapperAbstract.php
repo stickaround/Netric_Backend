@@ -746,16 +746,16 @@ public function verifyUniqueName($entity, $uname)
 	$serviceManager = $this->getAccount()->getServiceManager();
 	$def = $entity->getDefinition();
 
-		// If we are not using unique names with this object just succeed
+    // If we are not using unique names with this object just succeed
 	if (!$def->unameSettings) {
 		return true;
 	}
 
-		// Search objects to see if the uname exists
+    // Search objects to see if the uname exists
 	$query = new EntityQuery($def->getObjType());
 	$query->where("uname")->equals($uname);
 
-		// Exclude this object from the query because of course it will be a duplicate
+    // Exclude this object from the query because of course it will be a duplicate
 	if ($entity->getId()) {
 		$query->andWhere("id")->doesNotEqual($entity->getId());
 	}
@@ -777,6 +777,7 @@ public function verifyUniqueName($entity, $uname)
 	// Check if any objects match
 	$index = $serviceManager->get("EntityQuery_Index");
 	$result = $index->executeQuery($query);
+
 	if ($result->getTotalNum() > 0) {
 		return false;
 	} else {

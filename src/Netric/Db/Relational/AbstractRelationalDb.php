@@ -236,7 +236,7 @@ abstract class AbstractRelationalDb
         try {
             $insertedId = $this->getLastInsertId();
         } catch (DatabaseException $ex) {
-            // Do nothing becuase we expect this to happen in some cases
+            // Do nothing because we expect this to happen in some cases
         }
 
         $this->commitTransaction();

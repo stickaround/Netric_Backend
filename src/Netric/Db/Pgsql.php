@@ -327,7 +327,6 @@ class Pgsql implements DbInterface
 		if ($this->schema)
 			$query = "SET search_path=" . $this->schema . ";" . $query;
 
-		//print($query);
 		$result = @pg_query($this->dbHandle, $query);
 		if ($result === false)
 			$this->logError($query, $result);
