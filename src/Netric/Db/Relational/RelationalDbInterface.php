@@ -36,7 +36,7 @@ interface RelationalDbInterface
     public function insert(string $tableName, array $params);
 
     /**
-     * Update a table row by simple mathcing conditional params
+     * Update a table row by matching conditional params
      *
      * @param string $tableName
      * @param array $params
@@ -44,6 +44,15 @@ interface RelationalDbInterface
      * @return int Number of rows updated
      */
     public function update(string $tableName, array $params, array $whereParams);
+
+    /**
+     * Delete a table row by matching conditional params
+     *
+     * @param string $tableName
+     * @param array $whereParams
+     * @return int Number of rows updated
+     */
+    public function delete(string $tableName, array $whereParams);
 
     /**
      * Starts a DB Transaction.

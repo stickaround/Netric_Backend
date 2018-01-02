@@ -6,8 +6,8 @@ use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
-use Netric\EntityDefinition\Exception\DefinitionStaleException;
-use Netric\Account\Account;
+use Netric\Entity\EntityInterface;
+use DateTime;
 
 /**
  * Load and save entity data to a relational database
@@ -358,8 +358,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         if ($field->type != "fkey" && $field->type != "fkey_multi")
             return false;
 
-        $columns = array();
-        $values = array();
         $tableData = [];
 
         if (isset($grp->uname)) {
@@ -368,53 +366,35 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         if ($grp->name && $field->fkeyTable['title']) {
             $tableData[$field->fkeyTable['title']] = $grp->name;
-            //$columns[] = $field->fkeyTable['title'];
-            //$values[] = "'" . $this->dbh->escape($grp->name) . "'";
         }
 
         if ($grp->color && $this->dbh->columnExists($field->subtype, "color")) {
             $tableData['color'] = $grp->color;
-            //$columns[] = "color";
-            //$values[] = "'" . $this->dbh->escape($grp->color) . "'";
         }
 
         if ($grp->isSystem && $this->dbh->columnExists($field->subtype, "f_system")) {
             $tableData['f_system'] = $grp->isSystem;
-            //$columns[] = "f_system";
-            //$values[] = "'t'";
         }
 
         if ($grp->sortOrder && $this->dbh->columnExists($field->subtype, "sort_order")) {
             $tableData['sort_order'] = $grp->sortOrder;
-            //$columns[] = "sort_order";
-            //$values[] = $this->dbh->escapeNumber($grp->sortOrder);
         }
 
         if ($grp->parentId && isset($field->fkeyTable['parent'])) {
             $tableData[$field->fkeyTable['parent']] = $grp->parentId;
-            //$columns[] = $field->fkeyTable['parent'];
-            //$values[] = $this->dbh->escapeNumber($grp->parentId);
         }
 
         if ($grp->commitId) {
             $tableData['commit_id'] = $grp->commitId;
-            //$columns[] = "commit_id";
-            //$values[] = $this->dbh->escapeNumber($grp->commitId);
         }
 
         if ($field->subtype == "object_groupings") {
             $tableData['object_type_id'] = $def->getId();
             $tableData['field_id'] = $field->id;
-            //$columns[] = "object_type_id";
-            //$values[] = "'" . $def->getId() . "'";
-
-            //$columns[] = "field_id";
-            //$values[] = "'" . $field->id . "'";
         }
 
         $data = $grp->toArray();
 
-        $ignore = ['is_heiarch', 'is_system', 'uname'];
         foreach ($data["filter_fields"] as $name => $value) {
             // Make sure that the column name does not exists yet
             if (array_key_exists($name, $tableData)) {
@@ -423,8 +403,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
             if ($value && $this->dbh->columnExists($field->subtype, $name)) {
                 $tableData[$name] = $value;
-                //$columns[] = $name;
-                //$values[] = "'" . $this->dbh->escape($value) . "'";
             }
         }
 
@@ -434,31 +412,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         if ($grp->id) {
-            //$upSql = "";
-            //for ($i = 0; $i < count($columns); $i++) {
-            //    if ($i > 0)
-            //        $upSql .= ", ";
-
-            //    $upSql .= $columns[$i] . "=" . $values[$i];
-            //}
-
             $this->database->update($field->subtype, $tableData, ['id' => $grp->id]);
-            //$sql = "UPDATE " . $field->subtype . " SET " . $upSql . " WHERE id='" . $grp->id . "'";
         } else {
             $grp->id = $this->database->insert($field->subtype, $tableData);
-            //$sql = "INSERT INTO " . $field->subtype . "(" . implode(", ", $columns) . ") VALUES(" . implode(", ", $values) . ");
-            //                          SELECT currval('" . $field->subtype . "_id_seq') as id;";
         }
-
-        //$res = $this->dbh->Query($sql);
-        //if (!$res)
-        //   return false;
-
-        //if ($this->dbh->getNumRows($res)) {
-        //    if (!$grp->id) {
-        //        $grp->id = $this->dbh->getValue($res, 0, "id");
-        //    }
-        //}
 
         return true;
     }
@@ -471,16 +428,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function saveData($entity)
     {
-        $dbh = $this->dbh;
-        $ret = array();
         $def = $entity->getDefinition();
 
-        // TODO: Reload cached foreign values based on the current values
-        // $this->reloadFVals();
-
         // Convert to cols=>vals escaped array
-        $data = $this->getColsVals($entity);
-
+        $data = $this->getDataToInsertFromEntity($entity);
         $all_fields = $def->getFields();
 
         // Try to manipulate data to correctly build the sql statement based on custom table definitions
@@ -504,251 +455,222 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * where it tried to update an ID that does not exist.
          */
         if ($entity->getId() && ($def->isCustomTable() || (!$entity->fieldValueChanged("f_deleted") && !$def->isCustomTable())) && $entity->getValue("revision") > 1) {
-            $query = "UPDATE " . $targetTable . " SET ";
-            $update_fields = "";
-            foreach ($data as $colname => $colval) {
-                if ($colname == "id") // skip over id
-                    continue;
-
-                if ($update_fields) $update_fields .= ", ";
-                $update_fields .= '"' . $colname . '"' . "=" . $colval; // val is already escaped
-            }
-            $query .= $update_fields . " WHERE id='" . $entity->getId() . "'";
-            $res = $dbh->query($query);
-
-            if (!$res) {
-                throw new \RuntimeException(
-                    "Could not update entity $targetTable." .
-                    $entity->getId() . ":" . $dbh->getLastError()
-                );
-            }
-
-            $performed = "update";
+            $this->database->update($targetTable, $data, ['id' => $entity->getId()]);
         } else {
             // Clean out old record if it exists in a different partition
             if ($entity->getId() && !$def->isCustomTable()) {
-                $dbh->query("DELETE FROM " . $def->getTable() . " WHERE id='" . $entity->getId() . "'");
-            }
-
-            $cols = "";
-            $vals = "";
-
-            foreach ($data as $colname => $colval) {
-                // Skip over id if it is null
-                if ($colname == "id" && (empty($colval) || strtolower($colval) == 'null')) {
-                    continue;
-                }
-
-                // Add comma
-                if ($cols) {
-                    $cols .= ", ";
-                }
-
-                if ($vals) {
-                    $vals .= ", ";
-                }
-
-                // Add culumn name and column value
-                $cols .= $colname;
-                $vals .= $colval; // val is already escaped
-            }
-
-            $query = "insert into " . $targetTable . "($cols) VALUES($vals);";
-
-            $seqName = ($def->isCustomTable()) ? $targetTable . "_id_seq" : "objects_id_seq";
-            if ($entity->getId())
-                $query .= "select '" . $entity->getId() . "' as id;";
-            else
-                $query .= "select currval('$seqName') as id;";
-
-            $result = $dbh->query($query);
-
-            if (!$result) {
-                throw new DefinitionStaleException(
-                    "Could not save entity: " . $dbh->getLastError() .
-                    " - " . $query
+                $this->database->query(
+                    'DELETE FROM ' . $def->getTable() . ' WHERE id=:entity_id',
+                    ['entity_id' => $entity->getId()]
                 );
             }
 
-            // Set event
-            $performed = (!$entity->getId()) ? "create" : "update";
-
-            // If this was a new object the set the id, otherwise leave as is
-            if ($dbh->getNumRows($result) && !$entity->getId())
-                $entity->setValue("id", $dbh->getValue($result, 0, "id"));
+            // Now try saving the entity
+            try {
+                $entityId = $this->database->insert($targetTable, $data);
+                $entity->setValue('id', $entityId);
+            } catch (DatabaseQueryException $ex) {
+                throw new \RuntimeException(
+                    'Could not insert entity due to a database error: ' . $ex->getMessage()
+                );
+            }
         }
 
-        // handle fkey_multi && Auto
-        if ($entity->getId()) {
-            // Handle autocreate folders - only has to fire the very first time
-            foreach ($all_fields as $fname => $fdef) {
-                if ($fdef->type == "object" && $fdef->subtype == "folder"
-                    && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
-                    && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)) {
-                    // We should use the service locator to load this service
-                    $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
-                    $fldr = $fileSystem->openFolder($fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename), true);
-                    if ($fldr->getId()) {
-                        $entity->setValue($fname, $fldr->getId());
-                        $dbh->query("update " . $targetTable . " set $fname='" . $fldr->getId() . "' where id='" . $entity->getId() . "'");
-                    }
-                }
-            }
-
-            // Handle updating reference membership if needed
-            $defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
-            foreach ($all_fields as $fname => $fdef) {
-                if (!$fdef->id)
-                    throw new DefinitionStaleException("For some reason there is no ID for field $fname of object type " . $def->getObjType());
-
-                if ($fdef->type == "fkey_multi") {
-                    // Cleanup
-                    // --------------------------------------
-                    $queryStr = "delete from " . $fdef->fkeyTable['ref_table']['table'] . "
-								 where " . $fdef->fkeyTable['ref_table']["this"] . "='" . $entity->getId() . "'";
-                    // object_type_id is needed for generic groupings
-                    if ($fdef->subtype == "object_groupings")
-                        $queryStr .= " and object_type_id='" . $def->getId() . "' and field_id='" . $fdef->id . "'";
-
-                    $dbh->query($queryStr);
-
-                    // Populate foreign table
-                    // --------------------------------------
-                    $mvalues = $entity->getValue($fname);
-                    if (is_array($mvalues)) {
-                        foreach ($mvalues as $val) {
-                            if ($val) {
-                                $queryStr = "INSERT INTO " . $fdef->fkeyTable['ref_table']['table'] . "
-									(" . $fdef->fkeyTable['ref_table']['ref'] . ", " . $fdef->fkeyTable['ref_table']["this"];
-
-                                // object_type_id is needed for generic groupings
-                                if ($fdef->subtype == "object_groupings")
-                                    $queryStr .= ", object_type_id, field_id";
-
-                                // Add values
-                                $queryStr .= ") VALUES('" . $val . "', '" . $entity->getId() . "'";
-
-                                // object_type_id is needed for generic groupings
-                                if ($fdef->subtype == "object_groupings")
-                                    $queryStr .= ", '" . $def->getId() . "', '" . $fdef->id . "'";
-
-                                $queryStr .= ");";
-
-                                $dbh->query($queryStr);
-                            }
-                        }
-                    }
-                }
-
-                // Handle object associations
-                if ($fdef->type == "object_multi" || $fdef->type == "object") {
-                    // Cleanup
-                    $dbh->query("DELETE FROM object_associations
-								 WHERE object_id='" . $entity->getId() . "' AND
-								 type_id='" . $def->getId() . "'
-								 AND field_id='" . $fdef->id . "'");
-
-                    // Set values
-                    $mvalues = $entity->getValue($fname);
-                    if (is_array($mvalues)) {
-                        foreach ($mvalues as $val) {
-                            $subtype = null; // Set the initial value of subtype to null
-
-                            $otid = -1;
-                            if ($fdef->subtype) {
-                                $subtype = $fdef->subtype;
-                                $objid = $val;
-                            } else {
-                                $parts = $entity->decodeObjRef($val);
-                                if ($parts['obj_type'] && $parts['id']) {
-                                    $subtype = $parts['obj_type'];
-                                    $objid = $parts['id'];
-                                }
-                            }
-
-                            if ($subtype) {
-                                $assocDef = $defLoader->get($subtype);
-                                if ($assocDef->getId() && $objid) {
-                                    $dbh->query("insert into object_associations(object_id, type_id, assoc_type_id, assoc_object_id, field_id)
-												 values('" . $entity->getId() . "', '" . $def->getId() . "', '" . $assocDef->getId() . "', '" . $objid . "', '" . $fdef->id . "');");
-                                }
-                            }
-                        }
-                    } else if ($mvalues) {
-                        if ($fdef->subtype) {
-                            $assocDef = $defLoader->get($fdef->subtype);
-                            if ($assocDef->getId()) {
-                                $dbh->query("insert into object_associations(object_id, type_id, assoc_type_id, assoc_object_id, field_id)
-												values(
-													'" . $entity->getId() . "',
-													'" . $def->getId() . "',
-													'" . $assocDef->getId() . "',
-													'" . $mvalues . "',
-													'" . $fdef->id . "');");
-                            }
-                        } else {
-                            $parts = $entity->decodeObjRef($mvalues);
-                            if ($parts['obj_type'] && $parts['id']) {
-                                $assocDef = $defLoader->get($parts['obj_type']);
-                                if ($assocDef->getId() && $parts['id']) {
-                                    $dbh->query("insert into object_associations(object_id, type_id, assoc_type_id, assoc_object_id, field_id)
-												 values('" . $entity->getId() . "', '" . $def->getId() . "', '" . $assocDef->getId() . "', '" . $parts['id'] . "', '" . $fdef->id . "');");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return $entity->getId();
-        } else {
-            // Failed to save
+        // If we were unable to save the ID then return false (should probably be an exception?)
+        if (!$entity->getId()) {
             return false;
         }
+
+        // handle fkey_multi && auto fields
+        // ----------------------------------
+
+        // Handle autocreate folders - only has to fire the very first time
+        foreach ($all_fields as $fname => $fdef) {
+            if ($fdef->type == "object" && $fdef->subtype == "folder"
+                && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
+                && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)) {
+                // Make a folder for the entity
+                $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+
+                // TODO: We should automatically set the path for entity folders
+                $folder = $fileSystem->openFolder(
+                    $fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename),
+                    true
+                );
+
+                // Update the entity and table
+                if ($folder->getId()) {
+                    $entity->setValue($fname, $folder->getId());
+
+                    $this->database->update(
+                        $targetTable, [$fname=>$folder->getId()], ['id' => $entity->getId()]
+                    );
+                }
+            }
+        }
+
+        // Handle updating reference membership if needed
+        $defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+        foreach ($all_fields as $fname => $fdef) {
+            if ($fdef->type == "fkey_multi") {
+
+                /*
+                 * First clear out all existing values in the union table because trying to update
+                 * them would require more work than its worth.
+                 */
+                $whereParams = [];
+                // ['ref_table']["this"] is almost always just 'id'
+                $whereParams[$fdef->fkeyTable['ref_table']["this"]] = $entity->getId();
+
+                // object_type_id and field_id is needed for generic groupings
+                if ($fdef->subtype == "object_groupings") {
+                    $whereParams['object_type_id'] = $def->getId();
+                    $whereParams['field_id'] =$fdef->id;
+                }
+
+                $this->database->delete(
+                    $fdef->fkeyTable['ref_table']['table'],
+                    $whereParams
+                );
+
+
+                /*
+                 * Now insert the rows to associate this entity with the foreign grouping
+                 */
+                $mvalues = $entity->getValue($fname);
+                if (is_array($mvalues)) {
+                    foreach ($mvalues as $val) {
+                        if ($val) {
+                            $dataToInsert = [];
+                            $dataToInsert[$fdef->fkeyTable['ref_table']['ref']] = $val;
+                            $dataToInsert[$fdef->fkeyTable['ref_table']["this"]] = $entity->getId();
+
+                            if ($fdef->subtype == "object_groupings") {
+                                $dataToInsert['object_type_id'] = $def->getId();
+                                $dataToInsert['field_id'] = $fdef->id;
+                            }
+
+                            $this->database->insert(
+                                $fdef->fkeyTable['ref_table']['table'],
+                                $dataToInsert
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Handle object associations
+            if ($fdef->type == "object_multi" || $fdef->type == "object") {
+                /*
+                 * Just like with fkey_multi above, we first clear out all existing values in the
+                 * union table because trying to update them would require more work than its worth.
+                 */
+                $this->database->delete(
+                    'object_associations',
+                    ['object_id' => $entity->getId(), 'type_id' => $def->getId(), 'field_id' => $fdef->id]
+                );
+
+                // Set values
+                $mvalues = $entity->getValue($fname);
+                if (is_array($mvalues)) {
+                    foreach ($mvalues as $val) {
+                        $subtype = null; // Set the initial value of subtype to null
+
+                        $otid = -1;
+                        if ($fdef->subtype) {
+                            $subtype = $fdef->subtype;
+                            $objid = $val;
+                        } else {
+                            $parts = $entity->decodeObjRef($val);
+                            if ($parts['obj_type'] && $parts['id']) {
+                                $subtype = $parts['obj_type'];
+                                $objid = $parts['id'];
+                            }
+                        }
+
+                        if ($subtype) {
+                            $assocDef = $defLoader->get($subtype);
+                            if ($assocDef->getId() && $objid) {
+                                $this->database->insert(
+                                    'object_associations',
+                                    [
+                                        'object_id' => $entity->getId(),
+                                        'type_id' => $def->getId(),
+                                        'assoc_type_id' => $assocDef->getId(),
+                                        'assoc_object_id' => $objid,
+                                        'field_id' => $fdef->id,
+                                    ]
+                                );
+                            }
+                        }
+                    }
+                } else if ($mvalues) {
+                    if ($fdef->subtype) {
+                        $assocDef = $defLoader->get($fdef->subtype);
+                        if ($assocDef->getId()) {
+                            $this->database->insert(
+                                'object_associations',
+                                [
+                                    'object_id' => $entity->getId(),
+                                    'type_id' => $def->getId(),
+                                    'assoc_type_id' => $assocDef->getId(),
+                                    'assoc_object_id' => $mvalues,
+                                    'field_id' => $fdef->id,
+                                ]
+                            );
+                        }
+                    } else {
+                        $parts = $entity->decodeObjRef($mvalues);
+                        if ($parts['obj_type'] && $parts['id']) {
+                            $assocDef = $defLoader->get($parts['obj_type']);
+                            if ($assocDef->getId() && $parts['id']) {
+
+                                $this->database->insert(
+                                    'object_associations',
+                                    [
+                                        'object_id' => $entity->getId(),
+                                        'type_id' => $def->getId(),
+                                        'assoc_type_id' => $assocDef->getId(),
+                                        'assoc_object_id' => $parts['id'],
+                                        'field_id' => $fdef->id,
+                                    ]
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $entity->getId();
     }
 
     /**
      * Convert fields to column names for saving table and escape for insertion/updates
      *
-     * @param Entity $entity The entity we are saving
-     * @return array("colname"=>"value")
+     * @param EntityInterface $entity The entity we are saving
+     * @return array("col_name"=>"value")
      */
-    private function getColsVals($entity)
+    private function getDataToInsertFromEntity(EntityInterface $entity)
     {
-        $dbh = $this->dbh;
         $ret = array();
-        $def = $entity->getDefinition();
-
-        $all_fields = $def->getFields();
+        $all_fields = $entity->getDefinition()->getFields();
 
         foreach ($all_fields as $fname => $fdef) {
-            $setVal = "";
             $val = $entity->getValue($fname);
 
+            // Skip over an empty id field - we won't want to try and set it
+            if ($fname === 'id' && empty($val)) {
+                continue;
+            }
+
             switch ($fdef->type) {
-                case 'auto': // Calculated fields
+                case 'auto':
+                    // Calculated fields should not be set from entity
                     break;
                 case 'fkey_multi':
-                    $fvals = $entity->getValueNames($fname);
-                    if ($val)
-                        $setVal = "'" . $dbh->escape(json_encode($val)) . "'";
-                    else
-                        $setVal = "'" . $dbh->escape(json_encode(array())) . "'";
-                    break;
-                case 'object':
-                    if ($fdef->subtype)
-                        $setVal = $dbh->escapeNumber($val);
-                    else
-                        $setVal = "'" . $dbh->escape($val) . "'";
-                    break;
                 case 'object_multi':
-                    if ($val)
-                        $setVal = "'" . $dbh->escape(json_encode($val)) . "'";
-                    else
-                        $setVal = "'" . $dbh->escape(json_encode(array())) . "'";
-                    break;
-                case 'fkey':
-                    $setVal = $dbh->escapeNumber($val);
+                    $ret[$fname] = json_encode(($val) ? $val : []);
                     break;
                 case 'int':
                 case 'integer':
@@ -758,50 +680,54 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case 'real':
                 case 'number':
                 case 'numeric':
-                    if ($fdef->subtype == "integer" && $val)
-                        $val = round($val, 0);
-                    $setVal = $dbh->escapeNumber($val);
+                    if (is_numeric($val)) {
+                        if ($fdef->subtype == "integer" && $val) {
+                            $ret[$fname] = (int)$val;
+                        } else {
+                            $ret[$fname] = $val;
+                        }
+                    } else {
+                        $ret[$fname] = null;
+                    }
+
                     break;
                 case 'date':
+                    // All date fields are epoch timestamps
                     if (is_numeric($val) && $val > 0) {
-                        $strDate = date("Y-m-d", $val);
-                        $setVal = $dbh->escapeDate($strDate);
+                        $ret[$fname] = date("Y-m-d", $val);
                     }
                     break;
                 case 'timestamp':
+                    // All timestamp fields are epoch timestamps
                     if (is_numeric($val) && $val > 0) {
-                        $strTs = date("Y-m-d h:i:s A T", $val);
-                        $setVal = $dbh->escapeTimestamp($strTs);
+                        $ret[$fname] = date(DateTime::ATOM, $val);
                     }
-                    break;
-                case 'bool':
-                    $bVal = ($val) ? 't' : "f"; // Set the default values to 'f'
-                    $setVal = "'$bVal'";
                     break;
                 case 'text':
                     $tmpval = $val;
+                    // Check if the field has a limited length
                     if (is_numeric($fdef->subtype)) {
                         if (strlen($tmpval) > $fdef->subtype)
                             $tmpval = substr($tmpval, 0, $fdef->subtype);
                     }
-                    $setVal = "'" . $dbh->escape($tmpval) . "'";
+                    $ret[$fname] = $tmpval;
                     break;
+                case 'object':
+                case 'fkey':
+                case 'bool':
                 default:
-                    $setVal = "'" . $dbh->escape($val) . "'";
+                    $ret[$fname] = $val;
                     break;
             }
 
-            if ($setVal) // Setval must be set to something for it to update a column
-                $ret[$fname] = $setVal;
-
-            // Set fval
+            // Set fval cache so we do not have to do crazy joins across tables
             if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" || $fdef->type == "object" || $fdef->type == "object_multi") {
                 $fvals = $entity->getValueNames($fname);
-                if (is_array($fvals) && count($fvals)) {
-                    $ret[$fname . "_fval"] = "'" . $dbh->escape(json_encode($fvals)) . "'";
-                } else {
-                    $ret[$fname . "_fval"] = "'" . $dbh->escape(json_encode(array())) . "'";
+                if (!is_array($fvals)) {
+                    $fvals = [];
                 }
+
+                $ret[$fname . "_fval"] = json_encode($fvals);
             }
         }
 
@@ -837,39 +763,40 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $ret = array();
 
         if ($fdef->type == "fkey" && $value) {
-            $query = "SELECT " . $fdef->fkeyTable['key'] . " as id, " . $fdef->fkeyTable['title'] . " as name ";
-            $query .= "FROM " . $fdef->subtype . " ";
-            $query .= "WHERE " . $fdef->fkeyTable['key'] . "='$value'";
-            $result = $dbh->query($query);
-            $num = $dbh->getNumRows($result);
-            for ($i = 0; $i < $num; $i++) {
-                $row = $dbh->getRow($result, $i);
+            $sql = 'SELECT ' . $fdef->fkeyTable['key'] . ' as id, ' .
+                $fdef->fkeyTable['title'] . 'as name ' .
+                'FROM ' . $fdef->subtype . ' WHERE ' . $fdef->fkeyTable['key'] . '=:key_value';
+            $result = $this->database->query($sql, ['key_value' => $value]);
+            if ($result->rowCount()) {
+                $row = $result->fetch();
                 $ret[(string)$row['id']] = $row['name'];
-            }
-
-            // The foreign object is no longer in the foreign table, just use id
-            if (!$num)
+            } else {
+                // The foreign object is no longer in the foreign table, just use id
                 $ret[$value] = $value;
+            }
         }
 
         if ($fdef->type == "fkey_multi") {
-            $datTbl = $fdef->subtype;
             $memTbl = $fdef->fkeyTable['ref_table']['table'];
-            $query = "SELECT $datTbl." . $fdef->fkeyTable['key'] . " as id, $datTbl." . $fdef->fkeyTable['title'] . " as name ";
-            $query .= "FROM $datTbl, $memTbl ";
-            $query .= "WHERE $datTbl." . $fdef->fkeyTable['key'] . "=$memTbl." . $fdef->fkeyTable['ref_table']['ref'] . " AND
-						" . $fdef->fkeyTable['ref_table']["this"] . "='" . $oid . "'";
-            $result = $dbh->query($query);
+            $sql = 'SELECT ' . $fdef->subtype . '.' . $fdef->fkeyTable['key'] . ' as id, ' .
+                $fdef->subtype . '.' .  $fdef->fkeyTable['title'] . ' as name' .
+                ' FROM ' . $fdef->subtype . ', ' . $memTbl .
+                ' WHERE ' .
+                    $fdef->subtype . '.' . $fdef->fkeyTable['key'] . '=' .
+                    $memTbl . '.' . $fdef->fkeyTable['ref_table']['ref'] .
+                    ' AND ' . $fdef->fkeyTable['ref_table']["this"] . '=:oid';
 
-            for ($i = 0; $i < $dbh->getNumRows($result); $i++) {
-                $row = $dbh->getRow($result, $i);
-
+            $result = $this->database->query($sql, ['oid'=>$oid]);
+            if ($result->rowCount()) {
+                $row = $result->fetch();
                 $ret[(string)$row['id']] = $row['name'];
             }
         }
 
-        /**
-         * Sky Stebnicki: The below are grossly inefficient but should only be necessary for very old
+        /*
+         * Update the names of any object references
+         *
+         * The below solution is grossly inefficient but should only be necessary for very old
          * objects and then will be cached by the loader in the caching datamapper.
          * Eventually we will just remove it along with this entire function.
          */
@@ -940,7 +867,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             return false;
 
         $sql = 'SELECT moved_to FROM objects_moved WHERE ' .
-            'object_type_id=:object_type_id AND object_id=:object_id';
+               'object_type_id=:object_type_id AND object_id=:object_id';
         $result = $this->database->query($sql, ['object_type_id' => $def->getId(), 'object_id' => $id]);
         if ($result->rowCount() > 0) {
             $row = $result->fetch();
@@ -991,14 +918,17 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function saveRevision($entity)
     {
-        $dbh = $this->dbh;
         $def = $entity->getDefinition();
 
         if ($entity->getValue("revision") && $entity->getId() && $def->getId()) {
-            $data = serialize($entity->toArray());
-            $dbh->query("insert into object_revisions(object_id, object_type_id, revision, ts_updated, data)
-						   values('" . $entity->getId() . "', '" . $def->getId() . "',
-								  '" . $entity->getValue("revision") . "', 'now', '" . $dbh->escape($data) . "');");
+            $insertData = [
+                'object_id' => $entity->getId(),
+                'object_type_id' => $def->getId(),
+                'revision' => $entity->getValue("revision"),
+                'ts_updated' => 'now',
+                'data' => $data = serialize($entity->toArray()),
+            ];
+            $this->database->insert('object_revisions', $insertData);
         }
     }
 
@@ -1013,23 +943,21 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     public function getRevisions($objType, $id)
     {
         if (!$objType || !$id)
-            return false;
-
+            return null;
 
         $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
 
         if (!$def)
-            return false;
+            return null;
 
-        $dbh = $this->dbh;
         $ret = array();
 
-        $results = $this->dbh->query("SELECT id, revision, data FROM object_revisions WHERE 
-										object_type_id='" . $def->getId() . "' AND object_id='" . $dbh->escape($id) . "' ORDER BY revision");
-        $num = $this->dbh->getNumRows($results);
-        for ($i = 0; $i < $num; $i++) {
-            $row = $this->dbh->getRow($results, $i);
-
+        $results = $this->database->query(
+            'SELECT id, revision, data FROM object_revisions ' .
+            'WHERE object_type_id=:object_type_id AND object_id=:object_id',
+            ['object_type_id' => $def->getId(), 'object_id' => $id]
+        );
+        foreach ($results->fetchAll() as $row) {
             $ent = $this->getAccount()->getServiceManager()->get("EntityFactory")->create($objType);
             $ent->fromArray(unserialize($row['data']));
             $ret[$row['revision']] = $ent;

@@ -141,7 +141,7 @@ abstract class DmTestsAbstract extends TestCase
 		$this->assertEquals($ent->getValueName("owner_id"), $this->user->getName());
 		$this->assertEquals($ent->getValue("status_id"), $statGrp->id);
 		$this->assertEquals($ent->getValueName("status_id"), "Unit Test Status");
-		$this->assertEquals($ent->getValue("groups"), array($groupsGrp->id));
+		$this->assertEquals($ent->getValue("groups"), [$groupsGrp->id]);
 		$this->assertEquals($ent->getValueName("groups"), "Unit Test Group");
 		$this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
 
@@ -811,6 +811,13 @@ abstract class DmTestsAbstract extends TestCase
 		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
 		$customer->setValue("uname", $uniqueName);
 		$oid1 = $dm->save($customer, $this->user);
+
+		$conn = pg_connect('host=db1 port=5432 dbname=netric user=vagrant password=vagrant');
+		$ret = pg_query($conn, 'SELECT * from acc_1.customers WHERE id=' . $oid1);
+
+		echo "\n----- stored data for $oid1-----\n";
+		echo var_export(pg_fetch_all($ret), true);
+
 
 		// Queue for cleanup
 		$this->testEntities[] = $customer;

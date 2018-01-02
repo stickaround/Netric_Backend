@@ -245,7 +245,7 @@ abstract class AbstractRelationalDb
     }
 
     /**
-     * Update a table row by simple mathcing conditional params
+     * Update a table row by matching conditional params
      *
      * @param string $tableName
      * @param array $params
@@ -277,6 +277,34 @@ abstract class AbstractRelationalDb
 
         // Run the update and return the id as the result
         $result = $this->query($sql, array_merge($params, $escapedWhereParams));
+
+        // Let the user know how many rows were updated
+        return $result->rowCount();
+    }
+
+    /**
+     * Delete a table row by simple matching conditional params
+     *
+     * @param string $tableName
+     * @param array $whereParams
+     * @return int Number of rows updated
+     */
+    public function delete(string $tableName, array $whereParams)
+    {
+        $sql = 'DELETE FROM ' . $tableName;
+
+        // Add where conditions to limit the delete
+        $whereStatements = [];
+        foreach ($whereParams as $colName => $colCondValue) {
+            $whereStatements[] = $colName . '=:' . $colName;
+        }
+
+        if (count($whereStatements) > 0) {
+            $sql .= ' WHERE ' . implode(' AND ', $whereStatements);
+        }
+
+        // Run the update and return the id as the result
+        $result = $this->query($sql, $whereParams);
 
         // Let the user know how many rows were updated
         return $result->rowCount();

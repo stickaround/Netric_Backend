@@ -157,6 +157,27 @@ abstract class AbstractRelationalDbTests extends TestCase
     }
 
     /**
+     * Test deleting rows with conditions
+     *
+     * @return void
+     */
+    public function testDelete()
+    {
+        $database = $this->getDatabase();
+
+        // Insert a few rows to make sure conditions limit
+        $database->insert('utest_people', ['name' => 'Name1']);
+        $database->insert('utest_people', ['name' => 'Name2']);
+        $lastId = $database->insert('utest_people', ['name' => 'Name3']);
+
+        $conditions = ['id' => $lastId];
+        $numDeleted = $database->delete('utest_people', $conditions);
+
+        // Delete should have only deleted the last record
+        $this->assertEquals(1, $numDeleted);
+    }
+
+    /**
      * Test getting the last inserted serialized pkey
      *
      * @return void

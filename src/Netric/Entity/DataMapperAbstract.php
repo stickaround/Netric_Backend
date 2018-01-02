@@ -696,11 +696,10 @@ private function setUniqueName(EntityInterface $entity)
 		return false;
 	}
 
-	$uname = "";
 	$unameSettings = explode(":", $def->unameSettings);
 
-		// Create desired uname from the right field
-		// Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
+    // Create desired uname from the right field
+    // Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
 	$lastPart = end($unameSettings);
 	if ($lastPart == "name") {
 		$uname = $entity->getName();
@@ -708,12 +707,12 @@ private function setUniqueName(EntityInterface $entity)
 		$uname = $entity->getValue($lastPart); // last one is the uname field
 	}
 
-		// The uname must be populated before we try to save anything
+	// The uname must be populated before we try to save anything
 	if (!$uname) {
 		return;
 	}
 
-		// Now escape the uname field to a uri fiendly name
+	// Now escape the uname field to a uri fiendly name
 	$uname = strtolower($uname);
 	$uname = str_replace(" ", "-", $uname);
 	$uname = str_replace("&", "_and_", $uname);
@@ -727,7 +726,7 @@ private function setUniqueName(EntityInterface $entity)
 		$uname .= ($this->id) ? $this->id : uniqid();
 	}
 
-		// Set the uname
+	// Set the uname
 	$entity->setValue("uname", $uname);
 	return true;
 }
@@ -761,7 +760,7 @@ public function verifyUniqueName($entity, $uname)
 		$query->andWhere("id")->doesNotEqual($entity->getId());
 	}
 
-		/*
+	/*
 	 * Loop through all namespaces if set with ':' in the settings
 	 * The first part of the settings is "<opt_namespace_field>:"
 	 * and it can have as many namespaces as needed with the last entry
@@ -775,7 +774,7 @@ public function verifyUniqueName($entity, $uname)
 		}
 	}
 
-		// Check if any objects match
+	// Check if any objects match
 	$index = $serviceManager->get("EntityQuery_Index");
 	$result = $index->executeQuery($query);
 	if ($result->getTotalNum() > 0) {
