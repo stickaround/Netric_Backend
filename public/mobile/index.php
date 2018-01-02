@@ -9,7 +9,7 @@ if (file_exists("webpack-manifest.json")) {
 }
 
     // Setup autoloader
-include(__DIR__ . "/../init_autoloader.php");
+include(__DIR__ . "/../../init_autoloader.php");
 
     // Get netric config
 $configLoader = new Netric\Config\ConfigLoader();

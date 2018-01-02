@@ -104,20 +104,6 @@ return array(
             'type'=>'object',
             'subtype'=>'project_story'
         ),
-        'template_task_id' => array(
-            'title'=>'Template Task',
-            'readonly'=>true,
-            'type'=>'fkey',
-            'subtype'=>'project_template_tasks',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
-        ),
-        'position_id' => array(
-            'title'=>'Position',
-            'readonly'=>true,
-            'type'=>'fkey',
-            'subtype'=>'project_positions',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
-        ),
         'category' => array(
             'title'=>'Category',
             'type'=>'fkey',

@@ -207,9 +207,8 @@ return array(
         ),
         'email_account' => array(
             'title'=>'Email Account',
-            'type'=>'fkey',
-            'subtype'=>'email_accounts',
-            'fkey_table'=>array("key"=>"id", "title"=>"name"),
+            'type'=>'object',
+            'subtype'=>'email_account',
             'readonly'=>true
         ),
         'message_uid' => array(

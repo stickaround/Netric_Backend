@@ -29,14 +29,7 @@ class Group
      * @var string
      */
     public $name = "";
-    
-    /**
-     * Unique name if exists
-     * 
-     * @var string
-     */
-    public $uname = "";
-    
+
     /**
      * Grouping is heiarchial with a parent id
      * 
@@ -108,7 +101,6 @@ class Group
         $data = array(
             "id" => $this->id,
             "name" => $this->name,
-            "uname" => $this->uname,
             "is_heiarch" => $this->isHeiarch,
             "is_system" => $this->isSystem,
             "parent_id" => $this->parentId,
@@ -172,9 +164,6 @@ class Group
         case "name":
             $this->name = $fval;
             break;
-        case "uname":
-            $this->uname = $fval;
-            break;
         case "isHeiarch":
             $this->isHeiarch = $fval;
             break;
@@ -215,9 +204,6 @@ class Group
             break;
         case "name":
             return $this->name;
-            break;
-        case "uname":
-            return $this->uname;
             break;
         case "isHeiarch":
             return $this->isHeiarch;

@@ -1,68 +1,40 @@
 <?php
 
-/**
- * This is the PostgreSQL implementation of a datamapper
- *
- * @category	DataMapper
- * @package		Pgsql
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\Entity\DataMapper;
 
-use Netric\Entity;
+use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
-use Netric\Db\DbInterface;
+use Netric\Db\Relational\RelationalDbInterface;
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
+use Netric\Account\Account;
 
-class Pgsql extends DataMapperAbstract implements DataMapperInterface
+/**
+ * Load and save entity data to a relational database
+ */
+class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterface
 {
-    /**
-     * The database host
-     *
-     * @var string
-     */
-    private $host = "";
-
-    /**
-     * The database name
-     *
-     * @var string
-     */
-    private $dbname = "";
-
-    /**
-     * The database user name
-     *
-     * @var string
-     */
-    private $username = "";
-
-    /**
-     * The database password
-     *
-     * @var string
-     */
-    private $password = "";
-
     /**
      * Handle to database
      *
-     * @var DbInterface
+     * @var RelationalDbInterface
+     */
+    private $database = null;
+
+    /**
+     * Legacy handle to Netric\Db\Db
+     *
+     * @var null
      */
     private $dbh = null;
 
     /**
      * Setup this class called from the parent constructor
-     *
-     * @param ServiceLocator $sl The ServiceLocator container
      */
     protected function setUp()
     {
-		// Right now we will use the CDatabase class because it is already setup
-		// Later we might want to start using direct pgsql api calls
-        $this->dbh = $this->account->getServiceManager()->get("Db");
+        $this->database = $this->account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
+        $this->dbh = $this->account->getServiceManager()->get('Db');
     }
 
     /**
@@ -74,43 +46,34 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
      */
     protected function fetchById(&$entity, $id)
     {
-        $objType = $entity->getObjType();
         $def = $entity->getDefinition();
 
-        $dbh = $this->dbh;
+        $result = $this->database->query(
+            'select * from ' . $def->getTable() . ' where id=:id',
+            ['id' => $id]
+        );
 
-        $query = "select * from " . $def->getTable() . " where id='" . $dbh->escape($id) . "'";
-        $result = $dbh->query($query);
-        if (!$this->dbh->getNumRows($result)) {
-			/*
-			// Object id not found, see if we can find the object in the moved index (maybe it was merged)
-			if (($movedToId = $this->entityHasMoved($def, $id)))
-			{
-				// Looks like this object was moved to another object - usually merged
-				return $this->fetchById($entity, $movedToId);
-			}
-             */
-
-			// The object was not found
+        // The object was not found
+        if ($result->rowCount() === 0) {
             return false;
         }
 
-        $row = $dbh->getRow($result, 0);
-
-		// Load data for foreign keys
+        // Load data for foreign keys
+        $row = $result->fetch();
         $all_fields = $def->getFields();
         foreach ($all_fields as $fname => $fdef) {
-			// Populate values and foreign values for foreign entries if not set
+
+            // Populate values and foreign values for foreign entries if not set
             if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
                 $mvals = null;
 
-				// If fval is not set which should only occur on old objects prior to caching data in version 2
+                // If fval is not set which should only occur on old objects prior to caching data in version 2
                 if (!$row[$fname . "_fval"] || ($row[$fname . "_fval"] == '[]' && $row[$fname] != '[]' && $row[$fname] != '')) {
                     $mvals = $this->getForeignKeyDataFromDb($fdef, $row[$fname], $entity->getId(), $def->getId());
                     $row[$fname . "_fval"] = ($mvals) ? json_encode($mvals) : "";
                 }
 
-				// set values of fkey_multi and object_multi fields as array of id(s)
+                // set values of fkey_multi and object_multi fields as array of id(s)
                 if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
                     if ($row[$fname]) {
                         $parts = $this->decodeFval($row[$fname]);
@@ -119,7 +82,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                         }
                     }
 
-					// Was not set in the column, try reading from mvals list that was generated above
+                    // Was not set in the column, try reading from mvals list that was generated above
                     if (!$row[$fname]) {
                         if (!$mvals && $row[$fname . "_fval"])
                             $mvals = $this->decodeFval($row[$fname . "_fval"]);
@@ -131,8 +94,8 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                     }
                 }
 
-				// Get object with no subtype - we may want to store this locally eventually
-				// so check to see if the data is not already defined
+                // Get object with no subtype - we may want to store this locally eventually
+                // so check to see if the data is not already defined
                 if (!$row[$fname] && $fdef->type == "object" && !$fdef->subtype) {
                     if (!$mvals && $row[$fname . "_fval"])
                         $mvals = $this->decodeFval($row[$fname . "_fval"]);
@@ -154,10 +117,10 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                     break;
             }
 
-			// Check if we have an fkey label/name associated with column ids - these are cached in the object
+            // Check if we have an fkey label/name associated with column ids - these are cached in the object
             $fkeyValueName = (isset($row[$fname . "_fval"])) ? $this->decodeFval($row[$fname . "_fval"]) : null;
 
-			// Set entity value
+            // Set entity value
             if (isset($row[$fname]))
                 $entity->setValue($fname, $row[$fname], $fkeyValueName);
         }
@@ -173,29 +136,37 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
      */
     protected function deleteHard(&$entity)
     {
-		// Only delete existing objects
+        // Only delete existing objects
         if (!$entity->getId())
             return false;
 
         $def = $entity->getDefinition();
 
-		// Remove revision history
-        $this->dbh->query("DELETE FROM object_revisions WHERE object_id='" . $entity->getId() . "'
-							AND object_type_id='" . $def->getId() . "'");
+        // Remove revision history
+        $this->database->query(
+            'DELETE FROM object_revisions WHERE object_id=:object_id ' .
+            'AND object_type_id=:object_type_id',
+            ['object_id' => $entity->getId(), 'object_type_id' => $def->getId()]
+        );
 
-		// Delete the object from the object table
-        $ret = $this->dbh->query("DELETE FROM " . $def->getTable() . " where id='" . $entity->getId() . "'");
+        // Delete the object from the object table
+        $result = $this->database->query(
+            "DELETE FROM " . $def->getTable() . " where id=:id",
+            ['id' => $entity->getId()]
+        );
 
-		// Remove associations
-        $this->dbh->query("DELETE FROM object_associations WHERE
-							(object_id='" . $entity->getId() . "' and type_id='" . $def->getId() . "')
-							or (assoc_object_id='" . $entity->getId() . "' and assoc_type_id='" . $def->getId() . "')");
+        // Remove associations
+        $this->database->query(
+            'DELETE FROM object_associations WHERE ' .
+            '(object_id=:object_id and type_id=:type_id) OR ' .
+            '(assoc_object_id=:object_id and assoc_type_id=:type_id)',
+            [
+                'object_id' => $entity->getId(), 'type_id' => $def->getId(),
+            ]
+        );
 
-		// We just need to make sure the main object was deleted
-        if ($ret == false)
-            return false;
-        else
-            return true;
+        // We just need to make sure the main object was deleted
+        return ($result->rowCount() > 0);
     }
 
     /**
@@ -206,7 +177,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
      */
     protected function deleteSoft(&$entity)
     {
-		// Update the deleted flag and save
+        // Update the deleted flag and save
         $entity->setValue("f_deleted", true);
         $ret = $this->save($entity);
         return ($ret == false) ? false : true;
@@ -237,7 +208,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         else
             $cnd = "";
 
-		// Check filters to refine the results - can filter by parent object like project id for cases or tasks
+        // Check filters to refine the results - can filter by parent object like project id for cases or tasks
         if (isset($field->fkeyTable['filter'])) {
             foreach ($field->fkeyTable['filter'] as $grouping_field => $object_field) {
                 if (isset($filters[$object_field])) {
@@ -255,7 +226,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                     $cnd .= " $grouping_field='" . $filters[$object_field] . "' ";
 
                 } else if (isset($filters[$grouping_field])) {
-				    // A filer can also come in as the grouping field name rather than the object
+                    // A filer can also come in as the grouping field name rather than the object
                     if ($cnd) {
                         $cnd .= " and ";
                     }
@@ -264,7 +235,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             }
         }
 
-		// Filter results to this user of the object is private
+        // Filter results to this user of the object is private
         if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {
             throw new \Exception("Private entity type called but grouping has no filter defined - " . $def->getObjType());
         }
@@ -279,7 +250,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         else
             $sql .= " ORDER BY " . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
 
-		// Technically, the limit of groupings is 1000 per field, but just to be safe
+        // Technically, the limit of groupings is 1000 per field, but just to be safe
         $sql .= " LIMIT 10000";
 
         $groupings = new \Netric\EntityGroupings($objType, $fieldName, $filters);
@@ -291,7 +262,6 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
             $group = new \Netric\EntityGroupings\Group();
             $group->id = $row[$field->fkeyTable['key']];
-            $group->uname = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
             $group->name = $row[$field->fkeyTable['title']];
             $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
             if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
@@ -302,26 +272,26 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
             $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
 
-			//$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
+            //$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
 
-			// Add all additional fields which are usually used for filters
+            // Add all additional fields which are usually used for filters
             foreach ($row as $pname => $pval) {
                 if (!$group->getValue($pname))
                     $group->setValue($pname, $pval);
             }
 
-			// Make sure the group is not marked as dirty
+            // Make sure the group is not marked as dirty
             $group->setDirty(false);
 
             $groupings->add($group);
         }
 
-		// TODO: we need to think about how we can manage default groupings
-		// Make sure that default groupings exist (if any)
-		//if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
-		//	$ret = $this->verifyDefaultGroupings($fieldName, $data, $nameValue);
-		//else
-		//	$ret = $data;
+        // TODO: we need to think about how we can manage default groupings
+        // Make sure that default groupings exist (if any)
+        //if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
+        //	$ret = $this->verifyDefaultGroupings($fieldName, $data, $nameValue);
+        //else
+        //	$ret = $data;
 
         return $groupings;
     }
@@ -345,24 +315,26 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
         $toDelete = $groupings->getDeleted();
         foreach ($toDelete as $grp) {
-            $query = "DELETE FROM " . $field->subtype . " where id='" . $grp->id . "'";
-            $this->dbh->query($query);
+            $this->database->query(
+                'DELETE FROM ' . $field->subtype . ' WHERE id=:id',
+                ['id' => $grp->id]
+            );
 
-			// Log here
+            // Log here
             $ret['deleted'][$grp->id] = $grp->commitId;
         }
 
         $toSave = $groupings->getChanged();
         foreach ($toSave as $grp) {
-			// Cache for updates to object_sync
+            // Cache for updates to object_sync
             $lastCommitId = $grp->getValue("commitId");
 
-			// Set the new commit id
+            // Set the new commit id
             $grp->setValue("commitId", $commitId);
 
             if ($this->saveGroup($def, $field, $grp)) {
                 $grp->setDirty(false);
-				// Log here
+                // Log here
                 $ret['changed'][$grp->id] = $lastCommitId;
             }
         }
@@ -374,7 +346,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
      * Save a new or existing group
      *
      * @param \Netric\EntityDefinition $def Entity type definition
-     * @param \Netric\EntityDefinition\Feidl $field The field we are saving a grouping for
+     * @param \Netric\EntityDefinition\Field $field The field we are saving a grouping for
      * @param \Netric\EntityGroupings\Group $grp The grouping to save
      * @return bool true on sucess, false on failure
      */
@@ -388,101 +360,105 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
         $columns = array();
         $values = array();
+        $tableData = [];
+
+        if (isset($grp->uname)) {
+            throw new \RuntimeException('NO UNAME!!!');
+        }
 
         if ($grp->name && $field->fkeyTable['title']) {
-            $columns[] = $field->fkeyTable['title'];
-            $values[] = "'" . $this->dbh->escape($grp->name) . "'";
+            $tableData[$field->fkeyTable['title']] = $grp->name;
+            //$columns[] = $field->fkeyTable['title'];
+            //$values[] = "'" . $this->dbh->escape($grp->name) . "'";
         }
 
         if ($grp->color && $this->dbh->columnExists($field->subtype, "color")) {
-            $columns[] = "color";
-            $values[] = "'" . $this->dbh->escape($grp->color) . "'";
+            $tableData['color'] = $grp->color;
+            //$columns[] = "color";
+            //$values[] = "'" . $this->dbh->escape($grp->color) . "'";
         }
 
         if ($grp->isSystem && $this->dbh->columnExists($field->subtype, "f_system")) {
-            $columns[] = "f_system";
-            $values[] = "'t'";
+            $tableData['f_system'] = $grp->isSystem;
+            //$columns[] = "f_system";
+            //$values[] = "'t'";
         }
 
         if ($grp->sortOrder && $this->dbh->columnExists($field->subtype, "sort_order")) {
-            $columns[] = "sort_order";
-            $values[] = $this->dbh->escapeNumber($grp->sortOrder);
+            $tableData['sort_order'] = $grp->sortOrder;
+            //$columns[] = "sort_order";
+            //$values[] = $this->dbh->escapeNumber($grp->sortOrder);
         }
 
         if ($grp->parentId && isset($field->fkeyTable['parent'])) {
-            $columns[] = $field->fkeyTable['parent'];
-            $values[] = $this->dbh->escapeNumber($grp->parentId);
+            $tableData[$field->fkeyTable['parent']] = $grp->parentId;
+            //$columns[] = $field->fkeyTable['parent'];
+            //$values[] = $this->dbh->escapeNumber($grp->parentId);
         }
 
         if ($grp->commitId) {
-            $columns[] = "commit_id";
-            $values[] = $this->dbh->escapeNumber($grp->commitId);
+            $tableData['commit_id'] = $grp->commitId;
+            //$columns[] = "commit_id";
+            //$values[] = $this->dbh->escapeNumber($grp->commitId);
         }
 
         if ($field->subtype == "object_groupings") {
-            $columns[] = "object_type_id";
-            $values[] = "'" . $def->getId() . "'";
+            $tableData['object_type_id'] = $def->getId();
+            $tableData['field_id'] = $field->id;
+            //$columns[] = "object_type_id";
+            //$values[] = "'" . $def->getId() . "'";
 
-            $columns[] = "field_id";
-            $values[] = "'" . $field->id . "'";
+            //$columns[] = "field_id";
+            //$values[] = "'" . $field->id . "'";
         }
 
         $data = $grp->toArray();
+
+        $ignore = ['is_heiarch', 'is_system', 'uname'];
         foreach ($data["filter_fields"] as $name => $value) {
-			// Make sure that the column name does not exists yet
-            if (in_array($name, $columns)) {
+            // Make sure that the column name does not exists yet
+            if (array_key_exists($name, $tableData)) {
                 continue;
             }
 
             if ($value && $this->dbh->columnExists($field->subtype, $name)) {
-                $columns[] = $name;
-                $values[] = "'" . $this->dbh->escape($value) . "'";
+                $tableData[$name] = $value;
+                //$columns[] = $name;
+                //$values[] = "'" . $this->dbh->escape($value) . "'";
             }
         }
-		/*
-        if (($this->def->isPrivate || $field->subtype == "object_groupings") && $this->user)
-        {
-            if ($this->dbh->ColumnExists($field->subtype, "owner_id"))
-            {
-                $columns[] = "owner_id";
-                $values[] = $this->dbh->EscapeNumber($this->user->id);
-            }
-            else if ($this->dbh->ColumnExists($field->subtype, "user_id"))
-            {
-                $columns[] = "user_id";
-                $values[] = $this->dbh->EscapeNumber($this->user->id);
-            }
-        }
-         */
 
-		// Execute query
-        if (count($columns) == 0)
-            return false;
+        // Execute query
+        if (count($tableData) == 0) {
+            throw new \RuntimeException('Cannot save grouping - invalid data ' . var_export($grp, true));
+        }
 
         if ($grp->id) {
-            $upSql = "";
-            for ($i = 0; $i < count($columns); $i++) {
-                if ($i > 0)
-                    $upSql .= ", ";
+            //$upSql = "";
+            //for ($i = 0; $i < count($columns); $i++) {
+            //    if ($i > 0)
+            //        $upSql .= ", ";
 
-                $upSql .= $columns[$i] . "=" . $values[$i];
-            }
+            //    $upSql .= $columns[$i] . "=" . $values[$i];
+            //}
 
-            $sql = "UPDATE " . $field->subtype . " SET " . $upSql . " WHERE id='" . $grp->id . "'";
+            $this->database->update($field->subtype, $tableData, ['id' => $grp->id]);
+            //$sql = "UPDATE " . $field->subtype . " SET " . $upSql . " WHERE id='" . $grp->id . "'";
         } else {
-            $sql = "INSERT INTO " . $field->subtype . "(" . implode(", ", $columns) . ") VALUES(" . implode(", ", $values) . ");
-                                      SELECT currval('" . $field->subtype . "_id_seq') as id;";
+            $grp->id = $this->database->insert($field->subtype, $tableData);
+            //$sql = "INSERT INTO " . $field->subtype . "(" . implode(", ", $columns) . ") VALUES(" . implode(", ", $values) . ");
+            //                          SELECT currval('" . $field->subtype . "_id_seq') as id;";
         }
 
-        $res = $this->dbh->Query($sql);
-        if (!$res)
-            return false;
+        //$res = $this->dbh->Query($sql);
+        //if (!$res)
+        //   return false;
 
-        if ($this->dbh->getNumRows($res)) {
-            if (!$grp->id) {
-                $grp->id = $this->dbh->getValue($res, 0, "id");
-            }
-        }
+        //if ($this->dbh->getNumRows($res)) {
+        //    if (!$grp->id) {
+        //        $grp->id = $this->dbh->getValue($res, 0, "id");
+        //    }
+        //}
 
         return true;
     }
@@ -499,15 +475,15 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         $ret = array();
         $def = $entity->getDefinition();
 
-		// TODO: Reload cached foreign values based on the current values
-		// $this->reloadFVals();
+        // TODO: Reload cached foreign values based on the current values
+        // $this->reloadFVals();
 
-		// Convert to cols=>vals escaped array
+        // Convert to cols=>vals escaped array
         $data = $this->getColsVals($entity);
 
         $all_fields = $def->getFields();
 
-		// Try to manipulate data to correctly build the sql statement based on custom table definitions
+        // Try to manipulate data to correctly build the sql statement based on custom table definitions
         if (!$def->isCustomTable())
             $data["object_type_id"] = $def->getId();
 
@@ -518,7 +494,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         else if (!$def->isCustomTable())
             $targetTable .= "_act";
 
-		/*
+        /*
          * If we are using a custom table or the deleted status has not changed
          * on a generic object table then update row.
          * The last condition checks if update is greater than 1, since 1 will be the value
@@ -532,7 +508,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             $update_fields = "";
             foreach ($data as $colname => $colval) {
                 if ($colname == "id") // skip over id
-                continue;
+                    continue;
 
                 if ($update_fields) $update_fields .= ", ";
                 $update_fields .= '"' . $colname . '"' . "=" . $colval; // val is already escaped
@@ -543,13 +519,13 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             if (!$res) {
                 throw new \RuntimeException(
                     "Could not update entity $targetTable." .
-                        $entity->getId() . ":" . $dbh->getLastError()
+                    $entity->getId() . ":" . $dbh->getLastError()
                 );
             }
 
             $performed = "update";
         } else {
-			// Clean out old record if it exists in a different partition
+            // Clean out old record if it exists in a different partition
             if ($entity->getId() && !$def->isCustomTable()) {
                 $dbh->query("DELETE FROM " . $def->getTable() . " WHERE id='" . $entity->getId() . "'");
             }
@@ -558,12 +534,12 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             $vals = "";
 
             foreach ($data as $colname => $colval) {
-				// Skip over id if it is null
+                // Skip over id if it is null
                 if ($colname == "id" && (empty($colval) || strtolower($colval) == 'null')) {
                     continue;
                 }
 
-				// Add comma
+                // Add comma
                 if ($cols) {
                     $cols .= ", ";
                 }
@@ -572,7 +548,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                     $vals .= ", ";
                 }
 
-				// Add culumn name and column value
+                // Add culumn name and column value
                 $cols .= $colname;
                 $vals .= $colval; // val is already escaped
             }
@@ -590,26 +566,26 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             if (!$result) {
                 throw new DefinitionStaleException(
                     "Could not save entity: " . $dbh->getLastError() .
-                        " - " . $query
+                    " - " . $query
                 );
             }
 
-			// Set event
+            // Set event
             $performed = (!$entity->getId()) ? "create" : "update";
 
-			// If this was a new object the set the id, otherwise leave as is
+            // If this was a new object the set the id, otherwise leave as is
             if ($dbh->getNumRows($result) && !$entity->getId())
                 $entity->setValue("id", $dbh->getValue($result, 0, "id"));
         }
 
-		// handle fkey_multi && Auto
+        // handle fkey_multi && Auto
         if ($entity->getId()) {
-			// Handle autocreate folders - only has to fire the very first time
+            // Handle autocreate folders - only has to fire the very first time
             foreach ($all_fields as $fname => $fdef) {
                 if ($fdef->type == "object" && $fdef->subtype == "folder"
                     && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
                     && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)) {
-					// We should use the service locator to load this service
+                    // We should use the service locator to load this service
                     $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
                     $fldr = $fileSystem->openFolder($fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename), true);
                     if ($fldr->getId()) {
@@ -619,25 +595,25 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                 }
             }
 
-			// Handle updating reference membership if needed
+            // Handle updating reference membership if needed
             $defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
             foreach ($all_fields as $fname => $fdef) {
                 if (!$fdef->id)
                     throw new DefinitionStaleException("For some reason there is no ID for field $fname of object type " . $def->getObjType());
 
                 if ($fdef->type == "fkey_multi") {
-					// Cleanup
-					// --------------------------------------
+                    // Cleanup
+                    // --------------------------------------
                     $queryStr = "delete from " . $fdef->fkeyTable['ref_table']['table'] . "
 								 where " . $fdef->fkeyTable['ref_table']["this"] . "='" . $entity->getId() . "'";
-					// object_type_id is needed for generic groupings
+                    // object_type_id is needed for generic groupings
                     if ($fdef->subtype == "object_groupings")
                         $queryStr .= " and object_type_id='" . $def->getId() . "' and field_id='" . $fdef->id . "'";
 
                     $dbh->query($queryStr);
 
-					// Populate foreign table
-					// --------------------------------------
+                    // Populate foreign table
+                    // --------------------------------------
                     $mvalues = $entity->getValue($fname);
                     if (is_array($mvalues)) {
                         foreach ($mvalues as $val) {
@@ -645,14 +621,14 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                                 $queryStr = "INSERT INTO " . $fdef->fkeyTable['ref_table']['table'] . "
 									(" . $fdef->fkeyTable['ref_table']['ref'] . ", " . $fdef->fkeyTable['ref_table']["this"];
 
-								// object_type_id is needed for generic groupings
+                                // object_type_id is needed for generic groupings
                                 if ($fdef->subtype == "object_groupings")
                                     $queryStr .= ", object_type_id, field_id";
 
-								// Add values
+                                // Add values
                                 $queryStr .= ") VALUES('" . $val . "', '" . $entity->getId() . "'";
 
-								// object_type_id is needed for generic groupings
+                                // object_type_id is needed for generic groupings
                                 if ($fdef->subtype == "object_groupings")
                                     $queryStr .= ", '" . $def->getId() . "', '" . $fdef->id . "'";
 
@@ -664,15 +640,15 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                     }
                 }
 
-				// Handle object associations
+                // Handle object associations
                 if ($fdef->type == "object_multi" || $fdef->type == "object") {
-					// Cleanup
+                    // Cleanup
                     $dbh->query("DELETE FROM object_associations
 								 WHERE object_id='" . $entity->getId() . "' AND
 								 type_id='" . $def->getId() . "'
 								 AND field_id='" . $fdef->id . "'");
 
-					// Set values
+                    // Set values
                     $mvalues = $entity->getValue($fname);
                     if (is_array($mvalues)) {
                         foreach ($mvalues as $val) {
@@ -726,7 +702,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
             return $entity->getId();
         } else {
-			// Failed to save
+            // Failed to save
             return false;
         }
     }
@@ -816,9 +792,9 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
             }
 
             if ($setVal) // Setval must be set to something for it to update a column
-            $ret[$fname] = $setVal;
+                $ret[$fname] = $setVal;
 
-			// Set fval
+            // Set fval
             if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" || $fdef->type == "object" || $fdef->type == "object_multi") {
                 $fvals = $entity->getValueNames($fname);
                 if (is_array($fvals) && count($fvals)) {
@@ -871,7 +847,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                 $ret[(string)$row['id']] = $row['name'];
             }
 
-			// The foreign object is no longer in the foreign table, just use id
+            // The foreign object is no longer in the foreign table, just use id
             if (!$num)
                 $ret[$value] = $value;
         }
@@ -918,7 +894,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 
                 $oname = "";
 
-				// If subtype is set in the field, then only the id of the object is stored
+                // If subtype is set in the field, then only the id of the object is stored
                 if ($fdef->subtype) {
                     $oname = $fdef->subtype;
                     $idval = (string)$row['assoc_object_id'];
@@ -927,22 +903,22 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
                     $idval = $oname . ":" . $row["assoc_object_id"];
                 }
 
-				/* Removed this code since it is causing a circular reference
+                /* Removed this code since it is causing a circular reference
                  *
                  * When an entity (e.g. User) has a referenced entity (e.g File),
                  * EntityLoader will try to get the referenced entity data from the datamapper (if referenced entity is not yet cached)
                  * And then File entity will try to get the User Entity which will cause a circular reference
-					if ($oname)
-					{
-						$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
+                    if ($oname)
+                    {
+                        $entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
 
-						// Update if field is not referencing an entity that no longer exists
-						if ($entity)
-							$ret[(string)$idval] = $entity->getName();
-					}
+                        // Update if field is not referencing an entity that no longer exists
+                        if ($entity)
+                            $ret[(string)$idval] = $entity->getName();
+                    }
                  */
 
-				/*
+                /*
                  * Set the value to null since we cant get the referenced entity name for now.
                  * Let the caller handle getting the name of the referenced entity
                  */
@@ -963,13 +939,14 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         if (!$id)
             return false;
 
-        $result = $this->dbh->query("SELECT moved_to FROM objects_moved WHERE
-										object_type_id='" . $def->getId() . "'
-										and object_id='" . $this->dbh->escape($id) . "'");
-        if ($this->dbh->getNumRows($result)) {
-            $moved_to = $this->dbh->getValue($result, 0, "moved_to");
+        $sql = 'SELECT moved_to FROM objects_moved WHERE ' .
+            'object_type_id=:object_type_id AND object_id=:object_id';
+        $result = $this->database->query($sql, ['object_type_id' => $def->getId(), 'object_id' => $id]);
+        if ($result->rowCount() > 0) {
+            $row = $result->fetch();
+            $moved_to = $row['moved_to'];
 
-			// Kill circular references - objects moved to each other
+            // Kill circular references - objects moved to each other
             if (in_array($id, $this->movedToRef))
                 return false;
 
@@ -988,17 +965,22 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
      * @param string $fromId The id to move
      * @param stirng $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
+     * @throws DatabaseQueryException if query fails
      */
     public function setEntityMovedTo(&$def, $fromId, $toId)
     {
         if (!$fromId || $fromId == $toId) // never allow circular reference or blank values
-        return false;
+            return false;
 
-        $ret = $this->dbh->query("INSERT INTO objects_moved(object_type_id, object_id, moved_to)
-									VALUES('" . $def->getId() . "', '" . $this->dbh->escape($fromId) . "',
-										'" . $this->dbh->escape($toId) . "');");
+        $data = [
+            'object_type_id' => $def->getId(),
+            'object_id' => $fromId,
+            'moved_to' => $toId,
+        ];
+        $this->database->insert('objects_moved', $data);
 
-        return ($ret == false) ? false : true;
+        // If it fails an exception will be thrown
+        return true;
     }
 
     /**

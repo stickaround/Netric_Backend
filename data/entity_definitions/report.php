@@ -44,7 +44,7 @@ return array(
         ),
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'fkey',
+            'type'=>'object',
             'subtype'=>'users',
             'default'=>array("value"=>"-3", "on"=>"null"),
             'fkey_table'=>array("key"=>"id", "title"=>"name")

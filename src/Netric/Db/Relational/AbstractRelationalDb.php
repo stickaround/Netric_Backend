@@ -22,7 +22,7 @@ abstract class AbstractRelationalDb
     /**
      * @var \PDO $oConnection PDO Connection
      */
-    private $oConnection = null;
+    private $pdoConnection = null;
 
     /**
      * @var string $databaseUser

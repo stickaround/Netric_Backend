@@ -66,13 +66,6 @@ return array(
             'type' => 'object',
             'subtype' => 'customer'
         ),
-        'template_id' => array(
-            'title' => 'Template',
-            'type' => 'fkey',
-            'subtype' => 'project_templates',
-            'readonly' => true,
-            'fkey_table' => array("key" => "id", "title" => "name")
-        ),
         'groups' => array(
             'title' => 'Groups',
             'type' => 'fkey_multi',

@@ -14,9 +14,8 @@ return array(
         ),
         'event_id' => array(
             'title'=>'Event',
-            'type'=>'fkey',
-            'subtype'=>'calendar_events',
-            'fkey_table'=>array("key"=>"id", "title"=>"name"),
+            'type'=>'object',
+            'subtype'=>'calendar_event',
             'readonly'=>true
         ),
         'attendees' => array(

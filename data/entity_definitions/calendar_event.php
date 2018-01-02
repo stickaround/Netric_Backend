@@ -123,8 +123,8 @@ return array(
         ),
         'calendar' => array(
             'title'=>'Calendar',
-            'type'=>'fkey',
-            'subtype'=>'calendars',
+            'type'=>'object',
+            'subtype'=>'calendar',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(
