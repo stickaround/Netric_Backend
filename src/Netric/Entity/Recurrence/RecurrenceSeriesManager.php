@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handle a series of recurring entities based on a recurrence pattern
  *
@@ -19,12 +20,12 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
  */
 class RecurrenceSeriesManager implements Error\ErrorAwareInterface
 {
-	/**
-	 * Identity mapper for loading/saving/caching recurrence patterns
-	 *
-	 * @var RecurrenceIdentityMapper
-	 */
-	private $recurIdentityMapper = null;
+    /**
+     * Identity mapper for loading/saving/caching recurrence patterns
+     *
+     * @var RecurrenceIdentityMapper
+     */
+    private $recurIdentityMapper = null;
 
     /**
      * Entity DataMapper for saving new entities
@@ -61,79 +62,79 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      */
     private $errors = array();
 
-	/**
-	 * Setup the class
-	 *
-	 * @param RecurrenceIdentityMapper $identityMapper For loading/saving/caching patterns
+    /**
+     * Setup the class
+     *
+     * @param RecurrenceIdentityMapper $identityMapper For loading/saving/caching patterns
      * @param EntityLoader $entityLoader To load and create new entities
      * @param Entity\DataMapperInterface $entityDataMapper To save new entities
      * @param IndexInterface $entityIndex Index used to querying entities
      * @param EntityDefinitionLoader $entityDefinitionLoader
-	 */
-	public function __construct(
+     */
+    public function __construct(
         RecurrenceIdentityMapper $identityMapper,
         EntityLoader $entityLoader,
         Entity\DataMapperInterface $entityDataMapper,
         IndexInterface $entityIndex,
-        EntityDefinitionLoader $entityDefinitionLoader)
-	{
+        EntityDefinitionLoader $entityDefinitionLoader
+    ) {
         $this->recurIdentityMapper = $identityMapper;
-		$this->entityLoader = $entityLoader;
+        $this->entityLoader = $entityLoader;
         $this->entityDataMapper = $entityDataMapper;
         $this->entityIndex = $entityIndex;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
-	}
+    }
 
-	/**
-	 * Create all entities in a recurrence pattern up to a specified date
-	 *
-	 * @param RecurrencePattern $pattern
-	 * @param \DateTime $toDate
-	 * @return int number of entities created
-	 */
-	public function createSeries(RecurrencePattern $pattern, \DateTime $toDate)
-	{
+    /**
+     * Create all entities in a recurrence pattern up to a specified date
+     *
+     * @param RecurrencePattern $pattern
+     * @param \DateTime $toDate
+     * @return int number of entities created
+     */
+    public function createSeries(RecurrencePattern $pattern, \DateTime $toDate)
+    {
 		// Make sure we are working with a valid pattern
-		if (!$pattern->validatePattern())
-			return 0;
+        if (!$pattern->validatePattern())
+            return 0;
 
 		// Make sure this is not being created/removed by any other process
-		if ($pattern->isSeriesLocked())
-			return 0;
+        if ($pattern->isSeriesLocked())
+            return 0;
 
 		// Lock this pattern to prevent overlap
-		$pattern->setSeriesLocked(true);
-		$this->recurIdentityMapper->save($pattern);
+        $pattern->setSeriesLocked(true);
+        $this->recurIdentityMapper->save($pattern);
 
         // Record the number of entities created
-		$numCreated = 0;
+        $numCreated = 0;
 
         // Get the very next date from the pattern picking up from where it last processed to
-        $curDate  = $pattern->getNextStart();
-		if (!$curDate)
-			return 0;
+        $curDate = $pattern->getNextStart();
+        if (!$curDate)
+            return 0;
 
         // Loop through $pattern->getNextStart() until we have reached $toDate
-		while($curDate<=$toDate)
-		{
-            if ($this->createInstance($pattern, $curDate))
-			    $numCreated++;
+        while ($curDate <= $toDate) {
+            if ($this->createInstance($pattern, $curDate)) {
+                $numCreated++;
+            }
 
             // Get the next date to process next time around or exit if we've reached the end
             $curDate = $pattern->getNextStart();
             if (!$curDate)
                 break;
-		}
+        }
 
         // Update the date we just processed to and unlock the series
-		$pattern->setDateProcessedTo($toDate);
-		$pattern->setSeriesLocked(false);
-		$this->recurIdentityMapper->save($pattern);
+        $pattern->setDateProcessedTo($toDate);
+        $pattern->setSeriesLocked(false);
+        $this->recurIdentityMapper->save($pattern);
 
         // Let the caller know how many we just created
-		return $numCreated;
-	}
-	
+        return $numCreated;
+    }
+
 
     /**
      * Remove a series of entities and the associated recurrence pattern
@@ -141,9 +142,9 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      * @param Entity\EntityInterface $entity Any entity in the series
      * @return bool
      */
-	public function removeSeries(Entity\EntityInterface $entity)
-	{
-		$recurrencePattern = $entity->getRecurrencePattern();
+    public function removeSeries(Entity\EntityInterface $entity)
+    {
+        $recurrencePattern = $entity->getRecurrencePattern();
         $recurRules = $entity->getDefinition()->recurRules;
         $recurId = $recurrencePattern->getId();
 
@@ -156,8 +157,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $query->where($recurRules['field_recur_id'])->equals($recurId);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
-        for ($i = 0; $i < $num; $i++)
-        {
+        for ($i = 0; $i < $num; $i++) {
             $entity = $result->getEntity($i);
             $this->entityDataMapper->delete($entity);
         }
@@ -166,7 +166,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $this->recurIdentityMapper->delete($recurrencePattern);
 
         return true;
-	}
+    }
 
     /**
      * Get the last error thrown in an object or module
@@ -216,7 +216,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
 
         // Do nothing if the object type passed is not recurring
         if (!$recurRules) {
-            return;            
+            return;
         }
 
         /*
@@ -231,20 +231,19 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
                 if (is_numeric($cond->value)) {
                     // Handle next 'x' number of 'days|weeks|months|years' conditions
                     $inter = "";
-                    switch ($cond->operator)
-                    {
-                    case 'next_x_days':
-                        $inter = "days";
-                        break;
-                    case 'next_x_weeks':
-                        $inter = "weeks";
-                        break;
-                    case 'next_x_months':
-                        $inter = "months";
-                        break;
-                    case 'next_x_years':
-                        $inter = "months";
-                        break;
+                    switch ($cond->operator) {
+                        case 'next_x_days':
+                            $inter = "days";
+                            break;
+                        case 'next_x_weeks':
+                            $inter = "weeks";
+                            break;
+                        case 'next_x_months':
+                            $inter = "months";
+                            break;
+                        case 'next_x_years':
+                            $inter = "months";
+                            break;
                     }
 
                     // If we have an interval setup for a next_x_* then extend $processTo
@@ -282,8 +281,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
             $dateTo->setTimestamp($processTo);
             $objType = $def->getObjType();
             $recurPatterns = $this->recurIdentityMapper->getStalePatterns($objType, $dateTo);
-            foreach ($recurPatterns as $pattern)
-            {
+            foreach ($recurPatterns as $pattern) {
                 $this->createSeries($pattern, $dateTo);
             }
         }
@@ -300,6 +298,11 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     {
         $objType = $recurrencePattern->getObjType();
         $firstEntity = $this->entityLoader->get($objType, $recurrencePattern->getFirstEntityId());
+        // If the first entity no longer exists then we should cancel this recurrence pattern
+        if (!$firstEntity) {
+            return false;
+        }
+
         $newInstanceEntity = $this->entityLoader->create($objType);
         $entityDefinition = $firstEntity->getDefinition();
         $recurRules = $entityDefinition->recurRules;
@@ -349,7 +352,6 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         return $this->entityDataMapper->save($newInstanceEntity);
     }
 
-
     /**
      * Generate a new date relative to the first entities value
      *
@@ -363,11 +365,10 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $relativeDate = new \DateTime();
 
         // Cannot recur if there is no start or end date for the entity
-        if (!$firstEntity->getValue($useTimeField))
-        {
+        if (!$firstEntity->getValue($useTimeField)) {
             throw new \RuntimeException(
                 $useTimeField . " is required and not set in entity" .
-                $firstEntity->getDefinition()->getObjType() . ":" . $firstEntity->getId()
+                    $firstEntity->getDefinition()->getObjType() . ":" . $firstEntity->getId()
             );
         }
 

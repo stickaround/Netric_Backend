@@ -75,7 +75,7 @@ class SchedulerServiceTest extends TestCase
     {
         // Add the job to the queue
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar'=>'testval']);
+        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
         $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
 
         $this->assertNotNull($id);
@@ -90,7 +90,7 @@ class SchedulerServiceTest extends TestCase
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtInterval(
             'Test',
-            ['myvar'=>'testval'],
+            ['myvar' => 'testval'],
             RecurrencePattern::RECUR_DAILY,
             1
         );
@@ -106,7 +106,7 @@ class SchedulerServiceTest extends TestCase
     {
         // Create a scheduled job to run now
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar'=>'testval']);
+        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
         $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
 
         $jobs = $this->scheduler->getScheduledToRun();
@@ -129,7 +129,7 @@ class SchedulerServiceTest extends TestCase
         // Create a job that should recur every day
         $id = $this->scheduler->scheduleAtInterval(
             'Test',
-            ['myvar'=>'testval'],
+            ['myvar' => 'testval'],
             RecurrencePattern::RECUR_DAILY,
             1
         );
@@ -142,7 +142,7 @@ class SchedulerServiceTest extends TestCase
 
         // Queue for cleanup
         foreach ($jobs as $job) {
-           $this->tempEntitiesToDelete[] = $job;
+            $this->tempEntitiesToDelete[] = $job;
         }
 
         // Assert that we found at least three jobs
@@ -155,7 +155,7 @@ class SchedulerServiceTest extends TestCase
     public function testSetJobAsExecuted()
     {
         $now = new DateTime();
-        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar'=>'testval']);
+        $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
         $jobEntity = $this->entityLoader->get('worker_job', $id);
         $this->tempEntitiesToDelete[] = $jobEntity;
 
