@@ -15,6 +15,8 @@ use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\DbInterface;
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
+use Netric\EntityGroupings\EntityGroupings;
+use Netric\EntityGroupings\Group;
 
 class Pgsql extends DataMapperAbstract implements DataMapperInterface
 {
@@ -282,14 +284,14 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		// Technically, the limit of groupings is 1000 per field, but just to be safe
 		$sql .= " LIMIT 10000";
 
-		$groupings = new \Netric\EntityGroupings($objType, $fieldName, $filters);
+		$groupings = new EntityGroupings($objType, $fieldName, $filters);
 
 		$result = $dbh->Query($sql);
 		$num = $this->dbh->getNumRows($result);
 		for ($i = 0; $i < $num; $i++) {
 			$row = $this->dbh->getRow($result, $i);
 
-			$group = new \Netric\EntityGroupings\Group();
+			$group = new Group();
 			$group->id = $row[$field->fkeyTable['key']];
 			$group->uname = $row[$field->fkeyTable['key']]; // groupings can/should have a unique-name column
 			$group->name = $row[$field->fkeyTable['title']];
@@ -329,11 +331,11 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 	/**
 	 * Save groupings
 	 *
-	 * @param \Netric\EntityGroupings
+	 * @param EntityGroupings
 	 * @param int $commitId The commit id of this save
 	 * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
 	 */
-	protected function _saveGroupings(\Netric\EntityGroupings $groupings, $commitId)
+	protected function _saveGroupings(EntityGroupings $groupings, $commitId)
 	{
 		$def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($groupings->getObjType());
 		if (!$def)

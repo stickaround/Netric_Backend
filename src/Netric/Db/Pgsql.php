@@ -1,23 +1,12 @@
 <?php
-/*
- * Short description for file
- * 
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- * 
- *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
- *  @copyright 2014 Aereus
- */
 namespace Netric\Db;
 
 /**
- * Description of Pgsql
- *
- * @author Sky Stebnicki
+ * @deprecated This is being replaced by the classes in Netric\Db\Relational
  */
-class Pgsql implements DbInterface 
+class Pgsql implements DbInterface
 {
-    /**
+	/**
 	 * Number of queries run insternal counter
 	 *
 	 * @var int
@@ -72,42 +61,42 @@ class Pgsql implements DbInterface
 	var $password;
 	var $encoding;
 	var $port = 5432;
-	
+
 	/**
 	 * Class constructor
 	 *
 	 * @param string $server The server or host where the database is hosted
 	 * @param string $dbname The name of the database to connect to
 	 */
-	public function __construct($server, $dbname, $user=null, $password=null, $enc=null) 
+	public function __construct($server, $dbname, $user = null, $password = null, $enc = null)
 	{
-        $this->server = $server;
-        $this->dbname = $dbname;
-        $this->user = $user;
-        $this->password = $password;
+		$this->server = $server;
+		$this->dbname = $dbname;
+		$this->user = $user;
+		$this->password = $password;
 		$this->dbHandle = false;
 	}
-	
-	public function __destruct() 
+
+	public function __destruct()
 	{
         //$this->close();
 		//@pg_close($this->dbHandle);
 		//$this->dbHandle = false;
 	}
 
-    /**
-     * Close handle to database
-     */
-	public function close() 
+	/**
+	 * Close handle to database
+	 */
+	public function close()
 	{
 		$this->dicconnect();
 	}
 
-    /**
-     * Check if this database has an active connection established
-     * 
-     * @return boolean
-     */
+	/**
+	 * Check if this database has an active connection established
+	 * 
+	 * @return boolean
+	 */
 	public function isActive()
 	{
 		if (!$this->dbHandle)
@@ -116,9 +105,9 @@ class Pgsql implements DbInterface
 			return true;
 	}
 
-    /**
-     * Close the connection to the database
-     */
+	/**
+	 * Close the connection to the database
+	 */
 	public function dicconnect()
 	{
 		if ($this->dbHandle)
@@ -132,13 +121,12 @@ class Pgsql implements DbInterface
 	 */
 	public function connect()
 	{
-		if ($this->dbname)
-		{
-			$this->dbHandle = @pg_connect("host=".$this->server."
-										  dbname=".$this->dbname."
-										  user=".$this->user." 
-										  port=".$this->port." 
-										  password=".$this->password);
+		if ($this->dbname) {
+			$this->dbHandle = @pg_connect("host=" . $this->server . "
+										  dbname=" . $this->dbname . "
+										  user=" . $this->user . " 
+										  port=" . $this->port . " 
+										  password=" . $this->password);
 
 			if (!$this->dbHandle) {
 				return false;
@@ -153,10 +141,8 @@ class Pgsql implements DbInterface
 
 			// Set timezone
 			if ($this->timezoneName)
-				$this->query("SET TIME ZONE '".$this->timezoneName."';");
-		}
-		else
-		{
+				$this->query("SET TIME ZONE '" . $this->timezoneName . "';");
+		} else {
 			$this->dbHandle = false;
 		}
 
@@ -201,33 +187,33 @@ class Pgsql implements DbInterface
 		return $this->dbname;
 	}
 
-    /**
-     * Set alternate encoding from the default UNICODE
-     * 
-     * @param string $enc
-     */
+	/**
+	 * Set alternate encoding from the default UNICODE
+	 * 
+	 * @param string $enc
+	 */
 	function encodingSet($enc)
 	{
 		pg_set_client_encoding($this->dbHandle, $enc);
 	}
-	
-    /**
-     * Get a handle to the database
-     * 
-     * @return pgsql handle
-     */
+
+	/**
+	 * Get a handle to the database
+	 * 
+	 * @return pgsql handle
+	 */
 	function getHandle()
 	{
 		return $this->dbHandle;
 	}
-	
-    /**
-     * Get any comments on the column
-     * 
-     * @param type $table
-     * @param type $column
-     * @return boolean
-     */
+
+	/**
+	 * Get any comments on the column
+	 * 
+	 * @param type $table
+	 * @param type $column
+	 * @return boolean
+	 */
 	function getColumnComment($table, $column)
 	{
 		if (!$this->isActive())
@@ -241,25 +227,24 @@ class Pgsql implements DbInterface
 					(select attnum from pg_attribute where attname = '$column' 
 					and attrelid=(select oid from pg_class where relname='$table')))";
 		$result = pg_query($this->dbHandle, $query);
-		if (pg_num_rows($result))
-		{
+		if (pg_num_rows($result)) {
 			$row = pg_fetch_array($result);
 			$comment = $row["col_description"];
 		}
 		pg_free_result($result);
-		
+
 		return $comment;
 	}
-	
-    /**
-     * Get columns for a given table
-     * 
-     * @param type $table
-     * @param type $col
-     * @param type $schema
-     * @return boolean
-     */
-	function getTableColumns($table, $col = NULL, $schema = NULL)
+
+	/**
+	 * Get columns for a given table
+	 * 
+	 * @param type $table
+	 * @param type $col
+	 * @param type $schema
+	 * @return boolean
+	 */
+	function getTableColumns($table, $col = null, $schema = null)
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -281,27 +266,25 @@ class Pgsql implements DbInterface
 			$query .= " and table_schema='$schema'";
 		if ($col)
 			$query .= " and column_name='$col'";
-		
+
 		$result = pg_query($this->dbHandle, $query);
 
-		if ($col)
-		{
-			if (pg_num_rows($result))
-			{
+		if ($col) {
+			if (pg_num_rows($result)) {
 				$row = pg_fetch_array($result, 0);
 				return $row;
 			}
 		}
-		
+
 		return $result;
 	}
-	
-    /**
-     * Execute an SQL query
-     * 
-     * @param string $query SQL to execute
-     * @return boolean
-     */
+
+	/**
+	 * Execute an SQL query
+	 * 
+	 * @param string $query SQL to execute
+	 * @return boolean
+	 */
 	function query($query)
 	{
 		if (!$this->isActive())
@@ -313,9 +296,8 @@ class Pgsql implements DbInterface
 		if (isset($this->result))
 			$this->freeResults();
 
-		if (!$this->fDateStyleSet)
-		{
-			$query = "SET datestyle='SQL';".$query;
+		if (!$this->fDateStyleSet) {
+			$query = "SET datestyle='SQL';" . $query;
 			$this->fDateStyleSet = true;
 		}
 
@@ -336,27 +318,27 @@ class Pgsql implements DbInterface
 		return $result;
 	}
 
-    /**
-     * Get the last pgsql error
-     * 
-     * @return string
-     */
+	/**
+	 * Get the last pgsql error
+	 * 
+	 * @return string
+	 */
 	function getLastError()
 	{
-        if ($this->dbHandle) {
-            return pg_last_error($this->dbHandle);
-        } else {
-            return "";
-        }
+		if ($this->dbHandle) {
+			return pg_last_error($this->dbHandle);
+		} else {
+			return "";
+		}
 	}
 
-    /**
-     * @deprecated since version 4 We no longer expect the database class to log the error, but the calling class
-     * with $this->getLastError()
-     *
-     * @param type $query
-     * @param type $result
-     */
+	/**
+	 * @deprecated since version 4 We no longer expect the database class to log the error, but the calling class
+	 * with $this->getLastError()
+	 *
+	 * @param type $query
+	 * @param type $result
+	 */
 	function logError($query, $result)
 	{
         /*
@@ -391,15 +373,15 @@ class Pgsql implements DbInterface
 		{
 			throw new Exception('Query ERROR: ' . $error . "\n--------------------------------\n" . $query);
 		}
-         */
+		 */
 	}
-    
-    /**
-     * Get the number of returned rows from a given result
-     * 
-     * @param type $result
-     * @return int
-     */
+
+	/**
+	 * Get the number of returned rows from a given result
+	 * 
+	 * @param type $result
+	 * @return int
+	 */
 	public function getNumRows($result)
 	{
 		if ($result)
@@ -407,29 +389,29 @@ class Pgsql implements DbInterface
 		else
 			return 0;
 	}
-    
-    /**
-     * Get a row represented by an array
-     * 
-     * @param type $result
-     * @param type $num
-     * @param type $argument
-     * @return associative array
-     */
-	public function getRow($result, $num = 0, $argument = NULL)
+
+	/**
+	 * Get a row represented by an array
+	 * 
+	 * @param type $result
+	 * @param type $num
+	 * @param type $argument
+	 * @return associative array
+	 */
+	public function getRow($result, $num = 0, $argument = null)
 	{
 		return $this->getNextRow($result, $num, $argument);
 	}
-    
-    /**
-     * Get the next row in a result set
-     * 
-     * @param resource $result
-     * @param type $num
-     * @param type $argument
-     * @return associative array
-     */
-	public function getNextRow($result, $num = 0, $argument = NULL)
+
+	/**
+	 * Get the next row in a result set
+	 * 
+	 * @param resource $result
+	 * @param type $num
+	 * @param type $argument
+	 * @return associative array
+	 */
+	public function getNextRow($result, $num = 0, $argument = null)
 	{
 		$retval = pg_fetch_assoc($result, $num);
 
@@ -453,12 +435,12 @@ class Pgsql implements DbInterface
 	{
 		$this->query("COMMENT ON COLUMN $table.$column IS '$comment';");
 	}
-    
-    /**
-     * Manually flush results 
-     * 
-     * @param type $result
-     */
+
+	/**
+	 * Manually flush results 
+	 * 
+	 * @param type $result
+	 */
 	public function freeResults($result)
 	{
 		if ($result !== false && $result !== null)
@@ -471,8 +453,9 @@ class Pgsql implements DbInterface
 	 * @param string $idxname The name of the index to look for
 	 * @return bool true if the index was found, false if it was not
 	 */
-	public function indexExists($idxname) {
-		$query = "select * from pg_indexes where indexname='".$this->escape($idxname)."'";
+	public function indexExists($idxname)
+	{
+		$query = "select * from pg_indexes where indexname='" . $this->escape($idxname) . "'";
 		if ($this->schema)
 			$query .= " and schemaname='" . $this->schema . "'";
 		if ($this->getNumRows($this->query($query)))
@@ -492,10 +475,10 @@ class Pgsql implements DbInterface
 			return false;
 	}
 
-	function tableExists($tbl, $schema=null)
+	function tableExists($tbl, $schema = null)
 	{
 		$query = "SELECT tablename FROM pg_tables where tablename='$tbl'";
-		if ($schema) 
+		if ($schema)
 			$query .= " and schemaname='$schema'";
 		else if ($this->schema)
 			$query .= " and schemaname='" . $this->schema . "'";
@@ -509,14 +492,11 @@ class Pgsql implements DbInterface
 	function columnExists($table, $col)
 	{
 		// Check if we explictely passed the schema in dot notation schema.table
-		if (strpos($table, '.'))
-		{
+		if (strpos($table, '.')) {
 			$parts = explode(".", $table);
 			$schema = $parts[0];
 			$table = $parts[1];
-		}
-		else
-		{
+		} else {
 			$schema = "";
 		}
 
@@ -550,7 +530,7 @@ class Pgsql implements DbInterface
 	 * @param null $schema
 	 * @return bool
 	 */
-	public function isPrimaryKey($tbl, $col, $schema=null)
+	public function isPrimaryKey($tbl, $col, $schema = null)
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -578,8 +558,7 @@ class Pgsql implements DbInterface
 
 		// Get sorted array of column names
 		$actualPkeyName = "";
-		for ($i = 0; $i < $num; $i++)
-		{
+		for ($i = 0; $i < $num; $i++) {
 			if ($actualPkeyName) $actualPkeyName .= "_";
 			$actualPkeyName .= $this->getValue($result, $i, "attname");
 		}
@@ -609,7 +588,7 @@ class Pgsql implements DbInterface
 
 		if (is_array($col))
 			echo $query . "\n";
-		*/
+		 */
 	}
 
 	/**
@@ -619,7 +598,7 @@ class Pgsql implements DbInterface
 	 * @param null $schema
 	 * @return bool
 	 */
-	public function hasPrimaryKey($tbl, $schema=null)
+	public function hasPrimaryKey($tbl, $schema = null)
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -655,14 +634,14 @@ class Pgsql implements DbInterface
 
 	function loSize($lo)
 	{
-		$pos = pg_lo_tell ($lo);
-		pg_lo_seek ($lo, 0, PGSQL_SEEK_END);
-		$size = pg_lo_tell ($lo);
-		pg_lo_seek ($lo, $pos, PGSQL_SEEK_SET);
-		return $size; 
+		$pos = pg_lo_tell($lo);
+		pg_lo_seek($lo, 0, PGSQL_SEEK_END);
+		$size = pg_lo_tell($lo);
+		pg_lo_seek($lo, $pos, PGSQL_SEEK_SET);
+		return $size;
 	}
 
-	function loOpen($oid, $mode='rw')
+	function loOpen($oid, $mode = 'rw')
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -674,7 +653,7 @@ class Pgsql implements DbInterface
 		return pg_lo_open($this->dbHandle, $oid, $mode);
 	}
 
-	function loWrite($handle, $data="")
+	function loWrite($handle, $data = "")
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -685,7 +664,7 @@ class Pgsql implements DbInterface
 		pg_lo_write($handle, $data);
 	}
 
-	function loRead($handle, $len=8192)
+	function loRead($handle, $len = 8192)
 	{
 		if (!$this->isActive())
 			$this->connect();
@@ -723,7 +702,7 @@ class Pgsql implements DbInterface
 		pg_query($this->dbHandle, "commit");
 		pg_lo_close($handle);
 	}
-	
+
 	function loUnlink($oid)
 	{
 		if (!$this->isActive())
@@ -737,20 +716,19 @@ class Pgsql implements DbInterface
 
 	function escape($text)
 	{
-		if ($this->encoding == "UNICODE")
-		{
+		if ($this->encoding == "UNICODE") {
 			// iconv did not appear to be stripping some non-utf chars so we are doing it manuallly below
 			//$text = iconv('utf-8',"utf-8//IGNORE", $text);
 
 			//reject overly long 2 byte sequences, as well as characters above U+10000 and replace with ?
-			$text = preg_replace('/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]'.
-										'|[\x00-\x7F][\x80-\xBF]+'.
-										'|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*'.
-										'|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})'.
-										'|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/S', '?', $text );
+			$text = preg_replace('/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]' .
+				'|[\x00-\x7F][\x80-\xBF]+' .
+				'|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*' .
+				'|[\xC2-\xDF]((?![\x80-\xBF])|[\x80-\xBF]{2,})' .
+				'|[\xE0-\xEF](([\x80-\xBF](?![\x80-\xBF]))|(?![\x80-\xBF]{2})|[\x80-\xBF]{3,})/S', '?', $text);
 
 			//reject overly long 3 byte sequences and UTF-16 surrogates and replace with ?
-			$text = preg_replace('/\xE0[\x80-\x9F][\x80-\xBF]|\xED[\xA0-\xBF][\x80-\xBF]/S','?', $text );
+			$text = preg_replace('/\xE0[\x80-\x9F][\x80-\xBF]|\xED[\xA0-\xBF][\x80-\xBF]/S', '?', $text);
 		}
 
 		return pg_escape_string($text);
@@ -765,7 +743,7 @@ class Pgsql implements DbInterface
 	{
 		return pg_unescape_bytea($text);
 	}
-    
+
 	function escapeNumber($numbervalue)
 	{
 		if (is_numeric($numbervalue))
@@ -776,11 +754,9 @@ class Pgsql implements DbInterface
 
 	function escapeNull($val)
 	{
-		if ($val)
-		{
-			return "'".$this->escape($val)."'";
-		}
-		else
+		if ($val) {
+			return "'" . $this->escape($val) . "'";
+		} else
 			return 'NULL';
 	}
 
@@ -788,11 +764,9 @@ class Pgsql implements DbInterface
 	{
 		$date = trim($date);
 		$time = strtotime($date);
-		if ($date && $date != "0/0/00" && strtolower($date) != "never" && $time !==false)
-		{
-			return "'".$date."'";
-		}
-		else
+		if ($date && $date != "0/0/00" && strtolower($date) != "never" && $time !== false) {
+			return "'" . $date . "'";
+		} else
 			return 'NULL';
 	}
 
@@ -800,11 +774,9 @@ class Pgsql implements DbInterface
 	{
 		$date = trim($date);
 		$time = strtotime($date);
-		if ($date && $date != "0/0/00" && strtolower($date) != "never" && $time !==false)
-		{
+		if ($date && $date != "0/0/00" && strtolower($date) != "never" && $time !== false) {
 			return "'" . $date . "'";
-		}
-		else
+		} else
 			return 'NULL';
 	}
 
@@ -823,15 +795,13 @@ class Pgsql implements DbInterface
 		return pg_num_fields($result);
 	}
 
-	function getValue($result, $num = 0, $name=0)
+	function getValue($result, $num = 0, $name = 0)
 	{
-		if ($this->getNumRows($result))
-		{
+		if ($this->getNumRows($result)) {
 			$row = pg_fetch_array($result, $num);
 
 			return $row[$name];
-		}
-		else
+		} else
 			return null;
 	}
 
@@ -856,7 +826,7 @@ class Pgsql implements DbInterface
 								where table_name='$table' and column_name='$column';");
 		if ($this->getNumRows($result))
 			return $this->GetValue($result, 0, "data_type");
-		
+
 		return "";
 	}
 }

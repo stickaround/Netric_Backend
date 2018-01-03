@@ -1,21 +1,21 @@
 <?php
+
 /**
  * Identity mapper for entity groupings
  */
 namespace Netric\EntityGroupings;
-use Netric\EntityGroupings;
 
 /**
  * Class to handle to loading of object definitions
  */
 class Loader
 {
-	/**
+    /**
      * The current data mapper we are using for this object
      * 
      * @var DataMapperInterface
      */
-	protected $dataMapper = null;
+    protected $dataMapper = null;
 
     /**
      * Array of loaded groupings
@@ -24,13 +24,13 @@ class Loader
      */
     private $loadedGroupings = array();
 
-	/**
-	 * Cache
-	 *
-	 * @var \Netric\Cache\CacheInterface
-	 */
-	private $cache = null;
-    
+    /**
+     * Cache
+     *
+     * @var \Netric\Cache\CacheInterface
+     */
+    private $cache = null;
+
     /**
      * Setup IdentityMapper for loading objects
      * 
@@ -38,30 +38,27 @@ class Loader
      * @param Netric\Cache\CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
-    public function __construct($dm, \Netric\Cache\CacheInterface $cache=null)
-	{
-		$this->cache = $cache;
-		$this->dataMapper = $dm;
-		return $this;
-	}
-   
+    public function __construct($dm, \Netric\Cache\CacheInterface $cache = null)
+    {
+        $this->cache = $cache;
+        $this->dataMapper = $dm;
+        return $this;
+    }
+
     /**
      * Get an entity
      * 
      * @param string $objType
      * @return Entity
      */
-    public function get($objType, $fieldName, $filters=array())
+    public function get($objType, $fieldName, $filters = array())
     {
-		if (!$objType || !$fieldName)
-			throw new Exception('$objType and $fieldName are required params');
-			
-        if ($this->isLoaded($objType, $fieldName, $filters)) 
-        {
+        if (!$objType || !$fieldName)
+            throw new Exception('$objType and $fieldName are required params');
+
+        if ($this->isLoaded($objType, $fieldName, $filters)) {
             $ret = $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
-        }
-        else
-        {
+        } else {
             $ret = $this->loadGroupings($objType, $fieldName, $filters);
         }
 
@@ -76,51 +73,75 @@ class Loader
      */
     public function save(EntityGroupings $groupings)
     {
+        /* TODO: add this to the save function
+        // Increment head commit for groupings which triggers all collections to sync
+        $commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
+        $commitHeadIdent .= $groupings->getFieldName() . "/";
+        $commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());	
+
+        // Groupings are all saved as a single collection, but only updated
+        // groupings will shre a new commit id.
+        $nextCommit = $this->commitManager->createCommit($commitHeadIdent);
+
+		// Save the grouping
+        $log = $this->_saveGroupings($groupings, $nextCommit);
+
+        foreach ($log['deleted'] as $gid => $lastCommitId) {
+            // Log the change in entity sync
+            if ($gid && $lastCommitId && $nextCommit) {
+                $this->entitySync->setExportedStale(
+                    \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING,
+                    $lastCommitId,
+                    $nextCommit
+                );
+            }
+        }
+         */
         return $this->dataMapper->saveGroupings($groupings);
     }
 
     /**
      * Get unique filters hash
      */
-    private function getFiltersHash($filters=array())
+    private function getFiltersHash($filters = array())
     {
-        return \Netric\EntityGroupings::getFiltersHash($filters);
+        return EntityGroupings::getFiltersHash($filters);
     }
 
-	/**
-	 * Construct the definition class
-	 *
-	 * @param string $objType
-	 */
-	private function loadGroupings($objType, $fieldName, $filters=array())
-	{
-		$groupings = $this->dataMapper->getGroupings($objType, $fieldName, $filters);
+    /**
+     * Construct the definition class
+     *
+     * @param string $objType
+     */
+    private function loadGroupings($objType, $fieldName, $filters = array())
+    {
+        $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $filters);
         $groupings->setDataMapper($this->dataMapper);
 		// Cache the loaded definition for future requests
-		$this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = $groupings;
+        $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = $groupings;
 		//$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
-		return $groupings;
-	}
+        return $groupings;
+    }
 
-    
+
     /**
      * Check to see if the entity has already been loaded 
      * 
      * @param string $key The unique key of the loaded object
      * @return boolean
      */
-    private function isLoaded($objType, $fieldName, $filters=array())
+    private function isLoaded($objType, $fieldName, $filters = array())
     {
         return isset($this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)]);
     }
-    
+
     /**
      * Check to see if an entity is cached
-	 *
+     *
      * @param string $objType The unique name of the object to that was cached
      * @return EntityDefinition|bool EntityDefinition if found in cache, false if not cached
      */
-    private function getCached($objType, $fieldName, $filters=array())
+    private function getCached($objType, $fieldName, $filters = array())
     {
         return false;
         
@@ -140,18 +161,18 @@ class Loader
          */
     }
 
-	/**
-	 * Clear cache
-	 *
-	 * @param string $objType The object type name
-	 */
-	public function clearCache($objType, $fieldName, $filters=array())
-	{
+    /**
+     * Clear cache
+     *
+     * @param string $objType The object type name
+     */
+    public function clearCache($objType, $fieldName, $filters = array())
+    {
         $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = null;
         return;
         /*
 		$this->loadedDefinitions[$objType] = null;
 		$ret = $this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/" . $objType);
          */
-	}
+    }
 }

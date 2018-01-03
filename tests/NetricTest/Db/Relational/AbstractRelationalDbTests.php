@@ -302,4 +302,47 @@ abstract class AbstractRelationalDbTests extends TestCase
             ["name" => "david"]
         );
     }
+
+    /**
+     * Make sure the databaase is aware if wheither or not a table has a column
+     *
+     * @return void
+     */
+    public function testColumnExists()
+    {
+        $database = $this->getDatabase();
+        
+        // The created utest_people in setup has a name, but not a noexist column
+        $this->assertTrue($database->columnExists('utest_people', 'name'));
+        $this->assertFalse($database->columnExists('utest_people', 'noexist'));
+    }
+
+    /**
+     * Test if the database knows if a table exists or not
+     *
+     * @return void
+     */
+    public function testTableExists()
+    {
+        $database = $this->getDatabase();
+        
+        // utest_people is created on setup, but nonexisttable is not
+        $this->assertTrue($database->tableExists('utest_people'));
+        $this->assertFalse($database->tableExists('nonexisttable'));
+    }
+
+    /**
+     * Test if the database is aware if a namespace(db/schema) exists
+     *
+     * @return void
+     */
+    public function testNamespaceExists()
+    {
+        $database = $this->getDatabase();
+        $this->namespacesToCleanup[] = 'utest_namespace_exists';
+        $database->createNamespace('utest_namespace_exists');
+
+        $this->assertTrue($database->namespaceExists('utest_namespace_exists'));
+        $this->assertFalse($database->namespaceExists('utest_namespace_noexists'));
+    }
 }

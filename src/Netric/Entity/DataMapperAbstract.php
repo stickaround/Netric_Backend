@@ -15,6 +15,7 @@ use Netric\EntityDefinition\Field;
 use Netric\EntityQuery;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\Entity\EntityInterface;
+use Netric\EntityGroupings\EntityGroupings;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
@@ -77,17 +78,17 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 *
 	 * @param string $objType The object type name
 	 * @param string $fieldName The field name to get grouping data for
-	 * @return \Netric\\EntityGroupings
+	 * @return EntityGroupings
 	 */
 	//abstract public function getGroupings($objType, $fieldName, $filters=array());
 
 	/**
 	 * Save groupings
 	 * 
-	 * @param \Netric\EntityGroupings
+	 * @param EntityGroupings
 	 * @param int $commitId The new commit id
 	 */
-	abstract protected function _saveGroupings(\Netric\EntityGroupings $groupings, $commitId);
+	abstract protected function _saveGroupings(EntityGroupings $groupings, $commitId);
 
 	/**
 	 * Set this object as having been moved to another object
@@ -519,9 +520,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Save groupings
 	 * 
-	 * @param \Netric\EntityGroupings
+	 * @param EntityGroupings
 	 */
-	public function saveGroupings(\Netric\EntityGroupings $groupings)
+	public function saveGroupings(EntityGroupings $groupings)
 	{
     	// Increment head commit for groupings which triggers all collections to sync
 		$commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";

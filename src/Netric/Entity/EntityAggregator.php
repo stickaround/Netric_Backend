@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handle aggregating values for entities
  *
@@ -9,7 +10,6 @@ namespace Netric\Entity;
 
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityLoader;
-use Netric\EntityGroupings;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Aggregation;
 use Netric\EntityQuery\Index\IndexInterface;
@@ -73,20 +73,17 @@ class EntityAggregator
         $aggregates = $def->aggregates;
 
         // Check to see if this entity has any aggregates
-        if (count($aggregates) < 0)
-        {
+        if (count($aggregates) < 0) {
             return;
         }
 
         // Loop through each aggregate and update as necessary
-        foreach ($aggregates as $agg)
-        {
+        foreach ($aggregates as $agg) {
 
             $field = $def->getField($agg->field);
             $referencedId = $entity->getValue($agg->field);
 
-            if ($referencedId && $field->type == "object" && $field->subtype)
-            {
+            if ($referencedId && $field->type == "object" && $field->subtype) {
                 // Create a new query to aggregate against
                 $query = new EntityQuery($def->getObjType());
 
@@ -97,8 +94,7 @@ class EntityAggregator
                 $queryAgg = null;
 
                 // Create new aggregate based on type
-                switch ($agg->type)
-                {
+                switch ($agg->type) {
                     case 'sum':
                         $queryAgg = new Aggregation\Sum("update");
                         break;
@@ -109,8 +105,7 @@ class EntityAggregator
                 }
 
                 // If aggregate was valid (and created), then update referenced entity
-                if ($queryAgg)
-                {
+                if ($queryAgg) {
                     // Set the field we are calculating on
                     $queryAgg->setField($agg->calcField);
 

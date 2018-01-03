@@ -1,5 +1,4 @@
 <?php
-
 namespace Netric\Entity\DataMapper;
 
 use Netric\Db\Relational\Exception\DatabaseQueryException;
@@ -7,6 +6,8 @@ use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
+use Netric\EntityGroupings\EntityGroupings;
+use Netric\EntityGroupings\Group;
 use DateTime;
 
 /**
@@ -22,19 +23,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     private $database = null;
 
     /**
-     * Legacy handle to Netric\Db\Db
-     *
-     * @var null
-     */
-    private $dbh = null;
-
-    /**
      * Setup this class called from the parent constructor
      */
     protected function setUp()
     {
         $this->database = $this->account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
-        $this->dbh = $this->account->getServiceManager()->get('Db');
     }
 
     /**
@@ -145,7 +138,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Remove revision history
         $this->database->query(
             'DELETE FROM object_revisions WHERE object_id=:object_id ' .
-            'AND object_type_id=:object_type_id',
+                'AND object_type_id=:object_type_id',
             ['object_id' => $entity->getId(), 'object_type_id' => $def->getId()]
         );
 
@@ -156,17 +149,29 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         );
 
         // Remove associations
-        $this->database->query(
-            'DELETE FROM object_associations WHERE ' .
-            '(object_id=:object_id and type_id=:type_id) OR ' .
-            '(assoc_object_id=:object_id and assoc_type_id=:type_id)',
-            [
-                'object_id' => $entity->getId(), 'type_id' => $def->getId(),
-            ]
-        );
+        $this->deleteAssociations($def->getId(), $entity->getId);
 
         // We just need to make sure the main object was deleted
         return ($result->rowCount() > 0);
+    }
+
+    /**
+     * Delete object associations related to an entity
+     * 
+     * @param int $objTypeId
+     * @param int $id Entity id
+     * @return void
+     */
+    private function deleteAssociations($objTypeId, $id)
+    {
+        $this->database->query(
+            'DELETE FROM object_associations WHERE ' .
+                '(object_id=:object_id and type_id=:type_id) OR ' .
+                '(assoc_object_id=:object_id and assoc_type_id=:type_id)',
+            [
+                'object_id' => $id, 'type_id' => $objTypeId,
+            ]
+        );
     }
 
     /**
@@ -201,19 +206,20 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         if ($field->type != "fkey" && $field->type != "fkey_multi")
             throw new \Exception("$objType:$fieldName:" . $field->type . " is not a grouping (fkey or fkey_multi) field!");
 
-        $dbh = $this->dbh;
-
-        if ($field->subtype == "object_groupings")
-            $cnd = "object_type_id='" . $def->getId() . "' and field_id='" . $field->id . "' ";
-        else
-            $cnd = "";
+        $whereSql = '';
+        $whereConditions = [];
+        if ($field->subtype == "object_groupings") {
+            $whereSql = 'object_type_id=:object_type_id and field_id=:field_id';
+            $whereConditions['object_type_id'] = $def->getId();
+            $whereConditions['field_id'] = $field->id;
+        } 
 
         // Check filters to refine the results - can filter by parent object like project id for cases or tasks
         if (isset($field->fkeyTable['filter'])) {
             foreach ($field->fkeyTable['filter'] as $grouping_field => $object_field) {
                 if (isset($filters[$object_field])) {
-                    if ($cnd) {
-                        $cnd .= " and ";
+                    if ($whereSql) {
+                        $whereSql .= ' AND ';
                     }
 
                     /*
@@ -223,14 +229,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                      * for the grouping will map the entity field value to the grouping value if
                      * the names are different like - groupings.user_id=email_message.owner_id
                      */
-                    $cnd .= " $grouping_field='" . $filters[$object_field] . "' ";
-
+                    $whereSql .= $grouping_field = ':' . $grouping_field;
+                    $whereConditions[$grouping_field] = $filters[$object_field];
                 } else if (isset($filters[$grouping_field])) {
                     // A filer can also come in as the grouping field name rather than the object
-                    if ($cnd) {
-                        $cnd .= " and ";
+                    if ($whereSql) {
+                        $whereSql .= ' AND ';
                     }
-                    $cnd .= " $grouping_field='" . $filters[$grouping_field] . "' ";
+                    $whereSql .= $grouping_field = ':' . $grouping_field;
+                    $whereConditions[$grouping_field] = $filters[$grouping_field];
                 }
             }
         }
@@ -240,27 +247,26 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             throw new \Exception("Private entity type called but grouping has no filter defined - " . $def->getObjType());
         }
 
-        $sql = "SELECT * FROM " . $field->subtype;
+        $sql = 'SELECT * FROM ' . $field->subtype;
 
-        if ($cnd)
-            $sql .= " WHERE $cnd ";
+        if ($whereSql) {
+            $whereSql .= ' WHERE ' . $whereSql;
+        }
 
-        if ($this->dbh->columnExists($field->subtype, "sort_order"))
-            $sql .= " ORDER BY sort_order, " . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
-        else
-            $sql .= " ORDER BY " . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
+        if ($this->database->columnExists($field->subtype, "sort_order")) {
+            $sql .= ' ORDER BY sort_order, ' . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
+        } else {
+            $sql .= ' ORDER BY ' . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
+        }
 
         // Technically, the limit of groupings is 1000 per field, but just to be safe
-        $sql .= " LIMIT 10000";
+        $sql .= ' LIMIT 10000';
 
-        $groupings = new \Netric\EntityGroupings($objType, $fieldName, $filters);
+        $groupings = new EntityGroupings($objType, $fieldName, $filters);
 
-        $result = $dbh->Query($sql);
-        $num = $this->dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++) {
-            $row = $this->dbh->getRow($result, $i);
-
-            $group = new \Netric\EntityGroupings\Group();
+        $result = $this->database->query($sql, $whereConditions);
+        foreach ($result->fetchAll() as $row) {
+            $group = new Group();
             $group->id = $row[$field->fkeyTable['key']];
             $group->name = $row[$field->fkeyTable['title']];
             $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
@@ -299,11 +305,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     /**
      * Save groupings
      *
-     * @param \Netric\EntityGroupings
+     * @param EntityGroupings
      * @param int $commitId The commit id of this save
      * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
-    protected function _saveGroupings(\Netric\EntityGroupings $groupings, $commitId)
+    protected function _saveGroupings(EntityGroupings $groupings, $commitId)
     {
         $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($groupings->getObjType());
         if (!$def)
@@ -368,15 +374,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             $tableData[$field->fkeyTable['title']] = $grp->name;
         }
 
-        if ($grp->color && $this->dbh->columnExists($field->subtype, "color")) {
+        if ($grp->color && $this->database->columnExists($field->subtype, "color")) {
             $tableData['color'] = $grp->color;
         }
 
-        if ($grp->isSystem && $this->dbh->columnExists($field->subtype, "f_system")) {
+        if ($grp->isSystem && $this->database->columnExists($field->subtype, "f_system")) {
             $tableData['f_system'] = $grp->isSystem;
         }
 
-        if ($grp->sortOrder && $this->dbh->columnExists($field->subtype, "sort_order")) {
+        if ($grp->sortOrder && $this->database->columnExists($field->subtype, "sort_order")) {
             $tableData['sort_order'] = $grp->sortOrder;
         }
 
@@ -401,7 +407,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 continue;
             }
 
-            if ($value && $this->dbh->columnExists($field->subtype, $name)) {
+            if ($value && $this->database->columnExists($field->subtype, $name)) {
                 $tableData[$name] = $value;
             }
         }
@@ -503,7 +509,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $entity->setValue($fname, $folder->getId());
 
                     $this->database->update(
-                        $targetTable, [$fname=>$folder->getId()], ['id' => $entity->getId()]
+                        $targetTable,
+                        [$fname => $folder->getId()],
+                        ['id' => $entity->getId()]
                     );
                 }
             }
@@ -525,7 +533,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 // object_type_id and field_id is needed for generic groupings
                 if ($fdef->subtype == "object_groupings") {
                     $whereParams['object_type_id'] = $def->getId();
-                    $whereParams['field_id'] =$fdef->id;
+                    $whereParams['field_id'] = $fdef->id;
                 }
 
                 $this->database->delete(
@@ -761,7 +769,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     private function getForeignKeyDataFromDb($fdef, $value, $oid, $otid)
     {
-        $dbh = $this->dbh;
         $ret = array();
 
         if ($fdef->type == "fkey" && $value) {
@@ -781,14 +788,14 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         if ($fdef->type == "fkey_multi") {
             $memTbl = $fdef->fkeyTable['ref_table']['table'];
             $sql = 'SELECT ' . $fdef->subtype . '.' . $fdef->fkeyTable['key'] . ' as id, ' .
-                $fdef->subtype . '.' .  $fdef->fkeyTable['title'] . ' as name' .
+                $fdef->subtype . '.' . $fdef->fkeyTable['title'] . ' as name' .
                 ' FROM ' . $fdef->subtype . ', ' . $memTbl .
                 ' WHERE ' .
-                    $fdef->subtype . '.' . $fdef->fkeyTable['key'] . '=' .
-                    $memTbl . '.' . $fdef->fkeyTable['ref_table']['ref'] .
-                    ' AND ' . $fdef->fkeyTable['ref_table']["this"] . '=:oid';
+                $fdef->subtype . '.' . $fdef->fkeyTable['key'] . '=' .
+                $memTbl . '.' . $fdef->fkeyTable['ref_table']['ref'] .
+                ' AND ' . $fdef->fkeyTable['ref_table']["this"] . '=:oid';
 
-            $result = $this->database->query($sql, ['oid'=>$oid]);
+            $result = $this->database->query($sql, ['oid' => $oid]);
             if ($result->rowCount()) {
                 $row = $result->fetch();
                 $ret[(string)$row['id']] = $row['name'];
@@ -813,14 +820,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
 
         } else if (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi") {
-            $query = "select assoc_type_id, assoc_object_id, app_object_types.name as obj_name
-							 from object_associations inner join app_object_types on (object_associations.assoc_type_id = app_object_types.id)
-							 where field_id='" . $fdef->id . "' and type_id='" . $otid . "'
-							 and object_id='" . $oid . "' LIMIT 1000";
-            $result = $dbh->query($query);
-            for ($i = 0; $i < $dbh->getNumRows($result); $i++) {
-                $row = $dbh->getRow($result, $i);
-
+            $sql = 'SELECT ' .
+                'assoc_type_id, assoc_object_id, app_object_types.name as obj_name ' .
+                'FROM object_associations INNER JOIN app_object_types ' .
+                'ON (object_associations.assoc_type_id = app_object_types.id) ' .
+                'WHERE field_id=:field_id AND type_id=:type_id AND object_id=:oid ' .
+                ' LIMIT 1000';
+            $whereConditions = ['field_id' => $fdef->id, 'type_id' => $otid, 'oid' => $oid];
+            $result = $this->database->query($sql, $whereConditions);
+            foreach ($result->fetchAll() as $row) {
                 $oname = "";
 
                 // If subtype is set in the field, then only the id of the object is stored
@@ -831,22 +839,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $oname = $row['obj_name'];
                     $idval = $oname . ":" . $row["assoc_object_id"];
                 }
-
-                /* Removed this code since it is causing a circular reference
-                 *
-                 * When an entity (e.g. User) has a referenced entity (e.g File),
-                 * EntityLoader will try to get the referenced entity data from the datamapper (if referenced entity is not yet cached)
-                 * And then File entity will try to get the User Entity which will cause a circular reference
-                    if ($oname)
-                    {
-                        $entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
-
-                        // Update if field is not referencing an entity that no longer exists
-                        if ($entity)
-                            $ret[(string)$idval] = $entity->getName();
-                    }
-                 */
-
+                
                 /*
                  * Set the value to null since we cant get the referenced entity name for now.
                  * Let the caller handle getting the name of the referenced entity
@@ -869,7 +862,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             return false;
 
         $sql = 'SELECT moved_to FROM objects_moved WHERE ' .
-               'object_type_id=:object_type_id AND object_id=:object_id';
+            'object_type_id=:object_type_id AND object_id=:object_id';
         $result = $this->database->query($sql, ['object_type_id' => $def->getId(), 'object_id' => $id]);
         if ($result->rowCount() > 0) {
             $row = $result->fetch();
@@ -899,7 +892,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     public function setEntityMovedTo(&$def, $fromId, $toId)
     {
         if (!$fromId || $fromId == $toId) // never allow circular reference or blank values
-            return false;
+        return false;
 
         $data = [
             'object_type_id' => $def->getId(),
@@ -956,7 +949,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         $results = $this->database->query(
             'SELECT id, revision, data FROM object_revisions ' .
-            'WHERE object_type_id=:object_type_id AND object_id=:object_id',
+                'WHERE object_type_id=:object_type_id AND object_id=:object_id',
             ['object_type_id' => $def->getId(), 'object_id' => $id]
         );
         foreach ($results->fetchAll() as $row) {

@@ -106,7 +106,7 @@ interface RelationalDbInterface
      * @return bool true on success
      * @throws DatabaseQueryException on failure
      */
-    public function createNamespace(string $namespace);
+    public function createNamespace(string $namespace) : bool;
 
     /**
      * Delete a unique namespace
@@ -115,5 +115,30 @@ interface RelationalDbInterface
      * @return bool true on success
      * @throws DatabaseQueryException on failure
      */
-    public function deleteNamespace(string $namespace);
+    public function deleteNamespace(string $namespace) : bool;
+
+    /**
+     * Find out if a column for a specific table exists
+     *
+     * @param string $tableName
+     * @param string $columnName
+     * @return bool true if the column already exists, false if it does not
+     */
+    public function columnExists(string $tableName, string $columnName) : bool;
+
+    /**
+     * Find out if a table exists in the database
+     *
+     * @param string $tableName
+     * @return bool true if the table exists, false if it does not
+     */
+    public function tableExists(string $tableName) : bool;
+
+    /**
+     * Find out if a namespace exists
+     *
+     * @param string $namespace
+     * @return bool
+     */
+    public function namespaceExists(string $namespace) : bool;
 }

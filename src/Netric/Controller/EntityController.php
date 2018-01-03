@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is just a simple test controller
  */
@@ -75,7 +76,7 @@ class EntityController extends Mvc\AbstractAccountController
             if ($olist->obj->def->getField("user_id"))
                 $olist->addCondition("and", "user_id", "is_equal", $this->user->id);
         }
-        */
+         */
 
         // Execute the query
         $res = $index->executeQuery($query);
@@ -125,7 +126,7 @@ class EntityController extends Mvc\AbstractAccountController
             $ret['paginate']['prevPage'] = $prev;
             $ret['paginate']['desc'] = $pag_str;
         }
-        */
+         */
 
         // Set results
         $entities = array();
@@ -429,7 +430,7 @@ class EntityController extends Mvc\AbstractAccountController
             }
         }
         $ret["browser_mode"] = $browserMode;
-        */
+         */
         $ret["browser_mode"] = "table";
 
         // TODO: Get browser blank content
@@ -478,8 +479,7 @@ class EntityController extends Mvc\AbstractAccountController
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
                     if ($field->subtype // Make sure that this field has a subtype
-                        && is_array($waitingObjectData)
-                    ) {
+                    && is_array($waitingObjectData)) {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
@@ -811,7 +811,7 @@ class EntityController extends Mvc\AbstractAccountController
      * @param {string} $objType The object type where we will be getting the groups
      * @param {string} $fieldName The name of the field we are working with
      * @param {array} $groupFilter This will be used to filter the groups and return only the groups that mached the filter
-     * @return {Netric\EntityGroupings} Returns the instance of Netric\EntityGroupings Model
+     * @return EntityGroupings Returns the instance of EntityGroupings Model
      */
     private function getGroupings(\Netric\EntityGroupings\Loader $loader, $objType, $fieldName, &$groupFilter = array())
     {

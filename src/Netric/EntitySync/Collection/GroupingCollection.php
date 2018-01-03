@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sync collection for entity groupings
  *
@@ -13,6 +14,7 @@ use Netric\Entity;
 use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
+use Netric\EntityGroupings\EntityGroupings;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -34,19 +36,19 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	 * @param \Netric\Entity\DataMapperInterface $entityDataMapper Entity DataMapper
 	 */
 	public function __construct(
-		DataMapperInterface $dm, 
-		Commit\CommitManager $commitManager, 
-		Entity\DataMapperInterface $entityDataMapper)
-	{
+		DataMapperInterface $dm,
+		Commit\CommitManager $commitManager,
+		Entity\DataMapperInterface $entityDataMapper
+	) {
 		$this->entityDataMapper = $entityDataMapper;
 
 		// Pass datamapper to parent
 		parent::__construct($dm, $commitManager);
 	}
 
-    /**
-     * Get a stats list of what has changed locally since the last sync
-     *
+	/**
+	 * Get a stats list of what has changed locally since the last sync
+	 *
 	 * @param bool $autoFastForward If true (default) then fast-forward collection commit_id on return
 	 * @param \DateTime $limitUpdatesAfter If set, only pull updates after a specific date
 	 * @return array of associative array [
@@ -57,15 +59,13 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	 *      ]
 	 *  ]
 	 */
-	public function getExportChanged($autoFastForward=true, \DateTime $limitUpdatesAfter = null)
+	public function getExportChanged($autoFastForward = true, \DateTime $limitUpdatesAfter = null)
 	{
-		if (!$this->getObjType())
-		{
+		if (!$this->getObjType()) {
 			throw new \InvalidArgumentException("Object type not set! Cannot export changes.");
 		}
 
-		if (!$this->getFieldName())
-		{
+		if (!$this->getFieldName()) {
 			throw new \InvalidArgumentException("Field name is not set! Cannot export changes.");
 		}
 
@@ -74,79 +74,68 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
 		// Get the current commit for this collection
 		$lastCollectionCommit = $this->getLastCommitId();
-        if ($this->isBehindHead())
-		{
+		if ($this->isBehindHead()) {
             // Get previously imported so we do not try to export a recent import
-            if ($this->getId())
-            {
-                $imports = $this->dataMapper->getImported($this->getId());
-            }
-            else
-            {
-                $imports = array();
-            }
+			if ($this->getId()) {
+				$imports = $this->dataMapper->getImported($this->getId());
+			} else {
+				$imports = array();
+			}
 
 	        // Get groupings
-	        $filters = $this->getFiltersFromConditions();
-	        $groupings = $this->entityDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
+			$filters = $this->getFiltersFromConditions();
+			$groupings = $this->entityDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
 
 	        // Loop through each change
-	        $grps = $groupings->getAll();
-	        for ($i = 0; $i < count($grps); $i++)
-	        {
-	        	$grp = $grps[$i];
+			$grps = $groupings->getAll();
+			for ($i = 0; $i < count($grps); $i++) {
+				$grp = $grps[$i];
 
-	        	if ($grp->commitId > $lastCollectionCommit || !$grp->commitId)
-	        	{
+				if ($grp->commitId > $lastCollectionCommit || !$grp->commitId) {
                     // First make sure we didn't just import this
-                    $skipStat = false;
-                    foreach ($imports as $imported)
-                    {
-                        if ($imported['local_id'] == $grp->id
-                            && $imported['local_revision'] == $grp->commitId)
-                        {
+					$skipStat = false;
+					foreach ($imports as $imported) {
+						if ($imported['local_id'] == $grp->id
+							&& $imported['local_revision'] == $grp->commitId) {
                             // Skip over this export because we just imported it
-                            $skipStat = true;
-                            break;
-                        }
-                    }
+							$skipStat = true;
+							break;
+						}
+					}
 
-                    if (!$skipStat) {
-                        $retStats[] = array(
-                            "id" => $grp->id,
-                            "action" => 'change',
+					if (!$skipStat) {
+						$retStats[] = array(
+							"id" => $grp->id,
+							"action" => 'change',
 							"commit_id" => $grp->commitId
-                        );
-                    }
+						);
+					}
 
-                    if (($autoFastForward && $grp->commitId) || $skipStat)
-                    {
+					if (($autoFastForward && $grp->commitId) || $skipStat) {
                         // Fast-forward $lastCommitId to last commit_id sent
-                        $this->setLastCommitId($grp->commitId);
+						$this->setLastCommitId($grp->commitId);
 
                         // Save to exported log
-                        $logRet = $this->logExported(
-                            $grp->id,
-                            $grp->commitId
-                        );
-                    }
-	        	}	
-	        }
+						$logRet = $this->logExported(
+							$grp->id,
+							$grp->commitId
+						);
+					}
+				}
+			}
 
 	        /*
-	         * Deleted groupings are marked after bing deleted by there is no reference
-	         * so it will be in the stale log.
-	         */
-            $staleStats = $this->getExportedStale();
-            if ($autoFastForward)
-            {
-                foreach ($staleStats as $stale)
-                {
+			 * Deleted groupings are marked after bing deleted by there is no reference
+			 * so it will be in the stale log.
+			 */
+			$staleStats = $this->getExportedStale();
+			if ($autoFastForward) {
+				foreach ($staleStats as $stale) {
                     // Save to exported log with no commit deletes the export
-                    $logRet = $this->logExported($stale['id'], null);
-                }
-            }
-            $retStats = array_merge($retStats, $staleStats);
+					$logRet = $this->logExported($stale['id'], null);
+				}
+			}
+			$retStats = array_merge($retStats, $staleStats);
 		}
 
 		return $retStats;
@@ -182,14 +171,12 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	{
 		$filters = array();
 		$conditions = $this->getConditions();
-        foreach ($conditions as $cond)
-        {
-        	if ($cond['blogic'] == 'and' && $cond['operator'] == 'id_equal')
-        	{
-        		$filters[$cond['field']] = $cond['condValue'];
-        	}
-        }
-        return $filters;
+		foreach ($conditions as $cond) {
+			if ($cond['blogic'] == 'and' && $cond['operator'] == 'id_equal') {
+				$filters[$cond['field']] = $cond['condValue'];
+			}
+		}
+		return $filters;
 	}
 
 	/**
@@ -201,19 +188,19 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 	{
 		// Convert collection conditions to simpler filters for groupings
 		$filters = $this->getFiltersFromConditions();
-        $filtersHash = \Netric\EntityGroupings::getFiltersHash($filters);
+		$filtersHash = EntityGroupings::getFiltersHash($filters);
 
 		// TODO: if private then add the user_id as a filter field
 		return "groupings/" . $this->getObjType() . "/" . $this->getFieldName() . "/" . $filtersHash;
 	}
 
-    /**
-     * Get the head commit for a given collection type
-     *
-     * @return string The last commit id for the type of data we are watching
-     */
-    protected function getCollectionTypeHeadCommit()
-    {
-        return $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
-    }
+	/**
+	 * Get the head commit for a given collection type
+	 *
+	 * @return string The last commit id for the type of data we are watching
+	 */
+	protected function getCollectionTypeHeadCommit()
+	{
+		return $this->commitManager->getHeadCommit($this->getCommitHeadIdent());
+	}
 }
