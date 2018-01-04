@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Define common tests that will need to be run with all data mappers.
  *
@@ -11,39 +12,48 @@ namespace NetricTest\Entity\DataMapper;
 use Netric;
 use Netric\Entity\Entity;
 use Netric\Entity\DataMapperInterface;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 
-abstract class DmTestsAbstract extends TestCase 
+abstract class DmTestsAbstract extends TestCase
 {
 	/**
-     * Tennant account
-     * 
-     * @var \Netric\Account\Account
-     */
-    protected $account = null;
-    
-    /**
-     * Administrative user
-     * 
-     * @var \Netric\User
-     */
-    protected $user = null;
+	 * Tennant account
+	 * 
+	 * @var \Netric\Account\Account
+	 */
+	protected $account = null;
 
-    /**
-     * Test entities created that needt to be cleaned up
-     *
-     * @var EntityInterface
-     */
-    protected $testEntities = [];
+	/**
+	 * Administrative user
+	 * 
+	 * @var \Netric\User
+	 */
+	protected $user = null;
+
+	/**
+	 * Test entities created that needt to be cleaned up
+	 *
+	 * @var EntityInterface
+	 */
+	protected $testEntities = [];
+
+	/**
+	 * DataMapper for saving and loading groupings
+	 *
+	 * @var EntityGroupingDataMapperInterface
+	 */
+	private $groupingDataMapper = null;
 
 	/**
 	 * Setup each test
 	 */
-	protected function setUp() 
+	protected function setUp()
 	{
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+		$this->account = \NetricTest\Bootstrap::getAccount();
+		$this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+		$this->groupingDataMapper = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
 	}
 
 	/**
@@ -56,8 +66,8 @@ abstract class DmTestsAbstract extends TestCase
 			$dm->delete($entity, true);
 		}
 	}
-    
-    /**
+
+	/**
 	 * Setup datamapper for the parent DataMapperTests class
 	 *
 	 * @return DataMapperInterface
@@ -92,27 +102,26 @@ abstract class DmTestsAbstract extends TestCase
 	public function testGetById()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-		{
+		if (!$dm) {
 			// Do not run if we don't have a datamapper to work with
 			$this->assertTrue(true);
 			return;
 		}
 
         // Create a few test groups
-        $groupingsStat = $dm->getGroupings("customer", "status_id");
-        $statGrp = $groupingsStat->getByName("Unit Test Status");
-        if (!$statGrp)
-        	$statGrp = $groupingsStat->create("Unit Test Status");
-        $groupingsStat->add($statGrp);
-        $dm->saveGroupings($groupingsStat);
-        
-        $groupingsGroups = $dm->getGroupings("customer", "groups");
-        $groupsGrp = $groupingsGroups->getByName("Unit Test Group");
-        if (!$groupsGrp)
-        	$groupsGrp = $groupingsGroups->create("Unit Test Group");
-        $groupingsGroups->add($groupsGrp);
-        $dm->saveGroupings($groupingsGroups);
+		$groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
+		$statGrp = $groupingsStat->getByName("Unit Test Status");
+		if (!$statGrp)
+			$statGrp = $groupingsStat->create("Unit Test Status");
+		$groupingsStat->add($statGrp);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
+
+		$groupingsGroups = $this->groupingDataMapper->getGroupings("customer", "groups");
+		$groupsGrp = $groupingsGroups->getByName("Unit Test Group");
+		if (!$groupsGrp)
+			$groupsGrp = $groupingsGroups->create("Unit Test Group");
+		$groupingsGroups->add($groupsGrp);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 
 		// Create an entity and initialize values
 		$customer = $this->createCustomer();
@@ -147,10 +156,10 @@ abstract class DmTestsAbstract extends TestCase
 
 		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
-        $dm->saveGroupings($groupingsStat);
-        
-        $groupingsGroups->delete($groupsGrp->id);
-        $dm->saveGroupings($groupingsGroups);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
+
+		$groupingsGroups->delete($groupsGrp->id);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 
 	}
 
@@ -160,23 +169,22 @@ abstract class DmTestsAbstract extends TestCase
 	public function testSave()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-		{
+		if (!$dm) {
 			// Do not run if we don't have a datamapper to work with
 			$this->assertTrue(true);
 			return;
 		}
 
         // Create a few test groups
-        $groupingsStat = $dm->getGroupings("customer", "status_id");
-        $statGrp = $groupingsStat->create("Unit Test Status");
-        $groupingsStat->add($statGrp);
-        $dm->saveGroupings($groupingsStat);
-        
-        $groupingsGroups = $dm->getGroupings("customer", "groups");
-        $groupsGrp = $groupingsGroups->create("Unit Test Group");
-        $groupingsGroups->add($groupsGrp);
-        $dm->saveGroupings($groupingsGroups);
+		$groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
+		$statGrp = $groupingsStat->create("Unit Test Status");
+		$groupingsStat->add($statGrp);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
+
+		$groupingsGroups = $this->groupingDataMapper->getGroupings("customer", "groups");
+		$groupsGrp = $groupingsGroups->create("Unit Test Group");
+		$groupingsGroups->add($groupsGrp);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 
 		// Create an entity and initialize values
 		$customer = $this->createCustomer();
@@ -212,31 +220,30 @@ abstract class DmTestsAbstract extends TestCase
 
 		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
-        $dm->saveGroupings($groupingsStat);
-        $groupingsGroups->delete($groupsGrp->id);
-        $dm->saveGroupings($groupingsGroups);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
+		$groupingsGroups->delete($groupsGrp->id);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 	}
 
 	public function testSaveClearMultiVal()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-		{
+		if (!$dm) {
 			// Do not run if we don't have a datamapper to work with
 			$this->assertTrue(true);
 			return;
 		}
 
 		// Create a few test groups
-		$groupingsStat = $dm->getGroupings("customer", "status_id");
+		$groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
 		$statGrp = $groupingsStat->create("Unit Test Status");
 		$groupingsStat->add($statGrp);
-		$dm->saveGroupings($groupingsStat);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
 
-		$groupingsGroups = $dm->getGroupings("customer", "groups");
+		$groupingsGroups = $this->groupingDataMapper->getGroupings("customer", "groups");
 		$groupsGrp = $groupingsGroups->create("Unit Test Group");
 		$groupingsGroups->add($groupsGrp);
-		$dm->saveGroupings($groupingsGroups);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 
 		// Create an entity and initialize values
 		$customer = $this->createCustomer();
@@ -264,9 +271,9 @@ abstract class DmTestsAbstract extends TestCase
 
 		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
-		$dm->saveGroupings($groupingsStat);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
 		$groupingsGroups->delete($groupsGrp->id);
-		$dm->saveGroupings($groupingsGroups);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 	}
 
 	/**
@@ -357,7 +364,7 @@ abstract class DmTestsAbstract extends TestCase
 		$this->testEntities[] = $customer2;
 
 		// Set moved to
-        $def = $customer->getDefinition();
+		$def = $customer->getDefinition();
 		$ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
 		$this->assertTrue($ret);
 	}
@@ -388,7 +395,7 @@ abstract class DmTestsAbstract extends TestCase
 		$this->testEntities[] = $customer2;
 
 		// Set moved to
-        $def = $customer->getDefinition();
+		$def = $customer->getDefinition();
 		$ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
 
 		// Get access to protected entityHasMoved with reflection object
@@ -400,7 +407,7 @@ abstract class DmTestsAbstract extends TestCase
 		// Now make sure the movedTo works
 		$this->assertEquals($oid2, $movedTo);
 	}
-	
+
 	/**
 	 * Test revisions
 	 */
@@ -412,6 +419,7 @@ abstract class DmTestsAbstract extends TestCase
 		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
 		$customer->setValue("name", "First");
 		$cid = $dm->save($customer, $this->user);
+		$this->testEntities[] = $customer;
 		$this->assertEquals(1, $customer->getValue("revision"));
 
 		// Change value and set again
@@ -436,8 +444,6 @@ abstract class DmTestsAbstract extends TestCase
 	public function testSaveRevisionsSetting()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-			return;
 
 		// Save first time
 		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
@@ -445,6 +451,7 @@ abstract class DmTestsAbstract extends TestCase
 		$customer->getDefinition()->storeRevisions = false;
 		$customer->setValue("name", "First");
 		$cid = $dm->save($customer, $this->user);
+		$this->testEntities[] = $customer;
 		$this->assertEquals(1, $customer->getValue("revision"));
 
 		// Make sure revisions got deleted
@@ -461,89 +468,6 @@ abstract class DmTestsAbstract extends TestCase
 
 		// Cleanup
 		$dm->delete($customer, true);
-
-	}
-
-    // Test saving and deleting groupings
-    public function testSaveGroupings()
-    {
-        $dm = $this->getDataMapper();
-		if (!$dm)
-			return;
-        
-        $groupings = $dm->getGroupings("customer", "groups");
-        
-        // Save new
-        $newGroup = $groupings->create();
-        $newGroup->name = "UTTEST DM::testSaveGroupings";
-        $groupings->add($newGroup);
-        $dm->saveGroupings($groupings);
-        $group = $groupings->getByName($newGroup->name);
-        $this->assertNotEquals($group->id, "");
-        
-        // Save existing
-        $name2 = "UTTEST DM::testSaveGroupings::edited";
-        $group = $groupings->getByName($newGroup->name);
-        $group->name = $name2;
-        $group->setDirty(true);
-        $dm->saveGroupings($groupings);
-        $gid = $group->id;
-        unset($groupings);
-        $groupings = $dm->getGroupings("customer", "groups");
-        $group = $groupings->getById($gid);
-        $this->assertEquals($name2, $group->name);
-        
-        // Test delete
-        $groupings->delete($gid);
-        $dm->saveGroupings($groupings);
-        unset($groupings);
-        $groupings = $dm->getGroupings("customer", "groups");
-        $this->assertFalse($groupings->getById($gid));
-    }
-    
-	/**
-	 * TODO: Test getGroupings
-	 */
-	public function testGetGroupings()
-	{
-		$dm = $this->getDataMapper();
-		if (!$dm)
-			return;
-        
-        // No filter
-        $groupings = $dm->getGroupings("customer", "groups");
-        
-        // Delete just in case
-        if ($groupings->getByName("UTEST.DM.testGetGroupings"))
-        {
-            $groupings->delete($groupings->getByName("UTEST.DM.testGetGroupings")->id);
-            $dm->saveGroupings($groupings);
-        }
-        
-        // Save new
-        $newGroup = $groupings->create();
-        $newGroup->name = "UTEST.DM.testGetGroupings";
-        $groupings->add($newGroup);
-        $dm->saveGroupings($groupings);
-        $groupings = $dm->getGroupings("customer", "groups");
-        $group1 = $groupings->getByName($newGroup->name);
-        $this->assertEquals($newGroup->name, $group1->name);
-        
-        // Add a subgroup
-        $newGroup2 = $groupings->create();
-        $newGroup2->name = "UTEST.DM.testGetGroupings2";
-        $newGroup2->parentId = $group1->id;
-        $groupings->add($newGroup2);
-        $dm->saveGroupings($groupings);
-        unset($groupings);
-        $groupings = $dm->getGroupings("customer", "groups");
-        $group2 = $groupings->getByPath($newGroup->name . "/" . $newGroup2->name);
-        $this->assertEquals($newGroup2->name, $group2->name);
-        
-        // Cleanup
-        $groupings->delete($group1->id);
-        $groupings->delete($group2->id);
-        $dm->saveGroupings($groupings);
 	}
 
 	/**
@@ -552,38 +476,25 @@ abstract class DmTestsAbstract extends TestCase
 	public function testCommitImcrement()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-			return;
-        
-        // No filter grouping
-        $groupings = $dm->getGroupings("customer", "groups");
-        
-        // Save new
-        $newGroup = $groupings->create();
-        $newGroup->name = "UTEST.DM.testGetGroupings";
-        $groupings->add($newGroup);
-        $dm->saveGroupings($groupings);
-        $oldCommitId = $groupings->getByName($newGroup->name)->commitId;
-        $this->assertNotEquals(0, $oldCommitId);
 
-		// Add another to increment commit id
-		$newGroup2 = $groupings->create();
-        $newGroup2->name = "UTEST.DM.testGetGroupings2";
-        $groupings->add($newGroup2);
-        $dm->saveGroupings($groupings);
-        $newCommitId = $groupings->getByName($newGroup2->name)->commitId;
-        $this->assertNotEquals($oldCommitId, $newCommitId);
+		// Save first time
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		
+		// Set saveRevisions to false
+		$customer->setValue("name", "testCommitImcrement First");
+		$cid = $dm->save($customer, $this->user);
+		$firstCommitId = $customer->getValue("commit_id");
+		$this->testEntities[] = $customer;
+		$this->assertNotEmpty($firstCommitId);
 
-        // Reload and double check commitIDs
-		$groupings = $dm->getGroupings("customer", "groups");
-		$oldCommitId = $groupings->getByName($newGroup->name)->commitId;
-		$newCommitId = $groupings->getByName($newGroup2->name)->commitId;
-		$this->assertNotEquals($oldCommitId, $newCommitId);
+		// Save again which should change the comit id to the new head
+		$customer->setValue("name", "testCommitImcrement Second");
+		$dm->save($customer, $this->user);
+		$secondCommitId = $customer->getValue("commit_id");
+		$this->assertNotEmpty($secondCommitId);
 
-		// Cleanup
-        $groupings->delete($newGroup->id);
-        $groupings->delete($newGroup2->id);
-        $dm->saveGroupings($groupings);
+		// Make sure it changed
+		$this->assertNotEquals($firstCommitId, $secondCommitId);
 	}
 
 	/**
@@ -660,37 +571,37 @@ abstract class DmTestsAbstract extends TestCase
 		$dm->delete($task2, true);
 	}
 
-    /**
-     * Make sure that when we delete the parent object it deletes its recurrence pattern
-     */
-    public function testDeleteRecurrence()
-    {
-        $dm = $this->getDataMapper();
+	/**
+	 * Make sure that when we delete the parent object it deletes its recurrence pattern
+	 */
+	public function testDeleteRecurrence()
+	{
+		$dm = $this->getDataMapper();
 
         // Create a simple recurrence pattern
-        $recurrencePattern = new RecurrencePattern();
-        $recurrencePattern->setRecurType(RecurrencePattern::RECUR_DAILY);
-        $recurrencePattern->setDateStart(new \DateTime("2015-12-01"));
-        $recurrencePattern->setDateEnd(new \DateTime("2015-12-02"));
+		$recurrencePattern = new RecurrencePattern();
+		$recurrencePattern->setRecurType(RecurrencePattern::RECUR_DAILY);
+		$recurrencePattern->setDateStart(new \DateTime("2015-12-01"));
+		$recurrencePattern->setDateEnd(new \DateTime("2015-12-02"));
 
         // Now save a task with this pattern
-        $task = $this->account->getServiceManager()->get("EntityLoader")->create("task");
-        $task->setValue("name", "A test task");
-        $task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
-        $task->setRecurrencePattern($recurrencePattern);
-        $tid = $dm->save($task, $this->user);
+		$task = $this->account->getServiceManager()->get("EntityLoader")->create("task");
+		$task->setValue("name", "A test task");
+		$task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
+		$task->setRecurrencePattern($recurrencePattern);
+		$tid = $dm->save($task, $this->user);
 
-        $recurId = $recurrencePattern->getId();
-        $this->assertTrue($recurId > 0);
+		$recurId = $recurrencePattern->getId();
+		$this->assertTrue($recurId > 0);
 
         // Delete the object and make sure the pattern cannot be loaded
-        $dm->delete($task, true);
+		$dm->delete($task, true);
 
         // Try to load recurId which should result in null
-        $recurDm = $this->account->getServiceManager()->get("RecurrenceDataMapper");
-        $loadedPattern = $recurDm->load($recurId);
-        $this->assertNull($loadedPattern);
-    }
+		$recurDm = $this->account->getServiceManager()->get("RecurrenceDataMapper");
+		$loadedPattern = $recurDm->load($recurId);
+		$this->assertNull($loadedPattern);
+	}
 
 	/**
 	 * Make sure that if we save an entity without fvals for fkey and object references
@@ -699,23 +610,22 @@ abstract class DmTestsAbstract extends TestCase
 	public function testUpdateForeignKeyNames()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm)
-		{
+		if (!$dm) {
 			// Do not run if we don't have a datamapper to work with
 			$this->assertTrue(true);
 			return;
 		}
 
 		// Create a few test groups
-		$groupingsStat = $dm->getGroupings("customer", "status_id");
+		$groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
 		$statGrp = $groupingsStat->create("Unit Test Status");
 		$groupingsStat->add($statGrp);
-		$dm->saveGroupings($groupingsStat);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
 
-		$groupingsGroups = $dm->getGroupings("customer", "groups");
+		$groupingsGroups = $this->groupingDataMapper->getGroupings("customer", "groups");
 		$groupsGrp = $groupingsGroups->create("Unit Test Group");
 		$groupingsGroups->add($groupsGrp);
-		$dm->saveGroupings($groupingsGroups);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 
 		// Create an entity and initialize values
 		$customer = $this->createCustomer();
@@ -743,9 +653,9 @@ abstract class DmTestsAbstract extends TestCase
 
 		// Cleanup groupings
 		$groupingsStat->delete($statGrp->id);
-		$dm->saveGroupings($groupingsStat);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
 		$groupingsGroups->delete($groupsGrp->id);
-		$dm->saveGroupings($groupingsGroups);
+		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 	}
 
 	/**
@@ -822,67 +732,67 @@ abstract class DmTestsAbstract extends TestCase
 		$this->assertEquals(false, $isUnique);
 	}
 
-    /**
-     * Make sure that the datamapper is setting a unique name for entities
-     */
+	/**
+	 * Make sure that the datamapper is setting a unique name for entities
+	 */
 	public function testSetUniqueName()
-    {
-        $dm = $this->getDataMapper();
+	{
+		$dm = $this->getDataMapper();
 
         // Try saving an entity with an obviously unique name
-        $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-        $customer->setValue("name", "test unique name");
-        $dm->save($customer, $this->user);
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer->setValue("name", "test unique name");
+		$dm->save($customer, $this->user);
 
         // Queue for cleanup
-        $this->testEntities[] = $customer;
+		$this->testEntities[] = $customer;
 
-        $this->assertNotEmpty($customer->getValue("uname"));
-    }
+		$this->assertNotEmpty($customer->getValue("uname"));
+	}
 
-    /**
-     * Test getting an entity by a unique name
-     */
-    public function testGetByUniqueName()
-    {
-        $entityFactory = $this->account->getServiceManager()->get("EntityFactory");
-        $dm = $this->getDataMapper();
+	/**
+	 * Test getting an entity by a unique name
+	 */
+	public function testGetByUniqueName()
+	{
+		$entityFactory = $this->account->getServiceManager()->get("EntityFactory");
+		$dm = $this->getDataMapper();
 
         // Create site
-        $site = $entityFactory->create("cms_site");
-        $site->setValue("name", 'www.test.com');
-        $dm->save($site);
-        $this->testEntities[] = $site; // for cleanup
+		$site = $entityFactory->create("cms_site");
+		$site->setValue("name", 'www.test.com');
+		$dm->save($site);
+		$this->testEntities[] = $site; // for cleanup
 
         // Create root page for site
-        $homePage = $entityFactory->create("cms_page");
-        $homePage->setValue("name", 'testgetbyunamehome'); // for uname
-        $homePage->setValue("site_id", $site->getId());
-        $dm->save($homePage);
-        $this->testEntities[] = $homePage; // for cleanup
+		$homePage = $entityFactory->create("cms_page");
+		$homePage->setValue("name", 'testgetbyunamehome'); // for uname
+		$homePage->setValue("site_id", $site->getId());
+		$dm->save($homePage);
+		$this->testEntities[] = $homePage; // for cleanup
 
         // Create a subpage for the site
-        $subPage = $entityFactory->create("cms_page");
-        $subPage->setValue("name", "testgetbyunamefile");  // for uname
-        $subPage->setValue('parent_id', $homePage->getId());
-        $subPage->setValue("site_id", $site->getId());
-        $dm->save($subPage);
-        $this->testEntities[] = $subPage; // for cleanup
+		$subPage = $entityFactory->create("cms_page");
+		$subPage->setValue("name", "testgetbyunamefile");  // for uname
+		$subPage->setValue('parent_id', $homePage->getId());
+		$subPage->setValue("site_id", $site->getId());
+		$dm->save($subPage);
+		$this->testEntities[] = $subPage; // for cleanup
 
         // Try to get the file by path
-        $pathParts = [
-            $homePage->getValue('uname'),
-            $subPage->getValue('uname'),
-        ];
-        $fullPath = implode('/', $pathParts);
-        $retrievedPage = $dm->getByUniqueName(
-            "cms_page",
-            $fullPath,
-            ['site_id' => $site->getId()]
-        );
+		$pathParts = [
+			$homePage->getValue('uname'),
+			$subPage->getValue('uname'),
+		];
+		$fullPath = implode('/', $pathParts);
+		$retrievedPage = $dm->getByUniqueName(
+			"cms_page",
+			$fullPath,
+			['site_id' => $site->getId()]
+		);
 
-        $this->assertEquals($subPage->getId(), $retrievedPage->getId());
-    }
+		$this->assertEquals($subPage->getId(), $retrievedPage->getId());
+	}
 
 	/**
 	 * Make sure that we are able to save the object reference and update the referenced entity

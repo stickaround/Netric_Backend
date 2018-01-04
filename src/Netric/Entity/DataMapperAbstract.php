@@ -74,23 +74,6 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	}
 
 	/**
-	 * Get object definition based on an object type
-	 *
-	 * @param string $objType The object type name
-	 * @param string $fieldName The field name to get grouping data for
-	 * @return EntityGroupings
-	 */
-	//abstract public function getGroupings($objType, $fieldName, $filters=array());
-
-	/**
-	 * Save groupings
-	 * 
-	 * @param EntityGroupings
-	 * @param int $commitId The new commit id
-	 */
-	abstract protected function _saveGroupings(EntityGroupings $groupings, $commitId);
-
-	/**
 	 * Set this object as having been moved to another object
 	 *
 	 * @param EntityDefinition $def The defintion of this object type
@@ -518,54 +501,6 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	}
 
 	/**
-	 * Save groupings
-	 * 
-	 * @param EntityGroupings
-	 */
-	public function saveGroupings(EntityGroupings $groupings)
-	{
-    	// Increment head commit for groupings which triggers all collections to sync
-		$commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
-		$commitHeadIdent .= $groupings->getFieldName() . "/";
-		$commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());	
-
-    	/*
-		 * Groupings are all saved as a single collection, but only updated
-		 * groupings will shre a new commit id.
-		 */
-		$nextCommit = $this->commitManager->createCommit($commitHeadIdent);
-
-		// Save the grouping
-		$log = $this->_saveGroupings($groupings, $nextCommit);
-
-        /* No need to log changes because the sync function will get all newer commits
-        foreach ($log['changed'] as $gid=>$lastCommitId)
-        {
-            // Log the change in entity sync
-			if ($gid && $lastCommitId && $nextCommit)
-			{
-				$this->entitySync->setExportedStale(
-					\Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING, 
-					$lastCommitId, $nextCommit);
-			}
-        }
-		 */
-
-		foreach ($log['deleted'] as $gid => $lastCommitId) {
-            // Log the change in entity sync
-			if ($gid && $lastCommitId && $nextCommit) {
-				$this->entitySync->setExportedStale(
-					\Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING,
-					$lastCommitId,
-					$nextCommit
-				);
-			}
-		}
-
-		return true;
-	}
-
-	/**
 	 * Update foreign key name cache
 	 *
 	 * All foreign key (fkey, fkey_multi, object, object_multi) fields
@@ -687,20 +622,20 @@ private function setUniqueName(EntityInterface $entity)
 	$serviceManager = $this->getAccount()->getServiceManager();
 	$def = $entity->getDefinition();
 
-        // If we are not using unique names with this object just return
+			// If we are not using unique names with this object just return
 	if (!$def->unameSettings) {
 		return false;
 	}
 
-		// If we have already created a uname then don't do it again
+			// If we have already created a uname then don't do it again
 	if ($entity->getValue("uname")) {
 		return false;
 	}
 
 	$unameSettings = explode(":", $def->unameSettings);
 
-    // Create desired uname from the right field
-    // Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
+		// Create desired uname from the right field
+		// Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
 	$lastPart = end($unameSettings);
 	if ($lastPart == "name") {
 		$uname = $entity->getName();
@@ -708,12 +643,12 @@ private function setUniqueName(EntityInterface $entity)
 		$uname = $entity->getValue($lastPart); // last one is the uname field
 	}
 
-	// The uname must be populated before we try to save anything
+		// The uname must be populated before we try to save anything
 	if (!$uname) {
 		return;
 	}
 
-	// Now escape the uname field to a uri fiendly name
+		// Now escape the uname field to a uri fiendly name
 	$uname = strtolower($uname);
 	$uname = str_replace(" ", "-", $uname);
 	$uname = str_replace("&", "_and_", $uname);
@@ -721,13 +656,13 @@ private function setUniqueName(EntityInterface $entity)
 
 	$isUnique = $this->verifyUniqueName($entity, $uname);
 
-		// If the unique name already exists, then append with id or a random number
+			// If the unique name already exists, then append with id or a random number
 	if (!$isUnique) {
 		$uname .= "-";
 		$uname .= ($this->id) ? $this->id : uniqid();
 	}
 
-	// Set the uname
+		// Set the uname
 	$entity->setValue("uname", $uname);
 	return true;
 }
@@ -747,21 +682,21 @@ public function verifyUniqueName($entity, $uname)
 	$serviceManager = $this->getAccount()->getServiceManager();
 	$def = $entity->getDefinition();
 
-    // If we are not using unique names with this object just succeed
+		// If we are not using unique names with this object just succeed
 	if (!$def->unameSettings) {
 		return true;
 	}
 
-    // Search objects to see if the uname exists
+		// Search objects to see if the uname exists
 	$query = new EntityQuery($def->getObjType());
 	$query->where("uname")->equals($uname);
 
-    // Exclude this object from the query because of course it will be a duplicate
+		// Exclude this object from the query because of course it will be a duplicate
 	if ($entity->getId()) {
 		$query->andWhere("id")->doesNotEqual($entity->getId());
 	}
 
-	/*
+		/*
 	 * Loop through all namespaces if set with ':' in the settings
 	 * The first part of the settings is "<opt_namespace_field>:"
 	 * and it can have as many namespaces as needed with the last entry
@@ -769,13 +704,13 @@ public function verifyUniqueName($entity, $uname)
 	 */
 	$nsParts = explode(":", $def->unameSettings);
 	if (count($nsParts) > 1) {
-			// Use all but last, which is the uname field
+				// Use all but last, which is the uname field
 		for ($i = 0; $i < (count($nsParts) - 1); $i++) {
 			$query->andWhere($nsParts[$i])->equals($entity->getValue($nsParts[$i]));
 		}
 	}
 
-	// Check if any objects match
+		// Check if any objects match
 	$index = $serviceManager->get("EntityQuery_Index");
 	$result = $index->executeQuery($query);
 
@@ -796,15 +731,15 @@ public function verifyUniqueName($entity, $uname)
 public function checkEntityHasMoved($entity, $id)
 {
 
-		// If we have already checked the this entity, then return the result
+			// If we have already checked the this entity, then return the result
 	if (isset($this->cacheMovedEntities[$id])) {
 		return $this->cacheMovedEntities[$id];
 	}
 
-		// Check if entity has moved
+			// Check if entity has moved
 	$movedToId = $this->entityHasMoved($entity, $id);
 
-		// Store the result in the cache
+			// Store the result in the cache
 	$this->cacheMovedEntities[$id] = $movedToId;
 
 	return $movedToId;

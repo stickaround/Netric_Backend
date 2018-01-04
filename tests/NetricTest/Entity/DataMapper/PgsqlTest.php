@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
  */
@@ -6,7 +7,7 @@ namespace NetricTest\Entity\DataMapper;
 
 use \Netric\Entity\DataMapper;
 
-class PgsqlTest extends DmTestsAbstract 
+class PgsqlTest extends DmTestsAbstract
 {
 	/**
 	 * Setup datamapper for the parent DataMapperTests class
@@ -24,17 +25,18 @@ class PgsqlTest extends DmTestsAbstract
 	public function testGetColsVals()
 	{
 		$dm = $this->getDataMapper();
+		$groupingDataMapper = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
 
         // Create a few test groups
-        $groupingsStat = $dm->getGroupings("customer", "status_id");
-        $statGrp = $groupingsStat->create("Unit Test Status");
-        $groupingsStat->add($statGrp);
-        $dm->saveGroupings($groupingsStat);
-        
-        $groupingsGroups = $dm->getGroupings("customer", "groups");
-        $groupsGrp = $groupingsGroups->create("Unit Test Group");
-        $groupingsGroups->add($groupsGrp);
-        $dm->saveGroupings($groupingsGroups);
+		$groupingsStat = $groupingDataMapper->getGroupings("customer", "status_id");
+		$statGrp = $groupingsStat->create("Unit Test Status");
+		$groupingsStat->add($statGrp);
+		$groupingDataMapper->saveGroupings($groupingsStat);
+
+		$groupingsGroups = $groupingDataMapper->getGroupings("customer", "groups");
+		$groupsGrp = $groupingsGroups->create("Unit Test Group");
+		$groupingsGroups->add($groupsGrp);
+		$groupingDataMapper->saveGroupings($groupingsGroups);
         
 
 		// Create an entity and initialize values
@@ -53,15 +55,15 @@ class PgsqlTest extends DmTestsAbstract
 		// Test escaped data
 		$this->assertEquals($data['name'], "'Entity_DataMapperTests'");
 		$this->assertEquals($data['owner_id'], "'" . $this->user->getId() . "'");
-		$this->assertEquals($data['groups'], "'[\"" . $groupsGrp->id. "\"]'");
-		$this->assertEquals($data['groups_fval'], "'{\"" . $groupsGrp->id. "\":\"" . $groupsGrp->name. "\"}'");
+		$this->assertEquals($data['groups'], "'[\"" . $groupsGrp->id . "\"]'");
+		$this->assertEquals($data['groups_fval'], "'{\"" . $groupsGrp->id . "\":\"" . $groupsGrp->name . "\"}'");
 
-		// TODO: Cleanup
+		// Cleanup
 		$groupingsStat->delete($statGrp->id);
-        $dm->saveGroupings($groupingsStat);
-        
-        $groupingsGroups->delete($groupsGrp->id);
-        $dm->saveGroupings($groupingsGroups);
+		$groupingDataMapper->saveGroupings($groupingsStat);
+
+		$groupingsGroups->delete($groupsGrp->id);
+		$groupingDataMapper->saveGroupings($groupingsGroups);
 		$dm->delete($customer, true);
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Service factory for the Entity Groupings Loader
  *
@@ -22,7 +23,7 @@ class LoaderFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("Netric/Entity/DataMapper/DataMapper");
+        $dm = $sl->get("Netric/EntityGroupings/DataMapper/EntityGroupingDataMapper");
         $cache = $sl->get("Netric/Cache/Cache");
 
         return new Loader($dm, $cache);

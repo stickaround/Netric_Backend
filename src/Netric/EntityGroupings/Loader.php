@@ -5,6 +5,9 @@
  */
 namespace Netric\EntityGroupings;
 
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
+use Netric\Cache\CacheInterface;
+
 /**
  * Class to handle to loading of object definitions
  */
@@ -13,7 +16,7 @@ class Loader
     /**
      * The current data mapper we are using for this object
      * 
-     * @var DataMapperInterface
+     * @var EntityGroupingDataMapperInterface
      */
     protected $dataMapper = null;
 
@@ -27,18 +30,18 @@ class Loader
     /**
      * Cache
      *
-     * @var \Netric\Cache\CacheInterface
+     * @var CacheInterface
      */
     private $cache = null;
 
     /**
      * Setup IdentityMapper for loading objects
      * 
-     * @param DataMapperInterface $dm Datamapper for entity definitions
-     * @param Netric\Cache\CacheInterface $cache Optional cache object
+     * @param EntityGroupingDataMapperInterface $dm Datamapper for entity definitions
+     * @param CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
-    public function __construct($dm, \Netric\Cache\CacheInterface $cache = null)
+    public function __construct(EntityGroupingDataMapperInterface $dm, CacheInterface $cache = null)
     {
         $this->cache = $cache;
         $this->dataMapper = $dm;
@@ -73,30 +76,6 @@ class Loader
      */
     public function save(EntityGroupings $groupings)
     {
-        /* TODO: add this to the save function
-        // Increment head commit for groupings which triggers all collections to sync
-        $commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
-        $commitHeadIdent .= $groupings->getFieldName() . "/";
-        $commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());	
-
-        // Groupings are all saved as a single collection, but only updated
-        // groupings will shre a new commit id.
-        $nextCommit = $this->commitManager->createCommit($commitHeadIdent);
-
-		// Save the grouping
-        $log = $this->_saveGroupings($groupings, $nextCommit);
-
-        foreach ($log['deleted'] as $gid => $lastCommitId) {
-            // Log the change in entity sync
-            if ($gid && $lastCommitId && $nextCommit) {
-                $this->entitySync->setExportedStale(
-                    \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING,
-                    $lastCommitId,
-                    $nextCommit
-                );
-            }
-        }
-         */
         return $this->dataMapper->saveGroupings($groupings);
     }
 
@@ -144,21 +123,6 @@ class Loader
     private function getCached($objType, $fieldName, $filters = array())
     {
         return false;
-        
-        /* No caching currently in use
-        // Load the cache datamapper and put it into $this->loadedEntities
-		$ret = $this->cache->get($this->dataMapper->getAccount()->getId() . "/objects/" . $objType);
-
-		if ($ret)
-		{
-			$def = new EntityDefinition($objType);
-			$def->fromArray($ret);
-			return $def;
-		}
-
-		return false;
-         * 
-         */
     }
 
     /**
@@ -170,9 +134,5 @@ class Loader
     {
         $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = null;
         return;
-        /*
-		$this->loadedDefinitions[$objType] = null;
-		$ret = $this->cache->remove($this->dataMapper->getAccount()->getId() . "/objects/" . $objType);
-         */
     }
 }

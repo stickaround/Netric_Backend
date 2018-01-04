@@ -1,7 +1,7 @@
 <?php
 namespace Netric\EntityGroupings;
 
-use Netric\Entity\DataMapperInterface;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 
 /**
  * Manage collection of groupings for an entity
@@ -39,7 +39,7 @@ class EntityGroupings
     /**
      * Optional datamapper to call this->save through the Loader class
      * 
-     * @var Entity\DataMapperInterface
+     * @var EntityGroupingDataMapperInterface
      */
     private $dataMapper = null;
 
@@ -69,9 +69,9 @@ class EntityGroupings
     /**
      * Set datammapper for groups
      * 
-     * @param DataMapperInterface $dm
+     * @param EntityGroupingDataMapperInterface $dm
      */
-    public function setDataMapper(DataMapperInterface $dm)
+    public function setDataMapper(EntityGroupingDataMapperInterface $dm)
     {
         $this->dataMapper = $dm;
     }

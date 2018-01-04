@@ -3,6 +3,12 @@ namespace Netric\EntityGroupings\DataMapper;
 
 use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\EntitySync\Commit\CommitManager;
+use Netric\EntitySync\EntitySync;
+use Netric\EntityGroupings\EntityGroupings;
+use Netric\EntityGroupings\Group;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use \Netric\Account\Account;
 use DateTime;
 
 /**
@@ -18,33 +24,69 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     private $database = null;
 
     /**
+     * Commit manager used to crate global commits for sync
+     *
+     * @var CommitManager
+     */
+    private $commitManager = null;
+
+    /**
+     * Sync service used to keep track of changes for synchronized devices
+     *
+     * @var EntiySync
+     */
+    private $entitySync = null;
+
+    /**
+     * Loader for getting entity definitions
+     * 
+     * @var EntityDefinitionLoader
+     */
+    private $entityDefinitionLoader = null;
+
+    /**
      * Class constructor
      * 
-     * @param ServiceLocator $sl The ServiceLocator container
-     * @param string $accountName The name of the ANT account that owns this data
+     * @param Account $account Current netric account loaded
      */
-    public function __construct(\Netric\Account\Account $account)
+    public function __construct(Account $account)
     {
 		// Clear the moved entities cache
         $this->cacheMovedEntities = array();
 
-        $this->database = $this->account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
+        $this->database = $account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
+        $this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
+        $this->entitySync = $account->getServiceManager()->get("EntitySync");
+        $this->entityDefinitionLoader = $account->getServiceManager()->get("EntityDefinitionLoader");
     }
 
     /**
-     * Save groupings to a relational database
-     * 
-     * @param EntityGroupings
-     * @param int $commitId The new commit id
+     * Save groupings
+     *
+     * @param EntityGroupings $groupings Groupings object to save
+     * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
      */
-    public function saveGroupings(EntityGroupings $groupings, $commitId)
+    public function saveGroupings(EntityGroupings $groupings) : array
     {
-        $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($groupings->getObjType());
+        // Now save
+        $def = $this->entityDefinitionLoader->get($groupings->getObjType());
         if (!$def)
             return false;
 
-        $field = $def->getField($groupings->getFieldName());
 
+        // Increment head commit for groupings which triggers all collections to sync
+        $commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
+        $commitHeadIdent .= $groupings->getFieldName() . "/";
+        $commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());	
+
+    	/*
+         * Groupings are all saved as a single collection, but only updated
+         * groupings will shre a new commit id.
+         */
+        $nextCommit = $this->commitManager->createCommit($commitHeadIdent);
+        
+        // Now save
+        $field = $def->getField($groupings->getFieldName());
         $ret = array("deleted" => array(), "changed" => array());
 
         $toDelete = $groupings->getDeleted();
@@ -64,7 +106,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $lastCommitId = $grp->getValue("commitId");
 
             // Set the new commit id
-            $grp->setValue("commitId", $commitId);
+            $grp->setValue("commitId", $nextCommit);
 
             if ($this->saveGroup($def, $field, $grp)) {
                 $grp->setDirty(false);
@@ -73,19 +115,37 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             }
         }
 
+        /* 
+         * Log all deleted groupings to entity sync. It is important that
+         * we do this for deletions because the item being synchronized is
+         * removed. Changed items are automatically syncronized since the
+         * commitId is changed (head commit ID) and sync commands look for
+         * anything changed since a previous commit ID.
+         */
+        foreach ($log['deleted'] as $gid => $lastCommitId) {
+            if ($gid && $lastCommitId && $nextCommit) {
+                $this->entitySync->setExportedStale(
+                    \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING,
+                    $lastCommitId,
+                    $nextCommit
+                );
+            }
+        }
+
         return $ret;
     }
 
     /**
-     * Get groopings from the datatabase
+     * Get object definition based on an object type
      *
      * @param string $objType The object type name
      * @param string $fieldName The field name to get grouping data for
+     * @param array $filters Used to load a subset of groupings (like just for a specific user)
      * @return EntityGroupings
      */
-    public function getGroupings(string $objType, string $fieldName, $filters = [])
+    public function getGroupings(string $objType, string $fieldName, array $filters = []) : EntityGroupings
     {
-        $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
+        $def = $this->entityDefinitionLoader->get($objType);
         if (!$def)
             throw new \Exception("Entity could not be loaded");
 
@@ -117,14 +177,14 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
                      * for the grouping will map the entity field value to the grouping value if
                      * the names are different like - groupings.user_id=email_message.owner_id
                      */
-                    $whereSql .= $grouping_field = ':' . $grouping_field;
+                    $whereSql .= $grouping_field . '=:' . $grouping_field;
                     $whereConditions[$grouping_field] = $filters[$object_field];
                 } else if (isset($filters[$grouping_field])) {
                     // A filer can also come in as the grouping field name rather than the object
                     if ($whereSql) {
                         $whereSql .= ' AND ';
                     }
-                    $whereSql .= $grouping_field = ':' . $grouping_field;
+                    $whereSql .= $grouping_field . '=:' . $grouping_field;
                     $whereConditions[$grouping_field] = $filters[$grouping_field];
                 }
             }
@@ -138,7 +198,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         $sql = 'SELECT * FROM ' . $field->subtype;
 
         if ($whereSql) {
-            $whereSql .= ' WHERE ' . $whereSql;
+            $sql .= ' WHERE ' . $whereSql;
         }
 
         if ($this->database->columnExists($field->subtype, "sort_order")) {

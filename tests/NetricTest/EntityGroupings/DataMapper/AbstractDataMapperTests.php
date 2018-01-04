@@ -1,5 +1,5 @@
 <?php
-namespace NetricTest\Entity\DataMapper;
+namespace NetricTest\EntityGroupings\DataMapper;
 
 use Netric\Entity\Entity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
@@ -29,13 +29,6 @@ abstract class AbstractDataMapperTests extends TestCase
     protected $user = null;
 
     /**
-     * Test entities created that needt to be cleaned up
-     *
-     * @var EntityGroupingDataMapperInterface
-     */
-    protected $testEntities = [];
-
-    /**
      * Setup each test
      */
     protected function setUp()
@@ -45,44 +38,11 @@ abstract class AbstractDataMapperTests extends TestCase
     }
 
     /**
-     * Cleanup any test entities we created
-     */
-    protected function tearDown()
-    {
-        $dm = $this->getDataMapper();
-        foreach ($this->testEntities as $entity) {
-            $dm->delete($entity, true);
-        }
-    }
-
-    /**
      * Setup datamapper for the parent DataMapperTests class
      *
      * @return EntityGroupingDataMapperInterface
      */
     abstract protected function getDataMapper();
-
-    /**
-     * Utility function to populate custome entity for testing
-     *
-     * @return Entity
-     */
-    protected function createCustomer()
-    {
-        $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-        // text
-        $customer->setValue("name", "Entity_DataMapperTests");
-        // bool
-        $customer->setValue("f_nocall", true);
-        // object
-        $customer->setValue("owner_id", $this->user->getId(), $this->user->getName());
-        // object_multi
-        // timestamp
-        $contactedTime = mktime(0, 0, 0, 12, 1, 2013);
-        $customer->setValue("last_contacted", $contactedTime);
-
-        return $customer;
-    }
 
 
     /**
@@ -98,16 +58,16 @@ abstract class AbstractDataMapperTests extends TestCase
         $newGroup = $groupings->create();
         $newGroup->name = "UTTEST DM::testSaveGroupings";
         $groupings->add($newGroup);
-        $savedGroupings = $dm->saveGroupings($groupings);
-        $group = $savedGroupings->getByName($newGroup->name);
+        $dm->saveGroupings($groupings);
+        $group = $groupings->getByName($newGroup->name);
         $this->assertNotEquals($group->id, "");
 
         // Save existing
         $name2 = "UTTEST DM::testSaveGroupings::edited";
-        $group = $savedGroupings->getByName($newGroup->name);
+        $group = $groupings->getByName($newGroup->name);
         $group->name = $name2;
         $group->setDirty(true);
-        $dm->saveGroupings($savedGroupings);
+        $dm->saveGroupings($groupings);
         $gid = $group->id;
 
         unset($groupings);
@@ -134,8 +94,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $groupings = $dm->getGroupings("customer", "groups");
 
         // Delete just in case
-        if ($groupings->getByName("UTEST.DM.testGetGroupings"))
-        {
+        if ($groupings->getByName("UTEST.DM.testGetGroupings")) {
             $groupings->delete($groupings->getByName("UTEST.DM.testGetGroupings")->id);
             $dm->saveGroupings($groupings);
         }
@@ -163,6 +122,44 @@ abstract class AbstractDataMapperTests extends TestCase
         // Cleanup
         $groupings->delete($group1->id);
         $groupings->delete($group2->id);
+        $dm->saveGroupings($groupings);
+    }
+
+    /**
+     * Test entity has moved functionalty
+     */
+    public function testCommitImcrement()
+    {
+        $dm = $this->getDataMapper();
+        
+        // No filter grouping
+        $groupings = $dm->getGroupings("customer", "groups");
+        
+        // Save new
+        $newGroup = $groupings->create();
+        $newGroup->name = "UTEST.DM.testGetGroupings";
+        $groupings->add($newGroup);
+        $dm->saveGroupings($groupings);
+        $oldCommitId = $groupings->getByName($newGroup->name)->commitId;
+        $this->assertNotEquals(0, $oldCommitId);
+
+		// Add another to increment commit id
+        $newGroup2 = $groupings->create();
+        $newGroup2->name = "UTEST.DM.testGetGroupings2";
+        $groupings->add($newGroup2);
+        $dm->saveGroupings($groupings);
+        $newCommitId = $groupings->getByName($newGroup2->name)->commitId;
+        $this->assertNotEquals($oldCommitId, $newCommitId);
+
+        // Reload and double check commitIDs
+        $groupings = $dm->getGroupings("customer", "groups");
+        $oldCommitId = $groupings->getByName($newGroup->name)->commitId;
+        $newCommitId = $groupings->getByName($newGroup2->name)->commitId;
+        $this->assertNotEquals($oldCommitId, $newCommitId);
+
+		// Cleanup
+        $groupings->delete($newGroup->id);
+        $groupings->delete($newGroup2->id);
         $dm->saveGroupings($groupings);
     }
 }

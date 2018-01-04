@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Define common tests that will need to be run with all data mappers.
  *
@@ -39,14 +40,14 @@ abstract class IndexTestsAbstract extends TestCase
      */
     private $testGroupings = array();
 
-	/**
-	 * Setup each test
-	 */
-	protected function setUp() 
-	{
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
-	}
+    }
 
     /**
      * Cleanup
@@ -54,14 +55,12 @@ abstract class IndexTestsAbstract extends TestCase
     protected function tearDown()
     {
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        foreach ($this->testEntities as $entity)
-        {
+        foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
 
         // Cleanup Groupings
-        foreach ($this->testGroupings as $groupData)
-        {
+        foreach ($this->testGroupings as $groupData) {
             $this->deleteGrouping($groupData['obj_type'], $groupData['field'], $groupData['id']);
         }
     }
@@ -72,7 +71,7 @@ abstract class IndexTestsAbstract extends TestCase
      * @return \Netric\EnittyQuery\Index\IndexInterface The setup index to query
      */
     abstract protected function getIndex();
-    
+
     /**
      * Create a test customer
      */
@@ -93,15 +92,15 @@ abstract class IndexTestsAbstract extends TestCase
         $obj->setValue("last_contacted", time());
 
         // Groups
-		$groupsG = $this->createGrouping("customer", "groups", "Unit Test Group");
+        $groupsG = $this->createGrouping("customer", "groups", "Unit Test Group");
         $obj->addMultiValue("groups", $groupsG['id'], $groupsG['name']);
 
         $oid = $dm->save($obj);
         $this->testEntities[] = $obj;
-        
+
         return $obj;
     }
-    
+
     /**
      * Create an object grouping entry for testing
      * 
@@ -110,9 +109,9 @@ abstract class IndexTestsAbstract extends TestCase
      * @param string $name
      * @return array("id", "name")
      */
-    protected function createGrouping($objType, $field, $name, $parent=null)
+    protected function createGrouping($objType, $field, $name, $parent = null)
     {
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
         $groupings = $dm->getGroupings($objType, $field);
         $group = $groupings->create($name);
         if ($parent)
@@ -122,8 +121,8 @@ abstract class IndexTestsAbstract extends TestCase
         $group = $groupings->getByName($name, $parent);
 
         // Add to queue to cleanup on tearDown
-        $this->testGroupings[] = array("obj_type"=>$objType, "field"=>$field, "id"=>$group->id);
-        
+        $this->testGroupings[] = array("obj_type" => $objType, "field" => $field, "id" => $group->id);
+
         return $group->toArray();
     }
 
@@ -136,12 +135,12 @@ abstract class IndexTestsAbstract extends TestCase
      */
     protected function deleteGrouping($objType, $field, $id)
     {
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
         $groupings = $dm->getGroupings($objType, $field);
         $groupings->delete($id);
         $dm->saveGroupings($groupings);
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -165,7 +164,7 @@ abstract class IndexTestsAbstract extends TestCase
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -195,18 +194,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('first_name')->equals(null);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -217,7 +214,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index)
             return;
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         $uniName = "utestequals." . uniqid();
         
         // Save a test object
@@ -228,13 +225,11 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->equals(2);
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -248,20 +243,18 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->equals(null);
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Run test of is equal conditions
      * 
@@ -274,7 +267,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index)
             return;
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         $uniName = "utestequals." . uniqid();
         
         // Save a test object
@@ -285,13 +278,11 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals($testEnt->getValue("status_id"));
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -306,13 +297,11 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals(null);
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -325,18 +314,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('status_id')->equals($cachedStatus);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertFalse($found);
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -347,7 +334,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index)
             return;
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         $uniName = "utestequals." . uniqid();
         
         // Save a test object
@@ -359,19 +346,17 @@ abstract class IndexTestsAbstract extends TestCase
         $groups = $testEnt->getValue("groups");
         $query->where('groups')->equals($groups[0]);
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
-        
+
         $cachedGroups = $testEnt->getValue("groups");
         $testEnt->setValue("groups", null);
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
@@ -383,11 +368,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('groups')->equals(null);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -401,18 +384,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('groups')->equals($cachedGroups[0]);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertFalse($found);
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -431,18 +412,17 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('f_nocall')->equals(true);
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         // Look for the entity above
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
             if ($ent->getId() == $testEnt->getId())
                 $found = true;
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Check if we can query an object when a subtype is set
      */
@@ -453,7 +433,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index)
             return;
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
                 
         // Create a test customer
@@ -555,7 +535,7 @@ abstract class IndexTestsAbstract extends TestCase
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
     }
-    
+
     /**
      * Not euquals text
      */
@@ -575,11 +555,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('name')->doesNotEqual($testEnt->getValue("name"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -592,18 +570,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('name')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Not euquals text
      */
@@ -623,11 +599,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->doesNotEqual(2);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -640,18 +614,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -671,11 +643,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('status_id')->doesNotEqual($testEnt->getValue("status_id"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -688,18 +658,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('status_id')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Run test of is equal conditions
      */
@@ -720,11 +688,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('groups')->doesNotEqual($groups[0]);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -737,18 +703,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('groups')->doesNotEqual(null);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Test numbers for is greater
      */
@@ -769,11 +733,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isLessThan(3);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -786,11 +748,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isLessThan(2);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -803,11 +763,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isLessOrEqualTo(2);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -820,18 +778,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isLessOrEqualTo(1);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertFalse($found);
     }
-    
+
     /**
      * Test numbers for is greater
      */
@@ -852,11 +808,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isLessThan(strtotime("+1 day"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -869,11 +823,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isLessThan(strtotime("-1 day"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -886,11 +838,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isLessOrEqualTo($testEnt->getValue("last_contacted"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -903,18 +853,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isLessOrEqualTo(strtotime("-1 day"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertFalse($found);
     }
-    
+
     /**
      * Test numbers for is greater
      */
@@ -925,7 +873,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index)
             return;
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         $uniName = "utestequals." . uniqid();
         
         // Save a test object
@@ -937,11 +885,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isGreaterThan(1);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -954,11 +900,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isGreaterThan(2);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -971,11 +915,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isGreaterOrEqualTo(2);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -988,18 +930,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('type_id')->isGreaterOrEqualTo(3);
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertFalse($found);
     }
-    
+
     /**
      * Test numbers for is greater
      */
@@ -1010,7 +950,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index)
             return;
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         $uniName = "utestequals." . uniqid();
         
         // Save a test object
@@ -1022,11 +962,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isGreaterThan(strtotime("-1 day"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -1039,11 +977,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isGreaterThan(strtotime("+1 day"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -1056,11 +992,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isGreaterOrEqualTo($testEnt->getValue("last_contacted"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -1073,18 +1007,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->isGreaterOrEqualTo(strtotime("+1 day"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertFalse($found);
     }
-    
+
     /**
      * Check begins with
      */
@@ -1104,18 +1036,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('name')->beginsWith(substr($testEnt->getValue("name"), 0, 10));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Check begins with
      */
@@ -1135,18 +1065,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('name')->contains(substr($testEnt->getValue("name"), 4, 6));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     /**
      * Test date contains
      */
@@ -1166,11 +1094,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->dayIsEqual(date("j"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -1183,11 +1109,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->monthIsEqual(date("n"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
@@ -1200,18 +1124,16 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->yearIsEqual(date("Y"));
         $res = $index->executeQuery($query);
         $found = false;
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId())
-            {
+            if ($ent->getId() == $testEnt->getId()) {
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found);
     }
-    
+
     public function testWithinLastXNum()
     {
         // Get index and fail if not setup
@@ -1226,7 +1148,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 days"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumDays(3);
@@ -1247,7 +1169,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 weeks"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumWeeks(3);
@@ -1268,7 +1190,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 months"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumMonths(3);
@@ -1289,7 +1211,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 years"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumYears(3);
@@ -1306,7 +1228,7 @@ abstract class IndexTestsAbstract extends TestCase
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
     }
-    
+
     public function testWithinNextXNum()
     {
         // Get index and fail if not setup
@@ -1321,7 +1243,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 days"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumDays(3);
@@ -1342,7 +1264,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 weeks"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumWeeks(3);
@@ -1363,7 +1285,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 months"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumMonths(3);
@@ -1384,7 +1306,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 years"));
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->nextNumYears(3);
@@ -1401,33 +1323,33 @@ abstract class IndexTestsAbstract extends TestCase
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
     }
-    
-    
+
+
     /**
-	 * Test query string patter explosion
-	 */
-	public function testSearchStrExpl()
-	{
+     * Test query string patter explosion
+     */
+    public function testSearchStrExpl()
+    {
 		// Get index and fail if not setup
         $index = $this->getIndex();
         if (!$index)
             return;
 
 		// Single email address
-		$qstr = "sky.stebnicki@aereus.com";
-		$terms = $index->queryStringToTerms($qstr);
-		$this->assertEquals($terms[0], "sky.stebnicki@aereus.com");
+        $qstr = "sky.stebnicki@aereus.com";
+        $terms = $index->queryStringToTerms($qstr);
+        $this->assertEquals($terms[0], "sky.stebnicki@aereus.com");
 
 		// terms and phrases
-		$qstr = "sky.stebnicki@aereus.com \"in quotes\" single";
-		$terms = $index->queryStringToTerms($qstr);
-		$this->assertEquals($terms[0], "sky.stebnicki@aereus.com");
-		$this->assertEquals($terms[1], "\"in quotes\"");
-		$this->assertEquals($terms[2], "single");
-	}
-    
+        $qstr = "sky.stebnicki@aereus.com \"in quotes\" single";
+        $terms = $index->queryStringToTerms($qstr);
+        $this->assertEquals($terms[0], "sky.stebnicki@aereus.com");
+        $this->assertEquals($terms[1], "\"in quotes\"");
+        $this->assertEquals($terms[2], "single");
+    }
+
     public function testSearchDeleted()
-	{
+    {
         // Get index and fail if not setup
         $index = $this->getIndex();
         if (!$index)
@@ -1456,9 +1378,9 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals($oid, $ent->getId());
         
 		// Cleanup
-		$dm->delete($obj, true);
-	}
-    
+        $dm->delete($obj, true);
+    }
+
     /**
      * Test getting heiarchy for groups for each index - may have custom version
      */
@@ -1468,19 +1390,18 @@ abstract class IndexTestsAbstract extends TestCase
         $index = $this->getIndex();
         if (!$index)
             return;
-        
+
         $g1 = $this->createGrouping("customer", "groups", "HeiarchyDownGrp1");
         $g2 = $this->createGrouping("customer", "groups", "HeiarchyDownGrp2", $g1['id']);
-        
+
         $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
         $field = $def->getField("groups");
-        
+
         $children = $index->getHeiarchyDownGrp($field, $g1["id"]);
-        $this->assertTrue(count($children)>0);
+        $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
-        foreach ($children as $gid)
-        {
+        foreach ($children as $gid) {
             if ($gid == $g1['id'])
                 $found1 = true;
             if ($gid == $g2['id'])
@@ -1493,7 +1414,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->deleteGrouping("customer", "groups", $g1['id']);
         $this->deleteGrouping("customer", "groups", $g2['id']);
     }
-    
+
     /**
      * Test getting heiarchy for objects
      */
@@ -1505,24 +1426,23 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-        
+
         $folder1 = $loader->create("folder");
         $folder1->setValue("name", "My Test Folder");
         $dm->save($folder1);
         $this->assertNotNull($folder1->getId());
-        
+
         $folder2 = $loader->create("folder");
         $folder2->setValue("name", "My Test SubFolder");
         $folder2->setValue("parent_id", $folder1->getId());
         $dm->save($folder2);
         $this->assertNotNull($folder2->getId());
-        
+
         $children = $index->getHeiarchyDownObj("folder", $folder1->getId());
-        $this->assertTrue(count($children)>0);
+        $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
-        foreach ($children as $gid)
-        {
+        foreach ($children as $gid) {
             if ($gid == $folder1->getId())
                 $found1 = true;
             if ($gid == $folder2->getId())
@@ -1535,7 +1455,7 @@ abstract class IndexTestsAbstract extends TestCase
         $dm->delete($folder2, true);
         $dm->delete($folder1, true);
     }
-    
+
     /**
      * Test getting heiarchy for objects
      */
@@ -1547,24 +1467,23 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-        
+
         $folder1 = $loader->create("folder");
         $folder1->setValue("name", "My Test Folder");
         $dm->save($folder1);
         $this->assertNotNull($folder1->getId());
-        
+
         $folder2 = $loader->create("folder");
         $folder2->setValue("name", "My Test SubFolder");
         $folder2->setValue("parent_id", $folder1->getId());
         $dm->save($folder2);
         $this->assertNotNull($folder2->getId());
-        
+
         $children = $index->getHeiarchyUpObj("folder", $folder2->getId());
-        $this->assertTrue(count($children)>0);
+        $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
-        foreach ($children as $gid)
-        {
+        foreach ($children as $gid) {
             if ($gid == $folder1->getId())
                 $found1 = true;
             if ($gid == $folder2->getId())
@@ -1591,7 +1510,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         $property = new \ReflectionProperty("\\Netric\\EntityQuery\\Index\\IndexAbstract", "pluginsLoaded");
         $property->setAccessible(true);
-        $property->setValue($index, ["customer"=>$testPlugin]);
+        $property->setValue($index, ["customer" => $testPlugin]);
 
         // Query value
         $query = new EntityQuery("customer");
@@ -1622,10 +1541,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('f_nocall')->equals(true);
         $res = $index->executeQuery($query);
-        $this->assertTrue($res->getTotalNum()>=1);
+        $this->assertTrue($res->getTotalNum() >= 1);
         // Look for the entity above
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
             $this->assertFalse($ent->isDirty());
         }
@@ -1801,10 +1719,10 @@ abstract class IndexTestsAbstract extends TestCase
     }
 
     /**
-	 * Test hierarcy subqueries
-	 *
-	 * @group testHierarcySubqueries
-	 *
+     * Test hierarcy subqueries
+     *
+     * @group testHierarcySubqueries
+     *
 	public function testHierarcySubqueries()
 	{
 		$indexes = array("db");
@@ -1852,11 +1770,11 @@ abstract class IndexTestsAbstract extends TestCase
      * 
      */
 
-	/**
-	 * Test if using an fkey label works
-	 *
-	 * @group testFkeyLabelToId
-	 *
+    /**
+     * Test if using an fkey label works
+     *
+     * @group testFkeyLabelToId
+     *
 	public function testFkeyLabelToId()
 	{
 		$dbh = $this->dbh;

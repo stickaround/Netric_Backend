@@ -17,7 +17,6 @@ class EntityGroupingDataMapperFactory implements AccountServiceLocatorInterface
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
-        $db = $sl->get("Netric/Db/Relational/RelationalDb");
-        return new EntityGroupingRdbDataMapper($sl->getAccount(), $db);
+        return new EntityGroupingRdbDataMapper($sl->getAccount());
     }
 }

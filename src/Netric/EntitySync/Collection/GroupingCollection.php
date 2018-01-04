@@ -15,6 +15,7 @@ use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
 use Netric\EntityGroupings\EntityGroupings;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -22,25 +23,25 @@ use Netric\EntityGroupings\EntityGroupings;
 class GroupingCollection extends AbstractCollection implements CollectionInterface
 {
 	/**
-	 * Index for querying entities
+	 * DataMapper for loading groups
 	 *
-	 * @var \Netric\EntityQuery\Index\IndexInterface
+	 * @var EntityGroupingDataMapperInterface
 	 */
-	private $entityDataMapper = null;
+	private $groupingDataMapper = null;
 
 	/**
 	 * Constructor
 	 *
-	 * @param \Netric\EntitySync\DataMapperInterface $dm The sync datamapper
-	 * @param \Netirc\EntitySync\Commit\CommitManager $commitManager Manage system commits
-	 * @param \Netric\Entity\DataMapperInterface $entityDataMapper Entity DataMapper
+	 * @param DataMapperInterface $dm The sync datamapper
+	 * @param Commit\CommitManager $commitManager Manage system commits
+	 * @param EntityGroupingDataMapperInterface $groupingDataMapper Entity DataMapper
 	 */
 	public function __construct(
 		DataMapperInterface $dm,
 		Commit\CommitManager $commitManager,
-		Entity\DataMapperInterface $entityDataMapper
+		EntityGroupingDataMapperInterface $groupingDataMapper
 	) {
-		$this->entityDataMapper = $entityDataMapper;
+		$this->groupingDataMapper = $groupingDataMapper;
 
 		// Pass datamapper to parent
 		parent::__construct($dm, $commitManager);
@@ -84,7 +85,7 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
 
 	        // Get groupings
 			$filters = $this->getFiltersFromConditions();
-			$groupings = $this->entityDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
+			$groupings = $this->groupingDataMapper->getGroupings($this->getObjType(), $this->getFieldName(), $filters);
 
 	        // Loop through each change
 			$grps = $groupings->getAll();
