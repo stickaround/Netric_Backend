@@ -13,8 +13,7 @@ if os.name == 'nt':
     sock.connect(('google.com', 0))
     os.environ["HOST_IP"] = sock.getsockname()[0]
 else:
-    os.environ["HOST_IP"] = ""
-
+    os.environ["HOST_IP"] = socket.gethostbyname(socket.gethostname())
 
 # Change to docker directory
 os.chdir("../docker")

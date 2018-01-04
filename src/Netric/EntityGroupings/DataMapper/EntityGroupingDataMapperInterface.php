@@ -13,9 +13,10 @@ interface EntityGroupingDataMapperInterface
      *
      * @param string $objType The object type name
      * @param string $fieldName The field name to get grouping data for
+     * @param array $filters Used to load a subset of groupings (like just for a specific user)
      * @return EntityGroupings
      */
-    public function getGroupings(string $objType, string $fieldName);
+    public function getGroupings(string $objType, string $fieldName, array $filters = []);
 
     /**
      * Save groupings
