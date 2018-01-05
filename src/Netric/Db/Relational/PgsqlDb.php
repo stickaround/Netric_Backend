@@ -1,6 +1,8 @@
 <?php
 namespace Netric\Db\Relational;
 
+use Netric\Db\Relational\Exception\DatabaseQueryException;
+
 /**
  * Database for PGSQL
  */

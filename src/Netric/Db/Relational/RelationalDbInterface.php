@@ -1,6 +1,8 @@
 <?php
 namespace Netric\Db\Relational;
 
+use Netric\Db\Relational\Exception\DatabaseQueryException;
+
 /**
  * In most cases we try to keep relational db usage as generic as possible so
  * that a dependent class could use any of the supported drivers to store

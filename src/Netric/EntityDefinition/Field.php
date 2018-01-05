@@ -156,6 +156,20 @@ class Field implements \ArrayAccess
 	public $autocreatename = "";
 
 	/**
+	 * Field type constants
+	 */
+	const TYPE_GROUPING = 'fkey';
+	const TYPE_GROUPING_MULTI = 'fkey_multi';
+	const TYPE_OBJECT = 'object';
+	const TYPE_OBJECT_MULTI = 'object_multi';
+	const TYPE_TEXT = 'text';
+	const TYPE_BOOL = 'bool';
+	const TYPE_DATE = 'date';
+	const TYPE_TIMESTAMP = 'timestamp';
+	const TYPE_NUMBER = 'number';
+	const TYPE_INTEGER = 'integer';
+
+	/**
 	 * Load field definition from array
 	 *
 	 * @param array $data
@@ -214,7 +228,7 @@ class Field implements \ArrayAccess
 			$this->fkeyTable = $data["fkey_table"];
 
 		// Check object groupings
-		if ( ("fkey" == $this->type || "fkey_multi" == $this->type) && "object_groupings" == $this->subtype && $this->fkeyTable == null) {
+		if (("fkey" == $this->type || "fkey_multi" == $this->type) && "object_groupings" == $this->subtype && $this->fkeyTable == null) {
 			$this->fkeyTable = array(
 				"key" => "id",
 				"title" => "name",
@@ -391,7 +405,7 @@ class Field implements \ArrayAccess
 			}
 		}
 
-		if ( ( ($this->type == "fkey" && $this->subtype == "users")
+		if ((($this->type == "fkey" && $this->subtype == "users")
 			|| ($this->type == "object" && $this->subtype == "user")) && $ret == "-3") {
 			if ($user)
 				$ret = $user->getId();
@@ -443,6 +457,36 @@ class Field implements \ArrayAccess
 		}
 
 		return $ret;
+	}
+
+	/**
+	 * Determine if the type of field is referencing one or many objects
+	 *
+	 * @return bool
+	 */
+	public function isObjectReference()
+	{
+		return ($this->type == 'object' || $this->type == 'object_multi');
+	}
+
+	/**
+	 * Determine if the type of field is referencing one or many groupings
+	 *
+	 * @return bool
+	 */
+	public function isGroupingReference()
+	{
+		return ($this->type == 'fkey' || $this->type == 'fkey_multi');
+	}
+
+	/**
+	 * Check if this field type supports multiple values
+	 *
+	 * @return bool
+	 */
+	public function isMultiValue()
+	{
+		return ($this->type == 'fkey_multi' || $this->type == 'object_multi');
 	}
 
 

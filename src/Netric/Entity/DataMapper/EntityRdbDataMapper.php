@@ -6,8 +6,7 @@ use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
-use Netric\EntityGroupings\EntityGroupings;
-use Netric\EntityGroupings\Group;
+use Netric\EntityDefinition\Field;
 use DateTime;
 
 /**
@@ -51,74 +50,115 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             return false;
         }
 
-        // Load data for foreign keys
+        // Load rows and set values in the entity
         $row = $result->fetch();
         $all_fields = $def->getFields();
         foreach ($all_fields as $fname => $fdef) {
-
-            // Populate values and foreign values for foreign entries if not set
-            if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
-                $mvals = null;
-
-                // If fval is not set which should only occur on old objects prior to caching data in version 2
-                if (!$row[$fname . "_fval"] || ($row[$fname . "_fval"] == '[]' && $row[$fname] != '[]' && $row[$fname] != '')) {
-                    $mvals = $this->getForeignKeyDataFromDb($fdef, $row[$fname], $entity->getId(), $def->getId());
-                    $row[$fname . "_fval"] = ($mvals) ? json_encode($mvals) : "";
-                }
-
-                // set values of fkey_multi and object_multi fields as array of id(s)
-                if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
-                    if ($row[$fname]) {
-                        $parts = $this->decodeFval($row[$fname]);
-                        if ($parts !== false) {
-                            $row[$fname] = $parts;
-                        }
-                    }
-
-                    // Was not set in the column, try reading from mvals list that was generated above
-                    if (!$row[$fname]) {
-                        if (!$mvals && $row[$fname . "_fval"])
-                            $mvals = $this->decodeFval($row[$fname . "_fval"]);
-
-                        if ($mvals) {
-                            foreach ($mvals as $id => $mval)
-                                $row[$fname][] = $id;
-                        }
-                    }
-                }
-
-                // Get object with no subtype - we may want to store this locally eventually
-                // so check to see if the data is not already defined
-                if (!$row[$fname] && $fdef->type == "object" && !$fdef->subtype) {
-                    if (!$mvals && $row[$fname . "_fval"])
-                        $mvals = $this->decodeFval($row[$fname . "_fval"]);
-
-                    if ($mvals) {
-                        foreach ($mvals as $id => $mval)
-                            $row[$fname] = $id; // There is only one value but it is assoc
-                    }
-                }
-            }
-
-            switch ($fdef->type) {
-                case "bool":
-                    $row[$fname] = ($row[$fname] == 't') ? true : false;
-                    break;
-                case "date":
-                case "timestamp":
-                    $row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
-                    break;
-            }
-
-            // Check if we have an fkey label/name associated with column ids - these are cached in the object
-            $fkeyValueName = (isset($row[$fname . "_fval"])) ? $this->decodeFval($row[$fname . "_fval"]) : null;
-
-            // Set entity value
-            if (isset($row[$fname]))
-                $entity->setValue($fname, $row[$fname], $fkeyValueName);
+            $this->setEntityFieldValueFromRow($entity, $fdef, $row);
         }
 
         return true;
+    }
+
+    /**
+     * Set a field in an entity from a raw database row
+     *
+     * @param EntityInterface $entity
+     * @param Field $field
+     * @param array $row
+     * @return void
+     */
+    private function setEntityFieldValueFromRow(EntityInterface $entity, Field $field, array $row)
+    {
+        // Set IDs and names for referenced groupings or objects
+        $foreignReferenceValues = null;
+        if ($field->isObjectReference() || $field->isGroupingReference()) {
+            $foreignReferenceValues = $this->getForeignValuesForReference($entity, $field, $row);
+        }
+
+        /*
+         * If the field is multi-value, we need to decode the JSON since it will be
+         * stored as a string in the database
+         */
+        if ($field->isMultiValue()) {
+            if (!empty($row[$field->name])) {
+                $values = $this->unserialize($row[$field->name]);
+                if ($values !== false) {
+                    $row[$field->name] = $values;
+                }
+            } else if ($foreignReferenceValues) {
+                // Error, data not set in the column, check if it was set in an referenced field values
+                foreach ($foreignReferenceValues as $referencedId => $referencedName) {
+                    $row[$field->name][] = $referencedId;
+                }
+            }
+        }
+
+        // Convert values such as 'f' for a bool in the DB to false
+        $row[$field->name] = $this->sanitizeDbValuesToEntityFieldValue($field, $row[$field->name]);
+
+        // Set entity value
+        $entity->setValue($field->name, $row[$field->name], $foreignReferenceValues);
+    }
+
+    /**
+     * Get referenced values for an object or grouping field
+     *
+     * @param EntityInterface $entity
+     * @param Field $field
+     * @param $row
+     * @return array|null
+     */
+    private function getForeignValuesForReference(EntityInterface $entity, Field $field, $row)
+    {
+        $def = $entity->getDefinition();
+
+        // All reference fields should store id and name of references in *_fkey row
+        $foreignValues = null;
+        if (isset($row[$field->name . "_fval"])) {
+            $foreignValues =  $this->unserialize($row[$field->name . "_fval"]);
+        }
+
+        /*
+         * Check if the *_fval field was not set last time the entity was saved.
+         * This should only occur in old objects saved before we moved to v2
+         * on the backend.
+         */
+        if (!$foreignValues || ($foreignValues == '[]' && $row[$field->name] != '[]' && $row[$field->name] != '')) {
+            $foreignValues = $this->getForeignKeyDataFromDb(
+                $field,
+                $row[$field->name],
+                $entity->getId(),
+                $def->getId()
+            );
+        }
+
+
+        return $foreignValues;
+    }
+
+    /**
+     * Handle any conversions from database values to entity values
+     * 
+     * Example of this would be when the database returns a bool, it will be
+     * a character 'f' for false or 't' for true. We need to convert that to
+     * boolean true or false types for the entity.
+     *
+     * @param Field $field
+     * @param [type] $databaseValue
+     * @return mixed
+     */
+    private function sanitizeDbValuesToEntityFieldValue(Field $field, $databaseValue)
+    {
+        switch ($field->type) {
+            case Field::TYPE_BOOL:
+                return ($databaseValue == 't') ? true : false;
+            case Field::TYPE_DATE:
+            case Field::TYPE_TIMESTAMP:
+                return ($databaseValue) ? strtotime($databaseValue) : null;
+            default:
+                return $databaseValue;
+        }
     }
 
     /**
@@ -185,245 +225,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Update the deleted flag and save
         $entity->setValue("f_deleted", true);
         $ret = $this->save($entity);
-        return ($ret == false) ? false : true;
-    }
-
-    /**
-     * Get object definition based on an object type
-     *
-     * @param string $objType The object type name
-     * @param string $fieldName The field name to get grouping data for
-     * @return EntityGrouping[]
-     */
-    public function getGroupings($objType, $fieldName, $filters = array())
-    {
-        $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
-        if (!$def)
-            throw new \Exception("Entity could not be loaded");
-
-        $field = $def->getField($fieldName);
-
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
-            throw new \Exception("$objType:$fieldName:" . $field->type . " is not a grouping (fkey or fkey_multi) field!");
-
-        $whereSql = '';
-        $whereConditions = [];
-        if ($field->subtype == "object_groupings") {
-            $whereSql = 'object_type_id=:object_type_id and field_id=:field_id';
-            $whereConditions['object_type_id'] = $def->getId();
-            $whereConditions['field_id'] = $field->id;
-        } 
-
-        // Check filters to refine the results - can filter by parent object like project id for cases or tasks
-        if (isset($field->fkeyTable['filter'])) {
-            foreach ($field->fkeyTable['filter'] as $grouping_field => $object_field) {
-                if (isset($filters[$object_field])) {
-                    if ($whereSql) {
-                        $whereSql .= ' AND ';
-                    }
-
-                    /*
-                     * When passing the filter (last param with owner value)
-                     * the key name is the name of the property in the entity, in this case
-                     * email_message.owner_id and the value to query for. The entity definition
-                     * for the grouping will map the entity field value to the grouping value if
-                     * the names are different like - groupings.user_id=email_message.owner_id
-                     */
-                    $whereSql .= $grouping_field = ':' . $grouping_field;
-                    $whereConditions[$grouping_field] = $filters[$object_field];
-                } else if (isset($filters[$grouping_field])) {
-                    // A filer can also come in as the grouping field name rather than the object
-                    if ($whereSql) {
-                        $whereSql .= ' AND ';
-                    }
-                    $whereSql .= $grouping_field = ':' . $grouping_field;
-                    $whereConditions[$grouping_field] = $filters[$grouping_field];
-                }
-            }
-        }
-
-        // Filter results to this user of the object is private
-        if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {
-            throw new \Exception("Private entity type called but grouping has no filter defined - " . $def->getObjType());
-        }
-
-        $sql = 'SELECT * FROM ' . $field->subtype;
-
-        if ($whereSql) {
-            $whereSql .= ' WHERE ' . $whereSql;
-        }
-
-        if ($this->database->columnExists($field->subtype, "sort_order")) {
-            $sql .= ' ORDER BY sort_order, ' . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
-        } else {
-            $sql .= ' ORDER BY ' . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
-        }
-
-        // Technically, the limit of groupings is 1000 per field, but just to be safe
-        $sql .= ' LIMIT 10000';
-
-        $groupings = new EntityGroupings($objType, $fieldName, $filters);
-
-        $result = $this->database->query($sql, $whereConditions);
-        foreach ($result->fetchAll() as $row) {
-            $group = new Group();
-            $group->id = $row[$field->fkeyTable['key']];
-            $group->name = $row[$field->fkeyTable['title']];
-            $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
-            if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
-                $group->parentId = $row[$field->fkeyTable['parent']];
-            $group->color = (isset($row['color'])) ? $row['color'] : "";
-            if (isset($row['sort_order']))
-                $group->sortOrder = $row['sort_order'];
-            $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
-            $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
-
-            //$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
-
-            // Add all additional fields which are usually used for filters
-            foreach ($row as $pname => $pval) {
-                if (!$group->getValue($pname))
-                    $group->setValue($pname, $pval);
-            }
-
-            // Make sure the group is not marked as dirty
-            $group->setDirty(false);
-
-            $groupings->add($group);
-        }
-
-        // TODO: we need to think about how we can manage default groupings
-        // Make sure that default groupings exist (if any)
-        //if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
-        //	$ret = $this->verifyDefaultGroupings($fieldName, $data, $nameValue);
-        //else
-        //	$ret = $data;
-
-        return $groupings;
-    }
-
-    /**
-     * Save groupings
-     *
-     * @param EntityGroupings
-     * @param int $commitId The commit id of this save
-     * @return array("changed"=>int[], "deleted"=>int[]) Log of changed groupings
-     */
-    protected function _saveGroupings(EntityGroupings $groupings, $commitId)
-    {
-        $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($groupings->getObjType());
-        if (!$def)
-            return false;
-
-        $field = $def->getField($groupings->getFieldName());
-
-        $ret = array("deleted" => array(), "changed" => array());
-
-        $toDelete = $groupings->getDeleted();
-        foreach ($toDelete as $grp) {
-            $this->database->query(
-                'DELETE FROM ' . $field->subtype . ' WHERE id=:id',
-                ['id' => $grp->id]
-            );
-
-            // Log here
-            $ret['deleted'][$grp->id] = $grp->commitId;
-        }
-
-        $toSave = $groupings->getChanged();
-        foreach ($toSave as $grp) {
-            // Cache for updates to object_sync
-            $lastCommitId = $grp->getValue("commitId");
-
-            // Set the new commit id
-            $grp->setValue("commitId", $commitId);
-
-            if ($this->saveGroup($def, $field, $grp)) {
-                $grp->setDirty(false);
-                // Log here
-                $ret['changed'][$grp->id] = $lastCommitId;
-            }
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Save a new or existing group
-     *
-     * @param \Netric\EntityDefinition $def Entity type definition
-     * @param \Netric\EntityDefinition\Field $field The field we are saving a grouping for
-     * @param \Netric\EntityGroupings\Group $grp The grouping to save
-     * @return bool true on sucess, false on failure
-     */
-    private function saveGroup($def, $field, \Netric\EntityGroupings\Group $grp)
-    {
-        if (!$field)
-            return false;
-
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
-            return false;
-
-        $tableData = [];
-
-        if (isset($grp->uname)) {
-            throw new \RuntimeException('NO UNAME!!!');
-        }
-
-        if ($grp->name && $field->fkeyTable['title']) {
-            $tableData[$field->fkeyTable['title']] = $grp->name;
-        }
-
-        if ($grp->color && $this->database->columnExists($field->subtype, "color")) {
-            $tableData['color'] = $grp->color;
-        }
-
-        if ($grp->isSystem && $this->database->columnExists($field->subtype, "f_system")) {
-            $tableData['f_system'] = $grp->isSystem;
-        }
-
-        if ($grp->sortOrder && $this->database->columnExists($field->subtype, "sort_order")) {
-            $tableData['sort_order'] = $grp->sortOrder;
-        }
-
-        if ($grp->parentId && isset($field->fkeyTable['parent'])) {
-            $tableData[$field->fkeyTable['parent']] = $grp->parentId;
-        }
-
-        if ($grp->commitId) {
-            $tableData['commit_id'] = $grp->commitId;
-        }
-
-        if ($field->subtype == "object_groupings") {
-            $tableData['object_type_id'] = $def->getId();
-            $tableData['field_id'] = $field->id;
-        }
-
-        $data = $grp->toArray();
-
-        foreach ($data["filter_fields"] as $name => $value) {
-            // Make sure that the column name does not exists yet
-            if (array_key_exists($name, $tableData)) {
-                continue;
-            }
-
-            if ($value && $this->database->columnExists($field->subtype, $name)) {
-                $tableData[$name] = $value;
-            }
-        }
-
-        // Execute query
-        if (count($tableData) == 0) {
-            throw new \RuntimeException('Cannot save grouping - invalid data ' . var_export($grp, true));
-        }
-
-        if ($grp->id) {
-            $this->database->update($field->subtype, $tableData, ['id' => $grp->id]);
-        } else {
-            $grp->id = $this->database->insert($field->subtype, $tableData);
-        }
-
-        return true;
+        return ($ret === false) ? false : true;
     }
 
     /**
@@ -431,12 +233,13 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      *
      * @param Entity $entity The entity to save
      * @return string|bool entity id on success, false on failure
+     * @throws \RuntimeException If there is a problem saving to the database
      */
     protected function saveData($entity)
     {
         $def = $entity->getDefinition();
 
-        // Convert to cols=>vals escaped array
+        // Convert to cols=>vals array
         $data = $this->getDataToInsertFromEntity($entity);
         $all_fields = $def->getFields();
 
@@ -487,10 +290,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             return false;
         }
 
-        // handle fkey_multi && auto fields
-        // ----------------------------------
-
         // Handle autocreate folders - only has to fire the very first time
+        // TODO: We should either move this into an abstract function since it is non-db-specific
+        //       business logic, or better yet - delete it if we can retire autocreatename
+        //       in exchange for using the more generic attachments field that every entity has
         foreach ($all_fields as $fname => $fdef) {
             if ($fdef->type == "object" && $fdef->subtype == "folder"
                 && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
@@ -518,139 +321,162 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         // Handle updating reference membership if needed
-        $defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
         foreach ($all_fields as $fname => $fdef) {
             if ($fdef->type == "fkey_multi") {
-
-                /*
-                 * First clear out all existing values in the union table because trying to update
-                 * them would require more work than its worth.
-                 */
-                $whereParams = [];
-                // ['ref_table']["this"] is almost always just 'id'
-                $whereParams[$fdef->fkeyTable['ref_table']["this"]] = $entity->getId();
-
-                // object_type_id and field_id is needed for generic groupings
-                if ($fdef->subtype == "object_groupings") {
-                    $whereParams['object_type_id'] = $def->getId();
-                    $whereParams['field_id'] = $fdef->id;
-                }
-
-                $this->database->delete(
-                    $fdef->fkeyTable['ref_table']['table'],
-                    $whereParams
-                );
-
-
-                /*
-                 * Now insert the rows to associate this entity with the foreign grouping
-                 */
-                $mvalues = $entity->getValue($fname);
-                if (is_array($mvalues)) {
-                    foreach ($mvalues as $val) {
-                        if ($val) {
-                            $dataToInsert = [];
-                            $dataToInsert[$fdef->fkeyTable['ref_table']['ref']] = $val;
-                            $dataToInsert[$fdef->fkeyTable['ref_table']["this"]] = $entity->getId();
-
-                            if ($fdef->subtype == "object_groupings") {
-                                $dataToInsert['object_type_id'] = $def->getId();
-                                $dataToInsert['field_id'] = $fdef->id;
-                            }
-
-                            $this->database->insert(
-                                $fdef->fkeyTable['ref_table']['table'],
-                                $dataToInsert
-                            );
-                        }
-                    }
-                }
+                $this->updateObjectGroupingMulti($entity, $fdef);
             }
 
             // Handle object associations
-            if ($fdef->type == "object_multi" || $fdef->type == "object") {
-                /*
-                 * Just like with fkey_multi above, we first clear out all existing values in the
-                 * union table because trying to update them would require more work than its worth.
-                 */
-                $this->database->delete(
-                    'object_associations',
-                    ['object_id' => $entity->getId(), 'type_id' => $def->getId(), 'field_id' => $fdef->id]
-                );
-
-                // Set values
-                $mvalues = $entity->getValue($fname);
-                if (is_array($mvalues)) {
-                    foreach ($mvalues as $val) {
-                        $subtype = null; // Set the initial value of subtype to null
-
-                        $otid = -1;
-                        if ($fdef->subtype) {
-                            $subtype = $fdef->subtype;
-                            $objid = $val;
-                        } else {
-                            $parts = $entity->decodeObjRef($val);
-                            if ($parts['obj_type'] && $parts['id']) {
-                                $subtype = $parts['obj_type'];
-                                $objid = $parts['id'];
-                            }
-                        }
-
-                        if ($subtype) {
-                            $assocDef = $defLoader->get($subtype);
-                            if ($assocDef->getId() && $objid) {
-                                $this->database->insert(
-                                    'object_associations',
-                                    [
-                                        'object_id' => $entity->getId(),
-                                        'type_id' => $def->getId(),
-                                        'assoc_type_id' => $assocDef->getId(),
-                                        'assoc_object_id' => $objid,
-                                        'field_id' => $fdef->id,
-                                    ]
-                                );
-                            }
-                        }
-                    }
-                } else if ($mvalues) {
-                    if ($fdef->subtype) {
-                        $assocDef = $defLoader->get($fdef->subtype);
-                        if ($assocDef->getId()) {
-                            $this->database->insert(
-                                'object_associations',
-                                [
-                                    'object_id' => $entity->getId(),
-                                    'type_id' => $def->getId(),
-                                    'assoc_type_id' => $assocDef->getId(),
-                                    'assoc_object_id' => $mvalues,
-                                    'field_id' => $fdef->id,
-                                ]
-                            );
-                        }
-                    } else {
-                        $parts = $entity->decodeObjRef($mvalues);
-                        if ($parts['obj_type'] && $parts['id']) {
-                            $assocDef = $defLoader->get($parts['obj_type']);
-                            if ($assocDef->getId() && $parts['id']) {
-
-                                $this->database->insert(
-                                    'object_associations',
-                                    [
-                                        'object_id' => $entity->getId(),
-                                        'type_id' => $def->getId(),
-                                        'assoc_type_id' => $assocDef->getId(),
-                                        'assoc_object_id' => $parts['id'],
-                                        'field_id' => $fdef->id,
-                                    ]
-                                );
-                            }
-                        }
-                    }
-                }
+            if ($fdef->isObjectReference()) {
+                $this->updateObjectAssociations($entity, $fdef);
             }
         }
 
         return $entity->getId();
+    }
+
+    /**
+     * Update object groupings for a multi-value field
+     *
+     * @param EntityInterface $entity
+     * @param Field $field
+     */
+    private function updateObjectGroupingMulti(EntityInterface $entity, Field $field)
+    {
+        /*
+         * First clear out all existing values in the union table because trying to update
+         * them would require more work than its worth.
+         */
+        $whereParams = [];
+        // ['ref_table']["this"] is almost always just 'id'
+        $whereParams[$field->fkeyTable['ref_table']["this"]] = $entity->getId();
+
+        // object_type_id and field_id is needed for generic groupings
+        if ($field->subtype == "object_groupings") {
+            $whereParams['object_type_id'] = $field->getId();
+            $whereParams['field_id'] = $field->id;
+        }
+
+        $this->database->delete(
+            $field->fkeyTable['ref_table']['table'],
+            $whereParams
+        );
+
+        /*
+         * Now insert the rows to associate this entity with the foreign grouping
+         */
+        $values = $entity->getValue($field->name);
+        if (is_array($values)) {
+            foreach ($values as $val) {
+                if ($val) {
+                    $dataToInsert = [];
+                    $dataToInsert[$field->fkeyTable['ref_table']['ref']] = $val;
+                    $dataToInsert[$field->fkeyTable['ref_table']["this"]] = $entity->getId();
+
+                    if ($field->subtype == "object_groupings") {
+                        $dataToInsert['object_type_id'] = $entity->getDefinition()->getId();
+                        $dataToInsert['field_id'] = $field->id;
+                    }
+
+                    $this->database->insert(
+                        $field->fkeyTable['ref_table']['table'],
+                        $dataToInsert
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Update associations that connect entities to each other
+     *
+     * @param EntityInterface $entity
+     * @param Field $field
+     * @throws DatabaseQueryException
+     */
+    private function updateObjectAssociations(EntityInterface $entity, Field $field)
+    {
+        $def = $entity->getDefinition();
+        $defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+
+        /*
+         * Just like with fkey_multi above, we first clear out all existing values in the
+         * union table because trying to update them would require more work than its worth.
+         */
+        $this->database->delete(
+            'object_associations',
+            ['object_id' => $entity->getId(), 'type_id' => $def->getId(), 'field_id' => $field->id]
+        );
+
+        // Set values
+        $mvalues = $entity->getValue($field->name);
+        if (is_array($mvalues)) {
+            foreach ($mvalues as $val) {
+                $subtype = null; // Set the initial value of subtype to null
+
+                $otid = -1;
+                if ($field->subtype) {
+                    $subtype = $field->subtype;
+                    $objid = $val;
+                } else {
+                    $parts = $entity->decodeObjRef($val);
+                    if ($parts['obj_type'] && $parts['id']) {
+                        $subtype = $parts['obj_type'];
+                        $objid = $parts['id'];
+                    }
+                }
+
+                if ($subtype) {
+                    $assocDef = $defLoader->get($subtype);
+                    if ($assocDef->getId() && $objid) {
+                        $this->database->insert(
+                            'object_associations',
+                            [
+                                'object_id' => $entity->getId(),
+                                'type_id' => $def->getId(),
+                                'assoc_type_id' => $assocDef->getId(),
+                                'assoc_object_id' => $objid,
+                                'field_id' => $field->id,
+                            ]
+                        );
+                    }
+                }
+            }
+        } else if ($mvalues) {
+            if ($field->subtype) {
+                $assocDef = $defLoader->get($field->subtype);
+                if ($assocDef->getId()) {
+                    $this->database->insert(
+                        'object_associations',
+                        [
+                            'object_id' => $entity->getId(),
+                            'type_id' => $def->getId(),
+                            'assoc_type_id' => $assocDef->getId(),
+                            'assoc_object_id' => $mvalues,
+                            'field_id' => $field->id,
+                        ]
+                    );
+                }
+            } else {
+                $parts = $entity->decodeObjRef($mvalues);
+                if ($parts['obj_type'] && $parts['id']) {
+                    $assocDef = $defLoader->get($parts['obj_type']);
+                    if ($assocDef->getId() && $parts['id']) {
+
+                        $this->database->insert(
+                            'object_associations',
+                            [
+                                'object_id' => $entity->getId(),
+                                'type_id' => $def->getId(),
+                                'assoc_type_id' => $assocDef->getId(),
+                                'assoc_object_id' => $parts['id'],
+                                'field_id' => $field->id,
+                            ]
+                        );
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -745,17 +571,28 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     }
 
     /**
-     * Decode fval which is saved as json encoded string
+     * Decode a json encoded string into an array
      *
      * @param string $val The encoded string
      * @return array on success, null on failure
      */
-    private function decodeFval($val)
+    private function unserialize($val)
     {
         if ($val == null || $val == "")
             return null;
 
         return json_decode($val, true);
+    }
+
+    /**
+     * Serialize data from an array to a string
+     *
+     * @param array $data
+     * @return string
+     */
+    private function serialize(array $data)
+    {
+        return json_encode($data);
     }
 
     /**

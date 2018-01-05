@@ -51,7 +51,6 @@
                             <field name='comments'></field>
                         </column>
                     </tab>
-
                     <tab name='Dependent Tasks'>
                         <objectsref obj_type='task' ref_field='depends_task_id'></objectsref>
                     </tab>

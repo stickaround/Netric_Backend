@@ -72,11 +72,16 @@ class Loader
      * Save changes to groupings
      *
      * @param EntityGroupings $groupings
-     * @return mixed
+     * @return bool
+     * @throws \RuntimeException if the datamapper cannot save groups for some reason
      */
     public function save(EntityGroupings $groupings)
     {
-        return $this->dataMapper->saveGroupings($groupings);
+        // New DataMappers will throw an exception if they fail
+        $this->dataMapper->saveGroupings($groupings);
+
+        // If we did not encounter any exceptions, then things went well
+        return true;
     }
 
     /**

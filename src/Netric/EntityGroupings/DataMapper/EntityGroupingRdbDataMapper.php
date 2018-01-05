@@ -70,9 +70,11 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     {
         // Now save
         $def = $this->entityDefinitionLoader->get($groupings->getObjType());
-        if (!$def)
-            return false;
-
+        if (!$def) {
+            throw new \RuntimeException(
+                'Could not get defition for entity type: ' . $groupings->getObjType()
+            );
+        }
 
         // Increment head commit for groupings which triggers all collections to sync
         $commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
@@ -225,8 +227,6 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
                 $group->sortOrder = $row['sort_order'];
             $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
             $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
-
-            //$item['f_closed'] = (isset($row['f_closed']) && $row['f_closed']=='t') ? true : false;
 
             // Add all additional fields which are usually used for filters
             foreach ($row as $pname => $pval) {
