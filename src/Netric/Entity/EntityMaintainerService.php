@@ -1,8 +1,4 @@
 <?php
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2017 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\Entity;
 
 use Netric\Error\AbstractHasErrors;
@@ -71,8 +67,7 @@ class EntityMaintainerService extends AbstractHasErrors
         EntityDefinitionLoader $entityDefinitionLoader,
         IndexInterface $entityIndex,
         FileSystem $fileSystem
-    )
-    {
+    ) {
         $this->log = $log;
         $this->entityLoader = $entityLoader;
         $this->entityDefinitionLoader = $entityDefinitionLoader;
@@ -147,7 +142,7 @@ class EntityMaintainerService extends AbstractHasErrors
             $numToDelete = $totalNum - $def->capped;
             $this->log->info(
                 "EntityMaintainerService->trimCappedForType: trimming " .
-                "$numToDelete from " . $def->getObjType()
+                    "$numToDelete from " . $def->getObjType()
             );
 
             for ($i = 0; $i < $numToDelete; $i++) {
@@ -157,8 +152,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
                 // Log it
                 $this->log->info(
-                    "EntityMaintainerService->trimCappedForType: deleted " .
-                    ($i + 1) . " of " . $numToDelete . "  - " . $def->getObjType()
+                    "EntityMaintainerService->trimCappedForType: deleted " . ($i + 1) . " of " . $numToDelete . "  - " . $def->getObjType()
                 );
             }
         }
@@ -213,7 +207,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
         $this->log->info(
             "EntityMaintainerService->purgeStaleDeletedForType: purging $totalNum stale " .
-            "entities from " . $def->getObjType()
+                "entities from " . $def->getObjType()
         );
 
         // Hard delete all the stale entities
@@ -224,8 +218,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
             // Log it
             $this->log->info(
-                "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
-                ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
+                "EntityMaintainerService->purgeStaleDeletedForType: deleted " . ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
             );
         }
 
@@ -269,8 +262,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
             // Log it
             $this->log->info(
-                "EntityMaintainerService->deleteOldSpamMessages: deleted " .
-                ($i + 1) . " of " . $totalNum . "  spam messages "
+                "EntityMaintainerService->deleteOldSpamMessages: deleted " . ($i + 1) . " of " . $totalNum . "  spam messages "
             );
         }
 
@@ -313,8 +305,7 @@ class EntityMaintainerService extends AbstractHasErrors
 
             // Log it
             $this->log->info(
-                "EntityMaintainerService->cleanTempFolder: deleted " .
-                ($i + 1) . " of " . $totalNum . "  temp files "
+                "EntityMaintainerService->cleanTempFolder: deleted " . ($i + 1) . " of " . $totalNum . "  temp files "
             );
         }
 

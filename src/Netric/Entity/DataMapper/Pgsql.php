@@ -154,6 +154,15 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 				case "timestamp":
 					$row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
 					break;
+				case 'object_multi':
+					if ($fdef->subtype) {
+						foreach ($row[$fname] as $index => $objectId) {
+							if (is_numeric($objectId)) {
+								$row[$fname][$index] = $objectId;
+							}
+						}
+					}
+					break;
 			}
 
 			// Check if we have an fkey label/name associated with column ids - these are cached in the object

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Our base implementation of a ServiceLocator pattern
  *
@@ -69,8 +70,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
     public function __construct(
         Application $application,
         ServiceLocatorInterface $parentServiceLocator = null
-    )
-    {
+    ) {
         $this->application = $application;
         $this->parentServiceLocator = $parentServiceLocator;
     }
@@ -112,7 +112,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      * @throws Exception\ServiceNotFoundException Could not autoload factory for named service
      * @return mixed Service instance if loaded, null if class not found
      */
-    private function initializeServiceByFactory($serviceName, $bCache=true)
+    private function initializeServiceByFactory($serviceName, $bCache = true)
     {
         // First check to see if $sServiceName has been mapped to a factory
         $serviceName = $this->getInvokableTarget($serviceName);
@@ -150,12 +150,9 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
             }
 
 
-            if ($factory Instanceof ServiceFactoryInterface)
-            {
+            if ($factory instanceof ServiceFactoryInterface) {
                 $service = $factory->createService($this);
-            }
-            else
-            {
+            } else {
                 throw new Exception\ServiceNotFoundException(sprintf(
                     '%s: The factory interface must implement Netric/ServiceManager/AccountServiceLocatorInterface.',
                     get_class($this) . '::' . __FUNCTION__,
@@ -165,8 +162,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         }
 
         // Cache for future calls
-        if ($bCache)
-        {
+        if ($bCache) {
             $this->loadedServices[$serviceName] = $service;
         }
 
@@ -185,8 +181,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         $classPath = str_replace('/', '\\', $classPath);
 
         // If class begins with "\Netric" then remove the first slash because it is not needed
-        if ("\\Netric" == substr($classPath, 0 , strlen("\\Netric")))
-        {
+        if ("\\Netric" == substr($classPath, 0, strlen("\\Netric"))) {
             $classPath = substr($classPath, 1);
         }
 
@@ -201,9 +196,18 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     private function getServiceFactoryPath($sServiceName)
     {
-        // Append Factory to the service name, then try to load using the initialized autoloaders
-        $sClassPath = $sServiceName . "Factory";
-        return $sClassPath;
+        // Append Factory to the service name if not already at the end
+        $numCharsInFactory = 7;
+        if (strlen($sServiceName) > $numCharsInFactory) {
+            if (substr($sServiceName, $numCharsInFactory * -1) != 'Factory') {
+                $sServiceName .= 'Factory';
+            }
+        } else {
+            // Just append factory since the word is too short to have it
+            $sServiceName .= 'Factory';
+        }
+
+        return $sServiceName;
     }
 
     /**
@@ -214,8 +218,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     private function getInvokableTarget($sServiceName)
     {
-        if (isset($this->invokableFactoryMaps[$sServiceName]))
-        {
+        if (isset($this->invokableFactoryMaps[$sServiceName])) {
             $sServiceName = $this->invokableFactoryMaps[$sServiceName];
         }
 

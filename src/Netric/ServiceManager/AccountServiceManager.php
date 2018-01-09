@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Our implementation of a ServiceLocator pattern
  *
@@ -52,7 +53,7 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
         // Test service map
         "test" => "Netric/ServiceManager/Test/Service",
         // The entity factory service will initialize new entities with injected dependencies
-        "EntityFactory" => "Netric/Entity/EntityFactory",
+        "EntityFactory" => "Netric/Entity/EntityFactoryFactory",
         // The service required for saving recurring patterns
         "RecurrenceDataMapper" => "Netric/Entity/Recurrence/RecurrenceDataMapper",
         // IdentityMapper for loading/saving/caching RecurrencePatterns

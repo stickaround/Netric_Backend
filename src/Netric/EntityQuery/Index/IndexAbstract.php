@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is the base class for all entity indexes
  */
@@ -11,7 +12,7 @@ use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\Entity\Entity;
 use Netric\Account\Account;
-use Netric\Entity\EntityFactory;
+use Netric\Entity\EntityFactoryFactory;
 
 
 abstract class IndexAbstract
@@ -45,7 +46,7 @@ abstract class IndexAbstract
     public function __construct(Account $account)
     {
         $this->account = $account;
-        $this->entityFactory = $account->getServiceManager()->get(EntityFactory::class);
+        $this->entityFactory = $account->getServiceManager()->get(EntityFactoryFactory::class);
 
         // Setup the index
         $this->setUp($account);
@@ -198,12 +199,10 @@ abstract class IndexAbstract
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $ent = $loader->get($objType, $oid);
         $ret[] = $ent->getId();
-        if ($ent->getDefinition()->parentField)
-        {
+        if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($ent->getValue($field->name) && $field->type == "object" && $field->subtype == $objType)
-            {
+            if ($ent->getValue($field->name) && $field->type == "object" && $field->subtype == $objType) {
                 $children = $this->getHeiarchyUpObj($field->subtype, $ent->getValue($field->name));
                 if (count($children))
                     $ret = array_merge($ret, $children);
@@ -221,7 +220,7 @@ abstract class IndexAbstract
      * @param int $this_id The id of the child element
      * @param int[] $aProtectCircular Hold array of already referenced objects to chk for array
      */
-    public function getHeiarchyDownObj($objType, $oid, $aProtectCircular=array())
+    public function getHeiarchyDownObj($objType, $oid, $aProtectCircular = array())
     {
         // Check for circular refrences
         if (in_array($oid, $aProtectCircular))
@@ -234,18 +233,15 @@ abstract class IndexAbstract
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $ent = $loader->get($objType, $oid);
         //$ret[] = $ent->getId();
-        if ($ent->getDefinition()->parentField)
-        {
+        if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($field->type == "object" && $field->subtype == $objType)
-            {
+            if ($field->type == "object" && $field->subtype == $objType) {
                 $index = $this->account->getServiceManager()->get("EntityQuery_Index");
                 $query = new \Netric\EntityQuery($field->subtype);
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getId());
                 $res = $index->executeQuery($query);
-                for ($i = 0; $i < $res->getTotalNum(); $i++)
-                {
+                for ($i = 0; $i < $res->getTotalNum(); $i++) {
                     $subEnt = $res->getEntity($i);
                     $children = $this->getHeiarchyDownObj($objType, $subEnt->getId(), $aProtectCircular);
                     if (count($children))
@@ -271,10 +267,8 @@ abstract class IndexAbstract
         $user = $this->account->getUser();
 
         // Cleanup bool
-        if ("bool" == $field->type && is_string($value))
-        {
-            switch ($value)
-            {
+        if ("bool" == $field->type && is_string($value)) {
+            switch ($value) {
                 case 'true':
                 case 't':
                 case true:
@@ -285,8 +279,7 @@ abstract class IndexAbstract
         }
 
         // Cleanup dates and times
-        if (("date" == $field->type || "timestamp" == $field->type))
-        {
+        if (("date" == $field->type || "timestamp" == $field->type)) {
             // Convert \DateTime to a timestamp
             if ($value instanceof \DateTime) {
                 $value = $value->format("Y-m-d h:i:s A e");
@@ -297,12 +290,11 @@ abstract class IndexAbstract
             else if (is_numeric($value) && !is_string($value)) {
                 $value = date("Y-m-d h:i:s A e", $value);
             }
-            */
+             */
         }
 
         // Replace user vars
-        if ($user)
-        {
+        if ($user) {
 
             // Replace current user
             if (intval($value) === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field))
@@ -339,7 +331,7 @@ abstract class IndexAbstract
             else
                 return;
         }
-        */
+         */
 
         // If querying an object type then only leave the number if the value has the object type
         if (($field->type == "object" || $field->type == "object_multi") && $field->subtype) {
@@ -364,8 +356,7 @@ abstract class IndexAbstract
         if ($field->subtype !== "user")
             return false;
 
-        switch ($field->type)
-        {
+        switch ($field->type) {
             case "fkey":
             case "fkey_multi":
             case "object":
@@ -428,7 +419,7 @@ abstract class IndexAbstract
 
         $objClassName = str_replace("_", " ", $objType);
         $objClassName = ucwords($objClassName);
-        $objClassName = str_replace(" ", "" , $objClassName);
+        $objClassName = str_replace(" ", "", $objClassName);
 
         $pluginName = "\\Netric\\EntityQuery\\Plugin\\" . $objClassName . 'QueryPlugin';
         if (class_exists($pluginName)) {

@@ -116,7 +116,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // All reference fields should store id and name of references in *_fkey row
         $foreignValues = null;
         if (isset($row[$field->name . "_fval"])) {
-            $foreignValues =  $this->unserialize($row[$field->name . "_fval"]);
+            $foreignValues = $this->unserialize($row[$field->name . "_fval"]);
         }
 
         /*
@@ -156,6 +156,21 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             case Field::TYPE_DATE:
             case Field::TYPE_TIMESTAMP:
                 return ($databaseValue) ? strtotime($databaseValue) : null;
+            case Field::TYPE_OBJECT_MULTI:
+                /*  
+                 * Make sure the id is an actual number
+                 * We have to do this because some old entities
+                 * have bad values in object_multi fields
+                 */
+                if ($field->subtype) {
+                    foreach ($databaseValue as $index => $id) {
+                        if (is_numeric($id)) {
+                            $databaseValue[$index] = $id;
+                        }
+                    }
+                }
+
+                return $databaseValue;
             default:
                 return $databaseValue;
         }
