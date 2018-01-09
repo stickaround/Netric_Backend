@@ -331,7 +331,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	{
 		$serviceManager = $this->getAccount()->getServiceManager();
 		$definitionLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
-		$entityFactory = $serviceManager->get("EntityFactory");
+		$entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 		$def = $definitionLoader->get($objType);
 
         // Sanitize in case the user passed in bad paths like '/my//path'

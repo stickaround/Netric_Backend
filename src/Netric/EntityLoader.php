@@ -6,6 +6,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityFactoryFactory;
 
 /**
  * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
@@ -13,23 +14,23 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 class EntityLoader
 {
 	/**
- 	 * Cached entities
-     *
-     * @var EntityInterface[]
+	 * Cached entities
+	 *
+	 * @var EntityInterface[]
 	 */
 	private $loadedEntities = array();
 
-    /**
-     * Cache of unique names to entity id
-     *
-     * @var array
-     */
-    private $uniqueNamesToIds = array();
+	/**
+	 * Cache of unique names to entity id
+	 *
+	 * @var array
+	 */
+	private $uniqueNamesToIds = array();
 
 	/**
 	 * Store the single instance of the loader 
 	 */
-    private static $m_pInstance;
+	private static $m_pInstance;
 
 	/**
 	 * Datamapper for entities
@@ -45,12 +46,12 @@ class EntityLoader
 	 */
 	private $definitionLoader = null;
 
-    /**
-     * Entity factory used for instantiating new entities
-     *
-     * @var \Netric\Entity\EntityFactory
-     */
-    protected $entityFactory = null;
+	/**
+	 * Entity factory used for instantiating new entities
+	 *
+	 * @var \Netric\Entity\EntityFactory
+	 */
+	protected $entityFactory = null;
 
 	/**
 	 * Cache
@@ -69,34 +70,33 @@ class EntityLoader
 	{
 		$this->dataMapper = $dm;
 		$this->definitionLoader = $defLoader;
-        $this->entityFactory = $dm->getAccount()->getServiceManager()->get("EntityFactory");
+		$this->entityFactory = $dm->getAccount()->getServiceManager()->get(EntityFactoryFactory::class);
 		$this->cache = $dm->getAccount()->getServiceManager()->get("Cache");
 		return $this;
 	}
 
 	/**
 	 * Singleton factory
-     *
-     * This will be deprecated when we no longer need to support it in legacy code
+	 *
+	 * This will be deprecated when we no longer need to support it in legacy code
 	 *
 	 * @param DataMapperInterface $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
-     * @return EntityLoader
+	 * @return EntityLoader
 	 */
 	public static function getInstance(DataMapperInterface $dm, $defLoader)
-	{ 
-		if (!self::$m_pInstance) 
+	{
+		if (!self::$m_pInstance)
 			self::$m_pInstance = new EntityLoader($dm, $defLoader); 
 
 		// If we have switched accounts then reload the cache
-		if ($dm->getAccount()->getName() != self::$m_pInstance->dataMapper->getAccount()->getName())
-		{
-			self::$m_pInstance->loadedEntities = array(); 
-			self::$m_pInstance->dataMapper = $dm; 
-			self::$m_pInstance->definitionLoader = $defLoader; 
+		if ($dm->getAccount()->getName() != self::$m_pInstance->dataMapper->getAccount()->getName()) {
+			self::$m_pInstance->loadedEntities = array();
+			self::$m_pInstance->dataMapper = $dm;
+			self::$m_pInstance->definitionLoader = $defLoader;
 		}
 
-		return self::$m_pInstance; 
+		return self::$m_pInstance;
 	}
 
 	/**
@@ -122,7 +122,7 @@ class EntityLoader
 	 */
 	private function getCached($objType, $id)
 	{
-	    $key = $this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id;
+		$key = $this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id;
 		return $this->cache->get($key);
 	}
 
@@ -131,7 +131,7 @@ class EntityLoader
 	 *
 	 * @param string $objType The type of object we are getting
 	 * @param string $id The unique id of the object
-     * @param EntityInterface $entityToFill Optional entity to fill rather than creating a new one
+	 * @param EntityInterface $entityToFill Optional entity to fill rather than creating a new one
 	 * @return EntityInterface
 	 */
 	public function get($objType, $id, EntityInterface $entityToFill = null)
@@ -145,11 +145,9 @@ class EntityLoader
 
 		// First check to see if the object is cached
 		$data = $this->getCached($objType, $id);
-		if ($data)
-		{
+		if ($data) {
 			$entity->fromArray($data);
-			if ($entity->getId())
-			{
+			if ($entity->getId()) {
 				// Clear dirty status
 				$entity->resetIsDirty();
 
@@ -167,14 +165,11 @@ class EntityLoader
 		StatsPublisher::increment("entity.cache.miss");
 
 		// Load from datamapper
-		if ($this->dataMapper->getById($entity, $id))
-		{
+		if ($this->dataMapper->getById($entity, $id)) {
 			$this->loadedEntities[$objType][$id] = $entity;
 			$this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id, $entity->toArray());
 			return $entity;
-		}
-		else
-		{
+		} else {
 			// TODO: make sure it is deleted from the index?
 		}
 
@@ -182,24 +177,24 @@ class EntityLoader
 		return null;
 	}
 
-    /**
-     * Get an entity by a unique name path
-     *
-     * Unique names can be namespaced, and we can reference entities with a full
-     * path since the namespace can be a parentField. For example, the 'page' entity
-     * type has a unique name namespace of parentId so we could path /page1/page2/page1
-     * and the third page1 is a different entity than the first.
-     *
-     * @param string $objType The entity to populate if we find the data
-     * @param string $uniqueNamePath The path to the entity
-     * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
-     * @return EntityInterface $entity if found or null if not found
-     */
-    public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
-    {
+	/**
+	 * Get an entity by a unique name path
+	 *
+	 * Unique names can be namespaced, and we can reference entities with a full
+	 * path since the namespace can be a parentField. For example, the 'page' entity
+	 * type has a unique name namespace of parentId so we could path /page1/page2/page1
+	 * and the third page1 is a different entity than the first.
+	 *
+	 * @param string $objType The entity to populate if we find the data
+	 * @param string $uniqueNamePath The path to the entity
+	 * @param array $namespaceFieldValues Optional array of filter values for unique name namespaces
+	 * @return EntityInterface $entity if found or null if not found
+	 */
+	public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
+	{
         // TODO: We should definitely handle caching here since this function can be expensive
-        return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $namespaceFieldValues);
-    }
+		return $this->dataMapper->getByUniqueName($objType, $uniqueNamePath, $namespaceFieldValues);
+	}
 
 	/**
 	 * Shortcut for constructing an Entity
@@ -209,7 +204,7 @@ class EntityLoader
 	 */
 	public function create($objType)
 	{
-        return $this->entityFactory->create($objType);
+		return $this->entityFactory->create($objType);
 	}
 
 	/**
@@ -220,28 +215,28 @@ class EntityLoader
 	 */
 	public function save(EntityInterface $entity)
 	{
-        $ret = $this->dataMapper->save($entity);
+		$ret = $this->dataMapper->save($entity);
 
-        if ($entity->getId()) {
-            $this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
-        }
+		if ($entity->getId()) {
+			$this->clearCache($entity->getDefinition()->getObjtype(), $entity->getId());
+		}
 
-        return $ret;
+		return $ret;
 	}
 
-    /**
-     * Save an entity
-     *
-     * @param EntityInterface $entity The entity to delete
-     * @param bool $forceHard If true the force a hard delete - purge!
-     * @return bool True on success, false on failure
-     */
-    public function delete(EntityInterface $entity, $forceHard = false)
-    {
+	/**
+	 * Save an entity
+	 *
+	 * @param EntityInterface $entity The entity to delete
+	 * @param bool $forceHard If true the force a hard delete - purge!
+	 * @return bool True on success, false on failure
+	 */
+	public function delete(EntityInterface $entity, $forceHard = false)
+	{
 		$this->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
 
-        return $this->dataMapper->delete($entity, $forceHard);
-    }
+		return $this->dataMapper->delete($entity, $forceHard);
+	}
 
 	/**
 	 * Clear cache
@@ -257,18 +252,18 @@ class EntityLoader
 		$ret = $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id);
 	}
 
-    /**
-     * Clear any cache and reload from the database to make sure we have the latest version
-     *
-     * @param EntityInterface $entity The entity to refresh
-     * @throws \RuntimeException If an invalid entity was passed in
-     */
-    public function reload(EntityInterface $entity)
-    {
-        if (!$entity->getObjType() || !$entity->getId()) {
-            throw new \RuntimeException("Cannot refresh an entity that was not saved - no obj_type or ID");
-        }
-        $this->clearCache($entity->getObjType(), $entity->getId());
-        $this->get($entity->getObjType(), $entity->getId(), $entity);
-    }
+	/**
+	 * Clear any cache and reload from the database to make sure we have the latest version
+	 *
+	 * @param EntityInterface $entity The entity to refresh
+	 * @throws \RuntimeException If an invalid entity was passed in
+	 */
+	public function reload(EntityInterface $entity)
+	{
+		if (!$entity->getObjType() || !$entity->getId()) {
+			throw new \RuntimeException("Cannot refresh an entity that was not saved - no obj_type or ID");
+		}
+		$this->clearCache($entity->getObjType(), $entity->getId());
+		$this->get($entity->getObjType(), $entity->getId(), $entity);
+	}
 }

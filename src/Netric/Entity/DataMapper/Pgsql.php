@@ -17,6 +17,7 @@ use Netric\Db\DbInterface;
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
+use Netric\Entity\EntityFactoryFactory;
 
 class Pgsql extends DataMapperAbstract implements DataMapperInterface
 {
@@ -784,7 +785,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		for ($i = 0; $i < $num; $i++) {
 			$row = $this->dbh->getRow($results, $i);
 
-			$ent = $this->getAccount()->getServiceManager()->get("EntityFactory")->create($objType);
+			$ent = $this->getAccount()->getServiceManager()->get(EntityFactoryFactory::class)->create($objType);
 			$ent->fromArray(unserialize($row['data']));
 			$ret[$row['revision']] = $ent;
 		}

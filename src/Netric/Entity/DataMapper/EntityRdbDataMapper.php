@@ -8,6 +8,8 @@ use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
 use DateTime;
+use Netric\Entity\EntityFactory;
+use Netric\Entity\EntityFactoryFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -805,7 +807,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             ['object_type_id' => $def->getId(), 'object_id' => $id]
         );
         foreach ($results->fetchAll() as $row) {
-            $ent = $this->getAccount()->getServiceManager()->get("EntityFactory")->create($objType);
+            $ent = $this->getAccount()->getServiceManager()->get(EntityFactoryFactory::class)->create($objType);
             $ent->fromArray(unserialize($row['data']));
             $ret[$row['revision']] = $ent;
         }

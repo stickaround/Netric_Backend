@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test entity  loader class that is responsible for creating and initializing exisiting objects
  */
@@ -8,10 +9,11 @@ use Netric\Entity\DataMapperInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityFactoryFactory;
 
 class EntityLoaderTest extends TestCase
 {
-	/**
+    /**
      * Tennant account
      * 
      * @var \Netric\Account\Account
@@ -25,18 +27,18 @@ class EntityLoaderTest extends TestCase
      */
     private $testEntities = [];
 
-	/**
-	 * Setup each test
-	 */
-	protected function setUp() 
-	{
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
-	}
+    }
 
     /**
      * Cleanup any test entities
      */
-	protected function tearDown()
+    protected function tearDown()
     {
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         foreach ($this->testEntities as $entity) {
@@ -45,41 +47,41 @@ class EntityLoaderTest extends TestCase
     }
 
     /**
-	 * Test loading an object definition
-	 */
-	public function testGet()
-	{
-		$loader = $this->account->getServiceManager()->get("EntityLoader");
+     * Test loading an object definition
+     */
+    public function testGet()
+    {
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
 
 		// Create a test object
-		$dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-		$cust = $loader->create("customer");
-		$cust->setValue("name", "EntityLoaderTest:testGet");
-		$cid = $dm->save($cust);
+        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $cust = $loader->create("customer");
+        $cust->setValue("name", "EntityLoaderTest:testGet");
+        $cid = $dm->save($cust);
 		
 		// Use the laoder to get the object
-		$ent = $loader->get("customer", $cid);
-		$this->assertEquals($cust->getId(), $ent->getId());
+        $ent = $loader->get("customer", $cid);
+        $this->assertEquals($cust->getId(), $ent->getId());
 
 		// Test to see if the isLoaded function indicates the entity has been loaded and cached locally
-		$refIm = new \ReflectionObject($loader);
+        $refIm = new \ReflectionObject($loader);
         $isLoaded = $refIm->getMethod("isLoaded");
-		$isLoaded->setAccessible(true);
-		$this->assertTrue($isLoaded->invoke($loader, "customer", $cid));
+        $isLoaded->setAccessible(true);
+        $this->assertTrue($isLoaded->invoke($loader, "customer", $cid));
 
 		// Test to see if it is cached
-		$refIm = new \ReflectionObject($loader);
+        $refIm = new \ReflectionObject($loader);
         $getCached = $refIm->getMethod("getCached");
-		$getCached->setAccessible(true);
-		$this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
+        $getCached->setAccessible(true);
+        $this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
 
 		// Cleanup
-		$dm->delete($cust, true);
-	}
+        $dm->delete($cust, true);
+    }
 
-	public function testByUniqueName()
+    public function testByUniqueName()
     {
-        $entityFactory = $this->account->getServiceManager()->get("Netric/Entity/EntityFactory");
+        $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
         $task = $entityFactory->create("task");
 
 
@@ -105,7 +107,7 @@ class EntityLoaderTest extends TestCase
     {
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
-        $entityFactory = $this->account->getServiceManager()->get("Netric/Entity/EntityFactory");
+        $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
 
         // Create a new entity which will save it in cache
         $task1 = $entityFactory->create("task");
