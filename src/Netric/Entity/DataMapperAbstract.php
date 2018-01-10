@@ -572,8 +572,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 							$id = $refParts['id'];
 						}
 
-                            // Get referenced object name
-						if ($objType && $id) {
+                        // Get referenced object name
+						if ($objType && is_numeric($id)) {
 							$ent = $entityLoader->get($objType, $id);
 							if ($ent) {
 								$entity->addMultiValue($field->name, $valPart, $ent->getName());
