@@ -225,6 +225,33 @@ abstract class DmTestsAbstract extends TestCase
 		$this->groupingDataMapper->saveGroupings($groupingsGroups);
 	}
 
+
+	/**
+	 * Make sure that saving twice on the same entity results in the same id
+	 */
+	public function testSaveTwiceSameId()
+	{
+		$dm = $this->getDataMapper();
+
+		// Create an entity and initialize values
+		$cmsSite = $this->account->getServiceManager()->get("EntityLoader")->create("cms_site");
+		$cmsSite->setValue("name", "test site");
+		$cid = $dm->save($cmsSite, $this->user);
+
+		// Queue for cleanup
+		$this->testEntities[] = $cmsSite;
+
+		// Save the entity again and make sure the IDs are the same
+		$cmsSite->setValue("name", 'utest-edited');
+		$savedAgainCid = $dm->save($cmsSite);
+		$this->assertEquals($cid, $savedAgainCid);
+		$this->assertEquals($cid, $cmsSite->getId());
+
+		// And finally soft-delete and once again assure the IDs are unchanged
+		$dm->delete($cmsSite);
+		$this->assertEquals($cid, $cmsSite->getId());
+	}
+
 	public function testSaveClearMultiVal()
 	{
 		$dm = $this->getDataMapper();

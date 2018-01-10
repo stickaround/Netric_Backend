@@ -452,10 +452,6 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 			// Delete from EntityCollection_Index
 			$serviceManager->get("EntityQuery_Index")->save($entity);
-			
-			// Remove unique DACL. Of course, we don't want to delete the dacl for all object types, just for this id
-			//if ($this->daclIsUnique && $this->dacl)
-				//$this->dacl->remove();
 		} else {
 			$entity->setValue('commit_id', $commitId);
 

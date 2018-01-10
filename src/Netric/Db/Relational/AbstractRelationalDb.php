@@ -88,11 +88,22 @@ abstract class AbstractRelationalDb
     }
 
     /**
+     * Close the connetion to the database
+     */
+    public function __destruct()
+    {
+        if ($this->pdoConnection) {
+            $this->pdoConnection = null;
+        }
+    }
+
+    /**
      * Required function for all derived classes to rovide their PDO connections string
      *
      * @return string
      */
-    abstract protected function getDataSourceName();
+    abstract
+        protected function getDataSourceName();
 
     /**
      * Get the current configured host or file name

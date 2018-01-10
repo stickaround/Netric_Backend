@@ -26,7 +26,7 @@ class Bootstrap
         // ------------------------------------------------
         // $config = new \Netric\Config();
         $configLoader = new \Netric\Config\ConfigLoader();
-        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
+        $applicationEnvironment = "testing";
 
         // Setup the new config
         $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
@@ -35,7 +35,7 @@ class Bootstrap
         $application = new \Netric\Application\Application($config);
 
         // Set log path
-        $application->getLog()->setLogWriter(__DIR__ . "/tmp/netric.log");
+        //$application->getLog()->setLogWriter(__DIR__ . "/tmp/netric.log");
 
         // Initialize account
         static::$account = $application->getAccount();

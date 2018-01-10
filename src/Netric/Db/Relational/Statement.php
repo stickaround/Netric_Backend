@@ -33,6 +33,14 @@ class Statement
     }
 
     /**
+     * Cleanup the results
+     */
+    public function __destruct()
+    {
+        $this->pdoStatement = null;
+    }
+
+    /**
      * Execute the statement
      *
      * @return Result

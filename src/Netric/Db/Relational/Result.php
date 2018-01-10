@@ -24,6 +24,14 @@ class Result
     }
 
     /**
+     * Cleanup the results
+     */
+    public function __destruct()
+    {
+        $this->pdoStatement = null;
+    }
+
+    /**
      * Fetch a single row from the PDO statement response
      * 
      * @return array Associative array of the next row

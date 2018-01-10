@@ -124,7 +124,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
          * commitId is changed (head commit ID) and sync commands look for
          * anything changed since a previous commit ID.
          */
-        foreach ($log['deleted'] as $gid => $lastCommitId) {
+        foreach ($ret['deleted'] as $gid => $lastCommitId) {
             if ($gid && $lastCommitId && $nextCommit) {
                 $this->entitySync->setExportedStale(
                     \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING,

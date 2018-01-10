@@ -10,6 +10,7 @@ use Netric\EntityDefinition\Field;
 use DateTime;
 use Netric\Entity\EntityFactory;
 use Netric\Entity\EntityFactoryFactory;
+use Zend\Escaper\Exception\RuntimeException;
 
 /**
  * Load and save entity data to a relational database
@@ -294,10 +295,19 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             // Now try saving the entity
             try {
                 $entityId = $this->database->insert($targetTable, $data);
-                $entity->setValue('id', $entityId);
+                // if ($entity->getId() && $entityId != $entity->getId()) {
+                //     throw new \RuntimeException(
+                //         "Returned id from DB insert $entityId is different " .
+                //             "than the id saved: " . $entity->getId()
+                //     );
+                // }
+                if (!$entity->getId()) {
+                    $entity->setValue('id', $entityId);
+                }
             } catch (DatabaseQueryException $ex) {
                 throw new \RuntimeException(
-                    'Could not insert entity due to a database error: ' . $ex->getMessage()
+                    'Could not insert entity due to a database error: ' . $ex->getMessage() .
+                        ', data: ' . var_export($data, true)
                 );
             }
         }
@@ -546,12 +556,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // All date fields are epoch timestamps
                     if (is_numeric($val) && $val > 0) {
                         $ret[$fname] = date("Y-m-d", $val);
+                    } else {
+                        $ret[$fname] = null;
                     }
                     break;
                 case 'timestamp':
                     // All timestamp fields are epoch timestamps
                     if (is_numeric($val) && $val > 0) {
                         $ret[$fname] = date(DateTime::ATOM, $val);
+                    } else {
+                        $ret[$fname] = null;
                     }
                     break;
                 case 'text':
@@ -566,8 +580,18 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 case 'bool':
                     $ret[$fname] = ($val === true);
                     break;
-                case 'object':
                 case 'fkey':
+                    $ret[$fname] = (is_numeric($val)) ? $val : null;
+                    break;
+                case 'object':
+                    if ($fdef->subtype) {
+                        // If there is a subtype then the value should be an int or null
+                        $ret[$fname] = (is_numeric($val)) ? $val : null;
+                    } else {
+                        // object references with both the type and id are stored as a string
+                        $ret[$fname] = $val;
+                    }
+                    break;
                 default:
                     $ret[$fname] = $val;
                     break;
