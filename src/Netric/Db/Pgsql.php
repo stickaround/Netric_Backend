@@ -79,9 +79,7 @@ class Pgsql implements DbInterface
 
 	public function __destruct()
 	{
-        //$this->close();
-		//@pg_close($this->dbHandle);
-		//$this->dbHandle = false;
+		$this->dicconnect();
 	}
 
 	/**

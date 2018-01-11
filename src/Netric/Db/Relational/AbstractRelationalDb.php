@@ -79,7 +79,10 @@ abstract class AbstractRelationalDb
         $this->databaseName = $databaseName;
 
         // Set all errors to be exceptions
-        $this->connectionAttributes = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+        $this->connectionAttributes = [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_PERSISTENT => true,
+        ];
 
         // If we haven't set an explicit timeout in the connection attributes, use the timeout provided in the constructor
         if (!isset($this->connectionAttributes[\PDO::ATTR_TIMEOUT])) {
@@ -92,7 +95,7 @@ abstract class AbstractRelationalDb
      */
     public function __destruct()
     {
-        if ($this->pdoConnection) {
+        if (!is_null($this->pdoConnection)) {
             $this->pdoConnection = null;
         }
     }
@@ -102,8 +105,7 @@ abstract class AbstractRelationalDb
      *
      * @return string
      */
-    abstract
-        protected function getDataSourceName();
+    abstract protected function getDataSourceName();
 
     /**
      * Get the current configured host or file name

@@ -9,6 +9,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\Field;
 use DateTime;
 
 /**
@@ -213,19 +214,19 @@ class Entity implements EntityInterface
         $field = $this->def->getField($strName);
         if ($field) {
             switch ($field->type) {
-                case 'bool':
+                case Field::TYPE_BOOL:
                     if (is_string($value)) {
                         $value = ($value === 't' || $value === 'true') ? true : false;
                     }
                     break;
-                case 'date':
-                case 'timestamp':
+                case Field::TYPE_DATE:
+                case Field::TYPE_TIMESTAMP:
                     if ($value && !is_numeric($value)) {
                         $value = strtotime($value);
                     }
                     break;
-                case 'fkey_multi':
-                case 'object_multi':
+                case Field::TYPE_GROUPING_MULTI:
+                case Field::TYPE_OBJECT_MULTI:
                     if ($value && !is_array($value)) {
                         $value = array($value);
                     }
@@ -235,14 +236,21 @@ class Entity implements EntityInterface
 
         $this->values[$strName] = $value;
 
-        if ($strName == "id")
+        if ($strName == "id") {
             $this->setId($value);
+        }
 
         if ($valueName) {
-            if (is_array($valueName))
+            if (is_array($valueName)) {
                 $this->fkeysValues[$strName] = $valueName;
-            else
+            } else if (is_string($value) || is_numeric($value)) {
                 $this->fkeysValues[$strName] = array($value => $valueName);
+            } else {
+                throw new \InvalidArgumentException(
+                    "Invalid value name for object or fkey: " .
+                        var_export($value, true)
+                );
+            }
         }
 
         // Log changes
@@ -283,11 +291,13 @@ class Entity implements EntityInterface
 
         if ($valueName) {
             // Make sure we initialize the arrays if not already set
-            if (!isset($this->fkeysValues[$strName]))
+            if (!isset($this->fkeysValues[$strName])) {
                 $this->fkeysValues[$strName] = array();
+            }
 
-            if (!isset($this->fkeysValues[$strName][$value]))
+            if (!isset($this->fkeysValues[$strName][$value])) {
                 $this->fkeysValues[$strName][$value] = array();
+            }
 
             $this->fkeysValues[$strName][$value] = $valueName;
         }
@@ -364,13 +374,15 @@ class Entity implements EntityInterface
             $oldvalraw = $oldval;
             $newvalraw = $value;
 
-            if ($oldvalName)
+            if ($oldvalName) {
                 $oldval = $oldvalName;
+            }
 
-            if ($this->getValueNames($strName))
+            if ($this->getValueNames($strName)) {
                 $newval = $this->getValueNames($strName);
-            else
+            } else {
                 $newval = $value;
+            }
 
             $this->changelog[$strName] = array(
                 "field" => $strName,
@@ -401,12 +413,14 @@ class Entity implements EntityInterface
              * If $onlyProvidedFields is set to true, we need to check first if field key exists in $data array
              * If field key does not exist, then we do not need update the current field.
              */
-            if ($onlyProvidedFields && !isset($data[$fname]))
+            if ($onlyProvidedFields && !isset($data[$fname])) {
                 continue;
+            }
 
             // If the fieldname is recurrence pattern, let the RecurrencePattern Class handle the checking
-            if ($fname == 'recurrence_pattern')
+            if ($fname == 'recurrence_pattern') {
                 continue;
+            }
 
 			// Check for fvals
             if (isset($data[$fname . "_fval"])) {
@@ -432,7 +446,7 @@ class Entity implements EntityInterface
                     $this->addMultiValue($fname, $mval, $valName);
                 }
             } else {
-                if ( ($field->type === "object_multi" || $field->type === "fkey_multi"))
+                if (($field->type === "object_multi" || $field->type === "fkey_multi"))
                     $this->clearMultiValues($fname);
 
                 $valName = (isset($valNames[$value])) ? $valNames[$value] : null;
@@ -447,8 +461,9 @@ class Entity implements EntityInterface
             $this->recurrencePattern->setObjType($this->getDefinition()->getObjType());
         }
 
-        if (isset($data['recurrence_exception']))
+        if (isset($data['recurrence_exception'])) {
             $this->isRecurrenceException = $data['recurrence_exception'];
+        }
     }
 
     /**
@@ -525,7 +540,7 @@ class Entity implements EntityInterface
         // Make sure we have associations added for any object reference
         $fields = $this->getDefinition()->getFields();
         foreach ($fields as $field) {
-            if ($field->type === "object") {
+            if ($field->type === Field::TYPE_OBJECT) {
                 $fieldValue = $this->getValue($field->name);
                 if ($fieldValue && $field->subtype) {
                     $this->addMultiValue(
@@ -915,7 +930,7 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
-            if ( ($field->type === "object" || $field->type === "object_multi") &&
+            if (($field->type === "object" || $field->type === "object_multi") &&
                 $field->subtype === "file") {
 				// Only process if the value has changed since last time
                 if ($this->fieldValueChanged($field->name)) {
