@@ -281,8 +281,8 @@ return array(
             'fkey_table'=>array(
                 "key"=>"id",
                 "title"=>"name",
-                "parent"=>"parent_id", "
-                filter"=>array("user_id"=>"user_id"),
+                "parent"=>"parent_id",
+                "filter"=>array("user_id"=>"user_id"),
                 "ref_table"=>array(
                     "table"=>"contacts_personal_label_mem",
                     "this"=>"contact_id",
