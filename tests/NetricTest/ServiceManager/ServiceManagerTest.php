@@ -53,6 +53,18 @@ class ServiceManagerTest extends TestCase
     }
 
     /**
+     * Make sure once a service is loaded it stays in memory
+     */
+    public function testIsloaded()
+    {
+        $sl = $this->account->getServiceManager();
+        $testService1 = $sl->get(ServiceFactory::class);
+        $this->assertTrue($sl->isLoaded(ServiceFactory::class));
+        $testService2 = $sl->get(ServiceFactory::class);
+        $this->assertSame($testService1, $testService2);
+    }
+
+    /**
      * Make sure that mapped or aliased services can be loaded
      */
     public function testGetMapped()

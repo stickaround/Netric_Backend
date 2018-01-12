@@ -380,7 +380,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // object_type_id and field_id is needed for generic groupings
         if ($field->subtype == "object_groupings") {
-            $whereParams['object_type_id'] = $field->getId();
+            $whereParams['object_type_id'] = $entity->getDefinition()->getId();
             $whereParams['field_id'] = $field->id;
         }
 

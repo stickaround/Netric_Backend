@@ -856,5 +856,34 @@ abstract class DmTestsAbstract extends TestCase
 		$this->assertEquals($reminderEntity->getValue("obj_reference"), "customer:$cid:$customerName");
 		$this->assertEquals($reminderEntity->getValueName("obj_reference"), $customerName);
 	}
+
+	/**
+	 * Make sure that we refresh the cached names of a referenced grouping on save
+	 */
+	public function testObjectGroupingRefreshOnSave()
+	{
+		$dm = $this->getDataMapper();
+
+		// Create a group to set for a custmer
+		$groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
+		$statGrp = $groupingsStat->create("test-" . rand());
+		$groupingsStat->add($statGrp);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
+
+
+		// Save a new customer and save it with the wrong label for group
+		$customer = $this->createCustomer();
+		$customer->setValue("name", 'testObjectGroupingRefreshOnSave');
+		$customer->setValue("status_id", $statGrp->id, [$statGrp->id => 'wrong']);
+		$cid = $dm->save($customer, $this->user);
+		$this->testEntities[] = $customer;
+
+		// Make sure that when the entity was saved it was updated with the real grouping name
+		$this->assertEquals($statGrp->name, $customer->getValueName('status_id'));
+
+		// Cleanup groupings
+		$groupingsStat->delete($statGrp->id);
+		$this->groupingDataMapper->saveGroupings($groupingsStat);
+	}
 }
 

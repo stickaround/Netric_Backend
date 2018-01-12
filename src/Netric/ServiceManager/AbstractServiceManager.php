@@ -120,7 +120,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         // Normalise the serviceName
         $serviceName = $this->normalizeClassPath($serviceName);
 
-        // First check to see if the service was already loaded
+        // Check to see if the service was already loaded
         if ($this->isLoaded($serviceName))
             return $this->loadedServices[$serviceName];
 

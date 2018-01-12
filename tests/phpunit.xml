@@ -2,7 +2,6 @@
     <testsuites>
         <testsuite name="NetricTest">
             <directory>./NetricTest</directory>
-            <exclude>./NetricTest/Application</exclude>
         </testsuite>
         <testsuite name="BinTest">
             <directory>./BinTest</directory>

@@ -94,9 +94,9 @@ abstract class AbstractRelationalDb
      */
     public function __destruct()
     {
-        if (!is_null($this->pdoConnection)) {
-            $this->pdoConnection = null;
-        }
+        // if (!is_null($this->pdoConnection)) {
+        //     $this->pdoConnection = null;
+        // }
     }
 
     /**

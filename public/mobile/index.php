@@ -14,7 +14,7 @@ include(__DIR__ . "/../../init_autoloader.php");
     // Get netric config
 $configLoader = new Netric\Config\ConfigLoader();
 $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
-$config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
+$config = $configLoader->fromFolder(__DIR__ . "/../../config", $applicationEnvironment);
 ?>
 <!DOCTYPE html>
 <html>

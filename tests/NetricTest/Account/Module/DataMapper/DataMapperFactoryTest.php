@@ -1,10 +1,9 @@
 <?php
-/**
- * Test the FileSystem service factory
- */
 namespace NetricTest\FileSystem;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Account\Module\DataMapper\DataMapperInterface;
+use Netric\Account\Module\DataMapper\DataMapperFactory;
 
 class DataMapperFactoryTest extends TestCase
 {
@@ -13,8 +12,8 @@ class DataMapperFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Account\Module\DataMapper\DataMapperInterface',
-            $sm->get('Netric\Account\Module\DataMapper\DataMapper')
+            DataMapperInterface::class,
+            $sm->get(DataMapperFactory::class)
         );
     }
 }

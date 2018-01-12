@@ -1,13 +1,18 @@
 <?php
+
 /**
  * Test the entity controller
  */
 namespace NetricTest\Controller;
 
 use Netric;
+use Netric\Controller\EntityController;
 use Netric\Entity\EntityInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group integration
+ */
 class EntityControllerTest extends TestCase
 {
     /**
@@ -20,7 +25,7 @@ class EntityControllerTest extends TestCase
     /**
      * Controller instance used for testing
      *
-     * @var \Netric\Controller\EntityController
+     * @var EntityController
      */
     protected $controller = null;
 
@@ -43,7 +48,7 @@ class EntityControllerTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Create the controller
-        $this->controller = new Netric\Controller\EntityController($this->account->getApplication(), $this->account);
+        $this->controller = new EntityController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
     }
 
@@ -53,8 +58,7 @@ class EntityControllerTest extends TestCase
     protected function tearDown()
     {
         // Delete the added groups
-        foreach ($this->testGroups as $groupId)
-        {
+        foreach ($this->testGroups as $groupId) {
             $dataRemove = array(
                 'action' => "delete",
                 'obj_type' => "note",
