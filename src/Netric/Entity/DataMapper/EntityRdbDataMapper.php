@@ -651,7 +651,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         if ($fdef->type == "fkey" && $value) {
             $sql = 'SELECT ' . $fdef->fkeyTable['key'] . ' as id, ' .
-                $fdef->fkeyTable['title'] . 'as name ' .
+                $fdef->fkeyTable['title'] . ' as name ' .
                 'FROM ' . $fdef->subtype . ' WHERE ' . $fdef->fkeyTable['key'] . '=:key_value';
             $result = $this->database->query($sql, ['key_value' => $value]);
             if ($result->rowCount()) {
