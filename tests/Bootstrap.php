@@ -6,6 +6,8 @@ include("../init_autoloader.php");
 
 use Zend\Loader\StandardAutoloader;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Config\ConfigLoader;
+use Netric\Application\Application;
 
 error_reporting(E_ALL | E_STRICT);
 chdir(__DIR__);
@@ -23,16 +25,14 @@ class Bootstrap
         static::initAutoloader();
 
         // Initialize Netric Application and Account
-        // ------------------------------------------------
-        // $config = new \Netric\Config();
-        $configLoader = new \Netric\Config\ConfigLoader();
+        $configLoader = new ConfigLoader();
         $applicationEnvironment = "testing";
 
         // Setup the new config
         $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 
         // Initialize application
-        $application = new \Netric\Application\Application($config);
+        $application = new Application($config);
 
         // Set log path
         //$application->getLog()->setLogWriter(__DIR__ . "/tmp/netric.log");
@@ -50,7 +50,6 @@ class Bootstrap
             $loader->save($user);
         }
         static::$user = $user;
-
         static::$account->setCurrentUser($user);
     }
 
@@ -65,11 +64,6 @@ class Bootstrap
     {
             
         $autoLoader = new StandardAutoloader(array(
-            /*
-            'prefixes' => array(
-                'MyVendor' => __DIR__ . '/MyVendor',
-            ),
-            */
             'namespaces' => array(
                 __NAMESPACE__ => __DIR__ . '/' . __NAMESPACE__,
             ),

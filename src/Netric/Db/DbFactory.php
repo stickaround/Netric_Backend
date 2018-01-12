@@ -36,6 +36,8 @@ class DbFactory implements AccountServiceLocatorInterface
         // Set the schema to a specific account to keep the data segregated
         $db->setSchema("acc_" . $sl->getAccount()->getId());
 
+        echo "Factory DbLegacy\n";
+
         return $db;
     }
 }

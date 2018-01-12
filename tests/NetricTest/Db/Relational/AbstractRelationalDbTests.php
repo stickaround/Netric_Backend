@@ -3,6 +3,7 @@ namespace NetricTest\Db\Relational;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Db\Relational\Statement;
 use Netric\Db\Relational\Exception\DatabaseException;
 
 /**

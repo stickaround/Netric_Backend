@@ -81,7 +81,6 @@ abstract class AbstractRelationalDb
         // Set all errors to be exceptions
         $this->connectionAttributes = [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_PERSISTENT => true,
         ];
 
         // If we haven't set an explicit timeout in the connection attributes, use the timeout provided in the constructor
