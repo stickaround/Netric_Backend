@@ -17,9 +17,9 @@ class DataMapperFactory implements AccountServiceLocatorInterface
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
-        //$db = $sl->get("Netric/Db/Db");
-        //return new Pgsql($sl->getAccount(), $db);
+        $db = $sl->get("Netric/Db/Db");
+        return new Pgsql($sl->getAccount(), $db);
 
-        return new EntityRdbDataMapper($sl->getAccount());
+        //return new EntityRdbDataMapper($sl->getAccount());
     }
 }

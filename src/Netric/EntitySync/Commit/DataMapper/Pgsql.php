@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Abstract commit datamapper
  *
@@ -54,8 +55,7 @@ class Pgsql extends DataMapperAbstract
 		$cid = $this->getNextSeqVal();
 		
 		// The sequence may not be defined, try creating it
-		if (!$cid)
-		{
+		if (!$cid) {
 			$cid = $this->createSeq();
 			$cid = $this->getNextSeqVal();
 		}
@@ -75,14 +75,11 @@ class Pgsql extends DataMapperAbstract
 		// Check to see if this exists already
 		$existQuery = "SELECT head_commit_id FROM object_sync_commit_heads 
 						WHERE type_key='" . $this->dbh->escape($key) . "';";
-		if ($this->dbh->getNumRows($this->dbh->query($existQuery)))
-		{
+		if ($this->dbh->getNumRows($this->dbh->query($existQuery))) {
 			$res = $this->dbh->query("UPDATE object_sync_commit_heads 
 									  SET head_commit_id='" . $this->dbh->escape($cid) . "' 
 									  WHERE type_key ='" . $this->dbh->escape($key) . "';");
-		}
-		else
-		{
+		} else {
 			$res = $this->dbh->query("INSERT INTO object_sync_commit_heads
 									  (head_commit_id, type_key) 
 									  VALUES(
@@ -93,7 +90,7 @@ class Pgsql extends DataMapperAbstract
 
 		if (!$res)
 			echo $this->dbh->getlastError();
-		
+
 		return ($res) ? true : false;
 	}
 
@@ -119,8 +116,7 @@ class Pgsql extends DataMapperAbstract
 	private function getNextSeqVal()
 	{
 		$res = $this->dbh->query("SELECT nextval('" . $this->sSequenceName . "');");
-		if ($res)
-		{
+		if ($res) {
 			return $this->dbh->getValue($res, 0, "nextval");
 		}
 	}

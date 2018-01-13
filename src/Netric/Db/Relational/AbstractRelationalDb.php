@@ -94,9 +94,9 @@ abstract class AbstractRelationalDb
      */
     public function __destruct()
     {
-        // if (!is_null($this->pdoConnection)) {
-        //     $this->pdoConnection = null;
-        // }
+        if (!is_null($this->pdoConnection)) {
+            $this->pdoConnection = null;
+        }
     }
 
     /**
@@ -198,7 +198,7 @@ abstract class AbstractRelationalDb
         $statement = $this->prepareStatement($sqlQuery, $params);
 
         // Start timing in case we want to log slow queries
-        $startTime = microtime(true);
+        //$startTime = microtime(true);
 
         try {
             $result = $statement->execute();
