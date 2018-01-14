@@ -102,6 +102,13 @@ interface RelationalDbInterface
     public function setNamespace(string $namespace, bool $createIfMissing = false);
 
     /**
+     * Get the current namespace
+     * 
+     * @return string The name of the current namespace (if set or empty string)
+     */
+    public function getNamespace() : string;
+
+    /**
      * Create a unique namespace for segregating user data
      *
      * @param string $namespace

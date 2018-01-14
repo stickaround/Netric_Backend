@@ -43,7 +43,25 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     public function setNamespace(string $namespace, bool $createIfMissing = false)
     {
         $this->schemaName = $namespace;
-        $this->query('SET search_path TO ' . $namespace);
+        
+    }
+
+    /**
+     * Get the current set namespace if set
+     */
+    public function getNamespace() : string
+    {
+        return $this->schemaName;
+    }
+
+    /**
+     * Run any commands/use statements to switch to a unique namespace
+     */
+    protected function useSetNamespace()
+    {
+        if ($this->schemaName) {
+            $this->query('SET search_path TO ' . $this->schemaName);
+        }
     }
 
     /**

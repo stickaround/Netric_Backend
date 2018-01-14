@@ -157,32 +157,6 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
     }
 
     /**
-     * Get AntFs class
-     *
-     * @deprecated This is legacy code used only for the entity datamapper at this point
-     *
-     * @return \AntFs
-     *
-     * private function factoryAntFs()
-     * {
-     * require_once(dirname(__FILE__) . "/../../AntConfig.php");
-     * require_once(dirname(__FILE__) . "/../../CDatabase.awp");
-     * require_once(dirname(__FILE__) . "/../../Ant.php");
-     * require_once(dirname(__FILE__) . "/../../AntUser.php");
-     * require_once(dirname(__FILE__) . "/../../AntFs.php");
-     *
-     * $ant = new \Ant($this->getAccount()->getId());
-     * $user = $this->getAccount()->getUser();
-     * if (!$user)
-     * $user = $this->getAccount()->getUser(\Netric\UserEntity::USER_ANONYMOUS);
-     * $user = new \AntUser($ant->dbh, $user->getId(), $ant);
-     * $antfs = new \AntFs($ant->dbh, $user);
-     *
-     * return $antfs;
-     * }
-     * */
-
-    /**
      * Get Help class
      *
      * @return Help

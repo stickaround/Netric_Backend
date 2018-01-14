@@ -71,6 +71,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         Application $application,
         ServiceLocatorInterface $parentServiceLocator = null
     ) {
+        echo "Newed service mapper\n";
         $this->application = $application;
         $this->parentServiceLocator = $parentServiceLocator;
     }
@@ -101,6 +102,14 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function clearLoadedServices()
     {
+        // Clear all refrences to force destructors to be called
+        foreach ($this->loadedServices as $svcname=>$svc) {
+            if ($svc !== null) {
+                $this->loadedServices[$svname] = null;
+            }
+        }
+
+        // Reset the array
         $this->loadedServices = [];
     }
 
@@ -120,35 +129,35 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         // Normalise the serviceName
         $serviceName = $this->normalizeClassPath($serviceName);
 
+        // Get actual class name by appending 'Factory' and normalizing slashes
+        $factoryClassPath = $this->getServiceFactoryPath($serviceName);
+
         // Check to see if the service was already loaded
-        if ($this->isLoaded($serviceName))
-            return $this->loadedServices[$serviceName];
+        if ($this->isLoaded($factoryClassPath)) {
+            return $this->loadedServices[$factoryClassPath];
+        }
 
         // Check the parent if it was already loaded
         if ($this->parentServiceLocator) {
-            if ($this->parentServiceLocator->isLoaded($serviceName)) {
-                return $this->parentServiceLocator->get($serviceName);
+            if ($this->parentServiceLocator->isLoaded($factoryClassPath)) {
+                return $this->parentServiceLocator->get($factoryClassPath);
             }
         }
-
-        // Get actual class name by appending 'Factory' and normalizing slashes
-        $classPath = $this->getServiceFactoryPath($serviceName);
 
         // Load the the service for the first time
         $service = null;
 
         // Try to load the service and allow exception to be thrown if not found
-        if ($classPath) {
-            if (class_exists($classPath)) {
-                $factory = new $classPath();
+        if ($factoryClassPath) {
+            if (class_exists($factoryClassPath)) {
+                $factory = new $factoryClassPath();
             } else {
                 throw new Exception\ServiceNotFoundException(sprintf(
                     '%s: A service by the name "%s" was not found and could not be instantiated.',
                     get_class($this) . '::' . __FUNCTION__,
-                    $classPath
+                    $factoryClassPath
                 ));
             }
-
 
             if ($factory instanceof ServiceFactoryInterface) {
                 $service = $factory->createService($this);
@@ -156,14 +165,14 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
                 throw new Exception\ServiceNotFoundException(sprintf(
                     '%s: The factory interface must implement Netric/ServiceManager/AccountServiceLocatorInterface.',
                     get_class($this) . '::' . __FUNCTION__,
-                    $classPath
+                    $factoryClassPath
                 ));
             }
         }
 
         // Cache for future calls
         if ($bCache) {
-            $this->loadedServices[$serviceName] = $service;
+            $this->loadedServices[$factoryClassPath] = $service;
         }
 
         return $service;

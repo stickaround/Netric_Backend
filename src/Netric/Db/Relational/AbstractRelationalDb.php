@@ -81,6 +81,7 @@ abstract class AbstractRelationalDb
         // Set all errors to be exceptions
         $this->connectionAttributes = [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_PERSISTENT => true,
         ];
 
         // If we haven't set an explicit timeout in the connection attributes, use the timeout provided in the constructor
@@ -105,6 +106,11 @@ abstract class AbstractRelationalDb
      * @return string
      */
     abstract protected function getDataSourceName();
+
+    /**
+     * Run any commands/use statements to switch to a unique namespace
+     */
+    abstract protected function useSetNamespace();
 
     /**
      * Get the current configured host or file name
@@ -147,6 +153,11 @@ abstract class AbstractRelationalDb
                     $this->databasePassword,
                     $this->connectionAttributes
                 );
+
+                // If the account is using a special namespace, then make sure the
+                // specific database impelmentaiton uses it
+                $this->useSetNamespace();
+                
                 return $this->pdoConnection;
             } catch (\Exception $oException) {
                 $oLastException = $oException;
@@ -195,6 +206,7 @@ abstract class AbstractRelationalDb
      */
     public function query($sqlQuery, array $params = [])
     {
+        // Prepare a statement for the main query using params
         $statement = $this->prepareStatement($sqlQuery, $params);
 
         // Start timing in case we want to log slow queries

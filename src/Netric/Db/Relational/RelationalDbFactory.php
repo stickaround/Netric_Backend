@@ -28,7 +28,7 @@ class RelationalDbFactory implements AccountServiceLocatorInterface
         );
 
         // Set the schema to a specific account to keep the data segregated
-        $db->setNamespace("acc_" . $sl->getAccount()->getId());
+        $db->setNamespace('acc_' . $sl->getAccount()->getId());
 
         return $db;
     }
