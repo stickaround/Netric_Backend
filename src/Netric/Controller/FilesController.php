@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controller for FileSystem interactoin
  */
@@ -14,6 +15,7 @@ use Netric\Application\Response\HttpResponse;
 use Netric\Permissions\DaclLoader;
 use Netric\Permissions\Dacl;
 use DateTime;
+use Netric\Config\ConfigFactory;
 
 /**
  * Class FilesController
@@ -57,7 +59,7 @@ class FilesController extends Mvc\AbstractAccountController
         $this->fileSystem = $sl->get(FileSystem::class);
 
         // Set the local dataPath from the system config service
-        $config = $sl->get("Config");
+        $config = $sl->get(ConfigFactory::class);
         $this->dataPath = $config->data_path;
 
         // Set resizer if we are working with images
@@ -90,21 +92,21 @@ class FilesController extends Mvc\AbstractAccountController
         $log = $this->account->getApplication()->getLog();
 
         // Make sure we have the resources to upload this file
-		ini_set("max_execution_time", "7200");
-		ini_set("max_input_time", "7200");
+        ini_set("max_execution_time", "7200");
+        ini_set("max_input_time", "7200");
 
-		$folder = null;
-		$ret = array();
+        $folder = null;
+        $ret = array();
 
 		// If folderid has been passed the override the text path
-		if ($request->getParam('folderid'))
+        if ($request->getParam('folderid'))
             $folder = $this->fileSystem->openFolderById($request->getParam('folderid'));
         else if ($request->getParam('path'))
             $folder = $this->fileSystem->openFolder($request->getParam('path'), true);
 
         // Could not create or get a parent folder. Return an error.
-		if (!$folder)
-            return $this->setOutput(array("error"=>"Could not open the folder specified"));
+        if (!$folder)
+            return $this->setOutput(array("error" => "Could not open the folder specified"));
 
         $folderPath = $folder->getFullPath();
 
@@ -117,8 +119,7 @@ class FilesController extends Mvc\AbstractAccountController
         /**
          * When a file is uploaded it can be sent as 'input_name' or as 'input_name[]'
          */
-        foreach ($files as $file)
-        {
+        foreach ($files as $file) {
             /**
              * Check to see if input multiple was set (or multiple files were uploaded with the
              * same name) which will be represented as:
@@ -135,10 +136,8 @@ class FilesController extends Mvc\AbstractAccountController
              *
              * @see http://php.net/manual/en/features.file-upload.multiple.php for more information
              */
-            if (is_array($file['name']))
-            {
-                foreach ($file['name'] as $idx=>$filename)
-                {
+            if (is_array($file['name'])) {
+                foreach ($file['name'] as $idx => $filename) {
                     $uploadedFiles[] = array(
                         'name' => $file['name'][$idx],
                         'type' => $file['type'][$idx],
@@ -147,16 +146,13 @@ class FilesController extends Mvc\AbstractAccountController
                         'size' => $file['size'][$idx],
                     );
                 }
-            }
-            else
-            {
+            } else {
                 // Standard single file upload
                 $uploadedFiles[] = $file;
             }
         }
 
-        foreach($uploadedFiles as $uploadedFile)
-        {
+        foreach ($uploadedFiles as $uploadedFile) {
             /*
              * Make sure that the file was uploaded via HTTP_POST. This is useful to help
              * ensure that a malicious user hasn't tried to trick the script into working
@@ -165,12 +161,11 @@ class FilesController extends Mvc\AbstractAccountController
              * However, we will need to bypass this for unit tests which will be managed
              * with $this->testMode and will be set in the unit test and never anywhere else.
              */
-            if (!is_uploaded_file($uploadedFile['tmp_name']) && !$this->testMode)
-            {
+            if (!is_uploaded_file($uploadedFile['tmp_name']) && !$this->testMode) {
                 return $this->setOutput(
                     array(
-                        "error"=>"Security Violation: " . $uploadedFile['tmp_name'] .
-                        " was not uploaded via POST."
+                        "error" => "Security Violation: " . $uploadedFile['tmp_name'] .
+                            " was not uploaded via POST."
                     )
                 );
             }
@@ -195,26 +190,26 @@ class FilesController extends Mvc\AbstractAccountController
                     $response = new HttpResponse($request);
                     $response->setReturnCode(
                         HttpResponse::STATUS_CODE_FORBIDDEN,
-                        "Access to folder $folderPath denied for user " . $user->getName());
+                        "Access to folder $folderPath denied for user " . $user->getName()
+                    );
                     return $response;
                 }
             }
 
             // Import into netric file system
             $file = $this->fileSystem->importFile(
-                $uploadedFile['tmp_name'], $folderPath, $uploadedFile["name"]
+                $uploadedFile['tmp_name'],
+                $folderPath,
+                $uploadedFile["name"]
             );
 
-            if ($file)
-            {
+            if ($file) {
                 $ret[] = array(
                     "id" => $file->getId(),
                     "name" => $file->getValue("name"),
                     "ts_updated" => $file->getValue("ts_updated")
                 );
-            }
-            else
-            {
+            } else {
                 $ret[] = -1;
             }
 
@@ -268,23 +263,23 @@ class FilesController extends Mvc\AbstractAccountController
         if (!$dacl->isAllowed($user)) {
             $log->warning(
                 "FilesController->getDownloadAction: User " . $user->getName() .
-                " does not have permissions to " .
-                $fileEntity->getId() . ":" . $fileEntity->getName()
+                    " does not have permissions to " .
+                    $fileEntity->getId() . ":" . $fileEntity->getName()
             );
 
             // Return a 403
             $response = new HttpResponse($request);
             $response->setReturnCode(
                 HttpResponse::STATUS_CODE_FORBIDDEN,
-                "Access to file $fileId denied for user " . $user->getName());
+                "Access to file $fileId denied for user " . $user->getName()
+            );
             return $response;
         }
 
         // Handle image resizing
         $maxWidth = $request->getParam('max_width');
         $maxHeight = $request->getParam('max_height');
-        if (($maxWidth || $maxHeight) &&
-            ($fileEntity->getType() === 'png' || $fileEntity->getType() === 'jpg')) {
+        if (($maxWidth || $maxHeight) && ($fileEntity->getType() === 'png' || $fileEntity->getType() === 'jpg')) {
             // Change null max_* to -1 so that the resizer knows to not try and downscale to 0
             if (!$maxWidth) {
                 $maxWidth = -1;
@@ -319,8 +314,7 @@ class FilesController extends Mvc\AbstractAccountController
             $response->setCacheable(
                 md5($this->account->getName() .
                     ".file." . $fileEntity->getId() .
-                    '.r' . $fileEntity->getValue("revision")
-                )
+                    '.r' . $fileEntity->getValue("revision"))
             );
         }
 
@@ -345,7 +339,7 @@ class FilesController extends Mvc\AbstractAccountController
 
         // If the user id was not passed we use current
         if (!$userId) {
-            $userId = $this->account->getUser()->getId(); 
+            $userId = $this->account->getUser()->getId();
         }
 
         // We will need the entityLoader to load up a user

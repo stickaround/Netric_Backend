@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Factory to create a new TestAction
  *
@@ -8,6 +9,7 @@
 namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityLoaderFactory;
 
 /**
  * Create a new TestAction
@@ -23,7 +25,7 @@ class TestActionFactory
     static public function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new TestAction
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
         return new TestAction($entityLoader, $actionFactory);
     }

@@ -1,13 +1,10 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Mail\Transport;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\Settings\SettingsFactory;
+use Netric\Config\ConfigFactory;
 
 /**
  * Create a new SMTP Transport service based on account settings
@@ -24,7 +21,7 @@ class SmtpFactory implements AccountServiceLocatorInterface
     public function createService(AccountServiceManagerInterface $serviceManager)
     {
         // Get the required method
-        $config = $serviceManager->get("Config");
+        $config = $serviceManager->get(ConfigFactory::class);
 
         // Initialize new Smtp transport
         $transport = new Smtp();
@@ -32,14 +29,13 @@ class SmtpFactory implements AccountServiceLocatorInterface
         /*
          * Set the default application level email settings from the system config
          */
-        $options   = array(
+        $options = array(
             'host' => $config->email["server"],
         );
 
         // Add username and password if needed for sending messages
-        if (isset($config->email['username']) && isset($config->email['password']))
-        {
-            $options['connection_class']  = 'login';
+        if (isset($config->email['username']) && isset($config->email['password'])) {
+            $options['connection_class'] = 'login';
             $options['connection_config'] = array(
                 'username' => $config->email['username'],
                 'password' => $config->email['password'],
@@ -50,26 +46,22 @@ class SmtpFactory implements AccountServiceLocatorInterface
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
          */
-        $settings = $serviceManager->get("Netric/Settings/Settings");
+        $settings = $serviceManager->get(SettingsFactory::class);
         $host = $settings->get("email/smtp_host");
         $username = $settings->get("email/smtp_user");
         $password = $settings->get("email/smtp_password");
         $port = $settings->get("email/smtp_port");
-        if ($host)
-        {
+        if ($host) {
             $options['host'] = $host;
 
             // Check for login information
-            if ($username && $password)
-            {
-                $options['connection_class']  = 'login';
+            if ($username && $password) {
+                $options['connection_class'] = 'login';
                 $options['connection_config'] = array(
                     'username' => $username,
                     'password' => $password,
                 );
-            }
-            else
-            {
+            } else {
                 unset($options['connection_class']);
                 unset($options['connection_config']);
             }

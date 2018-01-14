@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
@@ -9,6 +10,7 @@ use Netric\Account\Account;
 use Netric\Error\AbstractHasErrors;
 use Netric\Console\BinScript;
 use Netric\Log\LogInterface;
+use Netric\Settings\SettingsFactory;
 
 /**
  * Run updates on an account
@@ -76,13 +78,13 @@ class AccountUpdater extends AbstractHasErrors
         $this->account = $account;
         $this->log = $account->getApplication()->getLog();
         $this->version = new \stdClass();
-        $this->updatedToVersion= new \stdClass();
+        $this->updatedToVersion = new \stdClass();
 
         // Set default path
         $this->rootPath = dirname(__FILE__) . "/../../../../bin/scripts/update";
 
         // Get the current version from settings
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $version = $settings->get("system/schema_version");
 
         // Set current version counter
@@ -107,11 +109,10 @@ class AccountUpdater extends AbstractHasErrors
             && $this->updatedToVersion->point > $this->version->point)
             $updated = true;
 
-        $newversion = $this->updatedToVersion->major.".".$this->updatedToVersion->minor.".".$this->updatedToVersion->point;
+        $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
 
-        if ($updated)
-        {
-            $settings = $this->account->getServiceManager()->get("Netric/Settings/Settings");
+        if ($updated) {
+            $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
             $settings->set("system/schema_version", $newversion);
         }
     }
@@ -185,12 +186,9 @@ class AccountUpdater extends AbstractHasErrors
         // Get individual update scripts
         $updates = array();
         $dir = opendir($updatePath);
-        if ($dir)
-        {
-            while($file = readdir($dir))
-            {
-                if(!is_dir($updatePath."/".$file) && $file != '.' && $file != '..')
-                {
+        if ($dir) {
+            while ($file = readdir($dir)) {
+                if (!is_dir($updatePath . "/" . $file) && $file != '.' && $file != '..') {
                     $updates[] = $file;
                 }
             }
@@ -200,18 +198,16 @@ class AccountUpdater extends AbstractHasErrors
 
         // Now process each of the update scripts
         $allStart = microtime(true);
-        foreach ($updates as $update)
-        {
+        foreach ($updates as $update) {
             // It's possible to run through this without executing the scripts
-            if (substr($update, -3) == "php" && $this->executeUpdates)
-            {
+            if (substr($update, -3) == "php" && $this->executeUpdates) {
                 $this->log->info(
                     "AccountUpdater->runAlwaysUpdates: Running $updatePath.\"/\".$update" .
-                    " for " . $this->account->getName()
+                        " for " . $this->account->getName()
                 );
                 // Execute a script only on the current account
                 $script = new BinScript($this->account->getApplication(), $this->account);
-                $script->run($updatePath."/".$update);
+                $script->run($updatePath . "/" . $update);
             }
         }
     }
@@ -228,13 +224,10 @@ class AccountUpdater extends AbstractHasErrors
         // Get major version directories
         $majors = array();
         $dir = opendir($updatePath);
-        if ($dir)
-        {
-            while($file = readdir($dir))
-            {
-                if(is_dir($updatePath."/".$file) && $file[0] != '.')
-                {
-                    if ($this->version->major <= (int) $file)
+        if ($dir) {
+            while ($file = readdir($dir)) {
+                if (is_dir($updatePath . "/" . $file) && $file[0] != '.') {
+                    if ($this->version->major <= (int)$file)
                         $majors[] = $file;
                 }
             }
@@ -262,21 +255,17 @@ class AccountUpdater extends AbstractHasErrors
      */
     private function processMinorDirs($major, $base)
     {
-        $path = $base."/".$major;
+        $path = $base . "/" . $major;
 
         // Get major version directories
         $minors = array();
         $dir_handle = opendir($path);
-        if ($dir_handle)
-        {
-            while($file = readdir($dir_handle))
-            {
-                if(is_dir($path."/".$file) && $file[0] != '.')
-                {
-                    if (($this->version->major == (int) $major
-                            && $this->version->minor <= (int) $file)
-                        || ($this->version->major < (int) $major))
-                    {
+        if ($dir_handle) {
+            while ($file = readdir($dir_handle)) {
+                if (is_dir($path . "/" . $file) && $file[0] != '.') {
+                    if (($this->version->major == (int)$major
+                        && $this->version->minor <= (int)$file)
+                        || ($this->version->major < (int)$major)) {
                         $minors[] = $file;
                     }
                 }
@@ -286,11 +275,10 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         // Pull updates/points from minor dirs
-        foreach ($minors as $minor)
-        {
+        foreach ($minors as $minor) {
             $ret = $this->processPoints($minor, $major, $base);
             if (!$ret) // there was an error so stop processing
-                return false;
+            return false;
         }
 
         return true;
@@ -305,32 +293,28 @@ class AccountUpdater extends AbstractHasErrors
      */
     private function processPoints($minor, $major, $base)
     {
-        $path = $base."/".$major."/".$minor;
+        $path = $base . "/" . $major . "/" . $minor;
 
         // Get individual update points
         $updates = array();
         $points = array();
         $pointsVersion = array();
         $dir_handle = opendir($path);
-        if ($dir_handle)
-        {
-            while($file = readdir($dir_handle))
-            {
-                if(!is_dir($path."/".$file) && $file != '.' && $file != '..')
-                {
+        if ($dir_handle) {
+            while ($file = readdir($dir_handle)) {
+                if (!is_dir($path . "/" . $file) && $file != '.' && $file != '..') {
                     $point = substr($file, 0, -4); // remove .php to get point number
 
-                    if (($this->version->major < (int) $major)
-                        || ($this->version->major == (int) $major
-                            && $this->version->minor < (int) $minor)
-                        || ($this->version->major == (int) $major
-                            && $this->version->minor == (int) $minor
-                            && $this->version->point < (int) $point))
-                    {
-                        $points[] = (int) $point;
+                    if (($this->version->major < (int)$major)
+                        || ($this->version->major == (int)$major
+                        && $this->version->minor < (int)$minor)
+                        || ($this->version->major == (int)$major
+                        && $this->version->minor == (int)$minor
+                        && $this->version->point < (int)$point)) {
+                        $points[] = (int)$point;
                         $updates[] = $file;
                     }
-                    $pointsVersion[] = (int) $point;
+                    $pointsVersion[] = (int)$point;
                 }
             }
 
@@ -345,34 +329,31 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         // Set the latest updated to variables
-        $this->updatedToVersion->major = (int) $major;
-        $this->updatedToVersion->minor = (int) $minor;
+        $this->updatedToVersion->major = (int)$major;
+        $this->updatedToVersion->minor = (int)$minor;
 
         // Pull updates/points from minor dirs
-        foreach ($updates as $update)
-        {
+        foreach ($updates as $update) {
             // Make sure it is a php script
-            if (substr($update, -3) == 'php')
-            {
+            if (substr($update, -3) == 'php') {
                 // It's possible to run through this without executing the scripts
-                if($this->executeUpdates)
-                {
+                if ($this->executeUpdates) {
                     $this->log->info(
                         "AccountUpdater->runOnceUpdates->processMinorDirs->processPoints: " .
-                        "Running $path.\"/\".$update " .
-                        "for " . $this->account->getName()
+                            "Running $path.\"/\".$update " .
+                            "for " . $this->account->getName()
                     );
 
                     // Execute a script only on the current account
                     $script = new BinScript($this->account->getApplication(), $this->account);
-                    $script->run($path."/".$update);
+                    $script->run($path . "/" . $update);
 
                     // Save the last updated version
                     $this->saveUpdatedVersion();
                 }
 
                 // Update the point
-                $this->updatedToVersion->point = (int) substr($update, 0, -4);
+                $this->updatedToVersion->point = (int)substr($update, 0, -4);
             }
         }
 

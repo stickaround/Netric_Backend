@@ -1,18 +1,12 @@
 <?php
-/**
- * Service factory for the Forms
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
+use Netric\Config\ConfigFactory;
+use Netric\Db\DbFactory;
 
 /**
- * Create a new Forms service for getting and saving forms
- *
- * @package Netric\FileSystem
+ * Service factory for the Forms
  */
 class FormsFactory implements ServiceManager\AccountServiceLocatorInterface
 {
@@ -24,8 +18,8 @@ class FormsFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get("Netric/Db/Db");
-        $config = $sl->get("Netric/Config/Config");
+        $dbh = $sl->get(DbFactory::class);
+        $config = $sl->get(ConfigFactory::class);
         return new Forms($dbh, $config);
     }
 }

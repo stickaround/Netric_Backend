@@ -11,6 +11,7 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use DateTime;
+use Netric\FileSystem\FileSystemFactory;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -228,6 +229,10 @@ class Entity implements EntityInterface
                 case Field::TYPE_GROUPING_MULTI:
                 case Field::TYPE_OBJECT_MULTI:
                     if ($value && !is_array($value)) {
+                        if ($valueName && !is_array($valueName)) {
+                            $valueName = [$value => $valueName];
+                        }
+
                         $value = array($value);
                     }
 
@@ -577,7 +582,7 @@ class Entity implements EntityInterface
     public function afterSave(AccountServiceManagerInterface $sm)
     {
 		// Process any temp files or attachments associated with this entity
-        $this->processTempFiles($sm->get("Netric/FileSystem/FileSystem"));
+        $this->processTempFiles($sm->get(FileSystemFactory::class));
 
 		// Call derived extensions
         $this->onAfterSave($sm);

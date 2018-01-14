@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Factory used to start the WorkFLow internal service
  *
@@ -8,6 +9,9 @@
 namespace Netric\WorkFlow;
 
 use Netric\ServiceManager;
+use Netric\Log\LogFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\WorkFlow\DataMapper\DataMapperFactory;
 
 /**
  * Create a WorkFlow Management service
@@ -25,9 +29,9 @@ class WorkFlowManagerFactory implements ServiceManager\AccountServiceLocatorInte
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $user = $sl->getAccount()->getUser();
-        $dataMapper = $sl->get("Netric/WorkFlow/DataMapper/DataMapper");
-        $entityIndex = $sl->get("EntityQuery_Index");
-        $log = $sl->get("Log");
+        $dataMapper = $sl->get(DataMapperFactory::class);
+        $entityIndex = $sl->get(IndexFactory::class);
+        $log = $sl->get(LogFactory::class);
 
         return new WorkFlowManager($dataMapper, $entityIndex, $log);
     }

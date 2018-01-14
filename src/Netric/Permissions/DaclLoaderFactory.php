@@ -1,11 +1,8 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
 namespace Netric\Permissions;
 
 use Netric\ServiceManager;
+use Netric\EntityLoaderFactory;
 
 /**
  * Create a DaclLoader
@@ -20,7 +17,7 @@ class DaclLoaderFactory implements ServiceManager\ApplicationServiceFactoryInter
      */
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
-        $entityLoader = $sl->get("EntityLoader");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new DaclLoader($entityLoader);
     }
 }

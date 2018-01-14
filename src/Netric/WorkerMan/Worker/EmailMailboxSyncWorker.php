@@ -9,6 +9,9 @@ namespace Netric\WorkerMan\Worker;
 use Netric\EntityQuery;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
+use Netric\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Mail\ReceiverServiceFactory;
 
 /**
  * This worker is used to synchronize changes with a mailbox
@@ -45,7 +48,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
         // Get the account and user we are working with
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);
-        $user = $account->getServiceManager()->get("EntityLoader")->get("user", $workload['user_id']);
+        $user = $account->getServiceManager()->get(EntityLoaderFactory::class)->get("user", $workload['user_id']);
         // Fail if not a valid user
         if (!$user) {
             $log->info(
@@ -56,9 +59,9 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $account->setCurrentUser($user);
 
         // Get the entity index and the email receiver
-        $entityIndex = $account->getServiceManager()->get("EntityQuery_Index");
-        $mailReceiver = $account->getServiceManager()->get("Netric/Mail/ReceiverService");
-        $entityLoader = $account->getServiceManager()->get("EntityLoader");
+        $entityIndex = $account->getServiceManager()->get(IndexFactory::class);
+        $mailReceiver = $account->getServiceManager()->get(ReceiverServiceFactory::class);
+        $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get email accounts
         $query = new EntityQuery("email_account");

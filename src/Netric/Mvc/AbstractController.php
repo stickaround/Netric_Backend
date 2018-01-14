@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main abstract class for controllers in netric
  *
@@ -13,6 +14,7 @@ use Netric\Account\Account;
 use Netric\Application\Application;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Request\RequestFactory;
 
 /**
  * Main abstract class for controllers in netric
@@ -27,9 +29,9 @@ abstract class AbstractController
 	protected $application = null;
 
 	/**
-     * Reference to current netric account
-     *
-     * @var \Netric\Account\Account
+	 * Reference to current netric account
+	 *
+	 * @var \Netric\Account\Account
 	 */
 	public $account = null;
 
@@ -41,16 +43,16 @@ abstract class AbstractController
 	protected $request = null;
 
 	/**
-     * If set to true then all 'echo' statements should be ignored for unit tests
-     *
-     * @var bool
+	 * If set to true then all 'echo' statements should be ignored for unit tests
+	 *
+	 * @var bool
 	 */
 	public $testMode = false;
 
 	/**
-     * If we are running in debug or testing mode, this variable can be used to test output
-     *
-     * @var string
+	 * If we are running in debug or testing mode, this variable can be used to test output
+	 *
+	 * @var string
 	 */
 	public $debugOutputBuf = "";
 
@@ -69,16 +71,18 @@ abstract class AbstractController
 	 */
 	function __construct(Application $application, Account $account = null)
 	{
-        $this->application = $application;
+		$this->application = $application;
 		$this->account = $account;
-        $this->request = $application->getServiceManager()->get("/Netric/Request/Request");
+		$this->request = $application->getServiceManager()->get(RequestFactory::class);
 		$this->init();
 	}
 
 	/**
 	 * Empty method to be optionally overridden by controller implementations
 	 */
-	protected function init() {}
+	protected function init()
+	{
+	}
 
 	/**
 	 * Get the request object
@@ -122,24 +126,23 @@ abstract class AbstractController
 	 * Print data to the browser. If debug, just cache data
 	 *
 	 * @param string $data The data to data to the browser or store in buffer
-     * @return string
+	 * @return string
 	 */
 	protected function sendOutput($data)
 	{
 		$data = $this->utf8Converter($data);
 
-        switch ($this->output)
-        {
-        case 'xml':
-            return $this->sendOutputXml($data);
-            break;
-        case 'json':
-            return $this->sendOutputJson($data);
-            break;
-        case 'raw':
-            return $this->sendOutputRaw($data);
-            break;
-        }
+		switch ($this->output) {
+			case 'xml':
+				return $this->sendOutputXml($data);
+				break;
+			case 'json':
+				return $this->sendOutputJson($data);
+				break;
+			case 'raw':
+				return $this->sendOutputRaw($data);
+				break;
+		}
 
 		return $data;
 	}
@@ -148,13 +151,13 @@ abstract class AbstractController
 	 * Send raw output
 	 *
 	 * @param string $data
-     * @return array
+	 * @return array
 	 */
 	protected function sendOutputRaw($data)
 	{
-        if (!$this->testMode)
-            echo $data;
-        
+		if (!$this->testMode)
+			echo $data;
+
 		return $data;
 	}
 
@@ -162,7 +165,7 @@ abstract class AbstractController
 	 * Print data to the browser. If debug, just cache data
 	 *
 	 * @param array $data The data to output to the browser or store in buffer
-     * @return string JSON encoded string
+	 * @return string JSON encoded string
 	 */
 	protected function sendOutputJson($data)
 	{
@@ -170,35 +173,33 @@ abstract class AbstractController
 		//$data['request_id'] = $this->application->getRequestId();
 		$enc = json_encode($data);
 
-		switch (json_last_error()) 
-		{
-		case JSON_ERROR_DEPTH:
-			$enc = json_encode(array("error"=>"Maximum stack depth exceeded"));
-			break;
-		case JSON_ERROR_STATE_MISMATCH:
-			$enc = json_encode(array("error"=>"Underflow or the modes mismatch"));
-			break;
-		case JSON_ERROR_CTRL_CHAR:
-			$enc = json_encode(array("error"=>"Unexpected control character found"));
-			break;
-		case JSON_ERROR_SYNTAX:
-			$enc = json_encode(array("error"=>"Syntax error, malformed JSON"));
-			break;
-		case JSON_ERROR_UTF8:
+		switch (json_last_error()) {
+			case JSON_ERROR_DEPTH:
+				$enc = json_encode(array("error" => "Maximum stack depth exceeded"));
+				break;
+			case JSON_ERROR_STATE_MISMATCH:
+				$enc = json_encode(array("error" => "Underflow or the modes mismatch"));
+				break;
+			case JSON_ERROR_CTRL_CHAR:
+				$enc = json_encode(array("error" => "Unexpected control character found"));
+				break;
+			case JSON_ERROR_SYNTAX:
+				$enc = json_encode(array("error" => "Syntax error, malformed JSON"));
+				break;
+			case JSON_ERROR_UTF8:
 			// Try to fix encoding
-			foreach ($data as $vname=>$vval)
-			{
-				if (is_string($vval))
-					$data[$vname] = utf8_encode($vval);
-			}
-			$enc = json_encode($data);
-			break;
-		case JSON_ERROR_NONE:
-		default:
+				foreach ($data as $vname => $vval) {
+					if (is_string($vval))
+						$data[$vname] = utf8_encode($vval);
+				}
+				$enc = json_encode($data);
+				break;
+			case JSON_ERROR_NONE:
+			default:
 			// ALl is good
-			break;
+				break;
 		}
-		
+
 
 		if (!$this->testMode)
 			echo $enc;
@@ -216,12 +217,11 @@ abstract class AbstractController
 		$this->setContentType("xml");
 		$enc = json_encode($data);
 
-		$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'; 
+		$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 		$xml .= "<response>";
 		if (is_array($data))
 			$xml .= $this->makeXmlFromArray($data);
-		else
-		{
+		else {
 			if ($data === true)
 				$data = "1";
 			else if ($data === false)
@@ -242,25 +242,24 @@ abstract class AbstractController
 	 *
 	 * @param string $output The data to output to the browser or store in buffer
 	 */
-	protected function setContentType($type="html")
+	protected function setContentType($type = "html")
 	{
 		// If in debug mode then we are not sending any output to the browser
 		if ($this->testMode)
 			return;
 
-		switch ($type)
-		{
-		case 'xml':
-			header('Cache-Control: no-cache, must-revalidate');
-			header("Content-type: text/xml");
-			break;
-		case 'json':
-			header('Cache-Control: no-cache, must-revalidate');
+		switch ($type) {
+			case 'xml':
+				header('Cache-Control: no-cache, must-revalidate');
+				header("Content-type: text/xml");
+				break;
+			case 'json':
+				header('Cache-Control: no-cache, must-revalidate');
 			//header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-			header('Content-type: application/json');
-			break;
+				header('Content-type: application/json');
+				break;
 
-		default:
+			default:
 			// Use the php defaults if no type or html is set
 		}
 	}
@@ -269,16 +268,16 @@ abstract class AbstractController
 	 * Recurrsively convert array to xml
 	 *
 	 * @param array $data The data to convert to xml
-     * @return string
+	 * @return string
 	 */
 	private function makeXmlFromArray($data)
 	{
 		if (!is_array($data)) {
 			if ($data === true) {
-                return "1";
-            } else if ($data === false) {
-                return '0';
-            }
+				return "1";
+			} else if ($data === false) {
+				return '0';
+			}
 
 			// Return the string
 			return $this->escapeXml($data);
@@ -286,10 +285,10 @@ abstract class AbstractController
 
 		$ret = "";
 
-		foreach ($data as $key=>$val) {
+		foreach ($data as $key => $val) {
 			if (is_numeric($key)) {
-                $key = "item";
-            }
+				$key = "item";
+			}
 
 			$ret .= "<" . $key . ">";
 			if (is_array($val)) {
@@ -315,10 +314,10 @@ abstract class AbstractController
 	private function escapeXml($string)
 	{
 		return str_replace(
-            array("&", "<", ">", "\"", "'"),
+			array("&", "<", ">", "\"", "'"),
 			array("&amp;", "&lt;", "&gt;", "&quot;", "&apos;"),
-            $string
-        );
+			$string
+		);
 	}
 
 	/**
@@ -329,11 +328,11 @@ abstract class AbstractController
 	 */
 	private function utf8Converter($array)
 	{
-        if (!is_array($array))
-            return $array;
+		if (!is_array($array))
+			return $array;
 
-		array_walk_recursive($array, function(&$item, $key){
-			if(is_string($item) && !mb_detect_encoding($item, 'utf-8', true)){
+		array_walk_recursive($array, function (&$item, $key) {
+			if (is_string($item) && !mb_detect_encoding($item, 'utf-8', true)) {
 				$item = utf8_encode($item);
 			}
 		});

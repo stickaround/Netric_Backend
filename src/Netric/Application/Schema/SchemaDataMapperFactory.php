@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright Copyright (c) 2016 Aereus Corporation (http://www.aereus.com)
@@ -7,6 +8,7 @@ namespace Netric\Application\Schema;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\Db\DbFactory;
 
 /**
  * Create the default DataMapper for account schemas
@@ -21,7 +23,7 @@ class SchemaDataMapperFactory implements AccountServiceLocatorInterface
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get("Netric/Db/Db");
+        $dbh = $sl->get(DbFactory::class);
         $schemaDefinition = include(__DIR__ . "/../../../../data/schema/account.php");
         return new SchemaDataMapperPgsql($dbh, $schemaDefinition);
     }

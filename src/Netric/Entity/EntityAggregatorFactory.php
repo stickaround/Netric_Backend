@@ -1,13 +1,9 @@
 <?php
-/**
- * Service factory for the EntityAggregator
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
+use Netric\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new EntityAggregator service for updating aggregates
@@ -24,8 +20,8 @@ class EntityAggregatorFactory implements ServiceManager\AccountServiceLocatorInt
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $entityLoader = $sl->get("Netric/EntityLoader");
-        $entityIndex = $sl->get("Netric/EntityQuery/Index/Index");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityIndex = $sl->get(IndexFactory::class);
 
         return new EntityAggregator($entityLoader, $entityIndex);
     }

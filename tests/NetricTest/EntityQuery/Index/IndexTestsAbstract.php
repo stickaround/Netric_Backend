@@ -1603,6 +1603,7 @@ abstract class IndexTestsAbstract extends TestCase
 
     /**
      * Make sure "OR" and "AND" query conditions will work
+     * @group testBooleanOperatorsWithConditions
      */
     public function testBooleanOperatorsWithConditions()
     {

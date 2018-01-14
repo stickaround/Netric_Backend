@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controller for handling user authentication
  */
@@ -6,6 +7,7 @@ namespace Netric\Controller;
 
 use Netric\Mvc;
 use Netric\Console\Console;
+use Netric\Authentication\AuthenticationServiceFactory;
 
 class AuthenticationController extends Mvc\AbstractAccountController
 {
@@ -33,18 +35,17 @@ class AuthenticationController extends Mvc\AbstractAccountController
 		$password = $this->request->getParam("password");
 
 		// Check if the request was sent as a json object
-        if ($this->request->getParam('Content-Type') === 'application/json') {
-            $body = json_decode($this->request->getBody(), true);
-            $username = $body['username'];
-            $password = $body['password'];
-        }
+		if ($this->request->getParam('Content-Type') === 'application/json') {
+			$body = json_decode($this->request->getBody(), true);
+			$username = $body['username'];
+			$password = $body['password'];
+		}
 
-		if (!$username || !$password)
-		{
+		if (!$username || !$password) {
 			return $this->sendOutput(
 				array(
-					"result"=>"FAIL", 
-					"reason"=>"Both username and password are required fields"
+					"result" => "FAIL",
+					"reason" => "Both username and password are required fields"
 				)
 			);
 		}
@@ -61,12 +62,11 @@ class AuthenticationController extends Mvc\AbstractAccountController
 
 		// Get the authentication service and authenticate the credentials
 		$sm = $this->account->getServiceManager();
-		$authService = $sm->get("/Netric/Authentication/AuthenticationService");
+		$authService = $sm->get(AuthenticationServiceFactory::class);
 		$sessionStr = $authService->authenticate($username, $password);
 
 		// Return the status
-		if ($sessionStr)
-		{
+		if ($sessionStr) {
 			// Set cookie for non-app access such as server renders
 			if (!Console::isConsole())
 				setcookie('Authentication', $sessionStr, $authService->getExpiresTs(), '/');
@@ -77,9 +77,7 @@ class AuthenticationController extends Mvc\AbstractAccountController
 				"session_token" => $sessionStr,
 				"user_id" => $authService->getIdentity()
 			);
-		}
-		else
-		{
+		} else {
 			$ret = array(
 				"result" => "FAIL",
 				"reason" => $authService->getFailureReason(),
@@ -105,29 +103,28 @@ class AuthenticationController extends Mvc\AbstractAccountController
 	{
 		// Destroy any cookies
 		$this->request->setParam("Authentication", null);
-		if (!Console::isConsole())
-		{
+		if (!Console::isConsole()) {
 			unset($_COOKIE['Authentication']);
-    		setcookie('Authentication', null, -1, '/');	
+			setcookie('Authentication', null, -1, '/');
 		}
-		
-		return $this->sendOutput(array("result"=>"SUCCESS"));
+
+		return $this->sendOutput(array("result" => "SUCCESS"));
 	}
 
-    /**
-     * POST pass-through for logout
-     *
-     *  @return array|string
-     */
-    public function postLogoutAction()
-    {
-        return $this->getLogoutAction();
-    }
+	/**
+	 * POST pass-through for logout
+	 *
+	 *  @return array|string
+	 */
+	public function postLogoutAction()
+	{
+		return $this->getLogoutAction();
+	}
 
 	/**
 	 * Check if a session is still valid
-     *
-     *  @return array|string
+	 *
+	 *  @return array|string
 	 */
 	public function getCheckinAction()
 	{
@@ -142,51 +139,51 @@ class AuthenticationController extends Mvc\AbstractAccountController
 		}
 
 		$sm = $this->account->getServiceManager();
-		$authService = $sm->get("/Netric/Authentication/AuthenticationService");
+		$authService = $sm->get(AuthenticationServiceFactory::class);
 
 		$ret = array(
 			"result" => ($authService->getIdentity()) ? "OK" : "FAIL"
 		);
 
-        if (!Console::isConsole() && $ret['OK'] && !isset($_COOKIE['Authentication'])) {
+		if (!Console::isConsole() && $ret['OK'] && !isset($_COOKIE['Authentication'])) {
             // Set the cookie for future requests to the server
-            setcookie(
-                'Authentication',
-                $this->request->getParam('Authentication'),
-                $authService->getExpiresTs(),
-                '/'
-            );
-        } else if (isset($_COOKIE['Authentication'])) {
+			setcookie(
+				'Authentication',
+				$this->request->getParam('Authentication'),
+				$authService->getExpiresTs(),
+				'/'
+			);
+		} else if (isset($_COOKIE['Authentication'])) {
             // Clear all cookies if check fails
-            unset($_COOKIE['Authentication']);
-            setcookie('Authentication', null, -1, '/');
-        }
-		
+			unset($_COOKIE['Authentication']);
+			setcookie('Authentication', null, -1, '/');
+		}
+
 		return $this->sendOutput($ret);
 	}
 
-    /**
-     * POST pass-through for checkin
-     *
-     * @return array|string
-     */
-    public function postCheckinAction()
-    {
-        return $this->getCheckinAction();
-    }
+	/**
+	 * POST pass-through for checkin
+	 *
+	 * @return array|string
+	 */
+	public function postCheckinAction()
+	{
+		return $this->getCheckinAction();
+	}
 
 	/**
 	 * Get all accounts associated with a domain and return the name and instance URL
 	 */
 	public function postGetAccountsAction()
 	{
-        $email = $this->request->getParam("email");
+		$email = $this->request->getParam("email");
 
         // Check if the request was sent as a json object
-	    if ($this->request->getParam('Content-Type') === 'application/json') {
-	        $body = json_decode($this->request->getBody(), true);
-	        $email = $body['email'];
-        }
+		if ($this->request->getParam('Content-Type') === 'application/json') {
+			$body = json_decode($this->request->getBody(), true);
+			$email = $body['email'];
+		}
 
 		// TODO: Figure out a way to authorize the requestor so that
 		// a bot cannot use this endpoint to validate email addresses.
@@ -199,11 +196,11 @@ class AuthenticationController extends Mvc\AbstractAccountController
 		return $this->sendOutput($ret);
 	}
 
-    /**
-     * Get all accounts associated with a domain and return the name and instance URL
-     */
-    public function getGetAccountsAction()
-    {
-       return $this->postGetAccountsAction();
-    }
+	/**
+	 * Get all accounts associated with a domain and return the name and instance URL
+	 */
+	public function getGetAccountsAction()
+	{
+		return $this->postGetAccountsAction();
+	}
 }

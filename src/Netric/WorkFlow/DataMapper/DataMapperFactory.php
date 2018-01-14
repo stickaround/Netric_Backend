@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Service factory for setting up the WorkFlow datamapper
  *
@@ -9,6 +10,9 @@ namespace Netric\WorkFlow\DataMapper;
 
 use Netric\ServiceManager;
 use Netric\WorkFlow\Action\ActionFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityLoaderFactory;
+use Netric\Db\DbFactory;
 
 /**
  * Base DataMapper class
@@ -23,10 +27,10 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $db = $sl->get("Db");
+        $db = $sl->get(DbFactory::class);
         $actionFactory = new ActionFactory($sl);
-        $entityLoader = $sl->get("EntityLoader");
-        $entityIndex = $sl->get("EntityQuery_Index");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityIndex = $sl->get(IndexFactory::class);
 
         // Right now we only support PgSql but may support more later
         return new PgsqlDataMapper($db, $actionFactory, $entityLoader, $entityIndex);

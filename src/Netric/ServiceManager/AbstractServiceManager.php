@@ -71,7 +71,6 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         Application $application,
         ServiceLocatorInterface $parentServiceLocator = null
     ) {
-        echo "Newed service mapper\n";
         $this->application = $application;
         $this->parentServiceLocator = $parentServiceLocator;
     }
@@ -102,13 +101,6 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function clearLoadedServices()
     {
-        // Clear all refrences to force destructors to be called
-        foreach ($this->loadedServices as $svcname=>$svc) {
-            if ($svc !== null) {
-                $this->loadedServices[$svname] = null;
-            }
-        }
-
         // Reset the array
         $this->loadedServices = [];
     }
@@ -242,9 +234,11 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     public function isLoaded($serviceName)
     {
-        if (isset($this->loadedServices[$serviceName]) && $this->loadedServices[$serviceName] != null)
+        if (isset($this->loadedServices[$serviceName])
+            && $this->loadedServices[$serviceName] != null) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 }

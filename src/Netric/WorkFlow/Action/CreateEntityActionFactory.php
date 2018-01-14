@@ -1,11 +1,8 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityLoaderFactory;
 
 /**
  * Factory to create a new CreateEntityAction
@@ -21,7 +18,7 @@ class CreateEntityActionFactory
     static public function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new TestAction
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
         return new CreateEntityAction($entityLoader, $actionFactory);
     }

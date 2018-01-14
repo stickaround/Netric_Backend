@@ -1,11 +1,9 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityLoaderFactory;
 
 /**
  * Factory to create a new AssignAction
@@ -21,10 +19,10 @@ class AssignActionFactory
     static public function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new TestAction
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
         $groupingsLoader = $serviceLocator->get("EntityGroupings_Loader");
-        $queryIndex = $serviceLocator->get("EntityQuery_Index");
+        $queryIndex = $serviceLocator->get(IndexFactory::class);
         return new AssignAction($entityLoader, $actionFactory, $groupingsLoader, $queryIndex);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controller for handling Browser View
  */
@@ -6,6 +7,7 @@ namespace Netric\Controller;
 
 use Netric\Mvc;
 use Netric\Entity\BrowserView\BrowserView;
+use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 
 class BrowserViewController extends Mvc\AbstractAccountController
 {
@@ -17,61 +19,55 @@ class BrowserViewController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         $ret = array();
-        if (!$rawBody)
-        {
-            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type']))
-        {
+        if (!isset($objData['obj_type'])) {
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         $serviceManager = $this->account->getServiceManager();
-        $browserViewService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
+        $browserViewService = $serviceManager->get(BrowserViewServiceFactory::class);
 
         $view = new BrowserView();
         $view->fromArray($objData);
 
         $result = $browserViewService->saveView($view);
 
-        if(!$view->isSystem() && $view->isDefault())
-        {
+        if (!$view->isSystem() && $view->isDefault()) {
             $browserViewService->setDefaultViewForUser($view->getObjType(), $this->account->getUser(), $result);
         }
 
         return $this->sendOutput($result);
     }
 
-    public function postSetDefaultViewAction ()
+    public function postSetDefaultViewAction()
     {
         $rawBody = $this->getRequest()->getBody();
 
         $ret = array();
-        if (!$rawBody)
-        {
-            return $this->sendOutput(array("error"=>"Request input is not valid"));
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
-        if (!isset($objData['obj_type']))
-        {
+        if (!isset($objData['obj_type'])) {
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
         $serviceManager = $this->account->getServiceManager();
-        $browserViewService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
+        $browserViewService = $serviceManager->get(BrowserViewServiceFactory::class);
 
         $view = new BrowserView();
         $view->fromArray($objData);
 
-        if (!$view->getId())
-        {
+        if (!$view->getId()) {
             return $this->sendOutput(array("error" => "Browser View should be saved first before setting as the default view."));
         }
 

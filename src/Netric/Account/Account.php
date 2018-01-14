@@ -1,7 +1,4 @@
 <?php
-/**
- * Netric account instance
- */
 namespace Netric\Account;
 
 use Netric\Application\Application;
@@ -9,7 +6,14 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceManager;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
+use Netric\EntityLoaderFactory;
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Config\ConfigFactory;
 
+/**
+ * Netric account instance
+ */
 class Account
 {
     /**
@@ -18,28 +22,28 @@ class Account
      * @var string
      */
     private $id = "";
-    
+
     /**
      * Unique account name
      * 
      * @var string
      */
     private $name = "";
-    
+
     /**
      * The name of the database
      * 
      * @var string
      */
     private $dbname = "netric";
-    
+
     /**
      * Instance of netric application
      * 
      * @var Application
      */
     private $application = null;
-    
+
     /**
      * Service manager for this account
      * 
@@ -70,7 +74,7 @@ class Account
     const STATUS_ACTIVE = 1;
     const STATUS_EXPIRED = 2;
     const STATUS_DELETED = 3;
-    
+
     /**
      * Initialize netric account
      * 
@@ -79,7 +83,7 @@ class Account
     public function __construct(Application $app)
     {
         $this->application = $app;
-        
+
         $this->serviceManager = new AccountServiceManager($this);
 
         // Set default status
@@ -97,7 +101,7 @@ class Account
         // Check required fields
         if (!$data['id'] || !$data['name'])
             return false;
-        
+
         $this->id = $data['id'];
         $this->name = $data['name'];
 
@@ -106,7 +110,7 @@ class Account
 
         if (isset($data['description']) && $data['description'])
             $this->description = $data['description'];
-                
+
         return true;
     }
 
@@ -124,7 +128,7 @@ class Account
             "description" => $this->description,
         );
     }
-    
+
     /**
      * Get account id
      * 
@@ -134,7 +138,7 @@ class Account
     {
         return $this->id;
     }
-    
+
     /**
      * Get account unique name
      * 
@@ -164,7 +168,7 @@ class Account
     {
         return $this->dbname;
     }
-    
+
     /**
      * Get ServiceManager for this account
      * 
@@ -174,7 +178,7 @@ class Account
     {
         return $this->serviceManager;
     }
-    
+
     /**
      * Get application object
      * 
@@ -201,7 +205,7 @@ class Account
         // Clear the service locator since user is often injected as a dependency
         $this->getServiceManager()->clearLoadedServices();
     }
-    
+
     /**
      * Get user by id or name
      * 
@@ -212,22 +216,21 @@ class Account
      * @param string $username Get user by name
      * @return UserEntity|bool user on success, false on failure
      */
-    public function getUser($userId=null, $username=null)
+    public function getUser($userId = null, $username = null)
     {      
         // Check to see if we have manually set the current user and if so skip session auth
         if ($this->currentUserOverride)
             return $this->currentUserOverride;
 
         // Entity loader will be needed once we have determined a user id to load
-        $loader = $this->getServiceManager()->get("EntityLoader");
+        $loader = $this->getServiceManager()->get(EntityLoaderFactory::class);
         
         /*
          * Try to get the currently logged in user from the authentication service if not provided
          */
-        if (!$userId && !$username) 
-        {
+        if (!$userId && !$username) {
             // Get the authentication service
-            $auth = $this->getServiceManager()->get("Netric/Authentication/AuthenticationService");
+            $auth = $this->getServiceManager()->get(AuthenticationServiceFactory::class);
 
             // Check if the current session is authenticated
             $userId = $auth->getIdentity();
@@ -247,10 +250,10 @@ class Account
         } elseif ($username) {
             $query = new EntityQuery("user");
             $query->where('name')->equals($username);
-            $index = $this->getServiceManager()->get("EntityQuery_Index");
+            $index = $this->getServiceManager()->get(IndexFactory::class);
             $res = $index->executeQuery($query);
             if ($res->getTotalNum()) {
-               return $res->getEntity(0);
+                return $res->getEntity(0);
             } else {
                 return null;
             }
@@ -284,7 +287,7 @@ class Account
     public function getAccountUrl($includeProtocol = true)
     {
         // Get application config
-        $config = $this->getServiceManager()->get("Config");
+        $config = $this->getServiceManager()->get(ConfigFactory::class);
 
         // Initialize return value
         $url = "";

@@ -1,13 +1,9 @@
 <?php
-/**
- * Construct the settings service
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Settings;
 
 use Netric\ServiceManager;
+use Netric\Db\DbFactory;
+use Netric\Cache\CacheFactory;
 
 /**
  * Create a new settings service
@@ -24,8 +20,8 @@ class SettingsFactory implements ServiceManager\AccountServiceLocatorInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get("Db");
-        $cache = $sl->get("Cache");
+        $dbh = $sl->get(DbFactory::class);
+        $cache = $sl->get(CacheFactory::class);
         $account = $sl->getAccount();
         return new Settings($dbh, $account, $cache);
     }

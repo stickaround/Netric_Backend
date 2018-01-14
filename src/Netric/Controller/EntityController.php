@@ -6,8 +6,13 @@
 namespace Netric\Controller;
 
 use Netric\Entity\EntityInterface;
-use \Netric\Mvc;
-use \Netric\EntityDefinition\EntityDefinition;
+use Netric\Mvc;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\FormsFactory;
+use Netric\Entity\BrowserView\BrowserViewServiceFactory;
+use Netric\EntityLoaderFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 
 class EntityController extends Mvc\AbstractAccountController
 {
@@ -30,7 +35,7 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $defLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
+        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $def = $defLoader->get($params['obj_type']);
         if (!$def) {
             return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
@@ -383,7 +388,7 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $loader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
+        $loader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $definitions = $loader->getAll();
 
         $ret = array();
@@ -436,11 +441,11 @@ class EntityController extends Mvc\AbstractAccountController
         // TODO: Get browser blank content
 
         // Get forms
-        $entityForms = $serviceManager->get("Netric/Entity/Forms");
+        $entityForms = $serviceManager->get(FormsFactory::class);
         $ret['forms'] = $entityForms->getDeviceForms($def, $user);
 
         // Get views from browser view service
-        $viewsService = $serviceManager->get("Netric/Entity/BrowserView/BrowserViewService");
+        $viewsService = $serviceManager->get(BrowserViewServiceFactory::class);
         $browserViews = $viewsService->getViewsForUser($def->getObjType(), $user);
         $ret['views'] = array();
         foreach ($browserViews as $view) {
@@ -459,7 +464,7 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
         $fields = $entity->getDefinition()->getFields();
 
@@ -536,13 +541,13 @@ class EntityController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the entity definition
-        $defLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
+        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
         $def = $defLoader->get($objData['obj_type']);
         $def->fromArray($objData);
 
         // Save the new entity definition
-        $dataMapper = $serviceManager->get("Netric/EntityDefinition/DataMapper/DataMapper");
+        $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
         $dataMapper->save($def);
 
         // Build the new entity definition and return the result

@@ -1,12 +1,4 @@
 <?php
-
-/**
- * A DataMapper is responsible for writing and reading data from a persistant store
- *
- * @category	DataMapper
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
@@ -16,7 +8,19 @@ use Netric\EntityQuery;
 use Netric\EntitySync\Commit\CommitManager;
 use Netric\Entity\EntityInterface;
 use Netric\EntityGroupings\EntityGroupings;
+use Netric\EntitySync\EntitySyncFactory;
+use Netric\EntitySync\EntitySync;
+use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
+use Netric\Entity\ActivityLogFactory;
+use Netric\Entity\EntityAggregatorFactory;
+use Netric\Entity\Notifier\NotifierFactory;
+use Netric\EntitySync\Commit\CommitManagerFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
+/**
+ * A DataMapper is responsible for writing and reading data from a persistant store
+ */
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
 	/**
@@ -68,9 +72,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// Clear the moved entities cache
 		$this->cacheMovedEntities = array();
 
-		$this->recurIdentityMapper = $account->getServiceManager()->get("RecurrenceIdentityMapper");
-		$this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
-		$this->entitySync = $account->getServiceManager()->get("EntitySync");;
+		$serviceManager = $account->getServiceManager();
+		$this->recurIdentityMapper = $serviceManager->get(RecurrenceIdentityMapperFactory::class);
+		$this->commitManager = $serviceManager->get(CommitManagerFactory::class);
+		$this->entitySync = $serviceManager->get(EntitySyncFactory::class);
 	}
 
 	/**
@@ -218,7 +223,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			 * Try to update the definition in case it is out of sync
 			 */
 			if ($serviceManager) {
-				$entityDefLoader = $serviceManager->get("EntityDefinitionLoader");
+				$entityDefLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 				$entityDefLoader->forceSystemReset($def->getObjType());
 
 				// Try saving again
@@ -232,7 +237,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
 		// Save data to EntityQuery Index
-		$serviceManager->get("EntityQuery_Index")->save($entity);
+		$serviceManager->get(IndexFactory::class)->save($entity);
 
 		// Clear cache in the EntityLoader
 		$serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
@@ -240,14 +245,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// Log the change in entity sync
 		if ($ret && $lastCommitId && $commitId) {
 			$this->entitySync->setExportedStale(
-				\Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY,
+				EntitySync::COLL_TYPE_ENTITY,
 				$lastCommitId,
 				$commitId
 			);
 		}
 
 		// Send notifications
-		$serviceManager->get("Netric/Entity/Notifier/Notifier")->send($entity, $event);
+		$serviceManager->get(NotifierFactory::class)->send($entity, $event);
 
 		// Call onAfterSave
 		$entity->afterSave($serviceManager);
@@ -255,7 +260,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		// Update any aggregates that could be impacted by saving $entity
 		$this->getAccount()
 			->getServiceManager()
-			->get("Netric/Entity/EntityAggregator")
+			->get(EntityAggregatorFactory::class)
 			->updateAggregates($entity);
 
 		// Reset dirty flag and changelog
@@ -270,7 +275,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		}
 
         // Log the activity
-		$serviceManager->get("Netric/Entity/ActivityLog")->log($user, $event, $entity);
+		$serviceManager->get(ActivityLogFactory::class)->log($user, $event, $entity);
 
 		return $ret;
 	}
@@ -405,7 +410,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Query for matching IDs
 		$serviceManager = $this->getAccount()->getServiceManager();
-		$index = $serviceManager->get("EntityQuery_Index");
+		$index = $serviceManager->get(IndexFactory::class);
 		$result = $index->executeQuery($query);
 		for ($i = 0; $i < $result->getTotalNum(); $i++) {
 			$entity = $result->getEntity($i);
@@ -451,7 +456,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			$entity->afterDeleteHard($serviceManager);
 
 			// Delete from EntityCollection_Index
-			$serviceManager->get("EntityQuery_Index")->save($entity);
+			$serviceManager->get(IndexFactory::class)->save($entity);
 		} else {
 			$entity->setValue('commit_id', $commitId);
 
@@ -466,7 +471,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 				 */
 
 				// Try to update the definition in case it is out of sync
-				$entityDefLoader = $serviceManager->get("EntityDefinitionLoader");
+				$entityDefLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 				$entityDefLoader->forceSystemReset($entity->getDefinition()->getObjType());
 
                 // Try deleting again
@@ -477,7 +482,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 			//$this->getServiceLocator()->get("EntityCollection_Index")->delete($entity);
 
             // Log the activity
-			$alog = $serviceManager->get("Netric/Entity/ActivityLog");
+			$alog = $serviceManager->get(ActivityLogFactory::class);
 			$alog->log($user, "delete", $entity);
 		}
 
@@ -707,7 +712,7 @@ public function verifyUniqueName($entity, $uname)
 	}
 
 		// Check if any objects match
-	$index = $serviceManager->get("EntityQuery_Index");
+	$index = $serviceManager->get(IndexFactory::class);
 	$result = $index->executeQuery($query);
 
 	if ($result->getTotalNum() > 0) {

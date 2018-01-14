@@ -1,13 +1,9 @@
 <?php
-/**
- * Factory creates entities
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+
 /**
  * Create a new EntityFactory service
  *
@@ -44,23 +40,19 @@ class EntityFactory
 
         // First convert object name to file name - camelCase with upper case first
         $className = ucfirst($objType);
-        if (strpos($objType, "_") !== false)
-        {
+        if (strpos($objType, "_") !== false) {
             $parts = explode("_", $className);
             $className = "";
             foreach ($parts as $word)
                 $className .= ucfirst($word);
         }
-        $className = "\\Netric\\Entity\\ObjType\\". $className . "Factory";
+        $className = "\\Netric\\Entity\\ObjType\\" . $className . "Factory";
 
         // Use factory if it exists
-        if (class_exists($className))
-        {
+        if (class_exists($className)) {
             $obj = $className::create($this->serviceManager);
-        }
-        else
-        {
-            $def = $this->serviceManager->get("EntityDefinitionLoader")->get($objType);
+        } else {
+            $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
             // TODO: if !$def then throw an exception
             $obj = new \Netric\Entity\Entity($def);
         }

@@ -15,6 +15,7 @@ use Netric\Account\AccountIdentityMapper;
 use Netric\ServiceManager\ApplicationServiceManager;
 use Netric\Entity\DataMapperInterface;
 use Netric\Stats\StatsPublisher;
+use Netric\Request\RequestFactory;
 
 /**
  * Main application instance class
@@ -154,7 +155,7 @@ class Application
         self::$log->setRequestId($this->requestId);
 
         // Get the request
-        $request = $this->serviceManager->get("Netric/Request/Request");
+        $request = $this->serviceManager->get(RequestFactory::class);
 
         // Get the router
         $router = new Router($this);

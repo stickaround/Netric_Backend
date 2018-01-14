@@ -1,8 +1,4 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
 namespace Netric\Application\Setup;
 
 use Netric\Application\Application;
@@ -11,6 +7,7 @@ use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaDataMapperPgsql;
 use Netric\Db\Pgsql;
 use Netric\Error\AbstractHasErrors;
+use Netric\EntityLoaderFactory;
 
 /**
  * Class for setting up an account on creation and for managing updates
@@ -28,8 +25,7 @@ class Setup extends AbstractHasErrors
         $schemaDataMapper = $this->getApplicationSchemaDataMapper($application);
 
         // Update the schema for this application
-        if (!$schemaDataMapper->update())
-        {
+        if (!$schemaDataMapper->update()) {
             // Die if we could not create the schema for the account
             throw new \RuntimeException("Could not update application " . $schemaDataMapper->getLastError()->getMessage());
         }
@@ -50,7 +46,7 @@ class Setup extends AbstractHasErrors
         $this->updateAccount($account);
 
         // Create admin user
-        $entityLoader = $account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $adminUser = $entityLoader->create("user");
         $adminUser->setValue("name", $adminUserName);
         $adminUser->setValue("password", $adminPassword);
@@ -110,8 +106,7 @@ class Setup extends AbstractHasErrors
         $schemaDefinition = require(__DIR__ . "/../../../../data/schema/application.php");
 
         // Now get the system DataMapper
-        switch ($config->db['type'])
-        {
+        switch ($config->db['type']) {
             case 'pgsql':
 
                 // Get handle to system database

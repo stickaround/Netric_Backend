@@ -1,13 +1,10 @@
 <?php
-/**
- * Factory used to initialize the netric filesystem
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Authentication;
 
 use Netric\ServiceManager;
+use Netric\EntityLoaderFactory;
+use Netric\Request\RequestFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create an authentication service
@@ -25,9 +22,9 @@ class AuthenticationServiceFactory implements ServiceManager\AccountServiceLocat
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $key = "GENERATEDSERVERSIDEKEY";
-        $userIndex = $sl->get("Netric/EntityQuery/Index/Index");
-        $userLoader = $sl->get("Netric/EntityLoader");
-        $request = $sl->get("Netric/Request/Request");
+        $userIndex = $sl->get(IndexFactory::class);
+        $userLoader = $sl->get(EntityLoaderFactory::class);
+        $request = $sl->get(RequestFactory::class);
 
         return new AuthenticationService($key, $userIndex, $userLoader, $request);
     }

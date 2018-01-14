@@ -1,13 +1,9 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
-
 namespace Netric\Mail\Transport;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\Config\ConfigFactory;
 
 /**
  * Create a new Bulk SMTP Transport service based on account settings
@@ -33,7 +29,7 @@ class BulkSmtpFactory implements AccountServiceLocatorInterface
     public function createService(AccountServiceManagerInterface $serviceManager)
     {
         // Get the required method
-        $config = $serviceManager->get("Config");
+        $config = $serviceManager->get(ConfigFactory::class);
 
         // Initialize new Smtp transport
         $transport = new Smtp();
@@ -41,7 +37,7 @@ class BulkSmtpFactory implements AccountServiceLocatorInterface
         /*
          * Set the default application level email settings from the system config
          */
-        $options   = array(
+        $options = array(
             'host' => $config->email["bulk_server"],
         );
 
@@ -49,9 +45,8 @@ class BulkSmtpFactory implements AccountServiceLocatorInterface
             $options['port'] = $config->email["bulk_port"];
 
         // Add username and password if needed for sending messages
-        if (isset($config->email['bulk_user']) && isset($config->email['bulk_password']))
-        {
-            $options['connection_class']  = 'login';
+        if (isset($config->email['bulk_user']) && isset($config->email['bulk_password'])) {
+            $options['connection_class'] = 'login';
             $options['connection_config'] = array(
                 'username' => $config->email['bulk_user'],
                 'password' => $config->email['bulk_password'],
@@ -67,21 +62,17 @@ class BulkSmtpFactory implements AccountServiceLocatorInterface
         $username = $settings->get("email/smtp_bulk_user");
         $password = $settings->get("email/smtp_bulk_password");
         $port = $settings->get("email/smtp_bulk_port");
-        if ($host)
-        {
+        if ($host) {
             $options['host'] = $host;
 
             // Check for login information
-            if ($username && $password)
-            {
-                $options['connection_class']  = 'login';
+            if ($username && $password) {
+                $options['connection_class'] = 'login';
                 $options['connection_config'] = array(
                     'username' => $username,
                     'password' => $password,
                 );
-            }
-            else
-            {
+            } else {
                 unset($options['connection_class']);
                 unset($options['connection_config']);
             }

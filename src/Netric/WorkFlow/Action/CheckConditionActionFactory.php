@@ -1,13 +1,9 @@
 <?php
-/**
- * Factory to create a new ConditionsMatchAcion
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new CheckConditionAction
@@ -23,8 +19,8 @@ class CheckConditionActionFactory
     static public function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new CheckConditionAction
-        $entityLoader = $serviceLocator->get("EntityLoader");
-        $queryIndex = $serviceLocator->get("EntityQuery_Index");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
+        $queryIndex = $serviceLocator->get(IndexFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
         return new CheckConditionAction($entityLoader, $actionFactory, $queryIndex);
     }

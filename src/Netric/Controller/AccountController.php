@@ -6,6 +6,7 @@
 namespace Netric\Controller;
 
 use \Netric\Mvc;
+use Netric\Account\Module\ModuleServiceFactory;
 
 class AccountController extends Mvc\AbstractAccountController
 {
@@ -18,7 +19,7 @@ class AccountController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
 
         // Load the Module Service
-        $moduleService = $serviceManager->get("Netric/Account/Module/ModuleService");
+        $moduleService = $serviceManager->get(ModuleServiceFactory::class);
 
         // Get the current user
         $user = $this->account->getUser();

@@ -1,11 +1,12 @@
 <?php
-/**
- * Controller for account interactoin
- */
 namespace Netric\Controller;
 
 use \Netric\Mvc;
+use Netric\Account\Module\ModuleServiceFactory;
 
+/**
+ * Controller for account interactoin
+ */
 class ModuleController extends Mvc\AbstractAccountController
 {
 	/**
@@ -16,16 +17,16 @@ class ModuleController extends Mvc\AbstractAccountController
 		$params = $this->getRequest()->getParams();
 
 		if (!isset($params['moduleName'])) {
-			return $this->sendOutput(['error'=>"moduleName is a required query param"]);
+			return $this->sendOutput(['error' => "moduleName is a required query param"]);
 		}
 
 		// Get the service manager of the current user
-        $serviceManager = $this->account->getServiceManager();
+		$serviceManager = $this->account->getServiceManager();
 
         // Load the Module Service
-        $moduleService = $serviceManager->get("Netric/Account/Module/ModuleService");
+		$moduleService = $serviceManager->get(ModuleServiceFactory);
 
-        $module = $moduleService->getByName($params['moduleName']);
+		$module = $moduleService->getByName($params['moduleName']);
 
 		return $this->sendOutput($module->toArray());
 	}

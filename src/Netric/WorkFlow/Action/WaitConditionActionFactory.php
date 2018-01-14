@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Factory to create a new ConditionsMatchAcion
  *
@@ -8,6 +9,7 @@
 namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityLoaderFactory;
 
 /**
  * Create a new WaitConditionAction
@@ -23,7 +25,7 @@ class WaitConditionActionFactory
     static public function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new WaitConditionAction
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
         $workFlowDataMapper = $serviceLocator->get("Netric/WorkFlow/DataMapper/DataMapper");
         return new WaitConditionAction($entityLoader, $actionFactory, $workFlowDataMapper);

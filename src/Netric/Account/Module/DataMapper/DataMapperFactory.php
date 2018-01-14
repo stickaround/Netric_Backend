@@ -8,6 +8,7 @@ namespace Netric\Account\Module\DataMapper;
 
 use Netric\ServiceManager;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Config\ConfigFactory;
 
 /**
  * Create a data mapper service for modules
@@ -23,7 +24,7 @@ class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $db = $sl->get(RelationalDbFactory::class);
-        $config = $sl->get("Netric\Config\Config");
+        $config = $sl->get(ConfigFactory::class);
         $currentUser = $sl->getAccount()->getUser();
 
         return new ModuleRdbDataMapper($db, $config, $currentUser);

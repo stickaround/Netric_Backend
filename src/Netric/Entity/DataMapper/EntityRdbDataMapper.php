@@ -11,6 +11,10 @@ use DateTime;
 use Netric\Entity\EntityFactory;
 use Netric\Entity\EntityFactoryFactory;
 use Zend\Escaper\Exception\RuntimeException;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityLoaderFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -29,7 +33,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function setUp()
     {
-        $this->database = $this->account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
+        $this->database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
     }
 
     /**
@@ -326,7 +330,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 && $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
                 && !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)) {
                 // Make a folder for the entity
-                $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+                $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
 
                 // TODO: We should automatically set the path for entity folders
                 $folder = $fileSystem->openFolder(
@@ -424,7 +428,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     private function updateObjectAssociations(EntityInterface $entity, Field $field)
     {
         $def = $entity->getDefinition();
-        $defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+        $defLoader = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
 
         /*
          * Just like with fkey_multi above, we first clear out all existing values in the
@@ -434,7 +438,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             'object_associations',
             ['object_id' => $entity->getId(), 'type_id' => $def->getId(), 'field_id' => $field->id]
         );
-
+       
         // Set values
         $mvalues = $entity->getValue($field->name);
         if (is_array($mvalues)) {
@@ -688,7 +692,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * Eventually we will just remove it along with this entire function.
          */
         if ($fdef->type == "object" && $fdef->subtype && $this->getAccount()->getServiceManager() && $value) {
-            $entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($fdef->subtype, $value);
+            $entity = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class)->get($fdef->subtype, $value);
             if ($entity) {
                 $ret[(string)$value] = $entity->getName();
             } else {
@@ -818,7 +822,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         if (!$objType || !$id)
             return null;
 
-        $def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
+        $def = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
         if (!$def)
             return null;

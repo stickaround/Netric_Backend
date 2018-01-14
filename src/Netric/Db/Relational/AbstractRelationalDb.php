@@ -95,9 +95,7 @@ abstract class AbstractRelationalDb
      */
     public function __destruct()
     {
-        if (!is_null($this->pdoConnection)) {
-            $this->pdoConnection = null;
-        }
+        $this->closeConnection();
     }
 
     /**
@@ -111,6 +109,18 @@ abstract class AbstractRelationalDb
      * Run any commands/use statements to switch to a unique namespace
      */
     abstract protected function useSetNamespace();
+
+    /**
+     * Chose the current connection if it exists
+     *
+     * @return void
+     */
+    protected function closeConnection()
+    {
+        if (!is_null($this->pdoConnection)) {
+            $this->pdoConnection = null;
+        }
+    }
 
     /**
      * Get the current configured host or file name
@@ -157,7 +167,7 @@ abstract class AbstractRelationalDb
                 // If the account is using a special namespace, then make sure the
                 // specific database impelmentaiton uses it
                 $this->useSetNamespace();
-                
+
                 return $this->pdoConnection;
             } catch (\Exception $oException) {
                 $oLastException = $oException;

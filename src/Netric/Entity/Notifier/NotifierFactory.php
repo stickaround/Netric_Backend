@@ -1,12 +1,10 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Entity\Notifier;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new Notifier service
@@ -21,8 +19,8 @@ class NotifierFactory implements AccountServiceLocatorInterface
      */
     public function createService(AccountServiceManagerInterface $serviceManager)
     {
-        $entityLoader = $serviceManager->get("Netric/EntityLoader");
-        $entityIndex = $serviceManager->get("Netric/EntityQuery/Index/Index");
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $entityIndex = $serviceManager->get(IndexFactory::class);
         $currentUser = $serviceManager->getAccount()->getUser();
         return new Notifier($currentUser, $entityLoader, $entityIndex);
     }

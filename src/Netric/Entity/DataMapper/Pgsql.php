@@ -18,6 +18,10 @@ use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\Entity\EntityFactoryFactory;
+use Netric\Db\DbFactory;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityLoaderFactory;
 
 class Pgsql extends DataMapperAbstract implements DataMapperInterface
 {
@@ -65,7 +69,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 	{
 		// Right now we will use the CDatabase class because it is already setup
 		// Later we might want to start using direct pgsql api calls
-		$this->dbh = $this->account->getServiceManager()->get("Db");
+		$this->dbh = $this->account->getServiceManager()->get(DbFactory::class);
 	}
 
 	/**
@@ -347,7 +351,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 					&& $fdef->autocreate && $fdef->autocreatebase && $fdef->autocreatename
 					&& !$entity->getValue($fname) && $entity->getValue($fdef->autocreatename)) {
 					// We should use the service locator to load this service
-					$fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+					$fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
 					$fldr = $fileSystem->openFolder($fdef->autocreatebase . "/" . $entity->getValue($fdef->autocreatename), true);
 					if ($fldr->getId()) {
 						$entity->setValue($fname, $fldr->getId());
@@ -357,7 +361,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 			}
 
 			// Handle updating reference membership if needed
-			$defLoader = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+			$defLoader = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
 			foreach ($all_fields as $fname => $fdef) {
 				if (!$fdef->id)
 					throw new DefinitionStaleException("For some reason there is no ID for field $fname of object type " . $def->getObjType());
@@ -635,11 +639,10 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 		 * Eventually we will just remove it along with this entire function.
 		 */
 		if ($fdef->type == "object" && $fdef->subtype && $this->getAccount()->getServiceManager() && $value) {
-			$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($fdef->subtype, $value);
+			$entity = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class)->get($fdef->subtype, $value);
 			if ($entity) {
 				$ret[(string)$value] = $entity->getName();
 			} else {
-
 				$log = $this->getAccount()->getApplication()->getLog();
 				$log->error("Could not load {$fdef->subtype}.{$value} to update foreign value");
 			}
@@ -663,21 +666,6 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 					$oname = $row['obj_name'];
 					$idval = $oname . ":" . $row["assoc_object_id"];
 				}
-
-				/* Removed this code since it is causing a circular reference
-				 *
-				 * When an entity (e.g. User) has a referenced entity (e.g File),
-				 * EntityLoader will try to get the referenced entity data from the datamapper (if referenced entity is not yet cached)
-				 * And then File entity will try to get the User Entity which will cause a circular reference
-					if ($oname)
-					{
-						$entity = $this->getAccount()->getServiceManager()->get("EntityLoader")->get($oname, $row['assoc_object_id']);
-
-						// Update if field is not referencing an entity that no longer exists
-						if ($entity)
-							$ret[(string)$idval] = $entity->getName();
-					}
-				 */
 
 				/*
 				 * Set the value to null since we cant get the referenced entity name for now.
@@ -771,7 +759,7 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
 			return false;
 
 
-		$def = $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader")->get($objType);
+		$def = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
 		if (!$def)
 			return false;

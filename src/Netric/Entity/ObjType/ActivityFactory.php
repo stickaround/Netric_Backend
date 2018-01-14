@@ -1,14 +1,9 @@
 <?php
-/**
- * Activity entity type
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
- */
 namespace Netric\Entity\ObjType;
 
 use Netric\ServiceManager;
 use Netric\Entity;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 /**
  * Create a new activity entity
@@ -23,7 +18,7 @@ class ActivityFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("activity");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("activity");
         return new ActivityEntity($def);
     }
 }

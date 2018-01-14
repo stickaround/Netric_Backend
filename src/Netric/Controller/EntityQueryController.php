@@ -1,11 +1,12 @@
 <?php
-/**
- * This is just a simple test controller
- */
 namespace Netric\Controller;
 
 use \Netric\Mvc;
+use Netric\EntityQuery\Index\IndexFactory;
 
+/**
+ * This is just a simple test controller
+ */
 class EntityQueryController extends Mvc\AbstractAccountController
 {
     /**
@@ -13,8 +14,8 @@ class EntityQueryController extends Mvc\AbstractAccountController
      *
      * @return Response
      */
-	public function postExecuteAction()
-	{
+    public function postExecuteAction()
+    {
         $rawBody = $this->getRequest()->getBody();
         if (!$rawBody) {
             return $this->sendOutput(array(
@@ -24,12 +25,12 @@ class EntityQueryController extends Mvc\AbstractAccountController
 
         $params = json_decode($rawBody, true);
         $ret = [];
-        
+
         if (!isset($params["obj_type"])) {
             return $this->sendOutput(array("error" => "obj_type must be set"));
         }
 
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
 
         $query = new \Netric\EntityQuery($params["obj_type"]);
         $query->fromArray($params);
@@ -57,5 +58,5 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $ret["entities"] = $entities;
 
         return $this->sendOutput($ret);
-	}
+    }
 }
