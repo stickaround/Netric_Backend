@@ -1,15 +1,9 @@
 <?php
+namespace Netric\EntityDefinition;
 
 /**
  * Field definition
- * 
- * @category	EntityDefinition
- * @section		Field
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
  */
-namespace Netric\EntityDefinition;
-
 class Field implements \ArrayAccess
 {
 	/**

@@ -1,17 +1,10 @@
 <?php
-/**
- * Define the meta-data for an object
- *
- * @category	EntityDefinition
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\EntityDefinition;
 
 use Netric\Permissions\Dacl;
 
 /** 
- * Definition class
+ * Define the meta-data for an object type (fields)
  */
 class EntityDefinition
 {
@@ -28,7 +21,7 @@ class EntityDefinition
 	 * @var Field[]
 	 */
 	private $fields = array();
-	
+
 	/**
 	 * The object type name for this definiton
 	 *
@@ -59,13 +52,13 @@ class EntityDefinition
 	 */
 	public $system = true;
 
-    /**
-     * Hash of last loaded entity definition
-     *
-     * For system definitions we hash the last loaded definition from the file system
-     * to know if we should update it from source code.
-     * @var string
-     */
+	/**
+	 * Hash of last loaded entity definition
+	 *
+	 * For system definitions we hash the last loaded definition from the file system
+	 * to know if we should update it from source code.
+	 * @var string
+	 */
 	public $systemDefinitionHash = "";
 
 	/**
@@ -160,7 +153,7 @@ class EntityDefinition
 	 * @var array
 	 */
 	public $aggregates = array();
-	
+
 	/**
 	 * Define a field reference to inherit permissions from if set like cases and projects
 	 *
@@ -181,20 +174,20 @@ class EntityDefinition
 	 * @var bool
 	 */
 	public $storeRevisions = true;
-    
-    /**
-     * Put a cap on the number of objects this entity can have per account
-     * 
-     * @var int
-     */
-    public $capped = false;
-    
-    /**
-     * Parent field
-     * 
-     * @var string
-     */
-    public $parentField = "";
+
+	/**
+	 * Put a cap on the number of objects this entity can have per account
+	 * 
+	 * @var int
+	 */
+	public $capped = false;
+
+	/**
+	 * Parent field
+	 * 
+	 * @var string
+	 */
+	public $parentField = "";
 
 	/**
 	 * Default access control list for all entities of this type
@@ -253,9 +246,9 @@ class EntityDefinition
 	 * @param string $xmlForm The UIXML form
 	 * @param string $medium Either 'default', 'mobile' or 'infobox'
 	 */
-	public function setForm($xmlForm, $medium='default')
+	public function setForm($xmlForm, $medium = 'default')
 	{
-		 $this->forms[$medium] = $xmlForm;
+		$this->forms[$medium] = $xmlForm;
 	}
 
 	/**
@@ -263,7 +256,7 @@ class EntityDefinition
 	 *
 	 * @param string $medium Either 'default', 'mobile' or 'infobox'
 	 */
-	public function getForm($medium='default')
+	public function getForm($medium = 'default')
 	{
 		return (isset($this->forms[$medium])) ? $this->forms[$medium] : null;
 	}
@@ -306,10 +299,8 @@ class EntityDefinition
 	 */
 	public function removeField($fieldName)
 	{
-		if ($this->fields[$fieldName])
-		{
-			if (!$this->fields[$fieldName]->system)
-			{
+		if ($this->fields[$fieldName]) {
+			if (!$this->fields[$fieldName]->system) {
 				$this->fields[$fieldName] = null;
 				return true;
 			}
@@ -339,20 +330,16 @@ class EntityDefinition
 	 * @param bool $includeRemoved If true, then removed fields will be returned with null values
 	 * @return Field
 	 */
-	public function getFields($includeRemoved=false)
+	public function getFields($includeRemoved = false)
 	{
-		if ($includeRemoved)
-		{
+		if ($includeRemoved) {
 			return $this->fields;
-		}
-		else
-		{
+		} else {
 			$fields = array();
-			foreach ($this->fields as $fname=>$field)
-			{
+			foreach ($this->fields as $fname => $field) {
 				if ($field)
 					$fields[$fname] = $field;
-			}	
+			}
 
 			return $fields;
 		}
@@ -377,13 +364,13 @@ class EntityDefinition
 	public function getFieldType($name)
 	{
 		$arr = array("type" => null, "subtype" => null);
-		
-		if(isset($this->fields[$name]->type))
+
+		if (isset($this->fields[$name]->type))
 			$arr['type'] = $this->fields[$name]->type;
-			
-		if(isset($this->fields[$name]->subtype))
+
+		if (isset($this->fields[$name]->subtype))
 			$arr['subtype'] = $this->fields[$name]->subtype;
-			
+
 		return $arr;
 	}
 
@@ -429,7 +416,7 @@ class EntityDefinition
 			"obj_type" => $this->objType,
 			"title" => $this->title,
 			"revision" => $this->revision,
-            "capped" => $this->capped,
+			"capped" => $this->capped,
 			"default_activity_level" => $this->defaultActivityLevel,
 			"is_private" => $this->isPrivate,
 			"recur_rules" => $this->recurRules,
@@ -439,36 +426,36 @@ class EntityDefinition
 			"object_table" => ($this->useCustomTable) ? $this->object_table : "",
 			"icon" => $this->icon,
 			"system" => $this->system,
-            "system_definition_hash" => $this->systemDefinitionHash,
+			"system_definition_hash" => $this->systemDefinitionHash,
 			"application_id" => $this->applicationId,
 			"fields" => array(),
 			"aggregates" => array(),
 			"store_revisions" => $this->storeRevisions,
-            "parent_field" => $this->parentField,
+			"parent_field" => $this->parentField,
 		);
 
 		// Add fields for this object definition
-		foreach ($this->fields as $fname=>$field) {
+		foreach ($this->fields as $fname => $field) {
 			// Make sure the the $field is not a deleted field
-			if($field != null) {
+			if ($field != null) {
 				$ret['fields'][$fname] = $field->toArray();
 			}
 		}
 
-        $views = $this->getViews();
-        $ret['views'] = array();
-        foreach ($views as $view) {
-            $ret['views'][] = $view->toArray();
-        }
+		$views = $this->getViews();
+		$ret['views'] = array();
+		foreach ($views as $view) {
+			$ret['views'][] = $view->toArray();
+		}
 
-        foreach ($this->aggregates as $agg) {
-            $ret['aggregates'][] = array(
-                'type' => $agg->type,
-                'calc_field' => $agg->calcField,
-                'obj_field_to_update' => $agg->refField,
-                'ref_obj_update' => $agg->field,
-            );
-        }
+		foreach ($this->aggregates as $agg) {
+			$ret['aggregates'][] = array(
+				'type' => $agg->type,
+				'calc_field' => $agg->calcField,
+				'obj_field_to_update' => $agg->refField,
+				'ref_obj_update' => $agg->field,
+			);
+		}
 
 		return $ret;
 	}
@@ -488,7 +475,7 @@ class EntityDefinition
 			$this->revision = $data['revision'];
 
 		if (isset($data['fields'])) {
-			foreach ($data['fields'] as $name=>$fdef) {
+			foreach ($data['fields'] as $name => $fdef) {
 				$field = new Field();
 				$field->name = $name;
 				$field->fromArray($fdef);
@@ -496,16 +483,16 @@ class EntityDefinition
 			}
 		}
 
-        if (isset($data['aggregates'])) {
-            foreach ($data['aggregates'] as $name=>$aggData) {
-                $agg = new \stdClass();
-                $agg->field = $aggData['ref_obj_update'];
-                $agg->refField = $aggData['obj_field_to_update'];
-                $agg->calcField = $aggData['calc_field'];
-                $agg->type = $aggData['type'];
-                $this->addAggregate($agg);
-            }
-        }
+		if (isset($data['aggregates'])) {
+			foreach ($data['aggregates'] as $name => $aggData) {
+				$agg = new \stdClass();
+				$agg->field = $aggData['ref_obj_update'];
+				$agg->refField = $aggData['obj_field_to_update'];
+				$agg->calcField = $aggData['calc_field'];
+				$agg->type = $aggData['type'];
+				$this->addAggregate($agg);
+			}
+		}
 
 		if (isset($data['deleted_fields'])) {
 			foreach ($data['deleted_fields'] as $fieldName)
@@ -515,11 +502,11 @@ class EntityDefinition
 		if (isset($data['system']))
 			$this->system = $data['system'];
 
-        if (isset($data['system_definition_hash']))
-            $this->systemDefitionHash = $data['system_definition_hash'];
+		if (isset($data['system_definition_hash']))
+			$this->systemDefitionHash = $data['system_definition_hash'];
 
-        if (isset($data['capped']) && is_numeric($data['capped']))
-            $this->capped = $data['capped'];
+		if (isset($data['capped']) && is_numeric($data['capped']))
+			$this->capped = $data['capped'];
 
 		if (isset($data['default_activity_level']))
 			$this->defaultActivityLevel = $data['default_activity_level'];
@@ -604,142 +591,141 @@ class EntityDefinition
 		// Add default fields that are common to all objects
 		$defaultFields = array(
 			"id" => array(
-				'title'=>"ID", 
-				'type'=>"number",
-				'id'=>"0",
-				'subtype'=>"", 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => "ID",
+				'type' => "number",
+				'id' => "0",
+				'subtype' => "",
+				'readonly' => true,
+				'system' => true,
 			),
 			'associations' => array(
-				'title'=>'Associations', 
-				'type'=>'object_multi', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => 'Associations',
+				'type' => 'object_multi',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
 			),
 			'attachments' => array(
-				'title'=>'Attachments',
-				'type'=>'object_multi',
-				'subtype'=>'file',
-				'readonly'=>true,
-				'system'=>true,
+				'title' => 'Attachments',
+				'type' => 'object_multi',
+				'subtype' => 'file',
+				'readonly' => true,
+				'system' => true,
 			),
 			'followers' => array(
-				'title'=>'Followers',
-				'type'=>'object_multi',
-				'subtype'=>'user',
-				'readonly'=>true,
-				'system'=>true,
+				'title' => 'Followers',
+				'type' => 'object_multi',
+				'subtype' => 'user',
+				'readonly' => true,
+				'system' => true,
 			),
 			'activity' => array(
-				'title'=>'Activity', 
-				'type'=>'object_multi', 
-				'subtype'=>'activity', 
-				'system'=>true, 
+				'title' => 'Activity',
+				'type' => 'object_multi',
+				'subtype' => 'activity',
+				'system' => true,
 			),
 			'comments' => array(
-				'title'=>'Comments',
-				'type'=>'object_multi', 
-				'subtype'=>'comment',
-				'readonly'=>false,
-				'system'=>true,
+				'title' => 'Comments',
+				'type' => 'object_multi',
+				'subtype' => 'comment',
+				'readonly' => false,
+				'system' => true,
 			),
 			'num_comments' => array(
-				'title'=>'Num Comments',
-				'type'=>'number',
-				'subtype'=>'integer',
-				'readonly'=>true,
-				'system'=>true,
+				'title' => 'Num Comments',
+				'type' => 'number',
+				'subtype' => 'integer',
+				'readonly' => true,
+				'system' => true,
 			),
 			'commit_id' => array(
-				'title'=>'Commit Revision',
-				'type'=>'number', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => 'Commit Revision',
+				'type' => 'number',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
 			),
 			'f_deleted' => array(
-				'title'=>'Deleted', 
-				'type'=>'bool', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => 'Deleted',
+				'type' => 'bool',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
 			),
 
             // Default is true on null for this so not every entity is marked as unseen (annoying)
-            'f_seen' => array(
-                'title'=>'Seen',
-                'type'=>'bool',
-                'subtype'=>'',
-                'readonly'=>true,
-                'system'=>true,
-                'default'=>array(
-                    "value"=>true,
-                    "on"=>"null"
-                ),
-            ),
+			'f_seen' => array(
+				'title' => 'Seen',
+				'type' => 'bool',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
+				'default' => array(
+					"value" => true,
+					"on" => "null"
+				),
+			),
 			'revision' => array(
-				'title'=>'Revision',
-				'type'=>'number',
-				'subtype'=>'',
-				'readonly'=>true,
-				'system'=>true, 
+				'title' => 'Revision',
+				'type' => 'number',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
 			),
 
 			// The full path based on parent objects
 			// DEPRICATED: appears to no longer be used, but maybe we should start
 			// because searches would be a lot easier in the future.
 			'path' => array(
-				'title'=>'Path', 
-				'type'=>'text', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => 'Path',
+				'type' => 'text',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
 			),
 
 			// Unique name in URL escaped form if object type uses it, otherwise the id
 			'uname' => array(
-				'title'=>'Uname', 
-				'type'=>'text', 
-				'subtype'=>'256', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => 'Uname',
+				'type' => 'text',
+				'subtype' => '256',
+				'readonly' => true,
+				'system' => true,
 			),
 
 			'dacl' => array(
-				'title'=>'Security', 
-				'type'=>'text', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
+				'title' => 'Security',
+				'type' => 'text',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
 			),
-			'ts_entered' =>	array(
-				'title'=>'Time Entered', 
-				'type'=>'timestamp', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
-				'default'=>array(
-					"value"=>"now",
-					"on"=>"create"
+			'ts_entered' => array(
+				'title' => 'Time Entered',
+				'type' => 'timestamp',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
+				'default' => array(
+					"value" => "now",
+					"on" => "create"
 				),
 			),
 			'ts_updated' => array(
-				'title'=>'Time Changed', 
-				'type'=>'timestamp', 
-				'subtype'=>'', 
-				'readonly'=>true, 
-				'system'=>true, 
-				'default'=>array(
-					"value"=>"now", 
-					"on"=>"update"
+				'title' => 'Time Changed',
+				'type' => 'timestamp',
+				'subtype' => '',
+				'readonly' => true,
+				'system' => true,
+				'default' => array(
+					"value" => "now",
+					"on" => "update"
 				),
 			),
 		);
 
-		foreach ($defaultFields as $fname=>$fdef)
-		{
+		foreach ($defaultFields as $fname => $fdef) {
 			$field = new Field();
 			$field->name = $fname;
 			$field->system = true;
@@ -748,40 +734,40 @@ class EntityDefinition
 		}
 	}
 
-    /**
-     * Get the title of this object type
-     *
-     * FIXME:
-     * Even though the title property is public right now,
-     * we intend on moving it to private in the near future so
-     * this function can be used in preparation for that change.
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
+	/**
+	 * Get the title of this object type
+	 *
+	 * FIXME:
+	 * Even though the title property is public right now,
+	 * we intend on moving it to private in the near future so
+	 * this function can be used in preparation for that change.
+	 *
+	 * @return string
+	 */
+	public function getTitle()
+	{
+		return $this->title;
+	}
 
-    /**
-     * Set the title of this object type
-     *
-     * The title is the human readable short description
-     * of the object type and always has an upper case first letter.
-     *
-     * FIXME:
-     * Right now $this->title is public, but as described in getTitle above,
-     * we plan on moving it to private in the near future so we are providing
-     * a getter and setter function for the property so code can begin using it
-     * to make the transition to a better design easier. It's always nice when
-     * we have less code to change.
-     *
-     * @param string $title The title of this object type
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
+	/**
+	 * Set the title of this object type
+	 *
+	 * The title is the human readable short description
+	 * of the object type and always has an upper case first letter.
+	 *
+	 * FIXME:
+	 * Right now $this->title is public, but as described in getTitle above,
+	 * we plan on moving it to private in the near future so we are providing
+	 * a getter and setter function for the property so code can begin using it
+	 * to make the transition to a better design easier. It's always nice when
+	 * we have less code to change.
+	 *
+	 * @param string $title The title of this object type
+	 */
+	public function setTitle($title)
+	{
+		$this->title = $title;
+	}
 
 	/**
 	 * Check if this is a private entity type
@@ -803,31 +789,31 @@ class EntityDefinition
 		$this->dacl = $dacl;
 	}
 
-    /**
-     * Get the discretionary access control list for this object type
-     *
-     * @return Dacl
-     */
-    public function getDacl()
-    {
-        return $this->dacl;
-    }
+	/**
+	 * Get the discretionary access control list for this object type
+	 *
+	 * @return Dacl
+	 */
+	public function getDacl()
+	{
+		return $this->dacl;
+	}
 
-    /**
-     * Set whether or not this is a system entity (can't be deleted)
-     *
-     * @param bool $isSystem
-     */
-    public function setSystem($isSystem)
-    {
-        $this->system = $isSystem;
-    }
+	/**
+	 * Set whether or not this is a system entity (can't be deleted)
+	 *
+	 * @param bool $isSystem
+	 */
+	public function setSystem($isSystem)
+	{
+		$this->system = $isSystem;
+	}
 
-    /**
-     * Get flag that indicates if this is a system entity or not (can't be deleted)
-     */
-    public function getSystem()
-    {
-        return $this->system;
-    }
+	/**
+	 * Get flag that indicates if this is a system entity or not (can't be deleted)
+	 */
+	public function getSystem()
+	{
+		return $this->system;
+	}
 }
