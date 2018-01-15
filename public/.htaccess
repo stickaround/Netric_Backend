@@ -54,6 +54,7 @@ RewriteRule ^files/images/([0-9]+)$ /router.php?version=2&controller=files&funct
 RewriteRule ^files/images/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1&max_width=$2 [QSA]
 RewriteRule ^files/images/([0-9]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1&max_width=$2&max_height=$3 [QSA]
 RewriteRule ^files/userimages/current/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&max_width=$1&max_height=$2 [QSA]
+RewriteRule ^files/userimages/([0-9-]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&user_id=$1&max_width=$2 [QSA]
 RewriteRule ^files/userimages/([0-9-]+)/([0-9]+)/([0-9]+)$ /router.php?version=2&controller=files&function=userimage&user_id=$1&max_width=$2&max_height=$3 [QSA]
 RewriteRule ^files/([0-9]+)$ /router.php?version=2&controller=files&function=download&file_id=$1 [QSA]
 RewriteRule ^files/([0-9]+)/(.*)$ /router.php?version=2&controller=files&function=download&file_id=$1&file_name=$2 [QSA]
