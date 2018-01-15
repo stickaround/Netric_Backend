@@ -354,9 +354,8 @@ class EntityGroupings
     /**
      * Delete and entry from the table of a grouping field (fkey)
      *
-     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
      * @param int $entryId the id to delete
-     * @return bool true on sucess, false on failure
+     * @return bool true on success, false on failure
      */
     public function delete($entryId)
     {

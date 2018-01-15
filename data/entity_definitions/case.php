@@ -47,13 +47,13 @@ return array(
         'status_id' => array(
             'title'=>'Status',
             'type'=>'fkey',
-            'subtype'=>'project_bug_status',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'severity_id' => array(
             'title'=>'Severity',
             'type'=>'fkey',
-            'subtype'=>'project_bug_severity',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name"),
         ),
         'owner_id' => array(
@@ -70,7 +70,7 @@ return array(
         'type_id' => array(
             'title'=>'Type',
             'type'=>'fkey',
-            'subtype'=>'project_bug_types',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(

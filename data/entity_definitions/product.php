@@ -43,10 +43,10 @@ return array(
         'categories' => array(
             'title'=>'Categories',
             'type'=>'fkey_multi',
-            'subtype'=>'product_categories',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
-                    "table"=>"product_categories_mem",
+                    "table"=>"object_grouping_mem",
                     "this"=>"category_id",
                     "ref"=>"product_id"
                 ),

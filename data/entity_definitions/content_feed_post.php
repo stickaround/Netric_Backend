@@ -133,14 +133,14 @@ return array(
         "categories" => array(
             'title'=>'Categories',
             'type'=>'fkey_multi',
-            'subtype'=>'xml_feed_post_categories',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
                 "title"=>"name",
                 "parent"=>"parent_id",
                 "filter"=>array("feed_id"=>"feed_id"),
                 "ref_table"=>array(
-                    "table"=>"xml_feed_post_cat_mem",
+                    "table"=>"object_grouping_mem",
                     "this"=>"post_id",
                     "ref"=>"category_id"
                 ),

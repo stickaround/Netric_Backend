@@ -105,12 +105,12 @@ return array(
         'status_id' => array(
             'title'=>'Status',
             'type'=>'fkey',
-            'subtype'=>'customer_invoice_status',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'template_id' => array(
             'title'=>'Template',
-            'type'=>'fkey',
+            'type'=>'object',
             'subtype'=>'customer_invoice_templates',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),

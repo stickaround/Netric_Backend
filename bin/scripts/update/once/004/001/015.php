@@ -25,7 +25,7 @@ $groupingTables = array(
     "customer_objections" => array("refObjType" => "opportunity", "refFieldName" => "objection_id"),
     "customer_opportunity_stages" => array("refObjType" => "opportunity", "refFieldName" => "stage_id"),
     "customer_opportunity_types" => array("refObjType" => "opportunity", "refFieldName" => "type_id"),
-    "customer_lead_sources" => array("refObjType" => "opportunity", "refFieldName" => "lead_source_id"),
+    "customer_lead_sources-opportunity" => array("refObjType" => "opportunity", "refFieldName" => "lead_source_id"),
 
     "customer_invoice_status" => array("refObjType" => "invoice", "refFieldName" => "status_id"),
 
@@ -39,7 +39,7 @@ $groupingTables = array(
     "project_priorities" => array("refObjType" => "project", "refFieldName" => "priority"),
     "project_groups" => array("refObjType" => "project", "refFieldName" => "groups"),
 
-    "project_priorities" => array("refObjType" => "task", "refFieldName" => "priority"),
+    "project_priorities-task" => array("refObjType" => "task", "refFieldName" => "priority"),
 );
 
 $index = $serviceManager->get("EntityQuery_Index");
@@ -68,21 +68,28 @@ for ($i = 0; $i < $res->getNum(); $i++) {
 
 // Loop thru the grouping tables
 foreach ($groupingTables as $table => $details) {
+
+    $def = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($details["refObjType"]);
+
+    // Get the field details
+    $field = $def->getField($details["refFieldName"]);
+
+    // If the fkey field is already object_groupings then we dont need to migrate its data.
+    if ($field->subtype === "object_groupings") {
+        continue;
+    }
+
     try {
         if (isset($details["filters"])) {
-            $groupings = $dm->getGroupings($details["refObjType"], $details["refFieldName"], $details["filters"]);
+            $groupings = $dm->getGroupings($def->getObjType(), $field->name, $details["filters"]);
         } else {
-            $groupings = $dm->getGroupings($details["refObjType"], $details["refFieldName"]);
+            $groupings = $dm->getGroupings($def->getObjType(), $field->name);
         }
     } catch (Exception $e) {
         $log->error("Update 004.001.015 failed to move fkey object table. " . $e->getMessage());
         continue;
     }
 
-    $def = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($groupings->getObjType());
-
-    // Get the field details
-    $field = $def->getField($groupings->getFieldName());
     foreach ($groupings->getAll() as $grp) {
         $tableData = [];
         $tableData['object_type_id'] = $def->getId();
@@ -173,7 +180,7 @@ foreach ($groupingTables as $table => $details) {
         } else {
             $updateData = [];
             $updateData[$groupings->getFieldName()] = $groupId;
-            $updateData[$groupings->getFieldName() . "_fval"] = "'{\"$groupId\":\"{$grp->name}\"}'";
+            $updateData[$groupings->getFieldName() . "_fval"] = "{\"$groupId\":\"{$grp->name}\"}";
 
             // Update the table reference
             $db->update($def->object_table, $updateData, [$groupings->getFieldName() => $grp->id]);
