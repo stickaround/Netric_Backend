@@ -8,13 +8,12 @@ use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
 use DateTime;
-use Netric\Entity\EntityFactory;
 use Netric\Entity\EntityFactoryFactory;
-use Zend\Escaper\Exception\RuntimeException;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Entity\Entity;
 
 /**
  * Load and save entity data to a relational database
@@ -39,7 +38,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     /**
      * Open object by id
      *
-     * @var Entity $entity The entity to load data into
+     * @var EntityInterface $entity The entity to load data into
      * @var string $id The Id of the object
      * @return bool true on success, false on failure
      */
