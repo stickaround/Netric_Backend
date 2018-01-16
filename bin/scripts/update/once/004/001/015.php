@@ -50,8 +50,8 @@ $groupingTables = array(
     array("table" => "project_priorities", "refObjType" => "task", "refFieldName" => "priority"),
 );
 
-// This will be used to cache the groupings if we are dealing with private entity definitions
-$privateDefGroupingsCache = [];
+// This will be used to cache the groupings
+$exitingGroupingsCache = [];
 
 // Loop thru the grouping tables
 foreach ($groupingTables as $details) {
@@ -78,48 +78,42 @@ foreach ($groupingTables as $details) {
     $sql = "SELECT * from $table";
     $result = $db->query($sql);
 
-    // If entity definition is not private, then we can get the groupings without specifying a filter
-    if (!$def->isPrivate) {
-        $groupings = $dm->getGroupings($objType, $fieldName);
-    }
-
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
 
-        // Create a new groupings where we will add the old group row into the object_groupings
-        $newGroupings = new EntityGroupings($objType, $fieldName);
-
-        // If we are dealing with private definition, then we need to build the filters so we can get the groupings
-        if ($def->isPrivate) {
-            $filters = [];
-            foreach ($field->fkeyTable['filter'] as $key => $filterField) {
-                $filters[$key] = $row[$filterField];
-            }
-
-            // We need to set the filters again in case there were new filters created
-            $newGroupings->setFilters($filters);
-
-            // Create a grouping hash key so we can just reuse the groupings if we have the same filters
-            $groupingHash = "$objType, $fieldName " . $newGroupings->getFiltersHash($filters);
-
-            // If cache key does not exist yet, then we will cache the groupings so we can access it later
-            if (!isset($privateDefGroupingsCache[$groupingHash])) {
-                $privateDefGroupingsCache[$groupingHash] = $dm->getGroupings($objType, $fieldName, $filters);
-            }
-
-            $groupings = $privateDefGroupingsCache[$groupingHash];
+        $filters = [];
+        foreach ($field->fkeyTable['filter'] as $key => $filterField) {
+            $filters[$key] = $row[$filterField];
         }
 
+        // Filter results to this user of the object is private
+        if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {
+            $log->error("Private entity type called but grouping has no filter defined - $objType");
+        }
+
+        // Create a new groupings where we will add the old group row into the object_groupings
+        $newGroupings = new EntityGroupings($objType, $fieldName, $filters);
+
+        // Create a grouping hash key so we can just reuse the groupings for the same $objType and $fieldName
+        $groupingHash = "$objType, $fieldName " . $newGroupings->getFiltersHash($filters);
+
+        // If cache key does not exist yet, then we will get the existing groupings and put it in cache
+        if (!isset($exitingGroupingsCache[$groupingHash])) {
+            $exitingGroupingsCache[$groupingHash] = $dm->getGroupings($objType, $fieldName, $filters);
+        }
+
+        $exitingGrouping = $exitingGroupingsCache[$groupingHash];
+
         // We cannot continue if we do not have a groupings set, so we will log it and continue with the next fkey table
-        if (!$groupings) {
-            $log->error("Update 004.001.015 no groupings specificed objType: $objType. fieldName: $fieldName");
+        if (!$exitingGrouping) {
+            $log->error("Update 004.001.015 no existing groupings specificed objType: $objType. fieldName: $fieldName");
             continue;
         }
 
         $groupName = $row[$field->fkeyTable['title']];
 
         // If grouping is already in the object_groupings table, then we need to skip this group and proceed with the next group
-        if ($groupings->getByName($groupName)) {
+        if ($exitingGrouping->getByName($groupName)) {
             continue;
         }
 
