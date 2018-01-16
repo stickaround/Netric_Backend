@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PostgreSQL implementation of indexer for querying objects
  *
@@ -20,7 +21,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
      * @var \Netric\Db\Pgsql
      */
     public $dbh = null;
-    
+
     /**
      * Setup this index for the given account
      * 
@@ -30,14 +31,14 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $this->dbh = $account->getServiceManager()->get("Db");
     }
-    
+
     /**
-	 * Save an object to the index
-	 *
+     * Save an object to the index
+     *
      * @param \Netric\Entity\Entity $entity Entity to save
-	 * @return bool true on success, false on failure
-	 */
-	public function save(\Netric\Entity\Entity $entity)
+     * @return bool true on success, false on failure
+     */
+    public function save(\Netric\Entity\Entity $entity)
     {
         $def = $entity->getDefinition();
 
@@ -59,57 +60,52 @@ class Pgsql extends IndexAbstract implements IndexInterface
         }
 
         $sql = "UPDATE " . $tableName . " SET tsv_fulltext=";
-        $sql .= "to_tsvector('english', '".$this->dbh->escape(strip_tags($buf))."') ";
+        $sql .= "to_tsvector('english', '" . $this->dbh->escape(strip_tags($buf)) . "') ";
         $sql .= "WHERE id='" . $this->dbh->escape($entity->getId()) . "'";
         return ($this->dbh->query($sql)) ? true : false;
     }
-    
+
     /**
-	 * Delete an object from the index
-	 *
+     * Delete an object from the index
+     *
      * @param string $id Unique id of object to delete
-	 * @return bool true on success, false on failure
-	 */
-	public function delete($id)
+     * @return bool true on success, false on failure
+     */
+    public function delete($id)
     {
         // Nothing need be done because we are currently storing data in pgsql
         return true;
     }
-    
+
     /**
-	 * Execute a query and return the results
-	 *
+     * Execute a query and return the results
+     *
      * @param EntityQuery &$query The query to execute
      * @param Results $results Optional results set to use. Otherwise create new.
-	 * @return \Netric\EntityQuery\Results
-	 */
-	protected function queryIndex(EntityQuery $query, Results $results = null)
+     * @return \Netric\EntityQuery\Results
+     */
+    protected function queryIndex(EntityQuery $query, Results $results = null)
     {
         $condition_query = "";
         $def = $this->getDefinition($query->getObjType());
         
 		// Set default f_deleted condition
-		if ($def->getField("f_deleted"))
-		{
+        if ($def->getField("f_deleted")) {
             $conditions = $query->getWheres();
-			
-            $fDeletedCondSet = false;
-			if (count($conditions))
-			{
-				foreach ($conditions as $cond)
-				{
-					if ($cond->fieldName == "f_deleted")
-                    {
-						$fDeletedCondSet = true;
-                    }
-				}
-			}
 
-			if (!$fDeletedCondSet)
-            {
+            $fDeletedCondSet = false;
+            if (count($conditions)) {
+                foreach ($conditions as $cond) {
+                    if ($cond->fieldName == "f_deleted") {
+                        $fDeletedCondSet = true;
+                    }
+                }
+            }
+
+            if (!$fDeletedCondSet) {
                 $query->andWhere("f_deleted")->equals(false);
             }
-		}
+        }
 
         // Get table to query
         $objectTable = $def->getTable();
@@ -123,57 +119,53 @@ class Pgsql extends IndexAbstract implements IndexInterface
          */
         
 		// Start constructing query
-		$sql = "SET constraint_exclusion = on;";
+        $sql = "SET constraint_exclusion = on;";
         // Removed the window "count(*) OVER() because it was insanely slow - Sky Stebnicki
         //$sql .= "SELECT *, count(*) OVER() AS full_count FROM ".$objectTable." ";
-        $sql .= "SELECT * FROM ".$objectTable." ";
+        $sql .= "SELECT * FROM " . $objectTable . " ";
 
 		// Build condition string
         $conditionQuery = "";
-		if (count($query->getWheres()))
-		{
-			$conditionQuery = $this->buildConditionString($query, $def);
-			if ($conditionQuery)
-				$sql .= "WHERE $conditionQuery";
-		}
+        if (count($query->getWheres())) {
+            $conditionQuery = $this->buildConditionString($query, $def);
+            if ($conditionQuery)
+                $sql .= "WHERE $conditionQuery";
+        }
 
 		// Add order by
-		$order_cnd = "";
-		if (count($query->getOrderBy()))
-		{
+        $order_cnd = "";
+        if (count($query->getOrderBy())) {
             $orderBy = $query->getOrderBy();
-			foreach ($orderBy as $sort)
-			{
-				if ($order_cnd) $order_cnd .= ", ";
+            foreach ($orderBy as $sort) {
+                if ($order_cnd) $order_cnd .= ", ";
 
                 // TODO: check this
 				// Replace name field to order by full name with path
 				//if ($def->parentField && $def->getField("path"))
 					//$order_fld = str_replace($this->obj->fields->listTitle, $this->obj->fields->listTitle."_full", $sortObj->fieldName);
 
-				$order_cnd .= $sort->fieldName;
-				$order_cnd .= " " . $sort->direction;
-			}
-		}
-		if ($order_cnd)
-			$sql .= " ORDER BY $order_cnd ";
+                $order_cnd .= $sort->fieldName;
+                $order_cnd .= " " . $sort->direction;
+            }
+        }
+        if ($order_cnd)
+            $sql .= " ORDER BY $order_cnd ";
 
-		$sql .= " OFFSET " . $query->getOffset();
-		if ($query->getLimit())
-			$sql .= " LIMIT " . $query->getLimit();
+        $sql .= " OFFSET " . $query->getOffset();
+        if ($query->getLimit())
+            $sql .= " LIMIT " . $query->getLimit();
 
 		// Get fields for this object type (used in decoding multi-valued fields)
-		$ofields = $def->getFields();
+        $ofields = $def->getFields();
 
         // Create results object
         if ($results == null)
             $results = new EntityQuery\Results($query, $this);
-        else 
+        else
             $results->clearEntities();
 
         $sqlRes = $this->dbh->query($sql);
-        for ($i = 0; $i < $this->dbh->getNumRows($sqlRes); $i++)
-        {
+        for ($i = 0; $i < $this->dbh->getNumRows($sqlRes); $i++) {
             $row = $this->dbh->getRow($sqlRes, $i);
             $id = $row["id"];
 
@@ -185,23 +177,18 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 //$results->setTotalNum($row['full_count']);
 
             // Decode multival fields into arrays of values
-            foreach ($ofields as $fname=>$fdef)
-            {
-                if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi")
-                {
-                    if (isset($row[$fname]))
-                    {
-                        $dec = json_decode($row[$fname]);
+            foreach ($ofields as $fname => $fdef) {
+                if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
+                    if (isset($row[$fname])) {
+                        $dec = json_decode($row[$fname], true);
                         if ($dec !== false)
                             $row[$fname] = $dec;
                     }
                 }
-                
-                if ($fdef->type == "fkey" || $fdef->type == "object" 
-                        || $fdef->type == "fkey_multi" || $fdef->type == "object_multi")
-                {
-                    if (isset($row[$fname . "_fval"]))
-                    {
+
+                if ($fdef->type == "fkey" || $fdef->type == "object"
+                    || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
+                    if (isset($row[$fname . "_fval"])) {
                         $dec = json_decode($row[$fname . "_fval"], true);
                         if ($dec !== false)
                             $row[$fname . "_fval"] = $dec;
@@ -212,20 +199,19 @@ class Pgsql extends IndexAbstract implements IndexInterface
             // Set and add entity
             $ent = $this->entityFactory->create($def->getObjType());
             $ent->fromArray($row);
-			$ent->resetIsDirty();
+            $ent->resetIsDirty();
             $results->addEntity($ent);
         }
 
         // Log error
-        if ($sqlRes === false)
-        {
+        if ($sqlRes === false) {
             $log = $this->account->getServiceManager()->get("Log");
             $log->error("Failed EntityQuery: " . $this->dbh->getLastError() . " | $sql");
         }
         
         // Get total num
         // ----------------------------------------
-        $sqlCnt = "SET constraint_exclusion = on;SELECT count(*) as cnt FROM ".$objectTable." ";
+        $sqlCnt = "SET constraint_exclusion = on;SELECT count(*) as cnt FROM " . $objectTable . " ";
         if ($conditionQuery)
             $sqlCnt .= "WHERE " . $conditionQuery;
         $sqlRes = $this->dbh->query($sqlCnt);
@@ -234,11 +220,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
            
         // Get aggregations
         // ----------------------------------------
-        if ($query->hasAggregations())
-        {
+        if ($query->hasAggregations()) {
             $aggregations = $query->getAggregations();
-            foreach ($aggregations as $name=>$agg)
-            {
+            foreach ($aggregations as $name => $agg) {
                 $this->queryAggregation($agg, $results, $objectTable, $conditionQuery);
             }
         }
@@ -306,12 +290,12 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
             }
         }
-         */	
-                
+         */
+
         return $results;
     }
-    
-    
+
+
     /**
      * Create a condition sql query string based on the query object
      * 
@@ -319,148 +303,136 @@ class Pgsql extends IndexAbstract implements IndexInterface
      * @param EntityDefinition $def
      * @return string
      */
-	private function buildConditionString(\Netric\EntityQuery &$query, EntityDefinition &$def)
-	{
-		$dbh = $this->dbh;
-		$cond_str = "";
-		$ofields = $def->getFields();
+    private function buildConditionString(\Netric\EntityQuery &$query, EntityDefinition &$def)
+    {
+        $dbh = $this->dbh;
+        $cond_str = "";
+        $ofields = $def->getFields();
 
         // Check for full text
         $fullText = "";
         $wheres = $query->getWheres();
-        foreach ($wheres as $where)
-        {
+        foreach ($wheres as $where) {
             if ("*" == $where->fieldName)
                 $fullText = $where->value;
         }
         
 		// General Search
 		// -------------------------------------------------------------
-		if ($fullText && $def->isCustomTable())
-		{
+        if ($fullText && $def->isCustomTable()) {
 			// First add text fields
 			// ------------------------------------------------
 			// ------------------------------------------------
-			$part_buf = "";
-			foreach ($ofields as $fname=>$field)
-			{
-				$buf = "";
+            $part_buf = "";
+            foreach ($ofields as $fname => $field) {
+                $buf = "";
 
-				if ($field->type == 'text' && $field->subtype)
-					$buf = "lower($fname) like lower('%".$dbh->escape(str_replace(" ", "%", str_replace("*", "%", $fullText)))."%') ";
-				else if ($field->type == 'text')
-					$buf = " to_tsvector($fname) @@ plainto_tsquery('".$dbh->escape($fullText)."') ";
+                if ($field->type == 'text' && $field->subtype)
+                    $buf = "lower($fname) like lower('%" . $dbh->escape(str_replace(" ", "%", str_replace("*", "%", $fullText))) . "%') ";
+                else if ($field->type == 'text')
+                    $buf = " to_tsvector($fname) @@ plainto_tsquery('" . $dbh->escape($fullText) . "') ";
 
-				if ($buf)
-				{
-					if ($part_buf)
-						$part_buf .= " OR ";
+                if ($buf) {
+                    if ($part_buf)
+                        $part_buf .= " OR ";
 
-					$part_buf .= $buf;
-				}
-			}
+                    $part_buf .= $buf;
+                }
+            }
 
 			// Apply full text to the condition string if set
-			if ($cond_str && $part_buf) $cond_str .= " AND ";
-			if ($part_buf) $cond_str .= "($part_buf) ";
+            if ($cond_str && $part_buf) $cond_str .= " AND ";
+            if ($part_buf) $cond_str .= "($part_buf) ";
 			
 			// Now add all other fields
 			// ------------------------------------------------
-			if (strpos($fullText, " ") != false)
-				$parts = explode(" ", $fullText);
-			else
-				$parts = array($fullText);
-			foreach ($parts as $part)
-			{
-				$part_buf = "";
+            if (strpos($fullText, " ") != false)
+                $parts = explode(" ", $fullText);
+            else
+                $parts = array($fullText);
+            foreach ($parts as $part) {
+                $part_buf = "";
 
-				if (is_numeric($part))
-				{
-					foreach ($ofields as $fname=>$field)
-					{
-						$buf = "";
-						switch ($field->type)
-						{
-						case 'number':
-						case 'real':
-						case 'integer':
-						case 'bigint':
-						case 'int8':
-							if (is_numeric($fullText))
-								$buf .= "$fname='".$dbh->escape($part)."'";
-							break;
-						default:
+                if (is_numeric($part)) {
+                    foreach ($ofields as $fname => $field) {
+                        $buf = "";
+                        switch ($field->type) {
+                            case 'number':
+                            case 'real':
+                            case 'integer':
+                            case 'bigint':
+                            case 'int8':
+                                if (is_numeric($fullText))
+                                    $buf .= "$fname='" . $dbh->escape($part) . "'";
+                                break;
+                            default:
 							// No conditions
-							break;
-						}
+                                break;
+                        }
 
-						if ($buf)
-						{
-							if ($part_buf)
-								$part_buf .= " OR ";
+                        if ($buf) {
+                            if ($part_buf)
+                                $part_buf .= " OR ";
 
-							$part_buf .= $buf;
-						}
-					}
-				}
+                            $part_buf .= $buf;
+                        }
+                    }
+                }
 
-				if ($cond_str && $part_buf) $cond_str .= " AND ";
-				if ($part_buf) $cond_str .= "($part_buf) ";
-			}
-		}
-		else if ($fullText && !$def->isCustomTable())
-		{
-			$cond_str = "tsv_fulltext @@ plainto_tsquery('".$dbh->escape($fullText)."')";
-		}
+                if ($cond_str && $part_buf) $cond_str .= " AND ";
+                if ($part_buf) $cond_str .= "($part_buf) ";
+            }
+        } else if ($fullText && !$def->isCustomTable()) {
+            $cond_str = "tsv_fulltext @@ plainto_tsquery('" . $dbh->escape($fullText) . "')";
+        }
 
-		if ($cond_str)
-			$cond_str = " ($cond_str) ";
+        if ($cond_str)
+            $cond_str = " ($cond_str) ";
 
 		// Filtered search
 		// -------------------------------------------------------------
-		$adv_cond = $this->buildAdvancedConditionString($query, $def);
+        $adv_cond = $this->buildAdvancedConditionString($query, $def);
 
 		// Check here if we need to encapsulate the $adv_cond with parenthesis
-		if ($adv_cond)
-		{
+        if ($adv_cond) {
 			/*
-			 * The result condition string from ::buildAdvancedConditionString() is not encapsulated with parenthesis
-			 * That is why we need to encapsulate the condition string here.
-			 * But when the conditions have an "or" condition, then it adds a closing parenthesis
-			 *
-			 * This will make sure that we just add the opening/closing parenthesis as needed
-			 */
-			if (trim($adv_cond)[0] !== "(")
-				$adv_cond = "($adv_cond";
+             * The result condition string from ::buildAdvancedConditionString() is not encapsulated with parenthesis
+             * That is why we need to encapsulate the condition string here.
+             * But when the conditions have an "or" condition, then it adds a closing parenthesis
+             *
+             * This will make sure that we just add the opening/closing parenthesis as needed
+             */
+            if (trim($adv_cond)[0] !== "(")
+                $adv_cond = "($adv_cond";
 
-			if(substr(trim($adv_cond), -1) !== ")")
-				$adv_cond = "$adv_cond)";
+            if (substr(trim($adv_cond), -1) !== ")")
+                $adv_cond = "$adv_cond)";
 
-			if ($cond_str)
-				$cond_str .= " and $adv_cond ";
-			else
-				$cond_str = $adv_cond;
-		}
+            if ($cond_str)
+                $cond_str .= " and $adv_cond ";
+            else
+                $cond_str = $adv_cond;
+        }
 
-		return $cond_str;
-	}
+        return $cond_str;
+    }
 
 
-	/**
-	 * Process filter conditions
-	 *
-	 * @param \Netric\EntityQuery $query
+    /**
+     * Process filter conditions
+     *
+     * @param \Netric\EntityQuery $query
      * @param EntityDefinition $def
      * @return string
      * @throws \RuntimeException If a problem is encountered with the query
-	 */
-	public function buildAdvancedConditionString(\Netric\EntityQuery &$query, EntityDefinition &$def=null)
-	{
-		$dbh = $this->dbh;
-		$cond_str = "";
-		$inOrGroup = false;
+     */
+    public function buildAdvancedConditionString(\Netric\EntityQuery &$query, EntityDefinition &$def = null)
+    {
+        $dbh = $this->dbh;
+        $cond_str = "";
+        $inOrGroup = false;
         $conditions = $query->getWheres();
-        
+
         if ($def == null)
             $def = $this->getDefinition($query->getObjType());
 
@@ -474,32 +446,30 @@ class Pgsql extends IndexAbstract implements IndexInterface
 			$objectTable .= "_act";
          */
 
-		if (count($conditions))
-		{
-			foreach ($conditions as $cond)
-			{
-				$blogic = $cond->bLogic;
-				$fieldName = $cond->fieldName;
-				$operator = $cond->operator;
-				$condValue = $cond->value;
+        if (count($conditions)) {
+            foreach ($conditions as $cond) {
+                $blogic = $cond->bLogic;
+                $fieldName = $cond->fieldName;
+                $operator = $cond->operator;
+                $condValue = $cond->value;
 
                 // Should never happen, but just in case if operator is missing throw an exception
                 if (!$operator)
                     throw new \RuntimeException("No operator provided for " . var_export($cond, true));
 
-				$buf = "";
+                $buf = "";
                 
                 // Skip full text
-				if ($fieldName == "*")
-					continue;
+                if ($fieldName == "*")
+                    continue;
                 
 				// Look for associated object conditions
-				$parts = array($fieldName);
-				if (strpos($fieldName, '.'))
-					$parts = explode(".", $fieldName);
+                $parts = array($fieldName);
+                if (strpos($fieldName, '.'))
+                    $parts = explode(".", $fieldName);
 
                 // Get field
-				$origField = $def->getField($parts[0]);
+                $origField = $def->getField($parts[0]);
                 if (!$origField)
                     throw new \RuntimeException("Could not get field " . $query->getObjType() . ":" . $parts[0]);
                 
@@ -507,119 +477,106 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 $field = clone $origField;
                 
                 // Skip non-existant field or full text
-				if (!$field)
-					continue;
-                
-				if (count($parts) > 1)
-				{
-					$fieldName = $parts[0];
-					$ref_field = $parts[1];
-					$field->type = "object_dereference";
-				}
-				else
-				{
-					$ref_field = "";
-				}
+                if (!$field)
+                    continue;
+
+                if (count($parts) > 1) {
+                    $fieldName = $parts[0];
+                    $ref_field = $parts[1];
+                    $field->type = "object_dereference";
+                } else {
+                    $ref_field = "";
+                }
 
 				// Sanitize and replace environment variables like 'current_user' to concrete vals
-				$condValue = $this->sanitizeWhereCondition($field, $condValue);
+                $condValue = $this->sanitizeWhereCondition($field, $condValue);
 
 				// Convert PHP bool to textual true or false
-				if ($field->type == "bool")
-					$condValue = ($condValue === true) ? 't' : 'f';
+                if ($field->type == "bool")
+                    $condValue = ($condValue === true) ? 't' : 'f';
 
-				if ($condValue !== "" && $condValue !== null)
-				{
-					switch ($operator)
-					{
-					case 'is_equal':
-                        $buf .= $this->buildIsEqual($field, $fieldName, $condValue, $objectTable, $def);
+                if ($condValue !== "" && $condValue !== null) {
+                    switch ($operator) {
+                        case 'is_equal':
+                            $buf .= $this->buildIsEqual($field, $fieldName, $condValue, $objectTable, $def);
 
-                        break;
-					case 'is_not_equal':
-                        $buf .= $this->buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def);
-						break;
-					case 'is_greater':
-						switch ($field->type)
-						{
-						case 'object_multi':
-						case 'object':
-						case 'fkey_multi':
-						case 'text':
-							break;
-						default:
-                            if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                            else if ($field->type == "date")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
-                            
-							$buf .= " $fieldName>'".$dbh->escape($condValue)."' ";
-							break;
-						}
-						break;
-					case 'is_less':
-						switch ($field->type)
-						{
-						case 'object_multi':
-						case 'object':
-						case 'fkey_multi':
-							break;
-						case 'text':
-							break;
-						default:
-                            if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                            else if ($field->type == "date")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
-                            
-							$buf .= " $fieldName<'".$dbh->escape($condValue)."' ";
-							break;
-						}
-						break;
-					case 'is_greater_or_equal':
-						switch ($field->type)
-						{
-						case 'object':
-							if ($field->subtype)
-							{
-                                $children = $this->getHeiarchyDownObj($field->subtype, $condValue);
-                                $tmp_cond_str = "";
-                                foreach ($children as $child)
-                                {
-                                    if ($tmp_cond_str) $tmp_cond_str .= " or ";
-                                    $tmp_cond_str .= " $fieldName='".$dbh->escape($child)."' ";
-                                }
-                                $buf .= "($tmp_cond_str) ";
-								
-								break;
-							}
-							break;
-						case 'object_multi':
-						case 'fkey_multi':
-							break;
-						case 'text':
-							break;
-						default:
-                            if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                            else if ($field->type == "date")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
-                            
-							$buf .= " $fieldName>='".$dbh->escape($condValue)."' ";
-							break;
-						}
-						break;
-					case 'is_less_or_equal':
-						switch ($field->type)
-						{
-						case 'object':
-							if (isset($field->subtype) && $def->parentField == $fieldName && is_numeric($condValue))
-							{
-                                $defDef = $this->getDefinition($field->subtype);
+                            break;
+                        case 'is_not_equal':
+                            $buf .= $this->buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def);
+                            break;
+                        case 'is_greater':
+                            switch ($field->type) {
+                                case 'object_multi':
+                                case 'object':
+                                case 'fkey_multi':
+                                case 'text':
+                                    break;
+                                default:
+                                    if ($field->type == "timestamp")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
+                                    else if ($field->type == "date")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
 
-								if ($defDef->parentField)
-								{
-									$buf .= " $fieldName in (WITH RECURSIVE children AS
+                                    $buf .= " $fieldName>'" . $dbh->escape($condValue) . "' ";
+                                    break;
+                            }
+                            break;
+                        case 'is_less':
+                            switch ($field->type) {
+                                case 'object_multi':
+                                case 'object':
+                                case 'fkey_multi':
+                                    break;
+                                case 'text':
+                                    break;
+                                default:
+                                    if ($field->type == "timestamp")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
+                                    else if ($field->type == "date")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+
+                                    $buf .= " $fieldName<'" . $dbh->escape($condValue) . "' ";
+                                    break;
+                            }
+                            break;
+                        case 'is_greater_or_equal':
+                            switch ($field->type) {
+                                case 'object':
+                                    if ($field->subtype) {
+                                        $children = $this->getHeiarchyDownObj($field->subtype, $condValue);
+                                        $tmp_cond_str = "";
+                                        foreach ($children as $child) {
+                                            if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                                            $tmp_cond_str .= " $fieldName='" . $dbh->escape($child) . "' ";
+                                        }
+                                        $buf .= "($tmp_cond_str) ";
+
+                                        break;
+                                    }
+                                    break;
+                                case 'object_multi':
+                                case 'fkey_multi':
+                                    break;
+                                case 'text':
+                                    break;
+                                default:
+                                    if ($field->type == "timestamp")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
+                                    else if ($field->type == "date")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+
+                                    $buf .= " $fieldName>='" . $dbh->escape($condValue) . "' ";
+                                    break;
+                            }
+                            break;
+                        case 'is_less_or_equal':
+                            switch ($field->type) {
+                                case 'object':
+                                    if (isset($field->subtype) && $def->parentField == $fieldName && is_numeric($condValue)) {
+                                        $defDef = $this->getDefinition($field->subtype);
+
+                                        if ($defDef->parentField) {
+                                            $buf .= " $fieldName in (WITH RECURSIVE children AS
 												(
 													-- non-recursive term
 													SELECT id FROM " . $defDef->getTable(true) . " WHERE id = '$condValue'
@@ -634,157 +591,139 @@ class Pgsql extends IndexAbstract implements IndexInterface
 												)
 												SELECT id
 												FROM children)";
-								}
-							}
-							break;
-						case 'object_multi':
-						case 'fkey_multi':
-							break;
-						case 'text':
-							break;
-						default:
-                            if ($field->type == "timestamp")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                            else if ($field->type == "date")
-                                $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
-                            
-							$buf .= " $fieldName<='".$dbh->escape($condValue)."' ";
-							break;
-						}
-						break;
-					case 'begins':
-					case 'begins_with':
-						switch ($field->type)
-						{
-						case 'text':
-							if ($field->subtype)
-								$buf .= " lower($fieldName) like lower('".$dbh->escape($condValue)."%') ";
-							else
-								$buf .= " to_tsvector($fieldName) @@ plainto_tsquery('".$dbh->escape($condValue)."*') ";
-							break;
-						default:
-							break;
-						}
-						break;
-					case 'contains':
-						switch ($field->type)
-						{
-						case 'text':
-							if ($field->subtype)
-								$buf .= " lower($fieldName) like lower('%".$dbh->escape($condValue)."%') ";
-							else
-								$buf .= " to_tsvector($fieldName) @@ plainto_tsquery('".$dbh->escape($condValue)."') ";
+                                        }
+                                    }
+                                    break;
+                                case 'object_multi':
+                                case 'fkey_multi':
+                                    break;
+                                case 'text':
+                                    break;
+                                default:
+                                    if ($field->type == "timestamp")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
+                                    else if ($field->type == "date")
+                                        $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
 
-							break;
-						default:
-							break;
-						}
-						break;
-					case 'day_is_equal':
-						if ($field->type == "date" || $field->type == "timestamp")
-						{
-							switch ($condValue)
-							{
-							case '<%current_day%>':
-								$tmpcond = "extract('day' from now())";
-								break;
-							default:
-								$tmpcond = "'".$dbh->escape($condValue)."'";
-								break;
-							}
+                                    $buf .= " $fieldName<='" . $dbh->escape($condValue) . "' ";
+                                    break;
+                            }
+                            break;
+                        case 'begins':
+                        case 'begins_with':
+                            switch ($field->type) {
+                                case 'text':
+                                    if ($field->subtype)
+                                        $buf .= " lower($fieldName) like lower('" . $dbh->escape($condValue) . "%') ";
+                                    else
+                                        $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('" . $dbh->escape($condValue) . "*') ";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 'contains':
+                            switch ($field->type) {
+                                case 'text':
+                                    if ($field->subtype)
+                                        $buf .= " lower($fieldName) like lower('%" . $dbh->escape($condValue) . "%') ";
+                                    else
+                                        $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('" . $dbh->escape($condValue) . "') ";
 
-							$buf .= " extract(day from $fieldName)=$tmpcond ";
-						}
-						break;
-					case 'month_is_equal':
-						if ($field->type == "date" || $field->type == "timestamp")
-						{
-							switch ($condValue)
-							{
-							case '<%current_month%>':
-								$tmpcond = "extract('month' from now())";
-								break;
-							default:
-								$tmpcond = "'".$dbh->escape($condValue)."'";
-								break;
-							}
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 'day_is_equal':
+                            if ($field->type == "date" || $field->type == "timestamp") {
+                                switch ($condValue) {
+                                    case '<%current_day%>':
+                                        $tmpcond = "extract('day' from now())";
+                                        break;
+                                    default:
+                                        $tmpcond = "'" . $dbh->escape($condValue) . "'";
+                                        break;
+                                }
 
-							$buf .= " extract(month from $fieldName)=$tmpcond ";
-						}
-						break;
-					case 'year_is_equal':
-						if ($field->type == "date" || $field->type == "timestamp")
-						{
-							switch ($condValue)
-							{
-							case '<%current_year%>':
-								$tmpcond = "extract('year' from now())";
-								break;
-							default:
-								$tmpcond = "'".$dbh->escape($condValue)."'";
-								break;
-							}
+                                $buf .= " extract(day from $fieldName)=$tmpcond ";
+                            }
+                            break;
+                        case 'month_is_equal':
+                            if ($field->type == "date" || $field->type == "timestamp") {
+                                switch ($condValue) {
+                                    case '<%current_month%>':
+                                        $tmpcond = "extract('month' from now())";
+                                        break;
+                                    default:
+                                        $tmpcond = "'" . $dbh->escape($condValue) . "'";
+                                        break;
+                                }
 
-							$buf .= " extract(year from $fieldName)=$tmpcond ";
-						}
-						break;
-					case 'last_x_days':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=(now()-INTERVAL '".$dbh->escape($condValue)." days')";
-						}
-						break;
-					case 'last_x_weeks':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=(now()-INTERVAL '".$dbh->escape($condValue)." weeks')";
-						}
-						break;
-					case 'last_x_months':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=(now()-INTERVAL '".$dbh->escape($condValue)." months')";
-						}
-						break;
-					case 'last_x_years':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=(now()-INTERVAL '".$dbh->escape($condValue)." years')";
-						}
-						break;
-					case 'next_x_days':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '".$dbh->escape($condValue)." days')";
-						}
-						break;
-					case 'next_x_weeks':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '".$dbh->escape($condValue)." weeks')";
-						}
-						break;
-					case 'next_x_months':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '".$dbh->escape($condValue)." months')";
-						}
-						break;
-					case 'next_x_years':
-						if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue))
-						{
-							$buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '".$dbh->escape($condValue)." years')";
-						}
-						break;
-					}
-				}
-				else // handle null
-				{
-					switch ($operator)
-					{
-					case 'is_equal':
+                                $buf .= " extract(month from $fieldName)=$tmpcond ";
+                            }
+                            break;
+                        case 'year_is_equal':
+                            if ($field->type == "date" || $field->type == "timestamp") {
+                                switch ($condValue) {
+                                    case '<%current_year%>':
+                                        $tmpcond = "extract('year' from now())";
+                                        break;
+                                    default:
+                                        $tmpcond = "'" . $dbh->escape($condValue) . "'";
+                                        break;
+                                }
+
+                                $buf .= " extract(year from $fieldName)=$tmpcond ";
+                            }
+                            break;
+                        case 'last_x_days':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " days')";
+                            }
+                            break;
+                        case 'last_x_weeks':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " weeks')";
+                            }
+                            break;
+                        case 'last_x_months':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " months')";
+                            }
+                            break;
+                        case 'last_x_years':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " years')";
+                            }
+                            break;
+                        case 'next_x_days':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " days')";
+                            }
+                            break;
+                        case 'next_x_weeks':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " weeks')";
+                            }
+                            break;
+                        case 'next_x_months':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " months')";
+                            }
+                            break;
+                        case 'next_x_years':
+                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                                $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " years')";
+                            }
+                            break;
+                    }
+                } else // handle null
+                {
+                    switch ($operator) {
+                        case 'is_equal':
 						// Deal with "isnull"
-                        $buf .= $this->buildIsEqual($field, $fieldName, $condValue, $objectTable, $def);
+                            $buf .= $this->buildIsEqual($field, $fieldName, $condValue, $objectTable, $def);
                         /*
 						switch ($field->type)
 						{
@@ -807,11 +746,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
 							break;
 						}
                          
-                         */
-						break;
-					case 'is_not_equal':
+                             */
+                            break;
+                        case 'is_not_equal':
 						// Deal with "isnull"
-                        $buf .= $this->buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def);
+                            $buf .= $this->buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def);
                         /*
 						switch ($field->type)
 						{
@@ -832,39 +771,36 @@ class Pgsql extends IndexAbstract implements IndexInterface
 							$buf .= " $fieldName is not null ";
 							break;
 						}
-                         * 
-                         */
-						break;
-					}
-				}
+                             * 
+                             */
+                            break;
+                    }
+                }
 
 				// New system to added to group "or" statements
-				if ($blogic == "and")
-				{
-					if ($buf)
-					{
-						if ($cond_str) 
-							$cond_str .= ") $blogic (";
-						else
-							$cond_str .= " ( ";
-						$inOrGroup = true;
-					}
-				}
-				else if ($cond_str && $buf) // or
-					$cond_str .= " $blogic ";
+                if ($blogic == "and") {
+                    if ($buf) {
+                        if ($cond_str)
+                            $cond_str .= ") $blogic (";
+                        else
+                            $cond_str .= " ( ";
+                        $inOrGroup = true;
+                    }
+                } else if ($cond_str && $buf) // or
+                $cond_str .= " $blogic ";
 
-				$cond_str .= $buf;
-			}
+                $cond_str .= $buf;
+            }
 
 			// Close condtion grouping
-			if ($inOrGroup)
-				$cond_str .= ")";
-		}
+            if ($inOrGroup)
+                $cond_str .= ")";
+        }
 
 		//echo "COND STR: ".$cond_str;
-		return $cond_str;
-	}
-    
+        return $cond_str;
+    }
+
     /**
      * Add conditions for "is_eqaul" operator
      * 
@@ -876,11 +812,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $buf = "";
 
-        switch ($field->type)
-        {
-        case 'object':
-            if ($field->subtype)
-            {
+        switch ($field->type) {
+            case 'object':
+                if ($field->subtype) {
             	/*
                 if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
                 {
@@ -893,183 +827,150 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     }
                     $buf .= "($tmp_cond_str) ";
                 }
-                else */if ($condValue)
-                {
-                    $buf .= " $fieldName='".$this->dbh->escape($condValue)."' ";
+                else */ if ($condValue) {
+                        $buf .= " $fieldName='" . $this->dbh->escape($condValue) . "' ";
+                    } else {
+                        $buf .= " $fieldName is null ";
+                    }
+                    break;
                 }
-                else
-                {
-                    $buf .= " $fieldName is null ";
-                }
-                break;
-            }
-        case 'object_multi':
-            $tmp_cond_str = "";
-            if ($condValue == "" || $condValue == "NULL" || $condValue==null)
-            {
-                $buf .= " not EXISTS (select 1 from object_associations
-                                        where object_associations.object_id=".$objectTable.".id
+            case 'object_multi':
+                $tmp_cond_str = "";
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $buf .= " not EXISTS (select 1 from object_associations
+                                        where object_associations.object_id=" . $objectTable . ".id
                                         and type_id='" . $def->getId() . "'
                                         and field_id='" . $field->id . "') ";
-            }
-            else
-            {
-                $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
-				$referenceObjType = null;
-				$referenceId = null;
+                } else {
+                    $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
+                    $referenceObjType = null;
+                    $referenceId = null;
 
 				/*
-				 * If we have successfully decoded the $condValue (e.g user:1:TestUser
-				 * Then we need to make sure we have refernce id and obj_type
-				 */
-				if ($objRef && isset($objRef['id']) && isset($objRef['obj_type']))
-				{
-					$referenceObjType = $objRef['obj_type'];
-					$referenceId = $objRef['id'];
-				}
-				else if ($field->subtype)
-				{
+                     * If we have successfully decoded the $condValue (e.g user:1:TestUser
+                     * Then we need to make sure we have refernce id and obj_type
+                     */
+                    if ($objRef && isset($objRef['id']) && isset($objRef['obj_type'])) {
+                        $referenceObjType = $objRef['obj_type'];
+                        $referenceId = $objRef['id'];
+                    } else if ($field->subtype) {
 					/*
-					 * If the $condValue provided is the actual value of the where condition
-					 * Then we will just use the field's subtype as our referenced objType
-					 */
-					$referenceObjType = $field->subtype;
-					$referenceId = $condValue;
-				}
+                         * If the $condValue provided is the actual value of the where condition
+                         * Then we will just use the field's subtype as our referenced objType
+                         */
+                        $referenceObjType = $field->subtype;
+                        $referenceId = $condValue;
+                    }
 
 				// If we have referencedObjType then we can now build the where condition
-				if ($referenceObjType)
-				{
+                    if ($referenceObjType) {
 					// Get the definition of the referenced objType
-					$refDef = $this->getDefinition($referenceObjType);
+                        $refDef = $this->getDefinition($referenceObjType);
 
-					if ($refDef && $refDef->getId() && $referenceId)
-					{
-						$buf .= " EXISTS (select 1 from object_associations
-                                    where object_associations.object_id=".$objectTable.".id
-                                    and type_id='" . $def->getId() . "' and field_id='".$field->id."'
+                        if ($refDef && $refDef->getId() && $referenceId) {
+                            $buf .= " EXISTS (select 1 from object_associations
+                                    where object_associations.object_id=" . $objectTable . ".id
+                                    and type_id='" . $def->getId() . "' and field_id='" . $field->id . "'
                                     and assoc_type_id='" . $refDef->getId() . "'
                                     and assoc_object_id='" . $referenceId . "') ";
-					}
-					else // only query associated subtype if there is no referenced id provided
-					{
-						$buf .= " EXISTS (select 1 from object_associations
-                                    where object_associations.object_id=".$objectTable.".id and
-                                    type_id='" . $def->getId() . "' and field_id='".$field->id."'
+                        } else // only query associated subtype if there is no referenced id provided
+                        {
+                            $buf .= " EXISTS (select 1 from object_associations
+                                    where object_associations.object_id=" . $objectTable . ".id and
+                                    type_id='" . $def->getId() . "' and field_id='" . $field->id . "'
                                     and assoc_type_id='" . $refDef->getId() . "') ";
-					}
-				}
-            }
-            break;
-        case 'object_dereference':
-            if ($field->subtype && isset($ref_field))
-            {
-                // Create subquery
-                $subQuery = new \Netric\EntityQuery($field->subtype);
-                $subQuery->where($ref_field)->equals($condValue);
-                $subIndex = new \Netric\EntityQuery\Index\Pgsql($this->account);
-                $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
-                $refDef = $this->getDefinition($field->subtype);
-
-                if ($condValue == "" || $condValue == "NULL")
-                {
-                    $buf .= " ".$objectTable.".$fieldName not in (select id from " . $refDef->getTable() . "
-                                                                                where $tmp_obj_cnd_str) ";
-                }
-                else
-                {
-                    $buf .= " ".$objectTable.".$fieldName in (select id from " . $refDef->getTable() . "
-                                                                                where $tmp_obj_cnd_str) ";
-                }
-            }
-            break;
-        case 'fkey_multi':
-            $tmp_cond_str = "";
-            if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
-            {
-                $children = $this->getHeiarchyDownGrp($field, $condValue);
-                $tmp_cond_str = "";
-                foreach ($children as $child)
-                {
-                    if ($tmp_cond_str) $tmp_cond_str .= " or ";
-                    $tmp_cond_str .= $field->fkeyTable['ref_table']['ref']."='$child'";
-                }
-            }
-            else if ($condValue && $condValue!="NULL" && $condValue!=null)
-            {
-                $tmp_cond_str = $field->fkeyTable['ref_table']['ref']."='$condValue'";
-            }
-
-            $thisfld = $field->fkeyTable['ref_table']["this"];
-            $reftbl = $field->fkeyTable['ref_table']['table'];
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-            {
-                $buf .= " NOT EXISTS (select 1 from  ".$reftbl." where 
-                                  ".$reftbl.".".$thisfld."=".$objectTable.".id) ";
-            }
-            else
-            {
-                $buf .= " EXISTS (select 1 from  ".$reftbl." where 
-                                  ".$reftbl.".".$thisfld."=".$objectTable.".id and ($tmp_cond_str)) ";
-            }
-            break;
-        case 'fkey':
-            $tmp_cond_str = "";
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-            {
-                $tmp_cond_str .= " $fieldName is null ";
-            }
-            else
-            {
-                if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
-                {
-                    $children = $this->getHeiarchyDownGrp($field, $condValue);
-                    $tmp_cond_str = "";
-                    foreach ($children as $child)
-                    {
-                        if ($tmp_cond_str) $tmp_cond_str .= " or ";
-                        $tmp_cond_str .= " $fieldName='".$this->dbh->escape($child)."' ";
+                        }
                     }
                 }
-                else
-                {
-                    $tmp_cond_str = " $fieldName='".$this->dbh->escape($condValue)."' ";
+                break;
+            case 'object_dereference':
+                if ($field->subtype && isset($ref_field)) {
+                // Create subquery
+                    $subQuery = new \Netric\EntityQuery($field->subtype);
+                    $subQuery->where($ref_field)->equals($condValue);
+                    $subIndex = new \Netric\EntityQuery\Index\Pgsql($this->account);
+                    $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
+                    $refDef = $this->getDefinition($field->subtype);
+
+                    if ($condValue == "" || $condValue == "NULL") {
+                        $buf .= " " . $objectTable . ".$fieldName not in (select id from " . $refDef->getTable() . "
+                                                                                where $tmp_obj_cnd_str) ";
+                    } else {
+                        $buf .= " " . $objectTable . ".$fieldName in (select id from " . $refDef->getTable() . "
+                                                                                where $tmp_obj_cnd_str) ";
+                    }
                 }
-            }
+                break;
+            case 'fkey_multi':
+                $tmp_cond_str = "";
+                if (isset($field->fkeyTable["parent"]) && is_numeric($condValue)) {
+                    $children = $this->getHeiarchyDownGrp($field, $condValue);
+                    $tmp_cond_str = "";
+                    foreach ($children as $child) {
+                        if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                        $tmp_cond_str .= $field->fkeyTable['ref_table']['ref'] . "='$child'";
+                    }
+                } else if ($condValue && $condValue != "NULL" && $condValue != null) {
+                    $tmp_cond_str = $field->fkeyTable['ref_table']['ref'] . "='$condValue'";
+                }
 
-            $buf .= "($tmp_cond_str) ";
-            break;
-        case 'text':
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-            {
-                $buf .= " ($fieldName is null OR $fieldName='')";
-            }
-            else
-            {
-                if ($field->subtype)
-                    $buf .= " lower($fieldName)=lower('".$this->dbh->escape($condValue)."') ";
+                $thisfld = $field->fkeyTable['ref_table']["this"];
+                $reftbl = $field->fkeyTable['ref_table']['table'];
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $buf .= " NOT EXISTS (select 1 from  " . $reftbl . " where 
+                                  " . $reftbl . "." . $thisfld . "=" . $objectTable . ".id) ";
+                } else {
+                    $buf .= " EXISTS (select 1 from  " . $reftbl . " where 
+                                  " . $reftbl . "." . $thisfld . "=" . $objectTable . ".id and ($tmp_cond_str)) ";
+                }
+                break;
+            case 'fkey':
+                $tmp_cond_str = "";
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $tmp_cond_str .= " $fieldName is null ";
+                } else {
+                    if (isset($field->fkeyTable["parent"]) && is_numeric($condValue)) {
+                        $children = $this->getHeiarchyDownGrp($field, $condValue);
+                        $tmp_cond_str = "";
+                        foreach ($children as $child) {
+                            if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                            $tmp_cond_str .= " $fieldName='" . $this->dbh->escape($child) . "' ";
+                        }
+                    } else {
+                        $tmp_cond_str = " $fieldName='" . $this->dbh->escape($condValue) . "' ";
+                    }
+                }
+
+                $buf .= "($tmp_cond_str) ";
+                break;
+            case 'text':
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $buf .= " ($fieldName is null OR $fieldName='')";
+                } else {
+                    if ($field->subtype)
+                        $buf .= " lower($fieldName)=lower('" . $this->dbh->escape($condValue) . "') ";
+                    else
+                        $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('" . $this->dbh->escape($condValue) . "') ";
+                }
+
+                break;
+            case 'date':
+            case 'timestamp':
+                if ($field->type == "timestamp")
+                    $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
+                else if ($field->type == "date")
+                    $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+            default:
+                if ($condValue === "" || $condValue === "NULL" || $condValue === null)
+                    $buf .= " $fieldName is null";
                 else
-                    $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('".$this->dbh->escape($condValue)."') ";
-            }
-
-            break;
-        case 'date':
-        case 'timestamp':
-            if ($field->type == "timestamp")
-                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-            else if ($field->type == "date")
-                $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
-        default:
-            if ($condValue === "" || $condValue === "NULL" || $condValue === null)
-                $buf .= " $fieldName is null";
-            else
-                $buf .= " $fieldName='".$this->dbh->escape($condValue)."' ";
-            break;
+                    $buf .= " $fieldName='" . $this->dbh->escape($condValue) . "' ";
+                break;
         }
-        
+
         return $buf;
     }
-    
+
     /**
      * Add conditions for "is_not_eqaul" operator
      * 
@@ -1080,24 +981,18 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def)
     {
         $buf = "";
-        
-        switch ($field->type)
-        {
-        case 'object':
-            // Check if we are querying table directly, otherwise fall through to object_multi code
-            if ($field->subtype)
-            {
-                if ($condValue == "" || $condValue == "NULL")
-                {
-                    $buf .= " $fieldName is not null";
-                }
-                else if (isset($field->subtype) && $def->parentField == $fieldName && $condValue)
-                {
-                    $refDef = $this->getDefinition($field->subtype);
 
-                    if ($refDef->parentField)
-                    {
-                        $buf .= " $fieldName not in (WITH RECURSIVE children AS
+        switch ($field->type) {
+            case 'object':
+            // Check if we are querying table directly, otherwise fall through to object_multi code
+                if ($field->subtype) {
+                    if ($condValue == "" || $condValue == "NULL") {
+                        $buf .= " $fieldName is not null";
+                    } else if (isset($field->subtype) && $def->parentField == $fieldName && $condValue) {
+                        $refDef = $this->getDefinition($field->subtype);
+
+                        if ($refDef->parentField) {
+                            $buf .= " $fieldName not in (WITH RECURSIVE children AS
                                     (
                                         -- non-recursive term
                                         SELECT id FROM " . $refDef->getTable(true) . " WHERE id = '$condValue'
@@ -1112,164 +1007,136 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                     )
                                     SELECT id
                                     FROM children)";
+                        }
+                    } else {
+                        $buf .= " $fieldName!='" . $this->dbh->escape($condValue) . "' ";
+                    }
+
+                    break;
+                }
+            case 'object_multi':
+                if ($condValue == "" || $condValue == "NULL") {
+                    $buf .= " " . $objectTable . ".id in (select object_id from object_associations
+                                                                where type_id='" . $def->getId() . "'
+                                                                and field_id='" . $field->id . "') ";
+                } else {
+                    $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
+                    if ($objRef) {
+                        $refDef = $this->getDefinition($objRef['obj_type']);
+                        if ($refDef && $refDef->getId() && $objRef['id']) {
+                            $buf .= " " . $objectTable . ".id not in (select object_id from object_associations 
+                            where type_id='" . $def->getId() . "' and field_id='" . $field->id . "'
+                            and assoc_type_id='" . $refDef->getId() . "' and assoc_object_id='" . $objRef['id'] . "') ";
+                        }
                     }
                 }
-                else
-                {
-                    $buf .= " $fieldName!='".$this->dbh->escape($condValue)."' ";
+                break;
+            case 'object_dereference':
+                $tmp_cond_str = "";
+                if ($field->subtype && $ref_field) {
+                // Create subquery
+                    $subQuery = new \Netric\EntityQuery($field->subtype);
+                    $subQuery->where($ref_field, $operator, $condValue);
+                    $subIndex = new \Netric\EntityQuery\Index\Pgsql($this->account);
+                    $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
+                    $refDef = $this->getDefinition($field->subtype);
+
+                    if ($condValue == "" || $condValue == "NULL") {
+                        $buf .= " " . $objectTable . ".$fieldName is not null ";
+                    } else {
+                        $buf .= " " . $objectTable . ".$fieldName not in (select id from " . $refDef->getTable(true) . "
+                                                                                where $tmp_obj_cnd_str) ";
+                    }
+                }
+                break;
+            case 'fkey_multi':
+
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $buf .= " " . $objectTable . ".id in (select " . $field->fkeyTable['ref_table']["this"] . "
+																		from " . $field->fkeyTable['ref_table']['table'] . ") ";
+                } else {
+                    if (isset($field->fkeyTable["parent"]) && is_numeric($condValue)) {
+                        $children = $this->getHeiarchyDownGrp($field, $condValue);
+                        $tmp_cond_str = "";
+                        foreach ($children as $child) {
+                            if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                            $tmp_cond_str .= $field->fkeyTable['ref_table']['ref'] . "='$child'";
+                        }
+                    } else {
+                        $tmp_cond_str = $field->fkeyTable['ref_table']['ref'] . "='$condValue'";
+                    }
+
+                    $buf .= " " . $objectTable . ".id not in (select " . $field->fkeyTable['ref_table']["this"] . "
+                                                                  from " . $field->fkeyTable['ref_table']['table'] . " 
+                                                                  where $tmp_cond_str) ";
                 }
 
                 break;
-            }
-        case 'object_multi':
-            if ($condValue == "" || $condValue == "NULL")
-            {
-                $buf .= " ".$objectTable.".id in (select object_id from object_associations
-                                                                where type_id='" . $def->getId() . "'
-                                                                and field_id='" . $field->id . "') ";
-            }
-            else
-            {
-                $objRef = \Netric\Entity\Entity::decodeObjRef($condValue);
-                if ($objRef)
-                {
-                    $refDef = $this->getDefinition($objRef['obj_type']);
-                    if ($refDef && $refDef->getId() && $objRef['id'])
-                    {
-                        $buf .= " ".$objectTable.".id not in (select object_id from object_associations 
-                            where type_id='" . $def->getId() . "' and field_id='" . $field->id . "'
-                            and assoc_type_id='" . $refDef->getId() . "' and assoc_object_id='" . $objRef['id'] . "') ";
+            case 'fkey':
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $buf .= " $fieldName is not null";
+                } else {
+                    if (isset($field->fkeyTable["parent"]) && is_numeric($condValue)) {
+                        $children = $this->getHeiarchyDownGrp($field, $condValue);
+                        $tmp_cond_str = "";
+                        foreach ($children as $child) {
+                            if ($tmp_cond_str) $tmp_cond_str .= " and ";
+                            $tmp_cond_str .= " $fieldName!='" . $this->dbh->escape($child) . "' ";
+                        }
+                    } else {
+                        $tmp_cond_str = " $fieldName!='" . $this->dbh->escape($condValue) . "' ";
                     }
-                }
-            }
-            break;
-        case 'object_dereference':
-            $tmp_cond_str = "";
-            if ($field->subtype && $ref_field)
-            {
-                // Create subquery
-                $subQuery = new \Netric\EntityQuery($field->subtype);
-                $subQuery->where($ref_field, $operator, $condValue);
-                $subIndex = new \Netric\EntityQuery\Index\Pgsql($this->account);
-                $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
-                $refDef = $this->getDefinition($field->subtype);
 
-                if ($condValue == "" || $condValue == "NULL")
-                {
-                    $buf .= " ".$objectTable.".$fieldName is not null ";
-                }
-                else
-                {
-                    $buf .= " ".$objectTable.".$fieldName not in (select id from ".$refDef->getTable(true)."
-                                                                                where $tmp_obj_cnd_str) ";
-                }
-            }
-            break;
-        case 'fkey_multi':
-         
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-            {
-                $buf .= " ".$objectTable.".id in (select ".$field->fkeyTable['ref_table']["this"]."
-																		from ".$field->fkeyTable['ref_table']['table'].") ";
-            }
-            else
-            {
-                if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
-                {
-                    $children = $this->getHeiarchyDownGrp($field, $condValue);
-                    $tmp_cond_str = "";
-                    foreach ($children as $child)
-                    {
-                        if ($tmp_cond_str) $tmp_cond_str .= " or ";
-                        $tmp_cond_str .= $field->fkeyTable['ref_table']['ref']."='$child'";
-                    }
-                }
-                else
-                {
-                    $tmp_cond_str = $field->fkeyTable['ref_table']['ref']."='$condValue'";
-                }
-            
-                $buf .= " ".$objectTable.".id not in (select ".$field->fkeyTable['ref_table']["this"]."
-                                                                  from ".$field->fkeyTable['ref_table']['table']." 
-                                                                  where $tmp_cond_str) ";
-            }
-            
-            break;
-        case 'fkey':
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-            {
-                $buf .= " $fieldName is not null";
-            }
-            else
-            {
-                if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
-                {
-                    $children = $this->getHeiarchyDownGrp($field, $condValue);
-                    $tmp_cond_str = "";
-                    foreach ($children as $child)
-                    {
-                        if ($tmp_cond_str) $tmp_cond_str .= " and ";
-                        $tmp_cond_str .= " $fieldName!='".$this->dbh->escape($child)."' ";
-                    }
-                }
-                else
-                {
-                    $tmp_cond_str = " $fieldName!='".$this->dbh->escape($condValue)."' ";
+                    $buf .= "(($tmp_cond_str)  or $fieldName is null) ";
                 }
 
-                $buf .= "(($tmp_cond_str)  or $fieldName is null) ";
-            }
-            
-            break;
-        case 'text':
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-            {
-                $buf .= " ($fieldName!='' AND $fieldName is not NULL) ";
-            }
-            else
-            {
-                if ($field->subtype)
-                    $buf .= " lower($fieldName)!=lower('".$this->dbh->escape($condValue)."') ";
+                break;
+            case 'text':
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
+                    $buf .= " ($fieldName!='' AND $fieldName is not NULL) ";
+                } else {
+                    if ($field->subtype)
+                        $buf .= " lower($fieldName)!=lower('" . $this->dbh->escape($condValue) . "') ";
+                    else
+                        $buf .= " (to_tsvector($fieldName) @@ plainto_tsquery('" . $this->dbh->escape($condValue) . "'))='f' ";
+                }
+
+                break;
+            case 'date':
+            case 'timestamp':
+                if ($field->type == "timestamp")
+                    $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
+                else if ($field->type == "date")
+                    $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+            default:
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null)
+                    $buf .= " $fieldName is not null ";
                 else
-                    $buf .= " (to_tsvector($fieldName) @@ plainto_tsquery('".$this->dbh->escape($condValue)."'))='f' ";
-            }
-            
-            break;
-        case 'date':
-        case 'timestamp':
-            if ($field->type == "timestamp")
-                $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-            else if ($field->type == "date")
-                $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
-        default:
-            if ($condValue == "" || $condValue == "NULL" || $condValue == null)
-                $buf .= " $fieldName is not null ";
-            else 
-                $buf .= " ($fieldName!='".$this->dbh->escape($condValue)."' or $fieldName is null) ";
-            break;
+                    $buf .= " ($fieldName!='" . $this->dbh->escape($condValue) . "' or $fieldName is null) ";
+                break;
         }
-        
+
         return $buf;
     }
-    
+
     /**
-	 * Get ids of all child entries in a parent-child relationship
+     * Get ids of all child entries in a parent-child relationship
      * 
      * This function may be over-ridden in specific indexes for performance reasons
-	 *
-	 * @param string $table The table to query
-	 * @param string $parent_field The field containing the id of the parent entry
-	 * @param int $this_id The id of the child element
-	 */
-	public function getHeiarchyDownGrp(\Netric\EntityDefinition\Field $field, $this_id)
-	{
-		$dbh = $this->dbh;
-		$ret = array();
+     *
+     * @param string $table The table to query
+     * @param string $parent_field The field containing the id of the parent entry
+     * @param int $this_id The id of the child element
+     */
+    public function getHeiarchyDownGrp(\Netric\EntityDefinition\Field $field, $this_id)
+    {
+        $dbh = $this->dbh;
+        $ret = array();
         
         // If not heiarchy then just return this
         if (!isset($field->fkeyTable["parent"]) || !$field->fkeyTable["parent"])
             return array($this_id);
-        
+
         $sql = "WITH RECURSIVE children AS
                 (
                     -- non-recursive term
@@ -1286,14 +1153,13 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 SELECT id
                 FROM children";
         $result = $dbh->query($sql);
-        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++)
-        {
+        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++) {
             $ret[] = $dbh->getValue($result, $i, "id");
         }
-        
-		return $ret;
-	}
-    
+
+        return $ret;
+    }
+
     /**
      * Set aggregation data
      * 
@@ -1305,35 +1171,34 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function queryAggregation(\Netric\EntityQuery\Aggregation\AggregationInterface $agg, EntityQuery\Results &$res, $objectTable, $conditionQuery)
     {
         $data = null;
-        
-        switch ($agg->getTypeName())
-        {
-        case 'terms':
-            $data = $this->queryAggTerms($agg, $objectTable, $conditionQuery);
-            break;
-        case 'sum':
-            $data = $this->queryAggSum($agg, $objectTable, $conditionQuery);
-            break;
-        case 'avg':
-            $data = $this->queryAggAvg($agg, $objectTable, $conditionQuery);
-            break;
-        case 'min':
-            $data = $this->queryAggMin($agg, $objectTable, $conditionQuery);
-            break;
-        case 'stats':
-            $data = $this->queryAggStats($agg, $objectTable, $conditionQuery);
-            if ($data)
-                $data['count'] = $res->getTotalNum ();
-            break;
-        case 'count':
-            $data = $res->getTotalNum();
-            break;
+
+        switch ($agg->getTypeName()) {
+            case 'terms':
+                $data = $this->queryAggTerms($agg, $objectTable, $conditionQuery);
+                break;
+            case 'sum':
+                $data = $this->queryAggSum($agg, $objectTable, $conditionQuery);
+                break;
+            case 'avg':
+                $data = $this->queryAggAvg($agg, $objectTable, $conditionQuery);
+                break;
+            case 'min':
+                $data = $this->queryAggMin($agg, $objectTable, $conditionQuery);
+                break;
+            case 'stats':
+                $data = $this->queryAggStats($agg, $objectTable, $conditionQuery);
+                if ($data)
+                    $data['count'] = $res->getTotalNum();
+                break;
+            case 'count':
+                $data = $res->getTotalNum();
+                break;
         }
-        
+
         if ($data)
             $res->setAggregation($agg->getName(), $data);
     }
-    
+
     /**
      * Set terms aggregation - basically a select distinct
      * 
@@ -1344,20 +1209,19 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function queryAggTerms(\Netric\EntityQuery\Aggregation\AggregationInterface $agg, $objectTable, $conditionQuery)
     {
         $fieldName = $agg->getField();
-        
+
         if (!$fieldName)
             return false;
-        
+
         $retData = array();
-        
+
         $query = "select distinct($fieldName), count($fieldName) as cnt from " . $objectTable . " where id is not null ";
         if ($conditionQuery)
             $query .= " and ($conditionQuery) ";
         $query .= " GROUP BY $fieldName";
         $result = $this->dbh->query($query);
         $num = $this->dbh->getNumRows($result);
-        for ($j = 0; $j < $num; $j++)
-        {
+        for ($j = 0; $j < $num; $j++) {
             $row = $this->dbh->getRow($result, $j);
 
             $retData[] = array(
@@ -1365,10 +1229,10 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 "term" => $row[$fieldName],
             );
         }
-        
+
         return $retData;
     }
-    
+
     /**
      * Set sum aggregation
      * 
@@ -1379,20 +1243,20 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function queryAggSum(\Netric\EntityQuery\Aggregation\AggregationInterface $agg, $objectTable, $conditionQuery)
     {
         $fieldName = $agg->getField();
-        
+
         if (!$fieldName)
             return false;
-        
+
         $query = "select sum($fieldName) as amount from " . $objectTable . " where id is not null ";
         if ($conditionQuery)
             $query .= " and ($conditionQuery) ";
         $result = $this->dbh->query($query);
         if ($this->dbh->getNumRows($result))
             return $this->dbh->getValue($result, 0, "amount");
-        
+
         return false;
     }
-    
+
     /**
      * Set sum aggregation
      * 
@@ -1403,20 +1267,20 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function queryAggAvg(\Netric\EntityQuery\Aggregation\AggregationInterface $agg, $objectTable, $conditionQuery)
     {
         $fieldName = $agg->getField();
-        
+
         if (!$fieldName)
             return false;
-        
+
         $query = "select avg($fieldName) as amount from " . $objectTable . " where id is not null ";
         if ($conditionQuery)
             $query .= " and ($conditionQuery) ";
         $result = $this->dbh->query($query);
         if ($this->dbh->getNumRows($result))
             return $this->dbh->getValue($result, 0, "amount");
-        
+
         return false;
     }
-    
+
     /**
      * Set sum aggregation
      * 
@@ -1427,20 +1291,20 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function queryAggMin(\Netric\EntityQuery\Aggregation\AggregationInterface $agg, $objectTable, $conditionQuery)
     {
         $fieldName = $agg->getField();
-        
+
         if (!$fieldName)
             return false;
-        
+
         $query = "select min($fieldName) as amount from " . $objectTable . " where id is not null ";
         if ($conditionQuery)
             $query .= " and ($conditionQuery) ";
         $result = $this->dbh->query($query);
         if ($this->dbh->getNumRows($result))
             return $this->dbh->getValue($result, 0, "amount");
-        
+
         return false;
     }
-    
+
     /**
      * Set sum aggregation
      * 
@@ -1451,22 +1315,21 @@ class Pgsql extends IndexAbstract implements IndexInterface
     private function queryAggStats(\Netric\EntityQuery\Aggregation\AggregationInterface $agg, $objectTable, $conditionQuery)
     {
         $fieldName = $agg->getField();
-        
+
         if (!$fieldName)
             return false;
-        
+
         $query = "select "
-                . "min($fieldName) as mi, "
-                . "max($fieldName) as ma, "
-                . "avg($fieldName) as av, "
-                . "sum($fieldName) as su "
-                . "FROM " . $objectTable . " where id is not null ";
+            . "min($fieldName) as mi, "
+            . "max($fieldName) as ma, "
+            . "avg($fieldName) as av, "
+            . "sum($fieldName) as su "
+            . "FROM " . $objectTable . " where id is not null ";
         if ($conditionQuery)
             $query .= " and ($conditionQuery) ";
-        
+
         $result = $this->dbh->query($query);
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             return array(
                 "min" => $this->dbh->getValue($result, 0, "mi"),
                 "max" => $this->dbh->getValue($result, 0, "ma"),
@@ -1474,9 +1337,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 "sum" => $this->dbh->getValue($result, 0, "su"),
                 "count" => "" // set in calling class
             );
-            
+
         }
-        
+
         return false;
     }
 }

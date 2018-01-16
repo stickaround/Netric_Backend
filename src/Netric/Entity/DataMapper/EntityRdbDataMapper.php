@@ -601,7 +601,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
 
             // Set fval cache so we do not have to do crazy joins across tables
-            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" || $fdef->type == "object" || $fdef->type == "object_multi") {
+            if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" ||
+                $fdef->type == "object" || $fdef->type == "object_multi") {
+                // Get the value names (if set) and save
                 $fvals = $entity->getValueNames($fname);
                 if (!is_array($fvals)) {
                     $fvals = [];
