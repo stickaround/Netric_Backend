@@ -1,7 +1,9 @@
 <?php
 
+use Netric\EntityDefinitions\Field;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 
 $account = $this->getAccount();
@@ -15,6 +17,8 @@ $groupingTables = array(
     array("table" => "ic_groups", "refObjType" => "infocenter_document", "refFieldName" => "groups"),
     array("table" => "product_categories", "refObjType" => "product", "refFieldName" => "categories"),
     array("table" => "user_groups", "refObjType" => "user", "refFieldName" => "groups"),
+    array("table" => "contacts_personal_labels", "refObjType" => "contact_personal", "refFieldName" => "groups"),
+    array("table" => "user_notes_categories", "refObjType" => "note", "refFieldName" => "groups"),
 
     array("table" => "customer_labels", "refObjType" => "customer", "refFieldName" => "groups"),
     array("table" => "customer_stages", "refObjType" => "customer", "refFieldName" => "stage_id"),
@@ -57,7 +61,7 @@ foreach ($groupingTables as $details) {
     $fieldName = $details["refFieldName"];
 
     // Get the entity defintion based on the current $objType we are dealing with
-    $def = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($objType);
+    $def = $serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
     // Get the field details based on the current $fieldName
     $field = $def->getField($fieldName);
@@ -82,16 +86,21 @@ foreach ($groupingTables as $details) {
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
 
-        $filters = [];
+        // Create a new groupings where we will add the old group row into the object_groupings
+        $newGroupings = new EntityGroupings($objType, $fieldName);
 
         // If we are dealing with private definition, then we need to build the filters so we can get the groupings
         if ($def->isPrivate) {
+            $filters = [];
             foreach ($field->fkeyTable['filter'] as $key => $filterField) {
                 $filters[$key] = $row[$filterField];
             }
 
+            // We need to set the filters again in case there were new filters created
+            $newGroupings->setFilters($filters);
+
             // Create a grouping hash key so we can just reuse the groupings if we have the same filters
-            $groupingHash = "$objType, $fieldName " . json_encode($filters);
+            $groupingHash = "$objType, $fieldName " . $newGroupings->getFiltersHash($filters);
 
             // If cache key does not exist yet, then we will cache the groupings so we can access it later
             if (!isset($privateDefGroupingsCache[$groupingHash])) {
@@ -107,8 +116,6 @@ foreach ($groupingTables as $details) {
             continue;
         }
 
-        // Create a new groupings where we will add the old group row into the object_groupings
-        $newGroupings = new EntityGroupings($objType, $fieldName, $filters);
         $groupName = $row[$field->fkeyTable['title']];
 
         // If grouping is already in the object_groupings table, then we need to skip this group and proceed with the next group
@@ -139,8 +146,8 @@ foreach ($groupingTables as $details) {
         // Get the key (usually id field) from the $row as we need it to update the referenced entities
         $oldFkeyId = $row[$field->fkeyTable['key']];
 
-        // If we are dealing with fkey_multi field, then we need to replace the referenced field values
-        if ($field->type === "fkey_multi") {
+        // If we are dealing with fkey_multi field, then we need to replace the referenced field values which are stored as JSON encoded text.
+        if ($field->type === $field::TYPE_GROUPING_MULTI) {
             $updateQuery = "UPDATE {$def->object_table}
                                 SET {$fieldName} = REPLACE({$fieldName}, '\"$oldFkeyId\"', '\"{$group->id}\"'),
                                     {$fieldName}_fval = REPLACE({$fieldName}_fval, '\"$oldFkeyId\"', '\"{$group->id}\"')";
@@ -150,7 +157,7 @@ foreach ($groupingTables as $details) {
         } else {
             $updateData = [];
             $updateData[$fieldName] = $group->id;
-            $updateData[$fieldName . "_fval"] = "{\"$group->id\":\"{$group->name}\"}";
+            $updateData[$fieldName . "_fval"] = json_encode(array($group->id => $group->name));
 
             // Update the table reference
             $db->update($def->object_table, $updateData, [$fieldName => $oldFkeyId]);

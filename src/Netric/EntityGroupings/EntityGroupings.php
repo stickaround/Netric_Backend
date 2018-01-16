@@ -67,6 +67,16 @@ class EntityGroupings
     }
 
     /**
+     * Function that will allow to set the filters after constructing EntityGroupings in case we need to create the Entity Groupings without filters
+     *
+     * @param EntityGroupingDataMapperInterface $dm
+     */
+    public function setFilters($filters = array())
+    {
+        $this->filters = $filters;
+    }
+
+    /**
      * Set datammapper for groups
      * 
      * @param EntityGroupingDataMapperInterface $dm
