@@ -1,189 +1,159 @@
 <?php
 
+use Netric\EntityGroupings\EntityGroupings;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
+
 $account = $this->getAccount();
 $log = $account->getApplication()->getLog();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Relational/RelationalDb");
-$dm = $serviceManager->get('Netric/EntityGroupings/DataMapper/EntityGroupingDataMapper');
+$db = $serviceManager->get(RelationalDbFactory::class);
+$dm = $serviceManager->get(EntityGroupingDataMapperFactory::class);
 
 $groupingTables = array(
-    "activity_types" => array("refObjType" => "activity", "refFieldName" => "type_id"),
-    "ic_groups" => array("refObjType" => "infocenter_document", "refFieldName" => "groups"),
-    "product_categories" => array("refObjType" => "product", "refFieldName" => "categories"),
-    "user_groups" => array("refObjType" => "user", "refFieldName" => "groups"),
+    array("table" => "activity_types", "refObjType" => "activity", "refFieldName" => "type_id"),
+    array("table" => "ic_groups", "refObjType" => "infocenter_document", "refFieldName" => "groups"),
+    array("table" => "product_categories", "refObjType" => "product", "refFieldName" => "categories"),
+    array("table" => "user_groups", "refObjType" => "user", "refFieldName" => "groups"),
 
-    "customer_labels" => array("refObjType" => "customer", "refFieldName" => "groups"),
-    "customer_stages" => array("refObjType" => "customer", "refFieldName" => "stage_id"),
-    "customer_status" => array("refObjType" => "customer", "refFieldName" => "status_id"),
+    array("table" => "customer_labels", "refObjType" => "customer", "refFieldName" => "groups"),
+    array("table" => "customer_stages", "refObjType" => "customer", "refFieldName" => "stage_id"),
+    array("table" => "customer_status", "refObjType" => "customer", "refFieldName" => "status_id"),
 
-    "customer_lead_classes" => array("refObjType" => "lead", "refFieldName" => "class_id"),
-    "customer_lead_queues" => array("refObjType" => "lead", "refFieldName" => "queue_id"),
-    "customer_lead_rating" => array("refObjType" => "lead", "refFieldName" => "rating_id"),
-    "customer_lead_sources" => array("refObjType" => "lead", "refFieldName" => "source_id"),
-    "customer_lead_status" => array("refObjType" => "lead", "refFieldName" => "status_id"),
+    array("table" => "customer_lead_classes", "refObjType" => "lead", "refFieldName" => "class_id"),
+    array("table" => "customer_lead_queues", "refObjType" => "lead", "refFieldName" => "queue_id"),
+    array("table" => "customer_lead_rating", "refObjType" => "lead", "refFieldName" => "rating_id"),
+    array("table" => "customer_lead_sources", "refObjType" => "lead", "refFieldName" => "source_id"),
+    array("table" => "customer_lead_status", "refObjType" => "lead", "refFieldName" => "status_id"),
 
-    "customer_objections" => array("refObjType" => "opportunity", "refFieldName" => "objection_id"),
-    "customer_opportunity_stages" => array("refObjType" => "opportunity", "refFieldName" => "stage_id"),
-    "customer_opportunity_types" => array("refObjType" => "opportunity", "refFieldName" => "type_id"),
-    "customer_lead_sources-opportunity" => array("refObjType" => "opportunity", "refFieldName" => "lead_source_id"),
+    array("table" => "customer_objections", "refObjType" => "opportunity", "refFieldName" => "objection_id"),
+    array("table" => "customer_opportunity_stages", "refObjType" => "opportunity", "refFieldName" => "stage_id"),
+    array("table" => "customer_opportunity_types", "refObjType" => "opportunity", "refFieldName" => "type_id"),
+    array("table" => "customer_lead_sources", "refObjType" => "opportunity", "refFieldName" => "lead_source_id"),
 
-    "customer_invoice_status" => array("refObjType" => "invoice", "refFieldName" => "status_id"),
+    array("table" => "customer_invoice_status", "refObjType" => "invoice", "refFieldName" => "status_id"),
 
-    "project_bug_severity" => array("refObjType" => "case", "refFieldName" => "severity_id"),
-    "project_bug_status" => array("refObjType" => "case", "refFieldName" => "status_id"),
-    "project_bug_types" => array("refObjType" => "case", "refFieldName" => "type_id"),
+    array("table" => "project_bug_severity", "refObjType" => "case", "refFieldName" => "severity_id"),
+    array("table" => "project_bug_status", "refObjType" => "case", "refFieldName" => "status_id"),
+    array("table" => "project_bug_types", "refObjType" => "case", "refFieldName" => "type_id"),
 
-    "xml_feed_groups" => array("refObjType" => "content_feed", "refFieldName" => "groups"),
-    "xml_feed_post_categories" => array("refObjType" => "content_feed_post", "refFieldName" => "categories"),
+    array("table" => "xml_feed_groups", "refObjType" => "content_feed", "refFieldName" => "groups"),
+    array("table" => "xml_feed_post_categories", "refObjType" => "content_feed_post", "refFieldName" => "categories"),
 
-    "project_priorities" => array("refObjType" => "project", "refFieldName" => "priority"),
-    "project_groups" => array("refObjType" => "project", "refFieldName" => "groups"),
+    array("table" => "project_priorities", "refObjType" => "project", "refFieldName" => "priority"),
+    array("table" => "project_groups", "refObjType" => "project", "refFieldName" => "groups"),
 
-    "project_priorities-task" => array("refObjType" => "task", "refFieldName" => "priority"),
+    array("table" => "project_priorities", "refObjType" => "task", "refFieldName" => "priority"),
 );
 
-$index = $serviceManager->get("EntityQuery_Index");
-$query = new \Netric\EntityQuery("user");
-
-// Execute the query
-$res = $index->executeQuery($query);
-
-for ($i = 0; $i < $res->getNum(); $i++) {
-    $ent = $res->getEntity($i);
-
-    $groupingTables["contacts_personal_labels" . $ent->getId()] = array(
-        "refObjType" => "contact_personal",
-        "refFieldName" => "groups",
-        "filters" => array(
-            "user_id" => $ent->getId()
-        ));
-
-    $groupingTables["user_notes_categories" . $ent->getId()] = array(
-        "refObjType" => "note",
-        "refFieldName" => "groups",
-        "filters" => array(
-            "user_id" => $ent->getId()
-        ));
-}
+// This will be used to cache the groupings if we are dealing with private entity definitions
+$privateDefGroupingsCache = [];
 
 // Loop thru the grouping tables
-foreach ($groupingTables as $table => $details) {
+foreach ($groupingTables as $details) {
 
-    $def = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($details["refObjType"]);
+    $table = $details["table"];
+    $objType = $details["refObjType"];
+    $fieldName = $details["refFieldName"];
 
-    // Get the field details
-    $field = $def->getField($details["refFieldName"]);
+    // Get the entity defintion based on the current $objType we are dealing with
+    $def = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($objType);
 
-    // If the fkey field is already object_groupings then we dont need to migrate its data.
-    if ($field->subtype === "object_groupings") {
+    // Get the field details based on the current $fieldName
+    $field = $def->getField($fieldName);
+
+    /*
+     * If the fkey object table is not existing, then there is no need to continue
+     * Since the purpose of this update script is to copy the old data from fkey object table to object_groupings
+     */
+    if ($db->tableExists($table) === false) {
         continue;
     }
 
-    try {
-        if (isset($details["filters"])) {
-            $groupings = $dm->getGroupings($def->getObjType(), $field->name, $details["filters"]);
-        } else {
-            $groupings = $dm->getGroupings($def->getObjType(), $field->name);
-        }
-    } catch (Exception $e) {
-        $log->error("Update 004.001.015 failed to move fkey object table. " . $e->getMessage());
-        continue;
+    // Query the group data from the old fkey table
+    $sql = "SELECT * from $table";
+    $result = $db->query($sql);
+
+    // If entity definition is not private, then we can get the groupings without specifying a filter
+    if (!$def->isPrivate) {
+        $groupings = $dm->getGroupings($objType, $fieldName);
     }
 
-    foreach ($groupings->getAll() as $grp) {
-        $tableData = [];
-        $tableData['object_type_id'] = $def->getId();
-        $tableData['field_id'] = $field->id;
+    // Loop thru each entry in the old fkey object table
+    foreach ($result->fetchAll() as $row) {
 
-        if ($grp->name && $field->fkeyTable['title']) {
-            $tableData[$field->fkeyTable['title']] = $grp->name;
-        }
+        $filters = [];
 
-        if ($grp->color) {
-            $tableData['color'] = $grp->color;
-        }
-
-        if ($grp->isSystem) {
-            $tableData['f_system'] = $grp->isSystem;
-        }
-
-        if ($grp->sortOrder) {
-            $tableData['sort_order'] = $grp->sortOrder;
-        }
-
-        if ($grp->parentId && isset($field->fkeyTable['parent'])) {
-            $tableData[$field->fkeyTable['parent']] = $grp->parentId;
-        }
-
-        if ($grp->commitId) {
-            $tableData['commit_id'] = $grp->commitId;
-        }
-
-        if ($grp->commitId) {
-            $tableData['commit_id'] = $grp->commitId;
-        }
-
-        $data = $grp->toArray();
-        foreach ($data["filter_fields"] as $name => $value) {
-            // Make sure that the column name does not exists yet
-            if (array_key_exists($name, $tableData)) {
-                continue;
-            }
-
-            if ($value && $db->columnExists("object_groupings", $name)) {
-                $tableData[$name] = $value;
-            }
-        }
-
-        // Create where conditions to check if group data already in object_groupings table
-        $whereConditionValues = array(
-            "name" => $grp->name,
-            "object_type_id" => $def->id,
-            "field_id" => $field->id
-        );
-
-        $whereConditions = array(
-            "name = :name",
-            "object_type_id = :object_type_id",
-            "field_id = :field_id"
-        );
-
-        // If definition is private, then we need to setup the filters
+        // If we are dealing with private definition, then we need to build the filters so we can get the groupings
         if ($def->isPrivate) {
-            foreach ($details["filters"] as $filter => $value) {
-                $whereConditionValues[$filter] = $value;
-                $whereConditions[] = "$filter = :$filter";
+            foreach ($field->fkeyTable['filter'] as $key => $filterField) {
+                $filters[$key] = $row[$filterField];
             }
+
+            // Create a grouping hash key so we can just reuse the groupings if we have the same filters
+            $groupingHash = "$objType, $fieldName " . json_encode($filters);
+
+            // If cache key does not exist yet, then we will cache the groupings so we can access it later
+            if (!isset($privateDefGroupingsCache[$groupingHash])) {
+                $privateDefGroupingsCache[$groupingHash] = $dm->getGroupings($objType, $fieldName, $filters);
+            }
+
+            $groupings = $privateDefGroupingsCache[$groupingHash];
         }
 
-        $sql = "SELECT * from object_groupings WHERE " . implode(" and ", $whereConditions);
-        $result = $db->query($sql, $whereConditionValues);
-
-        // Group data already in the object_groupings table, we will just update the record and get the group id
-        if ($result->rowCount() === 1) {
-            $groupId = $result->fetch()['id'];
-            $db->update("object_groupings", $tableData, ['id' => $groupId]);
-        } else {
-
-            // Insert a new record of group data in object_groupings table
-            $groupId = $db->insert("object_groupings", $tableData);
+        // We cannot continue if we do not have a groupings set, so we will log it and continue with the next fkey table
+        if (!$groupings) {
+            $log->error("Update 004.001.015 no groupings specificed objType: $objType. fieldName: $fieldName");
+            continue;
         }
+
+        // Create a new groupings where we will add the old group row into the object_groupings
+        $newGroupings = new EntityGroupings($objType, $fieldName, $filters);
+        $groupName = $row[$field->fkeyTable['title']];
+
+        // If grouping is already in the object_groupings table, then we need to skip this group and proceed with the next group
+        if ($groupings->getByName($groupName)) {
+            continue;
+        }
+
+        // Create a new group under the newGroupings
+        $group = $newGroupings->create($groupName);
+        $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
+        if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
+            $group->parentId = $row[$field->fkeyTable['parent']];
+        $group->color = (isset($row['color'])) ? $row['color'] : "";
+        if (isset($row['sort_order']))
+            $group->sortOrder = $row['sort_order'];
+        $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
+        $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
+
+        // Add all additional fields which are usually used for filters
+        foreach ($row as $pname => $pval) {
+            if ($pname != $field->fkeyTable['key'] && !$group->getValue($pname))
+                $group->setValue($pname, $pval);
+        }
+
+        $newGroupings->add($group);
+        $dm->saveGroupings($newGroupings);
+
+        // Get the key (usually id field) from the $row as we need it to update the referenced entities
+        $oldFkeyId = $row[$field->fkeyTable['key']];
 
         // If we are dealing with fkey_multi field, then we need to replace the referenced field values
         if ($field->type === "fkey_multi") {
             $updateQuery = "UPDATE {$def->object_table}
-                                SET {$groupings->getFieldName()} = REPLACE({$groupings->getFieldName()}, '\"{$grp->id}\"', '\"$groupId\"'),
-                                    {$groupings->getFieldName()}_fval = REPLACE({$groupings->getFieldName()}_fval, '\"{$grp->id}\"', '\"$groupId\"')";
+                                SET {$fieldName} = REPLACE({$fieldName}, '\"$oldFkeyId\"', '\"{$group->id}\"'),
+                                    {$fieldName}_fval = REPLACE({$fieldName}_fval, '\"$oldFkeyId\"', '\"{$group->id}\"')";
 
             // Update the table reference
             $db->query($updateQuery);
         } else {
             $updateData = [];
-            $updateData[$groupings->getFieldName()] = $groupId;
-            $updateData[$groupings->getFieldName() . "_fval"] = "{\"$groupId\":\"{$grp->name}\"}";
+            $updateData[$fieldName] = $group->id;
+            $updateData[$fieldName . "_fval"] = "{\"$group->id\":\"{$group->name}\"}";
 
             // Update the table reference
-            $db->update($def->object_table, $updateData, [$groupings->getFieldName() => $grp->id]);
+            $db->update($def->object_table, $updateData, [$fieldName => $oldFkeyId]);
         }
     }
 }
