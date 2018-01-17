@@ -148,9 +148,9 @@ return array(
         'groups' => array(
             'title'=>'Groups',
             'type'=>'fkey_multi',
-            'subtype'=>'user_groups',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "ref_table"=>array(
-                "table"=>"user_group_mem",
+                "table"=>"object_grouping_mem",
                 "this"=>"user_id",
                 "ref"=>"group_id"
             ))

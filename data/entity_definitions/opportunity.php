@@ -92,7 +92,7 @@ return array(
         'stage_id' => array(
             'title'=>'Stage',
             'type'=>'fkey',
-            'subtype'=>'customer_opportunity_stages',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
 
@@ -112,19 +112,19 @@ return array(
         'lead_source_id' => array(
             'title'=>'Source',
             'type'=>'fkey',
-            'subtype'=>'customer_lead_sources',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'type_id' => array(
             'title'=>'Type',
             'type'=>'fkey',
-            'subtype'=>'customer_opportunity_types',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'objection_id' => array(
             'title'=>'Objection',
             'type'=>'fkey',
-            'subtype'=>'customer_objections',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'selling_point_id' => array(

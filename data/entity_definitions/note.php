@@ -40,7 +40,7 @@ return array(
         'groups' => array(
             'title'=>'Groups',
             'type'=>'fkey_multi',
-            'subtype'=>'user_notes_categories',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
                 "title"=>"name",
@@ -49,7 +49,7 @@ return array(
                     "user_id"=>"user_id"
                 ),
                 "ref_table"=>array(
-                    "table"=>"user_notes_cat_mem",
+                    "table"=>"object_grouping_mem",
                     "this"=>"note_id",
                     "ref"=>"category_id"
                 ),

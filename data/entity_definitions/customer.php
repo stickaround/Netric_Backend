@@ -339,7 +339,7 @@ return array(
         'status_id' => array(
             'title'=>'Status',
             'type'=>'fkey',
-            'subtype'=>'customer_status',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'primary_contact' => array(
@@ -355,7 +355,7 @@ return array(
         'stage_id' => array(
             'title'=>'Stage',
             'type'=>'fkey',
-            'subtype'=>'customer_stages',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'email_default' => array(
@@ -403,10 +403,10 @@ return array(
         'groups' => array(
             'title'=>'Groups',
             'type'=>'fkey_multi',
-            'subtype'=>'customer_labels',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
-                    "table"=>"customer_label_mem",
+                    "table"=>"object_grouping_mem",
                     "this"=>"customer_id",
                     "ref"=>"label_id"
                 ),

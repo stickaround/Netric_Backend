@@ -15,22 +15,6 @@ namespace data\schema;
 use Netric\Application\Schema\SchemaProperty;
 
 return array(
-    /**
-     * Activity types are groupings used to track types
-     */
-    "activity_types" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_256),
-            'obj_type' => array('type' => SchemaProperty::TYPE_CHAR_256),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("obj_type")),
-        )
-    ),
-
     "app_object_field_defaults" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -749,46 +733,6 @@ return array(
         )
     ),
 
-    "customer_invoice_status" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT),
-            'f_paid' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_labels" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_64),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'f_special' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("parent_id")),
-        )
-    ),
-
-    "customer_label_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'customer_id' => array('type' => SchemaProperty::TYPE_INT),
-            'label_id' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("customer_id")),
-            array('properties' => array("label_id")),
-        )
-    ),
-
     "customer_leads" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -836,82 +780,6 @@ return array(
         )
     ),
 
-    "customer_lead_status" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'f_converted' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_lead_sources" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_lead_rating" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_lead_classes" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_lead_queues" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'dacl_edit' => array('type' => SchemaProperty::TYPE_INT),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_objections" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'description' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
     "customer_opportunities" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -950,32 +818,6 @@ return array(
         )
     ),
 
-    "customer_opportunity_stages" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'f_won' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_opportunity_types" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
     "customer_publish" => array(
         "PROPERTIES" => array(
             'customer_id' => array('type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true),
@@ -992,31 +834,6 @@ return array(
             array('properties' => array("username")),
             array('properties' => array("password")),
         )
-    ),
-
-    "customer_stages" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "customer_status" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
     ),
 
     "customers" => array(
@@ -1323,34 +1140,6 @@ return array(
             array('properties' => array("favorite_category", "favorites_categories", "id")),
         )
     ),
-
-    "ic_groups" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("parent_id")),
-        )
-    ),
-
-    "ic_document_group_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'document_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-            'group_id' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("document_id", "ic_documents", "id")),
-            array('properties' => array("group_id", "ic_groups", "id")),
-        )
-    ),
-
 
     "ic_documents" => array(
         "PROPERTIES" => array(
@@ -1685,31 +1474,6 @@ return array(
         "INDEXES" => array(),
     ),
 
-    "product_categories" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "product_categories_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'product_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-            'category_id' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("product_id", "products", "id")),
-            array('properties' => array("category_id", "product_categories", "id")),
-        )
-    ),
-
     "product_families" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -1779,46 +1543,6 @@ return array(
         )
     ),
 
-    /**
-     * The project_bug* tables are where cases are stored for legacy reasons
-     */
-    "project_bug_severity" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "project_bug_status" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "project_bug_types" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
     "project_bugs" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -1850,12 +1574,12 @@ return array(
             ),
             array(
                 "property"=>'status_id',
-                'references_bucket'=>'project_bug_status',
+                'references_bucket'=>'object_groupings',
                 'references_property'=>'id',
             ),
             array(
                 "property"=>'severity_id',
-                'references_bucket'=>'project_bug_severity',
+                'references_bucket'=>'object_groupings',
                 'references_property'=>'id',
             ),
             array(
@@ -1865,7 +1589,7 @@ return array(
             ),
             array(
                 "property"=>'type_id',
-                'references_bucket'=>'project_bug_types',
+                'references_bucket'=>'object_groupings',
                 'references_property'=>'id',
             ),
             array(
@@ -1876,18 +1600,6 @@ return array(
         ),
         "INDEXES" => array(
         )
-    ),
-
-    "project_priorities" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
     ),
 
     "project_templates" => array(
@@ -2029,7 +1741,7 @@ return array(
             ),
             array(
                 "property"=>'priority',
-                'references_bucket'=>'project_priorities',
+                'references_bucket'=>'object_groupings',
                 'references_property'=>'id',
             ),
             array(
@@ -2067,32 +1779,6 @@ return array(
             array('properties' => array("project_id", "projects", "id")),
             array('properties' => array("bug_id", "project_bugs", "id")),
             array('properties' => array("task_id", "project_tasks", "id")),
-        )
-    ),
-
-    "project_groups" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array()
-    ),
-
-    "project_group_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'project_id' => array('type' => SchemaProperty::TYPE_BIGINT, 'notnull' => true),
-            'group_id' => array('type' => SchemaProperty::TYPE_INT, 'notnull' => true),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("project_id", "projects", "id")),
-            array('properties' => array("group_id", "project_groups", "id")),
         )
     ),
 
@@ -2586,33 +2272,6 @@ return array(
         )
     ),
 
-    "user_groups" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_INT, 'subtype' => '', 'default' => 'auto_increment'),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_512, 'notnull' => true),
-            'f_system' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'f_admin' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("name")),
-        )
-    ),
-
-    "user_group_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'user_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-            'group_id' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("user_id", "users", "id")),
-            array('properties' => array("group_id", "user_groups", "id")),
-        )
-    ),
-
     "user_notes" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
@@ -2890,33 +2549,6 @@ return array(
         )
     ),
 
-    "xml_feed_groups" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("parent_id")),
-        )
-    ),
-
-    "xml_feed_group_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'feed_id' => array('type' => SchemaProperty::TYPE_INT),
-            'group_id' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("feed_id")),
-            array('properties' => array("group_id")),
-        )
-    ),
-
     "xml_feed_publish" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'),
@@ -2960,38 +2592,6 @@ return array(
             ),
         ),
         "INDEXES" => array(
-        )
-    ),
-
-    "xml_feed_post_categories" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_INT, 'default' => 'auto_increment'),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_128, 'notnull' => true),
-            'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-            'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
-            'feed_id' => array('type' => SchemaProperty::TYPE_INT),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("feed_id", "xml_feeds", "id")),
-        ),
-        "INDEXES" => array(
-            array('properties' => array("parent_id")),
-        )
-    ),
-
-    "xml_feed_post_cat_mem" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
-            'post_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-            'category_id' => array('type' => SchemaProperty::TYPE_INT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "KEYS" => array(
-            array('properties' => array("post_id", "xml_feed_posts", "id")),
-            array('properties' => array("category_id", "xml_feed_post_categories", "id")),
         )
     ),
 

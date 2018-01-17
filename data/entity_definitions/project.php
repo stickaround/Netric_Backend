@@ -53,7 +53,7 @@ return array(
         'priority' => array(
             'title' => 'Priority',
             'type' => 'fkey',
-            'subtype' => 'project_priorities',
+            'subtype' => 'object_groupings',
             'fkey_table' => array("key" => "id", "title" => "name")
         ),
         'user_id' => array(
@@ -69,10 +69,10 @@ return array(
         'groups' => array(
             'title' => 'Groups',
             'type' => 'fkey_multi',
-            'subtype' => 'project_groups',
+            'subtype' => 'object_groupings',
             'fkey_table' => array("key" => "id", "title" => "name", "parent" => "parent_id",
                 "ref_table" => array(
-                    "table" => "project_group_mem",
+                    "table" => "object_grouping_mem",
                     "this" => "project_id",
                     "ref" => "group_id"
                 ),
