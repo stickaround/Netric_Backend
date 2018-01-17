@@ -121,7 +121,7 @@ return array(
         'type_id' => array(
             'title'=>'Type',
             'type'=>'fkey',
-            'subtype'=>'activity_types',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
                 "title"=>"name"

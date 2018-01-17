@@ -76,7 +76,7 @@ return array(
         'priority' => array(
             'title'=>'Priority',
             'type'=>'fkey',
-            'subtype'=>'project_priorities',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'project' => array(

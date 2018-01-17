@@ -49,10 +49,10 @@ return array(
         'groups' => array(
             'title'=>'Groups',
             'type'=>'fkey_multi',
-            'subtype'=>'ic_groups',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
-                    "table"=>"ic_document_group_mem",
+                    "table"=>"object_grouping_mem",
                     "this"=>"document_id",
                     "ref"=>"group_id"
                 ),

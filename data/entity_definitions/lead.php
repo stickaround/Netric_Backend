@@ -150,7 +150,7 @@ return array(
         'queue_id' => array(
             'title'=>'Queue',
             'type'=>'fkey',
-            'subtype'=>'customer_lead_queues',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'owner_id' => array(
@@ -162,25 +162,25 @@ return array(
         'source_id' => array(
             'title'=>'Source',
             'type'=>'fkey',
-            'subtype'=>'customer_lead_sources',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'rating_id' => array(
             'title'=>'Rating',
             'type'=>'fkey',
-            'subtype'=>'customer_lead_rating',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'status_id' => array(
             'title'=>'Status',
             'type'=>'fkey',
-            'subtype'=>'customer_lead_status',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'class_id' => array(
             'title'=>'Class',
             'type'=>'fkey',
-            'subtype'=>'customer_lead_classes',
+            'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'converted_opportunity_id' => array(
