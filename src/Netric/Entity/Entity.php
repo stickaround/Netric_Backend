@@ -249,7 +249,7 @@ class Entity implements EntityInterface
             if (is_array($valueName)) {
                 $this->fkeysValues[$strName] = $valueName;
             } else if (is_string($value) || is_numeric($value)) {
-                $this->fkeysValues[$strName] = array($value => $valueName);
+                $this->fkeysValues[$strName] = array((string)$value => $valueName);
             } else {
                 throw new \InvalidArgumentException(
                     "Invalid value name for object or fkey: " .
@@ -283,8 +283,10 @@ class Entity implements EntityInterface
         		// The value was already added and they need to be unique
 
         		// Update valueName just in case it has changed
-                if ($valueName)
+                if ($valueName) {
+                    $valueKeyName = (string)$value;
                     $this->fkeysValues[$strName][$value] = $valueName;
+                }
 
         		// Do not add an additional value
                 return;
@@ -295,16 +297,18 @@ class Entity implements EntityInterface
         $this->values[$strName][] = $value;
 
         if ($valueName) {
-            // Make sure we initialize the arrays if not already set
+            $valueKeyName = (string)$value;
+
+            // Make sure we initialize the arrays
             if (!isset($this->fkeysValues[$strName])) {
-                $this->fkeysValues[$strName] = array();
+                $this->fkeysValues[$strName] = [];
             }
 
-            if (!isset($this->fkeysValues[$strName][$value])) {
-                $this->fkeysValues[$strName][$value] = array();
+            if (!isset($this->fkeysValues[$strName][$valueKeyName])) {
+                $this->fkeysValues[$strName][$valueKeyName] = [];
             }
 
-            $this->fkeysValues[$strName][$value] = $valueName;
+            $this->fkeysValues[$strName][$valueKeyName] = $valueName;
         }
 
         // Log changes

@@ -210,13 +210,24 @@ class EntityMaintainerService extends AbstractHasErrors
                 "entities from " . $def->getObjType()
         );
 
+        // List of IDs to delete
+        $toDeleteIds = [];
+
         // Hard delete all the stale entities
         for ($i = 0; $i < $totalNum; $i++) {
             $entity = $result->getEntity($i);
-            $deletedEntities[] = $entity->getId();
-            $this->entityLoader->delete($entity, true);
+            $toDeleteIds[] = $entity->getId();
+        }
 
-            // Log it
+        /*
+         * Now delete queued entities. We cannot do it above in the loop
+         * because we would be modifying the totalNum as we iterated through
+         * it and that is a recipe for desaster.
+         */
+        foreach ($toDeleteIds as $entityId) {
+            $entity = $this->entityLoader->get($def->getObjType(), $entityId);
+            $this->entityLoader->delete($entity, true);
+            $deletedEntities[] = $entity->getId();
             $this->log->info(
                 "EntityMaintainerService->purgeStaleDeletedForType: deleted " . ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
             );
