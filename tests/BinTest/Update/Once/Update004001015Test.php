@@ -44,13 +44,6 @@ class Update004001015Test extends TestCase
     private $testEntities = [];
 
     /**
-     * Groups to clean up
-     *
-     * @var groupId[]
-     */
-    private $testGroups = [];
-
-    /**
      * Groups to clean up inside the object_groupings table
      *
      * @var groupId[]
@@ -101,17 +94,6 @@ class Update004001015Test extends TestCase
         // Clean up the test entities
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
-        }
-
-        // Cleanup the test groupings
-        foreach ($this->testGroups as $objType => $fieldNames) {
-            foreach ($fieldNames as $fieldName => $groups) {
-                foreach ($groups as $groupDetails) {
-                    $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName, $groupDetails["filters"]);
-                    $groupings->delete($groupDetails["groupId"]);
-                    $this->entityGroupingDataMapper->saveGroupings($groupings);
-                }
-            }
         }
 
         // Cleanup the test groupings in object_groupings table
@@ -168,28 +150,21 @@ class Update004001015Test extends TestCase
         $fieldName = "stage_id";
         $objType = "customer";
 
-        // Get the groupings for customer stages
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
-
-        // Add a test group
+        // Add a test group data to the old fkey group table
         $groupName = "Customer $fieldName Group Unit Test";
-        $group = $this->addGroup($groupings, $groupName);
-
-        // Set the newly created test group here so it will be deleted after running the unit test
-        $this->testGroups[$objType][$fieldName][] = ["groupId" => $group->id, "filters" => []];
+        $groupId = $this->db->insert($tableName, ["name" => $groupName]);
 
         // Test the group that was in properly saved
-        $this->assertGreaterThan(0, $group->id);
-        $this->assertEquals($group->name, $groupName);
+        $this->assertGreaterThan(0, $groupId);
 
         // Create new entity and set the new group that was created
         $entity = $this->entityLoader->create($objType);
         $entity->setValue("name", "test");
-        $entity->setValue($fieldName, $group->id, $group->name);
+        $entity->setValue($fieldName, $groupId, $groupName);
         $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
-        // Run the update script that will copy the data from fkey tables to object_groupings
+        // Run the update script that will copy the group data from customer_stages to object_groupings
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
 
@@ -198,10 +173,12 @@ class Update004001015Test extends TestCase
         $entityGroup = $entityLoaded->getValue($fieldName);
         $entityGroupName = $entityLoaded->getValueName($fieldName);
 
-        // Test the entity that the referenced fieldName is being updated with the new group id that was saved in object_groupings
-        $groupInObjectGroupings = $this->getGroupInObjectGroupingsTable($objType, $fieldName, $groupName);
-        $this->assertEquals($entityGroup, $groupInObjectGroupings->id);
-        $this->assertEquals($entityGroupName, $groupName);
+        // Get the object groupings
+        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
+        $group = $groupings->getByName($groupName);
+
+        $this->assertEquals($entityGroup, $group->id);
+        $this->assertEquals($entityGroupName, $group->name);
 
         $this->testObjectGroupings[] = $groupInObjectGroupings->id;
     }
@@ -240,29 +217,22 @@ class Update004001015Test extends TestCase
         $fieldName = "groups";
         $objType = "customer";
 
-        // Get the groupings based on the $objType set
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
-
         // Add a test group
         $groupName1 = "$objType Group Test Unit Test 1";
         $groupName2 = "$objType Group Test Unit Test 2";
-        $group1 = $this->addGroup($groupings, $groupName1);
-        $group2 = $this->addGroup($groupings, $groupName2);
 
-        // Set the newly created test groups here so it will be deleted after running the unit test
-        $this->testGroups[$objType][$fieldName][] = ["groupId" => $group1->id, "filters" => []];
-        $this->testGroups[$objType][$fieldName][] = ["groupId" => $group2->id, "filters" => []];
+        // Add a test group data to the old fkey group table
+        $groupId1 = $this->db->insert($tableName, ["name" => $groupName1]);
+        $groupId2 = $this->db->insert($tableName, ["name" => $groupName2]);
 
         // Test the group that was in properly saved
-        $this->assertGreaterThan(0, $group1->id);
-        $this->assertGreaterThan(0, $group2->id);
-        $this->assertEquals($group1->name, $groupName1);
-        $this->assertEquals($group2->name, $groupName2);
+        $this->assertGreaterThan(0, $groupId1);
+        $this->assertGreaterThan(0, $groupId2);
 
         // Create new entity and set the new group that was created
         $entity = $this->entityLoader->create($objType);
-        $entity->addMultiValue($fieldName, "{$group1->id}", $group1->name);
-        $entity->addMultiValue($fieldName, "{$group2->id}", $group2->name);
+        $entity->addMultiValue($fieldName, "{$groupId1}", $groupName1);
+        $entity->addMultiValue($fieldName, "{$groupId2}", $groupName2);
         $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
@@ -275,14 +245,18 @@ class Update004001015Test extends TestCase
         $entityGroups = $entityLoaded->getValue($fieldName);
         $entityGroupNames = $entityLoaded->getValueNames($fieldName);
 
-        // Test the entity that the referenced fieldName is being updated with the new group id that was saved in object_groupings
-        $groupInObjectGroupings1 = $this->getGroupInObjectGroupingsTable($objType, $fieldName, $groupName1);
-        $groupInObjectGroupings2 = $this->getGroupInObjectGroupingsTable($objType, $fieldName, $groupName2);
-        $this->assertEquals($entityGroupNames[$groupInObjectGroupings1->id], $groupName1);
-        $this->assertEquals($entityGroupNames[$groupInObjectGroupings2->id], $groupName2);
+        // Get the object groupings
+        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
+        $group1 = $groupings->getByName($groupName1);
+        $group2 = $groupings->getByName($groupName2);
 
-        $this->testObjectGroupings[] = $groupInObjectGroupings1->id;
-        $this->testObjectGroupings[] = $groupInObjectGroupings2->id;
+        $this->assertEquals($entityGroups[0], $group1->id);
+        $this->assertEquals($entityGroups[1], $group2->id);
+        $this->assertEquals($entityGroupNames[$group1->id], $group1->name);
+        $this->assertEquals($entityGroupNames[$group2->id], $group2->name);
+
+        $this->testObjectGroupings[] = $group1->id;
+        $this->testObjectGroupings[] = $group2->id;
     }
 
     /**
@@ -300,14 +274,14 @@ class Update004001015Test extends TestCase
                 "$tableName" => array(
                     "PROPERTIES" => array(
                         'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+                        'user_id' => array('type' => SchemaProperty::TYPE_INT),
                         'name' => array('type' => SchemaProperty::TYPE_CHAR_64),
-                        'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-                        'f_special' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
                         'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
-                        'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
+                        'parent_id' => array('type' => SchemaProperty::TYPE_INT),
                     ),
                     'PRIMARY_KEY' => 'id',
                     "INDEXES" => array(
+                        array('properties' => array("user_id")),
                         array('properties' => array("parent_id")),
                     )
                 )
@@ -326,29 +300,22 @@ class Update004001015Test extends TestCase
         $objType = "contact_personal";
         $filters = ["user_id" => $userEntity->getId()];
 
-        // Get the groupings based on the $objType set
-        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName, $filters);
-
         // Add a test group
         $groupName1 = "$objType Group Test Unit Test 1";
         $groupName2 = "$objType Group Test Unit Test 2";
-        $group1 = $this->addGroup($groupings, $groupName1);
-        $group2 = $this->addGroup($groupings, $groupName2);
 
-        // Set the newly created test groups here so it will be deleted after running the unit test
-        $this->testGroups[$objType][$fieldName][] = ["groupId" => $group1->id, "filters" => $filters];
-        $this->testGroups[$objType][$fieldName][] = ["groupId" => $group2->id, "filters" => $filters];
+        // Add a test group data to the old fkey group table
+        $groupId2 = $this->db->insert($tableName, ["name" => $groupName2, "user_id" => $userEntity->getId()]);
+        $groupId1 = $this->db->insert($tableName, ["name" => $groupName1, "user_id" => $userEntity->getId()]);
 
         // Test the group that was in properly saved
-        $this->assertGreaterThan(0, $group1->id);
-        $this->assertGreaterThan(0, $group2->id);
-        $this->assertEquals($group1->name, $groupName1);
-        $this->assertEquals($group2->name, $groupName2);
+        $this->assertGreaterThan(0, $groupId1);
+        $this->assertGreaterThan(0, $groupId2);
 
         // Create new entity and set the new group that was created
         $entity = $this->entityLoader->create($objType);
-        $entity->addMultiValue($fieldName, "{$group1->id}", $group1->name);
-        $entity->addMultiValue($fieldName, "{$group2->id}", $group2->name);
+        $entity->addMultiValue($fieldName, "{$groupId1}", $groupName1);
+        $entity->addMultiValue($fieldName, "{$groupId2}", $groupName2);
         $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
@@ -361,53 +328,18 @@ class Update004001015Test extends TestCase
         $entityGroups = $entityLoaded->getValue($fieldName);
         $entityGroupNames = $entityLoaded->getValueNames($fieldName);
 
-        // Test the entity that the referenced fieldName is being updated with the new group id that was saved in object_groupings
-        $groupInObjectGroupings1 = $this->getGroupInObjectGroupingsTable($objType, $fieldName, $groupName1);
-        $groupInObjectGroupings2 = $this->getGroupInObjectGroupingsTable($objType, $fieldName, $groupName2);
-        $this->assertEquals($entityGroupNames[$groupInObjectGroupings1->id], $groupName1);
-        $this->assertEquals($entityGroupNames[$groupInObjectGroupings2->id], $groupName2);
+        // Get the object groupings
+        $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName, $filters);
+        $group1 = $groupings->getByName($groupName1);
+        $group2 = $groupings->getByName($groupName2);
 
-        $this->testObjectGroupings[] = $groupInObjectGroupings1->id;
-        $this->testObjectGroupings[] = $groupInObjectGroupings2->id;
-    }
+        $this->assertEquals($entityGroups[0], $group1->id);
+        $this->assertEquals($entityGroups[1], $group2->id);
+        $this->assertEquals($entityGroupNames[$group1->id], $group1->name);
+        $this->assertEquals($entityGroupNames[$group2->id], $group2->name);
 
-    /**
-     * Function that will query the object_groupings table
-     *
-     * @param {string} $objType The object type of the grouping. This will be used to get the entity definition
-     * @param {string} $fieldName The fieldName that was used by the grouping
-     * @param {string} $groupName The name of the group that will be used to query the object_groupings
-     * @return {Group} $group Return the result of the query as a Group class
-     */
-    private function getGroupInObjectGroupingsTable($objType, $fieldName, $groupName)
-    {
-        $serviceManager = $this->account->getServiceManager();
-        $def = $serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
-        $field = $def->getField($fieldName);
-
-        // Create where conditions to check if group data already in object_groupings table
-        $whereConditionValues = array(
-            "name" => $groupName,
-            "object_type_id" => $def->id,
-            "field_id" => $field->id
-        );
-
-        $whereConditions = array(
-            "name = :name",
-            "object_type_id = :object_type_id",
-            "field_id = :field_id"
-        );
-
-        $sql = "SELECT * from object_groupings WHERE " . implode(" and ", $whereConditions);
-        $result = $this->db->query($sql, $whereConditionValues);
-        $row = $result->fetch();
-
-        // Create a group to return
-        $group = new Group();
-        $group->id = $row[$field->fkeyTable['key']];
-        $group->name = $row[$field->fkeyTable['title']];
-
-        return $group;
+        $this->testObjectGroupings[] = $group1->id;
+        $this->testObjectGroupings[] = $group2->id;
     }
 
     /**
@@ -435,35 +367,5 @@ class Update004001015Test extends TestCase
         $schemaDM->update($this->account->getId());
 
         $this->tablesCreated[] = $tableName;
-    }
-
-    /**
-     * Function that will add a group in the groupings
-     *
-     * @param {EntityGroupings} $groupings The groupings where we will add a new group
-     * @param {string} $groupName The name that will be used when adding a new group
-     * @param {string} $userId The user id that will be set to the new group
-     *
-     * @return Group Returns the newly created group
-     */
-    private function addGroup(EntityGroupings $groupings, $groupName, $userId = null)
-    {
-
-        // We need to check first if $groupName already exist, if so, then we will use it as our test group
-        $group = $groupings->getByName($groupName);
-        if ($group === false) {
-            $group = new Group();
-            $group->name = $groupName;
-
-            if ($userId) {
-                $group->setValue("user_id", $userId);
-            }
-
-            $groupings->add($group);
-            $groupings->setDataMapper($this->entityGroupingDataMapper);
-            $groupings->save();
-        }
-
-        return $group;
     }
 }

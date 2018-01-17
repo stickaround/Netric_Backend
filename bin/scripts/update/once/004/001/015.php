@@ -51,7 +51,7 @@ $groupingTables = array(
 );
 
 // This will be used to cache the groupings
-$exitingGroupingsCache = [];
+$existingGroupingsCache = [];
 
 // Loop thru the grouping tables
 foreach ($groupingTables as $details) {
@@ -98,44 +98,50 @@ foreach ($groupingTables as $details) {
         $groupingHash = "$objType, $fieldName " . $newGroupings->getFiltersHash($filters);
 
         // If cache key does not exist yet, then we will get the existing groupings and put it in cache
-        if (!isset($exitingGroupingsCache[$groupingHash])) {
-            $exitingGroupingsCache[$groupingHash] = $dm->getGroupings($objType, $fieldName, $filters);
+        if (!isset($existingGroupingsCache[$groupingHash])) {
+            $existingGroupingsCache[$groupingHash] = $dm->getGroupings($objType, $fieldName, $filters);
         }
 
-        $exitingGrouping = $exitingGroupingsCache[$groupingHash];
+        $existingGrouping = $existingGroupingsCache[$groupingHash];
 
         // We cannot continue if we do not have a groupings set, so we will log it and continue with the next fkey table
-        if (!$exitingGrouping) {
+        if (!$existingGrouping) {
             $log->error("Update 004.001.015 no existing groupings specificed objType: $objType. fieldName: $fieldName");
             continue;
         }
 
         $groupName = $row[$field->fkeyTable['title']];
+        $group = $existingGrouping->getByName($groupName);
 
-        // If grouping is already in the object_groupings table, then we need to skip this group and proceed with the next group
-        if ($exitingGrouping->getByName($groupName)) {
-            continue;
+        // If group is not existing in the object_groupings, then we need to create a new group
+        if ($existingGrouping->getByName($groupName) === false) {
+
+            // Create a new group under the $newGroupings
+            $group = $newGroupings->create($groupName);
+            $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
+            if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
+                $group->parentId = $row[$field->fkeyTable['parent']];
+            $group->color = (isset($row['color'])) ? $row['color'] : "";
+            if (isset($row['sort_order']))
+                $group->sortOrder = $row['sort_order'];
+            $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
+            $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
+
+            // Add all additional fields which are usually used for filters
+            foreach ($row as $pname => $pval) {
+                if ($pname != $field->fkeyTable['key'] && !$group->getValue($pname))
+                    $group->setValue($pname, $pval);
+            }
+
+            $newGroupings->add($group);
+            $dm->saveGroupings($newGroupings);
         }
 
-        // Create a new group under the newGroupings
-        $group = $newGroupings->create($groupName);
-        $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
-        if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
-            $group->parentId = $row[$field->fkeyTable['parent']];
-        $group->color = (isset($row['color'])) ? $row['color'] : "";
-        if (isset($row['sort_order']))
-            $group->sortOrder = $row['sort_order'];
-        $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
-        $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
-
-        // Add all additional fields which are usually used for filters
-        foreach ($row as $pname => $pval) {
-            if ($pname != $field->fkeyTable['key'] && !$group->getValue($pname))
-                $group->setValue($pname, $pval);
-        }
-
-        $newGroupings->add($group);
-        $dm->saveGroupings($newGroupings);
+        /*
+         * After saving the new group, then we need to update the cached existing groupings
+         * This will prevent from adding duplicate group in the object_groupings table
+         */
+        $existingGrouping->add($group);
 
         // Get the key (usually id field) from the $row as we need it to update the referenced entities
         $oldFkeyId = $row[$field->fkeyTable['key']];
