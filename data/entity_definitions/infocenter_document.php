@@ -53,8 +53,8 @@ return array(
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
-                    "this"=>"document_id",
-                    "ref"=>"group_id"
+                    "this"=>"object_id",
+                    "ref"=>"grouping_id"
                 ),
             ),
         ),

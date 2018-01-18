@@ -27,6 +27,13 @@ class GroupingCollectionTest extends AbstractCollectionTests
     private $groupings = null;
 
     /**
+     * Groups to clean up inside the object_groupings table
+     *
+     * @var groupId[]
+     */
+    private $testObjectGroupings = [];
+
+    /**
      * Setup datamapper
      */
     protected function setUp()
@@ -44,6 +51,16 @@ class GroupingCollectionTest extends AbstractCollectionTests
     {
         // Make sure we don't override parent tearDown
         parent::tearDown();
+
+        $dm = $this->groupingDataMapper;
+        $groupings = $dm->getGroupings("customer", "groups");
+
+        // Cleanup the test groupings in object_groupings table
+        foreach ($this->testObjectGroupings as $groupId) {
+            $groupings->delete($groupId);
+        }
+
+        $dm->saveGroupings($groupings);
     }
 
     /**
@@ -67,6 +84,8 @@ class GroupingCollectionTest extends AbstractCollectionTests
         $this->groupings->add($newGroup);
         $this->groupingDataMapper->saveGroupings($this->groupings);
         $group = $this->groupings->getByName($newGroup->name);
+
+        $this->testObjectGroupings[] = $newGroup->id;
         return array("id" => $group->id, "revision" => $group->commitId);
     }
 

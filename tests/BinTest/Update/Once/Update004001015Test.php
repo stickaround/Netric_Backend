@@ -97,8 +97,10 @@ class Update004001015Test extends TestCase
         }
 
         // Cleanup the test groupings in object_groupings table
-        foreach ($this->testObjectGroupings as $groupId) {
-            $this->deleteGroupInObjectGroupings($groupId);
+        foreach ($this->testObjectGroupings as $table => $groupIds) {
+            foreach ($groupIds as $groupId) {
+                $this->deleteGroupInObjectGroupings($table, $groupId);
+            }
         }
 
         // Cleanup the tables created for this unit test
@@ -153,6 +155,7 @@ class Update004001015Test extends TestCase
         // Add a test group data to the old fkey group table
         $groupName = "Customer $fieldName Group Unit Test";
         $groupId = $this->db->insert($tableName, ["name" => $groupName]);
+        $this->testObjectGroupings[$tableName][] = $groupId;
 
         // Test the group that was in properly saved
         $this->assertGreaterThan(0, $groupId);
@@ -180,7 +183,7 @@ class Update004001015Test extends TestCase
         $this->assertEquals($entityGroup, $group->id);
         $this->assertEquals($entityGroupName, $group->name);
 
-        $this->testObjectGroupings[] = $groupInObjectGroupings->id;
+        $this->testObjectGroupings["object_groupings"][] = $group->id;
     }
 
     /**
@@ -224,6 +227,8 @@ class Update004001015Test extends TestCase
         // Add a test group data to the old fkey group table
         $groupId1 = $this->db->insert($tableName, ["name" => $groupName1]);
         $groupId2 = $this->db->insert($tableName, ["name" => $groupName2]);
+        $this->testObjectGroupings[$tableName][] = $groupId1;
+        $this->testObjectGroupings[$tableName][] = $groupId2;
 
         // Test the group that was in properly saved
         $this->assertGreaterThan(0, $groupId1);
@@ -255,8 +260,8 @@ class Update004001015Test extends TestCase
         $this->assertEquals($entityGroupNames[$group1->id], $group1->name);
         $this->assertEquals($entityGroupNames[$group2->id], $group2->name);
 
-        $this->testObjectGroupings[] = $group1->id;
-        $this->testObjectGroupings[] = $group2->id;
+        $this->testObjectGroupings["object_groupings"][] = $group1->id;
+        $this->testObjectGroupings["object_groupings"][] = $group2->id;
     }
 
     /**
@@ -292,7 +297,7 @@ class Update004001015Test extends TestCase
 
         // Create a user entity so it will be used to filters groupings since we are dealing with private entity definition
         $userEntity = $this->entityLoader->create("user");
-        $userEntity->setValue("name", "Unit Test User");
+        $userEntity->setValue("name", "Unit Test User" . rand());
         $this->entityLoader->save($userEntity);
         $this->testEntities[] = $userEntity;
 
@@ -304,9 +309,12 @@ class Update004001015Test extends TestCase
         $groupName1 = "$objType Group Test Unit Test 1";
         $groupName2 = "$objType Group Test Unit Test 2";
 
+
         // Add a test group data to the old fkey group table
-        $groupId2 = $this->db->insert($tableName, ["name" => $groupName2, "user_id" => $userEntity->getId()]);
         $groupId1 = $this->db->insert($tableName, ["name" => $groupName1, "user_id" => $userEntity->getId()]);
+        $groupId2 = $this->db->insert($tableName, ["name" => $groupName2, "user_id" => $userEntity->getId()]);
+        $this->testObjectGroupings[$tableName][] = $groupId1;
+        $this->testObjectGroupings[$tableName][] = $groupId2;
 
         // Test the group that was in properly saved
         $this->assertGreaterThan(0, $groupId1);
@@ -338,18 +346,20 @@ class Update004001015Test extends TestCase
         $this->assertEquals($entityGroupNames[$group1->id], $group1->name);
         $this->assertEquals($entityGroupNames[$group2->id], $group2->name);
 
-        $this->testObjectGroupings[] = $group1->id;
-        $this->testObjectGroupings[] = $group2->id;
+        $this->testObjectGroupings["object_groupings"][] = $group1->id;
+        $this->testObjectGroupings["object_groupings"][] = $group2->id;
     }
 
     /**
      * Function that will hard delete the test group in object_groupings table
+     * 
+     * @param {string} $table The table where we will be deleting the groupId
      * @param {int} $groupId The group id that will be deleted
      */
-    private function deleteGroupInObjectGroupings($groupId)
+    private function deleteGroupInObjectGroupings($table, $groupId)
     {
         $serviceManager = $this->account->getServiceManager();
-        $this->db->query('DELETE FROM object_groupings WHERE id=:id', ['id' => $groupId]);
+        $this->db->query("DELETE FROM $table WHERE id=:id", ['id' => $groupId]);
     }
 
     /**
@@ -366,6 +376,6 @@ class Update004001015Test extends TestCase
 
         $schemaDM->update($this->account->getId());
 
-        $this->tablesCreated[] = $tableName;
+        // $this->tablesCreated[] = $tableName;
     }
 }

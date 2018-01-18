@@ -29,12 +29,35 @@ abstract class AbstractDataMapperTests extends TestCase
     protected $user = null;
 
     /**
+     * Groups to clean up inside the object_groupings table
+     *
+     * @var groupId[]
+     */
+    protected $testObjectGroupings = [];
+
+    /**
      * Setup each test
      */
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+    }
+
+    /**
+     * Cleanup any test entities
+     */
+    protected function tearDown()
+    {
+        $dm = $this->getDataMapper();
+        $groupings = $dm->getGroupings("customer", "groups");
+
+        // Cleanup the test groupings in object_groupings table
+        foreach ($this->testObjectGroupings as $groupId) {
+            $groupings->delete($groupId);
+        }
+
+        $dm->saveGroupings($groupings);
     }
 
     /**
@@ -104,6 +127,8 @@ abstract class AbstractDataMapperTests extends TestCase
         $newGroup->name = "UTEST.DM.testGetGroupings";
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
+        $this->testObjectGroupings[] = $newGroup->id;
+
         $groupings = $dm->getGroupings("customer", "groups");
         $group1 = $groupings->getByName($newGroup->name);
         $this->assertEquals($newGroup->name, $group1->name);
@@ -114,15 +139,14 @@ abstract class AbstractDataMapperTests extends TestCase
         $newGroup2->parentId = $group1->id;
         $groupings->add($newGroup2);
         $dm->saveGroupings($groupings);
+
+        // set the group here to be cleaned later
+        $this->testObjectGroupings[] = $newGroup2->id;
+
         unset($groupings);
         $groupings = $dm->getGroupings("customer", "groups");
         $group2 = $groupings->getByPath($newGroup->name . "/" . $newGroup2->name);
         $this->assertEquals($newGroup2->name, $group2->name);
-
-        // Cleanup
-        $groupings->delete($group1->id);
-        $groupings->delete($group2->id);
-        $dm->saveGroupings($groupings);
     }
 
     /**
@@ -141,6 +165,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
         $oldCommitId = $groupings->getByName($newGroup->name)->commitId;
+        $this->testObjectGroupings[] = $newGroup->id;
         $this->assertNotEquals(0, $oldCommitId);
 
 		// Add another to increment commit id
@@ -149,6 +174,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $groupings->add($newGroup2);
         $dm->saveGroupings($groupings);
         $newCommitId = $groupings->getByName($newGroup2->name)->commitId;
+        $this->testObjectGroupings[] = $newGroup2->id;
         $this->assertNotEquals($oldCommitId, $newCommitId);
 
         // Reload and double check commitIDs
@@ -156,11 +182,6 @@ abstract class AbstractDataMapperTests extends TestCase
         $oldCommitId = $groupings->getByName($newGroup->name)->commitId;
         $newCommitId = $groupings->getByName($newGroup2->name)->commitId;
         $this->assertNotEquals($oldCommitId, $newCommitId);
-
-		// Cleanup
-        $groupings->delete($newGroup->id);
-        $groupings->delete($newGroup2->id);
-        $dm->saveGroupings($groupings);
     }
 }
 
