@@ -285,8 +285,8 @@ return array(
                 "filter"=>array("user_id"=>"user_id"),
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
-                    "this"=>"contact_id",
-                    "ref"=>"label_id"
+                    "this"=>"object_id",
+                    "ref"=>"grouping_id"
                 ),
             ),
         ),

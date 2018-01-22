@@ -141,7 +141,7 @@ return array(
                 "filter"=>array("feed_id"=>"feed_id"),
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
-                    "this"=>"post_id",
+                    "this"=>"object_id",
                     "ref"=>"category_id"
                 ),
             ),

@@ -57,8 +57,8 @@ return array(
                 "parent" => "parent_id",
                 "ref_table" => array(
                     "table" => "object_grouping_mem",
-                    "this" => "feed_id",
-                    "ref" => "group_id"
+                    "this" => "object_id",
+                    "ref" => "grouping_id"
                 ),
             ),
         ),

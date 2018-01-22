@@ -484,7 +484,7 @@ class EntityController extends Mvc\AbstractAccountController
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
                     if ($field->subtype // Make sure that this field has a subtype
-                    && is_array($waitingObjectData)) {
+                        && is_array($waitingObjectData)) {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {

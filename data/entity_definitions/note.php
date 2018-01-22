@@ -50,8 +50,8 @@ return array(
                 ),
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
-                    "this"=>"note_id",
-                    "ref"=>"category_id"
+                    "this"=>"object_id",
+                    "ref"=>"grouping_id"
                 ),
             ),
         ),

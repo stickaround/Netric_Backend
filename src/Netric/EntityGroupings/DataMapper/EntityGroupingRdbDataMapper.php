@@ -292,7 +292,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $tableData[$field->fkeyTable['parent']] = $grp->parentId;
         }
 
-        if ($grp->commitId && isset($field->fkeyTable['commit_id'])) {
+        if ($grp->commitId  && $this->database->columnExists($field->subtype, "commit_id")) {
             $tableData['commit_id'] = $grp->commitId;
         }
 
