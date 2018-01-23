@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -9,7 +10,7 @@ return array(
         // Textual name of the account
         'name' => array(
             'title'=>'Title',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true
@@ -17,7 +18,7 @@ return array(
 
         "type" => array(
             'title'=>'Server Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'4',
             'readonly'=>false,
             'optional_values'=>array(
@@ -29,7 +30,7 @@ return array(
 
         'address' => array(
             'title'=>'Email Address',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true
@@ -37,21 +38,21 @@ return array(
 
         'reply_to' => array(
             'title'=>'Reply To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'signature' => array(
             'title'=>'Signature',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'host' => array(
             'title'=>'Host',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true
@@ -59,7 +60,7 @@ return array(
 
         'username' => array(
             'title'=>'Username',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true
@@ -67,7 +68,7 @@ return array(
 
         'password' => array(
             'title'=>'Password',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true
@@ -75,7 +76,7 @@ return array(
 
         'port' => array(
             'title'=>'Port',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'integer',
             'readonly'=>false,
             'require'=>true
@@ -83,92 +84,92 @@ return array(
 
         'f_default' => array(
             'title'=>'Default Account',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'readonly'=>false
         ),
 
         'f_ssl' => array(
             'title'=>'Require SSL',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'readonly'=>false
         ),
 
         'sync_data' => array(
             'title'=>'Sync Data',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'ts_last_full_sync' => array(
             'title'=>'Last Full Sync',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false
         ),
 
         'f_synchronizing' => array(
             'title'=>'Sync In Process',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'true'
         ),
 
         'f_system' => array(
             'title'=>'System',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'readonly'=>false
         ),
 
         'f_outgoing_auth' => array(
             'title'=>'Outgoing Auth',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'readonly'=>false
         ),
 
         'host_out' => array(
             'title'=>'Host Out',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'port_out' => array(
             'title'=>'Port Out',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'integer',
             'readonly'=>false
         ),
 
         'f_ssl_out' => array(
             'title'=>'SSL Out',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'readonly'=>false
         ),
 
         'username_out' => array(
             'title'=>'Username Out',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'password_out' => array(
             'title'=>'Password Out',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'forward' => array(
             'title'=>'Forward',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
 
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user'
         )
     ),

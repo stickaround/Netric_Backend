@@ -1,17 +1,18 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
         'f_public' => array(
             'title'=>'Public',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=> array(
@@ -21,18 +22,18 @@ return array(
         ),
         'f_view' => array(
             'title'=>'Visible',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'def_cal' => array(
             'title'=>'Default',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'user_id' => array('title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array(
                 "value"=>-3,
@@ -40,7 +41,7 @@ return array(
             ),
         ),
         'owner_id' => array('title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array(
                 "value"=>-3,

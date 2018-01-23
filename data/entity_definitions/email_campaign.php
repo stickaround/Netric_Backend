@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'default_activity_level' => 5,
@@ -7,7 +8,7 @@ return array(
         // Textual name
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -15,7 +16,7 @@ return array(
         // The email subject
         'subject' => array(
             'title'=>'Subject',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -23,7 +24,7 @@ return array(
         // Flag to indicate if we are tracking this campaign
         'f_trackcamp' => array(
             'title'=>'Track Campaign',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array(
@@ -34,7 +35,7 @@ return array(
         // From text name like "First Last" to be sent in the name portion of the From header in the email
         'from_name' => array(
             'title'=>'From Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -42,7 +43,7 @@ return array(
         // The email address to be sent from
         'from_email' => array(
             'title'=>'From Email',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -50,7 +51,7 @@ return array(
         // The html version of the message to send
         'body_html' => array(
             'title'=>'Html Body',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
@@ -58,7 +59,7 @@ return array(
         // The plain text version of the message to send
         'body_plain' => array(
             'title'=>'Plain Body',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
@@ -66,7 +67,7 @@ return array(
         // Select the type of 'to' list we are using
         'to_type' => array(
             'title'=>'List',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>true,
             'optional_values' => array(
@@ -77,7 +78,7 @@ return array(
         // Manually defined recipients email address separated by a ','
         'to_manual' => array(
             'title'=>'To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
@@ -85,7 +86,7 @@ return array(
         // View to use when sending this
         'to_view' => array(
             'title'=>'To View',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
@@ -93,7 +94,7 @@ return array(
         // Json encoded list of conditions to use
         'to_conditions' => array(
             'title'=>'To Condition',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -101,7 +102,7 @@ return array(
         // Select the design type
         'design_type' => array(
             'title'=>'Design',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>true,
             'optional_values' => array(
@@ -112,7 +113,7 @@ return array(
         // The status of this campaign
         'status' => array(
             'title'=>'Status',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array(
@@ -126,7 +127,7 @@ return array(
         // Timestamp when this campaign should start in the future - if blank then we start immedaitely
         'ts_start' => array(
             'title'=>'Scheduled Send',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -134,7 +135,7 @@ return array(
         // Flag to indicate if we send notification
         'f_confirmation' => array(
             'title'=>'Send Confirmation',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -142,7 +143,7 @@ return array(
         // Email where we send the confirmation
         'confirmation_email' => array(
             'title'=>'Confirmation Email',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false,
         ),
@@ -151,21 +152,21 @@ return array(
         // Marketing campaign references
         'campaign_id' => array(
             'title'=>'Campaign',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'marketing_campaign'
         ),
 
         // html_template references
         'template_id' => array(
             'title'=>'Template',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'html_template'
         ),
 
         // Id of background job for checking status
         'job_id' => array(
             'title'=>'Job Id',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true,
         ),
@@ -173,14 +174,14 @@ return array(
         // Throttle number of seconds between batch sends
         'throttle_interval' => array(
             'title'=>'Throttle Interval',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
         ),
 
         // Throttle number of emails to send per session
         'throttle_number' => array(
             'title'=>'Throttle Num',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
         ),
     ),

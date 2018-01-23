@@ -162,6 +162,7 @@ class Field implements \ArrayAccess
 	const TYPE_TIMESTAMP = 'timestamp';
 	const TYPE_NUMBER = 'number';
 	const TYPE_INTEGER = 'integer';
+	const TYPE_ALIAS = 'alias';
 
 	/**
 	 * Load field definition from array

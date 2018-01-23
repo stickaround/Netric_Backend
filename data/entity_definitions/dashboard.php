@@ -1,49 +1,50 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'uname_settings' => 'owner_id:name',
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'required'=>true,
             'readonly'=>false
         ),
         'description' => array(
             'title'=>'Description',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'app_dash' => array(
             'title'=>'Application Dashboard',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true
         ),
         'layout' => array(
             'title'=>'Layout',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'num_columns' => array(
             'title'=>'Num Columns',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'',
             'optional_values'=>array("1"=>"One", "2"=>"Two", "3"=>"Three")
         ),
         'scope' => array(
             'title'=>'Scope',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'optional_values'=>array("system"=>"System/Everyone", "user"=>"User")
         ),
         'groups' => array(
             'title'=>'Groups',
-            'type'=>'fkey_multi',
+            'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
@@ -55,7 +56,7 @@ return array(
         ),
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>-3, "on"=>"null")
         ),

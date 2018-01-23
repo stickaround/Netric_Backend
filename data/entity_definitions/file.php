@@ -1,12 +1,13 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'parent_field' => 'folder_id',
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -14,7 +15,7 @@ return array(
         // Size in bytes
         'file_size' => array(
             'title'=>'Size',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -22,7 +23,7 @@ return array(
         // The filetype extension
         'filetype' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>true,
         ),
@@ -30,7 +31,7 @@ return array(
         // where the file is stored in the storage engine
         'storage_path' => array(
             'title'=>'Storage Path',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -38,7 +39,7 @@ return array(
         // Deprecated - path to local file on server
         'dat_local_path' => array(
             'title'=>'Lcl Path',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -46,18 +47,18 @@ return array(
         // Deprecated - key used on ANS server
         'dat_ans_key' => array(
             'title'=>'ANS Key',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
         'folder_id' => array(
             'title'=>'Folder',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'folder'
         ),
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null"),
         ),

@@ -1,35 +1,36 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'rating' => array(
             'title'=>'Rating',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'',
             'readonly'=>false
         ),
         'product' => array(
             'title'=>'Product',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'product',
             'readonly'=>false
         ),
         'creator_id' => array(
             'title'=>'Reviewer',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>true,
             'default'=>array("value"=>"-3", "on"=>"null")

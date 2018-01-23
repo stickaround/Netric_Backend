@@ -1,12 +1,13 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         // Textual name
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
         ),
@@ -14,7 +15,7 @@ return array(
         // The type of actions we can execute
         'type_name' => array(
             'title' => 'Type',
-            'type' => 'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype' => '32',
             'readonly' => false,
             'optional_values' => array(
@@ -33,7 +34,7 @@ return array(
         // Longer description of this entity
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -41,7 +42,7 @@ return array(
         // The workflow we are a child of
         'workflow_id' => array(
             'title'=>'Workflow',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'workflow',
             'readonly'=>true,
         ),
@@ -49,7 +50,7 @@ return array(
         // Optional parent action
         'parent_action_id' => array(
             'title'=>'Parent Action',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'workflow_action',
             'readonly'=>true,
         ),
@@ -57,7 +58,7 @@ return array(
         // Action data - json encoded
         'data' => array(
             'title'=>'Data',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),

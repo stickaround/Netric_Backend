@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
@@ -8,24 +9,24 @@ return array(
         'notes' => array('title'=>'Notes', 'type'=>'text', 'subtype'=>'', 'readonly'=>false),
         'f_closed' => array('title'=>'Closed/Converted', 'type'=>'bool', 'subtype'=>'', 'readonly'=>false),
         'user_id' => array('title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'event_id' => array(
             'title'=>'Event',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'calendar_event',
             'readonly'=>true
         ),
         'attendees' => array(
             'title'=>'Attendees',
-            'type'=>'object_multi',
+            'type'=>Field::TYPE_OBJECT_MULTI,
             'subtype'=>'member'
         ),
         'status_id' => array(
             'title'=>'Status',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(

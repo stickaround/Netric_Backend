@@ -1,52 +1,53 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         'name' => array(
             'title'=>'Description',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'required'=>true
         ),
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'hours' => array(
             'title'=>'Hours',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'double precision',
             'required'=>true,
             'readonly'=>false
         ),
         'date_applied' => array(
             'title'=>'Date',
-            'type'=>'date',
+            'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>false,
             'required'=>true
         ),
         'owner_id' => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'required'=>true,
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'creator_id' => array(
             'title'=>'Entered By',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>true,
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'task_id' => array(
             'title'=>'Task',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'task',
             'readonly'=>false
         ),

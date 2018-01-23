@@ -1,12 +1,13 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         // Textual name or subject
         'name' => array(
             'title'=>'Subject',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
         ),
@@ -14,7 +15,7 @@ return array(
         // The object we are reminding on
         'obj_reference' => array(
             'title'=>'Concering',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -22,7 +23,7 @@ return array(
         // The interval to execute
         'interval' => array(
             'title'=>'Interval',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'integer',
             'readonly'=>false,
         ),
@@ -30,7 +31,7 @@ return array(
         // The units to use with interval (mintes|hours|days|weeks|months|years)
         'interval_unit' => array(
             'title'=>'Interval Unit',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>false,
             'optional_values'=>array(
@@ -46,7 +47,7 @@ return array(
         // The timestamp or data field to use to calculate ts_execute against
         'field_name' => array(
             'title'=>'Field Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true,
         ),
@@ -54,7 +55,7 @@ return array(
         // The actual time when this reminder should execute
         'ts_execute' => array(
             'title'=>'Execute Time',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -62,7 +63,7 @@ return array(
         // The owner of this reminder
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>false,
             'default'=>array(
@@ -74,7 +75,7 @@ return array(
         // Flag indicating the reminder was executed
         'f_executed' => array(
             'title'=>'Completed',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -82,7 +83,7 @@ return array(
         // Send to variable
         'send_to' => array(
             'title'=>'Send To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -90,7 +91,7 @@ return array(
         // Notes for reminder if manual
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -98,7 +99,7 @@ return array(
         // The timestamp or data field to use to calculate ts_execute against
         'action_type' => array(
             'title'=>'Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>false,
             'optional_values'=>array(

@@ -1,11 +1,12 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         "name" => array(
             'title'=>'Title',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             "required"=>true,
@@ -13,28 +14,28 @@ return array(
 
         "notes" => array(
             'title'=>'Details',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false,
         ),
 
         "user_name" => array(
             'title'=>'User Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true,
         ),
 
         "f_readonly" => array(
             'title'=>'Read Only',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>true,
         ),
 
         "f_private" => array(
             'title' => 'Private',
-            'type' => 'bool',
+            'type' => Field::TYPE_BOOL,
             'subtype' => '',
             'readonly' => true,
             'default' => array(
@@ -45,7 +46,7 @@ return array(
 
         "direction" => array(
             'title'=>'Direction',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'1',
             'readonly'=>false,
             'optional_values'=>array(
@@ -57,7 +58,7 @@ return array(
 
         "level" => array(
             'title'=>'Level',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'integer',
             'readonly'=>true,
             'default'=>array(
@@ -81,7 +82,7 @@ return array(
         // Optional reference to object that was used to perform the action/verb
         'verb_object' => array(
             'title'=>'Origin',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -89,7 +90,7 @@ return array(
         // Who/what did the action
         'subject' => array(
             'title'=>'Subject',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -97,7 +98,7 @@ return array(
         // What the action was done to
         'obj_reference' => array(
             'title'=>'Reference',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true,
         ),
@@ -105,12 +106,12 @@ return array(
         // File attachments
         'attachments' => array(
             'title'=>'Attachments',
-            'type'=>'object_multi',
+            'type'=>Field::TYPE_OBJECT_MULTI,
             'subtype'=>'file',
         ),
 
         'user_id' => array('title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array(
                 "value"=>"-3",
@@ -120,7 +121,7 @@ return array(
 
         'type_id' => array(
             'title'=>'Type',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",

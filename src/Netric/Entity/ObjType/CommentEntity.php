@@ -7,6 +7,7 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\EntityDefinition\Field;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
@@ -59,7 +60,7 @@ class CommentEntity extends Entity implements EntityInterface
                     $fields = $entityCommentedOn->getDefinition()->getFields();
                     foreach ($fields as $field)
                     {
-                        if ($field->type == 'object'
+                        if ($field->type == FIELD::TYPE_OBJECT
                             && ($field->subtype || $field->name == "obj_reference"))
                         {
                             $val = $entityCommentedOn->getValue($field->name);

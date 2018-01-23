@@ -1,12 +1,13 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         // Textual name
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -14,7 +15,7 @@ return array(
         // The production URL
         'url' => array(
             'title'=>'URL',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -22,7 +23,7 @@ return array(
         // The testing URL
         'url_test' => array(
             'title'=>'TEST URL',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
@@ -30,7 +31,7 @@ return array(
         // Media folder
         'folder_id' => array(
             'title'=>'Media',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'folder',
             'readonly'=>false,
             'autocreate'=>true, // Create foreign object automatically
@@ -40,7 +41,7 @@ return array(
 
         "owner_id" => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array(
                 "value"=>"-3",
