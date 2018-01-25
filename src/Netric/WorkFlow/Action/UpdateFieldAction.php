@@ -5,6 +5,7 @@
  */
 namespace Netric\WorkFlow\Action;
 
+use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
 use Netric\EntityLoader;
 use Netric\WorkFlow\WorkFlowInstance;
@@ -45,7 +46,7 @@ class UpdateFieldAction extends AbstractAction implements ActionInterface
         }
 
         // Update the entity field and save
-        if ($field->type == "fkey_multi" || $field->type == "object_multi")
+        if ($field->type == FIELD::TYPE_GROUPING_MULTI || $field->type == FIELD::TYPE_OBJECT_MULTI)
         {
             $entity->addMultiValue($field->name, $params['update_value']);
         }

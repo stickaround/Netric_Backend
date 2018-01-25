@@ -459,7 +459,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $data = array();
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         $dbh = $this->dbh;
@@ -484,7 +484,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     $obj_rfield = $this->def->getField($object_field);
                     if ($obj_rfield->fkeyTable && $obj_rfield->fkeyTable['parent']) {
                         // Try to get the referenced table
-                        if ($obj_rfield->type == "object") {
+                        if ($obj_rfield->type == FIELD::TYPE_OBJECT) {
                             $referencedDefinition = $this->fetchByName($obj_rfield->subtype);
                             $tbl = $referencedDefinition->object_table;
                         } else {
@@ -616,7 +616,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         if (!$field)
@@ -751,7 +751,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         if (!is_numeric($entryId) || !$field)
@@ -793,7 +793,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         if (!is_numeric($entryId) || !$field)
@@ -828,7 +828,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         if (!is_numeric($entryId) || !$field)
@@ -869,7 +869,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         $up = "";

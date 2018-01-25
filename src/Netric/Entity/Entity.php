@@ -451,7 +451,7 @@ class Entity implements EntityInterface
                     $this->addMultiValue($fname, $mval, $valName);
                 }
             } else {
-                if (($field->type === "object_multi" || $field->type === "fkey_multi"))
+                if (($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI))
                     $this->clearMultiValues($fname);
 
                 $valName = (isset($valNames[$value])) ? $valNames[$value] : null;
@@ -722,7 +722,7 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
-            if ($field->type == 'text') {
+            if ($field->type == FIELD::TYPE_TEXT) {
                 if ($field->name == "description"
                     || $field->name == "notes"
                     || $field->name == "details"
@@ -755,10 +755,10 @@ class Entity implements EntityInterface
             $field = $this->def->getField($fname);
 
             // Skip multi key arrays
-            if ($field->type == "object_multi" || $field->type == "fkey_multi")
+            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI)
                 continue;
 
-            if ($field->type == "bool") {
+            if ($field->type == FIELD::TYPE_BOOL) {
                 if ($oldVal == 't') $oldVal = "Yes";
                 if ($oldVal == 'f') $oldVal = "No";
                 if ($newVal == 't') $newVal = "Yes";
@@ -800,7 +800,7 @@ class Entity implements EntityInterface
         $fields = $this->def->getFields();
         foreach ($fields as $fname => $field) {
 			// Currently multi-values are not supported for defaults
-            if ($field->type == "object_multi" || $field->type == "fkey_multi")
+            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI)
                 continue;
 
             $val = $this->getValue($fname);
@@ -935,12 +935,12 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $field) {
-            if (($field->type === "object" || $field->type === "object_multi") &&
+            if (($field->type == FIELD::TYPE_OBJECT || $field->type === FIELD::TYPE_OBJECT_MULTI) &&
                 $field->subtype === "file") {
 				// Only process if the value has changed since last time
                 if ($this->fieldValueChanged($field->name)) {
 					// Make a files array - if it's an object than an array of one
-                    $files = ($field->type == "object") ?
+                    $files = ($field->type == FIELD::TYPE_OBJECT) ?
                         array($this->getValue($field->name)) :
                         $this->getValue($field->name);
 
@@ -1019,7 +1019,7 @@ class Entity implements EntityInterface
 
         foreach ($fields as $field) {
             switch ($field->type) {
-                case 'text':
+                case FIELD::TYPE_TEXT:
                 // Check if any text fields are tagging users
                     $tagged = self::getTaggedObjRef($this->getValue($field->name));
                     foreach ($tagged as $objRef) {
@@ -1031,8 +1031,8 @@ class Entity implements EntityInterface
                     }
                     break;
 
-                case 'object':
-                case 'object_multi':
+                case FIELD::TYPE_OBJECT:
+                case FIELD::TYPE_OBJECT_MULTI:
                 // Check if any fields are referencing users
                     if ($field->subtype === "user") {
                         $value = $this->getValue($field->name);

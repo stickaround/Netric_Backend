@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -9,7 +10,7 @@ return array(
         // Textual name or subject
         'name' => array(
             'title'=>'Title',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true,
@@ -18,7 +19,7 @@ return array(
         // Notification content text
         'description' => array(
             'title'=>'Description',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -26,7 +27,7 @@ return array(
         // The object we are reminding on
         'obj_reference' => array(
             'title'=>'Concering',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -34,7 +35,7 @@ return array(
         // Who this notification is sent to
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>false,
             'require'=>true,
@@ -47,7 +48,7 @@ return array(
         // Who created this notification
         'creator_id' => array(
             'title'=>'Creator',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>false,
             'require'=>true,
@@ -60,7 +61,7 @@ return array(
         // Flag indicating if the notification has been seen
         'f_seen' => array(
             'title'=>'Seen',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array(
@@ -72,7 +73,7 @@ return array(
         // Flag indicating if the notification has been showed already
         'f_shown' => array(
             'title'=>'Showed',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array(
@@ -84,7 +85,7 @@ return array(
         // Flag indicating if the notification should be a popup
         'f_popup' => array(
             'title'=>'Popup Alert',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -92,7 +93,7 @@ return array(
         // Flag indicating if the notification should be emailed
         'f_email' => array(
             'title'=>'Send Email',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -100,7 +101,7 @@ return array(
         // Flag indicating if the notification should be text messaged
         'f_sms' => array(
             'title'=>'Send SMS',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -108,7 +109,7 @@ return array(
         // The actual time when this reminder should execute
         'ts_execute' => array(
             'title'=>'Execute Time',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array(

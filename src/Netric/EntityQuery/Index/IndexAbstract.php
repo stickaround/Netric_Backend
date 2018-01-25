@@ -5,6 +5,7 @@
  */
 namespace Netric\EntityQuery\Index;
 
+use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
@@ -202,7 +203,7 @@ abstract class IndexAbstract
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($ent->getValue($field->name) && $field->type == "object" && $field->subtype == $objType) {
+            if ($ent->getValue($field->name) && $field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $children = $this->getHeiarchyUpObj($field->subtype, $ent->getValue($field->name));
                 if (count($children))
                     $ret = array_merge($ret, $children);
@@ -236,7 +237,7 @@ abstract class IndexAbstract
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
-            if ($field->type == "object" && $field->subtype == $objType) {
+            if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $index = $this->account->getServiceManager()->get("EntityQuery_Index");
                 $query = new \Netric\EntityQuery($field->subtype);
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getId());
@@ -267,7 +268,7 @@ abstract class IndexAbstract
         $user = $this->account->getUser();
 
         // Cleanup bool
-        if ("bool" == $field->type && is_string($value)) {
+        if ($field->type == FIELD::TYPE_BOOL && is_string($value)) {
             switch ($value) {
                 case 'true':
                 case 't':
@@ -279,7 +280,7 @@ abstract class IndexAbstract
         }
 
         // Cleanup dates and times
-        if (("date" == $field->type || "timestamp" == $field->type)) {
+        if (($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP)) {
             // Convert \DateTime to a timestamp
             if ($value instanceof \DateTime) {
                 $value = $value->format("Y-m-d h:i:s A e");
@@ -316,7 +317,7 @@ abstract class IndexAbstract
 
              */
             // Replace object reference with user variables
-            if (($field->type == "object" || $field->type == "object_multi") && !$field->subtype
+            if (($field->type == FIELD::TYPE_OBJECT || $field->type == FIELD::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT)
                 $value = "user:" . $user->getId();
         }
@@ -334,7 +335,7 @@ abstract class IndexAbstract
          */
 
         // If querying an object type then only leave the number if the value has the object type
-        if (($field->type == "object" || $field->type == "object_multi") && $field->subtype) {
+        if (($field->type == FIELD::TYPE_OBJECT || $field->type == FIELD::TYPE_OBJECT_MULTI) && $field->subtype) {
             $objRefParts = Entity::decodeObjRef($value);
             if ($objRefParts) {
                 $value = $objRefParts['id'];
@@ -357,10 +358,10 @@ abstract class IndexAbstract
             return false;
 
         switch ($field->type) {
-            case "fkey":
-            case "fkey_multi":
-            case "object":
-            case "object_multi":
+            case FIELD::TYPE_GROUPING:
+            case FIELD::TYPE_GROUPING_MULTI:
+            case FIELD::TYPE_OBJECT:
+            case FIELD::TYPE_OBJECT_MULTI:
                 return true;
                 break;
         }

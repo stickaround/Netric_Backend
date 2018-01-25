@@ -8,6 +8,7 @@
  */
 namespace Netric\Entity;
 
+use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityLoader;
 use Netric\EntityQuery;
@@ -83,7 +84,7 @@ class EntityAggregator
             $field = $def->getField($agg->field);
             $referencedId = $entity->getValue($agg->field);
 
-            if ($referencedId && $field->type == "object" && $field->subtype) {
+            if ($referencedId && $field->type == FIELD::TYPE_OBJECT && $field->subtype) {
                 // Create a new query to aggregate against
                 $query = new EntityQuery($def->getObjType());
 

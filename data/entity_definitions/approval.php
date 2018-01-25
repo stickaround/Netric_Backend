@@ -1,29 +1,30 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         'name' => array(
             'title'=>'Subject',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
         'notes' => array(
             'title'=>'Details',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'workflow_action_id' => array(
             'title'=>'Workflow Action',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'status' => array(
             'title'=>'Status',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>true,
             'default'=>array("value"=>"awaiting", "on"=>"null"),
@@ -35,13 +36,13 @@ return array(
         ),
         'ts_status_change' => array(
             'title'=>'Time Status Changed',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true
         ),
         'requested_by' => array(
             'title'=>'Requested By',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>true,
             'required'=>true,
@@ -49,14 +50,14 @@ return array(
         ),
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>false,
             'required'=>true
         ),
         'obj_reference' => array(
             'title'=>'Reference',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true
         ),

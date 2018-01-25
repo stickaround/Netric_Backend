@@ -1,24 +1,25 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'inherit_dacl_ref' => 'project_id',
     'fields' => array(
         'title' => array(
             'title'=>'Title',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false
         ),
         'description' => array(
             'title'=>'Description',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'created_by' => array(
             'title'=>'Entered By',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true,
             'default'=>array(
@@ -28,54 +29,54 @@ return array(
         ),
         'notify_email' => array(
             'title'=>'Notify Email',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'date_reported' => array(
             'title'=>'Date Entered',
-            'type'=>'date',
+            'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"create"),
         ),
         'related_bug' => array(
             'title'=>'Related Case',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'case',
         ),
         'status_id' => array(
             'title'=>'Status',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'severity_id' => array(
             'title'=>'Severity',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name"),
         ),
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null"),
         ),
         'project_id' => array(
             'title'=>'Project',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'project'
         ),
         'type_id' => array(
             'title'=>'Type',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(
             'title'=>'Contact',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer'
         ),
     ),

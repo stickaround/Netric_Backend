@@ -8,6 +8,7 @@
  */
 namespace Netric\EntityQuery\Index;
 
+use Netric\EntityDefinition\Field;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Aggregation;
@@ -53,7 +54,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $fields = $def->getFields();
         $buf = "";
         foreach ($fields as $field) {
-            if ($field->type != "fkey_multi" && $field->type != "object_multi") {
+            if ($field->type != FIELD::TYPE_GROUPING_MULTI && $field->type != FIELD::TYPE_OBJECT_MULTI) {
                 $val = $entity->getValue($field->name);
                 $buf .= strtolower($val . " ");
             }
@@ -327,9 +328,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
             foreach ($ofields as $fname => $field) {
                 $buf = "";
 
-                if ($field->type == 'text' && $field->subtype)
+                if ($field->type == FIELD::TYPE_TEXT && $field->subtype)
                     $buf = "lower($fname) like lower('%" . $dbh->escape(str_replace(" ", "%", str_replace("*", "%", $fullText))) . "%') ";
-                else if ($field->type == 'text')
+                else if ($field->type == FIELD::TYPE_TEXT)
                     $buf = " to_tsvector($fname) @@ plainto_tsquery('" . $dbh->escape($fullText) . "') ";
 
                 if ($buf) {
@@ -492,7 +493,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 $condValue = $this->sanitizeWhereCondition($field, $condValue);
 
 				// Convert PHP bool to textual true or false
-                if ($field->type == "bool")
+                if ($field->type == FIELD::TYPE_BOOL)
                     $condValue = ($condValue === true) ? 't' : 'f';
 
                 if ($condValue !== "" && $condValue !== null) {
@@ -506,15 +507,15 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             break;
                         case 'is_greater':
                             switch ($field->type) {
-                                case 'object_multi':
-                                case 'object':
-                                case 'fkey_multi':
-                                case 'text':
+                                case FIELD::TYPE_OBJECT_MULTI:
+                                case FIELD::TYPE_OBJECT:
+                                case FIELD::TYPE_GROUPING_MULTI:
+                                case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == "timestamp")
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == "date")
+                                    else if ($field->type == FIELD::TYPE_DATE)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
 
                                     $buf .= " $fieldName>'" . $dbh->escape($condValue) . "' ";
@@ -523,16 +524,16 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             break;
                         case 'is_less':
                             switch ($field->type) {
-                                case 'object_multi':
-                                case 'object':
-                                case 'fkey_multi':
+                                case FIELD::TYPE_OBJECT_MULTI:
+                                case FIELD::TYPE_OBJECT:
+                                case FIELD::TYPE_GROUPING_MULTI:
                                     break;
-                                case 'text':
+                                case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == "timestamp")
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == "date")
+                                    else if ($field->type == FIELD::TYPE_DATE)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
 
                                     $buf .= " $fieldName<'" . $dbh->escape($condValue) . "' ";
@@ -541,7 +542,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             break;
                         case 'is_greater_or_equal':
                             switch ($field->type) {
-                                case 'object':
+                                case FIELD::TYPE_OBJECT:
                                     if ($field->subtype) {
                                         $children = $this->getHeiarchyDownObj($field->subtype, $condValue);
                                         $tmp_cond_str = "";
@@ -554,15 +555,15 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                         break;
                                     }
                                     break;
-                                case 'object_multi':
-                                case 'fkey_multi':
+                                case FIELD::TYPE_OBJECT_MULTI:
+                                case FIELD::TYPE_GROUPING_MULTI:
                                     break;
-                                case 'text':
+                                case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == "timestamp")
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == "date")
+                                    else if ($field->type == FIELD::TYPE_DATE)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
 
                                     $buf .= " $fieldName>='" . $dbh->escape($condValue) . "' ";
@@ -571,7 +572,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             break;
                         case 'is_less_or_equal':
                             switch ($field->type) {
-                                case 'object':
+                                case FIELD::TYPE_OBJECT:
                                     if (isset($field->subtype) && $def->parentField == $fieldName && is_numeric($condValue)) {
                                         $defDef = $this->getDefinition($field->subtype);
 
@@ -594,15 +595,15 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                         }
                                     }
                                     break;
-                                case 'object_multi':
-                                case 'fkey_multi':
+                                case FIELD::TYPE_OBJECT_MULTI:
+                                case FIELD::TYPE_GROUPING_MULTI:
                                     break;
-                                case 'text':
+                                case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == "timestamp")
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == "date")
+                                    else if ($field->type == FIELD::TYPE_DATE)
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
 
                                     $buf .= " $fieldName<='" . $dbh->escape($condValue) . "' ";
@@ -612,7 +613,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         case 'begins':
                         case 'begins_with':
                             switch ($field->type) {
-                                case 'text':
+                                case FIELD::TYPE_TEXT:
                                     if ($field->subtype)
                                         $buf .= " lower($fieldName) like lower('" . $dbh->escape($condValue) . "%') ";
                                     else
@@ -624,7 +625,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             break;
                         case 'contains':
                             switch ($field->type) {
-                                case 'text':
+                                case FIELD::TYPE_TEXT:
                                     if ($field->subtype)
                                         $buf .= " lower($fieldName) like lower('%" . $dbh->escape($condValue) . "%') ";
                                     else
@@ -636,7 +637,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             }
                             break;
                         case 'day_is_equal':
-                            if ($field->type == "date" || $field->type == "timestamp") {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
                                 switch ($condValue) {
                                     case '<%current_day%>':
                                         $tmpcond = "extract('day' from now())";
@@ -650,7 +651,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             }
                             break;
                         case 'month_is_equal':
-                            if ($field->type == "date" || $field->type == "timestamp") {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
                                 switch ($condValue) {
                                     case '<%current_month%>':
                                         $tmpcond = "extract('month' from now())";
@@ -664,7 +665,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             }
                             break;
                         case 'year_is_equal':
-                            if ($field->type == "date" || $field->type == "timestamp") {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
                                 switch ($condValue) {
                                     case '<%current_year%>':
                                         $tmpcond = "extract('year' from now())";
@@ -678,42 +679,42 @@ class Pgsql extends IndexAbstract implements IndexInterface
                             }
                             break;
                         case 'last_x_days':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " days')";
                             }
                             break;
                         case 'last_x_weeks':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " weeks')";
                             }
                             break;
                         case 'last_x_months':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " months')";
                             }
                             break;
                         case 'last_x_years':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=(now()-INTERVAL '" . $dbh->escape($condValue) . " years')";
                             }
                             break;
                         case 'next_x_days':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " days')";
                             }
                             break;
                         case 'next_x_weeks':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " weeks')";
                             }
                             break;
                         case 'next_x_months':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " months')";
                             }
                             break;
                         case 'next_x_years':
-                            if ($field->type == "date" || $field->type == "timestamp" && is_numeric($condValue)) {
+                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($condValue)) {
                                 $buf .= " $fieldName>=now() and $fieldName<=(now()+INTERVAL '" . $dbh->escape($condValue) . " years')";
                             }
                             break;
@@ -813,7 +814,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $buf = "";
 
         switch ($field->type) {
-            case 'object':
+            case FIELD::TYPE_OBJECT:
                 if ($field->subtype) {
             	/*
                 if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
@@ -834,7 +835,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     }
                     break;
                 }
-            case 'object_multi':
+            case FIELD::TYPE_OBJECT_MULTI:
                 $tmp_cond_str = "";
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " not EXISTS (select 1 from object_associations
@@ -901,7 +902,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     }
                 }
                 break;
-            case 'fkey_multi':
+            case FIELD::TYPE_GROUPING_MULTI:
                 $tmp_cond_str = "";
                 if (isset($field->fkeyTable["parent"]) && is_numeric($condValue)) {
                     $children = $this->getHeiarchyDownGrp($field, $condValue);
@@ -924,7 +925,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                   " . $reftbl . "." . $thisfld . "=" . $objectTable . ".id and ($tmp_cond_str)) ";
                 }
                 break;
-            case 'fkey':
+            case FIELD::TYPE_GROUPING:
                 $tmp_cond_str = "";
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $tmp_cond_str .= " $fieldName is null ";
@@ -943,7 +944,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
                 $buf .= "($tmp_cond_str) ";
                 break;
-            case 'text':
+            case FIELD::TYPE_TEXT:
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " ($fieldName is null OR $fieldName='')";
                 } else {
@@ -954,11 +955,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
 
                 break;
-            case 'date':
-            case 'timestamp':
-                if ($field->type == "timestamp")
+            case FIELD::TYPE_DATE:
+            case FIELD::TYPE_TIMESTAMP:
+                if ($field->type == FIELD::TYPE_TIMESTAMP)
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                else if ($field->type == "date")
+                else if ($field->type == FIELD::TYPE_DATE)
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
             default:
                 if ($condValue === "" || $condValue === "NULL" || $condValue === null)
@@ -983,7 +984,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $buf = "";
 
         switch ($field->type) {
-            case 'object':
+            case FIELD::TYPE_OBJECT:
             // Check if we are querying table directly, otherwise fall through to object_multi code
                 if ($field->subtype) {
                     if ($condValue == "" || $condValue == "NULL") {
@@ -1014,7 +1015,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
                     break;
                 }
-            case 'object_multi':
+            case FIELD::TYPE_OBJECT_MULTI:
                 if ($condValue == "" || $condValue == "NULL") {
                     $buf .= " " . $objectTable . ".id in (select object_id from object_associations
                                                                 where type_id='" . $def->getId() . "'
@@ -1049,7 +1050,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     }
                 }
                 break;
-            case 'fkey_multi':
+            case FIELD::TYPE_GROUPING_MULTI:
 
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " " . $objectTable . ".id in (select " . $field->fkeyTable['ref_table']["this"] . "
@@ -1072,7 +1073,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
 
                 break;
-            case 'fkey':
+            case FIELD::TYPE_GROUPING:
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " $fieldName is not null";
                 } else {
@@ -1091,7 +1092,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
 
                 break;
-            case 'text':
+            case FIELD::TYPE_TEXT:
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " ($fieldName!='' AND $fieldName is not NULL) ";
                 } else {
@@ -1102,11 +1103,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
 
                 break;
-            case 'date':
-            case 'timestamp':
-                if ($field->type == "timestamp")
+            case FIELD::TYPE_DATE:
+            case FIELD::TYPE_TIMESTAMP:
+                if ($field->type == FIELD::TYPE_TIMESTAMP)
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                else if ($field->type == "date")
+                else if ($field->type == FIELD::TYPE_DATE)
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
             default:
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null)

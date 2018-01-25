@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -7,61 +8,61 @@ return array(
     'fields' => array(
         'filename' => array(
             'title'=>'File Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>true,
         ),
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>true,
         ),
         'content_type' => array(
             'title'=>'Content Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>true,
         ),
         'encoding' => array(
             'title'=>'Content Transfer Encoding',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true,
         ),
         'content_id' => array(
             'title'=>'Content Id',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>true,
         ),
         'disposition' => array(
             'title'=>'Content Disposition',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true,
         ),
         'size' => array(
             'title'=>'Size',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'integer',
             'readonly'=>true
         ),
         'owner_id' => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'message_id' => array(
             'title'=>'Message',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'email_message',
             'required'=>true
         ),
         'file_id' => array(
             'title'=>'Download',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'file'
         ),
     ),
