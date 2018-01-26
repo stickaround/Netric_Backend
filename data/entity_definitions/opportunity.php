@@ -130,7 +130,7 @@ return array(
         ),
         'selling_point_id' => array(
             'title'=>'Selling Point',
-            'type'=>Field::TYPE_GROUPING_MULTI,
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
