@@ -2,7 +2,7 @@
     <tab name='General'>
         <row>
             <column>
-                <field name='name'></field>
+                <field class='headline' hidelabel='t' name='name'></field>
             </column>
         </row>
         <row>

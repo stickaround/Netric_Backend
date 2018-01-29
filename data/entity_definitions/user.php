@@ -149,11 +149,6 @@ return array(
             'title'=>'Groups',
             'type'=>'fkey_multi',
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name", "ref_table"=>array(
-                "table"=>"object_grouping_mem",
-                "this"=>"user_id",
-                "ref"=>"group_id"
-            ))
         ),
         'manager_id' => array(
             'title'=>'Manager',
