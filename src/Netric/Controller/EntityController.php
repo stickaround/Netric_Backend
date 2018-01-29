@@ -5,6 +5,7 @@
  */
 namespace Netric\Controller;
 
+use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
 use Netric\Mvc;
 use Netric\EntityDefinition\EntityDefinition;
@@ -474,8 +475,8 @@ class EntityController extends Mvc\AbstractAccountController
         // Loop thru fields to check if we have objects waiting to be saved
         foreach ($fields as $field) {
             switch ($field->type) {
-                case "object":
-                case "object_multi":
+                case Field::TYPE_OBJECT:
+                case Field::TYPE_OBJECT_MULTI:
 
                     // Check for the corresponding *_new object field
                     $waitingObjectFieldName = $field->name . "_new";
@@ -484,7 +485,7 @@ class EntityController extends Mvc\AbstractAccountController
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
                     if ($field->subtype // Make sure that this field has a subtype
-                    && is_array($waitingObjectData)) {
+                        && is_array($waitingObjectData)) {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {

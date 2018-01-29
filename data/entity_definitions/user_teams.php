@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -8,14 +9,14 @@ return array(
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'require'=>true
         ),
         'parent_id' => array(
             'title'=>'Parent',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'readonly'=>false,
             'require'=>false
         ),

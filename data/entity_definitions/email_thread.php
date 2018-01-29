@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -7,82 +8,82 @@ return array(
     'fields' => array(
         'subject' => array(
             'title'=>'Subject',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
         'body' => array(
             'title'=>'Body',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
         ),
         'keywords' => array(
             'title'=>'Keywords',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'senders' => array(
             'title'=>'From',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'receivers' => array(
             'title'=>'To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'num_attachments' => array(
             'title'=>'Num Attachments',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true,
             "default"=>array("value"=>"0", "on"=>"null")
         ),
         'num_messages' => array(
             'title'=>'Num Messages',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'f_seen' => array(
             'title'=>'Seen',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'f_flagged' => array(
             'title'=>'Flagged',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'time_updated' => array(
             'title'=>'Time Changed',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"update")
         ),
         'ts_delivered' => array(
             'title'=>'Time Delivered',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"create")
         ),
         'owner_id' => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'mailbox_id' => array(
             'title'=>'Groups',
-            'type'=>'fkey_multi',
+            'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'email_mailboxes',
             'fkey_table'=>array(
                 "key"=>"id",

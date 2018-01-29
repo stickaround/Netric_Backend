@@ -1,12 +1,13 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         // User name
         'name' => array(
             'title'=>'User Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false,
             'required'=>true,
@@ -16,7 +17,7 @@ return array(
         // Full name first + last
         'full_name' => array(
             'title'=>'Full Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false,
             'required'=>true
@@ -24,39 +25,39 @@ return array(
 
         'password' => array(
             'title'=>'Password',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'password',
             'readonly'=>false
         ),
 
         'password_salt' => array(
             'title'=>'PW Salt',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'password',
             'readonly'=>true
         ),
 
         'theme' => array(
             'title'=>'Theme',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
         ),
 
         'timezone' => array(
             'title'=>'Timezone',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
         ),
 
         'notes' => array(
             'title'=>'About',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
         ),
 
         'email' => array(
             'title'=>'Email',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'required'=>false
@@ -64,7 +65,7 @@ return array(
 
         'phone_office' => array(
             'title'=>'Office Phone',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false,
             'mask'=>'phone_dash'
@@ -72,14 +73,14 @@ return array(
 
         'phone_ext' => array(
             'title'=>'Phone Ext.',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'16',
             'readonly'=>false
         ),
 
         'phone_mobile' => array(
             'title'=>'Mobile Phone',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false,
             'mask'=>'phone_dash'
@@ -87,7 +88,7 @@ return array(
 
         'phone_mobile_carrier' => array(
             'title'=>'Mobile Carrier',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false,
             'mask'=>'phone_dash',
@@ -105,7 +106,7 @@ return array(
 
         'phone_home' => array(
             'title'=>'Home Phone',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false,
             'mask'=>'phone_dash'
@@ -114,45 +115,61 @@ return array(
         // Aereus customer number
         'customer_number' => array(
             'title'=>'Netric Customer Number',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>true,
         ),
 
         'job_title' => array(
-            'title'=>'Job Title', 'type'=>'text', 'subtype'=>'256', 'readonly'=>false, 'required'=>false
+            'title'=>'Job Title',
+            'type'=>Field::TYPE_TEXT,
+            'subtype'=>'256',
+            'readonly'=>false,
+            'required'=>false
         ),
         'city' => array(
-            'title'=>'City', 'type'=>'text', 'subtype'=>'256', 'readonly'=>false, 'required'=>false
+            'title'=>'City',
+            'type'=>Field::TYPE_TEXT,
+            'subtype'=>'256',
+            'readonly'=>false,
+            'required'=>false
         ),
         'state' => array(
-            'title'=>'State', 'type'=>'text', 'subtype'=>'256', 'readonly'=>false, 'required'=>false
+            'title'=>'State',
+            'type'=>Field::TYPE_TEXT,
+            'subtype'=>'256',
+            'readonly'=>false,
+            'required'=>false
         ),
         'active' => array(
-            'title'=>'Active', 'type'=>'bool', 'subtype'=>'', 'readonly'=>false, "default"=>array("value"=>"t", "on"=>"null")
+            'title'=>'Active',
+            'type'=>Field::TYPE_BOOL,
+            'subtype'=>'',
+            'readonly'=>false,
+            "default"=>array("value"=>"t", "on"=>"null")
         ),
         'last_login' => array(
             'title'=>'Last Login', 'type'=>'timestamp', 'subtype'=>'', 'readonly'=>true
         ),
         'image_id' => array(
             'title'=>'Image',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'file'
         ),
         'team_id' => array(
             'title'=>'Team',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'user_teams',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id")
         ),
         'groups' => array(
             'title'=>'Groups',
-            'type'=>'fkey_multi',
+            'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
         ),
         'manager_id' => array(
             'title'=>'Manager',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user'
         ),
     ),

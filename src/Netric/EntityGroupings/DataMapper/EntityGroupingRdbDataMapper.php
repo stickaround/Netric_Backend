@@ -1,6 +1,7 @@
 <?php
 namespace Netric\EntityGroupings\DataMapper;
 
+use Netric\EntityDefinition\Field;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\EntitySync\Commit\CommitManager;
@@ -153,7 +154,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
         $field = $def->getField($fieldName);
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             throw new \Exception("$objType:$fieldName:" . $field->type . " is not a grouping (fkey or fkey_multi) field!");
 
         $whereSql = '';
@@ -263,7 +264,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         if (!$field)
             return false;
 
-        if ($field->type != "fkey" && $field->type != "fkey_multi")
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
             return false;
 
         $tableData = [];
@@ -292,7 +293,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $tableData[$field->fkeyTable['parent']] = $grp->parentId;
         }
 
-        if ($grp->commitId && isset($field->fkeyTable['commit_id'])) {
+        if ($grp->commitId  && $this->database->columnExists($field->subtype, "commit_id")) {
             $tableData['commit_id'] = $grp->commitId;
         }
 

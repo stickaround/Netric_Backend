@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -9,182 +10,182 @@ return array(
     'fields' => array(
         'subject' => array(
             'title'=>'Subject',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'message_id' => array(
             'title'=>'Message Id',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true
         ),
         'send_to' => array(
             'title'=>'To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'sent_from' => array(
             'title'=>'From',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'cc' => array(
             'title'=>'CC',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'bcc' => array(
             'title'=>'BCC',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'reply_to' => array(
             'title'=>'Reply To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true
         ),
         'priority' => array(
             'title'=>'Priority',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'16',
             'readonly'=>true
         ),
         'file_id' => array(
             'title'=>'File Id',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'flag_seen' => array(
             'title'=>'Seen',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'flag_draft' => array(
             'title'=>'Draft',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>true
         ),
         'flag_answered' => array(
             'title'=>'Answered',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>true
         ),
         'flag_flagged' => array(
             'title'=>'Flagged',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'flag_spam' => array(
             'title'=>'Is Spam',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>true
         ),
         'spam_report' => array(
             'title'=>'Spam Report',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'content_type' => array(
             'title'=>'Content Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true
         ),
         'return_path' => array(
             'title'=>'Return Path',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true
         ),
         'in_reply_to' => array(
             'title'=>'Return Path',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>true
         ),
         'message_size' => array(
             'title'=>'Message Size',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'num_attachments' => array(
             'title'=>'Num Attachments',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'thread_count' => array(
             'title'=>'Thread Count',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'orig_header' => array(
             'title'=>'Full Header',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'keywords' => array(
             'title'=>'Keywords',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'f_indexed' => array(
             'title'=>'Indexed',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>true
         ),
         'body' => array(
             'title'=>'Body',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'body_type' => array(
             'title'=>'Body Content Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>true
         ),
         'parse_rev' => array(
             'title'=>'Indexed',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'integer',
             'readonly'=>true
         ),
         'message_date' => array(
             'title'=>'Message Date',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"create")
         ),
         'owner_id' => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'mailbox_id' => array(
             'title'=>'Mailbox',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'email_mailboxes',
             'fkey_table'=>
                 array(
@@ -200,20 +201,20 @@ return array(
         ),
         'thread' => array(
             'title'=>'Thread',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'email_thread',
             'fkey_table'=>array("key"=>"id", "title"=>"subject"),
             'readonly'=>true,
         ),
         'email_account' => array(
             'title'=>'Email Account',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'email_account',
             'readonly'=>true
         ),
         'message_uid' => array(
             'title'=>'Message Uid',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false
         ),

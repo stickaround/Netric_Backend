@@ -82,9 +82,14 @@ foreach ($groupingTables as $details) {
     foreach ($result->fetchAll() as $row) {
 
         $filters = [];
-        foreach ($field->fkeyTable['filter'] as $key => $filterField) {
-            $filters[$key] = $row[$filterField];
+
+        // Make sure that the filter has been set
+        if (isset($field->fkeyTable['filter'])) {
+            foreach ($field->fkeyTable['filter'] as $key => $filterField) {
+                $filters[$key] = $row[$filterField];
+            }
         }
+
 
         // Filter results to this user of the object is private
         if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {

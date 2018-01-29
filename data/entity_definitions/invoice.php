@@ -1,91 +1,92 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             "required"=>true,
         ),
         'number' => array(
             'title'=>'Number',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>true
         ),
         'created_by' => array(
             'title'=>'Created By',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true
         ),
         'updated_by' => array(
             'title'=>'Updated By',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true
         ),
         'notes_line1' => array(
             'title'=>'Notes Line 1',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'notes_line2' => array(
             'title'=>'Notes Line 2',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'footer_line1' => array(
             'title'=>'Footer Line 1',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'payment_terms' => array(
             'title'=>'Payment Terms',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false
         ),
         'tax_rate' => array(
             'title'=>'Tax %',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>false
         ),
         'amount' => array(
             'title'=>'Amount',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'double precision',
             'readonly'=>false
         ),
         'send_to' => array(
             'title'=>'Send To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'reference' => array(
             'title'=>'Reference',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false
         ),
         'send_to_cbill' => array(
             'title'=>'Use Billing Address',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"t", "on"=>"null")
         ),
         'type' => array(
             'title'=>'Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>false,
             'optional_values'=>array("r"=>"Receivable", "p"=>"Payable"),
@@ -93,35 +94,35 @@ return array(
         ),
         'date_due' => array(
             'title'=>'Due Date',
-            'type'=>'date',
+            'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>false
         ),
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user'
         ),
         'status_id' => array(
             'title'=>'Status',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'template_id' => array(
             'title'=>'Template',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer_invoice_templates',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(
             'title'=>'Customer',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer'
         ),
         'sales_order_id' => array(
             'title'=>'Order',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'sales_order'
         ),
     ),

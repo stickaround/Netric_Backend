@@ -8,6 +8,7 @@
  */
 namespace Netric\Entity;
 
+use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityLoader;
@@ -174,7 +175,7 @@ class ActivityLog
          */
         $fields = $objDef->getFields();
         foreach ($fields as $field) {
-            if ('object' == $field->type) {
+            if ($field->type == FIELD::TYPE_OBJECT) {
                 $refObjId = $object->getValue($field->name);
                 if ($refObjId) {
                     // If we have a subtype then $refObjId is only the numeric id

@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => true,
@@ -7,39 +8,39 @@ return array(
     'fields' => array(
         'name' => array(
             'title'=>'Title',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false
         ),
         'website' => array(
             'title'=>'Website',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false
         ),
         'body' => array(
             'title'=>'Body',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'html',
             'readonly'=>false
         ),
         'body_type' => array(
             'title'=>'Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'readonly'=>true,
             'default'=>array("value"=>"html", "on"=>"null")
         ),
         'user_id' => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>true,
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'groups' => array(
             'title'=>'Groups',
-            'type'=>'fkey_multi',
+            'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
@@ -50,8 +51,8 @@ return array(
                 ),
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
-                    "this"=>"note_id",
-                    "ref"=>"category_id"
+                    "this"=>"object_id",
+                    "ref"=>"grouping_id"
                 ),
             ),
         ),

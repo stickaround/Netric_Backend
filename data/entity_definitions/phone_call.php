@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'default_activity_level' => 5,
@@ -7,14 +8,14 @@ return array(
         // Textual name
         'name' => array(
             'title'=>'Subject',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
 
         "direction" => array(
             'title'=>'Direction',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'1',
             'readonly'=>false,
             'optional_values'=>array(
@@ -26,14 +27,14 @@ return array(
         // Textual name
         'result' => array(
             'title'=>'Outcome',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false,
         ),
 
         "ts_start" => array(
             'title'=>'Call Start Time',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array(
@@ -44,13 +45,16 @@ return array(
 
         // Length in seconds
         "duration" => array(
-            'title'=>'Call Duration', 'type'=>'number', 'subtype'=>'', 'readonly'=>false
+            'title'=>'Call Duration',
+            'type'=>Field::TYPE_NUMBER,
+            'subtype'=>'',
+            'readonly'=>false
         ),
 
         // Customer
         "customer_id" => array(
             'title'=>'Contact',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer',
             'readonly'=>false,
         ),
@@ -58,7 +62,7 @@ return array(
         // Project
         "project_id" => array(
             'title'=>'Project',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'project',
             'readonly'=>false,
         ),
@@ -66,7 +70,7 @@ return array(
         // Case
         "case_id" => array(
             'title'=>'Case',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'case',
             'readonly'=>false,
         ),
@@ -74,7 +78,7 @@ return array(
         // Opportunities
         "opportunity_id" => array(
             'title'=>'Opportunity',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'opportunity',
             'readonly'=>false,
         ),
@@ -82,7 +86,7 @@ return array(
         // Opportunities
         "campaign_id" => array(
             'title'=>'Campaign',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'marketing_campaign',
             'readonly'=>false,
         ),
@@ -90,7 +94,7 @@ return array(
         // Lead
         "lead_id" => array(
             'title'=>'Lead',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'lead',
             'readonly'=>false,
         ),
@@ -98,7 +102,7 @@ return array(
         // Notes
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false,
         ),
@@ -106,22 +110,17 @@ return array(
         // Status flag
         'purpose_id' => array(
             'title'=>'Purpose',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
-                "title"=>"name",
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id"
-                )
+                "title"=>"name"
             )
         ),
 
         "owner_id" => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array(
                 "value"=>"-3",

@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'parent_field' => 'parent_id',
@@ -7,7 +8,7 @@ return array(
     'fields' => array(
         'title' => array(
             'title'=>'Title',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
             'required'=>true,
@@ -15,7 +16,7 @@ return array(
 
         'author' => array(
             'title'=>'Author',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false,
         ),
@@ -26,30 +27,36 @@ return array(
 
         'image' => array(
             'title'=>'Image',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'file',
             'readonly'=>false
         ),
 
         'f_publish' => array(
             'title'=>'Published',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"f", "on"=>"null"),
         ),
 
         "time_publish" => array(
-            'title'=>'Publish After', 'type'=>'timestamp', 'subtype'=>'', 'readonly'=>false
+            'title'=>'Publish After',
+            'type'=>Field::TYPE_TIMESTAMP,
+            'subtype'=>'',
+            'readonly'=>false
         ),
 
         "time_expires" => array(
-            'title'=>'Expires', 'type'=>'timestamp', 'subtype'=>'', 'readonly'=>false
+            'title'=>'Expires',
+            'type'=>Field::TYPE_TIMESTAMP,
+            'subtype'=>'',
+            'readonly'=>false
         ),
 
         "time_entered" => array(
             'title'=>'Post Date',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
             "default"=>array("value"=>"now", "on"=>"create"),
@@ -57,7 +64,7 @@ return array(
 
         "ts_updated" => array(
             'title'=>'Updated',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             "default"=>array("value"=>"now", "on"=>"update"),
@@ -65,7 +72,7 @@ return array(
 
         "user_id" => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>false,
             "default"=>array("value"=>"-3", "on"=>"null"),
@@ -73,7 +80,7 @@ return array(
 
         "feed_id" => array(
             'title'=>'Feed',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'content_feed',
             'readonly'=>false,
             'required'=>true,
@@ -100,7 +107,7 @@ return array(
 
         'status_id' => array(
             'title'=>'Status',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'required'=> true,
             'fkey_table'=>array(
@@ -117,7 +124,7 @@ return array(
         // Type : Post, Page, Widget
         'type' => array(
             'title'=>'Type',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'32',
             'optional_values'=>array("post"=>"Post", "page"=>"Page", "widget"=>"Widget")
         ),
@@ -125,14 +132,14 @@ return array(
         // Posts can be linked to sites
         "site_id" => array(
             'title'=>'Site',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'cms_site',
             'readonly'=>false,
         ),
 
         "categories" => array(
             'title'=>'Categories',
-            'type'=>'fkey_multi',
+            'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
@@ -141,7 +148,7 @@ return array(
                 "filter"=>array("feed_id"=>"feed_id"),
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
-                    "this"=>"post_id",
+                    "this"=>"object_id",
                     "ref"=>"category_id"
                 ),
             ),
@@ -150,7 +157,7 @@ return array(
         // The parent post
         "parent_id" => array(
             'title'=>'Parent',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'content_feed_post',
             'readonly'=>false,
         ),

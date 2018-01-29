@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => false,
@@ -14,28 +15,28 @@ return array(
     'fields' => array(
         'worker_name' => array(
             'title'=>'Worker',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true,
             'require'=>true
         ),
         'job_data' => array(
             'title'=>'Job Data',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>true,
             'require'=>true
         ),
         'ts_scheduled' => array(
             'title'=>'When Scheduled',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             'require'=>true
         ),
         'ts_executed' => array(
             'title'=>'When Ran',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             'require'=>true
@@ -43,7 +44,7 @@ return array(
         'recur_id' => array(
             'title'=>'Recurrence',
             'readonly'=>true,
-            'type'=>'integer'
+            'type'=>Field::TYPE_INTEGER,
         ),
     ),
 );

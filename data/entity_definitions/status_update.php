@@ -1,42 +1,43 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'default_activity_level' => 5,
     'fields' => array(
         'comment' => array(
             'title'=>'Comment',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'notified' => array(
             'title'=>'Notified',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'notify' => array(
             'title'=>'Send To',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'owner_id' => array(
             'title'=>'User',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'obj_reference' => array(
             'title'=>'Concerning',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'sent_by' => array(
             'title'=>'Sent By',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true
         ),

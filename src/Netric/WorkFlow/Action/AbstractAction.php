@@ -7,6 +7,7 @@
  */
 namespace Netric\WorkFlow\Action;
 
+use Netric\EntityDefinition\Field;
 use Netric\WorkFlow\WorkFlow;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Where;
@@ -408,7 +409,7 @@ abstract class AbstractAction implements ErrorAwareInterface
                     foreach ($matches[1] as $fieldName)
                     {
                         $field = $mergeWithEntity->getDefinition()->getField($fieldName);
-                        if ($field && $field->type === 'object' && $field->subtype === 'user')
+                        if ($field && $field->type == FIELD::TYPE_OBJECT && $field->subtype === 'user')
                         {
                             // Dereference email from user object
                             $paramValue = str_replace("<%$fieldName%>", "<%$fieldName.email%>", $paramValue);
@@ -554,7 +555,7 @@ abstract class AbstractAction implements ErrorAwareInterface
             // Get the field of the referenced value
             $field = $entity->getDefinition()->getField($fieldName);
 
-            if ($referencedEntityId && $field->type === 'object' && $field->subtype)
+            if ($referencedEntityId && $field->type == FIELD::TYPE_OBJECT && $field->subtype)
             {
                 // Load the referenced entity
                 $referencedEntity = $this->entityLoader->get($field->subtype, $referencedEntityId);

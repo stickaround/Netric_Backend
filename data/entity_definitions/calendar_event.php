@@ -1,47 +1,48 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false
         ),
         'location' => array(
             'title'=>'Location',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false
         ),
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
         'start_block' => array(
             'title'=>'Start Minute',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'end_block' => array(
             'title'=>'End Minute',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'all_day' => array(
             'title'=>'All Day',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false
         ),
         'sharing' => array(
             'title'=>'Sharing',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'optional_values'=>array(
                 "2"=>"Public",
@@ -51,95 +52,95 @@ return array(
         ),
         'inv_eid' => array(
             'title'=>'Inv. Eid',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'inv_rev' => array(
             'title'=>'Inv. Revision',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true
         ),
         'inv_uid' => array(
             'title'=>'Inv. Id',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true
         ),
         'date_start' => array(
             'title'=>'Date Start',
-            'type'=>'date',
+            'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>false
         ),
         'date_end' => array(
             'title'=>'Date Start',
-            'type'=>'date',
+            'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>false
         ),
         'ts_updated' => array(
             'title'=>'Time Changed',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"update")
         ),
         'ts_start' => array(
             'title'=>'Time Start',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"now", "on"=>"null")
         ),
         'ts_end' => array(
             'title'=>'Time End',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"now", "on"=>"null")
         ),
         'user_id' => array('title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'recur_id' => array(
             'title'=>'Recurrance',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'readonly'=>true
         ),
         'recurrence_pattern' => array(
             'title'=>'Recurrence',
             'readonly'=>true,
-            'type'=>'integer'
+            'type'=>Field::TYPE_INTEGER,
         ),
         // This is deprecated, we should eventually just delete it
         'contact_id' => array(
             'title'=>'Contact',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'contact_personal'
         ),
         'calendar' => array(
             'title'=>'Calendar',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'calendar',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(
             'title'=>'Customer',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer'
         ),
         'attendees' => array(
             'title'=>'Attendees',
-            'type'=>'object_multi',
+            'type'=>Field::TYPE_OBJECT_MULTI,
             'subtype'=>'member'
         ),
         'obj_reference' => array(
             'title'=>'Reference',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'',
             'readonly'=>true
         ),

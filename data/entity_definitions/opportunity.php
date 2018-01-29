@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+use Netric\EntityDefinition\Field;
 
 return array(
     'is_private' => false,
@@ -8,7 +9,7 @@ return array(
     'fields' => array(
         'name' => array(
             'title'=>'Name',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false,
             'required'=>true,
@@ -16,42 +17,42 @@ return array(
 
         'notes' => array(
             'title'=>'Notes',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
 
         'closed_lost_reson' => array(
             'title'=>'Closed Lost Reason',
-            'type'=>'text',
+            'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false
         ),
 
         'expected_close_date' => array(
             'title'=>'Exp. Close Date',
-            'type'=>'date',
+            'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>false
         ),
 
         'amount' => array(
             'title'=>'Est. Amount',
-            'type'=>'number',
+            'type'=>Field::TYPE_NUMBER,
             'subtype'=>'number',
             'readonly'=>false,
         ),
 
         'ts_closed' => array(
             'title'=>'Time Closed',
-            'type'=>'timestamp',
+            'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>false
         ),
 
         'probability_per' => array(
             'title'=>'Est. Probability %',
-            'type'=>'integer',
+            'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>false,
             'optional_values'=>array(
@@ -61,7 +62,7 @@ return array(
 
         'f_closed' => array(
             'title'=>'Closed',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"f", "on"=>"null"),
@@ -69,7 +70,7 @@ return array(
 
         'f_won' => array(
             'title'=>'Won',
-            'type'=>'bool',
+            'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
             'default'=>array("value"=>"f", "on"=>"null"),
@@ -78,58 +79,58 @@ return array(
         // Marketing campaign references
         'campaign_id' => array(
             'title'=>'Campaign',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'marketing_campaign'
         ),
 
         'owner_id' => array(
             'title'=>'Owner',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null"),
         ),
 
         'stage_id' => array(
             'title'=>'Stage',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
 
         'customer_id' => array(
             'title'=>'Contact',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'customer',
             'required'=>true
         ),
 
         'lead_id' => array(
             'title'=>'Lead',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'lead'
         ),
 
         'lead_source_id' => array(
             'title'=>'Source',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'type_id' => array(
             'title'=>'Type',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'objection_id' => array(
             'title'=>'Objection',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'selling_point_id' => array(
             'title'=>'Selling Point',
-            'type'=>'fkey',
+            'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
             'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
                 "ref_table"=>array(
@@ -141,7 +142,7 @@ return array(
         ),
         'folder_id' => array(
             'title'=>'Files',
-            'type'=>'object',
+            'type'=>Field::TYPE_OBJECT,
             'subtype'=>'folder',
             'autocreate'=>true, // Create foreign object automatically
             'autocreatebase'=>'/System/Customer Files/Opportunities', // Where to create
