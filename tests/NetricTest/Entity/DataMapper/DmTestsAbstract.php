@@ -169,11 +169,6 @@ abstract class DmTestsAbstract extends TestCase
 	public function testSave()
 	{
 		$dm = $this->getDataMapper();
-		if (!$dm) {
-			// Do not run if we don't have a datamapper to work with
-			$this->assertTrue(true);
-			return;
-		}
 
         // Create a few test groups
 		$groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
@@ -228,6 +223,7 @@ abstract class DmTestsAbstract extends TestCase
 
 	/**
 	 * Make sure that saving twice on the same entity results in the same id
+     * @group testSave
 	 */
 	public function testSaveTwiceSameId()
 	{

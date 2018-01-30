@@ -63,7 +63,7 @@ class WorkerJobsTest extends TestCase
 
         // Make sure that each of the workers was scheduled
         $future = new DateTime();
-        $future->add(new DateInterval("P1D"));
+        $future->add(new DateInterval("PT23H"));
         foreach ($scheduledJobsData as $jobToSchedule) {
             $jobs = $this->schedulerService->getScheduledToRun(
                 $future, 

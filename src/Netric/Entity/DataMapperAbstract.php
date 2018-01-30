@@ -362,7 +362,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$parentFieldCondition = [];
 		if ($def->parentField && count($segments) >= 1) {
 			$parentField = $def->getField($def->parentField);
-			if ($parentField->type == FIELD::TYPE_OBJECT && !empty($parentField->subtype)) {
+			if ($parentField->type == "object" && !empty($parentField->subtype)) {
 				$parentEntity = $this->getByUniqueName(
 					$parentField->subtype,
 					implode('/', $segments),
@@ -539,7 +539,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 				continue;
 
 			switch ($field->type) {
-				case FIELD::TYPE_OBJECT:
+				case 'object':
 					$objType = $field->subtype;
 					$id = $value;
 					if (!$objType) {
@@ -561,7 +561,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
 					break;
 
-				case FIELD::TYPE_OBJECT_MULTI;
+				case 'object_multi';
 				$objType = $field->subtype;
 
 				if (is_array($value)) {
