@@ -80,8 +80,8 @@ class WorkersControllerTest extends TestCase
         $req->setParam("runonce", 1);
         // Do not allow echo
         $req->setParam("suppressoutput", 1); 
-        // Limit the global application lock to 1 second
-        $req->setParam("locktimeout", 1); 
+        // Limit the global application lock to 3 seconds
+        $req->setParam("locktimeout", 3);
 
         // Make sure that doWorkBackground was called once
         $this->workerService->expects($this->once())
@@ -92,7 +92,7 @@ class WorkersControllerTest extends TestCase
             );
 
         // Run the process to invoke the exepects tests above
-        $ret = $this->controller->consoleScheduleAction();
+        $this->controller->consoleScheduleAction();
     }
 
     /**
