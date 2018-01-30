@@ -45,7 +45,10 @@ return array(
             'title'=>'Categories',
             'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id",
+            'fkey_table'=>array(
+                "key"=>"id",
+                "title"=>"name",
+                "parent"=>"parent_id",
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
                     "this"=>"object_id",

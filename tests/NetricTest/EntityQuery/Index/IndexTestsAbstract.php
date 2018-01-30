@@ -1615,7 +1615,7 @@ abstract class IndexTestsAbstract extends TestCase
         $customer1->setValue("name", $customerName1);
         $customer1->setValue("owner_id", $this->user->getId());
         $customer1->setValue("type_id", "1");
-        $customer1->setValue("city", "new city");
+        $customer1->setValue("city", "new_city");
         $cid1 = $dm->save($customer1, $this->user);
 
         $customerName2 = "Test Customer 2";
@@ -1623,7 +1623,7 @@ abstract class IndexTestsAbstract extends TestCase
         $customer2->setValue("name", $customerName2);
         $customer2->setValue("owner_id", $this->user->getId());
         $customer2->setValue("type_id", "1");
-        $customer2->setValue("city", "old city");
+        $customer2->setValue("city", "old_city");
         $cid2 = $dm->save($customer2, $this->user);
 
         $customerName3 = "Test Customer 3";
@@ -1631,7 +1631,7 @@ abstract class IndexTestsAbstract extends TestCase
         $customer3->setValue("name", $customerName3);
         $customer3->setValue("owner_id", $this->user->getId());
         $customer3->setValue("type_id", "2");
-        $customer3->setValue("city", "new city");
+        $customer3->setValue("city", "new_city");
         $cid3 = $dm->save($customer3, $this->user);
 
         $customerName4 = "Test Customer 4";
@@ -1639,7 +1639,7 @@ abstract class IndexTestsAbstract extends TestCase
         $customer4->setValue("name", $customerName3);
         $customer4->setValue("owner_id", $this->user->getId());
         $customer4->setValue("type_id", "2");
-        $customer4->setValue("city", "old city");
+        $customer4->setValue("city", "old_city");
         $cid4 = $dm->save($customer4, $this->user);
 
         // Set the entities so it will be cleaned up properly
@@ -1651,7 +1651,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Query the customers using and where conditions. This should only query the customer 1
         $query = new Netric\EntityQuery("customer");
         $query->where("type_id")->equals(1);
-        $query->where("city")->equals("new city");
+        $query->where("city")->equals("new_city");
 
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         // Execute the query
@@ -1660,7 +1660,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $resultEntity = $res->getEntity(0);
         $this->assertEquals(1, $resultEntity->getValue("type_id"));
-        $this->assertEquals("new city", $resultEntity->getValue("city"));
+        $this->assertEquals("new_city", $resultEntity->getValue("city"));
 
         // Query the customers using or where conditions. This should query all the customers
         $query = new Netric\EntityQuery("customer");
@@ -1677,7 +1677,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Query the customers using the combination of or/and where conditions.
         $query = new Netric\EntityQuery("customer");
         $query->where("type_id")->equals(1);
-        $query->orWhere("city")->equals("old city");
+        $query->orWhere("city")->equals("old_city");
 
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         // Execute the query

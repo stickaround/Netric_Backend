@@ -69,8 +69,8 @@ return array(
                     "table"=>"object_grouping_mem",
                     "this"=>"object_id",
                     "ref"=>"grouping_id"
-                )
-            )
+                ),
+            ),
         ),
     ),
 );

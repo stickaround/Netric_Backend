@@ -187,16 +187,10 @@ return array(
             'title'=>'Mailbox',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'email_mailboxes',
-            'fkey_table'=>
-                array(
-                    "key"=>"id",
-                    "title"=>
-                        "name",
-                    "filter"=>array(
-                        "user_id"=>"owner_id"
-                    ),
-                    "parent"=>"parent_box"
-                ),
+            'fkey_table'=>array(
+                "key"=>"id",
+                "title"=>"name"
+            ),
             'readonly'=>false
         ),
         'thread' => array(

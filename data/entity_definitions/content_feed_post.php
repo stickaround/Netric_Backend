@@ -112,13 +112,8 @@ return array(
             'required'=> true,
             'fkey_table'=>array(
                 "key"=>"id",
-                "title"=>"name",
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id"
-                )
-            )
+                "title"=>"name"
+            ),
         ),
 
         // Type : Post, Page, Widget
@@ -145,11 +140,10 @@ return array(
                 "key"=>"id",
                 "title"=>"name",
                 "parent"=>"parent_id",
-                "filter"=>array("feed_id"=>"feed_id"),
                 "ref_table"=>array(
                     "table"=>"object_grouping_mem",
                     "this"=>"object_id",
-                    "ref"=>"category_id"
+                    "ref"=>"grouping_id"
                 ),
             ),
         ),

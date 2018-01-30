@@ -141,14 +141,7 @@ return array(
             'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
-                "title"=>"name",
-                "parent"=>"parent_id",
-                "filter"=>array("user_id"=>"user_id"),
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id"
-                ),
+                "title"=>"name"
             ),
         ),
         'recur_id' => array(

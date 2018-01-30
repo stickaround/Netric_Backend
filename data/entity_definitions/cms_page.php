@@ -112,13 +112,8 @@ return array(
             'subtype'=>'object_groupings',
             'fkey_table'=>array(
                 "key"=>"id",
-                "title"=>"name",
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id"
-                )
-            )
+                "title"=>"name"
+            ),
         ),
     ),
 );
