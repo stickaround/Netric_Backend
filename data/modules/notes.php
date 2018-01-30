@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "Notes",
-    "icon" => "pencil-square-o",
+    "icon" => "LibraryBooksIcon",
     "default_route" => "all-notes",
     "navigation" => array(
         array(

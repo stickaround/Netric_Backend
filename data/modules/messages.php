@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "Messages",
-    "icon" => "envelope-o",
+    "icon" => "EmailIcon",
     "default_route" => "all-notifications",
     "navigation" => array(
         array(

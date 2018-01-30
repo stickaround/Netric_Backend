@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "Infocenter",
-    "icon" => "clipboard",
+    "icon" => "LightBulbIcon",
     "default_route" => "all-documents",
     "navigation" => array(
         array(
@@ -14,7 +14,7 @@ return array(
             "type" => "browse",
             "route" => "all-documents",
             "objType" => "infocenter_document",
-            "icon" => "tags",
+            "icon" => "StyleIcon",
             "browseby" => "groups",
         )
     )
