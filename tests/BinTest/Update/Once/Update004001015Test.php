@@ -358,7 +358,6 @@ class Update004001015Test extends TestCase
      */
     private function deleteGroupInObjectGroupings($table, $groupId)
     {
-        $serviceManager = $this->account->getServiceManager();
         $this->db->query("DELETE FROM $table WHERE id=:id", ['id' => $groupId]);
     }
 

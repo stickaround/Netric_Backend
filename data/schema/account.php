@@ -380,7 +380,6 @@ return array(
         )
     ),
 
-
     "calendar_events" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),

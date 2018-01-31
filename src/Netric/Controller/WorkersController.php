@@ -42,7 +42,7 @@ class WorkersController extends Mvc\AbstractController
      *
      * This will most likely be used in testing and automation
      * 
-     * @param WorkerSErvice $workerService
+     * @param WorkerService $workerService
      * @return void
      */
     public function setWorkerService(WorkerService $workerService)
@@ -177,7 +177,7 @@ class WorkersController extends Mvc\AbstractController
     }
 
     /**
-     * The main scheudled jobs loop will schedule jobs to be run every minute
+     * The main scheduled jobs loop will schedule jobs to be run every minute
      * 
      * This is essentially a heartbeat that emits a background job for every
      * account to run any scheduled jobs the account may have.
