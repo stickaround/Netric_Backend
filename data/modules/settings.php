@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "Settings",
-    "icon" => "wrench",
+    "icon" => "SettingsIcon",
     "default_route" => "workflows",
     "navigation" => array(
         array(

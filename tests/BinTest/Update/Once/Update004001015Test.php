@@ -381,6 +381,6 @@ class Update004001015Test extends TestCase
 
         $schemaDM->update($this->account->getId());
 
-        // $this->tablesCreated[] = $tableName;
+        $this->tablesCreated[] = $tableName;
     }
 }

@@ -79,7 +79,8 @@ return array(
         "name" => "infocenter",
         "short_title" => 'Infocenter',
         "title" => "Infocenter Knowledge Base",
-        "scope" => 'system', "sort_order" => '10',
+        "scope" => 'system',
+        "sort_order" => '10',
         "f_system" => 't'
     ),
     // Reports

@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "CRM",
-    "icon" => "child",
+    "icon" => "ContactsIcon",
     "default_route" => "all-customers",
     "navigation" => array(
         array(
