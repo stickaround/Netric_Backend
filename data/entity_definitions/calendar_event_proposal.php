@@ -28,10 +28,6 @@ return array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            ),
         ),
     ),
     'is_private' => true,

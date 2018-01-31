@@ -44,23 +44,12 @@ return array(
             'title'=>'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name",
-                "parent"=>"parent_id",
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id"
-                ),
-            ),
         ),
         'owner_id' => array(
             'title'=>'Owner',
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'users',
             'default'=>array("value"=>"-3", "on"=>"null"),
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'f_display_table' => array(
             'title'=>'Display Table',

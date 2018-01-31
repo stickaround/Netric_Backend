@@ -65,19 +65,16 @@ return array(
             'title'=>'Priority',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id"),
         ),
         'status_id' => array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id"),
         ),
         'type_id' => array(
             'title'=>'Type',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id"),
         ),
     ),
 );

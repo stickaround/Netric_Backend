@@ -1,21 +1,24 @@
 <?php
 
-use Netric\EntityDefinitions\Field;
+use Netric\EntityDefinition\Field;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
+use Netric\EntityGroupings\LoaderFactory;
 
 $account = $this->getAccount();
 $log = $account->getApplication()->getLog();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $dm = $serviceManager->get(EntityGroupingDataMapperFactory::class);
+$groupingsLoader = $serviceManager->get(LoaderFactory::class);
 
 $groupingTables = array(
     array("table" => "activity_types", "refObjType" => "activity", "refFieldName" => "type_id"),
     array("table" => "ic_groups", "refObjType" => "infocenter_document", "refFieldName" => "groups"),
     array("table" => "product_categories", "refObjType" => "product", "refFieldName" => "categories"),
+    array("table" => "user_groups", "refObjType" => "user", "refFieldName" => "groups"),
     array("table" => "user_groups", "refObjType" => "user", "refFieldName" => "groups"),
     array("table" => "contacts_personal_labels", "refObjType" => "contact_personal", "refFieldName" => "groups"),
     array("table" => "user_notes_categories", "refObjType" => "note", "refFieldName" => "groups"),
@@ -36,6 +39,7 @@ $groupingTables = array(
     array("table" => "customer_lead_sources", "refObjType" => "opportunity", "refFieldName" => "lead_source_id"),
 
     array("table" => "customer_invoice_status", "refObjType" => "invoice", "refFieldName" => "status_id"),
+    array("table" => "sales_order_status", "refObjType" => "sales_order", "refFieldName" => "status_id"),
 
     array("table" => "project_bug_severity", "refObjType" => "case", "refFieldName" => "severity_id"),
     array("table" => "project_bug_status", "refObjType" => "case", "refFieldName" => "status_id"),
@@ -50,9 +54,6 @@ $groupingTables = array(
     array("table" => "project_priorities", "refObjType" => "task", "refFieldName" => "priority"),
 );
 
-// This will be used to cache the groupings
-$existingGroupingsCache = [];
-
 // Loop thru the grouping tables
 foreach ($groupingTables as $details) {
 
@@ -60,7 +61,7 @@ foreach ($groupingTables as $details) {
     $objType = $details["refObjType"];
     $fieldName = $details["refFieldName"];
 
-    // Get the entity defintion based on the current $objType we are dealing with
+    // Get the entity definition based on the current $objType we are dealing with
     $def = $serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
     // Get the field details based on the current $fieldName
@@ -83,46 +84,47 @@ foreach ($groupingTables as $details) {
 
         $filters = [];
 
-        // Make sure that the filter has been set
+        // Copy over any filters
         if (isset($field->fkeyTable['filter'])) {
             foreach ($field->fkeyTable['filter'] as $key => $filterField) {
-                $filters[$key] = $row[$filterField];
+                if (empty($row[$filterField]) != false) {
+                    $filters[$key] = $row[$filterField];
+                }
             }
+        } else if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
+            /*
+             * Make sure that the filter has been set for private entities
+             * object_groupings handles this automatically in the datamapper so fkeyTable['filter']
+             * might be null
+             */
+            $filters['user_id'] = isset($row["user_id"]) ? $row['user_id'] : $row["owner_id"];
         }
-
 
         // Filter results to this user of the object is private
         if ($def->isPrivate && !isset($filters["user_id"]) && !isset($filters["owner_id"])) {
+            echo "No user_id found for private groupings" . var_export($row, true) . "\n";
             $log->error("Private entity type called but grouping has no filter defined - $objType");
         }
 
-        // Create a new groupings where we will add the old group row into the object_groupings
-        $newGroupings = new EntityGroupings($objType, $fieldName, $filters);
+        $groupings = $groupingsLoader->get($objType, $fieldName, $filters);
 
-        // Create a grouping hash key so we can just reuse the groupings for the same $objType and $fieldName
-        $groupingHash = "$objType, $fieldName " . $newGroupings->getFiltersHash($filters);
-
-        // If cache key does not exist yet, then we will get the existing groupings and put it in cache
-        if (!isset($existingGroupingsCache[$groupingHash])) {
-            $existingGroupingsCache[$groupingHash] = $dm->getGroupings($objType, $fieldName, $filters);
-        }
-
-        $existingGrouping = $existingGroupingsCache[$groupingHash];
-
-        // We cannot continue if we do not have a groupings set, so we will log it and continue with the next fkey table
-        if (!$existingGrouping) {
-            $log->error("Update 004.001.015 no existing groupings specificed objType: $objType. fieldName: $fieldName");
+        /*
+         * We cannot continue if we do not have a groupings set, so we will
+         * log it and continue with the next fkey table
+         */
+        if (!$groupings) {
+            $log->error("Update 004.001.015 no existing groupings specified objType: $objType. fieldName: $fieldName");
             continue;
         }
 
         $groupName = $row[$field->fkeyTable['title']];
-        $group = $existingGrouping->getByName($groupName);
+        $group = $groupings->getByName($groupName);
 
         // If group is not existing in the object_groupings, then we need to create a new group
-        if ($existingGrouping->getByName($groupName) === false) {
+        if ($group === false) {
 
             // Create a new group under the $newGroupings
-            $group = $newGroupings->create($groupName);
+            $group = $groupings->create($groupName);
             $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
             if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
                 $group->parentId = $row[$field->fkeyTable['parent']];
@@ -138,15 +140,10 @@ foreach ($groupingTables as $details) {
                     $group->setValue($pname, $pval);
             }
 
-            $newGroupings->add($group);
-            $dm->saveGroupings($newGroupings);
+            $groupings->add($group);
+            $groupingsLoader->save($groupings);
         }
 
-        /*
-         * After saving the new group, then we need to update the cached existing groupings
-         * This will prevent from adding duplicate group in the object_groupings table
-         */
-        $existingGrouping->add($group);
 
         // Get the key (usually id field) from the $row as we need it to update the referenced entities
         $oldFkeyId = $row[$field->fkeyTable['key']];

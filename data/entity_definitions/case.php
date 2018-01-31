@@ -49,13 +49,11 @@ return array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'severity_id' => array(
             'title'=>'Severity',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name"),
         ),
         'owner_id' => array(
             'title'=>'Owner',
@@ -72,7 +70,6 @@ return array(
             'title'=>'Type',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(
             'title'=>'Contact',

@@ -222,8 +222,10 @@ class Field implements \ArrayAccess
 		if (isset($data["fkey_table"]))
 			$this->fkeyTable = $data["fkey_table"];
 
-		// Check object groupings
-		if (("fkey" == $this->type || "fkey_multi" == $this->type) && "object_groupings" == $this->subtype && $this->fkeyTable == null) {
+		// If we are using standard object_groupings then manually set fkeyTable
+        // so that legacy code knows how to interact with the groupings
+		if ((self::TYPE_GROUPING == $this->type || self::TYPE_GROUPING_MULTI == $this->type)
+            && "object_groupings" == $this->subtype) {
 			$this->fkeyTable = array(
 				"key" => "id",
 				"title" => "name",

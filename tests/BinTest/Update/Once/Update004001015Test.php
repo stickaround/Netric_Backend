@@ -1,19 +1,16 @@
 <?php
 namespace BinTest\Update\Once;
 
-use Netric\EntityQuery;
-use Netric\EntityGroupings\Group;
-use Netric\EntityGroupings\EntityGroupings;
 use Netric\Console\BinScript;
 use Netric\Entity\EntityInterface;
 use PHPUnit\Framework\TestCase;
 
 use Netric\Db\DbFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\Application\Schema\SchemaDataMapperPgsql;
 use Netric\Application\Schema\SchemaProperty;
+use Netric\Db\Relational\RelationalDbInterface;
 
 /**
  * Make sure the bin/scripts/update/once/004/001/015.php script works
@@ -70,6 +67,13 @@ class Update004001015Test extends TestCase
      * @var EntityLoader
      */
     private $entityLoader = null;
+
+    /**
+     * Handle to account relational database
+     *
+     * @var  RelationalDbInterface
+     */
+    private $db = null;
 
     /**
      * Setup each test
@@ -154,18 +158,20 @@ class Update004001015Test extends TestCase
 
         // Add a test group data to the old fkey group table
         $groupName = "Customer $fieldName Group Unit Test";
-        $groupId = $this->db->insert($tableName, ["name" => $groupName]);
-        $this->testObjectGroupings[$tableName][] = $groupId;
+        $oldGroupingId = $this->db->insert($tableName, ["name" => $groupName]);
+        $this->testObjectGroupings[$tableName][] = $oldGroupingId;
 
         // Test the group that was in properly saved
-        $this->assertGreaterThan(0, $groupId);
+        $this->assertGreaterThan(0, $oldGroupingId);
 
-        // Create new entity and set the new group that was created
+        // Create new entity
         $entity = $this->entityLoader->create($objType);
         $entity->setValue("name", "test");
-        $entity->setValue($fieldName, $groupId, $groupName);
-        $this->entityLoader->save($entity);
+        $entityId = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
+
+        // Manually set the id of the entity since the datamapper will refresh the reference on save
+        $this->db->update($entity->getDefinition()->object_table, ['stage_id'=>$oldGroupingId], ['id'=>$entityId]);
 
         // Run the update script that will copy the group data from customer_stages to object_groupings
         $binScript = new BinScript($this->account->getApplication(), $this->account);
@@ -176,7 +182,7 @@ class Update004001015Test extends TestCase
         $entityGroup = $entityLoaded->getValue($fieldName);
         $entityGroupName = $entityLoaded->getValueName($fieldName);
 
-        // Get the object groupings
+        // Get new object groupings (which should have a new entry for the added group)
         $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
         $group = $groupings->getByName($groupName);
 
@@ -230,7 +236,7 @@ class Update004001015Test extends TestCase
         $this->testObjectGroupings[$tableName][] = $groupId1;
         $this->testObjectGroupings[$tableName][] = $groupId2;
 
-        // Test the group that was in properly saved
+        // Validate that the insert worked
         $this->assertGreaterThan(0, $groupId1);
         $this->assertGreaterThan(0, $groupId2);
 

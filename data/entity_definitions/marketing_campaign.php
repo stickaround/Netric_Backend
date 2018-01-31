@@ -103,19 +103,11 @@ return array(
             'title'=>'Type',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            ),
         ),
         'status_id' => array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            ),
         ),
         'parent_id' => array(
             'title'=>'Parent Campaign',

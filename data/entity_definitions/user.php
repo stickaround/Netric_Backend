@@ -158,24 +158,13 @@ return array(
         ),
         'team_id' => array(
             'title'=>'Team',
-            'type'=>Field::TYPE_GROUPING,
-            'subtype'=>'user_teams',
-            'fkey_table'=>array("key"=>"id", "title"=>"name", "parent"=>"parent_id")
+            'type'=>Field::TYPE_OBJECT,
+            'subtype'=>'user_team',
         ),
         'groups' => array(
             'title'=>'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name",
-                "parent"=>"parent_id",
-                "ref_table"=>array(
-                    "table"=>"object_grouping_mem",
-                    "this"=>"object_id",
-                    "ref"=>"grouping_id"
-                ),
-            ),
         ),
         'manager_id' => array(
             'title'=>'Manager',

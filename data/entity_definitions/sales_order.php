@@ -49,8 +49,7 @@ return array(
         'status_id' => array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
-            'subtype'=>'customer_order_status',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
+            'subtype'=>'object_groupings',
         ),
         'customer_id' => array(
             'title'=>'Customer',

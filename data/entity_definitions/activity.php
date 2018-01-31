@@ -123,10 +123,6 @@ return array(
             'title'=>'Type',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            ),
             "required"=>true
         ),
     ),

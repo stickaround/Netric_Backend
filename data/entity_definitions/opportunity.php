@@ -94,7 +94,6 @@ return array(
             'title'=>'Stage',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
 
         'customer_id' => array(
@@ -114,28 +113,21 @@ return array(
             'title'=>'Source',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'type_id' => array(
             'title'=>'Type',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'objection_id' => array(
             'title'=>'Objection',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'selling_point_id' => array(
             'title'=>'Selling Point',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            ),
         ),
         'folder_id' => array(
             'title'=>'Files',

@@ -152,7 +152,6 @@ return array(
             'title'=>'Queue',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'owner_id' => array(
             'title'=>'Owner',
@@ -164,25 +163,21 @@ return array(
             'title'=>'Source',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'rating_id' => array(
             'title'=>'Rating',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'status_id' => array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'class_id' => array(
             'title'=>'Class',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'converted_opportunity_id' => array(
             'title'=>'Opportunity',

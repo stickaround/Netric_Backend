@@ -112,10 +112,6 @@ return array(
             'title'=>'Purpose',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            )
         ),
 
         "owner_id" => array(

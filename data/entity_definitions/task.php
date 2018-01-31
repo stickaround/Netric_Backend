@@ -107,7 +107,6 @@ return array(
             'title'=>'Priority',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'project' => array(
             'title'=>'Project',
@@ -139,10 +138,6 @@ return array(
             'type'=>Field::TYPE_GROUPING,
             'private'=>true,
             'subtype'=>'object_groupings',
-            'fkey_table'=>array(
-                "key"=>"id",
-                "title"=>"name"
-            ),
         ),
         'recur_id' => array(
             'title'=>'Recurrence',
