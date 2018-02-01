@@ -19,6 +19,7 @@ services:
     image: kendu/gearman
   db1:
     image: 'dockerhub.aereusdev.com/pgsql:latest'
+    command: ["-c", "synchronous_commit=off"]
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
