@@ -1,4 +1,8 @@
 <?php
+namespace data\schema;
+
+use Netric\Application\Schema\SchemaProperty;
+
 /**
  * Schema file for an account's database
  *
@@ -10,10 +14,6 @@
  * all deltas must assume the newest schema so they will be used for post-update processing,
  * to migrate data, and to clean-up after previous changes.
  */
-namespace data\schema;
-
-use Netric\Application\Schema\SchemaProperty;
-
 return array(
     "app_object_field_defaults" => array(
         "PROPERTIES" => array(

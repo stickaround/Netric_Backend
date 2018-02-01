@@ -392,9 +392,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             $whereParams
         );
 
-        /*
-         * Now insert the rows to associate this entity with the foreign grouping
-         */
+        // Now insert the rows to associate this entity with the foreign grouping
         $values = $entity->getValue($field->name);
         if (is_array($values)) {
             foreach ($values as $val) {

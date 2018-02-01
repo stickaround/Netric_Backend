@@ -288,8 +288,8 @@ abstract class DmTestsAbstract extends TestCase
 		// Load the object through the loader which should cache it
 		$ret = $dm->getById($ent, $cid);
 		$this->assertTrue($ret);
-		$this->assertEquals(array(), $ent->getValue("groups"));
-		$this->assertEquals(array(), $ent->getValueNames("groups"));
+		$this->assertEquals([], $ent->getValue("groups"));
+		$this->assertEquals([], $ent->getValueNames("groups"));
 		$this->assertEquals('', $ent->getValueName("groups"));
 
 		// Cleanup groupings

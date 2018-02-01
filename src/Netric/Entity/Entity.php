@@ -151,23 +151,22 @@ class Entity implements EntityInterface
      */
     public function getValueName($strName, $id = null)
     {
-        $name = "";
+        $valueNames = $this->getValueNames($strName);
 
-        if (isset($this->fkeysValues[$strName])) {
-            foreach ($this->fkeysValues[$strName] as $key => $value) {
-                if ($id) {
-                    if ($key == $id)
-                        $name = $value;
-                } else {
-                    if ($name)
-                        $name .= ", ";
-
-                    $name .= $value;
+        if ($id) {
+            foreach ($valueNames as $valId => $valName) {
+                if ($valId == $id) {
+                    $valueNames = [$valName];
+                    break;
                 }
             }
         }
 
-        return $name;
+        if (count($valueNames)) {
+            return implode(',', $valueNames);
+        } else {
+            return '';
+        }
     }
 
     /**
@@ -333,7 +332,7 @@ class Entity implements EntityInterface
      */
     public function clearMultiValues($fieldName)
     {
-        $this->setValue($fieldName, array(), array());
+        $this->setValue($fieldName, [], []);
     }
 
     /**
