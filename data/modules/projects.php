@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "Work",
-    "icon" => "check-square-o",
+    "icon" => "WorkIcon",
     "default_route" => "tasks",
     "navigation" => array(
         array(

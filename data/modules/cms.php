@@ -6,7 +6,7 @@ namespace modules\navigation;
  */
 return [
     "title" => "Content",
-    "icon" => "newspaper-o",
+    "icon" => "LocalLibraryIcon",
     "default_route" => "sites",
     "navigation" => [
         [

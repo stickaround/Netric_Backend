@@ -6,7 +6,7 @@ namespace modules\navigation;
 
 return array(
     "title" => "Home",
-    "icon" => "tachometer",
+    "icon" => "HomeIcon",
     "default_route" => "activity",
     "navigation" => array(
         array(
