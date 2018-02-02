@@ -22,7 +22,7 @@ interface CacheInterface
     /**
      * Get a value from cache by key
      *
-     * @param type $key The unique key of the value to retrieve
+     * @param string $key The unique key of the value to retrieve
      * @return string
      */
     public function get($key);

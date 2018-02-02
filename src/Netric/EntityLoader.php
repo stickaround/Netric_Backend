@@ -21,13 +21,6 @@ class EntityLoader
 	private $loadedEntities = array();
 
 	/**
-	 * Cache of unique names to entity id
-	 *
-	 * @var array
-	 */
-	private $uniqueNamesToIds = array();
-
-	/**
 	 * Store the single instance of the loader 
 	 */
 	private static $m_pInstance;

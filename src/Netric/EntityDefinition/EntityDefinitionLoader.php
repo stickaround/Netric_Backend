@@ -327,7 +327,7 @@ class EntityDefinitionLoader
     /**
      * Load all the definitions
      *
-     * @return array    Collection of object definitions
+     * @return EntityDefinition[]
      */
     public function getAll()
     {

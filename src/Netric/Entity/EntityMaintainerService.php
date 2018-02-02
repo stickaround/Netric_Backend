@@ -226,11 +226,13 @@ class EntityMaintainerService extends AbstractHasErrors
          */
         foreach ($toDeleteIds as $entityId) {
             $entity = $this->entityLoader->get($def->getObjType(), $entityId);
-            $this->entityLoader->delete($entity, true);
-            $deletedEntities[] = $entity->getId();
-            $this->log->info(
-                "EntityMaintainerService->purgeStaleDeletedForType: deleted " . ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
-            );
+            if ($entity) {
+                $this->entityLoader->delete($entity, true);
+                $deletedEntities[] = $entity->getId();
+                $this->log->info(
+                    "EntityMaintainerService->purgeStaleDeletedForType: deleted " . ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
+                );
+            }
         }
 
         return $deletedEntities;
