@@ -13,7 +13,7 @@ use Netric\Config\ConfigFactory;
 /**
  * Create a data mapper service for modules
  */
-class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
+class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

@@ -21,7 +21,7 @@ use Netric\Entity\EntityFactoryFactory;
 use Netric\Db\DbFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 class Pgsql extends DataMapperAbstract implements DataMapperInterface
 {

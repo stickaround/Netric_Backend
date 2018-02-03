@@ -5,7 +5,7 @@ use DateTime;
 use Netric\Entity\ObjType\WorkerJobEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\RecurringJob;
 use Netric\Entity\Recurrence\RecurrencePattern;

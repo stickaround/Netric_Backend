@@ -4,7 +4,7 @@ namespace Netric\WorkerMan;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Config\Config;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**

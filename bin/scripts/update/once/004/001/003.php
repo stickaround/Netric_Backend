@@ -6,13 +6,18 @@
  * The record will be imported to the new email_account entity via ::fromArray
  * Then it will be saved using DataMapper::save()
  */
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Crypt\VaultServiceFactory;
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
-$entityLoader = $serviceManager->get("Netric/EntityLoader");
-$entityDefinitionLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
-$entityIndex = $serviceManager->get("EntityQuery_Index");
-$vaultService = $serviceManager->get("Netric/Crypt/VaultService");
+$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+$entityIndex = $serviceManager->get(IndexFactory::class);
+$vaultService = $serviceManager->get(VaultServiceFactory::class);
 $blockCypher = new \Netric\Crypt\BlockCipher($vaultService->getSecret("EntityEnc"));
 
 $def = null;

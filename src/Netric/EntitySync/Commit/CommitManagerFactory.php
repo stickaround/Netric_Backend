@@ -14,7 +14,7 @@ use Netric\ServiceManager;
  *
  * @package Netric\EntitySync\Commit\CommitManager
  */
-class CommitManagerFactory implements ServiceManager\AccountServiceLocatorInterface
+class CommitManagerFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

@@ -3,10 +3,11 @@
  * This is an update to EntitySync which changes local_revision in
  * object_sync_import from entity revision to entity commit_id
  */
+use Netric\Entity\EntityLoaderFactory;
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get("Netric/Db/Db");
-$entityLoader = $serviceManager->get("Netric/EntityLoader");
+$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
 $sql = "SELECT osi.id, osi.object_id, osi.revision, osc.object_type
         FROM object_sync_import as osi inner join object_sync_partner_collections as osc ON (

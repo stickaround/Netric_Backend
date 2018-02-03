@@ -8,7 +8,7 @@ namespace Netric\ServiceManager;
 /**
  * Service factories are classes that handle the construction of complex/cumbersome services
  */
-interface AccountServiceLocatorInterface extends ServiceFactoryInterface
+interface AccountServiceFactoryInterface extends ServiceFactoryInterface
 {
 	/**
 	 * Service creation factory for account specific services

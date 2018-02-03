@@ -6,7 +6,7 @@ namespace NetricTest\Entity;
 
 use Netric;
 use Netric\Entity\ActivityLog;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;

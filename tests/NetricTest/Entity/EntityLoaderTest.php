@@ -3,13 +3,16 @@
 /**
  * Test entity  loader class that is responsible for creating and initializing exisiting objects
  */
-namespace NetricTest;
+namespace NetricTest\Entity;
 
+use Netric\Cache\CacheFactory;
 use Netric\Entity\DataMapperInterface;
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityFactoryFactory;
+use Netric\Cache\CacheInterface;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 class EntityLoaderTest extends TestCase
 {
@@ -92,8 +95,10 @@ class EntityLoaderTest extends TestCase
         $dm->method('getAccount')
             ->willReturn($this->account);
 
-        $defLoader = $this->account->getServiceManager()->get("Netric/EntityDefinition/EntityDefinitionLoader");
-        $loader = new EntityLoader($dm, $defLoader);
+        $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
+        $cache = $this->account->getServiceManager()->get(CacheFactory::class);
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $loader = new EntityLoader($dm, $defLoader, $entityFactory, $cache);
 
         $entity = $loader->getByUniqueName("task", "my_test");
 

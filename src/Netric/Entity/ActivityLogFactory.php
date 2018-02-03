@@ -2,13 +2,13 @@
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityGroupings\LoaderFactory;
 
 /**
  * Factory for constructing an activity log service
  */
-class ActivityLogFactory implements ServiceManager\AccountServiceLocatorInterface
+class ActivityLogFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

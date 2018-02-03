@@ -7,7 +7,7 @@
  */
 namespace Netric\ServiceManager;
 
-use Netric;
+use Netric\Config\ConfigFactory;
 
 /**
  * Class for constructing, caching, and finding services by name
@@ -29,6 +29,6 @@ class ApplicationServiceManager extends AbstractServiceManager
      */
     protected $invokableFactoryMaps = array(
         // Application config
-        "Config" => "Netric/Config/Config",
+        "Config" => ConfigFactory::class,
     );
 }

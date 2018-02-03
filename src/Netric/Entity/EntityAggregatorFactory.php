@@ -2,7 +2,7 @@
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
@@ -10,7 +10,7 @@ use Netric\EntityQuery\Index\IndexFactory;
  *
  * @package Netric\FileSystem
  */
-class EntityAggregatorFactory implements ServiceManager\AccountServiceLocatorInterface
+class EntityAggregatorFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

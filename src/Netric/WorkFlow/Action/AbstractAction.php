@@ -11,7 +11,7 @@ use Netric\EntityDefinition\Field;
 use Netric\WorkFlow\WorkFlow;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Where;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\Error\ErrorAwareInterface;
 use Netric\Error\Error;

@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Class used to demonstrate loading a service through the ServiceManager
  */
-class ServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class ServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

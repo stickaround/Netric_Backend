@@ -8,14 +8,14 @@
  */
 namespace Netric\Db;
 
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Config\Config;
 
 /**
  * Create a service that returns a handle to an account database
  */
-class DbFactory implements AccountServiceLocatorInterface
+class DbFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

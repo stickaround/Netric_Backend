@@ -7,26 +7,29 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager;
-use Netric\Entity;
-use Netric\EntityQuery\Index\Pgsql;
+use Netric\Entity\EntityFactoryInterface;
+use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new project entity
  */
-class ProjectFactory implements Entity\EntityFactoryInterface
+class ProjectFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return new Entity\EntityInterface object
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @return EntityInterface
      */
-    public static function create(ServiceManager\AccountServiceManagerInterface $sl)
+    public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("project");
-        $indexInterface = new Pgsql($sl->getAccount());
-        $entityLoader = $sl->get("Netric/EntityLoader");
-        return new ProjectEntity($def, $entityLoader, $indexInterface);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("project");
+        $entityIndex = $sl->get(IndexFactory::class);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new ProjectEntity($def, $entityLoader, $entityIndex);
     }
 }

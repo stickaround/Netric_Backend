@@ -5,10 +5,13 @@
  * that was previously saved in the objects_* tables to f_seen=true where null. Entities will do
  * this automatically for all future saves due to the field default.
  */
+use Netric\Db\DbFactory;
+use Netric\Entity\EntityLoaderFactory;
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
-$loader = $serviceManager->get("Netric/EntityLoader");
+$db = $serviceManager->get(DbFactory::class);
+$loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
 
 $projectMemberships = [];

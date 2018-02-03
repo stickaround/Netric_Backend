@@ -2,14 +2,14 @@
 namespace Netric\Mail\Transport;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Config\ConfigFactory;
 use Netric\Mail\Transport\BulkSmtpFactory;
 
 /**
  * Create a new Transport service based on account settings for bulk email
  */
-class BulkTransportFactory implements AccountServiceLocatorInterface
+class BulkTransportFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

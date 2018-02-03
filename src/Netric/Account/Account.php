@@ -6,7 +6,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceManager;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Config\ConfigFactory;

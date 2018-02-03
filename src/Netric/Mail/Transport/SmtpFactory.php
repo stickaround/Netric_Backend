@@ -2,14 +2,14 @@
 namespace Netric\Mail\Transport;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Settings\SettingsFactory;
 use Netric\Config\ConfigFactory;
 
 /**
  * Create a new SMTP Transport service based on account settings
  */
-class SmtpFactory implements AccountServiceLocatorInterface
+class SmtpFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

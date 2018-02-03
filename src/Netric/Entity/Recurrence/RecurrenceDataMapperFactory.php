@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a new Recurring DataMapper service
  */
-class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
+class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

@@ -5,25 +5,29 @@
  */
 namespace Netric\Entity\ObjType;
 
-use Netric\ServiceManager;
-use Netric\Entity;
+use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new email thread entity
  */
-class EmailThreadFactory implements Entity\EntityFactoryInterface
+class EmailThreadFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return new Entity\EntityInterface object
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @return EntityInterface
      */
-    public static function create(ServiceManager\AccountServiceManagerInterface $sl)
+    public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("email_thread");
-        $entityLoader = $sl->get("Netric/EntityLoader");
-        $entityQueryIndex = $sl->get("Netric/EntityQuery/Index/Index");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("email_thread");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityQueryIndex = $sl->get(IndexFactory::class);
         return new EmailThreadEntity($def, $entityLoader, $entityQueryIndex);
     }
 }

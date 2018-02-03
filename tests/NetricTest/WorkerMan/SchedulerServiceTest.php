@@ -4,7 +4,7 @@ namespace NetricTest\WorkerMan;
 use NetricTest\Bootstrap;
 use Netric\WorkerMan\SchedulerService;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use DateTime;

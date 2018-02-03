@@ -11,7 +11,7 @@ use DateTime;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\Entity;
 

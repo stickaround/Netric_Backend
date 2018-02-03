@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a Log service
  */
-class LogFactory implements ServiceManager\AccountServiceLocatorInterface
+class LogFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

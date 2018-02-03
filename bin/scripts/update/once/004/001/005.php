@@ -7,23 +7,31 @@
  * now this is a one-time shot and all installations must stay on the store they started
  * or they will lose data.
  */
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Config\ConfigFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\FileSystem\FileStore\LocalFileStoreFactory;
+use Netric\FileSystem\FileStore\FileStoreFactory;
+use Netric\Log\LogFactory;
+use Netric\Db\DbFactory;
+use Netric\EntityQuery;
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
-$config = $serviceManager->get("Netric/Config/Config");
-$entityLoader = $serviceManager->get("Netric/EntityLoader");
-$entityIndex = $serviceManager->get("Netric/EntityQuery/Index/Index");
-$localStore = $serviceManager->get("Netric/FileSystem/FileStore/LocalFileStore");
-$remoteStore = $serviceManager->get("Netric/FileSystem/FileStore/FileStore");
-$entityLoader = $serviceManager->get("EntityLoader");
-$log =$serviceManager->get("Log");
+$db = $serviceManager->get(DbFactory::class);
+$config = $serviceManager->get(ConfigFactory::class);
+$entityIndex = $serviceManager->get(IndexFactory::class);
+$localStore = $serviceManager->get(LocalFileStoreFactory::class);
+$remoteStore = $serviceManager->get(FileStoreFactory::class);
+$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$log =$serviceManager->get(LogFactory::class);
 
 /*
  * If the store is not local then we need to upload any local files
  */
 if ($localStore !== $remoteStore) {
     // Undeleted
-    $query = new \Netric\EntityQuery("file");
+    $query = new EntityQuery("file");
     $query->where('dat_ans_key')->equals("");
     $query->andWhere('dat_local_path')->doesNotEqual("");
 

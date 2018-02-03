@@ -7,7 +7,7 @@ namespace Netric\WorkFlow\Action;
 
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\Error\Error;
 

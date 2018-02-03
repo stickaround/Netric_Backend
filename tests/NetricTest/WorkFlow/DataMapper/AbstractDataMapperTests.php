@@ -11,7 +11,7 @@ use Netric\WorkFlow\Action\ActionFactory;
 use Netric\EntityQuery\Where;
 use Netric\WorkFlow\WorkFlow;
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 
 abstract class AbstractDataMapperTests extends TestCase
 {

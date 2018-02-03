@@ -9,7 +9,7 @@ use Netric\Entity\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityQuery;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityQuery\Index\IndexInterface;
 

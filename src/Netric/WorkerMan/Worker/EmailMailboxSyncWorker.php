@@ -9,7 +9,7 @@ namespace Netric\WorkerMan\Worker;
 use Netric\EntityQuery;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Mail\ReceiverServiceFactory;
 

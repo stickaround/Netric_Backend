@@ -7,12 +7,12 @@
 namespace Netric\Mail;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 
 /**
  * Create an EntityEmailer service for sending email message entities
  */
-class EntityMailerFactory implements AccountServiceLocatorInterface
+class EntityMailerFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

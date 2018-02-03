@@ -3,12 +3,12 @@ namespace Netric\Mail;
 
 use Netric\EntitySync\Collection\CollectionFactory;
 use Netric\ServiceManager;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a service for receiving mail from a mail server
  */
-class ReceiverServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class ReceiverServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

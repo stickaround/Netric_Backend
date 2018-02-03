@@ -7,7 +7,7 @@ namespace Netric\Controller;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Mvc;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\ImageResizer;
 use Netric\FileSystem\FileStreamWrapper;

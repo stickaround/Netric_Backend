@@ -9,7 +9,7 @@
 namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a new WaitConditionAction

@@ -1,12 +1,9 @@
 <?php
-namespace Netric;
+namespace Netric\Entity;
 
-use Netric\Entity\DataMapperInterface;
-use Netric\Entity\EntityInterface;
 use Netric\Stats\StatsPublisher;
 use Netric\Cache\CacheInterface;
 use Netric\EntityDefinition\EntityDefinitionLoader;
-use Netric\Entity\EntityFactoryFactory;
 
 /**
  * The identity map (loader) is responsible for loading a specific entity and caching it for future calls.
@@ -58,13 +55,20 @@ class EntityLoader
 	 *
 	 * @param DataMapperInterface $dm The entity datamapper
 	 * @param EntityDefinitionLoader $defLoader The entity definition loader
+     * @param EntityFactory $entityFactory
+     * @param CacheInterface $cache
 	 */
-	public function __construct(DataMapperInterface $dm, EntityDefinitionLoader $defLoader)
+	public function __construct(
+	    DataMapperInterface $dm,
+        EntityDefinitionLoader $defLoader,
+        EntityFactory $entityFactory,
+        CacheInterface $cache
+    )
 	{
 		$this->dataMapper = $dm;
 		$this->definitionLoader = $defLoader;
-		$this->entityFactory = $dm->getAccount()->getServiceManager()->get(EntityFactoryFactory::class);
-		$this->cache = $dm->getAccount()->getServiceManager()->get("Cache");
+		$this->entityFactory = $entityFactory;
+		$this->cache = $cache;
 		return $this;
 	}
 

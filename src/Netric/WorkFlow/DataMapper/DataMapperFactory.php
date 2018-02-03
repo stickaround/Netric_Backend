@@ -4,13 +4,13 @@ namespace Netric\WorkFlow\DataMapper;
 use Netric\ServiceManager;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Db\DbFactory;
 
 /**
  * Base DataMapper class
  */
-class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
+class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

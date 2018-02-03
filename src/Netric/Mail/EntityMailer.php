@@ -7,7 +7,7 @@
 namespace Netric\Mail;
 
 use Netric\Entity\ObjType\EmailMessageEntity;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Mail\Transport\TransportInterface;
 
 /**

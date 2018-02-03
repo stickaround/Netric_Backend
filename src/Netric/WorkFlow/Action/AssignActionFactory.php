@@ -3,7 +3,7 @@ namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Factory to create a new AssignAction

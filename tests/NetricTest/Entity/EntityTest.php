@@ -5,10 +5,9 @@
  */
 namespace NetricTest\Entity;
 
-use Netric;
 use Netric\Entity\Entity;
 use PHPUnit\Framework\TestCase;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 class EntityTest extends TestCase
 {
@@ -125,7 +124,7 @@ class EntityTest extends TestCase
 			)
 		);
 
-		$loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+		$loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 		$existingCust = $loader->get('customer', $cust->getId());
 
 		// Load the updated data into the entity

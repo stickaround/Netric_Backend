@@ -1,11 +1,4 @@
 <?php
-
-/**
- * Our base implementation of a ServiceLocator pattern
- *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
 namespace Netric\ServiceManager;
 
 use Netric\Application\Application;
@@ -155,7 +148,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
                 $service = $factory->createService($this);
             } else {
                 throw new Exception\ServiceNotFoundException(sprintf(
-                    '%s: The factory interface must implement Netric/ServiceManager/AccountServiceLocatorInterface.',
+                    '%s: The factory interface must implement Netric/ServiceManager/AccountServiceFactoryInterface.',
                     get_class($this) . '::' . __FUNCTION__,
                     $factoryClassPath
                 ));

@@ -21,7 +21,7 @@ use Netric\Mail\Storage\Exception\InvalidArgumentException;
 use Netric\Mail\Storage\AbstractStorage;
 use Netric\Mail\Storage\Imap;
 use Netric\Mail\Storage\Pop3;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Config\Config;

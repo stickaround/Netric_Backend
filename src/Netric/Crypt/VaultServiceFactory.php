@@ -10,7 +10,7 @@ use Netric\ServiceManager;
 /**
  * Create a service for getting and setting secrets
  */
-class VaultServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class VaultServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

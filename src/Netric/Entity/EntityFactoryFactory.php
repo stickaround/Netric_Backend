@@ -13,7 +13,7 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class EntityFactoryFactory implements ServiceManager\AccountServiceLocatorInterface
+class EntityFactoryFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

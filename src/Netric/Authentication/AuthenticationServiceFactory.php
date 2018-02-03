@@ -2,7 +2,7 @@
 namespace Netric\Authentication;
 
 use Netric\ServiceManager;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Request\RequestFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
@@ -11,7 +11,7 @@ use Netric\EntityQuery\Index\IndexFactory;
  *
  * @package Netric\Authentication
  */
-class AuthenticationServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class AuthenticationServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

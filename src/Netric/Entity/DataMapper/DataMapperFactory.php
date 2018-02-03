@@ -1,13 +1,13 @@
 <?php
 namespace Netric\Entity\DataMapper;
 
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a Entity DataMapper service
  */
-class DataMapperFactory implements AccountServiceLocatorInterface
+class DataMapperFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

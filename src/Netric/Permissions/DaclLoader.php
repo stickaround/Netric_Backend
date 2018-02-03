@@ -6,7 +6,7 @@
 namespace Netric\Permissions;
 
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 
 /**

@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a file system storage service that uses aereus network storage
  */
-class AnsFileStoreFactory implements ServiceManager\AccountServiceLocatorInterface
+class AnsFileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

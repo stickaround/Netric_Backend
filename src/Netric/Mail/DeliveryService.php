@@ -15,7 +15,7 @@ use Netric\EntityGroupings\Loader as GroupingsLoader;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Mail\Storage;
 use Netric\Mail;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Mime;
 use PhpMimeMailParser;

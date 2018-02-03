@@ -7,7 +7,7 @@ use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaDataMapperPgsql;
 use Netric\Db\Pgsql;
 use Netric\Error\AbstractHasErrors;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Class for setting up an account on creation and for managing updates

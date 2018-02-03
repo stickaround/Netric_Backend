@@ -6,17 +6,17 @@
  */
 namespace Netric\Entity;
 
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\FileSystem\FileSystem;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 /**
  * Create a service for delivering mail
  */
-class EntityMaintainerServiceFactory implements AccountServiceLocatorInterface
+class EntityMaintainerServiceFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

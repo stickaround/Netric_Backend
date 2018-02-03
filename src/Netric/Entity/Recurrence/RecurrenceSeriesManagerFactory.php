@@ -7,26 +7,31 @@
  */
 namespace Netric\Entity\Recurrence;
 
-use Netric\ServiceManager;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 /**
  * Create a new Recurring Entity Series Writer service
  */
-class RecurrenceSeriesManagerFactory implements ServiceManager\AccountServiceLocatorInterface
+class RecurrenceSeriesManagerFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return EntitySeriesWriter
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @return RecurrenceSeriesManager
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $sl)
     {
-        $recurIdentityMapper = $sl->get("Netric/Entity/Recurrence/RecurrenceIdentityMapper");
-        $entityLoader = $sl->get("Netric/EntityLoader");
-        $entityDataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");
-        $entityIndex = $sl->get("Netric/EntityQuery/Index/Index");
-        $entityDefinitionLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
+        $recurIdentityMapper = $sl->get(RecurrenceIdentityMapperFactory::class);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityDataMapper = $sl->get(DataMapperFactory::class);
+        $entityIndex = $sl->get(IndexFactory::class);
+        $entityDefinitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
         return new RecurrenceSeriesManager(
             $recurIdentityMapper,
             $entityLoader,

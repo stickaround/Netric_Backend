@@ -11,7 +11,7 @@ use Netric\ServiceManager;
 /**
  * Create a service for delivering mail
  */
-class DeliveryServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class DeliveryServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

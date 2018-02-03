@@ -3,12 +3,15 @@
  * Move the old calendar_events_recurring table to the new object_recurrence table
  */
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\Db\DbFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Log\LogFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
-$loader = $serviceManager->get("Netric/EntityLoader");
-$log =$serviceManager->get("Log");
+$db = $serviceManager->get(DbFactory::class);
+$loader = $serviceManager->get(EntityLoaderFactory::class);
+$log =$serviceManager->get(LogFactory::class);
 
 // We need to check first if f_imported_to_entity column is existing, if not then add the column
 if (!$db->columnExists("calendar_events_recurring", "f_imported_to_entity")) {

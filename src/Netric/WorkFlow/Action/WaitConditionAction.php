@@ -6,7 +6,7 @@
 namespace Netric\WorkFlow\Action;
 
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\workFlowInstance;

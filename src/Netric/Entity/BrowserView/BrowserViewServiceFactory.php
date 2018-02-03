@@ -12,7 +12,7 @@ use Netric\Settings\SettingsFactory;
  *
  * @package Netric\FileSystem
  */
-class BrowserViewServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class BrowserViewServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

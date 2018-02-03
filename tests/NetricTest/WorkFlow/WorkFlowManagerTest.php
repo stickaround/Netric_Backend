@@ -8,7 +8,7 @@ use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\WorkFlow;
 use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\WorkFlow\WorkFlowManager;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\WorkFlowInstance;

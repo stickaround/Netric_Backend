@@ -2,14 +2,14 @@
 namespace Netric\Entity\Notifier;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
-use Netric\EntityLoaderFactory;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new Notifier service
  */
-class NotifierFactory implements AccountServiceLocatorInterface
+class NotifierFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

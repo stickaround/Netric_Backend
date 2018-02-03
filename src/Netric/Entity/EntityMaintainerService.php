@@ -7,7 +7,7 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Log\LogInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use DateInterval;
 use DateTime;
 use Netric\FileSystem\FileSystem;
@@ -138,21 +138,38 @@ class EntityMaintainerService extends AbstractHasErrors
         $totalNum = $result->getTotalNum();
 
         // If there are more entities than allowed then we should delete them
-        if ($totalNum > $def->capped) {
-            $numToDelete = $totalNum - $def->capped;
-            $this->log->info(
-                "EntityMaintainerService->trimCappedForType: trimming " .
-                    "$numToDelete from " . $def->getObjType()
-            );
+        if ($totalNum <= $def->capped) {
+            return $deletedEntities;
+        }
 
-            for ($i = 0; $i < $numToDelete; $i++) {
-                $entity = $result->getEntity($i);
-                $deletedEntities[] = $entity->getId();
+        $numToDelete = $totalNum - $def->capped;
+        $this->log->info(
+            "EntityMaintainerService->trimCappedForType: trimming " .
+                "$numToDelete from " . $def->getObjType()
+        );
+
+        // List of IDs to delete
+        $toDeleteIds = [];
+
+        // Hard delete all the stale entities
+        for ($i = 0; $i < $numToDelete; $i++) {
+            $entity = $result->getEntity($i);
+            $toDeleteIds[] = $entity->getId();
+        }
+
+        /*
+         * Now delete queued entities. We cannot do it above in the loop
+         * because we would be modifying the totalNum as we iterated through
+         * it and that is a recipe for disaster.
+         */
+        foreach ($toDeleteIds as $entityId) {
+            $entity = $this->entityLoader->get($def->getObjType(), $entityId);
+            if ($entity) {
                 $this->entityLoader->delete($entity);
-
-                // Log it
+                $deletedEntities[] = $entity->getId();
                 $this->log->info(
-                    "EntityMaintainerService->trimCappedForType: deleted " . ($i + 1) . " of " . $numToDelete . "  - " . $def->getObjType()
+                    "EntityMaintainerService->trimCappedForType: deleted " .
+                    count($deletedEntities) . " of " . $numToDelete . "  - " . $def->getObjType()
                 );
             }
         }
@@ -222,7 +239,7 @@ class EntityMaintainerService extends AbstractHasErrors
         /*
          * Now delete queued entities. We cannot do it above in the loop
          * because we would be modifying the totalNum as we iterated through
-         * it and that is a recipe for desaster.
+         * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
             $entity = $this->entityLoader->get($def->getObjType(), $entityId);
@@ -230,7 +247,8 @@ class EntityMaintainerService extends AbstractHasErrors
                 $this->entityLoader->delete($entity, true);
                 $deletedEntities[] = $entity->getId();
                 $this->log->info(
-                    "EntityMaintainerService->purgeStaleDeletedForType: deleted " . ($i + 1) . " of " . $totalNum . "  - " . $def->getObjType()
+                    "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
+                    count($deletedEntities) . " of " . $totalNum . "  - " . $def->getObjType()
                 );
             }
         }
@@ -267,16 +285,30 @@ class EntityMaintainerService extends AbstractHasErrors
 
         $this->log->info("EntityMaintainerService->deleteSpam: purging $totalNum spam messages");
 
+        // List of IDs to delete
+        $toDeleteIds = [];
+
         // Hard delete all the stale entities
         for ($i = 0; $i < $totalNum; $i++) {
             $entity = $result->getEntity($i);
-            $deletedEntities[] = $entity->getId();
-            $this->entityLoader->delete($entity);
+            $toDeleteIds[] = $entity->getId();
+        }
 
-            // Log it
-            $this->log->info(
-                "EntityMaintainerService->deleteOldSpamMessages: deleted " . ($i + 1) . " of " . $totalNum . "  spam messages "
-            );
+        /*
+         * Now delete queued entities. We cannot do it above in the loop
+         * because we would be modifying the totalNum as we iterated through
+         * it and that is a recipe for disaster.
+         */
+        foreach ($toDeleteIds as $entityId) {
+            $entity = $this->entityLoader->get('email_message', $entityId);
+            if ($entity) {
+                $this->entityLoader->delete($entity, true);
+                $deletedEntities[] = $entity->getId();
+                $this->log->info(
+                    "EntityMaintainerService->deleteOldSpamMessages: deleted " .
+                    count($deletedEntities) . " of " . $totalNum . "  - email_message"
+                );
+            }
         }
 
         return $deletedEntities;
@@ -310,16 +342,30 @@ class EntityMaintainerService extends AbstractHasErrors
         $result = $this->entityIndex->executeQuery($query);
         $totalNum = $result->getTotalNum();
 
+        // List of IDs to delete
+        $toDeleteIds = [];
+
         // Hard delete all files older than the cutoff
         for ($i = 0; $i < $totalNum; $i++) {
             $file = $result->getEntity($i);
-            $deletedFiles[] = $file->getId();
-            $this->entityLoader->delete($file);
+            $toDeleteIds[] = $file->getId();
+        }
 
-            // Log it
-            $this->log->info(
-                "EntityMaintainerService->cleanTempFolder: deleted " . ($i + 1) . " of " . $totalNum . "  temp files "
-            );
+        /*
+         * Now delete queued entities. We cannot do it above in the loop
+         * because we would be modifying the totalNum as we iterated through
+         * it and that is a recipe for disaster.
+         */
+        foreach ($toDeleteIds as $entityId) {
+            $entity = $this->entityLoader->get('file', $entityId);
+            if ($entity) {
+                $this->entityLoader->delete($entity);
+                $deletedFiles[] = $entity->getId();
+                $this->log->info(
+                    "EntityMaintainerService->cleanTempFolder: deleted " .
+                    count($deletedFiles) . " of " . $totalNum . "  - file"
+                );
+            }
         }
 
         return $deletedFiles;

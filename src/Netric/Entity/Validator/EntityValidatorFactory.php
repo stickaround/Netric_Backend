@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create an entity validator instance
  */
-class EntityValidatorFactory implements ServiceManager\AccountServiceLocatorInterface
+class EntityValidatorFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

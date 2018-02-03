@@ -9,13 +9,20 @@
  * email_account synchronizes independently so it is safe to delete all the messages
  * in the duplicate accounts.
  */
+use Netric\Db\DbFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Log\LogFactory;
+use Netric\EntityQuery;
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
-$entityLoader = $serviceManager->get("Netric/EntityLoader");
-$entityDefinitionLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
-$entityIndex = $serviceManager->get("EntityQuery_Index");
-$log = $serviceManager->get("Log");
+$db = $serviceManager->get(DbFactory::class);
+$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+$entityIndex = $serviceManager->get(IndexFactory::class);
+$log = $serviceManager->get(LogFactory::class);
 
 // Find all the duplicates
 $sql = "select address, owner_id, count(*) from objects_email_account_act " .
@@ -28,7 +35,7 @@ for ($i = 0; $i < $totalNum; $i++) {
     $row = $db->getRow($results, $i);
 
     // Loop through the duplicates and delete all but hte first
-    $query = new \Netric\EntityQuery("email_account");
+    $query = new EntityQuery("email_account");
     $query->where("address")->equals($row['address']);
     $query->orderBy("id");
     $ret = $entityIndex->executeQuery($query);

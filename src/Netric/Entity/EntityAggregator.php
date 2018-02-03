@@ -10,7 +10,7 @@ namespace Netric\Entity;
 
 use Netric\EntityDefinition\Field;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Aggregation;
 use Netric\EntityQuery\Index\IndexInterface;

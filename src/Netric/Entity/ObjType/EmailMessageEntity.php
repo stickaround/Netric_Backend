@@ -9,7 +9,7 @@ namespace Netric\Entity\ObjType;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;

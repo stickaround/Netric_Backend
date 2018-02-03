@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a file system storage service
  */
-class LocalFileStoreFactory implements ServiceManager\AccountServiceLocatorInterface
+class LocalFileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

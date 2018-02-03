@@ -10,7 +10,7 @@ use Netric\ServiceManager;
 /**
  * Create a service for sending email
  */
-class SenderServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class SenderServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

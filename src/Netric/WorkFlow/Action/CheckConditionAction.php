@@ -6,7 +6,7 @@
 namespace Netric\WorkFlow\Action;
 
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
 use Netric\WorkFlow\WorkFlowInstance;

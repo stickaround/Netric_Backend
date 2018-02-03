@@ -7,13 +7,13 @@
 namespace Netric\Application\Schema;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Db\DbFactory;
 
 /**
  * Create the default DataMapper for account schemas
  */
-class SchemaDataMapperFactory implements AccountServiceLocatorInterface
+class SchemaDataMapperFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

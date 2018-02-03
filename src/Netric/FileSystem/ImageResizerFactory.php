@@ -14,7 +14,7 @@ use Netric\ServiceManager;
  *
  * @package Netric\FileSystem
  */
-class ImageResizerFactory implements ServiceManager\AccountServiceLocatorInterface
+class ImageResizerFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

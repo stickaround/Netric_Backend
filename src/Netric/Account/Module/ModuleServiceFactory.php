@@ -10,7 +10,7 @@ use Netric\ServiceManager;
 /**
  * Create a module service
  */
-class ModuleServiceFactory implements ServiceManager\AccountServiceLocatorInterface
+class ModuleServiceFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

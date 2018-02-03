@@ -10,7 +10,7 @@ use Netric\Cache\CacheFactory;
  *
  * @package Netric\FileSystem
  */
-class SettingsFactory implements ServiceManager\AccountServiceLocatorInterface
+class SettingsFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

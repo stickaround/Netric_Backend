@@ -2,7 +2,7 @@
 namespace Netric\Permissions;
 
 use Netric\ServiceManager;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Create a DaclLoader

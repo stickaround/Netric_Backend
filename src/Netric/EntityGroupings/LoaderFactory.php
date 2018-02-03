@@ -13,7 +13,7 @@ use Netric\ServiceManager;
 /**
  * Create a Entity Loader service
  */
-class LoaderFactory implements ServiceManager\AccountServiceLocatorInterface
+class LoaderFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

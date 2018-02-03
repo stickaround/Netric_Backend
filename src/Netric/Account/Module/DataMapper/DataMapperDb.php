@@ -41,6 +41,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
      *
      * @param DbInterface $dbh
      * @param Config $config The configuration object
+     * @param UserEntity $user Current user
      */
     public function __construct(DbInterface $dbh, Config $config, UserEntity $user)
     {
@@ -84,7 +85,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
                 // Setup the xml object
                 $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
 
-                // Now converte the module navigation data into xml
+                // Now convert the module navigation data into xml
                 $this->arrayToXml($module->getNavigation(), $xmlNavigation);
 
                 // Save the xml string

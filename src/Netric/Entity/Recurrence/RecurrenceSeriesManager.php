@@ -10,7 +10,7 @@ namespace Netric\Entity\Recurrence;
 
 use Netric\Entity;
 use Netric\EntityQuery\Index\IndexInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Error;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\EntityDefinitionLoader;

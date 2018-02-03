@@ -2,12 +2,12 @@
 namespace Netric\EntityGroupings\DataMapper;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 
 /**
  * Create a EntityGroupings DataMapper service
  */
-class EntityGroupingDataMapperFactory implements AccountServiceLocatorInterface
+class EntityGroupingDataMapperFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

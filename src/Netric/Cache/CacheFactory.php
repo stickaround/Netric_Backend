@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a Cache service
  */
-class CacheFactory implements ServiceManager\AccountServiceLocatorInterface
+class CacheFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

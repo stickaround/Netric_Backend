@@ -5,9 +5,9 @@
  */
 namespace NetricTest\Controller;
 
-use Netric;
 use Netric\Controller\EntityController;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -74,7 +74,7 @@ class EntityControllerTest extends TestCase
         }
 
         // Cleanup any test entities
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $loader->delete($entity, true);
         }
@@ -83,7 +83,7 @@ class EntityControllerTest extends TestCase
     public function testGetGetEntityAction()
     {
         // Create a test entity for querying
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dashboardEntity = $loader->create("dashboard");
         $dashboardEntity->setValue("name", "activity");
         $loader->save($dashboardEntity);
@@ -101,7 +101,7 @@ class EntityControllerTest extends TestCase
     public function testPostGetEntityActionDashboardUname()
     {
         // Create a test entity for querying
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dashboardEntity = $loader->create("dashboard");
         $dashboardEntity->setValue("name", "activity");
         $dashboardEntity->setValue("owner_id", $this->account->getUser()->getId());
@@ -129,7 +129,7 @@ class EntityControllerTest extends TestCase
     public function testPostGetEntityAction()
     {
         // Create a test entity for querying
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $customer = $loader->create("customer");
         $customer->setValue("name", "Test");
         $loader->save($customer);
@@ -153,7 +153,7 @@ class EntityControllerTest extends TestCase
     public function testPostGetEntityActionUname()
     {
         // Create a test entity for querying
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $site = $loader->create("cms_site");
         $site->setValue("name", "www.testsite.com");
         $loader->save($site);

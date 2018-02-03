@@ -1,8 +1,9 @@
 <?php
 
-namespace NetricTest;
+namespace NetricTest\Entity;
 
-use Netric;
+use Netric\Entity\EntityLoader;
+use Netric\Entity\EntityLoaderFactory;
 
 use PHPUnit\Framework\TestCase;
 
@@ -14,13 +15,8 @@ class EntityLoaderFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntityLoader',
-            $sm->get('EntityLoader')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntityLoader',
-            $sm->get('Netric\EntityLoader')
+            EntityLoader::class,
+            $sm->get(EntityLoaderFactory::class)
         );
     }
 }

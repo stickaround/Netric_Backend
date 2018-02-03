@@ -9,7 +9,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 /**
  * Create a file system storage service that uses aereus network storage
  */
-class MogileFileStoreFactory implements ServiceManager\AccountServiceLocatorInterface
+class MogileFileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

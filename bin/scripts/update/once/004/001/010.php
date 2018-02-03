@@ -2,11 +2,13 @@
 /**
  * Move the old project_membership data to the project's member table (which is now an object multi)
  */
+use Netric\Db\DbFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
-$loader = $serviceManager->get("Netric/EntityLoader");
+$db = $serviceManager->get(DbFactory::class);
+$loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
 
 $projectMemberships = [];

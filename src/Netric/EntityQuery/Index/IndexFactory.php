@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a EntityQuery Index service
  */
-class IndexFactory implements ServiceManager\AccountServiceLocatorInterface
+class IndexFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

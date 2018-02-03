@@ -6,7 +6,7 @@ namespace NetricTest\Entity;
 
 use Netric\Entity;
 use Netric\Entity\EntityAggregator;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use PHPUnit\Framework\TestCase;
 
 class EntityAggregatorTest extends TestCase

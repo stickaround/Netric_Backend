@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a Entity Sync Commit DataMapper service
  */
-class DataMapperFactory implements ServiceManager\AccountServiceLocatorInterface
+class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

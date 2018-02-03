@@ -11,7 +11,7 @@ namespace Netric\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\Log\LogInterface;

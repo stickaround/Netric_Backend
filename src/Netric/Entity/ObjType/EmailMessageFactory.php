@@ -5,26 +5,31 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\FileSystem\FileSystemFactory;
 use Netric\ServiceManager;
-use Netric\Entity;
+use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityFactoryInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a new email entity
  */
-class EmailMessageFactory implements Entity\EntityFactoryInterface
+class EmailMessageFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
      *
      * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return new Entity\EntityInterface object
+     * @return EntityInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("email_message");
-        $entityLoader = $sl->get("Netric/EntityLoader");
-        $entityQueryIndex = $sl->get("Netric/EntityQuery/Index/Index");
-        $fileSystem = $sl->get("Netric/FileSystem/FileSystem");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("email_message");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $entityQueryIndex = $sl->get(IndexFactory::class);
+        $fileSystem = $sl->get(FileSystemFactory::class);
         return new EmailMessageEntity($def, $entityLoader, $entityQueryIndex, $fileSystem);
     }
 }

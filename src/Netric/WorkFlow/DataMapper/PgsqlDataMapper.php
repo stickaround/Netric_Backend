@@ -5,7 +5,7 @@
  */
 namespace Netric\WorkFlow\DataMapper;
 
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Error\ErrorAwareInterface;
 use Netric\Error\Error;
 use Netric\WorkFlow\WorkFlow;

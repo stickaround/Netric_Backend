@@ -18,7 +18,7 @@ use Netric\WorkFlow\DataMapper\DataMapperFactory;
  *
  * @package Netric\FileSystem
  */
-class WorkFlowManagerFactory implements ServiceManager\AccountServiceLocatorInterface
+class WorkFlowManagerFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

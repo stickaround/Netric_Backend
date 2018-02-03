@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a new recurrence indentity mapper service
  */
-class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceLocatorInterface
+class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

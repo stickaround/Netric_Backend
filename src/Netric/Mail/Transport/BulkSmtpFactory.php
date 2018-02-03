@@ -2,7 +2,7 @@
 namespace Netric\Mail\Transport;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\ServiceManager\AccountServiceLocatorInterface;
+use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Config\ConfigFactory;
 
 /**
@@ -17,7 +17,7 @@ use Netric\Config\ConfigFactory;
  * This factory is basically just gathering configuration options from either the system
  * settings or user-defined account settings.
  */
-class BulkSmtpFactory implements AccountServiceLocatorInterface
+class BulkSmtpFactory implements AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

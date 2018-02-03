@@ -2,7 +2,7 @@
 namespace NetricTest\Controller;
 
 use Netric;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Account\Account;
 use Netric\Controller\FilesController;
 use Netric\Entity\ObjType\UserEntity;

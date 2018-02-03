@@ -5,7 +5,7 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity\EntityInterface;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;

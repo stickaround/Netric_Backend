@@ -6,7 +6,7 @@ namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence;
 use Netric\Entity;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use PHPUnit\Framework\TestCase;
 

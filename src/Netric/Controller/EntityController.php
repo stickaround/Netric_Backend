@@ -12,7 +12,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\FormsFactory;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
-use Netric\EntityLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 
 class EntityController extends Mvc\AbstractAccountController
@@ -204,7 +204,7 @@ class EntityController extends Mvc\AbstractAccountController
             );
         }
 
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get by uname if the ID is not set
         if (isset($params['uname']) && empty($params['id'])) {
@@ -250,7 +250,7 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => "obj_type is a required param"));
         }
 
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         if (isset($objData['id']) && !empty($objData['id'])) {
             $entity = $loader->get($objData['obj_type'], $objData['id']);
@@ -313,7 +313,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper to delete
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
@@ -608,7 +608,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
@@ -669,7 +669,7 @@ class EntityController extends Mvc\AbstractAccountController
         $mergeData = $requestData['merge_data'];
 
         // Get the entity loader so we can initialize (and check the permissions for) each entity
-        $loader = $this->account->getServiceManager()->get("Netric/EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");

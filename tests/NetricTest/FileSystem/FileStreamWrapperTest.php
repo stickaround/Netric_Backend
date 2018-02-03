@@ -8,7 +8,7 @@ use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\FileStreamWrapper;
 use Netric\Entity\DataMapperInterface;
 use Netric\EntityQuery;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType;
 
 use PHPUnit\Framework\TestCase;

@@ -10,6 +10,7 @@
 namespace Netric\ServiceManager;
 
 use Netric\Account\Account;
+use Netric\Entity\EntityLoaderFactory;
 use Netric;
 
 /**
@@ -71,7 +72,7 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
 
         "EntityDefinitionLoader" => "Netric/EntityDefinition/EntityDefinitionLoader",
 
-        "EntityLoader" => "Netric/EntityLoader",
+        "EntityLoader" => EntityLoaderFactory::class,
 
         "EntitySync" => "Netric/EntitySync/EntitySync",
 

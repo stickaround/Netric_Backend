@@ -4,10 +4,13 @@
  * This script cleans them all up since they were really killing performance with all
  * the associations.
  */
+use Netric\Db\DbFactory;
+use Netric\Entity\EntityLoaderFactory;
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
-$loader = $serviceManager->get("Netric/EntityLoader");
+$db = $serviceManager->get(DbFactory::class);
+$loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
 
 $iterations = 0;

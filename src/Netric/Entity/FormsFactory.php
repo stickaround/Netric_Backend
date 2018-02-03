@@ -8,7 +8,7 @@ use Netric\Db\DbFactory;
 /**
  * Service factory for the Forms
  */
-class FormsFactory implements ServiceManager\AccountServiceLocatorInterface
+class FormsFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

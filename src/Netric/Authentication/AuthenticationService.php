@@ -8,7 +8,7 @@
 namespace Netric\Authentication;
 
 use Netric\ServiceManager;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
 

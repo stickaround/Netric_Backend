@@ -12,7 +12,7 @@ use Netric\ServiceManager;
 /**
  * Create a Entity Sync service
  */
-class EntitySyncFactory implements ServiceManager\AccountServiceLocatorInterface
+class EntitySyncFactory implements ServiceManager\AccountServiceFactoryInterface
 {
     /**
      * Service creation factory

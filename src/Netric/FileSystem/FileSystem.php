@@ -12,7 +12,7 @@ use Netric\EntityQuery;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\FolderEntity;
 use Netric\Entity\ObjType\FileEntity;
-use Netric\EntityLoader;
+use Netric\Entity\EntityLoader;
 use Netric\Entity\DataMapperInterface;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use Netric\EntityQuery\Index\IndexInterface;
