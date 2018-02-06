@@ -7,8 +7,15 @@ namespace modules\navigation;
 return array(
     "title" => "Settings",
     "icon" => "SettingsIcon",
-    "default_route" => "workflows",
+    "default_route" => "profile",
     "navigation" => array(
+        array(
+            "title" => "My Profile",
+            "type" => "plugin",
+            "route" => "profile",
+            "plugin" => "Profile",
+            "icon" => "AccountProfileIcon",
+        ),
         array(
             "title" => "Automated Workflows",
             "type" => "browse",
