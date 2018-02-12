@@ -7,8 +7,15 @@ namespace modules\navigation;
 return array(
     "title" => "Settings",
     "icon" => "SettingsIcon",
-    "default_route" => "profile",
+    "default_route" => "modules",
     "navigation" => array(
+        array(
+            "title" => "Modules",
+            "type" => "plugin",
+            "route" => "modules",
+            "plugin" => "Modules",
+            "icon" => "ExtensionIcon",
+        ),
         array(
             "title" => "My Profile",
             "type" => "plugin",

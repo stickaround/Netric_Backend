@@ -8,11 +8,13 @@ namespace Netric\Account\Module\DataMapper;
 
 use Netric\Error\AbstractHasErrors;
 use Netric\Account\Module\Module;
+use Netric\Account\Module\DataMapper\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
 use SimpleXMLElement;
-
+use Netric\Account\Account;
+use Netric\Entity\EntityLoaderFactory;
 
 class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterface
 {
@@ -38,16 +40,24 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
     private $user = null;
 
     /**
+     * Current account
+     *
+     * @var Account
+     */
+    private $account = null;
+
+    /**
      * Construct and initialize dependencies
      *
      * @param RelationalDbInterface $db
      * @param Config $config The configuration object
      */
-    public function __construct(RelationalDbInterface $db, Config $config, UserEntity $user)
+    public function __construct(RelationalDbInterface $db, Config $config, UserEntity $user, Account $account)
     {
         $this->db = $db;
         $this->config = $config;
         $this->user = $user;
+        $this->account = $account;
     }
 
     /**
@@ -70,27 +80,8 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
             "sort_order" => $module->getSortOrder(),
             "icon" => $module->getIcon(),
             "default_route" => $module->getDefaultRoute(),
+            "xml_navigation" => $module->getXmlNavigation()
         );
-
-        // Make sure that the module is dirty before we set the navigation
-        if ($module->isDirty()) {
-            $moduleNavigation = null;
-
-            // Make sure the the navigation is an array
-            if ($module->getNavigation() && is_array($module->getNavigation())) {
-                // Setup the xml object
-                $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
-
-                // Now converte the module navigation data into xml
-                $this->arrayToXml($module->getNavigation(), $xmlNavigation);
-
-                // Save the xml string
-                $moduleNavigation = $xmlNavigation->asXML();
-            }
-
-            // Set the module navigation
-            $data["xml_navigation"] = $moduleNavigation;
-        }
 
         // Compose either an update or insert statement
         $sql = "";
@@ -192,40 +183,51 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
     private function createModuleFromRow(array $row)
     {
         $module = new Module();
-        $module->fromArray($row);
+        $moduleName = $row['name'];
+
+        // Get the location of the module navigation file
+        $basePath = $this->config->get("application_path") . "/data";
+
+        // Check first if we have a navigation file existing and set it as default data for our module
+        if (file_exists($basePath . "/modules/" . $moduleName . ".php")) {
+            $moduleData = include($basePath . "/modules/" . $moduleName . ".php");
+
+            // Import module data coming from the navigation file as our default data
+            $module->fromArray($moduleData);
+
+            // Setup the xml object
+            $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
+
+            // Now convert the module navigation data into xml
+            $this->arrayToXml($module->getNavigation(), $xmlNavigation);
+
+            // Set the xml navigation string
+            $module->setXmlNavigation($xmlNavigation->asXML());
+        }
 
         /*
          * If module data from the database has xml_navigation, then we will use this to set the module's navigation
          * Otherwise, we will use the module navigation file
          */
         if (isset($row['xml_navigation']) && !empty($row['xml_navigation'])) {
+
             // Convert the xml navigation string into an array
             $xml = simplexml_load_string($row['xml_navigation']);
             $json = json_encode($xml);
-
-            // Make sure that the navigation array is not an associative array
-            $nav['navigation'] = array_values(json_decode($json, true));
-
-            // Import the module data coming from the database
-            $module->fromArray($nav);
-
-            // Set the system value separately
-            $module->setSystem(($row['f_system'] == 't') ? true : false);
-        } else {
-            // Get the location of the module navigation file
-            $basePath = $this->config->get("application_path") . "/data";
-
-            // Make sure that the pathy and file is existing
-            if ($module->getName() && file_exists($basePath . "/modules/" . $module->getName() . ".php")) {
-                $moduleData = include($basePath . "/modules/" . $module->getName() . ".php");
-
-                // Import module data coming from the navigation fallback file
-                $module->fromArray($moduleData);
-            }
-
-            // Flag this module as clean, since we just loaded navigation file
-            $module->setDirty(false);
+            $module->setNavigation(array_values(json_decode($json, true)));
         }
+
+        // Now, Import the module data coming from the database and override what was set using the default navigation file
+        $module->fromArray($row);
+
+        // Set the system value separately
+        $module->setSystem(($row['f_system'] == 't') ? true : false);
+
+        // Update the foreign values of the module (user_id and team_id)
+        $this->updateForeignValues($module);
+
+        // Flag this module as clean since we just loaded it
+        $module->setDirty(false);
 
         return $module;
     }
@@ -248,6 +250,30 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
             } else {
                 $xmlData->addChild("$key", htmlspecialchars("$value"));
             }
+        }
+    }
+
+    /**
+     * Update the forieng values of the module
+     *
+     * @param Module $module The module that we will be updating the foreign values
+     */
+    public function updateForeignValues(Module &$module)
+    {
+        // Make sure we reset the all foreign values first before setting new values
+        $module->setUserName(null);
+        $module->setTeamName(null);
+
+        // Set the user name in the module if the user_id is set
+        if ($module->getUserId()) {
+            $userEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get("user", $module->getUserId());
+            $module->setUserName($userEntity->getName());
+        }
+
+        // Set the team name in the module if the team_id is set
+        if ($module->getTeamId()) {
+            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get("user_teams", $module->getTeamId());
+            $module->setTeamName($teamEntity->getName());
         }
     }
 }

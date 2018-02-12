@@ -106,11 +106,32 @@ class Module
     private $navigation = null;
 
     /**
+     * Contains the xml navigation that will be converted to array to be used as module navigation
+     *
+     * @var array
+     */
+    private $xmlNavigation = null;
+
+    /**
      * Flag that will determine if the module navigation data was changed and needs to be saved
      *
      * @var bool
      */
     private $dirty = false;
+
+    /**
+     * The name of the user this module was published
+     *
+     * @var string
+     */
+    private $userName = null;
+
+    /**
+     * The user team this module was published
+     *
+     * @var string
+     */
+    private $teamName = null;
 
 
     /**
@@ -338,7 +359,7 @@ class Module
      *
      * @param array|null $navigation
      */
-    public function setNavigation ($navigation)
+    public function setNavigation($navigation)
     {
         $this->navigation = $navigation;
         $this->dirty = true;
@@ -349,9 +370,67 @@ class Module
      *
      * @return array
      */
-    public function getNavigation ()
+    public function getNavigation()
     {
         return $this->navigation;
+    }
+
+    /**
+     * Set the navigation details
+     *
+     * @param array|null $xmlNavigation
+     */
+    public function setXmlNavigation($xmlNavigation)
+    {
+        $this->xmlNavigation = $xmlNavigation;
+    }
+
+    /**
+     * Get the navigation details
+     *
+     * @return array
+     */
+    public function getXmlNavigation()
+    {
+        return $this->xmlNavigation;
+    }
+
+    /**
+     * Set the user name where we published this module
+     *
+     * @param string|null $userName
+     */
+    public function setUserName($userName)
+    {
+        $this->userName = $userName;
+    }
+
+    /**
+     * Set the team name where we published this module
+     *
+     * @param string|null $userName
+     */
+    public function setTeamName($teamName)
+    {
+        $this->teamName = $teamName;
+    }
+
+    /** Function that will reset the default values of the module
+     *
+     */
+    public function resetDefaultValues()
+    {
+        $this->name = null;
+        $this->title = null;
+        $this->shortTitle = null;
+        $this->sortOder = null;
+        $this->scope = null;
+        $this->userId = null;
+        $this->teamId = null;
+        $this->icon = null;
+        $this->defaultRoute = null;
+        $this->navigation = null;
+        $this->xmlNavigation = null;
     }
 
     /**
@@ -398,6 +477,9 @@ class Module
 
         if (isset($data['navigation']) && is_array($data['navigation']) && $data['navigation'])
             $this->navigation = $data['navigation'];
+
+        if (isset($data['xml_navigation']) && $data['xml_navigation'])
+            $this->xmlNavigation = $data['xml_navigation'];
     }
 
     /**
@@ -415,11 +497,15 @@ class Module
             "scope" => $this->scope,
             "system" => $this->system,
             "user_id" => $this->userId,
+            "user_id_fval" => $this->userName,
             "team_id" => $this->teamId,
+            "team_id_fval" => $this->teamName,
             "sort_order" => $this->sortOder,
             "icon" => $this->icon,
-            "defaultRoute" => $this->defaultRoute,
-            "navigation" => $this->navigation
+            "default_route" => $this->defaultRoute,
+            "navigation" => $this->navigation,
+            "xml_navigation" => $this->xmlNavigation
+
         );
     }
 
@@ -429,7 +515,7 @@ class Module
      *
      * @param bool $dirty Boolean that will determine if the module is dirty or not
      */
-    public function setDirty($dirty=true)
+    public function setDirty($dirty = true)
     {
         $this->dirty = $dirty;
     }
