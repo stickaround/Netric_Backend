@@ -14,7 +14,6 @@ if (!$account)
 
 $entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefinition_DataMapper");
 $entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-$def = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
 // Loop through each type and add it if it does not exist
 foreach ($types as $objDefData)
