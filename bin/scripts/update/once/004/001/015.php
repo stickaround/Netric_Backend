@@ -93,7 +93,7 @@ foreach ($groupingTables as $details) {
         // Copy over any filters
         if (isset($field->fkeyTable['filter'])) {
             foreach ($field->fkeyTable['filter'] as $key => $filterField) {
-                if (empty($row[$filterField]) != false) {
+                if (empty($row[$filterField]) != true) {
                     $filters[$key] = $row[$filterField];
                 }
             }
