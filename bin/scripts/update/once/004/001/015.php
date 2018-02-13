@@ -1,7 +1,5 @@
 <?php
 
-use Netric\EntityDefinition\Field;
-use Netric\EntityGroupings\EntityGroupings;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
@@ -13,6 +11,8 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $dm = $serviceManager->get(EntityGroupingDataMapperFactory::class);
 $groupingsLoader = $serviceManager->get(LoaderFactory::class);
+$entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefinition_DataMapper");
+$entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
 $groupingTables = array(
     array("table" => "activity_types", "refObjType" => "activity", "refFieldName" => "type_id"),
@@ -62,7 +62,13 @@ foreach ($groupingTables as $details) {
     $fieldName = $details["refFieldName"];
 
     // Get the entity definition based on the current $objType we are dealing with
-    $def = $serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
+    $def = $entityDefinitionLoader->get($objType);
+
+    // First make sure the entity definition is updated to the latest with new groupings files
+    if ($entityDefinitionDataMapper->updateSystemDefinition($def)) {
+        // Clear the cache in the entity definition loader so future requests pull the latest version
+        $entityDefinitionLoader->clearCache($objType);
+    }
 
     // Get the field details based on the current $fieldName
     $field = $def->getField($fieldName);

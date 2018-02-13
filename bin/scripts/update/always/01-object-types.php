@@ -3,6 +3,7 @@
  * Add system types to the database
  */
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 // Get object types for each account
 $types = require(__DIR__ . "/../../../../data/account/object-types.php");
@@ -12,6 +13,8 @@ if (!$account)
     throw new \RuntimeException("This must be run only against a single account");
 
 $entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefinition_DataMapper");
+$entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+$def = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
 // Loop through each type and add it if it does not exist
 foreach ($types as $objDefData)
@@ -31,4 +34,7 @@ foreach ($types as $objDefData)
 
     // Make sure it has all the latest changes from the local data/entity_definitions/
     $entityDefinitionDataMapper->updateSystemDefinition($def);
+
+    // Clear any cache for the definition
+    $entityDefinitionLoader->clearCache($objDefData['obj_type']);
 }
