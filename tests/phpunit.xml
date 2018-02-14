@@ -32,9 +32,9 @@
     </testsuites>
 
     <!-- these are for code-coverage reports, but for some reason it is ignoring
-    the blacklist and throwing errors over code in lib/ZPush that we did not write
+    the blacklist and throwing errors over code in lib/ZPush that we did not write -->
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+        <whitelist addUncoveredFilesFromWhitelist="true">
             <directory>../src/Netric</directory>
             <directory>../src/ZPush/backend/netric</directory>
         </whitelist>
@@ -43,15 +43,12 @@
             <directory>../tests</directory>
         </blacklist>
     </filter>
-    -->
 
     <logging>
-        <!-- see filter above for info as to why this is commented out
         <log type="coverage-html" target="./tmp/coverage/"
              highlight="true"
              lowUpperBound="50" highLowerBound="80" 
         />
-        -->
         <log type="junit" target="./tmp/logfile.xml" logIncompleteSkipped="false"/>
     </logging>
 
