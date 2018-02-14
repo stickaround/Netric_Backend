@@ -16,54 +16,70 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 
 // First remove stale foreign key constraints
 $fkeys = [
-    'customers_ownerid_fkey',
-    'customers_sid_fkey',
-    'customers_stageid_fkey',
-    'customer_leads_aid_fkey',
-    'customer_leads_clsid_fkey',
-    'customer_leads_custid_fkey',
-    'customer_leads_qid_fkey',
-    'customer_leads_rid_fkey',
-    'customer_leads_sid_fkey',
-    'customer_leads_status_fkey',
-    'customer_leads_uid_fkey',
-    'customer_opportunities_aid_fkey',
-    'customer_opportunities_cid_fkey',
-    'customer_opportunities_lid_fkey',
-    'customer_opportunities_lsid_fkey',
-    'customer_opportunities_objid_fkey',
-    'customer_opportunities_stage_fkey',
-    'customer_opportunities_tid_fkey',
-    'customer_opportunities_uid_fkey',
-    'customer_invoices_aid_fkey',
-    'customer_invoices_custid_fkey',
-    'customer_invoices_status_fkey',
-    'customer_invoices_tid_fkey',
-    'customer_invoices_uid_fkey',
-    'project_bug_pid_fkey',
-    'project_bugs_custid_fkey',
-    'project_bugs_status_fkey',
-    'project_bugs_suv_fkey',
-    'project_bugs_type_fkey',
-    'project_bugs_user_fkey',
-    'projects_cid_fkey',
-    'projects_custid_fkey',
-    'projects_priority_fkey',
-    'projects_template_fkey',
-    'projects_user_fkey',
-    'project_tasks_cid_fkey',
-    'project_tasks_custid_fkey',
-    'project_tasks_fid_fkey',
-    'project_tasks_posid_fkey',
-    'project_tasks_priority_fkey',
-    'project_tasks_project',
-    'project_tasks_rid_fkey',
-    'project_tasks_temp_task_fkey',
-    'project_tasks_user_fkey'
+    'customers' => [
+        'customers_ownerid_fkey',
+        'customers_sid_fkey',
+        'customers_stageid_fkey',
+    ],
+    'customer_leads' => [
+        'customer_leads_aid_fkey',
+        'customer_leads_clsid_fkey',
+        'customer_leads_custid_fkey',
+        'customer_leads_qid_fkey',
+        'customer_leads_rid_fkey',
+        'customer_leads_sid_fkey',
+        'customer_leads_status_fkey',
+        'customer_leads_uid_fkey',
+    ],
+    'customer_opportunities' => [
+        'customer_opportunities_aid_fkey',
+        'customer_opportunities_cid_fkey',
+        'customer_opportunities_lid_fkey',
+        'customer_opportunities_lsid_fkey',
+        'customer_opportunities_objid_fkey',
+        'customer_opportunities_stage_fkey',
+        'customer_opportunities_tid_fkey',
+        'customer_opportunities_uid_fkey',
+    ],
+    'customer_invoices' => [
+        'customer_invoices_aid_fkey',
+        'customer_invoices_custid_fkey',
+        'customer_invoices_status_fkey',
+        'customer_invoices_tid_fkey',
+        'customer_invoices_uid_fkey',
+    ],
+    'project_bugs' => [
+        'project_bug_pid_fkey',
+        'project_bugs_custid_fkey',
+        'project_bugs_status_fkey',
+        'project_bugs_suv_fkey',
+        'project_bugs_type_fkey',
+        'project_bugs_user_fkey',
+    ],
+    'projects' => [
+        'projects_cid_fkey',
+        'projects_custid_fkey',
+        'projects_priority_fkey',
+        'projects_template_fkey',
+        'projects_user_fkey',
+    ],
+    'project_tasks' => [
+        'project_tasks_cid_fkey',
+        'project_tasks_custid_fkey',
+        'project_tasks_fid_fkey',
+        'project_tasks_posid_fkey',
+        'project_tasks_priority_fkey',
+        'project_tasks_project',
+        'project_tasks_rid_fkey',
+        'project_tasks_temp_task_fkey',
+        'project_tasks_user_fkey'
+    ],
 ];
 
-foreach ($fkeys as $contraintToDrop) {
-    $db->query("DROP CONSTRAINT IF EXISTS " . $contraintToDrop);
+foreach ($fkeys as $table=>$constraints) {
+    foreach ($constraints as $contraintToDrop) {
+        $db->query("ALTER TABLE " . $table . " DROP CONSTRAINT IF EXISTS " . $contraintToDrop);
+    }
 }
 
 $groupingTables = array(
