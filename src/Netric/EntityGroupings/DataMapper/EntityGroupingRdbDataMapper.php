@@ -34,7 +34,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     /**
      * Sync service used to keep track of changes for synchronized devices
      *
-     * @var EntiySync
+     * @var EntitySync
      */
     private $entitySync = null;
 

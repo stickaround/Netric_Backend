@@ -1431,6 +1431,7 @@ return array(
             'f_system' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
+            'filter_values' => array('type' => SchemaProperty::TYPE_CHAR_256),
         ),
         'PRIMARY_KEY' => array('id'),
         "INDEXES" => array(
