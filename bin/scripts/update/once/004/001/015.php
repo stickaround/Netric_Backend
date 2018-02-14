@@ -150,7 +150,7 @@ foreach ($groupingTables as $details) {
     }
 
     // Query the group data from the old fkey table
-    $sql = "SELECT * from $table";
+    $sql = "SELECT * FROM $table";
     $result = $db->query($sql);
 
     // Loop thru each entry in the old fkey object table
