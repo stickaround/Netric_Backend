@@ -1567,11 +1567,6 @@ return array(
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
             array(
-                "property"=>'related_bug',
-                'references_bucket'=>'project_bugs',
-                'references_property'=>'id',
-            ),
-            array(
                 "property"=>'status_id',
                 'references_bucket'=>'object_groupings',
                 'references_property'=>'id',
@@ -1591,13 +1586,9 @@ return array(
                 'references_bucket'=>'object_groupings',
                 'references_property'=>'id',
             ),
-            array(
-                "property"=>'customer_id',
-                'references_bucket'=>'customers',
-                'references_property'=>'id',
-            ),
         ),
         "INDEXES" => array(
+            array('properties' => array("customer_id")),
         )
     ),
 
@@ -1734,33 +1725,17 @@ return array(
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
             array(
-                "property"=>'parent',
-                'references_bucket'=>'projects',
-                'references_property'=>'id',
-            ),
-            array(
                 "property"=>'priority',
                 'references_bucket'=>'object_groupings',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'customer_id',
-                'references_bucket'=>'customers',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'user_id',
-                'references_bucket'=>'users',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'template_id',
-                'references_bucket'=>'project_templates',
                 'references_property'=>'id',
             ),
         ),
         "INDEXES" => array(
             array('properties' => array("date_completed")),
+            array('properties' => array("parent")),
+            array('properties' => array("user_id")),
+            array('properties' => array("customer_id")),
+            array('properties' => array("template_id")),
         )
     ),
 
@@ -1895,46 +1870,15 @@ return array(
             'path' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
         ),
         'PRIMARY_KEY' => 'id',
-        'KEYS' => array(
-            array(
-                "property"=>'user_id',
-                'references_bucket'=>'users',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'project',
-                'references_bucket'=>'projects',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'customer_id',
-                'references_bucket'=>'customers',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'position_id',
-                'references_bucket'=>'project_positions',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'creator_id',
-                'references_bucket'=>'users',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'milestone_id',
-                'references_bucket'=>'project_milestones',
-                'references_property'=>'id',
-            ),
-            array(
-                "property"=>'depends_task_id',
-                'references_bucket'=>'project_tasks',
-                'references_property'=>'id',
-            ),
-        ),
         "INDEXES" => array(
             array('properties' => array("date_entered")),
             array('properties' => array("deadline")),
+            array('properties' => array("user_id")),
+            array('properties' => array("project")),
+            array('properties' => array("customer_id")),
+            array('properties' => array("position_id")),
+            array('properties' => array("creator_id")),
+            array('properties' => array("milestone_id")),
         )
     ),
 
