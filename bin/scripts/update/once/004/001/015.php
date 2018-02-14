@@ -4,6 +4,7 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityGroupings\LoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
 
 $account = $this->getAccount();
 $log = $account->getApplication()->getLog();
@@ -76,7 +77,7 @@ $fkeys = [
     ],
 ];
 
-foreach ($fkeys as $table=>$constraints) {
+foreach ($fkeys as $table => $constraints) {
     foreach ($constraints as $contraintToDrop) {
         $db->query("ALTER TABLE " . $table . " DROP CONSTRAINT IF EXISTS " . $contraintToDrop);
     }
@@ -211,6 +212,13 @@ foreach ($groupingTables as $details) {
             foreach ($row as $pname => $pval) {
                 if ($pname != $field->fkeyTable['key'] && !$group->getValue($pname))
                     $group->setValue($pname, $pval);
+            }
+
+            // Fix a problem where on some accounts we had multiple administrators
+            if (strtolower($groupName) == 'administrators'
+                && $objType === 'user' && $fieldName === 'groups') {
+                $group->id = UserEntity::GROUP_ADMINISTRATORS;
+                $group->name = "Administrators";
             }
 
             $groupings->add($group);

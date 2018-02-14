@@ -58,9 +58,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Load rows and set values in the entity
         $row = $result->fetch();
-        $all_fields = $def->getFields();
-        foreach ($all_fields as $fname => $fdef) {
-            $this->setEntityFieldValueFromRow($entity, $fdef, $row);
+        $allFields = $def->getFields();
+        foreach ($allFields as $fieldDefinition) {
+            $this->setEntityFieldValueFromRow($entity, $fieldDefinition, $row);
         }
 
         return true;
@@ -711,14 +711,13 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             $result = $this->database->query($sql, $whereConditions);
             foreach ($result->fetchAll() as $row) {
                 $oname = "";
+                $oname = $row['obj_name'];
+                $idval = $oname . ":" . $row["assoc_object_id"];
 
                 // If subtype is set in the field, then only the id of the object is stored
                 if ($fdef->subtype) {
                     $oname = $fdef->subtype;
                     $idval = (string)$row['assoc_object_id'];
-                } else {
-                    $oname = $row['obj_name'];
-                    $idval = $oname . ":" . $row["assoc_object_id"];
                 }
                 
                 /*
