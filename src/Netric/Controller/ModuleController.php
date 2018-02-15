@@ -27,7 +27,6 @@ class ModuleController extends Mvc\AbstractAccountController
         $moduleService = $serviceManager->get(ModuleServiceFactory::class);
 
         $module = $moduleService->getByName($params['moduleName']);
-
         return $this->sendOutput($module->toArray());
     }
 
@@ -62,21 +61,16 @@ class ModuleController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
         $moduleService = $serviceManager->get(ModuleServiceFactory::class);
 
-        if (isset($objData["id"]) && $objData["id"])
-            $module = $moduleService->getById($objData["id"]);
-        else
-            $module = $moduleService->createNew();
+        $module = $moduleService->createNew();
 
-        // Before setting the updated module data, we need to reset the values to make sure we can update the empty fields
-        $module->resetDefaultValues();
+        if (isset($objData["id"]) && $objData["id"]) {
+            $module->setId($objData["id"]);
+        }
 
         $module->fromArray($objData);
         $module->setDirty(true);
 
         if ($moduleService->save($module)) {
-            // Update the foreign values of the module in case we updated the user id or team id
-            $moduleService->updateForeignValues($module);
-
             // Return the saved module
             return $this->sendOutput($module->toArray());
         } else {

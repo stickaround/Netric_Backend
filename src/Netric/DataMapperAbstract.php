@@ -27,10 +27,6 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	 */
 	protected $errors = array();
 
-	public function newAccount() {
-		echo 123;
-	}
-
 	/**
 	 * Get account
 	 * 

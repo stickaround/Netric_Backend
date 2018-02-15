@@ -25,9 +25,8 @@ class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
     {
         $db = $sl->get(RelationalDbFactory::class);
         $config = $sl->get(ConfigFactory::class);
-        $currentUser = $sl->getAccount()->getUser();
         $account = $sl->getAccount();
 
-        return new ModuleRdbDataMapper($db, $config, $currentUser, $account);
+        return new ModuleRdbDataMapper($db, $config, $account);
     }
 }

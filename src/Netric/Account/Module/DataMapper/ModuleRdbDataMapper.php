@@ -8,15 +8,14 @@ namespace Netric\Account\Module\DataMapper;
 
 use Netric\Error\AbstractHasErrors;
 use Netric\Account\Module\Module;
-use Netric\Account\Module\DataMapper\DataMapperInterface;
+use Netric\Account\Module\DataMapper\DataMapperInterface as ModuleDataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
-use SimpleXMLElement;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
 
-class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterface
+class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperInterface
 {
     /**
      * Handle to account database
@@ -52,12 +51,12 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
      * @param RelationalDbInterface $db
      * @param Config $config The configuration object
      */
-    public function __construct(RelationalDbInterface $db, Config $config, UserEntity $user, Account $account)
+    public function __construct(RelationalDbInterface $db, Config $config, Account $account)
     {
         $this->db = $db;
         $this->config = $config;
-        $this->user = $user;
         $this->account = $account;
+        $this->user = $account->getUser();
     }
 
     /**
@@ -80,7 +79,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
             "sort_order" => $module->getSortOrder(),
             "icon" => $module->getIcon(),
             "default_route" => $module->getDefaultRoute(),
-            "xml_navigation" => $module->getXmlNavigation()
+            "xml_navigation" => $module->convertNavigationToXml()
         );
 
         // Compose either an update or insert statement
@@ -185,7 +184,10 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
         $module = new Module();
         $moduleName = $row['name'];
 
-        // Get the location of the module navigation file
+        /*
+         * It is important that we do this first so that the xml_navigation is only overridden if a user modifies it,
+         * otherwise it will always pull from the disk so that we can continue to make updates to the default navigation in the system.
+         */
         $basePath = $this->config->get("application_path") . "/data";
 
         // Check first if we have a navigation file existing and set it as default data for our module
@@ -194,15 +196,6 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
 
             // Import module data coming from the navigation file as our default data
             $module->fromArray($moduleData);
-
-            // Setup the xml object
-            $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
-
-            // Now convert the module navigation data into xml
-            $this->arrayToXml($module->getNavigation(), $xmlNavigation);
-
-            // Set the xml navigation string
-            $module->setXmlNavigation($xmlNavigation->asXML());
         }
 
         /*
@@ -211,10 +204,9 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
          */
         if (isset($row['xml_navigation']) && !empty($row['xml_navigation'])) {
 
-            // Convert the xml navigation string into an array
-            $xml = simplexml_load_string($row['xml_navigation']);
-            $json = json_encode($xml);
-            $module->setNavigation(array_values(json_decode($json, true)));
+            // Convert the xmlNavigation to array
+            $navigation = $module->convertXmltoNavigation($row['xml_navigation']);
+            $module->setNavigation($navigation);
         }
 
         // Now, Import the module data coming from the database and override what was set using the default navigation file
@@ -224,7 +216,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
         $module->setSystem(($row['f_system'] == 't') ? true : false);
 
         // Update the foreign values of the module (user_id and team_id)
-        $this->updateForeignValues($module);
+        $this->setUserAndTeamNamesFromIds($module);
 
         // Flag this module as clean since we just loaded it
         $module->setDirty(false);
@@ -233,32 +225,11 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements DataMapperInterfa
     }
 
     /**
-     * Convert the array data to xml
-     *
-     * @param array $data The module data that will be converted into xml string
-     * @param SimpleXMLElement $xmlData The xml object that will be used to convert
-     */
-    private function arrayToXml(array $data, SimpleXMLElement &$xmlData)
-    {
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                if (is_numeric($key)) {
-                    $key = 'item' . $key; //dealing with <0/>..<n/> issues
-                }
-                $subnode = $xmlData->addChild($key);
-                $this->arrayToXml($value, $subnode);
-            } else {
-                $xmlData->addChild("$key", htmlspecialchars("$value"));
-            }
-        }
-    }
-
-    /**
      * Update the forieng values of the module
      *
      * @param Module $module The module that we will be updating the foreign values
      */
-    public function updateForeignValues(Module &$module)
+    public function setUserAndTeamNamesFromIds(Module &$module)
     {
         // Make sure we reset the all foreign values first before setting new values
         $module->setUserName(null);

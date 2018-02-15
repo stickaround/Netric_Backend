@@ -7,21 +7,21 @@ namespace modules\navigation;
 return array(
     "title" => "Settings",
     "icon" => "SettingsIcon",
-    "default_route" => "modules",
+    "default_route" => "profile",
     "navigation" => array(
-        array(
-            "title" => "Modules",
-            "type" => "plugin",
-            "route" => "modules",
-            "plugin" => "Modules",
-            "icon" => "ExtensionIcon",
-        ),
         array(
             "title" => "My Profile",
             "type" => "plugin",
             "route" => "profile",
             "plugin" => "Profile",
             "icon" => "AccountProfileIcon",
+        ),
+        array(
+            "title" => "Modules",
+            "type" => "plugin",
+            "route" => "modules",
+            "plugin" => "Modules",
+            "icon" => "ExtensionIcon",
         ),
         array(
             "title" => "Automated Workflows",

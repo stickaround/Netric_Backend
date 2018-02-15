@@ -5,6 +5,8 @@
  */
 namespace Netric\Account\Module;
 
+use SimpleXMLElement;
+
 /**
  * Class represents a module (used to be called application) in netric
  *
@@ -104,13 +106,6 @@ class Module
      * @var array
      */
     private $navigation = null;
-
-    /**
-     * Contains the xml navigation that will be converted to array to be used as module navigation
-     *
-     * @var array
-     */
-    private $xmlNavigation = null;
 
     /**
      * Flag that will determine if the module navigation data was changed and needs to be saved
@@ -355,12 +350,13 @@ class Module
     }
 
     /**
-     * Set the navigation details
+     * Set the navigation array and build the xml navigation string
      *
      * @param array|null $navigation
      */
     public function setNavigation($navigation)
     {
+        // Set the navigation array
         $this->navigation = $navigation;
         $this->dirty = true;
     }
@@ -373,26 +369,6 @@ class Module
     public function getNavigation()
     {
         return $this->navigation;
-    }
-
-    /**
-     * Set the navigation details
-     *
-     * @param array|null $xmlNavigation
-     */
-    public function setXmlNavigation($xmlNavigation)
-    {
-        $this->xmlNavigation = $xmlNavigation;
-    }
-
-    /**
-     * Get the navigation details
-     *
-     * @return array
-     */
-    public function getXmlNavigation()
-    {
-        return $this->xmlNavigation;
     }
 
     /**
@@ -413,24 +389,6 @@ class Module
     public function setTeamName($teamName)
     {
         $this->teamName = $teamName;
-    }
-
-    /** Function that will reset the default values of the module
-     *
-     */
-    public function resetDefaultValues()
-    {
-        $this->name = null;
-        $this->title = null;
-        $this->shortTitle = null;
-        $this->sortOder = null;
-        $this->scope = null;
-        $this->userId = null;
-        $this->teamId = null;
-        $this->icon = null;
-        $this->defaultRoute = null;
-        $this->navigation = null;
-        $this->xmlNavigation = null;
     }
 
     /**
@@ -504,7 +462,7 @@ class Module
             "icon" => $this->icon,
             "default_route" => $this->defaultRoute,
             "navigation" => $this->navigation,
-            "xml_navigation" => $this->xmlNavigation
+            "xml_navigation" => $this->convertNavigationToXml()
 
         );
     }
@@ -528,5 +486,71 @@ class Module
     public function isDirty()
     {
         return $this->dirty;
+    }
+
+    /**
+     * Converts the xml navigation to array
+     *
+     * @param string|null $xmlNavigation
+     *
+     * @return array|null
+     */
+    public function convertXmltoNavigation($xmlNavigation)
+    {
+
+        // If xml navigation string is set, then we need to build the navigation array
+        if ($xmlNavigation) {
+            $xml = simplexml_load_string($xmlNavigation);
+            $json = json_encode($xml);
+
+            // Return the navigation array
+            return array_values(json_decode($json, true));
+        }
+
+        return null;
+    }
+
+    /**
+     * Converts the navigation array to xml
+     *
+     * @return string|null
+     */
+    public function convertNavigationToXml()
+    {
+
+        // Make sure that we have navigation value and it is an array
+        if ($this->navigation && is_array($this->navigation)) {
+            // Setup the xml object
+            $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
+
+            // Now convert the module navigation data into xml
+            $this->arrayToXml($this->navigation, $xmlNavigation);
+
+            // Return the xml navigation string
+            return $xmlNavigation->asXML();
+        }
+
+        return null;
+    }
+
+    /**
+     * Convert the array data to xml
+     *
+     * @param array $data The module data that will be converted into xml string
+     * @param SimpleXMLElement $xmlData The xml object that will be used to convert
+     */
+    private function arrayToXml(array $data, SimpleXMLElement &$xmlData)
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (is_numeric($key)) {
+                    $key = 'item' . $key; //dealing with <0/>..<n/> issues
+                }
+                $subnode = $xmlData->addChild($key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xmlData->addChild("$key", htmlspecialchars("$value"));
+            }
+        }
     }
 }

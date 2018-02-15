@@ -90,16 +90,6 @@ class ModuleService
     }
 
     /**
-     * Update the forieng values of the module
-     *
-     * @param Module $module The module that we will be updating the foreign values
-     */
-    public function updateForeignValues(Module &$module)
-    {
-        $this->moduleDataMapper->updateForeignValues($module);
-    }
-
-    /**
      * Creates a new module
      *
      * @return bool
