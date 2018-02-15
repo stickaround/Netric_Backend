@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class represents a grouping field entry
  *
@@ -36,14 +37,14 @@ class Group
      * @var bool
      */
     public $isHeiarch = false;
-    
+
     /**
      * Grouping is system generated and cannot be modified by user
      * 
      * @var bool
      */
     public $isSystem = false;
-    
+
     /**
      * If heiarchial then parent may be used to define parent-child groupings
      * 
@@ -57,7 +58,7 @@ class Group
      * @var string
      */
     public $color = "";
-    
+
     /**
      * The sort order of this grouping if not by name
      * 
@@ -71,26 +72,26 @@ class Group
      * @var int
      */
     public $commitId = 0;
-    
+
     /**
      * Children
      * 
      * @var \Netric\EntityGroupings\Group[]
      */
     public $children = array();
-    
+
     /**
      * Add filtered data
      */
     public $filterFields = array();
-    
+
     /**
      * Dirty flag set when changes are made
      * 
      * @var bool
      */
     private $dirty = false;
-    
+
     /**
      * Convert class properties to an associative array
      * 
@@ -110,12 +111,11 @@ class Group
             "filter_fields" => $this->filterFields,
             "children" => array(),
         );
-        
-        foreach ($this->children as $child)
-        {
+
+        foreach ($this->children as $child) {
             $data['children'][] = $child->toArray();
         }
-        
+
         return $data;
     }
 
@@ -126,28 +126,28 @@ class Group
      */
     public function fromArray($data)
     {
-        if(isset($data['id']))
+        if (isset($data['id']))
             $this->id = $data['id'];
 
-        if(isset($data['name']))
+        if (isset($data['name']))
             $this->name = $data['name'];
 
-        if(isset($data['color']))
+        if (isset($data['color']))
             $this->color = $data['color'];
 
-        if(isset($data['parent_id']))
+        if (isset($data['parent_id']))
             $this->parentId = $data['parent_id'];
 
-        if(isset($data['sort_order']))
+        if (isset($data['sort_order']))
             $this->sortOrder = $data['sort_order'];
 
-        if(isset($data['is_heiarch']))
+        if (isset($data['is_heiarch']))
             $this->isHeiarch = $data['is_heiarch'];
 
         // Inicate this group has been changed
         $this->setDirty(true);
     }
-    
+
     /**
      * Set a property value by name
      * 
@@ -156,39 +156,38 @@ class Group
      */
     public function setValue($fname, $fval)
     {
-        switch ($fname)
-        {
-        case "id":
-            $this->id = $fval;
-            break;
-        case "name":
-            $this->name = $fval;
-            break;
-        case "isHeiarch":
-            $this->isHeiarch = $fval;
-            break;
-        case "parentId":
-            $this->parentId = $fval;
-            break;
-        case "color":
-            $this->color = $fval;
-            break;
-        case "sortOrder":
-            $this->sortOrder = $fval;
-            break;
-        case "commit_id":
-        case "commitId":
-            $this->commitId = $fval;
-            break;
-        default:
-            $this->filterFields[$fname] = $fval;
-            break;
+        switch ($fname) {
+            case "id":
+                $this->id = $fval;
+                break;
+            case "name":
+                $this->name = $fval;
+                break;
+            case "isHeiarch":
+                $this->isHeiarch = $fval;
+                break;
+            case "parentId":
+                $this->parentId = $fval;
+                break;
+            case "color":
+                $this->color = $fval;
+                break;
+            case "sortOrder":
+                $this->sortOrder = $fval;
+                break;
+            case "commit_id":
+            case "commitId":
+                $this->commitId = $fval;
+                break;
+            default:
+                $this->filterFields[$fname] = $fval;
+                break;
         }
 
         // Inicate this group has been changed
         $this->setDirty(true);
     }
-    
+
     /**
      * Set a property value by name
      * 
@@ -197,61 +196,52 @@ class Group
      */
     public function getValue($fname)
     {
-        switch ($fname)
-        {
-        case "id":
-            return $this->id;
-            break;
-        case "name":
-            return $this->name;
-            break;
-        case "isHeiarch":
-            return $this->isHeiarch;
-            break;
-        case "parentId":
-            return $this->parentId;
-            break;
-        case "color":
-            return $this->color;
-            break;
-        case "sortOrder":
-            return $this->sortOrder;
-            break;
-        case "commit_id":
-        case "commitId":
-            return $this->commitId;
-            break;
-        default:
-            if (isset($this->filterFields[$fname]))
-                return $this->filterFields[$fname];
-            break;
+        switch ($fname) {
+            case "id":
+                return $this->id;
+            case "name":
+                return $this->name;
+            case "isHeiarch":
+                return $this->isHeiarch;
+            case "parentId":
+                return $this->parentId;
+            case "color":
+                return $this->color;
+            case "sortOrder":
+                return $this->sortOrder;
+            case "commit_id":
+            case "commitId":
+                return $this->commitId;
+            default:
+                if (isset($this->filterFields[$fname]))
+                    return $this->filterFields[$fname];
         }
-        
+
         return "";
     }
-    
+
     /**
      * Set an undefined property in the filtered fields
      * 
      * @param string $name
      * @param string $value
      */
-    public function __set($name, $value) 
+    public function __set($name, $value)
     {
         $this->filterFields[$name] = $value;
     }
-    
+
     /**
      * Get an undefined property
      * 
      * @param string $name
      * @return string|null
      */
-    public function __get($name) 
+    public function __get($name)
     {
-        if (array_key_exists($name, $this->filterFields)) 
+        if (array_key_exists($name, $this->filterFields))
             return $this->filterFields[$name];
-        
+
         return null;
     }
 
@@ -265,7 +255,7 @@ class Group
     {
         return isset($this->filterFields[$name]);
     }
-    
+
     /**
      * Get filtered value
      * 
@@ -279,17 +269,17 @@ class Group
         else
             return "";
     }
-    
+
     /**
      * Set dirty flag
      * 
      * @param bool $isDirty True if we made changes, false if not
      */
-    public function setDirty($isDirty=true)
+    public function setDirty($isDirty = true)
     {
         $this->dirty = $isDirty;
     }
-    
+
     /**
      * Determine if changes have been made to this grouping since it was loaded
      * 
@@ -299,7 +289,7 @@ class Group
     {
         if (!$this->id)
             return true;
-        
+
         return $this->dirty;
     }
 }

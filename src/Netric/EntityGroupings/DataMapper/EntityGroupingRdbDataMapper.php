@@ -241,13 +241,6 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $groupings->add($group);
         }
 
-        // TODO: we need to think about how we can manage default groupings
-        // Make sure that default groupings exist (if any)
-        //if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
-        //	$ret = $this->verifyDefaultGroupings($fieldName, $data, $nameValue);
-        //else
-        //	$ret = $data;
-
         return $groupings;
     }
 
@@ -293,7 +286,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $tableData[$field->fkeyTable['parent']] = $grp->parentId;
         }
 
-        if ($grp->commitId  && $this->database->columnExists($field->subtype, "commit_id")) {
+        if ($grp->commitId && $this->database->columnExists($field->subtype, "commit_id")) {
             $tableData['commit_id'] = $grp->commitId;
         }
 

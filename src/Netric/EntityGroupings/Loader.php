@@ -37,14 +37,14 @@ class Loader
     /**
      * Setup IdentityMapper for loading objects
      * 
-     * @param EntityGroupingDataMapperInterface $dm Datamapper for entity definitions
+     * @param EntityGroupingDataMapperInterface $dataMapper Datamapper for entity definitions
      * @param CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
-    public function __construct(EntityGroupingDataMapperInterface $dm, CacheInterface $cache = null)
+    public function __construct(EntityGroupingDataMapperInterface $dataMapper, CacheInterface $cache = null)
     {
         $this->cache = $cache;
-        $this->dataMapper = $dm;
+        $this->dataMapper = $dataMapper;
         return $this;
     }
 
@@ -60,12 +60,10 @@ class Loader
             throw new Exception('$objType and $fieldName are required params');
 
         if ($this->isLoaded($objType, $fieldName, $filters)) {
-            $ret = $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
-        } else {
-            $ret = $this->loadGroupings($objType, $fieldName, $filters);
+            return $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
         }
 
-        return $ret;
+        return $this->loadGroupings($objType, $fieldName, $filters);
     }
 
     /**
@@ -117,17 +115,6 @@ class Loader
     private function isLoaded($objType, $fieldName, $filters = array())
     {
         return isset($this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)]);
-    }
-
-    /**
-     * Check to see if an entity is cached
-     *
-     * @param string $objType The unique name of the object to that was cached
-     * @return EntityDefinition|bool EntityDefinition if found in cache, false if not cached
-     */
-    private function getCached($objType, $fieldName, $filters = array())
-    {
-        return false;
     }
 
     /**
