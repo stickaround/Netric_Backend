@@ -1426,11 +1426,13 @@ return array(
             'field_id' => array('type' => SchemaProperty::TYPE_INT),
             'parent_id' => array('type' => SchemaProperty::TYPE_BIGINT),
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
+            'feed_id' => array('type' => SchemaProperty::TYPE_INT),
             'color' => array('type' => SchemaProperty::TYPE_CHAR_6),
             'sort_order' => array('type' => SchemaProperty::TYPE_SMALLINT, 'default' => '0'),
             'f_system' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'f_closed' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
+            'filter_values' => array('type' => SchemaProperty::TYPE_CHAR_256),
         ),
         'PRIMARY_KEY' => array('id'),
         "INDEXES" => array(
