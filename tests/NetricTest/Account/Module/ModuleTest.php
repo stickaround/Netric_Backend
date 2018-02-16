@@ -74,14 +74,14 @@ class ModuleTest extends TestCase
                 array(
                     "title" => "New Note",
                     "type" => "entity",
-                    "route" => "new-note",
+                    "default_route" => "new-note",
                     "objType" => "note",
                     "icon" => "plus",
                 ),
                 array(
                     "title" => "All Notes",
                     "type" => "browse",
-                    "route" => "all-notes",
+                    "default_route" => "all-notes",
                     "objType" => "note",
                     "icon" => "tags",
                     "browseby" => "groups",
@@ -100,7 +100,7 @@ class ModuleTest extends TestCase
         $this->assertEquals($data['team_id'], $module->getTeamId());
         $this->assertEquals($data['sort_order'], $module->getSortOrder());
         $this->assertEquals($data['icon'], $module->getIcon());
-        $this->assertEquals($data['defaultRoute'], $module->getDefaultRoute());
+        $this->assertEquals($data['default_route'], $module->getDefaultRoute());
         $this->assertEquals($data['navigation'], $module->getNavigation());
     }
 
@@ -124,5 +124,54 @@ class ModuleTest extends TestCase
 
         $module->setDirty(false);
         $this->assertFalse($module->isDirty());
+    }
+
+    public function testConvertNavigationToXml()
+    {
+        $module = new Module();
+        $module->setId(1);
+        $module->setName("tester");
+        $module->setNavigation(array(
+                array(
+                    "title" => "New Note",
+                    "type" => "entity",
+                    "route" => "new-note",
+                    "objType" => "note",
+                    "icon" => "plus",
+                )
+            )
+        );
+
+        $xmlNavigation = $module->convertNavigationToXml();
+        $this->assertRegexp("/xml/", $xmlNavigation);
+        $this->assertRegexp("/navigation/", $xmlNavigation);
+        $this->assertRegexp("/new-note/", $xmlNavigation);
+    }
+
+    public function testConvertXmlToNavigation()
+    {
+        $module = new Module();
+        $module->setId(1);
+        $module->setName("tester");
+
+        $xmlNavigation = "<?xml version=\"1.0\"?>
+                            <navigation>
+                                <item0>
+                                    <title>New Note</title>
+                                    <type>entity</type>
+                                    <route>new-note</route>
+                                    <objType>note</objType>
+                                    <icon>plus</icon>
+                                </item0>
+                            </navigation>";
+
+        $navigation = $module->convertXmltoNavigation($xmlNavigation);
+        $module->setNavigation($navigation);
+
+        $moduleNavigation = $module->getNavigation();
+        $this->assertEquals($moduleNavigation, $navigation);
+        $this->assertGreaterThan(0, sizeof($moduleNavigation));
+        $this->assertArrayHasKey("title", $moduleNavigation[0]);
+        $this->assertEquals($moduleNavigation[0]["title"], "New Note");
     }
 }

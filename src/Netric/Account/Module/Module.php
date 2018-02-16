@@ -60,7 +60,7 @@ class Module
      *
      * @var bool
      */
-    private $system = true;
+    private $system = false;
 
     /**
      * If scope is user, then a userId must be specified
