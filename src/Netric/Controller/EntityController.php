@@ -1,8 +1,4 @@
 <?php
-
-/**
- * This is just a simple test controller
- */
 namespace Netric\Controller;
 
 use Netric\EntityDefinition\Field;
@@ -15,9 +11,12 @@ use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 
+/**
+ * Controller for interacting with entities
+ */
 class EntityController extends Mvc\AbstractAccountController
 {
-    public function getTestAction($params = array())
+    public function getTestAction()
     {
         return $this->sendOutput("test");
     }
@@ -71,19 +70,6 @@ class EntityController extends Mvc\AbstractAccountController
         // Parse values passed from POST or GET params
         \Netric\EntityQuery\FormParser::buildQuery($query, $params);
 
-        /*
-        // Check for private
-        if ($olist->obj->isPrivate())
-        {
-            if ($olist->obj->def->getField("owner"))
-                $olist->fields("and", "owner", "is_equal", $this->user->id);
-            if ($olist->obj->def->getField("owner_id"))
-                $olist->addCondition("and", "owner_id", "is_equal", $this->user->id);
-            if ($olist->obj->def->getField("user_id"))
-                $olist->addCondition("and", "user_id", "is_equal", $this->user->id);
-        }
-         */
-
         // Execute the query
         $res = $index->executeQuery($query);
 
@@ -93,51 +79,13 @@ class EntityController extends Mvc\AbstractAccountController
         $ret["offset"] = $res->getOffset();
         $ret["limit"] = $query->getLimit();
 
-        /*
-         * This may no longer be needed with the new client
-         * - Sky Stebnicki
-        if ($res->getTotalNum() > $query->getLimit())
-        {
-            $prev = -1; // Hide
-
-            // Get total number of pages
-            $leftover = $res->getTotalNum() % $query->getLimit();
-            
-            if ($leftover)
-                $numpages = (($res->getTotalNum() - $leftover) / $query->getLimit()) + 1; //($numpages - $leftover) + 1;
-            else
-                $numpages = $res->getTotalNum() / $query->getLimit();
-            // Get current page
-            if ($offset > 0)
-            {
-                $curr = $offset / $query->getLimit();
-                $leftover = $offset % $query->getLimit();
-                if ($leftover)
-                    $curr = ($curr - $leftover) + 1;
-                else 
-                    $curr += 1;
-            }
-            else
-                $curr = 1;
-            // Get previous page
-            if ($curr > 1)
-                $prev = $offset - $query->getLimit();
-            // Get next page
-            if (($offset + $query->getLimit()) < $res->getTotalNum())
-                $next = $offset + $query->getLimit();
-            $pag_str = "Page $curr of $numpages";
-
-            $ret['paginate'] = array();
-            $ret['paginate']['nextPage'] = $next;
-            $ret['paginate']['prevPage'] = $prev;
-            $ret['paginate']['desc'] = $pag_str;
-        }
-         */
-
         // Set results
         $entities = array();
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
+
+            // Print full details
+            $entities[] = $ent->toArray();
 
             if (isset($params['updatemode']) && $params['updatemode']) // Only get id and revision
             {
@@ -147,11 +95,6 @@ class EntityController extends Mvc\AbstractAccountController
                     "revision" => $ent->getValue("revision"),
                     "num_comments" => $ent->getValue("num_comments"),
                 );
-            } else {
-                // TODO: security
-
-                // Print full details
-                $entities[] = $ent->toArray();
             }
         }
         $ret["entities"] = $entities;
@@ -238,7 +181,6 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $rawBody = $this->getRequest()->getBody();
 
-        $ret = array();
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -252,10 +194,12 @@ class EntityController extends Mvc\AbstractAccountController
 
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
+        // Create a new entity to save
+        $entity = $loader->create($objData['obj_type']);
+
+        // If editing an existing etity, then load it rather than using the new entity
         if (isset($objData['id']) && !empty($objData['id'])) {
             $entity = $loader->get($objData['obj_type'], $objData['id']);
-        } else {
-            $entity = $loader->create($objData['obj_type']);
         }
 
         // Parse the params
@@ -263,15 +207,15 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Save the entity
         $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
-        if ($dataMapper->save($entity)) {
-            // Check to see if any new object_multi objects were sent awaiting save
-            $this->savePendingObjectMultiObjects($entity, $objData);
-
-            // Return the saved entity
-            return $this->sendOutput($entity->toArray());
-        } else {
+        if (!$dataMapper->save($entity)) {
             return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
         }
+
+        // Check to see if any new object_multi objects were sent awaiting save
+        $this->savePendingObjectMultiObjects($entity, $objData);
+
+        // Return the saved entity
+        return $this->sendOutput($entity->toArray());
     }
 
     /**
@@ -367,16 +311,16 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the groupings for this $objType and $fieldName
         $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
 
-        if ($groupings) {
-            return $this->sendOutput(array(
-                "obj_type" => $objType,
-                "field_name" => $fieldName,
-                "filter" => $filterArray,
-                "groups" => $groupings->toArray()
-            ));
-        } else {
+        if (!$groupings) {
             return $this->sendOutput(array("error" => "No groupings found for specified obj_type and field"));
         }
+
+        return $this->sendOutput(array(
+            "obj_type" => $objType,
+            "field_name" => $fieldName,
+            "filter" => $filterArray,
+            "groups" => $groupings->toArray()
+        ));
     }
 
     /**
@@ -417,26 +361,6 @@ class EntityController extends Mvc\AbstractAccountController
         $user = $this->account->getUser();
 
         $ret = $def->toArray();
-
-        // TODO: Get browser mode preference (Netric/Entity/ObjectType/User has no getSetting)
-        /*
-        $browserMode = $user->getSetting("/objects/browse/mode/" . $params['obj_type']);
-        // Set default view modes
-        if (!$browserMode)
-        {
-            switch ($params['obj_type'])
-            {
-            case 'email_thread':
-            case 'note':
-                $browserMode = "previewV";
-                break;
-            default:
-                $browserMode = "table";
-                break;
-            }
-        }
-        $ret["browser_mode"] = $browserMode;
-         */
         $ret["browser_mode"] = "table";
 
         // TODO: Get browser blank content
@@ -485,7 +409,7 @@ class EntityController extends Mvc\AbstractAccountController
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
                     if ($field->subtype // Make sure that this field has a subtype
-                        && is_array($waitingObjectData)) {
+                    && is_array($waitingObjectData)) {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
@@ -498,16 +422,15 @@ class EntityController extends Mvc\AbstractAccountController
                             $waitingObjectEntity->fromArray($data);
 
                             // Save the awaiting entity object
-                            if ($dataMapper->save($waitingObjectEntity)) {
-
-                                // Set the reference for the $entity
-                                $entity->addMultiValue($field->name, $waitingObjectEntity->getId(), $waitingObjectEntity->getName());
-
-                                // Lets flag this to true so $entity will be saved after the looping thru the fields
-                                $entityShouldUpdate = true;
-                            } else {
+                            if (!$dataMapper->save($waitingObjectEntity)) {
                                 return $this->sendOutput(array("error" => "Error saving object reference " . $field->name . ": " . $dataMapper->getLastError()));
                             }
+
+                            // Set the reference for the $entity
+                            $entity->addMultiValue($field->name, $waitingObjectEntity->getId(), $waitingObjectEntity->getName());
+
+                            // Lets flag this to true so $entity will be saved after the looping thru the fields
+                            $entityShouldUpdate = true;
                         }
                     }
                     break;

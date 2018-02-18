@@ -1,16 +1,9 @@
 <?php
-/**
- * Sync collection
- *
- * @category  AntObjectSync
- * @package   Collection
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit;
 use Netric\Entity\EntityInterface;
+use \Netric\EntitySync\DataMapperInterface;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -78,7 +71,7 @@ abstract class AbstractCollection
 	 *
 	 * @var array(array("blogic", "field", "operator", "condValue"));
 	 */
-    protected $conditions = array();
+	protected $conditions = array();
 
 	/**
 	 * Cache change results in a revision increment
@@ -97,22 +90,22 @@ abstract class AbstractCollection
 	/**
 	 * Constructor
 	 *
-	 * @param \Netric\EntitySync\DataMapperInterface $dm The sync datamapper
+	 * @param DataMapperInterface $dm The sync datamapper
 	 */
 	public function __construct(
-		\Netric\EntitySync\DataMapperInterface $dm, 
-		Commit\CommitManager $commitManager)
-	{
-		$this->dataMapper = $dm;
+		DataMapperInterface $dataMapper,
+		Commit\CommitManager $commitManager
+	) {
+		$this->dataMapper = $dataMapper;
 		$this->commitManager = $commitManager;
 	}
 
-    /**
-     * Get the head commit for a given collection type
-     *
-     * @return string The last commit id for the type of data we are watching
-     */
-    abstract protected function getCollectionTypeHeadCommit();
+	/**
+	 * Get the head commit for a given collection type
+	 *
+	 * @return string The last commit id for the type of data we are watching
+	 */
+	abstract protected function getCollectionTypeHeadCommit();
 
 	/**
 	 * Set the last commit id synchronized
@@ -270,39 +263,38 @@ abstract class AbstractCollection
 	 * @param string $strFormat If set format the DateTime object as a string and return
 	 * @return DateTime|string $timestamp When the partnership was last synchronized
 	 */
-	public function getLastSync($strFormat=null)
+	public function getLastSync($strFormat = null)
 	{
 		// If desired return a formatted string version of the timestamp
-		if ($strFormat && $this->lastSync)
-		{
+		if ($strFormat && $this->lastSync) {
 			return $this->lastSync->format($strFormat);
 		}
 
 		return $this->lastSync;
 	}
 
-    /**
-     * Determine if this collection is behind the head commit of data it is watching
-     *
-     * @return bool true if behind, false if no changes have been made since last sync
-     */
-    public function isBehindHead()
-    {
+	/**
+	 * Determine if this collection is behind the head commit of data it is watching
+	 *
+	 * @return bool true if behind, false if no changes have been made since last sync
+	 */
+	public function isBehindHead()
+	{
         // Get last commit id for this collection
-        $headCommit = $this->getCollectionTypeHeadCommit();
+		$headCommit = $this->getCollectionTypeHeadCommit();
 
         // Get the current commit for this collection
-        $lastCollectionCommit = $this->getLastCommitId();
+		$lastCollectionCommit = $this->getLastCommitId();
 
-        return ($lastCollectionCommit < $headCommit);
-    }
+		return ($lastCollectionCommit < $headCommit);
+	}
 
 	/**
 	 * Log that a commit was exported from this collection
 	 * 
 	 * @param int $uniqueId The unique id of the object we sent
 	 * @param int $commitId The unique id of the commit we sent
-     * @return bool
+	 * @return bool
 	 */
 	public function logExported($uniqueId, $commitId)
 	{
@@ -312,8 +304,7 @@ abstract class AbstractCollection
 		$ret = $this->dataMapper->logExported($this->getType(), $this->getId(), $uniqueId, $commitId);
 
 		// Check if there was a problem because that should never happen
-		if (!$ret)
-		{
+		if (!$ret) {
 			throw new \Exception("Could not log exported sync entry: " . $this->dataMapper->getLastError());
 		}
 
@@ -342,8 +333,7 @@ abstract class AbstractCollection
 		$staleStats = array();
 
 		$stale = $this->dataMapper->getExportedStale($this->getId());
-		foreach ($stale as $oid)
-		{
+		foreach ($stale as $oid) {
 			$staleStats[] = array(
 				"id" => $oid,
 				"action" => 'delete',
@@ -374,29 +364,22 @@ abstract class AbstractCollection
 		// --------------------------------------------------------------------
 		$changes = $this->dataMapper->getImported($this->getId());
 		$numChanges = count($changes);
-		for ($i = 0; $i < $numChanges; $i++)
-		{
+		for ($i = 0; $i < $numChanges; $i++) {
 			$changes[$i]['action'] = 'delete';
 		}
 		
 		// Loop through both lists and look for differences
 		// --------------------------------------------------------------------
-		foreach ($importList as $item) 
-		{
+		foreach ($importList as $item) {
 			$found = false;
 
 			// Check existing
-			for ($i = 0; $i < $numChanges; $i++)
-			{
-				if ($changes[$i]['remote_id'] == $item['remote_id'])
-				{
-					if ($changes[$i]['remote_revision'] == $item['remote_revision'])
-					{
+			for ($i = 0; $i < $numChanges; $i++) {
+				if ($changes[$i]['remote_id'] == $item['remote_id']) {
+					if ($changes[$i]['remote_revision'] == $item['remote_revision']) {
 						array_splice($changes, $i, 1); // no changes, remove
 						$numChanges = count($changes);
-					}
-					else
-					{
+					} else {
 						$changes[$i]['action'] = 'change'; // was updated on remote source
 						$changes[$i]['remote_revision'] = $item['remote_revision'];
 					}
@@ -410,8 +393,8 @@ abstract class AbstractCollection
 			{
 				$changes[] = array(
 					"remote_id" => $item['remote_id'],
-                    "remote_revision" => $item['remote_revision'],
-                    "local_id" => null,
+					"remote_revision" => $item['remote_revision'],
+					"local_id" => null,
 					"local_revision" => isset($item['local_revision']) ? $item['local_revision'] : 1,
 					"action" => "change",
 				);
@@ -424,17 +407,17 @@ abstract class AbstractCollection
 		return $changes;
 	}
 
-    /**
-     * Log an imported object
-     *
-     * @param string $remoteId The foreign unique id of the object being imported
-     * @param int $remoteRevision A revision of the remote object (could be an epoch)
-     * @param int $localId If imported to a local object then record the id, if null the delete
-     * @param int $localRevision The revision of the local object
-     * @return bool true if imported false if failure
-     * @throws \InvalidArgumentException
-     */
-    public function logImported($remoteId, $remoteRevision=null, $localId=null, $localRevision=null)
+	/**
+	 * Log an imported object
+	 *
+	 * @param string $remoteId The foreign unique id of the object being imported
+	 * @param int $remoteRevision A revision of the remote object (could be an epoch)
+	 * @param int $localId If imported to a local object then record the id, if null the delete
+	 * @param int $localRevision The revision of the local object
+	 * @return bool true if imported false if failure
+	 * @throws \InvalidArgumentException
+	 */
+	public function logImported($remoteId, $remoteRevision = null, $localId = null, $localRevision = null)
 	{
 		if (!$this->getId())
 			return false;
@@ -446,18 +429,18 @@ abstract class AbstractCollection
 		 * When we import, we should also log that it was exported since
 		 * we know that the remote client has the object already.
 		 */
-        if ($localId && $localRevision) {
-            $this->logExported($localId, $localRevision);
-        }
+		if ($localId && $localRevision) {
+			$this->logExported($localId, $localRevision);
+		}
 
 		// Log the import and return the results
 		return $this->dataMapper->logImported(
-            $this->getId(),
-            $remoteId,
-            $remoteRevision,
-            $localId,
-            $localRevision
-        );
+			$this->getId(),
+			$remoteId,
+			$remoteRevision,
+			$localId,
+			$localRevision
+		);
 	}
 
 
@@ -477,16 +460,14 @@ abstract class AbstractCollection
 
 		$pass = true;
 
-		if (count($this->conditions))
-		{
+		if (count($this->conditions)) {
 			$pass = false; // now assume fail because we need to meet filter conditions
 			$olist = new CAntObjectList($this->dbh, $obj->object_type);
 			$olist->addCondition("and", "id", "is_equal", $obj->id);
 			if ('t' == $obj->getValue("f_deleted"))
 				$olist->addCondition("and", "f_deleted", "is_equal", 't');
 
-			foreach ($this->conditions as $cond)
-			{
+			foreach ($this->conditions as $cond) {
 				// If we are working with hierarchy then we need to use is_less_or_equal operator
 				// to include children in the query.
 				if ($cond['field'] == $obj->fields->parentField && $cond['operator'] == "is_equal")
@@ -514,15 +495,14 @@ abstract class AbstractCollection
 	 * @param int $oid The object id to update
 	 * @param int $parentId If set, pull all objects that are a child of the parent id only
 	 */
-	public function updateImportObjectStat($uid, $revision, $oid=null, $parentId=null)
+	public function updateImportObjectStat($uid, $revision, $oid = null, $parentId = null)
 	{
 		// First remove if already exists
 		$this->dbh->Query("DELETE FROM object_sync_import WHERE collection_id='" . $this->id . "' 
 							AND unique_id='" . $this->dbh->Escape($uid) . "' and field_id is NULL");
 
 
-		if ($oid)
-		{
+		if ($oid) {
 			if (!$this->objDef)
 				$this->objDef = CAntObject::factory($this->dbh, $this->objectType);
 
@@ -530,22 +510,20 @@ abstract class AbstractCollection
 			$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "' 
 					AND object_id='" . $oid . "' 
 					AND object_type_id='" . $this->objDef->object_type_id . "'
-					AND revision=".$this->dbh->EscapeNumber($revision)."";
+					AND revision=" . $this->dbh->EscapeNumber($revision) . "";
 			if ($parentId)
-				$sql .= " AND parent_id=".$this->dbh->EscapeNumber($parentId)."";
+				$sql .= " AND parent_id=" . $this->dbh->EscapeNumber($parentId) . "";
 			$this->dbh->Query($sql);
 
 			// Now insert import stat
 			$sql = "INSERT INTO object_sync_import(collection_id, object_type_id, object_id, unique_id, revision, parent_id)
 								VALUES('" . $this->id . "', '" . $this->objectTypeId . "', 
 										'" . $oid . "', '" . $this->dbh->Escape($uid) . "', 
-										".$this->dbh->EscapeNumber($revision).", 
-										".$this->dbh->EscapeNumber($parentId).");";
+										" . $this->dbh->EscapeNumber($revision) . ", 
+										" . $this->dbh->EscapeNumber($parentId) . ");";
 
 			$ret = $this->dbh->Query($sql);
-		}
-		else 
-		{
+		} else {
 			// if oid is null then do nothing, the $uid has been deleted from imported stats
 			// because it no longer is represented by a local object id
 			$ret = true;
@@ -566,15 +544,14 @@ abstract class AbstractCollection
 	 * @param int $oid The object id to update
 	 * @param int $parentId If set, pull all objects that are a child of the parent id only
 	 */
-	public function deleteImportObjectStat($uid, $oid=null, $parentId=null)
+	public function deleteImportObjectStat($uid, $oid = null, $parentId = null)
 	{
 		// First remove if already exists
 		$this->dbh->Query("DELETE FROM object_sync_import WHERE collection_id='" . $this->id . "' 
 							AND unique_id='" . $this->dbh->Escape($uid) . "' and field_id is NULL");
 
 
-		if ($oid)
-		{
+		if ($oid) {
 			if (!$this->objDef)
 				$this->objDef = CAntObject::factory($this->dbh, $this->objectType);
 
@@ -582,11 +559,9 @@ abstract class AbstractCollection
 			$sql = "DELETE FROM object_sync_stats WHERE collection_id='" . $this->id . "' 
 					AND object_id='" . $oid . "' AND object_type_id='" . $this->objDef->object_type_id . "' ";
 			if ($parentId)
-				$sql .= " AND parent_id=".$this->dbh->EscapeNumber($parentId)."";
+				$sql .= " AND parent_id=" . $this->dbh->EscapeNumber($parentId) . "";
 			$this->dbh->Query($sql);
-		}
-		else 
-		{
+		} else {
 			// if oid is null then do nothing, the $uid has been deleted from imported stats
 			// because it no longer is represented by a local object id
 			$ret = true;

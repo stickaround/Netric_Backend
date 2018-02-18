@@ -53,8 +53,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     public function __construct(Account $account)
     {
 		// Clear the moved entities cache
-        $this->cacheMovedEntities = array();
-
+        $this->cacheMovedEntities = [];
         $this->database = $account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
         $this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
         $this->entitySync = $account->getServiceManager()->get("EntitySync");
@@ -128,7 +127,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         foreach ($ret['deleted'] as $gid => $lastCommitId) {
             if ($gid && $lastCommitId && $nextCommit) {
                 $this->entitySync->setExportedStale(
-                    \Netric\EntitySync\EntitySync::COLL_TYPE_GROUPING,
+                    EntitySync::COLL_TYPE_GROUPING,
                     $lastCommitId,
                     $nextCommit
                 );

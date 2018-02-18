@@ -225,7 +225,6 @@ foreach ($groupingTables as $details) {
             $groupingsLoader->save($groupings);
         }
 
-
         // Get the key (usually id field) from the $row as we need it to update the referenced entities
         $oldFkeyId = $row[$field->fkeyTable['key']];
 

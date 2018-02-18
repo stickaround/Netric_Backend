@@ -96,12 +96,14 @@ COPY docker/server/ssl/netric.key /etc/apache2/ssl/netric.key
 
 COPY ./ /var/www/html/
 COPY docker/server/bin/netric-setup.sh /
+COPY docker/server/bin/netric-update.sh /
 COPY docker/server/bin/netric-tests.sh /
 COPY docker/server/bin/start.sh /
 COPY docker/server/bin/start-daemon.sh /
 
 # Perimissions
 RUN chmod +x /netric-setup.sh
+RUN chmod +x /netric-update.sh
 RUN chmod +x /netric-tests.sh
 RUN chmod +x /start.sh
 RUN chmod +x /start-daemon.sh
