@@ -60,6 +60,11 @@ foreach ($groupingTables as $details) {
         // If group is not existing in the object_groupings, then we need to create a new group
         if (is_array($groupValues)) {
             foreach ($groupValues as $groupId) {
+                // Skip any null IDs
+                if (!is_numeric($groupId)) {
+                    continue;
+                }
+
                 $sql = "SELECT * FROM object_grouping_mem WHERE " .
                     "object_type_id=:object_type_id AND field_id=:field_id " .
                     "AND object_id=:object_id AND grouping_id=:grouping_id";
