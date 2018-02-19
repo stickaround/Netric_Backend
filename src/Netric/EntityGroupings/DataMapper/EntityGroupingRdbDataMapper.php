@@ -249,7 +249,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      * @param \Netric\EntityDefinition $def Entity type definition
      * @param \Netric\EntityDefinition\Field $field The field we are saving a grouping for
      * @param \Netric\EntityGroupings\Group $grp The grouping to save
-     * @return bool true on sucess, false on failure
+     * @return bool true on success, false on failure
      */
     private function saveGroup($def, $field, \Netric\EntityGroupings\Group $grp)
     {
@@ -312,14 +312,20 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             throw new \RuntimeException('Cannot save grouping - invalid data ' . var_export($grp, true));
         }
 
-        // Update if existing
-        $existingSql = "SELECT 1 FROM " . $field->subtype . " WHERE id=:id";
-        if ($grp->id && $this->database->query($existingSql, ['id' => $grp->id])->rowCount() > 0) {
-            $this->database->update($field->subtype, $tableData, ['id' => $grp->id]);
-        } else {
-            $grp->id = $this->database->insert($field->subtype, $tableData);
+        if ($grp->id) {
+            // Update if existing
+            $existingSql = "SELECT id FROM " . $field->subtype . " WHERE id=:id";
+            if ($this->database->query($existingSql, ['id' => $grp->id])->rowCount() > 0) {
+                $this->database->update($field->subtype, $tableData, ['id' => $grp->id]);
+                return true;
+            }
+
+            // The ID was set but has not yet been saved. Add it to the table to save below.
+            $tableData['id'] = $grp->id;
         }
 
+        // Default to inserting
+        $grp->id = $this->database->insert($field->subtype, $tableData);
         return true;
     }
 }
