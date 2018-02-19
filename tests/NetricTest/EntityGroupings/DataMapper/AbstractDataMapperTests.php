@@ -84,6 +84,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm->saveGroupings($groupings);
         $group = $groupings->getByName($newGroup->name);
         $this->assertNotEquals($group->id, "");
+        $this->testObjectGroupings[] = $newGroup->id;
 
         // Save existing
         $name2 = "UTTEST DM::testSaveGroupings::edited";
@@ -104,6 +105,29 @@ abstract class AbstractDataMapperTests extends TestCase
         unset($groupings);
         $groupings = $dm->getGroupings("customer", "groups");
         $this->assertFalse($groupings->getById($gid));
+    }
+
+    /**
+     * Test adding a grouping with an ID (like a negative number for a reserved grouping space)
+     */
+    public function testAddGroupingsWithId()
+    {
+        $dm = $this->getDataMapper();
+
+        $groupings = $dm->getGroupings("customer", "groups");
+
+        // Save new grouping with a reserved id
+        $newGroup = $groupings->create();
+        $newGroup->id = -100;
+        $newGroup->name = "UTTEST DM::testAddGroupingsWithId";
+        $groupings->add($newGroup);
+        $dm->saveGroupings($groupings);
+
+        // Reload the groupings and make sure the above was saved
+        $groupings = $dm->getGroupings("customer", "groups");
+        $group = $groupings->getByName($newGroup->name);
+        $this->assertNotEmpty($group->id);
+        $this->testObjectGroupings[] = $group->id;
     }
 
     /**
