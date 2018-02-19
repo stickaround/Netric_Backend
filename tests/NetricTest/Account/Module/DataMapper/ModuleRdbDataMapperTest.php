@@ -23,9 +23,6 @@ class ModuleRdbDataMapperTest extends AbstractDataMapperTests
         $db = $sl->get(RelationalDbFactory::class);
         $config = $sl->get("Config");
 
-        // Setup a user for testing
-        $user = $account->getUser();
-
-        return new ModuleRdbDataMapper($db, $config, $user);
+        return new ModuleRdbDataMapper($db, $config, $account);
     }
 }

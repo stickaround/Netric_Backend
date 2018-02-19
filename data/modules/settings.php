@@ -17,6 +17,13 @@ return array(
             "icon" => "AccountProfileIcon",
         ),
         array(
+            "title" => "Modules",
+            "type" => "plugin",
+            "route" => "modules",
+            "plugin" => "Modules",
+            "icon" => "ExtensionIcon",
+        ),
+        array(
             "title" => "Automated Workflows",
             "type" => "browse",
             "objType" => "workflow",
