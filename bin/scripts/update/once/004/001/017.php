@@ -54,7 +54,9 @@ foreach ($groupingTables as $details) {
     }
 
     // Query the group data from the old fkey table
-    $sql = "SELECT * FROM $oldGroupingTable";
+    // we order it by id DESC to make sure old IDs are updated in reverse
+    // order. Otherwise we could end up with an orpahned child.
+    $sql = "SELECT * FROM $oldGroupingTable ORDER BY id DESC";
     $result = $db->query($sql);
 
     // Loop thru each entry in the old fkey object table
@@ -86,7 +88,7 @@ foreach ($groupingTables as $details) {
 
         $groupings = $groupingsLoader->get($objType, $fieldName, $filters);
 
-        /*git c
+        /*
          * We cannot continue if we do not have a groupings set, so we will
          * log it and continue with the next fkey table
          */

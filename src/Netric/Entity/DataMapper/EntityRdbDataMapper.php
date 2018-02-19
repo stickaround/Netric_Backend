@@ -168,7 +168,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                  * We have to do this because some old entities
                  * have bad values in object_multi fields
                  */
-                if ($field->subtype) {
+                if ($field->subtype && is_array($databaseValue)) {
                     foreach ($databaseValue as $index => $id) {
                         if (is_numeric($id)) {
                             $databaseValue[$index] = $id;
