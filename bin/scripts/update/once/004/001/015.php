@@ -83,6 +83,14 @@ foreach ($fkeys as $table => $constraints) {
     }
 }
 
+// Update the object_groupings id seqence to avoid id collision
+$result = $db->query("SELECT nextval('object_groupings_id_seq') as id");
+$row = $result->fetch();
+if (is_numeric($row['id'])) {
+    $increaseTo = $row['id'] + 100000;
+    $db->query("SELECT setval('object_groupings_id_seq', $increaseTo, FALSE)");
+}
+
 $groupingTables = array(
     array("table" => "activity_types", "refObjType" => "activity", "refFieldName" => "type_id"),
     array("table" => "ic_groups", "refObjType" => "infocenter_document", "refFieldName" => "groups"),

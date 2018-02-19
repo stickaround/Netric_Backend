@@ -127,7 +127,6 @@ class Update004001016Test extends TestCase
         $groupingsGroups->add($groupsGrp);
         $this->entityGroupingDataMapper->saveGroupings($groupingsGroups);
         $this->testGroupingIDs[] = $groupsGrp->id;
-        echo "New grouping id " . $groupsGrp->id . "\n";
 
         // Create a new entity
         $customer = $this->entityLoader->create("customer");
