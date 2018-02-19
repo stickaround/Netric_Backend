@@ -95,17 +95,17 @@ foreach ($groupingTables as $details) {
             continue;
         }
 
+        // Get the key (usually id field) from the $row as we need it to update the referenced entities
+        $oldFkeyId = $row[$field->fkeyTable['key']];
         $groupName = $row[$field->fkeyTable['title']];
-        $group = $groupings->getByName($groupName);
+        $oldParentId = empty($row['parent_id']) ? null : $row['parent_id'];
+        $group = $groupings->getByName($groupName, $oldParentId);
 
-        // If group is not existing in the object_groupings, it must have been deleted
+        // If group is not existing in the object_groupings or it was already updated with the new parent_id
         if ($group === false) {
             continue;
         }
-
-        // Get the key (usually id field) from the $row as we need it to update the referenced entities
-        $oldFkeyId = $row[$field->fkeyTable['key']];
-
+        
         // Update any object groupings with a parent_id that refers to the old
         $db->update(
             'object_groupings',
