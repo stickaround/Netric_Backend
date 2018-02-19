@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Add default modules to each account
  */
+use Netric\Account\Module\Module;
 
 $account = $this->getAccount();
 if (!$account)
@@ -15,9 +17,12 @@ $serviceLocator = $account->getServiceManager();
 $moduleService = $serviceLocator->get("Netric/Account/Module/ModuleService");
 
 foreach ($modules as $moduleData) {
-    if (!$moduleService->getByName($moduleData['name'])) {
-        $module = new Netric\Account\Module\Module();
-        $module->fromArray($moduleData);
-        $moduleService->save($module);
+    $module = !$moduleService->getByName($moduleData['name']);
+    if (!$module) {
+        $module = new Module();
     }
+
+    // Either save new or save changes
+    $module->fromArray($moduleData);
+    $moduleService->save($module);
 }

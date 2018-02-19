@@ -9,7 +9,11 @@ use Netric\EntitySync\EntitySync;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\EntityDefinition\EntityDefinitionLoader;
-use \Netric\Account\Account;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntitySync\EntitySyncFactory;
+use Netric\EntitySync\Commit\CommitManagerFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Account\Account;
 use DateTime;
 
 /**
@@ -54,10 +58,10 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     {
 		// Clear the moved entities cache
         $this->cacheMovedEntities = [];
-        $this->database = $account->getServiceManager()->get('Netric/Db/Relational/RelationalDb');
-        $this->commitManager = $account->getServiceManager()->get("EntitySyncCommitManager");
-        $this->entitySync = $account->getServiceManager()->get("EntitySync");
-        $this->entityDefinitionLoader = $account->getServiceManager()->get("EntityDefinitionLoader");
+        $this->database = $account->getServiceManager()->get(RelationalDbFactory::class);
+        $this->commitManager = $account->getServiceManager()->get(CommitManagerFactory::class);
+        $this->entitySync = $account->getServiceManager()->get(EntitySyncFactory::class);
+        $this->entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
     }
 
     /**
@@ -203,11 +207,12 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $sql .= ' WHERE ' . $whereSql;
         }
 
+        $sql .= ' ORDER BY ';
         if ($this->database->columnExists($field->subtype, "sort_order")) {
-            $sql .= ' ORDER BY sort_order, ' . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
-        } else {
-            $sql .= ' ORDER BY ' . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
+            $sql .= ' sort_order, ';
         }
+
+        $sql .= (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
 
         // Technically, the limit of groupings is 1000 per field, but just to be safe
         $sql .= ' LIMIT 10000';

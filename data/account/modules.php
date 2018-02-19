@@ -4,7 +4,7 @@ return array(
     array(
         "name" => "home",
         "short_title" => 'Home',
-        "title" => 'Home Dashboards',
+        "title" => 'Home',
         "scope" => 'system',
         "sort_order" => '1',
         "settings" => "none",
@@ -41,8 +41,8 @@ return array(
     // Projects
     array(
         "name" => "projects",
-        "short_title" => 'Projects',
-        "title" => 'Project & Task Manager',
+        "short_title" => 'Work',
+        "title" => 'Workr',
         "scope" => 'system',
         "sort_order" => '6',
         "f_system" => 't'
@@ -51,7 +51,7 @@ return array(
     array(
         "name" => "files",
         "short_title" => 'Files',
-        "title" => 'Files & Documents',
+        "title" => 'Files',
         "scope" => 'system',
         "sort_order" => '7',
         "f_system" => 't'
@@ -60,7 +60,7 @@ return array(
     array(
         "name" => "notes",
         "short_title" => 'Notes',
-        "title" => 'Personal Notes',
+        "title" => 'Notes',
         "scope" => 'system',
         "sort_order" => '8',
         "f_system" => 't'
@@ -69,7 +69,7 @@ return array(
     array(
         "name" => "cms",
         "short_title" => 'Content',
-        "title" => 'Content Management System',
+        "title" => 'Content',
         "scope" => 'system',
         "sort_order" => '9',
         "f_system" => 't'
@@ -77,8 +77,8 @@ return array(
     // Infocenter
     array(
         "name" => "infocenter",
-        "short_title" => 'Infocenter',
-        "title" => "Infocenter Knowledge Base",
+        "short_title" => 'Knowledge',
+        "title" => "Knowledge",
         "scope" => 'system',
         "sort_order" => '10',
         "f_system" => 't'
@@ -87,7 +87,7 @@ return array(
     array(
         "name" => "reports",
         "short_title" => 'Reports',
-        "title" => 'Reporting &amp; BI',
+        "title" => 'Reporting',
         "scope" => 'system',
         "sort_order" => '11',
         "f_system" => 't'
