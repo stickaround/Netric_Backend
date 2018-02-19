@@ -17,12 +17,21 @@ $serviceLocator = $account->getServiceManager();
 $moduleService = $serviceLocator->get("Netric/Account/Module/ModuleService");
 
 foreach ($modules as $moduleData) {
-    $module = !$moduleService->getByName($moduleData['name']);
+    $module = $moduleService->getByName($moduleData['name']);
+
+    // If module is already saved then selectively update fields
+    if ($module) {
+        // We do this in case the user has modified publish status or sort_order
+        $module->setTitle($moduleData['title']);
+        $module->setShortTitle($moduleData['short_title']);
+    }
+
+    // Module has not yet been added. Create a new module and import the data
     if (!$module) {
         $module = new Module();
+        $module->fromArray($moduleData);
     }
 
     // Either save new or save changes
-    $module->fromArray($moduleData);
     $moduleService->save($module);
 }

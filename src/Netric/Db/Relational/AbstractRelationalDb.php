@@ -247,10 +247,11 @@ abstract class AbstractRelationalDb
      *
      * @param string $tableName
      * @param array $params Associative array where key = columnName
+     * @param string $primaryKeyColumn Set which column is the primary key to get the id from
      * @throws DatabaseQueryException from $this->query if the query fails
      * @return int ID created for the primary key (if exists) otherwize 0
      */
-    public function insert(string $tableName, array $params)
+    public function insert(string $tableName, array $params, string $primaryKeyColumn = "id")
     {
         $this->beginTransaction();
         
@@ -265,10 +266,15 @@ abstract class AbstractRelationalDb
 
         // Run query, get next value (if selected), and commit
         $this->query($sql, $params);
+        
+        // If the primary key was set in the params already, return it
+        $insertedId = (empty($params[$primaryKeyColumn])) ? null : $params[$primaryKeyColumn];
 
         // Wrap get last id in try catch since we do not know if the table has a serial id
         try {
-            $insertedId = $this->getLastInsertId();
+            if ($insertedId === null) {
+                $insertedId = $this->getLastInsertId();
+            }
         } catch (DatabaseException $ex) {
             // Do nothing because we expect this to happen in some cases
         }

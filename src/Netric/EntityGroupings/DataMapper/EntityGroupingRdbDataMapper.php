@@ -317,7 +317,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             throw new \RuntimeException('Cannot save grouping - invalid data ' . var_export($grp, true));
         }
 
-        if ($grp->id) {
+        if (empty($grp->id) === false) {
             // Update if existing
             $existingSql = "SELECT id FROM " . $field->subtype . " WHERE id=:id";
             if ($this->database->query($existingSql, ['id' => $grp->id])->rowCount() > 0) {
@@ -326,11 +326,14 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             }
 
             // The ID was set but has not yet been saved. Add it to the table to save below.
-            $tableData['id'] = $grp->id;
+            $tableData['id'] = strval($grp->id);
         }
 
         // Default to inserting
-        $grp->id = $this->database->insert($field->subtype, $tableData);
+        $returnedId = $this->database->insert($field->subtype, $tableData);
+        if (empty($grp->id)) {
+            $grp->id = $returnedId;
+        }
         return true;
     }
 }

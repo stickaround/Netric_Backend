@@ -53,9 +53,9 @@ class Statement
 
         if ($this->pdoStatement->execute()) {
             return new Result($this->pdoStatement);
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**

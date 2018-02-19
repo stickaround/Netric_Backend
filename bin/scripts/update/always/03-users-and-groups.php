@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Add default users and groups for each account
  */
@@ -19,6 +20,7 @@ foreach ($groupsData as $groupData) {
         $group = new Group();
         $group->id = $groupData['id'];
         $group->name = $groupData['name'];
+        $group->setDirty(); // Force update
         $groupings->add($group);
     }
 }

@@ -123,7 +123,7 @@ abstract class AbstractRelationalDbTests extends TestCase
      *
      * @return void
      */
-    public function testInsert_NoPkey()
+    public function testInsertNoPkey()
     {
         $database = $this->getDatabase();
 
@@ -203,12 +203,27 @@ abstract class AbstractRelationalDbTests extends TestCase
     }
 
     /**
+     * Test getting the last inserted ID when the ID is defined
+     *
+     * @return void
+     */
+    public function testGetLastInsertIdWithCustomId()
+    {
+        $database = $this->getDatabase();
+
+        $lastId = $database->insert('utest_people', ['id' => 1000, 'name' => 'Name1']);
+
+        // It should have returned the ID that was manually passed rather than the sequence
+        $this->assertEquals(1000, $lastId);
+    }
+
+    /**
      * Make sure an exception is thrown if getLastInsertedId is called
      * on a table without a primary key.
      *
      * @return void
      */
-    public function testGetLastInsertId_NoPkey()
+    public function testGetLastInsertIdNoPkey()
     {
         $database = $this->getDatabase();
 
