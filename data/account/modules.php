@@ -24,7 +24,7 @@ return array(
     array(
         "name" => "crm",
         "short_title" => 'CRM',
-        "title" => "Customer Relationship Management",
+        "title" => "CRM",
         "scope" => 'system',
         "sort_order" => '4',
         "f_system" => 't'
@@ -42,7 +42,7 @@ return array(
     array(
         "name" => "projects",
         "short_title" => 'Work',
-        "title" => 'Workr',
+        "title" => 'Work',
         "scope" => 'system',
         "sort_order" => '6',
         "f_system" => 't'
