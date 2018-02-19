@@ -5,6 +5,8 @@
  */
 namespace Netric\Account\Module;
 
+use SimpleXMLElement;
+
 /**
  * Class represents a module (used to be called application) in netric
  *
@@ -58,7 +60,7 @@ class Module
      *
      * @var bool
      */
-    private $system = true;
+    private $system = false;
 
     /**
      * If scope is user, then a userId must be specified
@@ -111,6 +113,20 @@ class Module
      * @var bool
      */
     private $dirty = false;
+
+    /**
+     * The name of the user this module was published
+     *
+     * @var string
+     */
+    private $userName = null;
+
+    /**
+     * The user team this module was published
+     *
+     * @var string
+     */
+    private $teamName = null;
 
 
     /**
@@ -334,12 +350,13 @@ class Module
     }
 
     /**
-     * Set the navigation details
+     * Set the navigation array and build the xml navigation string
      *
      * @param array|null $navigation
      */
-    public function setNavigation ($navigation)
+    public function setNavigation($navigation)
     {
+        // Set the navigation array
         $this->navigation = $navigation;
         $this->dirty = true;
     }
@@ -349,9 +366,29 @@ class Module
      *
      * @return array
      */
-    public function getNavigation ()
+    public function getNavigation()
     {
         return $this->navigation;
+    }
+
+    /**
+     * Set the user name where we published this module
+     *
+     * @param string|null $userName
+     */
+    public function setUserName($userName)
+    {
+        $this->userName = $userName;
+    }
+
+    /**
+     * Set the team name where we published this module
+     *
+     * @param string|null $userName
+     */
+    public function setTeamName($teamName)
+    {
+        $this->teamName = $teamName;
     }
 
     /**
@@ -398,6 +435,9 @@ class Module
 
         if (isset($data['navigation']) && is_array($data['navigation']) && $data['navigation'])
             $this->navigation = $data['navigation'];
+
+        if (isset($data['xml_navigation']) && $data['xml_navigation'])
+            $this->xmlNavigation = $data['xml_navigation'];
     }
 
     /**
@@ -415,11 +455,15 @@ class Module
             "scope" => $this->scope,
             "system" => $this->system,
             "user_id" => $this->userId,
+            "user_id_fval" => $this->userName,
             "team_id" => $this->teamId,
+            "team_id_fval" => $this->teamName,
             "sort_order" => $this->sortOder,
             "icon" => $this->icon,
-            "defaultRoute" => $this->defaultRoute,
-            "navigation" => $this->navigation
+            "default_route" => $this->defaultRoute,
+            "navigation" => $this->navigation,
+            "xml_navigation" => $this->convertNavigationToXml()
+
         );
     }
 
@@ -429,7 +473,7 @@ class Module
      *
      * @param bool $dirty Boolean that will determine if the module is dirty or not
      */
-    public function setDirty($dirty=true)
+    public function setDirty($dirty = true)
     {
         $this->dirty = $dirty;
     }
@@ -442,5 +486,71 @@ class Module
     public function isDirty()
     {
         return $this->dirty;
+    }
+
+    /**
+     * Converts the xml navigation to array
+     *
+     * @param string|null $xmlNavigation
+     *
+     * @return array|null
+     */
+    public function convertXmltoNavigation($xmlNavigation)
+    {
+
+        // If xml navigation string is set, then we need to build the navigation array
+        if ($xmlNavigation) {
+            $xml = simplexml_load_string($xmlNavigation);
+            $json = json_encode($xml);
+
+            // Return the navigation array
+            return array_values(json_decode($json, true));
+        }
+
+        return null;
+    }
+
+    /**
+     * Converts the navigation array to xml
+     *
+     * @return string|null
+     */
+    public function convertNavigationToXml()
+    {
+
+        // Make sure that we have navigation value and it is an array
+        if ($this->navigation && is_array($this->navigation)) {
+            // Setup the xml object
+            $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
+
+            // Now convert the module navigation data into xml
+            $this->arrayToXml($this->navigation, $xmlNavigation);
+
+            // Return the xml navigation string
+            return $xmlNavigation->asXML();
+        }
+
+        return null;
+    }
+
+    /**
+     * Convert the array data to xml
+     *
+     * @param array $data The module data that will be converted into xml string
+     * @param SimpleXMLElement $xmlData The xml object that will be used to convert
+     */
+    private function arrayToXml(array $data, SimpleXMLElement &$xmlData)
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (is_numeric($key)) {
+                    $key = 'item' . $key; //dealing with <0/>..<n/> issues
+                }
+                $subnode = $xmlData->addChild($key);
+                $this->arrayToXml($value, $subnode);
+            } else {
+                $xmlData->addChild("$key", htmlspecialchars("$value"));
+            }
+        }
     }
 }

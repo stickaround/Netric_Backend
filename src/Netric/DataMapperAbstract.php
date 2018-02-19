@@ -26,7 +26,7 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	 * @var array(array('message','file','line'))
 	 */
 	protected $errors = array();
-    
+
 	/**
 	 * Get account
 	 * 

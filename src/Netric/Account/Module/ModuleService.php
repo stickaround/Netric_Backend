@@ -90,6 +90,16 @@ class ModuleService
     }
 
     /**
+     * Creates a new module
+     *
+     * @return bool
+     */
+    public function createNewModule()
+    {
+        return new Module();
+    }
+
+    /**
      * Save changes to a module
      *
      * @param Module $module
