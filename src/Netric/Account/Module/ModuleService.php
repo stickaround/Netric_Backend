@@ -94,7 +94,7 @@ class ModuleService
      *
      * @return bool
      */
-    public function createNew()
+    public function createNewModule()
     {
         return new Module();
     }

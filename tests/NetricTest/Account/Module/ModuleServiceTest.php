@@ -106,9 +106,9 @@ class ModuleServiceTest extends TestCase
         $this->assertGreaterThan(0, count($modules));
     }
 
-    public function testCreateNew()
+    public function testCreateNewModule()
     {
-        $module = $this->moduleService->createNew();
+        $module = $this->moduleService->createNewModule();
         $this->assertEquals($module->getId(), null);
     }
 }

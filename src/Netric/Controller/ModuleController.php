@@ -61,7 +61,7 @@ class ModuleController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
         $moduleService = $serviceManager->get(ModuleServiceFactory::class);
 
-        $module = $moduleService->createNew();
+        $module = $moduleService->createNewModule();
 
         if (isset($objData["id"]) && $objData["id"]) {
             $module->setId($objData["id"]);

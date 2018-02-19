@@ -62,7 +62,7 @@ class ModuleControllerTest extends TestCase
     public function testGetGetAction()
     {
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNew();
+        $module = $moduleService->createNewModule();
         $module->setName("unit_test_module_get");
         $module->setTitle("Unit Test Module");
         $moduleService->save($module);
@@ -89,7 +89,7 @@ class ModuleControllerTest extends TestCase
         $ret = $this->controller->postSaveAction();
 
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNew();
+        $module = $moduleService->createNewModule();
         $module->fromArray($ret);
         $this->testModules[] = $module;
 
@@ -101,7 +101,7 @@ class ModuleControllerTest extends TestCase
     public function testDeleteAction()
     {
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNew();
+        $module = $moduleService->createNewModule();
         $module->setName("unit_test_module_delete");
         $module->setTitle("Unit Test Module");
         $moduleService->save($module);
@@ -119,7 +119,7 @@ class ModuleControllerTest extends TestCase
         $userId = $this->account->getUser()->getId();
 
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
-        $module = $moduleService->createNew();
+        $module = $moduleService->createNewModule();
         $module->setName("unit_test_module_available");
         $module->setTitle("Unit Test Module");
         $module->setUserId($userId);
