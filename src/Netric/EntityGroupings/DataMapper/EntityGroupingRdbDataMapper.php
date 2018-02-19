@@ -312,7 +312,9 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             throw new \RuntimeException('Cannot save grouping - invalid data ' . var_export($grp, true));
         }
 
-        if ($grp->id) {
+        // Update if existing
+        $existingSql = "SELECT 1 FROM " . $field->subtype . " WHERE id=:id";
+        if ($grp->id && $this->database->query($existingSql, ['id' => $grp->id])->rowCount() > 0) {
             $this->database->update($field->subtype, $tableData, ['id' => $grp->id]);
         } else {
             $grp->id = $this->database->insert($field->subtype, $tableData);
