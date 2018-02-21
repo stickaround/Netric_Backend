@@ -23,8 +23,10 @@ for ($i = 0; $i < $db->getNumRows($result); $i++) {
 
     $table = ($row['object_table']) ? $row['object_table'] : 'objects_' . $row['name'];
 
-    $ret = $db->query("UPDATE $table SET f_seen=true WHERE f_seen IS NULL");
-    if (!$ret) {
-        $log->error("Update 004.001.013 failed to update table: " . $db->getLastError());
+    if ($db->columnExists($table, 'f_seen')) {
+        $ret = $db->query("UPDATE $table SET f_seen=true WHERE f_seen IS NULL");
+        if (!$ret) {
+            $log->error("Update 004.001.013 failed to update table: " . $db->getLastError());
+        }
     }
 }
