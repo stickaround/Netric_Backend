@@ -34,6 +34,7 @@ node {
             sleep 30
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
+            sh 'chmod -R 777 tests/tmp/'
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
         }
@@ -52,14 +53,6 @@ node {
 
         stage('Deploy') {
             sshagent (credentials: ['aereus']) {
-                /*
-                  * We no longer need to deploy because the watcher in production will automatically
-                  * pull updates from dockerhub.aereusdev.com
-                sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run.sh aereus@web1.aereus.com:/home/aereus/pull-and-run.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run.sh latest'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run.sh'
-                */
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-daemon.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-daemon.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-daemon.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-daemon.sh latest'
@@ -68,9 +61,6 @@ node {
         }
 
         stage('Cleanup') {
-             clientImage.inside {
-                sh 'chmod -R 777 tests/tmp/'
-            }
             sh 'docker system prune -f'
         }
 
