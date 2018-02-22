@@ -13,7 +13,7 @@
 	$ACCOUNT = $USER->accountId;
 
 	header("Content-type: text/xml");			// Returns XML document
-	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'; 
+	echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
 
 	$result = $dbh->Query("select id, name, short_title, title, xml_navigation, scope, f_system, user_id, team_id, settings
 							from applications where name='".$dbh->Escape($_GET['app'])."'");
@@ -83,9 +83,34 @@
 
 		// Get navigation
 		// ----------------------------------------------------------------------------------
-		if ($xmlNavigation)
+		/*
+		 * Deprecated
+		 * xmlNavigation field in applications table is being used by Netric v2
+		 * Right now we will be using the navigation file from nav/ folder in Netric v1
+		 *
+		 * This is the current format being used by Netric v2 xml navigation
+		 * <navigation>
+		 * 		<item0>
+		 *			<title>Dashboard</title>
+		 *			<type>dashboard</type>
+		 *			<route>activity</route>
+		 *			<objType>dashboard</objType>
+		 *			<icon>DashboardIcon</icon>
+		 *		</item0>
+		 * </navigation>
+		 *
+		 * Old navigation value from Netric v1
+		 * <navigation>
+		 *	<section>
+		 *		<item type ="myminiprofile" name="profile" title="My Profile"/>
+		 *	</section>
+		 * </navigation>
+		 * 
+		 * if (false && $xmlNavigation) {
 			echo $xmlNavigation;
-		else if (file_exists("nav/".$appName.".php"))
+			}
+		else */
+		if (file_exists("nav/".$appName.".php"))
 			include("nav/".$appName.".php");
 		else
 			echo "<navigation></navigation>";
