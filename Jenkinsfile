@@ -34,7 +34,7 @@ node {
             sleep 30
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
-            sh 'chmod -R 777 tests/tmp/'
+            sh 'docker exec docker_netric_server_1 chmod -R 777 tests/tmp/'
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
         }
