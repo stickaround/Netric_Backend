@@ -68,6 +68,9 @@ node {
         }
 
         stage('Cleanup') {
+             clientImage.inside {
+                sh 'chmod -R 777 tests/tmp/'
+            }
             sh 'docker system prune -f'
         }
 
