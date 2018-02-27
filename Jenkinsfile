@@ -5,7 +5,6 @@ node {
 
     try {
         stage('Build') {
-            deleteDir()
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest */
@@ -34,7 +33,6 @@ node {
             sleep 30
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
-            sh 'docker exec docker_netric_server_1 chmod -R 777 tests/tmp/'
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
         }
@@ -61,6 +59,7 @@ node {
         }
 
         stage('Cleanup') {
+            deleteDir()
             sh 'docker system prune -f'
         }
 
