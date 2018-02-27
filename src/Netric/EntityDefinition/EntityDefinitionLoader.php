@@ -36,14 +36,14 @@ class EntityDefinitionLoader
     /**
      * Setup IdentityMapper for loading objects
      *
-     * @param EntityDefinitionDataMapperInterface $dm Datamapper for entity definitions
+     * @param EntityDefinitionDataMapperInterface $dataMapper Datamapper for entity definitions
      * @param CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
      */
-    public function __construct(EntityDefinitionDataMapperInterface$dm, CacheInterface $cache = null)
+    public function __construct(EntityDefinitionDataMapperInterface $dataMapper, CacheInterface $cache = null)
     {
         $this->cache = $cache;
-        $this->dataMapper = $dm;
+        $this->dataMapper = $dataMapper;
         return $this;
     }
 
@@ -61,9 +61,9 @@ class EntityDefinitionLoader
 
         if ($this->isLoaded($objType)) {
             return $this->loadedDefinitions[$objType];
-        } else {
-            return $this->loadDefinition($objType);
         }
+
+        return $this->loadDefinition($objType);
     }
 
     /**
@@ -190,8 +190,8 @@ class EntityDefinitionLoader
             $ret = include($basePath . "/" . $objType . ".php");
 
             if (is_array($ret['fields'])) {
-                foreach ($ret['fields'] as $fname => $fld) {
-                    $ret['fields'][$fname]["system"] = true;
+                foreach ($ret['fields'] as $fieldName => $fld) {
+                    $ret['fields'][$fieldName]["system"] = true;
                 }
             }
         }
@@ -213,7 +213,7 @@ class EntityDefinitionLoader
             $ret = include($basePath . "/" . $def->getObjType() . ".php");
 
             if (is_array($ret['aggregates'])) {
-                foreach ($ret['aggregates'] as $name => $aggData) {
+                foreach ($ret['aggregates'] as $aggData) {
                     $agg = new \stdClass();
                     $agg->field = $aggData['ref_obj_update'];
                     $agg->refField = $aggData['obj_field_to_update'];
@@ -246,7 +246,7 @@ class EntityDefinitionLoader
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $viewsData = include($basePath . "/" . $objType . ".php");
 
-            foreach ($viewsData as $viewName => $viewData) {
+            foreach ($viewsData as $viewData) {
                 $view = new BrowserView();
                 $view->fromArray($viewData);
                 $def->addView($view);
@@ -268,8 +268,6 @@ class EntityDefinitionLoader
 
         if (!$objType)
             return;
-
-        $numViews = 0;
 
         // Check for system object
         $basePath = $this->dataMapper->getAccount()->getServiceManager()->get("Config")->application_path . "/data";
@@ -313,12 +311,12 @@ class EntityDefinitionLoader
      *
      * @return string The html of the message to be preseted to the user when a list is blank
      */
-    public function getBrowserBlankContent($objType, $scope = "default")
+    public function getBrowserBlankContent($objType)
     {
+        $html = "<div class='aobListBlankState'>No items found</div>";
+
         if (file_exists(dirname(__FILE__) . "/../objects/olbstate/" . $objType . ".php")) {
             $html = file_get_contents(dirname(__FILE__) . "/../objects/olbstate/" . $objType . ".php");
-        } else {
-            $html = "<div class='aobListBlankState'>No items found</div>";
         }
 
         return $html;

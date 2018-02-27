@@ -15,15 +15,10 @@ docker pull dockerhub.aereusdev.com/netric:${TARGET}
 docker stop netricd
 docker rm netricd
 
-# netricd is now run on the web servers
-# docker run -P -d --restart=on-failure --name netricd \
-#     -e APPLICATION_ENV="production" \
-#     dockerhub.aereusdev.com/netric:${TARGET} /start-daemon.sh
-
 # Optionally use syslog for the log driver
-#docker run -P -d --restart=on-failure --name netricd \
-#    -e APPLICATION_ENV="production" --log-driver=syslog --log-opt tag=netric-${TARGET} \
-#    --log-opt syslog-facility=local2 dockerhub.aereusdev.com/netric:${TARGET} /start-daemon.sh
+docker run -P -d --restart=on-failure --name netricd \
+   -e APPLICATION_ENV="production" --log-driver=syslog --log-opt tag=netric-${TARGET} \
+   --log-opt syslog-facility=local2 dockerhub.aereusdev.com/netric:${TARGET} /start-daemon.sh
 
 # Run setup in the background and it will die when finished
 docker stop netricsetup
