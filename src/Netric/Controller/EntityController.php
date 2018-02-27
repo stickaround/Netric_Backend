@@ -408,8 +408,10 @@ class EntityController extends Mvc\AbstractAccountController
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
-                    && is_array($waitingObjectData)) {
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
+                        && is_array($waitingObjectData)
+                    ) {
 
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
@@ -443,6 +445,14 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
+     * PUT pass-through for update entity definition
+     */
+    public function putUpdateEntityDefAction()
+    {
+        return $this->postUpdateEntityDefAction();
+    }
+
+    /**
      * Updates the entity definition
      */
     public function postUpdateEntityDefAction()
@@ -467,16 +477,65 @@ class EntityController extends Mvc\AbstractAccountController
         // Load the entity definition
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-        $def = $defLoader->get($objData['obj_type']);
+        // If we dont have definition id, then we will create a new entity definition
+        if (!$objData['id']) {
+            $def = new EntityDefinition($objData['obj_type']);
+        } else {
+            $def = $defLoader->get($objData['obj_type']);
+        }
+
+        // Import the $objData into the entity definition
         $def->fromArray($objData);
 
-        // Save the new entity definition
+        // Save the entity definition
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
         $dataMapper->save($def);
 
         // Build the new entity definition and return the result
         $ret = $this->fillDefinitionArray($def);
         return $this->sendOutput($ret);
+    }
+
+    /**
+     * PUT pass-through for delete entity definition
+     */
+    public function putDeleteEntityDefAction()
+    {
+        return $this->postDeleteEntityDefAction();
+    }
+
+    /**
+     * Deletes the entity definition
+     */
+    public function postDeleteEntityDefAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        $ret = array();
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['obj_type'])) {
+            return $this->sendOutput(array("error" => "obj_type is a required param"));
+        }
+
+        // Get the service manager and current user
+        $serviceManager = $this->account->getServiceManager();
+
+        // Load the entity definition
+        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $def = $defLoader->get($objData['obj_type']);
+
+
+        // Delete the entity definition
+        $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
+        $dataMapper->delete($def);
+
+        return $this->sendOutput(true);
     }
 
     /**

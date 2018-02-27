@@ -24,6 +24,13 @@ return array(
             "icon" => "ExtensionIcon",
         ),
         array(
+            "title" => "Entities",
+            "type" => "plugin",
+            "route" => "entities",
+            "plugin" => "Entities",
+            "icon" => "TocIcon",
+        ),
+        array(
             "title" => "Automated Workflows",
             "type" => "browse",
             "objType" => "workflow",

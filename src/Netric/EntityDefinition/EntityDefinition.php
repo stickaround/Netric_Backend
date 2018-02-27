@@ -285,7 +285,7 @@ class EntityDefinition
 		if (!$field->name || !$field->type)
 			return false;
 
-		// Add field witht the name as the index
+		// Add field with the name as the index
 		$this->fields[$field->name] = $field;
 
 		return true;
