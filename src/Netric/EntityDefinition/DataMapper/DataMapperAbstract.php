@@ -46,10 +46,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	 */
 	public function delete(EntityDefinition $def)
 	{
-		$this->deleteDef($def);
+		$result = $this->deleteDef($def);
 
-		// Clear cache
-		$this->getLoader()->clearCache($def->getObjType());
+		// Clear cache the if we have successfully deleted a definition
+        if ($result)
+		    $this->getLoader()->clearCache($def->getObjType());
+
+        return $result;
 	}
  
 	/**

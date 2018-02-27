@@ -351,4 +351,14 @@ class EntityDefinitionLoader
 
         return $ret;
     }
+
+    /**
+     * Function that will create a new entity definition instance
+     *
+     * @param {string} $objType The object type that will be used to create new entity definition
+     * @return EntityDefinition
+     */
+    public function createNewDefinition ($objType){
+        return new EntityDefinition($objType);
+    }
 }
