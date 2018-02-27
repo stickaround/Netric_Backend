@@ -5,6 +5,9 @@
  */
 namespace NetricTest\Controller;
 
+use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Controller\EntityController;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
@@ -43,6 +46,13 @@ class EntityControllerTest extends TestCase
      */
     private $testEntities = [];
 
+    /**
+     * Test entity definitions that should be cleaned up on tearDown
+     *
+     * @var DefinitionInterface[]
+     */
+    private $testDefinitions = [];
+
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
@@ -77,6 +87,12 @@ class EntityControllerTest extends TestCase
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $loader->delete($entity, true);
+        }
+
+        // Cleanup any test entity definitions
+        $dataMapper = $this->account->getServiceManager()->get(EntityDefinitionDataMapperFactory::class);
+        foreach ($this->testDefinitions as $def) {
+            $dataMapper->delete($def);
         }
     }
 
@@ -288,8 +304,13 @@ class EntityControllerTest extends TestCase
 
     public function testUpdateEntityDefAction()
     {
+        $objType = "unittest_customer";
+
+        // Test creating new entity definition
         $data = array(
-            'obj_type' => "customer",
+            'obj_type' => $objType,
+            'title' => "Unit Test Customer",
+            'system' => false,
             'fields' => array(
                 "test_field" => array(
                     'name' => "test_field",
@@ -303,13 +324,25 @@ class EntityControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
-
         $ret = $this->controller->postUpdateEntityDefAction();
-        $this->assertTrue($ret['fields']['test_field']['id'] > 0);
+
+        // Get the newly created entity definition
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $testDef = $defLoader->get($objType);
+        $this->testDefinitions[] = $testDef;
+
+        // Test that the new entity definition was created
+        $this->assertEquals($testDef->id, $ret['id']);
+        $this->assertEquals($testDef->getTitle(), "Unit Test Customer");
+        $this->assertEquals($testDef->revision, 1);
+
+        // Test the field created
+        $this->assertNotNull($testDef->getField("test_field"));
 
         // Remove the custom test field added
         $data = array(
-            'obj_type' => "customer",
+            'id' => $testDef->id,
+            'obj_type' => $objType,
             'deleted_fields' => array("test_field")
         );
 
@@ -317,7 +350,28 @@ class EntityControllerTest extends TestCase
         $req->setBody(json_encode($data));
         $ret = $this->controller->postUpdateEntityDefAction();
 
-        $this->assertArrayNotHasKey('test_field', $ret['fields']);
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $deletedFieldDef = $defLoader->get($objType);
+
+        $this->assertNull($deletedFieldDef->getField("test_field"));
+        $this->assertEquals($deletedFieldDef->revision, 2);
+
+        // Test the updating of entity definition
+        $data = array(
+            'id' => $testDef->id,
+            'obj_type' => $objType,
+            'title' => "Updated Definition Title",
+        );
+
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $ret = $this->controller->postUpdateEntityDefAction();
+
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $updatedDef = $defLoader->get($objType);
+
+        $this->assertEquals($updatedDef->getTitle(), "Updated Definition Title");
+        $this->assertEquals($updatedDef->revision, 3);
     }
 
     public function testMassEdit()
@@ -539,5 +593,23 @@ class EntityControllerTest extends TestCase
 
         // Set the added groups here to be deleted later in the tearDown
         $this->testGroups = array($retWithParent['id'], $retGroup['id']);
+    }
+
+    public function testDeleteEntityDef()
+    {
+        $objType = "UnitTestObjType";
+        $def = new EntityDefinition($objType);
+        $def->setSystem(false);
+
+        // Save the entity definition
+        $dataMapper = $this->account->getServiceManager()->get(EntityDefinitionDataMapperFactory::class);
+        $dataMapper->save($def);
+
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $testDef = $defLoader->get($objType);
+        $this->testDefinitions[] = $testDef;
+
+        $result = $dataMapper->delete($testDef);
+        $this->assertEquals($result, true);
     }
 }

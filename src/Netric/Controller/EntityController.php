@@ -408,7 +408,8 @@ class EntityController extends Mvc\AbstractAccountController
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if ($field->subtype // Make sure that this field has a subtype
+                    if (
+                        $field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
 
@@ -444,7 +445,7 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * POST pass-through for update entity definition
+     * PUT pass-through for update entity definition
      */
     public function putUpdateEntityDefAction()
     {
@@ -478,7 +479,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         // If we dont have definition id, then we will create a new entity definition
         if (!$objData['id']) {
-            $def = $defLoader->createNewDefinition($objData['obj_type']);
+            $def = new EntityDefinition($objData['obj_type']);
         } else {
             $def = $defLoader->get($objData['obj_type']);
         }
@@ -496,7 +497,7 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * POST pass-through for delete entity definition
+     * PUT pass-through for delete entity definition
      */
     public function putDeleteEntityDefAction()
     {
