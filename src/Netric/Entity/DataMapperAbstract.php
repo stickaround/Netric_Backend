@@ -17,6 +17,7 @@ use Netric\Entity\Notifier\NotifierFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\Validator\EntityValidatorFactory;
 
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
@@ -165,8 +166,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 		$def = $entity->getDefinition();
 
         // First validate that this entity is ok to be written
-		$entityValidator = $serviceManager->get('Netric\Entity\Validator\EntityValidator');
-		if (!$entityValidator->isValid($entity)) {
+		$entityValidator = $serviceManager->get(EntityValidatorFactory::class);
+		if (!$entityValidator->isValid($entity, $this)) {
 			$this->errors = array_merge($this->errors, $entityValidator->getErrors());
 			return false;
 		}
@@ -620,36 +621,33 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
  */
 private function setUniqueName(EntityInterface $entity)
 {
-	$serviceManager = $this->getAccount()->getServiceManager();
 	$def = $entity->getDefinition();
 
-			// If we are not using unique names with this object just return
+	// If we are not using unique names with this object just return
 	if (!$def->unameSettings) {
 		return false;
 	}
 
-			// If we have already created a uname then don't do it again
+	// If we have already created a uname and saved it then do nothing
 	if ($entity->getValue("uname")) {
 		return false;
 	}
 
 	$unameSettings = explode(":", $def->unameSettings);
 
-		// Create desired uname from the right field
-		// Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
+	// Create desired uname from the right field
+	// Format is: "<opt_namespaced_field>:<field_to_get_unique_name_from>""
 	$lastPart = end($unameSettings);
-	if ($lastPart == "name") {
-		$uname = $entity->getName();
-	} else {
-		$uname = $entity->getValue($lastPart); // last one is the uname field
-	}
 
-		// The uname must be populated before we try to save anything
+	// The unique name field is the last part of unameSettings
+	$uname = ($lastPart == "name") ? $entity->getName() : $entity->getValue($lastPart);
+
+	// The uname must be populated before we try to save anything
 	if (!$uname) {
 		return;
 	}
 
-		// Now escape the uname field to a uri fiendly name
+	// Now escape the uname field to a uri fiendly name
 	$uname = strtolower($uname);
 	$uname = str_replace(" ", "-", $uname);
 	$uname = str_replace("&", "_and_", $uname);
@@ -717,9 +715,10 @@ public function verifyUniqueName($entity, $uname)
 
 	if ($result->getTotalNum() > 0) {
 		return false;
-	} else {
-		return true;
 	}
+
+	// Name is unique
+	return true;
 }
 
 /**
@@ -731,16 +730,15 @@ public function verifyUniqueName($entity, $uname)
  */
 public function checkEntityHasMoved($entity, $id)
 {
-
-			// If we have already checked the this entity, then return the result
+	// If we have already checked the this entity, then return the result
 	if (isset($this->cacheMovedEntities[$id])) {
 		return $this->cacheMovedEntities[$id];
 	}
 
-			// Check if entity has moved
+	// Check if entity has moved
 	$movedToId = $this->entityHasMoved($entity, $id);
 
-			// Store the result in the cache
+	// Store the result in the cache
 	$this->cacheMovedEntities[$id] = $movedToId;
 
 	return $movedToId;

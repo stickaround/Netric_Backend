@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Manage entity forms
  *
@@ -8,6 +9,7 @@
 namespace Netric\Entity\Validator;
 
 use Netric\Entity\Entity;
+use Netric\Entity\DataMapperInterface;
 use Netric\Error;
 
 /**
@@ -43,10 +45,17 @@ class EntityValidator implements Error\ErrorAwareInterface
      *  - If a field is marked as 'unique' then make sure it is unique combined with parentId
      *
      * @param Entity $entity
+     * @param DataMapperInterface $entityDataMapper
      * @return bool
      */
-    public function isValid(Entity $entity)
+    public function isValid(Entity $entity, DataMapperInterface $entityDataMapper)
     {
+        // Check if a manually set unique name is unique
+        if (!$this->uniqueNameIsUnique($entity, $entityDataMapper)) {
+            $this->errors[] = "Unique name " . $entity->getValue('uname') . " is not unique";
+            return false;
+        }
+
         return true;
     }
 
@@ -68,5 +77,24 @@ class EntityValidator implements Error\ErrorAwareInterface
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     * Check that a manually set uname of an entity is unique
+     */
+    private function uniqueNameIsUnique(Entity $entity, DataMapperInterface $entityDataMapper)
+    {
+        // Default to true if there is no uname
+        if (!$entity->getValue('uname')) {
+            return true;
+        }
+
+        // Check to see if the uname was previously checked
+        if ($entity->getId() && !$entity->fieldValueChanged('uname')) {
+            return true;
+        }
+
+        // Uname was set for a new entity or changed, verify it
+        return $entityDataMapper->verifyUniqueName($entity, $entity->getValue('uname'));
     }
 }

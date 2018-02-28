@@ -123,7 +123,8 @@ class EntityController extends Mvc\AbstractAccountController
      */
     public function getGetAction()
     {
-        $params = [];
+        $params = $this->getRequest()->getParams();
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Check if the parameters are posted via Post.
         $rawBody = $this->getRequest()->getBody();
@@ -133,8 +134,6 @@ class EntityController extends Mvc\AbstractAccountController
             $params['id'] = (isset($body['id'])) ? $body['id'] : null;
             $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
             $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
-        } else {
-            $params = $this->getRequest()->getParams();
         }
 
         // Make sure we have the minimum required params
@@ -147,31 +146,24 @@ class EntityController extends Mvc\AbstractAccountController
             );
         }
 
-        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-
         // Get by uname if the ID is not set
         if (isset($params['uname']) && empty($params['id'])) {
-            // Retrieve the entity bu a unique name and optional conditions
+            // Retrieve the entity bu a unique name and optional condition
             $entity = $loader->getByUniqueName(
                 $params['obj_type'],
                 $params['uname'],
                 $params['uname_conditions']
             );
-        } else {
+        }
+
+        if (isset($params['id']) && isset($params['obj_type'])) {
             // Retrieve the entity by id
             $entity = $loader->get($params['obj_type'], $params['id']);
         }
 
         // TODO: Check permissions
 
-        $ret = ($entity) ? $entity->toArray() : [];
-
-        // Check for definition (request may be made by client)
-        if (isset($params['loadDef'])) {
-            // TODO: add $ret['definition'] with results from $this->getDefinition
-        }
-
-        return $this->sendOutput($ret);
+        return $this->sendOutput(($entity) ? $entity->toArray() : []);
     }
 
     /**

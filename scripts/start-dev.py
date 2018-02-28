@@ -15,6 +15,7 @@ if os.name == 'nt':
 else:
     os.environ["HOST_IP"] = socket.gethostbyname(socket.gethostname())
 
+print("IP" + os.environ["HOST_IP"])
 # Change to docker directory
 os.chdir("../docker")
 
