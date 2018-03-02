@@ -71,7 +71,7 @@ class Dacl
             $this->fromArray($data);
         }
 
-        // Create deafult entries
+        // Create default entries
         foreach ($this->defaultEntries as $entName) {
             if (!isset($this->entries[$entName])) {
                 $this->entries[$entName] = new Entry(['name' => $entName]);
