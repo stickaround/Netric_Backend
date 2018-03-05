@@ -83,4 +83,45 @@ class BrowserViewController extends Mvc\AbstractAccountController
     {
         return $this->postSaveAction();
     }
+
+    /**
+     * Delete the browser view
+     */
+    public function postDeleteViewAction()
+    {
+        $rawBody = $this->getRequest()->getBody();
+
+        $ret = array();
+        if (!$rawBody) {
+            return $this->sendOutput(array("error" => "Request input is not valid"));
+        }
+
+        // Decode the json structure
+        $objData = json_decode($rawBody, true);
+
+        if (!isset($objData['id'])) {
+            return $this->sendOutput(array("error" => "id is a required param"));
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $browserViewService = $serviceManager->get(BrowserViewServiceFactory::class);
+
+        $view = new BrowserView();
+        $view->fromArray($objData);
+
+        if ($browserViewService->deleteView($view)) {
+            // Return true since we have successfully deleted the browser view
+            return $this->sendOutput(true);
+        } else {
+            return $this->sendOutput(array("error" => "Error while trying to delete the browser view"));
+        }
+    }
+
+    /**
+     * PUT pass-through for delete browser view
+     */
+    public function putDeleteViewAction()
+    {
+        return $this->postDeleteViewAction();
+    }
 }
