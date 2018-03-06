@@ -118,9 +118,9 @@ class BrowserViewController extends Mvc\AbstractAccountController
     }
 
     /**
-     * PUT pass-through for delete browser view
+     * PUT pass-through for postDeleteViewAction
      */
-    public function putDeleteViewAction()
+    public function deleteDeleteViewAction()
     {
         return $this->postDeleteViewAction();
     }
