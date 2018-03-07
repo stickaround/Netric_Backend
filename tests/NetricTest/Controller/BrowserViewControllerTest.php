@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @group integration
  */
-class ModuleControllerTest extends TestCase
+class BrowserViewControllerTest extends TestCase
 {
     /**
      * Account used for testing
