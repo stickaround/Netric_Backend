@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Make sure the bin/scripts/update/always/06-worker-jobs.php script works
  */
@@ -7,6 +8,10 @@ namespace BinTest\Update\Always;
 use Netric\WorkerMan\SchedulerService;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityQuery\Index\IndexInterface;
+
 use DateTime;
 use DateInterval;
 
@@ -30,12 +35,21 @@ class WorkerJobsTest extends TestCase
     private $scriptPath = null;
 
     /**
+     * Entity index for querying
+     *
+     * @var IndexInterface
+     */
+    private $entityIndex = null;
+
+    /**
      * Setup each test
      */
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->schedulerService = $this->account->getServiceManager()->get(SchedulerService::class);
+        $serviceManager = $this->account->getServiceManager();
+        $this->schedulerService = $serviceManager->get(SchedulerService::class);
+        $this->entityIndex = $serviceManager->get(IndexFactory::class);
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/06-worker-jobs.php";
     }
 
@@ -58,25 +72,22 @@ class WorkerJobsTest extends TestCase
         $scheduledJobsData = require(__DIR__ . "/../../../../data/account/worker-jobs.php");
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         
-        // Run the script which should all system scheudled jobs
+        // Run the script which should add all system scheduled jobs
         $this->assertTrue($binScript->run($this->scriptPath));
 
         // Make sure that each of the workers was scheduled
-        $future = new DateTime();
-        $future->add(new DateInterval("PT23H"));
         foreach ($scheduledJobsData as $jobToSchedule) {
-            $jobs = $this->schedulerService->getScheduledToRun(
-                $future, 
-                $jobToSchedule['worker_name']
-            );
-            $this->assertGreaterThanOrEqual(1, count($jobs));
+            $query = new EntityQuery("worker_job");
+            $query->where('worker_name', $jobToSchedule['worker_name']);
+            $result = $this->entityIndex->executeQuery($query);
+            $this->assertGreaterThanOrEqual(1, $result->getTotalNum());
         }
     }
 
     /**
      * Make sure that we do not create multiple scheduled jobs if already scheduled
      */
-    public function testRun_NoDuplicates()
+    public function testRunNoDuplicates()
     {
         $scheduledJobsData = require(__DIR__ . "/../../../../data/account/worker-jobs.php");
         $binScript = new BinScript($this->account->getApplication(), $this->account);
@@ -95,7 +106,7 @@ class WorkerJobsTest extends TestCase
 
         // Get jobs scheduled up to $future
         $jobs = $this->schedulerService->getScheduledToRun(
-            $future, 
+            $future,
             $scheduledJobsData[0]['worker_name']
         );
         $numBeforeRunningBinScript = count($jobs);
@@ -105,7 +116,7 @@ class WorkerJobsTest extends TestCase
 
         // Make sure no duplicates were created
         $jobs = $this->schedulerService->getScheduledToRun(
-            $future, 
+            $future,
             $scheduledJobsData[0]['worker_name']
         );
 

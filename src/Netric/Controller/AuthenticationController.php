@@ -65,6 +65,12 @@ class AuthenticationController extends Mvc\AbstractAccountController
 		$authService = $sm->get(AuthenticationServiceFactory::class);
 		$sessionStr = $authService->authenticate($username, $password);
 
+		// Assume failure
+		$ret = array(
+			"result" => "FAIL",
+			"reason" => $authService->getFailureReason(),
+		);
+
 		// Return the status
 		if ($sessionStr) {
 			// Set cookie for non-app access such as server renders
@@ -76,11 +82,6 @@ class AuthenticationController extends Mvc\AbstractAccountController
 				"result" => "SUCCESS",
 				"session_token" => $sessionStr,
 				"user_id" => $authService->getIdentity()
-			);
-		} else {
-			$ret = array(
-				"result" => "FAIL",
-				"reason" => $authService->getFailureReason(),
 			);
 		}
 
