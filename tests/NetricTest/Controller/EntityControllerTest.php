@@ -107,8 +107,10 @@ class EntityControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', 'dashboard');
-        $req->setParam('id', $dashboardEntity->getId());
+        $req->setBody(json_encode(array(
+            'obj_type' => 'dashboard',
+            'id' => $dashboardEntity->getId()
+        )));
 
         $ret = $this->controller->getGetAction();
         $this->assertEquals($dashboardEntity->getId(), $ret['id'], var_export($ret, true));

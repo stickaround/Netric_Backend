@@ -119,7 +119,7 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * Retrieve a single entity2
+     * Retrieve a single entity
      */
     public function getGetAction()
     {
@@ -461,6 +461,8 @@ class EntityController extends Mvc\AbstractAccountController
 
         if (!isset($objData['obj_type'])) {
             return $this->sendOutput(array("error" => "obj_type is a required param"));
+        } else if ($objData['obj_type'] === "") {
+            return $this->sendOutput(array("error" => "obj_type is empty."));
         }
 
         // Get the service manager and current user

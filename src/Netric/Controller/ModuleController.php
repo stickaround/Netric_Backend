@@ -103,10 +103,10 @@ class ModuleController extends Mvc\AbstractAccountController
         $module = $moduleService->getById($id);
 
         if ($moduleService->delete($module)) {
-            // Return the saved module
+            // Return true since we have successfully deleted the module
             return $this->sendOutput(true);
         } else {
-            return $this->sendOutput(array("error" => "Error saving the module"));
+            return $this->sendOutput(array("error" => "Error while trying to delete the module"));
         }
     }
 
