@@ -119,7 +119,7 @@ class EntityController extends Mvc\AbstractAccountController
     }
 
     /**
-     * Retrieve a single entity2
+     * Retrieve a single entity
      */
     public function getGetAction()
     {
