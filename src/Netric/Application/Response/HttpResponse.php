@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
@@ -19,7 +20,7 @@ class HttpResponse implements ResponseInterface
      *
      * @var string
      */
-    private $contentType = self::TYPE_TEXT_HTML;
+    private $contentType = self::TYPE_JSON;
     const TYPE_TEXT_PLAIN = 'text/plain';
     const TYPE_TEXT_HTML = 'text/html';
     const TYPE_IMAGE_GIF = 'image/gif';
@@ -311,15 +312,16 @@ class HttpResponse implements ResponseInterface
      */
     public function write($content)
     {
-        if (!$this->headersSent) {
-            $this->sendHeaders();
-        }
-
         if ($this->supressOutput) {
             $this->outputBuffer = $content;
-        } else {
-            echo $content;
+            return;
         }
+
+        if (!$this->headersSent) {
+            $this->printHeaders();
+        }
+
+        echo $content;
     }
 
     /**
@@ -451,7 +453,7 @@ class HttpResponse implements ResponseInterface
                 header("Content-Length: " . (($end - $start) + 1));
 
             }
-            */
+             */
         }
 
         $this->printHeaders();
@@ -475,12 +477,10 @@ class HttpResponse implements ResponseInterface
 
             // Check if the file has been modified since the last time it was downloaded
             // And we are not trying to stream a segment of a file with HTTP_RANGE
-            if(
-                $this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
-                !$this->request->getParam('HTTP_RANGE')
-            ) {
-                $if_modified_since = strtotime(preg_replace('/;.*$/','',$this->request->getParam('HTTP_IF_MODIFIED_SINCE')));
-                if($if_modified_since >= $this->lastModified->getTimestamp()) {
+            if ($this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
+                !$this->request->getParam('HTTP_RANGE')) {
+                $if_modified_since = strtotime(preg_replace('/;.*$/', '', $this->request->getParam('HTTP_IF_MODIFIED_SINCE')));
+                if ($if_modified_since >= $this->lastModified->getTimestamp()) {
                     $this->setReturnCode(self::STATUS_CODE_NOT_MODIFIED, 'Not Modified');
                     $this->printHeaders();
                     return;
@@ -515,13 +515,14 @@ class HttpResponse implements ResponseInterface
 
         // Send headers
         foreach ($this->headers as $name => $value) {
-            header($name.': '.$value, false);
+            header($name . ': ' . $value, false);
         }
 
         // Send status
         header(
             sprintf(
-                'HTTP/%s %s %s', '1.0',
+                'HTTP/%s %s %s',
+                '1.0',
                 $this->responseCode,
                 $this->responseReason
             ),
@@ -545,24 +546,22 @@ class HttpResponse implements ResponseInterface
 
         $bodyContent = json_encode($this->outputBuffer);
 
-        switch (json_last_error())
-        {
+        switch (json_last_error()) {
             case JSON_ERROR_DEPTH:
-                $bodyContent = json_encode(array("error"=>"Maximum stack depth exceeded"));
+                $bodyContent = json_encode(array("error" => "Maximum stack depth exceeded"));
                 break;
             case JSON_ERROR_STATE_MISMATCH:
-                $bodyContent = json_encode(array("error"=>"Underflow or the modes mismatch"));
+                $bodyContent = json_encode(array("error" => "Underflow or the modes mismatch"));
                 break;
             case JSON_ERROR_CTRL_CHAR:
-                $bodyContent = json_encode(array("error"=>"Unexpected control character found"));
+                $bodyContent = json_encode(array("error" => "Unexpected control character found"));
                 break;
             case JSON_ERROR_SYNTAX:
-                $bodyContent = json_encode(array("error"=>"Syntax error, malformed JSON"));
+                $bodyContent = json_encode(array("error" => "Syntax error, malformed JSON"));
                 break;
             case JSON_ERROR_UTF8:
                 // Try to fix encoding
-                foreach ($this->outputBuffer as $vname=>$vval)
-                {
+                foreach ($this->outputBuffer as $vname => $vval) {
                     if (is_string($vval))
                         $this->outputBuffer[$vname] = utf8_encode($vval);
                 }

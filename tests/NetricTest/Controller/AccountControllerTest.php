@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test the account controller
  */
@@ -28,7 +29,10 @@ class AccountControllerTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Create the controller
-        $this->controller = new Netric\Controller\AccountController($this->account);
+        $this->controller = new Netric\Controller\AccountController(
+            $this->account->getApplication(),
+            $this->account
+        );
         $this->controller->testMode = true;
     }
 

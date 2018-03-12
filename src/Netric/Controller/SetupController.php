@@ -12,6 +12,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use Netric\Application\Setup\Setup;
 use Netric\Console\BinScript;
+use Netric\Application\Response\HttpResponse;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -118,6 +119,60 @@ class SetupController extends Mvc\AbstractController
     public function getVersionAction()
     {
         return $this->sendOutput(2);
+    }
+
+    /**
+     * Check if an account name is available
+     *
+     * @return HttpResponse
+     */
+    public function getCheckNameExistsAction()
+    {
+        $accountNameToCheck = $this->getRequest()->getParam('account_name');
+
+        // Check if the account name is already taken
+        if ($this->getApplication()->getAccount(null, $accountNameToCheck)) {
+            return $this->sendOutput([
+                'status' => 'FAIL',
+                'reason' => 'The name you selected is alraedy in use'
+            ]);
+        }
+
+        return $this->sendOutput(['status' => 'OK']);
+    }
+
+    /**
+     * Create a new account
+     *
+     * @return HttpResponse
+     */
+    public function postCreateAccountAction()
+    {
+        $response = new HttpResponse($this->getRequest());
+        if ($this->testMode) {
+            $response->suppressOutput(true);
+        }
+
+        $rawBody = $this->getRequest()->getBody();
+
+        if (!$rawBody) {
+            $response->write(['error' => 'Invalid params in body']);
+            return $response;
+        }
+
+        $params = json_decode($rawBody, true);
+
+        // Create the account
+        $application = $this->getApplication();
+        $createdAccount = $application->createAccount($params['account_name'], $params['username'], $params['password']);
+        if (!$createdAccount) {
+            $response->write(['error' => 'Failed to create account.']);
+            return $response;
+        }
+
+        // Encode new account data and return it to the client for further processing
+        $response->write($createdAccount->toArray());
+        return $response;
     }
 
     /**
