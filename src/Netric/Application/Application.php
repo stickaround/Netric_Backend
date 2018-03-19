@@ -113,15 +113,10 @@ class Application
         // Setup the application service manager
         $this->serviceManager = new ApplicationServiceManager($this);
 
-        // TODO: Convert the below to service factories
-
         // Setup application datamapper
-        $this->dm = new DataMapperPgsql(
-            $config->db["host"],
-            $config->db["sysdb"],
-            $config->db["user"],
-            $config->db["password"]
-        );
+        $this->dm = $this->serviceManager->get(DataMapperFactory::class);
+
+        // TODO: Convert the below to service factories
 
         // Setup application cache
         $this->cache = new MemcachedCache($config->cache);

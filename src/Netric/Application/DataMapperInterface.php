@@ -10,6 +10,7 @@
  */
 namespace Netric\Application;
 
+use Netric\Account\Account;
 use DateTime;
 
 /**
@@ -35,7 +36,7 @@ interface DataMapperInterface
      * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
-    public function getAccountByName($name, &$account);
+    public function getAccountByName($name, Account $account = null);
 
     /**
      * Get an associative array of account data
@@ -43,7 +44,7 @@ interface DataMapperInterface
      * @param string $version If set the only get accounts that are at a current version
      * @return array
      */
-    public function getAccounts($version="");
+    public function getAccounts($version = "");
 
     /**
      * Get account and username from email address
@@ -149,7 +150,7 @@ interface DataMapperInterface
      * @param int $expiresInSeconds Expire after defaults to 1 day or 86400 seconds
      * @return bool true if lock obtained, false if the process name is already locked (running)
      */
-    public function acquireLock($uniqueLockName, $expiresInSeconds=86400);
+    public function acquireLock($uniqueLockName, $expiresInSeconds = 86400);
 
     /**
      * Clear a lock so that only one instance of a process can run at once

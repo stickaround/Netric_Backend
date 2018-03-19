@@ -11,6 +11,7 @@
 namespace Netric\Application;
 
 use Netric\Db;
+use Netric\Account\Account;
 use Netric\Error\ErrorAwareInterface;
 use Netric\Error\Error;
 
@@ -27,28 +28,28 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * @var string
      */
     private $host = "";
-    
+
     /**
      * Database name
      * 
      * @var string
      */
     private $database = "";
-    
+
     /**
      * Db username
      * 
      * @var string
      */
     private $username = "";
-    
+
     /**
      * Password for username
      * 
      * @var string
      */
     private $password = "";
-    
+
     /**
      * Handle to database object
      * 
@@ -73,7 +74,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * @var Error[]
      */
     private $errors = [];
-    
+
     /**
      * Connect to the pgsql database
      * 
@@ -90,10 +91,10 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         $this->username = $username;
         $this->password = $password;
         $this->defaultAccountDatabase = $defaultAccountDatabase;
-        
+
         $this->dbh = new Db\Pgsql($host, $database, $username, $password);
     }
-    
+
     /**
      * Get an account by id
      * 
@@ -101,45 +102,50 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * @param \Netric\Account\Account $app Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
-    public function getAccountById($id, &$account) 
+    public function getAccountById($id, &$account)
     {
-        $result = $this->dbh->query("SELECT * FROM accounts WHERE id=".$this->dbh->escapeNumber($id));
+        $result = $this->dbh->query("SELECT * FROM accounts WHERE id=" . $this->dbh->escapeNumber($id));
         if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
             return $account->fromArray($row);
-        } else {
-            return false;
         }
+
+        return false;
     }
-    
+
     /**
      * Get an account by the unique name
      * 
      * @param string $name
-     * @param \Netric\Account\Account $app Reference to Account object to initialize
+     * @param Account $account Reference to Account object to initialize if set
      * @return bool true on success, false on failure/not found
      */
-    public function getAccountByName($name, &$account)
+    public function getAccountByName($name, Account $account = null)
     {
-        $result = $this->dbh->query("SELECT * FROM accounts WHERE name='".$this->dbh->escape($name)."'");
+        $result = $this->dbh->query("SELECT * FROM accounts WHERE name='" . $this->dbh->escape($name) . "'");
         if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
-            return $account->fromArray($row);
-        } else {
-            return false;
+
+            if ($account) {
+                return $account->fromArray($row);
+            }
+
+            return $row;
         }
+
+        return false;
     }
-    
+
     /**
      * Get an array of accounts
      * 
      * @param string $version If set the only get accounts that are at a current version
      * @return array
      */
-    public function getAccounts($version="")
+    public function getAccounts($version = "")
     {
         $ret = array();
-        
+
         $sql = "SELECT * FROM accounts WHERE active is not false";
         if ($version) {
             $sql .= " AND version='" . $this->dbh->escape($version) . "'";
@@ -147,7 +153,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 
         $result = $this->dbh->query($sql);
         $num = $this->dbh->getNumRows($result);
-        
+
         for ($i = 0; $i < $num; $i++) {
             $row = $this->dbh->getRow($result, $i);
             $ret[] = array(
@@ -156,7 +162,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
                 "database" => $row['database'],
             );
         }
-        
+
         return $ret;
     }
 
@@ -234,13 +240,14 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         // Create account in antsystem
         $ret = $this->dbh->query(
             "INSERT INTO accounts(name, database)
-			 VALUES('".$this->dbh->escape($name)."', '".$this->dbh->escape($this->defaultAccountDatabase)."')
-			 RETURNING id;");
+			 VALUES('" . $this->dbh->escape($name) . "', '" . $this->dbh->escape($this->defaultAccountDatabase) . "')
+			 RETURNING id;"
+        );
         if ($this->dbh->getNumRows($ret)) {
             return $this->dbh->getValue($ret, 0, "id");
         }
 
-        $this->errors[] =  new Error("Could not create account in system database: " . $this->dbh->getLastError());
+        $this->errors[] = new Error("Could not create account in system database: " . $this->dbh->getLastError());
         return 0;
     }
 
@@ -354,12 +361,12 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         if ($this->dbh->query($sql)) {
             $this->errors[] = new Error(
                 "DataMapperPgsql->createEmailDomain: Error - " .
-                $this->dbh->getLastError()
+                    $this->dbh->getLastError()
             );
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -376,17 +383,17 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         }
 
         $sql = "DELETE FROM email_domains WHERE " .
-                  "domain='" . strtolower($this->dbh->escape($domainName)) . "' AND " .
-                  "account_id=" . $this->dbh->escapeNumber($accountId);
+            "domain='" . strtolower($this->dbh->escape($domainName)) . "' AND " .
+            "account_id=" . $this->dbh->escapeNumber($accountId);
         if ($this->dbh->query($sql)) {
             $this->errors[] = new Error(
                 "DataMapperPgsql->deleteEmailDomain: Error - " .
-                $this->dbh->getLastError()
+                    $this->dbh->getLastError()
             );
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -414,13 +421,13 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
             if ($row['account_id'] != $accountId) {
                 $this->errors[] = new Error("Could not update $emailAddress since it is owned by another account");
                 return false;
-            } else {
-                $sql = "UPDATE email_alias SET
-                            goto='" . strtolower($this->dbh->escape($goto)) . "'
-                        WHERE
-                        address='" . $this->dbh->escape($emailAddress) . "' AND
-                        account_id=" . $this->dbh->escapeNumber($accountId);
             }
+
+            $sql = "UPDATE email_alias SET
+                    goto='" . strtolower($this->dbh->escape($goto)) . "'
+                WHERE
+                address='" . $this->dbh->escape($emailAddress) . "' AND
+                account_id=" . $this->dbh->escapeNumber($accountId);
         } else {
             $sql = "INSERT INTO email_alias(address, goto, active, account_id)
                     VALUES (
@@ -434,12 +441,12 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         if ($this->dbh->query($sql)) {
             $this->errors[] = new Error(
                 "DataMapperPgsql->createOrUpdateEmailAlias: Error - " .
-                $this->dbh->getLastError()
+                    $this->dbh->getLastError()
             );
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -456,17 +463,17 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         }
 
         $sql = "DELETE FROM email_alias WHERE " .
-                "address='" . strtolower($this->dbh->escape($emailAddress)) . "' AND " .
-                "account_id=" . $this->dbh->escapeNumber($accountId);
+            "address='" . strtolower($this->dbh->escape($emailAddress)) . "' AND " .
+            "account_id=" . $this->dbh->escapeNumber($accountId);
         if ($this->dbh->query($sql)) {
             $this->errors[] = new Error(
                 "DataMapperPgsql->deleteEmailAlias: Error - " .
-                $this->dbh->getLastError()
+                    $this->dbh->getLastError()
             );
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -494,32 +501,32 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
             if ($row['account_id'] != $accountId) {
                 $this->errors[] = new Error("Could not update $emailAddress since it is owned by another account");
                 return false;
-            } else {
-                $sql = "UPDATE email_users SET
-                            password='" . $this->dbh->escape($password) . "'
-                        WHERE
-                            email_address='" . $this->dbh->escape($emailAddress) . "' AND
-                            account_id=" . $this->dbh->escapeNumber($accountId);
             }
-        } else {
-            $sql = "INSERT INTO email_users(email_address, password, maildir, account_id)
-                    VALUES (
-                      '" . strtolower($this->dbh->escape($emailAddress)) . "',
-                      '" . strtolower($this->dbh->escape($password)) . "',
-                      '" . strtolower($this->dbh->escape($emailAddress)) . "',
-                      " . $this->dbh->escapeNumber($accountId) . "
-                    );";
+
+            $sql = "UPDATE email_users SET
+                        password='" . $this->dbh->escape($password) . "'
+                    WHERE
+                        email_address='" . $this->dbh->escape($emailAddress) . "' AND
+                        account_id=" . $this->dbh->escapeNumber($accountId);
         }
+
+        $sql = "INSERT INTO email_users(email_address, password, maildir, account_id)
+                VALUES (
+                    '" . strtolower($this->dbh->escape($emailAddress)) . "',
+                    '" . strtolower($this->dbh->escape($password)) . "',
+                    '" . strtolower($this->dbh->escape($emailAddress)) . "',
+                    " . $this->dbh->escapeNumber($accountId) . "
+                );";
 
         if ($this->dbh->query($sql)) {
             $this->errors[] = new Error(
                 "DataMapperPgsql->createOrUpdateEmailUser: Error - " .
-                $this->dbh->getLastError()
+                    $this->dbh->getLastError()
             );
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -536,17 +543,17 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
         }
 
         $sql = "DELETE FROM email_users WHERE " .
-                "email_address='" . strtolower($this->dbh->escape($emailAddress)) . "' AND " .
-                "account_id=" . $this->dbh->escapeNumber($accountId);
+            "email_address='" . strtolower($this->dbh->escape($emailAddress)) . "' AND " .
+            "account_id=" . $this->dbh->escapeNumber($accountId);
         if ($this->dbh->query($sql)) {
             $this->errors[] = new Error(
                 "DataMapperPgsql->deleteEmailUser: Error - " .
-                $this->dbh->getLastError()
+                    $this->dbh->getLastError()
             );
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -556,7 +563,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * @param int $expiresInSeconds Expire after defaults to 1 day or 86400 seconds
      * @return bool true if lock obtained, false if the process name is already locked (running)
      */
-    public function acquireLock($uniqueLockName, $expiresInSeconds=86400)
+    public function acquireLock($uniqueLockName, $expiresInSeconds = 86400)
     {
         if (!$uniqueLockName) {
             throw new \InvalidArgumentException("Unique lock name is required to obtain a lock");
@@ -564,35 +571,35 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 
         // Get the process lock
         $sql = "SELECT id, ts_entered FROM worker_process_lock " .
-               "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
+            "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
         $result = $this->dbh->query($sql);
         if (!$this->dbh->getNumRows($result)) {
             $sql = "INSERT INTO worker_process_lock(process_name, ts_entered) " .
-                   "VALUES('" . $this->dbh->escape($uniqueLockName) . "', 'now');";
-            if ($this->dbh->query($sql)){
+                "VALUES('" . $this->dbh->escape($uniqueLockName) . "', 'now');";
+            if ($this->dbh->query($sql)) {
                 return true;
-            } else {
-                // Something fell apart
-                throw new \RuntimeException("Could not create lock: " . $this->dbh->getLastError());
             }
-        } else {
-            $row = $this->dbh->getRow($result);
-            $timeEntered = strtotime($row['ts_entered']);
-            $now = time();
+
+            // Something fell apart
+            throw new \RuntimeException("Could not create lock: " . $this->dbh->getLastError());
+        }
+
+        $row = $this->dbh->getRow($result);
+        $timeEntered = strtotime($row['ts_entered']);
+        $now = time();
 
             // Check to see if the process has expired (run too long)
-            if (($now - $timeEntered) >= $expiresInSeconds) {
+        if (($now - $timeEntered) >= $expiresInSeconds) {
                 // Update the lock and return true so the caller can start a new process
-                $this->dbh->query(
-                    "UPDATE worker_process_lock SET ts_entered='now' WHERE id=" .
+            $this->dbh->query(
+                "UPDATE worker_process_lock SET ts_entered='now' WHERE id=" .
                     $this->dbh->escapeNumber($row['id'])
-                );
-                return true;
-            } else {
-                // The process is still legitimately running
-                return false;
-            }
+            );
+            return true;
         }
+
+            // The process is still legitimately running
+        return false;
     }
 
     /**
@@ -603,7 +610,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     public function releaseLock($uniqueLockName)
     {
         $sql = "DELETE FROM worker_process_lock " .
-               "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
+            "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
         $this->dbh->query($sql);
     }
 
@@ -616,7 +623,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     public function extendLock($uniqueLockName)
     {
         $sql = "UPDATE worker_process_lock SET ts_entered='now' " .
-               "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
+            "WHERE process_name='" . $this->dbh->escape($uniqueLockName) . "'";
         return ($this->dbh->query($sql)) ? true : false;
     }
 }

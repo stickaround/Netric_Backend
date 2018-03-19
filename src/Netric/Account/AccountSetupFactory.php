@@ -1,15 +1,14 @@
 <?php
-namespace Netric\Application;
+namespace Netric\Account;
 
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
-
-use Netric\Config\Config;
+use Netric\Application\DataMapperFactory;
 
 /**
- * Create a new Application DataMapper service
+ * Create a new AccountSetup service
  */
-class DataMapperFactory implements ApplicationServiceFactoryInterface
+class AccountSetupFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
@@ -19,7 +18,7 @@ class DataMapperFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get(Config::class);
-        return new DataMapperPgsql($config->db->host, $config->db->sysdb, $config->db->user, $config->db->password);
+        $dataMapper = $serviceLocator->get(DataMapperFactory::class);
+        return new AccountSetup($dataMapper);
     }
 }

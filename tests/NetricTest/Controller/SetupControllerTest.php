@@ -12,6 +12,8 @@ use Netric\Controller\SetupController;
  * Only define index specific tests here and try to avoid name collision with the tests
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
+ * 
+ * @group integration
  */
 class SetupControllerTest extends TestCase
 {
@@ -78,53 +80,6 @@ class SetupControllerTest extends TestCase
     }
 
     /**
-     * Make sure a brand new account name is ok
-     *
-     * @return void
-     */
-    public function testGetCheckNameExistsAction()
-    {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('account_name', 'notexists');
-
-        $ret = $this->controller->getCheckNameExistsAction();
-
-        // Make sure that modules that has xml_navigation
-        $this->assertEquals('OK', $ret['status']);
-    }
-
-    /**
-     * Make sure a taken name cannot be re-taken
-     *
-     * @return void
-     */
-    public function testGetCheckNameExistsActionAlreadyTaken()
-    {
-        $tempAccountName = 'alreadyexists';
-
-        // Queue for cleanup
-        $this->accountsToCleanup[] = $tempAccountName;
-
-        // Create the account
-        $account = \NetricTest\Bootstrap::getAccount();
-        $account->getApplication()->createAccount(
-            $tempAccountName,
-            $tempAccountName . '@netric.com',
-            'PassRandNeverLogin!'
-        );
-
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        $req->setParam('account_name', $tempAccountName);
-
-        $ret = $this->controller->getCheckNameExistsAction();
-
-        // Make sure the status is fail
-        $this->assertEquals('FAIL', $ret['status']);
-    }
-
-    /**
      * Test creating a new account
      *
      * @return void
@@ -138,11 +93,11 @@ class SetupControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
+        $req->setBody(json_encode([
             'account_name' => $tempAccountName,
             'username' => 'test2@netric.com',
             'password' => 'PassRandNeverLogin!',
-        )));
+        ]));
 
         $response = $this->controller->postCreateAccountAction();
         $output = $response->getOutputBuffer();
@@ -150,5 +105,34 @@ class SetupControllerTest extends TestCase
         // Make sure the accounts
         $this->assertNotEmpty($output['id']);
         $this->assertEquals($tempAccountName, $output['name']);
+    }
+
+    /**
+     * Test creating a new account
+     *
+     * @return void
+     */
+    public function testPostCreateAccountActionDuplicateName()
+    {
+        // This is the same as the account created on setup
+        $tempAccountName = 'Local';
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode([
+            'account_name' => $tempAccountName,
+            'username' => 'test2@netric.com',
+            'password' => 'PassRandNeverLogin!',
+        ]));
+
+        $response = $this->controller->postCreateAccountAction();
+        $output = $response->getOutputBuffer();
+
+        // Queue for cleanup
+        $this->accountsToCleanup[] = $output['name'];
+
+        // Make sure the accounts
+        $this->assertNotEmpty($output['id']);
+        $this->assertNotEquals('local', $output['name']);
     }
 }

@@ -13,6 +13,8 @@ use Netric\Permissions\Dacl;
 use Netric\Application\Setup\Setup;
 use Netric\Console\BinScript;
 use Netric\Application\Response\HttpResponse;
+use Netric\Application\DataMapperFactory;
+use Netric\Account\AccountSetupFactory;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -77,22 +79,23 @@ class SetupController extends Mvc\AbstractController
         // Update the application database
         $response->write("Updating application");
         $applicationSetup = new Setup();
-        if ($applicationSetup->updateApplication($this->getApplication())) {
-            $response->write("\t\t[done]\n");
-        } else {
+        if (!$applicationSetup->updateApplication($this->getApplication())) {
             throw new \Exception("Failed to update application: " . $applicationSetup->getLastError()->getMessage());
+
         }
+
+        $response->write("\t\t[done]\n");
 
         // Loop through each account and update it
         $accounts = $this->getApplication()->getAccounts();
         foreach ($accounts as $account) {
             $response->write("Updating account " . $account->getName());
             $setup = new Setup();
-            if ($setup->updateAccount($account)) {
-                $response->write("\t[done]\n");
-            } else {
+            if (!$setup->updateAccount($account)) {
                 throw new \Exception("Failed to update account: " . $setup->getLastError()->getMessage());
             }
+
+            $response->write("\t[done]\n");
         }
 
         $response->writeLine("-- Update Complete --");
@@ -121,39 +124,20 @@ class SetupController extends Mvc\AbstractController
         return $this->sendOutput(2);
     }
 
-    /**
-     * Check if an account name is available
-     *
-     * @return HttpResponse
-     */
-    public function getCheckNameExistsAction()
-    {
-        $accountNameToCheck = $this->getRequest()->getParam('account_name');
-
-        // Check if the account name is already taken
-        if ($this->getApplication()->getAccount(null, $accountNameToCheck)) {
-            return $this->sendOutput([
-                'status' => 'FAIL',
-                'reason' => 'The name you selected is already in use'
-            ]);
-        }
-
-        return $this->sendOutput(['status' => 'OK']);
-    }
-
-    /**
-     * Generate a unique account name from a company name
-     *
-     * @return HttpResponse
-     */
-    public function getUniqueAccountNameAction()
+    public function getGenerateUniqueAccountNameAction()
     {
         $response = new HttpResponse($this->getRequest());
         $response->setContentType(HttpResponse::TYPE_JSON);
 
-        $originalName = strtolower($this->getRequest()->getParam('name'));
-        $cleanedName = preg_replace("/[^A-Za-z0-9 ]/", '', $originalName);
+        if ($this->testMode) {
+            $response->suppressOutput(true);
+        }
 
+        $originalName = $this->getRequest()->getParam("name");
+        $serviceManager = $this->getApplication()->getServiceManager();
+        $accountSetup = $serviceManager->get(AccountSetupFactory::class);
+        $uniqueName = $accountSetup->getUniqueAccountName($originalName);
+        $response->write(['name' => $uniqueName]);
         return $response;
     }
 
@@ -180,9 +164,15 @@ class SetupController extends Mvc\AbstractController
 
         $params = json_decode($rawBody, true);
 
+        // Make sure that the account name is unique
+        $accountName = isset($params['account_name']) ? $params['account_name'] : '';
+        $serviceManager = $this->getApplication()->getServiceManager();
+        $accountSetup = $serviceManager->get(AccountSetupFactory::class);
+        $accountName = $accountSetup->getUniqueAccountName($accountName);
+        
         // Create the account
         $application = $this->getApplication();
-        $createdAccount = $application->createAccount($params['account_name'], $params['username'], $params['password']);
+        $createdAccount = $application->createAccount($accountName, $params['username'], $params['password']);
         if (!$createdAccount) {
             $response->write(['error' => 'Failed to create account.']);
             return $response;
