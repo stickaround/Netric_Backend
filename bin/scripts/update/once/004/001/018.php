@@ -101,7 +101,7 @@ foreach ($objectTypesToMove as $objType) {
             $entity->fromArray($entityData);
 
             /*
-             * We need to the the revision value to 0 so the entityDatamapper::save() will do the insert action instead of update
+             * We need to set the revision value to 0 so the entityDatamapper::save() will do the insert action instead of update
              * If we are not going to set the revision to 0, the entityDatamapper will assume that it will do the update action
              *  since we have an entity id.
              *
