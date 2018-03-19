@@ -134,11 +134,27 @@ class SetupController extends Mvc\AbstractController
         if ($this->getApplication()->getAccount(null, $accountNameToCheck)) {
             return $this->sendOutput([
                 'status' => 'FAIL',
-                'reason' => 'The name you selected is alraedy in use'
+                'reason' => 'The name you selected is already in use'
             ]);
         }
 
         return $this->sendOutput(['status' => 'OK']);
+    }
+
+    /**
+     * Generate a unique account name from a company name
+     *
+     * @return HttpResponse
+     */
+    public function getUniqueAccountNameAction()
+    {
+        $response = new HttpResponse($this->getRequest());
+        $response->setContentType(HttpResponse::TYPE_JSON);
+
+        $originalName = strtolower($this->getRequest()->getParam('name'));
+        $cleanedName = preg_replace("/[^A-Za-z0-9 ]/", '', $originalName);
+
+        return $response;
     }
 
     /**
@@ -149,6 +165,8 @@ class SetupController extends Mvc\AbstractController
     public function postCreateAccountAction()
     {
         $response = new HttpResponse($this->getRequest());
+        $response->setContentType(HttpResponse::TYPE_JSON);
+
         if ($this->testMode) {
             $response->suppressOutput(true);
         }
