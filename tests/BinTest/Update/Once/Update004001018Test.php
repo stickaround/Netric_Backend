@@ -7,6 +7,7 @@ namespace BinTest\Update\Once;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
@@ -75,17 +76,26 @@ class Update004001018Test extends TestCase
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $db = $serviceManager->get(RelationalDbFactory::class);
 
-        $objType = "task";
+        $objType = "user";
         $objectsTable = "objects_$objType";
         $entityDefinitionLoader->clearCache($objType);
         $entity = $entityLoader->create($objType);
-        $entity->setValue("name", "UnitTestTask");
+        $entity->setValue("name", "UnitTestUser");
+        $entity->setValue("email", "unittest@netric.com");
+        $entity->setValue("password", "unittestpassword");
         $entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
 
+        // Authenticate the user
+        $authService = $serviceManager->get(AuthenticationServiceFactory::class);
+        $sessionStr = $authService->authenticate("unittest@netric.com", "unittestpassword");
+
+        $this->assertNotNull($sessionStr);
+
+        // Test the user if it was moved to the new objects table
         $def = $entityDefinitionLoader->get($objType);
         $movedEntity = $entityLoader->get($objType, $entity->getId());
 

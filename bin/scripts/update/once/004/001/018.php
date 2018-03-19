@@ -53,7 +53,7 @@ $objectTypesToMove = array(
 );
 
 foreach ($objectTypesToMove as $objType) {
-    $objectsTable = "objects_$objType";
+    $objectTable = "objects_$objType";
 
     $def = null;
     try {
@@ -69,12 +69,14 @@ foreach ($objectTypesToMove as $objType) {
      * Or if the object definition table is not yet existing
      * Or if the entity definition is a custom table and do not have an objects_* table
      */
-    if (!$def || !$db->tableExists($objectsTable) || ($def && $def->isCustomTable() && $def->getTable() !== $objectsTable)) {
-
+    if (!$def || !$db->tableExists($objectTable) || ($def && $def->isCustomTable() && $def->getTable() !== $objectTable)) {
         $entitiesToMove = array();
 
         $query = new EntityQuery($objType);
         $ret = $entityIndex->executeQuery($query);
+
+        // Clear the entitiesToMove
+        $entitiesToMove = array();
 
         // Get the entities to be move to new table
         for ($i = 0; $i < $ret->getTotalNum(); $i++) {
@@ -110,12 +112,22 @@ foreach ($objectTypesToMove as $objType) {
             $entity->setValue("revision", 0);
             $entityDataMapper->save($entity);
 
-            /*
-             * After creating a new entity by setting the revision value to 0
-             * Then we need to save the actual revision value of the entity
-             */
-            $entity->fromArray($entityData);
-            $entityDataMapper->save($entity);
+            if ($db->tableExists($objectTable)) {
+
+                /*
+                 * After creating a new entity by setting the revision value to 0
+                 * Then we need to update the actual revision value of the entity
+                 */
+                $updateData = array("revision" => $entityData["revision"]);
+
+                // If we are dealing with user objType, then we need to update the correct encrypted password from entityData
+                if ($objType === "user") {
+                    $updateData["password"] = $entityData["password"];
+                    $updateData["password_salt"] = $entityData["password_salt"];
+                }
+
+                $db->update($objectTable, $updateData, ['id' => $entity->getId()]);
+            }
         }
     }
 }
