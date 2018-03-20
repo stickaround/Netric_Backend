@@ -79,7 +79,7 @@ RewriteRule ^controller/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /controllerLoader
 RewriteRule ^api/php/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /controllerLoader.php?apim=$1&controller=$2&function=$3 [QSA]
 
 # New API is [version]/[controller]/[action]
-RewriteRule ^api/v([0-9]+)/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /router.php?version=$1&controller=$2&function=$3 [QSA]
+RewriteRule ^api/([0-9]+)/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /router.php?version=$1&controller=$2&function=$3 [QSA]
 
 # New conroller loader namespace = svr/*
 RewriteRule ^svr/([0-9a-zA-Z-_'.]+)/([0-9a-zA-Z-_'.]+)$ /router.php?controller=$1&function=$2 [QSA]
