@@ -34,6 +34,6 @@ $config = $configLoader->fromFolder(__DIR__ . "/../../config", $applicationEnvir
         </script>
     </head>
     <body onload="startApplication();">
-        <div id='netric-app'></div>
+        <div id='netric-app' style="height:100%;"></div>
     </body>
 </html>
