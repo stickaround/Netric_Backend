@@ -8,6 +8,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
@@ -33,6 +34,13 @@ class Update004001018Test extends TestCase
      * @var EntityInterface[]
      */
     private $testEntities = [];
+
+    /**
+     * Test old entities that should be cleaned up on tearDown
+     *
+     * @var EntityInterface[]
+     */
+    private $testOldEntities = [];
 
     /**
      * Setup each test
@@ -74,33 +82,25 @@ class Update004001018Test extends TestCase
         $serviceManager = $this->account->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
         $db = $serviceManager->get(RelationalDbFactory::class);
 
-        $objType = "user";
-        $objectsTable = "objects_$objType";
-        $entityDefinitionLoader->clearCache($objType);
-        $entity = $entityLoader->create($objType);
-        $entity->setValue("name", "UnitTestUser");
-        $entity->setValue("email", "unittest@netric.com");
-        $entity->setValue("password", "unittestpassword");
-        $entityLoader->save($entity);
-        $this->testEntities[] = $entity;
+        $objType = "task";
+        $insertData = [
+            'name' => "UnitTestTask"
+        ];
+        $taskId = $db->insert('project_tasks', $insertData);
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
 
-        // Authenticate the user
-        $authService = $serviceManager->get(AuthenticationServiceFactory::class);
-        $sessionStr = $authService->authenticate("unittest@netric.com", "unittestpassword");
-
-        $this->assertNotNull($sessionStr);
-
-        // Test the user if it was moved to the new objects table
+        // Test the task if it was moved to the new object table
         $def = $entityDefinitionLoader->get($objType);
-        $movedEntity = $entityLoader->get($objType, $entity->getId());
+        $taskEntity = $entityLoader->get($objType, $taskId);
+        $movedEntityId = $entityDataMapper->checkEntityHasMoved($def, $taskId);
+        $this->testEntities[] = $taskEntity;
 
-        $this->assertEquals($def->getTable(), $objectsTable);
-        $this->assertTrue($db->tableExists($objectsTable));
-        $this->assertEquals($entity->getName(), $movedEntity->getName());
+        $this->assertEquals($taskEntity->getName(), "UnitTestTask");
+        $this->assertEquals($taskEntity->getId(), $movedEntityId);
     }
 }

@@ -130,11 +130,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	/**
 	 * Check if an object has moved
 	 *
-	 * @param Entity $entity
+	 * @param EntityDefinition $def The defintion of this object type
 	 * @param string $id The id of the object that no longer exists - may have moved
 	 * @return string|bool New entity id if moved, otherwise false
 	 */
-	abstract protected function entityHasMoved($entity, $id);
+	abstract protected function entityHasMoved($def, $id);
 
 	/**
 	 * Save revision snapshot
@@ -724,19 +724,22 @@ public function verifyUniqueName($entity, $uname)
 /**
  * Check if an object has moved
  *
- * @param Entity $entity
+ * @param EntityDefinition $def The defintion of this object type
  * @param string $id The id of the object that no longer exists - may have moved
  * @return string|bool New entity id if moved, otherwise false
  */
-public function checkEntityHasMoved($entity, $id)
+public function checkEntityHasMoved($def, $id)
 {
-	// If we have already checked the this entity, then return the result
-	if (isset($this->cacheMovedEntities[$id])) {
+	/*
+	 * If we have already checked the this entity, then return the result
+	 * If the chached result is empty, then will try to check again if the entity has been moved now
+	 */
+	if (isset($this->cacheMovedEntities[$id]) && !empty($this->cacheMovedEntities[$id])) {
 		return $this->cacheMovedEntities[$id];
 	}
 
 	// Check if entity has moved
-	$movedToId = $this->entityHasMoved($entity, $id);
+	$movedToId = $this->entityHasMoved($def, $id);
 
 	// Store the result in the cache
 	$this->cacheMovedEntities[$id] = $movedToId;
