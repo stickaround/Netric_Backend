@@ -321,6 +321,10 @@ class HttpResponse implements ResponseInterface
             $this->printHeaders();
         }
 
+        if (is_array($content)) {
+            $content = json_encode($content);
+        }
+
         echo $content;
     }
 
