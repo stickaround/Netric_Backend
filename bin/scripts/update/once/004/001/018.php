@@ -58,18 +58,8 @@ foreach ($objectTypesToMove as $objectType) {
 
     // Get the entity definition
     $def = $entityDefinitionLoader->get($objType);
-    $fields = $def->getFields();
-    $fieldsForOldTable = array();
 
-    // Loop thru the fields as we can make sure that we are only querying the existing columns
-    foreach ($fields as $fieldName=>$fieldDetails) {
-        if ($db->columnExists($oldTable, $fieldName))
-            $fieldsForOldTable[] = $fieldName;
-    }
-
-
-    $fieldsSelect = implode(", ", $fieldsForOldTable);
-    $sql = "SELECT $fieldsSelect from {$objectType['old_table']}";
+    $sql = "SELECT * from {$objectType['old_table']}";
     $result = $db->query($sql);
 
     foreach ($result->fetchAll() as $entityData) {
@@ -102,6 +92,13 @@ foreach ($objectTypesToMove as $objectType) {
 
             // If we are dealing with user objType, then we need to update the correct encrypted password from entityData
             if ($objType === "user") {
+
+                /*
+                 * The reason this is necessary is because the user entity detects if the password value changed, and hashes it,
+                 * but since we are copying data in this case it would hash a hash and that would lock out all users.
+                 */
+                $entityloader->clearCache("user", $newEntityId);
+                $entityloader->clearCache("user", $oldEntityId);
                 $updateData["password"] = $entityData["password"];
                 $updateData["password_salt"] = $entityData["password_salt"];
                 $db->update($def->getTable(), $updateData, ['id' => $newEntityId]);
