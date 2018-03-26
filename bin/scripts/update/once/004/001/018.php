@@ -29,24 +29,18 @@ $types = require(__DIR__ . "/../../../../../../data/account/object-types.php");
  */
 foreach ($types as $objDefData)
 {
-    // First try loading to see if it already exists
     try {
         $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
+        
+        // Make sure it has all the latest changes from the local data/entity_definitions/
+        $entityDefinitionDataMapper->updateSystemDefinition($def);
+
+        // Clear any cache for the definition
+        $entityDefinitionLoader->clearCache($objDefData['obj_type']);
     } catch (\Exception $ex) {
-        // If it fails, then we need to add it here
-        $def = new EntityDefinition($objDefData['obj_type']);
-        $def->fromArray($objDefData);
-        $entityDefinitionDataMapper->save($def);
-        if (!$def->getId()) {
-            throw new \RuntimeException("Could not save " . $entityDefinitionDataMapper->getLastError());
-        }
+        // If it fails, then move on to the next type since no entities can exist
+        continue;
     }
-
-    // Make sure it has all the latest changes from the local data/entity_definitions/
-    $entityDefinitionDataMapper->updateSystemDefinition($def);
-
-    // Clear any cache for the definition
-    $entityDefinitionLoader->clearCache($objDefData['obj_type']);
 }
 
 $objectTypesToMove = [
