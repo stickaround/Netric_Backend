@@ -734,6 +734,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     /**
      * Check to see if this object id was moved or merged into a different id
      *
+     * @param EntityDefinition $def The defintion of this object type
+     * @param string $id The id of the object that no longer exists - may have moved
      * @return string new Entity id if moved, otherwise false
      */
     protected function entityHasMoved($def, $id)

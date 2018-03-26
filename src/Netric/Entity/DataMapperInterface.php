@@ -74,11 +74,11 @@ interface DataMapperInterface
 	/**
 	 * Check if an object has moved
 	 *
-	 * @param Entity $entity
+	 * @param EntityDefinition $def The defintion of this object type
 	 * @param string $id The id of the object that no longer exists - may have moved
 	 * @return string|bool New entity id if moved, otherwise false
 	 */
-	public function checkEntityHasMoved($entity, $id);
+	public function checkEntityHasMoved($def, $id);
 
 	/**
 	 * Get Revisions for this object
