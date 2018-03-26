@@ -19,6 +19,30 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 $entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);
 
+// Get object types for each account
+$types = require(__DIR__ . "/../../../../../../data/account/object-types.php");
+
+/*
+ * Loop through each type and update each object type definition
+ * It is important that we update the object type definition first before moving the entities
+ * So we can make sure that the object types will be using the new objects table
+ */
+foreach ($types as $objDefData)
+{
+    try {
+        $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
+        
+        // Make sure it has all the latest changes from the local data/entity_definitions/
+        $entityDefinitionDataMapper->updateSystemDefinition($def);
+
+        // Clear any cache for the definition
+        $entityDefinitionLoader->clearCache($objDefData['obj_type']);
+    } catch (\Exception $ex) {
+        // If it fails, then move on to the next type since no entities can exist
+        continue;
+    }
+}
+
 $objectTypesToMove = [
     ['obj_type' => 'invoice', 'old_table' => 'customer_invoices'],
     ['obj_type' => 'discussion', 'old_table' => 'discussions'],
