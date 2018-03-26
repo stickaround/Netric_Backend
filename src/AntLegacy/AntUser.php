@@ -111,13 +111,13 @@ class AntUser
 
 				if ($this->id == USER_WORKFLOW)
 				{
-					$dbh->Query("insert into users(id, name, password, full_name) 
+					$dbh->Query("insert into objects_user(id, name, password, full_name)
 									values('".USER_WORKFLOW."', 'workflow', '', 'Workflow');");
 				}
 
 				if ($this->id == USER_SYSTEM)
 				{
-					$dbh->Query("insert into users(id, name, password, full_name) 
+					$dbh->Query("insert into objects_user(id, name, password, full_name)
 									values('".USER_SYSTEM."', 'system', '', 'System');");
 				}
 
@@ -190,7 +190,7 @@ class AntUser
 
 		$id = false;
 
-		$query = "select id from users where lower(name)=lower('".$dbh->Escape($username)."')";
+		$query = "select id from objects_user where lower(name)=lower('".$dbh->Escape($username)."')";
 		$result = $dbh->Query($query);
 		if ($dbh->GetNumberRows($result))
 			$id = $dbh->GetValue($result, 0, "id");
@@ -372,7 +372,7 @@ class AntUser
 		$ret = "";
 		if ($this->id)
 		{
-			$result = $this->dbh->Query("select customer_number from users where id='".$this->id."'");
+			$result = $this->dbh->Query("select customer_number from objects_user where id='".$this->id."'");
 			if ($this->dbh->GetNumberRows($result))
 			{
 				$ret = $this->dbh->GetValue($result, 0, "customer_number");
@@ -403,7 +403,7 @@ class AntUser
 
 		if ($cid)
 		{
-			$this->dbh->Query("update users set customer_number='$cid' where id='".$this->id."';");
+			$this->dbh->Query("update objects_user set customer_number='$cid' where id='".$this->id."';");
 			return $cid;
 		}
 
@@ -472,9 +472,9 @@ class AntUser
 			$otid = objGetAttribFromName($this->dbh, $obj_type, "id");
 			if ($otid)
 			{
-				$result = $this->dbh->Query("select form_layout_xml from app_object_type_frm_layouts, users
-												where app_object_type_frm_layouts.team_id=users.team_id and 
-												app_object_type_frm_layouts.type_id='$otid' and users.id='".$this->id."';");
+				$result = $this->dbh->Query("select form_layout_xml from app_object_type_frm_layouts, objects_user
+												where app_object_type_frm_layouts.team_id=objects_user.team_id and
+												app_object_type_frm_layouts.type_id='$otid' and objects_user.id='".$this->id."';");
 				if ($this->dbh->GetNumberRows($result))
 					return $this->dbh->GetValue($result, 0, "form_layout_xml");
 			}
@@ -657,10 +657,10 @@ class AntUser
 								 values('".GROUP_ADMINISTRATORS."', 'Administrators', 't');");
 		}
 
-		if (!$dbh->GetNumberRows($dbh->Query("SELECT id from users where id='".USER_ADMINISTRATOR."'")))
+		if (!$dbh->GetNumberRows($dbh->Query("SELECT id from objects_user where id='".USER_ADMINISTRATOR."'")))
 		{
 			// Add user
-			$dbh->Query("insert into users(id, name, password, full_name) 
+			$dbh->Query("insert into objects_user(id, name, password, full_name)
 								 values('".USER_ADMINISTRATOR."', 'administrator', '2ac9cb7dc02b3c0083eb70898e549b63', 'Admin Account');");
 
 			// Add to administrators group
@@ -794,8 +794,8 @@ class AntUser
 		$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
 		$authService = $sl->get("AuthenticationService");
 
-		$query = "SELECT id, password, password_salt FROM users 
-				  WHERE lower(users.name)=lower('" . $dbh->Escape($username) . "')";
+		echo $query = "SELECT id, password, password_salt FROM objects_user
+				  WHERE lower(name)=lower('" . $dbh->Escape($username) . "')";
 
 		//			and (users.password='" . $dbh->Escape($password) . "' or users.password=md5('" . $dbh->Escape($password) . "'))";
 		$result = $dbh->Query($query);
@@ -876,9 +876,9 @@ class AntUser
 		$parts = explode(":", $auth);
 		$username = base64_decode($parts[0]);
 
-		$query = "select users.id, users.name 
-					from users where lower(users.name)='" . $dbh->Escape(strtolower($username)) . "' and active is not false
-					and (users.password='". $dbh->Escape($parts[1]) . "' or md5(users.password)='". $dbh->Escape($parts[1]) . "')";
+		$query = "select id, name
+					from objects_user where lower(name)='" . $dbh->Escape(strtolower($username)) . "' and active is not false
+					and (password='". $dbh->Escape($parts[1]) . "' or md5(password)='". $dbh->Escape($parts[1]) . "')";
 		$result = $dbh->Query($query);
 		if ($dbh->GetNumberRows($result))
 		{
@@ -905,7 +905,7 @@ class AntUser
 		if ($this->id == null)
 			return false;
 
-		$query = "SELECT name, password FROM users WHERE id='".$this->id."'";
+		$query = "SELECT name, password FROM objects_user WHERE id='".$this->id."'";
 		$result = $this->dbh->Query($query);
 		if ($this->dbh->GetNumberRows($result))
 		{
@@ -928,7 +928,7 @@ class AntUser
 			return false;
 
 		$remoteAddr = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : "unknown";
-		$this->dbh->Query("update users set last_login='now', last_login_from='" . $remoteAddr . "' where id='".$this->id."'");
+		$this->dbh->Query("update objects_user set last_login='now', last_login_from='" . $remoteAddr . "' where id='".$this->id."'");
 	}
 
 	/**
@@ -943,7 +943,7 @@ class AntUser
 		if (!$this->id)
 			return false;
 
-		$ret = $this->dbh->GetNumberRows($this->dbh->Query("select id from users where id='".$this->id."' and last_login is null"));
+		$ret = $this->dbh->GetNumberRows($this->dbh->Query("select id from objects_user where id='".$this->id."' and last_login is null"));
 
 		return ($ret) ? true : false;
 	}
@@ -1005,39 +1005,39 @@ class AntUser
 		$dbh = $this->dbh;
 
 		// administrator
-		if ($dbh->GetNumberRows($dbh->Query("select id from users where id='".USER_ADMINISTRATOR."'")) == 0)
+		if ($dbh->GetNumberRows($dbh->Query("select id from objects_user where id='".USER_ADMINISTRATOR."'")) == 0)
 		{
-			$dbh->Query("insert into users(id, name, password, full_name) 
+			$dbh->Query("insert into objects_user(id, name, password, full_name)
 							values('".USER_ADMINISTRATOR."', 'administrator', 'Password1', 'Administrator');");
 			$dbh->Query("insert into user_group_mem(user_id, group_id) values('".USER_ADMINISTRATOR."', '".GROUP_ADMINISTRATORS."');");
 		}
 
 		// anonymous
-		if ($dbh->GetNumberRows($dbh->Query("select id from users where id='".USER_ANONYMOUS."'")) == 0)
+		if ($dbh->GetNumberRows($dbh->Query("select id from objects_user where id='".USER_ANONYMOUS."'")) == 0)
 		{
-			$dbh->Query("delete from users where name='anonymous' and id!='".USER_ANONYMOUS."';");
-			$dbh->Query("insert into users(id, name, password, full_name) 
+			$dbh->Query("delete from objects_user where name='anonymous' and id!='".USER_ANONYMOUS."';");
+			$dbh->Query("insert into objects_user(id, name, password, full_name)
 							values('".USER_ANONYMOUS."', 'anonymous', '', 'Anonymous User');");
 		}
 
 		// current user
-		if ($dbh->GetNumberRows($dbh->Query("select id from users where id='".USER_CURRENT."'")) == 0)
+		if ($dbh->GetNumberRows($dbh->Query("select id from objects_user where id='".USER_CURRENT."'")) == 0)
 		{
-			$dbh->Query("insert into users(id, name, password, full_name) 
+			$dbh->Query("insert into objects_user(id, name, password, full_name)
 							values('".USER_CURRENT."', 'current.user', '', 'Current User');");
 		}
 
 		// system
-		if ($dbh->GetNumberRows($dbh->Query("select id from users where id='".USER_SYSTEM."'")) == 0)
+		if ($dbh->GetNumberRows($dbh->Query("select id from objects_user where id='".USER_SYSTEM."'")) == 0)
 		{
-			$dbh->Query("insert into users(id, name, password, full_name) 
+			$dbh->Query("insert into objects_user(id, name, password, full_name)
 							values('".USER_SYSTEM."', 'system', '', 'System');");
 		}
 
 		// workflow
-		if ($dbh->GetNumberRows($dbh->Query("select id from users where id='".USER_WORKFLOW."'")) == 0)
+		if ($dbh->GetNumberRows($dbh->Query("select id from objects_user where id='".USER_WORKFLOW."'")) == 0)
 		{
-			$dbh->Query("insert into users(id, name, password, full_name) 
+			$dbh->Query("insert into objects_user(id, name, password, full_name)
 							values('".USER_WORKFLOW."', 'workflow', '', 'Workflow');");
 		}
 	}
@@ -1132,7 +1132,7 @@ class AntUser
 
     function UserGetId($db, $user_name)
     {
-        $query = "select id from users where lower(name)=lower('$user_name')";
+        $query = "select id from objects_user where lower(name)=lower('$user_name')";
         $result = pg_query($db, $query);
         if (pg_num_rows($result))
         {
@@ -1176,14 +1176,14 @@ class AntUser
 
         if ($account)
         {
-            $result = $dbh->Query("select id from users where name='anonymous'");
+            $result = $dbh->Query("select id from objects_user where name='anonymous'");
             if ($dbh->GetNumberRows($result))
             {
                 $id = $dbh->GetValue($result, 0, "id");
             }
             else
             {
-                $dbh->Query("insert into users(name, password, full_name) values('anonymous', 'null', 'Anonymous User');");
+                $dbh->Query("insert into objects_user(name, password, full_name) values('anonymous', 'null', 'Anonymous User');");
                 $id = UserGetAnonymous($dbh, $account);
             }
         }
@@ -1212,7 +1212,7 @@ class AntUser
 
         if (is_numeric($user_id))
         {
-            $query = "select image_id from users where id='$user_id'";
+            $query = "select image_id from objects_user where id='$user_id'";
             $result = $dbh->Query($query);
             if ($dbh->GetNumberRows($result))
             {
@@ -1307,7 +1307,7 @@ class AntUser
             $name = $cache->get($dbh->dbname."/users/$user_id/name");
             if ($name === false)
             {
-                $query = "select name from users where id='$user_id'";
+                $query = "select name from objects_user where id='$user_id'";
                 $result = $dbh->Query($query);
                 if ($dbh->GetNumberRows($result))
                 {
@@ -1326,7 +1326,7 @@ class AntUser
         $name = "";
         if ($user_id)
         {
-            $query = "select full_name as name from users where id='$user_id'";
+            $query = "select full_name as name from objects_user where id='$user_id'";
             $result = $dbh->Query($query);
             if ($dbh->GetNumberRows($result))
             {
@@ -1585,7 +1585,7 @@ class AntUser
             $retval = $cache->get($dbh->dbname."/users/$user_id/account_id");
             if ($retval === false)
             {
-                $query = "select account_id from users where id='$user_id'";
+                $query = "select account_id from objects_user where id='$user_id'";
                 $result = $dbh->Query($query);
                 if ($dbh->GetNumberRows($result))
                 {
@@ -1637,7 +1637,7 @@ class AntUser
             if ($theme === false || is_array($theme) || $theme == "")
             {
 
-                $result = $dbh->Query("select theme from users where id='$userid'");
+                $result = $dbh->Query("select theme from objects_user where id='$userid'");
                 if ($dbh->GetNumberRows($result))
                 {
                     $theme = $dbh->GetValue($result, 0, "theme");
@@ -1668,7 +1668,7 @@ class AntUser
 
         if (is_numeric($userid))
         {
-            $query = "select quota_size from users where id='$userid'";
+            $query = "select quota_size from objects_user where id='$userid'";
             $result = $dbh->Query($query);
             if ($dbh->GetNumberRows($result))
             {
@@ -1758,7 +1758,7 @@ class AntUser
 
         if ($USERID)
         {
-            $result = $dbh->Query("select team_id from users where id='$USERID'");
+            $result = $dbh->Query("select team_id from objects_user where id='$USERID'");
             if ($dbh->GetNumberRows($result))
                 $ret = $dbh->GetValue($result, 0, "team_id");
         }
@@ -1828,11 +1828,11 @@ class AntUser
     {
         global $_SERVER;
 
-        $dbh->Query("update users set active_timestamp='now' where id='$USERID'");
+        $dbh->Query("update objects_user set active_timestamp='now' where id='$USERID'");
 
         if ($_SERVER['REMOTE_ADDR'])
         {
-            $dbh->Query("update users set last_login_from='".$_SERVER['REMOTE_ADDR']."' where id='$USERID'");
+            $dbh->Query("update objects_user set last_login_from='".$_SERVER['REMOTE_ADDR']."' where id='$USERID'");
         }
     }
 
