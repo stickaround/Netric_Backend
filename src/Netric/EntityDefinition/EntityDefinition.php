@@ -538,8 +538,11 @@ class EntityDefinition
 		if (isset($data['title']))
 			$this->title = $data['title'];
 
-		if (isset($data['object_table']) && $data['object_table'])
-			$this->setCustomTable($data['object_table']);
+		/*
+		 * Deprecated.
+		 * Since we are not using custom table for entities now, we dont need this if statement
+		 * if (isset($data['object_table']) && $data['object_table'])
+			$this->setCustomTable($data['object_table']);*/
 
 		if (isset($data['application_id']))
 			$this->applicationId = $data['application_id'];

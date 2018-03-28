@@ -39,7 +39,7 @@ return array(
         'amount' => array(
             'title'=>'Est. Amount',
             'type'=>Field::TYPE_NUMBER,
-            'subtype'=>'number',
+            'subtype'=>'double precision',
             'readonly'=>false,
         ),
 
