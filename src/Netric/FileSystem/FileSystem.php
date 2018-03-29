@@ -109,10 +109,11 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param string $localFilePath Path to a local file to import
      * @param string $remoteFolderPath The folder to import the new file into
      * @param string $fileNameOverride Optional alternate name to use other than the imported file name
+     * @param string $fileId Optional If we have a fileId, then we will be updating an existing file instead of creating a new file
      * @return FileEntity The imported file
      * @throws \RuntimeException if it cannot open the folder path specified
      */
-    public function importFile($localFilePath, $remoteFolderPath, $fileNameOverride = "")
+    public function importFile($localFilePath, $remoteFolderPath, $fileNameOverride = "", $fileId = null)
     {
         // Open FileSystem folder - second param creates it if not exists
         $parentFolder = $this->openFolder($remoteFolderPath, true);
@@ -120,11 +121,15 @@ class FileSystem implements Error\ErrorAwareInterface
             throw new \RuntimeException("Could not open " . $remoteFolderPath);
         }
 
-        /*
-         * Create a new file that will represent the file data
-         */
-        $file = $this->entityLoader->create("file");
-        $file->setValue("owner_id", $this->user->getId());
+        // Check first if we have $fileId, if so then we will just load that file id
+        if ($fileId) {
+            $file = $this->entityLoader->get("file", $fileId);
+        } else {
+            // Create a new file that will represent the file data
+            $file = $this->entityLoader->create("file");
+            $file->setValue("owner_id", $this->user->getId());
+        }
+
         $file->setValue("folder_id", $parentFolder->getId());
         // In some cases you may want to name the file something other than the local file name
         // such as when importing randomly named temp files.

@@ -18,6 +18,6 @@ return array(
     			'direction' => 'desc',
     		),
 		),
-		'table_columns' => array('id')
+		'table_columns' => array('name')
     ),
 );
