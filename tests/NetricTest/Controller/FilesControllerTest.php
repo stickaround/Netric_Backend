@@ -122,8 +122,8 @@ class FilesControllerTest extends TestCase
     }
 
     /**
-     * Try uploading a file into the FileSystem through the controller
-     */
+ * Try uploading a file into the FileSystem through the controller
+ */
     public function testUpload()
     {
         /*
@@ -175,6 +175,70 @@ class FilesControllerTest extends TestCase
     }
 
     /**
+     * Try uploading a file into the FileSystem through the controller with existing file entity
+     */
+    public function testUploadAndUpdateExistingFile()
+    {
+        // Create new file, so we can use this file to be updated later
+        $sl = $this->account->getServiceManager();
+        $loader = $sl->get(EntityLoader::class);
+
+        $file = $loader->create("file");
+        $file->setValue("name", "newFile.jpg");
+        $loader->save($file);
+        $this->testFiles[] = $file;
+
+        /*
+         * Add fake uploaded files. In normal execution this would fail since
+         * it would fail PHP's is_uploaded_file but whe controller->testMode is true
+         * it bypasses that test.
+         */
+        // First copy to a temp file since we'll delete the temp in the upload function
+        $sourceFile = __DIR__ . "/fixtures/files-upload-existing-test.txt";
+        $tempFile = __DIR__ . "/fixtures/files-upload-existing-tmp.txt";
+        copy($sourceFile, $tempFile);
+
+        $req = $this->controller->getRequest();
+        $testUploadedFiles = array(
+            array("tmp_name" => $tempFile, "name" => "files-upload-existing-test.txt")
+        );
+        $req->setParam("files", $testUploadedFiles);
+        $req->setParam("path", "/testUpload");
+        $req->setParam("file_id", $file->getValue("id"));
+        $req->setParam("file_name", "myupdatedfile.jpg");
+
+        /*
+         * Now upload the file which should import the temp file,
+         * then delete it since it will normally be working with HTTP_POST uploads
+         * adn we want it to cleanup as it finishes processing each file.
+         */
+        $ret = $this->controller->postUploadAction();
+
+        // Results are returned in an array
+        $this->assertFalse(isset($ret['error']), "Error: " . var_export($ret, true));
+        $this->assertNotEquals(-1, $ret[0]); // error
+        $this->assertTrue(isset($ret[0]['id']));
+        $this->assertTrue(isset($ret[0]['name']));
+        $this->assertTrue(isset($ret[0]['ts_updated']));
+        $this->assertEquals($ret[0]['name'], "myupdatedfile.jpg");
+
+        // Make sure we cleaned up the temp file
+        $this->assertFalse(file_exists($tempFile));
+
+        // Set created folder so we make sure we purge it
+        $this->testFolders[] = $this->fileSystem->openFolder("/testUpload");
+
+        // Open the file and make sure it was uploaded correctly
+        $file = $this->fileSystem->openFileById($ret[0]['id']);
+        $this->testFiles[] = $file; // For tearDown Cleanup
+
+        // Test file
+        $this->assertEquals("myupdatedfile.jpg", $file->getValue("name"));
+        $this->assertEquals(filesize($sourceFile), $file->getValue("file_size"));
+        $this->assertEquals($this->account->getUser()->getId(), $file->getValue("owner_id"));
+    }
+
+    /**
      * Try uploading a single file into the FileSystem through the controller using the data from client side
      */
     public function testUploadFilesFromClient()
@@ -203,6 +267,8 @@ class FilesControllerTest extends TestCase
 
         $req->setParam("files", $testUploadedFiles);
         $req->setParam("path", "/testUpload");
+        $req->setParam("file_id", null);
+        $req->setParam("file_name", null);
 
         /*
          * Now upload the file which should import the temp file,

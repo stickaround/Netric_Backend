@@ -93,7 +93,8 @@ class FileSystem implements Error\ErrorAwareInterface
         EntityLoader $entityLoader,
         DataMapperInterface $dataMapper,
         IndexInterface $entityQueryIndex
-    ) {
+    )
+    {
         $this->fileStore = $fileStore;
         $this->user = $user;
         $this->entityDataMapper = $dataMapper;
@@ -109,11 +110,11 @@ class FileSystem implements Error\ErrorAwareInterface
      * @param string $localFilePath Path to a local file to import
      * @param string $remoteFolderPath The folder to import the new file into
      * @param string $fileNameOverride Optional alternate name to use other than the imported file name
-     * @param string $fileId Optional If we have a fileId, then we will be updating an existing file instead of creating a new file
+     * @param string $fileEntityData Optional If we have a $fileEntityData, then we will be updating an existing file instead of creating a new file
      * @return FileEntity The imported file
      * @throws \RuntimeException if it cannot open the folder path specified
      */
-    public function importFile($localFilePath, $remoteFolderPath, $fileNameOverride = "", $fileId = null)
+    public function importFile($localFilePath, $remoteFolderPath, $fileNameOverride = "", $fileEntityData = null)
     {
         // Open FileSystem folder - second param creates it if not exists
         $parentFolder = $this->openFolder($remoteFolderPath, true);
@@ -122,21 +123,22 @@ class FileSystem implements Error\ErrorAwareInterface
         }
 
         // Check first if we have $fileId, if so then we will just load that file id
-        if ($fileId) {
-            $file = $this->entityLoader->get("file", $fileId);
+        if ($fileEntityData && isset($fileEntityData["id"]) && !empty($fileEntityData["id"])) {
+            $file = $this->entityLoader->get("file", $fileEntityData["id"]);
+            $file->setValue("name", $fileEntityData["name"]);
         } else {
             // Create a new file that will represent the file data
             $file = $this->entityLoader->create("file");
             $file->setValue("owner_id", $this->user->getId());
+
+            // In some cases you may want to name the file something other than the local file name
+            // such as when importing randomly named temp files.
+            if ($fileNameOverride) {
+                $file->setValue("name", $fileNameOverride);
+            }
         }
 
         $file->setValue("folder_id", $parentFolder->getId());
-        // In some cases you may want to name the file something other than the local file name
-        // such as when importing randomly named temp files.
-        if ($fileNameOverride) {
-            $file->setValue("name", $fileNameOverride);
-        }
-
         $this->entityDataMapper->save($file);
 
         // Upload the file to the FileStore
@@ -240,12 +242,9 @@ class FileSystem implements Error\ErrorAwareInterface
 
         $folders = $this->splitPathToFolderArray($path, $createIfMissing);
 
-        if ($folders)
-        {
+        if ($folders) {
             return array_pop($folders);
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
@@ -294,13 +293,13 @@ class FileSystem implements Error\ErrorAwareInterface
     public function getHumanSize($size)
     {
         if ($size >= 1000000000000)
-            return round($size/1000000000000, 1) . "T";
+            return round($size / 1000000000000, 1) . "T";
         if ($size >= 1000000000)
-            return round($size/1000000000, 1) . "G";
+            return round($size / 1000000000, 1) . "G";
         if ($size >= 1000000)
-            return round($size/1000000, 1) . "M";
+            return round($size / 1000000, 1) . "M";
         if ($size >= 1000)
-            return round($size/1000, 0) . "K";
+            return round($size / 1000, 0) . "K";
         if ($size < 1000)
             return $size . "B";
     }
@@ -391,14 +390,10 @@ class FileSystem implements Error\ErrorAwareInterface
 
         // First check to see if the file already exists
         $existingFile = $this->openFile($fullFolderPath, $fileName);
-        if ($existingFile)
-        {
-            if ($overwriteIfExists)
-            {
+        if ($existingFile) {
+            if ($overwriteIfExists) {
                 $this->deleteFile($existingFile);
-            }
-            else
-            {
+            } else {
                 $this->errors[] = new Error\Error("File $fileName already exists in $folderPath");
                 return null;
             }
@@ -461,8 +456,7 @@ class FileSystem implements Error\ErrorAwareInterface
          * Normalize everything relative to root so /my/path will return:
          * my/path since root is always implied.
          */
-        if (strlen($path) > 1 && $path[0] === '/')
-        {
+        if (strlen($path) > 1 && $path[0] === '/') {
             // Skip over first '/'
             $path = substr($path, 1);
         }
@@ -471,17 +465,13 @@ class FileSystem implements Error\ErrorAwareInterface
         $folderNames = explode("/", $path);
         $folders = array($this->rootFolder);
         $lastFolder = $this->rootFolder;
-        foreach ($folderNames as $nextFolderName)
-        {
+        foreach ($folderNames as $nextFolderName) {
             $nextFolder = $this->getChildFolderByName($nextFolderName, $lastFolder);
 
             // If the folder exists add it and continue
-            if ($nextFolder && $nextFolder->getId())
-            {
+            if ($nextFolder && $nextFolder->getId()) {
                 $folders[] = $nextFolder;
-            }
-            else if ($createIfMissing)
-            {
+            } else if ($createIfMissing) {
                 // TODO: Check permissions to see if we have access to create
 
                 $nextFolder = $this->entityLoader->create("folder");
@@ -491,9 +481,7 @@ class FileSystem implements Error\ErrorAwareInterface
                 $this->entityDataMapper->save($nextFolder);
 
                 $folders[] = $nextFolder;
-            }
-            else
-            {
+            } else {
                 // Full path does not exist
                 return false;
             }
@@ -518,8 +506,8 @@ class FileSystem implements Error\ErrorAwareInterface
         $retval = str_replace("%tmp%", self::PATH_TEMP, $retval);
 
         // Get a user's home directory
-        $retval = str_replace("%userdir%", "/System/Users/".$this->user->getId(), $retval);
-        $retval = str_replace("%home%", "/System/Users/".$this->user->getId(), $retval);
+        $retval = str_replace("%userdir%", "/System/Users/" . $this->user->getId(), $retval);
+        $retval = str_replace("%home%", "/System/Users/" . $this->user->getId(), $retval);
 
         // Get email attechments directory for a user
         $retval = str_replace(
@@ -558,8 +546,7 @@ class FileSystem implements Error\ErrorAwareInterface
         $query->where("parent_id")->equals($parentFolder->getId());
         $query->andWhere("name")->equals($name);
         $result = $this->entityIndex->executeQuery($query);
-        if ($result->getNum())
-        {
+        if ($result->getNum()) {
             return $result->getEntity();
         }
 
@@ -579,8 +566,7 @@ class FileSystem implements Error\ErrorAwareInterface
         $query->where("folder_id")->equals($parentFolder->getId());
         $query->andWhere("name")->equals($fileName);
         $result = $this->entityIndex->executeQuery($query);
-        if ($result->getNum())
-        {
+        if ($result->getNum()) {
             return $result->getEntity();
         }
 
@@ -598,12 +584,9 @@ class FileSystem implements Error\ErrorAwareInterface
         $query->andWhere("f_system")->equals(true);
 
         $result = $this->entityIndex->executeQuery($query);
-        if ($result->getNum())
-        {
+        if ($result->getNum()) {
             $this->rootFolder = $result->getEntity();
-        }
-        else
-        {
+        } else {
             // Create root folder
             $rootFolder = $this->entityLoader->create("folder");
             $rootFolder->setValue("name", "/");
@@ -624,6 +607,6 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function escapeFilename($filename)
     {
-        return  preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $filename);
+        return preg_replace('/[^a-zA-Z0-9_ %\[\]\.\(\)%&-]/s', '', $filename);
     }
 }

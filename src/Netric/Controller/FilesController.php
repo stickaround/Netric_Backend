@@ -95,7 +95,7 @@ class FilesController extends Mvc\AbstractAccountController
         ini_set("max_execution_time", "7200");
         ini_set("max_input_time", "7200");
 
-        $fileId = $request->getParam('file_id');
+
         $folder = null;
         $ret = array();
 
@@ -197,12 +197,15 @@ class FilesController extends Mvc\AbstractAccountController
                 }
             }
 
+            $fileId = $request->getParam('file_id');
+            $fileName = $request->getParam('file_name');
+
             // Import into netric file system
             $file = $this->fileSystem->importFile(
                 $uploadedFile['tmp_name'],
                 $folderPath,
                 $uploadedFile["name"],
-                $fileId
+                array("id" => $fileId, "name" => $fileName)
             );
 
             if ($file) {

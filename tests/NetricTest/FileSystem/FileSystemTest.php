@@ -213,6 +213,32 @@ class FileSystemTest extends TestCase
     }
 
     /**
+     * Test importing a new file with existing file entity
+     */
+    public function testImportFileExisting()
+    {
+        $fileToImport = __DIR__ . "/FileStore/fixtures/file-to-upload-existing.txt";
+
+        // Create an existing file
+        $file = $this->entityLoader->create("file");
+        $file->setValue("name", "newFile.jpg");
+        $this->entityLoader->save($file);
+        $this->testFiles[] = $file;
+
+        // Test importing a local file
+        $importedFile = $this->fileSystem->importFile($fileToImport, "/testImportFile", "",
+            array("id" => $file->getValue("id"), "name" => "myupdatedfile.jpg"));
+
+        $this->assertNotNull($importedFile);
+        $this->assertEquals("myupdatedfile.jpg", $importedFile->getValue("name"));
+        $this->assertEquals(filesize($fileToImport), $importedFile->getValue("file_size"));
+
+        // Queue files for cleanup
+        $this->testFiles[] = $importedFile;
+        $this->queueFolderForCleanup($this->fileSystem->openFolder("/testImportFile"));
+    }
+
+    /**
      * Test opening a file by unique id
      */
     public function testOpenFileById()
