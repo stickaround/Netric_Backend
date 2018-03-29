@@ -54,4 +54,5 @@ return [
     ["obj_type" => "user_team", "title" => "User Team", "object_table" => "", "revision" => "0", "system" => true],
     ["obj_type" => "worker_job", "title" => "Worker Job", "object_table" => "", "revision" => "0", "system" => true],
     ["obj_type" => "dashboard_widget", "title" => "Dashboard Widget", "object_table" => "", "revision" => "0", "system" => true],
+    ["obj_type" => "payment_profile", "title" => "Payment Profile", "object_table" => "", "revision" => "0", "system" => true],
 ];
