@@ -8,13 +8,12 @@ use Netric\PaymentGateway\PaymentMethod\PaymentMethodInterface;
 interface PaymentGatewayInterface
 {
     /**
-     * Create a customer payment profile for a given gateway
+     * Create a customer payment profile using a credit card
      *
      * We always store credit card information with the gateway since we
      * do not want to accept liability for securing credit cards on our system.
      *
-     * @param CustomerEntity $customer Provide the gateway with
-     *                          customer data like name and email
+     * @param CustomerEntity $customer Provide the gateway with needed customer data
      * @param PaymentMethodInterface $paymentMethod Method used for this payment profile
      * @return string
      */
@@ -25,7 +24,7 @@ interface PaymentGatewayInterface
      *
      * @param PaymentProfileEntity $paymentProfile
      * @param float $amount Amount to charge the customer
-     * @return string
+     * @return string Transaction ID which can be used to reverse/refund
      */
     public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : string;
 }

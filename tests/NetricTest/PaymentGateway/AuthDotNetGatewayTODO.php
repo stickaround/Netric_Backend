@@ -8,6 +8,6 @@ use PHPUnit\Framework\TestCase;
  *
  * @group integration
  */
-class AuthDotNetGatewayTest extends TestCase
+class AuthDotNetGatewayTODO extends TestCase
 {
 }
