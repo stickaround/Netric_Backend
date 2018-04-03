@@ -5,10 +5,13 @@
  * Refer to data/modules/home.php to get the route used for dashboard
  */
 return array(
-    "uname" => "activity",
-    "Name" => "System Wide Dashboard",
-    "app_dash" => "home.activity",
-    "description" => "System wide dashboard that will be used by all the users.",
-    "scope" => "system",
-    "num_columns" => 2
+    // Home Activity System Dashboard
+    'home.activity' => array(
+        "uname" => "activity",
+        "Name" => "System Wide Dashboard",
+        "app_dash" => "home.activity",
+        "description" => "Summary of activity displayed on the home page to all users",
+        "scope" => "system",
+        "num_columns" => 2
+    )
 );
