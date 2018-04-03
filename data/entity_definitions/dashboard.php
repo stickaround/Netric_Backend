@@ -3,7 +3,7 @@ namespace data\entity_definitions;
 use Netric\EntityDefinition\Field;
 
 return array(
-    'uname_settings' => 'owner_id:name',
+    'uname_settings' => 'name',
     'fields' => array(
         'name' => array(
             'title'=>'Name',
