@@ -3,7 +3,8 @@ namespace Netric\PaymentGateway;
 
 use Netric\Entity\ObjType\CustomerEntity;
 use Netric\Entity\ObjType\PaymentProfileEntity;
-use Netric\PaymentGateway\PaymentMethod\PaymentMethodInterface;
+use Netric\PaymentGateway\PaymentMethod\CreditCard;
+use Netric\PaymentGateway\PaymentMethod\BankAccount;
 
 
 class AuthDotNetGateway implements PaymentGatewayInterface
@@ -27,14 +28,14 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @var string
      */
-    private $gatewayUrl = "https://secure2.authorize.net/gateway/transact.dll";
+    private $gatewayUrl = "https://api.authorize.net/xml/v1/request.api";
 
     /**
      * Test Gateway URL
      *
      * @var string
      */
-    private $testGatewayUrl = "https://test.authorize.net/gateway/transact.dll";
+    private $testGatewayUrl = "https://apitest.authorize.net/xml/v1/request.api";
 
     /**
      * Last Transaction Id
@@ -70,16 +71,31 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     }
 
     /**
-     * Create a customer payment profile for a given gateway
+     * Create a customer payment profile using a credit card
      *
      * We always store credit card information with the gateway since we
      * do not want to accept liability for securing credit cards on our system.
      *
      * @param CustomerEntity $customer Provide the gateway with needed customer data
-     * @param PaymentMethodInterface $paymentMethod Method used for this payment profile
+     * @param CreditCard $card Credit card
      * @return string
      */
-    public function createPaymentProfile(CustomerEntity $customer, PaymentMethodInterface $paymentMethod) : string
+    public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card) : string
+    {
+
+    }
+
+    /**
+     * Create a customer payment profile using a bank account
+     *
+     * We always store bank account information with the gateway since we
+     * do not want to accept liability for securing bank accounts on our system.
+     *
+     * @param CustomerEntity $customer Provide the gateway with needed customer data
+     * @param BankAccount $bankAccount Bank account details such as routing number and account number
+     * @return string
+     */
+    public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount) : string
     {
 
     }
@@ -92,6 +108,18 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @return string Transaction ID which can be used to reverse/refund
      */
     public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : string
+    {
+
+    }
+
+    /**
+     * Charge a credit or debit card directly
+     *
+     * @param CreditCard $card
+     * @param float $amount
+     * @return string Transaction ID which can be used to reverse/refund
+     */
+    public function chargeCard(CreditCard $card, float $amount) : string
     {
 
     }

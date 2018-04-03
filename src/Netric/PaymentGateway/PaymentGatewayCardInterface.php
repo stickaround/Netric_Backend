@@ -6,10 +6,10 @@ use Netric\Entity\ObjType\PaymentProfileEntity;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
 use Netric\PaymentGateway\PaymentMethod\BankAccount;
 
-interface PaymentGatewayInterface
+interface PaymentGatewayCardInterface
 {
     /**
-     * Create a customer payment profile using a credit or debit card
+     * Create a customer payment profile using a credit card
      *
      * We always store credit card information with the gateway since we
      * do not want to accept liability for securing credit cards on our system.
