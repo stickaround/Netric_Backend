@@ -33,7 +33,7 @@ class ChargeResponseTest extends TestCase
         $response->addMessage($message);
         $messages = $response->getMessages();
         $this->assertEquals('code', $messages[0]->getCode());
-        $this->assertEquals('message', $messages[0]->getText());
+        $this->assertEquals('message', $messages[0]->getDescription());
     }
 
     public function testSetAndGetStatus()

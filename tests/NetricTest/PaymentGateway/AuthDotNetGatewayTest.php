@@ -3,6 +3,7 @@ namespace NetricTest\PaymentGateway;
 
 use Netric\PaymentGateway\AuthDotNetGateway;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
+use Netric\PaymentGateway\ChargeResponse;
 use PHPUnit\Framework\TestCase;
 use \net\authorize\api\constants\ANetEnvironment;
 
@@ -81,6 +82,6 @@ class AuthDotNetGatewayTest extends TestCase
     {
         $card = new CreditCard();
         $response = $this->gateway->chargeCard($card, rand(1, 1000));
-        $this->assertNotNull($response);
+        $this->assertEquals(ChargeResponse::STATUS_APPROVED, $response->getStatus());
     }
 }

@@ -15,10 +15,10 @@ class ResponseMessageTest extends TestCase
         $this->assertEquals('TESTCODE', $message->getCode());
     }
 
-    public function testGetText()
+    public function testGetDescription()
     {
         $fullMessageText = 'The credit card you entered was not valid';
         $message = new ResponseMessage('TESTCODE', $fullMessageText);
-        $this->assertEquals($fullMessageText, $message->getText());
+        $this->assertEquals($fullMessageText, $message->getDescription());
     }
 }

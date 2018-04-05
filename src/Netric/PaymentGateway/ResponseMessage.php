@@ -33,7 +33,7 @@ class ResponseMessage
      *
      * @return string
      */
-    public function getText() : string
+    public function getDescription() : string
     {
         return $this->text;
     }

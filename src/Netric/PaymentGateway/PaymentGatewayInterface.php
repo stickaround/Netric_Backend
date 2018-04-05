@@ -37,16 +37,16 @@ interface PaymentGatewayInterface
      *
      * @param PaymentProfileEntity $paymentProfile
      * @param float $amount Amount to charge the customer
-     * @return string Transaction ID which can be used to reverse/refund
+     * @return ChargeResponse
      */
-    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : string;
+    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : ChargeResponse;
 
     /**
      * Charge a credit or debit card directly
      *
      * @param CreditCard $card
      * @param float $amount
-     * @return string Transaction ID which can be used to reverse/refund
+     * @return ChargeResponse
      */
-    public function chargeCard(CreditCard $card, float $amount) : string;
+    public function chargeCard(CreditCard $card, float $amount) : ChargeResponse;
 }

@@ -110,9 +110,9 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @param PaymentProfileEntity $paymentProfile
      * @param float $amount Amount to charge the customer
-     * @return string Transaction ID which can be used to reverse/refund
+     * @return ChargeResponse
      */
-    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : string
+    public function chargeProfile(PaymentProfileEntity $paymentProfile, float $amount) : ChargeResponse
     {
 
     }
@@ -122,9 +122,9 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      *
      * @param CreditCard $card
      * @param float $amount
-     * @return string Transaction ID which can be used to reverse/refund
+     * @return ChargeResponse
      */
-    public function chargeCard(CreditCard $card, float $amount) : string
+    public function chargeCard(CreditCard $card, float $amount) : ChargeResponse
     {
         /* Create a merchantAuthenticationType object with authentication details
        retrieved from the constants file */
@@ -193,43 +193,62 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $controller = new AnetController\CreateTransactionController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
 
+        // Set the charge respose object to return
+        $chargeResponse = new ChargeResponse();
+
+        // Assume failure
+        $chargeResponse->setStatus(ChargeResponse::STATUS_ERROR);
+        
         // Using the below in the unit tests to figure out what is going on
-//        if ($response != null) {
-//            // Check to see if the API request was successfully received and acted upon
-//            if ($response->getMessages()->getResultCode() == self::RESPONSE_OK) {
-//                // Since the API request was successful, look for a transaction response
-//                // and parse it to display the results of authorizing the card
-//                $tresponse = $response->getTransactionResponse();
-//
-//                if ($tresponse != null && $tresponse->getMessages() != null) {
-//                    echo " Successfully created transaction with Transaction ID: " . $tresponse->getTransId() . "\n";
-//                    echo " Transaction Response Code: " . $tresponse->getResponseCode() . "\n";
-//                    echo " Message Code: " . $tresponse->getMessages()[0]->getCode() . "\n";
-//                    echo " Auth Code: " . $tresponse->getAuthCode() . "\n";
-//                    echo " Description: " . $tresponse->getMessages()[0]->getDescription() . "\n";
-//                } else {
-//                    echo "Transaction Failed \n";
-//                    if ($tresponse->getErrors() != null) {
-//                        echo " Error Code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
-//                        echo " Error Message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";
-//                    }
-//                }
-//                // Or, print errors if the API request wasn't successful
-//            } else {
-//                echo "Transaction Failed With " . $response->getMessages()->getResultCode() . " \n";
-//                $tresponse = $response->getTransactionResponse();
-//
-//                if ($tresponse != null && $tresponse->getErrors() != null) {
-//                    echo " Error Code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
-//                    echo " Error Message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";
-//                } else {
-//                    echo " Error Code  : " . $response->getMessages()->getMessage()[0]->getCode() . "\n";
-//                    echo " Error Message : " . $response->getMessages()->getMessage()[0]->getText() . "\n";
-//                }
-//            }
-//        } else {
-//            echo  "No response returned \n";
-//        }
-        return var_export($response, true);
+        if ($response != null) {
+           // Check to see if the API request was successfully received and acted upon
+            if ($response->getMessages()->getResultCode() == self::RESPONSE_OK) {
+               // Since the API request was successful, look for a transaction response
+               // and parse it to display the results of authorizing the card
+                $tresponse = $response->getTransactionResponse();
+
+                if ($tresponse != null && $tresponse->getMessages() != null) {
+                    $chargeResponse->setStatus(ChargeResponse::STATUS_APPROVED);
+                    $chargeResponse->setTransactionId($tresponse->getTransId());
+
+                    // TODO: we might want to do something with an auth code or response code
+                    // $tresponse->getAuthCode()
+                    // $tresponse->getResponseCode()
+
+                    // Add messages to the repsonse
+                    $messages = $tresponse->getMessages();
+                    foreach ($messages as $tmessage) {
+                        $chargeResponse->addMessage(
+                            new ResponseMessage(
+                                $tmessage->getCode(),
+                                $tmessage->getDescription()
+                            )
+                        );
+                    }
+                } else {
+                    echo "Transaction Failed \n";
+                    if ($tresponse->getErrors() != null) {
+                        echo " Error Code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
+                        echo " Error Message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";
+                    }
+                }
+               // Or, print errors if the API request wasn't successful
+            } else {
+                echo "Transaction Failed With " . $response->getMessages()->getResultCode() . " \n";
+                $tresponse = $response->getTransactionResponse();
+
+                if ($tresponse != null && $tresponse->getErrors() != null) {
+                    echo " Error Code  : " . $tresponse->getErrors()[0]->getErrorCode() . "\n";
+                    echo " Error Message : " . $tresponse->getErrors()[0]->getErrorText() . "\n";
+                } else {
+                    echo " Error Code  : " . $response->getMessages()->getMessage()[0]->getCode() . "\n";
+                    echo " Error Message : " . $response->getMessages()->getMessage()[0]->getText() . "\n";
+                }
+            }
+        } else {
+            echo "No response returned \n";
+        }
+
+        return $chargeResponse;
     }
 }
