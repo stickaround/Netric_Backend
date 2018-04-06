@@ -49,4 +49,11 @@ interface PaymentGatewayInterface
      * @return ChargeResponse
      */
     public function chargeCard(CreditCard $card, float $amount) : ChargeResponse;
+
+    /**
+     * If a gateway operation fails, it will store the error
+     *
+     * @return string
+     */
+    public function getLastError() : string;
 }

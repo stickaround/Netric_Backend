@@ -3,9 +3,13 @@ namespace NetricTest\PaymentGateway;
 
 use Netric\PaymentGateway\AuthDotNetGateway;
 use Netric\PaymentGateway\PaymentMethod\CreditCard;
+use Netric\PaymentGateway\PaymentMethod\BankAccount;
 use Netric\PaymentGateway\ChargeResponse;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 use \net\authorize\api\constants\ANetEnvironment;
+use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\ObjType\CustomerEntity;
 
 /**
  * Integration test against authorize.net
@@ -53,14 +57,46 @@ class AuthDotNetGatewayTest extends TestCase
         );
     }
 
+    /**
+     * Create a test customer for interacting with
+     *
+     * @return CustomerEntity
+     */
+    private function getTestCustomer()
+    {
+        $serviceManager = Bootstrap::getAccount()->getServiceManager();
+        $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
+        $customer = $entityFactory->create(customer);
+        $customer->setValue('first_name', 'Ellen');
+        $customer->setValue('last_name', 'Johnson');
+        $customer->setValue('company', 'Souveniropolis');
+        $customer->setValue('billing_street', '14 Main Street');
+        $customer->setValue('billing_city', 'Pecan Springs');
+        $customer->setValue('billing_state', 'TX');
+        $customer->setValue('billing_zip', '44628');
+        $customer->setValue('email', 'test@netric.com');
+        return $customer;
+    }
+
     public function testCreatePaymentProfileCreditCard()
     {
-        $this->markTestIncomplete('Still working on this');
+        $customer = $this->getTestCustomer();
+        $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2038, 12);
+        $card->setCardCode('123');
+
+        $profileId = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->assertNotEmpty($profileId, $this->gateway->getLastError());
     }
 
     public function testCreateProfileBankAccount()
     {
-        $this->markTestIncomplete('Still working on this');
+        $customer = $this->getTestCustomer();
+        $bankAccount = new BankAccount();
+
+        $profileId = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
+        $this->assertNotEmpty($profileId, $this->gateway->getLastError());
     }
 
     /**
@@ -81,6 +117,9 @@ class AuthDotNetGatewayTest extends TestCase
     public function testChargeCard()
     {
         $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2038, 12);
+        $card->setCardCode('123');
         $response = $this->gateway->chargeCard($card, rand(1, 1000));
         $this->assertEquals(ChargeResponse::STATUS_APPROVED, $response->getStatus());
     }

@@ -50,13 +50,11 @@ class EntityFactory
 
         // Use factory if it exists
         if (class_exists($className)) {
-            $obj = $className::create($this->serviceManager);
-        } else {
-            $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
-            // TODO: if !$def then throw an exception
-            $obj = new \Netric\Entity\Entity($def);
+            return $className::create($this->serviceManager);
         }
 
-        return $obj;
+        $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
+        // TODO: if !$def then throw an exception
+        return new \Netric\Entity\Entity($def);
     }
 }
