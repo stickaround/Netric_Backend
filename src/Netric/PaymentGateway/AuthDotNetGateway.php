@@ -9,6 +9,9 @@ use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 
 
+/**
+ * Process payments through the Authorize.net payment gateway
+ */
 class AuthDotNetGateway implements PaymentGatewayInterface
 {
     /**
@@ -129,7 +132,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
 
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
-        $customerProfile->setDescription("Customer 2 Test PHP");
+        $customerProfile->setDescription($customer->getName());
         $customerProfile->setMerchantCustomerId($customer->getId());
         $customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
@@ -201,7 +204,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
 
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
-        $customerProfile->setDescription("Customer 2 Test PHP");
+        $customerProfile->setDescription($customer->getName());
         if ($customer->getId()) {
             $customerProfile->setMerchantCustomerId($customer->getId());
         }
@@ -336,39 +339,39 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $creditCard->setCardNumber($card->getCardNumber());
         $creditCard->setExpirationDate($card->getExpiration("YYYY-MM"));
         $creditCard->setCardCode($card->getCardCode());
+
         // Add the payment data to a paymentType object
         $paymentOne = new AnetAPI\PaymentType();
         $paymentOne->setCreditCard($creditCard);
-        // Create order information
-        $order = new AnetAPI\OrderType();
-        $order->setInvoiceNumber("10101");
-        $order->setDescription("Golf Shirts");
+
         // Set the customer's Bill To address
         $customerAddress = $this->getBillingAddressFromCustomer($customer);
 
         // Set the customer's identifying information
         $customerData = new AnetAPI\CustomerDataType();
         $customerData->setType("individual");
-        $customerData->setId("99999456654");
-        $customerData->setEmail("EllenJohnson@example.com");
+        $customerData->setId($customer->getId());
+        $customerData->setEmail($customer->getValue('email'));
+
         // Add values for transaction settings
-        $duplicateWindowSetting = new AnetAPI\SettingType();
-        $duplicateWindowSetting->setSettingName("duplicateWindow");
-        $duplicateWindowSetting->setSettingValue("60");
+        $duplicateWindowConf = new AnetAPI\SettingType();
+        $duplicateWindowConf->setSettingName("duplicateWindow");
+        $duplicateWindowConf->setSettingValue("60");
+
         // Create a TransactionRequestType object and add the previous objects to it
-        $transactionRequestType = new AnetAPI\TransactionRequestType();
-        $transactionRequestType->setTransactionType("authCaptureTransaction");
-        $transactionRequestType->setAmount($amount);
-        //$transactionRequestType->setOrder($order);
-        $transactionRequestType->setPayment($paymentOne);
-        $transactionRequestType->setBillTo($customerAddress);
-        //$transactionRequestType->setCustomer($customerData);
-        $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
+        $transRequestType = new AnetAPI\TransactionRequestType();
+        $transRequestType->setTransactionType("authCaptureTransaction");
+        $transRequestType->setAmount($amount);
+        $transRequestType->setPayment($paymentOne);
+        $transRequestType->setBillTo($customerAddress);
+        $transRequestType->addToTransactionSettings($duplicateWindowConf);
+
         // Assemble the complete transaction request
         $request = new AnetAPI\CreateTransactionRequest();
         $request->setMerchantAuthentication($merchantAuth);
         $request->setRefId($refId);
-        $request->setTransactionRequest($transactionRequestType);
+        $request->setTransactionRequest($transRequestType);
+
         // Create the controller and get the response
         $controller = new AnetController\CreateTransactionController($request);
         $apiResponse = $controller->executeWithApiResponse($this->gatewayUrl);
