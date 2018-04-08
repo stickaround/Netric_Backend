@@ -16,7 +16,7 @@ interface PaymentGatewayInterface
      *
      * @param CustomerEntity $customer Provide the gateway with needed customer data
      * @param CreditCard $card Credit card
-     * @return string
+     * @return string Token that can be used for future charges
      */
     public function createPaymentProfileCard(CustomerEntity $customer, CreditCard $card) : string;
 
@@ -28,12 +28,12 @@ interface PaymentGatewayInterface
      *
      * @param CustomerEntity $customer Provide the gateway with needed customer data
      * @param BankAccount $bankAccount Bank account details such as routing number and account number
-     * @return string
+     * @return string Token that can be used for future charges
      */
     public function createPaymentProfileBankAccount(CustomerEntity $customer, BankAccount $bankAccount) : string;
 
     /**
-     * Charge a payment profile
+     * Charge a payment to a remotely-stored profile
      *
      * @param PaymentProfileEntity $paymentProfile
      * @param float $amount Amount to charge the customer
@@ -44,11 +44,12 @@ interface PaymentGatewayInterface
     /**
      * Charge a credit or debit card directly
      *
+     * @param CustomerEntity $customer
      * @param CreditCard $card
      * @param float $amount
      * @return ChargeResponse
      */
-    public function chargeCard(CreditCard $card, float $amount) : ChargeResponse;
+    public function chargeCard(CustomerEntity $customer, CreditCard $card, float $amount) : ChargeResponse;
 
     /**
      * If a gateway operation fails, it will store the error

@@ -66,7 +66,8 @@ class AuthDotNetGatewayTest extends TestCase
     {
         $serviceManager = Bootstrap::getAccount()->getServiceManager();
         $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
-        $customer = $entityFactory->create(customer);
+        $customer = $entityFactory->create('customer');
+        $customer->setValue('id', rand(1, 2000));
         $customer->setValue('first_name', 'Ellen');
         $customer->setValue('last_name', 'Johnson');
         $customer->setValue('company', 'Souveniropolis');
@@ -86,17 +87,25 @@ class AuthDotNetGatewayTest extends TestCase
         $card->setExpiration(2038, 12);
         $card->setCardCode('123');
 
-        $profileId = $this->gateway->createPaymentProfileCard($customer, $card);
-        $this->assertNotEmpty($profileId, $this->gateway->getLastError());
+        $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
     }
 
     public function testCreateProfileBankAccount()
     {
+        // Create a customer and change the zipcode
         $customer = $this->getTestCustomer();
-        $bankAccount = new BankAccount();
+        $customer->setValue('billing_zip', '44629');
 
-        $profileId = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
-        $this->assertNotEmpty($profileId, $this->gateway->getLastError());
+        $bankAccount = new BankAccount();
+        $bankAccount->setAccountType('checking');
+        $bankAccount->setRoutingNumber('125000105');
+        $bankAccount->setAccountNumber('1234567890');
+        $bankAccount->setNameOnAccount('John Doe');
+        $bankAccount->setBankName('Wells Fargo Bank NA');
+
+        $profileToken = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
     }
 
     /**
@@ -106,7 +115,23 @@ class AuthDotNetGatewayTest extends TestCase
      */
     public function testChargeProfile()
     {
-        $this->markTestIncomplete('Still working on this');
+        $customer = $this->getTestCustomer();
+        $card = new CreditCard();
+        $card->setCardNumber('4111111111111111');
+        $card->setExpiration(2038, 12);
+        $card->setCardCode('123');
+
+        // Save a new token to the API
+        $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+
+        // Create a local netric payment_profile entity with the token above
+        $serviceManager = Bootstrap::getAccount()->getServiceManager();
+        $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
+        $paymentProfile = $entityFactory->create('payment_profile');
+        $paymentProfile->setValue('token', $profileToken);
+
+        $result = $this->gateway->chargeProfile($paymentProfile, rand(1, 1000));
+        $this->assertNotEmpty($result, $this->gateway->getLastError());
     }
 
     /**
@@ -116,11 +141,30 @@ class AuthDotNetGatewayTest extends TestCase
      */
     public function testChargeCard()
     {
+        $customer = $this->getTestCustomer();
+
         $card = new CreditCard();
         $card->setCardNumber('4111111111111111');
         $card->setExpiration(2038, 12);
         $card->setCardCode('123');
-        $response = $this->gateway->chargeCard($card, rand(1, 1000));
+        $response = $this->gateway->chargeCard($customer, $card, rand(1, 1000));
         $this->assertEquals(ChargeResponse::STATUS_APPROVED, $response->getStatus());
+    }
+
+    /**
+     * Test a failing one-time charge
+     *
+     * @return void
+     */
+    public function testChargeCardFail()
+    {
+        $customer = $this->getTestCustomer();
+
+        $card = new CreditCard();
+        $card->setCardNumber('5111111111111111'); // bad number
+        $card->setExpiration(2038, 12);
+        $card->setCardCode('123');
+        $response = $this->gateway->chargeCard($customer, $card, rand(1, 1000));
+        $this->assertEquals(ChargeResponse::STATUS_DECLINED, $response->getStatus());
     }
 }

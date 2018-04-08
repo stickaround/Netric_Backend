@@ -22,6 +22,13 @@ class ChargeResponse
     private $transactionId = "";
 
     /**
+     * Gateways return a unique code when authorizing a transaction
+     *
+     * @var string
+     */
+    private $authCode = "";
+
+    /**
      * The status of the charge
      *
      * @var int self::STATUS_
@@ -34,6 +41,18 @@ class ChargeResponse
      * @var array ResponseMessage[]
      */
     private $messages = [];
+
+    /**
+     * Constructor
+     *
+     * @param int $status One of ChargeResponse::STATUS_* constants
+     */
+    public function __construct(int $status = null)
+    {
+        if ($status) {
+            $this->status = $status;
+        }
+    }
 
     /**
      * Set the  gateway generated unique id of the charge transaction
@@ -50,9 +69,30 @@ class ChargeResponse
      *
      * @return string
      */
-    public function getTransactionId(): string
+    public function getTransactionId() : string
     {
         return $this->transactionId;
+    }
+
+    /**
+     * Set the authorization code for this transaction
+     *
+     * @param string $authCode
+     * @return void
+     */
+    public function setAuthorizationCode(string $authCode)
+    {
+        $this->authCode = $authCode;
+    }
+
+    /**
+     * Get the authroization code for this transaction
+     *
+     * @return string
+     */
+    public function getAuthorizationCode() : string
+    {
+        return $this->authorizationId;
     }
 
     /**
@@ -70,7 +110,7 @@ class ChargeResponse
      *
      * @return ResponseMessage[]
      */
-    public function getMessages(): array
+    public function getMessages() : array
     {
         return $this->messages;
     }
@@ -90,7 +130,7 @@ class ChargeResponse
      *
      * @return int One of ChargeResponse::STATUS_* constants
      */
-    public function getStatus(): int
+    public function getStatus() : int
     {
         return $this->status;
     }

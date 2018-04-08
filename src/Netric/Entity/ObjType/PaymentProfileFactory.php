@@ -9,7 +9,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 /**
  * Create a new payment profile entity
  */
-class PaymentProfile implements EntityFactoryInterface
+class PaymentProfileFactory implements EntityFactoryInterface
 {
     /**
      * Entity creation factory
