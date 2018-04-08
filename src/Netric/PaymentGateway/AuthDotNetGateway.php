@@ -130,7 +130,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // Create a new CustomerProfileType and add the payment profile object
         $customerProfile = new AnetAPI\CustomerProfileType();
         $customerProfile->setDescription("Customer 2 Test PHP");
-        $customerProfile->setMerchantCustomerId("M_" . time());
+        $customerProfile->setMerchantCustomerId($customer->getId());
         $customerProfile->setEmail($customer->getValue('email'));
         $customerProfile->setpaymentProfiles($paymentProfiles);
 
