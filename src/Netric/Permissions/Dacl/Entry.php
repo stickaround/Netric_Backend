@@ -57,10 +57,11 @@ class Entry
      * @param string $id Optional unique id of this entry
      * @param string $parent Optional parent entry id
      */
-	public function __construct($id=null, $parent=null)
+	public function __construct($data=array())
 	{
-		$this->id = $id;
-		$this->parentId = $parent;
+		$this->id = $data["id"];
+        $this->name = $data["name"];
+		$this->parentId = $data["parent"];
 	}
 
     /**

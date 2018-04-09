@@ -5,7 +5,7 @@ use \Netric\Mvc;
 use Netric\Account\Module\ModuleServiceFactory;
 
 /**
- * Controller for account interactoin
+ * Controller for interacting with entities
  */
 class ModuleController extends Mvc\AbstractAccountController
 {

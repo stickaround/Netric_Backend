@@ -36,6 +36,20 @@ class Dacl
 	 */
 	private $entries = array();
 
+	/**
+	 * Associative array for user names
+	 *
+	 * @var string[]
+	 */
+	private $userNames = array();
+
+	/**
+	 * Associative array for group names
+	 *
+	 * @var string[]
+	 */
+	private $groupNames = array();
+
     /**
      * The default permission to check if none is supplied
      */
@@ -98,8 +112,6 @@ class Dacl
             $this->id = $data['id'];
         }
 
-
-
         if (isset($data['entries']) && is_array($data['entries'])) {
             $this->setEntries($data['entries']);
         }
@@ -114,11 +126,13 @@ class Dacl
     {
         $ret = array(
             'name' => $this->name,
+			'user_names' => $this->userNames,
+			'goup_names' => $this->groupNames,
             'entries' => []
         );
 
-        foreach ($this->entries as $entry) {
-            $ret['entries'][] = $entry->toArray();
+        foreach ($this->entries as $key=>$entry) {
+            $ret['entries'][$key] = $entry->toArray();
         }
 
         return $ret;
@@ -139,10 +153,12 @@ class Dacl
 	 */
 	private function setEntries(array $entries)
 	{
-        foreach ($entries as $entryData) {
+        foreach ($entries as $pname => $entryData) {
             $entry = new Dacl\Entry();
             $entry->fromArray($entryData);
-            $this->entries[$entryData['name']] = $entry;
+
+			$permissionName = ($entryData['name']) ? $entryData['name'] : $pname;
+            $this->entries[$permissionName] = $entry;
         }
 	}
 
@@ -358,4 +374,13 @@ class Dacl
 
         return false;
     }
+
+	/**
+	 * Set the user entity as user details
+	 * @param {string} $userName The name of the user
+	 */
+	public function setUserName($userId, $userName="")
+	{
+		$this->userNames[$userId] = $userName;
+	}
 }
