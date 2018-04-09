@@ -1,7 +1,7 @@
 <?php
 namespace Netric\PaymentGateway\PaymentMethod;
 
-class CreditCard implements PaymentMethodInterface
+class CreditCard
 {
     /**
      * The card number
@@ -31,16 +31,6 @@ class CreditCard implements PaymentMethodInterface
      * @var string
      */
     private $cardCode = "";
-
-    /**
-     * Get an associative array of all payment fields
-     *
-     * @return array
-     */
-    public function getFields() : array
-    {
-
-    }
 
     /**
      * Set the credit card number

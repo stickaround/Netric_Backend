@@ -4,7 +4,7 @@ namespace Netric\PaymentGateway\PaymentMethod;
 /**
  * Bank account payment method
  */
-class BankAccount implements PaymentMethodInterface
+class BankAccount
 {
     /**
      * Bank account types
@@ -46,16 +46,6 @@ class BankAccount implements PaymentMethodInterface
      * @var string
      */
     private $nameOfBank = '';
-
-    /**
-     * Get an associative array of all payment fields
-     *
-     * @return array
-     */
-    public function getFields() : array
-    {
-
-    }
 
     /**
      * Set the type of bank account this is
