@@ -6,8 +6,8 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
-use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Controller for interaction with permission/security
@@ -30,31 +30,44 @@ class PermissionController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
+        $groupingLoader = $serviceManager->get(EntityGroupingLoaderFactory::class);
 
         $params = $this->getRequest()->getParams();
 
         // Make sure we have the minimum required params
-        if (!$params['obj_type'] || !$params['id']) {
-            return $this->sendOutput(
-                array(
-                    "error" => "obj_type and id are required params",
-                    "params" => $params
-                )
-            );
+        if (empty($params['obj_type']) || empty($params['id'])) {
+            return $this->sendOutput([
+                "error" => "obj_type and id are required params",
+                "params" => $params
+            ]);
         }
 
         // Retrieve the entity by id
         $entity = $entityLoader->get($params['obj_type'], $params['id']);
         $dacl = $daclLoader->getForEntity($entity);
 
+        $retData = [
+            "dacl" => $dacl->toArray(),
+            "user_names" => [],
+            "group_names" => []
+        ];
+
         $users = $dacl->getUsers();
         // Get the user details
         foreach ($users as $userId) {
             $userEntity = $entityLoader->get("user", $userId);
-            $dacl->setUserName($userId, $userEntity->getName());
+            $retData["user_names"][$userId] = $userEntity->getName();
         }
 
-        return $this->sendOutput($dacl->toArray());
+        $userGroups = $groupingLoader->get("user", "groups");
+        $groups = $userGroups->toArray();
+
+        // Get the group details
+        foreach ($groups as $groupDetails) {
+            $retData["group_names"][$groupDetails["id"]] = $groupDetails["name"];
+        }
+
+        return $this->sendOutput($retData);
     }
 
     /**
@@ -70,20 +83,18 @@ class PermissionController extends Mvc\AbstractAccountController
         $rawBody = $this->getRequest()->getBody();
 
         if (!$rawBody) {
-            return $this->sendOutput(array("error" => "Request input is not valid"));
+            return $this->sendOutput(["error" => "Request input is not valid"]);
         }
 
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
         // Make sure we have the minimum required params
-        if (!$objData['obj_type'] || !$objData['entity_id']) {
-            return $this->sendOutput(
-                array(
-                    "error" => "obj_type and id are required params",
-                    "params" => $params
-                )
-            );
+        if (empty($objData['obj_type']) || empty($objData['entity_id'])) {
+            return $this->sendOutput([
+                "error" => "obj_type and id are required params",
+                "params" => $params
+            ]);
         }
 
         $serviceManager = $this->account->getServiceManager();
@@ -100,7 +111,7 @@ class PermissionController extends Mvc\AbstractAccountController
         if ($entityDataMapper->save($entity)) {
             return $this->sendOutput($dacl->toArray());
         } else {
-            return $this->sendOutput(array("error" => "Error saving: " . $entityDataMapper->getLastError()));
+            return $this->sendOutput(["error" => "Error saving: " . $entityDataMapper->getLastError()]);
         }
     }
 }

@@ -303,6 +303,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the groupings for this $objType and $fieldName
         $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
 
+
         if (!$groupings) {
             return $this->sendOutput(array("error" => "No groupings found for specified obj_type and field"));
         }
@@ -799,12 +800,14 @@ class EntityController extends Mvc\AbstractAccountController
     {
 
         // Get the entity defintion of the $objType
-        $def = $this->account->getServiceManager()->get("Netric/EntityDefinition/EntityDefinitionLoader")->get($objType);
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $def = $defLoader->get($objType);
 
         // If this is a private object then send the current user as a filter
         if ($def->isPrivate && !count($groupFilter)) {
             $groupFilter['user_id'] = $this->account->getUser()->getId();
         }
+
 
         // Get all groupings for this object type
         $groupings = $loader->get($objType, $fieldName, $groupFilter);
