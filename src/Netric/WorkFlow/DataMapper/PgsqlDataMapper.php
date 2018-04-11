@@ -131,7 +131,7 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
             throw new \InvalidArgumentException("Cannot delete a workflow that has not been saved");
 
         // Delete actions
-        $this->dbh->query("DELETE FROM workflow_actions WHERE workflow_id='" . $workFlow->getId() . "'");
+        $this->dbh->query("DELETE FROM objects_workflow_action WHERE workflow_id='" . $workFlow->getId() . "'");
 
         // Delete the workflow
         $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
@@ -176,7 +176,7 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function getWorkFlows($objType = null, $onlyActive = true, $filterEvent = null)
     {
-        $sql = "SELECT * FROM workflows WHERE ";
+        $sql = "SELECT * FROM objects_workflow WHERE ";
 
         if ($onlyActive)
             $sql .= " f_active is true";
@@ -685,7 +685,7 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         if (!$actionId || !is_numeric($actionId))
             throw new \InvalidArgumentException("First param is required to load an action");
 
-        $sql = "SELECT * FROM workflow_actions WHERE id=" . $this->dbh->escapeNumber($actionId);
+        $sql = "SELECT * FROM objects_workflow_action WHERE id=" . $this->dbh->escapeNumber($actionId);
         $result = $this->dbh->query($sql);
         if (!$result)
             throw new \RuntimeException("Error getting actions " . $this->dbh->getLastError());
