@@ -18,12 +18,6 @@ return array(
             'subtype'=>'',
             'readonly'=>false
         ),
-        'app_dash' => array(
-            'title'=>'Application Dashboard',
-            'type'=>Field::TYPE_TEXT,
-            'subtype'=>'256',
-            'readonly'=>true
-        ),
         'layout' => array(
             'title'=>'Layout',
             'type'=>Field::TYPE_TEXT,

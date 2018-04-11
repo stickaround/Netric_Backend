@@ -9,7 +9,6 @@ return array(
     'home.activity' => array(
         "uname" => "activity",
         "Name" => "System Wide Dashboard",
-        "app_dash" => "home.activity",
         "description" => "Summary of activity displayed on the home page to all users",
         "scope" => "system",
         "num_columns" => 2

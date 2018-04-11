@@ -19,7 +19,7 @@ $dashboardWidgetData = require(__DIR__ . "/../../../../data/account/dashboard-wi
 foreach ($dashboardsData as $dashbordName => $dashboardData) {
 
     // Check first if we have already a system-wide dashboard
-    $dashboardEntity = $entityLoader->getByUniqueName("dashboard", $dashboardData['uname'], array("app_dash" => $dashboardData['app_dash']));
+    $dashboardEntity = $entityLoader->getByUniqueName("dashboard", $dashboardData['uname']);
 
     // If we do not have a system wide dashboard entity, then let's create it
     if (!$dashboardEntity) {
