@@ -376,6 +376,53 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($updatedDef->revision, 3);
     }
 
+    public function testPostDeleteEntityDefAction()
+    {
+        $objType = "unittest_customer";
+
+        // Test creating new entity definition
+        $data = array(
+            'obj_type' => $objType,
+            'title' => "Unit Test Customer",
+            'system' => false,
+            'fields' => array(
+                "test_field" => array(
+                    'name' => "test_field",
+                    'title' => "New Test Field",
+                    'type' => "text",
+                    'system' => false
+                )
+            )
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $ret = $this->controller->postUpdateEntityDefAction();
+
+        // Get the newly created entity definition
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $testDef = $defLoader->get($objType);
+        $this->testDefinitions[] = $testDef;
+
+        // Test that the new entity definition was created
+        $this->assertEquals($testDef->id, $ret['id']);
+        $this->assertEquals($testDef->getTitle(), "Unit Test Customer");
+        $this->assertEquals($testDef->revision, 1);
+
+        // Now Delete the newly created entity definition
+        $data = array(
+            'obj_type' => $objType,
+        );
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+
+        $ret = $this->controller->postDeleteEntityDefAction();
+        $this->assertTrue($ret);
+    }
+
     public function testMassEdit()
     {
         // Setup the loaders
