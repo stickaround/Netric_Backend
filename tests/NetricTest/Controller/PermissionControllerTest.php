@@ -6,12 +6,14 @@
 namespace NetricTest\Controller;
 
 use Netric\Controller\PermissionController;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,11 +36,18 @@ class PermissionControllerTest extends TestCase
     protected $controller = null;
 
     /**
-     * Test modules that should be cleaned up on tearDown
+     * Test entites that should be cleaned up on tearDown
      *
-     * @var ModuleInterface[]
+     * @var EntityInterface[]
      */
     private $testEntities = [];
+
+    /**
+     * Test definitions that should be cleaned up on tearDown
+     *
+     * @var EntityDefinitionInterface[]
+     */
+    private $testDefinitions = [];
 
     protected function setUp()
     {
@@ -61,6 +70,12 @@ class PermissionControllerTest extends TestCase
         $loader = $this->serviceManager->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $loader->delete($entity, true);
+        }
+
+        // Cleanup any test definitions
+        $definitionLoader = $this->serviceManager->get(EntityDefinitionDataMapperFactory::class);
+        foreach ($this->testDefinitions as $definition) {
+            $definitionLoader->delete($definition);
         }
     }
 
@@ -85,6 +100,46 @@ class PermissionControllerTest extends TestCase
         $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['dacl']['entries']);
         $this->assertEquals(Dacl::PERM_VIEW, $ret['dacl']['entries'][Dacl::PERM_VIEW]['name']);
         $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['dacl']['entries'][Dacl::PERM_VIEW]['groups']));
+    }
+
+    public function testGetGetDaclForEntityActionForObjType()
+    {
+        $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
+
+        // Make a new user and add them to the entity dacl
+        $user = $entityLoader->create("user");
+        $user->setValue("name", "utest-dacl-entity");
+        $entityLoader->save($user);
+        $this->testEntities[] = $user;
+
+        // Set up the dacl and allow the user
+        $dacl = new Dacl();
+        $dacl->allowUser($user->getId());
+
+        $def = new EntityDefinition("unitTestObjtype");
+        $def->setDacl($dacl);
+
+        // Save the entity definition
+        $definitionDatamapper = $this->serviceManager->get(EntityDefinitionDataMapperFactory::class);
+        $definitionDatamapper->save($def);
+        $this->testDefinitions[] = $def;
+
+        // Create a utest entity so we can get the dacl for the obj type
+        $utestEntity = $entityLoader->create("unitTestObjtype");
+        $entityLoader->save($utestEntity);
+        $this->testEntities[] = $utestEntity;
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('obj_type', "unitTestObjtype");
+        $req->setParam('id', $utestEntity->getId());
+
+        $ret = $this->controller->getGetDaclForEntityAction();
+
+        // Should get objtype dacl for this entity
+        $this->assertNotNull($ret);
+        $this->assertTrue(in_array($user->getId(), $ret['dacl']['entries'][Dacl::PERM_VIEW]['users']));
+        $this->assertEquals($ret['user_names'][$user->getId()], $user->getName());
     }
 
     public function testPostSaveDaclEntriesAction()
