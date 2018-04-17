@@ -116,7 +116,7 @@ class PermissionControllerTest extends TestCase
         $dacl = new Dacl();
         $dacl->allowUser($user->getId());
 
-        $def = new EntityDefinition("unitTestObjtype");
+        $def = new EntityDefinition("unitTestDaclObjtype");
         $def->setDacl($dacl);
 
         // Save the entity definition
@@ -125,13 +125,13 @@ class PermissionControllerTest extends TestCase
         $this->testDefinitions[] = $def;
 
         // Create a utest entity so we can get the dacl for the obj type
-        $utestEntity = $entityLoader->create("unitTestObjtype");
+        $utestEntity = $entityLoader->create("unitTestDaclObjtype");
         $entityLoader->save($utestEntity);
         $this->testEntities[] = $utestEntity;
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "unitTestObjtype");
+        $req->setParam('obj_type', "unitTestDaclObjtype");
         $req->setParam('id', $utestEntity->getId());
 
         $ret = $this->controller->getGetDaclForEntityAction();

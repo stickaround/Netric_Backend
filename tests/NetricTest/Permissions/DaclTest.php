@@ -143,7 +143,7 @@ class DaclTest extends TestCase
         $dacl->allowUser($this->user->getId());
 
         $exported = $dacl->toArray();
-        $this->assertEquals([UserEntity::GROUP_USERS], $exported['entries'][0]['groups']);
+        $this->assertEquals([UserEntity::GROUP_USERS], $exported['entries']['View']['groups']);
     }
 
     public function testGetUsers()

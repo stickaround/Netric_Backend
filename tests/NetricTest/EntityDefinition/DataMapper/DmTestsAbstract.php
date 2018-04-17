@@ -230,7 +230,7 @@ abstract class DmTestsAbstract extends TestCase
         $reloadedDef = $dataMapper->fetchByName("utest_save_dacl");
         $this->assertNotNull($reloadedDef->getDacl());
         $daclData = $reloadedDef->getDacl()->toArray();
-        $this->assertEquals([UserEntity::GROUP_USERS], $daclData['entries'][0]['groups']);
+        $this->assertEquals([UserEntity::GROUP_USERS], $daclData['entries']['View']['groups']);
 	}
 
     /**
