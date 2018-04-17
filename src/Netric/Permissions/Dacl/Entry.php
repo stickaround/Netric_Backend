@@ -54,13 +54,13 @@ class Entry
     /**
      * Class constructor
      * 
-     * @param string $id Optional unique id of this entry
-     * @param string $parent Optional parent entry id
+     * @param array $data Associative array that contains the initial data of the entry
      */
-	public function __construct($id=null, $parent=null)
+	public function __construct($data=array())
 	{
-		$this->id = $id;
-		$this->parentId = $parent;
+		$this->id = $data["id"];
+        $this->name = $data["name"];
+		$this->parentId = $data["parent"];
 	}
 
     /**

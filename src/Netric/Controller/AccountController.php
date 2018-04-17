@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controller for account interactoin
+ * Controller for account interaction
  */
 namespace Netric\Controller;
 

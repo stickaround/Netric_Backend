@@ -98,8 +98,6 @@ class Dacl
             $this->id = $data['id'];
         }
 
-
-
         if (isset($data['entries']) && is_array($data['entries'])) {
             $this->setEntries($data['entries']);
         }
@@ -117,8 +115,8 @@ class Dacl
             'entries' => []
         );
 
-        foreach ($this->entries as $entry) {
-            $ret['entries'][] = $entry->toArray();
+        foreach ($this->entries as $key=>$entry) {
+            $ret['entries'][$key] = $entry->toArray();
         }
 
         return $ret;
@@ -139,10 +137,12 @@ class Dacl
 	 */
 	private function setEntries(array $entries)
 	{
-        foreach ($entries as $entryData) {
+        foreach ($entries as $pname => $entryData) {
             $entry = new Dacl\Entry();
             $entry->fromArray($entryData);
-            $this->entries[$entryData['name']] = $entry;
+
+			$permissionName = ($entryData['name']) ? $entryData['name'] : $pname;
+            $this->entries[$permissionName] = $entry;
         }
 	}
 
@@ -354,7 +354,6 @@ class Dacl
                 }
             }
         }
-
 
         return false;
     }
