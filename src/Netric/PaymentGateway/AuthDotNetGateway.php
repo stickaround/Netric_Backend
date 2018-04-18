@@ -429,7 +429,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     /**
      * Get merchant auth with the correct login and key
      *
-     * @return void
+     * @return ANetApi\MerchantAuthenticationType
      */
     private function getMerchantAuth()
     {
