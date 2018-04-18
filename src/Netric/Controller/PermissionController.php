@@ -56,7 +56,10 @@ class PermissionController extends Mvc\AbstractAccountController
         // Get the user details
         foreach ($users as $userId) {
             $userEntity = $entityLoader->get("user", $userId);
-            $retData["user_names"][$userId] = $userEntity->getName();
+
+            if ($userEntity) {
+                $retData["user_names"][$userId] = $userEntity->getName();
+            }
         }
 
         $userGroups = $groupingLoader->get("user", "groups");
