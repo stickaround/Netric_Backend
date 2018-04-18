@@ -12,6 +12,7 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
@@ -116,22 +117,22 @@ class PermissionControllerTest extends TestCase
         $dacl = new Dacl();
         $dacl->allowUser($user->getId());
 
-        $def = new EntityDefinition("unitTestDaclObjtype");
+        $defLoader = $this->serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $def = $defLoader->get("product");
         $def->setDacl($dacl);
 
         // Save the entity definition
         $definitionDatamapper = $this->serviceManager->get(EntityDefinitionDataMapperFactory::class);
         $definitionDatamapper->save($def);
-        $this->testDefinitions[] = $def;
 
         // Create a utest entity so we can get the dacl for the obj type
-        $utestEntity = $entityLoader->create("unitTestDaclObjtype");
+        $utestEntity = $entityLoader->create("product");
         $entityLoader->save($utestEntity);
         $this->testEntities[] = $utestEntity;
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "unitTestDaclObjtype");
+        $req->setParam('obj_type', "product");
         $req->setParam('id', $utestEntity->getId());
 
         $ret = $this->controller->getGetDaclForEntityAction();
