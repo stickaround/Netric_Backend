@@ -80,6 +80,21 @@ class PermissionControllerTest extends TestCase
         }
     }
 
+    public function testGetGetDaclForEntityActionForObjTypeOnly()
+    {
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('obj_type', "product");
+
+        $ret = $this->controller->getGetDaclForEntityAction();
+
+        // We should get the default dacl data for this object type
+        $this->assertNotNull($ret);
+        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['dacl']['entries']);
+        $this->assertEquals(Dacl::PERM_VIEW, $ret['dacl']['entries'][Dacl::PERM_VIEW]['name']);
+        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['dacl']['entries'][Dacl::PERM_VIEW]['groups']));
+    }
+
     public function testGetGetDaclForEntityAction()
     {
         // Create a task entity so we can get the default dacl for an entity
