@@ -295,13 +295,23 @@ class EntityControllerTest extends TestCase
         $req = $this->controller->getRequest();
         $ret = $this->controller->getAllDefinitionsAction();
 
-        $this->assertTrue($ret[0]['id'] > 0);
+        // Try to get the task entity definition and we use it in our unit test
+        $entityDefData = null;
+        forEach ($ret as $defData) {
+            if ($defData['obj_type'] === "task") {
+                $entityDefData = $defData;
+                break;
+            }
+        }
+
+        $this->assertNotNull($entityDefData);
+        $this->assertTrue($entityDefData['id'] > 0);
 
         // Make sure the small form was loaded
-        $this->assertFalse(empty($ret[0]['forms']['small']));
+        $this->assertFalse(empty($entityDefData['forms']['small']));
 
         // Make sure the large form was loaded
-        $this->assertFalse(empty($ret[0]['forms']['large']));
+        $this->assertFalse(empty($entityDefData['forms']['large']));
     }
 
     public function testUpdateEntityDefAction()
