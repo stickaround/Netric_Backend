@@ -45,18 +45,14 @@ class PermissionController extends Mvc\AbstractAccountController
             ]);
         }
 
-        // Retrieve the entity by id
-        if (!empty($objData['obj_type']) && !empty($objData['id'])) {
+        // Set the Dacl based on the obj_type provided in the params
+        $def = $defLoader->get($objData['obj_type']);
+        $dacl = $daclLoader->getForEntityDefinition($def);
+
+        // If id is set, then we will update the dacl and retrieve the entity by id
+        if (!empty($objData['id'])) {
             $entity = $entityLoader->get($objData['obj_type'], $objData['id']);
             $dacl = $daclLoader->getForEntity($entity);
-        } else if (!empty($objData['obj_type'])) {
-            $def = $defLoader->get($objData['obj_type']);
-            $dacl = $daclLoader->getForEntityDefinition($def);
-        } else {
-            return $this->sendOutput([
-                "error" => "No Dacl created for this object type.",
-                "params" => $objData
-            ]);
         }
 
         $retData = [
@@ -111,7 +107,7 @@ class PermissionController extends Mvc\AbstractAccountController
         // Make sure we have the minimum required params
         if (empty($objData['obj_type'])) {
             return $this->sendOutput([
-                "error" => "obj_type and id are required params",
+                "error" => "obj_type is a required param",
                 "params" => $objData
             ]);
         }
@@ -123,8 +119,8 @@ class PermissionController extends Mvc\AbstractAccountController
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $definitionDatamapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
-        // Retrieve the entity by id
-        if (!empty($objData['obj_type']) && !empty($objData['entity_id'])) {
+        // Retrieve the entity by id amd return the result
+        if (!empty($objData['entity_id'])) {
             $entity = $entityLoader->get($objData['obj_type'], $objData['entity_id']);
             $dacl = $daclLoader->getForEntity($entity);
             $dacl->fromArray($objData);
@@ -135,18 +131,13 @@ class PermissionController extends Mvc\AbstractAccountController
             } else {
                 return $this->sendOutput(["error" => "Error saving Dacl: " . $entityDataMapper->getLastError()]);
             }
-        } else if (!empty($objData['obj_type'])) {
-            $def = $defLoader->get($objData['obj_type']);
-            $dacl = $daclLoader->getForEntityDefinition($def);
-            $dacl->fromArray($objData);
-            $def->setDacl($dacl);
-            $definitionDatamapper->save($def);
-            return $this->sendOutput($dacl->toArray());
-        } else {
-            return $this->sendOutput([
-                "error" => "No Dacl saved for this object type.",
-                "params" => $objData
-            ]);
         }
+
+        $def = $defLoader->get($objData['obj_type']);
+        $dacl = $daclLoader->getForEntityDefinition($def);
+        $dacl->fromArray($objData);
+        $def->setDacl($dacl);
+        $definitionDatamapper->save($def);
+        return $this->sendOutput($dacl->toArray());
     }
 }
