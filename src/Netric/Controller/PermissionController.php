@@ -6,8 +6,10 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 
 /**
  * Controller for interaction with permission/security
@@ -30,21 +32,28 @@ class PermissionController extends Mvc\AbstractAccountController
         $serviceManager = $this->account->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
+        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         $groupingLoader = $serviceManager->get(EntityGroupingLoaderFactory::class);
 
-        $params = $this->getRequest()->getParams();
+        $objData = $this->getRequest()->getParams();
 
         // Make sure we have the minimum required params
-        if (empty($params['obj_type']) || empty($params['id'])) {
+        if (empty($objData['obj_type'])) {
             return $this->sendOutput([
-                "error" => "obj_type and id are required params",
-                "params" => $params
+                "error" => "obj_type is a required param",
+                "params" => $objData
             ]);
         }
 
-        // Retrieve the entity by id
-        $entity = $entityLoader->get($params['obj_type'], $params['id']);
-        $dacl = $daclLoader->getForEntity($entity);
+        // Set the Dacl based on the obj_type provided in the params
+        $def = $defLoader->get($objData['obj_type']);
+        $dacl = $daclLoader->getForEntityDefinition($def);
+
+        // If id is set, then we will update the dacl and retrieve the entity by id
+        if (!empty($objData['id'])) {
+            $entity = $entityLoader->get($objData['obj_type'], $objData['id']);
+            $dacl = $daclLoader->getForEntity($entity);
+        }
 
         $retData = [
             "dacl" => $dacl->toArray(),
@@ -96,10 +105,10 @@ class PermissionController extends Mvc\AbstractAccountController
         $objData = json_decode($rawBody, true);
 
         // Make sure we have the minimum required params
-        if (empty($objData['obj_type']) || empty($objData['entity_id'])) {
+        if (empty($objData['obj_type'])) {
             return $this->sendOutput([
-                "error" => "obj_type and id are required params",
-                "params" => $params
+                "error" => "obj_type is a required param",
+                "params" => $objData
             ]);
         }
 
@@ -107,17 +116,28 @@ class PermissionController extends Mvc\AbstractAccountController
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
         $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
+        $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $definitionDatamapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
-        // Retrieve the entity by id
-        $entity = $entityLoader->get($objData['obj_type'], $objData['entity_id']);
-        $dacl = $daclLoader->getForEntity($entity);
-        $dacl->fromArray($objData);
-        $entity->setValue("dacl", json_encode($dacl->toArray()));
+        // Retrieve the entity by id amd return the result
+        if (!empty($objData['entity_id'])) {
+            $entity = $entityLoader->get($objData['obj_type'], $objData['entity_id']);
+            $dacl = $daclLoader->getForEntity($entity);
+            $dacl->fromArray($objData);
+            $entity->setValue("dacl", json_encode($dacl->toArray()));
 
-        if ($entityDataMapper->save($entity)) {
-            return $this->sendOutput($dacl->toArray());
-        } else {
-            return $this->sendOutput(["error" => "Error saving: " . $entityDataMapper->getLastError()]);
+            if ($entityDataMapper->save($entity)) {
+                return $this->sendOutput($dacl->toArray());
+            } else {
+                return $this->sendOutput(["error" => "Error saving Dacl: " . $entityDataMapper->getLastError()]);
+            }
         }
+
+        $def = $defLoader->get($objData['obj_type']);
+        $dacl = $daclLoader->getForEntityDefinition($def);
+        $dacl->fromArray($objData);
+        $def->setDacl($dacl);
+        $definitionDatamapper->save($def);
+        return $this->sendOutput($dacl->toArray());
     }
 }
