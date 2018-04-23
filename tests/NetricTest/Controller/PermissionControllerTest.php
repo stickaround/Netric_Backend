@@ -84,6 +84,7 @@ class PermissionControllerTest extends TestCase
     {
         // Set params in the request
         $req = $this->controller->getRequest();
+        $req->setParam('id', "");
         $req->setParam('obj_type', "product");
 
         $ret = $this->controller->getGetDaclForEntityAction();
