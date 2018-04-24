@@ -3,27 +3,21 @@
  * Remove all dashboard entity that has a uname: "activity" and scope is user
  */
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityQuery;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
-$entityIndex = $serviceManager->get(IndexFactory::class);
+$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 
 // Find all dashboard entity with uname "activity" and scope is not system
-$query = new EntityQuery("dashboard");
-$query->where("uname")->equals("activity");
-$query->where("scope")->doesNotEqual("system");
+$sql = "SELECT * FROM objects_dashboard where uname = 'activity' and scope !='system'";
+$result = $db->query($sql);
 
-// Get the results
-$results = $entityIndex->executeQuery($query);
-$totalNum = $results->getTotalNum();
-
-// Loop over total num - the results will paginate as needed
-for ($i = 0; $i < $totalNum; $i++) {
-
-    // Get each contact
-    $entity = $results->getEntity($i);
+// Loop thru the results and delete the entities
+foreach ($result->fetchAll() as $row) {
+    $entity = $entityLoader->get("dashboard", $row['id']);
     $entityDataMapper->delete($entity);
 }
