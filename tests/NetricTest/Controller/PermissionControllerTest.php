@@ -12,6 +12,7 @@ use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
@@ -79,6 +80,22 @@ class PermissionControllerTest extends TestCase
         }
     }
 
+    public function testGetGetDaclForEntityActionForObjTypeOnly()
+    {
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setParam('id', "");
+        $req->setParam('obj_type', "product");
+
+        $ret = $this->controller->getGetDaclForEntityAction();
+
+        // We should get the default dacl data for this object type
+        $this->assertNotNull($ret);
+        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['dacl']['entries']);
+        $this->assertEquals(Dacl::PERM_VIEW, $ret['dacl']['entries'][Dacl::PERM_VIEW]['name']);
+        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['dacl']['entries'][Dacl::PERM_VIEW]['groups']));
+    }
+
     public function testGetGetDaclForEntityAction()
     {
         // Create a task entity so we can get the default dacl for an entity
@@ -116,22 +133,22 @@ class PermissionControllerTest extends TestCase
         $dacl = new Dacl();
         $dacl->allowUser($user->getId());
 
-        $def = new EntityDefinition("unitTestDaclObjtype");
+        $defLoader = $this->serviceManager->get(EntityDefinitionLoaderFactory::class);
+        $def = $defLoader->get("product");
         $def->setDacl($dacl);
 
         // Save the entity definition
         $definitionDatamapper = $this->serviceManager->get(EntityDefinitionDataMapperFactory::class);
         $definitionDatamapper->save($def);
-        $this->testDefinitions[] = $def;
 
         // Create a utest entity so we can get the dacl for the obj type
-        $utestEntity = $entityLoader->create("unitTestDaclObjtype");
+        $utestEntity = $entityLoader->create("product");
         $entityLoader->save($utestEntity);
         $this->testEntities[] = $utestEntity;
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "unitTestDaclObjtype");
+        $req->setParam('obj_type', "product");
         $req->setParam('id', $utestEntity->getId());
 
         $ret = $this->controller->getGetDaclForEntityAction();

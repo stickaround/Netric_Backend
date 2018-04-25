@@ -6,6 +6,7 @@
 namespace Netric\Permissions;
 
 use Netric\Entity\EntityInterface;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 
@@ -71,19 +72,46 @@ class DaclLoader
         if ($fallBackToObjType) {
 
             // Try to get for from the object definition if permissions have been customized
-            if ($objDef->getDacl()) {
+            if (!empty($objDef->getDacl())) {
                 return $objDef->getDacl();
             }
 
             // If none is found, return a default where admin and creator owner has access only
-            $default = new Dacl();
-            $default->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
-            $default->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
-            return $default;
+            return $this->createDefaultDacl();
         }
 
         return null;
 	}
+
+    /**
+     * Function that will get the Dacl for entity definition
+     *
+     * @param EntityDefinition $entityDefinition The entity definition where we will be getting the dacl
+     * @return Dacl
+     */
+    public function getForEntityDefinition(EntityDefinition $entityDefinition)
+    {
+        if (!empty($entityDefinition->getDacl())) {
+            return $entityDefinition->getDacl();
+        }
+
+        // If none is found, return a default where admin and creator owner has access only
+        return $this->createDefaultDacl();
+    }
+
+    /**
+     * Private function that creates a default entries of Dacl
+     *
+     * @return Dacl
+     */
+    private function createDefaultDacl()
+    {
+        $default = new Dacl();
+        $default->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
+        $default->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
+
+        return $default;
+    }
 
     /**
 	 * Get an access controll list by name
