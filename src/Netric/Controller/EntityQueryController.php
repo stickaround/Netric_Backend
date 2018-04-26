@@ -3,6 +3,7 @@ namespace Netric\Controller;
 
 use \Netric\Mvc;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Permissions\DaclLoaderFactory;
 
 /**
  * This is just a simple test controller
@@ -17,6 +18,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
     public function postExecuteAction()
     {
         $rawBody = $this->getRequest()->getBody();
+
         if (!$rawBody) {
             return $this->sendOutput(array(
                 "error" => "Request input is not valid. Must post a raw body with JSON defining the query"
@@ -31,6 +33,8 @@ class EntityQueryController extends Mvc\AbstractAccountController
         }
 
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        $user = $this->account->getUser();
 
         $query = new \Netric\EntityQuery($params["obj_type"]);
         $query->fromArray($params);
@@ -50,10 +54,16 @@ class EntityQueryController extends Mvc\AbstractAccountController
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
-            // TODO: security
+            $entityData = $ent->toArray();
+
+            // If the dacl for this entity is empty, then let's try to get the default dacl.
+            if (empty($entityData["dacl"])) {
+                $dacl = $daclLoader->getForEntity($ent);
+                $entityData["dacl"] = $dacl->toArray();
+            }
 
             // Print full details
-            $entities[] = $ent->toArray();
+            $entities[] = $entityData;
         }
         $ret["entities"] = $entities;
 
