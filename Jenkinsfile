@@ -53,7 +53,7 @@ node {
             sshagent (credentials: ['aereus']) {
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-setup.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/pull-and-run-setup.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/pull-and-run-setup.sh latest'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/pull-and-run-setup.sh integration'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm /home/aereus/pull-and-run-setup.sh'
             }
         }
