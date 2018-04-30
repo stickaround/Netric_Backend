@@ -12,6 +12,7 @@ use Netric\Db\Relational\RelationalDbFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
+$log = $account->getApplication()->getLog();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
@@ -37,8 +38,11 @@ foreach ($types as $objDefData)
 
         // Clear any cache for the definition
         $entityDefinitionLoader->clearCache($objDefData['obj_type']);
+
+        $log->info("Update 004.001.018 successfully moved the {$objDefData['obj_type']} entity definition to objects_table");
     } catch (\Exception $ex) {
         // If it fails, then move on to the next type since no entities can exist
+        $log->error("Update 004.001.018 failed to update entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
         continue;
     }
 }

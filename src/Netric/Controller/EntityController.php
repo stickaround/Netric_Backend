@@ -1,14 +1,17 @@
 <?php
 namespace Netric\Controller;
 
+use Netric\Entity\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
 use Netric\Mvc;
+use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\FormsFactory;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 
 /**
@@ -159,9 +162,18 @@ class EntityController extends Mvc\AbstractAccountController
         if (isset($params['id']) && isset($params['obj_type'])) {
             // Retrieve the entity by id
             $entity = $loader->get($params['obj_type'], $params['id']);
-        }
 
-        // TODO: Check permissions
+            // If user is not allowed, then return an error
+            if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
+                return $this->sendOutput(
+                    array(
+                        "error" => "You dont have permission to view this.",
+                        "id" => $entity->getId(),
+                        "params" => $params
+                    )
+                );
+            }
+        }
 
         return $this->sendOutput(($entity) ? $entity->toArray() : []);
     }
@@ -256,8 +268,14 @@ class EntityController extends Mvc\AbstractAccountController
 
         foreach ($ids as $did) {
             $entity = $loader->get($objType, $did);
-            if ($dataMapper->delete($entity)) {
-                $ret[] = $did;
+
+            // Check first if we have permission to delete this entity
+            if ($this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
+
+                // Proceed with the deleting this entity
+                if ($dataMapper->delete($entity)) {
+                    $ret[] = $did;
+                }
             }
         }
 
@@ -814,5 +832,27 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Return the groupings object
         return $groupings;
+    }
+
+    /**
+     * Function that will check if user is allowed to access the entity
+     *
+     * @param Entity $entity The entity that we will be checking
+     * @param $permission The permission to check
+     */
+    private function checkIfUserIsAllowed(Entity $entity, $permission) {
+
+        // Check entity permission
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        $dacl = $daclLoader->getForEntity($entity);
+        $user = $this->account->getUser();
+        $isOwner = ($entity->getValue("creator_id") == $user->getId());
+
+        // If the current user wants to retrieve its own entity, then we will allow it
+        if ($entity->getObjType() === "user" && $entity->getId() == $user->getId()) {
+            $isOwner = true;
+        }
+
+        return $dacl->isAllowed($user, $permission, $isOwner);
     }
 }

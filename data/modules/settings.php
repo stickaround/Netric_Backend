@@ -35,7 +35,7 @@ return array(
             "type" => "browse",
             "objType" => "workflow",
             "route" => "workflows",
-            "icon" => "SettingsApplicationIcon",
+            "icon" => "SettingsApplicationsIcon",
         ),
         array(
             "title" => "Users",
