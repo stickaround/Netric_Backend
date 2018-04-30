@@ -49,7 +49,16 @@ node {
             }
         }
 
-        stage('Deploy') {
+        stage('Integration') {
+            sshagent (credentials: ['aereus']) {
+                sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-setup.sh'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/pull-and-run-setup.sh'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/pull-and-run-setup.sh latest'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm /home/aereus/pull-and-run-setup.sh'
+            }
+        }
+
+        stage('Production') {
             sshagent (credentials: ['aereus']) {
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-daemon.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-daemon.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-daemon.sh'
