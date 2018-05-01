@@ -9,6 +9,7 @@ use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntityDefinition\EntityDefinition;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -41,9 +42,21 @@ foreach ($types as $objDefData)
 
         $log->info("Update 004.001.018 successfully moved the {$objDefData['obj_type']} entity definition to objects_table");
     } catch (\Exception $ex) {
-        // If it fails, then move on to the next type since no entities can exist
-        $log->error("Update 004.001.018 failed to update entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
-        continue;
+        // If it fails, then we need to add it here
+        $def = new EntityDefinition($objDefData['obj_type']);
+
+        // If object table is already existing, then create a log that there is an error when updating the system definition
+        if ($db->tableExists($def->getTable())) {
+            $log->error("Update 004.001.018 failed to update entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
+            continue;
+        }
+
+        $def->fromArray($objDefData);
+        $entityDefinitionDataMapper->save($def);
+
+        if (!$def->getId()) {
+            $log->error("Update 004.001.018 failed to save entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
+        }
     }
 }
 
