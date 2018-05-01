@@ -28,8 +28,7 @@ $types = require(__DIR__ . "/../../../../../../data/account/object-types.php");
  * It is important that we update the object type definition first before moving the entities
  * So we can make sure that the object types will be using the new objects table
  */
-foreach ($types as $objDefData)
-{
+foreach ($types as $objDefData) {
     try {
         $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
         
