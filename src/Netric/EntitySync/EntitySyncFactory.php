@@ -22,7 +22,7 @@ class EntitySyncFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("Netric/EntitySync/DataMapper");
+        $dm = $sl->get(DataMapperFactory::class);
         return new EntitySync($dm);
     }
 }

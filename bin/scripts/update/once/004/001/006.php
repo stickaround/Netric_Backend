@@ -6,10 +6,11 @@
  * If not, then it will add a new entry for messages
  */
 use Netric\Account\Module\Module;
+use Netric\Account\Module\DataMapper\DataMapperFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Account/Module/DataMapper/DataMapper");
+$db = $serviceManager->get(DataMapperFactory::class);
 
 $messageModule = $db->get("messages");
 

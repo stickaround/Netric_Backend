@@ -3,16 +3,11 @@ namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
-use Netric\EntityDefinition\Field;
 use Netric\EntityQuery;
 use Netric\EntitySync\Commit\CommitManager;
-use Netric\Entity\EntityInterface;
-use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntitySync\EntitySyncFactory;
 use Netric\EntitySync\EntitySync;
 use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
-use Netric\Entity\ActivityLogFactory;
-use Netric\Entity\EntityAggregatorFactory;
 use Netric\Entity\Notifier\NotifierFactory;
 use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
@@ -336,7 +331,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 	public function getByUniqueName($objType, $uniqueNamePath, array $namespaceFieldValues = [])
 	{
 		$serviceManager = $this->getAccount()->getServiceManager();
-		$definitionLoader = $serviceManager->get("Netric/EntityDefinition/EntityDefinitionLoader");
+		$definitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 		$entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 		$def = $definitionLoader->get($objType);
 

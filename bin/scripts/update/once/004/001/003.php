@@ -10,10 +10,11 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Crypt\VaultServiceFactory;
+use Netric\Db\DbFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
+$db = $serviceManager->get(DbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);

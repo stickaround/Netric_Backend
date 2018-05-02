@@ -5,6 +5,7 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 
@@ -21,7 +22,7 @@ class NotificationFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("notification");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("notification");
         return new NotificationEntity($def);
     }
 }

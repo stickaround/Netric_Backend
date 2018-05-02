@@ -7,7 +7,9 @@
  */
 namespace Netric\EntityDefinition;
 
+use Netric\Cache\CacheFactory;
 use Netric\ServiceManager;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 
 /**
  * Create a Entity Definition Loader service
@@ -22,8 +24,8 @@ class EntityDefinitionLoaderFactory implements ServiceManager\AccountServiceFact
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("Netric/EntityDefinition/DataMapper/DataMapper");
-        $cache = $sl->get("Netric/Cache/Cache");
+        $dm = $sl->get(DataMapperFactory::class);
+        $cache = $sl->get(CacheFactory::class);
 
         return new EntityDefinitionLoader($dm, $cache);
     }

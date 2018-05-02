@@ -8,6 +8,7 @@
 namespace Netric\EntitySync\Commit;
 
 use Netric\ServiceManager;
+use Netric\EntitySync\Commit\DataMapper\DataMapperFactory;
 
 /**
  * Create a Entity Sync Commit Manager service
@@ -24,7 +25,7 @@ class CommitManagerFactory implements ServiceManager\AccountServiceFactoryInterf
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dm = $sl->get("Netric/EntitySync/Commit/DataMapper/DataMapper");
+        $dm = $sl->get(DataMapperFactory::class);
         return new CommitManager($dm);
     }
 }

@@ -12,6 +12,7 @@
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\Config\ConfigFactory;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
@@ -175,7 +176,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $ret = null;
 
         // Check for system object
-        $config = $this->getAccount()->getServiceManager()->get("Config");
+        $config = $this->getAccount()->getServiceManager()->get(ConfigFactory::class);
         $basePath = $config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $ret = include($basePath . "/" . $objType . ".php");
@@ -198,7 +199,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private function setSysAggregates(EntityDefinition $def)
     {
         // Check for system object
-        $config = $this->getAccount()->getServiceManager()->get("Config");
+        $config = $this->getAccount()->getServiceManager()->get(ConfigFactory::class);
         $basePath = $config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $def->getObjType() . ".php")) {
             $ret = include($basePath . "/" . $def->getObjType() . ".php");

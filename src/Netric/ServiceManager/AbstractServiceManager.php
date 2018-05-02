@@ -172,7 +172,7 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
     private function normalizeClassPath($classPath)
     {
         // Replace forward slash with backslash
-        $classPath = str_replace('/', '\\', $classPath);
+        //$classPath = str_replace('/', '\\', $classPath);
 
         // If class begins with "\Netric" then remove the first slash because it is not needed
         if ("\\Netric" == substr($classPath, 0, strlen("\\Netric"))) {

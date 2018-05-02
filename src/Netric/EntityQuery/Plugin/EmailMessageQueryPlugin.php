@@ -9,6 +9,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityQuery;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerService;
+use Netric\WorkerMan\WorkerServiceFactory;
 
 /**
  * Hook before and after querying an email_message
@@ -82,7 +83,7 @@ class EmailMessageQueryPlugin implements PluginInterface
     private function getWorkerService(ServiceLocatorInterface $sl)
     {
         if (!$this->workerService) {
-            $this->setWorkerService($sl->get("Netric/WorkerMan/WorkerService"));
+            $this->setWorkerService($sl->get(WorkerServiceFactory::class));
         }
 
         return $this->workerService;

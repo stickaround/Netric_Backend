@@ -5,8 +5,11 @@
  */
 namespace Netric\Mail;
 
-use Netric\EntitySync\Collection\CollectionFactory;
 use Netric\ServiceManager;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\FileSystem\FileSystemFactory;
 
 /**
  * Create a service for delivering mail
@@ -22,11 +25,11 @@ class DeliveryServiceFactory implements ServiceManager\AccountServiceFactoryInte
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $user = $sl->getAccount()->getUser();
-        $entityLoader = $sl->get("EntityLoader");
-        $groupingsLoader = $sl->get("Netric/EntityGroupings/Loader");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $groupingsLoader = $sl->get(LoaderFactory::class);
         $log = $sl->get("Log");
-        $index = $sl->get("EntityQuery_Index");
-        $fileSystem = $sl->get("Netric/FileSystem/FileSystem");
+        $index = $sl->get(IndexFactory::class);
+        $fileSystem = $sl->get(FileSystemFactory::class);
 
         return new DeliveryService(
             $log,

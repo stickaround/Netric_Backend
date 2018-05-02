@@ -4,9 +4,11 @@
  * object_sync_import from entity revision to entity commit_id
  */
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Db\DbFactory;
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get("Netric/Db/Db");
+$db = $serviceManager->get(DbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
 $sql = "SELECT osi.id, osi.object_id, osi.revision, osc.object_type

@@ -7,6 +7,7 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 
@@ -23,7 +24,7 @@ class FileFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("file");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("file");
         return new FileEntity($def);
     }
 }

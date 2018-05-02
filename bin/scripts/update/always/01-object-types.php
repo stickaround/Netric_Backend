@@ -16,8 +16,7 @@ $entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefiniti
 $entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
 
 // Loop through each type and add it if it does not exist
-foreach ($types as $objDefData)
-{
+foreach ($types as $objDefData) {
     // First try loading to see if it already exists
     try {
         $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);

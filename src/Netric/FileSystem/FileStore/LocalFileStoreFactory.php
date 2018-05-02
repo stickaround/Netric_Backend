@@ -7,7 +7,9 @@
  */
 namespace Netric\FileSystem\FileStore;
 
+use Netric\Config\ConfigFactory;
 use Netric\ServiceManager;
+use netric\Entity\DataMapper\DataMapperFactory;
 
 /**
  * Create a file system storage service
@@ -22,10 +24,10 @@ class LocalFileStoreFactory implements ServiceManager\AccountServiceFactoryInter
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $config = $sl->get("Netric/Config/Config");
+        $config = $sl->get(ConfigFactory::class);
         $dataPath = $config->data_path;
         $accountId = $sl->getAccount()->getId();
-        $dataMapper = $sl->get("Netric/Entity/DataMapper/DataMapper");
+        $dataMapper = $sl->get(DataMapperFactory::class);
 
         return new LocalFileStore($accountId, $dataPath, $dataMapper);
     }

@@ -1,9 +1,15 @@
 <?php
 namespace Netric\Mail;
 
+use Netric\Crypt\VaultServiceFactory;
 use Netric\EntitySync\Collection\CollectionFactory;
 use Netric\ServiceManager;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Config\ConfigFactory;
+use Netric\EntitySync\EntitySyncFactory;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\Log\LogFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Create a service for receiving mail from a mail server
@@ -20,14 +26,14 @@ class ReceiverServiceFactory implements ServiceManager\AccountServiceFactoryInte
     {
         $user = $sl->getAccount()->getUser();
         $collectionFactory = new CollectionFactory($sl);
-        $entitySyncServer = $sl->get("Netric/EntitySync/EntitySync");
+        $entitySyncServer = $sl->get(EntitySyncFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        $groupingsLoader = $sl->get("Netric/EntityGroupings/Loader");
-        $log = $sl->get("Log");
-        $index = $sl->get("EntityQuery_Index");
-        $vaultService = $sl->get("Netric/Crypt/VaultService");
-        $config = $sl->get("Config");
-        $deliveryService = $sl->get("Netric/Mail/DeliveryService");
+        $groupingsLoader = $sl->get(LoaderFactory::class);
+        $log = $sl->get(LogFactory::class);
+        $index = $sl->get(IndexFactory::class);
+        $vaultService = $sl->get(VaultServiceFactory::class);
+        $config = $sl->get(ConfigFactory::class);
+        $deliveryService = $sl->get(DeliveryServiceFactory::class);
 
         return new ReceiverService(
             $log,

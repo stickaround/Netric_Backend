@@ -6,12 +6,14 @@
 
 namespace Netric\Entity\ObjType;
 
+use Netric\Config\ConfigFactory;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
 use Netric\Mail\Address;
+use Netric\Mail\Transport\TransportFactory;
 
 /**
  * Notification entity
@@ -76,7 +78,7 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // If mail transport is not set, then set it here
         if (!$this->mailTransport)
-            $this->mailTransport = $sm->get("Netric/Mail/Transport/Transport");
+            $this->mailTransport = $sm->get(TransportFactory::class);
 
         // Get the user that owns this notice
         $user = $sm->get("EntityLoader")->get("user", $this->getValue("owner_id"));
@@ -106,7 +108,7 @@ class NotificationEntity extends Entity implements EntityInterface
         $body .= "\r\n\r\nTIP: You can respond by replying to this email.";
 
         // Set from
-        $config = $sm->get("Netric/Config/Config");
+        $config = $sm->get(ConfigFactory::class);
         $fromEmail = $config->email['noreply'];
 
         // Add special dropbox that enables users to comment by just replying to an email

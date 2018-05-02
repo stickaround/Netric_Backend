@@ -5,6 +5,7 @@ namespace Netric\EntityDefinition;
 use Netric\Cache\CacheInterface;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
+use Netric\Config\ConfigFactory;
 
 
 /**
@@ -184,7 +185,7 @@ class EntityDefinitionLoader
         $ret = false;
 
         // Check for system object
-        $config = $this->dataMapper->getAccount()->getServiceManager()->get("Config");
+        $config = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class);
         $basePath = $config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $ret = include($basePath . "/" . $objType . ".php");
@@ -207,7 +208,7 @@ class EntityDefinitionLoader
     private function setSysAggregates(EntityDefinition $def)
     {
         // Check for system object
-        $config = $this->dataMapper->getAccount()->getServiceManager()->get("Config");
+        $config = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class);
         $basePath = $config->application_path . "/data/entity_definitions";
         if (file_exists($basePath . "/" . $def->getObjType() . ".php")) {
             $ret = include($basePath . "/" . $def->getObjType() . ".php");
@@ -241,7 +242,7 @@ class EntityDefinitionLoader
         $numViews = 0;
 
         // Check for system object
-        $config = $this->dataMapper->getAccount()->getServiceManager()->get("Config");
+        $config = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class);
         $basePath = $config->application_path . "/data/browser_views";
         if (file_exists($basePath . "/" . $objType . ".php")) {
             $viewsData = include($basePath . "/" . $objType . ".php");
@@ -270,7 +271,7 @@ class EntityDefinitionLoader
             return;
 
         // Check for system object
-        $basePath = $this->dataMapper->getAccount()->getServiceManager()->get("Config")->application_path . "/data";
+        $basePath = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class)->application_path . "/data";
         if (file_exists($basePath . "/entity_forms/" . $objType . "/default.php")) {
             $xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/default.php");
             if ($xml)

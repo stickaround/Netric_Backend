@@ -5,6 +5,8 @@
  */
 namespace Netric\EntitySync\Collection;
 
+use Netric\EntitySync\Commit\CommitManagerFactory;
+use Netric\EntitySync\DataMapperFactory;
 use Netric\EntitySync\EntitySync;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 
@@ -53,8 +55,8 @@ class CollectionFactory implements CollectionFactoryInterface
 		$collection = null;
 
 		// Common dependency
-		$dm = $sm->get("Netric/EntitySync/DataMapper");
-		$commitManager = $sm->get("Netric/EntitySync/Commit/CommitManager");
+		$dm = $sm->get(DataMapperFactory::class);
+		$commitManager = $sm->get(CommitManagerFactory::class);
 
 		switch ($type)
 		{

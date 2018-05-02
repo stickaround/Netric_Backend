@@ -7,6 +7,7 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\FileSystem\FileStore\FileStoreFactory;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
@@ -59,7 +60,7 @@ class FileEntity extends Entity implements EntityInterface
      */
     public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
     {
-        $fileStore = $sm->get("Netric/FileSystem/FileStore/FileStore");
+        $fileStore = $sm->get(FileStoreFactory::class);
 
         // When this file gets purged we should delete the raw data from the fileStore
         $fileStore->deleteFile($this);

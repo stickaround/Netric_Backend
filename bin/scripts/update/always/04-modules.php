@@ -4,6 +4,7 @@
  * Add default modules to each account
  */
 use Netric\Account\Module\Module;
+use Netric\Account\Module\ModuleServiceFactory;
 
 $account = $this->getAccount();
 if (!$account)
@@ -14,7 +15,7 @@ $modules = require(__DIR__ . "/../../../../data/account/modules.php");
 
 // Get the module service
 $serviceLocator = $account->getServiceManager();
-$moduleService = $serviceLocator->get("Netric/Account/Module/ModuleService");
+$moduleService = $serviceLocator->get(ModuleServiceFactory::class);
 
 foreach ($modules as $moduleData) {
     $module = $moduleService->getByName($moduleData['name']);

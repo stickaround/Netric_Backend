@@ -22,7 +22,7 @@ class RecurrenceIdentityMapperFactory implements ServiceManager\AccountServiceFa
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $recurDataMapper = $sl->get("Netric/Entity/Recurrence/RecurrenceDataMapper");
+        $recurDataMapper = $sl->get(RecurrenceDataMapperFactory::class);
         return new RecurrenceIdentityMapper($recurDataMapper);
     }
 }

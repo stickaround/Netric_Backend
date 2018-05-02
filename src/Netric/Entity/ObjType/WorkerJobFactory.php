@@ -5,6 +5,7 @@
  */
 namespace Netric\Entity\ObjType;
 
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityFactoryInterface;
@@ -22,7 +23,7 @@ class WorkerJobFactory implements EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader")->get("worker_job");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("worker_job");
         return new WorkerJobEntity($def);
     }
 }

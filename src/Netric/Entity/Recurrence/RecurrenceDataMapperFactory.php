@@ -7,6 +7,8 @@
  */
 namespace Netric\Entity\Recurrence;
 
+use Netric\Db\DbFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 
 /**
@@ -22,8 +24,8 @@ class RecurrenceDataMapperFactory implements ServiceManager\AccountServiceFactor
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $entDefLoader = $sl->get("Netric/EntityDefinition/EntityDefinitionLoader");
-        $dbh = $sl->get("Netric/Db/Db");
+        $entDefLoader = $sl->get(EntityDefinitionLoaderFactory::class);
+        $dbh = $sl->get(DbFactory::class);
         return new RecurrenceDataMapper($sl->getAccount(), $dbh, $entDefLoader);
     }
 }

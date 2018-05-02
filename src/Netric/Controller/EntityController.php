@@ -13,6 +13,8 @@ use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\EntityGroupings\LoaderFactory;
 
 /**
  * Controller for interacting with entities
@@ -210,7 +212,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entity->fromArray($objData);
 
         // Save the entity
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         if (!$dataMapper->save($entity)) {
             return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
         }
@@ -264,7 +266,7 @@ class EntityController extends Mvc\AbstractAccountController
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper to delete
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         foreach ($ids as $did) {
             $entity = $loader->get($objType, $did);
@@ -316,7 +318,7 @@ class EntityController extends Mvc\AbstractAccountController
         $filterArray = ($filterString) ? json_decode($filterString) : array();
 
         // Get the entity loader that will be used to get the groupings model
-        $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
 
         // Get the groupings for this $objType and $fieldName
         $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
@@ -401,7 +403,7 @@ class EntityController extends Mvc\AbstractAccountController
     private function savePendingObjectMultiObjects(EntityInterface $entity, array $objData)
     {
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $fields = $entity->getDefinition()->getFields();
 
         // Flag that will determine if we should save the $entity
@@ -606,7 +608,7 @@ class EntityController extends Mvc\AbstractAccountController
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         foreach ($ids as $id) {
             // Load the entity that we are going to update
@@ -616,7 +618,7 @@ class EntityController extends Mvc\AbstractAccountController
             $entity->fromArray($entityData, true);
 
             // Save the entity
-            $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+            $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dataMapper->save($entity);
 
             // Return the entities that were updated
@@ -667,7 +669,7 @@ class EntityController extends Mvc\AbstractAccountController
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get the datamapper
-        $dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Create the new entity where we merge all field values
         $mergedEntity = $loader->create($requestData['obj_type']);
@@ -755,7 +757,7 @@ class EntityController extends Mvc\AbstractAccountController
         $groupFilter = isset($objData['filter']) ? $objData['filter'] : array();
 
         // Get the entity loader that will be used to get the groupings model
-        $loader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
 
         // Get the groupings for this obj_type and field_name
         $groupings = $this->getGroupings($loader, $objData['obj_type'], $objData['field_name'], $groupFilter);

@@ -3,13 +3,15 @@
  * Add default workflows
  */
 
+use Netric\WorkFlow\DataMapper\DataMapperFactory;
+
 $account = $this->getAccount();
 if (!$account)
     throw new \RuntimeException("This must be run only against a single account");
 
 // Get services
 $serviceLocator = $account->getServiceManager();
-$workFlowDataMapper = $serviceLocator->get("Netric/WorkFlow/DataMapper/DataMapper");
+$workFlowDataMapper = $serviceLocator->get(DataMapperFactory::class);
 $actionFactory = new Netric\WorkFlow\Action\ActionFactory($serviceLocator);
 
 // Get all WorkFlows up front
