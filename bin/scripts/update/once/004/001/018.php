@@ -9,6 +9,7 @@ use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntityDefinition\EntityDefinition;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -48,9 +49,6 @@ foreach ($types as $objDefData) {
 
         if (!$def->getId()) {
             $log->error("Update 004.001.018 failed to save entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
-
-            // If it fails, then move on to the next type since no entities can exist
-            $log->error("Update 004.001.018 failed to update entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
         }
     }
 }
