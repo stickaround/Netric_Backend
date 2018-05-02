@@ -5,6 +5,7 @@
 namespace NetricTest\Entity\BrowserView;
 
 use Netric\Entity\BrowserView\BrowserView;
+use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use Netric\EntityQuery;
 use PHPUnit\Framework\TestCase;
 
@@ -40,7 +41,7 @@ class BrowserViewServiceTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
-        $this->browserViewService = $sm->get("Netric/Entity/BrowserView/BrowserViewService");
+        $this->browserViewService = $sm->get(BrowserViewServiceFactory::class);
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
     }
 

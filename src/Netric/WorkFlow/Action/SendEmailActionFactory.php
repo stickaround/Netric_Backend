@@ -6,6 +6,7 @@
  */
 namespace Netric\WorkFlow\Action;
 
+use Netric\Mail\SenderServiceFactory;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityLoaderFactory;
 
@@ -25,7 +26,7 @@ class SendEmailActionFactory
         // Return a new TestAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
-        $senderService = $serviceLocator->get("Netric/Mail/SenderService");
+        $senderService = $serviceLocator->get(SenderServiceFactory::class);
         return new SendEmailAction($entityLoader, $actionFactory, $senderService);
     }
 }

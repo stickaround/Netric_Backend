@@ -2,6 +2,7 @@
 namespace NetricTest\Crypt;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Crypt\VaultServiceFactory;
 
 class VaultServiceFactoryTest extends TestCase
 {
@@ -10,8 +11,8 @@ class VaultServiceFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sl = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Crypt\VaultService',
-            $sl->get("Netric/Crypt/VaultService")
+            VaultServiceFactory::class,
+            $sl->get(VaultServiceFactory::class)
         );
     }
 }

@@ -7,6 +7,7 @@ namespace NetricTest\Account\Module;
 use Netric\Account\Module\Module;
 use Netric\Account\Module\ModuleService;
 use PHPUnit\Framework\TestCase;
+use Netric\Account\Module\ModuleServiceFactory;
 
 class ModuleServiceTest extends TestCase
 {
@@ -28,7 +29,7 @@ class ModuleServiceTest extends TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $this->moduleService = $sm->get("Netric/Account/Module/ModuleService");
+        $this->moduleService = $sm->get(ModuleServiceFactory::class);
     }
 
     /**

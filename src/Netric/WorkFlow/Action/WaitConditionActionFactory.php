@@ -10,6 +10,7 @@ namespace Netric\WorkFlow\Action;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\WorkFlow\DataMapper\DataMapperFactory;
 
 /**
  * Create a new WaitConditionAction
@@ -27,7 +28,7 @@ class WaitConditionActionFactory
         // Return a new WaitConditionAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
-        $workFlowDataMapper = $serviceLocator->get("Netric/WorkFlow/DataMapper/DataMapper");
+        $workFlowDataMapper = $serviceLocator->get(DataMapperFactory::class);
         return new WaitConditionAction($entityLoader, $actionFactory, $workFlowDataMapper);
     }
 }

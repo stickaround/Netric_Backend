@@ -2,6 +2,7 @@
 namespace NetricTest\Crypt;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Crypt\VaultServiceFactory;
 
 class VaultServiceTest extends TestCase
 {
@@ -9,7 +10,7 @@ class VaultServiceTest extends TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
         $sl = $account->getServiceManager();
-        $vaultService = $sl->get("Netric/Crypt/VaultService");
+        $vaultService = $sl->get(VaultServiceFactory::class);
         $this->assertNotEmpty($vaultService->getSecret("My Test Key"));
     }
 }

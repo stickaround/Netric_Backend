@@ -6,6 +6,9 @@
 namespace Netric\Mail;
 
 use Netric\ServiceManager;
+use Netric\Mail\Transport\TransportFactory;
+use Netric\Mail\Transport\BulkTransportFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Create a service for sending email
@@ -20,9 +23,9 @@ class SenderServiceFactory implements ServiceManager\AccountServiceFactoryInterf
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $transport = $sl->get("Netric/Mail/Transport/Transport");
-        $bulkTransport = $sl->get("Netric/Mail/Transport/BulkTransport");
-        $log = $sl->get("Log");
+        $transport = $sl->get(TransportFactory::class);
+        $bulkTransport = $sl->get(BulkTransportFactory::class);
+        $log = $sl->get(LogFactory::class);
         return new SenderService($transport, $bulkTransport, $log);
     }
 }

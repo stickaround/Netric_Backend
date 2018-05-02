@@ -4,6 +4,7 @@ namespace Netric\Mail\Transport;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
 use Netric\Config\ConfigFactory;
+use Netric\Settings\SettingsFactory;
 
 /**
  * Create a new Bulk SMTP Transport service based on account settings
@@ -57,7 +58,7 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
          */
-        $settings = $serviceManager->get("Netric/Settings/Settings");
+        $settings = $serviceManager->get(SettingsFactory::class);
         $host = $settings->get("email/smtp_bulk_host");
         $username = $settings->get("email/smtp_bulk_user");
         $password = $settings->get("email/smtp_bulk_password");

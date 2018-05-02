@@ -10,6 +10,7 @@ use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\Account\Account;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 
 /**
  * Class EntityMaintainerServiceTest
@@ -59,7 +60,7 @@ class EntityMaintainerServiceTest extends TestCase
         $def->setSystem(false);
         $dacl = new Dacl();
         $def->setDacl($dacl);
-        $dataMapper = $this->account->getServiceManager()->get("Netric/EntityDefinition/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $dataMapper->saveDef($def);
         $this->testDefinition = $def;
 
@@ -94,7 +95,7 @@ class EntityMaintainerServiceTest extends TestCase
         }
 
         // Cleanup the entity definition
-        $dataMapper = $this->account->getServiceManager()->get("Netric/EntityDefinition/DataMapper/DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $dataMapper->deleteDef($this->testDefinition);
     }
 

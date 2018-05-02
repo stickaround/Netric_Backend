@@ -7,6 +7,7 @@ namespace NetricTest\Entity\ObjType;
 use Netric\Entity;
 use Netric\Entity\ObjType\EmailMessageEntity;
 use Netric\Entity\EntityInterface;
+use Netric\FileSystem\FileSystemFactory;
 use Netric\Mime;
 use Netric\Mail;
 use PHPUnit\Framework\TestCase;
@@ -126,7 +127,7 @@ class EmailMessageTest extends TestCase
         $emailMessage->setValue("send_to", "Another User <test2@myaereuscom>");
 
         // Add an attachment
-        $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
         $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);
         $fileSystem->writeFile($file, "Textual Data");
         $this->testEntities[] = $file;
@@ -216,7 +217,7 @@ class EmailMessageTest extends TestCase
         $this->assertEquals("html", $emailMessage->getValue("body_type"));
 
         // Check attachments
-        $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
         $attachments = $emailMessage->getValue("attachments");
         $file = $fileSystem->openFileById($attachments[0]);
         $this->assertEquals("attachment-content", $fileSystem->readFile($file));
@@ -377,7 +378,7 @@ class EmailMessageTest extends TestCase
         $emailMessage = $entityLoader->create("email_message");
 
         // Add an attachment
-        $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
         $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);
         $fileSystem->writeFile($file, "Textual Data");
         $this->testEntities[] = $file;

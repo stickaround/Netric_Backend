@@ -6,6 +6,7 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use Netric\FileSystem\FileStore\FileStoreFactory;
 
 class FileTest extends TestCase
 {
@@ -74,7 +75,7 @@ class FileTest extends TestCase
      */
     public function testOnDeleteHard()
     {
-        $fileStore = $this->account->getServiceManager()->get("Netric/FileSystem/FileStore/FileStore");
+        $fileStore = $this->account->getServiceManager()->get(FileStoreFactory::class);
 
         // Create a new file & upload data
         $loader = $this->account->getServiceManager()->get("EntityLoader");

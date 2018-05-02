@@ -31,6 +31,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Log\LogInterface;
 use Netric\Account\Account;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\FileSystem\FileSystemFactory;
 
 /**
  * Save and load sync objects from netric entities
@@ -1094,7 +1095,7 @@ class EntityProvider
             $attachments = $emailEntity->getValue("attachments");
             if (count($attachments)) {
                 $serviceManager = $this->account->getServiceManager();
-                $fileSystem = $serviceManager->get("Netric/FileSystem/FileSystem");
+                $fileSystem = $serviceManager->get(FileSystemFactory::class);
 
                 if (!isset($output->attachments) || !is_array($output->attachments))
                     $output->attachments = array();

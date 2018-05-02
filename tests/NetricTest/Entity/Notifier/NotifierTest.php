@@ -12,6 +12,7 @@ use Netric\Account\Account;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\Notifier\NotifierFactory;
 
 class NotifierTest extends TestCase
 {
@@ -64,7 +65,7 @@ class NotifierTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $this->notifier = $this->account->getServiceManager()->get("Netric/Entity/Notifier/Notifier");
+        $this->notifier = $this->account->getServiceManager()->get(NotifierFactory::class);
 
         // Make sure test user does not exist from previous failed query
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");

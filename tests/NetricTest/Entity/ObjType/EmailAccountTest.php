@@ -4,6 +4,7 @@
  */
 namespace NetricTest\Entity\ObjType;
 
+use Netric\Crypt\VaultServiceFactory;
 use Netric\Entity;
 use Netric\Crypt\BlockCipher;
 use PHPUnit\Framework\TestCase;
@@ -53,7 +54,7 @@ class EmailAccountEntityTest extends TestCase
         $serviceManager = $this->account->getServiceManager();
         $entity->onBeforeSave($serviceManager);
 
-        $vaultService = $serviceManager->get("Netric/Crypt/VaultService");
+        $vaultService = $serviceManager->get(VaultServiceFactory::class);
 
         $blockCypher = new BlockCipher($vaultService->getSecret("EntityEnc"));
         $encrypted = $blockCypher->encrypt("test");

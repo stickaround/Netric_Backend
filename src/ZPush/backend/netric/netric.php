@@ -33,6 +33,11 @@ require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 require_once(dirname(__FILE__) . "/entityprovider.php");
 require_once(dirname(__FILE__) . '/netricApplicationInit.php');
 
+use Netric\Settings\SettingsFactory;
+use Netric\Mail\SenderServiceFactory;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\Cache\CacheFactory;
+use Netric\Db\DbFactory;
 
 /**
  * Netric backend class
@@ -156,9 +161,9 @@ class BackendNetric implements IBackend
              * as the main netric app does - third.level.domain > config.default_account...
              */
             $account = $application->getAccount();
-            $db = $account->getServiceManager()->get("Db");
-            $cache = $account->getServiceManager()->get("Cache");
-            $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+            $db = $account->getServiceManager()->get(DbFactory::class);
+            $cache = $account->getServiceManager()->get(CacheFactory::class);
+            $settings = $account->getServiceManager()->get(SettingsFactory::class);
             $this->stateMachine = new NetricStateMachine($log, $db, $cache, $settings);
         }
 
@@ -232,8 +237,8 @@ class BackendNetric implements IBackend
 
         // Set stateMachine stores for this account
         $stateMachine = $this->GetStateMachine();
-        $stateMachine->setDatabase($sm->get("Db"));
-        $stateMachine->setSettingsService($sm->get("Netric/Settings/Settings"));
+        $stateMachine->setDatabase($sm->get(DbFactory::class));
+        $stateMachine->setSettingsService($sm->get(SettingsFactory::class));
 
         // Setup the entity provider
         $this->entityProvider = new EntityProvider($this->account, $this->user, $this->log);
@@ -455,7 +460,7 @@ class BackendNetric implements IBackend
 
         // Get SenderService from the service manager if it is not set
         if (!$senderService) {
-            $senderService = $this->account->getServiceManager()->get("Netric/Mail/SenderService");
+            $senderService = $this->account->getServiceManager()->get(SenderServiceFactory::class);
             $this->mailSenderService = $senderService;
         }
 
@@ -515,7 +520,7 @@ class BackendNetric implements IBackend
             );
         }
 
-        $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
         $file = $fileSystem->openFileById($fileId);
 
         // Make sure file is valid and was not deleted

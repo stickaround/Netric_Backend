@@ -8,6 +8,8 @@ use Netric\Entity;
 use Netric\Entity\EntityAggregator;
 use Netric\Entity\EntityLoader;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityAggregatorFactory;
+use Netric\Entity\ObjType\UserEntity;
 
 class EntityAggregatorTest extends TestCase
 {
@@ -55,8 +57,8 @@ class EntityAggregatorTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
-        $this->entityAggregator = $sm->get("Netric/Entity/EntityAggregator");
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->entityAggregator = $sm->get(EntityAggregatorFactory::class);
         $this->entityLoader = $sm->get("EntityLoader");
     }
 

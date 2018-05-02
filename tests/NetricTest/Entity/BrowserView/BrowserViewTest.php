@@ -7,6 +7,7 @@ namespace NetricTest\Entity\BrowserView;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityQuery\Where;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\FormsFactory;
 
 class BrowserViewTest extends TestCase
 {
@@ -40,7 +41,7 @@ class BrowserViewTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
-        $this->formService = $sm->get("Netric/Entity/Forms");
+        $this->formService = $sm->get(FormsFactory::class);
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
     }
 

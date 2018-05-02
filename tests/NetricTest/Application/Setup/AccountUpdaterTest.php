@@ -9,6 +9,7 @@ use Netric\Application\Application;
 use Netric\Application\Setup\AccountUpdater;
 use Netric\Account\AccountIdentityMapper;
 use Netric\Application\Setup\Setup;
+use Netric\Settings\SettingsFactory;
 use PHPUnit\Framework\TestCase;
 
 class AccountUpdaterTest extends TestCase
@@ -61,7 +62,7 @@ class AccountUpdaterTest extends TestCase
 
         // Create a new test account
         $account = $application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
         $settings->set("system/schema_version", "0.0.0");
@@ -81,7 +82,7 @@ class AccountUpdaterTest extends TestCase
 
         // Create a new test account
         $account = $application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
 
         // Run test updates in TestAssets/UpdateScripts which should result in 1.1.1
         $accountUpdater = new AccountUpdater($account);

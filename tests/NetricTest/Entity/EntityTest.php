@@ -6,8 +6,10 @@
 namespace NetricTest\Entity;
 
 use Netric\Entity\Entity;
+use Netric\FileSystem\FileSystemFactory;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
 
 class EntityTest extends TestCase
 {
@@ -112,7 +114,7 @@ class EntityTest extends TestCase
 		$this->assertEquals($cust->getValue("company"), $data["company"]);
 
 		// Let's save $cust entity and try using ::fromArray() with an existing entity
-		$dataMapper = $this->account->getServiceManager()->get("Netric/Entity/DataMapper/DataMapper");
+		$dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 		$dataMapper->save($cust);
 
 		// Now let's test the updating of entity with only specific fields
@@ -169,7 +171,7 @@ class EntityTest extends TestCase
 	{
 		$sm = $this->account->getServiceManager();
 
-		$fileSystem = $sm->get("Netric/FileSystem/FileSystem");
+		$fileSystem = $sm->get(FileSystemFactory::class);
 		$entityLoader = $sm->get(EntityLoaderFactory::class);
 		$dataMapper = $sm->get("Entity_DataMapper");
 

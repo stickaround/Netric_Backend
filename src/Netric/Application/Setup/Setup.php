@@ -3,6 +3,7 @@ namespace Netric\Application\Setup;
 
 use Netric\Application\Application;
 use Netric\Account\Account;
+use Netric\Application\Schema\SchemaDataMapperFactory;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaDataMapperPgsql;
 use Netric\Db\Pgsql;
@@ -70,7 +71,7 @@ class Setup extends AbstractHasErrors
      */
     public function updateAccount(Account $account)
     {
-        $schemaDataMapper = $account->getServiceManager()->get('Netric/Application/Schema/SchemaDataMapper');
+        $schemaDataMapper = $account->getServiceManager()->get(SchemaDataMapperFactory::class);
 
         // Update or create the schema for this account
         if (!$schemaDataMapper->update($account->getId())) {
