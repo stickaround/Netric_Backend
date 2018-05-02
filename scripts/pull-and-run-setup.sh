@@ -30,7 +30,6 @@ else
         dockerhub.aereusdev.com/netric:latest /netric-setup.sh
 fi
 
-
 if [ $? -eq 0 ]; then
     echo Setup and Updates Finished
 else

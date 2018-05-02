@@ -40,9 +40,18 @@ foreach ($types as $objDefData) {
 
         $log->info("Update 004.001.018 successfully moved the {$objDefData['obj_type']} entity definition to objects_table");
     } catch (\Exception $ex) {
-        // If it fails, then move on to the next type since no entities can exist
-        $log->error("Update 004.001.018 failed to update entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
-        continue;
+        // If it fails, then we need to add it here
+        $def = new EntityDefinition($objDefData['obj_type']);
+
+        $def->fromArray($objDefData);
+        $entityDefinitionDataMapper->save($def);
+
+        if (!$def->getId()) {
+            $log->error("Update 004.001.018 failed to save entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
+
+            // If it fails, then move on to the next type since no entities can exist
+            $log->error("Update 004.001.018 failed to update entity definition {$objDefData['obj_type']}: " . $ex->getMessage());
+        }
     }
 }
 
