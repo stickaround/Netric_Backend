@@ -26,15 +26,15 @@ node {
         }
 
         stage('Test') {
-            //sh 'docker-compose -f docker/docker-compose-test.yml pull'
-            //sh 'docker-compose -f docker/docker-compose-test.yml build'
-            //sh 'docker-compose -f docker/docker-compose-test.yml up -d'
+            sh 'docker-compose -f docker/docker-compose-test.yml pull'
+            sh 'docker-compose -f docker/docker-compose-test.yml build'
+            sh 'docker-compose -f docker/docker-compose-test.yml up -d'
             // Give mogilefs time to settle
-            //sleep 30
-            //sh 'docker exec docker_netric_server_1 /netric-setup.sh'
-            //sh 'docker exec docker_netric_server_1 /netric-tests.sh'
-            //sh 'docker-compose -f docker/docker-compose-test.yml down'
-            //junit 'tests/tmp/logfile.xml'
+            sleep 30
+            sh 'docker exec docker_netric_server_1 /netric-setup.sh'
+            sh 'docker exec docker_netric_server_1 /netric-tests.sh'
+            sh 'docker-compose -f docker/docker-compose-test.yml down'
+            junit 'tests/tmp/logfile.xml'
         }
 
         stage('Publish') {
