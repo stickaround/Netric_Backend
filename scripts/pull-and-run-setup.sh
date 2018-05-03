@@ -10,15 +10,15 @@ docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
 docker pull dockerhub.aereusdev.com/netric:latest
 
 # Run setup in the background and it will die when finished
-docker stop netricsetup
-docker rm netricsetup
+#docker stop netricsetup
+#docker rm netricsetup
 
 # Production has all containers linked via DNS as opposed to a created network like in integ/stage
 if [ APP_ENV="production" ];  then
-    docker run -P -it --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
+    docker run -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
         dockerhub.aereusdev.com/netric:latest /netric-setup.sh
 else
-    docker run -P -it --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
+    docker run -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
         --network=aereusdev_default \
         --link memcached:memcached \
         --link gearmand:gearmand \
