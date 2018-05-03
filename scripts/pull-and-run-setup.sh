@@ -34,5 +34,5 @@ if [ $? -eq 0 ]; then
     echo Setup and Updates Finished
 else
     echo Setup Failed
-    return 1
+    exit 1
 fi
