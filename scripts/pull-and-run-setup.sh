@@ -7,7 +7,7 @@ else
 fi
 
 docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
-docker pull dockerhub.aereusdev.com/netric:${APP_ENV}
+docker pull dockerhub.aereusdev.com/netric:latest
 
 # Run setup in the background and it will die when finished
 docker stop netricsetup
