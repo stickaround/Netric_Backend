@@ -58,7 +58,8 @@ RUN cd /tmp \
 # Install xhprof for php7
 RUN cd /tmp \
     && git clone https://github.com/longxinH/xhprof.git \
-    && cd xhprof/extension/ \
+    && cd xhprof/ && git checkout v1.2 \
+    && cd extension/ \
     && phpize \
     && ./configure \
     && make \
