@@ -62,8 +62,10 @@ RUN cd /tmp \
     && phpize \
     && ./configure \
     && make \
-    && make install \
-    && docker-php-ext-enable xhprof
+    && make install
+# This was causing a segfault
+#    \
+#    && docker-php-ext-enable xhprof
 
 # install PHP PEAR extensions
 RUN pear install mail \
