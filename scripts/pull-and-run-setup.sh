@@ -15,10 +15,10 @@ docker pull dockerhub.aereusdev.com/netric:latest
 
 # Production has all containers linked via DNS as opposed to a created network like in integ/stage
 if [ APP_ENV="production" ];  then
-    docker run -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
+    docker run -rm -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
         dockerhub.aereusdev.com/netric:latest /netric-setup.sh
 else
-    docker run -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
+    docker run -rm -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
         --network=aereusdev_default \
         --link memcached:memcached \
         --link gearmand:gearmand \
