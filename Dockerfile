@@ -63,7 +63,8 @@ RUN cd /tmp \
     && phpize \
     && ./configure \
     && make \
-    && make install
+    && make install \
+    && docker-php-ext-enable xhprof
 # This was causing a segfault
 #    \
 #    && docker-php-ext-enable xhprof

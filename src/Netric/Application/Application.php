@@ -161,7 +161,16 @@ class Application
         }
 
         // Execute through the router
-        $router->run($request);
+        try {
+            $router->run($request);
+        } catch (\Exception $unhandledException) {
+            // An exception took place and was not handled
+            $this->getLog()->error(
+                'Unhandled application exception: ' .
+                $unhandledException->getMessage()
+            );
+            die($unhandledException->getMessage());
+        }
 
         // Handle any profiling needed for this request
         $this->profileRequest();

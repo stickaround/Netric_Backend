@@ -11,7 +11,6 @@ docker pull dockerhub.aereusdev.com/netric:latest
 
 # Run setup in the background and it will die when finished
 #docker stop netricsetup
-#docker rm netricsetup
 
 # Production has all containers linked via DNS as opposed to a created network like in integ/stage
 if [ APP_ENV="production" ];  then
