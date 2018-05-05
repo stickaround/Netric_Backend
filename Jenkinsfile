@@ -1,11 +1,13 @@
 node {
     def dockerImage;
     def clientImage;
-    def nodeIp = InetAddress.localHost.hostAddress
     currentBuild.result = "SUCCESS"
 
     try {
         stage('Build') {
+            def nodeIp = InetAddress.localHost.hostAddress
+            sh 'nodeIP ${nodeIp}'
+            sh 'printenv'
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest */
@@ -26,12 +28,13 @@ node {
             dockerImage = docker.build('netric');
 
             dir('.clair') {
+                def nodeIp = InetAddress.localHost.hostAddress
                 git branch: 'master',
                     credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
                     url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
 
                  sh 'chmod +x ./bin/clair-scanner_linux_amd64'
-                 sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=$(/sbin/ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1) netric"
+                 sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=${nodeIp} netric"
             }
         }
 
@@ -48,14 +51,7 @@ node {
         }
 
         stage('Security Scan') {
-            dir('.clair') {
-                git branch: 'master',
-                    credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
-                    url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
-
-                sh 'chmod +x ./bin/clair-scanner_linux_amd64'
-                sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=$(/sbin/ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1) netric"
-            }
+            // Do nothing right now
         }
 
         stage('Publish') {
