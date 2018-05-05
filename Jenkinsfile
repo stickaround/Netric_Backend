@@ -1,6 +1,7 @@
 node {
     def dockerImage;
     def clientImage;
+    def nodeIp = InetAddress.localHost.hostAddress
     currentBuild.result = "SUCCESS"
 
     try {
@@ -23,6 +24,13 @@ node {
             }
 
             dockerImage = docker.build('netric');
+
+            dir('.clair') {
+                git branch: 'master',
+                    credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
+                    url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+            }
+            sh '.clair/clair.aereusdev.com/bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=${nodeIp} netric'
         }
 
         stage('Test') {
@@ -37,8 +45,16 @@ node {
             junit 'tests/tmp/logfile.xml'
         }
 
+        stage('Security Scan') {
+            dir('.clair') {
+                git branch: 'master',
+                    credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
+                    url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+            }
+            sh '.clair/clair.aereusdev.com/bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=${nodeIp} netric'
+        }
+
         stage('Publish') {
-            dockerImage = docker.build('netric')
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, publish to stable, if it is develop publish to latest */
                 if (env.BRANCH_NAME == 'master') {
