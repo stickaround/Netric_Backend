@@ -29,8 +29,9 @@ node {
                 git branch: 'master',
                     credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
                     url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+
+                 sh './bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=${nodeIp} netric'
             }
-            sh '.clair/clair.aereusdev.com/bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=${nodeIp} netric'
         }
 
         stage('Test') {
