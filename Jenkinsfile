@@ -31,7 +31,7 @@ node {
                     url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
 
                  sh 'chmod +x ./bin/clair-scanner_linux_amd64'
-                 sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=$(/sbin/ifconfig eth0 | grep \"inet addr\" | cut -d ':' -f 2 | cut -d ' ' -f 1) netric"
+                 sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=$(/sbin/ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1) netric"
             }
         }
 
@@ -53,8 +53,8 @@ node {
                     credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
                     url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
 
-                 sh 'chmod +x ./bin/clair-scanner_linux_amd64'
-                 sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=$(/sbin/ifconfig eth0 | grep \"inet addr\" | cut -d ':' -f 2 | cut -d ' ' -f 1) netric"
+                sh 'chmod +x ./bin/clair-scanner_linux_amd64'
+                sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=$(/sbin/ifconfig eth0 | grep 'inet addr' | cut -d ':' -f 2 | cut -d ' ' -f 1) netric"
             }
         }
 
