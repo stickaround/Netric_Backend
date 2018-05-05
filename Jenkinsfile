@@ -5,11 +5,7 @@ node {
 
     try {
         stage('Build') {
-            def hostAddress = sh (
-                script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
-                returnStdout: true
-            ).trim();
-            sh "echo ${hostAddress}"
+
             sh 'printenv'
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
@@ -31,7 +27,10 @@ node {
             dockerImage = docker.build('netric');
 
             dir('.clair') {
-                def nodeIp = InetAddress.localHost.hostAddress
+                def nodeIp = sh (
+                    script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
+                    returnStdout: true
+                ).trim();
                 git branch: 'master',
                     credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
                     url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
