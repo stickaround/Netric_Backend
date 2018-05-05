@@ -5,7 +5,7 @@ node {
 
     try {
         stage('Build') {
-            def hostAddress =  sh "/sbin/ifconfig eth0 | grep \"inet addr\" | cut -d ':' -f 2 | cut -d ' ' -f 1"
+            def hostAddress =  sh "ifconfig eth0 | grep \"inet addr\" | cut -d ':' -f 2 | cut -d ' ' -f 1"
             sh "echo ${hostAddress}"
             sh 'printenv'
             checkout scm
