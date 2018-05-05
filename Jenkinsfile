@@ -5,8 +5,7 @@ node {
 
     try {
         stage('Build') {
-            def nodeIp = InetAddress.localHost.hostAddress
-            sh 'nodeIP ${nodeIp}'
+            sh 'nodeIP ${InetAddress.localHost.hostAddress}'
             sh 'printenv'
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
