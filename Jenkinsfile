@@ -5,7 +5,10 @@ node {
 
     try {
         stage('Build') {
-            def hostAddress =  sh "ifconfig eth0 | grep \"inet addr\" | cut -d ':' -f 2 | cut -d ' ' -f 1"
+            def hostAddress = sh (
+                script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
+                returnStdout: true
+            ).trim();
             sh "echo ${hostAddress}"
             sh 'printenv'
             checkout scm
