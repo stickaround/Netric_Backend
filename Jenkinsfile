@@ -53,8 +53,8 @@ node {
 
                  sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
-                 // Print the data but always return true for now so the script can continue
-                 sh "./bin/clair-scanner_linux_amd64 -c http://192.168.1.25:6060 --ip=${nodeIp} netric || true"
+                 // Fail if any critical security vulnerabilities are found
+                 sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} netric"
             }
         }
 
