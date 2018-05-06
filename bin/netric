@@ -31,6 +31,7 @@ $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV'
 $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 
 // Run the application - arguments will be parsed in run
-Netric\Application\Application::init($config)->run();
-
-exit();
+if (!Netric\Application\Application::init($config)->run()) {
+    // Indicate that the request failed for some reason
+    exit(1);
+}
