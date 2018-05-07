@@ -265,30 +265,26 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $all_fields = $def->getFields();
 
         // Try to manipulate data to correctly build the sql statement based on custom table definitions
-        if (!$def->isCustomTable())
-            $data["object_type_id"] = $def->getId();
+        $data["object_type_id"] = $def->getId();
 
         $targetTable = $def->getTable();
 
-        if (!$def->isCustomTable() && $entity->isDeleted())
-            $targetTable .= "_del";
-        else if (!$def->isCustomTable())
-            $targetTable .= "_act";
+        // Determine if we are looking at the deleted or active partition
+        $targetTable .= ($entity->isDeleted()) ? "_del" : "_act";
 
         /*
-         * If we are using a custom table or the deleted status has not changed
-         * on a generic object table then update row.
+         * If the deleted status has not changed then update row.
          * The last condition checks if update is greater than 1, since 1 will be the value
          * of the very first save. It is possible that a user set a specific ID of an entity
          * when creating it. This will not matter at all for partitioned tables since it will
          * automatically delete before inserting, but for custom tables it could cause a bug
          * where it tried to update an ID that does not exist.
          */
-        if ($entity->getId() && ($def->isCustomTable() || (!$entity->fieldValueChanged("f_deleted") && !$def->isCustomTable())) && $entity->getValue("revision") > 1) {
+        if ($entity->getId() && !$entity->fieldValueChanged("f_deleted") && $entity->getValue("revision") > 1) {
             $this->database->update($targetTable, $data, ['id' => $entity->getId()]);
         } else {
             // Clean out old record if it exists in a different partition
-            if ($entity->getId() && !$def->isCustomTable()) {
+            if ($entity->getId()) {
                 $this->database->query(
                     'DELETE FROM ' . $def->getTable() . ' WHERE id=:entity_id',
                     ['entity_id' => $entity->getId()]

@@ -164,7 +164,6 @@ return array(
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
             'name' => array("type" => SchemaProperty::TYPE_CHAR_256),
             'title' => array("type" => SchemaProperty::TYPE_CHAR_256),
-            'object_table' => array("type" => "character varying(260)"),
             'revision' => array('type' => SchemaProperty::TYPE_INT, 'default' => '1'),
             'f_system' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'system_definition_hash' => array('type' => SchemaProperty::TYPE_CHAR_32),

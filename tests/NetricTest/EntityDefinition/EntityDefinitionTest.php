@@ -118,25 +118,6 @@ class EntityDefinitionTest extends TestCase
 	}
 
 	/**
-	 * Test custom table
-	 *
-	 * This is pretty much only for legacy
-	 */
-	public function testSetCustomTable()
-	{
-		$entDef = new EntityDefinition("customer");
-		
-		// First test default dynamic object tables
-		$this->assertEquals("objects_customer", $entDef->getTable());
-		$this->assertEquals(false, $entDef->useCustomTable);
-
-		// Now test dynamic tables
-		$entDef->setCustomTable("customers");
-		$this->assertEquals("customers", $entDef->getTable());
-		$this->assertEquals(true, $entDef->useCustomTable);
-	}
-
-	/**
 	 * Test the setter and getter for the title property
 	 */
 	public function testSetAndGetTitle()
