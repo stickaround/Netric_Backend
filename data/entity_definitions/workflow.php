@@ -94,7 +94,7 @@ return array(
 
         // When the workflow was last executed
         'ts_lastrun' => array(
-            'title'=>'Last Run',
+            'title'=>'Time Last Run',
             'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
