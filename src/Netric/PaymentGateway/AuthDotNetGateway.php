@@ -237,6 +237,40 @@ class AuthDotNetGateway implements PaymentGatewayInterface
     }
 
     /**
+     * Delete a payment profile
+     *
+     * @param $profileToken
+     * @return bool false on failure, true on success
+     */
+    public function deleteProfile($profileToken)
+    {
+        $profiles = $this->decodeProfilesFromToken($profileToken);
+
+        // Get auth for connecting to the merchant gateway
+        $merchantAuth = $this->getMerchantAuth();
+
+        // Delete the account
+        $refId = 'ref' . time();
+        $request = new AnetApi\DeleteCustomerProfileRequest();
+        $request->setMerchantAuthentication($merchantAuth);
+        $request->setCustomerProfileId($profiles['customer_profile_id']);
+        $request->setRefId($refId);
+
+        $controller = new AnetController\DeleteCustomerProfileController($request);
+        $response = $controller->executeWithApiResponse($this->gatewayUrl);
+
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") ) {
+            return true;
+        }
+
+        // Failed
+        $errorMessages = $response->getMessages()->getMessage();
+        $this->lastErrorMessage = "Failed to delete profile: " .
+            $errorMessages[0]->getCode() . "  " .
+            $errorMessages[0]->getText();
+        return false;
+    }
+    /**
      * Charge a payment to a remotely-stored profile
      *
      * @param PaymentProfileEntity $paymentProfile
