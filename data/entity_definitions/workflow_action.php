@@ -57,7 +57,7 @@ return array(
 
         // Action data - json encoded
         'data' => array(
-            'title'=>'Data',
+            'title'=>'Action Data',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true,
