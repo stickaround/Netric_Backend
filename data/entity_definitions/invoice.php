@@ -111,7 +111,7 @@ return array(
         'template_id' => array(
             'title'=>'Template',
             'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'customer_invoice_templates',
+            'subtype'=>'invoice_template',
             'fkey_table'=>array("key"=>"id", "title"=>"name")
         ),
         'customer_id' => array(

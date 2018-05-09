@@ -49,9 +49,8 @@ $obj_fields['status_id'] = array('title'=>'Status',
 									  'fkey_table'=>array("key"=>"id", "title"=>"name"));
 
 $obj_fields['template_id'] = array('title'=>'Template',
-									  'type'=>'fkey',
-									  'subtype'=>'customer_invoice_templates',
-									  'fkey_table'=>array("key"=>"id", "title"=>"name"));
+									  'type'=>'object',
+									  'subtype'=>'invoice_template');
 
 $obj_fields['customer_id'] = array('title'=>'Customer',
 								   'type'=>'object',
