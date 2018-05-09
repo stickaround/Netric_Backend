@@ -78,7 +78,7 @@ return array(
 
         // Can be manually started
         'f_allow_manual' => array(
-            'title'=>'Allow Manual',
+            'title'=>'Allow Manual Start',
             'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,

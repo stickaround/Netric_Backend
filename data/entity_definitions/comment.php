@@ -18,7 +18,7 @@ return array(
         ),
         // Object data comma separated
         'notify' => array(
-            'title'=>'Send To',
+            'title'=>'Sent To',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true

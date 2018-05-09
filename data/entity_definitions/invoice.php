@@ -42,7 +42,7 @@ return array(
             'readonly'=>true
         ),
         'footer_line1' => array(
-            'title'=>'Footer Line 1',
+            'title'=>'Footer',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true

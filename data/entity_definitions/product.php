@@ -17,7 +17,7 @@ return array(
             'readonly'=>false
         ),
         'price' => array(
-            'title'=>'Price',
+            'title'=>'Price Each',
             'type'=>Field::TYPE_NUMBER,
             'subtype'=>'double precision',
             'readonly'=>false

@@ -21,7 +21,7 @@ return array(
             ),
         ),
         'f_view' => array(
-            'title'=>'Visible',
+            'title'=>'Show Events',
             'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false

@@ -12,7 +12,7 @@ return array(
             'readonly'=>false
         ),
         'notes' => array(
-            'title'=>'Notes',
+            'title'=>'Description',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>false

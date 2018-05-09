@@ -28,7 +28,7 @@ $obj_fields = array(
 	),
 
 	'closed_lost_reson' => array(
-		'title'=>'Closed Lost Reason', 
+		'title'=>'Reason Lost',
 		'type'=>'text', 
 		'subtype'=>'', 
 		'readonly'=>false

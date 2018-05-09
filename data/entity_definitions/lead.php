@@ -190,7 +190,7 @@ return array(
             'subtype'=>'customer'
         ),
         'ts_converted' => array(
-            'title'=>'Time Converted',
+            'title'=>'Converted Time',
             'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true

@@ -56,7 +56,7 @@ return array(
         ),
 
         "time_entered" => array(
-            'title' => 'Post Date',
+            'title' => 'Post Time',
             'type' => Field::TYPE_TIMESTAMP,
             'subtype' => '',
             'readonly' => false,

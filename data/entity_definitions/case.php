@@ -28,7 +28,7 @@ return array(
             ),
         ),
         'notify_email' => array(
-            'title'=>'Notify Email',
+            'title'=>'Notify Email(s)',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
             'readonly'=>true

@@ -117,7 +117,6 @@ class AuthDotNetGatewayTest extends TestCase
 
     public function testCreateProfileBankAccount()
     {
-        $this->markTestSkipped('Need to figure out how to delete profiles');
         // Create a customer and change the zipcode
         $customer = $this->getTestCustomer();
         $customer->setValue('billing_zip', '44629');

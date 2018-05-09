@@ -24,7 +24,7 @@ return array(
             'readonly' => false
         ),
         'limit_num' => array(
-            'title' => 'Publish Num',
+            'title' => 'Publish Number',
             'type'=>Field::TYPE_TEXT,
             'subtype' => '8',
             'readonly' => false

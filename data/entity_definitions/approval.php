@@ -49,7 +49,7 @@ return array(
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
         'owner_id' => array(
-            'title'=>'Owner',
+            'title'=>'Approval By',
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>false,

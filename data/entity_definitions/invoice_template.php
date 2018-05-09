@@ -5,7 +5,7 @@ use Netric\EntityDefinition\Field;
 return array(
     'fields' => array(
         'name' => array(
-            'title'=>'Name',
+            'title'=>'Template Name',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'256',
             'readonly'=>false

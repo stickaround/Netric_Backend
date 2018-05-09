@@ -22,7 +22,7 @@ return array(
             'readonly'=>false
         ),
 
-        'closed_lost_reson' => array(
+        'closed_lost_reason' => array(
             'title'=>'Closed Lost Reason',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'',
