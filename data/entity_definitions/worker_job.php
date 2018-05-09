@@ -35,7 +35,7 @@ return array(
             'require'=>true
         ),
         'ts_executed' => array(
-            'title'=>'When Ran',
+            'title'=>'Time Ran',
             'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,
