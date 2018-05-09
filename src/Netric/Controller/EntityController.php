@@ -15,7 +15,6 @@ use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityGroupings\LoaderFactory;
-use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Controller for interacting with entities
@@ -851,21 +850,9 @@ class EntityController extends Mvc\AbstractAccountController
         $user = $this->account->getUser();
         $isOwner = ($entity->getValue("creator_id") == $user->getId());
 
-        switch ($entity->getObjType()) {
-            case "user":
-                // If the current user wants to retrieve its own entity, then we will allow it
-                if ($entity->getId() == $user->getId()) {
-                    $isOwner = true;
-                }
-                break;
-
-            case "dashboard":
-                // If the dashboard scope is system, then we treat this as system-wide dashboard.
-                if ($entity->getvalue("scope") === "system") {
-                    // Since this is a system-wide dashboard, we will set everyone to have a view permission
-                    $dacl->allowGroup(UserEntity::GROUP_EVERYONE, DACL::PERM_VIEW);
-                }
-                break;
+        // If the current user wants to retrieve its own entity, then we will allow it
+        if ($entity->getObjType() === "user" && $entity->getId() == $user->getId()) {
+            $isOwner = true;
         }
 
         return $dacl->isAllowed($user, $permission, $isOwner);
