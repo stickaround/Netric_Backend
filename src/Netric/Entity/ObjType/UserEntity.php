@@ -1,7 +1,7 @@
 <?php
 /**
  * Provide user extensions to base Entity class
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
@@ -11,7 +11,10 @@ namespace Netric\Entity\ObjType;
 use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoader;
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\Permissions\DaclLoaderFactory;
+use Netric\Permissions\Dacl;
 
 /**
  * Description of User
@@ -30,7 +33,7 @@ class UserEntity extends Entity implements EntityInterface
     const USER_ANONYMOUS = -4;
     const USER_SYSTEM = -5;
     const USER_WORKFLOW = -6;
-    
+
 
     /**
      * System groups
@@ -41,6 +44,26 @@ class UserEntity extends Entity implements EntityInterface
     const GROUP_EVERYONE = -3;
     const GROUP_CREATOROWNER = -2;
     const GROUP_ADMINISTRATORS = -1;
+
+    /**
+     * The loader for a specific entity
+     *
+     * @var EntityLoader
+     */
+    private $entityLoader = null;
+
+    /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(&$def, EntityLoader $entityLoader)
+    {
+        parent::__construct($def);
+
+        $this->entityLoader = $entityLoader;
+    }
 
     /**
      * Callback function used for derrived subclasses
@@ -82,8 +105,21 @@ class UserEntity extends Entity implements EntityInterface
             // Set the new username to this email address
             $sm->getAccount()->setAccountUserEmail(
                 $this->getValue("name"),
-                $this->getValue("email") 
+                $this->getValue("email")
             );
+        }
+
+        $daclLoader = $sm->get(DaclLoaderFactory::class);
+        $dacl = $daclLoader->getForEntity($this);
+
+        // Check first if user has already view/edit permission
+        if (!$dacl->isAllowed($this, DACL::PERM_VIEW) || !$dacl->isAllowed($this, DACL::PERM_EDIT)) {
+
+            // Set the user to have a view/edit permission over his own entity
+            $dacl->allowUser($this->getId(), DACL::PERM_VIEW);
+            $dacl->allowUser($this->getId(), DACL::PERM_EDIT);
+            $this->setValue("dacl", json_encode($dacl->toArray()));
+            $this->entityLoader->save($this);
         }
     }
 

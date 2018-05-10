@@ -794,7 +794,7 @@ class AntUser
 		$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
 		$authService = $sl->get("AuthenticationService");
 
-		echo $query = "SELECT id, password, password_salt FROM objects_user
+		$query = "SELECT id, password, password_salt FROM objects_user
 				  WHERE lower(name)=lower('" . $dbh->Escape($username) . "')";
 
 		//			and (users.password='" . $dbh->Escape($password) . "' or users.password=md5('" . $dbh->Escape($password) . "'))";
