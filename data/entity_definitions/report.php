@@ -48,7 +48,7 @@ return array(
         'owner_id' => array(
             'title'=>'Owner',
             'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'users',
+            'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null"),
         ),
         'f_display_table' => array(
