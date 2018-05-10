@@ -8,6 +8,7 @@
 namespace Netric\Entity\ObjType;
 
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 
@@ -25,6 +26,7 @@ class UserFactory implements Entity\EntityFactoryInterface
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("user");
-        return new UserEntity($def);
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        return new UserEntity($def, $entityLoader);
     }
 }
