@@ -16,7 +16,6 @@ use Netric\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\Log\LogInterface;
 
-
 /**
  * Class for managing an entity activity log
  */
@@ -31,7 +30,7 @@ class ActivityLog
 
     /**
      * Currently logged in user
-     * 
+     *
      * @var ObjType\UserEntity
      */
     private $currentUser = null;
@@ -108,24 +107,30 @@ class ActivityLog
             if (isset($parts['name'])) {
                 // Get the cached name of the entity we commented on
                 $name = $parts['name'];
-            } else if ($parts > 1) {
+            } elseif ($parts > 1) {
                 // Name was not cached in there reference, then load the entity commented on to get it
                 $entityReferenced = $this->entityLoader->get($parts['obj_type'], $parts['id']);
-                $name = $entityReferenced->getName();
+                if ($entityReferenced) {
+                    // Only if the entity exists
+                    $name = $entityReferenced->getName();
+                }
             }
         }
 
         // Default to the name of the object acted on
-        if (!$name)
+        if (!$name) {
             $name = $object->getName();
+        }
 
         // Get notes from the entity
         if (!$notes) {
             $notes = "";
-            if ($verb == ActivityEntity::VERB_UPDATED)
+            if ($verb == ActivityEntity::VERB_UPDATED) {
                 $notes = $object->getChangeLogDescription();
-            if ($verb == ActivityEntity::VERB_CREATED)
+            }
+            if ($verb == ActivityEntity::VERB_CREATED) {
                 $notes = $object->getDescription();
+            }
         }
 
         $actEntity = $this->entityLoader->create("activity");
@@ -246,11 +251,13 @@ class ActivityLog
         $groupings = $this->groupingsLoader->get("activity", "type_id");
 
         $existing = $groupings->getByName($objDef->title);
-        if ($existing)
+        if ($existing) {
             return $existing;
+        }
 
-        if (!$createIfMissing)
+        if (!$createIfMissing) {
             return null;
+        }
 
         // This is a new type grouping, add it
         $group = new Group();

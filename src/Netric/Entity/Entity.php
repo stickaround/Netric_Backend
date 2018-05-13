@@ -20,28 +20,28 @@ class Entity implements EntityInterface
 {
     /**
      * The unique id of this object/entity
-     * 
+     *
      * @var string
      */
     protected $id;
 
     /**
      * The values for the fields of this entity
-     * 
+     *
      * @var array
      */
     protected $values = array();
 
     /**
      * Set object type
-     * 
+     *
      * @var string
      */
     protected $objType = "";
 
     /**
      * The values for the fkey or object keys
-     * 
+     *
      * @var array
      */
     protected $fkeysValues = array();
@@ -76,7 +76,7 @@ class Entity implements EntityInterface
 
     /**
      * Class constructor
-     * 
+     *
      * @param EntityDefinition $def The definition of this type of object
      */
     public function __construct(&$def)
@@ -95,7 +95,7 @@ class Entity implements EntityInterface
 
     /**
      * Get the object type of this object
-     * 
+     *
      * @return string
      */
     public function getObjType()
@@ -113,7 +113,7 @@ class Entity implements EntityInterface
 
     /**
      * Set the unique id of this object
-     * 
+     *
      * @param string $id The unique id of this object instance
      */
     public function setId($id)
@@ -133,7 +133,7 @@ class Entity implements EntityInterface
 
     /**
      * Return either the string or an array of values if *_multi
-     * 
+     *
      * @param string $strname
      * @return string|array
      */
@@ -144,7 +144,7 @@ class Entity implements EntityInterface
 
     /**
      * Get fkey name for key/value field types like fkey and fkeyMulti
-     * 
+     *
      * @param string $strName The name of the field to pull
      * @param string $id If set, get the label for the id
      * @return string
@@ -171,7 +171,7 @@ class Entity implements EntityInterface
 
     /**
      * Get fkey name array for key/value field types like fkey and fkeyMulti
-     * 
+     *
      * @param string $strName The name of the field to pull
      * @return array(array("id"=>"name"))
      */
@@ -189,10 +189,9 @@ class Entity implements EntityInterface
                     }
                 }
                 return $ret;
-            } else if ($values && isset($this->fkeysValues[$strName][$values])) {
+            } elseif ($values && isset($this->fkeysValues[$strName][$values])) {
                 return array($values => $this->fkeysValues[$strName][$values]);
             }
-
         }
 
         return array();
@@ -200,7 +199,7 @@ class Entity implements EntityInterface
 
     /**
      * Set a field value for this object
-     * 
+     *
      * @param string $strName
      * @param mixed $value
      * @param string $valueName If this is an object or fkey then cache the foreign value
@@ -234,7 +233,6 @@ class Entity implements EntityInterface
 
                         $value = array($value);
                     }
-
             }
         }
 
@@ -247,7 +245,7 @@ class Entity implements EntityInterface
         if ($valueName) {
             if (is_array($valueName)) {
                 $this->fkeysValues[$strName] = $valueName;
-            } else if (is_string($value) || is_numeric($value)) {
+            } elseif (is_string($value) || is_numeric($value)) {
                 $this->fkeysValues[$strName] = array((string)$value => $valueName);
             } else {
                 throw new \InvalidArgumentException(
@@ -263,7 +261,7 @@ class Entity implements EntityInterface
 
     /**
      * Add a multi-value entry to the *_multi type field
-     * 
+     *
      * @param string $strName
      * @param string|int $value
      * @param string $valueName Optional value name if $value is a key
@@ -273,21 +271,22 @@ class Entity implements EntityInterface
         $oldval = $this->getValue($strName);
         $oldvalName = $this->getValueNames($strName);
 
-        if (!isset($this->values[$strName]) || $this->values[$strName] == '')
+        if (!isset($this->values[$strName]) || $this->values[$strName] == '') {
             $this->values[$strName] = array();
+        }
 
         // Check to make sure we do not already have this value added
         for ($i = 0; $i < count($this->values[$strName]); $i++) {
             if (!empty($this->values[$strName][$i]) && $value == $this->values[$strName][$i]) {
-        		// The value was already added and they need to be unique
+                // The value was already added and they need to be unique
 
-        		// Update valueName just in case it has changed
+                // Update valueName just in case it has changed
                 if ($valueName) {
                     $valueKeyName = (string)$value;
                     $this->fkeysValues[$strName][$value] = $valueName;
                 }
 
-        		// Do not add an additional value
+                // Do not add an additional value
                 return;
             }
         }
@@ -362,8 +361,9 @@ class Entity implements EntityInterface
      */
     public function setRecurrencePattern(RecurrencePattern $recurrencePattern)
     {
-        if ($recurrencePattern->getObjType() != $this->getDefinition()->getObjType())
+        if ($recurrencePattern->getObjType() != $this->getDefinition()->getObjType()) {
             $recurrencePattern->setObjType($this->getDefinition()->getObjType());
+        }
         $this->recurrencePattern = $recurrencePattern;
     }
 
@@ -407,7 +407,7 @@ class Entity implements EntityInterface
      *
      * @param array $data Associative array of values
      * $param bool $onlyProvidedFields Optional. If true, it will check first if field exists in $data array
-     * 								    before settign a field value
+     *                                  before settign a field value
      */
     public function fromArray($data, $onlyProvidedFields = false)
     {
@@ -417,7 +417,7 @@ class Entity implements EntityInterface
             $value = (isset($data[$fname])) ? $data[$fname] : "";
             $valNames = array();
 
-			/*
+            /*
              * If $onlyProvidedFields is set to true, we need to check first if field key exists in $data array
              * If field key does not exist, then we do not need update the current field.
              */
@@ -430,7 +430,7 @@ class Entity implements EntityInterface
                 continue;
             }
 
-			// Check for fvals
+            // Check for fvals
             if (isset($data[$fname . "_fval"])) {
                 if (!is_array($data[$fname . "_fval"])) {
                     $data[$fname . "_fval"] = array($data[$fname . "_fval"]);
@@ -454,15 +454,16 @@ class Entity implements EntityInterface
                     $this->addMultiValue($fname, $mval, $valName);
                 }
             } else {
-                if (($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI))
+                if (($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI)) {
                     $this->clearMultiValues($fname);
+                }
 
                 $valName = (isset($valNames[$value])) ? $valNames[$value] : null;
                 $this->setValue($fname, $value, $valName);
             }
         }
 
-		// If the recurrence pattern data was passed then load it
+        // If the recurrence pattern data was passed then load it
         if (isset($data['recurrence_pattern']) && is_array($data['recurrence_pattern'])) {
             $this->recurrencePattern = new RecurrencePattern();
             $this->recurrencePattern->fromArray($data['recurrence_pattern']);
@@ -510,7 +511,7 @@ class Entity implements EntityInterface
                 }
             }
 
-			// Make sure we will not overwrite the obj_type
+            // Make sure we will not overwrite the obj_type
             if ($fname !== 'obj_type') {
                 $data[$fname] = $val;
             }
@@ -524,13 +525,13 @@ class Entity implements EntityInterface
                     foreach ($val as $id) {
                         $data[$fname . "_fval"]["$id"] = $this->getValueName($fname, $id);
                     }
-                } else if ($val) {
+                } elseif ($val) {
                     $data[$fname . "_fval"]["$val"] = $this->getValueName($fname, $val);
                 }
             }
         }
 
-		// Send the recurrence pattern if it is set
+        // Send the recurrence pattern if it is set
         if ($this->recurrencePattern) {
             $data['recurrence_pattern'] = $this->recurrencePattern->toArray();
         }
@@ -555,7 +556,7 @@ class Entity implements EntityInterface
                         "associations",
                         Entity::encodeObjRef($field->subtype, $fieldValue)
                     );
-                } else if ($fieldValue) {
+                } elseif ($fieldValue) {
                     $this->addMultiValue("associations", $fieldValue);
                 }
             }
@@ -564,7 +565,7 @@ class Entity implements EntityInterface
         // Update or add followers based on changes to fields
         $this->updateFollowers();
 
-		// Call derived extensions
+        // Call derived extensions
         $this->onBeforeSave($sm);
     }
 
@@ -584,10 +585,10 @@ class Entity implements EntityInterface
      */
     public function afterSave(AccountServiceManagerInterface $sm)
     {
-		// Process any temp files or attachments associated with this entity
+        // Process any temp files or attachments associated with this entity
         $this->processTempFiles($sm->get(FileSystemFactory::class));
 
-		// Call derived extensions
+        // Call derived extensions
         $this->onAfterSave($sm);
     }
 
@@ -607,7 +608,7 @@ class Entity implements EntityInterface
      */
     public function beforeDeleteHard(AccountServiceManagerInterface $sm)
     {
-		// Call derived extensions
+        // Call derived extensions
         $this->onBeforeDeleteHard($sm);
     }
 
@@ -627,7 +628,7 @@ class Entity implements EntityInterface
      */
     public function afterDeleteHard(AccountServiceManagerInterface $sm)
     {
-		// Call derived extensions
+        // Call derived extensions
         $this->onAfterDeleteHard($sm);
     }
 
@@ -648,8 +649,9 @@ class Entity implements EntityInterface
      */
     public function fieldValueChanged($checkfield)
     {
-        if (!is_array($this->changelog))
+        if (!is_array($this->changelog)) {
             return false;
+        }
 
         foreach ($this->changelog as $fname => $log) {
             if ($fname == $checkfield) {
@@ -668,11 +670,13 @@ class Entity implements EntityInterface
      */
     public function getPreviousValue($checkfield)
     {
-        if (!is_array($this->changelog))
+        if (!is_array($this->changelog)) {
             return null;
+        }
 
-        if (isset($this->changelog[$checkfield]["oldvalraw"]))
+        if (isset($this->changelog[$checkfield]["oldvalraw"])) {
             return $this->changelog[$checkfield]["oldvalraw"];
+        }
 
         return null;
     }
@@ -702,16 +706,21 @@ class Entity implements EntityInterface
      */
     public function getName()
     {
-        if ($this->def->getField("name"))
+        if ($this->def->getField("name")) {
             return $this->getValue("name");
-        if ($this->def->getField("title"))
+        }
+        if ($this->def->getField("title")) {
             return $this->getValue("title");
-        if ($this->def->getField("subject"))
+        }
+        if ($this->def->getField("subject")) {
             return $this->getValue("subject");
-        if ($this->def->getField("full_name"))
+        }
+        if ($this->def->getField("full_name")) {
             return $this->getValue("full_name");
-        if ($this->def->getField("first_name"))
+        }
+        if ($this->def->getField("first_name")) {
             return $this->getValue("first_name");
+        }
 
         return $this->getId();
     }
@@ -733,7 +742,6 @@ class Entity implements EntityInterface
                     return $this->getValue($field->name);
                 }
             }
-
         }
 
         return "";
@@ -758,26 +766,37 @@ class Entity implements EntityInterface
             $field = $this->def->getField($fname);
 
             // Skip multi key arrays
-            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI)
+            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
                 continue;
+            }
 
             if ($field->type == FIELD::TYPE_BOOL) {
-                if ($oldVal == 't') $oldVal = "Yes";
-                if ($oldVal == 'f') $oldVal = "No";
-                if ($newVal == 't') $newVal = "Yes";
-                if ($newVal == 'f') $newVal = "No";
+                if ($oldVal == 't') {
+                    $oldVal = "Yes";
+                }
+                if ($oldVal == 'f') {
+                    $oldVal = "No";
+                }
+                if ($newVal == 't') {
+                    $newVal = "Yes";
+                }
+                if ($newVal == 'f') {
+                    $newVal = "No";
+                }
             }
 
             if (!in_array($field->name, $hide)) {
                 $buf .= $field->title . " was changed ";
-                if ($oldVal)
+                if ($oldVal) {
                     $buf .= "from \"" . $oldVal . "\" ";
+                }
                 $buf .= "to \"" . $newVal . "\" \n";
             }
         }
 
-        if (!$buf)
+        if (!$buf) {
             $buf = "No changes were made";
+        }
 
         return $buf;
     }
@@ -802,16 +821,18 @@ class Entity implements EntityInterface
     {
         $fields = $this->def->getFields();
         foreach ($fields as $fname => $field) {
-			// Currently multi-values are not supported for defaults
-            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI)
+            // Currently multi-values are not supported for defaults
+            if ($field->type == FIELD::TYPE_OBJECT_MULTI || $field->type == FIELD::TYPE_GROUPING_MULTI) {
                 continue;
+            }
 
             $val = $this->getValue($fname);
             $new = $field->getDefault($val, $event, $this, $user);
 
-			// If the default was different, then set it
-            if ($new != $val)
+            // If the default was different, then set it
+            if ($new != $val) {
                 $this->setValue($fname, $new);
+            }
         }
     }
 
@@ -821,15 +842,16 @@ class Entity implements EntityInterface
      * @param string $value The object ref string - [obj_type]:[obj_id]:[name] (last param is optional)
      * @return array Assoc array with the following keys: obj_type, id, name
      */
-    static public function decodeObjRef($value)
+    public static function decodeObjRef($value)
     {
         $cleanedValue = $value;
 
-		// Clean up the $value if the objRef is encapsulated with a square bracket
+        // Clean up the $value if the objRef is encapsulated with a square bracket
         preg_match("/\[([^\]]*)\]/", $cleanedValue, $matches);
 
-        if (isset($matches[1]) && $matches[1])
+        if (isset($matches[1]) && $matches[1]) {
             $cleanedValue = $matches[1];
+        }
 
         $parts = explode(":", $cleanedValue);
         if (count($parts) > 1) {
@@ -839,12 +861,12 @@ class Entity implements EntityInterface
                 'name' => null,
             );
 
-			// Was encoded with obj_type:id:name (new)
+            // Was encoded with obj_type:id:name (new)
             if (count($parts) === 3) {
                 $ret['id'] = $parts[1];
                 $ret['name'] = $parts[2];
             } else {
-				// Check for full name added after bar '|' (old)
+                // Check for full name added after bar '|' (old)
                 $parts2 = explode("|", $parts[1]);
                 if (count($parts2) > 1) {
                     $ret['id'] = $parts2[0];
@@ -855,8 +877,9 @@ class Entity implements EntityInterface
             }
 
             return $ret;
-        } else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -867,12 +890,13 @@ class Entity implements EntityInterface
      * @param string $name The human readable name of the entity being referenced
      * @return string Encoded object reference
      */
-    static public function encodeObjRef($objType, $id, $name = null)
+    public static function encodeObjRef($objType, $id, $name = null)
     {
         $ret = $objType . ":" . $id;
 
-        if ($name)
+        if ($name) {
             $ret .= ":" . $name;
+        }
 
         return $ret;
     }
@@ -886,7 +910,7 @@ class Entity implements EntityInterface
      * @param string $text The text to get refrence tags from
      * @return array(array("obj_type"=>type, "id"=>id, "name"=>name))
      */
-    static public function getTaggedObjRef($text)
+    public static function getTaggedObjRef($text)
     {
         $taggedReferences = array();
 
@@ -940,9 +964,9 @@ class Entity implements EntityInterface
         foreach ($fields as $field) {
             if (($field->type == FIELD::TYPE_OBJECT || $field->type === FIELD::TYPE_OBJECT_MULTI) &&
                 $field->subtype === "file") {
-				// Only process if the value has changed since last time
+                // Only process if the value has changed since last time
                 if ($this->fieldValueChanged($field->name)) {
-					// Make a files array - if it's an object than an array of one
+                    // Make a files array - if it's an object than an array of one
                     $files = ($field->type == FIELD::TYPE_OBJECT) ?
                         array($this->getValue($field->name)) :
                         $this->getValue($field->name);
@@ -951,10 +975,10 @@ class Entity implements EntityInterface
                         foreach ($files as $fid) {
                             $file = $fileSystem->openFileById($fid);
 
-							// Check to see if the file is a temp file
+                            // Check to see if the file is a temp file
                             if ($file) {
                                 if ($fileSystem->fileIsTemp($file)) {
-									// Move file to a permanent directory
+                                    // Move file to a permanent directory
                                     $objDir = "/System/objects/" . $this->def->getObjType() . "/" . $this->getId();
                                     $fldr = $fileSystem->openFolder($objDir, true);
                                     if ($fldr->getId()) {
@@ -996,15 +1020,16 @@ class Entity implements EntityInterface
      */
     public function setHasComments($added = true, $numComments = null)
     {
+        $cur = $numComments;
+
         // We used to store a flag in cache, but now we put comment counts in the actual object
         if ($numComments == null) {
             $cur = ($this->getValue('num_comments')) ? (int)$this->getValue('num_comments') : 0;
-            if ($added)
+            if ($added) {
                 $cur++;
-            else if ($cur > 0)
+            } elseif ($cur > 0) {
                 $cur--;
-        } else {
-            $cur = $numComments;
+            }
         }
 
         $this->setValue("num_comments", $cur);
@@ -1026,7 +1051,7 @@ class Entity implements EntityInterface
                 // Check if any text fields are tagging users
                     $tagged = self::getTaggedObjRef($this->getValue($field->name));
                     foreach ($tagged as $objRef) {
-					// We need to have a valid uid, before we add it as follower
+                    // We need to have a valid uid, before we add it as follower
                         if ($objRef['obj_type'] === 'user' && $objRef['id'] &&
                             is_numeric($objRef['id']) && $objRef['id'] > 0) {
                             $this->addMultiValue("followers", $objRef['id'], $objRef['name']);
@@ -1050,7 +1075,7 @@ class Entity implements EntityInterface
                                     );
                                 }
                             }
-                        } else if (is_numeric($value) && $value > 0) {
+                        } elseif (is_numeric($value) && $value > 0) {
                             $this->addMultiValue(
                                 "followers",
                                 $value,
@@ -1081,22 +1106,20 @@ class Entity implements EntityInterface
         // First copy all followers from the entity we've commented on
         $entityFollowers = $otherEntity->getValue("followers");
         foreach ($entityFollowers as $uid) {
-			// We need to have a valid uid, before we add it as follower
+            // We need to have a valid uid, before we add it as follower
             if (is_numeric($uid) && $uid > 0) {
                 $userName = $otherEntity->getValueName("followers", $uid);
 
-				// addMultiValue will prevent duplicates so we just add them all
+                // addMultiValue will prevent duplicates so we just add them all
                 $this->addMultiValue("followers", $uid, $userName);
             }
-
         }
 
         // Now add any new followers from this comment to follow the entity we've commented on
         $commentFollowers = $this->getValue("followers");
         foreach ($commentFollowers as $uid) {
-			// We need to have a valid uid, before we add it as follower
+            // We need to have a valid uid, before we add it as follower
             if (is_numeric($uid) && $uid > 0) {
-
                 $userName = $this->getValueName("followers", $uid);
                 $otherEntity->addMultiValue("followers", $uid, $userName);
             }
