@@ -68,37 +68,11 @@ class WorkersControllerTest extends TestCase
         $outputBuffer = $ret->getOutputBuffer();
         $this->assertContains("Processed 1 jobs", trim(array_pop($outputBuffer)));
     }
-
-    /**
-     * Make sure that the scheudle runner job is executed from the controller
-     */
-    public function testConsoleScheduleAction()
-    {
-        // Set params in the request
-        $req = $this->controller->getRequest();
-        // Not not loop indefinitely
-        $req->setParam("runonce", 1);
-        // Do not allow echo
-        $req->setParam("suppressoutput", 1);
-        // Limit the global application lock to 3 seconds
-        $req->setParam("locktimeout", 1);
-
-        // Make sure that doWorkBackground was called once
-        $this->workerService->expects($this->once())
-            ->method('doWorkBackground')
-            ->with(
-                $this->equalTo('ScheduleRunner'),
-                $this->equalTo(['account_id'=>$this->account->getId()])
-            );
-
-        // Run the process to invoke the exepects tests above
-        $this->controller->consoleScheduleAction();
-    }
-
+    
     /**
      * Test to make sure only one instance of the scheudle action can be run
      */
-    public function testConsoleScheduleActionLocked()
+    public function testConsoleScheduleAction()
     {
         // Set params in the request
         $req = $this->controller->getRequest();

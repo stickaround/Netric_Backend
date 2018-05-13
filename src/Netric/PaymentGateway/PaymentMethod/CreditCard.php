@@ -27,7 +27,7 @@ class CreditCard
 
     /**
      * Credit card code
-     * 
+     *
      * @var string
      */
     private $cardCode = "";

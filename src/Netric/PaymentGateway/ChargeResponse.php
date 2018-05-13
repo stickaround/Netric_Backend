@@ -134,5 +134,4 @@ class ChargeResponse
     {
         return $this->status;
     }
-
 }
