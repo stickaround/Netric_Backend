@@ -1,3 +1,7 @@
+@Library('aereus.pipeline') _
+
+import aereus.pipeline.CodeQualityReporter
+
 node {
     def dockerImage;
     def clientImage;
@@ -39,6 +43,10 @@ node {
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
+
+            // Report code quality via clover
+            def reporter = new CodeQualityReporter()
+            reporter.sendReport('netric.com', 26)
         }
 
         stage('Security Scan') {

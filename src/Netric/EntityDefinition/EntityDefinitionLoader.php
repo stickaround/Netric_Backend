@@ -7,7 +7,6 @@ use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\Config\ConfigFactory;
 
-
 /**
  * Class to handle to loading of object definitions
  */
@@ -57,8 +56,9 @@ class EntityDefinitionLoader
      */
     public function get(string $objType)
     {
-        if (!$objType || !is_string($objType))
+        if (!$objType || !is_string($objType)) {
             throw new \InvalidArgumentException('ObjType Paramater is required');
+        }
 
         if ($this->isLoaded($objType)) {
             return $this->loadedDefinitions[$objType];
@@ -79,19 +79,21 @@ class EntityDefinitionLoader
         $def = $this->getCached($objType);
 
         // No cache, then load from dataMapper
-        if (!$def)
+        if (!$def) {
             $def = $this->dataMapper->fetchByName($objType);
+        }
 
         // Does not exist
-        if (!$def)
+        if (!$def) {
             return null;
+        }
 
         // Load system views
         $this->setSysViews($def);
 
         // Load system forms
         // TODO: We are removing forms from the definition to clean-up
-        // 		  And now we should use the Entity\Form service
+        //        And now we should use the Entity\Form service
         $this->setSysForms($def);
 
         // Load system aggregates
@@ -236,8 +238,9 @@ class EntityDefinitionLoader
     {
         $objType = $def->getObjType();
 
-        if (!$objType)
+        if (!$objType) {
             return false;
+        }
 
         $numViews = 0;
 
@@ -267,27 +270,31 @@ class EntityDefinitionLoader
     {
         $objType = $def->getObjType();
 
-        if (!$objType)
+        if (!$objType) {
             return;
+        }
 
         // Check for system object
         $basePath = $this->dataMapper->getAccount()->getServiceManager()->get(ConfigFactory::class)->application_path . "/data";
         if (file_exists($basePath . "/entity_forms/" . $objType . "/default.php")) {
             $xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/default.php");
-            if ($xml)
+            if ($xml) {
                 $def->setForm($xml, "default");
+            }
         }
 
         if (file_exists($basePath . "/entity_forms/" . $objType . "/mobile.php")) {
             $xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/mobile.php");
-            if ($xml)
+            if ($xml) {
                 $def->setForm($xml, "mobile");
+            }
         }
 
         if (file_exists($basePath . "/entity_forms/" . $objType . "/infobox.php")) {
             $xml = file_get_contents($basePath . "/entity_forms/" . $objType . "/infobox.php");
-            if ($xml)
+            if ($xml) {
                 $def->setForm($xml, "infobox");
+            }
         }
     }
 
@@ -343,7 +350,6 @@ class EntityDefinitionLoader
 
         $ret = array();
         foreach ($allObjectTypes as $objType) {
-
             // Get the defintion of the current $objType
             $ret[] = $this->get($objType);
         }
