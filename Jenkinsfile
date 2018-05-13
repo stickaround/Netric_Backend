@@ -10,6 +10,10 @@ node {
     try {
         stage('Build') {
 
+            // Report code quality via clover
+            def reporter = new CodeQualityReporter()
+            reporter.sendReport('netric.com', 26)
+
             sh 'printenv'
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
@@ -44,9 +48,7 @@ node {
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
 
-            // Report code quality via clover
-            def reporter = new CodeQualityReporter()
-            reporter.sendReport('netric.com', 26)
+            
         }
 
         stage('Security Scan') {
