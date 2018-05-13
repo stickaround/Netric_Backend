@@ -131,8 +131,8 @@ foreach ($objectTypesToMove as $objectType) {
                  * The reason this is necessary is because the user entity detects if the password value changed, and hashes it,
                  * but since we are copying data in this case it would hash a hash and that would lock out all users.
                  */
-                $entityloader->clearCache("user", $newEntityId);
-                $entityloader->clearCache("user", $oldEntityId);
+                $entityLoader->clearCache("user", $newEntityId);
+                $entityLoader->clearCache("user", $oldEntityId);
                 $updateData["password"] = $entityData["password"];
                 $updateData["password_salt"] = $entityData["password_salt"];
                 $db->update($def->getTable(), $updateData, ['id' => $newEntityId]);

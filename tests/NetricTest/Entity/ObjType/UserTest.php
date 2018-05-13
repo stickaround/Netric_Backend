@@ -6,9 +6,9 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use Netric\Permissions\DaclLoaderFactory;
-use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
 
 class UserTest extends TestCase
 {
@@ -156,13 +156,6 @@ class UserTest extends TestCase
         // Make sure the application can get the username from the email now
         $accounts = $app->getAccountsByEmail(self::TEST_EMAIL);
         $this->assertEquals(0, count($accounts));
-
-        // Test the dacl of the user entity. The owner should have view/edit permission
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($user);
-
-        $this->assertTrue($dacl->isAllowed($user, DACL::PERM_VIEW));
-        $this->assertTrue($dacl->isAllowed($user, DACL::PERM_EDIT));
     }
 
     public function testGetGroups()
