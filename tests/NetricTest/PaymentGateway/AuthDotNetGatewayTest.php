@@ -148,6 +148,7 @@ class AuthDotNetGatewayTest extends TestCase
 
         // Save a new token to the API
         $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
         $this->profilesToDelete[] = $profileToken;
 
         // Create a local netric payment_profile entity with the token above
