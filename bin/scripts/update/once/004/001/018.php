@@ -38,7 +38,7 @@ foreach ($types as $objDefData) {
         $entityDefinitionDataMapper->updateSystemDefinition($def);
 
         // Force a save to be sure all columns get created
-        $entityDefinitionLoader->save($def);
+        $entityDefinitionDataMapper->save($def);
 
         // Clear any cache for the definition
         $entityDefinitionLoader->clearCache($objDefData['obj_type']);
