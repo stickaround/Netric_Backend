@@ -27,7 +27,7 @@ class WorkersControllerTest extends TestCase
 
     /**
      * Mock worker service to interact with
-     * 
+     *
      * @var WorkerService
      */
     private $workerService = null;
@@ -70,7 +70,7 @@ class WorkersControllerTest extends TestCase
     }
 
     /**
-     * Test processing a scheduled job
+     * Make sure that the scheudle runner job is executed from the controller
      */
     public function testConsoleScheduleAction()
     {
@@ -79,15 +79,15 @@ class WorkersControllerTest extends TestCase
         // Not not loop indefinitely
         $req->setParam("runonce", 1);
         // Do not allow echo
-        $req->setParam("suppressoutput", 1); 
+        $req->setParam("suppressoutput", 1);
         // Limit the global application lock to 3 seconds
-        $req->setParam("locktimeout", 3);
+        $req->setParam("locktimeout", 1);
 
         // Make sure that doWorkBackground was called once
         $this->workerService->expects($this->once())
             ->method('doWorkBackground')
             ->with(
-                $this->equalTo('ScheduleRunner'), 
+                $this->equalTo('ScheduleRunner'),
                 $this->equalTo(['account_id'=>$this->account->getId()])
             );
 
@@ -98,19 +98,19 @@ class WorkersControllerTest extends TestCase
     /**
      * Test to make sure only one instance of the scheudle action can be run
      */
-    public function testConsoleScheduleAction_Locked()
+    public function testConsoleScheduleActionLocked()
     {
         // Set params in the request
         $req = $this->controller->getRequest();
         // Do not allow echo
-        $req->setParam("suppressoutput", 1); 
+        $req->setParam("suppressoutput", 1);
 
         
         // Make sure that doWorkBackground is ONLY CALLED ONCE
         $this->workerService->expects($this->never())
             ->method('doWorkBackground')
             ->with(
-                $this->equalTo('ScheduleRunner'), 
+                $this->equalTo('ScheduleRunner'),
                 $this->equalTo(['account_id'=>$this->account->getId()])
             );
 

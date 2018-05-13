@@ -74,7 +74,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
      * @param string $transactionKey the assigned transaction key from authorize.net
      * @param string $gatewayUrl Optional override of the production url to hit (used mostly for tests)
      */
-    function __construct(string $loginId, string $transactionKey, string $gatewayUrl = '')
+    public function __construct(string $loginId, string $transactionKey, string $gatewayUrl = '')
     {
         $this->authLoginId = $loginId;
         $this->authTransKey = $transactionKey;
@@ -138,6 +138,8 @@ class AuthDotNetGateway implements PaymentGatewayInterface
 
         // Assemble the complete transaction request
         $request = new AnetAPI\CreateCustomerProfileRequest();
+
+        // If customer profile already exists then the request will be an update
         $request->setMerchantAuthentication($merchantAuth);
         $request->setRefId($refId);
         $request->setProfile($customerProfile);
@@ -158,6 +160,12 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         // The response was not a success or it would have returned above
         $errorMessages = $response->getMessages()->getMessage();
         $this->lastErrorMessage = $errorMessages[0]->getCode() . "  " . $errorMessages[0]->getText();
+        
+        // E00039 means the customer already exists
+        if ($errorMessages[0]->getCode() == "E00039") {
+            $this->lastErrorMessage .= ", existing id=" . $this->getExistingRemoteProfile($customer->getId());
+        }
+        
         return ''; // empty on failure
     }
 
@@ -457,6 +465,51 @@ class AuthDotNetGateway implements PaymentGatewayInterface
             );
         }
         return $chargeResponse;
+    }
+
+    /**
+     * Get an existing profile from the gateway
+     *
+     * @param int $customerId
+     * @return void
+     */
+    private function getExistingRemoteProfile(int $customerId)
+    {
+        // Get auth for connecting to the merchant gateway
+        $merchantAuth = $this->getMerchantAuth();
+            
+        // Set the transaction's refId
+        $refId = 'ref' . time();
+
+        $request = new AnetAPI\GetCustomerProfileRequest();
+        $request->setMerchantAuthentication($merchantAuth);
+        $request->setMerchantCustomerId($customerId);
+        $controller = new AnetController\GetCustomerProfileController($request);
+        $response = $controller->executeWithApiResponse($this->gatewayUrl);
+        if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
+            //echo "GetCustomerProfile SUCCESS : " .  "\n";
+            $profileSelected = $response->getProfile();
+            //$paymentProfilesSelected = $profileSelected->getPaymentProfiles();
+            //echo "Profile Has " . count($paymentProfilesSelected). " Payment Profiles" . "\n";
+            return $profileSelected->getCustomerProfileId();
+        }
+        
+        return 0;
+        // // Get all existing customer profile ID's
+        // $request = new AnetAPI\GetCustomerProfileIdsRequest();
+        // $request->setMerchantAuthentication($merchantAuth);
+        // $controller = new AnetController\GetCustomerProfileIdsController($request);
+        // $response = $controller->executeWithApiResponse($this->gatewayUrl);
+        // if (($response != null) && ($response->getMessages()->getResultCode() == self::RESPONSE_OK)) {
+        //     echo "GetCustomerProfileId's SUCCESS: " . "\n";
+        //     $profileIds[] = $response->getIds();
+        //     echo "There are " . count($profileIds[0]) . " Customer Profile ID's for this Merchant Name and Transaction Key" . "\n";
+        // } else {
+        //     echo "GetCustomerProfileId's ERROR :  Invalid response\n";
+        //     $errorMessages = $response->getMessages()->getMessage();
+        //     echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
+        // }
+        // return $response;
     }
 
     /**

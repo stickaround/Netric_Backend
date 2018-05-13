@@ -9,11 +9,6 @@ node {
 
     try {
         stage('Build') {
-
-            // Report code quality via clover
-            def reporter = new CodeQualityReporter()
-            reporter.sendReport('netric.com', 26)
-
             sh 'printenv'
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
@@ -45,10 +40,20 @@ node {
             sleep 30
             sh 'docker exec docker_netric_server_1 /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
+
+            // Create style and static analysis reports
+            sh 'docker-compose -f docker/docker-compose-test.yml composer lint || true'
+            
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
 
-            
+            // Send reports to server for code quality metrics
+            def reporter = new CodeQualityReporter([
+                cloverFilePath: 'tests/tmp/clover.xml',
+                checkStyleFilePath: 'tests/tmp/checkstyle.xml',
+                pmdFilePath: 'tests/tmp/pmd.xml'
+            ])
+            reporter.collectAndSendReport('netric.com')
         }
 
         stage('Security Scan') {
