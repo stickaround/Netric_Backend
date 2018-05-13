@@ -6,7 +6,7 @@ return array(
     'fields' => array(
         'name' => array('title'=>'Name', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false),
         'location' => array('title'=>'Location', 'type'=>'text', 'subtype'=>'512', 'readonly'=>false),
-        'notes' => array('title'=>'Notes', 'type'=>'text', 'subtype'=>'', 'readonly'=>false),
+        'notes' => array('title'=>'Description', 'type'=>'text', 'subtype'=>'', 'readonly'=>false),
         'f_closed' => array('title'=>'Closed/Converted', 'type'=>'bool', 'subtype'=>'', 'readonly'=>false),
         'user_id' => array('title'=>'Owner',
             'type'=>Field::TYPE_OBJECT,

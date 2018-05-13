@@ -368,6 +368,29 @@ class Entity implements EntityInterface
     }
 
     /**
+     * Get the owner of this entity
+     *
+     * @return int
+     */
+    public function getOwnerId()
+    {
+        if ($this->getValue('owner_id')) {
+            return $this->getValue('owner_id');
+        }
+
+        if ($this->getValue('user_id')) {
+            return $this->getValue(('user_id'));
+        }
+
+        if ($this->getValue('creator_id')) {
+            return $this->getValue('creator_id');
+        }
+
+        // No owner
+        return 0;
+    }
+
+    /**
      * Record changes to the local changelog
      *
      * @param $strName

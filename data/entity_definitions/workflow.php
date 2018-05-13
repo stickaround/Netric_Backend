@@ -78,7 +78,7 @@ return array(
 
         // Can be manually started
         'f_allow_manual' => array(
-            'title'=>'Allow Manual',
+            'title'=>'Allow Manual Start',
             'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,
@@ -94,7 +94,7 @@ return array(
 
         // When the workflow was last executed
         'ts_lastrun' => array(
-            'title'=>'Last Run',
+            'title'=>'Time Last Run',
             'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true,

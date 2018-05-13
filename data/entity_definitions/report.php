@@ -17,7 +17,7 @@ return array(
             'readonly'=>false
         ),
         'dataware_cube' => array(
-            'title'=>'DW Cube Path',
+            'title'=>'Cube Path',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false
@@ -48,7 +48,7 @@ return array(
         'owner_id' => array(
             'title'=>'Owner',
             'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'users',
+            'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null"),
         ),
         'f_display_table' => array(

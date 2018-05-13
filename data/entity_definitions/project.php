@@ -20,7 +20,7 @@ return array(
             'readonly' => false
         ),
         'news' => array(
-            'title' => 'News',
+            'title' => 'Updates',
             'type'=>Field::TYPE_TEXT,
             'subtype' => '',
             'readonly' => false

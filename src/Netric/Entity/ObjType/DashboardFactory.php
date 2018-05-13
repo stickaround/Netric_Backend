@@ -1,21 +1,20 @@
 <?php
 /**
- * Default entity type
+ * Dashboard entity type
  *
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2015 Aereus
+ * @author Marl Tumulak <marl.tumulak@aereus.com>
+ * @copyright 2018 Aereus
  */
 namespace Netric\Entity\ObjType;
 
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
 
 /**
- * Create a new default object type entity
+ * Create a new dashboard entity
  */
-class UserFactory implements Entity\EntityFactoryInterface
+class DashboardFactory implements Entity\EntityFactoryInterface
 {
     /**
      * Entity creation factory
@@ -25,8 +24,7 @@ class UserFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("user");
-        $entityLoader = $sl->get(EntityLoaderFactory::class);
-        return new UserEntity($def, $entityLoader);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("dashboard");
+        return new DashboardEntity($def);
     }
 }

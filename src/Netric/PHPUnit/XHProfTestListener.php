@@ -145,6 +145,10 @@ class XHProfTestListener implements TestListener
      */
     public function startTest(Test $test)
     {
+        if (!extension_loaded('xhprof')) {
+            return;
+        }
+
         if (!isset($this->options['xhprofFlags'])) {
             $flags = XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY;
         } else {
@@ -166,6 +170,10 @@ class XHProfTestListener implements TestListener
      */
     public function endTest(Test $test, $time)
     {
+        if (!extension_loaded('xhprof')) {
+            return;
+        }
+
         // Check if we are only profiling tests slower than the threshold
         if ($this->options['slowThreshold']) {
             $timeInMs = $this->toMilliseconds($time);
@@ -213,6 +221,10 @@ class XHProfTestListener implements TestListener
      */
     public function endTestSuite(TestSuite $suite)
     {
+        if (!extension_loaded('xhprof')) {
+            return;
+        }
+
         $this->suites--;
         if ($this->suites == 0 && count($this->runs) > 0) {
             print("\n\nXHProf runs for tests exceeding threshold: ");

@@ -379,4 +379,38 @@ class EntityTest extends TestCase
 		$this->assertEquals($username, $task->getValueName('followers'));
 		$this->assertEquals([$userid], $task->getValue('followers'));
 	}
+
+    /**
+     * Make sure the owner of an entity is correctly returned
+     */
+	public function testGetOwnerId()
+    {
+        $sm = $this->account->getServiceManager();
+        $task = $sm->get(EntityLoaderFactory::class)->create("task");
+        $task->setValue('owner_id', 123);
+        $this->assertEquals(123, $task->getOwnerId());
+    }
+
+    /**
+     * Make sure the owner of an entity is correctly if owner_id is not set but creator_id is
+     */
+    public function testGetOwnerIdCreatorId()
+    {
+        $sm = $this->account->getServiceManager();
+        $task = $sm->get(EntityLoaderFactory::class)->create("task");
+        $task->setValue('creator_id', 123);
+        $this->assertEquals(123, $task->getOwnerId());
+    }
+
+    /**
+     * Make sure the owner of an entity is correctly if owner_id is not set but user_id is
+     */
+    public function testGetOwnerIdUserId()
+    {
+        $sm = $this->account->getServiceManager();
+        // Activity has a user_id field
+        $activity = $sm->get(EntityLoaderFactory::class)->create("activity");
+        $activity->setValue('user_id', 123);
+        $this->assertEquals(123, $activity->getOwnerId());
+    }
 }

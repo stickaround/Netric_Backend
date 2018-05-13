@@ -43,10 +43,6 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $def = $entity->getDefinition();
 
-        // Update the full text index if we are not using a custom table
-        if ($def->isCustomTable())
-            return true;
-
         $tableName = $def->getTable();
         $tableName .= ($entity->isDeleted()) ? "_del" : "_act";
 
@@ -110,15 +106,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
         // Get table to query
         $objectTable = $def->getTable();
-        
-        /*
-		if (!$def->isCustomTable() && $query->isDeletedQuery())
-            $objectTable .= "_del";
-		else if (!$def->isCustomTable())
-			$objectTable .= "_act";
-         * 
-         */
-        
+
 		// Start constructing query
         $sql = "SET constraint_exclusion = on;";
         // Removed the window "count(*) OVER() because it was insanely slow - Sky Stebnicki
@@ -320,70 +308,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         
 		// General Search
 		// -------------------------------------------------------------
-        if ($fullText && $def->isCustomTable()) {
-			// First add text fields
-			// ------------------------------------------------
-			// ------------------------------------------------
-            $part_buf = "";
-            foreach ($ofields as $fname => $field) {
-                $buf = "";
-
-                if ($field->type == FIELD::TYPE_TEXT && $field->subtype)
-                    $buf = "lower($fname) like lower('%" . $dbh->escape(str_replace(" ", "%", str_replace("*", "%", $fullText))) . "%') ";
-                else if ($field->type == FIELD::TYPE_TEXT)
-                    $buf = " to_tsvector($fname) @@ plainto_tsquery('" . $dbh->escape($fullText) . "') ";
-
-                if ($buf) {
-                    if ($part_buf)
-                        $part_buf .= " OR ";
-
-                    $part_buf .= $buf;
-                }
-            }
-
-			// Apply full text to the condition string if set
-            if ($cond_str && $part_buf) $cond_str .= " AND ";
-            if ($part_buf) $cond_str .= "($part_buf) ";
-			
-			// Now add all other fields
-			// ------------------------------------------------
-            if (strpos($fullText, " ") != false)
-                $parts = explode(" ", $fullText);
-            else
-                $parts = array($fullText);
-            foreach ($parts as $part) {
-                $part_buf = "";
-
-                if (is_numeric($part)) {
-                    foreach ($ofields as $fname => $field) {
-                        $buf = "";
-                        switch ($field->type) {
-                            case 'number':
-                            case 'real':
-                            case 'integer':
-                            case 'bigint':
-                            case 'int8':
-                                if (is_numeric($fullText))
-                                    $buf .= "$fname='" . $dbh->escape($part) . "'";
-                                break;
-                            default:
-							// No conditions
-                                break;
-                        }
-
-                        if ($buf) {
-                            if ($part_buf)
-                                $part_buf .= " OR ";
-
-                            $part_buf .= $buf;
-                        }
-                    }
-                }
-
-                if ($cond_str && $part_buf) $cond_str .= " AND ";
-                if ($part_buf) $cond_str .= "($part_buf) ";
-            }
-        } else if ($fullText && !$def->isCustomTable()) {
+        if ($fullText) {
             $cond_str = "tsv_fulltext @@ plainto_tsquery('" . $dbh->escape($fullText) . "')";
         }
 

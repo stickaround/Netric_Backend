@@ -17,7 +17,7 @@ return array(
             'readonly'=>false
         ),
         'f_available' => array(
-            'title'=>'Available',
+            'title'=>'Is Available',
             'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,

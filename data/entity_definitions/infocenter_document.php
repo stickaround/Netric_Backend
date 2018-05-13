@@ -17,7 +17,7 @@ return array(
             'readonly'=>false
         ),
         'author_name' => array(
-            'title'=>'Author Names',
+            'title'=>'Author Name',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false

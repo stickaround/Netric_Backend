@@ -55,12 +55,8 @@ class EntityQueryController extends Mvc\AbstractAccountController
             $ent = $res->getEntity($i);
 
             $entityData = $ent->toArray();
-
-            // If the dacl for this entity is empty, then let's try to get the default dacl.
-            if (empty($entityData["dacl"])) {
-                $dacl = $daclLoader->getForEntity($ent);
-                $entityData["dacl"] = $dacl->toArray();
-            }
+            $dacl = $daclLoader->getForEntity($ent);
+            $entityData["dacl"] = $dacl->toArray();
 
             // Print full details
             $entities[] = $entityData;

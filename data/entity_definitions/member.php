@@ -18,7 +18,7 @@ return array(
             'readonly'=>false
         ),
         'f_invsent' => array(
-            'title'=>'Inv. Sent',
+            'title'=>'Invitation Sent',
             'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false

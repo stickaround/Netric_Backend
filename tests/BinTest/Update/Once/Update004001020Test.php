@@ -1,18 +1,18 @@
 <?php
 /**
- * Make sure the bin/scripts/update/once/004/001/018.php script works
+ * Make sure the bin/scripts/update/once/004/001/020.php script works
  */
 namespace BinTest\Update\Once;
 
 use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
-use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Permissions\DaclLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Permissions\Dacl;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
-class Update004001018Test extends TestCase
+class Update004001020Test extends TestCase
 {
     /**
      * Handle to account
@@ -48,7 +48,7 @@ class Update004001018Test extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/018.php";
+        $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/020.php";
     }
 
     /**
@@ -81,26 +81,22 @@ class Update004001018Test extends TestCase
     {
         $serviceManager = $this->account->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
-        $db = $serviceManager->get(RelationalDbFactory::class);
+        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
 
-        $objType = "task";
-        $insertData = [
-            'name' => "UnitTestTask"
-        ];
-        $taskId = $db->insert('project_tasks', $insertData);
+        $systemDashboardEntity = $entityLoader->create("dashboard");
+        $systemDashboardEntity->setValue("name", "SystemWideDashboard");
+        $systemDashboardEntity->setValue("uname", "systemWideDashboard");
+        $systemDashboardEntity->setValue("scope", "system");
+        $entityLoader->save($systemDashboardEntity);
+        $this->testEntities[] = $systemDashboardEntity;
 
+        // This script will update all dashboard with system scope to give everyone permission to view
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
 
-        // Test the task if it was moved to the new object table
-        $def = $entityDefinitionLoader->get($objType);
-        $taskEntity = $entityLoader->get($objType, $taskId);
-        $movedEntityId = $entityDataMapper->checkEntityHasMoved($def, $taskId);
-        $this->testEntities[] = $taskEntity;
+        $systemWideDashboard = $entityLoader->get("dashboard", $systemDashboardEntity->getId());
+        $dacl = $daclLoader->getForEntity($systemWideDashboard);
 
-        $this->assertEquals($taskEntity->getName(), "UnitTestTask");
-        $this->assertEquals($taskEntity->getId(), $movedEntityId);
+        $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, DACL::PERM_VIEW));
     }
 }

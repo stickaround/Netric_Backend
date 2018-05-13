@@ -5,6 +5,8 @@ node {
 
     try {
         stage('Build') {
+
+            sh 'printenv'
             checkout scm
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest */
@@ -23,6 +25,8 @@ node {
             }
 
             dockerImage = docker.build('netric');
+
+
         }
 
         stage('Test') {
@@ -37,8 +41,24 @@ node {
             junit 'tests/tmp/logfile.xml'
         }
 
+        stage('Security Scan') {
+            dir('.clair') {
+                def nodeIp = sh (
+                    script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
+                    returnStdout: true
+                ).trim();
+                git branch: 'master',
+                    credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
+                    url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+
+                 sh 'chmod +x ./bin/clair-scanner_linux_amd64'
+
+                 // Fail if any critical security vulnerabilities are found
+                 sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} netric"
+            }
+        }
+
         stage('Publish') {
-            dockerImage = docker.build('netric')
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, publish to stable, if it is develop publish to latest */
                 if (env.BRANCH_NAME == 'master') {
@@ -51,7 +71,7 @@ node {
 
         stage('Integration') {
             sshagent (credentials: ['aereus']) {
-                sh 'scp -p 222 -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@dev1.aereusdev.com:/home/aereus/pull-and-run-setup.sh'
+                sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@dev1.aereusdev.com:/home/aereus/pull-and-run-setup.sh'
                 sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/pull-and-run-setup.sh'
                 sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/pull-and-run-setup.sh integration'
                 sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm /home/aereus/pull-and-run-setup.sh'
@@ -63,7 +83,7 @@ node {
                 // Run Setup First
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-setup.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-setup.sh integration'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-setup.sh production'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com rm /home/aereus/pull-and-run-setup.sh'
 
                 // Now Run the Daemon

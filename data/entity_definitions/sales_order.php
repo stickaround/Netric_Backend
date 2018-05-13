@@ -35,7 +35,7 @@ return array(
             'readonly'=>false
         ),
         'ship_to_cship' => array(
-            'title'=>'Use Shipping Address',
+            'title'=>'Use Billing Address',
             'type'=>Field::TYPE_BOOL,
             'subtype'=>'',
             'readonly'=>false,

@@ -1,4 +1,4 @@
-FROM php:7.1-apache
+FROM php:7.2-apache
 
 ###############################################################################
 # Setup PHP and apache
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libmcrypt-dev \
-    libpng12-dev \
+    libpng-dev \
     libz-dev \
     libmemcached-dev \
     libpq-dev \
@@ -19,10 +19,12 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    && docker-php-ext-install -j$(nproc) iconv mcrypt pgsql \
+    && docker-php-ext-install -j$(nproc) iconv pgsql \
     && docker-php-ext-install pdo pdo_pgsql pdo_mysql \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd \
+    && pecl install channel://pecl.php.net/mcrypt-1.0.1 \
+    && docker-php-ext-enable mcrypt \
     && pecl install memcached \
     && docker-php-ext-enable memcached \
     && pecl install xdebug \
@@ -56,12 +58,16 @@ RUN cd /tmp \
 # Install xhprof for php7
 RUN cd /tmp \
     && git clone https://github.com/longxinH/xhprof.git \
-    && cd xhprof/extension/ \
+    && cd xhprof/ && git checkout v1.2 \
+    && cd extension/ \
     && phpize \
     && ./configure \
     && make \
     && make install \
     && docker-php-ext-enable xhprof
+# This was causing a segfault
+#    \
+#    && docker-php-ext-enable xhprof
 
 # install PHP PEAR extensions
 RUN pear install mail \

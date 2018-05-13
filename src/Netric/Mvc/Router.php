@@ -151,8 +151,9 @@ class Router
             }
             
 			// Manually set output if passed as a param
-			if (isset($params['output']))
-				$this->controllerClass->output = $params['output'];
+			if (isset($params['output'])) {
+                $this->controllerClass->output = $params['output'];
+            }
 
 			// Check permissions to make sure the current user has access to the controller
 			$hasPermission = $this->currentUserHasPermission($request);

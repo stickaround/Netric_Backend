@@ -32,7 +32,7 @@ return array(
             'default'=>array("value"=>"html", "on"=>"null")
         ),
         'user_id' => array(
-            'title'=>'User',
+            'title'=>'Owner',
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'readonly'=>true,

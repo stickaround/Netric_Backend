@@ -7,18 +7,19 @@ else
 fi
 
 docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
-docker pull dockerhub.aereusdev.com/netric:${APP_ENV}
+docker pull dockerhub.aereusdev.com/netric:latest
 
 # Run setup in the background and it will die when finished
-docker stop netricsetup
-docker rm netricsetup
+#docker stop netricsetup
 
 # Production has all containers linked via DNS as opposed to a created network like in integ/stage
-if [ APP_ENV="production" ];  then
-    docker run -P -it --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
+if [ $APP_ENV = "production" ];  then
+    echo 'Running production setup'
+    docker run --rm -P -t --name netricsetup -e APPLICATION_ENV="production" \
         dockerhub.aereusdev.com/netric:latest /netric-setup.sh
 else
-    docker run -P -it --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
+    echo 'Running integration setup'
+    docker run --rm -P -t --name netricsetup -e APPLICATION_ENV="${APP_ENV}" \
         --network=aereusdev_default \
         --link memcached:memcached \
         --link gearmand:gearmand \
@@ -34,5 +35,5 @@ if [ $? -eq 0 ]; then
     echo Setup and Updates Finished
 else
     echo Setup Failed
-    return 1
+    exit 1
 fi

@@ -880,7 +880,7 @@ class CAntObject
 
 		if ($getPartition)
 		{
-			if (!$this->def->isCustomTable() && ($this->getValue("f_deleted") == 't' || $showDeleted))
+			if ($this->getValue("f_deleted") == 't' || $showDeleted)
 				$objTable .= "_del";
 			else if (!$this->def->isCustomTable())
 				$objTable .= "_act";

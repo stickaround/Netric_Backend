@@ -667,7 +667,7 @@ class ObjectController extends Controller
     {
         $dbh = $this->ant->dbh;
 
-        $result = $dbh->Query("select name, title, object_table, f_system from app_object_types order by title");
+        $result = $dbh->Query("select name, title, f_system from app_object_types order by title");
         $num = $dbh->GetNumberRows($result);
         $ret = array();
         for ($i = 0; $i < $num; $i++) {
@@ -682,7 +682,7 @@ class ObjectController extends Controller
 
 				// Legacy
                 'name' => $row['name'],
-                'objectTable' => $row['object_table'],
+                'objectTable' => "", // legacy but leaving because v1 expects it to be set
                 'fullTitle' => $objdef->fullTitle,
                 'listTitle' => $objdef->def->listTitle,
                 'fSystem' => ($row['f_system'] == 't') ? true : false

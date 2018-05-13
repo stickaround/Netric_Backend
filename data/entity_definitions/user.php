@@ -31,7 +31,7 @@ return array(
         ),
 
         'password_salt' => array(
-            'title'=>'PW Salt',
+            'title'=>'Password Salt',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'password',
             'readonly'=>true

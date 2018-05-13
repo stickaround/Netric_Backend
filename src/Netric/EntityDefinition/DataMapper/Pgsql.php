@@ -89,7 +89,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         // Get basic object definition
         // ------------------------------------------------------
         $result = $dbh->query("select 
-			id, object_table, revision, title, object_table, 
+			id, revision, title, 
 			f_system, system_definition_hash, dacl, capped,
             default_activity_level, is_private, store_revisions,
             recur_rules, inherit_dacl_ref, parent_field, uname_settings,
@@ -113,9 +113,6 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $def->systemDefinitionHash = $row['system_definition_hash'];
             $def->setId($row["id"]);
             $def->capped = ($row['capped']) ? $row['capped'] : false;
-
-            if ($row['object_table'])
-                $def->setCustomTable($row['object_table']);
 
             if ($row["default_activity_level"])
                 $def->defaultActivityLevel = $row["default_activity_level"];
@@ -154,9 +151,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 }
             }
 
-            // If this is the first load of this object type and not a custom table
+            // If this is the first load of this object type
             // then create the object table
-            if ($def->revision <= 0 && !$def->useCustomTable)
+            if ($def->revision <= 0)
                 $this->save($def);
         }
 
@@ -334,7 +331,6 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             "name" => "'" . $def->getObjType() . "'",
             "title" => "'" . $def->title . "'",
             "revision" => $def->revision, // Increment revision in $def after updates are complete for initializing schema
-            "object_table" => (($def->isCustomTable()) ? "'" . $def->getTable() . "'" : "NULL"),
             "f_system" => "'" . (($def->system) ? 't' : 'f') . "'",
             "application_id" => ($def->applicationId) ? "'" . $def->applicationId . "'" : 'NULL',
             "capped" => ($def->capped) ? "'" . $def->capped . "'" : 'NULL',
@@ -389,8 +385,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         }
 
         // Check to see if this dynamic object has yet to be initilized
-        if (!$def->useCustomTable)
-            $this->createObjectTable($def->getObjType(), $def->getId());
+        $this->createObjectTable($def->getObjType(), $def->getId());
 
         // Save and create fields
         $this->saveFields($def);
@@ -1418,31 +1413,29 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             // Create dynamic index
             if ($index) {
                 // If we are using generic obj partitions then make sure _del table is updated as well
-                if (!$def->isCustomTable()) {
-                    $indexCol = $colname;
+                $indexCol = $colname;
 
-                    if ($ftype == "text" && $subtype)
-                        $indexCol = "lower($colname)";
-                    else if ($ftype == "text" && !$subtype && $index == "gin")
-                        $indexCol = "to_tsvector('english', $colname)";
+                if ($ftype == "text" && $subtype)
+                    $indexCol = "lower($colname)";
+                else if ($ftype == "text" && !$subtype && $index == "gin")
+                    $indexCol = "to_tsvector('english', $colname)";
 
-                    if (!$this->dbh->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
-                        $this->dbh->query("CREATE INDEX " . $def->getTable() . "_act_" . $colname . "_idx
-											  ON " . $def->getTable() . "_act
-											  USING $index
-											  (" . $indexCol . ");");
-                    }
-
-                    if (!$this->dbh->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
-                        $this->dbh->query("CREATE INDEX " . $def->getTable() . "_del_" . $colname . "_idx
-											  ON " . $def->getTable() . "_del
-											  USING $index
-											  (" . $indexCol . ");");
-                    }
-
-                    // Update indexed flag for this field
-                    $this->dbh->query("UPDATE app_object_type_fields SET f_indexed='t' WHERE type_id='" . $def->getId() . "' and name='$fname'");
+                if (!$this->dbh->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
+                    $this->dbh->query("CREATE INDEX " . $def->getTable() . "_act_" . $colname . "_idx
+                                          ON " . $def->getTable() . "_act
+                                          USING $index
+                                          (" . $indexCol . ");");
                 }
+
+                if (!$this->dbh->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
+                    $this->dbh->query("CREATE INDEX " . $def->getTable() . "_del_" . $colname . "_idx
+                                          ON " . $def->getTable() . "_del
+                                          USING $index
+                                          (" . $indexCol . ");");
+                }
+
+                // Update indexed flag for this field
+                $this->dbh->query("UPDATE app_object_type_fields SET f_indexed='t' WHERE type_id='" . $def->getId() . "' and name='$fname'");
             }
 
             return true;

@@ -1,7 +1,7 @@
 <?php
 /**
  * Provide user extensions to base Entity class
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
@@ -11,7 +11,10 @@ namespace Netric\Entity\ObjType;
 use Netric\Authentication\AuthenticationService;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoader;
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\Permissions\DaclLoaderFactory;
+use Netric\Permissions\Dacl;
 
 /**
  * Description of User
@@ -30,7 +33,7 @@ class UserEntity extends Entity implements EntityInterface
     const USER_ANONYMOUS = -4;
     const USER_SYSTEM = -5;
     const USER_WORKFLOW = -6;
-    
+
 
     /**
      * System groups
@@ -41,6 +44,26 @@ class UserEntity extends Entity implements EntityInterface
     const GROUP_EVERYONE = -3;
     const GROUP_CREATOROWNER = -2;
     const GROUP_ADMINISTRATORS = -1;
+
+    /**
+     * The loader for a specific entity
+     *
+     * @var EntityLoader
+     */
+    private $entityLoader = null;
+
+    /**
+     * Class constructor
+     *
+     * @param EntityDefinition $def The definition of this type of object
+     * @param EntityLoader $entityLoader The loader for a specific entity
+     */
+    public function __construct(&$def, EntityLoader $entityLoader)
+    {
+        parent::__construct($def);
+
+        $this->entityLoader = $entityLoader;
+    }
 
     /**
      * Callback function used for derrived subclasses
@@ -82,7 +105,7 @@ class UserEntity extends Entity implements EntityInterface
             // Set the new username to this email address
             $sm->getAccount()->setAccountUserEmail(
                 $this->getValue("name"),
-                $this->getValue("email") 
+                $this->getValue("email")
             );
         }
     }
@@ -231,5 +254,22 @@ class UserEntity extends Entity implements EntityInterface
 
         $pos = strpos($fullName, ' ');
         return ($pos !== false) ? substr($fullName, $pos + 1) : null;
+    }
+
+    /**
+     * Override getOwnerId to always return $this->id for a user entity
+     *
+     * We do this because a user is always the owner of him or her self in
+     * terms of permissions and/or delegation of responsibility.
+     *
+     * @return int
+     */
+    public function getOwnerId()
+    {
+        if ($this->getId()) {
+            return $this->getId();
+        }
+
+        return parent::getOwnerId();
     }
 }

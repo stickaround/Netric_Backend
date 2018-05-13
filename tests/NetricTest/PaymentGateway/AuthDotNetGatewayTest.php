@@ -46,6 +46,13 @@ class AuthDotNetGatewayTest extends TestCase
     private $gateway = null;
 
     /**
+     * Cleanup any created profiles
+     *
+     * @var string[]
+     */
+    private $profilesToDelete = [];
+
+    /**
      * Setup authorize.net with test account
      */
     protected function setUp()
@@ -55,6 +62,23 @@ class AuthDotNetGatewayTest extends TestCase
             self::API_TRANSACTION_KEY,
             self::AUTH_NET_TEST_URL
         );
+    }
+
+    /**
+     * Cleanup any created resrouces
+     */
+    protected function tearDown()
+    {
+        foreach ($this->profilesToDelete as $profileToken) {
+            try {
+                $this->gateway->deleteProfile($profileToken);
+            } catch (\Exception $ex) {
+                // Print error but do not fail the test
+                echo "Could not delete profile $profileToken: " . $ex->getMessage();
+            }
+        }
+
+        parent::tearDown();
     }
 
     /**
@@ -105,6 +129,7 @@ class AuthDotNetGatewayTest extends TestCase
         $bankAccount->setBankName('Wells Fargo Bank NA');
 
         $profileToken = $this->gateway->createPaymentProfileBankAccount($customer, $bankAccount);
+        $this->profilesToDelete[] = $profileToken;
         $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
     }
 
@@ -123,6 +148,8 @@ class AuthDotNetGatewayTest extends TestCase
 
         // Save a new token to the API
         $profileToken = $this->gateway->createPaymentProfileCard($customer, $card);
+        $this->assertNotEmpty($profileToken, $this->gateway->getLastError());
+        $this->profilesToDelete[] = $profileToken;
 
         // Create a local netric payment_profile entity with the token above
         $serviceManager = Bootstrap::getAccount()->getServiceManager();

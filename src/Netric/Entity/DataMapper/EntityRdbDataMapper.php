@@ -92,7 +92,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 if ($values !== false) {
                     $row[$field->name] = $values;
                 }
-            } else if ($foreignReferenceValues) {
+            } elseif ($foreignReferenceValues) {
                 // Error, data not set in the column, check if it was set in an referenced field values
                 foreach ($foreignReferenceValues as $referencedId => $referencedName) {
                     $row[$field->name][] = $referencedId;
@@ -145,7 +145,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
     /**
      * Handle any conversions from database values to entity values
-     * 
+     *
      * Example of this would be when the database returns a bool, it will be
      * a character 'f' for false or 't' for true. We need to convert that to
      * boolean true or false types for the entity.
@@ -163,7 +163,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             case Field::TYPE_TIMESTAMP:
                 return ($databaseValue) ? strtotime($databaseValue) : null;
             case Field::TYPE_OBJECT_MULTI:
-                /*  
+                /*
                  * Make sure the id is an actual number
                  * We have to do this because some old entities
                  * have bad values in object_multi fields
@@ -191,8 +191,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     protected function deleteHard(&$entity)
     {
         // Only delete existing objects
-        if (!$entity->getId())
+        if (!$entity->getId()) {
             return false;
+        }
 
         $def = $entity->getDefinition();
 
@@ -218,7 +219,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
     /**
      * Delete object associations related to an entity
-     * 
+     *
      * @param int $objTypeId
      * @param int $id Entity id
      * @return void
@@ -265,30 +266,26 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $all_fields = $def->getFields();
 
         // Try to manipulate data to correctly build the sql statement based on custom table definitions
-        if (!$def->isCustomTable())
-            $data["object_type_id"] = $def->getId();
+        $data["object_type_id"] = $def->getId();
 
         $targetTable = $def->getTable();
 
-        if (!$def->isCustomTable() && $entity->isDeleted())
-            $targetTable .= "_del";
-        else if (!$def->isCustomTable())
-            $targetTable .= "_act";
+        // Determine if we are looking at the deleted or active partition
+        $targetTable .= ($entity->isDeleted()) ? "_del" : "_act";
 
         /*
-         * If we are using a custom table or the deleted status has not changed
-         * on a generic object table then update row.
+         * If the deleted status has not changed then update row.
          * The last condition checks if update is greater than 1, since 1 will be the value
          * of the very first save. It is possible that a user set a specific ID of an entity
          * when creating it. This will not matter at all for partitioned tables since it will
          * automatically delete before inserting, but for custom tables it could cause a bug
          * where it tried to update an ID that does not exist.
          */
-        if ($entity->getId() && ($def->isCustomTable() || (!$entity->fieldValueChanged("f_deleted") && !$def->isCustomTable())) && $entity->getValue("revision") > 1) {
+        if ($entity->getId() && !$entity->fieldValueChanged("f_deleted") && $entity->getValue("revision") > 1) {
             $this->database->update($targetTable, $data, ['id' => $entity->getId()]);
         } else {
             // Clean out old record if it exists in a different partition
-            if ($entity->getId() && !$def->isCustomTable()) {
+            if ($entity->getId()) {
                 $this->database->query(
                     'DELETE FROM ' . $def->getTable() . ' WHERE id=:entity_id',
                     ['entity_id' => $entity->getId()]
@@ -470,7 +467,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     }
                 }
             }
-        } else if ($mvalues) {
+        } elseif ($mvalues) {
             if ($field->subtype) {
                 $assocDef = $defLoader->get($field->subtype);
                 if ($assocDef->getId()) {
@@ -490,7 +487,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 if ($parts['obj_type'] && $parts['id']) {
                     $assocDef = $defLoader->get($parts['obj_type']);
                     if ($assocDef->getId() && $parts['id']) {
-
                         $this->database->insert(
                             'object_associations',
                             [
@@ -573,8 +569,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $tmpval = $val;
                     // Check if the field has a limited length
                     if (is_numeric($fdef->subtype)) {
-                        if (strlen($tmpval) > $fdef->subtype)
+                        if (strlen($tmpval) > $fdef->subtype) {
                             $tmpval = substr($tmpval, 0, $fdef->subtype);
+                        }
                     }
                     $ret[$fname] = $tmpval;
                     break;
@@ -622,8 +619,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     private function unserialize($val)
     {
-        if ($val == null || $val == "")
+        if ($val == null || $val == "") {
             return null;
+        }
 
         return json_decode($val, true);
     }
@@ -695,12 +693,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             if ($entity) {
                 $ret[(string)$value] = $entity->getName();
             } else {
-
                 $log = $this->getAccount()->getApplication()->getLog();
                 $log->error("Could not load {$fdef->subtype}.{$value} to update foreign value");
             }
-
-        } else if (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi") {
+        } elseif (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi") {
             $sql = 'SELECT ' .
                 'assoc_type_id, assoc_object_id, app_object_types.name as obj_name ' .
                 'FROM object_associations INNER JOIN app_object_types ' .
@@ -740,8 +736,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function entityHasMoved($def, $id)
     {
-        if (!$id)
+        if (!$id) {
             return false;
+        }
 
         $sql = 'SELECT moved_to FROM objects_moved WHERE ' .
             'object_type_id=:object_type_id AND object_id=:object_id';
@@ -751,8 +748,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             $moved_to = $row['moved_to'];
 
             // Kill circular references - objects moved to each other
-            if (in_array($id, $this->movedToRef))
+            if (in_array($id, $this->movedToRef)) {
                 return false;
+            }
 
             $this->movedToRef[] = $moved_to;
 
@@ -773,8 +771,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     public function setEntityMovedTo(&$def, $fromId, $toId)
     {
-        if (!$fromId || $fromId == $toId) // never allow circular reference or blank values
-        return false;
+        if (!$fromId || $fromId == $toId) { // never allow circular reference or blank values
+            return false;
+        }
 
         $data = [
             'object_type_id' => $def->getId(),
@@ -819,13 +818,15 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     public function getRevisions($objType, $id)
     {
-        if (!$objType || !$id)
+        if (!$objType || !$id) {
             return null;
+        }
 
         $def = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($objType);
 
-        if (!$def)
+        if (!$def) {
             return null;
+        }
 
         $ret = array();
 

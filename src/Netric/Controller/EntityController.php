@@ -130,6 +130,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $params = $this->getRequest()->getParams();
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
         // Check if the parameters are posted via Post.
         $rawBody = $this->getRequest()->getBody();
@@ -177,7 +178,15 @@ class EntityController extends Mvc\AbstractAccountController
             }
         }
 
-        return $this->sendOutput(($entity) ? $entity->toArray() : []);
+        $entityData = [];
+
+        if ($entity) {
+            $entityData = $entity->toArray();
+            $dacl = $daclLoader->getForEntity($entity);
+            $entityData["dacl"] = $dacl->toArray();
+        }
+
+        return $this->sendOutput($entityData);
     }
 
     /**
@@ -848,12 +857,7 @@ class EntityController extends Mvc\AbstractAccountController
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
         $user = $this->account->getUser();
-        $isOwner = ($entity->getValue("creator_id") == $user->getId());
-
-        // If the current user wants to retrieve its own entity, then we will allow it
-        if ($entity->getObjType() === "user" && $entity->getId() == $user->getId()) {
-            $isOwner = true;
-        }
+        $isOwner = ($entity->getOwnerId() == $user->getId());
 
         return $dacl->isAllowed($user, $permission, $isOwner);
     }

@@ -62,25 +62,11 @@ class EntityDefinition
 	public $systemDefinitionHash = "";
 
 	/**
-	 * Optional icon name
-	 *
-	 * Object icons are all stored in /images/icons/objects/ and must have 16, 24, 32, and 48 px variants
-	 * named after the object name like. customer_16.png, customer_32.png or can even have subcategories with
-	 * a forward slash representing a subdirectory like 'customers/account' would 
-	 * map to /images/icons/objects/customers/account_[size].png
+	 * Optional icon name used by the front-end to dynamically load an icon
 	 *
 	 * @var {string}
 	 */
 	public $icon = "";
-
-	/**
-	 * Flag if we are using a custom table
-	 *
-	 * True if we are using a table that is not part of the objects partitions
-	 *
-	 * @var bool
-	 */
-	public $useCustomTable = false;
 
 	/**
 	 * The table where objects are stored
@@ -423,7 +409,6 @@ class EntityDefinition
 			"inherit_dacl_ref" => $this->inheritDaclRef,
 			"uname_settings" => $this->unameSettings,
 			"list_title" => $this->listTitle,
-			"object_table" => ($this->useCustomTable) ? $this->object_table : "",
 			"icon" => $this->icon,
 			"system" => $this->system,
 			"system_definition_hash" => $this->systemDefinitionHash,
@@ -538,9 +523,6 @@ class EntityDefinition
 		if (isset($data['title']))
 			$this->title = $data['title'];
 
-		if (isset($data['object_table']) && $data['object_table'])
-			$this->setCustomTable($data['object_table']);
-
 		if (isset($data['application_id']))
 			$this->applicationId = $data['application_id'];
 
@@ -548,27 +530,6 @@ class EntityDefinition
 			$this->storeRevisions = $data['store_revisions'];
 
 		return true;
-	}
-
-	/**
-	 * Set a custom table to use other than partitions
-	 *
-	 * @param string $table
-	 */
-	public function setCustomTable($table)
-	{
-		$this->object_table = $table;
-		$this->useCustomTable = true;
-	}
-
-	/**
-	 * Check if this entity uses a custom table name as opposed to dynamic
-	 *
-	 * @return bool true if custon, false if dynamic
-	 */
-	public function isCustomTable()
-	{
-		return $this->useCustomTable;
 	}
 
 	/**

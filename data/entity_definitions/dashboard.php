@@ -25,7 +25,7 @@ return array(
             'readonly'=>true
         ),
         'num_columns' => array(
-            'title'=>'Num Columns',
+            'title'=>'Number Columns',
             'type'=>Field::TYPE_NUMBER,
             'subtype'=>'',
             'optional_values'=>array("1"=>"One", "2"=>"Two", "3"=>"Three")

@@ -51,7 +51,7 @@ return array(
             'readonly'=>false
         ),
         'inv_eid' => array(
-            'title'=>'Inv. Eid',
+            'title'=>'Invitation ID',
             'type'=>Field::TYPE_INTEGER,
             'subtype'=>'',
             'readonly'=>true

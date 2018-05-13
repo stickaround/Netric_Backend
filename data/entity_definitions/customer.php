@@ -133,7 +133,7 @@ return array(
             'readonly'=>false
         ),
         'phone_fax' => array(
-            'title'=>'Fax',
+            'title'=>'Fax Number',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'64',
             'readonly'=>false

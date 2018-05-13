@@ -5,7 +5,10 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
+use Netric\Permissions\DaclLoaderFactory;
+use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
 
 class UserTest extends TestCase
 {
@@ -174,5 +177,19 @@ class UserTest extends TestCase
         $groups = $this->user->getGroups();
         $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_USERS, $groups));
         $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_EVERYONE, $groups));
+    }
+
+    /**
+     * We override getOwnerId to always be self::id
+     */
+    public function testGetOwnerId()
+    {
+        $sm = $this->account->getServiceManager();
+        $task = $sm->get(EntityLoaderFactory::class)->create("user");
+        $task->setValue('id', 1);
+        $task->setValue('owner_id', 2);
+
+        // Normally the entity would return the owner_id, but users always return themselves
+        $this->assertEquals(1, $task->getOwnerId());
     }
 }

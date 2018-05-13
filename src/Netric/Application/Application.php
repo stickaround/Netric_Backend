@@ -140,9 +140,12 @@ class Application
      * Run The application
      *
      * @param string $path Optional initial route to load
+     * @return bool true on success, false on failure
      */
-    public function run($path = "")
+    public function run($path = "") : bool
     {
+        $runWasSuccessful = true;
+
         // We give each request a unique ID in order to track calls and logs through the system
         $this->requestId = uniqid();
 
@@ -161,10 +164,21 @@ class Application
         }
 
         // Execute through the router
-        $router->run($request);
+        try {
+            $router->run($request);
+        } catch (\Exception $unhandledException) {
+            // An exception took place and was not handled
+            $this->getLog()->error(
+                'Unhandled application exception: ' .
+                $unhandledException->getMessage()
+            );
+            $runWasSuccessful = false;
+        }
 
         // Handle any profiling needed for this request
         $this->profileRequest();
+
+        return $runWasSuccessful;
     }
 
     /**

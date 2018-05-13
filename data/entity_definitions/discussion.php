@@ -6,7 +6,7 @@ return array(
     'default_activity_level' => 5,
     'fields' => array(
         'name' => array(
-            'title'=>'Subject / Topic',
+            'title'=>'Topic',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'512',
             'readonly'=>false
