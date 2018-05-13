@@ -13,10 +13,19 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
+// Production aereus
 if ($account->getId() == 12) {
-    // Get sky's user by id
-    $sky = $entityLoader->get('user', 37);
+    // Get sky's user
+    $sky = $account->getUser(null, 'sky.stebnicki');
     // Set to temp password (this will be changed as soon as the script loads)
     $sky->setValue('password', 'K76IufpHbpm7nmI4');
     $entityLoader->save($sky);
+}
+
+// Fix test account in integ
+if ($account->getId() == 1 && $account->getName() == 'integ') {
+    // Get the test user
+    $testUser = $account->getUser(null, 'test@netric.com');
+    $testUser->setValue('password', 'password');
+    $entityLoader->save($testUser);
 }
