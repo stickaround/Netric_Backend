@@ -185,4 +185,18 @@ class UserTest extends TestCase
         $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_USERS, $groups));
         $this->assertTrue(in_array(Entity\ObjType\UserEntity::GROUP_EVERYONE, $groups));
     }
+
+    /**
+     * We override getOwnerId to always be self::id
+     */
+    public function testGetOwnerId()
+    {
+        $sm = $this->account->getServiceManager();
+        $task = $sm->get(EntityLoaderFactory::class)->create("user");
+        $task->setValue('id', 1);
+        $task->setValue('owner_id', 2);
+
+        // Normally the entity would return the owner_id, but users always return themselves
+        $this->assertEquals(1, $task->getOwnerId());
+    }
 }

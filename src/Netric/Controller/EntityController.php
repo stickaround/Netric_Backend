@@ -857,7 +857,7 @@ class EntityController extends Mvc\AbstractAccountController
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
         $user = $this->account->getUser();
-        $isOwner = ($entity->getValue("creator_id") == $user->getId());
+        $isOwner = ($entity->getOwnerId() == $user->getId());
 
         return $dacl->isAllowed($user, $permission, $isOwner);
     }

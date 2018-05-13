@@ -108,19 +108,6 @@ class UserEntity extends Entity implements EntityInterface
                 $this->getValue("email")
             );
         }
-
-        $daclLoader = $sm->get(DaclLoaderFactory::class);
-        $dacl = $daclLoader->getForEntity($this);
-
-        // Check first if user has already view/edit permission
-        if (!$dacl->isAllowed($this, DACL::PERM_VIEW) || !$dacl->isAllowed($this, DACL::PERM_EDIT)) {
-
-            // Set the user to have a view/edit permission over his own entity
-            $dacl->allowUser($this->getId(), DACL::PERM_VIEW);
-            $dacl->allowUser($this->getId(), DACL::PERM_EDIT);
-            $this->setValue("dacl", json_encode($dacl->toArray()));
-            $this->entityLoader->save($this);
-        }
     }
 
     /**
@@ -267,5 +254,22 @@ class UserEntity extends Entity implements EntityInterface
 
         $pos = strpos($fullName, ' ');
         return ($pos !== false) ? substr($fullName, $pos + 1) : null;
+    }
+
+    /**
+     * Override getOwnerId to always return $this->id for a user entity
+     *
+     * We do this because a user is always the owner of him or her self in
+     * terms of permissions and/or delegation of responsibility.
+     *
+     * @return int
+     */
+    public function getOwnerId()
+    {
+        if ($this->getId()) {
+            return $this->getId();
+        }
+
+        return parent::getOwnerId();
     }
 }
