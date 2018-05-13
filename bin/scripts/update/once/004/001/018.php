@@ -1,6 +1,7 @@
 <?php
 /**
- * Move all custom table entities over to objects_* table so that we no longer have to deal with custom tables from entities
+ * Move all custom table entities over to objects_* table so that we no longer
+ * have to deal with custom tables from entities
  */
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
@@ -35,6 +36,9 @@ foreach ($types as $objDefData) {
         
         // Make sure it has all the latest changes from the local data/entity_definitions/
         $entityDefinitionDataMapper->updateSystemDefinition($def);
+
+        // Force a save to be sure all columns get created
+        $entityDefinitionLoader->save($def);
 
         // Clear any cache for the definition
         $entityDefinitionLoader->clearCache($objDefData['obj_type']);
@@ -97,17 +101,15 @@ foreach ($objectTypesToMove as $objectType) {
     $result = $db->query($sql);
 
     foreach ($result->fetchAll() as $entityData) {
-
         $oldEntityId = $entityData["id"];
 
         // We need to check first that the entity it was not moved yet
         if (!$entityDataMapper->checkEntityHasMoved($def, $oldEntityId)) {
-            
             // Make sure that we set the id to null, so it will create a new entity record
             $entityData["id"] = null;
 
             // Loop thru the fields and check if we have array values and remove the null values
-            foreach ($entityData as $fieldName=>$value) {
+            foreach ($entityData as $fieldName => $value) {
                 $decodedValue = json_decode($value);
                 if (is_array($decodedValue)) {
                     $entityData[$fieldName] = array_filter($decodedValue);
@@ -126,10 +128,11 @@ foreach ($objectTypesToMove as $objectType) {
 
             // If we are dealing with user objType, then we need to update the correct encrypted password from entityData
             if ($objType === "user") {
-
                 /*
-                 * The reason this is necessary is because the user entity detects if the password value changed, and hashes it,
-                 * but since we are copying data in this case it would hash a hash and that would lock out all users.
+                 * The reason this is necessary is because the user entity detects if
+                 * the password value changed, and hashes it,
+                 * but since we are copying data in this case it would hash a
+                 * hash and that would lock out all users.
                  */
                 $entityLoader->clearCache("user", $newEntityId);
                 $entityLoader->clearCache("user", $oldEntityId);

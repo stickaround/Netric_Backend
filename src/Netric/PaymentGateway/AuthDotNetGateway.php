@@ -8,7 +8,6 @@ use Netric\PaymentGateway\PaymentMethod\BankAccount;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 
-
 /**
  * Process payments through the Authorize.net payment gateway
  */
@@ -63,7 +62,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
 
     /**
      * Store the last error message
-     * 
+     *
      * @var string
      */
     private $lastErrorMessage = '';
@@ -259,7 +258,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
         $controller = new AnetController\DeleteCustomerProfileController($request);
         $response = $controller->executeWithApiResponse($this->gatewayUrl);
 
-        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") ) {
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok")) {
             return true;
         }
 

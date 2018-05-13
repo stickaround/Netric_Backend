@@ -80,9 +80,10 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
      */
     public function fetchByName($objType)
     {
-        if (!$objType || !is_string($objType))
+        if (!$objType || !is_string($objType)) {
             throw new \Exception('objType is a required param');
-
+        }
+        
         $dbh = $this->dbh;
         $def = new EntityDefinition($objType);
 
