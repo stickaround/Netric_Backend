@@ -1,8 +1,4 @@
 <?php
-
-/**
- * Entities will replace objects eventually. The reason for the rename is simply because Object is not a good name given reserved ns.
- */
 namespace Netric\Entity;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
@@ -146,16 +142,16 @@ class Entity implements EntityInterface
      * Get fkey name for key/value field types like fkey and fkeyMulti
      *
      * @param string $strName The name of the field to pull
-     * @param string $id If set, get the label for the id
+     * @param string $valueId If set, get the label for the id
      * @return string
      */
-    public function getValueName($strName, $id = null)
+    public function getValueName($strName, $getForId = null)
     {
         $valueNames = $this->getValueNames($strName);
 
-        if ($id && is_array($valueNames) && count($valueNames) > 0) {
+        if ($getForId && is_array($valueNames) && count($valueNames) > 0) {
             foreach ($valueNames as $valId => $valName) {
-                if ($valId == $id) {
+                if ($valId == $getForId) {
                     $valueNames = [$valName];
                     break;
                 }
@@ -410,10 +406,10 @@ class Entity implements EntityInterface
                 $oldval = $oldvalName;
             }
 
+            $newval = $value;
+
             if ($this->getValueNames($strName)) {
                 $newval = $this->getValueNames($strName);
-            } else {
-                $newval = $value;
             }
 
             $this->changelog[$strName] = array(

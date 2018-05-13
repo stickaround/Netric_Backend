@@ -18,35 +18,35 @@ class Account
 {
     /**
      * Unique account ID
-     * 
+     *
      * @var string
      */
     private $id = "";
 
     /**
      * Unique account name
-     * 
+     *
      * @var string
      */
     private $name = "";
 
     /**
      * The name of the database
-     * 
+     *
      * @var string
      */
     private $dbname = "netric";
 
     /**
      * Instance of netric application
-     * 
+     *
      * @var Application
      */
     private $application = null;
 
     /**
      * Service manager for this account
-     * 
+     *
      * @var AccountServiceManagerInterface
      */
     private $serviceManager = null;
@@ -60,7 +60,7 @@ class Account
 
     /**
      * Property to set the current user rather than using the auth service
-     * 
+     *
      * @var UserEntity
      */
     public $currentUserOverride = null;
@@ -77,7 +77,7 @@ class Account
 
     /**
      * Initialize netric account
-     * 
+     *
      * @param \Netric\Application\Application $app
      */
     public function __construct(Application $app)
@@ -92,24 +92,27 @@ class Account
 
     /**
      * Load application data from an associative array
-     * 
+     *
      * @param array $data
      * @return bool true on successful load, false on failure
      */
     public function fromArray($data)
     {
         // Check required fields
-        if (!$data['id'] || !$data['name'])
+        if (!$data['id'] || !$data['name']) {
             return false;
+        }
 
         $this->id = $data['id'];
         $this->name = $data['name'];
 
-        if (isset($data['database']) && $data['database'])
+        if (isset($data['database']) && $data['database']) {
             $this->dbname = $data['database'];
+        }
 
-        if (isset($data['description']) && $data['description'])
+        if (isset($data['description']) && $data['description']) {
             $this->description = $data['description'];
+        }
 
         return true;
     }
@@ -131,7 +134,7 @@ class Account
 
     /**
      * Get account id
-     * 
+     *
      * @return string
      */
     public function getId()
@@ -141,7 +144,7 @@ class Account
 
     /**
      * Get account unique name
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -161,7 +164,7 @@ class Account
 
     /**
      * Get database name for this account
-     * 
+     *
      * @return string
      */
     public function getDatabaseName()
@@ -171,7 +174,7 @@ class Account
 
     /**
      * Get ServiceManager for this account
-     * 
+     *
      * @return AccountServiceManagerInterface
      */
     public function getServiceManager()
@@ -181,7 +184,7 @@ class Account
 
     /**
      * Get application object
-     * 
+     *
      * @return \Netric\Application\Application
      */
     public function getApplication()
@@ -208,19 +211,20 @@ class Account
 
     /**
      * Get user by id or name
-     * 
+     *
      * If neither id or username are defined, then try to get the currently authenticated user.
      * If no users are authenticated, then this function will return false.
-     * 
+     *
      * @param string $userId The userId of the user to get
      * @param string $username Get user by name
      * @return UserEntity|bool user on success, false on failure
      */
     public function getUser($userId = null, $username = null)
-    {      
+    {
         // Check to see if we have manually set the current user and if so skip session auth
-        if ($this->currentUserOverride)
+        if ($this->currentUserOverride) {
             return $this->currentUserOverride;
+        }
 
         // Entity loader will be needed once we have determined a user id to load
         $loader = $this->getServiceManager()->get(EntityLoaderFactory::class);
@@ -234,7 +238,7 @@ class Account
 
             // Check if the current session is authenticated
             $userId = $auth->getIdentity();
-        } 
+        }
 
         /*
          * Load the user with the loader service.
@@ -254,9 +258,9 @@ class Account
             $res = $index->executeQuery($query);
             if ($res->getTotalNum()) {
                 return $res->getEntity(0);
-            } else {
-                return null;
             }
+
+            return null;
         }
                 
         // Return anonymous user
@@ -293,8 +297,9 @@ class Account
         $url = "";
 
         // Prepend protocol
-        if ($includeProtocol)
+        if ($includeProtocol) {
             $url .= ($config->use_https) ? "https://" : "http://";
+        }
 
         // Add account third level
         $url .= $this->name . ".";

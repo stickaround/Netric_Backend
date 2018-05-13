@@ -24,7 +24,6 @@ $totalNum = $results->getTotalNum();
 
 // Loop over total num - the results will paginate as needed
 for ($i = 0; $i < $totalNum; $i++) {
-
     // Get each contact
     $entity = $results->getEntity($i);
 
