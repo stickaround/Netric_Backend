@@ -141,6 +141,9 @@ class ActivityLog
         // If the object we acted on is private, then mark this activity as private
         $actEntity->setValue("f_private", $objDef->isPrivate);
 
+        // In most cases we reference the object being acted on
+        $actEntity->setValue("obj_reference", $object->getObjRef());
+
         /*
          * obj_reference is a reference to the entity object being acted on.
          * If we are acting on a comment, then record the action as being on the object
@@ -148,8 +151,6 @@ class ActivityLog
          */
         if ("comment" === $objType && $object->getValue("obj_reference")) {
             $actEntity->setValue("obj_reference", $object->getValue("obj_reference"));
-        } else {
-            $actEntity->setValue("obj_reference", $object->getObjRef());
         }
 
         // Get the type of activity which is just a grouping entiry for the objType
@@ -223,9 +224,10 @@ class ActivityLog
         try {
             if ($this->entityLoader->save($actEntity)) {
                 return $actEntity;
-            } else {
-                return null;
             }
+
+            // Return failure
+            return null;
         } catch (\InvalidArgumentException $ex) {
             // There was a problem with the activity and it should not have been saved
             // But since activities are non-critical we will continue and log the error

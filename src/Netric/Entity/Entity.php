@@ -153,7 +153,7 @@ class Entity implements EntityInterface
     {
         $valueNames = $this->getValueNames($strName);
 
-        if ($id) {
+        if ($id && is_array($valueNames) && count($valueNames) > 0) {
             foreach ($valueNames as $valId => $valName) {
                 if ($valId == $id) {
                     $valueNames = [$valName];
@@ -164,9 +164,10 @@ class Entity implements EntityInterface
 
         if (count($valueNames)) {
             return implode(',', $valueNames);
-        } else {
-            return '';
         }
+        
+        // No names could be found
+        return '';
     }
 
     /**
