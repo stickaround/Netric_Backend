@@ -42,8 +42,7 @@ node {
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
 
             // Create style and static analysis reports
-            sh 'docker-compose -f docker/docker-compose-test.yml composer lint || true'
-            sh 'docker-compose -f docker/docker-compose-test.yml ls -la tests/tmp/'
+            sh 'docker exec docker_netric_server_1 composer lint || true'
 
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'

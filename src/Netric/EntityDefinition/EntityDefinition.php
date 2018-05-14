@@ -308,9 +308,9 @@ class EntityDefinition
     {
         if (isset($this->fields[$fname])) {
             return $this->fields[$fname];
-        } else {
-            return null;
         }
+        
+        return null;
     }
 
     /**
@@ -323,16 +323,16 @@ class EntityDefinition
     {
         if ($includeRemoved) {
             return $this->fields;
-        } else {
-            $fields = array();
-            foreach ($this->fields as $fname => $field) {
-                if ($field) {
-                    $fields[$fname] = $field;
-                }
-            }
-
-            return $fields;
         }
+
+        $fields = array();
+        foreach ($this->fields as $fname => $field) {
+            if ($field) {
+                $fields[$fname] = $field;
+            }
+        }
+
+        return $fields;
     }
 
     /**
