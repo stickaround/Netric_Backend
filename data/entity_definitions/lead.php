@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
 
 return array(
@@ -190,7 +191,7 @@ return array(
             'subtype'=>'customer'
         ),
         'ts_converted' => array(
-            'title'=>'Converted Time',
+            'title'=>'Date Converted',
             'type'=>Field::TYPE_TIMESTAMP,
             'subtype'=>'',
             'readonly'=>true
