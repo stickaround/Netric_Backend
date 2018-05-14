@@ -42,16 +42,17 @@ node {
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
 
             // Create style and static analysis reports
-            sh 'docker exec docker_netric_server_1 composer lint || true'
+            sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
+            sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
 
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
 
             // Send reports to server for code quality metrics
             def reporter = new CodeQualityReporter([
-                cloverFilePath: './tests/tmp/clover.xml',
-                checkStyleFilePath: './tests/tmp/checkstyle.xml',
-                pmdFilePath: './tests/tmp/pmd.xml'
+                cloverFilePath: 'tests/tmp/clover.xml',
+                checkStyleFilePath: 'tests/tmp/checkstyle.xml',
+                pmdFilePath: 'tests/tmp/pmd.xml'
             ])
             reporter.collectAndSendReport('netric.com')
         }
@@ -96,10 +97,10 @@ node {
         stage('Production') {
             sshagent (credentials: ['aereus']) {
                 // Run Setup First
-                sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-setup.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-setup.sh production'
-                sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com rm /home/aereus/pull-and-run-setup.sh'
+                sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@web1.aereus.com:/home/aereus/pull-and-run-setup.sh'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run-setup.sh production'
+                sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run-setup.sh'
 
                 // Now Run the Daemon
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-daemon.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-daemon.sh'
