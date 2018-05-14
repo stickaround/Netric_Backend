@@ -1215,6 +1215,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     $type = "bigint";
                     $index = "btree";
                     break;
+                case 'real': // legacy only
                 case 'numeric': // If ftype is already numeric, it should set the type
                     $type = "numeric";
                     $index = "btree";
@@ -1264,8 +1265,10 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     break;
 
                 default:
-                    $type = ""; // do not try to enter it if we don't know what it is
-                    break;
+                    throw new \RuntimeException(
+                        'Did not know how to create column ' .
+                        $def->getTable() . ':' . $colname . ':' . $ftype
+                    );
             }
 
             if ($type) {
