@@ -43,15 +43,16 @@ node {
 
             // Create style and static analysis reports
             sh 'docker-compose -f docker/docker-compose-test.yml composer lint || true'
-            
+            sh 'docker-compose -f docker/docker-compose-test.yml ls -la tests/tmp/'
+
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
 
             // Send reports to server for code quality metrics
             def reporter = new CodeQualityReporter([
-                cloverFilePath: 'tests/tmp/clover.xml',
-                checkStyleFilePath: 'tests/tmp/checkstyle.xml',
-                pmdFilePath: 'tests/tmp/pmd.xml'
+                cloverFilePath: './tests/tmp/clover.xml',
+                checkStyleFilePath: './tests/tmp/checkstyle.xml',
+                pmdFilePath: './tests/tmp/pmd.xml'
             ])
             reporter.collectAndSendReport('netric.com')
         }
