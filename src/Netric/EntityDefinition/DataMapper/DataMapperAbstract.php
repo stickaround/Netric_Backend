@@ -5,9 +5,9 @@
  * TODO: we are currently porting this over to v4 framework from v3
  * So far it has just been copied and the namespace replaced the prefix name
  *
- * @category	DataMapper
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
+ * @category    DataMapper
+ * @author      Sky Stebnicki, sky.stebnicki@aereus.com
+ * @copyright   Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
  */
 namespace Netric\EntityDefinition\DataMapper;
 
@@ -18,7 +18,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 {
     /**
      * The type of object this data mapper is handling
-     * 
+     *
      * @var string
      */
     protected $objType = "";
@@ -39,85 +39,88 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     abstract public function saveDef(EntityDefinition $def);
 
-	/**
-	 * Delete object definition
-	 *
-	 * @param EntityDefinition $def The definition to delete
-	 * @return bool true on success, false on failure
-	 */
-	public function delete(EntityDefinition $def)
-	{
-		$result = $this->deleteDef($def);
+    /**
+     * Delete object definition
+     *
+     * @param EntityDefinition $def The definition to delete
+     * @return bool true on success, false on failure
+     */
+    public function delete(EntityDefinition $def)
+    {
+        $result = $this->deleteDef($def);
 
-		// Clear cache the if we have successfully deleted a definition
-        if ($result)
-		    $this->getLoader()->clearCache($def->getObjType());
+        // Clear cache the if we have successfully deleted a definition
+        if ($result) {
+            $this->getLoader()->clearCache($def->getObjType());
+        }
 
         return $result;
-	}
+    }
  
-	/**
-	 * Save a definition
-	 *
-	 * @param EntityDefinition $def The definition to save
-	 * @return string|bool entity id on success, false on failure
-	 */
-	public function save(EntityDefinition $def)
+    /**
+     * Save a definition
+     *
+     * @param EntityDefinition $def The definition to save
+     * @return string|bool entity id on success, false on failure
+     */
+    public function save(EntityDefinition $def)
     {
-		// Increment revision
+        // Increment revision
         $def->revision += 1;
 
-		// Save data
-		$this->saveDef($def);
+        // Save data
+        $this->saveDef($def);
 
-		// Clear cache
-		$this->getLoader()->clearCache($def->getObjType());
-	}
+        // Clear cache
+        $this->getLoader()->clearCache($def->getObjType());
+    }
 
-	/**
-	 * Delete an object definition by name
-	 * 
+    /**
+     * Delete an object definition by name
+     *
      * @var string $objType The name of the object type
-	 * @return bool true on success, false on failure
-	 */
-	public function deleteByName($objType)
-	{
-		$def = $this->fetchByName($objType);
-		return $this->delete($def);
-	}
+     * @return bool true on success, false on failure
+     */
+    public function deleteByName($objType)
+    {
+        $def = $this->fetchByName($objType);
+        return $this->delete($def);
+    }
     
-	/**
-	 * Get definition loader using this mapper
-	 *
-	 * @return EntityDefinitionLoader
-	 */
-	public function getLoader()
-	{
+    /**
+     * Get definition loader using this mapper
+     *
+     * @return EntityDefinitionLoader
+     */
+    public function getLoader()
+    {
         return $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
-	}
+    }
 
-	/**
-	 * Get data for a grouping field (fkey)
-	 *
-	 * @param string $objType The object type name we are working with 
-	 * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
-	 * @param array $conditions Array of conditions used to slice the groupings
-	 * @param string $parent the parent id to query for subvalues
-	 * @param string $nameValue namevalue to query for a single grouping by name
-	 * @return array of grouping in an associate array("id", "title", "viewname", "color", "system", "children"=>array)
-	 */
-	public function getGroupings($objType, $fieldName, $filter=array())
-	{
-		$def = $this->getLoader()->get($objType);
-		if (!$def)
-			return false;
+    /**
+     * Get data for a grouping field (fkey)
+     *
+     * @param string $objType The object type name we are working with
+     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
+     * @param array $conditions Array of conditions used to slice the groupings
+     * @param string $parent the parent id to query for subvalues
+     * @param string $nameValue namevalue to query for a single grouping by name
+     * @return array of grouping in an associate array("id", "title", "viewname", "color", "system", "children"=>array)
+     */
+    public function getGroupings($objType, $fieldName, $filter = array())
+    {
+        $def = $this->getLoader()->get($objType);
+        if (!$def) {
+            return false;
+        }
 
-		$field = $def->getField($fieldName);
-		if (!$field)
-			return false;
+        $field = $def->getField($fieldName);
+        if (!$field) {
+            return false;
+        }
 
-		$data = $this->getGroupingsData($def, $field, $filter);
-	}
+        $data = $this->getGroupingsData($def, $field, $filter);
+    }
 
     /**
      * Update a definition from the local system in data/entity_definitions
@@ -126,7 +129,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @throws \InvalidArgumentException If a non-system definition is passed in
      * @return bool true if definition was updated, false if no updates were made
      */
-	public function updateSystemDefinition(EntityDefinition $def)
+    public function updateSystemDefinition(EntityDefinition $def)
     {
         if (!$def->system) {
             throw new \InvalidArgumentException("Can do a system update on a custom entity definition");
@@ -216,5 +219,4 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             }
         }
     }
-
 }

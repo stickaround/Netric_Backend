@@ -25,6 +25,9 @@ $entityIndex = $serviceManager->get(IndexFactory::class);
 // Get object types for each account
 $types = require(__DIR__ . "/../../../../../../data/account/object-types.php");
 
+// First, clear any objects that have a custom object_table
+$result = $db->query('UPDATE app_object_types SET object_table=NULL');
+
 /*
  * Loop through each type and update each object type definition
  * It is important that we update the object type definition first before moving the entities
@@ -32,6 +35,10 @@ $types = require(__DIR__ . "/../../../../../../data/account/object-types.php");
  */
 foreach ($types as $objDefData) {
     try {
+        // Clear any cache for the definition
+        $entityDefinitionLoader->clearCache($objDefData['obj_type']);
+
+        // Reload fresh from the database
         $def = $entityDefinitionDataMapper->fetchByName($objDefData['obj_type']);
         
         // Make sure it has all the latest changes from the local data/entity_definitions/
@@ -39,9 +46,6 @@ foreach ($types as $objDefData) {
 
         // Force a save to be sure all columns get created
         $entityDefinitionDataMapper->save($def);
-
-        // Clear any cache for the definition
-        $entityDefinitionLoader->clearCache($objDefData['obj_type']);
 
         $log->info("Update 004.001.018 successfully moved the {$objDefData['obj_type']} entity definition to objects_table");
     } catch (\Exception $ex) {

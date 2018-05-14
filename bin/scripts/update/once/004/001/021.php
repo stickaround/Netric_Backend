@@ -23,7 +23,7 @@ if ($account->getId() == 12) {
 }
 
 // Fix test account in integ
-if ($account->getId() == 1 && $account->getName() == 'integ') {
+if ($account->getName() == 'integ') {
     // Get the test user
     $testUser = $account->getUser(null, 'test@netric.com');
     $testUser->setValue('password', 'password');
