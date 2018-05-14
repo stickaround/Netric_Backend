@@ -1263,7 +1263,10 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                         $index = "btree";
                     }
                     break;
-
+                case 'auto':
+                    // Special type should not have a column
+                    $type = '';
+                    break;
                 default:
                     throw new \RuntimeException(
                         'Did not know how to create column ' .
