@@ -381,10 +381,10 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             $entity = $entityFactory->create($objType);
             $this->getById($entity, $matches[0]);
             return $entity;
-        } else {
-            // Could not find a unique match
-            return null;
         }
+        
+        // Could not find a unique match
+        return null;
     }
 
     /**

@@ -49,11 +49,11 @@ node {
 
             // Send reports to server for code quality metrics
             def workspace = pwd() 
-            sh 'ls -la {workspace}/tests/tmp/'
+            sh "ls -la ${workspace}/tests/tmp/"
             def reporter = new CodeQualityReporter([
-                cloverFilePath: '${workspace}/tests/tmp/clover.xml',
-                checkStyleFilePath: '${workspace}/tests/tmp/checkstyle.xml',
-                pmdFilePath: '${workspace}/tests/tmp/pmd.xml'
+                cloverFilePath: "${workspace}/tests/tmp/clover.xml",
+                checkStyleFilePath: "${workspace}/tests/tmp/checkstyle.xml",
+                pmdFilePath: "${workspace}/tests/tmp/pmd.xml"
             ])
             reporter.collectAndSendReport('netric.com')
         }
