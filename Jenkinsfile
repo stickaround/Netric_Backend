@@ -1,8 +1,6 @@
 @Library('aereus.pipeline') _
 
 import aereus.pipeline.CodeQualityReporter
-import aereus.pipeline.CodeQuality.getNumCrapMethodsFromClover
-import aereus.pipeline.CodeQuality.collectAndSendReport
 
 node {
     def dockerImage;
@@ -13,13 +11,6 @@ node {
         stage('Build') {
             sh 'printenv'
             checkout scm
-
-             // Send reports to server for code quality metrics
-            sh 'touch ./tests/tmp/clover.xml'
-            def workspace = pwd() 
-            sh "echo '<test></test>' >> "
-            def numCrap = getNumCrapMethodsFromClover("${workspace}/tests/tmp/clover.xml")
-            reporter.collectAndSendReport('test.netric.com', 3)
 
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest */
@@ -58,13 +49,10 @@ node {
             junit 'tests/tmp/logfile.xml'
 
             // Send reports to server for code quality metrics
-            def workspace = pwd() 
-            sh "ls -la ${workspace}/tests/tmp/clover.xml"
             def reporter = new CodeQualityReporter([
-                script: this,
-                cloverFilePath: "${workspace}/tests/tmp/clover.xml",
-                checkStyleFilePath: "${workspace}/tests/tmp/checkstyle.xml",
-                pmdFilePath: "${workspace}/tests/tmp/pmd.xml"
+                cloverFilePath: readfile("tests/tmp/clover.xml"),
+                checkStyleFilePath: readfile("tests/tmp/checkstyle.xml"),
+                pmdFilePath: readfile("tests/tmp/pmd.xml")
             ])
             reporter.collectAndSendReport('netric.com')
         }
