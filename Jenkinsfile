@@ -12,17 +12,6 @@ node {
             sh 'printenv'
             checkout scm
 
-            // Send reports to server for code quality metrics
-            sh 'touch ./tests/tmp/clover.xml'
-            def workspace = pwd() 
-            sh "ls -la ${workspace}/tests/tmp/clover.xml"
-            sh "echo '<test></test>' >> ${workspace}/tests/tmp/clover.xml"
-            def reporter = new CodeQualityReporter([
-                script: this,
-                cloverFilePath: "${workspace}/tests/tmp/clover.xml"
-            ])
-            reporter.collectAndSendReport('test.netric.com')
-
             docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                 /* If this is the master branch, punlish to stable, if it is develop publish to latest */
                 if (env.BRANCH_NAME == 'master') {
@@ -64,9 +53,9 @@ node {
             sh "ls -la ${workspace}/tests/tmp/clover.xml"
             def reporter = new CodeQualityReporter([
                 script: this,
-                cloverFilePath: "tests/tmp/clover.xml",
-                checkStyleFilePath: "tests/tmp/checkstyle.xml",
-                pmdFilePath: "tests/tmp/pmd.xml"
+                cloverFilePath: "${workspace}/tests/tmp/clover.xml",
+                checkStyleFilePath: "${workspace}/tests/tmp/checkstyle.xml",
+                pmdFilePath: "${workspace}/tests/tmp/pmd.xml"
             ])
             reporter.collectAndSendReport('netric.com')
         }
