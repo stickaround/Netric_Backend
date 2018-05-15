@@ -16,6 +16,7 @@ node {
             sh 'touch ./tests/tmp/clover.xml'
             def workspace = pwd() 
             sh "ls -la ${workspace}/tests/tmp/clover.xml"
+            sh "echo '<test></test>' >> ${workspace}/tests/tmp/clover.xml"
             def reporter = new CodeQualityReporter([
                 script: this,
                 cloverFilePath: "${workspace}/tests/tmp/clover.xml"
