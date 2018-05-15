@@ -50,9 +50,9 @@ node {
 
             // Send reports to server for code quality metrics
             def reporter = new CodeQualityReporter([
-                cloverFilePath: readfile("tests/tmp/clover.xml"),
-                checkStyleFilePath: readfile("tests/tmp/checkstyle.xml"),
-                pmdFilePath: readfile("tests/tmp/pmd.xml")
+                cloverFilePath: readFile("tests/tmp/clover.xml"),
+                checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
+                pmdFilePath: readFile("tests/tmp/pmd.xml")
             ])
             reporter.collectAndSendReport('netric.com')
         }
