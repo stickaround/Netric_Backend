@@ -12,13 +12,12 @@ node {
             sh 'printenv'
             checkout scm
 
-            sh 'touch tests/tmp/clover.xml'
-
             // Send reports to server for code quality metrics
+            sh 'touch ./tests/tmp/clover.xml'
             def workspace = pwd() 
             sh "ls -la ${workspace}/tests/tmp/clover.xml"
             def reporter = new CodeQualityReporter([
-                cloverFilePath: "tests/tmp/clover.xml"
+                cloverFilePath: "${workspace}/tests/tmp/clover.xml"
             ])
             reporter.collectAndSendReport('test.netric.com')
 
