@@ -124,6 +124,13 @@ foreach ($objectTypesToMove as $objectType) {
             $entity->fromArray($entityData);
             $newEntityId = $entityDataMapper->save($entity);
 
+            if (!$newEntityId) {
+                throw \RuntimeException(
+                    "Could not save entity " .
+                    var_export($entityDataMapper->getErrors(), true)
+                );
+            }
+
             // Now set the entity that it has been moved to new object table
             $entityDataMapper->setEntityMovedTo($def, $oldEntityId, $newEntityId);
 
