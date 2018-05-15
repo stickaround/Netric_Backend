@@ -49,7 +49,7 @@ node {
 
             // Send reports to server for code quality metrics
             def workspace = pwd() 
-            sh "ls -la ${workspace}/tests/tmp/"
+            sh "ls -la ${workspace}/tests/tmp/checkstyle.xml"
             def reporter = new CodeQualityReporter([
                 cloverFilePath: "${workspace}/tests/tmp/clover.xml",
                 checkStyleFilePath: "${workspace}/tests/tmp/checkstyle.xml",
