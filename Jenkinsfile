@@ -51,9 +51,9 @@ node {
             def workspace = pwd() 
             sh "ls -la ${workspace}/tests/tmp/clover.xml"
             def reporter = new CodeQualityReporter([
-                cloverFilePath: "${workspace}/tests/tmp/clover.xml",
-                checkStyleFilePath: "${workspace}/tests/tmp/checkstyle.xml",
-                pmdFilePath: "${workspace}/tests/tmp/pmd.xml"
+                cloverFilePath: "tests/tmp/clover.xml",
+                checkStyleFilePath: "tests/tmp/checkstyle.xml",
+                pmdFilePath: "tests/tmp/pmd.xml"
             ])
             reporter.collectAndSendReport('netric.com')
         }
