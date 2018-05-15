@@ -49,7 +49,7 @@
              highlight="true"
              lowUpperBound="50" highLowerBound="80" 
         />
-        <log type="coverage-clover" target="./tmp/coverage/clover.xml"
+        <log type="coverage-clover" target="./tmp/clover.xml"
              lowUpperBound="50" highLowerBound="80"
         />
         <log type="junit" target="./tmp/logfile.xml" logIncompleteSkipped="false"/>
