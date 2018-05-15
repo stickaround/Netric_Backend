@@ -44,16 +44,18 @@ node {
             // Create style and static analysis reports
             sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
             sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
-            sh 'ls -la tests/tmp/'
+            
 
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'
 
             // Send reports to server for code quality metrics
+            def workspace = pwd() 
+            sh 'ls -la {workspace}/tests/tmp/'
             def reporter = new CodeQualityReporter([
-                cloverFilePath: 'tests/tmp/clover.xml',
-                checkStyleFilePath: 'tests/tmp/checkstyle.xml',
-                pmdFilePath: 'tests/tmp/pmd.xml'
+                cloverFilePath: '${workspace}/tests/tmp/clover.xml',
+                checkStyleFilePath: '${workspace}/tests/tmp/checkstyle.xml',
+                pmdFilePath: '${workspace}/tests/tmp/pmd.xml'
             ])
             reporter.collectAndSendReport('netric.com')
         }
