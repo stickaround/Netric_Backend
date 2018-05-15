@@ -28,8 +28,6 @@ node {
             }
 
             dockerImage = docker.build('netric');
-
-
         }
 
         stage('Test') {
