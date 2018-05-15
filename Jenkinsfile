@@ -44,6 +44,7 @@ node {
             // Create style and static analysis reports
             sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
             sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
+            sh 'ls -la tests/tmp/'
 
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             junit 'tests/tmp/logfile.xml'

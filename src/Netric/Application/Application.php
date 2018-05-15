@@ -224,14 +224,11 @@ class Application
         }
 
         // Get the account with either $accountId or $accountName
-        $account = null;
         if ($accountId) {
-            $account = $this->accountsIdentityMapper->loadById($accountId, $this);
-        } else {
-            $account = $this->accountsIdentityMapper->loadByName($accountName, $this);
+            return $this->accountsIdentityMapper->loadById($accountId, $this);
         }
-
-        return $account;
+        
+        return $this->accountsIdentityMapper->loadByName($accountName, $this);
     }
 
     /**
