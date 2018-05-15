@@ -131,7 +131,7 @@ class Application
      * @param Config $config
      * @return Application
      */
-    static public function init(Config $config)
+    public static function init(Config $config)
     {
         return new Application($config);
     }
@@ -169,8 +169,11 @@ class Application
         } catch (\Exception $unhandledException) {
             // An exception took place and was not handled
             $this->getLog()->error(
-                'Unhandled application exception: ' .
-                $unhandledException->getMessage()
+                'Unhandled application exception in ' .
+                $unhandledException->getFile() .
+                ':' . $unhandledException->getLine() .
+                "; message=" . $unhandledException->getMessage() .
+                "\n" . $unhandledException->getTraceAsString()
             );
             $runWasSuccessful = false;
         }
@@ -212,18 +215,21 @@ class Application
     public function getAccount($accountId = "", $accountName = "")
     {
         // If no specific account is set to be loaded, then get current/default
-        if (!$accountId && !$accountName)
+        if (!$accountId && !$accountName) {
             $accountName = $this->getAccountName();
+        }
 
-        if (!$accountId && !$accountName)
+        if (!$accountId && !$accountName) {
             throw new \Exception("Cannot get account without accountName");
+        }
 
         // Get the account with either $accountId or $accountName
         $account = null;
-        if ($accountId)
+        if ($accountId) {
             $account = $this->accountsIdentityMapper->loadById($accountId, $this);
-        else
+        } else {
             $account = $this->accountsIdentityMapper->loadByName($accountName, $this);
+        }
 
         return $account;
     }
@@ -297,8 +303,9 @@ class Application
         if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
             && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)) {
             $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
-            if ($left)
+            if ($left) {
                 return $left;
+            }
         }
 
         // Check get - less common
@@ -314,8 +321,9 @@ class Application
         // Check for any third level domain (not sure if this is safe)
         if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.') >= 2) {
             $left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
-            if ($left)
+            if ($left) {
                 return $left;
+            }
         }
 
         // Get default account from the system settings
@@ -578,8 +586,6 @@ class Application
         foreach ($xhprofData as $functionAndCalledFrom => $stats) {
             // If the total walltime (duration) of the function is worth tracking then log
             if ((int)$stats['wt'] >= (int)$this->config->profile->min_wall) {
-
-
                 $functionCalled = $functionAndCalledFrom;
                 $calledFrom = "";
 

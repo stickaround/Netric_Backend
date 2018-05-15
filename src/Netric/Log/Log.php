@@ -1,7 +1,7 @@
 <?php
 /**
  * Netric logger class
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
@@ -15,19 +15,19 @@ use Netric\Config\Config;
  */
 class Log implements LogInterface
 {
-	/**
-	 * Path to the log file
-	 *
-	 * @var string
-	 */
-	private $logPath = "";
+    /**
+     * Path to the log file
+     *
+     * @var string
+     */
+    private $logPath = "";
 
     /**
      * Optional remote server if using syslog
      *
      * @var string
      */
-	private $syslogRemoteServer = "";
+    private $syslogRemoteServer = "";
 
     /**
      * Optional remote syslog server port
@@ -36,40 +36,40 @@ class Log implements LogInterface
      *
      * @var int
      */
-	private $syslogRemotePort = 541;
+    private $syslogRemotePort = 541;
 
-	/**
-	 * Log file handle
-	 *
-	 * @var int File handle
-	 */
-	private $logFile = null;
+    /**
+     * Log file handle
+     *
+     * @var int File handle
+     */
+    private $logFile = null;
 
     /**
      * If this is set we will add it to every log to make tracking all calls/events easier
      *
      * @var string
      */
-	private $requestId = "";
+    private $requestId = "";
 
-	/**
-	 * Log levels
-	 */
-	const LOG_EMERG = 0;
-	const LOG_ALERT = 1;
-	const LOG_CRIT = 2;
-	const LOG_ERR = 3;
-	const LOG_WARNING = 4;
-	const LOG_NOTICE = 5;
-	const LOG_INFO = 6;
-	const LOG_DEBUG = 7;
+    /**
+     * Log levels
+     */
+    const LOG_EMERG = 0;
+    const LOG_ALERT = 1;
+    const LOG_CRIT = 2;
+    const LOG_ERR = 3;
+    const LOG_WARNING = 4;
+    const LOG_NOTICE = 5;
+    const LOG_INFO = 6;
+    const LOG_DEBUG = 7;
 
-	/**
-	 * Current log level
-	 *
-	 * @var int
-	 */
-	private $level = self::LOG_ERR;
+    /**
+     * Current log level
+     *
+     * @var int
+     */
+    private $level = self::LOG_ERR;
 
     /**
      * Log writers
@@ -99,18 +99,18 @@ class Log implements LogInterface
      */
     private $printToConsole = false;
 
-	/**
-	 * Constructor
-	 *
-	 * @param Config $config
-	 */
-	public function __construct(Config $config)
-	{
+    /**
+     * Constructor
+     *
+     * @param Config $config
+     */
+    public function __construct(Config $config)
+    {
         // Determine which writer we are using based on the config
         $this->setLogWriter($config->log);
 
-		// Set current logging level if defined
-		if ($config->log_level) {
+        // Set current logging level if defined
+        if ($config->log_level) {
             $this->level = $config->log_level;
         }
 
@@ -126,18 +126,18 @@ class Log implements LogInterface
                 $this->syslogRemotePort = $config->log_syslog_server_port;
             }
         }
-	}
+    }
 
     /**
      * Determine which writer we are going to use
      *
      * @param string $log
      */
-	public function setLogWriter($log)
+    public function setLogWriter($log)
     {
         if (self::WRITER_SYSLOG === $log) {
             $this->writer = self::WRITER_SYSLOG;
-        } else if (self::WRITER_STDERR === $log) {
+        } elseif (self::WRITER_STDERR === $log) {
             $this->writer = self::WRITER_STDERR;
             $this->logPath = "php://stderr";
         } else {
@@ -188,37 +188,38 @@ class Log implements LogInterface
         }
     }
 
-	/**
-	 * Destructor - cleanup file handles
-	 */
-	public function __destruct()
-	{
-		// This will be deprecated when we move it all to syslog
-		if ($this->logFile != null)
-			@fclose($this->logFile);
+    /**
+     * Destructor - cleanup file handles
+     */
+    public function __destruct()
+    {
+        // This will be deprecated when we move it all to syslog
+        if ($this->logFile != null) {
+            @fclose($this->logFile);
+        }
 
-		// Close connection to the system log
-		closelog();
-	}
+        // Close connection to the system log
+        closelog();
+    }
 
-	/**
-	 * Put a new entry into the log
-	 *
-	 * This is usually called by one of the aliased methods like info, error, warning
-	 * which in turn just sets the level and writes to this method.
-	 *
-	 * @param int $lvl The level of the event being logged
-	 * @param string|array $message The message to log
+    /**
+     * Put a new entry into the log
+     *
+     * This is usually called by one of the aliased methods like info, error, warning
+     * which in turn just sets the level and writes to this method.
+     *
+     * @param int $lvl The level of the event being logged
+     * @param string|array $message The message to log
      * @return bool true on success, false on failure
-	 */
-	public function writeLog($lvl, $message)
-	{
-		// Only log events below the current logging level set
-		if ($lvl > $this->level) {
+     */
+    public function writeLog($lvl, $message)
+    {
+        // Only log events below the current logging level set
+        if ($lvl > $this->level) {
             return false;
         }
 
-		// Prepare the log
+        // Prepare the log
         $logDetails = array(
             'time' => gmdate("Y-m-d\TH:i:s\Z"),
             'level' => $lvl,
@@ -230,18 +231,18 @@ class Log implements LogInterface
             'application_version' => ($this->appBranch) ? $this->appBranch : 'release'
         );
 
-		if (!is_array($message)) {
-		    $logDetails['message'] = $message;
+        if (!is_array($message)) {
+            $logDetails['message'] = $message;
         }
 
-		// Add request to the log if available
-		if (isset($_SERVER['REQUEST_URI'])) {
-		    $logDetails['request'] = $_SERVER['REQUEST_URI'];
+        // Add request to the log if available
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $logDetails['request'] = $_SERVER['REQUEST_URI'];
         }
 
         // If the request ID was set the log it
         if ($this->requestId) {
-		    $logDetails['request_id'] = $this->requestId;
+            $logDetails['request_id'] = $this->requestId;
         }
 
         /*
@@ -251,7 +252,7 @@ class Log implements LogInterface
          * from and override application_name to the client's name.
          */
         if (is_array($message)) {
-            foreach ($message as $key=>$val) {
+            foreach ($message as $key => $val) {
                 $logDetails[$key] = $val;
             }
         }
@@ -269,26 +270,26 @@ class Log implements LogInterface
         return false;
 
         /*
-		global $_SERVER;
+        global $_SERVER;
 
-		$source = "ANT";
-		if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'])
-			$source = $_SERVER['REQUEST_URI'];
-		else if (isset($_SERVER['PHP_SELF']) && $_SERVER['PHP_SELF'])
-			$source = $_SERVER['PHP_SELF'];
+        $source = "ANT";
+        if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'])
+            $source = $_SERVER['REQUEST_URI'];
+        else if (isset($_SERVER['PHP_SELF']) && $_SERVER['PHP_SELF'])
+            $source = $_SERVER['PHP_SELF'];
 
-		$server = "";
-		if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME'])
-			$server = $_SERVER['SERVER_NAME'];
+        $server = "";
+        if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME'])
+            $server = $_SERVER['SERVER_NAME'];
 
-		$eventData = array();
-		$eventData[$this->logDef["LEVEL"]] = "<" . LOG_LOCAL3 . "." . $lvl . ">";
-		$eventData[$this->logDef["TIME"]] = date('M d H:i:s');
-		$eventData[$this->logDef["DETAILS"]] = $message;
-		$eventData[$this->logDef["SOURCE"]] = $source;
-		$eventData[$this->logDef["SERVER"]] = $server;
-		$eventData[$this->logDef["ACCOUNT"]] = "";
-		$eventData[$this->logDef["USER"]] = "";
+        $eventData = array();
+        $eventData[$this->logDef["LEVEL"]] = "<" . LOG_LOCAL3 . "." . $lvl . ">";
+        $eventData[$this->logDef["TIME"]] = date('M d H:i:s');
+        $eventData[$this->logDef["DETAILS"]] = $message;
+        $eventData[$this->logDef["SOURCE"]] = $source;
+        $eventData[$this->logDef["SERVER"]] = $server;
+        $eventData[$this->logDef["ACCOUNT"]] = "";
+        $eventData[$this->logDef["USER"]] = "";
 
         // If flag is set to print to the console, then do it now
         if ($this->printToConsole) {
@@ -298,7 +299,7 @@ class Log implements LogInterface
         }
 
         // If we are logging to a file, then write it here
-		if ($this->logFile) {
+        if ($this->logFile) {
             /*
              [Mon Jul 18 13:19:31.260660 2016] [:error] [pid 86] [client 172.18.0.1:33174] PHP   8. Zen
              *
@@ -315,62 +316,62 @@ class Log implements LogInterface
             //return syslog($lvl, "branch={$this->appBranch}, page=$source, message=$message");
         }
         */
-	}
+    }
 
-	/**
-	 * Log an informational message
-	 * 
-	 * @param string|array $message The message to insert into the log
+    /**
+     * Log an informational message
+     *
+     * @param string|array $message The message to insert into the log
      * @return bool true if success
-	 */
-	public function info($message)
-	{
-		return $this->writeLog(self::LOG_INFO, $message);
-	}
+     */
+    public function info($message)
+    {
+        return $this->writeLog(self::LOG_INFO, $message);
+    }
 
-	/**
-	 * Log a warning message
-	 * 
-	 * @param string|array $message The message to insert into the log
+    /**
+     * Log a warning message
+     *
+     * @param string|array $message The message to insert into the log
      * @return bool true if success
-	 */
-	public function warning($message)
-	{
-		return $this->writeLog(self::LOG_WARNING, $message);
-	}
+     */
+    public function warning($message)
+    {
+        return $this->writeLog(self::LOG_WARNING, $message);
+    }
 
-	/**
-	 * Log an error message
-	 * 
-	 * @param string|array $message The message to insert into the log
+    /**
+     * Log an error message
+     *
+     * @param string|array $message The message to insert into the log
      * @return bool true if success
-	 */
-	public function error($message)
-	{
-		return $this->writeLog(self::LOG_ERR, $message);
-	}
+     */
+    public function error($message)
+    {
+        return $this->writeLog(self::LOG_ERR, $message);
+    }
 
-	/**
-	 * Log a debug message
-	 * 
-	 * @param string|array $message The message to insert into the log
+    /**
+     * Log a debug message
+     *
+     * @param string|array $message The message to insert into the log
      * @return bool true if success
-	 */
-	public function debug($message)
-	{
-		return $this->writeLog(self::LOG_DEBUG, $message);
-	}
+     */
+    public function debug($message)
+    {
+        return $this->writeLog(self::LOG_DEBUG, $message);
+    }
 
-	/**
-	 * Get textual representation of the level
-	 *
-	 * @param int $lvl The level to convert
-	 * @return string Textual representation of level
-	 */
-	public function getLevelName($lvl)
-	{
+    /**
+     * Get textual representation of the level
+     *
+     * @param int $lvl The level to convert
+     * @return string Textual representation of level
+     */
+    public function getLevelName($lvl)
+    {
         // taken from syslog + http:// nl3.php.net/syslog for log levels
-        switch( $lvl ) {
+        switch ($lvl) {
             case self::LOG_EMERG:
                 // system is unusable
                 return "emergency";
@@ -396,182 +397,168 @@ class Log implements LogInterface
                 // debug-level message
                 return "debug";
         }
-	}
+    }
 
-	/**
-	 * PHP error handler function is called with set_error_handler early in execution
-	 *
-	 * @param int $errno The error code
-	 * @param string $errstr The error message
-	 * @param string $errfile The file originating the error
-	 * @param int $errline The line that triggered the error
-	 * @param array $errcontext Every variable that existed in the scope the error was triggered in
-	 */
-	public function phpErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
-	{
-		// if error has been supressed with an @
-		if (error_reporting() == 0) {
-			return;
-		}
+    /**
+     * PHP error handler function is called with set_error_handler early in execution
+     *
+     * @param int $errno The error code
+     * @param string $errstr The error message
+     * @param string $errfile The file originating the error
+     * @param int $errline The line that triggered the error
+     * @param array $errcontext Every variable that existed in the scope the error was triggered in
+     */
+    public function phpErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    {
+        // if error has been supressed with an @
+        if (error_reporting() == 0) {
+            return;
+        }
 
-		// check if function has been called by an exception
-		if(func_num_args() == 5) 
-		{
-			// called by trigger_error()
-			$exception = null;
-			list($errno, $errstr, $errfile, $errline) = func_get_args();
-			$backtrace = array_reverse(debug_backtrace());
-		}
-		else 
-		{
-			// called by unhandled exception
-			$exc = func_get_arg(0);
-			$errno = $exc->getCode();
-			$errstr = $exc->getMessage();
-			$errfile = $exc->getFile();
-			$errline = $exc->getLine();
-			$backtrace = $exc->getTrace();
-		}
+        // check if function has been called by an exception
+        if (func_num_args() == 5) {
+            // called by trigger_error()
+            $exception = null;
+            list($errno, $errstr, $errfile, $errline) = func_get_args();
+            $backtrace = array_reverse(debug_backtrace());
+        } else {
+            // called by unhandled exception
+            $exc = func_get_arg(0);
+            $errno = $exc->getCode();
+            $errstr = $exc->getMessage();
+            $errfile = $exc->getFile();
+            $errline = $exc->getLine();
+            $backtrace = $exc->getTrace();
+        }
 
-		$errorType = array (
-			E_ERROR          => 'ERROR',
-			E_WARNING        => 'WARNING',
-			E_PARSE          => 'PARSING ERROR',
-			E_NOTICE         => 'NOTICE',
-			E_CORE_ERROR     => 'CORE ERROR',
-			E_CORE_WARNING   => 'CORE WARNING',
-			E_COMPILE_ERROR  => 'COMPILE ERROR',
-			E_COMPILE_WARNING => 'COMPILE WARNING',
-			E_USER_ERROR     => 'USER ERROR',
-			E_USER_WARNING   => 'USER WARNING',
-			E_USER_NOTICE    => 'USER NOTICE',
-			E_STRICT         => 'STRICT NOTICE',
-			E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
-		);
+        $errorType = array (
+            E_ERROR          => 'ERROR',
+            E_WARNING        => 'WARNING',
+            E_PARSE          => 'PARSING ERROR',
+            E_NOTICE         => 'NOTICE',
+            E_CORE_ERROR     => 'CORE ERROR',
+            E_CORE_WARNING   => 'CORE WARNING',
+            E_COMPILE_ERROR  => 'COMPILE ERROR',
+            E_COMPILE_WARNING => 'COMPILE WARNING',
+            E_USER_ERROR     => 'USER ERROR',
+            E_USER_WARNING   => 'USER WARNING',
+            E_USER_NOTICE    => 'USER NOTICE',
+            E_STRICT         => 'STRICT NOTICE',
+            E_RECOVERABLE_ERROR  => 'RECOVERABLE ERROR',
+        );
 
-		// create error message
-		if (array_key_exists($errno, $errorType)) 
-		{
-			$err = $errorType[$errno];
-		} 
-		else 
-		{
-			$err = 'UNHANDLED ERROR';
-		}
+        // create error message
+        if (array_key_exists($errno, $errorType)) {
+            $err = $errorType[$errno];
+        } else {
+            $err = 'UNHANDLED ERROR';
+        }
 
-		$errMsg = "$err: $errstr in $errfile on line $errline";
+        $errMsg = "$err: $errstr in $errfile on line $errline";
 
-		// start backtrace
+        // start backtrace
         $trace = "";
-		foreach ($backtrace as $v) 
-		{
-			if (isset($v['class'])) 
-			{
-				$trace = 'in class '.$v['class'].'::'.$v['function'].'(';
+        foreach ($backtrace as $v) {
+            if (isset($v['class'])) {
+                $trace = 'in class '.$v['class'].'::'.$v['function'].'(';
 
-				if (isset($v['args'])) 
-				{
-					$separator = '';
+                if (isset($v['args'])) {
+                    $separator = '';
 
-					foreach($v['args'] as $arg ) 
-					{
-						$trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
-						$separator = ', ';
-					}
-				}
-				$trace .= ')';
-			}
-			elseif (isset($v['function']) && empty($trace)) 
-			{
-				$trace = 'in function '.$v['function'].'(';
-				if (!empty($v['args'])) 
-				{
-					$separator = '';
+                    foreach ($v['args'] as $arg) {
+                        $trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
+                        $separator = ', ';
+                    }
+                }
+                $trace .= ')';
+            } elseif (isset($v['function']) && empty($trace)) {
+                $trace = 'in function '.$v['function'].'(';
+                if (!empty($v['args'])) {
+                    $separator = '';
 
-					foreach($v['args'] as $arg ) 
-					{
-						$trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
-						$separator = ', ';
-					}
-				}
-				$trace .= ')';
-			}
-		}
+                    foreach ($v['args'] as $arg) {
+                        $trace .= "$separator".$this->getPhpErrorArgumentStr($arg);
+                        $separator = ', ';
+                    }
+                }
+                $trace .= ')';
+            }
+        }
 
-		// what to do
-		switch ($errno) 
-		{
-		case E_NOTICE:
-		case E_USER_NOTICE:
-		case E_STRICT:
-		case E_DEPRECATED:
-			return;
-			break;
+        // what to do
+        switch ($errno) {
+            case E_NOTICE:
+            case E_USER_NOTICE:
+            case E_STRICT:
+            case E_DEPRECATED:
+                return;
+            break;
 
-		default:
+            default:
+                // Log the error
+                $this->error($errMsg . "\nTrace:\n" . $trace);
 
+                break;
+        }
+    }
 
+    /**
+     * Log an unhandled exception
+     *
+     * @param \Exception $exception
+     */
+    public function phpUnhandledExceptionHandler($exception)
+    {
+        $errno = $exception->getCode();
+        $errstr = $exception->getMessage();
+        $errfile = $exception->getFile();
+        $errline = $exception->getLine();
+        $backtrace = $exception->getTraceAsString();
 
-			// Log the error
-			$this->error($errMsg . "\nTrace:\n" . $trace);
-
-			break;
-		}
-	}
-
-	/**
-	 * Log an unhandled exception
-	 *
-	 * @param \Exception $exception
-	 */
-	public function phpUnhandledExceptionHandler($exception)
-	{
-		$errno = $exception->getCode();
-		$errstr = $exception->getMessage();
-		$errfile = $exception->getFile();
-		$errline = $exception->getLine();
-		$backtrace = $exception->getTraceAsString();
-
-		$body = "errNo = \"$errno: $errstr in $errfile on line $errline\";\n";
-		if (isset($_COOKIE['uname']))
+        $body = "errNo = \"$errno: $errstr in $errfile on line $errline\";\n";
+        if (isset($_COOKIE['uname'])) {
             $body .= "USER_NAME: ".$_COOKIE['uname']."\n";
-		$body .= "Type: System\n";
-		if (isset($_COOKIE['db']))
+        }
+        $body .= "Type: System\n";
+        if (isset($_COOKIE['db'])) {
             $body .= "DATABASE: ".$_COOKIE['db']."\n";
-		if (isset($_COOKIE['dbs']))
+        }
+        if (isset($_COOKIE['dbs'])) {
             $body .= "DATABASE_SERVER: ".$_COOKIE['dbs']."\n";
-		if (isset($_COOKIE['aname']))
+        }
+        if (isset($_COOKIE['aname'])) {
             $body .= "ACCOUNT_NAME: ".$_COOKIE['aname']."\n";
+        }
 
-		$body .= "When: ".date('Y-m-d H:i:s')."\n";
-		$body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
-		$body .= "----------------------------------------------\n";
-		$body .= $errstr."\nTrace: $backtrace";
-		$body .= "\n----------------------------------------------\n";
+        $body .= "When: ".date('Y-m-d H:i:s')."\n";
+        $body .= "PAGE: ".$_SERVER['PHP_SELF']."\n";
+        $body .= "----------------------------------------------\n";
+        $body .= $errstr."\nTrace: $backtrace";
+        $body .= "\n----------------------------------------------\n";
 
-		// Log the error
-		$this->error($body);
-	}
+        // Log the error
+        $this->error($body);
+    }
 
-	/**
-	 * Capture PHP shutdown event to look for a fatal error
-	 */
-	public function phpShutdownErrorChecker()
-	{
-		// Check for a fatal error that would halted execution
-		$error = error_get_last();
-		if (null != $error)
-		{
-			if ($error['type'] <= E_ERROR)
-			{
-				$this->phpErrorHandler($error['type'], 
-					$error['message'], 
-					$error['file'], 
-					$error['line'], array()
-				);
-			}
-		}
-	}
+    /**
+     * Capture PHP shutdown event to look for a fatal error
+     */
+    public function phpShutdownErrorChecker()
+    {
+        // Check for a fatal error that would halted execution
+        $error = error_get_last();
+        if (null != $error) {
+            if ($error['type'] <= E_ERROR) {
+                $this->phpErrorHandler(
+                    $error['type'],
+                    $error['message'],
+                    $error['file'],
+                    $error['line'],
+                    array()
+                );
+            }
+        }
+    }
 
     /**
      * Set or unset a flag that will print all logs to the console
@@ -588,10 +575,9 @@ class Log implements LogInterface
      */
     private function getPhpErrorArgumentStr($arg)
     {
-        switch (strtolower(gettype($arg)))
-        {
+        switch (strtolower(gettype($arg))) {
             case 'string':
-                return( '"'.str_replace( array("\n"), array(''), $arg ).'"' );
+                return( '"'.str_replace(array("\n"), array(''), $arg).'"' );
 
             case 'boolean':
                 return (bool)$arg;
@@ -603,8 +589,7 @@ class Log implements LogInterface
                 $ret = 'array(';
                 $separtor = '';
 
-                foreach ($arg as $k => $v)
-                {
+                foreach ($arg as $k => $v) {
                     //$ret .= $separtor.$this->getPhpErrorArgumentStr).' => '.$this->getPhpErrorArgumentStr);
                     $separtor = ', ';
                 }
@@ -634,7 +619,7 @@ class Log implements LogInterface
         //openlog("netric", LOG_PID, LOG_LOCAL5);
 
         // Use local syslog unless a remote server was configured
-        if(empty($this->syslogRemoteServer)) {
+        if (empty($this->syslogRemoteServer)) {
             syslog($logDetails['level'], $logDetails['message']);
         }
 
