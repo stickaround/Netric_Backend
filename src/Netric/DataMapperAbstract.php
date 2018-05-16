@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
  *
@@ -44,7 +45,7 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	 */
 	public function setAccount(Account $account)
 	{
-		$this->account = $account; 
+		$this->account = $account;
 	}
 
 	/**
@@ -57,7 +58,7 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	 * @param mixed $retVal What to return, usually a false
 	 * @return mixed the value of $retVal param which is false by default
 	 */
-	protected function returnError($message, $file=null, $line=null, $retVal=false)
+	protected function returnError($message, $file = null, $line = null, $retVal = false)
 	{
 		$this->errors[] = array(
 			'message' => $message,
@@ -82,9 +83,8 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
 	{
 		// TODO: we should move this to returning an Error
 		$numErrors = count($this->errors);
-		if ($numErrors > 0)
-		{
-			return $this->errors[$numErrors-1]['message'];
+		if ($numErrors > 0) {
+			return $this->errors[$numErrors - 1]['message'];
 		}
 
 		return "";

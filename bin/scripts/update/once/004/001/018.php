@@ -131,7 +131,7 @@ foreach ($objectTypesToMove as $objectType) {
                         "Could not save entity %s.%s: %s",
                         $objectType,
                         $oldEntityId,
-                        print_r($entityDataMapper->getErrors(), true)
+                        $entityDataMapper->getLastError()
                     )
                 );
             }
