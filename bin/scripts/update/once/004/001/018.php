@@ -125,7 +125,7 @@ foreach ($objectTypesToMove as $objectType) {
             $newEntityId = $entityDataMapper->save($entity);
 
             if (!$newEntityId) {
-                throw \RuntimeException(
+                throw new \RuntimeException(
                     "Could not save entity " .
                     var_export($entityDataMapper->getErrors(), true)
                 );
