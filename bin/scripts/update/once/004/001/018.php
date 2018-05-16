@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Move all custom table entities over to objects_* table so that we no longer
  * have to deal with custom tables from entities
@@ -126,8 +127,10 @@ foreach ($objectTypesToMove as $objectType) {
 
             if (!$newEntityId) {
                 throw new \RuntimeException(
-                    "Could not save entity " .
-                    var_export($entityDataMapper->getErrors(), true)
+                    sprintf(
+                        "Could not save entity %s" .
+                            print_r($entityDataMapper->getErrors(), true)
+                    )
                 );
             }
 
