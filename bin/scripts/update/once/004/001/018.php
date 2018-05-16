@@ -121,6 +121,11 @@ foreach ($objectTypesToMove as $objectType) {
             // Create a new entity to save
             $entity = $entityLoader->create($objType);
 
+            // If this is a customer remove uname since we no longer use it
+            if ($objType == 'customer') {
+                $entityData['uname'] = '';
+            }
+
             // Parse the params of the entity
             $entity->fromArray($entityData);
             $newEntityId = $entityDataMapper->save($entity);
@@ -129,7 +134,7 @@ foreach ($objectTypesToMove as $objectType) {
                 throw new \RuntimeException(
                     sprintf(
                         "Could not save entity %s.%s: %s",
-                        $objectType,
+                        $objType,
                         $oldEntityId,
                         print_r($entityDataMapper->getErrors(), true)
                     )
