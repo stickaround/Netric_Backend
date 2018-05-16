@@ -83,7 +83,7 @@ abstract class DataMapperAbstract implements Error\ErrorAwareInterface
     {
         // TODO: we should move this to returning an Error
         $numErrors = count($this->errors);
-        if ($numErrors > 0) {
+        if ($numErrors > 0 && isset($this->errors[$numErrors - 1]['message'])) {
             return $this->errors[$numErrors - 1]['message'];
         }
 
