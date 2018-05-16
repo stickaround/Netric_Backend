@@ -329,7 +329,7 @@ class AuthDotNetGateway implements PaymentGatewayInterface
             );
 
             if ($tresponse && $tresponse->getErrors() !== null) {
-                $this->lastErrorMessage = getErrors()[0]->getErrorCode() . ': ' . $tresponse->getErrors()[0]->getErrorText();
+                $this->lastErrorMessage = $tresponse->getErrors()[0]->getErrorCode() . ': ' . $tresponse->getErrors()[0]->getErrorText();
             }
 
             return $chargeResponse;
