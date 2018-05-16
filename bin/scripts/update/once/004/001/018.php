@@ -128,8 +128,10 @@ foreach ($objectTypesToMove as $objectType) {
             if (!$newEntityId) {
                 throw new \RuntimeException(
                     sprintf(
-                        "Could not save entity %s" .
-                            print_r($entityDataMapper->getErrors(), true)
+                        "Could not save entity %s.%s: %s",
+                        $objectType,
+                        $oldEntityId,
+                        print_r($entityDataMapper->getErrors(), true)
                     )
                 );
             }
