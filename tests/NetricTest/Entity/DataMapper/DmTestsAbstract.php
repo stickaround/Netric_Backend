@@ -740,8 +740,8 @@ abstract class DmTestsAbstract extends TestCase
 
 		$uniqueName = uniqid();
 
-		// Try saving an entity with an obviously unique name
-		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		// Try saving a dashboard entity with an obviously unique name
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("dashboard");
 		$customer->setValue("uname", $uniqueName);
 		$dm->save($customer, $this->user);
 
@@ -750,7 +750,7 @@ abstract class DmTestsAbstract extends TestCase
 		$this->testEntities[] = $customer;
 
 		// Create a second entity and make sure we could not set the same uname
-		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("dashboard");
 		$isUnique = $dm->verifyUniqueName($customer2, $uniqueName);
 		$this->assertEquals(false, $isUnique);
 	}
@@ -763,7 +763,7 @@ abstract class DmTestsAbstract extends TestCase
 		$dm = $this->getDataMapper();
 
         // Try saving an entity with an obviously unique name
-		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+		$customer = $this->account->getServiceManager()->get("EntityLoader")->create("dashboard");
 		$customer->setValue("name", "test unique name");
 		$dm->save($customer, $this->user);
 

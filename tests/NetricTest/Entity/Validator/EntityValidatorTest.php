@@ -69,16 +69,16 @@ class EntityValidatorTest extends TestCase
 
         $uname = 'utest-cust-' . rand(0, 1000);
 
-        // Create first customer with uname
-        $entity1 = $serviceManager->get(EntityFactoryFactory::class)->create("customer");
+        // Create first dashboard with uname
+        $entity1 = $serviceManager->get(EntityFactoryFactory::class)->create("dashboard");
         $entity1->setValue('name', $uname); // will automatically set uname
         $entityDataMapper->save($entity1);
         $this->testEntities[] = $entity1;
         $isValid = $this->validator->isValid($entity1, $entityDataMapper);
         $this->assertTrue($isValid);
 
-        // Now try to create another customer with the same uname
-        $entity2 = $serviceManager->get(EntityFactoryFactory::class)->create("customer");
+        // Now try to create another dashboard with the same uname
+        $entity2 = $serviceManager->get(EntityFactoryFactory::class)->create("dashboard");
         $entity2->setValue('name', $uname . '-copy');
         $entity2->setValue('uname', $uname); // manually set to same as above
 
