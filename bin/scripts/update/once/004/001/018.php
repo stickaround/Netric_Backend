@@ -17,6 +17,7 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $log = $account->getApplication()->getLog();
 $db = $serviceManager->get(RelationalDbFactory::class);
+$dbLegacy = $serviceManager->get(DbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
@@ -109,7 +110,7 @@ foreach ($objectTypesToMove as $objectType) {
         if (!$entityDataMapper->checkEntityHasMoved($def, $oldEntityId)) {
             // Load old entity data
             $oldEntity = $entityLoader->create($objType);
-            fetchById($oldEntity, $oldEntityId, $oldTable);
+            fetchById($oldEntity, $oldEntityId, $oldTable, $dbLegacy, $entityLoader);
             $entityData = $oldEntity->toArray();
             
             // Create a new entity to save
@@ -125,7 +126,7 @@ foreach ($objectTypesToMove as $objectType) {
 
             // Parse the params of the entity
             $newEntity->fromArray($entityData);
-            $newEntity->resetDirty();
+            $newEntity->resetIsDirty();
             $newEntityId = $entityDataMapper->save($newEntity);
 
             if (!$newEntityId) {
@@ -139,10 +140,9 @@ foreach ($objectTypesToMove as $objectType) {
                 );
             }
 
-
             $log->info(
                 "Update 004.001.018 moved {$objType}.$oldEntityId to " .
-                $entity->getTable() . '.' . $newEntityId
+                $def->getTable() . '.' . $newEntityId
             );
 
             // Now set the entity that it has been moved to new object table
@@ -156,11 +156,8 @@ foreach ($objectTypesToMove as $objectType) {
  */
 
 
-function fetchById(&$entity, $id, $tableName)
+function fetchById(&$entity, $id, $tableName, $dbh, $entityLoader)
 {
-    // Get legacy db
-    global $serviceManager;
-    $dbh = $serviceManager->get(DbFactory::class);
     $def = $entity->getDefinition();
     $query = "select * from " . $tableName . " where id='" . $dbh->escape($id) . "'";
     $result = $dbh->query($query);
@@ -180,7 +177,7 @@ function fetchById(&$entity, $id, $tableName)
 
             // If fval is not set which should only occur on old objects prior to caching data in version 2
             if (!$row[$fname . "_fval"] || ($row[$fname . "_fval"] == '[]' && $row[$fname] != '[]' && $row[$fname] != '')) {
-                $mvals = getForeignKeyDataFromDb($fdef, $row[$fname], $entity->getId(), $def->getId());
+                $mvals = getForeignKeyDataFromDb($fdef, $row[$fname], $entity->getId(), $def->getId(), $dbh, $entityLoader);
                 $row[$fname . "_fval"] = ($mvals) ? json_encode($mvals) : "";
             }
 
@@ -231,7 +228,7 @@ function fetchById(&$entity, $id, $tableName)
                 $row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
                 break;
             case 'object_multi':
-                if ($fdef->subtype) {
+                if ($fdef->subtype && is_array($row[$fname])) {
                     foreach ($row[$fname] as $index => $objectId) {
                         if (is_numeric($objectId)) {
                             $row[$fname][$index] = $objectId;
@@ -251,115 +248,6 @@ function fetchById(&$entity, $id, $tableName)
     }
 
     return true;
-}
-
-/**
- * Convert fields to column names for saving table and escape for insertion/updates
- *
- * @param Entity $entity The entity we are saving
- * @return array("colname"=>"value")
- */
-function getColsVals($entity)
-{
-    // Get legacy db
-    global $serviceManager;
-    $dbh = $serviceManager->get(DbFactory::class);
-    $ret = array();
-    $def = $entity->getDefinition();
-
-    $all_fields = $def->getFields();
-
-    foreach ($all_fields as $fname => $fdef) {
-        $setVal = "";
-        $val = $entity->getValue($fname);
-
-        switch ($fdef->type) {
-            case 'auto': // Calculated fields
-                break;
-            case 'fkey_multi':
-                $fvals = $entity->getValueNames($fname);
-                if ($val) {
-                    $setVal = "'" . $dbh->escape(json_encode($val)) . "'";
-                } else {
-                    $setVal = "'" . $dbh->escape(json_encode(array())) . "'";
-                }
-                break;
-            case 'object':
-                if ($fdef->subtype) {
-                    $setVal = $dbh->escapeNumber($val);
-                } else {
-                    $setVal = "'" . $dbh->escape($val) . "'";
-                }
-                break;
-            case 'object_multi':
-                if ($val) {
-                    $setVal = "'" . $dbh->escape(json_encode($val)) . "'";
-                } else {
-                    $setVal = "'" . $dbh->escape(json_encode(array())) . "'";
-                }
-                break;
-            case 'fkey':
-                $setVal = $dbh->escapeNumber($val);
-                break;
-            case 'int':
-            case 'integer':
-            case 'double':
-            case 'double precision':
-            case 'float':
-            case 'real':
-            case 'number':
-            case 'numeric':
-                if ($fdef->subtype == "integer" && $val) {
-                    $val = round($val, 0);
-                }
-                $setVal = $dbh->escapeNumber($val);
-                break;
-            case 'date':
-                if (is_numeric($val) && $val > 0) {
-                    $strDate = date("Y-m-d", $val);
-                    $setVal = $dbh->escapeDate($strDate);
-                }
-                break;
-            case 'timestamp':
-                if (is_numeric($val) && $val > 0) {
-                    $strTs = date("Y-m-d h:i:s A T", $val);
-                    $setVal = $dbh->escapeTimestamp($strTs);
-                }
-                break;
-            case 'bool':
-                $bVal = ($val) ? 't' : "f"; // Set the default values to 'f'
-                $setVal = "'$bVal'";
-                break;
-            case 'text':
-                $tmpval = $val;
-                if (is_numeric($fdef->subtype)) {
-                    if (strlen($tmpval) > $fdef->subtype) {
-                        $tmpval = substr($tmpval, 0, $fdef->subtype);
-                    }
-                }
-                $setVal = "'" . $dbh->escape($tmpval) . "'";
-                break;
-            default:
-                $setVal = "'" . $dbh->escape($val) . "'";
-                break;
-        }
-
-        if ($setVal) { // Setval must be set to something for it to update a column
-            $ret[$fname] = $setVal;
-        }
-
-        // Set fval
-        if ($fdef->type == "fkey" || $fdef->type == "fkey_multi" || $fdef->type == "object" || $fdef->type == "object_multi") {
-            $fvals = $entity->getValueNames($fname);
-            if (is_array($fvals) && count($fvals)) {
-                $ret[$fname . "_fval"] = "'" . $dbh->escape(json_encode($fvals)) . "'";
-            } else {
-                $ret[$fname . "_fval"] = "'" . $dbh->escape(json_encode(array())) . "'";
-            }
-        }
-    }
-
-    return $ret;
 }
 
 /**
@@ -386,12 +274,8 @@ function decodeFval($val)
  * @param string $otid The object type id id we are getting values for
  * @return array('keyid'=>'value/name')
  */
-function getForeignKeyDataFromDb($fdef, $value, $oid, $otid)
+function getForeignKeyDataFromDb($fdef, $value, $oid, $otid, $dbh, $entityLoader)
 {
-    // Get legacy db
-    global $serviceManager;
-    $dbh = $serviceManager->get(DbFactory::class);
-    global $entityLoader;
     $ret = array();
 
     if ($fdef->type == "fkey" && $value) {
