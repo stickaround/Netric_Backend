@@ -89,15 +89,6 @@ class Pgsql extends DataMapperAbstract implements DataMapperInterface
         $query = "select * from " . $def->getTable() . " where id='" . $dbh->escape($id) . "'";
         $result = $dbh->query($query);
         if (!$this->dbh->getNumRows($result)) {
-            /*
-            // Object id not found, see if we can find the object in the moved index (maybe it was merged)
-            if (($movedToId = $this->entityHasMoved($def, $id)))
-            {
-                // Looks like this object was moved to another object - usually merged
-                return $this->fetchById($entity, $movedToId);
-            }
-             */
-
             // The object was not found
             return false;
         }
