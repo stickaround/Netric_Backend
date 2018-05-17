@@ -201,7 +201,7 @@ foreach ($objectTypesToMove as $objectType) {
         if (!$entityDataMapper->checkEntityHasMoved($def, $oldEntityId)) {
             // Load old entity data
             $oldEntity = $entityLoader->create($objType);
-            $loadEntityFromOldTable->call($oldEntity, $oldEntityId, $oldTable, $dbLegacy, $entityLoader);
+            ($loadEntityFromOldTable)($oldEntity, $oldEntityId, $oldTable, $dbLegacy, $entityLoader);
             $entityData = $oldEntity->toArray();
             
             // Create a new entity to save
