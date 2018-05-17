@@ -93,6 +93,96 @@ $objectTypesToMove = [
     ['obj_type' => 'workflow_action', 'old_table' => 'workflow_actions'],
 ];
 
+/**
+ * Get an entity from the old table
+ */
+$loadEntityFromOldTable = function(&$entity, $id, $tableName, $dbh) {
+    $def = $entity->getDefinition();
+    $query = "select * from " . $tableName . " where id='" . $dbh->escape($id) . "'";
+    $result = $dbh->query($query);
+    if (!$dbh->getNumRows($result)) {
+        // The object was not found
+        return false;
+    }
+
+    $row = $dbh->getRow($result, 0);
+
+    // Load data for foreign keys
+    $all_fields = $def->getFields();
+    foreach ($all_fields as $fname => $fdef) {
+        // Populate values and foreign values for foreign entries if not set
+        if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
+            $mvals = null;
+
+            // set values of fkey_multi and object_multi fields as array of id(s)
+            if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
+                if ($row[$fname]) {
+                    $parts = json_decode($row[$fname], true);
+                    if ($parts !== false) {
+                        $row[$fname] = $parts;
+                    }
+                }
+
+                // Was not set in the column, try reading from mvals list that was generated above
+                if (!$row[$fname]) {
+                    if (!$mvals && $row[$fname . "_fval"]) {
+                        $mvals = json_decode($row[$fname . "_fval"], true);
+                    }
+
+                    if ($mvals) {
+                        foreach ($mvals as $id => $mval) {
+                            $row[$fname][] = $id;
+                        }
+                    }
+                }
+            }
+
+            // Get object with no subtype - we may want to store this locally eventually
+            // so check to see if the data is not already defined
+            if (!$row[$fname] && $fdef->type == "object" && !$fdef->subtype) {
+                if (!$mvals && $row[$fname . "_fval"]) {
+                    $mvals = json_decode($row[$fname . "_fval"], true);
+                }
+
+                if ($mvals) {
+                    foreach ($mvals as $id => $mval) {
+                        $row[$fname] = $id; // There is only one value but it is assoc
+                    }
+                }
+            }
+        }
+
+        switch ($fdef->type) {
+            case "bool":
+                $row[$fname] = ($row[$fname] == 't') ? true : false;
+                break;
+            case "date":
+            case "timestamp":
+                $row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
+                break;
+            case 'object_multi':
+                if ($fdef->subtype && is_array($row[$fname])) {
+                    foreach ($row[$fname] as $index => $objectId) {
+                        if (is_numeric($objectId)) {
+                            $row[$fname][$index] = $objectId;
+                        }
+                    }
+                }
+                break;
+        }
+
+        // Check if we have an fkey label/name associated with column ids - these are cached in the object
+        $fkeyValueName = (isset($row[$fname . "_fval"])) ? json_decode($row[$fname . "_fval"], true) : null;
+
+        // Set entity value
+        if (isset($row[$fname])) {
+            $entity->setValue($fname, $row[$fname], $fkeyValueName);
+        }
+    }
+
+    return true;
+};
+
 foreach ($objectTypesToMove as $objectType) {
     $objType = $objectType['obj_type'];
     $oldTable = $objectType['old_table'];
@@ -102,15 +192,16 @@ foreach ($objectTypesToMove as $objectType) {
 
     $sql = "SELECT id from {$objectType['old_table']}";
     $result = $db->query($sql);
+    $rows = $result->fetchAll();
 
-    foreach ($result->fetchAll() as $row) {
+    foreach ($rows as $row) {
         $oldEntityId = $row["id"];
 
         // We need to check first that the entity it was not moved yet
         if (!$entityDataMapper->checkEntityHasMoved($def, $oldEntityId)) {
             // Load old entity data
             $oldEntity = $entityLoader->create($objType);
-            fetchById($oldEntity, $oldEntityId, $oldTable, $dbLegacy, $entityLoader);
+            $loadEntityFromOldTable->call($oldEntity, $oldEntityId, $oldTable, $dbLegacy, $entityLoader);
             $entityData = $oldEntity->toArray();
             
             // Create a new entity to save
@@ -151,205 +242,3 @@ foreach ($objectTypesToMove as $objectType) {
     }
 }
 
-/**
- * Get an entity from the old table
- */
-
-
-function fetchById(&$entity, $id, $tableName, $dbh, $entityLoader)
-{
-    $def = $entity->getDefinition();
-    $query = "select * from " . $tableName . " where id='" . $dbh->escape($id) . "'";
-    $result = $dbh->query($query);
-    if (!$dbh->getNumRows($result)) {
-        // The object was not found
-        return false;
-    }
-
-    $row = $dbh->getRow($result, 0);
-
-    // Load data for foreign keys
-    $all_fields = $def->getFields();
-    foreach ($all_fields as $fname => $fdef) {
-        // Populate values and foreign values for foreign entries if not set
-        if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
-            $mvals = null;
-
-            // If fval is not set which should only occur on old objects prior to caching data in version 2
-            if (!$row[$fname . "_fval"] || ($row[$fname . "_fval"] == '[]' && $row[$fname] != '[]' && $row[$fname] != '')) {
-                $mvals = getForeignKeyDataFromDb($fdef, $row[$fname], $entity->getId(), $def->getId(), $dbh, $entityLoader);
-                $row[$fname . "_fval"] = ($mvals) ? json_encode($mvals) : "";
-            }
-
-            // set values of fkey_multi and object_multi fields as array of id(s)
-            if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
-                if ($row[$fname]) {
-                    $parts = decodeFval($row[$fname]);
-                    if ($parts !== false) {
-                        $row[$fname] = $parts;
-                    }
-                }
-
-                // Was not set in the column, try reading from mvals list that was generated above
-                if (!$row[$fname]) {
-                    if (!$mvals && $row[$fname . "_fval"]) {
-                        $mvals = decodeFval($row[$fname . "_fval"]);
-                    }
-
-                    if ($mvals) {
-                        foreach ($mvals as $id => $mval) {
-                            $row[$fname][] = $id;
-                        }
-                    }
-                }
-            }
-
-            // Get object with no subtype - we may want to store this locally eventually
-            // so check to see if the data is not already defined
-            if (!$row[$fname] && $fdef->type == "object" && !$fdef->subtype) {
-                if (!$mvals && $row[$fname . "_fval"]) {
-                    $mvals = decodeFval($row[$fname . "_fval"]);
-                }
-
-                if ($mvals) {
-                    foreach ($mvals as $id => $mval) {
-                        $row[$fname] = $id; // There is only one value but it is assoc
-                    }
-                }
-            }
-        }
-
-        switch ($fdef->type) {
-            case "bool":
-                $row[$fname] = ($row[$fname] == 't') ? true : false;
-                break;
-            case "date":
-            case "timestamp":
-                $row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
-                break;
-            case 'object_multi':
-                if ($fdef->subtype && is_array($row[$fname])) {
-                    foreach ($row[$fname] as $index => $objectId) {
-                        if (is_numeric($objectId)) {
-                            $row[$fname][$index] = $objectId;
-                        }
-                    }
-                }
-                break;
-        }
-
-        // Check if we have an fkey label/name associated with column ids - these are cached in the object
-        $fkeyValueName = (isset($row[$fname . "_fval"])) ? decodeFval($row[$fname . "_fval"]) : null;
-
-        // Set entity value
-        if (isset($row[$fname])) {
-            $entity->setValue($fname, $row[$fname], $fkeyValueName);
-        }
-    }
-
-    return true;
-}
-
-/**
- * Decode fval which is saved as json encoded string
- *
- * @param string $val The encoded string
- * @return array on success, null on failure
- */
-function decodeFval($val)
-{
-    if ($val == null || $val == "") {
-        return null;
-    }
-
-    return json_decode($val, true);
-}
-
-/**
- * Load foreign values from the database
- *
- * @param EntityDefinition_Field $fdef The field we are getting foreign lavel/title for
- * @param string $value Raw value from field if exists
- * @param string $oid The object id we are getting values for
- * @param string $otid The object type id id we are getting values for
- * @return array('keyid'=>'value/name')
- */
-function getForeignKeyDataFromDb($fdef, $value, $oid, $otid, $dbh, $entityLoader)
-{
-    $ret = array();
-
-    if ($fdef->type == "fkey" && $value) {
-        $query = "SELECT " . $fdef->fkeyTable['key'] . " as id, " . $fdef->fkeyTable['title'] . " as name ";
-        $query .= "FROM " . $fdef->subtype . " ";
-        $query .= "WHERE " . $fdef->fkeyTable['key'] . "='$value'";
-        $result = $dbh->query($query);
-        $num = $dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++) {
-            $row = $dbh->getRow($result, $i);
-            $ret[(string)$row['id']] = $row['name'];
-        }
-
-        // The foreign object is no longer in the foreign table, just use id
-        if (!$num) {
-            $ret[$value] = $value;
-        }
-    }
-
-    if ($fdef->type == "fkey_multi") {
-        $datTbl = $fdef->subtype;
-        $memTbl = $fdef->fkeyTable['ref_table']['table'];
-        $query = "SELECT $datTbl." . $fdef->fkeyTable['key'] . " as id, $datTbl." . $fdef->fkeyTable['title'] . " as name ";
-        $query .= "FROM $datTbl, $memTbl ";
-        $query .= "WHERE $datTbl." . $fdef->fkeyTable['key'] . "=$memTbl." . $fdef->fkeyTable['ref_table']['ref'] . " AND
-						" . $fdef->fkeyTable['ref_table']["this"] . "='" . $oid . "'";
-        $result = $dbh->query($query);
-
-        for ($i = 0; $i < $dbh->getNumRows($result); $i++) {
-            $row = $dbh->getRow($result, $i);
-
-            $ret[(string)$row['id']] = $row['name'];
-        }
-    }
-
-    /**
-     * Sky Stebnicki: The below are grossly inefficient but should only be necessary for very old
-     * objects and then will be cached by the loader in the caching datamapper.
-     * Eventually we will just remove it along with this entire function.
-     */
-    if ($fdef->type == "object" && $fdef->subtype && $value) {
-        $entity = $entityLoader->get($fdef->subtype, $value);
-        if ($entity) {
-            $ret[(string)$value] = $entity->getName();
-        } else {
-            echo "Could not load {$fdef->subtype}.{$value} to update foreign value";
-        }
-    } elseif (($fdef->type == "object" && !$fdef->subtype) || $fdef->type == "object_multi") {
-        $query = "select assoc_type_id, assoc_object_id, app_object_types.name as obj_name
-							 from object_associations inner join app_object_types on (object_associations.assoc_type_id = app_object_types.id)
-							 where field_id='" . $fdef->id . "' and type_id='" . $otid . "'
-							 and object_id='" . $oid . "' LIMIT 1000";
-        $result = $dbh->query($query);
-        for ($i = 0; $i < $dbh->getNumRows($result); $i++) {
-            $row = $dbh->getRow($result, $i);
-
-            $oname = "";
-
-            // If subtype is set in the field, then only the id of the object is stored
-            if ($fdef->subtype) {
-                $oname = $fdef->subtype;
-                $idval = (string)$row['assoc_object_id'];
-            } else {
-                $oname = $row['obj_name'];
-                $idval = $oname . ":" . $row["assoc_object_id"];
-            }
-
-            /*
-             * Set the value to null since we cant get the referenced entity name for now.
-             * Let the caller handle getting the name of the referenced entity
-             */
-            $ret[(string)$idval] = null;
-        }
-    }
-
-    return $ret;
-}

@@ -27,6 +27,7 @@ for ($i = 0; $i < $totalNum; $i++) {
     // Get each contact
     $entity = $results->getEntity($i);
 
-    // Just save the dashboard entity, the Entity/ObjType/DashboardEntity extension will update the dacl field.
+    // Just save the dashboard entity, the Entity/ObjType/DashboardEntity
+    // extension will update the dacl field.
     $entityDataMapper->save($entity);
 }
