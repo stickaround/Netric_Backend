@@ -14,7 +14,7 @@ $serviceManager = $account->getServiceManager();
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
 // Production aereus
-if ($account->getId() == 12) {
+if ($account->getName() == 'aereus') {
     // Get sky's user
     $sky = $account->getUser(null, 'sky.stebnicki');
     // Set to temp password (this will be changed as soon as the script loads)
@@ -26,6 +26,8 @@ if ($account->getId() == 12) {
 if ($account->getName() == 'integ') {
     // Get the test user
     $testUser = $account->getUser(null, 'test@netric.com');
-    $testUser->setValue('password', 'password');
-    $entityLoader->save($testUser);
+    if ($testUser) {
+        $testUser->setValue('password', 'password');
+        $entityLoader->save($testUser);
+    }
 }
