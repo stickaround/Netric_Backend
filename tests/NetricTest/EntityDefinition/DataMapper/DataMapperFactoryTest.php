@@ -14,12 +14,12 @@ class DataMapperFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntityDefinition\DataMapper\PgSql',
+            'Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper',
             $sm->get('EntityDefinition_DataMapper')
         );
 
         $this->assertInstanceOf(
-            'Netric\EntityDefinition\DataMapper\PgSql',
+            'Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper',
             $sm->get('Netric\EntityDefinition\DataMapper\DataMapper')
         );
     }

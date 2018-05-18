@@ -24,6 +24,7 @@ class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
         $db = $sl->get(DbFactory::class);
-        return new Pgsql($sl->getAccount(), $db);
+
+        return new EntityDefinitionRdbDataMapper($sl->getAccount());
     }
 }
