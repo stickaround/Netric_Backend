@@ -745,16 +745,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $result = $this->database->query($sql, ['object_type_id' => $def->getId(), 'object_id' => $id]);
         if ($result->rowCount() > 0) {
             $row = $result->fetch();
-            $moved_to = $row['moved_to'];
-
-            // Kill circular references - objects moved to each other
-            if (in_array($id, $this->movedToRef)) {
-                return false;
-            }
-
-            $this->movedToRef[] = $moved_to;
-
-            return $moved_to;
+            return $row['moved_to'];
         }
 
         return false;
