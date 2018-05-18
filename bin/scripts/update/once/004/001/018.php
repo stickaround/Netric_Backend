@@ -190,7 +190,7 @@ foreach ($objectTypesToMove as $objectType) {
     // Get the entity definition
     $def = $entityDefinitionLoader->get($objType);
 
-    $sql = "SELECT id from {$objectType['old_table']}";
+    $sql = "SELECT id FROM {$objectType['old_table']}";
     $result = $db->query($sql);
     $rows = $result->fetchAll();
 
