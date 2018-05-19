@@ -10,35 +10,35 @@ class EntityGroupings
 {
     /**
      * Array of groupings for this entity
-     * 
+     *
      * @var Group
      */
     private $groups = array();
 
     /**
      * Removed groupings
-     * 
+     *
      * @param array
      */
     private $deleted = array();
 
     /**
      * Get object type
-     * 
+     *
      * @var string
      */
     private $objType = "";
 
     /**
      * Field name we are working with
-     * 
+     *
      * @var string
      */
     private $fieldName = "";
 
     /**
      * Optional datamapper to call this->save through the Loader class
-     * 
+     *
      * @var EntityGroupingDataMapperInterface
      */
     private $dataMapper = null;
@@ -52,7 +52,7 @@ class EntityGroupings
 
     /**
      * Initialize groupings
-     * 
+     *
      * @param string $objType Set object type
      * @param string $fieldName The name of the field we are working with
      * @param array $filters Key/Value filter conditions for each group
@@ -60,15 +60,16 @@ class EntityGroupings
     public function __construct($objType, $fieldName = "", $filters = array())
     {
         $this->objType = $objType;
-        if ($fieldName)
+        if ($fieldName) {
             $this->fieldName = $fieldName;
+        }
 
         $this->filters = $filters;
     }
 
     /**
      * Set datammapper for groups
-     * 
+     *
      * @param EntityGroupingDataMapperInterface $dm
      */
     public function setDataMapper(EntityGroupingDataMapperInterface $dm)
@@ -78,20 +79,21 @@ class EntityGroupings
 
     /**
      * Save groupings to internally set DataMapper
-     * 
+     *
      * @throws Exception
      */
     public function save()
     {
-        if (!$this->dataMapper)
+        if (!$this->dataMapper) {
             throw new Exception("You cannot save groups without first calling setDatamapper");
+        }
 
         $this->dataMapper->saveGroupings($this);
     }
 
     /**
      * Get the object type for this grouping
-     * 
+     *
      * @return string The name of the object type
      */
     public function getObjType()
@@ -101,7 +103,7 @@ class EntityGroupings
 
     /**
      * Get the field name for this grouping
-     * 
+     *
      * @return string The name of the field that stores these groupings
      */
     public function getFieldName()
@@ -121,7 +123,7 @@ class EntityGroupings
 
     /**
      * Get a group that is hierarchical by path
-     * 
+     *
      * @param string $path The full path to a grouping separated by '/'
      */
     public function getByPath($path)
@@ -129,7 +131,7 @@ class EntityGroupings
         $parts = explode("/", $path);
         $ret = null;
 
-		// Loop through the path and get the last entry
+        // Loop through the path and get the last entry
         foreach ($parts as $grpname) {
             if ($grpname) {
                 $parent = ($ret) ? $ret->id : "";
@@ -155,11 +157,13 @@ class EntityGroupings
 
         $path = "";
 
-        if (!$grp)
+        if (!$grp) {
             return $path;
+        }
 
-        if ($grp->parentId)
+        if ($grp->parentId) {
             $path .= $this->getPath($grp->parentId) . "/";
+        }
 
         $path .= $grp->name;
 
@@ -176,8 +180,9 @@ class EntityGroupings
     public function getByName($nameValue, $parent = null)
     {
         foreach ($this->groups as $grp) {
-            if ($grp->name == $nameValue && $grp->parentId == $parent)
+            if ($grp->name == $nameValue && $grp->parentId == $parent) {
                 return $grp;
+            }
         }
 
         return false;
@@ -185,7 +190,7 @@ class EntityGroupings
 
     /**
      * Get groups
-     * 
+     *
      * @return \Netric\EntityGroupings\Group[]
      */
     public function getAll()
@@ -211,7 +216,7 @@ class EntityGroupings
 
     /**
      * Put all the groupings into a hierarchical structure with group->children being populated
-     * 
+     *
      * @param int $parentId Get all at the level of this parent
      * @return Group[] with $group->children populated
      */
@@ -221,8 +226,9 @@ class EntityGroupings
         foreach ($this->groups as $grp) {
             if ($grp->parentId == $parentId) {
                 // If existing group, then get the children setting parent to group id
-                if ($grp->id)
+                if ($grp->id) {
                     $grp->children = $this->getHeirarch($grp->id);
+                }
 
                 $ret[] = $grp;
             }
@@ -232,23 +238,25 @@ class EntityGroupings
 
     /**
      * Get all children in a flat one dimensional array
-     * 
+     *
      * @param int $parentId Get all at the level of this parent
      * @param $arr &$arr If set, then put children here
      * @return Group[] with $group->children populated
      */
     public function getChildren($parentId = null, &$ret = null)
     {
-        if ($ret == null)
+        if ($ret == null) {
             $ret = array();
+        }
 
         foreach ($this->groups as $grp) {
             if ($grp->parentId == $parentId) {
                 $ret[] = $grp;
                 
                 // If existing group, then get the children setting parent to group id
-                if ($grp->id)
+                if ($grp->id) {
                     $this->getChildren($grp->id, $ret);
+                }
             }
         }
 
@@ -257,7 +265,7 @@ class EntityGroupings
 
     /**
      * Get deleted groupings
-     * 
+     *
      * @return int[]
      */
     public function getDeleted()
@@ -267,7 +275,7 @@ class EntityGroupings
 
     /**
      * Get changed or added groupings
-     * 
+     *
      * @return Group[]
      */
     public function getChanged()
@@ -275,8 +283,9 @@ class EntityGroupings
         $ret = array();
 
         foreach ($this->groups as $grp) {
-            if ($grp->isDirty())
+            if ($grp->isDirty()) {
                 $ret[] = $grp;
+            }
         }
 
         return $ret;
@@ -291,13 +300,15 @@ class EntityGroupings
     public function add($group)
     {
         // Check to see if a grouping with this name already exists
-        if ($group->parentId)
+        if ($group->parentId) {
             $exists = $this->getByName($group->name, $group->parentId);
-        else
+        } else {
             $exists = $this->getByName($group->name);
+        }
 
-        if ($exists)
+        if ($exists) {
             return false;
+        }
 
         if ($group->parentId) {
             // TODO: check for circular reference in the chain
@@ -321,7 +332,7 @@ class EntityGroupings
     /**
      * Get the grouping entry by id
      *
-     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field 
+     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
      * @param int $entryId the id to delete
      * @return bool true on sucess, false on failure
      */
@@ -330,8 +341,9 @@ class EntityGroupings
         $ret = false;
 
         foreach ($this->groups as $grp) {
-            if ($grp->id == $entryId)
+            if ($grp->id == $entryId) {
                 $ret = $grp;
+            }
         }
 
         return $ret;
@@ -339,15 +351,16 @@ class EntityGroupings
 
     /**
      * Create a new grouping
-     * 
+     *
      * @param string $name Optional name of grouping
      */
     public function create($name = "")
     {
         $group = new Group();
         $group->setDirty(true);
-        if ($name)
+        if ($name) {
             $group->name = $name;
+        }
         return $group;
     }
 
@@ -377,7 +390,7 @@ class EntityGroupings
     /**
      * Get unique filters hash
      */
-    static public function getFiltersHash($filters = array())
+    public static function getFiltersHash($filters = array())
     {
         // Make sure we have filters provided
         if ($filters) {
@@ -387,12 +400,14 @@ class EntityGroupings
             $ret = "";
 
             foreach ($buf as $fname => $fval) {
-                if ($fval)
+                if ($fval) {
                     $ret .= $fname . "=" . $fval;
+                }
             }
 
-            if ("" == $ret)
+            if ("" == $ret) {
                 $ret = 'none';
+            }
 
             return $ret;
         }
