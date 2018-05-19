@@ -5848,7 +5848,7 @@ class CAntObject
 	 * Get followers of this object
 	 *
 	 * In the future, we will have a list of followers stored, for now we will get from object subtype=user and
-	 * previous comments from users and customers
+	 * previous comments from objects_user and customers
 	 *
 	 * @array array of followers in object_type:oid|name form
 	 */

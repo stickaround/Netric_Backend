@@ -259,7 +259,7 @@ class UserController extends Controller
             
             if(sizeof($updateFields) > 0)
             {
-                $query = "update users set ";    
+                $query = "update objects_user set ";    
                 $query .= implode(", ", $updateFields);
                 $query .= " where id='".$params['uid']."';";
                 $result = $dbh->Query($query);
@@ -292,7 +292,7 @@ class UserController extends Controller
 
         if ($uid)        // Update specific event
         {
-            $dbh->Query("update users set active='f' where id='".$uid."'");
+            $dbh->Query("update objects_user set active='f' where id='".$uid."'");
             $ret = 1;
         }            
         else
@@ -805,7 +805,7 @@ class UserController extends Controller
             $showper = 200;
         
         $query = "select id, name, full_name, active, image_id, theme, timezone,  
-                team_id, manager_id, title, phone, email from users where id is not null ";
+                team_id, manager_id, title, phone, email from objects_user where id is not null ";
                 
         if(isset($params['uid']))
         {
@@ -1173,7 +1173,7 @@ class UserController extends Controller
         
         if(!empty($tid))
         {
-            $query = "select * from users where team_id = '$tid'";
+            $query = "select * from objects_user where team_id = '$tid'";
             
             $result = $dbh->Query($query);
             $num = $dbh->GetNumberRows($result);
@@ -1258,7 +1258,7 @@ class UserController extends Controller
             $userId = $this->user->id;
         
         $ret = array();
-        $query = "select * from users where id = '$userId'";
+        $query = "select * from objects_user where id = '$userId'";
         $result = $dbh->Query($query);
         $num = $dbh->GetNumberRows($result);
         if($num > 0)
@@ -1281,11 +1281,11 @@ class UserController extends Controller
         
         if ($params['registerActive']==1)
 		{
-            $dbh->Query("update users set active_timestamp='now', checkin_timestamp='now' where id='" . $this->user->id . "'");
+            $dbh->Query("update objects_user set active_timestamp='now', checkin_timestamp='now' where id='" . $this->user->id . "'");
 		}
 		else
 		{
-        	$dbh->Query("update users set checkin_timestamp='now' where id='" . $this->user->id . "'");
+        	$dbh->Query("update objects_user set checkin_timestamp='now' where id='" . $this->user->id . "'");
 		}
         
         // TO DO

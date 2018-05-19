@@ -1146,7 +1146,7 @@ class AntUser
     /* DEPRICATED
     function UserGetIdFromName($dbh, $user_name, $account)
     {
-        $query = "select id from users where lower(name)=lower('".$dbh->Escape($user_name)."')";
+        $query = "select id from objects_user where lower(name)=lower('".$dbh->Escape($user_name)."')";
         $result = $dbh->Query($query);
         $id = $dbh->GetValue($result, 0, "id");
 
@@ -1161,7 +1161,7 @@ class AntUser
 
         if ($user_id)
         {
-            $query = "select name from users where id='".$user_id."'";
+            $query = "select name from objects_user where id='".$user_id."'";
             $result = $dbh->Query($query);
             $id = $dbh->GetValue($result, 0, "name");
         }
@@ -1719,11 +1719,11 @@ class AntUser
         global $_SERVER;
 
         /*
-        $dbh->Query("update users set active_timestamp='now' where id='$USERID'");
+        $dbh->Query("update objects_user set active_timestamp='now' where id='$USERID'");
 
         if ($_SERVER['REMOTE_ADDR'])
         {
-            $dbh->Query("update users set last_login_from='".$_SERVER['REMOTE_ADDR']."' where id='$USERID'");
+            $dbh->Query("update objects_user set last_login_from='".$_SERVER['REMOTE_ADDR']."' where id='$USERID'");
         }
          */
     }

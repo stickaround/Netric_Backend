@@ -519,7 +519,7 @@ class ProjectController extends Controller
         if ($PID)
         {            
             $query = "select project_membership.id, project_membership.user_id, users.name as username, project_positions.name as position_name,
-                            project_membership.accepted, project_membership.position_id from users, project_membership 
+                            project_membership.accepted, project_membership.position_id from objects_user, project_membership 
                             left outer join project_positions on (project_membership.position_id = project_positions.id)
                             where project_membership.project_id='$PID' and project_membership.user_id=users.id
                             
