@@ -1646,7 +1646,7 @@ class AntUser
 
                 // Set default if none selected
                 $themes = Ant::getThemes();
-                if (!$theme)
+                if (!$theme) 
                     $theme = $themes[0]['name'];
 
                 // Save to cache
