@@ -59,17 +59,27 @@ class Settings
      * @param string $name
      * @return string
      */
-    public function get($name)
+    public function get(string $name) : string
     {
         // First try to get from cache (it's much faster that way)
         $ret = $this->getCached($name);
 
-        if (!$ret)
-        {
+        if (!$ret) {
             $ret = $this->getDb($name);
         }
 
         return $ret;
+    }
+
+    /**
+     * Bypass any cache to get a setting
+     *
+     * @param [type] $name
+     * @return void
+     */
+    public function getNoCache(string $name) : string
+    {
+        return $this->getDb($name);
     }
 
     /**
@@ -85,8 +95,9 @@ class Settings
         $ret = $this->saveDb($name, $value);
 
         // Now save to cache for later retieval
-        if ($ret)
+        if ($ret) {
             $this->setCache($name, $value);
+        }
 
         return $ret;
     }
@@ -113,8 +124,7 @@ class Settings
         // First try to get from cache (it's much faster that way)
         $ret = $this->getCached($name, $user->getId());
 
-        if ($ret === null)
-        {
+        if ($ret === null) {
             $ret = $this->getDb($name, $user->getId());
         }
 
@@ -135,8 +145,9 @@ class Settings
         $ret = $this->saveDb($name, $value, $user->getId());
 
         // Now save to cache for later retieval
-        if ($ret)
+        if ($ret) {
             $this->setCache($name, $value, $user->getId());
+        }
 
         return $ret;
     }
@@ -148,7 +159,7 @@ class Settings
      * @param null $userId
      * @return mixed
      */
-    private function getCached($name, $userId=null)
+    private function getCached($name, $userId = null)
     {
         $key = $this->getCachcedKey($name, $userId);
         return $this->cache->get($key);
@@ -161,7 +172,7 @@ class Settings
      * @param string $value Value to store
      * @param int $userId Optional user id if this is a user setting
      */
-    private function setCache($name, $value, $userId=null)
+    private function setCache($name, $value, $userId = null)
     {
         $key = $this->getCachcedKey($name, $userId);
         $this->cache->set($key, $value);
@@ -175,17 +186,14 @@ class Settings
      * @param int $teamId Optional team id
      * @return string
      */
-    private function getCachcedKey($name, $userId=null, $teamId=null)
+    private function getCachcedKey($name, $userId = null, $teamId = null)
     {
         // Namespace by account id
         $cachedKey = $this->account->getId();
 
-        if ($userId)
-        {
+        if ($userId) {
             $cachedKey .= "/users/" . $userId . "/settings";
-        }
-        else
-        {
+        } else {
             $cachedKey .= "/settings";
         }
 
@@ -201,43 +209,35 @@ class Settings
      * @param int $teamId Optional team id to save the setting for
      * @return bool true on success, false on failure
      */
-    private function saveDb($name, $value, $userId=null, $teamId=null)
+    private function saveDb($name, $value, $userId = null, $teamId = null)
     {
         $sql = "SELECT id FROM system_registry
                 WHERE key_name='" . $this->dbh->escape($name) . "'";
 
         // Either add a user or explicitely exclude it
-        if (is_numeric($userId))
-        {
+        if (is_numeric($userId)) {
             $sql .= " AND user_id='" . $userId . "'";
-        }
-        else
-        {
+        } else {
             $sql .= " AND user_id IS NULL";
         }
 
         $result = $this->dbh->query($sql);
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
             $sql = "UPDATE system_registry
                     SET key_val='" . $this->dbh->escape($value) . "'
                     WHERE id='" . $this->dbh->escape($row['id']) . "'";
-            if (!$this->dbh->query($sql))
-            {
+            if (!$this->dbh->query($sql)) {
                 return false;
             }
-        }
-        else
-        {
+        } else {
             $sql = "INSERT INTO system_registry(key_name, key_val, user_id)
                     VALUES (
                       '" . $this->dbh->escape($name) . "',
                       '" . $this->dbh->escape($value) . "',
                       " . $this->dbh->escapeNumber($userId) . "
                     )";
-            if (!$this->dbh->query($sql))
-            {
+            if (!$this->dbh->query($sql)) {
                 return false;
             }
         }
@@ -253,7 +253,7 @@ class Settings
      * @param int $teamId Optional team id to save the setting for
      * @return null
      */
-    private function getDb($name, $userId=null, $teamId=null)
+    private function getDb($name, $userId = null, $teamId = null)
     {
         $ret = null;
 
@@ -265,18 +265,14 @@ class Settings
                     key_name='" . $this->dbh->escape($name) . "'";
 
         // Either add a user or explicitely exclude it
-        if (is_numeric($userId))
-        {
+        if (is_numeric($userId)) {
             $sql .= " AND user_id='" . $userId . "'";
-        }
-        else
-        {
+        } else {
             $sql .= " AND user_id IS NULL";
         }
 
         $result = $this->dbh->query($sql);
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
             $ret = $row['key_val'];
         }

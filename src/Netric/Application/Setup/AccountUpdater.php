@@ -85,7 +85,9 @@ class AccountUpdater extends AbstractHasErrors
 
         // Get the current version from settings
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
-        $version = $settings->get("system/schema_version");
+
+        // We get bypassing any cache in case the version was reset in the db directly
+        $version = $settings->getNoCache("system/schema_version");
 
         // Set current version counter
         $parts = explode(".", $version);
@@ -101,13 +103,14 @@ class AccountUpdater extends AbstractHasErrors
     {
         $updated = false;
 
-        if ($this->updatedToVersion->major > $this->version->major)
+        if ($this->updatedToVersion->major > $this->version->major) {
             $updated = true;
-        else if ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor > $this->version->minor)
+        } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor > $this->version->minor) {
             $updated = true;
-        else if ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
-            && $this->updatedToVersion->point > $this->version->point)
+        } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
+            && $this->updatedToVersion->point > $this->version->point) {
             $updated = true;
+        }
 
         $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
 
@@ -227,8 +230,9 @@ class AccountUpdater extends AbstractHasErrors
         if ($dir) {
             while ($file = readdir($dir)) {
                 if (is_dir($updatePath . "/" . $file) && $file[0] != '.') {
-                    if ($this->version->major <= (int)$file)
+                    if ($this->version->major <= (int)$file) {
                         $majors[] = $file;
+                    }
                 }
             }
             sort($majors);
@@ -249,8 +253,8 @@ class AccountUpdater extends AbstractHasErrors
     /**
      * Process minor subdirectories in the major dir
      *
-     * @param string $major	The name of a major directory
-     * @param string $base	The base or root of the path where the major dir is located
+     * @param string $major The name of a major directory
+     * @param string $base  The base or root of the path where the major dir is located
      * @return bool true on sucess, false on failure
      */
     private function processMinorDirs($major, $base)
@@ -277,8 +281,9 @@ class AccountUpdater extends AbstractHasErrors
         // Pull updates/points from minor dirs
         foreach ($minors as $minor) {
             $ret = $this->processPoints($minor, $major, $base);
-            if (!$ret) // there was an error so stop processing
-            return false;
+            if (!$ret) { // there was an error so stop processing
+                return false;
+            }
         }
 
         return true;
