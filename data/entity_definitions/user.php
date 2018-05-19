@@ -6,7 +6,7 @@ return array(
     'fields' => array(
         // User name
         'name' => array(
-            'title'=>'User Name',
+            'title'=>'Username',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'128',
             'readonly'=>false,
