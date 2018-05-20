@@ -59,7 +59,7 @@ class Settings
      * @param string $name
      * @return string
      */
-    public function get(string $name) : string
+    public function get(string $name) : ?string
     {
         // First try to get from cache (it's much faster that way)
         $ret = $this->getCached($name);
@@ -77,7 +77,7 @@ class Settings
      * @param [type] $name
      * @return void
      */
-    public function getNoCache(string $name) : string
+    public function getNoCache(string $name) : ?string
     {
         return $this->getDb($name);
     }
