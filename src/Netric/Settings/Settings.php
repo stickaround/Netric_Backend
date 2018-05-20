@@ -161,7 +161,7 @@ class Settings
      */
     private function getCached($name, $userId = null)
     {
-        $key = $this->getCachcedKey($name, $userId);
+        $key = $this->getCachedKey($name, $userId);
         return $this->cache->get($key);
     }
 
@@ -174,7 +174,7 @@ class Settings
      */
     private function setCache($name, $value, $userId = null)
     {
-        $key = $this->getCachcedKey($name, $userId);
+        $key = $this->getCachedKey($name, $userId);
         $this->cache->set($key, $value);
     }
 
@@ -186,16 +186,17 @@ class Settings
      * @param int $teamId Optional team id
      * @return string
      */
-    private function getCachcedKey($name, $userId = null, $teamId = null)
+    private function getCachedKey($name, $userId = null)
     {
         // Namespace by account id
         $cachedKey = $this->account->getId();
 
+        // if user-specfici then prefix with the user id
         if ($userId) {
-            $cachedKey .= "/users/" . $userId . "/settings";
-        } else {
-            $cachedKey .= "/settings";
+            $cachedKey .= "/users/" . $userId;
         }
+        
+        $cachedKey .= "/settings";
 
         return $cachedKey . "/" . $name;
     }
