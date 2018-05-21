@@ -407,8 +407,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $cnd = "object_type_id=:object_type_id and field_id=:field_id ";
             $cndData["object_type_id"] = $this->object_type_id;
             $cndData["field_id"] = $field->id;
-        }
-        else
+        } else
             $cnd = "";
 
         // Check filters to refine the results - can filter by parent object like project id for cases or tasks
@@ -1117,7 +1116,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             ['name' => $fname, 'type_id' => $def->getId()]
         );
 
-        $this->database->query("ALTER TABLE " . $def->getTable() . " DROP COLUMN $fname;");
+        $tableName = strtolower($def->getTable());
+        $this->database->query("ALTER TABLE " . $tableName . " DROP COLUMN $fname;");
     }
 
     /**
@@ -1132,12 +1132,13 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $colname = $field->name;
         $ftype = $field->type;
         $subtype = $field->subtype;
+        $tableName = strtolower($def->getTable());
 
         // Use different type for creating the system revision commit_id
         if ($field->name == "commit_id")
             $fType = "bigint";
 
-        if (!$this->database->columnExists($def->getTable(), $colname)) {
+        if (!$this->database->columnExists($tableName, $colname)) {
             $index = ""; // set to create dynamic indexes
 
             switch ($ftype) {
@@ -1245,22 +1246,23 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 default:
                     throw new \RuntimeException(
                         'Did not know how to create column ' .
-                        $def->getTable() . ':' . $colname . ':' . $ftype
+                        $tableName . ':' . $colname . ':' . $ftype
                     );
             }
 
-            if ($type) {
-                $this->database->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN $colname $type");
+            // Make sure that the column does not exist yet
+            if ($type && !$this->database->columnExists($tableName, $colname)) {
+                $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN $colname $type");
 
                 // Store cached foreign key names
                 if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi")
-                    $this->database->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
+                    $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
             }
         } else {
             // Make sure that existing foreign fields have local _fval caches
             if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi") {
-                if (!$this->database->columnExists($def->getTable(), $colname . "_fval"))
-                    $this->database->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
+                if (!$this->database->columnExists($tableName, $colname . "_fval"))
+                    $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
             }
         }
 
@@ -1275,6 +1277,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     private function createObjectTable($objType, $typeId)
     {
+        // Make sure objType is in lower case
+        $objType = strtolower($objType);
         $base = "objects_" . $objType;
         $tables = array("objects_" . $objType . "_act", "objects_" . $objType . "_del");
 
@@ -1352,8 +1356,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $colname = $field->name;
         $ftype = $field->type;
         $subtype = $field->subtype;
+        $tableName = strtolower($def->getTable());
 
-        if ($this->database->columnExists($def->getTable(), $colname) && $def->getId()) {
+        if ($this->database->columnExists($tableName, $colname) && $def->getId()) {
             $index = ""; // set to create dynamic indexes
 
             switch ($ftype) {
@@ -1400,16 +1405,16 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 else if ($ftype == "text" && !$subtype && $index == "gin")
                     $indexCol = "to_tsvector('english', $colname)";
 
-                if (!$this->database->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
-                    $this->database->query("CREATE INDEX " . $def->getTable() . "_act_" . $colname . "_idx
-                                          ON " . $def->getTable() . "_act
+                if (!$this->database->indexExists($tableName . "_act_" . $colname . "_idx")) {
+                    $this->database->query("CREATE INDEX " . $tableName . "_act_" . $colname . "_idx
+                                          ON " . $tableName . "_act
                                           USING $index
                                           (" . $indexCol . ");");
                 }
 
-                if (!$this->database->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
-                    $this->database->query("CREATE INDEX " . $def->getTable() . "_del_" . $colname . "_idx
-                                          ON " . $def->getTable() . "_del
+                if (!$this->database->indexExists($tableName . "_act_" . $colname . "_idx")) {
+                    $this->database->query("CREATE INDEX " . $tableName . "_del_" . $colname . "_idx
+                                          ON " . $tableName . "_del
                                           USING $index
                                           (" . $indexCol . ");");
                 }
