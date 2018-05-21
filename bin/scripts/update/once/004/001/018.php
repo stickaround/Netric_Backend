@@ -96,7 +96,7 @@ $objectTypesToMove = [
 /**
  * Get an entity from the old table
  */
-$loadEntityFromOldTable = function(&$entity, $id, $tableName, $dbh) {
+$loadEntityFromOldTable = function (&$entity, $id, $tableName, $dbh) {
     $def = $entity->getDefinition();
     $query = "select * from " . $tableName . " where id='" . $dbh->escape($id) . "'";
     $result = $dbh->query($query);
@@ -215,6 +215,11 @@ foreach ($objectTypesToMove as $objectType) {
                 $entityData['uname'] = '';
             }
 
+            // Overcome a bug where we accidentally created many activity dasbhoards
+            if ($objType == 'dashboard' && $entityData['uname'] == 'activity') {
+                $entityData['uname'] = '';
+            }
+
             // Parse the params of the entity
             $newEntity->fromArray($entityData);
             $newEntity->resetIsDirty();
@@ -241,4 +246,3 @@ foreach ($objectTypesToMove as $objectType) {
         }
     }
 }
-
