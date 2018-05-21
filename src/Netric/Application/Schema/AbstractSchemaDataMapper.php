@@ -45,8 +45,7 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
     public function update($accountId = null)
     {
         // First make sure the schema exists
-        if ($accountId)
-        {
+        if ($accountId) {
             /*
              * If no $accountId has been passed then we can assume this is updating the
              * system account. Otherwise, if an accountId has been passed we need to make
@@ -58,19 +57,16 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
              * ./bin netric install from the command line if netric is running in stand alone mode
              * otherwise we can assume the administrator should have setup the application.
              */
-            if (!$this->createSchemaIfNotExists($accountId))
-            {
+            if (!$this->createSchemaIfNotExists($accountId)) {
                 return false;
             }
         }
 
         // Make sure the this->schemaDefinition is applied to the new schema
-        if (!$this->processDefinition())
-        {
+        if (!$this->processDefinition()) {
             // Something went wrong, get more details with $this->getLastError
             return false;
         }
-
 
         // The new schema should be ready to go
         return true;
@@ -81,14 +77,31 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
      */
     protected function processDefinition()
     {
-        foreach ($this->schemaDefinition as $bucketName=>$bucketDefinition)
-        {
-            if (!$this->applyBucketDefinition($bucketName, $bucketDefinition))
-            {
+        // If there is nothing to updated because schemas have not changed, then skip
+        if ($this->getLastAppliedSchemaHash() == $this->getHashFromDefinition()) {
+            return true;
+        }
+
+        foreach ($this->schemaDefinition as $bucketName => $bucketDefinition) {
+            if (!$this->applyBucketDefinition($bucketName, $bucketDefinition)) {
                 // Something went wrong stop
                 throw new \RuntimeException("Could not process schema: " . $this->getLastError()->getMessage());
             }
         }
+
+        // Update the last processed defintion signature so we don't repeat unnecessarily
+        $this->setLastAppliedSchemaHash($this->getHashFromDefinition());
+
         return true;
+    }
+
+    /**
+     * Create a unique hash from the definition
+     *
+     * @return string
+     */
+    private function getHashFromDefinition() : string
+    {
+        return md5(json_encode($this->schemaDefinition));
     }
 }

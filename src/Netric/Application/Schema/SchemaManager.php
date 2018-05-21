@@ -11,10 +11,10 @@ namespace Netric\Application\Schema;
 
 class SchemaManager
 {
-	/**
-	 * Schema datamapper
-	 *
-	 * @var \Netric\Application\Schema\SchemaDataMapperInterface
-	 */
-	private $dataMapper = null;
+    /**
+     * Schema datamapper
+     *
+     * @var \Netric\Application\Schema\SchemaDataMapperInterface
+     */
+    private $dataMapper = null;
 }
