@@ -85,14 +85,14 @@ node {
             }
         }
 
-        stage('Integration') {
-            sshagent (credentials: ['aereus']) {
-                sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@dev1.aereusdev.com:/home/aereus/pull-and-run-setup.sh'
-                sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/pull-and-run-setup.sh'
-                sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/pull-and-run-setup.sh integration'
-                sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm /home/aereus/pull-and-run-setup.sh'
-            }
-        }
+        // stage('Integration') {
+        //     sshagent (credentials: ['aereus']) {
+        //         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@dev1.aereusdev.com:/home/aereus/pull-and-run-setup.sh'
+        //         sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/pull-and-run-setup.sh'
+        //         sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/pull-and-run-setup.sh integration'
+        //         sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm /home/aereus/pull-and-run-setup.sh'
+        //     }
+        // }
 
         stage('Production') {
             sshagent (credentials: ['aereus']) {
