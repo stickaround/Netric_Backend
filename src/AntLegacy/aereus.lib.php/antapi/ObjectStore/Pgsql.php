@@ -1055,7 +1055,7 @@ class AntApi_ObjectStore_Pgsql extends AntApi_ObjectStore
 
         $this->deleteValue($key);        
         
-        $query = "insert into system_registry(key_name, key_val) values('$key', '" . $this->Escape($value) . "');";
+        $query = "insert into settings(name, value) values('$key', '" . $this->Escape($value) . "');";
         $this->Query($query);
 
         return true;
@@ -1074,10 +1074,10 @@ class AntApi_ObjectStore_Pgsql extends AntApi_ObjectStore
         if(!$this->dbh)
             $this->connect();
             
-        $query = "select key_val from system_registry where key_name='$key' AND user_id is NULL";        
+        $query = "select value from settings where name='$key' AND user_id is NULL";        
         $result = $this->Query($query);
         if ($this->GetNumberRows($result))
-            $ret = $this->GetRowValue($result, 0, "key_val");
+            $ret = $this->GetRowValue($result, 0, "value");
 
         return $ret;
     }
@@ -1093,7 +1093,7 @@ class AntApi_ObjectStore_Pgsql extends AntApi_ObjectStore
         if(!$this->dbh)
             $this->connect();
             
-        $query = "delete from system_registry where key_name = '$key'";
+        $query = "delete from settings where name = '$key'";
         $this->Query($query);
         
         return true;
@@ -1219,13 +1219,13 @@ class AntApi_ObjectStore_Pgsql extends AntApi_ObjectStore
                     $ret = array("status" => -1, "message" => "Error while creating $pgSqlDbName database! ");
             }
             
-            // Always make sure system registry table is created/checked along with its fields
+            // Always make sure settings  table is created/checked along with its fields
             if($this->dbh)
             {
-                $customFields[] = array("name" => "key_name", "type" => "text", "subtype" => 256);
-                $customFields[] = array("name" => "key_val", "type" => "text");
+                $customFields[] = array("name" => "name", "type" => "text", "subtype" => 256);
+                $customFields[] = array("name" => "value", "type" => "text");
                 $customFields[] = array("name" => "user_id", "type" => "number");
-                $this->createTable("system_registry", $customFields);
+                $this->createTable("settings", $customFields);
             }
         }
         else

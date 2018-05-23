@@ -242,19 +242,19 @@ function UserGetPref($dbh, $user_id, $prefname)
         $cache = CCache::getInstance();
         $cval = $cache->get($dbh->dbname."/users/preferences/$user_id/$prefname");
         if ($cval === false) {
-            $query = "select key_val from system_registry where user_id='$user_id' and key_name='$prefname'";
+            $query = "select value from settings where user_id='$user_id' and name='$prefname'";
             $result = $dbh->Query($query);
             if ($dbh->GetNumberRows($result)) {
                 $row = $dbh->GetNextRow($result, 0);
-                $key_val = $row["key_val"];
-                $cache->set($dbh->dbname."/users/preferences/$user_id/$prefname", $key_val);
+                $value = $row["value"];
+                $cache->set($dbh->dbname."/users/preferences/$user_id/$prefname", $value);
             }
             $dbh->FreeResults($result);
         } else {
-            $key_val = $cval;
+            $value = $cval;
         }
     }
-    return $key_val;
+    return $value;
 }
 
 function UserSetPref($dbh, $user_id, $prefname, $prefval)
@@ -264,20 +264,20 @@ function UserSetPref($dbh, $user_id, $prefname, $prefval)
         $cache->remove($dbh->dbname."/users/preferences/$user_id/$prefname");
 
         // Look to see if preference value is already set
-        $result = $dbh->Query("select id from system_registry where key_name='$prefname' and user_id='$user_id' and key_val='$prefval'");
+        $result = $dbh->Query("select id from settings where name='$prefname' and user_id='$user_id' and value='$prefval'");
         if ($dbh->GetNumberRows($result)) {
             $dbh->FreeResults($result);
             return;
         }
         
         // Look to see if this preference has already been saved
-        $result = $dbh->Query("select id from system_registry where key_name='$prefname' and user_id='$user_id'");
+        $result = $dbh->Query("select id from settings where name='$prefname' and user_id='$user_id'");
         if ($dbh->GetNumberRows($result)) {
             $row = $dbh->GetNextRow($result, 0);
             $dbh->FreeResults($result);
-            $dbh->Query("update system_registry set key_val='$prefval' where id='".$row['id']."'");
+            $dbh->Query("update settings set value='$prefval' where id='".$row['id']."'");
         } else {
-            $dbh->Query("insert into system_registry(user_id, key_val, key_name) values('$user_id', '$prefval', '$prefname')");
+            $dbh->Query("insert into settings(user_id, value, name) values('$user_id', '$prefval', '$prefname')");
         }
     }
 }
@@ -288,7 +288,7 @@ function UserDeletePref($dbh, $user_id, $prefname)
         $cache = CCache::getInstance();
         $cache->remove($dbh->dbname."/users/preferences/$user_id/$prefname");
 
-        $dbh->Query("delete from system_registry where key_name='$prefname' and user_id='$user_id'");
+        $dbh->Query("delete from settings where name='$prefname' and user_id='$user_id'");
     }
 }
 

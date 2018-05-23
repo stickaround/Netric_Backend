@@ -30,7 +30,6 @@ $sql = "select address, owner_id, count(*) from objects_email_account_act " .
 $results = $db->query($sql);
 $totalNum = $db->getNumRows($results);
 for ($i = 0; $i < $totalNum; $i++) {
-
     // Get email_account details
     $row = $db->getRow($results, $i);
 

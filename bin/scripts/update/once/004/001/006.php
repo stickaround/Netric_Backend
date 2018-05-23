@@ -15,8 +15,7 @@ $db = $serviceManager->get(DataMapperFactory::class);
 $messageModule = $db->get("messages");
 
 // Check if the email message is not yet in the applications table
-if(!$messageModule)
-{
+if (!$messageModule) {
     $module = new Module();
 
     $data = array(

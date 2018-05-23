@@ -31,7 +31,6 @@ try {
 
 // Make sure that we have email_account entities
 if ($def) {
-
     // Find all email_account entities
     $sql = "SELECT * FROM email_accounts";
     $results = $db->query($sql);
@@ -39,11 +38,10 @@ if ($def) {
 
     // Loop over total num - the results will paginate as needed
     for ($i = 0; $i < $totalNum; $i++) {
-
         // Get email_account details
         $row = $db->getRow($results, $i);
 
-        // Create a new email_account entity
+        // Make sure the account does not already exist
         $query = new \Netric\EntityQuery("email_account");
         $query->where("address")->equals($row['address']);
         $ret = $entityIndex->executeQuery($query);

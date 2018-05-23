@@ -212,27 +212,24 @@ class Settings
      */
     private function saveDb($name, $value, $userId = null, $teamId = null)
     {
-        $sql = "SELECT id FROM system_registry
-                WHERE key_name='" . $this->dbh->escape($name) . "'";
+        $sql = "SELECT id FROM settings
+                WHERE name='" . $this->dbh->escape($name) . "'";
 
         // Either add a user or explicitely exclude it
-        if (is_numeric($userId)) {
-            $sql .= " AND user_id='" . $userId . "'";
-        } else {
-            $sql .= " AND user_id IS NULL";
-        }
+        $sql .= " AND user_id ";
+        $sql .= (is_numeric($userId)) ? "=$userId" : ' IS NULL';
 
         $result = $this->dbh->query($sql);
         if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
-            $sql = "UPDATE system_registry
-                    SET key_val='" . $this->dbh->escape($value) . "'
+            $sql = "UPDATE settings
+                    SET value='" . $this->dbh->escape($value) . "'
                     WHERE id='" . $this->dbh->escape($row['id']) . "'";
             if (!$this->dbh->query($sql)) {
                 return false;
             }
         } else {
-            $sql = "INSERT INTO system_registry(key_name, key_val, user_id)
+            $sql = "INSERT INTO settings(name, value, user_id)
                     VALUES (
                       '" . $this->dbh->escape($name) . "',
                       '" . $this->dbh->escape($value) . "',
@@ -258,24 +255,17 @@ class Settings
     {
         $ret = null;
 
-        $sql = "SELECT
-                    key_val
-                  FROM
-                    system_registry
-                  WHERE
-                    key_name='" . $this->dbh->escape($name) . "'";
+        $sql = "SELECT value FROM settings
+                WHERE name='" . $this->dbh->escape($name) . "'";
 
         // Either add a user or explicitely exclude it
-        if (is_numeric($userId)) {
-            $sql .= " AND user_id='" . $userId . "'";
-        } else {
-            $sql .= " AND user_id IS NULL";
-        }
+        $sql .= " AND user_id ";
+        $sql .= (is_numeric($userId)) ? "=$userId" : ' IS NULL';
 
         $result = $this->dbh->query($sql);
         if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
-            $ret = $row['key_val'];
+            $ret = $row['value'];
         }
 
         return $ret;

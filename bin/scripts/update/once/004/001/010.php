@@ -15,16 +15,14 @@ $projectMemberships = [];
 $result = $db->query("SELECT * from project_membership");
 
 for ($i = 0; $i < $db->getNumRows($result); $i++) {
-
     // Get the result row
     $row = $db->getRow($result, $i);
 
     $projectId = $row['project_id'];
-    $projectMemberships[$projectId][] = $row; 
+    $projectMemberships[$projectId][] = $row;
 }
 
 foreach ($projectMemberships as $projectId => $members) {
-
     $projectEntity = $loader->get("project", $projectId);
     $projectEntity->clearMultiValues("members");
 

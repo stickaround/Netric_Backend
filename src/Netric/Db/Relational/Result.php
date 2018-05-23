@@ -33,7 +33,7 @@ class Result
 
     /**
      * Fetch a single row from the PDO statement response
-     * 
+     *
      * @return array Associative array of the next row
      */
     public function fetch()

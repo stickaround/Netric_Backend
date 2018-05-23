@@ -2100,16 +2100,16 @@ return array(
         )
     ),
 
-    "system_registry" => array(
+    "settings" => array(
         "PROPERTIES" => array(
             'id' => array('type' => SchemaProperty::TYPE_BIGINT, 'subtype' => '', 'default' => 'auto_increment'),
-            'key_name' => array('type' => SchemaProperty::TYPE_CHAR_256),
-            'key_val' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
+            'name' => array('type' => SchemaProperty::TYPE_CHAR_256),
+            'value' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
         ),
         'PRIMARY_KEY' => 'id',
         "KEYS" => array(
-            array('properties' => array("key_name", "user_id"), 'type' => 'UNIQUE'),
+            array('properties' => array("name", "user_id"), 'type' => 'UNIQUE'),
         ),
         "INDEXES" => array(
             array('properties' => array("user_id")),

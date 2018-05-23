@@ -45,15 +45,15 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     public function getLastAppliedSchemaHash() : string
     {
-        if (!$this->dbh->tableExists('system_registry')) {
+        if (!$this->dbh->tableExists('settings')) {
             return '';
         }
 
         $result = $this->dbh->query(
-            "SELECT key_val FROM system_registry WHERE key_name='system/last_applied_definition"
+            "SELECT value FROM settings WHERE name='system/last_applied_definition"
         );
         if ($this->dbh->getNumRows($result)) {
-            return $this->dbh->getVaue($result, 0, 'key_val');
+            return $this->dbh->getVaue($result, 0, 'value');
         }
 
         // Not found, defualt to empty string
@@ -68,20 +68,20 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     public function setLastAppliedSchemaHash(string $schemaHash)
     {
-        if (!$this->dbh->tableExists('system_registry')) {
+        if (!$this->dbh->tableExists('settings')) {
             throw new \RuntimeException(
                 'Tried to set schma hash on a schema that does not ' .
-                'have a system_registry table: ' . $this->dbh->getSchema()
+                'have a settings table: ' . $this->dbh->getSchema()
             );
         }
 
         // First delete the old value if it already exists
         $this->dbh->query(
-            "DELETE FROM system_registry WHERE key_name='system/last_applied_definition'"
+            "DELETE FROM settings WHERE name='system/last_applied_definition'"
         );
         
         // Insert the new value and check for failure
-        $sql = "INSERT INTO system_registry(key_name, key_val) " .
+        $sql = "INSERT INTO settings(name, value) " .
                "VALUES(" .
                     "'system/last_applied_definition', " .
                     "'" . $this->dbh->escape($schemaHash) . "'" .

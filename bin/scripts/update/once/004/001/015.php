@@ -132,7 +132,6 @@ $groupingTables = array(
 
 // Loop thru the grouping tables
 foreach ($groupingTables as $details) {
-
     $table = $details["table"];
     $objType = $details["refObjType"];
     $fieldName = $details["refFieldName"];
@@ -163,7 +162,6 @@ foreach ($groupingTables as $details) {
 
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
-
         $filters = [];
 
         // Copy over any filters
@@ -173,7 +171,7 @@ foreach ($groupingTables as $details) {
                     $filters[$key] = $row[$filterField];
                 }
             }
-        } else if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
+        } elseif ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
             /*
              * Make sure that the filter has been set for private entities
              * object_groupings handles this automatically in the datamapper so fkeyTable['filter']
@@ -204,22 +202,24 @@ foreach ($groupingTables as $details) {
 
         // If group is not existing in the object_groupings, then we need to create a new group
         if ($group === false) {
-
             // Create a new group under the $newGroupings
             $group = $groupings->create($groupName);
             $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
-            if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
+            if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']])) {
                 $group->parentId = $row[$field->fkeyTable['parent']];
+            }
             $group->color = (isset($row['color'])) ? $row['color'] : "";
-            if (isset($row['sort_order']))
+            if (isset($row['sort_order'])) {
                 $group->sortOrder = $row['sort_order'];
+            }
             $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
             $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
 
             // Add all additional fields which are usually used for filters
             foreach ($row as $pname => $pval) {
-                if ($pname != $field->fkeyTable['key'] && !$group->getValue($pname))
+                if ($pname != $field->fkeyTable['key'] && !$group->getValue($pname)) {
                     $group->setValue($pname, $pval);
+                }
             }
 
             // Fix a problem where on some accounts we had multiple administrators

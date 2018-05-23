@@ -43,7 +43,7 @@ class AccountUpdater extends AbstractHasErrors
      *
      * @var string
      */
-    public $tableName = "system_registry";
+    public $tableName = "settings";
 
     /**
      * Determine whether to execute the updates or just do a dry-run

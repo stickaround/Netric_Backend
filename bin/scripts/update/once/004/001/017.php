@@ -61,7 +61,6 @@ foreach ($groupingTables as $details) {
 
     // Loop thru each entry in the old fkey object table
     foreach ($result->fetchAll() as $row) {
-
         $filters = [];
 
         // Copy over any filters
@@ -71,7 +70,7 @@ foreach ($groupingTables as $details) {
                     $filters[$key] = $row[$filterField];
                 }
             }
-        } else if ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
+        } elseif ($def->isPrivate && (isset($row["user_id"]) || isset($row["owner_id"]))) {
             /*
              * Make sure that the filter has been set for private entities
              * object_groupings handles this automatically in the datamapper so fkeyTable['filter']
