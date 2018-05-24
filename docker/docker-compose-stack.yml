@@ -1,8 +1,14 @@
 version: "3"
 
 services:  
-  graphite:
-    image: "dockerhub.aereusdev.com/netric:${TAG}"
+  netric:
+    image: "dockerhub.aereusdev.com/netric:latest"
+    networks:
+      - proxy
+      - default
+    environment:
+      APPLICATION_ENV: ${APPLICATION_ENV}
+      RUN_SETUP_UPDATE: 1
     deploy:
       replicas: 2
       labels:
@@ -12,6 +18,9 @@ services:
         - com.df.servicePath=/
         - com.df.port=80
         - com.df.httpsOnly=true
-    environment:
-      APPLICATION_ENV: ${APPLICATION_ENV}
-      RUN_SETUP_UPDATE: 1
+
+networks:
+  default:
+    external: false
+  proxy:
+    external: true
