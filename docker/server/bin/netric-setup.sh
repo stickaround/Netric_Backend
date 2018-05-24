@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e
 
-cd /var/www/html/
-composer install
-composer update
-
 # Make sure we can write to required files
 chown -R www-data:www-data data/log
 chown -R www-data:www-data data/tmp
