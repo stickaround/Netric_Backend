@@ -89,7 +89,7 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
             }
         }
 
-        // Update the last processed defintion signature so we don't repeat unnecessarily
+        // Update the last processed definition signature so we don't repeat unnecessarily
         $this->setLastAppliedSchemaHash($this->getHashFromDefinition());
 
         return true;

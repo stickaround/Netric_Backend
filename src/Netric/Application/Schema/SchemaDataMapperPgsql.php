@@ -45,18 +45,19 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     public function getLastAppliedSchemaHash() : string
     {
+        // We want to fail gracefully since a schema that has not been created is a valid state
         if (!$this->dbh->tableExists('settings')) {
             return '';
         }
 
         $result = $this->dbh->query(
-            "SELECT value FROM settings WHERE name='system/last_applied_definition"
+            "SELECT value FROM settings WHERE name='system/last_applied_definition'"
         );
         if ($this->dbh->getNumRows($result)) {
-            return $this->dbh->getVaue($result, 0, 'value');
+            return $this->dbh->getValue($result, 0, 'value');
         }
 
-        // Not found, defualt to empty string
+        // Not found, default to empty string
         return '';
     }
 

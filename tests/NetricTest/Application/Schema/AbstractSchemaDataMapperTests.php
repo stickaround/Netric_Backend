@@ -140,19 +140,23 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
     {
         // Create a test definition with all the goodies for testing
         $testDefinition = array(
-            "system_registry" => array(
+            "unit_test_schema" => array(
                 "PROPERTIES" => array(
-                    'id' => array('type' => SchemaProperty::TYPE_BIGINT, 'subtype' => '', 'default' => 'auto_increment'),
-                    'key_name' => array('type' => SchemaProperty::TYPE_CHAR_256),
-                    'key_val' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
-                    'user_id' => array('type' => SchemaProperty::TYPE_INT),
+                    'id'            => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
+                    'name'          => array('type'=>SchemaProperty::TYPE_CHAR_128),
+                    'value'         => array('type'=>SchemaProperty::TYPE_INT),
+                    'some_unique'   => array('type'=>SchemaProperty::TYPE_CHAR_128)
                 ),
-                'PRIMARY_KEY' => 'id',
+                'PRIMARY_KEY'       => 'id',
+                "INDEXES" => array(
+                    array('properties'=>array('name'))
+                )
             ),
         );
 
         $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
+        $dataMapper->update($account->getId());
         // A schema should have been set on the last application (if it exists)
         $this->assertNotEmpty($dataMapper->getLastAppliedSchemaHash());
     }
@@ -162,23 +166,27 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
      *
      * @return void
      */
-    public function testSetLastAppliedSchmaHash()
+    public function testSetLastAppliedSchemaHash()
     {
         // Create a test definition with all the goodies for testing
         $testDefinition = array(
-            "system_registry" => array(
+            "unit_test_schema" => array(
                 "PROPERTIES" => array(
-                    'id' => array('type' => SchemaProperty::TYPE_BIGINT, 'subtype' => '', 'default' => 'auto_increment'),
-                    'key_name' => array('type' => SchemaProperty::TYPE_CHAR_256),
-                    'key_val' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
-                    'user_id' => array('type' => SchemaProperty::TYPE_INT),
+                    'id'            => array('type'=>SchemaProperty::TYPE_BIGSERIAL),
+                    'name'          => array('type'=>SchemaProperty::TYPE_CHAR_128),
+                    'value'         => array('type'=>SchemaProperty::TYPE_INT),
+                    'some_unique'   => array('type'=>SchemaProperty::TYPE_CHAR_128)
                 ),
-                'PRIMARY_KEY' => 'id',
+                'PRIMARY_KEY'       => 'id',
+                "INDEXES" => array(
+                    array('properties'=>array('name'))
+                )
             ),
         );
 
         $account = $this->application->createAccount(self::TEST_ACCOUNT_NAME, "test@test.com", "password");
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
+        $dataMapper->update($account->getId());
         $dataMapper->setLastAppliedSchemaHash('test');
         $this->assertEquals('test', $dataMapper->getLastAppliedSchemaHash());
     }
