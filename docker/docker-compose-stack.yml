@@ -3,8 +3,6 @@ version: "3"
 services:  
   graphite:
     image: "dockerhub.aereusdev.com/netric:${TAG}"
-    volumes:
-      - '/var/aereusdatafast/graphite/whisper:/opt/graphite/storage/whisper'
     deploy:
       replicas: 2
       labels:
@@ -16,3 +14,4 @@ services:
         - com.df.httpsOnly=true
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
+      RUN_SETUP_UPDATE: 1
