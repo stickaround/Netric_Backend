@@ -36,6 +36,7 @@ node {
             sh 'docker-compose -f docker/docker-compose-test.yml build'
             sh 'docker-compose -f docker/docker-compose-test.yml up -d'
             sleep 30
+            sh 'docker-compose -f docker/docker-compose-test.yml /netric-setup.sh'
             sh 'docker exec docker_netric_server_1 /netric-tests.sh'
 
             // Create style and static analysis reports
