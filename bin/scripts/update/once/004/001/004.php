@@ -27,7 +27,7 @@ for ($i = 0; $i < $num; $i++) {
     $row = $db->getRow($result, $i);
     $entity = $entityLoader->get($row['object_type'], $row['object_id']);
 
-    if ($entity && $entity->getValue("commit_id")) {
+    if ($entity && $entity->getValue("commit_id") && $entity->getValue('commit_id') != $row['object_id']) {
         $sql = "UPDATE object_sync_import
                 SET revision=" . $entity->getValue("commit_id") . "
                 WHERE id=" . $row['id'];
