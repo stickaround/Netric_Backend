@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+composer install
+composer update
+
 # Make sure we can write to required files
 chown -R www-data:www-data data/log
 chown -R www-data:www-data data/tmp
