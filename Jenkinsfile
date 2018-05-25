@@ -35,7 +35,7 @@ node {
             sh 'docker-compose -f docker/docker-compose-test.yml pull'
             sh 'docker-compose -f docker/docker-compose-test.yml build'
             sh 'docker-compose -f docker/docker-compose-test.yml up -d'
-            sleep 90
+            sleep 120
             // Manually running netric-setup.sh' should not be needed any more
             // since it it handled in the startup of containers
             //sh 'docker exec docker_netric_server_1 /netric-setup.sh'
