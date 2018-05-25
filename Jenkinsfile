@@ -99,6 +99,9 @@ node {
 
             stage('Verify Upgrade') {
                 // This is where we will wait until the upgrade is finished
+                // ssh -p 222 dev1.aereusdev.com -C "docker service inspect netric_com_netric" > status.json                
+                // Wait until ret[0].UpdateStatus.State == "completed"
+                // If ret[0].UpdateStatus.State == "paused" then fail and print .Message
             }
         }
 
