@@ -98,6 +98,9 @@ node {
 
         stage('Production') {
             sshagent (credentials: ['aereus']) {
+                // Temporary wait because the wateher will kill it
+                sleep 90
+                
                 // Run Setup First
                 sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@web1.aereus.com:/home/aereus/pull-and-run-setup.sh'
                 sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
