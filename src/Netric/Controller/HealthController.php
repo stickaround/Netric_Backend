@@ -52,7 +52,7 @@ class HealthController extends AbstractController
         if (!$this->healthCheck->isSystemHealthy()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
             $response->writeLine('FAIL: The system is unhealthy');
-            $response->writeLine(var_export($this->healthCheck->getErrorReports(), true));
+            $response->writeLine(var_export($this->healthCheck->getReportedErrors(), true));
             return $response;
         }
 

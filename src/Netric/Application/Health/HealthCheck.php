@@ -1,5 +1,4 @@
 <?php
-
 namespace Netric\Application\Health;
 
 use Netric\Db\Relational\RelationalDbInterface;
