@@ -42,7 +42,9 @@ class ConsoleResponse implements ResponseInterface
      *
      * @var int
      */
-    private $returnCode = 0;
+    private $returnCode = self::STATUS_CODE_OK;
+    const STATUS_CODE_OK = 0;
+    const STATUS_CODE_FAIL = 1;
 
     /**
      * Logger interface to send all console output to (duplicate)

@@ -1,15 +1,15 @@
 <?php
-/**
- * Test the AnsFileStoreFactory service
- */
 namespace NetricTest\FileSystem;
 
-use Netric\FileSystem\FileStore\MogileFileStore;
-use Netric\FileSystem\FileStore\MogileFileStoreFactory;
+use Netric\Application\Health\HealthCheck;
+use Netric\Application\Health\HealthCheckFactory;
 
 use PHPUnit\Framework\TestCase;
 
-class MogileFileStoreFactoryTest extends TestCase
+/**
+ * Make sure we can construct a HealthCheck with all the system dependencies
+ */
+class HealthCheckFactoryTest extends TestCase
 {
     /**
      * Reference to account running for unit tests
@@ -28,8 +28,8 @@ class MogileFileStoreFactoryTest extends TestCase
     {
         $sl = $this->account->getServiceManager();
         $this->assertInstanceOf(
-            MogileFileStore::class,
-            $sl->get(MogileFileStoreFactory::class)
+            HealthCheck::class,
+            $sl->get(HealthCheckFactory::class)
         );
     }
 }

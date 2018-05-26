@@ -85,7 +85,8 @@ class AntUser
 
 		$this->account = $this->accountId;
 
-		if(isset($_GET['auth']))
+
+        if(isset($_GET['auth']))
 		{
 			$this->id = $this->authenticateEnc($_GET['auth']);
 			if ($this->id)
@@ -97,11 +98,11 @@ class AntUser
 			$this->name = Ant::getSessionVar("uname");	
 		}
 
-		if ($this->id!=null)
+        if ($this->id!=null)
 		{
-			$this->userObj = new CAntObject($dbh, "user", $this->id);
-
-			// Automatically create system accounts
+            $this->userObj = new CAntObject($dbh, "user", $this->id);
+            
+            // Automatically create system accounts
 			if (!$this->userObj->isLoaded() && ($this->id == USER_SYSTEM || $this->id == USER_WORKFLOW || $this->id == USER_ADMINISTRATOR))
 			{
 				if ($this->id == USER_ADMINISTRATOR)

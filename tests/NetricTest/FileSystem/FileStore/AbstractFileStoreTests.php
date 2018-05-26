@@ -104,6 +104,15 @@ abstract class AbstractFileStoreTests extends TestCase
     }
 
     /**
+     * Make sure the database can report on its own readiness
+     */
+    public function testIsReady()
+    {
+        $fileStore = $this->getFileStore();
+        $this->assertTrue($fileStore->isReady());
+    }
+
+    /**
      * Make sure we can read the entire contents of a file
      */
     public function testReadFile()

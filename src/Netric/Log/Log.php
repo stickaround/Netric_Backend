@@ -100,6 +100,13 @@ class Log implements LogInterface
     private $printToConsole = false;
 
     /**
+     * Internally keep track of how many times each level are logged
+     *
+     * @var array
+     */
+    private $stats = [];
+
+    /**
      * Constructor
      *
      * @param Config $config
@@ -257,6 +264,12 @@ class Log implements LogInterface
             }
         }
 
+        // Increment the stats counter for this level
+        if (!isset($this->stats[$this->getLevelName($lvl)])) {
+            $this->stats[$this->getLevelName($lvl)] = 0;
+        }
+        $this->stats[$this->getLevelName($lvl)]++;
+
         // Determine what writer to use
         switch ($this->writer) {
             case self::WRITER_SYSLOG:
@@ -268,54 +281,17 @@ class Log implements LogInterface
 
         // No supported writers appear to be configured
         return false;
+    }
 
-        /*
-        global $_SERVER;
-
-        $source = "ANT";
-        if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'])
-            $source = $_SERVER['REQUEST_URI'];
-        else if (isset($_SERVER['PHP_SELF']) && $_SERVER['PHP_SELF'])
-            $source = $_SERVER['PHP_SELF'];
-
-        $server = "";
-        if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME'])
-            $server = $_SERVER['SERVER_NAME'];
-
-        $eventData = array();
-        $eventData[$this->logDef["LEVEL"]] = "<" . LOG_LOCAL3 . "." . $lvl . ">";
-        $eventData[$this->logDef["TIME"]] = date('M d H:i:s');
-        $eventData[$this->logDef["DETAILS"]] = $message;
-        $eventData[$this->logDef["SOURCE"]] = $source;
-        $eventData[$this->logDef["SERVER"]] = $server;
-        $eventData[$this->logDef["ACCOUNT"]] = "";
-        $eventData[$this->logDef["USER"]] = "";
-
-        // If flag is set to print to the console, then do it now
-        if ($this->printToConsole) {
-
-            echo "[" . $eventData['TIME'] . "] [:$lvl] " .
-                 "[pid "  . getmypid() . "] netric " . $message . "\n";
-        }
-
-        // If we are logging to a file, then write it here
-        if ($this->logFile) {
-            /*
-             [Mon Jul 18 13:19:31.260660 2016] [:error] [pid 86] [client 172.18.0.1:33174] PHP   8. Zen
-             *
-            /*
-            $logLine = date('M m d H:i:s') . " " .
-            (($server) ? $server : ' - ') . " " .
-            " netric: " . $message;
-            return fwrite($this->logFile, $logLine);
-            *
-            return fputcsv($this->logFile, $eventData);
-        } else {
-            // Otherwise just log to syslog
-             $this->syslog($lvl, $message);
-            //return syslog($lvl, "branch={$this->appBranch}, page=$source, message=$message");
-        }
-        */
+    /**
+     * Log a debug message
+     *
+     * @param string|array $message The message to insert into the log
+     * @return bool true if success
+     */
+    public function debug($message)
+    {
+        return $this->writeLog(self::LOG_DEBUG, $message);
     }
 
     /**
@@ -341,7 +317,8 @@ class Log implements LogInterface
     }
 
     /**
-     * Log an error message
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
      *
      * @param string|array $message The message to insert into the log
      * @return bool true if success
@@ -352,14 +329,33 @@ class Log implements LogInterface
     }
 
     /**
-     * Log a debug message
+     * Critical conditions.
      *
-     * @param string|array $message The message to insert into the log
-     * @return bool true if success
+     * Example: Application component unavailable, unexpected exception.
+     *
+     * @param string $message
+     * @return void
      */
-    public function debug($message)
+    public function critical($message)
     {
-        return $this->writeLog(self::LOG_DEBUG, $message);
+        $this->writeLog(self::LOG_CRIT, $message);
+    }
+
+    /**
+     * Return the number of log entries that have been written for each level
+     * @return array ['error'=>10, 'warning'=>4 ...]
+     */
+    public function getLevelStats(): array
+    {
+        return $this->stats;
+    }
+
+    /**
+     * Reset number of log entries for each level
+     */
+    public function resetLevelStats()
+    {
+        $this->stats = [];
     }
 
     /**

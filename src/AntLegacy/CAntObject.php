@@ -265,11 +265,6 @@ class CAntObject
 		if (defined('ANT_INDEX_TYPE'))
 			$this->indexType = ANT_INDEX_TYPE;
 
-		// @depricated We are now using $this->def
-		// This is still using the old object defs, but
-		// we will eventually want to move this to the new EntityDefinitionLoader
-		$this->fields = AntObjectDefLoader::getInstance($dbh)->getDef($obj_type);
-
 		// Load new EntityDefinition
 		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
 		$this->def = $sl->get("EntityDefinitionLoader")->get($obj_type);
@@ -303,8 +298,6 @@ class CAntObject
 		else
 			$this->fullTitle = $this->title;
 
-		//$this->object_table = $this->fields->object_table;
-		//$this->fields->user = $this->user;
 		$this->object_table = $this->def->getTable();
 
 		if ((!$this->form_layout_xml || $this->form_layout_xml=='*') && $this->def->getForm("default"))
@@ -437,17 +430,6 @@ class CAntObject
 			else
 				Stats::increment("antobject.cache.indexmiss");
 		}
-		/*
-		else
-		{
-			$objdata = $this->cache->get($this->dbh->dbname."/object/".$this->object_type."/".$this->id);
-
-			if ($objdata)
-				Stats::increment("antobject.cache.cchit");
-			else
-				Stats::increment("antobject.cache.ccmiss");
-		}
-		 */
 
 		// Log stats
 		if (!$objdata)
@@ -675,101 +657,7 @@ class CAntObject
 				$data[$fname . "_fval"] = json_encode($entity->getValueNames($fname));
 		}
 
-		// Update cache
-		//$this->cache->set($this->dbh->dbname."/object/".$this->object_type."/".$this->id, $data);
-
 		return $data;
-
-		/*
-		$dbh = $this->dbh;
-		$query = "select * from ".$this->getObjectTable()." where id='".$this->id."'";
-		$result = $dbh->Query($query);
-		if (!$this->dbh->GetNumberRows($result))
-		{
-			// Object id not found, see if we can find the object in the moved index (maybe it was merged)
-			if ($this->checkMoved())
-			{
-				// The id we were looking for did move, checkMoved should update
-				// $this->id so now we can try loading again
-				return $this->load();
-			}
-			else
-			{
-				// Object id does not exist - clear results and set id to null
-				$this->id = null;
-				return null;
-			}
-		}
-
-		$ret = $dbh->GetRow($result, 0);
-
-		// Load data for foreign keys
-		$all_fields = $this->def->getFields();
-		foreach ($all_fields as $fname=>$fdef)
-		{
-			// Populate values and foreign values for foreign entries if not set
-			if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi")
-			{
-				$mvals = null;
-
-				if (!$ret[$fname . "_fval"] || ($ret[$fname . "_fval"]=='[]' && $ret[$fname]!='[]' && $ret[$fname]!=''))
-				{
-					$mvals = $this->getForeignKeyDataFromDb($fname, $ret[$fname]);
-					$ret[$fname . "_fval"] = ($mvals) ? json_encode($mvals) : "";
-				}
-
-				// set values of fkey_multi and object_multi fields as array of id(s)
-				if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi")
-				{
-					//echo "<pre>$fname before ".var_export($ret[$fname], true)."</pre>";
-					if ($ret[$fname])
-					{
-						$parts = $this->decodeFval($ret[$fname]);
-						if ($parts !== false)
-						{
-							$ret[$fname] = $parts;
-						}
-					}
-					//echo "<pre>$fname after ".var_export($ret[$fname], true)."</pre>";
-
-					// Was not set in the column, try reading from mvals list that was generated above
-					if (!$ret[$fname])
-					{
-						if (!$mvals && $ret[$fname . "_fval"])
-							$mvals = $this->decodeFval($ret[$fname . "_fval"]);
-
-						if ($mvals)
-						{
-							foreach ($mvals as $id=>$mval)
-								$ret[$fname][] = $id;
-						}
-					}
-
-					//echo "<pre>$fname finally ".var_export($ret[$fname], true)."</pre>";
-				}
-
-				// Get object with no subtype - we may want to store this locally eventually
-				// so check to see if the data is not already defined
-				if (!$ret[$fname] && $fdef->type == "object" && !$fdef->subtype)
-				{
-					if (!$mvals && $ret[$fname . "_fval"])
-						$mvals = $this->decodeFval($ret[$fname . "_fval"]);
-
-					if ($mvals)
-					{
-						foreach ($mvals as $id=>$mval)
-							$ret[$fname] = $id; // There is only one value but it is assoc
-					}
-				}
-			}
-		}
-
-		// Update cache
-		$this->cache->set($this->dbh->dbname."/object/".$this->object_type."/".$this->id, $ret);
-
-
-		return $ret;
-		 */
 	}
 
 	/**

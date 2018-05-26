@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Db\Relational;
 
 use Netric\Db\Relational\Exception\DatabaseQueryException;
@@ -28,10 +29,10 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
 
     /**
      * Set a namespace for all database transactions
-     * 
+     *
      * This will not be implemented in the AbstractRelationalDb class because
      * the concept of namespaces is so unique to each database system.
-     * 
+     *
      * For exmaple, in postgresql a namespace is called a schema. In mysql
      * databases are essentially schemas.
      *
@@ -53,7 +54,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     /**
      * Get the current set namespace if set
      */
-    public function getNamespace() : string
+    public function getNamespace(): string
     {
         return $this->schemaName;
     }
@@ -75,7 +76,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @return bool true on success
      * @throws DatabaseQueryException on failure
      */
-    public function createNamespace(string $namespace) : bool
+    public function createNamespace(string $namespace): bool
     {
         $this->query('CREATE SCHEMA ' . $namespace);
         return true;
@@ -88,7 +89,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @return bool true on success
      * @throws DatabaseQueryException on failure
      */
-    public function deleteNamespace(string $namespace) : bool
+    public function deleteNamespace(string $namespace): bool
     {
         $this->query('DROP SCHEMA ' . $namespace);
         return true;
@@ -101,7 +102,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @param string $columnName
      * @return bool true if the column already exists, false if it does not
      */
-    public function columnExists(string $tableName, string $columnName) : bool
+    public function columnExists(string $tableName, string $columnName): bool
     {
         // Check if we explictely passed the schema in dot notation schema.table
         if (strpos($tableName, '.')) {
@@ -131,7 +132,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @param string $tableName
      * @return bool true if the table exists, false if it does not
      */
-    public function tableExists(string $tableName) : bool
+    public function tableExists(string $tableName): bool
     {
         $sql = 'SELECT tablename FROM pg_tables WHERE tablename=:table_name ';
         $whereParams = ['table_name' => $tableName];
@@ -150,7 +151,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @param string $namespace
      * @return bool
      */
-    public function namespaceExists(string $namespace) : bool
+    public function namespaceExists(string $namespace): bool
     {
         $sql = 'SELECT nspname from pg_namespace where nspname=:namesp';
         $result = $this->query($sql, ['namesp' => $namespace]);

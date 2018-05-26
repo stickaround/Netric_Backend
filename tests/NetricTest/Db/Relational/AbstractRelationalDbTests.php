@@ -75,6 +75,14 @@ abstract class AbstractRelationalDbTests extends TestCase
     }
 
     /**
+     * Make sure the database can self-report if it is ready for work
+     */
+    public function testIsReady()
+    {
+        $this->assertTrue($this->getDatabase()->isReady());
+    }
+
+    /**
      * Check if we can run a raw query
      *
      * @return void

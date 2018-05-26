@@ -127,4 +127,6 @@ RUN chmod 777 /var/log/netric
 EXPOSE 80
 EXPOSE 443
 
+HEALTHCHECK CMD bin/netric health/test
+
 CMD ["/start.sh"]

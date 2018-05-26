@@ -41,14 +41,14 @@ class MogileFileStoreTest extends AbstractFileStoreTests
         $dataMapper = $sm->get("Entity_DataMapper");
 
         $config = $sm->get("Config");
-        $mfsClient = new MogileFs();
-        $mfsClient->connect($config->files->server, 7001, $config->files->account);
 
         $this->mogileFileStore = new MogileFileStore(
             $accId,
-            $mfsClient,
             $dataMapper,
-            $this->tmpPath
+            $this->tmpPath,
+            $config->files->server,
+            $config->files->account,
+            7001
         );
 
         // Make directory if it does not exist

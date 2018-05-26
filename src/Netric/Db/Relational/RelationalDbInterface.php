@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Db\Relational;
 
 use Netric\Db\Relational\Exception\DatabaseQueryException;
@@ -88,10 +89,10 @@ interface RelationalDbInterface
 
     /**
      * Set a namespace for all database transactions
-     * 
+     *
      * This will not be implemented in the AbstractRelationalDb class because
      * the concept of namespaces is so unique to each database system.
-     * 
+     *
      * For exmaple, in postgresql a namespace is called a schema. In mysql
      * databases are essentially schemas.
      *
@@ -104,10 +105,10 @@ interface RelationalDbInterface
 
     /**
      * Get the current namespace
-     * 
+     *
      * @return string The name of the current namespace (if set or empty string)
      */
-    public function getNamespace() : string;
+    public function getNamespace(): string;
 
     /**
      * Create a unique namespace for segregating user data
@@ -116,7 +117,7 @@ interface RelationalDbInterface
      * @return bool true on success
      * @throws DatabaseQueryException on failure
      */
-    public function createNamespace(string $namespace) : bool;
+    public function createNamespace(string $namespace): bool;
 
     /**
      * Delete a unique namespace
@@ -125,7 +126,7 @@ interface RelationalDbInterface
      * @return bool true on success
      * @throws DatabaseQueryException on failure
      */
-    public function deleteNamespace(string $namespace) : bool;
+    public function deleteNamespace(string $namespace): bool;
 
     /**
      * Find out if a column for a specific table exists
@@ -134,7 +135,7 @@ interface RelationalDbInterface
      * @param string $columnName
      * @return bool true if the column already exists, false if it does not
      */
-    public function columnExists(string $tableName, string $columnName) : bool;
+    public function columnExists(string $tableName, string $columnName): bool;
 
     /**
      * Find out if a table exists in the database
@@ -142,7 +143,7 @@ interface RelationalDbInterface
      * @param string $tableName
      * @return bool true if the table exists, false if it does not
      */
-    public function tableExists(string $tableName) : bool;
+    public function tableExists(string $tableName): bool;
 
     /**
      * Find out if a namespace exists
@@ -150,5 +151,12 @@ interface RelationalDbInterface
      * @param string $namespace
      * @return bool
      */
-    public function namespaceExists(string $namespace) : bool;
+    public function namespaceExists(string $namespace): bool;
+
+    /**
+     * Check if a database is up and ready for work
+     *
+     * @return bool true if the RDMS is ready for work
+     */
+    public function isReady(): bool;
 }

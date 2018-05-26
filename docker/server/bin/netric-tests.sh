@@ -1,4 +1,6 @@
 #!/bin/bash
+# Make sure that the data directory has the right owner
+chown -R www-data /var/www/html/data/
 
 set -e
 

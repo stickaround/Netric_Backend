@@ -8,6 +8,7 @@ namespace Netric\FileSystem\FileStore;
 use Netric\Error;
 use Netric\Entity\ObjType\FileEntity;
 use Netric\Entity\DataMapperInterface;
+use Netric\FileSystem\FileStore\Exception\CannotConnectException;
 use MogileFs;
 use MogileFsException;
 
@@ -38,6 +39,27 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     private $tmpPath = null;
 
     /**
+     * The Mogile tracker address
+     *
+     * @var null|string
+     */
+    private $mogileServer = null;
+
+    /**
+     * The port of the mogiletracker to connect to
+     *
+     * @var int|null
+     */
+    private $mogilePort = null;
+
+    /**
+     * The name of the account on mogile storing files for netric
+     *
+     * @var string|null
+     */
+    private $mogileAccount = null;
+
+    /**
      * MogileFs client
      *
      * @var MogileFs
@@ -55,18 +77,42 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
      * @param string $accountId The unique id of the tennant's account
      * @param DataMapperInterface $dataMapper An entity DataMapper for saving entities
      * @param string $tmpPath The temp folder path
+     * @param string $mogileServer The server endpoint to connect to
+     * @param string $mogileAccount The account name to use for file storage
+     * @param int $mogilePort Optional port to connect to the mogile tracker to find files
      */
     public function __construct(
         $accountId,
-        MogileFs $mogileFs,
         DataMapperInterface $dataMapper,
-        $tmpPath
+        $tmpPath,
+        string $mogileServer,
+        string $mogileAccount,
+        int $mogilePort = 7001
     )
     {
         $this->accountId = $accountId;
         $this->entityDataMapper = $dataMapper;
         $this->tmpPath = $tmpPath;
-        $this->mogileFs = $mogileFs;
+        $this->mogileServer = $mogileServer;
+        $this->mogilePort = $mogilePort;
+        $this->mogileAccount = $mogileAccount;
+    }
+
+    /**
+     * Check if the file store is ready for work
+     *
+     * @return bool
+     */
+    public function isReady(): bool
+    {
+        // Make sure we can connect
+        try {
+            $this->getMogileFsConnection();
+        } catch (CannotConnectException $exception) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -84,7 +130,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
             throw new Exception\FileNotFoundException($file->getId() . ":" . $file->getName() . " not found. No key");
         }
 
-        $metadata = $this->mogileFs->get($file->getValue("dat_ans_key"));
+        $metadata = $this->getMogileFsConnection()->get($file->getValue("dat_ans_key"));
 
         // MogileFs will return 0 paths if no files are available
         if (!isset($metadata['paths']) || $metadata['paths'] == '0') {
@@ -222,7 +268,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         $key .= $file->getValue("revision") . "/" . $file->getName();
 
         // Put the file on the server
-        if (!$this->mogileFs->put($localPath, $key, self::MOGILE_CLASS)) {
+        if (!$this->getMogileFsConnection()->put($localPath, $key, self::MOGILE_CLASS)) {
 
             $this->addErrorFromMessage("Could not upload file: $localPath");
             return false;
@@ -255,7 +301,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         // Assume failure until we succeed
         $key = $file->getValue("dat_ans_key");
         try {
-            if (!$this->mogileFs->delete($key)) {
+            if (!$this->getMogileFsConnection()->delete($key)) {
                 $this->addErrorFromMessage("Could not delte file");
                 return false;
             }
@@ -271,7 +317,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
             if ($fileRev->getValue("dat_ans_key"))
             {
                 try {
-                    if (!$this->mogileFs->delete($fileRev->getValue("dat_ans_key"))) {
+                    if (!$this->getMogileFsConnection()->delete($fileRev->getValue("dat_ans_key"))) {
                         $this->addErrorFromMessage("Could not delete file");
                     }
                 } catch (MogileFsException $e) {
@@ -298,7 +344,7 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
 
         // Normally mogile will throw an exception if the file does not exist
         try {
-            $ret = $this->mogileFs->get($file->getValue('dat_ans_key'));
+            $ret = $this->getMogileFsConnection()->get($file->getValue('dat_ans_key'));
         } catch (MogileFsException $ex) {
             return false;
         }
@@ -320,5 +366,29 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     private function getTempName(FileEntity $file)
     {
         return "file-" . $this->accountId . "-" . $file->getId() . "-" . $file->getValue('revision');
+    }
+
+    /**
+     * Retrieve existing connection or establish a new one
+     *
+     * @return MogileFs
+     * @throws MogileFsException if we cannot connect
+     */
+    private function getMogileFsConnection()
+    {
+        if ($this->mogileFs) {
+            return $this->mogileFs;
+        }
+
+        // Establish mogile connection
+        try {
+            $this->mogileFs = new MogileFs();
+            $this->mogileFs->connect($this->mogileServer, $this->mogilePort, $this->mogileAccount);
+        } catch (MogileFsException $ex) {
+            // Throw generic FileSystem exception to let callers know what failed
+            throw new CannotConnectException($ex->getMessage());
+        }
+
+        return $this->mogileFs;
     }
 }

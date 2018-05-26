@@ -14,20 +14,6 @@ namespace Netric\Log;
 interface LogInterface
 {
     /**
-     * Determine which writer we are going to use
-     *
-     * @param string $log
-     */
-    public function setLogWriter($log);
-
-    /**
-     * Set the path to use for logging
-     *
-     * @param string $logPath
-     */
-    public function setLogFilePath($logPath);
-
-    /**
      * Put a new entry into the log
      *
      * This is usually called by one of the aliased methods like info, error, warning
@@ -47,18 +33,31 @@ interface LogInterface
     public function info($message);
 
     /**
-     * Log a warning message
+     * Exceptional occurrences that are not errors.
+     *
+     * Example: Use of deprecated APIs, poor use of an API, undesirable things
+     * that are not necessarily wrong.
      *
      * @param string $message The message to insert into the log
      */
     public function warning($message);
 
     /**
-     * Log an error message
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
      *
      * @param string $message The message to insert into the log
      */
     public function error($message);
+
+    /**
+     * Critical conditions.
+     *
+     * Example: Application component unavailable, unexpected exception.
+     *
+     * @param string $message The message to insert into the log
+     */
+    public function critical($message);
 
     /**
      * Log a debug message
@@ -68,12 +67,37 @@ interface LogInterface
     public function debug($message);
 
     /**
+     * Determine which writer we are going to use
+     *
+     * @param string $log
+     */
+    public function setLogWriter($log);
+
+    /**
+     * Set the path to use for logging
+     *
+     * @param string $logPath
+     */
+    public function setLogFilePath($logPath);
+
+    /**
      * Get textual representation of the level
      *
      * @param int $lvl The level to convert
      * @return string Textual representation of level
      */
     public function getLevelName($lvl);
+
+    /**
+     * Return the number of log entries that have been written for each level
+     * @return array ['error'=>10, 'warning'=>4 ...]
+     */
+    public function getLevelStats(): array;
+
+    /**
+     * Reset number of log entries for each level
+     */
+    public function resetLevelStats();
 
     /**
      * PHP error handler function is called with set_error_handler early in execution

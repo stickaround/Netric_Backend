@@ -59,4 +59,11 @@ interface FileStoreInterface extends Error\ErrorAwareInterface
      * @return bool true if it exists, otherwise false
      */
     public function fileExists(FileEntity $file);
+
+    /**
+     * Check if the file store is ready for work
+     *
+     * @return bool
+     */
+    public function isReady(): bool;
 }

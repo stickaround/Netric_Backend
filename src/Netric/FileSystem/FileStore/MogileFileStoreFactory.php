@@ -25,18 +25,13 @@ class MogileFileStoreFactory implements ServiceManager\AccountServiceFactoryInte
         $config = $sl->get(ConfigFactory::class);
         $tmpPath = $config->data_path . "/" . "tmp";
 
-        // Set the port
-        $port = ($config->files->port) ? $config->files->port : 7001;
-
-        // Establish mogile connection
-        $mfsClient = new MogileFs();
-        $mfsClient->connect($config->files->server, $port, $config->files->account);
-
         return new MogileFileStore(
             $accountId,
-            $mfsClient,
             $dataMapper,
-            $tmpPath
+            $tmpPath,
+            $config->files->server,
+            $config->files->account,
+            $config->files->port
         );
     }
 }

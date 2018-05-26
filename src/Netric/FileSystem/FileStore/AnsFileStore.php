@@ -119,6 +119,16 @@ class AnsFileStore implements FileStoreInterface
     }
 
     /**
+     * Check if the file store is ready for work
+     *
+     * @return bool
+     */
+    public function isReady(): bool
+    {
+        return true;
+    }
+
+    /**
      * Read and return numBypes (or all) of a file
      *
      * @param FileEntity $file The meta-data Entity for this file

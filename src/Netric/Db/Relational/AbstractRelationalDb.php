@@ -202,6 +202,21 @@ abstract class AbstractRelationalDb
     }
 
     /**
+     * Check if a database is up and ready for work
+     *
+     * @return bool true if the RDMS is ready for work
+     */
+    public function isReady(): bool
+    {
+        // See if we can connect
+        try {
+            return $this->getConnection() ? true : false;
+        } catch (Exception\DatabaseConnectionException $exception) {
+            return false;
+        }
+    }
+
+    /**
      * Prepares and executes a statement returning a Results object
      *
      * Example:
