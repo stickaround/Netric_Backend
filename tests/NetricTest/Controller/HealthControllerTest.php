@@ -26,6 +26,8 @@ class HealthControllerTest extends TestCase
     protected function setUp()
     {
         $account = \NetricTest\Bootstrap::getAccount();
+        // Rest stats for logs since erros may have occurred before this test
+        $account->getApplication()->getLog()->resetLevelStats();
         $this->controller = new HealthController($account->getApplication(), $account);
         $this->controller->testMode = true;
     }

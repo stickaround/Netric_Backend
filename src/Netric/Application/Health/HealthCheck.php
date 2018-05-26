@@ -77,11 +77,13 @@ class HealthCheck implements HealthCheckInterface
 
         // Make sure we have not encountered enough errors to be unhealthy
         if (isset($stats['error']) && $stats['error'] >= $this->maxErrorsPerInterval) {
+            $this->reportedErrors[] = $stats['error'] . ' errors occurred';
             return false;
         }
 
         // Any critical logs means we are unhealthy
         if (isset($stats['critical']) && $stats['critical'] >= 1) {
+            $this->reportedErrors[] = $stats['critical'] . ' critical logs occurred';
             return false;
         }
 
