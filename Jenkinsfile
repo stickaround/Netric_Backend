@@ -7,6 +7,7 @@ def clientImage;
 currentBuild.result = "SUCCESS"
 
 pipeline {
+    agent { node { label 'linux' } }
     stages {
         stage('Build') {
             agent { node { label 'linux' } }
