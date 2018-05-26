@@ -10,7 +10,6 @@ pipeline {
     agent { node { label 'linux' } }
     stages {
         stage('Build') {
-            agent { node { label 'linux' } }
             steps {
                 script {
                     sh 'printenv'
@@ -38,7 +37,6 @@ pipeline {
         }
 
         stage('Test') {
-            agent { node { label 'linux' } }
             steps {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml pull'
@@ -70,7 +68,6 @@ pipeline {
         }
 
         stage('Security Scan') {
-            agent { node { label 'linux' } }
             steps {
                 script {
                     dir('.clair') {
@@ -92,7 +89,6 @@ pipeline {
         }
 
         stage('Publish') {
-            agent { node { label 'linux' } }
             steps {
                 script {
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
@@ -108,7 +104,6 @@ pipeline {
         }
 
         stage('Integration') {
-            agent { node { label 'linux' } }
             steps {
                 script {
                     stage('Deploy to environment') {
@@ -132,7 +127,6 @@ pipeline {
         }
 
         stage('Production') {
-            agent { node { label 'linux' } }
             steps {
                 script {
                     sshagent (credentials: ['aereus']) {
