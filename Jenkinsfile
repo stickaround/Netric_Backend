@@ -64,11 +64,6 @@ pipeline {
                     ])
                     reporter.collectAndSendReport('netric.com')
                 }
-            }
-        }
-
-        stage('Security Scan') {
-            steps {
                 script {
                     dir('.clair') {
                         def nodeIp = sh (
@@ -103,8 +98,9 @@ pipeline {
             }
         }
 
-        stage('Deploy to Integration') {
+        stage('Integration') {
             steps {
+                // Call stack deploy to ugprade
                 script {
                     sshagent (credentials: ['aereus']) {
                         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
@@ -114,17 +110,25 @@ pipeline {
                         //sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm deploy.sh docker-compose-stack.yml'
                     }
                 }
-            }
-        }
-
-        stage('Verify Inregration Deploy') {
-            steps {
+                // Wait for the upgrade to finish
                 script {
                     timeout(5) {
                         waitUntil {
                             sshagent (credentials: ['aereus']) {
                                 def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
                                 def jsonData = new JsonSlurper().parseText(jsonText)
+
+                                // Look for a failure/rollback exit
+                                if(jsonData[0].UpdateStatus.State == 'paused') {
+                                    println("Deploy Failed")
+                                    println("See: TODO - put path to logs with unique request id")
+                                    println("---------------------------------")
+                                    print(jsonData[0].UpdateStatus.Message)
+                                    println("---------------------------------")
+                                    
+                                    currentBuild.result = "SUCCESS"
+                                }
+
                                 return (jsonData[0].UpdateStatus.State == 'completed')
                             }
                         }
@@ -153,7 +157,6 @@ pipeline {
                 }
             }
         }
-
     }
     post {
         always {
