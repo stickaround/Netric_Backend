@@ -104,7 +104,7 @@ pipeline {
         }
 
         stage('Integration') {
-            stages {
+            steps {
                 stage('Deploy to environment') {
                     steps {
                         script {
@@ -121,14 +121,14 @@ pipeline {
                 stage('Verify Upgrade') {
                     steps {
                         script {
-                            sshagent (credentials: ['aereus']) {
-                                def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
-                                def jsonData = new JsonSlurper().parseText(jsonText)
-                                print(jsonData[0].UpdateStatus.State)
-                                // This is where we will wait until the upgrade is finished
-                                // ssh -p 222 dev1.aereusdev.com -C "docker service inspect netric_com_netric" > status.json                
-                                // Wait until ret[0].UpdateStatus.State == "completed"
-                                // If ret[0].UpdateStatus.State == "paused" then fail and print .Message
+                            timeout(5) {
+                                waitUntil {
+                                    sshagent (credentials: ['aereus']) {
+                                        def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
+                                        def jsonData = new JsonSlurper().parseText(jsonText)
+                                        return (jsonData[0].UpdateStatus.State == 'completed')
+                                    }
+                                }
                             }
                         }
                     }
