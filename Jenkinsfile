@@ -87,12 +87,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                        /* If this is the master branch, publish to stable, if it is develop publish to latest */
-                        if (env.BRANCH_NAME == 'master') {
-                            dockerImage.push("stable")
-                        } else {
-                            dockerImage.push("latest")
-                        }
+                        dockerImage.push(${env.BUILD_NUMBER})
                     }
                 }
             }
@@ -106,8 +101,7 @@ pipeline {
                         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
                         sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
                         sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/deploy.sh'
-                        sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration latest'
-                        //sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm deploy.sh docker-compose-stack.yml'
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration ${env.BUILD_NUMBER}"
                     }
                 }
                 // Wait for the upgrade to finish
@@ -120,8 +114,8 @@ pipeline {
 
                                 // Look for a failure/rollback exit
                                 if(jsonData[0].UpdateStatus.State == 'paused') {
-                                    println("Deploy Failed")
-                                    println("See: TODO - put path to logs with unique request id")
+                                    println("Deploy Failed:")
+                                    println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
                                     println("---------------------------------")
                                     print(jsonData[0].UpdateStatus.Message)
                                     println("---------------------------------")
@@ -143,9 +137,9 @@ pipeline {
                     sshagent (credentials: ['aereus']) {
                         // Run Setup First
                         sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@web1.aereus.com:/home/aereus/pull-and-run-setup.sh'
-                        sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
-                        sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run-setup.sh production'
-                        sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run-setup.sh'
+                        // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
+                        // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run-setup.sh production'
+                        // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run-setup.sh'
 
                         // Now Run the Daemon
                         // Do not run for now - we are switching to docker swarm

@@ -24,7 +24,7 @@ class ConfigLoader
      * @param array $params If set these params will be applied last after files
      * @return Config
      */
-    public static function fromFolder($configPath, $appEnv="", $params=[])
+    public static function fromFolder($configPath, $appEnv = "", $params = [])
     {
         // Load and merge arrays
         $base = self::importFileArray($configPath . "/ant.ini");
@@ -55,7 +55,6 @@ class ConfigLoader
     public static function importFileArray($filePath)
     {
         if (file_exists($filePath)) {
-
             // Load the data pending on the type
             $path_parts = pathinfo($filePath);
 
@@ -76,10 +75,9 @@ class ConfigLoader
             }
 
             return $data;
-
-        } else {
-            // Return an empty array to merge
-            return [];
         }
+        
+        // Return an empty array to merge
+        return [];
     }
 }
