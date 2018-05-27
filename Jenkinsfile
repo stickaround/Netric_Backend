@@ -19,7 +19,7 @@ pipeline {
                     sshagent (credentials: ['aereus']) {
                         def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
                         def jsonData = new JsonSlurper().parseText(jsonText)
-                        print (jsonData.toString())
+                        print (jsonText)
                         print(jsonData[0].PreviousSpec.UpdateStatus.State)
                         // This is where we will wait until the upgrade is finished
                         // ssh -p 222 dev1.aereusdev.com -C "docker service inspect netric_com_netric" > status.json                
