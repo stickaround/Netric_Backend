@@ -2,6 +2,7 @@
 @Library('aereus.pipeline') _
 
 import aereus.pipeline.CodeQualityReporter
+import groovy.json.JsonSlurperClassic
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
@@ -17,7 +18,8 @@ pipeline {
 
                     sshagent (credentials: ['aereus']) {
                         def json  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
-                        print(json)
+                        def data = new JsonSlurperClassic().parseText(json)
+                        print(data[0].PreviousSpec.UpdateStatus.State)
                         // This is where we will wait until the upgrade is finished
                         // ssh -p 222 dev1.aereusdev.com -C "docker service inspect netric_com_netric" > status.json                
                         // Wait until ret[0].UpdateStatus.State == "completed"
