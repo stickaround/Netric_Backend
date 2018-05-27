@@ -113,7 +113,7 @@ pipeline {
         }
 
         stage('Integration') {
-            stage('Deploy to environment') {
+            // stage('Deploy to environment') {
                 steps {
                     script {
                         sshagent (credentials: ['aereus']) {
@@ -125,7 +125,7 @@ pipeline {
                         }
                     }
                 }
-            }
+            // }
             // stage('Verify Upgrade') {
             //     steps {
             //         script {
