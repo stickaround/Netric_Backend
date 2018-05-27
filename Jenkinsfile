@@ -115,6 +115,7 @@ pipeline {
                                 // Look for a failure/rollback exit
                                 if(jsonData[0].UpdateStatus.State == 'paused') {
                                     println("Deploy Failed:")
+                                    // Send direct link to make it easier
                                     println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
                                     println("---------------------------------")
                                     print(jsonData[0].UpdateStatus.Message)
