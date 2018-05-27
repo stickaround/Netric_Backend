@@ -16,7 +16,7 @@ pipeline {
                     checkout scm
 
                     sshagent (credentials: ['aereus']) {
-                        def json  = sh(returnStdout: true, script: 'ssh -p 222 dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
+                        def json  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
                         print(json)
                         // This is where we will wait until the upgrade is finished
                         // ssh -p 222 dev1.aereusdev.com -C "docker service inspect netric_com_netric" > status.json                
