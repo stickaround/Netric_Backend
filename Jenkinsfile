@@ -103,32 +103,29 @@ pipeline {
             }
         }
 
-        stage('Integration') {
+        stage('Deploy to Integration') {
             steps {
-                stage('Deploy to environment') {
-                    steps {
-                        script {
-                            sshagent (credentials: ['aereus']) {
-                                sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
-                                sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
-                                sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/deploy.sh'
-                                sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration latest'
-                                //sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm deploy.sh docker-compose-stack.yml'
-                            }
-                        }
+                script {
+                    sshagent (credentials: ['aereus']) {
+                        sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
+                        sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
+                        sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/deploy.sh'
+                        sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration latest'
+                        //sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com rm deploy.sh docker-compose-stack.yml'
                     }
                 }
-                stage('Verify Upgrade') {
-                    steps {
-                        script {
-                            timeout(5) {
-                                waitUntil {
-                                    sshagent (credentials: ['aereus']) {
-                                        def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
-                                        def jsonData = new JsonSlurper().parseText(jsonText)
-                                        return (jsonData[0].UpdateStatus.State == 'completed')
-                                    }
-                                }
+            }
+        }
+
+        stage('Verify Inregration Deploy') {
+            steps {
+                script {
+                    timeout(5) {
+                        waitUntil {
+                            sshagent (credentials: ['aereus']) {
+                                def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
+                                def jsonData = new JsonSlurper().parseText(jsonText)
+                                return (jsonData[0].UpdateStatus.State == 'completed')
                             }
                         }
                     }
