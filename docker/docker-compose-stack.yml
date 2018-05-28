@@ -2,7 +2,7 @@ version: "3"
 
 services:  
   netric:
-    image: "dockerhub.aereusdev.com/netric:${APPLICATION_VER}"
+    image: "dockerhub.aereusdev.com/netric:v${APPLICATION_VER}"
     networks:
       - proxy
       - default
