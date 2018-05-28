@@ -87,7 +87,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                        dockerImage.push(${env.BUILD_NUMBER})
+                        dockerImage.push("${env.BUILD_NUMBER}")
                     }
                 }
             }
