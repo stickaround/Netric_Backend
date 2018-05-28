@@ -7,14 +7,14 @@ else
 fi
 
 if [ -z "$2" ]; then
-    TAG='latest'
+    APPLICATION_VER='latest'
 else
-    TAG=$2
+    APPLICATION_VER=$2
 fi
 
 docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
 
-docker pull dockerhub.aereusdev.com/netric:${TAG}
+docker pull dockerhub.aereusdev.com/netric:v${APPLICATION_VER}
 
 # Update the docker stack
 docker stack deploy -c docker-compose-stack.yml --with-registry-auth netric_com

@@ -95,7 +95,7 @@ pipeline {
 
         stage('Integration') {
             steps {
-                // Call stack deploy to ugprade
+                // Call stack deploy to upgrade
                 script {
                     sshagent (credentials: ['aereus']) {
                         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
