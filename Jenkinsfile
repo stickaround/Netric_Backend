@@ -121,6 +121,7 @@ pipeline {
                                     print(jsonData[0].UpdateStatus.Message)
                                     println("---------------------------------")
                                     
+                                    // Exit
                                     currentBuild.result = "FAIL"
                                 }
 
