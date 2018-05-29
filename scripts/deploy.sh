@@ -14,7 +14,7 @@ fi
 
 docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
 
-docker pull dockerhub.aereusdev.com/netric:${APPLICATION_VER}
+docker pull dockerhub.aereusdev.com/netric:v${APPLICATION_VER}
 
 # Update the docker stack
 docker stack deploy -c docker-compose-stack.yml --with-registry-auth netric_com
