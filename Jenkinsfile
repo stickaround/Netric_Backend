@@ -121,7 +121,7 @@ pipeline {
                                     print(jsonData[0].UpdateStatus.Message)
                                     println("---------------------------------")
                                     
-                                    currentBuild.result = "SUCCESS"
+                                    currentBuild.result = "FAIL"
                                 }
 
                                 return (jsonData[0].UpdateStatus.State == 'completed')
