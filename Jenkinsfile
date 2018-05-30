@@ -53,6 +53,7 @@ pipeline {
                         }
                     }
 
+                    // Shut down and report
                     sh 'docker-compose -f docker/docker-compose-test.yml down'
                     junit 'tests/tmp/junit.xml'
 
