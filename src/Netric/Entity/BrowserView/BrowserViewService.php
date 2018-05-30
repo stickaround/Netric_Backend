@@ -7,12 +7,12 @@
  */
 namespace Netric\Entity\BrowserView;
 
-use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Config\Config;
 use Netric\Settings\Settings;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric;
+use Netric\Db\Relational\RelationalDbInterface;
 
 /**
  * Class for managing entity forms
@@ -22,11 +22,11 @@ use Netric;
 class BrowserViewService
 {
     /**
-     * Database handle
+     * Handle to database
      *
-     * @var \Netric\Db\DbInterface
+     * @var RelationalDbInterface
      */
-    private $dbh = null;
+    private $database = null;
 
     /**
      * Netric configuration
@@ -61,14 +61,14 @@ class BrowserViewService
     /**
      * Class constructor to set up dependencies
      *
-     * @param \Netric\Db\DbInterface
+     * @param RelationalDbInterface $rdb
      * @param Config $config The configuration object
      * @param EntityDefinitionLoader $defLoader To get definitions of entities by $objType
      * @param Settings $settings Account or user settings service
      */
-    public function __construct(DbInterface $dbh, Config $config, EntityDefinitionLoader $defLoader, Settings $settings)
+    public function __construct(RelationalDbInterface $rdb, Config $config, EntityDefinitionLoader $defLoader, Settings $settings)
     {
-        $this->dbh = $dbh;
+        $this->database = $rdb;
         $this->config = $config;
         $this->definitionLoader = $defLoader;
         $this->settings = $settings;
@@ -95,20 +95,16 @@ class BrowserViewService
             $defaultViewId = $this->settings->get($settingKey);
 
         // Now load the system default
-        if (!$defaultViewId)
-        {
+        if (!$defaultViewId) {
             $sysViews = $this->getSystemViews($objType);
-            foreach ($sysViews as $view)
-            {
-                if ($view->isDefault())
-                {
+            foreach ($sysViews as $view) {
+                if ($view->isDefault()) {
                     $defaultViewId = $view->getId();
                 }
             }
 
             // If none were marked as default, then just grab the first one
-            if (!$defaultViewId && count($sysViews))
-            {
+            if (!$defaultViewId && count($sysViews)) {
                 $defaultViewId = $sysViews[0]->getId();
             }
         }
@@ -173,15 +169,14 @@ class BrowserViewService
      * @param string $id The unique id of the view
      * @return BrowserView
      */
-    public function getViewById($objType, $id)
+    public function getViewById($objType, $viewId)
     {
         // If we have not loaded views from the database then do that now
         if (!isset($this->views[$objType]))
             $this->loadViewsFromDb($objType);
 
-        foreach ($this->views[$objType] as $view)
-        {
-            if ($view->getId() == $id)
+        foreach ($this->views[$objType] as $view) {
+            if ($view->getId() == $viewId)
                 return $view;
         }
 
@@ -203,8 +198,7 @@ class BrowserViewService
 
         // Return all views that are set for a specific team
         $ret = array();
-        foreach ($this->views[$objType] as $view)
-        {
+        foreach ($this->views[$objType] as $view) {
             if ($view->getUserId() == $userId)
                 $ret[] = $view;
         }
@@ -225,8 +219,7 @@ class BrowserViewService
 
         // Return all views that are set for a specific team
         $ret = array();
-        foreach ($this->views[$objType] as $view)
-        {
+        foreach ($this->views[$objType] as $view) {
             if ($view->getTeamId() && $view->getTeamId() == $teamId)
                 $ret[] = $view;
         }
@@ -247,8 +240,7 @@ class BrowserViewService
 
         // Return all views that are not user or team views
         $ret = array();
-        foreach ($this->views[$objType] as $view)
-        {
+        foreach ($this->views[$objType] as $view) {
             if (empty($view->getTeamId()) && empty($view->getUserId()))
                 $ret[] = $view;
         }
@@ -270,16 +262,13 @@ class BrowserViewService
 
         // Check for system object
         $basePath = $this->config->get("application_path") . "/data";
-        if (file_exists($basePath . "/browser_views/" . $objType . ".php"))
-        {
+        if (file_exists($basePath . "/browser_views/" . $objType . ".php")) {
             $viewsData = include($basePath . "/browser_views/" . $objType . ".php");
 
             // Initialize all the views from the returned array
-            foreach ($viewsData as $key=>$vData)
-            {
+            foreach ($viewsData as $key => $vData) {
                 // System level views must only have a name for the key because it is used for the id
-                if (is_numeric($key))
-                {
+                if (is_numeric($key)) {
                     throw new \RuntimeException(
                         "BrowserViews must be defined with assiciative and unique keyname " .
                         "but " . $basePath . "/browser_views/" . $objType . ".php does not follow that rule"
@@ -307,69 +296,35 @@ class BrowserViewService
      */
     public function saveView(BrowserView $view)
     {
-        $dbh = $this->dbh;
-
         $def = $this->definitionLoader->get($view->getObjType());
 
         if (!$def)
             throw new \RuntimeException("Could not get entity definition for: " . $view->getObjType());
 
+        $viewId = $view->getId();
         $data = $view->toArray();
+        $saveViewData = [
+            "name" => $data['name'],
+            "description" => $data['description'],
+            "team_id" => $data['team_id'],
+            "user_id" => $data['user_id'],
+            "object_type_id" => $def->getId(),
+            "f_default" => $data['default'],
+            "owner_id" => $data['user_id'],
+            "conditions_data" => json_encode($data['conditions']),
+            "order_by_data" => json_encode($data['order_by']),
+            "table_columns_data" => json_encode($data['table_columns'])
+        ];
 
-        if ($view->getId())
-        {
-            $sql = "UPDATE app_object_views SET
-                      name='" . $dbh->escape($data['name']) . "',
-                      description='" . $dbh->escape($data['description']) . "',
-                      team_id=" . $dbh->escapeNumber($data['team_id']) . ",
-                      user_id=" . $dbh->escapeNumber($data['user_id']) . ",
-                      object_type_id=" . $dbh->escapeNumber($def->getId()) . ",
-                      f_default='" . (($data['default']) ? 't' : 'f') . "',
-                      owner_id=" . $dbh->escapeNumber($data['user_id']) . ",
-                      conditions_data='" . $dbh->escape(json_encode($data['conditions'])) . "',
-                      order_by_data='" . $dbh->escape(json_encode($data['order_by'])) . "',
-                      table_columns_data='" . $dbh->escape(json_encode($data['table_columns'])) . "'
-                    WHERE id='" . $view->getId() . "'; SELECT '" . $view->getId() . "' as id;";
-
-        }
-        else
-        {
-            $sql = "INSERT INTO app_object_views(
-                  name,
-                  description,
-                  team_id,
-                  user_id,
-                  object_type_id,
-                  f_default,
-                  owner_id,
-                  conditions_data,
-                  order_by_data,
-                  table_columns_data
-                ) values (
-                  '" . $dbh->escape($data['name']) . "',
-                  '" . $dbh->escape($data['description']) . "',
-                  " . $dbh->escapeNumber($data['team_id']) . ",
-                  " . $dbh->escapeNumber($data['user_id']) . ",
-                  " . $dbh->escapeNumber($def->getId()) . ",
-                  '" . (($data['default']) ? 't' : 'f') . "',
-                  " . $dbh->escapeNumber($data['user_id']) . ",
-                  '" . $dbh->escape(json_encode($data['conditions'])) . "',
-                  '" . $dbh->escape(json_encode($data['order_by'])) . "',
-                  '" . $dbh->escape(json_encode($data['table_columns'])) . "'
-                ); select currval('app_object_views_id_seq') as id;";
+        if ($viewId)
+            $this->database->update("app_object_views", $saveViewData, ['id' => $viewId]);
+        else {
+            $viewId = $this->database->insert("app_object_views", $saveViewData);
+            $view->setId($viewId);
         }
 
-        $result = $dbh->query($sql);
-        if ($dbh->getNumRows($result))
-        {
-            $view->setId($dbh->getValue($result, 0, "id"));
-            $this->addViewToCache($view);
-            return $view->getId();
-        }
-        else
-        {
-            throw new \RuntimeException("Could not save view:" . $dbh->getLastError());
-        }
+        $this->addViewToCache($view);
+        return $viewId;
     }
 
     /**
@@ -384,20 +339,22 @@ class BrowserViewService
         if (!$view->getId())
             return false;
 
-        // Remove from database
-        $sql = "DELETE FROM app_object_views WHERE id='" . $view->getId() . "'";
-        $result = $this->dbh->query($sql);
-        if (!$result)
-            throw new \RuntimeException("Could not delete BrowserView:" . $this->dbh->getLastError());
+        $result = $this->database->delete(
+            "app_object_views",
+            ['id' => $view->getId()]
+        );
 
-        // Remove the view from the local views cache
-        $this->removeViewFromLocalCache($view->getObjType(), $view->getId());
+        if ($result) {
+            // Remove the view from the local views cache
+            $this->removeViewFromLocalCache($view->getObjType(), $view->getId());
 
-        // Clear the ID since it is not saved anymore
-        $view->setId(null);
+            // Clear the ID since it is not saved anymore
+            $view->setId(null);
 
-        return true;
+            return true;
+        }
 
+        return false;
     }
 
     /**
@@ -419,10 +376,8 @@ class BrowserViewService
             $this->views[$view->getObjType()] = array();
 
         // Make sure we do not add this view again
-        foreach ($this->views[$view->getObjType()] as $cachedView)
-        {
-            if ($cachedView->getId() == $view->getId())
-            {
+        foreach ($this->views[$view->getObjType()] as $cachedView) {
+            if ($cachedView->getId() == $view->getId()) {
                 $found = true;
             }
         }
@@ -447,11 +402,9 @@ class BrowserViewService
             return false;
 
         // Loop through each cached view for a match and remove it from the array if found
-        for ($i = 0; $i < count($this->views[$objType]); $i++)
-        {
+        for ($i = 0; $i < count($this->views[$objType]); $i++) {
             $cachedView = $this->views[$objType][$i];
-            if ($cachedView->getId() === $viewId)
-            {
+            if ($cachedView->getId() === $viewId) {
                 array_splice($this->views[$objType], $i, 1);
 
                 // Break the for loop now that we have decreased the bounds of the array
@@ -470,8 +423,6 @@ class BrowserViewService
      */
     private function loadViewsFromDb($objType)
     {
-        $dbh = $this->dbh;
-
         // First clear out cache
         $this->views = array();
 
@@ -489,12 +440,10 @@ class BrowserViewService
                     id, name, scope, description, filter_key,
                     user_id, object_type_id, f_default, team_id,
                     owner_id, conditions_data, order_by_data, table_columns_data
-                FROM app_object_views WHERE object_type_id='" . $def->getId() . "'";
-        $result = $dbh->Query($sql);
-        $num = $dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++)
-        {
-            $row = $dbh->getRow($result, $i);
+                FROM app_object_views WHERE object_type_id=:object_type_id";
+
+        $result = $this->database->query($sql, ["object_type_id" => $def->getId()]);
+        foreach ($result->fetchAll() as $row) {
 
             $viewData = array(
                 'id' => $row['id'],
