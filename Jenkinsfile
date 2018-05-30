@@ -53,15 +53,16 @@ pipeline {
                         }
                     }
 
-                    // Shut down and report
-                    sh 'docker-compose -f docker/docker-compose-test.yml down'
+                    // Report on junit
                     junit 'tests/tmp/junit.xml'
 
                     // Create style and static analysis reports
                     sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
                     sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
                     
-
+                    // Shutdown
+                    sh 'docker-compose -f docker/docker-compose-test.yml down'
+                    
                     // Send reports to server for code quality metrics
                     def reporter = new CodeQualityReporter([
                         cloverFilePath: readFile("tests/tmp/clover.xml"),
