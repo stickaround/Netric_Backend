@@ -14,7 +14,6 @@ services:
       - db1
       - mogilefs
       - mogilestore
-    command: bash -c '/netric-setup.sh && /netric-tests.sh'
   memcached:
     image: memcached
   gearmand:

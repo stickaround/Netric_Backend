@@ -40,20 +40,19 @@ pipeline {
             steps {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up -d'
-                    //sleep 240
+                    sleep 240
                     // Manually running netric-setup.sh' should not be needed any more
                     // since it it handled in the startup of containers
-                    //sh 'docker exec docker_netric_server_1 /netric-setup.sh'
-                    //sh 'docker exec docker_netric_server_1 /netric-tests.sh'
 
                     // Wait until junit file exists which is printed at the end of the tests
-                    timeout(5) {
-                        waitUntil {
-                            return fileExists('tests/tmp/junit.xml')
-                        }
-                    }
+                    // timeout(5) {
+                    //     waitUntil {
+                    //         return fileExists('tests/tmp/junit.xml')
+                    //     }
+                    // }
 
                     // Report on junit
+                    sh 'docker exec docker_netric_server_1 /netric-tests.sh'
                     junit 'tests/tmp/junit.xml'
 
                     // Create style and static analysis reports
@@ -62,7 +61,7 @@ pipeline {
                     
                     // Shutdown
                     sh 'docker-compose -f docker/docker-compose-test.yml down'
-                    
+
                     // Send reports to server for code quality metrics
                     def reporter = new CodeQualityReporter([
                         cloverFilePath: readFile("tests/tmp/clover.xml"),

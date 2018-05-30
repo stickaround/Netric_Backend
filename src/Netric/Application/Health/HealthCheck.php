@@ -87,6 +87,12 @@ class HealthCheck implements HealthCheckInterface
             return false;
         }
 
+        // Ping localhost
+        if (!$this->isSelfHttpPingSuccess()) {
+            $this->reportedErrors[] = 'local http server is not running - could not ping localhost:80';
+            return false;
+        }
+
         return true;
     }
 
@@ -129,5 +135,39 @@ class HealthCheck implements HealthCheckInterface
     public function getReportedErrors()
     {
         return $this->reportedErrors;
+    }
+
+    /**
+     * Check if localhost/health/ping returns 200
+     *
+     * @return bool
+     */
+    private function isSelfHttpPingSuccess()
+    {
+        // create curl resource
+        $curlHandle = curl_init();
+
+        // set url
+        curl_setopt($curlHandle, CURLOPT_URL, "http://localhost/api/health/ping");
+
+        // We want headers
+        curl_setopt($curlHandle, CURLOPT_HEADER, true);
+
+        // We don't need body
+        curl_setopt($curlHandle, CURLOPT_NOBODY, true);
+
+        //return the transfer as a string
+        curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, 1);
+
+        // Make the call
+        curl_exec($curlHandle);
+
+        // Get the response code
+        $httpcode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
+
+        // close curl resource to free up system resources
+        curl_close($curlHandle);
+
+        return $httpcode == 200;
     }
 }

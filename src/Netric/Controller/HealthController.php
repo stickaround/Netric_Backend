@@ -24,8 +24,8 @@ class HealthController extends AbstractController
      */
     protected function init()
     {
-        // Get ServiceManager for the account
-        $serviceLocator = $this->account->getServiceManager();
+        // Get ServiceManager for the application
+        $serviceLocator = $this->application->getServiceManager();
 
         // Get the HealthCheck service
         $this->healthCheck = $serviceLocator->get(HealthCheckFactory::class);
@@ -47,7 +47,7 @@ class HealthController extends AbstractController
      */
     public function consoleTestAction()
     {
-        $response = new ConsoleResponse($this->account->getApplication()->getLog());
+        $response = new ConsoleResponse($this->application->getApplication()->getLog());
 
         if (!$this->healthCheck->isSystemHealthy()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
