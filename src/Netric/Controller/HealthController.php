@@ -13,25 +13,6 @@ use Netric\Application\Health\HealthCheck;
 class HealthController extends AbstractController
 {
     /**
-     * Application health checker
-     *
-     * @var HealthCheck
-     */
-    private $healthCheck = null;
-
-    /**
-     * Override initialization
-     */
-    protected function init()
-    {
-        // Get ServiceManager for the application
-        $serviceLocator = $this->application->getAccount()->getServiceManager();
-
-        // Get the HealthCheck service
-        $this->healthCheck = $serviceLocator->get(HealthCheckFactory::class);
-    }
-
-    /**
      * For public ping of the server
      */
     public function getPingAction()
@@ -49,10 +30,23 @@ class HealthController extends AbstractController
     {
         $response = new ConsoleResponse($this->application->getLog());
 
-        if (!$this->healthCheck->isSystemHealthy()) {
+        // First check to see if an account exists (requires setup to be run)
+        if (!$this->application->getAccount()) {
+            $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
+            $response->writeLine('FAIL: Setup has not been run');
+            return $response;
+        }
+
+        // Get ServiceManager for the application
+        $serviceLocator = $this->application->getAccount()->getServiceManager();
+
+        // Get the HealthCheck service
+        $healthcheck = $serviceLocator->get(HealthCheckFactory::class);
+
+        if (!$healthcheck->isSystemHealthy()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
             $response->writeLine('FAIL: The system is unhealthy');
-            $response->writeLine(var_export($this->healthCheck->getReportedErrors(), true));
+            $response->writeLine(var_export($healthcheck->getReportedErrors(), true));
             return $response;
         }
 
@@ -68,10 +62,23 @@ class HealthController extends AbstractController
     {
         $response = new ConsoleResponse($this->application->getLog());
 
-        if (!$this->healthCheck->areDependenciesLive()) {
+        // First check to see if an account exists (requires setup to be run)
+        if (!$this->application->getAccount()) {
+            $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
+            $response->writeLine('FAIL: Setup has not been run');
+            return $response;
+        }
+
+        // Get ServiceManager for the application
+        $serviceLocator = $this->application->getAccount()->getServiceManager();
+
+        // Get the HealthCheck service
+        $healthcheck = $serviceLocator->get(HealthCheckFactory::class);
+
+        if (!$healthcheck->areDependenciesLive()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
             $response->writeLine('FAIL: Not all dependencies are available');
-            $response->writeLine(var_export($this->healthCheck->getReportedErrors(), true));
+            $response->writeLine(var_export($healthcheck->getReportedErrors(), true));
             return $response;
         }
 
