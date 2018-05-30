@@ -41,7 +41,7 @@ pipeline {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up -d'
 
-                    // Wait until netric is healthy and running
+                    // Wait until the server is up and running
                     timeout(5) {
                         waitUntil {
                             def r = sh script: 'docker exec docker_netric_server_1 bin/netric health/test', returnStatus: true
