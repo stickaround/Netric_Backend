@@ -44,8 +44,8 @@ pipeline {
                     // Wait until netric is healthy and running
                     timeout(5) {
                         waitUntil {
-                            def checkCommand = 'docker exec docker_netric_server_1 bin/netric health/test'
-                            return (sh(checkCommand) == 0)
+                            def r = sh script: 'docker exec docker_netric_server_1 bin/netric health/test', returnStatus: true
+                            return (r == 0)
                         }
                     }
 
