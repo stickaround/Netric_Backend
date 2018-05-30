@@ -139,8 +139,45 @@ pipeline {
 
         stage('Production') {
             steps {
+                // Call stack deploy to upgrade
                 script {
-                    sshagent (credentials: ['aereus']) {
+                        def server = 'aereus@web2.aereus.com';
+
+                        sshagent (credentials: ['aereus']) {
+
+                        sh 'scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh'
+                        sh 'scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml'
+                        sh 'ssh ${server} chmod +x /home/aereus/deploy.sh'
+                        sh "ssh ${server} /home/aereus/deploy.sh production ${env.BUILD_NUMBER}"
+                    }
+
+                    // Wait for the upgrade to finish
+                    timeout(5) {
+                        waitUntil {
+                            sshagent (credentials: ['aereus']) {
+                                def jsonText  = sh(returnStdout: true, script: 'ssh ${server} -C "docker service inspect netric_com_netric"').trim()
+                                def jsonData = new JsonSlurper().parseText(jsonText)
+
+                                // Look for a failure/rollback exit
+                                if(jsonData[0].UpdateStatus.State == 'paused') {
+                                    println("Deploy Failed:")
+                                    // Send direct link to make it easier
+                                    println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
+                                    println("---------------------------------")
+                                    print(jsonData[0].UpdateStatus.Message)
+                                    println("---------------------------------")
+
+                                    // Exit
+                                    currentBuild.result = "FAIL"
+                                }
+
+                                return (jsonData[0].UpdateStatus.State == 'completed')
+                            }
+                        }
+                    }
+                }
+                //script {
+                //   sshagent (credentials: ['aereus']) {
                         // Run Setup First
                         sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@web1.aereus.com:/home/aereus/pull-and-run-setup.sh'
                         // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
@@ -153,8 +190,8 @@ pipeline {
                         // sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-daemon.sh'
                         // sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-daemon.sh latest'
                         // sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com rm /home/aereus/pull-and-run-daemon.sh'
-                    }
-                }
+                //    }
+                //}
             }
         }
     }
