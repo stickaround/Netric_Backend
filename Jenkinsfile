@@ -39,8 +39,6 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh 'docker-compose -f docker/docker-compose-test.yml pull'
-                    sh 'docker-compose -f docker/docker-compose-test.yml build'
                     sh 'docker-compose -f docker/docker-compose-test.yml up -d'
                     sleep 240
                     // Manually running netric-setup.sh' should not be needed any more
@@ -48,13 +46,20 @@ pipeline {
                     //sh 'docker exec docker_netric_server_1 /netric-setup.sh'
                     sh 'docker exec docker_netric_server_1 /netric-tests.sh'
 
+                    // Wait until junit file exists which is printed at the end of the tests
+                    timeout(5) {
+                        waitUntil {
+                            return fileExists('tests/tmp/junit.xml')
+                        }
+                    }
+
+                    sh 'docker-compose -f docker/docker-compose-test.yml down'
+                    junit 'tests/tmp/junit.xml'
+
                     // Create style and static analysis reports
                     sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
                     sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
                     
-
-                    sh 'docker-compose -f docker/docker-compose-test.yml down'
-                    junit 'tests/tmp/logfile.xml'
 
                     // Send reports to server for code quality metrics
                     def reporter = new CodeQualityReporter([
@@ -156,6 +161,7 @@ pipeline {
     }
     post {
         always {
+            cleanWs()
             sh 'docker system prune -af'
         }
         failure {

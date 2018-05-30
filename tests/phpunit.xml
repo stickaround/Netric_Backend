@@ -52,7 +52,7 @@
         <log type="coverage-clover" target="./tmp/clover.xml"
              lowUpperBound="50" highLowerBound="80"
         />
-        <log type="junit" target="./tmp/logfile.xml" logIncompleteSkipped="false"/>
+        <log type="junit" target="./tmp/junit.xml" logIncompleteSkipped="false"/>
     </logging>
 
     <listeners>

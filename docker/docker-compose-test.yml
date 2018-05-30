@@ -14,6 +14,7 @@ services:
       - db1
       - mogilefs
       - mogilestore
+    entrypoint: ['/netric-setup.sh', '&&', '/netric-test.sh']
   memcached:
     image: memcached
   gearmand:
