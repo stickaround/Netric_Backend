@@ -40,16 +40,14 @@ pipeline {
             steps {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up -d'
-                    sleep 240
-                    // Manually running netric-setup.sh' should not be needed any more
-                    // since it it handled in the startup of containers
 
-                    // Wait until junit file exists which is printed at the end of the tests
-                    // timeout(5) {
-                    //     waitUntil {
-                    //         return fileExists('tests/tmp/junit.xml')
-                    //     }
-                    // }
+                    // Wait until netric is healthy and running
+                    timeout(5) {
+                        waitUntil {
+                            def retCode = sh('docker exec docker_netric_server_1 bin/netric health/test')
+                            return (retCod == 1)
+                        }
+                    }
 
                     // Report on junit
                     sh 'docker exec docker_netric_server_1 /netric-tests.sh'

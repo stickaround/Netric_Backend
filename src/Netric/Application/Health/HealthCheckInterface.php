@@ -14,7 +14,7 @@ interface HealthCheckInterface
      *
      * @return bool true if healthy
      */
-    public function isApplicationHealthy();
+    public function isApplicationHealthy(): bool;
 
     /**
      * Conduct a systems test to to verify that the application
@@ -22,12 +22,19 @@ interface HealthCheckInterface
      *
      * @return bool true if healthy
      */
-    public function isSystemHealthy();
+    public function isSystemHealthy(): bool;
 
     /**
      * Get array of all errors reported during the health check
      *
      * @return string[]
      */
-    public function getReportedErrors();
+    public function getReportedErrors(): array;
+
+    /**
+     * Make sure critical service dependencies are online
+     *
+     * @return bool
+     */
+    public function areDependenciesLive(): bool;
 }

@@ -67,7 +67,7 @@ class HealthCheck implements HealthCheckInterface
      *
      * @return bool true if healthy
      */
-    public function isApplicationHealthy()
+    public function isApplicationHealthy(): bool
     {
         // Get statistics about log entries since last healthcheck
         $stats = $this->applicationLog->getLevelStats();
@@ -102,13 +102,28 @@ class HealthCheck implements HealthCheckInterface
      *
      * @return bool true if healthy
      */
-    public function isSystemHealthy()
+    public function isSystemHealthy(): bool
     {
         // First check to see if the application is unhealthy
         if (!$this->isApplicationHealthy()) {
             return false;
         }
 
+        // Now make sure dependencies are online
+        if (!$this->areDependenciesLive()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Make sure critical service dependencies are online
+     *
+     * @return bool
+     */
+    public function areDependenciesLive(): bool
+    {
         // Check if we can connect and start transactions on the database
         if (!$this->database->isReady()) {
             $this->reportedErrors[] = "The database " . get_class($this->database) .
@@ -132,7 +147,7 @@ class HealthCheck implements HealthCheckInterface
      *
      * @return string[]
      */
-    public function getReportedErrors()
+    public function getReportedErrors(): array
     {
         return $this->reportedErrors;
     }
@@ -148,7 +163,7 @@ class HealthCheck implements HealthCheckInterface
         $curlHandle = curl_init();
 
         // set url
-        curl_setopt($curlHandle, CURLOPT_URL, "http://localhost/api/health/ping");
+        curl_setopt($curlHandle, CURLOPT_URL, "http://localhost/api/v1/health/ping");
 
         // We want headers
         curl_setopt($curlHandle, CURLOPT_HEADER, true);

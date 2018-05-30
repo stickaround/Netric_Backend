@@ -5,7 +5,7 @@ use Netric\FileSystem\FileStore\FileStoreFactory;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\Log\LogFactory;
-use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Db\Relational\RelationalApplicationDbFactory;
 
 /**
  * Construct an application health service
@@ -21,7 +21,7 @@ class HealthCheckFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $log = $serviceLocator->get(LogFactory::class);
-        $dbh = $serviceLocator->get(RelationalDbFactory::class);
+        $dbh = $serviceLocator->get(RelationalApplicationDbFactory::class);
         $fileStore = $serviceLocator->get(FileStoreFactory::class);
         return new HealthCheck($log, $dbh, $fileStore);
     }

@@ -12,7 +12,7 @@ cd /var/www/html/bin
 
 # Check if system dependencies are ready prior to starting and wait up to 30 seconds
 RETRIES=60
-until ./netric health/test > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+until ./netric health/test-dependencies > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
   echo "Waiting for dependencies to come up, $((RETRIES--)) remaining attempts..."
   sleep 1
 done

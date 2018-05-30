@@ -114,9 +114,10 @@ class ConsoleResponse implements ResponseInterface
 
         if ($this->suppressOutput) {
             $this->outputBuffer[] = $text;
-        } else {
-            echo $text;
+            return;
         }
+        
+        echo $text;
     }
 
     /**
@@ -132,9 +133,10 @@ class ConsoleResponse implements ResponseInterface
         
         if ($this->suppressOutput) {
             $this->outputBuffer[] = $text;
-        } else {
-            echo $text . "\n";
+            return;
         }
+
+        echo $text . "\n";
     }
 
     /**

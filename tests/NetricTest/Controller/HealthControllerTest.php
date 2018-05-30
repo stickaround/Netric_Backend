@@ -50,4 +50,14 @@ class HealthControllerTest extends TestCase
         // Code 0 = success from the console
         $this->assertEquals(0, $response->getReturnCode());
     }
+
+    /**
+     * Test console dependencies test
+     */
+    public function testConsoleTestDependenciesAction()
+    {
+        $response = $this->controller->consoleTestDependenciesAction();
+        // Code 0 = success from the console
+        $this->assertEquals(0, $response->getReturnCode());
+    }
 }

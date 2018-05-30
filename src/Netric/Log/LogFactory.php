@@ -8,20 +8,22 @@
 namespace Netric\Log;
 
 use Netric\ServiceManager;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create a Log service
  */
-class LogFactory implements ServiceManager\AccountServiceFactoryInterface
+class LogFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return Log
+     * @param ServiceLocatorInterface $serviceLocator For loading dependencies
+     * @return HealthCheck
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return $sl->getAccount()->getApplication()->getLog();
+        return $serviceLocator->getApplication()->getLog();
     }
 }

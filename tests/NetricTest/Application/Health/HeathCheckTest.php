@@ -124,4 +124,60 @@ class HeathCheckTest extends TestCase
         $healthCheck = new HealthCheck($mockLog, $mockDb, $mockFileStore);
         $this->assertFalse($healthCheck->isSystemHealthy());
     }
+
+    /**
+     * Make sure under golden path everything is healthy
+     */
+    public function testAreDependenciesLive()
+    {
+        $mockLog = $this->getMockBuilder(LogInterface::class)->getMock();
+        $mockLog->method('getLevelStats')->willReturn([]);
+
+        $mockDb = $this->getMockBuilder(RelationalDbInterface::class)->getMock();
+        $mockDb->method('isReady')->willReturn(true);
+
+        $mockFileStore = $this->getMockBuilder(FileStoreInterface::class)->getMock();
+        $mockFileStore->method('isReady')->willReturn(true);
+
+        $healthCheck = new HealthCheck($mockLog, $mockDb, $mockFileStore);
+        $this->assertTrue($healthCheck->areDependenciesLive());
+    }
+
+    /**
+     * Make sure we fail if the file store cannot be contacted
+     */
+    public function testAreDependenciesLiveFileStoreFail()
+    {
+        $mockLog = $this->getMockBuilder(LogInterface::class)->getMock();
+        $mockLog->method('getLevelStats')->willReturn([]);
+
+        $mockDb = $this->getMockBuilder(RelationalDbInterface::class)->getMock();
+        $mockDb->method('isReady')->willReturn(true);
+
+        // Simulate inability to connect
+        $mockFileStore = $this->getMockBuilder(FileStoreInterface::class)->getMock();
+        $mockFileStore->method('isReady')->willReturn(false);
+
+        $healthCheck = new HealthCheck($mockLog, $mockDb, $mockFileStore);
+        $this->assertFalse($healthCheck->areDependenciesLive());
+    }
+
+    /**
+     * Make sure we fail if the database cannot be connected to
+     */
+    public function testAreDependenciesLiveDatabaseFail()
+    {
+        $mockLog = $this->getMockBuilder(LogInterface::class)->getMock();
+        $mockLog->method('getLevelStats')->willReturn([]);
+
+        $mockDb = $this->getMockBuilder(RelationalDbInterface::class)->getMock();
+        $mockDb->method('isReady')->willReturn(false);
+
+        // Simulate inability to connect
+        $mockFileStore = $this->getMockBuilder(FileStoreInterface::class)->getMock();
+        $mockFileStore->method('isReady')->willReturn(true);
+
+        $healthCheck = new HealthCheck($mockLog, $mockDb, $mockFileStore);
+        $this->assertFalse($healthCheck->areDependenciesLive());
+    }
 }
