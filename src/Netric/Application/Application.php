@@ -165,7 +165,11 @@ class Application
 
         // Execute through the router
         try {
-            $router->run($request);
+            $response = $router->run($request);
+            // Fail the run if the response code is not successful
+            if ($response && ($response->getReturnCode() != 0 && $response->getReturnCode() != 200)) {
+                $runWasSuccessful = false;
+            }
         } catch (\Exception $unhandledException) {
             // An exception took place and was not handled
             $this->getLog()->error(
