@@ -48,14 +48,14 @@ pipeline {
                         waitUntil {
 
                             // Assume failure
-                            def heathReturn = sh(
+                            def healthReturn = sh(
                                 script: 'docker exec docker_netric_server_1 bin/netric health/test',
                                 returnStatus: true
                             )
 
                             echo 'Got return code from command: ${healthReturn}'
 
-                            return (heathReturn == 0)
+                            return (healthReturn == 0)
                         }
                     }
 
