@@ -51,7 +51,9 @@ pipeline {
                             def heathReturn = sh(
                                 script: 'docker exec docker_netric_server_1 bin/netric health/test',
                                 returnStatus: true
-                             )
+                            )
+
+                            echo 'Got return code from command: ${healthReturn}'
 
                             return (heathReturn == 0)
                         }
@@ -204,7 +206,7 @@ pipeline {
             // Shutdown
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             cleanWs()
-            sh 'docker system prune'
+            sh 'docker system prune -f'
         }
         failure {
             emailext (

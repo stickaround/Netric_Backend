@@ -6,8 +6,6 @@ set -e
 
 export PHP_IDE_CONFIG="serverName=devel.netric.com"
 
-echo whoami
-
 # Make sure permissions are set in generated data files
 chmod -R 777 /var/www/html/tests/tmp/
 chmod -R 777 /var/www/html/tests/data/
