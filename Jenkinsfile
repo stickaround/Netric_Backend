@@ -53,7 +53,7 @@ pipeline {
                                 returnStatus: true
                             )
 
-                            echo 'Got return code from command: ${healthReturn}'
+                            echo "Got return code from command: ${healthReturn}"
 
                             return (healthReturn == 0)
                         }
