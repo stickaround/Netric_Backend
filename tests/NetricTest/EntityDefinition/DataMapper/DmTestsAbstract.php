@@ -19,7 +19,7 @@ abstract class DmTestsAbstract extends TestCase
 {
     /**
      * Tennant account
-     * 
+     *
      * @var \Netric\Account\Account
      */
     protected $account = null;
@@ -32,11 +32,11 @@ abstract class DmTestsAbstract extends TestCase
     protected $testDefinitions = [];
 
     /**
-	 * Use this function in all the derived classes to construct the datamapper
-	 *
-	 * @return EntityDefinitionDataMapperInterface
-	 */
-	abstract protected function getDataMapper();
+     * Use this function in all the derived classes to construct the datamapper
+     *
+     * @return EntityDefinitionDataMapperInterface
+     */
+    abstract protected function getDataMapper();
 
     /**
      * Setup each test
@@ -57,51 +57,51 @@ abstract class DmTestsAbstract extends TestCase
         }
     }
 
-	/**
-	 * Test loading data into the definition from an array
-	 */
-	public function testFetchByName()
-	{
-		$dm = $this->getDataMapper();
+    /**
+     * Test loading data into the definition from an array
+     */
+    public function testFetchByName()
+    {
+        $dm = $this->getDataMapper();
 
-		$entDef = $dm->fetchByName("customer");
+        $entDef = $dm->fetchByName("customer");
 
-		// Make sure the ID is set
-		$this->assertFalse(empty($entDef->id));
+        // Make sure the ID is set
+        $this->assertFalse(empty($entDef->id));
 
-		// Make sure revision is not 0 which means uninitialized
-		$this->assertTrue($entDef->revision > 0);
+        // Make sure revision is not 0 which means uninitialized
+        $this->assertTrue($entDef->revision > 0);
 
-		// Field tests
-		// ------------------------------------------------
-		
-		// Verify that we have a name field of type text
-		$field = $entDef->getField("name");
-		$this->assertEquals("text", $field->type);
+        // Field tests
+        // ------------------------------------------------
 
-		// Test optional values
-		$field = $entDef->getField("type_id");
-		$this->assertTrue(count($field->optionalValues) > 1);
+        // Verify that we have a name field of type text
+        $field = $entDef->getField("name");
+        $this->assertEquals("text", $field->type);
 
-		// Test fkey_multi
-		$field = $entDef->getField("groups");
-		$this->assertFalse(empty($field->id));
-		$this->assertEquals("parent_id", $field->fkeyTable['parent']);
-		$this->assertEquals("fkey_multi", $field->type);
-		$this->assertEquals("object_groupings", $field->subtype);
-		$this->assertEquals("object_grouping_mem", $field->fkeyTable['ref_table']['table']);
-		$this->assertEquals("object_id", $field->fkeyTable['ref_table']['this']);
-		$this->assertEquals("grouping_id", $field->fkeyTable['ref_table']['ref']);
+        // Test optional values
+        $field = $entDef->getField("type_id");
+        $this->assertTrue(count($field->optionalValues) > 1);
 
-		// Test object reference with autocreate
-		$field = $entDef->getField("folder_id");
-		$this->assertFalse(empty($field->id));
-		$this->assertEquals("object", $field->type);
-		$this->assertEquals("folder", $field->subtype);
-		$this->assertEquals('/System/Customer Files', $field->autocreatebase);
-		$this->assertEquals('id', $field->autocreatename);
+        // Test fkey_multi
+        $field = $entDef->getField("groups");
+        $this->assertFalse(empty($field->id));
+        $this->assertEquals("parent_id", $field->fkeyTable['parent']);
+        $this->assertEquals("fkey_multi", $field->type);
+        $this->assertEquals("object_groupings", $field->subtype);
+        $this->assertEquals("object_grouping_mem", $field->fkeyTable['ref_table']['table']);
+        $this->assertEquals("object_id", $field->fkeyTable['ref_table']['this']);
+        $this->assertEquals("grouping_id", $field->fkeyTable['ref_table']['ref']);
 
-	}
+        // Test object reference with autocreate
+        $field = $entDef->getField("folder_id");
+        $this->assertFalse(empty($field->id));
+        $this->assertEquals("object", $field->type);
+        $this->assertEquals("folder", $field->subtype);
+        $this->assertEquals('/System/Customer Files', $field->autocreatebase);
+        $this->assertEquals('id', $field->autocreatename);
+
+    }
 
     /**
      * Make sure we can save definitions
@@ -163,23 +163,24 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $def = new EntityDefinition("utest_delete_by_name");
-        $def->setTitle("Unit Test Delete");
+        $def = new EntityDefinition("utest_delete_by_name1");
+        $def->setTitle("Unit Test Delete1");
         $def->setSystem(false);
         $dacl = new Dacl();
+        $dacl->allowGroup(UserEntity::GROUP_EVERYONE, DACL::PERM_DELETE);
         $def->setDacl($dacl);
 
         // Test inserting with dacl
         $dataMapper->save($def);
 
         // Delete
-        $dataMapper->deleteByName('utest_delete_by_name');
+        $dataMapper->deleteByName('utest_delete_by_name1');
 
         // Expect an exception if we try to load this again
         $this->expectException(\RuntimeException::class);
 
         // Try to reload
-        $dataMapper->fetchByName("utest_delete_by_name");
+        $result = $dataMapper->fetchByName("utest_delete_by_name1");
     }
 
     /**
@@ -203,8 +204,8 @@ abstract class DmTestsAbstract extends TestCase
     /**
      * Test saving a discretionary access control list (DACL)
      */
-	public function testSaveDef_Dacl()
-	{
+    public function testSaveDef_Dacl()
+    {
         $dataMapper = $this->getDataMapper();
 
         $def = new EntityDefinition("utest_save_dacl");
@@ -231,13 +232,13 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertNotNull($reloadedDef->getDacl());
         $daclData = $reloadedDef->getDacl()->toArray();
         $this->assertEquals([UserEntity::GROUP_USERS], $daclData['entries']['View']['groups']);
-	}
+    }
 
     /**
      * Test unsetting the DACL
      */
-	public function testSaveDef_EmptyDacl()
-	{
+    public function testSaveDef_EmptyDacl()
+    {
         $dataMapper = $this->getDataMapper();
 
         $def = new EntityDefinition("utest_save_empty_dacl");
@@ -261,12 +262,12 @@ abstract class DmTestsAbstract extends TestCase
         // Reload
         $reloadedDef = $dataMapper->fetchByName("utest_save_empty_dacl");
         $this->assertNull($reloadedDef->getDacl());
-	}
+    }
 
-	/**
+    /**
      * Test getting the latest hash for a system definition
      */
-	public function testGetLatestSystemDefinitionHash()
+    public function testGetLatestSystemDefinitionHash()
     {
         $this->assertNotNull($this->getDataMapper()->getLatestSystemDefinitionHash('task'));
     }

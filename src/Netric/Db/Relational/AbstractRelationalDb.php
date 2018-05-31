@@ -181,8 +181,8 @@ abstract class AbstractRelationalDb
         // Bummer! No connection could be established
         throw new Exception\DatabaseConnectionException(
             'Could not establish connection after ' .
-                self::MAX_CONNECT_ATTEMPTS . ' attempts. Exception: ' .
-                $oLastException->getMessage()
+            self::MAX_CONNECT_ATTEMPTS . ' attempts. Exception: ' .
+            $oLastException->getMessage()
         );
     }
 
@@ -269,7 +269,7 @@ abstract class AbstractRelationalDb
     public function insert(string $tableName, array $params, string $primaryKeyColumn = "id")
     {
         $this->beginTransaction();
-        
+
         // Assume the insert does not have an ID to return
         $insertedId = 0;
 
@@ -281,7 +281,7 @@ abstract class AbstractRelationalDb
 
         // Run query, get next value (if selected), and commit
         $this->query($sql, $params);
-        
+
         // If the primary key was set in the params already, return it
         $insertedId = (empty($params[$primaryKeyColumn])) ? null : $params[$primaryKeyColumn];
 
@@ -310,7 +310,7 @@ abstract class AbstractRelationalDb
     public function update(string $tableName, array $params, array $whereParams)
     {
         $sql = 'UPDATE ' . $tableName . ' SET ';
-        
+
         // Add update statements
         $updateStatements = [];
         foreach ($params as $colName => $colValue) {
@@ -361,7 +361,7 @@ abstract class AbstractRelationalDb
         // Run the update and return the id as the result
         $result = $this->query($sql, $whereParams);
 
-        // Let the user know how many rows were updated
+        // Let the user know how many rows were deleted
         return $result->rowCount();
     }
 
@@ -409,8 +409,8 @@ abstract class AbstractRelationalDb
         } catch (\PDOException $exception) {
             throw new DatabaseException(
                 'Unable to get the last inserted ID. This often happens if this ' .
-                    'was called after the transaction was committed, or the ' .
-                    'table does not have a serialized primary key.'
+                'was called after the transaction was committed, or the ' .
+                'table does not have a serialized primary key.'
             );
         }
     }
