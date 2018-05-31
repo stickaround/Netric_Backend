@@ -98,31 +98,6 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     }
 
     /**
-     * Get data for a grouping field (fkey)
-     *
-     * @param string $objType The object type name we are working with
-     * @param string $fieldName the name of the grouping(fkey, fkey_multi) field
-     * @param array $conditions Array of conditions used to slice the groupings
-     * @param string $parent the parent id to query for subvalues
-     * @param string $nameValue namevalue to query for a single grouping by name
-     * @return array of grouping in an associate array("id", "title", "viewname", "color", "system", "children"=>array)
-     */
-    public function getGroupings($objType, $fieldName, $filter = array())
-    {
-        $def = $this->getLoader()->get($objType);
-        if (!$def) {
-            return false;
-        }
-
-        $field = $def->getField($fieldName);
-        if (!$field) {
-            return false;
-        }
-
-        $data = $this->getGroupingsData($def, $field, $filter);
-    }
-
-    /**
      * Update a definition from the local system in data/entity_definitions
      *
      * @param EntityDefinition $def

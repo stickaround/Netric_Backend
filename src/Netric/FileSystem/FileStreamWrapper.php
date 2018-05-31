@@ -127,6 +127,8 @@ class FileStreamWrapper
         $len = ($this->position + $len > $this->streamLength)
             ? ($this->streamLength - $this->position) : $len;
         $data = $this->fileSystem->readFile($this->file, $len);
+
+        if ($data && (is_array($data) || is_object($data)))
         $this->position += sizeof($data);
         return $data;
     }

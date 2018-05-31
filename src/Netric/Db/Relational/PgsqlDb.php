@@ -24,7 +24,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     protected function getDataSourceName()
     {
         return "pgsql:dbname=" . $this->getDatabaseName() .
-            ";host=" . $this->getHostOrFileName();
+        ";host=" . $this->getHostOrFileName();
     }
 
     /**
@@ -156,5 +156,26 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
         $sql = 'SELECT nspname from pg_namespace where nspname=:namesp';
         $result = $this->query($sql, ['namesp' => $namespace]);
         return ($result->rowCount() > 0);
+    }
+
+    /**
+     * Check if an index exists by name
+     *
+     * @param string $idxname The name of the index to look for
+     * @return bool true if the index was found, false if it was not
+     */
+    public function indexExists($idxname)
+    {
+        $sql = "select * from pg_indexes where indexname=:index_name";
+        $params = ["index_name" => $idxname];
+
+        if ($this->schemaName) {
+            $sql .= " and schemaname=:schema_name";
+            $params["schema_name"] = $this->schemaName;
+        }
+
+        $result = $this->query($sql, $params);
+
+        return $result->rowCount() > 0;
     }
 }
