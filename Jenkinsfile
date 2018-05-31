@@ -41,6 +41,8 @@ pipeline {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up -d'
 
+                    sleep 60
+
                     // Wait until the server is up and running
                     timeout(5) {
                         waitUntil {
