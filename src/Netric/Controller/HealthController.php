@@ -6,12 +6,28 @@ use Netric\Application\Response\HttpResponse;
 use Netric\Application\Response\ConsoleResponse;
 use Netric\Application\Health\HealthCheckFactory;
 use Netric\Application\Health\HealthCheck;
+use Netric\Permissions\Dacl;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Perform various healthchecks
  */
 class HealthController extends AbstractController
 {
+    /**
+     * Override to allow anonymous users to access this controller for authentication
+     *
+     * @return \Netric\Permissions\Dacl
+     */
+    public function getAccessControlList()
+    {
+        // By default allow anonymous access to this controller
+        // Since only health/ping is accessible via http
+        $dacl = new Dacl();
+        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
+        return $dacl;
+    }
+
     /**
      * For public ping of the server
      */

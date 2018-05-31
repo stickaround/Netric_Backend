@@ -56,9 +56,6 @@ pipeline {
                     // Create style and static analysis reports
                     sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
                     sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
-                    
-                    // Shutdown
-                    sh 'docker-compose -f docker/docker-compose-test.yml down'
 
                     // Send reports to server for code quality metrics
                     def reporter = new CodeQualityReporter([
@@ -166,7 +163,6 @@ pipeline {
                                     println("---------------------------------")
                                     print(jsonData[0].UpdateStatus.Message)
                                     println("---------------------------------")
-
                                     // Exit
                                     currentBuild.result = "FAIL"
                                 }
@@ -197,6 +193,8 @@ pipeline {
     }
     post {
         always {
+            // Shutdown
+            sh 'docker-compose -f docker/docker-compose-test.yml down'
             cleanWs()
             sh 'docker system prune -af'
         }
