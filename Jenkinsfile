@@ -46,14 +46,9 @@ pipeline {
                         waitUntil {
 
                             // Assume failure
-                            def heathReturn = 1
-
-                            // First run may fail early on since the app may not be setup yet
-                            try {
-                                heathReturn = sh script: 'docker exec docker_netric_server_1 bin/netric health/test', returnStatus: true
-                            } catch (error) {
-                                echo 'Tried calling healthcheck but got an exception ${error}'
-                            }
+                            def heathReturn = sh
+                                script: 'docker exec docker_netric_server_1 bin/netric health/test',
+                                returnStatus: true
 
                             return (heathReturn == 0)
                         }
