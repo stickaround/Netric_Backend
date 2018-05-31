@@ -3,6 +3,7 @@ namespace Netric\Application;
 
 use Netric\Account\Account;
 use Netric\Application\Exception;
+use Netric\Application\Response\ResponseInterface;
 use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;
 use Netric\Mvc\Router;
@@ -140,11 +141,11 @@ class Application
      * Run The application
      *
      * @param string $path Optional initial route to load
-     * @return bool true on success, false on failure
+     * @return int Return status code
      */
-    public function run($path = "") : bool
+    public function run($path = "") : int
     {
-        $runWasSuccessful = true;
+        $returnStatusCode = 0;
 
         // We give each request a unique ID in order to track calls and logs through the system
         $this->requestId = uniqid();
@@ -167,8 +168,8 @@ class Application
         try {
             $response = $router->run($request);
             // Fail the run if the response code is not successful
-            if ($response && ($response->getReturnCode() != 0 && $response->getReturnCode() != 200)) {
-                $runWasSuccessful = false;
+            if ($response instanceof ResponseInterface) {
+                $returnStatusCode = $response->getReturnCode();
             }
         } catch (\Exception $unhandledException) {
             // An exception took place and was not handled
@@ -179,13 +180,13 @@ class Application
                 "; message=" . $unhandledException->getMessage() .
                 "\n" . $unhandledException->getTraceAsString()
             );
-            $runWasSuccessful = false;
+            $returnStatusCode = -1;
         }
 
         // Handle any profiling needed for this request
         $this->profileRequest();
 
-        return $runWasSuccessful;
+        return $returnStatusCode;
     }
 
     /**

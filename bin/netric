@@ -33,10 +33,5 @@ $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV'
 // Setup the new config
 $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 
-// Run the application - arguments will be parsed in run
-if (!Application::init($config)->run()) {
-    // Indicate that the request failed for some reason
-    exit(1);
-}
-// Success
-exit(0);
+// Run the application - arguments will be parsed in run and exit with return code
+exit(Application::init($config)->run());
