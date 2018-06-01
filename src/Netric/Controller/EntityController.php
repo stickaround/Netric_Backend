@@ -183,7 +183,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($entity) {
             $entityData = $entity->toArray();
             $dacl = $daclLoader->getForEntity($entity);
-            $entityData["dacl"] = $dacl->toArray();
+            $entityData["dacl_data"] = $dacl->getDataWithNames();
         }
 
         return $this->sendOutput($entityData);
@@ -851,8 +851,8 @@ class EntityController extends Mvc\AbstractAccountController
      * @param Entity $entity The entity that we will be checking
      * @param $permission The permission to check
      */
-    private function checkIfUserIsAllowed(Entity $entity, $permission) {
-
+    private function checkIfUserIsAllowed(Entity $entity, $permission)
+    {
         // Check entity permission
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
