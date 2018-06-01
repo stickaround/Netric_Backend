@@ -39,9 +39,10 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh 'docker-compose -f docker/docker-compose-test.yml up -d'
+                    sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
                     // Wait until the server is up and running
+                    /*
                     timeout(time:30, unit:'MINUTES') {
                         waitUntil {
 
@@ -56,9 +57,10 @@ pipeline {
                             return (healthReturn == 0)
                         }
                     }
+                    */
 
                     // Report on junit
-                    sh 'docker exec docker_netric_server_1 /netric-tests.sh'
+                    //sh 'docker exec docker_netric_server_1 /netric-tests.sh'
                     junit 'tests/tmp/junit.xml'
 
                     // Create style and static analysis reports

@@ -14,6 +14,7 @@ services:
       - db1
       - mogilefs
       - mogilestore
+    command: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
   memcached:
     image: memcached
   gearmand:
@@ -46,7 +47,7 @@ services:
       DB_PORT: 5432
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 240
+      WAIT_FOR_DB_TIMEOUT: 120
     links:
       - mogilestore
       - db1
