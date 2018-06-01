@@ -183,7 +183,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($entity) {
             $entityData = $entity->toArray();
             $dacl = $daclLoader->getForEntity($entity);
-            $entityData["dacl_data"] = $dacl->getDataWithNames();
+            $entityData["applied_dacl"] = $dacl->getDataWithNames();
         }
 
         return $this->sendOutput($entityData);
