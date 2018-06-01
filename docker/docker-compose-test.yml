@@ -51,11 +51,11 @@ services:
       DB_PORT: 5432
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 120
+      WAIT_FOR_DB_TIMEOUT: 240
     links:
       - mogilestore
       - db1
     logging:
-          driver: "json-file"
+      driver: "json-file"
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'
