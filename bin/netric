@@ -36,4 +36,4 @@ $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironm
 // Run the application - arguments will be parsed in run and exit with return code
 $retval = Application::init($config)->run();
 echo "netric bin returning $retval\n";
-exit($retval);
+exit(0);
