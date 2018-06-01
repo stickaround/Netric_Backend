@@ -34,4 +34,5 @@ $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV'
 $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
 
 // Run the application - arguments will be parsed in run and exit with return code
-exit(Application::init($config)->run());
+$retval = Application::init($config)->run();
+exit($retval);

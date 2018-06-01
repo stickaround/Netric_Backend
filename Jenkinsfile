@@ -47,7 +47,7 @@ pipeline {
 
                             // Assume failure
                             def healthReturn = sh(
-                                script: 'docker exec docker_netric_server_1 bin/netric health/test',
+                                script: 'docker exec -it docker_netric_server_1 bin/netric health/test',
                                 returnStatus: true
                             )
 
