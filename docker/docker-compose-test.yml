@@ -27,6 +27,8 @@ services:
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
+    logging:
+          driver: "json-file"
   mail:
     image: 'dockerhub.aereusdev.com/mail:latest'
     environment:
@@ -53,5 +55,7 @@ services:
     links:
       - mogilestore
       - db1
+    logging:
+          driver: "json-file"
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'
