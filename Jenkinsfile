@@ -41,31 +41,12 @@ pipeline {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
-                    // Wait until the server is up and running
-                    /*
-                    timeout(time:30, unit:'MINUTES') {
-                        waitUntil {
-
-                            // Assume failure
-                            def healthReturn = sh(
-                                script: 'docker exec -it docker_netric_server_1 bin/netric health/test',
-                                returnStatus: true
-                            )
-
-                            echo "Got return code from command: ${healthReturn}"
-
-                            return (healthReturn == 0)
-                        }
-                    }
-                    */
-
                     // Report on junit
-                    //sh 'docker exec docker_netric_server_1 /netric-tests.sh'
                     junit 'tests/tmp/junit.xml'
 
                     // Create style and static analysis reports
-                    sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
-                    sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
+                    // sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
+                    // sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
 
                     // Send reports to server for code quality metrics
                     def reporter = new CodeQualityReporter([

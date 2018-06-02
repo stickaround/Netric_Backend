@@ -47,7 +47,7 @@ class Statement
      */
     public function execute()
     {
-        // Binding the parameters will cause the values inside the parameter list 
+        // Binding the parameters will cause the values inside the parameter list
         // to be cast correctly for their type.
         $this->bindAllParameters();
 
@@ -66,7 +66,7 @@ class Statement
         /*
          * Bind the values to specific types so that the PDO driver knows how to
          * escame them. Otherwise everything will be wrapped into single quites
-         * which will break most RDBs. 
+         * which will break most RDBs.
          */
         foreach ($this->params as $paramName => $paramValue) {
             // POD requires the param names to be ':paramname' with the ':' prefix

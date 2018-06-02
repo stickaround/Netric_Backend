@@ -71,29 +71,37 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $def->setId($row["id"]);
             $def->capped = (!empty($row['capped'])) ? $row['capped'] : false;
 
-            if (!empty($row["default_activity_level"]))
+            if (!empty($row["default_activity_level"])) {
                 $def->defaultActivityLevel = $row["default_activity_level"];
+            }
 
-            if (!empty($row["is_private"]))
+            if (!empty($row["is_private"])) {
                 $def->isPrivate = ($row["is_private"] == 1) ? true : false;
+            }
 
-            if (!empty($row["store_revisions"]))
+            if (!empty($row["store_revisions"])) {
                 $def->storeRevisions = ($row["store_revisions"] == 1) ? true : false;
+            }
 
-            if (!empty($row["inherit_dacl_ref"]))
+            if (!empty($row["inherit_dacl_ref"])) {
                 $def->inheritDaclRef = $row["inherit_dacl_ref"];
+            }
 
-            if (!empty($row["parent_field"]))
+            if (!empty($row["parent_field"])) {
                 $def->parentField = $row["parent_field"];
+            }
 
-            if (!empty($row["uname_settings"]))
+            if (!empty($row["uname_settings"])) {
                 $def->unameSettings = $row["uname_settings"];
+            }
 
-            if (!empty($row["list_title"]))
+            if (!empty($row["list_title"])) {
                 $def->listTitle = $row["list_title"];
+            }
 
-            if (!empty($row["icon"]))
+            if (!empty($row["icon"])) {
                 $def->icon = $row["icon"];
+            }
 
             if (!empty($row['recur_rules'])) {
                 $def->recurRules = json_decode($row['recur_rules'], true);
@@ -110,13 +118,15 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
             // If this is the first load of this object type
             // then create the object table
-            if ($def->revision <= 0)
+            if ($def->revision <= 0) {
                 $this->save($def);
+            }
         }
 
         // Make sure this a valid definition
-        if (!$def->getId())
+        if (!$def->getId()) {
             throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $this->database->getNamespace());
+        }
 
 
         // Get field definitions
@@ -152,8 +162,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $field->readonly = ($row['f_readonly'] == 1) ? true : false;
             $field->unique = ($row['f_unique'] == 1) ? true : false;
 
-            if (!empty($row['use_when']))
+            if (!empty($row['use_when'])) {
                 $field->setUseWhen($row['use_when']);
+            }
 
             if ($row['type'] == FIELD::TYPE_GROUPING || $row['type'] == FIELD::TYPE_OBJECT || $row['type'] == FIELD::TYPE_GROUPING_MULTI) {
                 if ($row['fkey_table_key']) {
@@ -185,10 +196,12 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
             foreach ($defaultResult->fetchAll() as $defaultRow) {
                 $default = array('on' => $defaultRow['on_event'], 'value' => $defaultRow['value']);
-                if ($defaultRow['coalesce'])
+                if ($defaultRow['coalesce']) {
                     $default['coalesce'] = unserialize($defaultRow['coalesce']);
-                if ($defaultRow['where_cond'])
+                }
+                if ($defaultRow['where_cond']) {
                     $default['where'] = unserialize($defaultRow['where_cond']);
+                }
 
                 // Make sure that coalesce does not cause a circular reference to self
                 if (!empty($default['coalesce']) && !empty($default['coalesce'])) {
@@ -215,14 +228,17 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $optionalResult = $this->database->query($sql, ['field_id' => $row['id']]);
 
             foreach ($optionalResult->fetchAll() as $optionalRow) {
-                if (empty($this->fields[$row['name']]['optional_values']))
+                if (empty($this->fields[$row['name']]['optional_values'])) {
                     $this->fields[$row['name']]['optional_values'] = [];
+                }
 
-                if (empty($optionalRow['key']))
+                if (empty($optionalRow['key'])) {
                     $optionalRow['key'] = $optionalRow['value'];
+                }
 
-                if (empty($field->optionalValues))
+                if (empty($field->optionalValues)) {
                     $field->optionalValues = [];
+                }
 
                 $field->optionalValues[$optionalRow['key']] = $optionalRow['value'];
             }
@@ -262,12 +278,14 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     public function deleteDef(EntityDefinition $def)
     {
         // System objects cannot be deleted
-        if ($def->system)
+        if ($def->system) {
             return false;
+        }
 
         // Only delete existing types of course
-        if (!$def->getId())
+        if (!$def->getId()) {
             return false;
+        }
 
         // Delete object type entries from the database
         $this->database->delete(
@@ -335,8 +353,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $this->saveFields($def);
 
         // Associate with applicaiton if set
-        if ($def->applicationId)
+        if ($def->applicationId) {
             $this->associateWithApp($def, $def->applicationId);
+        }
     }
 
     /**
@@ -388,41 +407,52 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $updateFields["type"] = $field->type;
             $updateFields["subtype"] = $field->subtype;
 
-            if (!empty($field->fkeyTable['key']))
+            if (!empty($field->fkeyTable['key'])) {
                 $updateFields["fkey_table_key"] = $field->fkeyTable['key'];
+            }
 
-            if (!empty($field->fkeyTable['title']))
+            if (!empty($field->fkeyTable['title'])) {
                 $updateFields["fkey_table_title"] = $field->fkeyTable['title'];
+            }
 
-            if (!empty($field->fkeyTable['parent']))
+            if (!empty($field->fkeyTable['parent'])) {
                 $updateFields["parent_field"] = $field->fkeyTable['parent'];
+            }
 
-            if (!empty($field->fkeyTable['ref_table']['table']))
+            if (!empty($field->fkeyTable['ref_table']['table'])) {
                 $updateFields["fkey_multi_tbl"] = $field->fkeyTable['ref_table']['table'];
+            }
 
-            if (!empty($field->fkeyTable['ref_table']['this']))
+            if (!empty($field->fkeyTable['ref_table']['this'])) {
                 $updateFields["fkey_multi_this"] = $field->fkeyTable['ref_table']['this'];
+            }
 
-            if (!empty($field->fkeyTable['ref_table']['ref']))
+            if (!empty($field->fkeyTable['ref_table']['ref'])) {
                 $updateFields["fkey_multi_ref"] = $field->fkeyTable['ref_table']['ref'];
+            }
 
             $updateFields["sort_order"] = $sort_order;
             $updateFields["autocreate"] = $field->autocreate;
 
-            if ($field->autocreatebase)
+            if ($field->autocreatebase) {
                 $updateFields["autocreatebase"] = $field->autocreatebase;
+            }
 
-            if ($field->autocreatename)
+            if ($field->autocreatename) {
                 $updateFields["autocreatename"] = $field->autocreatename;
+            }
 
-            if ($field->getUseWhen())
+            if ($field->getUseWhen()) {
                 $updateFields["use_when"] = $field->getUseWhen();
+            }
 
-            if ($field->mask)
+            if ($field->mask) {
                 $updateFields["mask"] = $field->mask;
+            }
 
-            if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter']))
+            if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
                 $updateFields["filter"] = serialize($field->fkeyTable['filter']);
+            }
 
             $updateFields["f_required"] = $field->required;
             $updateFields["f_readonly"] = $field->readonly;
@@ -433,11 +463,13 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
             // Save default values
             if ($field->id && $field->default) {
-                if (!empty($field->default['coalesce']))
+                if (!empty($field->default['coalesce'])) {
                     $field->default['coalesce'] = null;
+                }
 
-                if (!empty($field->default['where']))
+                if (!empty($field->default['where'])) {
                     $field->default['where'] = null;
+                }
 
                 $this->database->delete(
                     'app_object_field_defaults',
@@ -489,55 +521,70 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $mask = null;
             $useWhen = null;
 
-            if (!empty($field->fkeyTable['key']))
+            if (!empty($field->fkeyTable['key'])) {
                 $key = $field->fkeyTable['key'];
+            }
 
-            if (!empty($field->fkeyTable['title']))
+            if (!empty($field->fkeyTable['title'])) {
                 $fKeytitle = $field->fkeyTable['title'];
+            }
 
-            if (!empty($field->fkeyTable['parent']))
+            if (!empty($field->fkeyTable['parent'])) {
                 $fKeyParent = $field->fkeyTable['parent'];
+            }
 
-            if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter']))
+            if (!empty($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
                 $fKeyFilter = serialize($field->fkeyTable['filter']);
+            }
 
-            if (!empty($field->fkeyTable['ref_table']['ref']))
+            if (!empty($field->fkeyTable['ref_table']['ref'])) {
                 $fKeyRef = $field->fkeyTable['ref_table']['ref'];
+            }
 
-            if (!empty($field->fkeyTable['ref_table']['table']))
+            if (!empty($field->fkeyTable['ref_table']['table'])) {
                 $fKeyRefTable = $field->fkeyTable['ref_table']['table'];
+            }
 
-            if (!empty($field->fkeyTable['ref_table']['this']))
+            if (!empty($field->fkeyTable['ref_table']['this'])) {
                 $fKeyRefThis = $field->fkeyTable['ref_table']['this'];
+            }
 
-            if ($field->autocreatebase)
+            if ($field->autocreatebase) {
                 $autocreatebase = $field->autocreatebase;
+            }
 
-            if ($field->autocreatename)
+            if ($field->autocreatename) {
                 $autocreatename = $field->autocreatename;
+            }
 
-            if ($field->mask)
+            if ($field->mask) {
                 $mask = $field->mask;
+            }
 
-            if ($field->getUseWhen())
+            if ($field->getUseWhen()) {
                 $useWhen = $field->getUseWhen();
+            }
 
             $autocreate = "f";
             $required = "f";
             $readonly = "f";
             $unique = "f";
 
-            if ($field->autocreate)
+            if ($field->autocreate) {
                 $autocreate = "t";
+            }
 
-            if ($field->required)
+            if ($field->required) {
                 $required = "t";
+            }
 
-            if ($field->readonly)
+            if ($field->readonly) {
                 $readonly = "t";
+            }
 
-            if ($field->unique)
+            if ($field->unique) {
                 $unique = "t";
+            }
 
             $dataToInsert = [
                 "type_id" => $def->getId(),
@@ -572,11 +619,13 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 $fdefCoalesce = null;
                 $fdefWhere = null;
 
-                if (!empty($field->default['coalesce']))
+                if (!empty($field->default['coalesce'])) {
                     $fdefCoalesce = $field->default['coalesce'];
+                }
 
-                if (!empty($field->default['where']))
+                if (!empty($field->default['where'])) {
                     $fdefWhere = $field->default['where'];
+                }
 
                 $field->id = $fid;
 
@@ -596,7 +645,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
                 if ($fid && $field->optionalValues) {
                     foreach ($field->optionalValues as $okey => $oval) {
-
                         $dataToInsert = [
                             "field_id" => $fid,
                             "key" => $okey,
@@ -623,8 +671,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     private function removeField(&$def, $fname)
     {
-        if (!$def->getId())
+        if (!$def->getId()) {
             return false;
+        }
 
         $this->database->delete(
             'app_object_type_fields',
@@ -650,8 +699,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $tableName = strtolower($def->getTable());
 
         // Use different type for creating the system revision commit_id
-        if ($field->name == "commit_id")
+        if ($field->name == "commit_id") {
             $fType = "bigint";
+        }
 
         if (!$this->database->columnExists($tableName, $colname)) {
             $index = ""; // set to create dynamic indexes
@@ -714,10 +764,11 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 case 'int':
                 case 'integer':
                 case 'number':
-                    if ($subtype)
+                    if ($subtype) {
                         $type = $subtype;
-                    else
+                    } else {
                         $type = "numeric";
+                    }
 
                     $index = "btree";
                     break;
@@ -770,14 +821,16 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN $colname $type");
 
                 // Store cached foreign key names
-                if ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI)
+                if ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI) {
                     $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
+                }
             }
         } else {
             // Make sure that existing foreign fields have local _fval caches
             if ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI) {
-                if (!$this->database->columnExists($tableName, $colname . "_fval"))
+                if (!$this->database->columnExists($tableName, $colname . "_fval")) {
                     $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
+                }
             }
         }
 
@@ -865,8 +918,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      */
     public function createFieldIndex(EntityDefinition $def, Field $field)
     {
-        if (!$field)
+        if (!$field) {
             return false;
+        }
 
         $colname = $field->name;
         $ftype = $field->type;
@@ -915,10 +969,11 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                 // If we are using generic obj partitions then make sure _del table is updated as well
                 $indexCol = $colname;
 
-                if ($ftype == FIELD::TYPE_TEXT && $subtype)
+                if ($ftype == FIELD::TYPE_TEXT && $subtype) {
                     $indexCol = "lower($colname)";
-                else if ($ftype == FIELD::TYPE_TEXT && !$subtype && $index == "gin")
+                } elseif ($ftype == FIELD::TYPE_TEXT && !$subtype && $index == "gin") {
                     $indexCol = "to_tsvector('english', $colname)";
+                }
 
                 if (!$this->database->indexExists($tableName . "_act_" . $colname . "_idx")) {
                     $this->database->query("CREATE INDEX " . $tableName . "_act_" . $colname . "_idx

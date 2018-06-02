@@ -1,6 +1,7 @@
 <?php
 namespace Netric\Application\Health;
 
+use Netric\Application\Health\DependencyCheck\DependencyCheckInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use Netric\Log\LogInterface;
@@ -11,18 +12,11 @@ use Netric\Log\LogInterface;
 class HealthCheck implements HealthCheckInterface
 {
     /**
-     * Handle to system database to check
+     * Array of external dependencies to check
      *
-     * @var RelationalDbInterface
+     * @var DependencyCheckInterface[]
      */
-    private $database = null;
-
-    /**
-     * Handle to a remote file store to test
-     *
-     * @var FileStoreInterface
-     */
-    private $fileStore = null;
+    private $dependencies = [];
 
     /**
      * Main application log
@@ -50,13 +44,12 @@ class HealthCheck implements HealthCheckInterface
      * HealthCheck constructor.
      *
      * @param RelationalDbInterface $database System database to check connection to
-     * @param FileStoreInterface $fileStore File store to check connection to
+     * @param DependencyCheckInterface $dependencies List of dependencies
      */
-    public function __construct(LogInterface $applicationLog, RelationalDbInterface $database, FileStoreInterface $fileStore)
+    public function __construct(LogInterface $applicationLog, array $dependencies)
     {
         $this->applicationLog = $applicationLog;
-        $this->fileStore = $fileStore;
-        $this->database = $database;
+        $this->dependencies = $dependencies;
     }
 
     /**
@@ -124,21 +117,14 @@ class HealthCheck implements HealthCheckInterface
      */
     public function areDependenciesLive(): bool
     {
-        // Check if we can connect and start transactions on the database
-        if (!$this->database->isReady()) {
-            $this->reportedErrors[] = "The database " . get_class($this->database) .
+        foreach ($this->dependencies as $dependency) {
+            if (!$dependency->isAvailable()) {
+                $this->reportedErrors[] = "The dependency " . get_class($dependency) .
                 " is not yet ready or cannot connect";
-            return false;
+                return false;
+            }
         }
-
-        // Check if we can connect to the file store
-        if (!$this->fileStore->isReady()) {
-            $this->reportedErrors[] = "The file store " . get_class($this->fileStore) .
-                " is not yet ready or cannot connect";
-            return false;
-        }
-
-
+       
         return true;
     }
 

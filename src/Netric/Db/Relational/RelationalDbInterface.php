@@ -152,11 +152,4 @@ interface RelationalDbInterface
      * @return bool
      */
     public function namespaceExists(string $namespace): bool;
-
-    /**
-     * Check if a database is up and ready for work
-     *
-     * @return bool true if the RDMS is ready for work
-     */
-    public function isReady(): bool;
 }

@@ -101,9 +101,10 @@ abstract class AbstractRelationalDb
     /**
      * Required function for all derived classes to rovide their PDO connections string
      *
+     * @param string $databaseName Optional name of the database to connect to
      * @return string
      */
-    abstract protected function getDataSourceName();
+    abstract protected function getDataSourceName($databaseName = "");
 
     /**
      * Run any commands/use statements to switch to a unique namespace
@@ -158,14 +159,14 @@ abstract class AbstractRelationalDb
         for ($numAttempts = 1; $numAttempts <= self::MAX_CONNECT_ATTEMPTS; $numAttempts++) {
             try {
                 $this->pdoConnection = new \PDO(
-                    $this->getDataSourceName(),
+                    $this->getDataSourceName($this->getDatabaseName()),
                     $this->databaseUser,
                     $this->databasePassword,
                     $this->connectionAttributes
                 );
 
                 // If the account is using a special namespace, then make sure the
-                // specific database impelmentaiton uses it
+                // specific database implementation uses it
                 $this->useSetNamespace();
 
                 return $this->pdoConnection;
@@ -199,21 +200,6 @@ abstract class AbstractRelationalDb
         $pdoConnection = $this->getConnection();
         $pdoStatement = $pdoConnection->prepare($sqlQuery);
         return new Statement($pdoStatement, $params);
-    }
-
-    /**
-     * Check if a database is up and ready for work
-     *
-     * @return bool true if the RDMS is ready for work
-     */
-    public function isReady(): bool
-    {
-        // See if we can connect
-        try {
-            return $this->getConnection() ? true : false;
-        } catch (Exception\DatabaseConnectionException $exception) {
-            return false;
-        }
     }
 
     /**
@@ -252,7 +238,9 @@ abstract class AbstractRelationalDb
              * aware of PDOException.
              */
             throw new DatabaseQueryException(
-                $oPdoException->getMessage() . ", query=" . $sqlQuery
+                $oPdoException->getMessage() .
+                ",database=" . $this->getDatabaseName() . "." . $this->getNamespace() .
+                ", query=" . $sqlQuery
             );
         }
     }

@@ -26,11 +26,7 @@ class FileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
         $store = $config->get('files')->get('store');
 
         $fileStore = 'Netric\FileSystem\FileStore';
-
-        if($store === "mogile")
-            $fileStore .= '\MogileFileStore';
-        else
-            $fileStore .= '\LocalFileStore';
+        $fileStore .= ($store === "mogile") ? '\MogileFileStore' : '\LocalFileStore';
 
         return $sl->get($fileStore);
     }

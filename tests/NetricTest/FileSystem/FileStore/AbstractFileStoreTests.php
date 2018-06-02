@@ -58,11 +58,9 @@ abstract class AbstractFileStoreTests extends TestCase
     {
         $fileStore = $this->getFileStore();
         $dataMapper = $this->getEntityDataMapper();
-        foreach ($this->testFiles as $file)
-        {
+        foreach ($this->testFiles as $file) {
             // Delete with this filestore since it may not
-            if ($fileStore->fileExists($file))
-            {
+            if ($fileStore->fileExists($file)) {
                 $fileStore->deleteFile($file);
             }
 
@@ -104,15 +102,6 @@ abstract class AbstractFileStoreTests extends TestCase
     }
 
     /**
-     * Make sure the database can report on its own readiness
-     */
-    public function testIsReady()
-    {
-        $fileStore = $this->getFileStore();
-        $this->assertTrue($fileStore->isReady());
-    }
-
-    /**
      * Make sure we can read the entire contents of a file
      */
     public function testReadFile()
@@ -125,7 +114,6 @@ abstract class AbstractFileStoreTests extends TestCase
 
         $buf = $fileStore->readFile($testFile);
         $this->assertEquals($content, $buf);
-
     }
 
     /**
@@ -215,8 +203,7 @@ abstract class AbstractFileStoreTests extends TestCase
         // Now loop through all revisions and make sure we purged them
         $dataMapper = $this->getEntityDataMapper();
         $files = $dataMapper->getRevisions("file", $testFile->getId());
-        foreach ($files as $rev=>$file)
-        {
+        foreach ($files as $rev => $file) {
             $this->assertFalse($fileStore->fileExists($file));
         }
     }

@@ -78,15 +78,8 @@ class HealthController extends AbstractController
     {
         $response = new ConsoleResponse($this->application->getLog());
 
-        // First check to see if an account exists (requires setup to be run)
-        if (!$this->application->getAccount()) {
-            $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
-            $response->writeLine('FAIL: Setup has not been run');
-            return $response;
-        }
-
         // Get ServiceManager for the application
-        $serviceLocator = $this->application->getAccount()->getServiceManager();
+        $serviceLocator = $this->application->getServiceManager();
 
         // Get the HealthCheck service
         $healthcheck = $serviceLocator->get(HealthCheckFactory::class);

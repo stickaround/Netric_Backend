@@ -59,17 +59,7 @@ class LocalFileStore implements FileStoreInterface
         $this->dataPath = $dataPath;
         $this->entityDataMapper = $dataMapper;
     }
-
-    /**
-     * Check if the file store is ready for work
-     *
-     * @return bool
-     */
-    public function isReady(): bool
-    {
-        return file_exists($this->dataPath);
-    }
-
+    
     /**
      * Read and return numBypes (or all) of a file
      *
@@ -82,36 +72,34 @@ class LocalFileStore implements FileStoreInterface
     public function readFile(FileEntity $file, $numBytes = null, $offset = null)
     {
         // If file has not yet been opened, then open it
-        if (!$file->getFileHandle())
-        {
+        if (!$file->getFileHandle()) {
             $path = $this->getFullLocalPath($file);
 
-            if (!$path)
+            if (!$path) {
                 return false;
-
-            if (file_exists($path))
-            {
-                $file->setFileHandle(fopen($path, 'rb'));
             }
-            else
-            {
+
+            if (file_exists($path)) {
+                $file->setFileHandle(fopen($path, 'rb'));
+            } else {
                 throw new Exception\FileNotFoundException("File '$path' does not exist");
             }
         }
 
-        if ($offset)
+        if ($offset) {
             fseek($file->getFileHandle(), $offset);
+        }
 
         // If the user did not indicate the number of bytes to read then whole file
-        if (!$numBytes)
-        {
+        if (!$numBytes) {
             $numBytes = $file->getValue("file_size");
         }
 
-        if ($file->getFileHandle())
+        if ($file->getFileHandle()) {
             return fread($file->getFileHandle(), $numBytes);
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -126,8 +114,7 @@ class LocalFileStore implements FileStoreInterface
         $ret = -1;
 
         // Must be an exisitng file to write
-        if (!$file->getId())
-        {
+        if (!$file->getId()) {
             $this->errors[] = new Error(
                 "Cannot write data a file that does not exist. Please save the file before writing."
             );
@@ -179,27 +166,25 @@ class LocalFileStore implements FileStoreInterface
         $ret = true;
 
         // Must be an exisitng file to write
-        if (!file_exists($sourcePath))
-        {
+        if (!file_exists($sourcePath)) {
             return $ret;
         }
 
         // Close the file handle if open
-        if ($file->getFileHandle())
-        {
+        if ($file->getFileHandle()) {
             fclose($file->getFileHandle());
             $file->setFileHandle(null);
         }
 
         // If the filename was not yet set for this file then get from source
-        if (!$file->getValue("name"))
-        {
-            if (strrpos($sourcePath, "/") !== false) // unix
+        if (!$file->getValue("name")) {
+            if (strrpos($sourcePath, "/") !== false) { // unix
                 $parts = explode("/", $sourcePath);
-            else if (strrpos($sourcePath, "\\") !== false) // windows
+            } elseif (strrpos($sourcePath, "\\") !== false) { // windows
                 $parts = explode("\\", $sourcePath);
-            else
+            } else {
                 $parts = array($sourcePath);
+            }
 
             // last entry is the file name
             $file->setValue("name", $parts[count($parts)-1]);
@@ -234,39 +219,31 @@ class LocalFileStore implements FileStoreInterface
      */
     public function deleteFile(FileEntity $file, $revision = null)
     {
-        if (!$file->getId())
+        if (!$file->getId()) {
             return false;
+        }
 
         // Delete current version
-        try
-        {
+        try {
             $filePath = $this->getFullLocalPath($file);
 
-            if (file_exists($filePath))
-            {
+            if (file_exists($filePath)) {
                 unlink($filePath);
             }
-        }
-        catch (Exception\FileNotFoundException $ex)
-        {
+        } catch (Exception\FileNotFoundException $ex) {
             $this->errors[] = new Error($ex->getMessage());
         }
 
         // Delete all past revisions
         $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
-        foreach ($revisions as $fileRev)
-        {
-            try
-            {
+        foreach ($revisions as $fileRev) {
+            try {
                 $filePath = $this->getFullLocalPath($fileRev);
 
-                if (file_exists($filePath))
-                {
+                if (file_exists($filePath)) {
                     unlink($filePath);
                 }
-            }
-            catch (Exception\FileNotFoundException $ex)
-            {
+            } catch (Exception\FileNotFoundException $ex) {
                 $this->errors[] = new Error($ex->getMessage());
             }
         }
@@ -302,12 +279,9 @@ class LocalFileStore implements FileStoreInterface
      */
     public function fileExists(FileEntity $file)
     {
-        try
-        {
+        try {
             $fullPath = $this->getFullLocalPath($file);
-        }
-        catch (Exception\FileNotFoundException $ex)
-        {
+        } catch (Exception\FileNotFoundException $ex) {
             // This file does not have dat_local_path defined - never existed
             return false;
         }
@@ -325,12 +299,9 @@ class LocalFileStore implements FileStoreInterface
     private function getFullLocalPath(FileEntity $file)
     {
         $ansRoot = $this->getAccountDirectory();
-        if ($file->getValue("dat_local_path"))
-        {
+        if ($file->getValue("dat_local_path")) {
             return $ansRoot . "/" . $file->getValue("dat_local_path");
-        }
-        else
-        {
+        } else {
             // This file does not exist on the local file system
             throw new Exception\FileNotFoundException(
                 $file->getValue("name") . " was not found on the local disk"
@@ -349,12 +320,10 @@ class LocalFileStore implements FileStoreInterface
         $path = $this->dataPath . "/files";
 
         // Create antfs directory in the data if it does not yet exist
-        if (!file_exists($path))
-        {
+        if (!file_exists($path)) {
             mkdir($path, 0775);
 
-            if (!chmod($path, 0775))
-            {
+            if (!chmod($path, 0775)) {
                 throw new Exception\PermissionDeniedException(
                     "Permission denied chmod($path)"
                 );
@@ -364,17 +333,14 @@ class LocalFileStore implements FileStoreInterface
         // Now create namespace dir for dbname
         $path .=  "/" . $this->accountId;
 
-        if (!file_exists($path))
-        {
+        if (!file_exists($path)) {
             mkdir($path, 0775);
 
-            if (!chmod($path, 0775))
-            {
+            if (!chmod($path, 0775)) {
                 throw new Exception\PermissionDeniedException(
                     "Permission denied chmod($path)"
                 );
             }
-
         }
 
         return $path;
@@ -407,22 +373,21 @@ class LocalFileStore implements FileStoreInterface
 
         $len = strlen($id);
 
-        if ($len < $perdir)
+        if ($len < $perdir) {
             return "0000";  // Should match the number of perdir above - all below 1k
+        }
 
         $first = substr($id, 0, 1);
 
         $path = $first . "";
 
-        for ($i = 1; $i < $len; $i++)
+        for ($i = 1; $i < $len; $i++) {
             $path .= "0";
-
-        if ($len <= $perdir)
-        {
-            return $path;
         }
-        else
-        {
+
+        if ($len <= $perdir) {
+            return $path;
+        } else {
             return $path . "/" . $this->explodeIdToPath(substr($id, 1));
         }
     }
@@ -437,25 +402,24 @@ class LocalFileStore implements FileStoreInterface
     {
         $base = $this->getAccountDirectory();
 
-        if (file_exists($base . "/" . $path))
+        if (file_exists($base . "/" . $path)) {
             return;
+        }
 
         $pathParts = explode("/", $path);
         $curr = $base;
         $allOk = true;
-        foreach ($pathParts as $dirName)
-        {
+        foreach ($pathParts as $dirName) {
             // Skip over root
-            if (!$dirName)
+            if (!$dirName) {
                 continue;
+            }
 
             $curr .= "/" . $dirName;
 
             // Try to create the directory if we can
-            if (!file_exists($curr))
-            {
-                if (!@mkdir($curr, 0775))
-                {
+            if (!file_exists($curr)) {
+                if (!@mkdir($curr, 0775)) {
                     throw new Exception\PermissionDeniedException(
                         "Permission denied mkdir($curr)"
                     );

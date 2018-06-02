@@ -88,31 +88,13 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         string $mogileServer,
         string $mogileAccount,
         int $mogilePort = 7001
-    )
-    {
+    ) {
         $this->accountId = $accountId;
         $this->entityDataMapper = $dataMapper;
         $this->tmpPath = $tmpPath;
         $this->mogileServer = $mogileServer;
         $this->mogilePort = $mogilePort;
         $this->mogileAccount = $mogileAccount;
-    }
-
-    /**
-     * Check if the file store is ready for work
-     *
-     * @return bool
-     */
-    public function isReady(): bool
-    {
-        // Make sure we can connect
-        try {
-            $this->getMogileFsConnection();
-        } catch (CannotConnectException $exception) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -243,14 +225,14 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
         }
 
         // If the filename was not yet set for this file then get from source
-        if (!$file->getValue("name"))
-        {
-            if (strrpos($localPath, "/") !== false) // unix
+        if (!$file->getValue("name")) {
+            if (strrpos($localPath, "/") !== false) { // unix
                 $parts = explode("/", $localPath);
-            else if (strrpos($localPath, "\\") !== false) // windows
+            } elseif (strrpos($localPath, "\\") !== false) { // windows
                 $parts = explode("\\", $localPath);
-            else
+            } else {
                 $parts = array($localPath);
+            }
 
             // last entry is the file name
             $file->setValue("name", $parts[count($parts)-1]);
@@ -269,7 +251,6 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
 
         // Put the file on the server
         if (!$this->getMogileFsConnection()->put($localPath, $key, self::MOGILE_CLASS)) {
-
             $this->addErrorFromMessage("Could not upload file: $localPath");
             return false;
         }
@@ -312,10 +293,8 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
 
         // Delete all past revisions
         $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
-        foreach ($revisions as $fileRev)
-        {
-            if ($fileRev->getValue("dat_ans_key"))
-            {
+        foreach ($revisions as $fileRev) {
+            if ($fileRev->getValue("dat_ans_key")) {
                 try {
                     if (!$this->getMogileFsConnection()->delete($fileRev->getValue("dat_ans_key"))) {
                         $this->addErrorFromMessage("Could not delete file");
@@ -339,8 +318,9 @@ class MogileFileStore extends Error\AbstractHasErrors implements FileStoreInterf
     public function fileExists(FileEntity $file)
     {
         // If we are missing a key then we know for sure it does not exist in the store
-        if (!$file->getValue('dat_ans_key'))
+        if (!$file->getValue('dat_ans_key')) {
             return false;
+        }
 
         // Normally mogile will throw an exception if the file does not exist
         try {

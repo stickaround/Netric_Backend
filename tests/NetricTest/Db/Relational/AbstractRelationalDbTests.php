@@ -8,7 +8,7 @@ use Netric\Db\Relational\Exception\DatabaseException;
 
 /**
  * Test all relational databases
- * 
+ *
  * Note: Extend this to test any database adapters
  *
  * @group integration
@@ -73,15 +73,6 @@ abstract class AbstractRelationalDbTests extends TestCase
             ['name' => 'david']
         );
     }
-
-    /**
-     * Make sure the database can self-report if it is ready for work
-     */
-    public function testIsReady()
-    {
-        $this->assertTrue($this->getDatabase()->isReady());
-    }
-
     /**
      * Check if we can run a raw query
      *

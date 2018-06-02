@@ -17,10 +17,6 @@ until ./netric health/test-dependencies > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; 
   sleep 1
 done
 
-# Do a final test and exit if systems are still not ready
-./netric health/test
-if [[ $? != 0 ]]; then exit $?; fi
-
 # Run install in case this is our first run - it will exit gracefully if
 # netric was previously installed
 ./netric setup/install --username=test@netric.com --password=password

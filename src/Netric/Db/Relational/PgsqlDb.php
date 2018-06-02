@@ -19,12 +19,16 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     /**
      * Get data source connection string
      *
+     * @param string $databaseName Optional name of the database to connect to
      * @return string
      */
-    protected function getDataSourceName()
+    protected function getDataSourceName($databaseName = "")
     {
-        return "pgsql:dbname=" . $this->getDatabaseName() .
-        ";host=" . $this->getHostOrFileName();
+        $dataSourceName = "pgsql:";
+        if ($databaseName) {
+            $dataSourceName .= "dbname=" . $databaseName . ";";
+        }
+        return $dataSourceName . "host=" . $this->getHostOrFileName();
     }
 
     /**

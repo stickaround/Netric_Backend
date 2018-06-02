@@ -104,8 +104,7 @@ class AnsFileStore implements FileStoreInterface
         $ansAccount,
         $ansPassword,
         $tmpPath
-    )
-    {
+    ) {
         $this->accountId = $accountId;
         $this->entityDataMapper = $dataMapper;
         $this->ansServer = $ansServer;
@@ -116,16 +115,6 @@ class AnsFileStore implements FileStoreInterface
         $this->requestUrl = "http://" . $this->ansServer . "/server.php?account=";
         $this->requestUrl .= $this->ansAccount . "&p=".md5($this->ansPassword);
         $this->requestUrl .= "&pver=" . self::ANS_API_VER;
-    }
-
-    /**
-     * Check if the file store is ready for work
-     *
-     * @return bool
-     */
-    public function isReady(): bool
-    {
-        return true;
     }
 
     /**
@@ -144,14 +133,10 @@ class AnsFileStore implements FileStoreInterface
         $url .= "&file=".rawurlencode($file->getValue("dat_ans_key"));
 
         // If file has not yet been opened, then open it
-        if (!$file->getFileHandle())
-        {
-            if ($this->fileExists($file))
-            {
+        if (!$file->getFileHandle()) {
+            if ($this->fileExists($file)) {
                 $file->setFileHandle(fopen($url, 'rb'));
-            }
-            else
-            {
+            } else {
                 throw new Exception\FileNotFoundException(
                     "Key '$url' is not in the ANS store: " .
                     $this->getLastError()->getMessage()
@@ -160,19 +145,20 @@ class AnsFileStore implements FileStoreInterface
         }
 
         // If offset was not defined then get the whole file
-        if (!$offset)
+        if (!$offset) {
             $offset = -1;
+        }
 
         // If the user did not indicate the number of bytes to read then whole file
-        if (!$numBytes)
-        {
+        if (!$numBytes) {
             $numBytes = $file->getValue("file_size");
         }
 
-        if ($file->getFileHandle())
+        if ($file->getFileHandle()) {
             return stream_get_contents($file->getFileHandle(), $numBytes, $offset);
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -190,15 +176,12 @@ class AnsFileStore implements FileStoreInterface
         $bytesWritten = file_put_contents($tempPath, $dataOrStream);
 
         // 2. Upload
-        if ($this->uploadFile($file, $tempPath))
-        {
+        if ($this->uploadFile($file, $tempPath)) {
             // Cleanup
             unlink($tempPath);
 
             return $bytesWritten;
-        }
-        else
-        {
+        } else {
             // Cleanup
             @unlink($tempPath);
 
@@ -218,12 +201,12 @@ class AnsFileStore implements FileStoreInterface
     {
         $retval = 0; // assume fail
 
-        if (!file_exists($localPath))
+        if (!file_exists($localPath)) {
             return false;
+        }
 
         // Close the file handle if open
-        if ($file->getFileHandle())
-        {
+        if ($file->getFileHandle()) {
             fclose($file->getFileHandle());
             $file->setFileHandle(null);
         }
@@ -248,21 +231,18 @@ class AnsFileStore implements FileStoreInterface
         curl_setopt($ch, CURLOPT_POSTFIELDS, array("file" => new \CurlFile($localPath)));
         $response = curl_exec($ch);
         //echo "<pre>RESP: $url\n\n$response</pre>";
-        if (curl_errno($ch))
-        {
+        if (curl_errno($ch)) {
             $this->errors[] = new Error\Error(curl_error($ch));
         }
         curl_close($ch);
 
         // Parse response
-        if ($response)
-        {
+        if ($response) {
             $xml = simplexml_load_string($response);
             $retval = $xml->retval;
 
             // Stop if we had an error and stored the details in $this->errors
-            if (1 != intval($xml->retval))
-            {
+            if (1 != intval($xml->retval)) {
                 $this->errors[] = new Error\Error(($xml->message) ? $xml->message : $retval);
                 return false;
             }
@@ -298,15 +278,11 @@ class AnsFileStore implements FileStoreInterface
         $deleteUrl = $baseUrl . "&file=".rawurlencode($file->getValue("dat_ans_key"));
         $response = file_get_contents($deleteUrl);
 
-        if ($response)
-        {
+        if ($response) {
             $xml = simplexml_load_string($response);
-            if (1 === intval($xml->retval))
-            {
+            if (1 === intval($xml->retval)) {
                 $result = true;
-            }
-            else
-            {
+            } else {
                 // Not a success, get the error
                 $this->errors[] = new Error\Error($xml->message);
             }
@@ -314,23 +290,18 @@ class AnsFileStore implements FileStoreInterface
 
         // Delete all past revisions
         $revisions = $this->entityDataMapper->getRevisions("file", $file->getId());
-        foreach ($revisions as $fileRev)
-        {
-            if ($fileRev->getValue("dat_ans_key"))
-            {
+        foreach ($revisions as $fileRev) {
+            if ($fileRev->getValue("dat_ans_key")) {
                 try {
                     $deleteUrl = $baseUrl . "&file=" . rawurlencode($fileRev->getValue("dat_ans_key"));
                     $response = file_get_contents($deleteUrl);
 
-                    if ($response)
-                    {
+                    if ($response) {
                         $xml = simplexml_load_string($response);
-                        if (1 != intval($xml->retval))
-                        {
+                        if (1 != intval($xml->retval)) {
                             // Not a success, get the error
                             $this->errors[] = new Error\Error($xml->message);
                         }
-
                     }
                 } catch (Exception\FileNotFoundException $ex) {
                     $this->errors[] = new  Error\Error($ex->getMessage());
@@ -350,8 +321,9 @@ class AnsFileStore implements FileStoreInterface
     public function fileExists(FileEntity $file)
     {
         // If we are missing a key then we know for sure it does not exist in the store
-        if (!$file->getValue('dat_ans_key'))
+        if (!$file->getValue('dat_ans_key')) {
             return false;
+        }
 
         // Construct the full request with all params
         $url = $this->requestUrl;
@@ -360,15 +332,11 @@ class AnsFileStore implements FileStoreInterface
 
         $response = file_get_contents($url);
 
-        if ($response)
-        {
+        if ($response) {
             $xml = simplexml_load_string($response);
-            if (rawurldecode($xml->retval) == "1")
-            {
+            if (rawurldecode($xml->retval) == "1") {
                 return true;
-            }
-            else
-            {
+            } else {
                 $this->errors[] = new Error\Error(rawurldecode($xml->message));
                 return false;
             }
