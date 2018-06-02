@@ -19,8 +19,11 @@ print("IP" + os.environ["HOST_IP"])
 # Change to docker directory
 os.chdir("../docker")
 
+# Cause a rebuild
+subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "build"])
+
 # Run docker compose daemon
-subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "up"])
+subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "up", "-d"])
 
 print("Done. Go to http://devel.netric.com and use 'test@netric.com' and 'password' to log in.")
 #print("Waiting 10 seconds to note the above, then we'll tail the logs")

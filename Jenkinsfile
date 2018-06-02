@@ -39,6 +39,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
+                    sh 'docker-compose -f docker/docker-compose-test.yml build'
                     sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
                     // Report on junit
