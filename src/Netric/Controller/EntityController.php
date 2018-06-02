@@ -183,7 +183,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($entity) {
             $entityData = $entity->toArray();
             $dacl = $daclLoader->getForEntity($entity);
-            $entityData["applied_dacl"] = $dacl->getDataWithNames();
+            $entityData["applied_dacl"] = ["dacl_data" => $dacl->toArray()];
         }
 
         return $this->sendOutput($entityData);
@@ -401,6 +401,11 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Return the default view
         $ret['default_view'] = $viewsService->getDefaultViewForUser($def->getObjType(), $user);
+
+        // Get the dacl for entity definition
+        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
+        $dacl = $daclLoader->getForEntityDefinition($def);
+        $ret['applied_dacl'] = ["dacl_data" => $dacl->toArray()];
 
         return $ret;
     }

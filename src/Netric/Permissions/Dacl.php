@@ -124,20 +124,6 @@ class Dacl
     }
 
     /**
-     * Return this list as an array with user_names and group_names
-     *
-     * @return array
-     */
-    public function getDataWithNames()
-    {
-        return [
-            "dacl" => $this->toArray(),
-            "user_names" => [],
-            "group_names" => []
-        ];
-    }
-
-    /**
      * Clear entries
      */
     public function clearEntries()
