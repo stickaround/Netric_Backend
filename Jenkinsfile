@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh 'printenv'
+                    sh 'env'
                     checkout scm
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                         /* If this is the master branch, punlish to stable, if it is develop publish to latest */
@@ -42,6 +42,10 @@ pipeline {
                                 echo "Got " + jsonText
                                 def jsonData = new JsonSlurper().parseText(jsonText)
 
+                                if (!jsonData[0].UpdateStatus) {
+                                    return false
+                                }
+                                
                                 // Look for a failure/rollback exit
                                 if(jsonData[0].UpdateStatus.State == 'paused') {
                                     println("Deploy Failed:")
