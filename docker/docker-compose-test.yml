@@ -7,7 +7,7 @@ services:
       RUN_SETUP_INSTALL: 1
     volumes:
       - '../tests/tmp:/var/www/html/tests/tmp'
-    links:
+    depends_on:
       - memcached
       - gearmand
       - mail
@@ -37,8 +37,6 @@ services:
       DB_HOST: db1
       DB_NAME: antsystem
       DB_PORT: 5432
-    links:
-      - db1
     depends_on:
       - db1
   mogilefs:
@@ -52,7 +50,7 @@ services:
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
       WAIT_FOR_DB_TIMEOUT: 240
-    links:
+    depends_on:
       - mogilestore
       - db1
     logging:
