@@ -52,8 +52,7 @@ class MogileFileStoreTest extends AbstractFileStoreTests
         );
 
         // Make directory if it does not exist
-        if (!file_exists($this->tmpPath))
-        {
+        if (!file_exists($this->tmpPath)) {
             mkdir($this->tmpPath);
         }
     }
@@ -88,17 +87,16 @@ class MogileFileStoreTest extends AbstractFileStoreTests
      */
     private function rrmdir($dir)
     {
-        if (is_dir($dir))
-        {
+        if (is_dir($dir)) {
             $objects = scandir($dir);
 
-            foreach ($objects as $object)
-            {
+            foreach ($objects as $object) {
                 if ($object != "." && $object != "..") {
-                    if (is_dir($dir."/".$object))
+                    if (is_dir($dir."/".$object)) {
                         $this->rrmdir($dir."/".$object);
-                    else
+                    } else {
                         unlink($dir."/".$object);
+                    }
                 }
             }
 

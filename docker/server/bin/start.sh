@@ -6,7 +6,6 @@ chown -R www-data /var/www/html/data/
 # If run setup was passed as an environment variable then execute before starting the server
 if [ "${RUN_SETUP_INSTALL}" ]; then
 	echo "Running netric setup after resting for 10 seconds"
-	sleep 30
 	/netric-setup.sh
 fi
 

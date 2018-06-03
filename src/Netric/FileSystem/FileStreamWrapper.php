@@ -71,7 +71,7 @@ class FileStreamWrapper
      * @access public
      * @return resource
      */
-    static public function open(FileSystem $fileSystem, FileEntity $file)
+    public static function open(FileSystem $fileSystem, FileEntity $file)
     {
         // Register wrapper if this is our first time executing
         if (!self::$isRegistered) {
@@ -86,7 +86,7 @@ class FileStreamWrapper
          */
         $openContext = array("filesystem"=>&$fileSystem, "file"=>&$file);
         $context = stream_context_create(array(self::PROTOCOL => $openContext));
-        return fopen(self::PROTOCOL . "://",'r', false, $context);
+        return fopen(self::PROTOCOL . "://", 'r', false, $context);
     }
 
     /**
@@ -98,13 +98,14 @@ class FileStreamWrapper
      * @param string &$opened_path
      * @return bool
      */
-    public function stream_open($path , $mode , $options , &$opened_path)
+    public function stream_open($path, $mode, $options, &$opened_path)
     {
         $contextOptions = stream_context_get_options($this->context);
 
         // Make sure the file was set
-        if (!isset($contextOptions[self::PROTOCOL]['file']) || !isset($contextOptions[self::PROTOCOL]['filesystem']))
+        if (!isset($contextOptions[self::PROTOCOL]['file']) || !isset($contextOptions[self::PROTOCOL]['filesystem'])) {
             return false;
+        }
 
         $this->position = 0;
 
@@ -128,8 +129,13 @@ class FileStreamWrapper
             ? ($this->streamLength - $this->position) : $len;
         $data = $this->fileSystem->readFile($this->file, $len);
 
-        if ($data && (is_array($data) || is_object($data)))
-        $this->position += sizeof($data);
+        // For some reason this line used to be this code, but it caused eof to
+        // loop forever since mogilefs just returns the raw data - not an array or object
+        //if ($data && (is_array($data) || is_object($data))) {
+        if ($data) {
+            $this->position += $len;
+        }
+        
         return $data;
     }
 
@@ -184,7 +190,7 @@ class FileStreamWrapper
      * @param int $whence = SEEK_SET
      * @return bool
      */
-    public function stream_seek($offset , $whence = SEEK_SET)
+    public function stream_seek($offset, $whence = SEEK_SET)
     {
         $this->position = $offset;
         true;

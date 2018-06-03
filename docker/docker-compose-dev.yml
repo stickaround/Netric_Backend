@@ -15,18 +15,17 @@ services:
      - ../:/var/www/html/
     depends_on:
       - logstash
-    # logging:
-    #   driver: gelf
-    #   options:
-    #     gelf-address: "udp://localhost:12201"
-    links:
-     - memcached
+      - memcached
      - gearmand
      - mail
      - db1
      - mogilefs
      - mogilestore
      - logstash
+    # logging:
+    #   driver: gelf
+    #   options:
+    #     gelf-address: "udp://localhost:12201"     
 
   memcached:
     image: memcached
@@ -51,8 +50,6 @@ services:
         DB_HOST: db1
         DB_NAME: antsystem
         DB_PORT: 5432
-    links:
-      - db1
     depends_on:
       - db1
 
@@ -67,7 +64,7 @@ services:
         DB_INIT: "true"
         INIT_STORAGE_HOST: mogilestore
         WAIT_FOR_DB_TIMEOUT: 240
-    links:
+    depends_on:
     - mogilestore
     - db1
 
@@ -82,8 +79,6 @@ services:
       - "12201:12201/udp"
       - "5141:5141"
       - "5141:5141/udp"
-    links:
-      - elasticsearch
     depends_on:
       - elasticsearch
 
@@ -114,7 +109,7 @@ services:
     container_name: kibana
     ports:
       - "5601:5601"
-    links:
+    depends_on:
       - elasticsearch
 
   xhprof:

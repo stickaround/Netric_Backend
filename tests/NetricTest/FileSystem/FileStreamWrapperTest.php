@@ -93,8 +93,7 @@ class FileStreamWrapperTest extends TestCase
         // Now open a stream and read from it one byte at a time
         $buf = "";
         $stream = FileStreamWrapper::open($this->fileSystem, $testFile);
-        while (!feof($stream))
-        {
+        while (!feof($stream)) {
             $ch = fread($stream, 1);
             $buf .= $ch;
         }
@@ -104,7 +103,7 @@ class FileStreamWrapperTest extends TestCase
     /**
      * Make sure the context works with simultaneous reads from different files
      */
-    public function testRead_Multi()
+    public function testReadMulti()
     {
         $data = "my test contents";
         $data2 = "second test contents";
@@ -121,8 +120,7 @@ class FileStreamWrapperTest extends TestCase
 
         // Read through stream 1
         $buf = "";
-        while (!feof($stream1))
-        {
+        while (!feof($stream1)) {
             $ch = fread($stream1, 1);
             $buf .= $ch;
         }
@@ -130,8 +128,7 @@ class FileStreamWrapperTest extends TestCase
 
          // Read through stream 2
         $buf = "";
-        while (!feof($stream2))
-        {
+        while (!feof($stream2)) {
             $ch = fread($stream2, 1);
             $buf .= $ch;
         }
