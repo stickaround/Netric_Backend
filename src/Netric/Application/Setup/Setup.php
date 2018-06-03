@@ -44,7 +44,12 @@ class Setup extends AbstractHasErrors
      */
     public function setupAccount(Account $account, $adminUserName, $adminPassword)
     {
-        $this->updateAccount($account);
+        $this->updateAccountSchema($account);
+
+        // Fast forward this new account to the latest version and run always updates
+        $updater = new AccountUpdater($account);
+        $updater->setCurrentAccountToLatestVersion();
+        $updater->runUpdates();
 
         // Create admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -71,6 +76,22 @@ class Setup extends AbstractHasErrors
      */
     public function updateAccount(Account $account)
     {
+        $this->updateAccountSchema($account);
+
+        // Run all update scripts and return the last version run
+        $updater = new AccountUpdater($account);
+        $version = $updater->runUpdates();
+
+        return $version;
+    }
+
+    /**
+     * Update an account to the latest schema
+     *
+     * @param Account $account The account to update
+     */
+    private function updateAccountSchema(Account $account): void
+    {
         $schemaDataMapper = $account->getServiceManager()->get(SchemaDataMapperFactory::class);
 
         // Update or create the schema for this account
@@ -78,12 +99,6 @@ class Setup extends AbstractHasErrors
             // Die if we could not create the schema for the account
             throw new \RuntimeException("Cannot update account " . $schemaDataMapper->getLastError()->getMessage());
         }
-
-        // Run all update scripts and return the last version run
-        $updater = new AccountUpdater($account);
-        $version = $updater->runUpdates();
-
-        return $version;
     }
 
     /**
@@ -109,7 +124,6 @@ class Setup extends AbstractHasErrors
         // Now get the system DataMapper
         switch ($config->db['type']) {
             case 'pgsql':
-
                 // Get handle to system database
                 $dbh = new Pgsql(
                     $config->db['syshost'],
@@ -123,11 +137,8 @@ class Setup extends AbstractHasErrors
 
                 break;
             default:
-
                 // Protect ourselves in the future to make sure new types are added here
                 throw new \RuntimeException("Database type not yet supported: " . $config->db['type']);
         }
-
-
     }
 }

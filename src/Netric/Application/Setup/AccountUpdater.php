@@ -121,6 +121,18 @@ class AccountUpdater extends AbstractHasErrors
     }
 
     /**
+     * Set the current account to whatever the latest version is
+     * so that new accounts do not need to re-run all the updates.
+     * That should not hurt anything, but it is a waste of time.
+     */
+    public function setCurrentAccountToLatestVersion()
+    {
+        $latestversion = $this->getLatestVersion();
+        $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
+        $settings->set("system/schema_version", $latestversion);
+    }
+
+    /**
      * Gets the latest version of database schema from the file structure
      *
      * @return bool false on failure, true on success

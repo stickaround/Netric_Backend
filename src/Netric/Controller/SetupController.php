@@ -81,7 +81,6 @@ class SetupController extends Mvc\AbstractController
         $applicationSetup = new Setup();
         if (!$applicationSetup->updateApplication($this->getApplication())) {
             throw new \Exception("Failed to update application: " . $applicationSetup->getLastError()->getMessage());
-
         }
 
         $response->write("\t\t[done]\n");

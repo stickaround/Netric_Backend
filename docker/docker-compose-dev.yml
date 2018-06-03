@@ -16,12 +16,11 @@ services:
     depends_on:
       - logstash
       - memcached
-     - gearmand
-     - mail
-     - db1
-     - mogilefs
-     - mogilestore
-     - logstash
+      - gearmand
+      - mail
+      - db1
+      - mogilefs
+      - mogilestore
     # logging:
     #   driver: gelf
     #   options:
@@ -65,8 +64,8 @@ services:
         INIT_STORAGE_HOST: mogilestore
         WAIT_FOR_DB_TIMEOUT: 240
     depends_on:
-    - mogilestore
-    - db1
+      - mogilestore
+      - db1
 
   mogilestore:
     image: dockerhub.aereusdev.com/mogilestore:latest

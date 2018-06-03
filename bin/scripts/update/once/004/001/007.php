@@ -8,5 +8,7 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(DbFactory::class);
 
-$db->query("ALTER TABLE calendar_events DROP CONSTRAINT IF EXISTS calendar_events_recur_fkey");
-$db->query("ALTER TABLE calendar_events ALTER COLUMN recur_id TYPE integer");
+if ($db->tableExists('calendar_events')) {
+    $db->query("ALTER TABLE calendar_events DROP CONSTRAINT IF EXISTS calendar_events_recur_fkey");
+    $db->query("ALTER TABLE calendar_events ALTER COLUMN recur_id TYPE integer");
+}
