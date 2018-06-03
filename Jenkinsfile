@@ -133,6 +133,12 @@ pipeline {
                                 echo "Got " + jsonText
                                 def jsonData = new JsonSlurper().parseText(jsonText)
 
+                                // Check if upgrade has not occurred yet
+                                if (!jsonData[0].UpdateStatus) {
+                                    // Wait a bit
+                                    return false;
+                                }
+
                                 // Look for a failure/rollback exit
                                 if(jsonData[0].UpdateStatus.State == 'paused') {
                                     println("Deploy Failed:")
@@ -174,6 +180,12 @@ pipeline {
                             sshagent (credentials: ['aereus']) {
                                 def jsonText  = sh(returnStdout: true, script: 'ssh ${server} -C "docker service inspect netric_com_netric"').trim()
                                 def jsonData = new JsonSlurper().parseText(jsonText)
+
+                                // Check if upgrade has not occurred yet
+                                if (!jsonData[0].UpdateStatus) {
+                                    // Wait a bit
+                                    return false;
+                                }
 
                                 // Look for a failure/rollback exit
                                 if(jsonData[0].UpdateStatus.State == 'paused') {
