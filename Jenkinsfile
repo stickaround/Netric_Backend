@@ -45,7 +45,7 @@ pipeline {
                                 if (!jsonData[0].UpdateStatus) {
                                     return false
                                 }
-                                
+
                                 // Look for a failure/rollback exit
                                 if(jsonData[0].UpdateStatus.State == 'paused') {
                                     println("Deploy Failed:")
@@ -139,8 +139,7 @@ pipeline {
 
                                 // Check if upgrade has not occurred yet
                                 if (!jsonData[0].UpdateStatus) {
-                                    // Wait a bit
-                                    return false;
+                                    return false
                                 }
 
                                 // Look for a failure/rollback exit
@@ -187,8 +186,7 @@ pipeline {
 
                                 // Check if upgrade has not occurred yet
                                 if (!jsonData[0].UpdateStatus) {
-                                    // Wait a bit
-                                    return false;
+                                    return false
                                 }
 
                                 // Look for a failure/rollback exit
