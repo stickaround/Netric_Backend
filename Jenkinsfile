@@ -33,37 +33,6 @@ pipeline {
 
                     dockerImage = docker.build('netric');
                 }
-                // Wait for the upgrade to finish
-                script {
-                    timeout(5) {
-                        waitUntil {
-                            sshagent (credentials: ['aereus']) {
-                                def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
-                                echo "Got " + jsonText
-                                def jsonData = new JsonSlurper().parseText(jsonText)
-
-                                if (!jsonData[0].UpdateStatus) {
-                                    return false
-                                }
-
-                                // Look for a failure/rollback exit
-                                if(jsonData[0].UpdateStatus.State == 'paused') {
-                                    println("Deploy Failed:")
-                                    // Send direct link to make it easier
-                                    println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
-                                    println("---------------------------------")
-                                    print(jsonData[0].UpdateStatus.Message)
-                                    println("---------------------------------")
-                                    
-                                    // Exit
-                                    currentBuild.result = "FAIL"
-                                }
-
-                                return (jsonData[0].UpdateStatus.State == 'completed')
-                            }
-                        }
-                    }
-                }
             }
         }
 
