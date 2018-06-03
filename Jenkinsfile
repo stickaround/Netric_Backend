@@ -2,7 +2,8 @@
 @Library('aereus.pipeline') _
 
 import aereus.pipeline.CodeQualityReporter
-import groovy.json.JsonSlurper;
+import aereus.pipeline.DeploymentTargets
+import groovy.json.JsonSlurper
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
@@ -99,35 +100,40 @@ pipeline {
                 }
                 // Wait for the upgrade to finish
                 script {
-                    timeout(5) {
-                        waitUntil {
-                            sshagent (credentials: ['aereus']) {
-                                def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
-                                echo "Got " + jsonText
-                                def jsonData = new JsonSlurper().parseText(jsonText)
+                    getDeployStatus(
+                        environment: DeploymentTargets.INTEGRATION,
+                        serviceName: 'netric_com_netric',
+                        imageTag: "v${env.BUILD_NUMBER}"
+                    )
+                    // timeout(5) {
+                    //     waitUntil {
+                    //         sshagent (credentials: ['aereus']) {
+                    //             def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
+                    //             echo "Got " + jsonText
+                    //             def jsonData = new JsonSlurper().parseText(jsonText)
 
-                                // Check if upgrade has not occurred yet
-                                if (!jsonData[0].UpdateStatus) {
-                                    return false
-                                }
+                    //             // Check if upgrade has not occurred yet
+                    //             if (!jsonData[0].UpdateStatus) {
+                    //                 return false
+                    //             }
 
-                                // Look for a failure/rollback exit
-                                if(jsonData[0].UpdateStatus.State == 'paused') {
-                                    println("Deploy Failed:")
-                                    // Send direct link to make it easier
-                                    println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
-                                    println("---------------------------------")
-                                    print(jsonData[0].UpdateStatus.Message)
-                                    println("---------------------------------")
+                    //             // Look for a failure/rollback exit
+                    //             if(jsonData[0].UpdateStatus.State == 'paused') {
+                    //                 println("Deploy Failed:")
+                    //                 // Send direct link to make it easier
+                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
+                    //                 println("---------------------------------")
+                    //                 print(jsonData[0].UpdateStatus.Message)
+                    //                 println("---------------------------------")
                                     
-                                    // Exit
-                                    currentBuild.result = "FAIL"
-                                }
+                    //                 // Exit
+                    //                 currentBuild.result = "FAIL"
+                    //             }
 
-                                return (jsonData[0].UpdateStatus.State == 'completed')
-                            }
-                        }
-                    }
+                    //             return (jsonData[0].UpdateStatus.State == 'completed')
+                    //         }
+                    //     }
+                    // }
                 }
             }
         }
@@ -147,33 +153,39 @@ pipeline {
                     }
 
                     // Wait for the upgrade to finish
-                    timeout(5) {
-                        waitUntil {
-                            sshagent (credentials: ['aereus']) {
-                                def jsonText  = sh(returnStdout: true, script: 'ssh ${server} -C "docker service inspect netric_com_netric"').trim()
-                                def jsonData = new JsonSlurper().parseText(jsonText)
+                    getDeployStatus(
+                        environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
+                        serviceName: 'netric_com_netric',
+                        imageTag: "v${env.BUILD_NUMBER}"
+                    )
 
-                                // Check if upgrade has not occurred yet
-                                if (!jsonData[0].UpdateStatus) {
-                                    return false
-                                }
+                    // timeout(5) {
+                    //     waitUntil {
+                    //         sshagent (credentials: ['aereus']) {
+                    //             def jsonText  = sh(returnStdout: true, script: 'ssh ${server} -C "docker service inspect netric_com_netric"').trim()
+                    //             def jsonData = new JsonSlurper().parseText(jsonText)
 
-                                // Look for a failure/rollback exit
-                                if(jsonData[0].UpdateStatus.State == 'paused') {
-                                    println("Deploy Failed:")
-                                    // Send direct link to make it easier
-                                    println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
-                                    println("---------------------------------")
-                                    print(jsonData[0].UpdateStatus.Message)
-                                    println("---------------------------------")
-                                    // Exit
-                                    currentBuild.result = "FAIL"
-                                }
+                    //             // Check if upgrade has not occurred yet
+                    //             if (!jsonData[0].UpdateStatus) {
+                    //                 return false
+                    //             }
 
-                                return (jsonData[0].UpdateStatus.State == 'completed')
-                            }
-                        }
-                    }
+                    //             // Look for a failure/rollback exit
+                    //             if(jsonData[0].UpdateStatus.State == 'paused') {
+                    //                 println("Deploy Failed:")
+                    //                 // Send direct link to make it easier
+                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
+                    //                 println("---------------------------------")
+                    //                 print(jsonData[0].UpdateStatus.Message)
+                    //                 println("---------------------------------")
+                    //                 // Exit
+                    //                 currentBuild.result = "FAIL"
+                    //             }
+
+                    //             return (jsonData[0].UpdateStatus.State == 'completed')
+                    //         }
+                    //     }
+                    // }
                 }
                 //script {
                 //   sshagent (credentials: ['aereus']) {
