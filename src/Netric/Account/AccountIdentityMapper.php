@@ -54,8 +54,9 @@ class AccountIdentityMapper implements ErrorAwareInterface
      */
     public function __construct(DataMapperInterface $appDm, Cache\CacheInterface $cache)
     {
-        if (!$appDm)
+        if (!$appDm) {
             throw new \Exception("Application datamapper is required");
+        }
 
         $this->appDm = $appDm;
         $this->cache = $cache;
@@ -63,7 +64,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
 
     /**
      * Load an account by id
-     * 
+     *
      * @param string $id The unique id of the account to get
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
@@ -74,15 +75,17 @@ class AccountIdentityMapper implements ErrorAwareInterface
         $account = $this->loadFromMemory($id);
 
         // Return already loaded account
-        if ($account)
+        if ($account) {
             return $account;
+        }
 
         // Account is not already loaded so create a new instance
         $account = new Account($application);
 
         // Try from cache if not loaded in memeory
-        if ($this->loadFromCache($id, $account))
+        if ($this->loadFromCache($id, $account)) {
             return $account;
+        }
         
         // Load from the datamapper
         $ret = $this->appDm->getAccountById($id, $account);
@@ -99,7 +102,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
 
     /**
      * Get an account by the unique name
-     * 
+     *
      * @param string $name
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
@@ -143,8 +146,9 @@ class AccountIdentityMapper implements ErrorAwareInterface
     public function deleteAccount(Account $account) : bool
     {
         // Make sure this account is valid with an ID
-        if (!$account->getId())
+        if (!$account->getId()) {
             throw new \RuntimeException("Cannot delete an account that does not exist");
+        }
 
         $accountId = $account->getId();
         $accountName = $account->getName();
@@ -235,8 +239,9 @@ class AccountIdentityMapper implements ErrorAwareInterface
      */
     private function loadFromMemory($id)
     {
-        if (isset($this->loadedAccounts[$id]))
+        if (isset($this->loadedAccounts[$id])) {
             return $this->loadedAccounts[$id];
+        }
 
         // Not found
         return false;
@@ -262,5 +267,4 @@ class AccountIdentityMapper implements ErrorAwareInterface
     {
         return $this->cache->set("netric/account/" . $account->getId(), $account->toArray());
     }
-
 }

@@ -46,6 +46,10 @@ class HealthController extends AbstractController
     {
         $response = new ConsoleResponse($this->application->getLog());
 
+        if ($this->testMode) {
+            $response->suppressOutput(true);
+        }
+
         // First check to see if an account exists (requires setup to be run)
         if (!$this->application->getAccount()) {
             $response->setReturnCode(ConsoleResponse::STATUS_CODE_FAIL);
@@ -77,6 +81,10 @@ class HealthController extends AbstractController
     public function consoleTestDependenciesAction()
     {
         $response = new ConsoleResponse($this->application->getLog());
+
+        if ($this->testMode) {
+            $response->suppressOutput(true);
+        }
 
         // Get ServiceManager for the application
         $serviceLocator = $this->application->getServiceManager();

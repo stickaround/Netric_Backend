@@ -129,4 +129,4 @@ EXPOSE 443
 
 HEALTHCHECK CMD bin/netric health/test
 
-CMD ["/start.sh"]
+ENTRYPOINT ["/start.sh"]
