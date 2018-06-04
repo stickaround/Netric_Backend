@@ -208,6 +208,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
         // Create a new entity to save
         $entity = $loader->create($objData['obj_type']);
@@ -229,8 +230,13 @@ class EntityController extends Mvc\AbstractAccountController
         // Check to see if any new object_multi objects were sent awaiting save
         $this->savePendingObjectMultiObjects($entity, $objData);
 
+        // Rebuild the entity data including the applied_dacl
+        $entityData = $entity->toArray();
+        $dacl = $daclLoader->getForEntity($entity);
+        $entityData["applied_dacl"] = ["dacl_data" => $dacl->toArray()];
+
         // Return the saved entity
-        return $this->sendOutput($entity->toArray());
+        return $this->sendOutput($entityData);
     }
 
     /**
