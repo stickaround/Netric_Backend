@@ -211,7 +211,7 @@ pipeline {
             // Shutdown
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             cleanWs()
-            sh 'docker system prune -f'
+            sh 'docker system prune -af'
         }
         failure {
             emailext (
