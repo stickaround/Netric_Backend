@@ -53,7 +53,8 @@ class MogileFsDependencyCheck implements DependencyCheckInterface
     {
         try {
             $this->mogileFs = new MogileFs();
-            $this->mogileFs->connect($this->mogileServer, $this->mogilePort, $this->mogileAccount);
+            // Try to connect with a timeout of 1ms
+            $this->mogileFs->connect($this->mogileServer, $this->mogilePort, $this->mogileAccount, 1);
             return true;
         } catch (MogileFsException $ex) {
             // Throw generic FileSystem exception to let callers know what failed
