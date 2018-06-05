@@ -5,6 +5,7 @@ import aereus.pipeline.CodeQualityReporter
 import aereus.pipeline.DeploymentTargets
 import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
+def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
@@ -17,9 +18,9 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
-                    docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
+                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
                         /* If this is the master branch, punlish to stable, if it is develop publish to latest */
-                        clientImage = docker.image("dockerhub.aereusdev.com/netric-client-web:latest")
+                        clientImage = docker.image("${DOCKERHUB_SERVER}/netric-client-web:latest")
                         clientImage.pull()
                     }
 
@@ -28,7 +29,7 @@ pipeline {
                         sh 'cp -r /var/www/app/build/* ./public/mobile/'
                     }
 
-                    dockerImage = docker.build("dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}");
+                    dockerImage = docker.build("${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}");
                 }
             }
         }
@@ -67,7 +68,7 @@ pipeline {
                             sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
                             // Fail if any critical security vulnerabilities are found
-                            sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} netric"
+                            sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                     }
                 }
             }
