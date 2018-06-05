@@ -4,6 +4,7 @@
 import aereus.pipeline.CodeQualityReporter
 import aereus.pipeline.DeploymentTargets
 import groovy.json.JsonSlurper
+def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
@@ -27,7 +28,7 @@ pipeline {
                         sh 'cp -r /var/www/app/build/* ./public/mobile/'
                     }
 
-                    dockerImage = docker.build('netric');
+                    dockerImage = docker.build("dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}");
                 }
             }
         }
@@ -77,7 +78,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                        dockerImage.push("${env.BUILD_NUMBER}")
+                        dockerImage.push()
                     }
                 }
             }
@@ -91,7 +92,7 @@ pipeline {
                         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
                         sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
                         sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/deploy.sh'
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration ${env.BUILD_NUMBER}"
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration ${APPLICATION_VERSION}"
                     }
                 }
                 // Wait for the upgrade to finish
@@ -99,7 +100,7 @@ pipeline {
                     getDeployStatus(
                         environment: DeploymentTargets.INTEGRATION,
                         serviceName: 'netric_com_netric',
-                        imageTag: "${env.BUILD_NUMBER}"
+                        imageTag: "${APPLICATION_VERSION}"
                     )
                     // timeout(5) {
                     //     waitUntil {
@@ -117,7 +118,7 @@ pipeline {
                     //             if(jsonData[0].UpdateStatus.State == 'paused') {
                     //                 println("Deploy Failed:")
                     //                 // Send direct link to make it easier
-                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
+                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${APPLICATION_VERSION}),query:(match:(app_ver:(query:${APPLICATION_VERSION},type:phrase))))),index:'logstash-*'")
                     //                 println("---------------------------------")
                     //                 print(jsonData[0].UpdateStatus.Message)
                     //                 println("---------------------------------")
@@ -145,14 +146,14 @@ pipeline {
                         sh 'scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh'
                         sh 'scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml'
                         sh 'ssh ${server} chmod +x /home/aereus/deploy.sh'
-                        sh "ssh ${server} /home/aereus/deploy.sh production ${env.BUILD_NUMBER}"
+                        sh "ssh ${server} /home/aereus/deploy.sh production ${APPLICATION_VERSION}"
                     }
 
                     // Wait for the upgrade to finish
                     getDeployStatus(
                         environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
                         serviceName: 'netric_com_netric',
-                        imageTag: "${env.BUILD_NUMBER}"
+                        imageTag: "${APPLICATION_VERSION}"
                     )
 
                     // timeout(5) {
@@ -170,7 +171,7 @@ pipeline {
                     //             if(jsonData[0].UpdateStatus.State == 'paused') {
                     //                 println("Deploy Failed:")
                     //                 // Send direct link to make it easier
-                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${env.BUILD_NUMBER}),query:(match:(app_ver:(query:${env.BUILD_NUMBER},type:phrase))))),index:'logstash-*'")
+                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${APPLICATION_VERSION}),query:(match:(app_ver:(query:${APPLICATION_VERSION},type:phrase))))),index:'logstash-*'")
                     //                 println("---------------------------------")
                     //                 print(jsonData[0].UpdateStatus.Message)
                     //                 println("---------------------------------")
