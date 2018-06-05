@@ -36,24 +36,23 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // sh 'docker-compose -f docker/docker-compose-test.yml build'
-                    // sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                    sh 'docker-compose -f docker/docker-compose-test.yml build'
+                    sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
                     // Report on junit
-                    //junit 'tests/tmp/junit.xml'
+                    junit 'tests/tmp/junit.xml'
 
                     // Create style and static analysis reports
                     // sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
                     // sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
 
                     // Send reports to server for code quality metrics
-                    // def reporter = new CodeQualityReporter([
-                    //     cloverFilePath: readFile("tests/tmp/clover.xml"),
-                    //     checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
-                    //     pmdFilePath: readFile("tests/tmp/pmd.xml")
-                    // ])
-                    // reporter.collectAndSendReport('netric.com')
-                    echo "Noramlly I would test but not now"
+                    def reporter = new CodeQualityReporter([
+                        cloverFilePath: readFile("tests/tmp/clover.xml"),
+                        checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
+                        pmdFilePath: readFile("tests/tmp/pmd.xml")
+                    ])
+                    reporter.collectAndSendReport('netric.com')
                 }
                 script {
                     dir('.clair') {
