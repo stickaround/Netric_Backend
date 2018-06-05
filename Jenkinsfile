@@ -18,12 +18,7 @@ pipeline {
                     checkout scm
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
                         /* If this is the master branch, punlish to stable, if it is develop publish to latest */
-                        if (env.BRANCH_NAME == 'master') {
-                            clientImage = docker.image("dockerhub.aereusdev.com/netric-client-web:stable")
-                        } else {
-                            clientImage = docker.image("dockerhub.aereusdev.com/netric-client-web:latest")
-                        }
-
+                        clientImage = docker.image("dockerhub.aereusdev.com/netric-client-web:latest")
                         clientImage.pull()
                     }
 
@@ -82,7 +77,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
-                        dockerImage.push("v${env.BUILD_NUMBER}")
+                        dockerImage.push("${env.BUILD_NUMBER}")
                     }
                 }
             }
@@ -104,7 +99,7 @@ pipeline {
                     getDeployStatus(
                         environment: DeploymentTargets.INTEGRATION,
                         serviceName: 'netric_com_netric',
-                        imageTag: "v${env.BUILD_NUMBER}"
+                        imageTag: "${env.BUILD_NUMBER}"
                     )
                     // timeout(5) {
                     //     waitUntil {
@@ -157,7 +152,7 @@ pipeline {
                     getDeployStatus(
                         environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
                         serviceName: 'netric_com_netric',
-                        imageTag: "v${env.BUILD_NUMBER}"
+                        imageTag: "${env.BUILD_NUMBER}"
                     )
 
                     // timeout(5) {
