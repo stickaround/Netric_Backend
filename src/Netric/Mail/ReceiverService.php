@@ -161,14 +161,16 @@ class ReceiverService extends AbstractHasErrors
     public function syncMailbox($mailboxId, EmailAccountEntity $emailAccount)
     {
         // When syncing emails, account type should not be empty
-        if(empty($emailAccount->getValue("type"))) {
+        if (empty($emailAccount->getValue("type"))) {
             $this->log->info("ReceiverService->syncMail: Account has no type - " . $emailAccount->getId());
             return false;
         }
 
         // Get the mailbox path
         $mailboxGroupings = $this->groupingsLoader->get(
-            "email_message", "mailbox_id", ["user_id"=>$this->user->getId()]
+            "email_message",
+            "mailbox_id",
+            ["user_id"=>$this->user->getId()]
         );
         $mailboxPath = $mailboxGroupings->getpath($mailboxId);
 
@@ -182,7 +184,6 @@ class ReceiverService extends AbstractHasErrors
         try {
             $mail = $this->getMailConnection($emailAccount);
         } catch (Storage\Exception\RuntimeException $ex) {
-
             $blockCipher = new BlockCipher($this->vaultService->getSecret("EntityEnc"));
             $password = "";
             if ($emailAccount->getValue("password")) {
@@ -191,7 +192,8 @@ class ReceiverService extends AbstractHasErrors
 
             $this->log->error(
                 "ReceiverService->syncMail: Unable to log in " .
-                $emailAccount->getValue("address") . " - "  . $ex->getMessage());
+                $emailAccount->getValue("address") . " - "  . $ex->getMessage()
+            );
             return false;
         }
 
@@ -206,7 +208,7 @@ class ReceiverService extends AbstractHasErrors
         $syncColl = $this->getSyncCollection($syncPartner, $emailAccount->getId(), $mailboxId);
 
         // First send changes to server
-        $this->sendChanges($syncColl, $mail);            
+        $this->sendChanges($syncColl, $mail);
 
         // Now get new messages from the server and import
         $this->receiveChanges($syncColl, $mail, $emailAccount, $mailboxId);
@@ -230,7 +232,6 @@ class ReceiverService extends AbstractHasErrors
     {
         while (count($stats = $syncColl->getExportChanged(false)) > 0) {
             foreach ($stats as $stat) {
-
                 // Load the email entity
                 $emailEntity = $this->entityLoader->get("email_message", $stat['id']);
 
@@ -256,7 +257,6 @@ class ReceiverService extends AbstractHasErrors
                 if ($msgNum) {
                     switch ($stat['action']) {
                         case 'change':
-
                             if ($mailServer instanceof WritableInterface) {
                                 // Wrapping all flag sets in a try catch since setting the same flag twice causes an exception
                                 try {
@@ -308,7 +308,7 @@ class ReceiverService extends AbstractHasErrors
                 // Export last commit so we don't try to re-sync these changes next time
                 if ($emailEntity->getValue("commit_id")) {
                     $syncColl->setLastCommitId($emailEntity->getValue("commit_id"));
-                } else if ($syncColl->getId()) {
+                } elseif ($syncColl->getId()) {
                     // If not permanently deleted then throw exception without commit id
                     throw new \RuntimeException(
                         "Tried to synchronize an email_message without a commit id: " .
@@ -333,8 +333,7 @@ class ReceiverService extends AbstractHasErrors
         AbstractStorage $mailServer,
         EmailAccountEntity $emailAccount,
         $mailboxId
-    )
-    {
+    ) {
         $importList = [];
         $numMessages = count($mailServer);
         $badMessagesToPurge = [];
@@ -407,7 +406,6 @@ class ReceiverService extends AbstractHasErrors
                             $importMid = $stat['local_id'];
                         }
                     } else {
-
                         // Check if the message was marked as spam
                         try {
                             if (strtolower($message->getHeader('x-spam-flag', 'string')) == "yes") {
@@ -442,8 +440,9 @@ class ReceiverService extends AbstractHasErrors
                             $emailEntity->getValue("message_uid") .
                             " - " .
                             $emailEntity->getValue("message_id") .
-                            " delivered to $importMid");
-                    } else if ($importMid == -1) {
+                            " delivered to $importMid"
+                        );
+                    } elseif ($importMid == -1) {
                         // This message was previously imported and then deleted so delete on the server
                         $msgNum = $mailServer->getNumberByUniqueId($stat['remote_id']);
                         if ($msgNum) {
@@ -462,15 +461,12 @@ class ReceiverService extends AbstractHasErrors
                     break;
 
                 case 'delete':
-
                     if (isset($stat['local_id'])) {
-
                         $emailEntity = $this->entityLoader->get("email_message", $stat['local_id']);
                         if ($emailEntity && $emailEntity->getValue("f_deleted") === false) {
                             $this->entityLoader->delete($emailEntity);
                             $this->log->info("ReceiverService->receiveChanges: Imported delete {$stat['local_id']}");
                         }
-
                     }
 
                     $syncColl->logImported($stat['remote_id']);
@@ -509,8 +505,7 @@ class ReceiverService extends AbstractHasErrors
         $syncColl = $syncPartner->getEntityCollection("email_message", $conditions);
 
         // Create collection if it does not yet exist
-        if (!$syncColl)
-        {
+        if (!$syncColl) {
             $this->log->info("ReceiverService->syncMailbox: Creating a new collection for $mailboxId");
 
             $syncColl = $this->collectionFactory->createCollection(EntitySync::COLL_TYPE_ENTITY);

@@ -1,33 +1,34 @@
 <?php
 /**
  * This defines the base aggregate for queries
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
 namespace Netric\EntityQuery\Aggregation;
+
 /**
  * Base aggregate class
  */
-abstract class AbstractAggregation 
+abstract class AbstractAggregation
 {
     /**
      * The name of this aggregation
-     * 
+     *
      * @var string
      */
     protected $_name;
     
     /**
      * If a field is used, then set it here (most aggregates use fields)
-     * 
+     *
      * @var string
      */
     protected $_field;
     
     /**
      * Class constructor
-     * 
+     *
      * @param string $name the name of this aggregation
      */
     public function __construct($name)
@@ -37,7 +38,7 @@ abstract class AbstractAggregation
 
     /**
      * Set the name of this aggregation
-     * 
+     *
      * @param string $name
      */
     public function setName($name)
@@ -47,7 +48,7 @@ abstract class AbstractAggregation
 
     /**
      * Retrieve the name of this aggregation
-     * 
+     *
      * @return string
      */
     public function getName()
@@ -57,7 +58,7 @@ abstract class AbstractAggregation
     
     /**
      * Set the field for this aggregation
-     * 
+     *
      * @param string $field the name of the document field on which to perform this aggregation
      */
     public function setField($field)
@@ -67,7 +68,7 @@ abstract class AbstractAggregation
     
     /**
      * Get the field for this aggregation
-     * 
+     *
      * @return string
      */
     public function getField()

@@ -70,14 +70,10 @@ abstract class AbstractPluginManager
         $className = $this->invokableClasses[$name];
 
         // Try to load the service and allow exception to be thrown if not found
-        if ($className)
-        {
-            if (class_exists($className))
-            {
+        if ($className) {
+            if (class_exists($className)) {
                 $plugin = (count($options)) ? new $className($options) : new $className();
-            }
-            else
-            {
+            } else {
                 throw new Exception\ServiceNotFoundException(sprintf(
                     '%s: A plugin by the name "%s" was not found and could not be instantiated.',
                     get_class($this) . '::' . __FUNCTION__,

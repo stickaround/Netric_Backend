@@ -1,7 +1,7 @@
 <?php
 /**
  * IdentityMapper for recurrence patterns
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
@@ -30,7 +30,7 @@ class RecurrenceIdentityMapper
      *
      * @param RecurrenceDataMapper $dataMapper To save and load patterns from the datastore
      */
-	public function __construct(RecurrenceDataMapper $dataMapper)
+    public function __construct(RecurrenceDataMapper $dataMapper)
     {
         $this->recurDataMapper = $dataMapper;
     }
@@ -64,8 +64,7 @@ class RecurrenceIdentityMapper
         $pattern = $this->getLoadedPattern($id);
 
         // If we have not yet loaded it then load from db and cache locally
-        if (!$pattern)
-        {
+        if (!$pattern) {
             $pattern = $this->recurDataMapper->load($id);
             if ($pattern) {
                 $this->cachedPatterns[$id] = $pattern;
@@ -88,21 +87,23 @@ class RecurrenceIdentityMapper
         $def = $entity->getDefinition();
 
         if ($entity->getId() && $recurPattern) {
-
             // Move first entity to current entity
-            if ($recurPattern->getFirstEntityId() != $entity->getId())
+            if ($recurPattern->getFirstEntityId() != $entity->getId()) {
                 $recurPattern->setFirstEntityId($entity->getId());
+            }
 
             // Make sure the object type is correct for validation of fields
-            if ($recurPattern->getObjType() != $def->getObjType())
+            if ($recurPattern->getObjType() != $def->getObjType()) {
                 $recurPattern->setObjType($def->getObjType());
+            }
 
             // Get the start date which is required for all recurring patterns
             $curStart = $entity->getValue($def->recurRules['field_date_start']);
 
             // Epic fail! A start_field value of the entity is required for recurrence
-            if (!$curStart)
-                throw new \RuntimeException($def->recurRules['field_date_start'] . " is required for saving recurrence");;
+            if (!$curStart) {
+                throw new \RuntimeException($def->recurRules['field_date_start'] . " is required for saving recurrence");
+            };
 
             // Set the last date the recurrence pattern was processed to
             $recurPattern->setDateProcessedTo(new \DateTime(date("Y-m-d", $curStart)));
@@ -131,7 +132,6 @@ class RecurrenceIdentityMapper
             } else {
                 throw new \RuntimeException($this->recurDataMapper->getLastError()->getMessage());
             }
-
         }
 
         return false;
@@ -146,8 +146,7 @@ class RecurrenceIdentityMapper
     public function delete(RecurrencePattern $recurrencePattern)
     {
         $toDelete = $recurrencePattern->getId();
-        if ($this->recurDataMapper->delete($recurrencePattern))
-        {
+        if ($this->recurDataMapper->delete($recurrencePattern)) {
             unset($this->cachedPatterns[$toDelete]);
             return true;
         }
@@ -178,8 +177,7 @@ class RecurrenceIdentityMapper
         $stalePatternIds = $this->recurDataMapper->getStalePatternIds($objType, $dateTo);
 
         // Load each through this identity mapper - which caches them - and return
-        foreach ($stalePatternIds as $pid)
-        {
+        foreach ($stalePatternIds as $pid) {
             $recurrencePatterns[] = $this->getById($pid);
         }
 
@@ -194,9 +192,10 @@ class RecurrenceIdentityMapper
      */
     private function getLoadedPattern($id)
     {
-        if (isset($this->cachedPatterns[$id]))
+        if (isset($this->cachedPatterns[$id])) {
             return $this->cachedPatterns[$id];
-        else
+        } else {
             return null;
+        }
     }
 }

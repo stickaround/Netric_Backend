@@ -19,7 +19,7 @@ declare(ticks = 1);
 
 class ConsoleRequest implements RequestInterface
 {
-	/**
+    /**
      * @var array
      */
     private $params = array();
@@ -41,7 +41,7 @@ class ConsoleRequest implements RequestInterface
      */
     private $path = null;
 
-	/**
+    /**
      * Contains the request input data
      *
      * @var string
@@ -55,15 +55,13 @@ class ConsoleRequest implements RequestInterface
      */
     private $stopping = false;
 
-	/**
-	 * Initialize request object variables
-	 */
-	public function __construct(array $args = null, array $env = null)
-	{
-		if ($args === null) 
-		{
-            if (!isset($_SERVER['argv'])) 
-            {
+    /**
+     * Initialize request object variables
+     */
+    public function __construct(array $args = null, array $env = null)
+    {
+        if ($args === null) {
+            if (!isset($_SERVER['argv'])) {
                 $errorDescription = (ini_get('register_argc_argv') == false)
                     ? "Cannot create Console\\Request because PHP ini option 'register_argc_argv' is set Off"
                     : 'Cannot create Console\\Request because $_SERVER["argv"] is not set for unknown reason.';
@@ -106,31 +104,32 @@ class ConsoleRequest implements RequestInterface
             pcntl_signal(SIGHUP, array($this, "singHandleStop"));
             pcntl_signal(SIGINT, array($this, "singHandleStop"));
         }
-	}
+    }
 
-	/**
-	 * Get a request param by name
-	 *
-	 * @param string $name The name of the param to get
-	 */
-	public function getParam($name)
-	{
-		if (isset($this->params[$name]))
-			return $this->params[$name];
+    /**
+     * Get a request param by name
+     *
+     * @param string $name The name of the param to get
+     */
+    public function getParam($name)
+    {
+        if (isset($this->params[$name])) {
+            return $this->params[$name];
+        }
 
-		// Not found
-		return null;
-	}
+        // Not found
+        return null;
+    }
 
-	/**
-	 * Get all params in an associative array
-	 *
-	 * @return array
-	 */
-	public function getParams()
-	{
-		return $this->params;
-	}
+    /**
+     * Get all params in an associative array
+     *
+     * @return array
+     */
+    public function getParams()
+    {
+        return $this->params;
+    }
 
     /**
      * Set/override a param
@@ -152,26 +151,27 @@ class ConsoleRequest implements RequestInterface
      */
     public function getEnv($name, $default = null)
     {
-    	if (!isset($this->envParams[$name]))
-    		return $default;
+        if (!isset($this->envParams[$name])) {
+            return $default;
+        }
 
         return $this->envParams[$name];
     }
 
-	/**
-	 * Get the raw body of the request
-	 *
-	 * @return string
-	 */
-	public function getBody()
-	{
+    /**
+     * Get the raw body of the request
+     *
+     * @return string
+     */
+    public function getBody()
+    {
         // If $rawBody is set then we will return it instead of php://input
         $data = ($this->rawBody) ? $this->rawBody : file_get_contents("php://input");
 
         return $data;
-	}
+    }
 
-	/**
+    /**
      * @param string $scriptName
      */
     public function setScriptName($scriptName)
@@ -212,10 +212,10 @@ class ConsoleRequest implements RequestInterface
         $options = [];
 
         foreach ($args as $arg) {
-
             // Skip malformed arguments
-            if (strlen($arg) < 2)
+            if (strlen($arg) < 2) {
                 continue;
+            }
 
             // Extract all options from the arguments
             if ($arg[0] == '-') {
@@ -225,10 +225,10 @@ class ConsoleRequest implements RequestInterface
                 $paramName = "";
                 $end = strlen($arg);
                 for ($i = $start; $i < $end; $i++) {
-
                     // Finish when we see the delimiter
-                    if ($arg[$i] == '=' || $arg[$i] == ' ')
+                    if ($arg[$i] == '=' || $arg[$i] == ' ') {
                         break;
+                    }
 
                     $paramName .= $arg[$i];
                 }
@@ -236,7 +236,7 @@ class ConsoleRequest implements RequestInterface
                 if ($paramName && $start == 2) {
                     // Add long option
                     $options[$paramName . "=s"] = $paramName;
-                } else if ($paramName && $start == 1) {
+                } elseif ($paramName && $start == 1) {
                     // Add short options
                     $options[$paramName . "-s"] = $paramName;
                 }

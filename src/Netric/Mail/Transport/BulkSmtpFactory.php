@@ -42,8 +42,9 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
             'host' => $config->email["bulk_server"],
         );
 
-        if ($config->email["bulk_port"])
+        if ($config->email["bulk_port"]) {
             $options['port'] = $config->email["bulk_port"];
+        }
 
         // Add username and password if needed for sending messages
         if (isset($config->email['bulk_user']) && isset($config->email['bulk_password'])) {
@@ -78,8 +79,9 @@ class BulkSmtpFactory implements AccountServiceFactoryInterface
                 unset($options['connection_config']);
             }
 
-            if ($port)
+            if ($port) {
                 $options['port'] = $port;
+            }
         }
 
 

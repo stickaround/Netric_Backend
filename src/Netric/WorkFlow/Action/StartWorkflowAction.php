@@ -33,8 +33,7 @@ class StartWorkflowAction extends AbstractAction implements ActionInterface
         EntityLoader $entityLoader,
         ActionFactory $actionFactory,
         WorkFlowManager $workFlowManager
-    )
-    {
+    ) {
         $this->workFlowManager = $workFlowManager;
         parent::__construct($entityLoader, $actionFactory);
     }
@@ -52,8 +51,7 @@ class StartWorkflowAction extends AbstractAction implements ActionInterface
         // Get merged params
         $params = $this->getParams($entity);
 
-        if (isset($params['wfid']))
-        {
+        if (isset($params['wfid'])) {
             $this->workFlowManager->startWorkflowById($entity, $params['wfid']);
             return true;
         }

@@ -22,13 +22,13 @@ use Netric\FileSystem\FileSystem;
  *
  * Example
  * <code>
- * 	$email = $entityLoader->create("email_message");
- * 	$email->setValue("sent_from", "sky.stebnicki@aereus.com");
- * 	$email->setValue("send_to", "someone@somewhere.com");
- * 	$email->setValue("body", "Hello there");
+ *  $email = $entityLoader->create("email_message");
+ *  $email->setValue("sent_from", "sky.stebnicki@aereus.com");
+ *  $email->setValue("send_to", "someone@somewhere.com");
+ *  $email->setValue("body", "Hello there");
  *  $email->setValue("body_type", EmailMessageEntity::BODY_TYPE_PLAIN);
- * 	$email->addAttachment("/path/to/my/file.txt");
- * 	$sender = $serviceManager->get("Netric\Mail\Sender");
+ *  $email->addAttachment("/path/to/my/file.txt");
+ *  $sender = $serviceManager->get("Netric\Mail\Sender");
  *  $sender->send($email);
  * </code>
  */
@@ -73,8 +73,8 @@ class EmailMessageEntity extends Entity implements EntityInterface
         EntityDefinition $def,
         EntityLoader $entityLoader,
         IndexInterface $entityIndex,
-        FileSystem $fileSystem)
-    {
+        FileSystem $fileSystem
+    ) {
         $this->entityLoader = $entityLoader;
         $this->entityIndex = $entityIndex;
         $this->fileSystem = $fileSystem;
@@ -89,8 +89,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         // Make sure a unique message_id is set
-        if (!$this->getValue('message_id'))
-        {
+        if (!$this->getValue('message_id')) {
             $this->setValue('message_id', $this->generateMessageId());
         }
 
@@ -99,12 +98,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $this->setValue("num_attachments", (is_array($attachments)) ? count($attachments) : 0);
 
         // If this email message is not part of a thread, create one
-        if (!$this->getValue("thread"))
-        {
+        if (!$this->getValue("thread")) {
             $this->attachToThread();
-        }
-        else
-        {
+        } else {
             $this->updateThreadFromMessage();
         }
     }
@@ -116,20 +112,16 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     public function onAfterSave(AccountServiceManagerInterface $sm)
     {
-        if ($this->isDeleted())
-        {
+        if ($this->isDeleted()) {
             $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
 
             // Decrement the number of messages in the thread if it exists
             if ($thread) {
                 // If this is the last message, then delete the thread
-                if (intval($thread->getValue("num_messages")) === 1)
-                {
+                if (intval($thread->getValue("num_messages")) === 1) {
                     $thread->setValue("num_messages", 0);
                     $this->entityLoader->delete($thread);
-                }
-                else
-                {
+                } else {
                     // Otherwise reduce the number of messages
                     $numMessages = $thread->getValue("num_messages");
                     $thread->setValue("num_messages", --$numMessages);
@@ -147,11 +139,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
     public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
     {
         // If purging, then clear the raw file holding our message data
-        if ($this->getValue('file_id'))
-        {
+        if ($this->getValue('file_id')) {
             $file = $this->fileSystem->openFileById($this->getValue('file_id'));
-            if ($file)
-            {
+            if ($file) {
                 $this->fileSystem->deleteFile($file, true);
             }
         }
@@ -159,8 +149,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
 
         // If this is the last message, then purge the thread
-        if ($thread && intval($thread->getValue("num_messages")) === 1)
-        {
+        if ($thread && intval($thread->getValue("num_messages")) === 1) {
             $this->entityLoader->delete($thread, true);
         }
     }
@@ -261,12 +250,14 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $headers = $message->getHeaders();
 
         // message_id
-        if ($headers->get("message-id"))
+        if ($headers->get("message-id")) {
             $this->setValue("message_id", $headers->get("message-id")->getFieldValue());
+        }
 
         // priority
-        if ($headers->get("priority"))
+        if ($headers->get("priority")) {
             $this->setValue("priority", $headers->get("priority")->getFieldValue());
+        }
 
         // flag_spam
         if ($headers->get("x-spam-flag")) {
@@ -276,24 +267,29 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
 
         // spam_report
-        if ($headers->get("x-spam-report"))
+        if ($headers->get("x-spam-report")) {
             $this->setValue("spam_report", $headers->get("x-spam-report")->getFieldValue());
+        }
 
         // content_type
-        if ($headers->get("content-type"))
+        if ($headers->get("content-type")) {
             $this->setValue("content_type", $headers->get("content-type")->getFieldValue());
+        }
 
         // return_path
-        if ($headers->get("return-path"))
+        if ($headers->get("return-path")) {
             $this->setValue("return_path", $headers->get("return-path")->getFieldValue());
+        }
 
         // in_reply_to
-        if ($headers->get("in-reply-to"))
+        if ($headers->get("in-reply-to")) {
             $this->setValue("in_reply_to", $headers->get("in-reply-to")->getFieldValue());
+        }
 
         // Date
-        if ($headers->get("date"))
+        if ($headers->get("date")) {
             $this->setValue("message_date", strtotime($headers->get("date")->getFieldValue()));
+        }
 
         // message_size
 
@@ -316,7 +312,6 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $parts = $message->getBody()->getParts();
             $this->fromMailMessageMultiPart($parts);
         }
-
     }
 
     /**
@@ -394,15 +389,15 @@ class EmailMessageEntity extends Entity implements EntityInterface
                 $file = $this->fileSystem->createFile("%tmp%", $mimePart->getFileName(), true);
                 $this->fileSystem->writeFile($file, $mimePart->getRawContent());
                 $this->addMultiValue("attachments", $file->getId(), $file->getName());
-            } else if ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
+            } elseif ($mimePart->getType() == Mime\Mime::TYPE_HTML) {
                 // If multipart/aleternative then this will come after 'plain' and overwrite
                 $this->setValue("body", trim($mimePart->getRawContent()));
                 $this->setValue("body_type", self::BODY_TYPE_HTML);
-            } else if ($mimePart->getType() == Mime\Mime::TYPE_TEXT) {
+            } elseif ($mimePart->getType() == Mime\Mime::TYPE_TEXT) {
                 // Plain text part
                 $this->setValue("body", trim($mimePart->getRawContent()));
                 $this->setValue("body_type", self::BODY_TYPE_PLAIN);
-            } else if ($mimePart->getType() == Mime\Mime::MULTIPART_ALTERNATIVE) {
+            } elseif ($mimePart->getType() == Mime\Mime::MULTIPART_ALTERNATIVE) {
                 // Multipart alternative
                 $mimeMessage = Mime\Message::createFromMessage($mimePart->getRawContent(), $mimePart->getBoundary());
                 $altParts = $mimeMessage->getParts();
@@ -434,8 +429,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     private function getAddressListFromString($addresses)
     {
-        if (!$addresses)
+        if (!$addresses) {
             return null;
+        }
 
         $addressList = new Mail\AddressList();
 
@@ -458,10 +454,8 @@ class EmailMessageEntity extends Entity implements EntityInterface
     {
         // Add attachments to the mime message
         $attachments = $this->getValue("attachments");
-        if (is_array($attachments) && count($attachments))
-        {
-            foreach ($attachments as $fileId)
-            {
+        if (is_array($attachments) && count($attachments)) {
+            foreach ($attachments as $fileId) {
                 $file = $this->fileSystem->openFileById($fileId);
 
                 // Get a stream to reduce memory footprint
@@ -495,14 +489,12 @@ class EmailMessageEntity extends Entity implements EntityInterface
          * a better job of detecting other possible candidates, but this should work
          * at least for cases where the sender includes in-reply-to in the header.
          */
-        if (trim($this->getValue("in_reply_to")))
-        {
+        if (trim($this->getValue("in_reply_to"))) {
             $query = new EntityQuery("email_message");
             $query->where("message_id")->equals($this->getValue("in_reply_to"));
             $query->andWhere("owner_id")->equals($this->getValue("owner_id"));
             $results = $this->entityIndex->executeQuery($query);
-            if ($results->getNum())
-            {
+            if ($results->getNum()) {
                 $emailMessage = $results->getEntity(0);
                 $thread = $this->entityLoader->get("email_thread", $emailMessage->getValue("thread"));
             }
@@ -521,8 +513,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     private function attachToThread()
     {
-        if ($this->getValue("thread"))
-        {
+        if ($this->getValue("thread")) {
             throw new \RuntimeException("Message is already attached to a thread");
         }
 
@@ -530,8 +521,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
         $thread = $this->discoverThread();
 
         // If we could not find a thread that already exists, then create a new one
-        if (!$thread)
-        {
+        if (!$thread) {
             $thread = $this->entityLoader->create("email_thread");
             $thread->setValue("owner_id", $this->getValue("owner_id"));
             $thread->setValue("num_messages", 0);
@@ -577,8 +567,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
      */
     private function updateThreadFromMessage(EmailThreadEntity $thread = null)
     {
-        if (!$this->getValue("thread") && !$thread)
+        if (!$this->getValue("thread") && !$thread) {
             throw new \InvalidArgumentException("Thread must be passed or set first");
+        }
 
         // If the message is deleted then do not update the thread
         if ($this->isDeleted()) {
@@ -619,8 +610,9 @@ class EmailMessageEntity extends Entity implements EntityInterface
         }
 
         // Save the changes
-        if (!$this->entityLoader->save($thread))
+        if (!$this->entityLoader->save($thread)) {
             throw new RuntimeException("Failed saving thread!");
+        }
     }
 
     /**

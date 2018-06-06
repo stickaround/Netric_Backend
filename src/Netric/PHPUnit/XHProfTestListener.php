@@ -52,7 +52,7 @@ class XHProfTestListener implements TestListener
      *
      * Increments as more suites are run, then decremented as they finish. All
      * suites have been run when returns to 0.
-     * 
+     *
      * @var integer
      */
     protected $suites = 0;

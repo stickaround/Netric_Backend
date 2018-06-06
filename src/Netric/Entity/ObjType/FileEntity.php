@@ -104,8 +104,7 @@ class FileEntity extends Entity implements EntityInterface
     {
         $type = $this->getType();
 
-        switch ($type)
-        {
+        switch ($type) {
             case 'jpg':
             case 'jpeg':
                 return "image/jpeg";
@@ -115,6 +114,5 @@ class FileEntity extends Entity implements EntityInterface
             default:
                 return "application/octet-stream";
         }
-
     }
 }

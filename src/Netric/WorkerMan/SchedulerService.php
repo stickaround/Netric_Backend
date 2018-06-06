@@ -49,7 +49,7 @@ class SchedulerService
      * @param array $data Data to pass to the job when run
      * @return int Scheduled job ID
      */
-    public function scheduleAtTime($workerName, DateTime $execute, array $data=[])
+    public function scheduleAtTime($workerName, DateTime $execute, array $data = [])
     {
         $scheduledJob = $this->entityLoader->create('worker_job');
         $scheduledJob->setValue('worker_name', $workerName);
@@ -67,7 +67,7 @@ class SchedulerService
      * @param int $interval How many $units to wait between runs
      * @return int Recurring job id
      */
-    public function scheduleAtInterval($workerName, array $data=[], $type, $interval)
+    public function scheduleAtInterval($workerName, array $data = [], $type, $interval)
     {
         $scheduledJob = $this->entityLoader->create('worker_job');
         $scheduledJob->setValue('worker_name', $workerName);

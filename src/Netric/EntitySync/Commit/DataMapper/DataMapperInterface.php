@@ -2,9 +2,9 @@
 /**
  * Abstract commit datamapper
  *
- * @category	DataMapper
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
+ * @category    DataMapper
+ * @author      Sky Stebnicki, sky.stebnicki@aereus.com
+ * @copyright   Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)
  */
 namespace Netric\EntitySync\Commit\DataMapper;
 
@@ -16,7 +16,7 @@ interface DataMapperInterface
     * @param string $typekey Can be any unique key
     * @return bigint
     */
-  public function getNextCommitId($typekey);
+    public function getNextCommitId($typekey);
 
    /**
     * Set the head commit id for a collection
@@ -24,7 +24,7 @@ interface DataMapperInterface
     * @param string $typekey
     * @param bigint $cid
     */
-  public function saveHead($typekey, $cid);
+    public function saveHead($typekey, $cid);
 
   /**
    * Get the head commit id for a collection
@@ -32,5 +32,5 @@ interface DataMapperInterface
    * @param string $typekey
    * @return bigint
    */
-  public function getHead($typekey);
+    public function getHead($typekey);
 }

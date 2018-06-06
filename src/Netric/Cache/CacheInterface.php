@@ -1,7 +1,7 @@
 <?php
 /*
  * Cache interface
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
@@ -17,7 +17,7 @@ interface CacheInterface
      * @param int $expires Number of seconds to expire cache or 0 for never
      * @return boolean true on success, false on failure
      */
-    public function set($key, $value, $expires=0);
+    public function set($key, $value, $expires = 0);
 
     /**
      * Get a value from cache by key

@@ -115,29 +115,37 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $def->setId($row["id"]);
             $def->capped = ($row['capped']) ? $row['capped'] : false;
 
-            if ($row["default_activity_level"])
+            if ($row["default_activity_level"]) {
                 $def->defaultActivityLevel = $row["default_activity_level"];
+            }
 
-            if (isset($row["is_private"]))
+            if (isset($row["is_private"])) {
                 $def->isPrivate = ($row["is_private"] == 't') ? true : false;
+            }
 
-            if (isset($row["store_revisions"]))
+            if (isset($row["store_revisions"])) {
                 $def->storeRevisions = ($row["store_revisions"] == 't') ? true : false;
+            }
 
-            if (isset($row["inherit_dacl_ref"]))
+            if (isset($row["inherit_dacl_ref"])) {
                 $def->inheritDaclRef = $row["inherit_dacl_ref"];
+            }
 
-            if (isset($row["parent_field"]))
+            if (isset($row["parent_field"])) {
                 $def->parentField = $row["parent_field"];
+            }
 
-            if (isset($row["uname_settings"]))
+            if (isset($row["uname_settings"])) {
                 $def->unameSettings = $row["uname_settings"];
+            }
 
-            if ($row["list_title"])
+            if ($row["list_title"]) {
                 $def->listTitle = $row["list_title"];
+            }
 
-            if ($row["icon"])
+            if ($row["icon"]) {
                 $def->icon = $row["icon"];
+            }
 
             if ($row['recur_rules']) {
                 $def->recurRules = json_decode($row['recur_rules'], true);
@@ -154,13 +162,15 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
             // If this is the first load of this object type
             // then create the object table
-            if ($def->revision <= 0)
+            if ($def->revision <= 0) {
                 $this->save($def);
+            }
         }
 
         // Make sure this a valid definition
-        if (!$def->getId())
+        if (!$def->getId()) {
             throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $dbh->getSchema() . " - " . $dbh->getValue($dbh->query("SHOW search_path;"), 0, "search_path"));
+        }
 
 
         // Get field definitions
@@ -168,8 +178,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $sql = "select * from app_object_type_fields where " .
             "type_id='" . $def->getId() . "' order by title";
         $result = $dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \Exception('Could not pull type fields from db for ' . $this->getAccount()->getName() . ":" . $objType . ":" . $dbh->getLastError());
+        }
 
         for ($i = 0; $i < $dbh->getNumRows($result); $i++) {
             $row = $dbh->getRow($result, $i);
@@ -190,8 +201,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $field->type = $row['type'];
             $field->subtype = $row['subtype'];
             $field->mask = $row['mask'];
-            if ($row['use_when'])
+            if ($row['use_when']) {
                 $field->setUseWhen($row['use_when']);
+            }
             $field->required = ($row['f_required'] == 't') ? true : false;
             $field->system = ($row['f_system'] == 't') ? true : false;
             $field->readonly = ($row['f_readonly'] == 't') ? true : false;
@@ -227,10 +239,12 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 $row2 = $dbh->getRow($res2, $j);
 
                 $default = array('on' => $row2['on_event'], 'value' => $row2['value']);
-                if ($row2['coalesce'])
+                if ($row2['coalesce']) {
                     $default['coalesce'] = unserialize($row2['coalesce']);
-                if ($row2['where_cond'])
+                }
+                if ($row2['where_cond']) {
                     $default['where'] = unserialize($row2['where_cond']);
+                }
 
                 // Make sure that coalesce does not cause a circular reference to self
                 if (isset($default['coalesce']) && $default['coalesce']) {
@@ -242,7 +256,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                                     break;
                                 }
                             }
-                        } else if ($colfld == $row['name']) {
+                        } elseif ($colfld == $row['name']) {
                             $default = null;
                             break;
                         }
@@ -256,14 +270,17 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $res2 = $dbh->query("select * from app_object_field_options where field_id='" . $row['id'] . "'");
             for ($j = 0; $j < $dbh->getNumRows($res2); $j++) {
                 $row2 = $dbh->getRow($res2, $j);
-                if (!isset($this->fields[$row['name']]['optional_values']))
+                if (!isset($this->fields[$row['name']]['optional_values'])) {
                     $this->fields[$row['name']]['optional_values'] = array();
+                }
 
-                if (!$row2['key'])
+                if (!$row2['key']) {
                     $row2['key'] = $row2['value'];
+                }
 
-                if (!$field->optionalValues)
+                if (!$field->optionalValues) {
                     $field->optionalValues = array();
+                }
 
                 $field->optionalValues[$row2['key']] = $row2['value'];
             }
@@ -277,11 +294,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 $resultBackComp = $dbh->query("select * from {$row['subtype']}");
                 for ($index = 0; $index < $dbh->getNumRows($resultBackComp); $index++) {
                     $rowOptionalValue = $dbh->getRow($resultBackComp, $index);
-                    if (!isset($this->fields[$row['name']]['optional_values']))
+                    if (!isset($this->fields[$row['name']]['optional_values'])) {
                         $this->fields[$row['name']]['optional_values'] = array();
+                    }
 
-                    if (!$field->optionalValues)
+                    if (!$field->optionalValues) {
                         $field->optionalValues = array();
+                    }
 
                     $field->optionalValues[$rowOptionalValue['name']] = $rowOptionalValue['name'];
                 }
@@ -302,12 +321,14 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     public function deleteDef(EntityDefinition $def)
     {
         // System objects cannot be deleted
-        if ($def->system)
+        if ($def->system) {
             return false;
+        }
 
         // Only delete existing types of course
-        if (!$def->getId())
+        if (!$def->getId()) {
             return false;
+        }
 
         // Delete object type entries from the database
         $this->dbh->query("DELETE FROM app_object_type_fields WHERE type_id='" . $def->getId() . "'"); // Will cascade
@@ -352,8 +373,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $query = "";
 
             foreach ($data as $colName => $colValue) {
-                if ($query)
+                if ($query) {
                     $query .= ", ";
+                }
 
                 $query .= $colName . "=" . $colValue;
             }
@@ -381,7 +403,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $ret = $this->dbh->query($query);
         if ($ret && !$def->getId()) {
             $def->setId($this->dbh->getValue($ret, 0, "id"));
-        } else if (!$ret) {
+        } elseif (!$ret) {
             throw new \RuntimeException("Error saving definition with query - $query Error:" . $this->dbh->getLastError());
         }
 
@@ -392,8 +414,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $this->saveFields($def);
 
         // Associate with applicaiton if set
-        if ($def->applicationId)
+        if ($def->applicationId) {
             $this->associateWithApp($def, $def->applicationId);
+        }
     }
 
     /**
@@ -435,8 +458,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
         $path = "";
 
-        if ($grp['parent_id'])
+        if ($grp['parent_id']) {
             $path .= $this->getGroupingPath($fieldName, $grp['parent_id']) . "/";
+        }
 
         $path .= $grp['title'];
 
@@ -455,26 +479,31 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $data = array();
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
         $dbh = $this->dbh;
 
         $query = "SELECT * FROM " . $field->subtype;
 
-        if ($field->subtype == "object_groupings")
+        if ($field->subtype == "object_groupings") {
             $cnd = "object_type_id='" . $this->object_type_id . "' and field_id='" . $field->id . "' ";
-        else
+        } else {
             $cnd = "";
+        }
 
         // Check filters to refine the results - can filter by parent object like project id for cases or tasks
         if ($field->fkeyTable['filter']) {
             foreach ($field->fkeyTable['filter'] as $referenced_field => $object_field) {
-                if (($referenced_field == "user_id" || $referenced_field == "owner_id") && $filter[$object_field])
+                if (($referenced_field == "user_id" || $referenced_field == "owner_id") && $filter[$object_field]) {
                     $filter[$object_field] = $this->user->id;
+                }
 
                 if ($filter[$object_field]) {
-                    if ($cnd) $cnd .= " and ";
+                    if ($cnd) {
+                        $cnd .= " and ";
+                    }
 
                     // Check for parent
                     $obj_rfield = $this->def->getField($object_field);
@@ -509,44 +538,59 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         // Filter results to this user of the object is private
         if ($this->def->isPrivate && $this->user) {
             if ($dbh->columnExists($field->subtype, "owner_id")) {
-                if ($cnd) $cnd .= " and ";
+                if ($cnd) {
+                    $cnd .= " and ";
+                }
                 $cnd .= "owner_id='" . $this->user->id . "' ";
-            } else if ($dbh->columnExists($field->subtype, "user_id")) {
-                if ($cnd) $cnd .= " and ";
+            } elseif ($dbh->columnExists($field->subtype, "user_id")) {
+                if ($cnd) {
+                    $cnd .= " and ";
+                }
                 $cnd .= "user_id='" . $this->user->id . "' ";
             }
         }
 
         if ($field->fkeyTable['parent']) {
             if ($parent) {
-                if ($cnd) $cnd .= " and ";
+                if ($cnd) {
+                    $cnd .= " and ";
+                }
                 $cnd .= $field->fkeyTable['parent'] . "='" . $parent . "' ";
             } else {
-                if ($cnd) $cnd .= " and ";
+                if ($cnd) {
+                    $cnd .= " and ";
+                }
                 $cnd .= $field->fkeyTable['parent'] . " is null ";
             }
         }
 
         if ($nameValue) {
-            if ($cnd) $cnd .= " and ";
+            if ($cnd) {
+                $cnd .= " and ";
+            }
             $cnd .= "lower(" . $field->fkeyTable['title'] . ")='" . strtolower($dbh->escape($nameValue)) . "'";
         }
 
         // Add conditions for advanced filtering
         if (isset($conditions) && is_array($conditions)) {
-            foreach ($conditions as $cond)
+            foreach ($conditions as $cond) {
                 $cnd .= $cond['blogic'] . " " . $cond['field'] . " " . $cond['operator'] . " " . $cond['condValue'] . " ";
+            }
         }
 
-        if ($cnd)
+        if ($cnd) {
             $query .= " WHERE $cnd ";
+        }
 
-        if ($dbh->columnExists($field->subtype, "sort_order"))
+        if ($dbh->columnExists($field->subtype, "sort_order")) {
             $query .= " ORDER BY sort_order, " . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
-        else
+        } else {
             $query .= " ORDER BY " . (($field->fkeyTable['title']) ? $field->fkeyTable['title'] : $field->fkeyTable['key']);
+        }
 
-        if ($limit) $query .= " LIMIT $limit";
+        if ($limit) {
+            $query .= " LIMIT $limit";
+        }
 
         $result = $dbh->query($query);
         $num = $dbh->getNumRows($result);
@@ -566,34 +610,40 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $item['f_closed'] = (isset($row['f_closed']) && $row['f_closed'] == 't') ? true : false;
             $item['system'] = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
 
-            if (isset($row['type']))
+            if (isset($row['type'])) {
                 $item['type'] = $row['type'];
+            }
 
-            if (isset($row['mailbox']))
+            if (isset($row['mailbox'])) {
                 $item['mailbox'] = $row['mailbox'];
+            }
 
-            if (isset($row['sort_order']))
+            if (isset($row['sort_order'])) {
                 $item['sort_order'] = $row['sort_order'];
+            }
 
-            if (isset($field->fkeyTable['parent']) && $field->fkeyTable['parent'])
+            if (isset($field->fkeyTable['parent']) && $field->fkeyTable['parent']) {
                 $item['children'] = $this->getGroupingData($field->name, $conditions, $filter, $limit, $row[$field->fkeyTable['key']], null, $prefix . "&nbsp;&nbsp;&nbsp;");
-            else
+            } else {
                 $item['children'] = array();
+            }
 
             // Add all additional fields which are usually used for filters
             foreach ($row as $pname => $pval) {
-                if (!isset($item[$pname]))
+                if (!isset($item[$pname])) {
                     $item[$pname] = $pval;
+                }
             }
 
             $data[] = $item;
         }
 
         // Make sure that default groupings exist (if any)
-        if (!$parent && sizeof($conditions) == 0) // Do not create default groupings if data is filtered
-        $ret = $this->verifyDefaultGroupings($field->name, $data, $nameValue);
-        else
+        if (!$parent && sizeof($conditions) == 0) { // Do not create default groupings if data is filtered
+            $ret = $this->verifyDefaultGroupings($field->name, $data, $nameValue);
+        } else {
             $ret = $data;
+        }
 
         return $ret;
     }
@@ -612,19 +662,20 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
-        if (!$field)
+        if (!$field) {
             return false;
+        }
 
 
         // Handle hierarchical title - relative to parent if set
         if (strpos($title, "/")) {
             $parentPath = substr($title, 0, strrpos($title, '/'));
             $pntGrp = $this->getGroupingEntryByPath($fieldName, $parentPath);
-            if (!$pntGrp) // go back a level and create parent - recurrsively
-            {
+            if (!$pntGrp) { // go back a level and create parent - recurrsively
                 $this->addGroupingEntry($fieldName, $parentPath);
                 $pntGrp = $this->getGroupingEntryByPath($fieldName, $parentPath);
             }
@@ -634,8 +685,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         }
 
         // Check to see if grouping with this name already exists
-        if (!isset($args['no_check_existing'])) // used to limit infinite loops
-        {
+        if (!isset($args['no_check_existing'])) { // used to limit infinite loops
             $exGrp = $this->getGroupingEntryByName($fieldName, $title, $parentId);
             if (is_array($exGrp)) {
                 return $exGrp;
@@ -682,7 +732,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             if ($this->dbh->columnExists($field->subtype, "owner_id")) {
                 $fields[] = "owner_id";
                 $values[] = $this->dbh->escapeNumber($this->user->id);
-            } else if ($this->dbh->columnExists($field->subtype, "user_id")) {
+            } elseif ($this->dbh->columnExists($field->subtype, "user_id")) {
                 $fields[] = "user_id";
                 $values[] = $this->dbh->escapeNumber($this->user->id);
             }
@@ -720,11 +770,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 $item['color'] = $color;
                 $item['system'] = $system;
 
-                if (isset($args['type']))
+                if (isset($args['type'])) {
                     $item['type'] = $args['type'];
+                }
 
-                if (isset($args['mailbox']))
+                if (isset($args['mailbox'])) {
                     $item['mailbox'] = $args['mailbox'];
+                }
 
                 // Update sync stats
                 $this->updateObjectSyncStat('c', $fieldName, $eid);
@@ -747,11 +799,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
-        if (!is_numeric($entryId) || !$field)
+        if (!is_numeric($entryId) || !$field) {
             return false;
+        }
 
         $ret = array();
         $query = "select * from {$field->subtype} where id='$entryId'";
@@ -789,11 +843,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
-        if (!is_numeric($entryId) || !$field)
+        if (!is_numeric($entryId) || !$field) {
             return false;
+        }
 
         $ret = "";
         $query = "SELECT * FROM {$field->subtype} WHERE id='$entryId'";
@@ -801,11 +857,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getNextRow($result, 0);
 
-            if ($row[$field->fkeyTable['parent']])
+            if ($row[$field->fkeyTable['parent']]) {
                 $ret = $this->getGroupingPathById($fieldName, $row[$field->fkeyTable['parent']]);
+            }
 
-            if ($ret)
+            if ($ret) {
                 $ret .= "/";
+            }
 
             $ret .= $row[$field->fkeyTable['title']];
         }
@@ -824,11 +882,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
     {
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
-        if (!is_numeric($entryId) || !$field)
+        if (!is_numeric($entryId) || !$field) {
             return false;
+        }
 
         // First delete child entries
         if ($field->fkeyTable['parent']) {
@@ -860,33 +920,43 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
      */
     public function updateGroupingEntry($fieldName, $entryId, $title = null, $color = null, $sortOrder = null, $parentId = null, $system = null)
     {
-        if (!is_numeric($entryId))
+        if (!is_numeric($entryId)) {
             return false;
+        }
 
         $field = $this->def->getField($fieldName);
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
         $up = "";
 
         if ($title && $field->fkeyTable['title']) {
-            if ($up) $up .= ", ";
+            if ($up) {
+                $up .= ", ";
+            }
             $up .= $field->fkeyTable['title'] . "='" . $this->dbh->escape($title) . "'";
         }
 
         if ($color) {
-            if ($up) $up .= ", ";
+            if ($up) {
+                $up .= ", ";
+            }
             $up .= "color='" . $this->dbh->escape($color) . "'";
         }
 
         if ($sortOrder && $this->dbh->columnExists($field->subtype, "sort_order")) {
-            if ($up) $up .= ", ";
+            if ($up) {
+                $up .= ", ";
+            }
             $up .= "sort_order=" . $this->dbh->escapeNumber($sortOrder);
         }
 
         if ($parentId && $field->fkeyTable['parent']) {
-            if ($up) $up .= ", ";
+            if ($up) {
+                $up .= ", ";
+            }
             $up .= $field->fkeyTable['parent'] . "=" . $this->dbh->escapeNumber($parentId);
         }
 
@@ -952,42 +1022,53 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $updateFields[] = "type='" . $field->type . "'";
             $updateFields[] = "subtype='" . $field->subtype . "'";
 
-            if (isset($field->fkeyTable['key']))
+            if (isset($field->fkeyTable['key'])) {
                 $updateFields[] = "fkey_table_key='" . $dbh->escape($field->fkeyTable['key']) . "'";
+            }
 
-            if (isset($field->fkeyTable['title']))
+            if (isset($field->fkeyTable['title'])) {
                 $updateFields[] = "fkey_table_title='" . $dbh->escape($field->fkeyTable['title']) . "'";
+            }
 
-            if (isset($field->fkeyTable['parent']))
+            if (isset($field->fkeyTable['parent'])) {
                 $updateFields[] = "parent_field='" . $dbh->escape($field->fkeyTable['parent']) . "'";
+            }
 
-            if (isset($field->fkeyTable['ref_table']['table']))
+            if (isset($field->fkeyTable['ref_table']['table'])) {
                 $updateFields[] = "fkey_multi_tbl='" . $dbh->escape($field->fkeyTable['ref_table']['table']) . "'";
+            }
 
-            if (isset($field->fkeyTable['ref_table']['this']))
+            if (isset($field->fkeyTable['ref_table']['this'])) {
                 $updateFields[] = "fkey_multi_this='" . $dbh->escape($field->fkeyTable['ref_table']['this']) . "'";
+            }
 
-            if (isset($field->fkeyTable['ref_table']['ref']))
+            if (isset($field->fkeyTable['ref_table']['ref'])) {
                 $updateFields[] = "fkey_multi_ref='" . $dbh->escape($field->fkeyTable['ref_table']['ref']) . "'";
+            }
 
             $updateFields[] = "sort_order='$sort_order'";
 
             $updateFields[] = "autocreate='" . (($field->autocreate) ? 't' : 'f') . "'";
 
-            if ($field->autocreatebase)
+            if ($field->autocreatebase) {
                 $updateFields[] = "autocreatebase='" . $dbh->escape($field->autocreatebase) . "'";
+            }
 
-            if ($field->autocreatename)
+            if ($field->autocreatename) {
                 $updateFields[] = "autocreatename='" . $dbh->escape($field->autocreatename) . "'";
+            }
 
-            if ($field->getUseWhen())
+            if ($field->getUseWhen()) {
                 $updateFields[] = "use_when='" . $dbh->escape($field->getUseWhen()) . "'";
+            }
 
-            if ($field->mask)
+            if ($field->mask) {
                 $updateFields[] = "mask='" . $dbh->escape($field->mask) . "'";
+            }
 
-            if (isset($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter']))
+            if (isset($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
                 $updateFields[] = "filter='" . $dbh->escape(serialize($field->fkeyTable['filter'])) . "'";
+            }
 
             $updateFields[] = "f_required='" . (($field->required) ? 't' : 'f') . "'";
             $updateFields[] = "f_readonly='" . (($field->readonly) ? 't' : 'f') . "'";
@@ -999,11 +1080,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
             // Save default values
             if ($field->id && $field->default) {
-                if (!isset($field->default['coalesce']))
+                if (!isset($field->default['coalesce'])) {
                     $field->default['coalesce'] = null;
+                }
 
-                if (!isset($field->default['where']))
+                if (!isset($field->default['where'])) {
                     $field->default['where'] = null;
+                }
 
                 $dbh->query("delete from app_object_field_defaults where field_id='" . $field->id . "'");
                 $dbh->query("insert into app_object_field_defaults(field_id, on_event, value, coalesce, where_cond) 
@@ -1033,55 +1116,70 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $mask = null;
             $useWhen = null;
 
-            if (isset($field->fkeyTable['key']))
+            if (isset($field->fkeyTable['key'])) {
                 $key = $field->fkeyTable['key'];
+            }
 
-            if (isset($field->fkeyTable['title']))
+            if (isset($field->fkeyTable['title'])) {
                 $fKeytitle = $field->fkeyTable['title'];
+            }
 
-            if (isset($field->fkeyTable['parent']))
+            if (isset($field->fkeyTable['parent'])) {
                 $fKeyParent = $field->fkeyTable['parent'];
+            }
 
-            if (isset($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter']))
+            if (isset($field->fkeyTable['filter']) && is_array($field->fkeyTable['filter'])) {
                 $fKeyFilter = serialize($field->fkeyTable['filter']);
+            }
 
-            if (isset($field->fkeyTable['ref_table']['ref']))
+            if (isset($field->fkeyTable['ref_table']['ref'])) {
                 $fKeyRef = $field->fkeyTable['ref_table']['ref'];
+            }
 
-            if (isset($field->fkeyTable['ref_table']['table']))
+            if (isset($field->fkeyTable['ref_table']['table'])) {
                 $fKeyRefTable = $field->fkeyTable['ref_table']['table'];
+            }
 
-            if (isset($field->fkeyTable['ref_table']['this']))
+            if (isset($field->fkeyTable['ref_table']['this'])) {
                 $fKeyRefThis = $field->fkeyTable['ref_table']['this'];
+            }
 
-            if ($field->autocreatebase)
+            if ($field->autocreatebase) {
                 $autocreatebase = $field->autocreatebase;
+            }
 
-            if ($field->autocreatename)
+            if ($field->autocreatename) {
                 $autocreatename = $field->autocreatename;
+            }
 
-            if ($field->mask)
+            if ($field->mask) {
                 $mask = $field->mask;
+            }
 
-            if ($field->getUseWhen())
+            if ($field->getUseWhen()) {
                 $useWhen = $field->getUseWhen();
+            }
 
             $autocreate = "f";
             $required = "f";
             $readonly = "f";
             $unique = "f";
 
-            if ($field->autocreate)
+            if ($field->autocreate) {
                 $autocreate = "t";
+            }
 
-            if ($field->required)
+            if ($field->required) {
                 $required = "t";
+            }
 
-            if ($field->readonly)
+            if ($field->readonly) {
                 $readonly = "t";
+            }
 
-            if ($field->unique)
+            if ($field->unique) {
                 $unique = "t";
+            }
 
             $query = "insert into app_object_type_fields(type_id, name, title, type, subtype, fkey_table_key, fkey_table_title, parent_field,
 					  fkey_multi_tbl, fkey_multi_this, fkey_multi_ref, sort_order, f_system, autocreate, autocreatebase, autocreatename,
@@ -1101,11 +1199,13 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 $fdefCoalesce = null;
                 $fdefWhere = null;
 
-                if (isset($field->default['coalesce']))
+                if (isset($field->default['coalesce'])) {
                     $fdefCoalesce = $field->default['coalesce'];
+                }
 
-                if (isset($field->default['where']))
+                if (isset($field->default['where'])) {
                     $fdefWhere = $field->default['where'];
+                }
 
                 $fid = $dbh->getValue($result, 0, "id");
                 $field->id = $fid;
@@ -1138,8 +1238,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
      */
     private function removeField(&$def, $fname)
     {
-        if (!$def->getId())
+        if (!$def->getId()) {
             return false;
+        }
 
         $this->dbh->query("delete from app_object_type_fields where name='$fname' and type_id='" . $def->getId() . "'");
         $this->dbh->query("ALTER TABLE " . $def->getTable() . " DROP COLUMN $fname;");
@@ -1159,8 +1260,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $subtype = $field->subtype;
 
         // Use different type for creating the system revision commit_id
-        if ($field->name == "commit_id")
+        if ($field->name == "commit_id") {
             $fType = "bigint";
+        }
 
         if (!$this->dbh->columnExists($def->getTable(), $colname)) {
             $index = ""; // set to create dynamic indexes
@@ -1223,10 +1325,11 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 case 'int':
                 case 'integer':
                 case 'number':
-                    if ($subtype)
+                    if ($subtype) {
                         $type = $subtype;
-                    else
+                    } else {
                         $type = "numeric";
+                    }
 
                     $index = "btree";
                     break;
@@ -1279,14 +1382,16 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 $this->dbh->query($query);
 
                 // Store cached foreign key names
-                if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi")
+                if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi") {
                     $this->dbh->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
+                }
             }
         } else {
             // Make sure that existing foreign fields have local _fval caches
             if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi") {
-                if (!$this->dbh->columnExists($def->getTable(), $colname . "_fval"))
+                if (!$this->dbh->columnExists($def->getTable(), $colname . "_fval")) {
                     $this->dbh->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
+                }
             }
         }
 
@@ -1373,8 +1478,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
      */
     public function createFieldIndex(EntityDefinition $def, Field $field)
     {
-        if (!$field)
+        if (!$field) {
             return false;
+        }
 
         $colname = $field->name;
         $ftype = $field->type;
@@ -1422,10 +1528,11 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                 // If we are using generic obj partitions then make sure _del table is updated as well
                 $indexCol = $colname;
 
-                if ($ftype == "text" && $subtype)
+                if ($ftype == "text" && $subtype) {
                     $indexCol = "lower($colname)";
-                else if ($ftype == "text" && !$subtype && $index == "gin")
+                } elseif ($ftype == "text" && !$subtype && $index == "gin") {
                     $indexCol = "to_tsvector('english', $colname)";
+                }
 
                 if (!$this->dbh->indexExists($def->getTable() . "_act_" . $colname . "_idx")) {
                     $this->dbh->query("CREATE INDEX " . $def->getTable() . "_act_" . $colname . "_idx
@@ -1463,8 +1570,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         $dbh = $this->dbh;
         $otid = $def->getId();
 
-        if (!$dbh->getNumRows($dbh->query("select id from application_objects where application_id='$applicatoinId' and object_type_id='$otid'")))
+        if (!$dbh->getNumRows($dbh->query("select id from application_objects where application_id='$applicatoinId' and object_type_id='$otid'"))) {
             $dbh->query("insert into application_objects(application_id, object_type_id) values('$applicatoinId', '$otid');");
+        }
     }
 
     /**

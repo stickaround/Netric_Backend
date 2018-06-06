@@ -68,11 +68,9 @@ class WorkFlowManager extends AbstractHasErrors
 
         // Get active WorkFlows for this entity
         $workFlows = $this->workFlowDataMapper->getWorkFlows($objType, true, $event);
-        foreach ($workFlows as $workFlow)
-        {
+        foreach ($workFlows as $workFlow) {
             // Check if conditions match
-            if ($this->workFlowConditionsMatch($workFlow, $entity))
-            {
+            if ($this->workFlowConditionsMatch($workFlow, $entity)) {
                 $this->startWorkFlowInstance($workFlow, $entity);
             }
         }
@@ -85,12 +83,10 @@ class WorkFlowManager extends AbstractHasErrors
     {
         // Get all daily workFlows
         $workFlows = $this->workFlowDataMapper->getWorkFlows(null, true, "daily");
-        foreach ($workFlows as $workFlow)
-        {
+        foreach ($workFlows as $workFlow) {
             $results = $this->getEntitiesThatMatchConditions($workFlow);
             $num = $results->getTotalNum();
-            for ($i = 0; $i < $num; $i++)
-            {
+            for ($i = 0; $i < $num; $i++) {
                 $entity = $results->getEntity($i);
                 $this->startWorkFlowInstance($workFlow, $entity);
             }
@@ -115,13 +111,11 @@ class WorkFlowManager extends AbstractHasErrors
     {
         $workFlow = $this->workFlowDataMapper->getById($wid);
 
-        if (!$workFlow)
-        {
+        if (!$workFlow) {
             throw new \RuntimeException("WorkFlow $wid does not exist");
         }
 
-        if ($workFlow->getObjType() != $entity->getDefinition()->getObjType())
-        {
+        if ($workFlow->getObjType() != $entity->getDefinition()->getObjType()) {
             throw new \RuntimeException(
                 "WorkFlow id $wid only runs against objType '" . $workFlow->getObjType() . "'" .
                 " and '" . $entity->getDefinition()->getObjType() . "' was passed"
@@ -141,8 +135,7 @@ class WorkFlowManager extends AbstractHasErrors
          * or before this moment.
          */
         $scheduled = $this->workFlowDataMapper->getScheduledActions();
-        foreach ($scheduled as $queued)
-        {
+        foreach ($scheduled as $queued) {
             $workFlowInstance = $queued['instance'];
             $action = $queued['action'];
             $this->executeAction($action, $workFlowInstance, true);
@@ -185,8 +178,9 @@ class WorkFlowManager extends AbstractHasErrors
         $ret = $this->workFlowDataMapper->save($workFlow);
 
         // Save error
-        if (!$ret)
+        if (!$ret) {
             $this->addErrorFromMessage($this->workFlowDataMapper->getLastError()->getMessage());
+        }
 
         return $ret;
     }
@@ -207,8 +201,9 @@ class WorkFlowManager extends AbstractHasErrors
         $query->where("id")->equals($entity->getId());
 
         // Query deleted if the entity is deleted
-        if ($entity->isDeleted())
+        if ($entity->isDeleted()) {
             $query->andWhere("f_deleted")->equals(true);
+        }
 
         /*
          * If the workflow has a onlyOnConditionsUnmet flag then we
@@ -224,12 +219,10 @@ class WorkFlowManager extends AbstractHasErrors
 
         // Get where conditions from the workflow
         $conditions = $workFlow->getConditions();
-        foreach ($conditions as $cond)
-        {
+        foreach ($conditions as $cond) {
             $query->andWhere($cond->fieldName, $cond->operator, $cond->value);
 
-            if ($entity->fieldValueChanged($cond->fieldName))
-            {
+            if ($entity->fieldValueChanged($cond->fieldName)) {
                 $conditionFieldChanged = true;
             }
         }
@@ -239,12 +232,14 @@ class WorkFlowManager extends AbstractHasErrors
         $num = $result->getNum();
 
         // See comments above for $conditionFieldChanged variable explanation
-        if($workFlow->isOnlyOnConditionsUnmet() && !$conditionFieldChanged)
+        if ($workFlow->isOnlyOnConditionsUnmet() && !$conditionFieldChanged) {
             return false;
+        }
 
         // If we found the entity in the query we know it is a match
-        if ($num)
+        if ($num) {
             return true;
+        }
 
         // The entity was not found when checked against the workflow conditions
         return false;
@@ -263,8 +258,7 @@ class WorkFlowManager extends AbstractHasErrors
 
         // Now execute first level of actions in the workflow
         $actions = $workFlow->getActions();
-        foreach ($actions as $action)
-        {
+        foreach ($actions as $action) {
             $this->executeAction($action, $workFlowInstance);
         }
     }
@@ -278,24 +272,21 @@ class WorkFlowManager extends AbstractHasErrors
      */
     private function executeAction(ActionInterface $action, WorkFlowInstance $workFlowInstance, $purgeScheduled = false)
     {
-        if ($action->execute($workFlowInstance))
-        {
+        if ($action->execute($workFlowInstance)) {
             // Log what just happened for troubleshooting
             $this->log->info("Executed action " . $action->getId() . " against instance " . $workFlowInstance->getId());
 
             // Delete any scheduled tasks if set
-            if ($purgeScheduled)
+            if ($purgeScheduled) {
                 $this->workFlowDataMapper->deleteScheduledAction($workFlowInstance->getId(), $action->getId());
+            }
 
             // If action completed and returned true then run children
             $children = $action->getActions();
-            foreach ($children as $childAction)
-            {
+            foreach ($children as $childAction) {
                 $this->executeAction($childAction, $workFlowInstance);
             }
-        }
-        else if ($action->getLastError())
-        {
+        } elseif ($action->getLastError()) {
             // Log the error
             $this->log->error("Failed to execute " . $action->getId() . ": " . $action->getLastError()->getMessage());
         }
@@ -314,8 +305,7 @@ class WorkFlowManager extends AbstractHasErrors
 
         // Get where conditions from the workflow
         $conditions = $workFlow->getConditions();
-        foreach ($conditions as $cond)
-        {
+        foreach ($conditions as $cond) {
             $query->andWhere($cond->fieldName, $cond->operator, $cond->value);
         }
 

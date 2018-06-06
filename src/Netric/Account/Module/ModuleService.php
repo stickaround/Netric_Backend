@@ -71,8 +71,7 @@ class ModuleService
 
         // Loop through each module to see if it applies to the user
         foreach ($all as $module) {
-            if (
-                $module->getScope() == Module::SCOPE_EVERYONE
+            if ($module->getScope() == Module::SCOPE_EVERYONE
                 || (
                     $module->getScope() == Module::SCOPE_USER &&
                     $module->getUserId() == $user->getId()

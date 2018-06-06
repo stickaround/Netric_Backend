@@ -2,10 +2,10 @@
 
 /*
  * Short description for file
- * 
+ *
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * 
+ *
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014 Aereus
  */
@@ -16,7 +16,7 @@ namespace Netric\Db;
  *
  * @author Sky Stebnicki
  */
-interface DbInterface 
+interface DbInterface
 {
     /**
      * Escape a string
@@ -65,5 +65,5 @@ interface DbInterface
      * @param mixed $argument
      * @return array An associative array with each key representing a column
      */
-    public function getRow($result, $num = 0, $argument = NULL);
+    public function getRow($result, $num = 0, $argument = null);
 }

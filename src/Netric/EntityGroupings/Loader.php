@@ -15,14 +15,14 @@ class Loader
 {
     /**
      * The current data mapper we are using for this object
-     * 
+     *
      * @var EntityGroupingDataMapperInterface
      */
     protected $dataMapper = null;
 
     /**
      * Array of loaded groupings
-     * 
+     *
      * @var array
      */
     private $loadedGroupings = array();
@@ -36,7 +36,7 @@ class Loader
 
     /**
      * Setup IdentityMapper for loading objects
-     * 
+     *
      * @param EntityGroupingDataMapperInterface $dataMapper Datamapper for entity definitions
      * @param CacheInterface $cache Optional cache object
      * @return EntityDefinitionLoader
@@ -50,14 +50,15 @@ class Loader
 
     /**
      * Get an entity
-     * 
+     *
      * @param string $objType
      * @return Entity
      */
     public function get($objType, $fieldName, $filters = array())
     {
-        if (!$objType || !$fieldName)
+        if (!$objType || !$fieldName) {
             throw new Exception('$objType and $fieldName are required params');
+        }
 
         if ($this->isLoaded($objType, $fieldName, $filters)) {
             return $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)];
@@ -99,16 +100,16 @@ class Loader
     {
         $groupings = $this->dataMapper->getGroupings($objType, $fieldName, $filters);
         $groupings->setDataMapper($this->dataMapper);
-		// Cache the loaded definition for future requests
+        // Cache the loaded definition for future requests
         $this->loadedGroupings[$objType][$fieldName][$this->getFiltersHash($filters)] = $groupings;
-		//$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
+        //$this->cache->set($this->dataMapper->getAccount()->getId() . "/objects/" . $objType, $def->toArray());
         return $groupings;
     }
 
 
     /**
-     * Check to see if the entity has already been loaded 
-     * 
+     * Check to see if the entity has already been loaded
+     *
      * @param string $key The unique key of the loaded object
      * @return boolean
      */

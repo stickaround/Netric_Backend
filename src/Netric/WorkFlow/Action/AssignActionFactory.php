@@ -16,7 +16,7 @@ class AssignActionFactory
      * @param AccountServiceManagerInterface $serviceLocator For loading dependencies
      * @return ActionInterface
      */
-    static public function create(AccountServiceManagerInterface $serviceLocator)
+    public static function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new TestAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

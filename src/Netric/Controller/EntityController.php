@@ -59,18 +59,21 @@ class EntityController extends Mvc\AbstractAccountController
         $ret = array();
         $params = $this->getRequest()->getParams();
 
-        if (!isset($params["obj_type"]))
+        if (!isset($params["obj_type"])) {
             return $this->sendOutput(array("error" => "obj_type must be set"));
+        }
 
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
 
         $query = new \Netric\EntityQuery($params["obj_type"]);
 
-        if (isset($params['offset']))
+        if (isset($params['offset'])) {
             $query->setOffset($params['offset']);
+        }
 
-        if (isset($params['limit']))
+        if (isset($params['limit'])) {
             $query->setLimit($params["limit"]);
+        }
 
         // Parse values passed from POST or GET params
         \Netric\EntityQuery\FormParser::buildQuery($query, $params);
@@ -92,9 +95,8 @@ class EntityController extends Mvc\AbstractAccountController
             // Print full details
             $entities[] = $ent->toArray();
 
-            if (isset($params['updatemode']) && $params['updatemode']) // Only get id and revision
-            {
-                // Return condensed results
+            if (isset($params['updatemode']) && $params['updatemode']) { // Only get id and revision
+            // Return condensed results
                 $entities[] = array(
                     "id" => $ent->getId(),
                     "revision" => $ent->getValue("revision"),
@@ -282,7 +284,6 @@ class EntityController extends Mvc\AbstractAccountController
 
             // Check first if we have permission to delete this entity
             if ($this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
-
                 // Proceed with the deleting this entity
                 if ($dataMapper->delete($entity)) {
                     $ret[] = $did;
@@ -423,18 +424,15 @@ class EntityController extends Mvc\AbstractAccountController
             switch ($field->type) {
                 case Field::TYPE_OBJECT:
                 case Field::TYPE_OBJECT_MULTI:
-
                     // Check for the corresponding *_new object field
                     $waitingObjectFieldName = $field->name . "_new";
 
                     // Verify if this *_new field is existing in the object fields definition
                     $waitingObjectData = (isset($objData[$waitingObjectFieldName])) ? $objData[$waitingObjectFieldName] : null;
 
-                    if (
-                        $field->subtype // Make sure that this field has a subtype
+                    if ($field->subtype // Make sure that this field has a subtype
                         && is_array($waitingObjectData)
                     ) {
-
                         // Since we have found objects waiting to be saved, then we will loop thru the field's data
                         foreach ($waitingObjectData as $data) {
                             $waitingObjectEntity = $loader->create($field->subtype);
@@ -491,7 +489,7 @@ class EntityController extends Mvc\AbstractAccountController
 
         if (!isset($objData['obj_type'])) {
             return $this->sendOutput(array("error" => "obj_type is a required param"));
-        } else if ($objData['obj_type'] === "") {
+        } elseif ($objData['obj_type'] === "") {
             return $this->sendOutput(array("error" => "obj_type is empty."));
         }
 
@@ -774,7 +772,6 @@ class EntityController extends Mvc\AbstractAccountController
         // $objData['action'] will determine what type of action we will execute
         switch ($objData['action']) {
             case 'add':
-
                 // Create a new instance of group and add it in the groupings
                 $group = new \Netric\EntityGroupings\Group();
                 $groupings->add($group);
@@ -784,24 +781,24 @@ class EntityController extends Mvc\AbstractAccountController
 
                 break;
             case 'edit':
-
                 // $objData['id'] is the Group Id where we need to check it first before updating the group
-                if (isset($objData['id']) && !empty($objData['id']))
+                if (isset($objData['id']) && !empty($objData['id'])) {
                     $group = $groupings->getById($objData['id']);
-                else
+                } else {
                     return $this->sendOutput(array("error" => "Edit action needs group id to update the group."));
+                }
 
                 // Set the group data
                 $group->fromArray($objData);
 
                 break;
             case 'delete':
-
                 // $objData['id'] is the Group Id where we need to check it first before deleting the group
-                if (isset($objData['id']) && !empty($objData['id']))
+                if (isset($objData['id']) && !empty($objData['id'])) {
                     $group = $groupings->getById($objData['id']);
-                else
+                } else {
                     return $this->sendOutput(array("error" => "Delete action needs group id to update the group."));
+                }
 
                 // Now flag the group as deleted
                 $groupings->delete($objData['id']);
@@ -851,7 +848,8 @@ class EntityController extends Mvc\AbstractAccountController
      * @param Entity $entity The entity that we will be checking
      * @param $permission The permission to check
      */
-    private function checkIfUserIsAllowed(Entity $entity, $permission) {
+    private function checkIfUserIsAllowed(Entity $entity, $permission)
+    {
 
         // Check entity permission
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);

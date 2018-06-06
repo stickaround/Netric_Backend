@@ -61,11 +61,12 @@ class OrderBy
      */
     public function fromArray($data)
     {
-        if (isset($data['field_name']))
+        if (isset($data['field_name'])) {
             $this->fieldName = $data['field_name'];
+        }
 
-        if (isset($data['direction']))
+        if (isset($data['direction'])) {
             $this->direction = $data['direction'];
+        }
     }
-
 }

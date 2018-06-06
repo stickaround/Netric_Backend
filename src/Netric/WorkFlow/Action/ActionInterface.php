@@ -6,6 +6,7 @@
  * @copyright Copyright (c) 2015 Aereus Corporation (http://www.aereus.com)
  */
 namespace Netric\WorkFlow\Action;
+
 use Netric\Entity\EntityInterface;
 use Netric\WorkFlow\WorkFlowInstance;
 

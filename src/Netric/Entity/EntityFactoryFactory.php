@@ -8,6 +8,7 @@
 namespace Netric\Entity;
 
 use Netric\ServiceManager;
+
 /**
  * Create a new EntityFactory service
  *

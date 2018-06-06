@@ -54,8 +54,8 @@ class ImageResizer implements ErrorAwareInterface
      */
     public function __construct(
         FileSystem $fileSystem,
-        $localTempPath = '/tmp')
-    {
+        $localTempPath = '/tmp'
+    ) {
         $this->fileSystem = $fileSystem;
         $this->localTempPath = $localTempPath;
     }
@@ -99,12 +99,11 @@ class ImageResizer implements ErrorAwareInterface
      * @param string $toPath Where to put the image
      * @return FileEntity
      */
-    public function resizeFile(FileEntity $source, $maxWidth=-1, $maxHeight=-1, $toPath=FileSystem::PATH_TEMP)
+    public function resizeFile(FileEntity $source, $maxWidth = -1, $maxHeight = -1, $toPath = FileSystem::PATH_TEMP)
     {
         // First make sure it is an image
         $fileType = $source->getType();
-        if (
-            'jpg' !== $fileType &&
+        if ('jpg' !== $fileType &&
             'jpeg' !== $fileType &&
             'png' !== $fileType
         ) {
@@ -192,27 +191,26 @@ class ImageResizer implements ErrorAwareInterface
         $origWidth,
         $origHeight,
         $newWidth,
-        $newHeight)
-    {
+        $newHeight
+    ) {
         $processedImage = imagecreatetruecolor($newWidth, $newHeight);
         $imageResource = null;
 
-        switch($originalFileEntity->getType())
-        {
+        switch ($originalFileEntity->getType()) {
             case "jpg":
             case "jpeg":
-            $imageResource = imagecreatefromjpeg($localCopy);
+                $imageResource = imagecreatefromjpeg($localCopy);
                 break;
             case "gif":
                 $imageResource = imagecreatefromgif($localCopy);
                 break;
             case "png":
-                imageAntiAlias($processedImage,true);
+                imageAntiAlias($processedImage, true);
                 imagealphablending($processedImage, false);
-                imagesavealpha($processedImage,true);
+                imagesavealpha($processedImage, true);
                 $transparent = imagecolorallocatealpha($processedImage, 255, 255, 255, 0);
-                for($x=0;$x<$newWidth;$x++) {
-                    for($y=0;$y<$newHeight;$y++) {
+                for ($x=0; $x<$newWidth; $x++) {
+                    for ($y=0; $y<$newHeight; $y++) {
                         imageSetPixel($processedImage, $x, $y, $transparent);
                     }
                 }
@@ -241,8 +239,7 @@ class ImageResizer implements ErrorAwareInterface
         $resizedFilePath = $localCopy . "-res";
 
         // Create file from image resource
-        switch ($originalFileEntity->getType())
-        {
+        switch ($originalFileEntity->getType()) {
             case "jpg":
             case "jpeg":
                 imagejpeg($processedImage, $resizedFilePath);
@@ -279,7 +276,7 @@ class ImageResizer implements ErrorAwareInterface
      * @throws \RuntimeException if the file does not exist
      * @return array(int idealWidth, int idealHeight)
      */
-    private function getOptimumDimensions($localFilePath, $maxWidth=-1, $maxHeight=-1, $stretch=false)
+    private function getOptimumDimensions($localFilePath, $maxWidth = -1, $maxHeight = -1, $stretch = false)
     {
         if (!file_exists($localFilePath)) {
             throw new \RuntimeException("$localFilePath does not exists or not accessible");
@@ -296,7 +293,7 @@ class ImageResizer implements ErrorAwareInterface
             if (!$stretch && $currentHeight > $maxHeight) {
                 $idealWidth = ($maxHeight / $currentHeight) * $currentWidth;
                 $idealHeight = $maxHeight;
-            } else if ($currentHeight) {
+            } elseif ($currentHeight) {
                 $idealWidth = ($maxHeight / $currentHeight) * $currentWidth;
                 $idealHeight = $maxHeight;
             }
@@ -309,8 +306,7 @@ class ImageResizer implements ErrorAwareInterface
                     $idealHeight = ($maxWidth / $currentWidth) * $currentHeight;
                     $idealWidth = $maxWidth;
                 }
-            }
-            else if ($currentWidth) {
+            } elseif ($currentWidth) {
                 $idealHeight = ($maxWidth / $currentWidth) * $currentHeight;
                 $idealWidth = $maxWidth;
             }

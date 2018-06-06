@@ -34,8 +34,7 @@ class Error
      */
     public function __construct($message, $code = null)
     {
-        if ($code !== null)
-        {
+        if ($code !== null) {
             $this->code = $code;
         }
 

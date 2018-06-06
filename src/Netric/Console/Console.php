@@ -11,7 +11,8 @@ namespace Netric\Console;
  * A static, utility class for interacting with Console environment.
  */
 class Console
-{   
+{
+
     /**
      * Flag set if we are in a console environment
      *
@@ -53,8 +54,7 @@ class Console
      */
     public static function isConsole()
     {
-        if (null === static::$isConsole) 
-        {
+        if (null === static::$isConsole) {
             static::$isConsole = (PHP_SAPI == 'cli');
         }
 
@@ -68,8 +68,7 @@ class Console
      */
     public static function overrideIsConsole($flag)
     {
-        if (null != $flag) 
-        {
+        if (null != $flag) {
             $flag = (bool) $flag;
         }
 

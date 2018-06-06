@@ -9,7 +9,7 @@ class SqliteDb extends AbstractRelationalDb
     /**
      * Get the file name
      *
-     * @param string 
+     * @param string
      * @return string
      */
     protected function getDataSourceString()

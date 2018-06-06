@@ -16,7 +16,7 @@ class CheckConditionActionFactory
      * @param AccountServiceManagerInterface $serviceLocator For loading dependencies
      * @return ActionInterface
      */
-    static public function create(AccountServiceManagerInterface $serviceLocator)
+    public static function create(AccountServiceManagerInterface $serviceLocator)
     {
         // Return a new CheckConditionAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);

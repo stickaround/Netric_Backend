@@ -39,6 +39,5 @@ class WorkflowEntity extends Entity implements EntityInterface
      */
     public function onBeforeDeleteHard(AccountServiceManagerInterface $sm)
     {
-
     }
 }

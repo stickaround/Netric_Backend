@@ -186,76 +186,86 @@ class WorkFlow
      */
     public function fromArray($data)
     {
-        if (isset($data['id']))
+        if (isset($data['id'])) {
             $this->id = $data['id'];
+        }
 
-        if (isset($data['name']))
+        if (isset($data['name'])) {
             $this->name = $data['name'];
+        }
 
-        if (isset($data['notes']))
+        if (isset($data['notes'])) {
             $this->notes = $data['notes'];
+        }
 
-        if (isset($data['obj_type']))
+        if (isset($data['obj_type'])) {
             $this->objType = $data['obj_type'];
+        }
 
-        if (isset($data['revision']))
+        if (isset($data['revision'])) {
             $this->revision = $data['revision'];
+        }
 
-        if (isset($data['active']) && is_bool($data['active']))
+        if (isset($data['active']) && is_bool($data['active'])) {
             $this->active = $data['active'];
+        }
 
-        if (isset($data['on_create']) && is_bool($data['on_create']))
+        if (isset($data['on_create']) && is_bool($data['on_create'])) {
             $this->onCreate = $data['on_create'];
+        }
 
-        if (isset($data['on_update']) && is_bool($data['on_update']))
+        if (isset($data['on_update']) && is_bool($data['on_update'])) {
             $this->onUpdate = $data['on_update'];
+        }
 
-        if (isset($data['on_delete']) && is_bool($data['on_delete']))
+        if (isset($data['on_delete']) && is_bool($data['on_delete'])) {
             $this->onDelete = $data['on_delete'];
+        }
 
-        if (isset($data['on_daily']) && is_bool($data['on_daily']))
+        if (isset($data['on_daily']) && is_bool($data['on_daily'])) {
             $this->onDaily = $data['on_daily'];
+        }
 
-        if (isset($data['singleton']) && is_bool($data['singleton']))
+        if (isset($data['singleton']) && is_bool($data['singleton'])) {
             $this->singleton = $data['singleton'];
+        }
 
-        if (isset($data['allow_manual']) && is_bool($data['allow_manual']))
+        if (isset($data['allow_manual']) && is_bool($data['allow_manual'])) {
             $this->allowManual = $data['allow_manual'];
+        }
 
-        if (isset($data['only_on_conditions_unmet']) && is_bool($data['only_on_conditions_unmet']))
+        if (isset($data['only_on_conditions_unmet']) && is_bool($data['only_on_conditions_unmet'])) {
             $this->onlyOnConditionsUnmet = $data['only_on_conditions_unmet'];
+        }
 
-        if (isset($data['last_run']))
-        {
-            if ($data['last_run'])
+        if (isset($data['last_run'])) {
+            if ($data['last_run']) {
                 $this->lastRun = new \DateTime($data['last_run']);
-            else
+            } else {
                 $this->lastRun = null;
-
+            }
         }
 
         // Load conditions
-        if (isset($data['conditions']) && is_array($data['conditions']))
-        {
+        if (isset($data['conditions']) && is_array($data['conditions'])) {
             // Reset any existing conditions
             $this->conditions = array();
 
             // Now add to local conditions property
-            foreach ($data['conditions'] as $condData)
-            {
+            foreach ($data['conditions'] as $condData) {
                 $where = new Where();
                 $where->fromArray($condData);
 
-                if (!$where->operator)
+                if (!$where->operator) {
                     throw new \RuntimeException("Tried to add a bad cond: " . var_export($data['conditions'], true));
+                }
 
                 $this->conditions[] = $where;
             }
         }
 
         // Load actions
-        if (isset($data['actions']) && is_array($data['actions']))
-        {
+        if (isset($data['actions']) && is_array($data['actions'])) {
             /*
              * Queue current actions for deletion since we are setting all actions
              * and not just adding actions it is assumed anything missing from $data['actions']
@@ -264,14 +274,12 @@ class WorkFlow
              * When $this->addAction is called below it will remove it from the removedActions
              * queue to keep it from being deleted on the next save
              */
-            foreach ($this->actions as $actionToRemove)
-            {
+            foreach ($this->actions as $actionToRemove) {
                 $this->removeAction($actionToRemove);
             }
 
             // Now add to local actions array
-            foreach ($data['actions'] as $actData)
-            {
+            foreach ($data['actions'] as $actData) {
                 $action = $this->actionFactory->create($actData['type']);
                 $action->fromArray($actData);
                 $this->addAction($action);
@@ -305,15 +313,13 @@ class WorkFlow
 
         // Set conditions
         $ret['conditions'] = array();
-        foreach ($this->conditions as $where)
-        {
+        foreach ($this->conditions as $where) {
             $ret['conditions'][] = $where->toArray();
         }
 
         // Set actions
         $ret['actions'] = array();
-        foreach ($this->actions as $action)
-        {
+        foreach ($this->actions as $action) {
             $ret['actions'][] = $action->toArray();
         }
 
@@ -429,16 +435,13 @@ class WorkFlow
      */
     public function removeAction(ActionInterface $action)
     {
-        for ($i = 0; $i < count($this->actions); $i++)
-        {
+        for ($i = 0; $i < count($this->actions); $i++) {
             if ($action === $this->actions[$i] ||
-                ($action->getId() != null && $action->getId() === $this->actions[$i]->getId()))
-            {
+                ($action->getId() != null && $action->getId() === $this->actions[$i]->getId())) {
                 array_splice($this->actions, $i, 1);
 
                 // If previously saved then queue it to be purged on save
-                if ($action->getId())
-                {
+                if ($action->getId()) {
                     $this->removedActions[] = $action;
                 }
 
@@ -458,11 +461,9 @@ class WorkFlow
     public function addAction(ActionInterface $actionToAdd)
     {
         // First make sure we didn't previously remove this action
-        for ($i = 0; $i < count($this->removedActions); $i++)
-        {
+        for ($i = 0; $i < count($this->removedActions); $i++) {
             if ($actionToAdd === $this->removedActions[$i] ||
-                ($actionToAdd->getId() != null && $actionToAdd->getId() === $this->removedActions[$i]->getId()))
-            {
+                ($actionToAdd->getId() != null && $actionToAdd->getId() === $this->removedActions[$i]->getId())) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
                 array_splice($this->removedActions, $i, 1);
             }
@@ -470,21 +471,20 @@ class WorkFlow
 
         // Check if previously added
         $previouslyAddedAt = -1;
-        for ($i = 0; $i < count($this->actions); $i++)
-        {
+        for ($i = 0; $i < count($this->actions); $i++) {
             if ($actionToAdd->getId() &&
-                $this->actions[$i]->getId() === $actionToAdd->getId())
-            {
+                $this->actions[$i]->getId() === $actionToAdd->getId()) {
                 $previouslyAddedAt = $i;
                 break;
             }
         }
 
         // If this action was not previously added then push the new action, otherwise replace
-        if ($previouslyAddedAt === -1)
+        if ($previouslyAddedAt === -1) {
             $this->actions[] = $actionToAdd;
-        else
+        } else {
             $this->actions[$previouslyAddedAt] = $actionToAdd;
+        }
     }
 
     /**
@@ -580,8 +580,9 @@ class WorkFlow
      */
     public function setLastRun(\DateTime $when = null)
     {
-        if (!$when)
+        if (!$when) {
             $when = new \DateTime();
+        }
 
         $this->lastRun = $when;
     }

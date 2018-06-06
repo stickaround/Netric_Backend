@@ -15,7 +15,6 @@ use Netric\EntityQuery;
 use Netric\EntityQuery\Aggregation;
 use Netric\EntityQuery\Index\IndexInterface;
 
-
 /**
  * Class for handing entity aggregates
  *
@@ -80,7 +79,6 @@ class EntityAggregator
 
         // Loop through each aggregate and update as necessary
         foreach ($aggregates as $agg) {
-
             $field = $def->getField($agg->field);
             $referencedId = $entity->getValue($agg->field);
 

@@ -52,10 +52,10 @@ class TaskEntity extends Entity implements EntityInterface
     {
         $done = $this->getValue("done");
 
-        if ($done == 't' || $done === true)
+        if ($done == 't' || $done === true) {
             return "task_on";
-        else
+        } else {
             return "task";
+        }
     }
 }
-

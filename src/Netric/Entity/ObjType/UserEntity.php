@@ -73,15 +73,13 @@ class UserEntity extends Entity implements EntityInterface
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         // If the password was updated for this user then encrypt it
-        if ($this->fieldValueChanged("password"))
-        {
+        if ($this->fieldValueChanged("password")) {
             $authService = $sm->get("/Netric/Authentication/AuthenticationService");
             $this->encryptPassword($authService);
         }
 
         // Check to see if the username is an email and copy to email if empty
-        if (!$this->getValue("email") && strpos($this->getValue("name"), "@"))
-        {
+        if (!$this->getValue("email") && strpos($this->getValue("name"), "@")) {
             $this->setValue("email", $this->getValue("name"));
         }
     }
@@ -197,10 +195,11 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function setIsAdmin($isAdmin = true)
     {
-        if ($isAdmin)
+        if ($isAdmin) {
             $this->addMultiValue("groups", self::GROUP_ADMINISTRATORS, "Administrators");
-        else
+        } else {
             $this->removeMultiValue("groups", self::GROUP_ADMINISTRATORS);
+        }
     }
 
     /**
@@ -211,10 +210,8 @@ class UserEntity extends Entity implements EntityInterface
     public function isAdmin()
     {
         $groups = $this->getGroups();
-        foreach ($groups as $group)
-        {
-            if ($group === self::GROUP_ADMINISTRATORS)
-            {
+        foreach ($groups as $group) {
+            if ($group === self::GROUP_ADMINISTRATORS) {
                 return true;
             }
         }

@@ -99,15 +99,17 @@ class FilesController extends Mvc\AbstractAccountController
         $folder = null;
         $ret = array();
 
-		// If folderid has been passed the override the text path
-        if ($request->getParam('folderid'))
+        // If folderid has been passed the override the text path
+        if ($request->getParam('folderid')) {
             $folder = $this->fileSystem->openFolderById($request->getParam('folderid'));
-        else if ($request->getParam('path'))
+        } elseif ($request->getParam('path')) {
             $folder = $this->fileSystem->openFolder($request->getParam('path'), true);
+        }
 
         // Could not create or get a parent folder. Return an error.
-        if (!$folder)
+        if (!$folder) {
             return $this->setOutput(array("error" => "Could not open the folder specified"));
+        }
 
         $folderPath = $folder->getFullPath();
 
@@ -125,9 +127,9 @@ class FilesController extends Mvc\AbstractAccountController
              * Check to see if input multiple was set (or multiple files were uploaded with the
              * same name) which will be represented as:
              * array(
-             *	'filename' => array('file1name', 'file2name'),
-             *	'filetype' => array('file1type', 'file2type'),
-             * 	'tmp_name' => array('file1tmp', 'file2tmp'),
+             *  'filename' => array('file1name', 'file2name'),
+             *  'filetype' => array('file1type', 'file2type'),
+             *  'tmp_name' => array('file1tmp', 'file2tmp'),
              *  'filesize' => array('100', '200'),
              * );
              *

@@ -43,8 +43,9 @@ class EntityFactory
         if (strpos($objType, "_") !== false) {
             $parts = explode("_", $className);
             $className = "";
-            foreach ($parts as $word)
+            foreach ($parts as $word) {
                 $className .= ucfirst($word);
+            }
         }
         $className = "\\Netric\\Entity\\ObjType\\" . $className . "Factory";
 

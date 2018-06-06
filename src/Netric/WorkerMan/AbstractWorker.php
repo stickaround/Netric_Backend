@@ -4,6 +4,7 @@
  * @copyright 2016 Aereus
  */
 namespace Netric\WorkerMan;
+
 use Netric\Application\Application;
 
 /**

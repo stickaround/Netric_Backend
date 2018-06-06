@@ -1,10 +1,10 @@
 <?php
 /**
  * Access control list entry for a permission
- * 
+ *
  * This will represent a permission like "View" and contains
  * which groups and users have access to that permission
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2016 Aereus
  */
@@ -14,32 +14,32 @@ namespace Netric\Permissions\Dacl;
 /**
  * ACL entry
  */
-class Entry 
+class Entry
 {
     /**
      * Group IDs with access
-     * 
+     *
      * @var int[]
      */
     public $groups = array();
     
     /**
      * User IDs with access to this entry
-     * 
+     *
      * @var string[]
      */
-	public $users = array();
+    public $users = array();
     
     /**
      * Unique ID of this entry (if any)
-     * 
+     *
      * @var string
      */
-	public $id = "";
+    public $id = "";
     
     /**
      * If the entry has a parent like "Full Controll" then then ID will be here
-     * 
+     *
      * @var string
      */
     public $parentId = "";
@@ -53,30 +53,30 @@ class Entry
 
     /**
      * Class constructor
-     * 
+     *
      * @param array $data Associative array that contains the initial data of the entry
      */
-	public function __construct($data=array())
-	{
-		$this->id = $data["id"];
+    public function __construct($data = array())
+    {
+        $this->id = $data["id"];
         $this->name = $data["name"];
-		$this->parentId = $data["parent"];
-	}
+        $this->parentId = $data["parent"];
+    }
 
     /**
      * Conver the state of this entry to an array
      *
      * @return array Associative array of entry
      */
-	public function toArray()
-	{
-		return array(
+    public function toArray()
+    {
+        return array(
             'name' => $this->name,
-			'groups' => $this->groups,
-			'users' => $this->users,
-			'parent_id' => $this->parentId,
-		);
-	}
+            'groups' => $this->groups,
+            'users' => $this->users,
+            'parent_id' => $this->parentId,
+        );
+    }
 
     /**
      * Initialize entry properties from an associative array

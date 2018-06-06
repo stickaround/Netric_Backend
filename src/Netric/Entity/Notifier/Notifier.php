@@ -80,8 +80,9 @@ class Notifier
         $notificationIds = array();
 
         // We obviously never want to send notifications about notifications or activities
-        if ($objType === 'notification' || $objType === 'activity')
+        if ($objType === 'notification' || $objType === 'activity') {
             return $notificationIds;
+        }
 
         /*
          * Get the object reference which is the entity this notice is about.
@@ -102,11 +103,11 @@ class Notifier
         $followers = $entity->getValue("followers");
 
         // If no values, then return empty array
-        if (!is_array($followers))
+        if (!is_array($followers)) {
             return $notificationIds;
+        }
 
-        foreach ($followers as $userId)
-        {
+        foreach ($followers as $userId) {
             /*
              * Create a new notification if it is not the current user - we don't want
              * to notify a user if they are the one performing the action.
@@ -114,8 +115,7 @@ class Notifier
              * We also do not want to send notifications to users if the system does
              * something like adding a new email.
              */
-            if ($userId != $this->user->getId() && !$this->user->isSystem() && !$this->user->isAnonymous())
-            {
+            if ($userId != $this->user->getId() && !$this->user->isSystem() && !$this->user->isAnonymous()) {
                 // Create new notification, or update an existing unseen one
                 $notification = $this->getNotification($objReference, $userId);
                 $notification->setValue("name", $name);
@@ -145,8 +145,9 @@ class Notifier
     public function markNotificationsSeen(EntityInterface $entity, UserEntity $user = null)
     {
         // If we did not manually pass a user, then use the current user
-        if (!$user)
+        if (!$user) {
             $user = $this->user;
+        }
 
         // Get the object type
         $objReference = Entity::encodeObjRef(
@@ -160,8 +161,7 @@ class Notifier
         $query->andWhere("f_seen")->equals(false);
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
-        for ($i = 0; $i < $num; $i++)
-        {
+        for ($i = 0; $i < $num; $i++) {
             $notification = $result->getEntity($i);
             $notification->setValue("f_seen", true);
             $this->entityLoader->save($notification);
@@ -195,12 +195,9 @@ class Notifier
 
         // Get the results
         $result = $this->entityIndex->executeQuery($query);
-        if ($result->getNum())
-        {
+        if ($result->getNum()) {
             $notification = $result->getEntity(0);
-        }
-        else
-        {
+        } else {
             // There are no outstanding/unseen notifications, create a new one
             $notification = $this->entityLoader->create("notification");
             $notification->setValue("obj_reference", $objReference);
@@ -220,8 +217,7 @@ class Notifier
      */
     private function getNameFromEventVerb($event, $objTypeTitle)
     {
-        switch ($event)
-        {
+        switch ($event) {
             case ActivityEntity::VERB_CREATED:
                 return "Added " . $objTypeTitle;
             case ActivityEntity::VERB_SENT:

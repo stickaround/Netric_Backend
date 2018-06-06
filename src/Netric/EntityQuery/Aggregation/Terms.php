@@ -1,16 +1,16 @@
 <?php
 /**
  * Terms aggregate will get distinct terms with document count
- * 
+ *
  * Returned array is
- * 
+ *
  * array(
  *   array(
  *       "count"=>num,
  *       "term"=>term
  *   ),
  * )
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */

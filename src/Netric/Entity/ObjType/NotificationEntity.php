@@ -41,15 +41,16 @@ class NotificationEntity extends Entity implements EntityInterface
          * and not yet seen the entity being commented on, so there is no need to notify
          * them over and over if they have not even seen the last notice.
          */
-        if (!$this->getId() && $objRef = $this->getValue('obj_reference'))
-        {
+        if (!$this->getId() && $objRef = $this->getValue('obj_reference')) {
             // If the email flag is set, then send an email
-            if ($this->getValue("f_email"))
+            if ($this->getValue("f_email")) {
                 $this->sendEmailNotification($sm);
+            }
 
             // If the SMS flag is set, then send sms
-            if ($this->getValue("f_sms"))
+            if ($this->getValue("f_sms")) {
                 $this->sendSmsNotification();
+            }
         }
     }
 
@@ -73,12 +74,14 @@ class NotificationEntity extends Entity implements EntityInterface
     private function sendEmailNotification(AccountServiceManagerInterface $sm)
     {
         // Make sure the notification has an owner or a creator
-        if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id")))
+        if (empty($this->getValue("owner_id")) || empty($this->getValue("creator_id"))) {
             return;
+        }
 
         // If mail transport is not set, then set it here
-        if (!$this->mailTransport)
+        if (!$this->mailTransport) {
             $this->mailTransport = $sm->get(TransportFactory::class);
+        }
 
         // Get the user that owns this notice
         $user = $sm->get("EntityLoader")->get("user", $this->getValue("owner_id"));
@@ -87,8 +90,9 @@ class NotificationEntity extends Entity implements EntityInterface
         $creator = $sm->get("EntityLoader")->get("user", $this->getValue("creator_id"));
 
         // Make sure the user has an email
-        if (!$user || !$user->getValue("email"))
+        if (!$user || !$user->getValue("email")) {
             return;
+        }
 
         // Get the referenced entity
         $objReference = Entity::decodeObjRef($this->getValue("obj_reference"));
@@ -136,7 +140,6 @@ class NotificationEntity extends Entity implements EntityInterface
             $log = $sm->get("Log");
             $log->error("Could not send notification: " . $ex->getMessage(), var_export($config, true));
         }
-
     }
 
     /**

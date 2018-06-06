@@ -46,8 +46,9 @@ class ActionFactory
     {
         $action = null;
 
-        if (!$type)
+        if (!$type) {
             throw new \InvalidArgumentException("Cannot call create with an empty type param");
+        }
 
         /*
          * First convert object name to file name - camelCase with upper case first.
@@ -55,24 +56,21 @@ class ActionFactory
          * Example: 'my_action' becomes 'MyAction'.
          */
         $className = ucfirst($type);
-        if (strpos($type, "_") !== false)
-        {
+        if (strpos($type, "_") !== false) {
             $parts = explode("_", $className);
             $className = "";
-            foreach ($parts as $word)
+            foreach ($parts as $word) {
                 $className .= ucfirst($word);
+            }
         }
 
         // Every action must have a factory
         $className = "\\Netric\\WorkFlow\\Action\\". $className . "ActionFactory";
 
         // Use factory if it exists
-        if (class_exists($className))
-        {
+        if (class_exists($className)) {
             $action = $className::create($this->serviceManager);
-        }
-        else
-        {
+        } else {
             throw new ActionNotFoundException("Action factory $className could not be found");
         }
 

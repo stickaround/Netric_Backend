@@ -52,8 +52,7 @@ class SenderService extends AbstractHasErrors
         TransportInterface $mailTransport,
         TransportInterface $bulkTransport,
         Log $log
-    )
-    {
+    ) {
         $this->mailTransport = $mailTransport;
         $this->bulkMailTransport = $bulkTransport;
         $this->log = $log;

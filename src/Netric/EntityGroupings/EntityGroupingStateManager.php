@@ -60,8 +60,7 @@ class EntityGroupingStateManager
         CommitManager $commitManager,
         EntitySync $entitySync,
         CacheInterface $cache = null
-    )
-    {
+    ) {
         $this->commitManager = $commitManager;
         $this->entitySync = $entitySync;
         $this->cache = $cache;
@@ -108,7 +107,7 @@ class EntityGroupingStateManager
         // groupings will share a new commit id.
         $nextCommit = $this->commitManager->createCommit($commitHeadId);
 
-		// Save the grouping and get a list of groupings updated
+        // Save the grouping and get a list of groupings updated
         $updatedGroupingsData = $this->dataMapper->saveGroupings($groupings, $nextCommit);
 
         // Update EntitySync collection so that any subscribed devices are alerted of the change

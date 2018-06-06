@@ -86,8 +86,9 @@ class WebhookAction extends AbstractAction implements ActionInterface
             'maxredirects' => 10,
             'timeout'      => 30,
         ));
-        if ($this->adapeter)
+        if ($this->adapeter) {
             $client->setAdapter($this->adapeter);
+        }
 
         try {
             $this->response = $client->send();

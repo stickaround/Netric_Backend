@@ -234,7 +234,7 @@ class Message
                 switch (strtolower($fieldName)) {
                     case 'content-type':
                         $hParts = Decode::splitHeaderField($fieldValue, null, 'type');
-                        foreach ($hParts as $hPartName=>$hPartValue) {
+                        foreach ($hParts as $hPartName => $hPartValue) {
                             $properties[$hPartName] = $hPartValue;
                         }
 

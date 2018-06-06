@@ -203,7 +203,6 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
          * Otherwise, we will use the module navigation file
          */
         if (isset($row['xml_navigation']) && !empty($row['xml_navigation'])) {
-
             // Convert the xmlNavigation to array
             $navigation = $module->convertXmltoNavigation($row['xml_navigation']);
             $module->setNavigation($navigation);

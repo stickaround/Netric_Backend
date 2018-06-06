@@ -464,7 +464,7 @@ class HttpResponse implements ResponseInterface
 
         if ($inputStream) {
             fwrite($inputStream, stream_get_contents($this->outputStream, $end, $begin));
-        } else if ($this->supressOutput) {
+        } elseif ($this->supressOutput) {
             $this->outputBuffer = stream_get_contents($this->outputStream, $end, $begin);
         } else {
             echo stream_get_contents($this->outputStream, $end, $begin);
@@ -478,7 +478,6 @@ class HttpResponse implements ResponseInterface
     {
         // If this is cacheable and not modified, return without sending any data
         if ($this->isCacheable && $this->lastModified) {
-
             // Check if the file has been modified since the last time it was downloaded
             // And we are not trying to stream a segment of a file with HTTP_RANGE
             if ($this->request->getParam('HTTP_IF_MODIFIED_SINCE') &&
@@ -500,7 +499,7 @@ class HttpResponse implements ResponseInterface
 
             if ($this->contentType === self::TYPE_JSON && is_array($this->outputBuffer)) {
                 $this->printBodyJson();
-            } else if ($this->outputBuffer) {
+            } elseif ($this->outputBuffer) {
                 // Print plain text
                 echo $this->outputBuffer;
             }
@@ -566,8 +565,9 @@ class HttpResponse implements ResponseInterface
             case JSON_ERROR_UTF8:
                 // Try to fix encoding
                 foreach ($this->outputBuffer as $vname => $vval) {
-                    if (is_string($vval))
+                    if (is_string($vval)) {
                         $this->outputBuffer[$vname] = utf8_encode($vval);
+                    }
                 }
                 $bodyContent = json_encode($this->outputBuffer);
                 break;

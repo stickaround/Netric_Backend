@@ -1,7 +1,7 @@
 <?php
 /**
  * Activity entity extension
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
@@ -39,13 +39,12 @@ class ActivityEntity extends Entity implements EntityInterface
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
         // Set association for the object which is used for queries
-        if ($this->getValue('obj_reference'))
-        {
+        if ($this->getValue('obj_reference')) {
             $objRef = $this->getValue('obj_reference');
-            if ($objRef)
-            {
-                $this->addMultiValue("associations", 
-                    $objRef, 
+            if ($objRef) {
+                $this->addMultiValue(
+                    "associations",
+                    $objRef,
                     $this->getValueName('obj_reference')
                 );
             }

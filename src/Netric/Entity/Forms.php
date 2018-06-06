@@ -12,7 +12,6 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Config\Config;
 
-
 /**
  * Class for managing entity forms
  *
@@ -64,12 +63,15 @@ class Forms
         $xlarge = $this->getFormUiXml($def, $user, "xlarge");
 
         // Use nearest match if all forms have not been applied
-        if (!$xlarge && $large)
+        if (!$xlarge && $large) {
             $xlarge = $large;
-        if (!$medium && $large)
+        }
+        if (!$medium && $large) {
             $medium = $large;
-        if (!$large && $medium)
+        }
+        if (!$large && $medium) {
             $large = $medium;
+        }
 
         /*
          * We are translating the new form names 'small|medium|large|xlarge'
@@ -80,24 +82,22 @@ class Forms
          * and then just do an SQL update to rename exsiting custom forms.
          */
         $default = $this->getFormUiXml($def, $user, "default");
-        if (!$small)
-        {
+        if (!$small) {
             $small = $this->getFormUiXml($def, $user, "mobile");
-            if (!$small)
+            if (!$small) {
                 $small = $default;
+            }
         }
-        if (!$medium)
-        {
+        if (!$medium) {
             $medium = $this->getFormUiXml($def, $user, "mobile");
-            if (!$medium)
+            if (!$medium) {
                 $medium = $default;
+            }
         }
-        if (!$large)
-        {
+        if (!$large) {
             $large = $default;
         }
-        if (!$xlarge)
-        {
+        if (!$xlarge) {
             $xlarge = $default;
         }
 
@@ -140,25 +140,24 @@ class Forms
                                 WHERE user_id='" . $user->getId() . "'
                                     AND scope='" . $device . "'
                                     AND type_id='" . $def->getId() . "';");
-        if ($dbh->getNumRows($result))
-        {
+        if ($dbh->getNumRows($result)) {
             $val = $dbh->getValue($result, 0, "form_layout_xml");
-            if ($val && $val!="*")
+            if ($val && $val!="*") {
                 return $val;
+            }
         }
         
         // Check for team specific form
-        if ($user->getValue("team_id"))
-        {
+        if ($user->getValue("team_id")) {
             $result = $dbh->query("SELECT form_layout_xml FROM app_object_type_frm_layouts
                                     WHERE team_id='" . $user->getValue("team_id") . "' 
                                         AND scope='" . $device . "'
                                         AND type_id='" . $def->getId() . "';");
-            if ($dbh->getNumRows($result))
-            {
+            if ($dbh->getNumRows($result)) {
                 $val = $dbh->getValue($result, 0, "form_layout_xml");
-                if ($val && $val!="*")
+                if ($val && $val!="*") {
                     return $val;
+                }
             }
         }
 
@@ -167,11 +166,11 @@ class Forms
                                 WHERE scope='" . $device . "'
                                 AND team_id IS NULL AND user_id IS NULL
                                 AND type_id='" . $def->getId() . "';");
-        if ($dbh->getNumRows($result))
-        {
+        if ($dbh->getNumRows($result)) {
             $val = $dbh->getValue($result, 0, "form_layout_xml");
-            if ($val && $val!="*")
+            if ($val && $val!="*") {
                 return $val;
+            }
         }
 
         // Get system default
@@ -191,14 +190,14 @@ class Forms
         $objType = $def->getObjType();
         $xml = "";
 
-        if (!$objType)
+        if (!$objType) {
             throw new \Exception("Invalid object type");
+        }
 
         // Check form xml from a file found in /objects/{objType}/{device}.php
         $basePath = $this->config->get("application_path") . "/data";
         $formPath = $basePath . "/entity_forms/" . $objType . "/" . $device . ".php";
-        if (file_exists($formPath))
-        {
+        if (file_exists($formPath)) {
             $xml = file_get_contents($formPath);
         }
 
@@ -219,8 +218,9 @@ class Forms
     public function saveForTeam(EntityDefinition $def, $teamId, $deviceType, $xmlForm)
     {
         // Make sure teamId is set
-        if (!is_numeric($teamId))
+        if (!is_numeric($teamId)) {
             throw new \InvalidArgumentException("teamId is required");
+        }
 
 
         return $this->saveForm($def, null, $teamId, $deviceType, $xmlForm);
@@ -238,8 +238,9 @@ class Forms
     public function saveForUser(EntityDefinition $def, $userId, $deviceType, $xmlForm)
     {
         // Make sure $userId is set
-        if (!is_numeric($userId))
+        if (!is_numeric($userId)) {
             throw new \InvalidArgumentException("userId is required");
+        }
 
         return $this->saveForm($def, $userId, null, $deviceType, $xmlForm);
     }
@@ -271,37 +272,39 @@ class Forms
     private function saveForm(EntityDefinition $def, $userId, $teamId, $deviceType, $xmlForm)
     {
         // Either team or user can be set, but not both
-        if ($userId && $teamId)
-        {
+        if ($userId && $teamId) {
             throw new \InvalidArgumentException("You cannot set both the userId and teamId");
         }
 
-        if (!$this->validateXml($xmlForm))
+        if (!$this->validateXml($xmlForm)) {
             throw \RuntimeException("Invalid UIXML Detected", $xmlForm);
+        }
 
         // Make sure the deviceType is set
-        if (!$deviceType)
+        if (!$deviceType) {
             throw new \InvalidArgumentException("Device type is required");
+        }
 
         // Make sure required params are set
-        if (!$def->getId())
+        if (!$def->getId()) {
             throw new \InvalidArgumentException("Entity definition is bad");
+        }
 
         // Clean any existing forms that match this deviceType (used to be called scope)
         $sql = "DELETE FROM app_object_type_frm_layouts WHERE
                 scope='" . $this->dbh->escape($deviceType) . "' AND
                 type_id=" . $this->dbh->escapeNumber($def->getId());
-        if ($teamId)
+        if ($teamId) {
             $sql .= " AND team_id=" . $this->dbh->escapeNumber($teamId);
-        else if ($userId)
+        } elseif ($userId) {
             $sql .= " AND user_id=" . $this->dbh->escapeNumber($userId);
-        else
+        } else {
             $sql .= "AND user_id IS NULL and team_id IS NULL";
+        }
         $this->dbh->query($sql);
 
         // Insert the new form if set, otherwise just leave it deleted
-        if (!$xmlForm !== null)
-        {
+        if (!$xmlForm !== null) {
             $sql = "INSERT INTO
                   app_object_type_frm_layouts(
                     scope,
@@ -317,12 +320,9 @@ class Forms
                   " . $def->getId() . ",
                   '" . $this->dbh->escape($xmlForm) . "'
                 )";
-            if ($this->dbh->query($sql))
-            {
+            if ($this->dbh->query($sql)) {
                 return true;
-            }
-            else
-            {
+            } else {
                 echo "ERROR: " . $this->dbh->getLastError();
                 return false;
             }
@@ -342,12 +342,9 @@ class Forms
         $isValid = true;
 
         // The xml can be null if the user wants to delete it so default to true
-        if ($xml !== null)
-        {
-
+        if ($xml !== null) {
         }
 
         return $isValid;
     }
-
 }

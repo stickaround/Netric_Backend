@@ -78,19 +78,15 @@ class StatsPublisher
      * @param string $host The host of the StatsD service
      * @param string $port The port that StatsD is listening on
      */
-    public static function setup($host=null, $port=null)
+    public static function setup($host = null, $port = null)
     {
         // If manually passed into the setup function then just set local variables
-        if ($host)
-        {
+        if ($host) {
             static::$host = $host;
-            if ($port)
-            {
+            if ($port) {
                 static::$port = $port;
             }
-        }
-        else
-        {
+        } else {
             // Pull from global config
             //$config = Config::getInstance();
 
@@ -107,28 +103,21 @@ class StatsPublisher
 
             static::$statsEnabled = $config->stats->enabled;
 
-            if ($config->stats['enabled'])
-            {
+            if ($config->stats['enabled']) {
                 static::$host = $config->stats['host'];
 
-                if ($config->stats['port'])
-                {
+                if ($config->stats['port']) {
                     static::$port = $config->stats['port'];
                 }
 
-                if ($config->stats['prefix'])
-                {
+                if ($config->stats['prefix']) {
                     static::$prefixNamespace = $config->stats['prefix'];
                 }
-
-            }
-            else
-            {
+            } else {
                 // Set hostname to null just in case
                 static::$host = null;
             }
         }
-
     }
 
     /**
@@ -138,7 +127,7 @@ class StatsPublisher
      * @param float $time The ellapsed time (ms) to log
      * @param float $sampleRate the rate (0-1) for sampling.
      **/
-    public static function timing($stat, $time, $sampleRate=1.0)
+    public static function timing($stat, $time, $sampleRate = 1.0)
     {
         static::queueStats(array($stat => self::num($time) . "|ms"), $sampleRate);
     }
@@ -160,7 +149,7 @@ class StatsPublisher
      * @param string $stat The metric to increment.
      * @param float $sampleRate the rate (0-1) for sampling.
      **/
-    public static function increment($stat, $sampleRate=1.0)
+    public static function increment($stat, $sampleRate = 1.0)
     {
         static::updateStat($stat, 1, $sampleRate);
     }
@@ -171,7 +160,7 @@ class StatsPublisher
      * @param string $stat The metric to decrement.
      * @param float $sampleRate the rate (0-1) for sampling.
      **/
-    public static function decrement($stat, $sampleRate=1.0)
+    public static function decrement($stat, $sampleRate = 1.0)
     {
         static::updateStat($stat, -1, $sampleRate);
     }
@@ -201,30 +190,24 @@ class StatsPublisher
      * @param float $delta The amount to increment/decrement the metric by.
      * @param float $sampleRate the rate (0-1) for sampling.
      **/
-    public static function updateStat($stat, $delta=1, $sampleRate=1.0)
+    public static function updateStat($stat, $delta = 1, $sampleRate = 1.0)
     {
         $deltaStr = self::num($delta);
 
         // Check if we need to down-sample
-        if ($sampleRate < 1)
-        {
-            if ((mt_rand() / mt_getrandmax()) <= $sampleRate)
-            {
+        if ($sampleRate < 1) {
+            if ((mt_rand() / mt_getrandmax()) <= $sampleRate) {
                 static::$queuedStats[] = "$stat:$deltaStr|c|@". self::num($sampleRate);
             }
-        }
-        else
-        {
-            if (!isset(static::$queuedCounters[$stat]))
-            {
+        } else {
+            if (!isset(static::$queuedCounters[$stat])) {
                 static::$queuedCounters[$stat] = 0;
             }
             static::$queuedCounters[$stat] += $delta;
         }
 
         // Send immediately if we are not caching stats for a batch send
-        if (!static::$addStatsToQueue)
-        {
+        if (!static::$addStatsToQueue) {
             static::sendAllStats();
         }
     }
@@ -237,7 +220,7 @@ class StatsPublisher
      * @param array $data The data to be queued.
      * @param float $sampleRate the rate (0-1) for sampling
      */
-    protected static function queueStats($data, $sampleRate=1.0)
+    protected static function queueStats($data, $sampleRate = 1.0)
     {
         if ($sampleRate < 1) {
             foreach ($data as $stat => $value) {
@@ -246,7 +229,7 @@ class StatsPublisher
                 }
             }
         } else {
-            foreach($data as $stat => $value) {
+            foreach ($data as $stat => $value) {
                 static::$queuedStats[] = "$stat:$value";
             }
         }
@@ -260,25 +243,23 @@ class StatsPublisher
      */
     protected static function sendAllStats()
     {
-        if (empty(static::$queuedStats) && empty(static::$queuedCounters))
+        if (empty(static::$queuedStats) && empty(static::$queuedCounters)) {
             return;
+        }
 
         // Setup before sending
-        if (null === static::$host)
-        {
+        if (null === static::$host) {
             static::setup();
         }
 
-        foreach(static::$queuedCounters as $stat => $value) {
+        foreach (static::$queuedCounters as $stat => $value) {
             $line = "$stat:$value|c";
             static::$queuedStats[] = $line;
         }
 
         // Prepend namespace if set
-        if (static::$prefixNamespace)
-        {
-            foreach (static::$queuedStats as $key=>$line)
-            {
+        if (static::$prefixNamespace) {
+            foreach (static::$queuedStats as $key => $line) {
                 $buf = static::$queuedStats[$key];
                 static::$queuedStats[$key] = static::$prefixNamespace . "." . $buf;
             }
@@ -307,7 +288,9 @@ class StatsPublisher
             $host = static::$host;
             $port = static::$port;
             $fp = @fsockopen("udp://$host", $port, $errno, $errstr);
-            if (! $fp) { return; }
+            if (! $fp) {
+                return;
+            }
             // Non-blocking I/O, please.
             stream_set_blocking($fp, 0);
             fwrite($fp, $data);
@@ -328,7 +311,8 @@ class StatsPublisher
     {
         $out = array();
         $chunkSize = 0;
-        $i = 0; $lineCount = count($lines);
+        $i = 0;
+        $lineCount = count($lines);
         while ($i < $lineCount) {
             $line = $lines[$i];
             $len = strlen($line) + 1;
@@ -358,4 +342,3 @@ class StatsPublisher
         return strtr($value, ',', '.');
     }
 }
-

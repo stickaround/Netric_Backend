@@ -15,7 +15,6 @@ use Netric\Entity\Entity;
 use Netric\Account\Account;
 use Netric\Entity\EntityFactoryFactory;
 
-
 abstract class IndexAbstract
 {
     /**
@@ -114,8 +113,9 @@ abstract class IndexAbstract
      */
     public function queryStringToTerms($qstring)
     {
-        if (!$qstring)
+        if (!$qstring) {
             return array();
+        }
 
         $res = array();
         //preg_match_all('/(?<!")\b\w+\b|\@(?<=")\b[^"]+/', $qstr, $res, PREG_PATTERN_ORDER);
@@ -148,21 +148,21 @@ abstract class IndexAbstract
 
         // TODO: finish
         /*
-		if ($this_id && $parent_field)
-		{
-			$query = "select $parent_field as pid from $table where id='$this_id'";
-			$result = $dbh->Query($query);
-			if ($dbh->GetNumberRows($result))
-			{
-				$row = $dbh->GetNextRow($result, 0);
+        if ($this_id && $parent_field)
+        {
+            $query = "select $parent_field as pid from $table where id='$this_id'";
+            $result = $dbh->Query($query);
+            if ($dbh->GetNumberRows($result))
+            {
+                $row = $dbh->GetNextRow($result, 0);
 
-				$subchildren = $this->getHeiarchyUp($table, $parent_field, $row['pid']);
+                $subchildren = $this->getHeiarchyUp($table, $parent_field, $row['pid']);
 
-				if (count($subchildren))
-					$parent_arr = array_merge($parent_arr, $subchildren);
-			}
-			$dbh->FreeResults($result);
-		}
+                if (count($subchildren))
+                    $parent_arr = array_merge($parent_arr, $subchildren);
+            }
+            $dbh->FreeResults($result);
+        }
          */
 
         return $parent_arr;
@@ -205,8 +205,9 @@ abstract class IndexAbstract
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
             if ($ent->getValue($field->name) && $field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
                 $children = $this->getHeiarchyUpObj($field->subtype, $ent->getValue($field->name));
-                if (count($children))
+                if (count($children)) {
                     $ret = array_merge($ret, $children);
+                }
             }
         }
 
@@ -224,8 +225,9 @@ abstract class IndexAbstract
     public function getHeiarchyDownObj($objType, $oid, $aProtectCircular = array())
     {
         // Check for circular refrences
-        if (in_array($oid, $aProtectCircular))
+        if (in_array($oid, $aProtectCircular)) {
             throw new \Exception("Circular reference found in $objType:$oid");
+        }
         //return array();
 
         $ret = array($oid);
@@ -245,8 +247,9 @@ abstract class IndexAbstract
                 for ($i = 0; $i < $res->getTotalNum(); $i++) {
                     $subEnt = $res->getEntity($i);
                     $children = $this->getHeiarchyDownObj($objType, $subEnt->getId(), $aProtectCircular);
-                    if (count($children))
+                    if (count($children)) {
                         $ret = array_merge($ret, $children);
+                    }
                 }
             }
         }
@@ -296,10 +299,10 @@ abstract class IndexAbstract
 
         // Replace user vars
         if ($user) {
-
             // Replace current user
-            if (intval($value) === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field))
+            if (intval($value) === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
                 $value = $user->getId();
+            }
 
             /*
              * TODO: Handle the below conditions
@@ -318,8 +321,9 @@ abstract class IndexAbstract
              */
             // Replace object reference with user variables
             if (($field->type == FIELD::TYPE_OBJECT || $field->type == FIELD::TYPE_OBJECT_MULTI) && !$field->subtype
-                && $value == "user:" . UserEntity::USER_CURRENT)
+                && $value == "user:" . UserEntity::USER_CURRENT) {
                 $value = "user:" . $user->getId();
+            }
         }
 
         /*
@@ -354,8 +358,9 @@ abstract class IndexAbstract
     private function fieldContainsUserValues(EntityDefinition\Field $field)
     {
         // If field subtype is not a user, then we do not need to proceed
-        if ($field->subtype !== "user")
+        if ($field->subtype !== "user") {
             return false;
+        }
 
         switch ($field->type) {
             case FIELD::TYPE_GROUPING:
@@ -424,7 +429,6 @@ abstract class IndexAbstract
 
         $pluginName = "\\Netric\\EntityQuery\\Plugin\\" . $objClassName . 'QueryPlugin';
         if (class_exists($pluginName)) {
-
             // Construct a new plugin
             $plugin = new $pluginName();
 

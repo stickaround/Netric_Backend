@@ -42,26 +42,26 @@ use Netric\Application\Application;
  */
 class Router
 {
-	/**
+    /**
      * The name of the class to initiailize
      *
      * @var string
-	 */
-	private $className;
+     */
+    private $className;
 
-	/**
+    /**
      * Handle to the created class
      *
      * @var mixed
-	 */
-	private $controllerClass = null;
+     */
+    private $controllerClass = null;
 
-	/**
+    /**
      * Reference to application class
      *
      * @var Application
-	 */
-	private $application = null;
+     */
+    private $application = null;
 
     /**
      * Determines if the class is run by unit test
@@ -70,116 +70,117 @@ class Router
      */
     public $testMode = false;
 
-	/**
-	 * Class constructor
-     * 
+    /**
+     * Class constructor
+     *
      * @param Application $application Instance of application
-	 */
-	function __construct(Application $application)
-	{
+     */
+    function __construct(Application $application)
+    {
         $this->application = $application;
-	}
+    }
 
-	/**
-	 * Set the class to expose methods for
-	 *
-	 * @param string $clsname is the name of the class to load that will process server requests
-	 */
-	public function setClass($clsname)
-	{
-		$this->className = $clsname;
-	}
+    /**
+     * Set the class to expose methods for
+     *
+     * @param string $clsname is the name of the class to load that will process server requests
+     */
+    public function setClass($clsname)
+    {
+        $this->className = $clsname;
+    }
 
-	/**
-	 * Execute methods in server class
-	 *
+    /**
+     * Execute methods in server class
+     *
      * @param RequestInterface $request The request being made to run
-	 * @return true on success, false on failure
-	 */
-	public function run(RequestInterface $request)
-	{
-		global $_REQUEST;
+     * @return true on success, false on failure
+     */
+    public function run(RequestInterface $request)
+    {
+        global $_REQUEST;
         $fName = $this->setControllerAndGetAction($request);
 
-		// Create new instance of class if it does not exist
-		if ($this->className && !$this->controllerClass && class_exists($this->className)) {
-			$clsname = $this->className;
-			$this->controllerClass = new $clsname($this->application, $this->application->getAccount());
+        // Create new instance of class if it does not exist
+        if ($this->className && !$this->controllerClass && class_exists($this->className)) {
+            $clsname = $this->className;
+            $this->controllerClass = new $clsname($this->application, $this->application->getAccount());
             
-            if(isset($this->controllerClass->testMode))
+            if (isset($this->controllerClass->testMode)) {
                 $this->controllerClass->testMode = $this->testMode;
-		} else {
-            // TODO: return 404	Not Found
+            }
+        } else {
+            // TODO: return 404 Not Found
             die($this->className . "->" . $fName . " not found!");
         }
 
-		$requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
-		if (method_exists($this->controllerClass, $fName) && $requestMethod!='OPTIONS') {
-			/*
-			 * TODO: $params are no longer needed for action functions
-			 * since every controller now has a $this->request object
-			 * which is more useful for different environments
-			 */
-			// forward request variables in as params
-			$params = array(); 
+        $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
+        if (method_exists($this->controllerClass, $fName) && $requestMethod!='OPTIONS') {
+            /*
+             * TODO: $params are no longer needed for action functions
+             * since every controller now has a $this->request object
+             * which is more useful for different environments
+             */
+            // forward request variables in as params
+            $params = array();
 
-			// POST params
-			foreach ($_POST as $varname=>$varval)
-			{
-				if ($varname != 'function')
-					$params[$varname] = $varval;
-			}
-
-			// Add raw post body for JSON
-			$params['raw_body'] = file_get_contents("php://input");
-
-			// GET params
-			foreach ($_GET as $varname=>$varval) {
-				if ($varname != 'function' && $varname != 'authentication') {
+            // POST params
+            foreach ($_POST as $varname => $varval) {
+                if ($varname != 'function') {
                     $params[$varname] = $varval;
                 }
-			}
+            }
+
+            // Add raw post body for JSON
+            $params['raw_body'] = file_get_contents("php://input");
+
+            // GET params
+            foreach ($_GET as $varname => $varval) {
+                if ($varname != 'function' && $varname != 'authentication') {
+                    $params[$varname] = $varval;
+                }
+            }
             
-      		// If testing, add session
-      		// I'm not sure why we are doing this - Sky Stebnicki
-            if($this->testMode) {
-                foreach ($_REQUEST as $varname=>$varval) {
+            // If testing, add session
+            // I'm not sure why we are doing this - Sky Stebnicki
+            if ($this->testMode) {
+                foreach ($_REQUEST as $varname => $varval) {
                     if ($varname != 'function') {
                         $params[$varname] = $varval;
                     }
                 }
             }
             
-			// Manually set output if passed as a param
-			if (isset($params['output'])) {
+            // Manually set output if passed as a param
+            if (isset($params['output'])) {
                 $this->controllerClass->output = $params['output'];
             }
 
-			// Check permissions to make sure the current user has access to the controller
-			$hasPermission = $this->currentUserHasPermission($request);
+            // Check permissions to make sure the current user has access to the controller
+            $hasPermission = $this->currentUserHasPermission($request);
 
-			// Call class method and pass request params
-			if ($hasPermission) {
-				$response = call_user_func(array($this->controllerClass, $fName), $params);
+            // Call class method and pass request params
+            if ($hasPermission) {
+                $response = call_user_func(array($this->controllerClass, $fName), $params);
 
-				// New controllers should all return a ResponseInterface which handles output
-				if (is_object($response) && $response instanceof ResponseInterface) {
+                // New controllers should all return a ResponseInterface which handles output
+                if (is_object($response) && $response instanceof ResponseInterface) {
                     $response->printOutput();
                 }
 
                 return $response;
-			} else {
-				// TODO: return 401	Authorization Required
-				if (!$this->controllerClass->testMode)
-					echo "Authorization Required";
-				return false;
-			}
-
-		} else {
-			// TODO: return 404	Not Found
-			return false;
-		}
-	}
+            } else {
+                // TODO: return 401 Authorization Required
+                if (!$this->controllerClass->testMode) {
+                    echo "Authorization Required";
+                }
+                return false;
+            }
+        } else {
+            // TODO: return 404 Not Found
+            return false;
+        }
+    }
 
     /**
      * Set the controller and get the action name from the request
@@ -231,27 +232,27 @@ class Router
         return $pathSegment;
     }
 
-	/**
-	 * Check permissions to verify that the current user has access to this resource
-	 *
+    /**
+     * Check permissions to verify that the current user has access to this resource
+     *
      * @param RequestInterface $request The request being made to run
-	 * @return bool true if current user can call the controller, otherwise false
-	 */
-	private function currentUserHasPermission(RequestInterface $request)
-	{
-		// Get the DACL for the selected controller
-		$dacl = $this->controllerClass->getAccessControlList();
+     * @return bool true if current user can call the controller, otherwise false
+     */
+    private function currentUserHasPermission(RequestInterface $request)
+    {
+        // Get the DACL for the selected controller
+        $dacl = $this->controllerClass->getAccessControlList();
 
-		// If running from the console then allow the request
-		if ($request instanceof ConsoleRequest) {
-			// No account which means this is probably a console request
-			return true;
-		}
+        // If running from the console then allow the request
+        if ($request instanceof ConsoleRequest) {
+            // No account which means this is probably a console request
+            return true;
+        }
 
-		// Get the currently authenticated user
-		$user = $this->application->getAccount()->getUser();
+        // Get the currently authenticated user
+        $user = $this->application->getAccount()->getUser();
 
-		// Check if the user can access this resource and return the result
-		return $dacl->isAllowed($user);
-	}
+        // Check if the user can access this resource and return the result
+        return $dacl->isAllowed($user);
+    }
 }

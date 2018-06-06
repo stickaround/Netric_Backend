@@ -49,7 +49,7 @@ class EntitySync
      *
      * @param \Netric\EntitySync\DataMapperInterface $dm
      */
-    public function __construct(DataMapperInterface $dm) 
+    public function __construct(DataMapperInterface $dm)
     {
             $this->dataMapper = $dm;
     }
@@ -63,16 +63,13 @@ class EntitySync
      */
     public function getPartner($pid)
     {
-        if (!$pid)
-        {
+        if (!$pid) {
             throw new \Exception("Partner id is required");
         }
 
         // First get cached partners because we do not want to load them twice
-        if ($this->partner)
-        {
-            if ($this->partner->getPartnerId() == $pid)
-            {
+        if ($this->partner) {
+            if ($this->partner->getPartnerId() == $pid) {
                 return $this->partner;
             }
         }
@@ -80,7 +77,7 @@ class EntitySync
         // Load the partner from the database
         $this->partner = $this->dataMapper->getPartnerByPartnerId($pid);
 
-        return $this->partner;		
+        return $this->partner;
     }
 
     /**
@@ -142,21 +139,20 @@ class EntitySync
      * @param char $action The action taken: 'c' = changed, 'd' = deleted
      * @return int[] IDs of collections that were updated with the object
      */
-    public function updateGroupingStat($objType, $fieldName, $fieldVal, $action='c')
+    public function updateGroupingStat($objType, $fieldName, $fieldVal, $action = 'c')
     {
         $ret = array();
         $field = $this->obj->def->getField($fieldName);
 
-        if (!$field)
+        if (!$field) {
                 return false;
+        }
 
         // Get all collections that match the conditions
         $partnerships = $this->dataMapper->getListeningPartners($fieldName);
-        foreach ($partnerships as $partner)
-        {
+        foreach ($partnerships as $partner) {
             $collections = $partner->getGroupingCollections($this->obj->object_type, $fieldName);
-            foreach ($collections as $coll)
-            {
+            foreach ($collections as $coll) {
                 $coll->updateGroupingStat($fieldVal, $action);
                 $ret[] = $coll->id;
             }
@@ -164,6 +160,4 @@ class EntitySync
 
         return $ret;
     }
-
-    
 }

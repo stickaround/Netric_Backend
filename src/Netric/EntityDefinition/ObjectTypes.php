@@ -1,7 +1,7 @@
 <?php
 namespace Netric\EntityDefinition;
 
-/** 
+/**
  * Constants for system object types
  */
 class ObjectTypes

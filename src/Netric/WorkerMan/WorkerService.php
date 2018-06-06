@@ -43,8 +43,7 @@ class WorkerService
     public function __construct(
         Application $application,
         QueueInterface $queue
-    )
-    {
+    ) {
         $this->application = $application;
         $this->jobQueue = $queue;
     }

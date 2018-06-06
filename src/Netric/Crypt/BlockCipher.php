@@ -4,6 +4,7 @@
  * @copyright 2016 Aereus
  */
 namespace Netric\Crypt;
+
 use Netric\Application\Exception\AccountAlreadyExistsException;
 
 /**
@@ -51,7 +52,7 @@ class BlockCipher
      * @param string $key The key to use the symmetric chipher
      * @param string $algorithm The char of the algorhithm to use
      */
-    public function __construct($key, $algorithm=self::ALGO_V2)
+    public function __construct($key, $algorithm = self::ALGO_V2)
     {
         $this->algorithm = $algorithm;
         $this->key = $key;

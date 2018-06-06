@@ -3,8 +3,8 @@
 /**
  * PostgreSQL implementation of indexer for querying objects
  *
- * @author		Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright	Copyright (c) 2003-2014 Aereus (http://www.aereus.com)
+ * @author      Sky Stebnicki, sky.stebnicki@aereus.com
+ * @copyright   Copyright (c) 2003-2014 Aereus (http://www.aereus.com)
  */
 namespace Netric\EntityQuery\Index;
 
@@ -18,14 +18,14 @@ class Pgsql extends IndexAbstract implements IndexInterface
 {
     /**
      * Handle to PostgreSQL database
-     * 
+     *
      * @var \Netric\Db\Pgsql
      */
     public $dbh = null;
 
     /**
      * Setup this index for the given account
-     * 
+     *
      * @param \Netric\Account\Account $account
      */
     protected function setUp(\Netric\Account\Account $account)
@@ -86,7 +86,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $condition_query = "";
         $def = $this->getDefinition($query->getObjType());
         
-		// Set default f_deleted condition
+        // Set default f_deleted condition
         if ($def->getField("f_deleted")) {
             $conditions = $query->getWheres();
 
@@ -107,51 +107,57 @@ class Pgsql extends IndexAbstract implements IndexInterface
         // Get table to query
         $objectTable = $def->getTable();
 
-		// Start constructing query
+        // Start constructing query
         $sql = "SET constraint_exclusion = on;";
         // Removed the window "count(*) OVER() because it was insanely slow - Sky Stebnicki
         //$sql .= "SELECT *, count(*) OVER() AS full_count FROM ".$objectTable." ";
         $sql .= "SELECT * FROM " . $objectTable . " ";
 
-		// Build condition string
+        // Build condition string
         $conditionQuery = "";
         if (count($query->getWheres())) {
             $conditionQuery = $this->buildConditionString($query, $def);
-            if ($conditionQuery)
+            if ($conditionQuery) {
                 $sql .= "WHERE $conditionQuery";
+            }
         }
 
-		// Add order by
+        // Add order by
         $order_cnd = "";
         if (count($query->getOrderBy())) {
             $orderBy = $query->getOrderBy();
             foreach ($orderBy as $sort) {
-                if ($order_cnd) $order_cnd .= ", ";
+                if ($order_cnd) {
+                    $order_cnd .= ", ";
+                }
 
                 // TODO: check this
-				// Replace name field to order by full name with path
-				//if ($def->parentField && $def->getField("path"))
-					//$order_fld = str_replace($this->obj->fields->listTitle, $this->obj->fields->listTitle."_full", $sortObj->fieldName);
+                // Replace name field to order by full name with path
+                //if ($def->parentField && $def->getField("path"))
+                    //$order_fld = str_replace($this->obj->fields->listTitle, $this->obj->fields->listTitle."_full", $sortObj->fieldName);
 
                 $order_cnd .= $sort->fieldName;
                 $order_cnd .= " " . $sort->direction;
             }
         }
-        if ($order_cnd)
+        if ($order_cnd) {
             $sql .= " ORDER BY $order_cnd ";
+        }
 
         $sql .= " OFFSET " . $query->getOffset();
-        if ($query->getLimit())
+        if ($query->getLimit()) {
             $sql .= " LIMIT " . $query->getLimit();
+        }
 
-		// Get fields for this object type (used in decoding multi-valued fields)
+        // Get fields for this object type (used in decoding multi-valued fields)
         $ofields = $def->getFields();
 
         // Create results object
-        if ($results == null)
+        if ($results == null) {
             $results = new EntityQuery\Results($query, $this);
-        else
+        } else {
             $results->clearEntities();
+        }
 
         $sqlRes = $this->dbh->query($sql);
         for ($i = 0; $i < $this->dbh->getNumRows($sqlRes); $i++) {
@@ -159,7 +165,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
             $id = $row["id"];
 
             // Window function no longer used to get count because of performance issues - Sky Stebnicki
-            // 
+            //
             // Set total num of returned objects from the window function count(*) OVER() above in the
             // query. Not sure if this more performant than running two separate queries or not.
             //if ($i == 0)
@@ -170,8 +176,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
                     if (isset($row[$fname])) {
                         $dec = json_decode($row[$fname], true);
-                        if ($dec !== false)
+                        if ($dec !== false) {
                             $row[$fname] = $dec;
+                        }
                     }
                 }
 
@@ -179,8 +186,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
                     if (isset($row[$fname . "_fval"])) {
                         $dec = json_decode($row[$fname . "_fval"], true);
-                        if ($dec !== false)
+                        if ($dec !== false) {
                             $row[$fname . "_fval"] = $dec;
+                        }
                     }
                 }
             }
@@ -201,11 +209,13 @@ class Pgsql extends IndexAbstract implements IndexInterface
         // Get total num
         // ----------------------------------------
         $sqlCnt = "SET constraint_exclusion = on;SELECT count(*) as cnt FROM " . $objectTable . " ";
-        if ($conditionQuery)
+        if ($conditionQuery) {
             $sqlCnt .= "WHERE " . $conditionQuery;
+        }
         $sqlRes = $this->dbh->query($sqlCnt);
-        if ($sqlRes)
+        if ($sqlRes) {
             $results->setTotalNum($this->dbh->getValue($sqlRes, 0, "cnt"));
+        }
            
         // Get aggregations
         // ----------------------------------------
@@ -287,7 +297,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
     /**
      * Create a condition sql query string based on the query object
-     * 
+     *
      * @param \Netric\EntityQuery $query
      * @param EntityDefinition $def
      * @return string
@@ -302,42 +312,47 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $fullText = "";
         $wheres = $query->getWheres();
         foreach ($wheres as $where) {
-            if ("*" == $where->fieldName)
+            if ("*" == $where->fieldName) {
                 $fullText = $where->value;
+            }
         }
         
-		// General Search
-		// -------------------------------------------------------------
+        // General Search
+        // -------------------------------------------------------------
         if ($fullText) {
             $cond_str = "tsv_fulltext @@ plainto_tsquery('" . $dbh->escape($fullText) . "')";
         }
 
-        if ($cond_str)
+        if ($cond_str) {
             $cond_str = " ($cond_str) ";
+        }
 
-		// Filtered search
-		// -------------------------------------------------------------
+        // Filtered search
+        // -------------------------------------------------------------
         $adv_cond = $this->buildAdvancedConditionString($query, $def);
 
-		// Check here if we need to encapsulate the $adv_cond with parenthesis
+        // Check here if we need to encapsulate the $adv_cond with parenthesis
         if ($adv_cond) {
-			/*
+            /*
              * The result condition string from ::buildAdvancedConditionString() is not encapsulated with parenthesis
              * That is why we need to encapsulate the condition string here.
              * But when the conditions have an "or" condition, then it adds a closing parenthesis
              *
              * This will make sure that we just add the opening/closing parenthesis as needed
              */
-            if (trim($adv_cond)[0] !== "(")
+            if (trim($adv_cond)[0] !== "(") {
                 $adv_cond = "($adv_cond";
+            }
 
-            if (substr(trim($adv_cond), -1) !== ")")
+            if (substr(trim($adv_cond), -1) !== ")") {
                 $adv_cond = "$adv_cond)";
+            }
 
-            if ($cond_str)
+            if ($cond_str) {
                 $cond_str .= " and $adv_cond ";
-            else
+            } else {
                 $cond_str = $adv_cond;
+            }
         }
 
         return $cond_str;
@@ -359,17 +374,18 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $inOrGroup = false;
         $conditions = $query->getWheres();
 
-        if ($def == null)
+        if ($def == null) {
             $def = $this->getDefinition($query->getObjType());
+        }
 
         // Get table to query
         $objectTable = $def->getTable();
         // No need to query partion because constraints should take care of that
         /*
-		if (!$def->isCustomTable() && $query->isDeletedQuery())
+        if (!$def->isCustomTable() && $query->isDeletedQuery())
             $objectTable .= "_del";
-		else if (!$def->isCustomTable())
-			$objectTable .= "_act";
+        else if (!$def->isCustomTable())
+            $objectTable .= "_act";
          */
 
         if (count($conditions)) {
@@ -380,31 +396,36 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 $condValue = $cond->value;
 
                 // Should never happen, but just in case if operator is missing throw an exception
-                if (!$operator)
+                if (!$operator) {
                     throw new \RuntimeException("No operator provided for " . var_export($cond, true));
+                }
 
                 $buf = "";
                 
                 // Skip full text
-                if ($fieldName == "*")
+                if ($fieldName == "*") {
                     continue;
+                }
                 
-				// Look for associated object conditions
+                // Look for associated object conditions
                 $parts = array($fieldName);
-                if (strpos($fieldName, '.'))
+                if (strpos($fieldName, '.')) {
                     $parts = explode(".", $fieldName);
+                }
 
                 // Get field
                 $origField = $def->getField($parts[0]);
-                if (!$origField)
+                if (!$origField) {
                     throw new \RuntimeException("Could not get field " . $query->getObjType() . ":" . $parts[0]);
+                }
                 
                 // Make a copy in case we need change the type to object_dereference
                 $field = clone $origField;
                 
                 // Skip non-existant field or full text
-                if (!$field)
+                if (!$field) {
                     continue;
+                }
 
                 if (count($parts) > 1) {
                     $fieldName = $parts[0];
@@ -414,12 +435,13 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     $ref_field = "";
                 }
 
-				// Sanitize and replace environment variables like 'current_user' to concrete vals
+                // Sanitize and replace environment variables like 'current_user' to concrete vals
                 $condValue = $this->sanitizeWhereCondition($field, $condValue);
 
-				// Convert PHP bool to textual true or false
-                if ($field->type == FIELD::TYPE_BOOL)
+                // Convert PHP bool to textual true or false
+                if ($field->type == FIELD::TYPE_BOOL) {
                     $condValue = ($condValue === true) ? 't' : 'f';
+                }
 
                 if ($condValue !== "" && $condValue !== null) {
                     switch ($operator) {
@@ -438,10 +460,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                 case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == FIELD::TYPE_DATE)
+                                    } elseif ($field->type == FIELD::TYPE_DATE) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+                                    }
 
                                     $buf .= " $fieldName>'" . $dbh->escape($condValue) . "' ";
                                     break;
@@ -456,10 +479,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                 case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == FIELD::TYPE_DATE)
+                                    } elseif ($field->type == FIELD::TYPE_DATE) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+                                    }
 
                                     $buf .= " $fieldName<'" . $dbh->escape($condValue) . "' ";
                                     break;
@@ -472,7 +496,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                         $children = $this->getHeiarchyDownObj($field->subtype, $condValue);
                                         $tmp_cond_str = "";
                                         foreach ($children as $child) {
-                                            if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                                            if ($tmp_cond_str) {
+                                                $tmp_cond_str .= " or ";
+                                            }
                                             $tmp_cond_str .= " $fieldName='" . $dbh->escape($child) . "' ";
                                         }
                                         $buf .= "($tmp_cond_str) ";
@@ -486,10 +512,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                 case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == FIELD::TYPE_DATE)
+                                    } elseif ($field->type == FIELD::TYPE_DATE) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+                                    }
 
                                     $buf .= " $fieldName>='" . $dbh->escape($condValue) . "' ";
                                     break;
@@ -526,10 +553,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                                 case FIELD::TYPE_TEXT:
                                     break;
                                 default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    if ($field->type == FIELD::TYPE_TIMESTAMP) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                                    else if ($field->type == FIELD::TYPE_DATE)
+                                    } elseif ($field->type == FIELD::TYPE_DATE) {
                                         $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+                                    }
 
                                     $buf .= " $fieldName<='" . $dbh->escape($condValue) . "' ";
                                     break;
@@ -539,10 +567,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         case 'begins_with':
                             switch ($field->type) {
                                 case FIELD::TYPE_TEXT:
-                                    if ($field->subtype)
+                                    if ($field->subtype) {
                                         $buf .= " lower($fieldName) like lower('" . $dbh->escape($condValue) . "%') ";
-                                    else
+                                    } else {
                                         $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('" . $dbh->escape($condValue) . "*') ";
+                                    }
                                     break;
                                 default:
                                     break;
@@ -551,10 +580,11 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         case 'contains':
                             switch ($field->type) {
                                 case FIELD::TYPE_TEXT:
-                                    if ($field->subtype)
+                                    if ($field->subtype) {
                                         $buf .= " lower($fieldName) like lower('%" . $dbh->escape($condValue) . "%') ";
-                                    else
+                                    } else {
                                         $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('" . $dbh->escape($condValue) . "') ";
+                                    }
 
                                     break;
                                 default:
@@ -648,88 +678,91 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 {
                     switch ($operator) {
                         case 'is_equal':
-						// Deal with "isnull"
+                        // Deal with "isnull"
                             $buf .= $this->buildIsEqual($field, $fieldName, $condValue, $objectTable, $def);
                         /*
-						switch ($field->type)
-						{
+                        switch ($field->type)
+                        {
                         case 'object_multi':
-							$buf .= " ".$objectTable.".id not in (select object_id from object_associations
-																				where type_id='" . $def->getId() . "'
-																				and field_id='" . $field->id . "') ";
+                            $buf .= " ".$objectTable.".id not in (select object_id from object_associations
+                                                                                where type_id='" . $def->getId() . "'
+                                                                                and field_id='" . $field->id . "') ";
                             break;
-						case 'fkey_multi':
-							$buf .= " ".$objectTable.".id not in (select ".$field->fkeyTable['ref_table']["this"]."
-																		from ".$field->fkeyTable['ref_table']['table'].") ";
-                            
-							break;
-						case 'text':
-							$buf .= " ($fieldName='' or $fieldName is null) ";
-							break;
+                        case 'fkey_multi':
+                            $buf .= " ".$objectTable.".id not in (select ".$field->fkeyTable['ref_table']["this"]."
+                                                                        from ".$field->fkeyTable['ref_table']['table'].") ";
+
+                            break;
+                        case 'text':
+                            $buf .= " ($fieldName='' or $fieldName is null) ";
+                            break;
                         case 'object':
-						default:
-							$buf .= " $fieldName is null ";
-							break;
-						}
-                         
+                        default:
+                            $buf .= " $fieldName is null ";
+                            break;
+                        }
+
                              */
                             break;
                         case 'is_not_equal':
-						// Deal with "isnull"
+                        // Deal with "isnull"
                             $buf .= $this->buildIsNotEqual($field, $fieldName, $condValue, $objectTable, $def);
                         /*
-						switch ($field->type)
-						{
-						case 'object_multi':
-							$buf .= " ".$objectTable.".id in (select object_id from object_associations
-																				where type_id='" . $def->getId() . "'
-																				and field_id='" . $field->id . "') ";
-							break;
-						case 'fkey_multi':
-							$buf .= " ".$objectTable.".id in (select ".$field->fkeyTable['ref_table']["this"]."
-																		from ".$field->fkeyTable['ref_table']['table'].") ";
-							break;
-						case 'text':
-							$buf .= " ($fieldName!='' and $fieldName is not null) ";
-							break;
-						case 'object':
-						default:
-							$buf .= " $fieldName is not null ";
-							break;
-						}
-                             * 
+                        switch ($field->type)
+                        {
+                        case 'object_multi':
+                            $buf .= " ".$objectTable.".id in (select object_id from object_associations
+                                                                                where type_id='" . $def->getId() . "'
+                                                                                and field_id='" . $field->id . "') ";
+                            break;
+                        case 'fkey_multi':
+                            $buf .= " ".$objectTable.".id in (select ".$field->fkeyTable['ref_table']["this"]."
+                                                                        from ".$field->fkeyTable['ref_table']['table'].") ";
+                            break;
+                        case 'text':
+                            $buf .= " ($fieldName!='' and $fieldName is not null) ";
+                            break;
+                        case 'object':
+                        default:
+                            $buf .= " $fieldName is not null ";
+                            break;
+                        }
+                             *
                              */
                             break;
                     }
                 }
 
-				// New system to added to group "or" statements
+                // New system to added to group "or" statements
                 if ($blogic == "and") {
                     if ($buf) {
-                        if ($cond_str)
+                        if ($cond_str) {
                             $cond_str .= ") $blogic (";
-                        else
+                        } else {
                             $cond_str .= " ( ";
+                        }
                         $inOrGroup = true;
                     }
-                } else if ($cond_str && $buf) // or
-                $cond_str .= " $blogic ";
+                } elseif ($cond_str && $buf) { // or
+                    $cond_str .= " $blogic ";
+                }
 
                 $cond_str .= $buf;
             }
 
-			// Close condtion grouping
-            if ($inOrGroup)
+            // Close condtion grouping
+            if ($inOrGroup) {
                 $cond_str .= ")";
+            }
         }
 
-		//echo "COND STR: ".$cond_str;
+        //echo "COND STR: ".$cond_str;
         return $cond_str;
     }
 
     /**
      * Add conditions for "is_eqaul" operator
-     * 
+     *
      * @param type $field
      * @param type $condValue
      * @return string
@@ -741,7 +774,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($field->subtype) {
-            	/*
+                /*
                 if (isset($field->fkeyTable["parent"]) && is_numeric($condValue))
                 {
                     $children = $this->getHeiarchyDownObj($field->subtype, $condValue);
@@ -755,9 +788,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
                 else */ if ($condValue) {
                         $buf .= " $fieldName='" . $this->dbh->escape($condValue) . "' ";
-                    } else {
-                        $buf .= " $fieldName is null ";
-                    }
+} else {
+    $buf .= " $fieldName is null ";
+}
                     break;
                 }
             case FIELD::TYPE_OBJECT_MULTI:
@@ -772,15 +805,15 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     $referenceObjType = null;
                     $referenceId = null;
 
-				/*
+                /*
                      * If we have successfully decoded the $condValue (e.g user:1:TestUser
                      * Then we need to make sure we have refernce id and obj_type
                      */
                     if ($objRef && isset($objRef['id']) && isset($objRef['obj_type'])) {
                         $referenceObjType = $objRef['obj_type'];
                         $referenceId = $objRef['id'];
-                    } else if ($field->subtype) {
-					/*
+                    } elseif ($field->subtype) {
+                    /*
                          * If the $condValue provided is the actual value of the where condition
                          * Then we will just use the field's subtype as our referenced objType
                          */
@@ -788,9 +821,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         $referenceId = $condValue;
                     }
 
-				// If we have referencedObjType then we can now build the where condition
+                // If we have referencedObjType then we can now build the where condition
                     if ($referenceObjType) {
-					// Get the definition of the referenced objType
+                    // Get the definition of the referenced objType
                         $refDef = $this->getDefinition($referenceObjType);
 
                         if ($refDef && $refDef->getId() && $referenceId) {
@@ -833,10 +866,12 @@ class Pgsql extends IndexAbstract implements IndexInterface
                     $children = $this->getHeiarchyDownGrp($field, $condValue);
                     $tmp_cond_str = "";
                     foreach ($children as $child) {
-                        if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                        if ($tmp_cond_str) {
+                            $tmp_cond_str .= " or ";
+                        }
                         $tmp_cond_str .= $field->fkeyTable['ref_table']['ref'] . "='$child'";
                     }
-                } else if ($condValue && $condValue != "NULL" && $condValue != null) {
+                } elseif ($condValue && $condValue != "NULL" && $condValue != null) {
                     $tmp_cond_str = $field->fkeyTable['ref_table']['ref'] . "='$condValue'";
                 }
 
@@ -859,7 +894,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         $children = $this->getHeiarchyDownGrp($field, $condValue);
                         $tmp_cond_str = "";
                         foreach ($children as $child) {
-                            if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                            if ($tmp_cond_str) {
+                                $tmp_cond_str .= " or ";
+                            }
                             $tmp_cond_str .= " $fieldName='" . $this->dbh->escape($child) . "' ";
                         }
                     } else {
@@ -873,24 +910,27 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " ($fieldName is null OR $fieldName='')";
                 } else {
-                    if ($field->subtype)
+                    if ($field->subtype) {
                         $buf .= " lower($fieldName)=lower('" . $this->dbh->escape($condValue) . "') ";
-                    else
+                    } else {
                         $buf .= " to_tsvector($fieldName) @@ plainto_tsquery('" . $this->dbh->escape($condValue) . "') ";
+                    }
                 }
 
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
-                if ($field->type == FIELD::TYPE_TIMESTAMP)
+                if ($field->type == FIELD::TYPE_TIMESTAMP) {
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                else if ($field->type == FIELD::TYPE_DATE)
+                } elseif ($field->type == FIELD::TYPE_DATE) {
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+                }
             default:
-                if ($condValue === "" || $condValue === "NULL" || $condValue === null)
+                if ($condValue === "" || $condValue === "NULL" || $condValue === null) {
                     $buf .= " $fieldName is null";
-                else
+                } else {
                     $buf .= " $fieldName='" . $this->dbh->escape($condValue) . "' ";
+                }
                 break;
         }
 
@@ -899,7 +939,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
     /**
      * Add conditions for "is_not_eqaul" operator
-     * 
+     *
      * @param type $field
      * @param type $condValue
      * @return string
@@ -914,7 +954,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 if ($field->subtype) {
                     if ($condValue == "" || $condValue == "NULL") {
                         $buf .= " $fieldName is not null";
-                    } else if (isset($field->subtype) && $def->parentField == $fieldName && $condValue) {
+                    } elseif (isset($field->subtype) && $def->parentField == $fieldName && $condValue) {
                         $refDef = $this->getDefinition($field->subtype);
 
                         if ($refDef->parentField) {
@@ -976,7 +1016,6 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
-
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " " . $objectTable . ".id in (select " . $field->fkeyTable['ref_table']["this"] . "
 																		from " . $field->fkeyTable['ref_table']['table'] . ") ";
@@ -985,7 +1024,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         $children = $this->getHeiarchyDownGrp($field, $condValue);
                         $tmp_cond_str = "";
                         foreach ($children as $child) {
-                            if ($tmp_cond_str) $tmp_cond_str .= " or ";
+                            if ($tmp_cond_str) {
+                                $tmp_cond_str .= " or ";
+                            }
                             $tmp_cond_str .= $field->fkeyTable['ref_table']['ref'] . "='$child'";
                         }
                     } else {
@@ -1006,7 +1047,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
                         $children = $this->getHeiarchyDownGrp($field, $condValue);
                         $tmp_cond_str = "";
                         foreach ($children as $child) {
-                            if ($tmp_cond_str) $tmp_cond_str .= " and ";
+                            if ($tmp_cond_str) {
+                                $tmp_cond_str .= " and ";
+                            }
                             $tmp_cond_str .= " $fieldName!='" . $this->dbh->escape($child) . "' ";
                         }
                     } else {
@@ -1021,24 +1064,27 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " ($fieldName!='' AND $fieldName is not NULL) ";
                 } else {
-                    if ($field->subtype)
+                    if ($field->subtype) {
                         $buf .= " lower($fieldName)!=lower('" . $this->dbh->escape($condValue) . "') ";
-                    else
+                    } else {
                         $buf .= " (to_tsvector($fieldName) @@ plainto_tsquery('" . $this->dbh->escape($condValue) . "'))='f' ";
+                    }
                 }
 
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
-                if ($field->type == FIELD::TYPE_TIMESTAMP)
+                if ($field->type == FIELD::TYPE_TIMESTAMP) {
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d H:i:s T", $condValue) : $condValue;
-                else if ($field->type == FIELD::TYPE_DATE)
+                } elseif ($field->type == FIELD::TYPE_DATE) {
                     $condValue = (is_numeric($condValue)) ? date("Y-m-d", $condValue) : $condValue;
+                }
             default:
-                if ($condValue == "" || $condValue == "NULL" || $condValue == null)
+                if ($condValue == "" || $condValue == "NULL" || $condValue == null) {
                     $buf .= " $fieldName is not null ";
-                else
+                } else {
                     $buf .= " ($fieldName!='" . $this->dbh->escape($condValue) . "' or $fieldName is null) ";
+                }
                 break;
         }
 
@@ -1047,7 +1093,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
     /**
      * Get ids of all child entries in a parent-child relationship
-     * 
+     *
      * This function may be over-ridden in specific indexes for performance reasons
      *
      * @param string $table The table to query
@@ -1060,8 +1106,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
         $ret = array();
         
         // If not heiarchy then just return this
-        if (!isset($field->fkeyTable["parent"]) || !$field->fkeyTable["parent"])
+        if (!isset($field->fkeyTable["parent"]) || !$field->fkeyTable["parent"]) {
             return array($this_id);
+        }
 
         $sql = "WITH RECURSIVE children AS
                 (
@@ -1088,7 +1135,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
     /**
      * Set aggregation data
-     * 
+     *
      * @param \Netric\EntityQuery\Aggregation\AggregationInterface $agg
      * @param \Netric\EntityQuery\Results $res
      * @param string $objectTable The actual table we are querying
@@ -1113,21 +1160,23 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 break;
             case 'stats':
                 $data = $this->queryAggStats($agg, $objectTable, $conditionQuery);
-                if ($data)
+                if ($data) {
                     $data['count'] = $res->getTotalNum();
+                }
                 break;
             case 'count':
                 $data = $res->getTotalNum();
                 break;
         }
 
-        if ($data)
+        if ($data) {
             $res->setAggregation($agg->getName(), $data);
+        }
     }
 
     /**
      * Set terms aggregation - basically a select distinct
-     * 
+     *
      * @param \Netric\EntityQuery\Aggregation\AggregationInterface $agg
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition for filtering
@@ -1136,14 +1185,16 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $fieldName = $agg->getField();
 
-        if (!$fieldName)
+        if (!$fieldName) {
             return false;
+        }
 
         $retData = array();
 
         $query = "select distinct($fieldName), count($fieldName) as cnt from " . $objectTable . " where id is not null ";
-        if ($conditionQuery)
+        if ($conditionQuery) {
             $query .= " and ($conditionQuery) ";
+        }
         $query .= " GROUP BY $fieldName";
         $result = $this->dbh->query($query);
         $num = $this->dbh->getNumRows($result);
@@ -1161,7 +1212,7 @@ class Pgsql extends IndexAbstract implements IndexInterface
 
     /**
      * Set sum aggregation
-     * 
+     *
      * @param \Netric\EntityQuery\Aggregation\AggregationInterface $agg
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition for filtering
@@ -1170,22 +1221,25 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $fieldName = $agg->getField();
 
-        if (!$fieldName)
+        if (!$fieldName) {
             return false;
+        }
 
         $query = "select sum($fieldName) as amount from " . $objectTable . " where id is not null ";
-        if ($conditionQuery)
+        if ($conditionQuery) {
             $query .= " and ($conditionQuery) ";
+        }
         $result = $this->dbh->query($query);
-        if ($this->dbh->getNumRows($result))
+        if ($this->dbh->getNumRows($result)) {
             return $this->dbh->getValue($result, 0, "amount");
+        }
 
         return false;
     }
 
     /**
      * Set sum aggregation
-     * 
+     *
      * @param \Netric\EntityQuery\Aggregation\AggregationInterface $agg
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition for filtering
@@ -1194,22 +1248,25 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $fieldName = $agg->getField();
 
-        if (!$fieldName)
+        if (!$fieldName) {
             return false;
+        }
 
         $query = "select avg($fieldName) as amount from " . $objectTable . " where id is not null ";
-        if ($conditionQuery)
+        if ($conditionQuery) {
             $query .= " and ($conditionQuery) ";
+        }
         $result = $this->dbh->query($query);
-        if ($this->dbh->getNumRows($result))
+        if ($this->dbh->getNumRows($result)) {
             return $this->dbh->getValue($result, 0, "amount");
+        }
 
         return false;
     }
 
     /**
      * Set sum aggregation
-     * 
+     *
      * @param \Netric\EntityQuery\Aggregation\AggregationInterface $agg
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition for filtering
@@ -1218,22 +1275,25 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $fieldName = $agg->getField();
 
-        if (!$fieldName)
+        if (!$fieldName) {
             return false;
+        }
 
         $query = "select min($fieldName) as amount from " . $objectTable . " where id is not null ";
-        if ($conditionQuery)
+        if ($conditionQuery) {
             $query .= " and ($conditionQuery) ";
+        }
         $result = $this->dbh->query($query);
-        if ($this->dbh->getNumRows($result))
+        if ($this->dbh->getNumRows($result)) {
             return $this->dbh->getValue($result, 0, "amount");
+        }
 
         return false;
     }
 
     /**
      * Set sum aggregation
-     * 
+     *
      * @param \Netric\EntityQuery\Aggregation\AggregationInterface $agg
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition for filtering
@@ -1242,8 +1302,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
     {
         $fieldName = $agg->getField();
 
-        if (!$fieldName)
+        if (!$fieldName) {
             return false;
+        }
 
         $query = "select "
             . "min($fieldName) as mi, "
@@ -1251,8 +1312,9 @@ class Pgsql extends IndexAbstract implements IndexInterface
             . "avg($fieldName) as av, "
             . "sum($fieldName) as su "
             . "FROM " . $objectTable . " where id is not null ";
-        if ($conditionQuery)
+        if ($conditionQuery) {
             $query .= " and ($conditionQuery) ";
+        }
 
         $result = $this->dbh->query($query);
         if ($this->dbh->getNumRows($result)) {
@@ -1263,7 +1325,6 @@ class Pgsql extends IndexAbstract implements IndexInterface
                 "sum" => $this->dbh->getValue($result, 0, "su"),
                 "count" => "" // set in calling class
             );
-
         }
 
         return false;

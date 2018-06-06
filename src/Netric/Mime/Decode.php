@@ -214,4 +214,3 @@ class Decode
         return iconv_mime_decode($string, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
     }
 }
-

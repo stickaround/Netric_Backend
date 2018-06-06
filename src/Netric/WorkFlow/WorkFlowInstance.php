@@ -57,11 +57,13 @@ class WorkFlowInstance
      */
     public function __construct($workFlowId, EntityInterface $entity, $instanceId = null)
     {
-        if ($instanceId)
+        if ($instanceId) {
             $this->id = $instanceId;
+        }
 
-        if ($workFlowId)
+        if ($workFlowId) {
             $this->workFlowId = $workFlowId;
+        }
 
         $this->entity = $entity;
 
@@ -206,8 +208,9 @@ class WorkFlowInstance
      */
     public function isValid()
     {
-        if (!$this->workFlowId)
+        if (!$this->workFlowId) {
             return false;
+        }
 
         return true;
     }

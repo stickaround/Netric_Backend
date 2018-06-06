@@ -44,19 +44,19 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
 
     /**
      * Loader for getting entity definitions
-     * 
+     *
      * @var EntityDefinitionLoader
      */
     private $entityDefinitionLoader = null;
 
     /**
      * Class constructor
-     * 
+     *
      * @param Account $account Current netric account loaded
      */
     public function __construct(Account $account)
     {
-		// Clear the moved entities cache
+        // Clear the moved entities cache
         $this->cacheMovedEntities = [];
         $this->database = $account->getServiceManager()->get(RelationalDbFactory::class);
         $this->commitManager = $account->getServiceManager()->get(CommitManagerFactory::class);
@@ -83,9 +83,9 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         // Increment head commit for groupings which triggers all collections to sync
         $commitHeadIdent = "groupings/" . $groupings->getObjType() . "/";
         $commitHeadIdent .= $groupings->getFieldName() . "/";
-        $commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());	
+        $commitHeadIdent .= $groupings::getFiltersHash($groupings->getFilters());
 
-    	/*
+        /*
          * Groupings are all saved as a single collection, but only updated
          * groupings will shre a new commit id.
          */
@@ -121,7 +121,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             }
         }
 
-        /* 
+        /*
          * Log all deleted groupings to entity sync. It is important that
          * we do this for deletions because the item being synchronized is
          * removed. Changed items are automatically syncronized since the
@@ -152,13 +152,15 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
     public function getGroupings(string $objType, string $fieldName, array $filters = []) : EntityGroupings
     {
         $def = $this->entityDefinitionLoader->get($objType);
-        if (!$def)
+        if (!$def) {
             throw new \Exception("Entity could not be loaded");
+        }
 
         $field = $def->getField($fieldName);
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             throw new \Exception("$objType:$fieldName:" . $field->type . " is not a grouping (fkey or fkey_multi) field!");
+        }
 
         $whereSql = '';
         $whereConditions = [];
@@ -166,7 +168,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $whereSql = 'object_type_id=:object_type_id and field_id=:field_id';
             $whereConditions['object_type_id'] = $def->getId();
             $whereConditions['field_id'] = $field->id;
-        } 
+        }
 
         // Check filters to refine the results - can filter by parent object like project id for cases or tasks
         if (isset($field->fkeyTable['filter'])) {
@@ -185,7 +187,7 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
                      */
                     $whereSql .= $grouping_field . '=:' . $grouping_field;
                     $whereConditions[$grouping_field] = $filters[$object_field];
-                } else if (isset($filters[$grouping_field])) {
+                } elseif (isset($filters[$grouping_field])) {
                     // A filer can also come in as the grouping field name rather than the object
                     if ($whereSql) {
                         $whereSql .= ' AND ';
@@ -225,18 +227,21 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
             $group->id = $row[$field->fkeyTable['key']];
             $group->name = $row[$field->fkeyTable['title']];
             $group->isHeiarch = (isset($field->fkeyTable['parent'])) ? true : false;
-            if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']]))
+            if (isset($field->fkeyTable['parent']) && isset($row[$field->fkeyTable['parent']])) {
                 $group->parentId = $row[$field->fkeyTable['parent']];
+            }
             $group->color = (isset($row['color'])) ? $row['color'] : "";
-            if (isset($row['sort_order']))
+            if (isset($row['sort_order'])) {
                 $group->sortOrder = $row['sort_order'];
+            }
             $group->isSystem = (isset($row['f_system']) && $row['f_system'] == 't') ? true : false;
             $group->commitId = (isset($row['commit_id'])) ? $row['commit_id'] : 0;
 
             // Add all additional fields which are usually used for filters
             foreach ($row as $pname => $pval) {
-                if (!$group->getValue($pname))
+                if (!$group->getValue($pname)) {
                     $group->setValue($pname, $pval);
+                }
             }
 
             // Make sure the group is not marked as dirty
@@ -258,11 +263,13 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
      */
     private function saveGroup($def, $field, \Netric\EntityGroupings\Group $grp)
     {
-        if (!$field)
+        if (!$field) {
             return false;
+        }
 
-        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI)
+        if ($field->type != FIELD::TYPE_GROUPING && $field->type != FIELD::TYPE_GROUPING_MULTI) {
             return false;
+        }
 
         $tableData = [];
 

@@ -60,8 +60,9 @@ class CheckConditionAction extends AbstractAction implements ActionInterface
         $entity = $workflowInstance->getEntity();
 
         // Entity must be saved to meet conditions
-        if (!$entity->getId())
+        if (!$entity->getId()) {
             return false;
+        }
 
         // Get merged params
         $params = $this->getParams($entity);
@@ -73,13 +74,12 @@ class CheckConditionAction extends AbstractAction implements ActionInterface
         $query->where("id")->equals($entity->getId());
 
         // Query deleted if the entity is deleted
-        if ($entity->isDeleted())
+        if ($entity->isDeleted()) {
             $query->andWhere("f_deleted")->equals(true);
+        }
 
-        if (isset($params['conditions']) && is_array($params['conditions']))
-        {
-            foreach ($params['conditions'] as $cond)
-            {
+        if (isset($params['conditions']) && is_array($params['conditions'])) {
+            foreach ($params['conditions'] as $cond) {
                 $query->andWhere($cond['field_name'], $cond['operator'], $cond['value']);
             }
         }

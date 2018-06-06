@@ -180,7 +180,6 @@ class DeliveryService extends AbstractHasErrors
         $foundPart = null;
         $parts = new \RecursiveIteratorIterator($mime);
         foreach ($parts as $part) {
-
             // Initialize the part to add
             $mimePart = null;
 
@@ -251,10 +250,12 @@ class DeliveryService extends AbstractHasErrors
         */
 
         $origDate = $parser->getHeader('date');
-        if (is_array($origDate))
+        if (is_array($origDate)) {
             $origDate = $origDate[count($origDate) - 1];
-        if (!strtotime($origDate) && $origDate)
+        }
+        if (!strtotime($origDate) && $origDate) {
             $origDate = substr($origDate, 0, strrpos($origDate, " "));
+        }
         $messageDate = ($origDate) ? date(DATE_RFC822, strtotime($origDate)) : date(DATE_RFC822);
 
         // Create new mail object and save it to ANT
@@ -296,8 +297,8 @@ class DeliveryService extends AbstractHasErrors
      */
     private function importMailParseAtt(
         PhpMimeMailParser\Attachment &$parserAttach,
-        EmailMessageEntity &$email)
-    {
+        EmailMessageEntity &$email
+    ) {
         /*
          * Write attachment to temp file
          *
@@ -327,7 +328,7 @@ class DeliveryService extends AbstractHasErrors
      * @param CDatabase $dbh Handle to database quired if called statically
      * @param AntUser $user Handle to current user required if called statically
      */
-    private function importProcessFilters($email=null, $dbh=null, $user=null)
+    private function importProcessFilters($email = null, $dbh = null, $user = null)
     {
         /*
         // Check for spam status
@@ -336,9 +337,9 @@ class DeliveryService extends AbstractHasErrors
         if ("t" == $email->getValue("flag_spam"))
         {
             // First make sure this user is not in the whitelist
-            $query = "select id from email_settings_spam where preference='whitelist_from' 
-						and '".strtolower($fromEmail)."' like lower(replace(value, '*', '%'))
-						and user_id='".$user->id."'";
+            $query = "select id from email_settings_spam where preference='whitelist_from'
+                        and '".strtolower($fromEmail)."' like lower(replace(value, '*', '%'))
+                        and user_id='".$user->id."'";
             if (!$dbh->GetNumberRows($dbh->Query($query)))
             {
                 $email->move($email->getGroupId("Junk Mail"));
@@ -348,9 +349,9 @@ class DeliveryService extends AbstractHasErrors
         else
         {
             // Now make sure this user is not in the blacklist
-            $query = "select id from email_settings_spam where preference='blacklist_from' 
-						and '".strtolower($fromEmail)."' like lower(replace(value, '*', '%'))
-						and user_id='".$user->id."'";
+            $query = "select id from email_settings_spam where preference='blacklist_from'
+                        and '".strtolower($fromEmail)."' like lower(replace(value, '*', '%'))
+                        and user_id='".$user->id."'";
             if ($dbh->GetNumberRows($dbh->Query($query)))
             {
                 $email->move($email->getGroupId("Junk Mail"));
@@ -361,8 +362,8 @@ class DeliveryService extends AbstractHasErrors
 
         // Check for filters
         // ------------------------------------------------
-        $query = "select kw_subject, kw_to, kw_from, kw_body, act_mark_read, act_move_to 
-					from email_filters where user_id='".$user->id."'";
+        $query = "select kw_subject, kw_to, kw_from, kw_body, act_mark_read, act_move_to
+                    from email_filters where user_id='".$user->id."'";
         $result = $dbh->Query($query);
         $num = $dbh->GetNumberRows($result);
         for ($i = 0; $i < $num; $i++)

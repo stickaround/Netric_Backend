@@ -37,11 +37,11 @@ class ScheduleRunnerWorker extends AbstractWorker
      * @param SchedulerService $schedulerService For getting and updating scheduled work
      * @param WorkerService $workerService For sending jobs to be run in the background
      */
-     public function __construct(
-         Application $application, 
-         SchedulerService $schedulerService = null, 
-         WorkerService $workerService = null)
-     {
+    public function __construct(
+        Application $application,
+        SchedulerService $schedulerService = null,
+        WorkerService $workerService = null
+    ) {
         parent::__construct($application);
 
         // SEt the worker service or load it with a service location if not set
@@ -51,15 +51,15 @@ class ScheduleRunnerWorker extends AbstractWorker
             $this->workerService = $application->getServiceManager()->get(WorkerService::class);
         }
 
-         /*
-          * We cannot load the scheduler service from the service locator because it is
-          * account specific and we will not know the account we are processing for until
-          * we get the job workload (see work() below for more details)
-          */
+        /*
+         * We cannot load the scheduler service from the service locator because it is
+         * account specific and we will not know the account we are processing for until
+         * we get the job workload (see work() below for more details)
+         */
         if ($schedulerService) {
             $this->schedulerService = $schedulerService;
         }
-     }
+    }
 
     /**
      * Run all scheduled jobs as a background job and remove it from the scheduled queue
@@ -86,7 +86,7 @@ class ScheduleRunnerWorker extends AbstractWorker
 
         // If the scheduler service was not injected as a dependency then load it
         if (!$this->schedulerService) {
-            $this->schedulerService = $account->getServiceManager()->get(SchedulerService::class);            
+            $this->schedulerService = $account->getServiceManager()->get(SchedulerService::class);
         }
 
         $scheduledJobs = $this->schedulerService->getScheduledToRun();

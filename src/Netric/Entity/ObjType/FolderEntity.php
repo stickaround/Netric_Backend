@@ -79,12 +79,9 @@ class FolderEntity extends Entity implements EntityInterface
         $path = $this->getValue("name");
 
         // If we have no parent then we are the root (or should be)
-        if (!$this->getValue("parent_id") && $path === '/')
-        {
+        if (!$this->getValue("parent_id") && $path === '/') {
             return $path;
-        }
-        else if (!$this->getValue("parent_id"))
-        {
+        } elseif (!$this->getValue("parent_id")) {
             // This condition should never happen, but just in case
             // TODO: throw exception?
             return false;
@@ -94,12 +91,9 @@ class FolderEntity extends Entity implements EntityInterface
         $pre = $parentFolder->getFullPath();
 
         // If our parent is the root, then just absolute path to root and avoid returing '//"
-        if ($pre === '/')
-        {
+        if ($pre === '/') {
             return "/" . $path;
-        }
-        else
-        {
+        } else {
             return $pre . "/" . $path;
         }
     }
@@ -112,8 +106,7 @@ class FolderEntity extends Entity implements EntityInterface
      */
     public function move(Folder $newParentFolder)
     {
-        if (!$newParentFolder->getId())
-        {
+        if (!$newParentFolder->getId()) {
             // TODO: Maybe throw exception since this should probably never happen?
             return false;
         }

@@ -4,6 +4,7 @@
  * @copyright 2015 Aereus
  */
 namespace Netric\Stdlib\Exception;
+
 /**
  * Bad method call exception
  */

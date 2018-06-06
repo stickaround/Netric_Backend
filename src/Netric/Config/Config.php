@@ -106,7 +106,7 @@ class Config implements ArrayAccess
      */
     private function fromArray(array $data)
     {
-        foreach ($data as $keyName=>$keyValue) {
+        foreach ($data as $keyName => $keyValue) {
 
             /**
              * If this is a nested config, then initialize a new Config class for a nested property
@@ -114,7 +114,7 @@ class Config implements ArrayAccess
              */
             if (is_array($keyValue)) {
                 $keyValue = new Config($keyValue);
-            } else if (is_object($keyValue)) {
+            } elseif (is_object($keyValue)) {
                 throw new Exception\RuntimeException($keyName . " is invalid because a config variable cannot be an Object");
             }
 

@@ -80,5 +80,4 @@ interface ResponseInterface
      * @param resource $stream
      */
     //public function setStream($stream);
-
 }

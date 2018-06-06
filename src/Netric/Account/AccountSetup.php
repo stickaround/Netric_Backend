@@ -58,7 +58,7 @@ class AccountSetup
                 if ($beginningOfAccName === $cleanedName) {
                     $numAccountsWithName++;
                 }
-            }   
+            }
             
             // Append next number
             $cleanedName .= ++$numAccountsWithName;

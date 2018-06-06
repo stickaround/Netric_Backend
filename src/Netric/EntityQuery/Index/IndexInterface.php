@@ -1,7 +1,7 @@
 <?php
 /*
  * Interface definition for indexes
- * 
+ *
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2014 Aereus
  */
@@ -13,7 +13,7 @@ use Netric\EntityQuery\Results;
 /**
  * Main index interface for DI
  */
-interface IndexInterface 
+interface IndexInterface
 {
     /**
      * Execute a query and return the results

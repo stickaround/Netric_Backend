@@ -24,15 +24,17 @@ class MemcachedCache implements CacheInterface
      *
      * @param Config $config The cache portion of the config
      */
-    public function __construct($config) {
+    public function __construct($config)
+    {
         $this->memCached = new Memcached();
 
         // Make sure servers are not already added
         if (!count($this->memCached->getServerList())) {
             if (is_array($config->host)) {
                 $servers = array();
-                foreach ($config->host as $svr)
+                foreach ($config->host as $svr) {
                     $servers[] = array($svr, 11211, 100);
+                }
 
                 $this->memCached->addServers($servers);
             } else {
@@ -49,7 +51,7 @@ class MemcachedCache implements CacheInterface
      * @param int $expires Number of seconds to expire cache or 0 for never
      * @return boolean true on success, false on failure
      */
-    public function set($key, $value, $expires=0)
+    public function set($key, $value, $expires = 0)
     {
         return $this->memCached->set($key, $value, $expires);
     }

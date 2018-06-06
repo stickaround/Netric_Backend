@@ -93,17 +93,18 @@ class SendEmailAction extends AbstractAction implements ActionInterface
 
         // To
         $to = "";
-        if (isset($params['to']) && is_array($params['to']))
-        {
-            foreach ($params['to'] as $rec)
-            {
-                if ($to) $to .= ", ";
+        if (isset($params['to']) && is_array($params['to'])) {
+            foreach ($params['to'] as $rec) {
+                if ($to) {
+                    $to .= ", ";
+                }
                 $to .= $rec;
             }
         }
-        if (isset($params['to_other']))
-        {
-            if ($to) $to .= ", ";
+        if (isset($params['to_other'])) {
+            if ($to) {
+                $to .= ", ";
+            }
             $to .= $params['to_other'];
         }
 
@@ -111,34 +112,36 @@ class SendEmailAction extends AbstractAction implements ActionInterface
 
         // Cc
         $to = "";
-        if (isset($params['cc']) && is_array($params['cc']))
-        {
-            foreach ($params['cc'] as $rec)
-            {
-                if ($to) $to .= ", ";
+        if (isset($params['cc']) && is_array($params['cc'])) {
+            foreach ($params['cc'] as $rec) {
+                if ($to) {
+                    $to .= ", ";
+                }
                 $to .= $rec;
             }
         }
-        if (isset($params['cc_other']))
-        {
-            if ($to) $to .= ", ";
+        if (isset($params['cc_other'])) {
+            if ($to) {
+                $to .= ", ";
+            }
             $to .= $params['cc_other'];
         }
         $email->setValue("cc", $to);
 
         // Bcc
         $to = "";
-        if (isset($params['bcc']) && is_array($params['bcc']))
-        {
-            foreach ($params['bcc'] as $rec)
-            {
-                if ($to) $to .= ", ";
+        if (isset($params['bcc']) && is_array($params['bcc'])) {
+            foreach ($params['bcc'] as $rec) {
+                if ($to) {
+                    $to .= ", ";
+                }
                 $to .= $rec;
             }
         }
-        if (isset($params['bcc_other']))
-        {
-            if ($to) $to .= ", ";
+        if (isset($params['bcc_other'])) {
+            if ($to) {
+                $to .= ", ";
+            }
             $to .= $params['bcc_other'];
         }
         $email->setValue("bcc", $to);

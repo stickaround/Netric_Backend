@@ -150,32 +150,29 @@ class Mime
      * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
-    public static function encodeQuotedPrintable($str,
-                                                 $lineLength = self::LINELENGTH,
-                                                 $lineEnd = self::LINEEND)
-    {
+    public static function encodeQuotedPrintable(
+        $str,
+        $lineLength = self::LINELENGTH,
+        $lineEnd = self::LINEEND
+    ) {
         $out = '';
         $str = self::convertToQuotedPrintable($str);
 
         // Split encoded text into separate lines
-        while ($str)
-        {
+        while ($str) {
             $ptr = strlen($str);
-            if ($ptr > $lineLength)
-            {
+            if ($ptr > $lineLength) {
                 $ptr = $lineLength;
             }
 
             // Ensure we are not splitting across an encoded character
             $pos = strrpos(substr($str, 0, $ptr), '=');
-            if ($pos !== false && $pos >= $ptr - 2)
-            {
+            if ($pos !== false && $pos >= $ptr - 2) {
                 $ptr = $pos;
             }
 
             // Check if there is a space at the end of the line and rewind
-            if ($ptr > 0 && $str[$ptr - 1] == ' ')
-            {
+            if ($ptr > 0 && $str[$ptr - 1] == ' ') {
                 --$ptr;
             }
 
@@ -215,10 +212,12 @@ class Mime
      * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
-    public static function encodeQuotedPrintableHeader($str, $charset,
-                                                       $lineLength = self::LINELENGTH,
-                                                       $lineEnd = self::LINEEND)
-    {
+    public static function encodeQuotedPrintableHeader(
+        $str,
+        $charset,
+        $lineLength = self::LINELENGTH,
+        $lineEnd = self::LINEEND
+    ) {
         // Reduce line-length by the length of the required delimiter, charsets and encoding
         $prefix = sprintf('=?%s?Q?', $charset);
         $lineLength = $lineLength-strlen($prefix)-3;
@@ -233,41 +232,34 @@ class Mime
 
         // Split encoded text into separate lines
         $tmp = '';
-        while (strlen($str) > 0)
-        {
+        while (strlen($str) > 0) {
             $currentLine = max(count($lines) - 1, 0);
             $token       = static::getNextQuotedPrintableToken($str);
             $substr      = substr($str, strlen($token));
             $str         = (false === $substr) ? '' : $substr;
 
             $tmp .= $token;
-            if ($token === '=20')
-            {
+            if ($token === '=20') {
                 /*
                  * Only if we have a single char token or space, we can append the
                  * tempstring it to the current line or start a new line if necessary.
                  */
-                if (strlen($lines[$currentLine] . $tmp) > $lineLength)
-                {
+                if (strlen($lines[$currentLine] . $tmp) > $lineLength) {
                     $lines[$currentLine + 1] = $tmp;
-                }
-                else
-                {
+                } else {
                     $lines[$currentLine] .= $tmp;
                 }
                 $tmp = '';
             }
 
             // Don't forget to append the rest to the last line
-            if (strlen($str) === 0)
-            {
+            if (strlen($str) === 0) {
                 $lines[$currentLine] .= $tmp;
             }
         }
 
         // assemble the lines together by pre- and appending delimiters, charset, encoding.
-        for ($i = 0, $count = count($lines); $i < $count; $i++)
-        {
+        for ($i = 0, $count = count($lines); $i < $count; $i++) {
             $lines[$i] = " " . $prefix . $lines[$i] . "?=";
         }
 
@@ -285,12 +277,9 @@ class Mime
      */
     private static function getNextQuotedPrintableToken($str)
     {
-        if (substr($str, 0, 1) === "=")
-        {
+        if (substr($str, 0, 1) === "=") {
             $token = substr($str, 0, 3);
-        }
-        else
-        {
+        } else {
             $token = substr($str, 0, 1);
         }
         return $token;
@@ -305,11 +294,12 @@ class Mime
      * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
-    public static function encodeBase64Header($str,
-                                              $charset,
-                                              $lineLength = self::LINELENGTH,
-                                              $lineEnd = self::LINEEND)
-    {
+    public static function encodeBase64Header(
+        $str,
+        $charset,
+        $lineLength = self::LINELENGTH,
+        $lineEnd = self::LINEEND
+    ) {
         $prefix = '=?' . $charset . '?B?';
         $suffix = '?=';
         $remainingLength = $lineLength - strlen($prefix) - strlen($suffix);
@@ -334,10 +324,11 @@ class Mime
      * @param string $lineEnd Defaults to {@link LINEEND}
      * @return string
      */
-    public static function encodeBase64($str,
-                                        $lineLength = self::LINELENGTH,
-                                        $lineEnd = self::LINEEND)
-    {
+    public static function encodeBase64(
+        $str,
+        $lineLength = self::LINELENGTH,
+        $lineEnd = self::LINEEND
+    ) {
         return rtrim(chunk_split(base64_encode($str), $lineLength, $lineEnd));
     }
 
@@ -352,12 +343,9 @@ class Mime
     public function __construct($boundary = null)
     {
         // This string needs to be somewhat unique so we use $makeUnique as a static counter
-        if ($boundary === null)
-        {
+        if ($boundary === null) {
             $this->boundary = '=_' . md5(microtime(1) . static::$makeUnique++);
-        }
-        else
-        {
+        } else {
             $this->boundary = $boundary;
         }
     }
@@ -372,8 +360,7 @@ class Mime
      */
     public static function encode($str, $encoding, $EOL = self::LINEEND)
     {
-        switch ($encoding)
-        {
+        switch ($encoding) {
             case self::ENCODING_BASE64:
                 return static::encodeBase64($str, self::LINELENGTH, $EOL);
 

@@ -115,8 +115,7 @@ class InMemory implements QueueInterface
     public function clearWorkerQueue($workerName)
     {
         $toRemove = array();
-        for ($i = 0; $i < count($this->queuedJobs); $i++)
-        {
+        for ($i = 0; $i < count($this->queuedJobs); $i++) {
             if ($this->queuedJobs[$i][0] === $workerName) {
                 $toRemove[] = $i;
             }
@@ -129,4 +128,3 @@ class InMemory implements QueueInterface
         return count($toRemove);
     }
 }
-

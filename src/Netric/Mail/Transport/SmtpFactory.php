@@ -66,8 +66,9 @@ class SmtpFactory implements AccountServiceFactoryInterface
                 unset($options['connection_config']);
             }
 
-            if ($port)
+            if ($port) {
                 $options['port'] = $port;
+            }
         }
 
 

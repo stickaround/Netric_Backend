@@ -9,7 +9,6 @@ namespace Netric\Entity\BrowserView;
 
 use Netric\EntityQuery;
 
-
 /**
  * Represent a single browser view
  *
@@ -106,7 +105,7 @@ class BrowserView
      *
      * @return array
      */
-    public function toArray($userid=null)
+    public function toArray($userid = null)
     {
         $ret = array(
             "id" => $this->id,
@@ -124,20 +123,17 @@ class BrowserView
         );
 
         // Add view fields
-        foreach ($this->tableColumns as $field)
-        {
+        foreach ($this->tableColumns as $field) {
             $ret['table_columns'][] = $field;
         }
 
         // Add conditions
-        foreach ($this->wheres as $where)
-        {
+        foreach ($this->wheres as $where) {
             $ret['conditions'][] = $where->toArray();
         }
 
         // Add sort order
-        foreach ($this->orderBy as $sort)
-        {
+        foreach ($this->orderBy as $sort) {
             $ret['order_by'][] = $sort->toArray();
         }
 
@@ -151,56 +147,59 @@ class BrowserView
      */
     public function fromArray(array $data)
     {
-        if (isset($data['id']))
+        if (isset($data['id'])) {
             $this->id = $data['id'];
+        }
 
-        if (isset($data['name']))
+        if (isset($data['name'])) {
             $this->name = $data['name'];
+        }
 
-        if (isset($data['obj_type']))
+        if (isset($data['obj_type'])) {
             $this->objType = $data['obj_type'];
+        }
 
-        if (isset($data['description']))
+        if (isset($data['description'])) {
             $this->description = $data['description'];
+        }
 
-        if (isset($data['system']) && is_bool($data['system']))
+        if (isset($data['system']) && is_bool($data['system'])) {
             $this->system = $data['system'];
+        }
 
-        if (isset($data['default']) && is_bool($data['default']))
+        if (isset($data['default']) && is_bool($data['default'])) {
             $this->default = $data['default'];
+        }
 
-        if (isset($data['f_default']) && is_bool($data['f_default']))
+        if (isset($data['f_default']) && is_bool($data['f_default'])) {
             $this->default = $data['f_default'];
+        }
 
-        if (isset($data['team_id']))
+        if (isset($data['team_id'])) {
             $this->setTeamId($data['team_id']);
+        }
 
         // We put this last in case they set both team and user then user will override team
-        if (isset($data['user_id']))
+        if (isset($data['user_id'])) {
             $this->setUserId($data['user_id']);
+        }
 
-        if (isset($data['table_columns']) && is_array($data['table_columns']))
-        {
-            foreach ($data['table_columns'] as $colField)
-            {
+        if (isset($data['table_columns']) && is_array($data['table_columns'])) {
+            foreach ($data['table_columns'] as $colField) {
                 $this->tableColumns[] = $colField;
             }
         }
 
-        if (isset($data['conditions']) && is_array($data['conditions']))
-        {
-            foreach ($data['conditions'] as $cond)
-            {
+        if (isset($data['conditions']) && is_array($data['conditions'])) {
+            foreach ($data['conditions'] as $cond) {
                 $where = new EntityQuery\Where($cond['field_name']);
                 $where->fromArray($cond);
                 $this->wheres[] = $where;
             }
         }
 
-        if (isset($data['order_by']) && is_array($data['order_by']))
-        {
-            foreach ($data['order_by'] as $sortData)
-            {
+        if (isset($data['order_by']) && is_array($data['order_by'])) {
+            foreach ($data['order_by'] as $sortData) {
                 $orBy = new EntityQuery\OrderBy($sortData['field_name'], $sortData['direction']);
                 $this->orderBy[] = $orBy;
             }
@@ -267,8 +266,9 @@ class BrowserView
      */
     public function setUserId($userId)
     {
-        if ($this->getTeamId())
+        if ($this->getTeamId()) {
             $this->teamId = null;
+        }
 
         $this->userId = $userId;
     }
@@ -293,8 +293,9 @@ class BrowserView
      */
     public function setTeamId($teamId)
     {
-        if ($this->getUserId())
+        if ($this->getUserId()) {
             $this->userId = null;
+        }
 
         $this->teamId = $teamId;
     }
@@ -379,4 +380,3 @@ class BrowserView
         return $this->orderBy;
     }
 }
-

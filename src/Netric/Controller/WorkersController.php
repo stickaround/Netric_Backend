@@ -41,7 +41,7 @@ class WorkersController extends Mvc\AbstractController
      * Optionally override the default worker service
      *
      * This will most likely be used in testing and automation
-     * 
+     *
      * @param WorkerService $workerService
      * @return void
      */
@@ -90,7 +90,6 @@ class WorkersController extends Mvc\AbstractController
 
         // Process each job, one at a time
         while ($this->workerService->processJobQueue()) {
-
             // Increment the number of jobs processed
             $numProcessed++;
 
@@ -137,7 +136,7 @@ class WorkersController extends Mvc\AbstractController
             $response->suppressOutput(true);
         }
 
-        /*  
+        /*
          * Set the universal lock timeout which makes sure only one instance
          * of this is run within the specified number of seconds
          */
@@ -178,7 +177,7 @@ class WorkersController extends Mvc\AbstractController
 
     /**
      * The main scheduled jobs loop will schedule jobs to be run every minute
-     * 
+     *
      * This is essentially a heartbeat that emits a background job for every
      * account to run any scheduled jobs the account may have.
      *
@@ -188,11 +187,10 @@ class WorkersController extends Mvc\AbstractController
      * @return void
      */
     private function queueScheduledJobs(
-        Application $application, 
-        RequestInterface $request, 
+        Application $application,
+        RequestInterface $request,
         $uniqueLockName
-    )
-    {
+    ) {
         $running = true;
         while ($running) {
             /*

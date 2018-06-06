@@ -93,8 +93,7 @@ class FileSystem implements Error\ErrorAwareInterface
         EntityLoader $entityLoader,
         DataMapperInterface $dataMapper,
         IndexInterface $entityQueryIndex
-    )
-    {
+    ) {
         $this->fileStore = $fileStore;
         $this->user = $user;
         $this->entityDataMapper = $dataMapper;
@@ -162,10 +161,11 @@ class FileSystem implements Error\ErrorAwareInterface
     public function openFile($folderPath, $fileName)
     {
         $folder = $this->openFolder($folderPath);
-        if ($folder)
+        if ($folder) {
             return $this->getChildFileByName($fileName, $folder);
-        else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -217,10 +217,11 @@ class FileSystem implements Error\ErrorAwareInterface
     public function openFileStreamById($fid)
     {
         $file = $this->openFileById($fid);
-        if ($file)
+        if ($file) {
             return FileStreamWrapper::open($this, $file);
-        else
+        } else {
             return null;
+        }
     }
 
     /**
@@ -233,12 +234,14 @@ class FileSystem implements Error\ErrorAwareInterface
     public function openFolder($path, $createIfMissing = false)
     {
         // Create system paths no matter what
-        if (!$createIfMissing && ($path == "%tmp%" || $path == "%userdir%" || $path == "%home%"))
+        if (!$createIfMissing && ($path == "%tmp%" || $path == "%userdir%" || $path == "%home%")) {
             $createIfMissing = true;
+        }
 
         // Check if we are just trying to get root
-        if ($path === "/")
+        if ($path === "/") {
             return $this->rootFolder;
+        }
 
         $folders = $this->splitPathToFolderArray($path, $createIfMissing);
 
@@ -292,16 +295,21 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function getHumanSize($size)
     {
-        if ($size >= 1000000000000)
+        if ($size >= 1000000000000) {
             return round($size / 1000000000000, 1) . "T";
-        if ($size >= 1000000000)
+        }
+        if ($size >= 1000000000) {
             return round($size / 1000000000, 1) . "G";
-        if ($size >= 1000000)
+        }
+        if ($size >= 1000000) {
             return round($size / 1000000, 1) . "M";
-        if ($size >= 1000)
+        }
+        if ($size >= 1000) {
             return round($size / 1000, 0) . "K";
-        if ($size < 1000)
+        }
+        if ($size < 1000) {
             return $size . "B";
+        }
     }
 
     /**
@@ -342,15 +350,17 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function fileIsTemp(FileEntity $file)
     {
-        if (!$file->getId())
+        if (!$file->getId()) {
             return false;
+        }
 
         $tempFolder = $this->openFolder("%tmp%");
 
-        if ($file->getValue("folder_id") == $tempFolder->getId())
+        if ($file->getValue("folder_id") == $tempFolder->getId()) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -362,8 +372,9 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function moveFile(FileEntity $file, FolderEntity $toFolder)
     {
-        if (!$file || !$toFolder || !$toFolder->getId())
+        if (!$file || !$toFolder || !$toFolder->getId()) {
             return false;
+        }
 
         // Change file to new folder
         $file->setValue("folder_id", $toFolder->getId());
@@ -471,7 +482,7 @@ class FileSystem implements Error\ErrorAwareInterface
             // If the folder exists add it and continue
             if ($nextFolder && $nextFolder->getId()) {
                 $folders[] = $nextFolder;
-            } else if ($createIfMissing) {
+            } elseif ($createIfMissing) {
                 // TODO: Check permissions to see if we have access to create
 
                 $nextFolder = $this->entityLoader->create("folder");

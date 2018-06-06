@@ -57,24 +57,26 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
         $params = $this->getParams($entity);
 
         // Execute now if no interval is set or it's been set to 'execute immediately'
-        if (!isset($params['when_unit']) || !isset($params['when_interval']) || $params['when_interval'] === 0)
+        if (!isset($params['when_unit']) || !isset($params['when_interval']) || $params['when_interval'] === 0) {
             return true;
+        }
 
         // We cannot set future actions if we are not running in a workflow instance
-        if (!$workflowInstance)
+        if (!$workflowInstance) {
             throw new \RuntimeException("Cannot schedule the action because workFlowInstance was not set");
+        }
 
         // We can only schedule an action that was previously saved
-        if (!$this->getId())
+        if (!$this->getId()) {
             throw new \RuntimeException("Cannot schedule the action because it has not been saved yet");
+        }
 
         /*
          * Now that we know that this action is setup correctly, we can execute the schedule logic.
          * The first thing we will do is find out if we are re-executing on a previously
          * saved action. This is expected when the scheduled task finally launches.
          */
-        if ($this->workFlowDataMapper->getScheduledActionTime($workflowInstance->getId(), $this->getId()))
-        {
+        if ($this->workFlowDataMapper->getScheduledActionTime($workflowInstance->getId(), $this->getId())) {
             // Delete the scheduled action since we are now finished processing it.
             $this->workFlowDataMapper->deleteScheduledAction($workflowInstance->getId(), $this->getId());
 
@@ -120,8 +122,9 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
         $prefix = ($intervalUnit === 'H' || $intervalUnit === 'm') ? $pre = "PT" : 'P';
 
         // Translate our 'm' (lowercase) for minute back to uppercase 'M' for \DateInterval (see above)
-        if ($intervalUnit === 'm')
+        if ($intervalUnit === 'm') {
             $intervalUnit = 'M';
+        }
 
         $dateInterval = new \DateInterval($prefix . $whenInterval . $intervalUnit);
         $executeDate = new \DateTime();
@@ -138,8 +141,7 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
      */
     private function getDateIntervalUnit($unit)
     {
-        switch ($unit)
-        {
+        switch ($unit) {
             case WorkFlow::TIME_UNIT_YEAR:
                 return 'Y';
 
@@ -163,5 +165,4 @@ class WaitConditionAction extends AbstractAction implements ActionInterface
                 throw new \InvalidArgumentException("No DateTinerval conversion for unit $unit");
         }
     }
-
 }

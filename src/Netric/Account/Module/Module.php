@@ -266,7 +266,8 @@ class Module
      */
     public function setUserId($userId)
     {
-        $this->userId = $userId;;
+        $this->userId = $userId;
+        ;
     }
 
     /**
@@ -398,46 +399,59 @@ class Module
      */
     public function fromArray(array $data)
     {
-        if (isset($data['id']) && $data['id'])
+        if (isset($data['id']) && $data['id']) {
             $this->id = $data['id'];
+        }
 
-        if (isset($data['name']) && $data['name'])
+        if (isset($data['name']) && $data['name']) {
             $this->name = $data['name'];
+        }
 
-        if (isset($data['title']) && $data['title'])
+        if (isset($data['title']) && $data['title']) {
             $this->title = $data['title'];
+        }
 
-        if (isset($data['short_title']) && $data['short_title'])
+        if (isset($data['short_title']) && $data['short_title']) {
             $this->shortTitle = $data['short_title'];
+        }
 
-        if (isset($data['sort_order']) && $data['sort_order'])
+        if (isset($data['sort_order']) && $data['sort_order']) {
             $this->sortOder = $data['sort_order'];
+        }
 
-        if (isset($data['scope']) && $data['scope'])
+        if (isset($data['scope']) && $data['scope']) {
             $this->scope = $data['scope'];
+        }
 
-        if (isset($data['system']) && $data['system'])
+        if (isset($data['system']) && $data['system']) {
             $this->system = $data['system'];
-        else
+        } else {
             $this->system = false;
+        }
 
-        if (isset($data['user_id']) && $data['user_id'])
+        if (isset($data['user_id']) && $data['user_id']) {
             $this->userId = $data['user_id'];
+        }
 
-        if (isset($data['team_id']) && $data['team_id'])
+        if (isset($data['team_id']) && $data['team_id']) {
             $this->teamId = $data['team_id'];
+        }
 
-        if (isset($data['icon']) && $data['icon'])
+        if (isset($data['icon']) && $data['icon']) {
             $this->icon = $data['icon'];
+        }
 
-        if (isset($data['default_route']) && $data['default_route'])
+        if (isset($data['default_route']) && $data['default_route']) {
             $this->defaultRoute = $data['default_route'];
+        }
 
-        if (isset($data['navigation']) && is_array($data['navigation']) && $data['navigation'])
+        if (isset($data['navigation']) && is_array($data['navigation']) && $data['navigation']) {
             $this->navigation = $data['navigation'];
+        }
 
-        if (isset($data['xml_navigation']) && $data['xml_navigation'])
+        if (isset($data['xml_navigation']) && $data['xml_navigation']) {
             $this->xmlNavigation = $data['xml_navigation'];
+        }
     }
 
     /**

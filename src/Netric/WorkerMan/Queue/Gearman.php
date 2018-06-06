@@ -177,13 +177,16 @@ class Gearman implements QueueInterface
         @$gmWorker->unregisterAll();
 
         // Register a no-op function to run through the queue (our /dev/null)
-        $gmWorker->addFunction($workerName, function($job) { $job->sendComplete("Done"); return true; });
+        $gmWorker->addFunction($workerName, function ($job) {
+            $job->sendComplete("Done");
+            return true;
+        });
 
         // Remove non blocking because it is causing problems with clearing
         //$gmWorker->removeOptions(GEARMAN_WORKER_NON_BLOCKING);
 
         // If there are no jobs work will return GEARMAN_NO_JOBS
-        while($gmWorker->work() || $gmWorker->returnCode() == GEARMAN_IO_WAIT) {
+        while ($gmWorker->work() || $gmWorker->returnCode() == GEARMAN_IO_WAIT) {
             $purged++;
         }
         $returnCode = $this->getGmWorker()->returnCode();
@@ -193,7 +196,7 @@ class Gearman implements QueueInterface
         //$gmWorker->setOptions(GEARMAN_WORKER_NON_BLOCKING);
 
         // Re-register original listeners
-        foreach ($this->listeners as $listenerName=>$worker) {
+        foreach ($this->listeners as $listenerName => $worker) {
             $gmWorker->addFunction($workerName, array($this, "sendJobToWorker"));
         }
 

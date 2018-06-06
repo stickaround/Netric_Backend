@@ -94,15 +94,17 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
      */
     public function createSeries(RecurrencePattern $pattern, \DateTime $toDate)
     {
-		// Make sure we are working with a valid pattern
-        if (!$pattern->validatePattern())
+        // Make sure we are working with a valid pattern
+        if (!$pattern->validatePattern()) {
             return 0;
+        }
 
-		// Make sure this is not being created/removed by any other process
-        if ($pattern->isSeriesLocked())
+        // Make sure this is not being created/removed by any other process
+        if ($pattern->isSeriesLocked()) {
             return 0;
+        }
 
-		// Lock this pattern to prevent overlap
+        // Lock this pattern to prevent overlap
         $pattern->setSeriesLocked(true);
         $this->recurIdentityMapper->save($pattern);
 
@@ -111,8 +113,9 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
 
         // Get the very next date from the pattern picking up from where it last processed to
         $curDate = $pattern->getNextStart();
-        if (!$curDate)
+        if (!$curDate) {
             return 0;
+        }
 
         // Loop through $pattern->getNextStart() until we have reached $toDate
         while ($curDate <= $toDate) {
@@ -122,8 +125,9 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
 
             // Get the next date to process next time around or exit if we've reached the end
             $curDate = $pattern->getNextStart();
-            if (!$curDate)
+            if (!$curDate) {
                 break;
+            }
         }
 
         // Update the date we just processed to and unlock the series
@@ -149,8 +153,9 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $recurId = $recurrencePattern->getId();
 
         // Only delete recurring entities
-        if (!$recurrencePattern)
+        if (!$recurrencePattern) {
             return false;
+        }
 
         // Query entities that are part of the series and delete them
         $query = new EntityQuery($entity->getDefinition()->getObjType());
@@ -162,7 +167,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
             $this->entityDataMapper->delete($entity);
         }
 
-		// Delete the recurrence pattern
+        // Delete the recurrence pattern
         $this->recurIdentityMapper->delete($recurrencePattern);
 
         return true;
@@ -256,7 +261,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
                             $processTo = $cond->value;
                         }
                     }
-                } else if ($cond->value) {
+                } elseif ($cond->value) {
                     /*
                      * Condition values are text entered by users so let's make sure
                      * is a valid timestamp before processing.
@@ -308,10 +313,12 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         $recurRules = $entityDefinition->recurRules;
 
         // Validate
-        if (!isset($recurRules))
+        if (!isset($recurRules)) {
             throw new \RuntimeException("Cannot get recurRules for objType: " . $objType);
-        if (!isset($recurRules['field_date_start']))
+        }
+        if (!isset($recurRules['field_date_start'])) {
             throw new \RuntimeException("field_date_start was not provided in recur rules");
+        }
 
         // Clone all values from firstEntity into newInstanceEntity
         $firstEntity->cloneTo($newInstanceEntity);

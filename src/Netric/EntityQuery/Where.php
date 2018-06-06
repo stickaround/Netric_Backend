@@ -73,7 +73,7 @@ class Where
      *
      * @return Where
      */
-    public function __construct($fieldName="*")
+    public function __construct($fieldName = "*")
     {
         $this->fieldName = $fieldName;
         return $this;
@@ -101,17 +101,21 @@ class Where
      */
     public function fromArray($data)
     {
-        if (isset($data['blogic']))
+        if (isset($data['blogic'])) {
             $this->bLogic =  $data['blogic'];
+        }
 
-        if (isset($data['field_name']))
+        if (isset($data['field_name'])) {
             $this->fieldName =  $data['field_name'];
+        }
 
-        if (isset($data['operator']))
+        if (isset($data['operator'])) {
             $this->operator =  $data['operator'];
+        }
 
-        if (isset($data['value']))
+        if (isset($data['value'])) {
             $this->value =  $data['value'];
+        }
     }
 
     /**
@@ -136,192 +140,192 @@ class Where
         $this->value = $value;
     }
 
-	/**
-	 * Check if terms are included in a string - full text
-	 *
-	 * @param string $value
-	 */
-	public function contains($value)
-	{
+    /**
+     * Check if terms are included in a string - full text
+     *
+     * @param string $value
+     */
+    public function contains($value)
+    {
         $this->operator = self::OPERATOR_CONTAINS;
         $this->value = $value;
-	}
+    }
 
-	/**
-	 * Check if the value in the column/field is greater than the condition value
-	 *
-	 * @param string $value
-	 */
-	public function isGreaterThan($value)
-	{
+    /**
+     * Check if the value in the column/field is greater than the condition value
+     *
+     * @param string $value
+     */
+    public function isGreaterThan($value)
+    {
         $this->operator = self::OPERATOR_GREATER_THAN;
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if the value in the column/field is greater than the condition value
-	 *
-	 * @param string $value
-	 */
-	public function isGreaterOrEqualTo($value)
-	{
+     * Check if the value in the column/field is greater than the condition value
+     *
+     * @param string $value
+     */
+    public function isGreaterOrEqualTo($value)
+    {
         $this->operator = self::OPERATOR_GREATER_THAN_OR_EQUAL_TO;
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if the value in the column/field is less than the condition value
-	 *
-	 * @param string $value
-	 */
-	public function isLessThan($value)
-	{
+     * Check if the value in the column/field is less than the condition value
+     *
+     * @param string $value
+     */
+    public function isLessThan($value)
+    {
         $this->operator = self::OPERATOR_LESS_THAN;
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if the value in the column/field is less than the condition value
-	 *
-	 * @param string $value
-	 */
-	public function isLessOrEqualTo($value)
-	{
+     * Check if the value in the column/field is less than the condition value
+     *
+     * @param string $value
+     */
+    public function isLessOrEqualTo($value)
+    {
         $this->operator = self::OPERATOR_LESS_THAN_OR_EQUAL_TO;
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if text/string begins with a string
-	 *
-	 * @param string $value
-	 */
-	public function beginsWith($value)
-	{
+     * Check if text/string begins with a string
+     *
+     * @param string $value
+     */
+    public function beginsWith($value)
+    {
         $this->operator = "begins";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if a date in a date/time field matches a given day
-	 *
-	 * @param string $value
-	 */
-	public function dayIsEqual($value)
-	{
+     * Check if a date in a date/time field matches a given day
+     *
+     * @param string $value
+     */
+    public function dayIsEqual($value)
+    {
         $this->operator = "day_is_equal";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if a date in a date/time field matches a given month
-	 *
-	 * @param string $value
-	 */
-	public function monthIsEqual($value)
-	{
+     * Check if a date in a date/time field matches a given month
+     *
+     * @param string $value
+     */
+    public function monthIsEqual($value)
+    {
         $this->operator = "month_is_equal";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check if a date in a date/time field matches a given year
-	 *
-	 * @param string $value
-	 */
-	public function yearIsEqual($value)
-	{
+     * Check if a date in a date/time field matches a given year
+     *
+     * @param string $value
+     */
+    public function yearIsEqual($value)
+    {
         $this->operator = "year_is_equal";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the last x number of days
-	 *
-	 * @param string $value
-	 */
-	public function lastNumDays($value)
-	{
+     * Check to see if a date is within the last x number of days
+     *
+     * @param string $value
+     */
+    public function lastNumDays($value)
+    {
         $this->operator = "last_x_days";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the last x number of weeks
-	 *
-	 * @param string $value
-	 */
-	public function lastNumWeeks($value)
-	{
+     * Check to see if a date is within the last x number of weeks
+     *
+     * @param string $value
+     */
+    public function lastNumWeeks($value)
+    {
         $this->operator = "last_x_weeks";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the last x number of months
-	 *
-	 * @param string $value
-	 */
-	public function lastNumMonths($value)
-	{
+     * Check to see if a date is within the last x number of months
+     *
+     * @param string $value
+     */
+    public function lastNumMonths($value)
+    {
         $this->operator = "last_x_months";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the last x number of years
-	 *
-	 * @param string $value
-	 */
-	public function lastNumYears($value)
-	{
+     * Check to see if a date is within the last x number of years
+     *
+     * @param string $value
+     */
+    public function lastNumYears($value)
+    {
         $this->operator = "last_x_years";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the next x number of days
-	 *
-	 * @param string $value
-	 */
-	public function nextNumDays($value)
-	{
+     * Check to see if a date is within the next x number of days
+     *
+     * @param string $value
+     */
+    public function nextNumDays($value)
+    {
         $this->operator = "next_x_days";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the next x number of weeks
-	 *
-	 * @param string $value
-	 */
-	public function nextNumWeeks($value)
-	{
+     * Check to see if a date is within the next x number of weeks
+     *
+     * @param string $value
+     */
+    public function nextNumWeeks($value)
+    {
         $this->operator = "next_x_weeks";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the next x number of months
-	 *
-	 * @param string $value
-	 */
-	public function nextNumMonths($value)
-	{
+     * Check to see if a date is within the next x number of months
+     *
+     * @param string $value
+     */
+    public function nextNumMonths($value)
+    {
         $this->operator = "next_x_months";
         $this->value = $value;
-	}
+    }
 
     /**
-	 * Check to see if a date is within the next x number of years
-	 *
-	 * @param string $value
-	 */
-	public function nextNumYears($value)
-	{
+     * Check to see if a date is within the next x number of years
+     *
+     * @param string $value
+     */
+    public function nextNumYears($value)
+    {
         $this->operator = "next_x_years";
         $this->value = $value;
-	}
+    }
 
     /**
      * Fulltext type query

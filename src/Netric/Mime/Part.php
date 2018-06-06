@@ -176,7 +176,7 @@ class Part
 
     /**
      * Get encoding
-     * 
+     *
      * @return string
      */
     public function getEncoding()

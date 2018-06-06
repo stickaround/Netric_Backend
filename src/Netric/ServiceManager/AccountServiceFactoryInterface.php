@@ -10,11 +10,11 @@ namespace Netric\ServiceManager;
  */
 interface AccountServiceFactoryInterface extends ServiceFactoryInterface
 {
-	/**
-	 * Service creation factory for account specific services
-	 *
-	 * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-	 * @return mixed Initialized service object
-	 */
-	public function createService(AccountServiceManagerInterface $sl);
+    /**
+     * Service creation factory for account specific services
+     *
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @return mixed Initialized service object
+     */
+    public function createService(AccountServiceManagerInterface $sl);
 }

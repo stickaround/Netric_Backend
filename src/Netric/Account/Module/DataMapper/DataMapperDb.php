@@ -12,7 +12,6 @@ use Netric\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
 use SimpleXMLElement;
 
-
 class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
 {
     /**
@@ -75,13 +74,11 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         );
 
         // Make sure that the module is dirty before we set the navigation
-        if($module->isDirty())
-        {
+        if ($module->isDirty()) {
             $moduleNavigation = null;
 
             // Make sure the the navigation is an array
-            if($module->getNavigation() && is_array($module->getNavigation()))
-            {
+            if ($module->getNavigation() && is_array($module->getNavigation())) {
                 // Setup the xml object
                 $xmlNavigation = new SimpleXMLElement('<navigation></navigation>');
 
@@ -101,8 +98,10 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         if ($module->getId()) {
             // Update existing record
             $updateStatements = "";
-            foreach ($data as $colName=>$colValue) {
-                if ($updateStatements) $updateStatements .= ", ";
+            foreach ($data as $colName => $colValue) {
+                if ($updateStatements) {
+                    $updateStatements .= ", ";
+                }
                 $updateStatements .= $colName . "=" . $colValue;
             }
             $sql = "UPDATE applications SET $updateStatements " .
@@ -112,7 +111,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
             // Insert new record
             $columns = [];
             $values = [];
-            foreach ($data as $colName=>$colValue) {
+            foreach ($data as $colName => $colValue) {
                 if ($colName != 'id') {
                     $columns[] = $colName;
                     $values[] = $colValue;
@@ -125,15 +124,13 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
 
         // Run the query and return the results
         $result = $this->dbh->query($sql);
-        if (!$result)
-        {
+        if (!$result) {
             $this->addErrorFromMessage($this->dbh->getLastError());
             return false;
         }
 
         // Update the module id
-        if ($this->dbh->getNumRows($result) && !$module->getId())
-        {
+        if ($this->dbh->getNumRows($result) && !$module->getId()) {
             $module->setId($this->dbh->getValue($result, 0, 'id'));
         }
 
@@ -150,8 +147,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
     {
         $sql = "SELECT * FROM applications WHERE name='" . $this->dbh->escape($name) . "'";
         $result = $this->dbh->query($sql);
-        if (!$result)
-        {
+        if (!$result) {
             $this->addErrorFromMessage($this->dbh->getLastError());
             return null;
         }
@@ -176,19 +172,18 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         $modules = [];
 
         $sql = "SELECT * FROM applications ";
-        if ($scope)
+        if ($scope) {
             $sql .= "WHERE scope='" . $this->dbh->escape($scope) . "' ";
+        }
         $sql .= "ORDER BY sort_order";
         $result = $this->dbh->query($sql);
-        if (!$result)
-        {
+        if (!$result) {
             $this->addErrorFromMessage($this->dbh->getLastError());
             return null;
         }
 
         $num = $this->dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++)
-        {
+        for ($i = 0; $i < $num; $i++) {
             $row = $this->dbh->getRow($result, $i);
             $modules[] = $this->createModuleFromRow($row);
         }
@@ -215,14 +210,12 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
      */
     public function delete(Module $module)
     {
-        if ($module->isSystem())
-        {
+        if ($module->isSystem()) {
             $this->addErrorFromMessage("Cannot delete a system module");
             return false;
         }
 
-        if (!$module->getId())
-        {
+        if (!$module->getId()) {
             throw new \InvalidArgumentException("Missing ID - cannot delete an unsaved module");
         }
 
@@ -230,8 +223,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
         $result = $this->dbh->query($sql);
 
         // Check to see if there was a problem
-        if (!$result)
-        {
+        if (!$result) {
             $this->addErrorFromMessage("DB error: " . $this->dbh->getLastError());
             return false;
         }
@@ -254,8 +246,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
          * If module data from the database has xml_navigation, then we will use this to set the module's navigation
          * Otherwise, we will use the module navigation file
          */
-        if(isset($row['xml_navigation']) && !empty($row['xml_navigation']))
-        {
+        if (isset($row['xml_navigation']) && !empty($row['xml_navigation'])) {
             // Convert the xml navigation string into an array
             $xml = simplexml_load_string($row['xml_navigation']);
             $json = json_encode($xml);
@@ -268,9 +259,7 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
 
             // Set the system value separately
             $module->setSystem(($row['f_system'] == 't') ? true : false);
-        }
-        else
-        {
+        } else {
             // Get the location of the module navigation file
             $basePath = $this->config->get("application_path") . "/data";
 
@@ -295,16 +284,17 @@ class DataMapperDb extends AbstractHasErrors implements DataMapperInterface
      * @param array $data The module data that will be converted into xml string
      * @param SimpleXMLElement $xmlData The xml object that will be used to convert
      */
-    private function arrayToXml (array $data, SimpleXMLElement &$xmlData ) {
-        foreach( $data as $key => $value ) {
-            if( is_array($value) ) {
-                if( is_numeric($key) ){
+    private function arrayToXml(array $data, SimpleXMLElement &$xmlData)
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (is_numeric($key)) {
                     $key = 'item'.$key; //dealing with <0/>..<n/> issues
                 }
                 $subnode = $xmlData->addChild($key);
                 $this->arrayToXml($value, $subnode);
             } else {
-                $xmlData->addChild("$key",htmlspecialchars("$value"));
+                $xmlData->addChild("$key", htmlspecialchars("$value"));
             }
         }
     }

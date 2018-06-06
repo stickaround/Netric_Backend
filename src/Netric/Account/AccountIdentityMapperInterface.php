@@ -14,7 +14,7 @@ interface AccountIdentityMapperInterface
 {
     /**
      * Load an account by id
-     * 
+     *
      * @param string $id The unique id of the account to get
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure
@@ -23,7 +23,7 @@ interface AccountIdentityMapperInterface
 
     /**
      * Get an account by the unique name
-     * 
+     *
      * @param string $name
      * @param Application $application Reference to Application instance
      * @return Account on success, null on failure

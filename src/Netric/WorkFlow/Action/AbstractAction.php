@@ -146,30 +146,34 @@ abstract class AbstractAction implements ErrorAwareInterface
      */
     public function fromArray(array $data)
     {
-        if (isset($data['id']) && is_numeric($data['id']))
+        if (isset($data['id']) && is_numeric($data['id'])) {
             $this->id = $data['id'];
+        }
 
-        if (isset($data['name']))
+        if (isset($data['name'])) {
             $this->name = $data['name'];
+        }
 
-        if (isset($data['type']))
+        if (isset($data['type'])) {
             $this->type = $data['type'];
+        }
 
-        if (isset($data['workflow_id']) && is_numeric($data['workflow_id']))
+        if (isset($data['workflow_id']) && is_numeric($data['workflow_id'])) {
             $this->workflowId = $data['workflow_id'];
+        }
 
-        if (isset($data['parent_action_id']) && is_numeric($data['parent_action_id']))
+        if (isset($data['parent_action_id']) && is_numeric($data['parent_action_id'])) {
             $this->parentActionId = $data['parent_action_id'];
+        }
 
-        if (isset($data['params']))
-        {
-            foreach ($data['params'] as $pname=>$pval)
+        if (isset($data['params'])) {
+            foreach ($data['params'] as $pname => $pval) {
                 $this->setParam($pname, $pval);
+            }
         }
 
         // Load child actions
-        if (isset($data['actions']) && is_array($data['actions']))
-        {
+        if (isset($data['actions']) && is_array($data['actions'])) {
             /*
              * Queue current actions for deletion since we are setting all actions
              * and not just adding actions it is assumed anything missing from $data['actions']
@@ -178,16 +182,15 @@ abstract class AbstractAction implements ErrorAwareInterface
              * When $this->addAction is called below it will remove it from the removedActions
              * queue to keep it from being deleted on the next save
              */
-            foreach ($this->childActions as $actionToRemove)
-            {
+            foreach ($this->childActions as $actionToRemove) {
                 $this->removeAction($actionToRemove);
             }
 
             // Now add to child actions array
-            foreach ($data['actions'] as $childActionData)
-            {
-                if (!isset($childActionData['type']))
+            foreach ($data['actions'] as $childActionData) {
+                if (!isset($childActionData['type'])) {
                     throw new \RuntimeException("Invalid action data: " . var_export($childActionData, true));
+                }
 
                 $childAction = $this->actionFactory->create($childActionData['type']);
                 $childAction->fromArray($childActionData);
@@ -214,8 +217,7 @@ abstract class AbstractAction implements ErrorAwareInterface
 
         // Set child actions
         $data['actions'] = array();
-        foreach ($this->childActions as $childAction)
-        {
+        foreach ($this->childActions as $childAction) {
             $data['actions'][] = $childAction->toArray();
         }
 
@@ -250,16 +252,13 @@ abstract class AbstractAction implements ErrorAwareInterface
      */
     public function removeAction(ActionInterface $action)
     {
-        for ($i = 0; $i < count($this->childActions); $i++)
-        {
+        for ($i = 0; $i < count($this->childActions); $i++) {
             if ($action === $this->childActions[$i] ||
-                ($action->getId() != null && $action->getId() === $this->childActions[$i]->getId()))
-            {
+                ($action->getId() != null && $action->getId() === $this->childActions[$i]->getId())) {
                 array_splice($this->childActions, $i, 1);
 
                 // If previously saved then queue it to be purged on save
-                if ($action->getId())
-                {
+                if ($action->getId()) {
                     $this->removedChildActions[] = $action;
                 }
 
@@ -280,22 +279,19 @@ abstract class AbstractAction implements ErrorAwareInterface
     public function addAction(ActionInterface $actionToAdd)
     {
         // Make sure an action never adds itself or any of the children add itself
-        if ($this->childActionIsCircular($actionToAdd))
-        {
+        if ($this->childActionIsCircular($actionToAdd)) {
             throw new Exception\CircularChildActionsException(
                 "One of the children of the actions is this action which is a bad circular reference"
             );
         }
 
         // First make sure we didn't previously remove this action
-        for ($i = 0; $i < count($this->removedChildActions); $i++)
-        {
+        for ($i = 0; $i < count($this->removedChildActions); $i++) {
             if ($actionToAdd === $this->removedChildActions[$i] || (
                     $actionToAdd->getId() != null
                     && $actionToAdd->getId() === $this->removedChildActions[$i]->getId()
                 )
-            )
-            {
+            ) {
                 // Remove it from deletion queue, apparently the user didn't mean to delete it
                 array_splice($this->removedChildActions, $i, 1);
             }
@@ -303,21 +299,20 @@ abstract class AbstractAction implements ErrorAwareInterface
 
         // Check if previously added
         $previouslyAddedAt = -1;
-        for ($i = 0; $i < count($this->childActions); $i++)
-        {
+        for ($i = 0; $i < count($this->childActions); $i++) {
             if ($actionToAdd->getId() &&
-                $this->childActions[$i]->getId() === $actionToAdd->getId())
-            {
+                $this->childActions[$i]->getId() === $actionToAdd->getId()) {
                 $previouslyAddedAt = $i;
                 break;
             }
         }
 
         // If this action was not previously added then push the new action, otherwise replace
-        if ($previouslyAddedAt === -1)
+        if ($previouslyAddedAt === -1) {
             $this->childActions[] = $actionToAdd;
-        else
+        } else {
             $this->childActions[$previouslyAddedAt] = $actionToAdd;
+        }
     }
 
     /**
@@ -363,8 +358,7 @@ abstract class AbstractAction implements ErrorAwareInterface
         $paramValue = (isset($this->params[$name])) ? $this->params[$name] : null;
 
         // Check if we should merge variables before returning
-        if ($mergeWithEntity && $paramValue)
-        {
+        if ($mergeWithEntity && $paramValue) {
             $paramValue = $this->replaceParamVariables($mergeWithEntity, $paramValue);
         }
 
@@ -384,33 +378,27 @@ abstract class AbstractAction implements ErrorAwareInterface
     protected function getParams(EntityInterface $mergeWithEntity = null)
     {
         // If no merge entity has been passed, then return the unmerged raw values for params
-        if ($mergeWithEntity === null)
-        {
+        if ($mergeWithEntity === null) {
             return $this->params;
         }
 
         // Copy pre-processed params into $data array so we can merge variables with $mergeWithEntity
         $data = $this->params;
 
-        foreach ($data as $paramName=>$paramValue)
-        {
+        foreach ($data as $paramName => $paramValue) {
             /*
              * Begin legacy hack:
              * This is legacy where some workflows would set these fields for sending email
              * but just provide a field with a user id and not the .email attribute appended
              */
-            if (!is_array($paramValue) && ($paramName === 'to' || $paramName === 'cc' || $paramName === 'bcc'))
-            {
+            if (!is_array($paramValue) && ($paramName === 'to' || $paramName === 'cc' || $paramName === 'bcc')) {
                 $matches = array();
                 preg_match_all("/<%(.*?)%>/", $paramValue, $matches);
                 // Above sets $matches to (array(array('matches'), array('variable_names'))
-                if (isset($matches[1]))
-                {
-                    foreach ($matches[1] as $fieldName)
-                    {
+                if (isset($matches[1])) {
+                    foreach ($matches[1] as $fieldName) {
                         $field = $mergeWithEntity->getDefinition()->getField($fieldName);
-                        if ($field && $field->type == FIELD::TYPE_OBJECT && $field->subtype === 'user')
-                        {
+                        if ($field && $field->type == FIELD::TYPE_OBJECT && $field->subtype === 'user') {
                             // Dereference email from user object
                             $paramValue = str_replace("<%$fieldName%>", "<%$fieldName.email%>", $paramValue);
                         }
@@ -421,15 +409,11 @@ abstract class AbstractAction implements ErrorAwareInterface
              * End legacy hack:
              */
 
-            if (is_array($paramValue))
-            {
-                foreach ($paramValue as $valueIndex=>$subValue)
-                {
+            if (is_array($paramValue)) {
+                foreach ($paramValue as $valueIndex => $subValue) {
                     $data[$paramName][$valueIndex] = $this->replaceParamVariables($mergeWithEntity, $subValue);
                 }
-            }
-            else
-            {
+            } else {
                 $data[$paramName] = $this->replaceParamVariables($mergeWithEntity, $paramValue);
             }
         }
@@ -448,8 +432,9 @@ abstract class AbstractAction implements ErrorAwareInterface
     protected function replaceParamVariables(EntityInterface $mergeWithEntity, $value)
     {
         // Only check strings
-        if (!is_string($value))
+        if (!is_string($value)) {
             return $value;
+        }
 
         // Keep track of iterations to protect against infinite loops
         $iterations = 0;
@@ -457,15 +442,12 @@ abstract class AbstractAction implements ErrorAwareInterface
         // Buffer for matches
         $matches = array();
 
-        while (preg_match("/<%(.*?)%>/", $value, $matches))
-        {
+        while (preg_match("/<%(.*?)%>/", $value, $matches)) {
             $variableName = $matches[1];
 
-            switch ($variableName)
-            {
+            switch ($variableName) {
                 case 'entity_link':
                 case 'object_link':
-
                     /*
                      * Create a link to the entity in question
                      */
@@ -490,7 +472,6 @@ abstract class AbstractAction implements ErrorAwareInterface
                     break;
 
                 default:
-
                     /*
                      * Entity field value
                      */
@@ -502,8 +483,7 @@ abstract class AbstractAction implements ErrorAwareInterface
 
             // Prevent infinite loop
             $iterations++;
-            if ($iterations > 5000)
-            {
+            if ($iterations > 5000) {
                 throw new \RuntimeException("Too many iterations");
             }
         }
@@ -528,13 +508,10 @@ abstract class AbstractAction implements ErrorAwareInterface
          * Variables can call associated entity fields with dot notation like
          * user.manager.name which would load th name of the user's manager.
          */
-        if (strpos($fieldName, '.') === false)
-        {
+        if (strpos($fieldName, '.') === false) {
             // Just get the value from the fieldName if we are not referencing another entity
             return $entity->getValue($fieldName);
-        }
-        else
-        {
+        } else {
             /*
              * The variable name will be something like user.name
              * where 'user' is the name of the field in $mergeWithEntity
@@ -555,8 +532,7 @@ abstract class AbstractAction implements ErrorAwareInterface
             // Get the field of the referenced value
             $field = $entity->getDefinition()->getField($fieldName);
 
-            if ($referencedEntityId && $field->type == FIELD::TYPE_OBJECT && $field->subtype)
-            {
+            if ($referencedEntityId && $field->type == FIELD::TYPE_OBJECT && $field->subtype) {
                 // Load the referenced entity
                 $referencedEntity = $this->entityLoader->get($field->subtype, $referencedEntityId);
 
@@ -587,17 +563,16 @@ abstract class AbstractAction implements ErrorAwareInterface
      */
     private function childActionIsCircular(ActionInterface $action)
     {
-        if ($action === $this || ($action->getId() && $action->getId() === $this->getId()))
-        {
-           return true;
+        if ($action === $this || ($action->getId() && $action->getId() === $this->getId())) {
+            return true;
         }
 
         // Check all children
         $children = $action->getActions();
-        foreach ($children as $childAction)
-        {
-            if ($this->childActionIsCircular($childAction))
+        foreach ($children as $childAction) {
+            if ($this->childActionIsCircular($childAction)) {
                 return true;
+            }
         }
 
         return false;

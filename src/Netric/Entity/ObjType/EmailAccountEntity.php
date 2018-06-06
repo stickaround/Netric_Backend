@@ -26,8 +26,7 @@ class EmailAccountEntity extends Entity implements EntityInterface
     public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm)
     {
         // If the password was updated for this user then encrypt it
-        if ($this->fieldValueChanged("password"))
-        {
+        if ($this->fieldValueChanged("password")) {
             $vaultService = $sm->get(VaultServiceFactory::class);
             $blockCipher = new BlockCipher($vaultService->getSecret("EntityEnc"));
             $this->setValue("password", $blockCipher->encrypt($this->getValue("password")));

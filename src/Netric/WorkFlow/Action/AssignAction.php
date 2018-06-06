@@ -52,8 +52,7 @@ class AssignAction extends AbstractAction implements ActionInterface
         ActionFactory $actionFactory,
         GroupingsLoader $groupingsLoader,
         IndexInterface $queryIndex
-    )
-    {
+    ) {
         $this->groupngsLoader = $groupingsLoader;
         $this->queryIndex = $queryIndex;
         parent::__construct($entityLoader, $actionFactory);
@@ -79,14 +78,13 @@ class AssignAction extends AbstractAction implements ActionInterface
          * of generic queuing system later, but for now random should
          * serve to accomplish what people are looking for.
          */
-        if ($params['field'])
-        {
+        if ($params['field']) {
             $userId = null;
             if (isset($params['team_id'])) {
                 $userId = $this->getNextUserFromTeam($params['team_id']);
-            } else if (isset($params['group_id'])) {
+            } elseif (isset($params['group_id'])) {
                 $userId = $this->getNextUserFromGroup($params['group_id']);
-            } else if (isset($params['users'])) {
+            } elseif (isset($params['users'])) {
                 $userId = $this->getNextUserFromList($params['users']);
             }
 
@@ -147,9 +145,9 @@ class AssignAction extends AbstractAction implements ActionInterface
         $users = explode(',', $listOfUsers);
 
         if (!count($users)) {
-            return null;            
+            return null;
         }
 
-        return $users[mt_rand(0,(count($users)-1))];
+        return $users[mt_rand(0, (count($users)-1))];
     }
 }

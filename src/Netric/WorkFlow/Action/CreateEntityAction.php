@@ -29,14 +29,13 @@ class CreateEntityAction extends AbstractAction implements ActionInterface
         $params = $this->getParams($entity);
 
         // Make sure we have what we need
-        if (!$params['obj_type'])
-        {
+        if (!$params['obj_type']) {
             throw new \InvalidArgumentException("Cannot create an entity without obj_type param");
         }
 
         // Create new entity
         $newEntity = $this->entityLoader->create($params['obj_type']);
-        foreach ($params as $fname=>$fval) {
+        foreach ($params as $fname => $fval) {
             if ($newEntity->getDefinition()->getField($fname)) {
                 if (is_array($fval)) {
                     foreach ($fval as $subval) {

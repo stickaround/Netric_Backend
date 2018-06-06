@@ -62,8 +62,7 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         ActionFactory $actionFactory,
         EntityLoader $entityLoader,
         IndexInterface $entityIndex
-    )
-    {
+    ) {
         $this->dbh = $dbh;
         $this->actionFactory = $actionFactory;
         $this->entityLoader = $entityLoader;
@@ -82,10 +81,11 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $data = $workFlow->toArray();
 
         $workflowEntity = null;
-        if ($workFlow->getId())
+        if ($workFlow->getId()) {
             $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
-        else
+        } else {
             $workflowEntity = $this->entityLoader->create("workflow");
+        }
 
         // Set entity values
         $workflowEntity->setValue("name", $data['name']);
@@ -102,10 +102,11 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $workflowEntity->setValue("ts_lastrun", $data['last_run']);
 
         // Set conditions
-        if (count($data['conditions']))
+        if (count($data['conditions'])) {
             $workflowEntity->setValue("conditions", json_encode($data['conditions']));
-        else
+        } else {
             $workflowEntity->setValue("conditions", "");
+        }
 
         // Save the entity
         $id = $this->entityLoader->save($workflowEntity);
@@ -127,16 +128,16 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function delete(WorkFlow $workFlow)
     {
-        if (!$workFlow->getId())
+        if (!$workFlow->getId()) {
             throw new \InvalidArgumentException("Cannot delete a workflow that has not been saved");
+        }
 
         // Delete actions
         $this->dbh->query("DELETE FROM objects_workflow_action WHERE workflow_id='" . $workFlow->getId() . "'");
 
         // Delete the workflow
         $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
-        if ($workflowEntity)
-        {
+        if ($workflowEntity) {
             $this->entityLoader->delete($workflowEntity, true);
             return true;
         }
@@ -154,13 +155,15 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     {
         $dbh = $this->dbh;
 
-        if (!is_numeric($id))
+        if (!is_numeric($id)) {
             return null;
+        }
 
         $entityWorkflow = $this->entityLoader->get("workflow", $id);
 
-        if ($entityWorkflow)
+        if ($entityWorkflow) {
             return $this->constructWorkFlowFromRow($entityWorkflow->toArray());
+        }
 
         return null;
     }
@@ -178,17 +181,18 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     {
         $sql = "SELECT * FROM objects_workflow WHERE ";
 
-        if ($onlyActive)
+        if ($onlyActive) {
             $sql .= " f_active is true";
-        else
+        } else {
             $sql .= " id IS NOT NULL"; // Filler for WHERE
+        }
 
-        if ($objType)
+        if ($objType) {
             $sql .= " AND object_type = '" . $this->dbh->escape($objType) . "'";
+        }
 
         // Add event filter
-        switch ($filterEvent)
-        {
+        switch ($filterEvent) {
             case 'create':
                 $sql .= " AND f_on_create is TRUE";
                 break;
@@ -241,12 +245,12 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         }
 
         $result = $this->dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException("Could not get WorkFlows: " . $this->dbh->getLastError());
+        }
 
         $workFlows = array();
-        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++)
-        {
+        for ($i = 0; $i < $this->dbh->getNumRows($result); $i++) {
             $workFlows[] = $this->constructWorkFlowFromRow($this->dbh->getRow($result, $i));
         }
 
@@ -301,8 +305,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     public function saveWorkFlowInstance(WorkFlowInstance $workFlowInstance)
     {
         // Make sure the instance is valid
-        if (!$workFlowInstance->isValid())
+        if (!$workFlowInstance->isValid()) {
             throw new \InvalidArgumentException("Workflow instance has not been set");
+        }
 
         $dbh = $this->dbh;
 
@@ -317,27 +322,28 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         );
 
         $sql = null;
-        if ($workFlowInstance->getId())
-        {
+        if ($workFlowInstance->getId()) {
             $sqlUpdate = "";
-            foreach ($queryValues as $colName=>$colValue)
-            {
-                if ($sqlUpdate) $sqlUpdate .= ", ";
+            foreach ($queryValues as $colName => $colValue) {
+                if ($sqlUpdate) {
+                    $sqlUpdate .= ", ";
+                }
 
                 $sqlUpdate .= $colName . "=" . $colValue;
             }
 
             $sql = "UPDATE workflow_instances SET " . $sqlUpdate . " WHERE id = '" . $workFlowInstance->getId() . "';";
             $sql .= "SELECT '" . $workFlowInstance->getId() . "' as id;";
-        }
-        else
-        {
+        } else {
             $sqlColumns = "";
             $sqlValues = "";
-            foreach ($queryValues as $colName=>$colValue)
-            {
-                if ($sqlColumns) $sqlColumns .= ", ";
-                if ($sqlValues) $sqlValues .= ", ";
+            foreach ($queryValues as $colName => $colValue) {
+                if ($sqlColumns) {
+                    $sqlColumns .= ", ";
+                }
+                if ($sqlValues) {
+                    $sqlValues .= ", ";
+                }
 
                 $sqlColumns .= $colName;
                 $sqlValues .= $colValue;
@@ -347,11 +353,11 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
 
         // Run the query and get the id
         $result = $dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException($dbh->getLastError());
+        }
 
-        if ($dbh->getNumRows($result))
-        {
+        if ($dbh->getNumRows($result)) {
             $workFlowInstance->setId($dbh->getValue($result, 0, "id"));
             return $workFlowInstance->getId();
         }
@@ -371,11 +377,11 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $sql = "SELECT id, workflow_id, object_type, object_uid, ts_started, f_completed
                 FROM workflow_instances WHERE id=" . $this->dbh->escapeNumber($workFlowInstanceId);
         $result = $this->dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException("Could not get workflow: " . $this->dbh->getLastError());
+        }
 
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
 
             $entity = $this->entityLoader->get($row['object_type'], $row['object_uid']);
@@ -406,8 +412,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function deleteWorkFlowInstance($workFlowInstanceId)
     {
-        if (!is_numeric($workFlowInstanceId))
+        if (!is_numeric($workFlowInstanceId)) {
             throw new \InvalidArgumentException("Only a valid WorkFlowInstance id must be passed");
+        }
 
         $this->dbh->query("DELETE FROM workflow_instances WHERE id=" . $this->dbh->escapeNumber($workFlowInstanceId));
     }
@@ -422,8 +429,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     private function getActionsArray($workflowId, $parentActionId = null, $circularCheck = array())
     {
-        if (!is_numeric($workflowId) && !is_numeric($parentActionId))
+        if (!is_numeric($workflowId) && !is_numeric($parentActionId)) {
             throw new \InvalidArgumentException("A valid workflow id or parent action id must be passed");
+        }
 
         $actionsArray = array();
 
@@ -436,12 +444,12 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
             $query->andWhere("workflow_id")->equals($workflowId);
         }
         $result = $this->entityIndex->executeQuery($query);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException("Could not get actions: " . $this->entityIndex->getLastError());
+        }
 
         $num = $result->getNum();
-        for ($i = 0; $i < $num; $i++)
-        {
+        for ($i = 0; $i < $num; $i++) {
             $action = $result->getEntity($i);
 
             /*
@@ -469,8 +477,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
                 "actions" => $this->getActionsArray($action->getValue("workflow_id"), $action->getId(), $circularCheck),
             );
 
-            if ($action->getValue("data"))
+            if ($action->getValue("data")) {
                 $actionArray['params'] = json_decode($action->getValue("data"), true);
+            }
 
 
             $actionsArray[] = $actionArray;
@@ -489,21 +498,19 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     private function saveActions(array $actionsToAdd, array $actionsToRemove, $workflowId, $parentActionId = null)
     {
-        if (!is_numeric($workflowId) && !is_numeric($parentActionId))
+        if (!is_numeric($workflowId) && !is_numeric($parentActionId)) {
             throw new \InvalidArgumentException("Must pass either workflowId or parantActionId as params");
+        }
 
         // First purge any actions queued to be deleted
-        foreach ($actionsToRemove as $action)
-        {
+        foreach ($actionsToRemove as $action) {
             $actionEntity = $this->entityLoader->get("workflow_action", $action->getId());
-            if (!$this->entityLoader->delete($actionEntity, true))
-            {
+            if (!$this->entityLoader->delete($actionEntity, true)) {
                 throw new \RuntimeException("Could not delete action");
             }
         }
 
-        foreach ($actionsToAdd as $action)
-        {
+        foreach ($actionsToAdd as $action) {
             $this->saveAction($action, $workflowId, $parentActionId);
         }
     }
@@ -520,8 +527,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
     {
         $actionData = $actionToSave->toArray();
 
-        if (!isset($actionData['type']) || !$actionData['type'])
+        if (!isset($actionData['type']) || !$actionData['type']) {
             throw new \InvalidArgumentException("Type is required but not set in: " . var_export($actionData, true));
+        }
 
         $actionEntity = $this->entityLoader->create("workflow_action");
         $actionEntity->setValue("type", 0); // for legacy code - can eventually delete when /lib/Workflow is deleted
@@ -530,8 +538,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $actionEntity->setValue("workflow_id", $workflowId);
         $actionEntity->setValue("parent_action_id", $parentActionId);
         $actionEntity->setValue("data", json_encode($actionData['params']));
-        if (!$this->entityLoader->save($actionEntity))
+        if (!$this->entityLoader->save($actionEntity)) {
             throw new \RuntimeException("Could not save action");
+        }
 
         $actionToSave->setId($actionEntity->getId());
 
@@ -556,16 +565,18 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function scheduleAction($workFlowInstanceId, $actionId, \DateTime $executeTime)
     {
-        if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId))
+        if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId)) {
             throw new \InvalidArgumentException("The first two params must be numeric");
+        }
 
         $sql = "INSERT INTO workflow_action_schedule(action_id, ts_execute, instance_id)
 			    VALUES(
 			      '" . $actionId . "',
 			      '" . $executeTime->format("Y-m-d g:i a T") . "',
 			      '" . $workFlowInstanceId . "');";
-        if (!$this->dbh->query($sql))
+        if (!$this->dbh->query($sql)) {
             throw new \RuntimeException("Error scheduling action: " . $this->dbh->getLastError());
+        }
 
         return true;
     }
@@ -579,13 +590,15 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function deleteScheduledAction($workFlowInstanceId, $actionId)
     {
-        if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId))
+        if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId)) {
             throw new \InvalidArgumentException("The first two params must be numeric");
+        }
 
         $sql = "DELETE FROM workflow_action_schedule
                 WHERE action_id='" . $actionId . "' AND instance_id='" . $workFlowInstanceId . "'";
-        if (!$this->dbh->query($sql))
+        if (!$this->dbh->query($sql)) {
             throw new \RuntimeException("Error deleting action: " . $this->dbh->getLastError());
+        }
 
         return true;
     }
@@ -599,22 +612,24 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     public function getScheduledActionTime($workFlowInstanceId, $actionId)
     {
-        if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId))
+        if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId)) {
             throw new \InvalidArgumentException("The first two params must be numeric");
+        }
 
         $sql = "SELECT ts_execute FROM workflow_action_schedule
                 WHERE action_id='" . $actionId . "' AND instance_id='" . $workFlowInstanceId . "'";
         $result = $this->dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException("Error getting scheduled action: " . $this->dbh->getLastError());
+        }
 
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $strTime = $this->dbh->getValue($result, 0, "ts_execute");
 
             // $strTime should always be set, but you can never be too careful
-            if (!$strTime)
+            if (!$strTime) {
                 return null;
+            }
 
             // We should have a valid time from the PGSQL timestamp column, return the new date
             return new \DateTime($strTime);
@@ -636,34 +651,32 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
         $actions = array();
 
         // If no date was passed use now
-        if ($toDate === null)
+        if ($toDate === null) {
             $toDate = new \DateTime();
+        }
 
         $sql = "SELECT action_id, instance_id FROM workflow_action_schedule
                 WHERE ts_execute<='" . $toDate->format("Y-m-d g:i a T") . "'";
         $result = $this->dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException("Error getting scheduled actions: " . $this->dbh->getLastError());
+        }
 
         // Get all scheduled actions
         $num = $this->dbh->getNumRows($result);
-        for ($i = 0; $i < $num; $i++)
-        {
+        for ($i = 0; $i < $num; $i++) {
             $row = $this->dbh->getRow($result, $i);
 
             $instance = $this->getWorkFlowInstanceById($row['instance_id']);
             $action = $this->getActionById($row['action_id']);
 
             // Only return the scheduled action if the instance and action are still valid
-            if ($instance && $action)
-            {
+            if ($instance && $action) {
                 $actions[] = array(
                     "instance" => $instance,
                     "action" => $action,
                 );
-            }
-            else
-            {
+            } else {
                 // It looks like either the action was deleted or the instance was cancelled, cleanup
                 $this->deleteScheduledAction($row['instance_id'], $row['action_id']);
             }
@@ -682,16 +695,17 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
      */
     private function getActionById($actionId)
     {
-        if (!$actionId || !is_numeric($actionId))
+        if (!$actionId || !is_numeric($actionId)) {
             throw new \InvalidArgumentException("First param is required to load an action");
+        }
 
         $sql = "SELECT * FROM objects_workflow_action WHERE id=" . $this->dbh->escapeNumber($actionId);
         $result = $this->dbh->query($sql);
-        if (!$result)
+        if (!$result) {
             throw new \RuntimeException("Error getting actions " . $this->dbh->getLastError());
+        }
 
-        if ($this->dbh->getNumRows($result))
-        {
+        if ($this->dbh->getNumRows($result)) {
             $row = $this->dbh->getRow($result, 0);
 
             $actionArray = array(
@@ -706,8 +720,9 @@ class PgsqlDataMapper extends AbstractDataMapper implements DataMapperInterface
             // TODO: get child actions
 
             // Get params
-            if ($row['data'])
+            if ($row['data']) {
                 $actionArray['params'] = json_decode($row['data'], true);
+            }
 
             // Create action from data
             $action = $this->actionFactory->create($actionArray['type']);

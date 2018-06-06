@@ -41,5 +41,4 @@ class RecurrenceQueryPlugin
     {
         // Nothing to do after the query is executed for now
     }
-
 }

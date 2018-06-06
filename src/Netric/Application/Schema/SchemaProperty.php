@@ -5,7 +5,6 @@
  */
 namespace Netric\Application\Schema;
 
-
 /**
  * Class representing a property/column/field for a bucket
  */
