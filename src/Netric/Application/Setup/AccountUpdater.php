@@ -84,16 +84,7 @@ class AccountUpdater extends AbstractHasErrors
         $this->rootPath = dirname(__FILE__) . "/../../../../bin/scripts/update";
 
         // Get the current version from settings
-        $settings = $account->getServiceManager()->get(SettingsFactory::class);
-
-        // We get bypassing any cache in case the version was reset in the db directly
-        $version = $settings->getNoCache("system/schema_version");
-
-        // Set current version counter
-        $parts = explode(".", $version);
-        $this->version->major = (isset($parts[0])) ? intval($parts[0]) : 1;
-        $this->version->minor = (isset($parts[1])) ? intval($parts[1]) : 0;
-        $this->version->point = (isset($parts[2])) ? intval($parts[2]) : 0;
+        $this->getCurrentVersion();
     }
 
     /**
@@ -130,6 +121,9 @@ class AccountUpdater extends AbstractHasErrors
         $latestversion = $this->getLatestVersion();
         $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
         $settings->set("system/schema_version", $latestversion);
+
+        // Refresh the current version state
+        $this->getCurrentVersion();
     }
 
     /**
@@ -142,6 +136,13 @@ class AccountUpdater extends AbstractHasErrors
         // Flag to make this a dry run with no actual updates performed
         $this->executeUpdates = false;
 
+        // Temporarily set current version to 0 to force all updates to mock process
+        // so we can increment updatedToVersion to the last possible update
+        $originalCurrentVersion = clone $this->version;
+        $this->version->major = 0;
+        $this->version->minor = 0;
+        $this->version->point = 0;
+
         // This will get the major, minor and point versions
         $this->runOnceUpdates();
 
@@ -153,12 +154,37 @@ class AccountUpdater extends AbstractHasErrors
         // Reset the flag
         $this->executeUpdates = true;
 
-        // Rest updatedTo
+        // Rest updatedTo back to zero
         $this->updatedToVersion->major = 0;
         $this->updatedToVersion->minor = 0;
         $this->updatedToVersion->point = 0;
 
+        // And reset the current version back to the originial
+        $this->version = $originalCurrentVersion;
+
         return $latestVersion;
+    }
+
+    /**
+     * Get the current setup version of this account
+     *
+     * @return string Version string
+     */
+    public function getCurrentVersion(): string
+    {
+        // Get the current version from settings
+        $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
+
+        // We get bypassing any cache in case the version was reset in the db directly
+        $version = $settings->getNoCache("system/schema_version");
+
+        // Set current version counter
+        $parts = explode(".", $version);
+        $this->version->major = (isset($parts[0])) ? intval($parts[0]) : 1;
+        $this->version->minor = (isset($parts[1])) ? intval($parts[1]) : 0;
+        $this->version->point = (isset($parts[2])) ? intval($parts[2]) : 0;
+
+        return implode('.', [$this->version->major, $this->version->minor, $this->version->point]);
     }
 
     /**

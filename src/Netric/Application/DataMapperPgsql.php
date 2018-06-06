@@ -1,10 +1,10 @@
 <?php
 /*
  * Short description for file
- * 
+ *
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * 
+ *
  *  @author Sky Stebnicki <sky.stebnicki@aereus.com>
  *  @copyright 2014 Aereus
  */
@@ -24,35 +24,35 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 {
     /**
      * Host of db server
-     * 
+     *
      * @var string
      */
     private $host = "";
 
     /**
      * Database name
-     * 
+     *
      * @var string
      */
     private $database = "";
 
     /**
      * Db username
-     * 
+     *
      * @var string
      */
     private $username = "";
 
     /**
      * Password for username
-     * 
+     *
      * @var string
      */
     private $password = "";
 
     /**
      * Handle to database object
-     * 
+     *
      * @var \CDatabase
      */
     private $dbh = null;
@@ -77,7 +77,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 
     /**
      * Connect to the pgsql database
-     * 
+     *
      * @param string $host
      * @param string $database System database name
      * @param string $username System database username
@@ -97,7 +97,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 
     /**
      * Get an account by id
-     * 
+     *
      * @param string $id The unique id of the account to get
      * @param \Netric\Account\Account $app Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
@@ -115,7 +115,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 
     /**
      * Get an account by the unique name
-     * 
+     *
      * @param string $name
      * @param Account $account Reference to Account object to initialize if set
      * @return bool true on success, false on failure/not found
@@ -138,7 +138,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
 
     /**
      * Get an array of accounts
-     * 
+     *
      * @param string $version If set the only get accounts that are at a current version
      * @return array
      */
@@ -208,8 +208,9 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
     {
         $ret = false;
 
-        if (!is_numeric($accountId) || !$username)
+        if (!is_numeric($accountId) || !$username) {
             return $ret;
+        }
 
         // Delete any existing entries for this user name attached to this account
         $this->dbh->query("DELETE FROM account_users WHERE account_id='$accountId' AND 
@@ -323,10 +324,11 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      */
     public function getLastError()
     {
-        if (count($this->errors))
+        if (count($this->errors)) {
             return $this->errors[count($this->errors) - 1];
-        else
+        } else {
             return null;
+        }
     }
 
     /**

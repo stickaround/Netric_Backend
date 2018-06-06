@@ -71,8 +71,9 @@ class SetupTest extends TestCase
     {
         // Cleanup if there's any left-overs from a failed test
         $accountToDelete = $this->mapper->loadByName("ut_setup", $this->application);
-        if ($accountToDelete)
+        if ($accountToDelete) {
             $this->mapper->deleteAccount($accountToDelete);
+        }
 
         // Create a new test account
         $accountId = $this->mapper->createAccount("ut_setup");
@@ -92,8 +93,9 @@ class SetupTest extends TestCase
     {
         // Cleanup if there's any left-overs from a failed test
         $accountToDelete = $this->mapper->loadByName("ut_setup", $this->application);
-        if ($accountToDelete)
+        if ($accountToDelete) {
             $this->mapper->deleteAccount($accountToDelete);
+        }
 
         // Create a new test account
         $accountId = $this->mapper->createAccount("ut_setup");

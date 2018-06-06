@@ -21,10 +21,10 @@ services:
       - db1
       - mogilefs
       - mogilestore
-    # logging:
-    #   driver: gelf
-    #   options:
-    #     gelf-address: "udp://localhost:12201"     
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"     
 
   memcached:
     image: memcached
@@ -40,6 +40,10 @@ services:
     command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200", "-c", "synchronous_commit=off", "-c", "fsync=off", "-c", "full_page_writes=off"]
     ports:
       - "5432:5432"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
 
   mail:
     image: dockerhub.aereusdev.com/mail:latest
@@ -66,6 +70,10 @@ services:
     depends_on:
       - mogilestore
       - db1
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
 
   mogilestore:
     image: dockerhub.aereusdev.com/mogilestore:latest
@@ -102,6 +110,10 @@ services:
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
 
   kibana:
     build: kibana/
@@ -110,6 +122,10 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
 
   xhprof:
     build: xhprof/
