@@ -48,12 +48,12 @@ pipeline {
                     // sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
 
                     // Send reports to server for code quality metrics
-                    def reporter = new CodeQualityReporter([
-                        cloverFilePath: readFile("tests/tmp/clover.xml"),
-                        checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
-                        pmdFilePath: readFile("tests/tmp/pmd.xml")
-                    ])
-                    reporter.collectAndSendReport('netric.com')
+                    // def reporter = new CodeQualityReporter([
+                    //     cloverFilePath: readFile("tests/tmp/clover.xml"),
+                    //     checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
+                    //     pmdFilePath: readFile("tests/tmp/pmd.xml")
+                    // ])
+                    // reporter.collectAndSendReport('netric.com')
                 }
                 script {
                     dir('.clair') {
@@ -102,35 +102,6 @@ pipeline {
                         serviceName: 'netric_com_netric',
                         imageTag: "${APPLICATION_VERSION}"
                     )
-                    // timeout(5) {
-                    //     waitUntil {
-                    //         sshagent (credentials: ['aereus']) {
-                    //             def jsonText  = sh(returnStdout: true, script: 'ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C "docker service inspect netric_com_netric"').trim()
-                    //             echo "Got " + jsonText
-                    //             def jsonData = new JsonSlurper().parseText(jsonText)
-
-                    //             // Check if upgrade has not occurred yet
-                    //             if (!jsonData[0].UpdateStatus) {
-                    //                 return false
-                    //             }
-
-                    //             // Look for a failure/rollback exit
-                    //             if(jsonData[0].UpdateStatus.State == 'paused') {
-                    //                 println("Deploy Failed:")
-                    //                 // Send direct link to make it easier
-                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${APPLICATION_VERSION}),query:(match:(app_ver:(query:${APPLICATION_VERSION},type:phrase))))),index:'logstash-*'")
-                    //                 println("---------------------------------")
-                    //                 print(jsonData[0].UpdateStatus.Message)
-                    //                 println("---------------------------------")
-                                    
-                    //                 // Exit
-                    //                 currentBuild.result = "FAIL"
-                    //             }
-
-                    //             return (jsonData[0].UpdateStatus.State == 'completed')
-                    //         }
-                    //     }
-                    // }
                 }
             }
         }
