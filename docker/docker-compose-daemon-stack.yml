@@ -2,7 +2,7 @@ version: "3.5"
 
 services:  
   netric_daemon:
-    image: "dockerhub.aereusdev.com/netric:${APPLICATION_VER}"
+    image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: ${APPLICATION_VER}
