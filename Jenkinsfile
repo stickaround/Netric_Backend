@@ -36,25 +36,24 @@ pipeline {
 
         stage('Test') {
             steps {
-                script {
-                    //sh 'docker-compose -f docker/docker-compose-test.yml build'
-                    //sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                // script {
+                //     sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
-                    // Report on junit
-                    //junit 'tests/tmp/junit.xml'
+                //     // Report on junit
+                //     junit 'tests/tmp/junit.xml'
 
-                    // Create style and static analysis reports
-                    // sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
-                    // sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
+                //     // Create style and static analysis reports
+                //     // sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
+                //     // sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
 
-                    // Send reports to server for code quality metrics
-                    // def reporter = new CodeQualityReporter([
-                    //     cloverFilePath: readFile("tests/tmp/clover.xml"),
-                    //     checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
-                    //     pmdFilePath: readFile("tests/tmp/pmd.xml")
-                    // ])
-                    // reporter.collectAndSendReport('netric.com')
-                }
+                //     // Send reports to server for code quality metrics
+                //     def reporter = new CodeQualityReporter([
+                //         cloverFilePath: readFile("tests/tmp/clover.xml"),
+                //         checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
+                //         pmdFilePath: readFile("tests/tmp/pmd.xml")
+                //     ])
+                //     reporter.collectAndSendReport('netric.com')
+                // }
                 script {
                     dir('.clair') {
                         def nodeIp = sh (
@@ -126,51 +125,7 @@ pipeline {
                         serviceName: 'netric_com_netric',
                         imageTag: "${APPLICATION_VERSION}"
                     )
-
-                    // timeout(5) {
-                    //     waitUntil {
-                    //         sshagent (credentials: ['aereus']) {
-                    //             def jsonText  = sh(returnStdout: true, script: 'ssh ${server} -C "docker service inspect netric_com_netric"').trim()
-                    //             def jsonData = new JsonSlurper().parseText(jsonText)
-
-                    //             // Check if upgrade has not occurred yet
-                    //             if (!jsonData[0].UpdateStatus) {
-                    //                 return false
-                    //             }
-
-                    //             // Look for a failure/rollback exit
-                    //             if(jsonData[0].UpdateStatus.State == 'paused') {
-                    //                 println("Deploy Failed:")
-                    //                 // Send direct link to make it easier
-                    //                 println("https://logs.aereusdev.com/app/kibana#/discover?_g=()&_a=(columns:!(_source),filters:!(('\$state':(store:appState),meta:(alias:!n,disabled:!f,index:'logstash-*',key:app_ver,negate:!f,value:${APPLICATION_VERSION}),query:(match:(app_ver:(query:${APPLICATION_VERSION},type:phrase))))),index:'logstash-*'")
-                    //                 println("---------------------------------")
-                    //                 print(jsonData[0].UpdateStatus.Message)
-                    //                 println("---------------------------------")
-                    //                 // Exit
-                    //                 currentBuild.result = "FAIL"
-                    //             }
-
-                    //             return (jsonData[0].UpdateStatus.State == 'completed')
-                    //         }
-                    //     }
-                    // }
                 }
-                //script {
-                //   sshagent (credentials: ['aereus']) {
-                        // Run Setup First
-                        sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-setup.sh aereus@web1.aereus.com:/home/aereus/pull-and-run-setup.sh'
-                        // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com chmod +x /home/aereus/pull-and-run-setup.sh'
-                        // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com /home/aereus/pull-and-run-setup.sh production'
-                        // sh 'ssh -o StrictHostKeyChecking=no aereus@web1.aereus.com rm /home/aereus/pull-and-run-setup.sh'
-
-                        // Now Run the Daemon
-                        // Do not run for now - we are switching to docker swarm
-                        // sh 'scp -o StrictHostKeyChecking=no scripts/pull-and-run-daemon.sh aereus@db2.aereus.com:/home/aereus/pull-and-run-daemon.sh'
-                        // sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com chmod +x /home/aereus/pull-and-run-daemon.sh'
-                        // sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com /home/aereus/pull-and-run-daemon.sh latest'
-                        // sh 'ssh -o StrictHostKeyChecking=no aereus@db2.aereus.com rm /home/aereus/pull-and-run-daemon.sh'
-                //    }
-                //}
             }
         }
     }
