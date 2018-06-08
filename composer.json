@@ -23,7 +23,8 @@
     "zendframework/zend-loader": "~2.5",
     "zircote/swagger-php": "^2.0",
     "php-mime-mail-parser/php-mime-mail-parser": "^2.4",
-    "authorizenet/authorizenet": "^1.9"
+    "authorizenet/authorizenet": "^1.9",
+    "graylog2/gelf-php": "^1.5"
   },
   "require-dev": {
     "phpunit/phpunit": "6.2.*",

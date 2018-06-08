@@ -1,0 +1,75 @@
+<?php
+namespace Netric\Log\Writer;
+
+use Netric\Log\LogMessage;
+use Gelf\Transport\UdpTransport as GelfUdpTransport;
+use Gelf\Publisher as GelfPublisher;
+use Gelf\Message as GelfMessage;
+
+/**
+ * Write logs to a GELF(graylog) compatible server
+ */
+class GelfLogWriter implements LogWriterInterface
+{
+    /**
+     * Gelf logger instance
+     *
+     * @var GelfPublisher
+     */
+    private $gelfPublisher =  null;
+
+    /**
+     * Keep track of how many messages we have written
+     *
+     * @var int
+     */
+    private $numMessageWritten = 0;
+
+    /**
+     * Construct a new greylog writer
+     */
+    public function __construct(string $logServer, int $logPort = 12201)
+    {
+        // We need a transport - default to UDP
+        $transport = new GelfUdpTransport($logServer, 12201);
+
+        // While the UDP transport is itself a publisher, we wrap it in a real Publisher for convenience
+        // A publisher allows for message validation before transmission
+        $this->gelfPublisher = new GelfPublisher();
+        $this->gelfPublisher->addTransport($transport);
+    }
+
+    /**
+     * Write a LogMessage
+     *
+     * @param LogMessage $logMessage
+     * @return void
+     */
+    public function write(LogMessage $logMessage)
+    {
+        $message = new GelfMessage();
+        $message->setShortMessage($logMessage->getName());
+        $message->setLevel($logMessage->getLevelNumber());
+
+        // Either set the full text body, or additional properties for structured data
+        if (is_array($logMessage->getBody())) {
+            foreach ($logMessage->getBody() as $key=>$val) {
+                $message->setAdditional($key, $val);
+            }
+        } else if (is_string($logMessage->getBody())) {
+            $message->setFullMessage($logMessage->getBody());
+        }
+        $this->gelfPublisher->publish($message);
+        $this->numMessageWritten++;
+    }
+
+    /**
+     * Get the number of messages written since instantiation
+     *
+     * @return int
+     */
+    public function getNumMessageWritten(): int
+    {
+        return $this->numMessageWritten;
+    }
+}

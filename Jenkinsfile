@@ -56,7 +56,7 @@ pipeline {
                 // }
                 script {
                     dir('.clair') {
-                        def nodeIp = sh (
+                        def nodeIp = sh(
                             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
                             returnStdout: true
                         ).trim();
