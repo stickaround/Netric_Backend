@@ -9,6 +9,8 @@
 namespace Netric\Log;
 
 use Netric\Config\Config;
+use Netric\Log\Writer\LogWriterInterface;
+use Netric\Log\Writer\PhpErrorLogWriter;
 
 /**
  * Description of Log
@@ -111,46 +113,36 @@ class Log implements LogInterface
      *
      * @param Config $config
      */
-    public function __construct(Config $config)
+    public function __construct(Config $logConfig)
     {
-        // Determine which writer we are using based on the config
-        $this->setLogWriter($config->log);
+        // Get log writer form config name
+        $writer = $this->getWriterClassNameFromConfig($logConfig);
+        $this->setLogWriter($writer);
 
         // Set current logging level if defined
-        if ($config->log_level) {
-            $this->level = $config->log_level;
-        }
-
-        // Set the current version/branch we are running
-        if ($config->version) {
-            $this->appBranch = $config->version;
+        if ($logConfig->level) {
+            $this->level =$logConfig->level;
         }
 
         // Default to local syslog, but if we define the remote server then send via socket
+        /*
         if ($this->writer === self::WRITER_SYSLOG && $config->log_syslog_server) {
             $this->syslogRemoteServer = $config->log_syslog_server;
             if ($config->log_syslog_server_port) {
                 $this->syslogRemotePort = $config->log_syslog_server_port;
             }
         }
+        */
     }
 
     /**
      * Determine which writer we are going to use
      *
-     * @param string $log
+     * @param LogWriterInterface $writer
      */
-    public function setLogWriter($log)
+    public function setLogWriter(LogWriterInterface $writer)
     {
-        if (self::WRITER_SYSLOG === $log) {
-            $this->writer = self::WRITER_SYSLOG;
-        } elseif (self::WRITER_STDERR === $log) {
-            $this->writer = self::WRITER_STDERR;
-            $this->logPath = "php://stderr";
-        } else {
-            $this->writer = self::WRITER_FILE;
-            $this->setLogFilePath($log);
-        }
+        $this->writer = $writer;
     }
 
     /**
@@ -219,7 +211,7 @@ class Log implements LogInterface
      * @param string|array $message The message to log
      * @return bool true on success, false on failure
      */
-    public function writeLog($lvl, $message)
+    public function writeLogOld($lvl, $message): bool
     {
         // Only log events below the current logging level set
         if ($lvl > $this->level) {
@@ -281,6 +273,64 @@ class Log implements LogInterface
 
         // No supported writers appear to be configured
         return false;
+    }
+
+    /**
+     * Put a new entry into the log
+     *
+     * This is usually called by one of the aliased methods like info, error, warning
+     * which in turn just sets the level and writes to this method.
+     *
+     * @param int $level The level of the event being logged
+     * @param string|array $message The message to log
+     * @return bool true on success, false on failure
+     */
+    public function writeLog($level, $message): bool
+    {
+        // Only log events below the current logging level set
+        if ($level > $this->level) {
+            return false;
+        }
+
+        // Prepare the log message
+        $logMessage = new LogMessage('netric_com', 'TODO_SHORT_NAME');
+        $logMessage->setLevelNumber($level);
+        $logMessage->setApplicationEnvironment(getenv('APPLICATION_ENV'));
+        $logMessage->setApplicationVersion(getenv('APP_VER'));
+
+        // Add remote client IP address
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $logMessage->getClientIp($_SERVER['REMOTE_ADDR']);
+        }
+
+        // Add request to the log if available
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $logMessage->setRequestPath($_SERVER['REQUEST_URI']);
+        }
+
+        // If the request ID was set the log it
+        if ($this->requestId) {
+            $logMessage->setRequestId($this->requestId);
+        }
+
+        /*
+         * This can either be a string or a structured message - associative array.
+         * Note that these MAY override any of the keys above. That is intentional
+         * and useful for things like when you want to pass through client logs
+         * from and override application_name to the client's name.
+         */
+        $logMessage->setBody($message);
+
+        // Determine what writer to use
+        $this->writer->write($logMessage);
+
+        // Increment the stats counter for this level
+        if (!isset($this->stats[$logMessage->getLevelName()])) {
+            $this->stats[$logMessage->getLevelName()] = 0;
+        }
+        $this->stats[$logMessage->getLevelName()]++;
+
+        return true;
     }
 
     /**
@@ -364,7 +414,7 @@ class Log implements LogInterface
      * @param int $lvl The level to convert
      * @return string Textual representation of level
      */
-    public function getLevelName($lvl)
+    private function getLevelName($lvl)
     {
         // taken from syslog + http:// nl3.php.net/syslog for log levels
         switch ($lvl) {
@@ -602,46 +652,6 @@ class Log implements LogInterface
     }
 
     /**
-     * Send a log to a remote syslog server
-     *
-     * @param int $level
-     * @param string $message
-     * @return true on success, false on failure
-     */
-    private function writerSyslog(array $logDetails)
-    {
-        // Open a connection to the syslog
-        //$opt = ($config->log_stderr) ? LOG_PID | LOG_PERROR : LOG_PID;
-        //openlog("netric", LOG_PID, LOG_LOCAL5);
-
-        // Use local syslog unless a remote server was configured
-        if (empty($this->syslogRemoteServer)) {
-            syslog($logDetails['level'], $logDetails['message']);
-        }
-
-        $sockErrorNumber = null;
-        $sockErrorString = "";
-        $fp = fsockopen($this->syslogRemoteServer, $this->syslogRemotePort, $sockErrorNumber, $sockErrorString);
-
-        // Non-blocking I/O might be a good solution for speed
-        //stream_set_blocking($fp, 0);
-
-        // See 'pri' of https://tools.ietf.org/html/rfc5424#section-6.2.1
-        // multiplying the Facility number by 8 + adding the level
-        $pri = (LOG_LOCAL4 * 8) + $logDetails['level'];
-
-        // Version is required and rfc5424 is version 1
-        $syslogMessage = "<{$pri}>";
-        $syslogMessage .= date("M d H:i:s");
-        $syslogMessage .= ' docker netric: ' . $logDetails['message'];
-
-        fwrite($fp, $syslogMessage);
-        fclose($fp);
-
-        return true;
-    }
-
-    /**
      * Write a log entry to a file
      *
      * @param array $logDetails
@@ -655,5 +665,28 @@ class Log implements LogInterface
 
         fwrite($this->logFile, json_encode($logDetails) . "\n");
         return true;
+    }
+
+    /**
+     * Determine which log writer to use based on the config name
+     *
+     * @param Config $config
+     * @return LogWriterInterface
+     */
+    private function getWriterClassNameFromConfig(Config $logconfig): LogWriterInterface
+    {
+        // Convert snake_case to PascalCase
+        $writerClassName = 'Netric\\Log\\Writer\\';
+        $writerClassName .= str_replace('_', '', ucwords($logconfig->writer, '_'));
+        $writerClassName .= "LogWriter";
+
+        // Check to see if the writer exist
+        if (class_exists($writerClassName)) {
+            // Instantiate it with the log config and return
+            return new $writerClassName($logconfig);
+        }
+
+        // Default to the php_error writer
+        return new PhpErrorLogWriter();
     }
 }

@@ -37,7 +37,7 @@ class LogMessageTest extends TestCase
     {
         $data = '192.168.1.1';
         $logMessage = new LogMessage('netric_server', 'TEST');
-        $logMessage->setClientIP($data);
+        $logMessage->setClientIp($data);
         $this->assertEquals($data, $logMessage->getClientIp());
     }
 
@@ -55,6 +55,22 @@ class LogMessageTest extends TestCase
         $logMessage = new LogMessage('netric_server', 'TEST');
         $logMessage->setApplicationVersion($data);
         $this->assertEquals($data, $logMessage->getApplicationVersion());
+    }
+
+    public function testGetAndSetRequestPath()
+    {
+        $data = '/my/path';
+        $logMessage = new LogMessage('netric_server', 'TEST');
+        $logMessage->setRequestPath($data);
+        $this->assertEquals($data, $logMessage->getRequestPath());
+    }
+
+    public function testGetAndSetRequestId()
+    {
+        $data = 'GGHHh';
+        $logMessage = new LogMessage('netric_server', 'TEST');
+        $logMessage->setRequestId($data);
+        $this->assertEquals($data, $logMessage->getRequestId());
     }
 
     public function testGetAndSetBodyString()

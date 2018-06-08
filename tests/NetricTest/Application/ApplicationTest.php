@@ -26,15 +26,11 @@ class ApplicationTest extends TestCase
     protected function setUp()
     {
         $configLoader = new ConfigLoader();
-        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
         // Setup the new config
-        $config = $configLoader->fromFolder(__DIR__ . "/../../../config", $applicationEnvironment);
+        $config = $configLoader->fromFolder(__DIR__ . "/../../../config", 'testing');
 
         $this->application = new Netric\Application\Application($config);
-
-        // Keep logs from writing to stderr
-        $this->application->getLog()->setLogWriter(__DIR__ . "/../../tmp/netric.log");
     }
 
     public function testGetConfig()

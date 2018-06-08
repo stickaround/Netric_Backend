@@ -3,6 +3,7 @@ namespace NetricTest\Log\Writer;
 
 use Netric\Log\Writer\GelfLogWriter;
 use Netric\Log\Writer\LogWriterInterface;
+use Netric\Config\Config;
 
 /**
  * @group integration
@@ -14,6 +15,7 @@ class GelfLogWriterTest extends AbstractLogWriterTests
      */
     public function getWriter(): LogWriterInterface
     {
-        return new GelfLogWriter('logstash');
+        $config = new Config(['server'=>'logstash', 'port'=>12201]);
+        return new GelfLogWriter($config);
     }
 }

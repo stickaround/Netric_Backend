@@ -67,7 +67,7 @@ pipeline {
                             sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
                             // Fail if any critical security vulnerabilities are found
-                            sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric"
+                            sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                     }
                 }
             }
@@ -134,7 +134,6 @@ pipeline {
             // Shutdown
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             cleanWs()
-            sh 'docker system prune -af'
         }
         failure {
             emailext (

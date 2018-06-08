@@ -2,6 +2,7 @@
 namespace Netric\Log\Writer;
 
 use Netric\Log\LogMessage;
+use Netric\Config\Config;
 use Gelf\Transport\UdpTransport as GelfUdpTransport;
 use Gelf\Publisher as GelfPublisher;
 use Gelf\Message as GelfMessage;
@@ -27,11 +28,13 @@ class GelfLogWriter implements LogWriterInterface
 
     /**
      * Construct a new greylog writer
+     *
+     * @param Config $logConfig
      */
-    public function __construct(string $logServer, int $logPort = 12201)
+    public function __construct(Config $logConfig)
     {
         // We need a transport - default to UDP
-        $transport = new GelfUdpTransport($logServer, 12201);
+        $transport = new GelfUdpTransport($logConfig->server, 12201);
 
         // While the UDP transport is itself a publisher, we wrap it in a real Publisher for convenience
         // A publisher allows for message validation before transmission
@@ -53,12 +56,21 @@ class GelfLogWriter implements LogWriterInterface
 
         // Either set the full text body, or additional properties for structured data
         if (is_array($logMessage->getBody())) {
-            foreach ($logMessage->getBody() as $key=>$val) {
+            foreach ($logMessage->getBody() as $key => $val) {
                 $message->setAdditional($key, $val);
             }
-        } else if (is_string($logMessage->getBody())) {
+        } elseif (is_string($logMessage->getBody())) {
             $message->setFullMessage($logMessage->getBody());
         }
+
+        // Add additional structured properties
+        $message->setAdditional('client_ip', $logMessage->getClientIp());
+        $message->setAdditional('application_environment', $logMessage->getApplicationEnvironment());
+        $message->setAdditional('application_version', $logMessage->getApplicationVersion());
+        $message->setAdditional('application_name', $logMessage->getApplicationName());
+        $message->setAdditional('request_route', $logMessage->getRequestPath());
+        $message->setAdditional('request_id', $logMessage->getRequestId());
+
         $this->gelfPublisher->publish($message);
         $this->numMessageWritten++;
     }

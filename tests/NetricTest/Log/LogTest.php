@@ -36,18 +36,8 @@ class LogTest extends TestCase
      */
     protected function setUp()
     {
-        /*
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
-        $this->log = $this->account->getServiceManager()->get("Log");
-        */
-
-        $configValues = array(
-            'log'=> __DIR__ . '/../../data/tmp/log'
-        );
-        $config = new Config($configValues);
-
-        $this->log = new Log($config);
+        // Create a silent writer
+        $this->log = new Log(new Config(['writer'=>'null']));
     }
     
     /**

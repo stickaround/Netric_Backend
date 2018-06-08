@@ -23,16 +23,15 @@ class PhpErrorLogWriter implements LogWriterInterface
      * @var bool
      */
     private $suppressOutput = false;
-
-
+    
     /**
-     * Construct a new ErrorLogWriter
-     *
-     * @param bool $suppressOutput
+     * Do not actually print to error_log because it will make
+     * anything running in a docker console (like unit tests)
+     * reall noisy
      */
-    public function __construct($suppressOutput = false)
+    public function suppressOutup()
     {
-        $this->suppressOutput = $suppressOutput;
+        $this->suppressOutput = true;
     }
 
     /**
@@ -51,7 +50,7 @@ class PhpErrorLogWriter implements LogWriterInterface
 
         // We may opt to suppress this output which is okay
         // because we really are not here to test if error_log works
-        if ($this->suppressOutput) {
+        if (!$this->suppressOutput) {
             error_log($messageToSend);
         }
 
