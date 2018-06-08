@@ -18,36 +18,6 @@ use Netric\Log\Writer\PhpErrorLogWriter;
 class Log implements LogInterface
 {
     /**
-     * Path to the log file
-     *
-     * @var string
-     */
-    private $logPath = "";
-
-    /**
-     * Optional remote server if using syslog
-     *
-     * @var string
-     */
-    private $syslogRemoteServer = "";
-
-    /**
-     * Optional remote syslog server port
-     *
-     * Defaults to 541 which is the reserved port for syslog
-     *
-     * @var int
-     */
-    private $syslogRemotePort = 541;
-
-    /**
-     * Log file handle
-     *
-     * @var int File handle
-     */
-    private $logFile = null;
-
-    /**
      * If this is set we will add it to every log to make tracking all calls/events easier
      *
      * @var string
@@ -74,25 +44,11 @@ class Log implements LogInterface
     private $level = self::LOG_ERR;
 
     /**
-     * Log writers
-     */
-    const WRITER_STDERR = 'stderr';
-    const WRITER_SYSLOG = 'syslog';
-    const WRITER_FILE = 'file';
-
-    /**
      * Which writer we are going to use for logging
      *
      * @var string
      */
-    private $writer = self::WRITER_STDERR;
-
-    /**
-     * Current application release
-     *
-     * @var string
-     */
-    private $appBranch = "release";
+    private $writer = null;
 
     /**
      * Flag to print logs to the console
@@ -123,16 +79,6 @@ class Log implements LogInterface
         if ($logConfig->level) {
             $this->level =$logConfig->level;
         }
-
-        // Default to local syslog, but if we define the remote server then send via socket
-        /*
-        if ($this->writer === self::WRITER_SYSLOG && $config->log_syslog_server) {
-            $this->syslogRemoteServer = $config->log_syslog_server;
-            if ($config->log_syslog_server_port) {
-                $this->syslogRemotePort = $config->log_syslog_server_port;
-            }
-        }
-        */
     }
 
     /**
@@ -170,35 +116,35 @@ class Log implements LogInterface
      *
      * @param string $logPath
      */
-    public function setLogFilePath($logPath)
-    {
-        if (!$logPath) {
-            throw new \InvalidArgumentException("Cannot set log path to empty");
-        }
+    // public function setLogFilePath($logPath)
+    // {
+    //     if (!$logPath) {
+    //         throw new \InvalidArgumentException("Cannot set log path to empty");
+    //     }
 
-        // Make sure the local data path exists if we are logging to a file
-        $this->logPath = $logPath;
+    //     // Make sure the local data path exists if we are logging to a file
+    //     $this->logPath = $logPath;
 
-        // Check to see if log file exists and create it if it does not
-        if ($this->logPath && !file_exists($this->logPath)) {
-            if (!touch($this->logPath)) {
-                throw new \RuntimeException("Could not create log file: " . $this->logPath);
-            }
-        }
-    }
+    //     // Check to see if log file exists and create it if it does not
+    //     if ($this->logPath && !file_exists($this->logPath)) {
+    //         if (!touch($this->logPath)) {
+    //             throw new \RuntimeException("Could not create log file: " . $this->logPath);
+    //         }
+    //     }
+    // }
 
     /**
      * Destructor - cleanup file handles
      */
     public function __destruct()
     {
-        // This will be deprecated when we move it all to syslog
-        if ($this->logFile != null) {
-            @fclose($this->logFile);
-        }
+        // // This will be deprecated when we move it all to syslog
+        // if ($this->logFile != null) {
+        //     @fclose($this->logFile);
+        // }
 
-        // Close connection to the system log
-        closelog();
+        // // Close connection to the system log
+        // closelog();
     }
 
     /**
@@ -414,36 +360,36 @@ class Log implements LogInterface
      * @param int $lvl The level to convert
      * @return string Textual representation of level
      */
-    private function getLevelName($lvl)
-    {
-        // taken from syslog + http:// nl3.php.net/syslog for log levels
-        switch ($lvl) {
-            case self::LOG_EMERG:
-                // system is unusable
-                return "emergency";
-            case self::LOG_ALERT:
-                // action must be taken immediately
-                return "alert";
-            case self::LOG_CRIT:
-                // critical conditions
-                return "critical";
-            case self::LOG_ERR:
-                // error conditions
-                return "error";
-            case self::LOG_WARNING:
-                // warning conditions
-                return "warning";
-            case self::LOG_NOTICE:
-                // normal, but significant, condition
-                return "notice";
-            case self::LOG_INFO:
-                // informational message
-                return "info";
-            case self::LOG_DEBUG:
-                // debug-level message
-                return "debug";
-        }
-    }
+    // private function getLevelName($lvl)
+    // {
+    //     // taken from syslog + http:// nl3.php.net/syslog for log levels
+    //     switch ($lvl) {
+    //         case self::LOG_EMERG:
+    //             // system is unusable
+    //             return "emergency";
+    //         case self::LOG_ALERT:
+    //             // action must be taken immediately
+    //             return "alert";
+    //         case self::LOG_CRIT:
+    //             // critical conditions
+    //             return "critical";
+    //         case self::LOG_ERR:
+    //             // error conditions
+    //             return "error";
+    //         case self::LOG_WARNING:
+    //             // warning conditions
+    //             return "warning";
+    //         case self::LOG_NOTICE:
+    //             // normal, but significant, condition
+    //             return "notice";
+    //         case self::LOG_INFO:
+    //             // informational message
+    //             return "info";
+    //         case self::LOG_DEBUG:
+    //             // debug-level message
+    //             return "debug";
+    //     }
+    // }
 
     /**
      * PHP error handler function is called with set_error_handler early in execution
@@ -494,10 +440,9 @@ class Log implements LogInterface
         );
 
         // create error message
+        $err = 'UNHANDLED ERROR';
         if (array_key_exists($errno, $errorType)) {
             $err = $errorType[$errno];
-        } else {
-            $err = 'UNHANDLED ERROR';
         }
 
         $errMsg = "$err: $errstr in $errfile on line $errline";
