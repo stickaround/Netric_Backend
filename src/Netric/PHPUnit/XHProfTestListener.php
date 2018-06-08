@@ -40,12 +40,12 @@ class XHProfTestListener implements TestListener
     /**
      * @var array
      */
-    protected $runs = array();
+    protected $runs = [];
 
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     /**
      * Internal tracking for test suites.
@@ -62,7 +62,7 @@ class XHProfTestListener implements TestListener
      *
      * @param array $options
      */
-    public function __construct(array $options = array())
+    public function __construct(array $options = [])
     {
         if (!isset($options['appNamespace'])) {
             throw new InvalidArgumentException(
@@ -200,8 +200,10 @@ class XHProfTestListener implements TestListener
 
         $test_name = get_class($test) . '::' . $test->getName();
 
-        $this->runs[$test_name] = $this->options['xhprofWeb'] . '?run=' . $runId .
-            '&source=' . $this->options['appNamespace'];
+        $this->runs[$test_name] = [
+            'timeinms' => $this->toMilliseconds($time),
+            'file' => $this->options['xhprofWeb'] . '?run=' . $runId . '&source=' . $this->options['appNamespace']
+        ];
     }
 
     /**
@@ -230,7 +232,7 @@ class XHProfTestListener implements TestListener
             print("\n\nXHProf runs for tests exceeding threshold: ");
             print(count($this->runs) . "\n");
             foreach ($this->runs as $test => $run) {
-                print(' * ' . $test . "\n   " . $run . "\n\n");
+                print(' * ' . $test . ":" . $run['timeinms'] . "ms\n   " . $run['file'] . "\n\n");
             }
             print("\n");
         }

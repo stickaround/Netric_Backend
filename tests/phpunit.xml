@@ -56,6 +56,7 @@
     </logging>
 
     <listeners>
+        <!--
         <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
             <arguments>
                 <array>
@@ -68,6 +69,7 @@
                 </array>
             </arguments>
         </listener>
+        -->
         <listener class="Netric\PHPUnit\XHProfTestListener">
         <arguments>
             <array>

@@ -75,12 +75,6 @@ interface LogInterface
      */
     public function setLogWriter(LogWriterInterface $writer);
 
-    /**
-     * Set the path to use for logging
-     *
-     * @param string $logPath
-     */
-    public function setLogFilePath($logPath);
 
     /**
      * Get textual representation of the level
