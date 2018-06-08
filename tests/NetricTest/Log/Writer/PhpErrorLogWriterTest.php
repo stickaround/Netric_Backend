@@ -14,6 +14,9 @@ class PhpErrorLogWriterTest extends AbstractLogWriterTests
      */
     public function getWriter(): LogWriterInterface
     {
-        return new PhpErrorLogWriter(true);
+        $writer = new PhpErrorLogWriter(true);
+        // Keep it from pritning to the console
+        $writer->suppressOutup();
+        return $writer;
     }
 }

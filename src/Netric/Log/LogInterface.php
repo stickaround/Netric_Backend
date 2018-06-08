@@ -86,7 +86,7 @@ interface LogInterface
      * @param int $lvl The level to convert
      * @return string Textual representation of level
      */
-    public function getLevelName($lvl);
+    //public function getLevelName($lvl);
 
     /**
      * Return the number of log entries that have been written for each level

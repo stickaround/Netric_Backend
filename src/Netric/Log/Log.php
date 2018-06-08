@@ -142,6 +142,7 @@ class Log implements LogInterface
      */
     public function setLogWriter($log)
     {
+        // TODO: change this to Netric\Log\Writer\LogWriterInterface
         if (self::WRITER_SYSLOG === $log) {
             $this->writer = self::WRITER_SYSLOG;
         } elseif (self::WRITER_STDERR === $log) {
@@ -219,7 +220,7 @@ class Log implements LogInterface
      * @param string|array $message The message to log
      * @return bool true on success, false on failure
      */
-    public function writeLog($lvl, $message)
+    public function writeLog($lvl, $message): bool
     {
         // Only log events below the current logging level set
         if ($lvl > $this->level) {
@@ -281,6 +282,64 @@ class Log implements LogInterface
 
         // No supported writers appear to be configured
         return false;
+    }
+
+    /**
+     * Put a new entry into the log
+     *
+     * This is usually called by one of the aliased methods like info, error, warning
+     * which in turn just sets the level and writes to this method.
+     *
+     * @param int $level The level of the event being logged
+     * @param string|array $message The message to log
+     * @return bool true on success, false on failure
+     */
+    public function writeLogNew($level, $message): bool
+    {
+        // Only log events below the current logging level set
+        if ($level > $this->level) {
+            return false;
+        }
+
+        // Prepare the log message
+        $logMessage = new LogMessage('netric_com', 'TODO_SHORT_NAME');
+        $logMessage->setLevelNumber($level);
+        $logMessage->setApplicationEnvironment(getenv('APPLICATION_ENV'));
+        $logMessage->setApplicationVersion(getenv('APP_VER'));
+
+        // Add remote client IP address
+        if (isset($_SERVER['REMOTE_ADDR'])) {
+            $logMessage->getClientIp($_SERVER['REMOTE_ADDR']);
+        }
+
+        // Add request to the log if available
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $logMessage->setRequestPath($_SERVER['REQUEST_URI']);
+        }
+
+        // If the request ID was set the log it
+        if ($this->requestId) {
+            $logMessage->setRequestId($this->requestId);
+        }
+
+        /*
+         * This can either be a string or a structured message - associative array.
+         * Note that these MAY override any of the keys above. That is intentional
+         * and useful for things like when you want to pass through client logs
+         * from and override application_name to the client's name.
+         */
+        $logMessage->setBody($message);
+
+        // Determine what writer to use
+        $this->writer->write($logmessage);
+
+        // Increment the stats counter for this level
+        if (!isset($this->stats[$logMessage->getLevelName()])) {
+            $this->stats[$logMessage->getLevelName()] = 0;
+        }
+        $this->stats[$logMessage->getLevelName()]++;
+
+        return true;
     }
 
     /**
@@ -364,7 +423,7 @@ class Log implements LogInterface
      * @param int $lvl The level to convert
      * @return string Textual representation of level
      */
-    public function getLevelName($lvl)
+    private function getLevelName($lvl)
     {
         // taken from syslog + http:// nl3.php.net/syslog for log levels
         switch ($lvl) {

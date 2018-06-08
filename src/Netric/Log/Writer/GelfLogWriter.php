@@ -53,12 +53,21 @@ class GelfLogWriter implements LogWriterInterface
 
         // Either set the full text body, or additional properties for structured data
         if (is_array($logMessage->getBody())) {
-            foreach ($logMessage->getBody() as $key=>$val) {
+            foreach ($logMessage->getBody() as $key => $val) {
                 $message->setAdditional($key, $val);
             }
-        } else if (is_string($logMessage->getBody())) {
+        } elseif (is_string($logMessage->getBody())) {
             $message->setFullMessage($logMessage->getBody());
         }
+
+        // Add additional structured properties
+        $message->setAdditional('client_ip', $logMessage->getClientIp());
+        $message->setAdditional('application_environment', $logMessage->getApplicationEnvironment());
+        $message->setAdditional('application_version', $logMessage->getApplicationVersion());
+        $message->setAdditional('application_name', $logMessage->getApplicationName());
+        $message->setAdditional('request_route', $logMessage->getRequestPath());
+        $message->setAdditional('request_id', $logMessage->getRequestId());
+
         $this->gelfPublisher->publish($message);
         $this->numMessageWritten++;
     }

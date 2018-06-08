@@ -70,6 +70,20 @@ class LogMessage
     private $applicationName = null;
 
     /**
+     * The path of this request us usually something like /api/controller/action
+     *
+     * @var string
+     */
+    private $requestPath = null;
+
+    /**
+     * The unique id of this request
+     *
+     * @var string
+     */
+    private $requestId = null;
+
+    /**
      * Main body of the log message
      *
      * @var string|array
@@ -134,7 +148,7 @@ class LogMessage
      * @param string $clientIp
      * @return void
      */
-    public function setClientIP(string $clientIp)
+    public function setClientIp(string $clientIp)
     {
         $this->clientIp = $clientIp;
     }
@@ -147,6 +161,48 @@ class LogMessage
     public function getClientIp(): ?string
     {
         return $this->clientIp;
+    }
+
+    /**
+     * Set the requested path
+     *
+     * @param string $requestPath
+     * @return void
+     */
+    public function setRequestPath(string $requestPath)
+    {
+        $this->requestPath = $requestPath;
+    }
+
+    /**
+     * Get the requested path
+     *
+     * @return string|null
+     */
+    public function getRequestPath(): ?string
+    {
+        return $this->requestPath;
+    }
+
+    /**
+     * Set the application request id
+     *
+     * @param string $requestId
+     * @return void
+     */
+    public function setRequestId(string $requestId)
+    {
+        $this->requestId = $requestId;
+    }
+
+    /**
+     * Get the application request id
+     *
+     * @return string|null
+     */
+    public function getRequestId(): ?string
+    {
+        return $this->requestId;
     }
 
     /**
