@@ -1,2 +1,0 @@
-{"time":"2018-06-08T16:28:37Z","level":6,"severity":"info","client_ip":null,"client_port":null,"app_env":"development","app_name":"netric_com","app_ver":"latest","message":"SUCCESS: The system is ok","request_id":"5b1aaeb5d71eb"}
-{"time":"2018-06-08T16:29:08Z","level":6,"severity":"info","client_ip":null,"client_port":null,"app_env":"development","app_name":"netric_com","app_ver":"latest","message":"SUCCESS: The system is ok","request_id":"5b1aaed46e215"}

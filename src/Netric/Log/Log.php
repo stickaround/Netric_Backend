@@ -293,10 +293,10 @@ class Log implements LogInterface
         }
 
         // Prepare the log message
-        $logMessage = new LogMessage('netric_com', 'TODO_SHORT_NAME');
+        $logMessage = new LogMessage('netric-server', 'Applicaion Log');
         $logMessage->setLevelNumber($level);
         $logMessage->setApplicationEnvironment(getenv('APPLICATION_ENV'));
-        $logMessage->setApplicationVersion(getenv('APP_VER'));
+        $logMessage->setApplicationVersion(getenv('APPLICATION_VER'));
 
         // Add remote client IP address
         if (isset($_SERVER['REMOTE_ADDR'])) {
