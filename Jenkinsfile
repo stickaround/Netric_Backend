@@ -18,11 +18,13 @@ pipeline {
             steps {
                 // Wait for the upgrade to finish
                 script {
-                    String jsonText  = sh(
-                        returnStdout: true,
-                        script: "ssh -p 222  -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
-                    ).trim()
-                    echo "Got ${jsonText}"
+                    sshagent (credentials: ['aereus']) {
+                        String jsonText  = sh(
+                            returnStdout: true,
+                            script: "ssh -p 222  -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
+                        ).trim()
+                        echo "Got ${jsonText}"
+                    }
 
                     verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
@@ -123,9 +125,9 @@ pipeline {
             steps {
                 // Call stack deploy to upgrade
                 script {
-                        def server = 'aereus@web2.aereus.com';
+                    def server = 'aereus@web2.aereus.com';
 
-                        sshagent (credentials: ['aereus']) {
+                    sshagent (credentials: ['aereus']) {
 
                         sh 'scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh'
                         sh 'scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml'
