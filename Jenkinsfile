@@ -17,7 +17,7 @@ pipeline {
             steps {
             // Wait for the upgrade to finish
                 script {
-                    getDeployStatus(
+                    verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
                         serviceName: 'netric_com_netric',
                         imageTag: "v945"
@@ -103,7 +103,7 @@ pipeline {
                 }
                 // Wait for the upgrade to finish
                 script {
-                    getDeployStatus(
+                    verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
                         serviceName: 'netric_com_netric',
                         imageTag: "${APPLICATION_VERSION}"
@@ -127,7 +127,7 @@ pipeline {
                     }
 
                     // Wait for the upgrade to finish
-                    getDeployStatus(
+                    verifyDeploySuccess(
                         environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
                         serviceName: 'netric_com_netric',
                         imageTag: "${APPLICATION_VERSION}"
