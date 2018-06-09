@@ -18,32 +18,11 @@ pipeline {
             steps {
                 // Wait for the upgrade to finish
                 script {
-                    timeout(timeoutInMinutes) {
-                        waitUntil {
-                            String jsonText  = sh(
-                                returnStdout: true,
-                                script: "ssh -p 222  -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
-                            ).trim()
-                            echo "Got ${jsonText}"
-
-                            def inspector = new SwarmServiceInspector(jsonText)
-                            def upgradeStatus = inspector.getUpgradeStatus()
-
-                            // First check to see if the upgrade is already the current image (first deploy)
-                            if (inspector.getRunningImageTag() == imageTag) {
-                                // Make the upgrade as delete since the new version is running
-                                upgradeStatus = SwarmServiceInspector.UPGRADE_STATUS_COMPLETED
-                            }
-
-                            // Look for a failure
-                            if(upgradeStatus == SwarmServiceInspector.UPGRADE_STATUS_PAUSED) {
-                                echo('getDeployStatus detected a failed update which should cause a rollback')
-                                error("Deployment to ${environment} failed: " + inspector.getUpgradeMessage())
-                            }
-
-                            return (upgradeStatus == SwarmServiceInspector.UPGRADE_STATUS_COMPLETED)
-                        }
-                    }
+                    String jsonText  = sh(
+                        returnStdout: true,
+                        script: "ssh -p 222  -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
+                    ).trim()
+                    echo "Got ${jsonText}"
 
                     verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
