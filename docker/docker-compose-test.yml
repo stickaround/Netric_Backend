@@ -52,7 +52,7 @@ services:
       DB_PORT: 5432
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 240
+      WAIT_FOR_DB_TIMEOUT: 480
     depends_on:
       - mogilestore
       - db1

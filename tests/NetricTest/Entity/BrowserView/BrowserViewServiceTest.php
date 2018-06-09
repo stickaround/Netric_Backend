@@ -186,12 +186,13 @@ class BrowserViewServiceTest extends TestCase
         $accountViews = $this->browserViewService->getAccountViews("note");
         $foundUserView = false;
         $foundTeamView = false;
-        foreach ($accountViews as $view)
-        {
-            if ($view->getUserId())
+        foreach ($accountViews as $view) {
+            if ($view->getUserId()) {
                 $foundUserView = true;
-            if ($view->getTeamId())
+            }
+            if ($view->getTeamId()) {
                 $foundTeamView = true;
+            }
         }
         $this->assertTrue(count($accountViews) >= 1);
         $this->assertFalse($foundUserView);
@@ -229,12 +230,13 @@ class BrowserViewServiceTest extends TestCase
         $teamViews = $this->browserViewService->getTeamViews("note", 1);
         $foundUserView = false;
         $foundAccountView = false;
-        foreach ($teamViews as $view)
-        {
-            if ($view->getUserId())
+        foreach ($teamViews as $view) {
+            if ($view->getUserId()) {
                 $foundUserView = true;
-            if (empty($view->getTeamId()) && empty($view->getUserId()))
+            }
+            if (empty($view->getTeamId()) && empty($view->getUserId())) {
                 $foundAccountView = true;
+            }
         }
         $this->assertTrue(count($teamViews) >= 1);
         $this->assertFalse($foundUserView);
@@ -272,12 +274,13 @@ class BrowserViewServiceTest extends TestCase
         $userViews = $this->browserViewService->getUserViews("note", 2);
         $foundTeamView = false;
         $foundAccountView = false;
-        foreach ($userViews as $view)
-        {
-            if ($view->getTeamid())
+        foreach ($userViews as $view) {
+            if ($view->getTeamid()) {
                 $foundTeamView = true;
-            if (empty($view->getTeamId()) && empty($view->getUserId()))
+            }
+            if (empty($view->getTeamId()) && empty($view->getUserId())) {
                 $foundAccountView = true;
+            }
         }
         $this->assertTrue(count($userViews) >= 1);
         $this->assertFalse($foundTeamView);
@@ -295,8 +298,9 @@ class BrowserViewServiceTest extends TestCase
     public function testGetViewsForUser()
     {
         // Set temp view id for testing if not set
-        if (empty($this->user->getValue("team_id")))
+        if (empty($this->user->getValue("team_id"))) {
             $this->user->setValue("team_id", 3);
+        }
 
         // Setup team vuew
         $teamView = new BrowserView();

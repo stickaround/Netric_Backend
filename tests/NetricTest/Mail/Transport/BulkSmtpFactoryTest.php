@@ -83,6 +83,5 @@ class BulkSmtpFactoryTest extends TestCase
             array('username'=>$testUser, 'password'=>$testPassword),
             $options->getConnectionConfig()
         );
-
     }
 }

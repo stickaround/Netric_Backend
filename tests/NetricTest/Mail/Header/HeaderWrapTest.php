@@ -20,7 +20,8 @@ class HeaderWrapTest extends TestCase
     public function testWrapUnstructuredHeaderAscii()
     {
         $string = str_repeat('foobarblahblahblah baz bat', 4);
-        $header = $this->getMockBuilder('Netric\Mail\Header\UnstructuredInterface')->getMock();;
+        $header = $this->getMockBuilder('Netric\Mail\Header\UnstructuredInterface')->getMock();
+        ;
         $header->expects($this->any())
             ->method('getEncoding')
             ->will($this->returnValue('ASCII'));
@@ -36,7 +37,8 @@ class HeaderWrapTest extends TestCase
     public function testWrapUnstructuredHeaderMime()
     {
         $string = str_repeat('foobarblahblahblah baz bat', 3);
-        $header = $this->getMockBuilder('Netric\Mail\Header\UnstructuredInterface')->getMock();;
+        $header = $this->getMockBuilder('Netric\Mail\Header\UnstructuredInterface')->getMock();
+        ;
         $header->expects($this->any())
             ->method('getEncoding')
             ->will($this->returnValue('UTF-8'));

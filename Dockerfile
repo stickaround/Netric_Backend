@@ -120,10 +120,6 @@ RUN chown -R www-data:www-data /var/www/html/data/
 # Run composer install to get all required dependencies
 RUN cd /var/www/html && composer install && composer update
 
-# Update logs to print to stdout so they can be shipped
-RUN ln -sf /dev/stderr /var/log/netric
-RUN chmod 777 /var/log/netric
-
 EXPOSE 80
 EXPOSE 443
 

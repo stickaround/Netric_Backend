@@ -63,8 +63,7 @@ class NotificationTest extends TestCase
         $query = new EntityQuery("user");
         $query->where("name")->equals("notificationtest");
         $result = $index->executeQuery($query);
-        for ($i = 0; $i < $result->getNum(); $i++)
-        {
+        for ($i = 0; $i < $result->getNum(); $i++) {
             $this->entityLoader->delete($result->getEntity($i), true);
         }
 
@@ -82,8 +81,7 @@ class NotificationTest extends TestCase
     protected function tearDown()
     {
         // Make sure any test entities created are deleted
-        foreach ($this->testEntities as $entity)
-        {
+        foreach ($this->testEntities as $entity) {
             // Second param is a 'hard' delete which actually purges the data
             $this->entityLoader->delete($entity, true);
         }
