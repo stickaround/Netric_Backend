@@ -10,11 +10,18 @@ def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
 
+node('linux') {
+    verifyDeploySuccess(
+        environment: DeploymentTargets.INTEGRATION,
+        serviceName: 'netric_com_netric',
+        imageTag: "v945"
+    )
+}
+
 pipeline {
     agent { node { label 'linux' } }
     stages {
         stage('Build') {
-            agent { node { label 'linux' } }
             steps {
                 // Wait for the upgrade to finish
                 script {
