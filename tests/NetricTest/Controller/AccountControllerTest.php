@@ -42,6 +42,7 @@ class AccountControllerTest extends TestCase
         $ret = $this->controller->getGetAction();
 
         // Make sure that modules that has xml_navigation
+        echo var_export($ret['modules'], true);
         $this->assertFalse(empty($ret['modules'][0]['navigation']));
     }
 }

@@ -230,9 +230,9 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postSaveAction();
 
-        $this->assertEquals($data['obj_type'], $ret['obj_type'], $ret);
-        $this->assertEquals($data['first_name'], $ret['first_name'], $ret);
-        $this->assertEquals($data['last_name'], $ret['last_name'], $ret);
+        $this->assertEquals($data['obj_type'], $ret['obj_type']);
+        $this->assertEquals($data['first_name'], $ret['first_name']);
+        $this->assertEquals($data['last_name'], $ret['last_name']);
     }
 
     public function testDelete()

@@ -79,7 +79,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addError(Test $test, \Exception $e, $time)
+    public function addError(Test $test, \Throwable $t, float $time): void
     {
     }
 
@@ -90,7 +90,7 @@ class XHProfTestListener implements TestListener
      * @param Warning $e
      * @param float   $time
      */
-    public function addWarning(Test $test, Warning $e, $time)
+    public function addWarning(Test $test, Warning $e, float $time): void
     {
     }
 
@@ -101,7 +101,7 @@ class XHProfTestListener implements TestListener
      * @param AssertionFailedError $e
      * @param float                $time
      */
-    public function addFailure(Test $test, AssertionFailedError $e, $time)
+    public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
     }
 
@@ -112,7 +112,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addIncompleteTest(Test $test, \Exception $e, $time)
+    public function addIncompleteTest(Test $test, \Throwable $t, float $time): void
     {
     }
 
@@ -123,7 +123,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addRiskyTest(Test $test, \Exception $e, $time)
+    public function addRiskyTest(Test $test, \Throwable $t, float $time): void
     {
     }
 
@@ -134,7 +134,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addSkippedTest(Test $test, \Exception $e, $time)
+    public function addSkippedTest(Test $test, \Throwable $t, float $time): void
     {
     }
 
@@ -143,7 +143,7 @@ class XHProfTestListener implements TestListener
      *
      * @param Test $test
      */
-    public function startTest(Test $test)
+    public function startTest(Test $test): void
     {
         if (!extension_loaded('xhprof')) {
             return;
@@ -165,10 +165,10 @@ class XHProfTestListener implements TestListener
     /**
      * A test ended.
      *
-     * @param Test $test
-     * @param float                  $time
+     * @param Test  $test
+     * @param float $time
      */
-    public function endTest(Test $test, $time)
+    public function endTest(Test $test, float $time): void
     {
         if (!extension_loaded('xhprof')) {
             return;
@@ -211,7 +211,7 @@ class XHProfTestListener implements TestListener
      *
      * @param TestSuite $suite
      */
-    public function startTestSuite(TestSuite $suite)
+    public function startTestSuite(TestSuite $suite): void
     {
         $this->suites++;
     }
@@ -221,7 +221,7 @@ class XHProfTestListener implements TestListener
      *
      * @param TestSuite $suite
      */
-    public function endTestSuite(TestSuite $suite)
+    public function endTestSuite(TestSuite $suite): void
     {
         if (!extension_loaded('xhprof')) {
             return;
@@ -232,7 +232,7 @@ class XHProfTestListener implements TestListener
             print("\n\nXHProf runs for tests exceeding threshold: ");
             print(count($this->runs) . "\n");
             foreach ($this->runs as $test => $run) {
-                print(' * ' . $test . ":" . $run['timeinms'] . "ms\n   " . $run['file'] . "\n\n");
+                print(' * ' . $test . " - " . $run['timeinms'] . "ms\n   " . $run['file'] . "\n\n");
             }
             print("\n");
         }

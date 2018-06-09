@@ -400,7 +400,7 @@ class FileSystemTest extends TestCase
 
         $file = $this->fileSystem->createFile("%tmp%", "testFileMove.txt", true);
         $retSizeUploaded = $this->fileSystem->writeFile($file, $testData);
-        $this->assertGreaterThan(0, $retSizeUploaded, $this->fileSystem->getLastError());
+        $this->assertGreaterThan(0, $retSizeUploaded);
         $this->assertEquals($testData, $this->fileSystem->readFile($file));
     }
 }

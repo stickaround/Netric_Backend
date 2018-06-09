@@ -115,7 +115,7 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         );
 
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
-        $this->assertTrue($dataMapper->update($account->getId()), $dataMapper->getLastError());
+        $this->assertTrue($dataMapper->update($account->getId()));
 
         // Now test reading and writing data
         $data = array(

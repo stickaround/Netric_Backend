@@ -48,7 +48,7 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Save it
         $dataMapper->save($module);
-        $this->assertNotEmpty($module->getId(), $dataMapper->getLastError());
+        $this->assertNotEmpty($module->getId());
         $this->testModules[] = $module; // For cleanup
 
         // Re-open and check
@@ -74,7 +74,7 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Save changes
         $module->setTitle("Unit Test Module - edited");
-        $this->assertTrue($dataMapper->save($module), $dataMapper->getLastError());
+        $this->assertTrue($dataMapper->save($module));
 
         // Re-open and check
         $module2 = $dataMapper->get($module->getName());
@@ -102,7 +102,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
         $modules = $dataMapper->getAll();
         $this->assertNotNull($modules);
-        $this->assertGreaterThan(0, count($modules), $dataMapper->getLastError());
+        $this->assertGreaterThan(0, count($modules));
 
         // Make sure that we have loaded the settings module
         $this->assertTrue(isset($modules['settings']));
