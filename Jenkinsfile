@@ -3,7 +3,6 @@
 
 import aereus.pipeline.CodeQualityReporter
 import aereus.pipeline.DeploymentTargets
-import aereus.pipeline.verifyDeploySuccess
 import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
