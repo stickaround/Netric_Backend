@@ -13,7 +13,8 @@ use Netric;
 use PHPUnit\Framework\TestCase;
 
 class FormParserTest extends TestCase
-{   
+{
+
     public function testBuildQueryWheres()
     {
         $query = new Netric\EntityQuery("customer");
@@ -66,7 +67,6 @@ class FormParserTest extends TestCase
         
         $this->assertEquals("first_name", $orders[1]->fieldName);
         $this->assertEquals("DESC", $orders[1]->direction);
-        
     }
     
     public function testBuildQueryOffsetLimit()

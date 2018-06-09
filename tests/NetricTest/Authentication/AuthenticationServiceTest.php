@@ -13,7 +13,8 @@ use Netric\Request\RequestInterface;
  * @group integration
  */
 class AuthenticationServiceTest extends TestCase
-{   
+{
+
     /**
      * Account used for testing
      *
@@ -56,8 +57,7 @@ class AuthenticationServiceTest extends TestCase
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $res = $index->executeQuery($query);
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
             $dm->delete($user, true);
         }
@@ -74,8 +74,7 @@ class AuthenticationServiceTest extends TestCase
 
     protected function tearDown()
     {
-        if ($this->user)
-        {
+        if ($this->user) {
             $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
             $dm->delete($this->user, true);
         }
@@ -100,7 +99,6 @@ class AuthenticationServiceTest extends TestCase
         // Make sure that a different password fails
         $notSamePass = $this->authService->hashPassword("testdiff", $salt);
         $this->assertNotEquals($orig, $notSamePass);
-
     }
 
     public function testGenerateSalt()

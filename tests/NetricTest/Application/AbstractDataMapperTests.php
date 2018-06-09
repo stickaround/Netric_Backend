@@ -62,8 +62,7 @@ abstract class AbstractDataMapperTests extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        foreach ($this->testAccountIds as $accountId)
-        {
+        foreach ($this->testAccountIds as $accountId) {
             $dataMapper->deleteAccount($accountId);
         }
     }

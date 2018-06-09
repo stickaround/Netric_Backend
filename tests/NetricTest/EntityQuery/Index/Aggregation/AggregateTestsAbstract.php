@@ -15,26 +15,26 @@ abstract class AggregateTestsAbstract extends TestCase
 {
     /**
      * Tennant account
-     * 
+     *
      * @var \Netric\Account\Account
      */
     protected $account = null;
     
     /**
      * Campaign id used for filter
-     * 
+     *
      * @var int
      */
     protected $campaignId = null;
 
-	/**
-	 * Setup each test
-	 */
-	protected function setUp() 
-	{
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->createTestData();
-	}
+    }
     
     /**
      * Cleanup test objects
@@ -46,7 +46,7 @@ abstract class AggregateTestsAbstract extends TestCase
     
     /**
      * Required by all derrieved classes
-     * 
+     *
      * @return \Netric\EnittyQuery\Index\IndexInterface The setup index to query
      */
     abstract protected function getIndex();
@@ -66,8 +66,9 @@ abstract class AggregateTestsAbstract extends TestCase
         $obj = $this->account->getServiceManager()->get("EntityLoader")->create("marketing_campaign");
         $obj->setValue("name", "Unit Test Aggregates");
         $this->campaignId = $dm->save($obj);
-        if (!$this->campaignId)
+        if (!$this->campaignId) {
             throw new \Exception("Could not create campaign");
+        }
 
         // Create first opportunity
         $obj = $this->account->getServiceManager()->get("EntityLoader")->create("opportunity");
@@ -86,7 +87,7 @@ abstract class AggregateTestsAbstract extends TestCase
         $obj->setValue("campaign_id", $this->campaignId);
         $obj->setValue("amount", 50);
         $oid = $dm->save($obj);
-    }  
+    }
     
     
     /**
@@ -96,31 +97,32 @@ abstract class AggregateTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index)
+        if (!$index) {
             return;
+        }
         
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
         
         // Find campaign id if not set
-        if (!$this->campaignId)
-        {
+        if (!$this->campaignId) {
             $query = new \Netric\EntityQuery("marketing_campaign");
             $query->where('name')->equals("Unit Test Aggregates");
             $res = $index->executeQuery($query);
-            if ($res->getTotalNum() > 0)
+            if ($res->getTotalNum() > 0) {
                 $this->campaignId = $res->getEntity(0)->getId();
+            }
         }
         
         // Nothing to delete yet
-        if (!$this->campaignId)
+        if (!$this->campaignId) {
             return;
+        }
         
         
         $query = new \Netric\EntityQuery("opportunity");
         $query->where('campaign_id')->equals($this->campaignId);
         $res = $index->executeQuery($query);
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity(0);
             $dm->delete($ent, true); // delete hard
         }
@@ -146,8 +148,9 @@ abstract class AggregateTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index)
+        if (!$index) {
             return;
+        }
 
         $query = new \Netric\EntityQuery("opportunity");
         $query->where('campaign_id')->equals($this->campaignId);
@@ -172,8 +175,9 @@ abstract class AggregateTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index)
+        if (!$index) {
             return;
+        }
 
         $query = new \Netric\EntityQuery("opportunity");
         $query->where('campaign_id')->equals($this->campaignId);
@@ -192,8 +196,9 @@ abstract class AggregateTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index)
+        if (!$index) {
             return;
+        }
 
         $query = new \Netric\EntityQuery("opportunity");
         $query->where('campaign_id')->equals($this->campaignId);
@@ -216,8 +221,9 @@ abstract class AggregateTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index)
+        if (!$index) {
             return;
+        }
 
         $query = new \Netric\EntityQuery("opportunity");
         $query->where('campaign_id')->equals($this->campaignId);
@@ -236,8 +242,9 @@ abstract class AggregateTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index)
+        if (!$index) {
             return;
+        }
 
         $query = new \Netric\EntityQuery("opportunity");
         $query->where('campaign_id')->equals($this->campaignId);

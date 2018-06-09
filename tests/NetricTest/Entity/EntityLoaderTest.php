@@ -18,7 +18,7 @@ class EntityLoaderTest extends TestCase
 {
     /**
      * Tennant account
-     * 
+     *
      * @var \Netric\Account\Account
      */
     private $account = null;
@@ -56,29 +56,29 @@ class EntityLoaderTest extends TestCase
     {
         $loader = $this->account->getServiceManager()->get("EntityLoader");
 
-		// Create a test object
+        // Create a test object
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
         $cust = $loader->create("customer");
         $cust->setValue("name", "EntityLoaderTest:testGet");
         $cid = $dm->save($cust);
-		
-		// Use the laoder to get the object
+        
+        // Use the laoder to get the object
         $ent = $loader->get("customer", $cid);
         $this->assertEquals($cust->getId(), $ent->getId());
 
-		// Test to see if the isLoaded function indicates the entity has been loaded and cached locally
+        // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
         $refIm = new \ReflectionObject($loader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
         $this->assertTrue($isLoaded->invoke($loader, "customer", $cid));
 
-		// Test to see if it is cached
+        // Test to see if it is cached
         $refIm = new \ReflectionObject($loader);
         $getCached = $refIm->getMethod("getCached");
         $getCached->setAccessible(true);
         $this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
 
-		// Cleanup
+        // Cleanup
         $dm->delete($cust, true);
     }
 
@@ -89,7 +89,8 @@ class EntityLoaderTest extends TestCase
 
 
         // Configure a mock datamapper
-        $dm = $this->getMockBuilder(DataMapperInterface::class)->getMock();;
+        $dm = $this->getMockBuilder(DataMapperInterface::class)->getMock();
+        ;
         $dm->method('getByUniqueName')
             ->willReturn($task);
         $dm->method('getAccount')

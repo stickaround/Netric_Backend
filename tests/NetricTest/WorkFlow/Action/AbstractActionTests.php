@@ -399,7 +399,6 @@ abstract class AbstractActionTests extends TestCase
 
         $this->assertEquals(1, count($action->getActions()));
         $this->assertEquals(0, count($action->getRemovedActions()));
-
     }
 
     public function testGetActions()

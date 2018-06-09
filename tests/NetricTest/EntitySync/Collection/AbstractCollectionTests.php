@@ -12,23 +12,23 @@ use Netric\EntitySync;
  */
 abstract class AbstractCollectionTests extends TestCase
 {
-	/**
+    /**
      * Tennant accountAbstractCollectionTests
-     * 
+     *
      * @var \Netric\Account\Account
      */
     protected $account = null;
     
     /**
      * Administrative user
-     * 
+     *
      * @var \Netric\User
      */
     protected $user = null;
 
     /**
      * EntitySync DataMapper
-     * 
+     *
      * @var \Netric\EntitySync\DataMapperInterface
      */
     protected $esDataMapper = null;
@@ -48,11 +48,11 @@ abstract class AbstractCollectionTests extends TestCase
     protected $partner = null;
     
 
-	/**
-	 * Setup each test
-	 */
-	protected function setUp() 
-	{
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
         $this->esDataMapper = $this->account->getServiceManager()->get("EntitySync_DataMapper");
@@ -63,7 +63,7 @@ abstract class AbstractCollectionTests extends TestCase
         $this->partner->setPartnerId("AbstractCollectionTests");
         $this->partner->setOwnerId($this->user->getId());
         $this->esDataMapper->savePartner($this->partner);
-	}
+    }
 
     protected function tearDown()
     {
@@ -74,11 +74,11 @@ abstract class AbstractCollectionTests extends TestCase
     }
     
     /**
-	 * Get a collection object to perform common tests
-	 *
-	 * @return CollectionInterface
-	 */
-	abstract protected function getCollection();
+     * Get a collection object to perform common tests
+     *
+     * @return CollectionInterface
+     */
+    abstract protected function getCollection();
 
     /**
      * Create a new local object
@@ -99,7 +99,7 @@ abstract class AbstractCollectionTests extends TestCase
      *
      * @param null $id If no $id is passed then delete all local objects (cleanup)
      */
-    abstract protected function deleteLocal($id=null);
+    abstract protected function deleteLocal($id = null);
 
     /**
      * Make sure we can construct this colleciton
@@ -207,8 +207,7 @@ abstract class AbstractCollectionTests extends TestCase
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));
-        foreach ($stats as $ostat)
-        {
+        foreach ($stats as $ostat) {
             $this->assertEquals('change', $ostat['action']);
             $collection->logImported($ostat['remote_id'], $ostat['remote_revision'], 1001, 1);
         }
@@ -298,8 +297,7 @@ abstract class AbstractCollectionTests extends TestCase
         );
         $stats = $collection->getImportChanged($customers);
         $this->assertEquals(count($stats), count($customers));
-        foreach ($stats as $ostat)
-        {
+        foreach ($stats as $ostat) {
             $newData = $this->createLocal();
             $collection->logImported(
                 $ostat['remote_id'],
@@ -330,12 +328,12 @@ abstract class AbstractCollectionTests extends TestCase
     /**
      *  Test moving with a heiarchy - should add a delete entry for old parent
      */
-    //abstract public function testGetExportChangedHeiarchMoved();   
+    //abstract public function testGetExportChangedHeiarchMoved();
 
     /**
      * Test getting changed grouping entries
      *
-    public function testGetChangedGroupings() 
+    public function testGetChangedGroupings()
     {
         $pid = "AntObjectSync_CollectionTest::testGetChangedGroupings";
         $obj = CAntObject::factory($this->dbh, "customer", null, $this->user);
@@ -450,7 +448,7 @@ abstract class AbstractCollectionTests extends TestCase
         }
         $coll->remove();
         $partn->remove();
-    }   
+    }
 
     /**
      * Test importing objects from a remote source/device with heiarchy
@@ -607,7 +605,7 @@ abstract class AbstractCollectionTests extends TestCase
         $ret = $obj->deleteGroupingEntry("groups", $pntGrp['id']);
     }
 
-    /** 
+    /**
      * Test to make sure stats for just imported objects are not saved creating a circular push-pull
      *
     public function testUpdateObjectStatJustImported()
@@ -658,7 +656,7 @@ abstract class AbstractCollectionTests extends TestCase
         $cust->removeHard();
     }
 
-    /** 
+    /**
      * Test the shortcut changesExist function works for a collection
      *
      * @group testChangesExist
@@ -706,7 +704,7 @@ abstract class AbstractCollectionTests extends TestCase
         $cust->removeHard();
     }
 
-    /** 
+    /**
      * Test deletign an email to make sure it gets removed
      *
      * @group testChangesExist

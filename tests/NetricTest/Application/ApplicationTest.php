@@ -50,8 +50,9 @@ class ApplicationTest extends TestCase
     {
         // First cleanup in case we left an account around
         $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
-        if ($cleanupAccount)
+        if ($cleanupAccount) {
             $this->application->deleteAccount(self::TEST_ACCT_NAME);
+        }
 
         // Create a new test account
         $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
@@ -70,8 +71,9 @@ class ApplicationTest extends TestCase
     {
         // First cleanup in case we left an account around
         $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
-        if ($cleanupAccount)
+        if ($cleanupAccount) {
             $this->application->deleteAccount(self::TEST_ACCT_NAME);
+        }
 
         // Create a new test account
         $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
@@ -99,8 +101,9 @@ class ApplicationTest extends TestCase
     {
         // First cleanup in case we left an account around
         $cleanupAccount = $this->application->getAccount(null, self::TEST_ACCT_NAME);
-        if ($cleanupAccount)
+        if ($cleanupAccount) {
             $this->application->deleteAccount(self::TEST_ACCT_NAME);
+        }
 
         // Create account
         $account = $this->application->createAccount(self::TEST_ACCT_NAME, "test@test.com", "password");
@@ -125,7 +128,6 @@ class ApplicationTest extends TestCase
 
         // Cleanup
         $this->application->releaseLock($utesrLockName);
-
     }
 
     public function testReleaseLock()

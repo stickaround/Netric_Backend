@@ -83,6 +83,5 @@ class SmtpFactoryTest extends TestCase
             array('username'=>$testUser, 'password'=>$testPassword),
             $options->getConnectionConfig()
         );
-
     }
 }

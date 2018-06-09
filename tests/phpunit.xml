@@ -46,7 +46,9 @@
         <log type="coverage-clover" target="./tmp/clover.xml"
              lowUpperBound="50" highLowerBound="80"
         />
-        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+        <log type="coverage-text" target="php://stdout"
+             lowUpperBound="50" highLowerBound="80"
+             showOnlySummary="true" showUncoveredFiles="false"/>
         <log type="junit" target="./tmp/junit.xml" />
     </logging>
 

@@ -77,23 +77,22 @@ class FileSystemTest extends TestCase
     protected function tearDown()
     {
         // Clean-up test files
-        foreach ($this->testFiles as $file)
-        {
+        foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file, true);
         }
 
         // Delete all test folders in reverse order - in case they are children of each other
         $folders = array_reverse($this->testFolders);
-        foreach ($folders as $folder)
-        {
+        foreach ($folders as $folder) {
             $this->fileSystem->deleteFolder($folder, true);
         }
     }
 
     private function queueFolderForCleanup($folder)
     {
-        if ($folder->getValue('name') == '/')
+        if ($folder->getValue('name') == '/') {
             throw new \Exception("You cannot delete root");
+        }
 
         $this->testFolders[] = $folder;
     }
@@ -115,8 +114,9 @@ class FileSystemTest extends TestCase
         $rootFolder = $this->fileSystem->getRootFolder();
 
         // Cleanup first
-        if ($this->fileSystem->openFolder("/testOpenSub"))
+        if ($this->fileSystem->openFolder("/testOpenSub")) {
             $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testOpenSub"), true);
+        }
 
         // Create /testOpenSub
         $subFolder = $this->entityLoader->create("folder");
@@ -160,11 +160,11 @@ class FileSystemTest extends TestCase
 
         // First delete test path if it exists
         $folder = $this->fileSystem->openFolder("/testOpenSubCreate/Child");
-        if ($folder)
+        if ($folder) {
             $this->dataMapper->delete($folder);
+        }
         $folder = $this->fileSystem->openFolder("/testOpenSubCreate");
-        if ($folder)
-        {
+        if ($folder) {
             $origChildId = $folder->getId();
             $this->dataMapper->delete($folder);
         }
@@ -226,8 +226,12 @@ class FileSystemTest extends TestCase
         $this->testFiles[] = $file;
 
         // Test importing a local file
-        $importedFile = $this->fileSystem->importFile($fileToImport, "/testImportFile", "",
-            array("id" => $file->getValue("id"), "name" => "myupdatedfile.jpg"));
+        $importedFile = $this->fileSystem->importFile(
+            $fileToImport,
+            "/testImportFile",
+            "",
+            array("id" => $file->getValue("id"), "name" => "myupdatedfile.jpg")
+        );
 
         $this->assertNotNull($importedFile);
         $this->assertEquals("myupdatedfile.jpg", $importedFile->getValue("name"));
@@ -279,8 +283,9 @@ class FileSystemTest extends TestCase
     {
         $testPath = "/testFolderExists";
         $folder = $this->fileSystem->openFolder($testPath);
-        if ($folder)
+        if ($folder) {
             $this->dataMapper->delete($folder);
+        }
 
         // Test a non-existent folder
         $this->assertFalse($this->fileSystem->folderExists($testPath));
@@ -325,8 +330,9 @@ class FileSystemTest extends TestCase
         $rootFolder = $this->fileSystem->getRootFolder();
 
         // Cleanup first
-        if ($this->fileSystem->openFolder("/testDeleteFolder"))
+        if ($this->fileSystem->openFolder("/testDeleteFolder")) {
             $this->fileSystem->deleteFolder($this->fileSystem->openFolder("/testDeleteFolder"), true);
+        }
 
         // Create /testDeleteFolder
         $subFolder = $this->entityLoader->create("folder");

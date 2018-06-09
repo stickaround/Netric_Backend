@@ -147,8 +147,9 @@ class AccountIdentityMapperTest extends TestCase
 
         // Make sure we don't have a test account left over from past failures
         $deleteAccount = new Account($application);
-        if ($this->dataMapper->getAccountByName("unit_test_im", $deleteAccount))
+        if ($this->dataMapper->getAccountByName("unit_test_im", $deleteAccount)) {
             $this->mapper->deleteAccount($deleteAccount);
+        }
 
         // Create a test account directly in the database
         $accountId = $this->dataMapper->createAccount("unit_test_im");
@@ -186,8 +187,9 @@ class AccountIdentityMapperTest extends TestCase
 
         // Make sure we don't have a test account left over from past failures
         $deleteAccount = new Account($application);
-        if ($this->dataMapper->getAccountByName("unit_test_im", $deleteAccount))
+        if ($this->dataMapper->getAccountByName("unit_test_im", $deleteAccount)) {
             $this->mapper->deleteAccount($deleteAccount);
+        }
 
         // Test creating a new account
         $accountId = $this->mapper->createAccount('unit_test_im');
