@@ -22,8 +22,9 @@ pipeline {
                         waitUntil {
                             String jsonText  = sh(
                                 returnStdout: true,
-                                script: "ssh -p 222  -o StrictHostKeyChecking=no  aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
+                                script: "ssh -p 222  -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
                             ).trim()
+                            echo "Got ${jsonText}"
 
                             def inspector = new SwarmServiceInspector(jsonText)
                             def upgradeStatus = inspector.getUpgradeStatus()
