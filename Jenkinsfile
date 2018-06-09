@@ -15,6 +15,14 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+            // Wait for the upgrade to finish
+                script {
+                    getDeployStatus(
+                        environment: DeploymentTargets.INTEGRATION,
+                        serviceName: 'netric_com_netric',
+                        imageTag: "v945"
+                    )
+                }
                 script {
                     sh 'env'
                     checkout scm
