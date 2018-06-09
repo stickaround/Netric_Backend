@@ -18,14 +18,6 @@ pipeline {
             steps {
                 // Wait for the upgrade to finish
                 script {
-                    sshagent (credentials: ['aereus']) {
-                        String jsonText  = sh(
-                            returnStdout: true,
-                            script: "ssh -p 222  -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com -C \"docker service inspect netric_com_netric\""
-                        ).trim()
-                        echo "Got ${jsonText}"
-                    }
-
                     verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
                         serviceName: 'netric_com_netric',
