@@ -14,8 +14,9 @@ pipeline {
     agent { node { label 'linux' } }
     stages {
         stage('Build') {
+            agent { node { label 'linux' } }
             steps {
-            // Wait for the upgrade to finish
+                // Wait for the upgrade to finish
                 script {
                     verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
