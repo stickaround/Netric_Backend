@@ -15,7 +15,7 @@ class GelfLogWriterTest extends AbstractLogWriterTests
      */
     public function getWriter(): LogWriterInterface
     {
-        $config = new Config(['server'=>'logstash', 'port'=>12201]);
+        $config = new Config(['server'=>'192.168.1.25', 'port'=>12201]);
         return new GelfLogWriter($config);
     }
 }
