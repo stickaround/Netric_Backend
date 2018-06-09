@@ -229,6 +229,14 @@ class XHProfTestListener implements TestListener
 
         $this->suites--;
         if ($this->suites == 0 && count($this->runs) > 0) {
+
+            // Sort by timeinms desc, then file asc
+            foreach ($this->runs as $key => $row) {
+                $timeinms[$key]  = $row['timeinms'];
+                $file[$key] = $row['file'];
+            }
+            array_multisort($timeinms, SORT_DESC, $file, SORT_ASC, $this->runs);
+
             print("\n\nXHProf runs for tests exceeding threshold: ");
             print(count($this->runs) . "\n");
             foreach ($this->runs as $test => $run) {

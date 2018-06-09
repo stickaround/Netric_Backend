@@ -127,7 +127,6 @@ pipeline {
     }
     post {
         always {
-            // Shutdown
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             cleanWs()
         }
