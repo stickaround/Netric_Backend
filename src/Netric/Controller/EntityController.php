@@ -183,7 +183,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($entity) {
             $entityData = $entity->toArray();
             $dacl = $daclLoader->getForEntity($entity);
-            $entityData["applied_dacl"] = ["dacl_data" => $dacl->toArray()];
+            $entityData["applied_dacl"] = $dacl->toArray();
         }
 
         return $this->sendOutput($entityData);
@@ -233,7 +233,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Rebuild the entity data including the applied_dacl
         $entityData = $entity->toArray();
         $dacl = $daclLoader->getForEntity($entity);
-        $entityData["applied_dacl"] = ["dacl_data" => $dacl->toArray()];
+        $entityData["applied_dacl"] = $dacl->toArray();
 
         // Return the saved entity
         return $this->sendOutput($entityData);
@@ -411,7 +411,7 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the dacl for entity definition
         $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntityDefinition($def);
-        $ret['applied_dacl'] = ["dacl_data" => $dacl->toArray()];
+        $ret['applied_dacl'] = $dacl->toArray();
 
         return $ret;
     }
