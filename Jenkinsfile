@@ -112,9 +112,9 @@ pipeline {
 
                     sshagent (credentials: ['aereus']) {
 
-                        sh 'scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh'
-                        sh 'scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml'
-                        sh 'ssh ${server} chmod +x /home/aereus/deploy.sh'
+                        sh "scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
+                        sh "scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml"
+                        sh "ssh ${server} chmod +x /home/aereus/deploy.sh"
                         sh "ssh ${server} /home/aereus/deploy.sh production ${APPLICATION_VERSION}"
                     }
 
