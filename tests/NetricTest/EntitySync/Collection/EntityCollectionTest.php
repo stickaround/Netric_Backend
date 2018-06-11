@@ -8,7 +8,7 @@ use Netric\EntitySync;
 use Netric\EntitySync\Collection;
 use PHPUnit\Framework\TestCase;
 
-class EntityCollectionTest extends AbstractCollectionTests
+class EntityCollectionTest extends AbstractCollectionTests 
 {
     /**
      * New objects created
@@ -20,13 +20,13 @@ class EntityCollectionTest extends AbstractCollectionTests
     /**
      * @return Collection\EntityCollection
      */
-    protected function getCollection()
-    {
+	protected function getCollection()
+	{
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $collection = new Collection\EntityCollection($this->esDataMapper, $this->commitManager, $index);
         $collection->setObjType("customer");
         return $collection;
-    }
+	}
 
     protected function createLocal()
     {
@@ -40,8 +40,10 @@ class EntityCollectionTest extends AbstractCollectionTests
 
     protected function changeLocal($id)
     {
-        foreach ($this->newCreated as $createdEnt) {
-            if ($createdEnt->getId() == $id) {
+        foreach ($this->newCreated as $createdEnt)
+        {
+            if ($createdEnt->getId() == $id)
+            {
                 // Record object change
                 $createdEnt->setValue("name", "EntityEyncTests_2");
                 $this->account->getServiceManager()->get("Entity_DataMapper")->save($createdEnt);
@@ -49,17 +51,17 @@ class EntityCollectionTest extends AbstractCollectionTests
         }
     }
 
-    protected function deleteLocal($id = null)
+    protected function deleteLocal($id=null)
     {
-        foreach ($this->newCreated as $createdEnt) {
-            if ($id == $createdEnt->getId() || $id==null) {
+        foreach ($this->newCreated as $createdEnt)
+        {
+            if ($id == $createdEnt->getId() || $id==null)
                 $this->account->getServiceManager()->get("Entity_DataMapper")->delete($createdEnt, true);
-            }
         }
     }
 
 
-    /**
+	/**
      * Test getting changed objects for this collection
      *
     public function testGetExportChanged()
@@ -68,8 +70,8 @@ class EntityCollectionTest extends AbstractCollectionTests
 
         $localId = $this->createLocal();
 
-        // Create and save partner with one collection watching customers
-        $partner = new EntitySync\Partner($this->esDataMapper);
+		// Create and save partner with one collection watching customers
+		$partner = new EntitySync\Partner($this->esDataMapper);
         $partner->setPartnerId($pid);
         $partner->setOwnerId($this->user->getId());
         $collection = $this->getCollection();
@@ -86,7 +88,7 @@ class EntityCollectionTest extends AbstractCollectionTests
 
         $this->changeLocal();
 
-        // Make sure the one change is now returned
+		// Make sure the one change is now returned
         $stats = $collection->getExportChanged();
         $this->assertTrue(count($stats) >= 1);
         $this->assertEquals($stats[0]['id'], $localId);
@@ -142,18 +144,18 @@ class EntityCollectionTest extends AbstractCollectionTests
     /**
      * Make sure we can detect when an entity has been deleted
      */
-    public function testGetExportChanged_Deleted()
+    public function testGetExportChanged_Deleted() 
     {
         $pid = "AntObjectSync_CollectionTest::testGetChangedObjects";
 
         // Create customer just in case there are none already in the database
         $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-        $customer->setValue("name", "EntityEyncTests");
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($customer);
+		$customer->setValue("name", "EntityEyncTests");
+		$this->account->getServiceManager()->get("Entity_DataMapper")->save($customer);
         $customerId = $customer->getId();
-        
-        // Create and save partner with one collection watching customers
-        $partner = new EntitySync\Partner($this->esDataMapper);
+		
+		// Create and save partner with one collection watching customers
+		$partner = new EntitySync\Partner($this->esDataMapper);
         $partner->setPartnerId($pid);
         $partner->setOwnerId($this->user->getId());
         $collection = $this->getCollection();
@@ -162,8 +164,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         $this->esDataMapper->savePartner($partner);
 
         // Get all exported which will cause the customer to be logged
-        while (count($stats = $collection->getExportChanged())) {
-        }
+        while (count($stats = $collection->getExportChanged())) {}
 
         // Fast-forward past the created customer
         $collection->fastForwardToHead();
@@ -173,7 +174,7 @@ class EntityCollectionTest extends AbstractCollectionTests
         // Soft delete the customer
         $this->account->getServiceManager()->get("Entity_DataMapper")->delete($customer);
 
-        // Make sure the one change is now returned for the deleted item
+		// Make sure the one change is now returned for the deleted item
         $stats = $collection->getExportChanged();
         $this->assertEquals(1, count($stats));
         $this->assertEquals($customerId, $stats[0]['id']);
@@ -187,4 +188,5 @@ class EntityCollectionTest extends AbstractCollectionTests
         $this->esDataMapper->deletePartner($partner, true);
         $this->account->getServiceManager()->get("Entity_DataMapper")->delete($customer, true);
     }
+
 }

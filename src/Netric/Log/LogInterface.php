@@ -8,8 +8,6 @@
 
 namespace Netric\Log;
 
-use Netric\Log\Writer\LogWriterInterface;
-
 /**
  * Description of Log
  */
@@ -71,10 +69,16 @@ interface LogInterface
     /**
      * Determine which writer we are going to use
      *
-     * @param LogWriterInterface $writer
+     * @param string $log
      */
-    public function setLogWriter(LogWriterInterface $writer);
+    public function setLogWriter($log);
 
+    /**
+     * Set the path to use for logging
+     *
+     * @param string $logPath
+     */
+    public function setLogFilePath($logPath);
 
     /**
      * Get textual representation of the level
@@ -82,7 +86,7 @@ interface LogInterface
      * @param int $lvl The level to convert
      * @return string Textual representation of level
      */
-    //public function getLevelName($lvl);
+    public function getLevelName($lvl);
 
     /**
      * Return the number of log entries that have been written for each level

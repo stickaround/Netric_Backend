@@ -3,6 +3,7 @@ namespace Netric\Permissions;
 
 use Netric\ServiceManager;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 /**
  * Create a DaclLoader
@@ -18,6 +19,7 @@ class DaclLoaderFactory implements ServiceManager\ApplicationServiceFactoryInter
     public function createService(ServiceManager\ServiceLocatorInterface $sl)
     {
         $entityLoader = $sl->get(EntityLoaderFactory::class);
-        return new DaclLoader($entityLoader);
+        $entityDefinitionLoader = $sl->get(EntityDefinitionLoaderFactory::class);
+        return new DaclLoader($entityLoader, $entityDefinitionLoader);
     }
 }

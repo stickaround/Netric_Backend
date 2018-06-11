@@ -165,6 +165,7 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postGetAction();
         $this->assertEquals($customer->getId(), $ret['id'], var_export($ret, true));
+
     }
 
     public function testPostGetEntityActionUname()
@@ -197,6 +198,7 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postGetAction();
         $this->assertEquals($page->getId(), $ret['id'], var_export($ret, true));
+
     }
 
     public function testGetDefinitionForms()
@@ -228,9 +230,9 @@ class EntityControllerTest extends TestCase
 
         $ret = $this->controller->postSaveAction();
 
-        $this->assertEquals($data['obj_type'], $ret['obj_type']);
-        $this->assertEquals($data['first_name'], $ret['first_name']);
-        $this->assertEquals($data['last_name'], $ret['last_name']);
+        $this->assertEquals($data['obj_type'], $ret['obj_type'], $ret);
+        $this->assertEquals($data['first_name'], $ret['first_name'], $ret);
+        $this->assertEquals($data['last_name'], $ret['last_name'], $ret);
     }
 
     public function testDelete()
@@ -295,7 +297,7 @@ class EntityControllerTest extends TestCase
 
         // Try to get the task entity definition and we use it in our unit test
         $entityDefData = null;
-        foreach ($ret as $defData) {
+        forEach ($ret as $defData) {
             if ($defData['obj_type'] === "task") {
                 $entityDefData = $defData;
                 break;

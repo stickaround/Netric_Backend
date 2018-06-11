@@ -54,10 +54,10 @@ class FileTest extends TestCase
      */
     protected function tearDown()
     {
-        foreach ($this->testFiles as $file) {
-            if ($file->getId()) {
+        foreach ($this->testFiles as $file)
+        {
+            if ($file->getId())
                 $this->entityDataMapper->delete($file, true);
-            }
         }
     }
 
@@ -82,8 +82,7 @@ class FileTest extends TestCase
         $file = $loader->create("file");
         $file->setValue("name", "test.txt");
         $this->entityDataMapper->save($file);
-        $this->testFiles[] = $file;
-        ;
+        $this->testFiles[] = $file;;
 
         // Write data to the file
         $fileStore->writeFile($file, "my test data");
@@ -99,4 +98,5 @@ class FileTest extends TestCase
         // Test to make sure the data was deleted
         $this->assertFalse($fileStore->fileExists($fileCopy));
     }
+
 }

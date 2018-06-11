@@ -67,8 +67,7 @@ class EntityMaintainerServiceTest extends TestCase
         // Setup a mock definition loader since we don't want to test all definitions
         $entityDefinitionLoader = $this->getMockBuilder(EntityDefinitionLoader::class)
             ->disableOriginalConstructor()
-            ->getMock();
-        ;
+            ->getMock();;
         $entityDefinitionLoader->method('getAll')->willReturn([$def]);
 
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");

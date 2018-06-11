@@ -8,6 +8,7 @@ namespace Netric\Permissions;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
+use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\Entity\ObjType\UserEntity;
 
 /**
@@ -21,15 +22,24 @@ class DaclLoader
      * @var EntityLoader
      */
     private $entityLoader = null;
-    
+
+    /**
+     * Entity Definition loader to get the latest dacl
+     *
+     * @var EntityDefinitionLoader
+     */
+    private $entityDefinitionLoader = null;
+
     /**
      * Class constructor
      *
      * @param EntityLoader $entityLoader The loader for the entity
+     * @param EntityDefinitionLoader $entityDefinitionLoader The loader for the entity definition
      */
-    public function __construct(EntityLoader $entityLoader)
+    public function __construct(EntityLoader $entityLoader, EntityDefinitionLoader $entityDefinitionLoader)
     {
         $this->entityLoader = $entityLoader;
+        $this->entityDefinitionLoader = $entityDefinitionLoader;
     }
 
     /**
@@ -69,29 +79,35 @@ class DaclLoader
         }
 
         // Now try to get DACL for obj type
-        if ($fallBackToObjType) {
-            // Try to get for from the object definition if permissions have been customized
-            if (!empty($objDef->getDacl())) {
-                return $objDef->getDacl();
-            }
-
-            // If none is found, return a default where admin and creator owner has access only
-            return $this->createDefaultDacl();
-        }
+        if ($fallBackToObjType)
+            return $this->getForEntityDefinition($objDef);
 
         return null;
     }
 
     /**
-     * Function that will get the Dacl for entity definition
+     * Function that will get the dacl of object definition.
      *
-     * @param EntityDefinition $entityDefinition The entity definition where we will be getting the dacl
+     * If the object definition has no dacl, it will create the default dacl
+     *
+     * @param EntityDefinition $objDef Definition of the object type where we will be getting the dacl data
      * @return Dacl
      */
-    public function getForEntityDefinition(EntityDefinition $entityDefinition)
-    {
-        if (!empty($entityDefinition->getDacl())) {
-            return $entityDefinition->getDacl();
+    public function getForEntityDefinition(EntityDefinition $objDef) {
+
+        // Try to get for from the object definition if permissions have been customized
+        if (!empty($objDef->getDacl())) {
+            return $objDef->getDacl();
+        }
+
+        /*
+         * If there is no dacl set in the object definition
+         * Then we will try to get it from the database just in case there is a dacl saved that was not cached
+         */
+        $this->entityDefinitionLoader->clearCache($objDef->getObjType());
+        $def = $this->entityDefinitionLoader->get($objDef->getObjType());
+        if (!empty($def->getDacl())) {
+            return $def->getDacl();
         }
 
         // If none is found, return a default where admin and creator owner has access only

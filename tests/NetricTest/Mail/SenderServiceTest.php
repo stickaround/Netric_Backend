@@ -49,6 +49,7 @@ class SenderServiceTest extends TestCase
             $this->bulkTransport,
             $log
         );
+
     }
 
     private function getMessage()

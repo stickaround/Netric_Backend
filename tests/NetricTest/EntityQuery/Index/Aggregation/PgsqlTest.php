@@ -12,32 +12,32 @@ namespace NetricTest\EntityQuery\Index\Aggregation;
 use Netric;
 use PHPUnit\Framework\TestCase;
 
-class PgsqlTest extends AggregateTestsAbstract
+class PgsqlTest extends AggregateTestsAbstract 
 {
     /**
      * Handle to pgsql database
-     *
+     * 
      * @var Db\Pgsql
      */
     private $dbh = null;
     
-    /**
-     * Use this funciton in all the indexes to construct the datamapper
-     *
-     * @return EntityDefinition_DataMapperInterface
-     */
-    protected function getIndex()
-    {
+	/**
+	 * Use this funciton in all the indexes to construct the datamapper
+	 *
+	 * @return EntityDefinition_DataMapperInterface
+	 */
+	protected function getIndex()
+	{      
         /*
         $sm = $this->account->getServiceManager();
         $dbh = $sm->get("Db");
         $this->dbh = $dbh;
-        return new \Netric\EntityQuery\Index\Pgsql($this->account, $dbh);
-         *
+		return new \Netric\EntityQuery\Index\Pgsql($this->account, $dbh);
+         * 
          */
         $this->dbh = $this->account->getServiceManager()->get("Db");
         return new \Netric\EntityQuery\Index\Pgsql($this->account);
-    }
+	}
     
     /**
      * Dummy test

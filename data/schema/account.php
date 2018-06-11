@@ -1208,7 +1208,6 @@ return array(
             'tsv_fulltext' => array('type' => SchemaProperty::TYPE_TEXT_TOKENS),
             'num_comments' => array('type' => SchemaProperty::TYPE_INT),
             'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-            'field_data' => array('type' => SchemaProperty::TYPE_JSON),
         )
     ),
 

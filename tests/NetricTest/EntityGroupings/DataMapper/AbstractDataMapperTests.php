@@ -192,7 +192,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->testObjectGroupings[] = $newGroup->id;
         $this->assertNotEquals(0, $oldCommitId);
 
-        // Add another to increment commit id
+		// Add another to increment commit id
         $newGroup2 = $groupings->create();
         $newGroup2->name = "UTEST.DM.testGetGroupings2";
         $groupings->add($newGroup2);
@@ -208,3 +208,4 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertNotEquals($oldCommitId, $newCommitId);
     }
 }
+

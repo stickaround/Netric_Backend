@@ -21,7 +21,7 @@ abstract class IndexTestsAbstract extends TestCase
 {
     /**
      * Tenant account
-     *
+     * 
      * @var \Netric\Account\Account
      */
     protected $account = null;
@@ -67,7 +67,7 @@ abstract class IndexTestsAbstract extends TestCase
 
     /**
      * Required by all derrieved classes
-     *
+     * 
      * @return \Netric\EnittyQuery\Index\IndexInterface The setup index to query
      */
     abstract protected function getIndex();
@@ -103,7 +103,7 @@ abstract class IndexTestsAbstract extends TestCase
 
     /**
      * Create an object grouping entry for testing
-     *
+     * 
      * @param string $objType
      * @param string $field
      * @param string $name
@@ -114,9 +114,8 @@ abstract class IndexTestsAbstract extends TestCase
         $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
         $groupings = $dm->getGroupings($objType, $field);
         $group = $groupings->create($name);
-        if ($parent) {
+        if ($parent)
             $group->parentId = $parent;
-        }
         $groupings->add($group);
         $dm->saveGroupings($groupings);
         $group = $groupings->getByName($name, $parent);
@@ -129,7 +128,7 @@ abstract class IndexTestsAbstract extends TestCase
 
     /**
      * Delete an object grouping
-     *
+     * 
      * @param seting $objType
      * @param string $field
      * @param int $id
@@ -149,9 +148,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
         
         // Save a test object
@@ -174,9 +172,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
         
         // Save a test object
@@ -214,9 +211,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
@@ -261,16 +257,15 @@ abstract class IndexTestsAbstract extends TestCase
 
     /**
      * Run test of is equal conditions
-     *
+     * 
      * @group testWhereEqualsFkey
      */
     public function testWhereEqualsFkey()
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
@@ -336,9 +331,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
@@ -407,9 +401,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
         
         // Save a test object
@@ -424,9 +417,8 @@ abstract class IndexTestsAbstract extends TestCase
         $found = false;
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
-            if ($ent->getId() == $testEnt->getId()) {
+            if ($ent->getId() == $testEnt->getId())
                 $found = true;
-            }
         }
         $this->assertTrue($found);
     }
@@ -438,9 +430,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
 
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
@@ -480,9 +471,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         //$this->assertTrue(false, "Index could not be setup!");
 
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
@@ -510,9 +500,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
 
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
 
@@ -554,9 +543,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -599,9 +587,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -644,9 +631,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -689,9 +675,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -735,9 +720,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
         
         // Save a test object
@@ -811,9 +795,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
         
         // Save a test object
@@ -887,9 +870,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
@@ -965,9 +947,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
@@ -1043,9 +1024,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -1073,9 +1053,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -1103,9 +1082,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -1160,9 +1138,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -1256,9 +1233,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -1354,18 +1330,17 @@ abstract class IndexTestsAbstract extends TestCase
      */
     public function testSearchStrExpl()
     {
-        // Get index and fail if not setup
+		// Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
 
-        // Single email address
+		// Single email address
         $qstr = "sky.stebnicki@aereus.com";
         $terms = $index->queryStringToTerms($qstr);
         $this->assertEquals($terms[0], "sky.stebnicki@aereus.com");
 
-        // terms and phrases
+		// terms and phrases
         $qstr = "sky.stebnicki@aereus.com \"in quotes\" single";
         $terms = $index->queryStringToTerms($qstr);
         $this->assertEquals($terms[0], "sky.stebnicki@aereus.com");
@@ -1377,9 +1352,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         
         // Save a test object
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
@@ -1388,13 +1362,13 @@ abstract class IndexTestsAbstract extends TestCase
         $oid = $dm->save($obj);
         $dm->delete($obj);
 
-        // First test regular query without f_deleted flag set
+		// First test regular query without f_deleted flag set
         $query = new EntityQuery("project_story");
         $query->where('id')->equals($oid);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
 
-        // Test deleted flag set should return with deleted customer
+		// Test deleted flag set should return with deleted customer
         $query = new EntityQuery("project_story");
         $query->where('id')->equals($oid);
         $query->where('f_deleted')->equals(true);
@@ -1403,7 +1377,7 @@ abstract class IndexTestsAbstract extends TestCase
         $ent = $res->getEntity(0);
         $this->assertEquals($oid, $ent->getId());
         
-        // Cleanup
+		// Cleanup
         $dm->delete($obj, true);
     }
 
@@ -1414,9 +1388,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
 
         $g1 = $this->createGrouping("customer", "groups", "HeiarchyDownGrp1");
         $g2 = $this->createGrouping("customer", "groups", "HeiarchyDownGrp2", $g1['id']);
@@ -1429,12 +1402,10 @@ abstract class IndexTestsAbstract extends TestCase
         $found1 = false;
         $found2 = false;
         foreach ($children as $gid) {
-            if ($gid == $g1['id']) {
+            if ($gid == $g1['id'])
                 $found1 = true;
-            }
-            if ($gid == $g2['id']) {
+            if ($gid == $g2['id'])
                 $found2 = true;
-            }
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
@@ -1451,9 +1422,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
@@ -1473,12 +1443,10 @@ abstract class IndexTestsAbstract extends TestCase
         $found1 = false;
         $found2 = false;
         foreach ($children as $gid) {
-            if ($gid == $folder1->getId()) {
+            if ($gid == $folder1->getId())
                 $found1 = true;
-            }
-            if ($gid == $folder2->getId()) {
+            if ($gid == $folder2->getId())
                 $found2 = true;
-            }
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
@@ -1495,9 +1463,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
         $loader = $this->account->getServiceManager()->get("EntityLoader");
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
@@ -1517,12 +1484,10 @@ abstract class IndexTestsAbstract extends TestCase
         $found1 = false;
         $found2 = false;
         foreach ($children as $gid) {
-            if ($gid == $folder1->getId()) {
+            if ($gid == $folder1->getId())
                 $found1 = true;
-            }
-            if ($gid == $folder2->getId()) {
+            if ($gid == $folder2->getId())
                 $found2 = true;
-            }
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
@@ -1538,9 +1503,8 @@ abstract class IndexTestsAbstract extends TestCase
     public function testPlugin()
     {
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
 
         $testPlugin = new TestAssets\TestIndexPlugin();
 
@@ -1567,9 +1531,8 @@ abstract class IndexTestsAbstract extends TestCase
     {
         // Get index and fail if not setup
         $index = $this->getIndex();
-        if (!$index) {
+        if (!$index)
             return;
-        }
 
         // Save a test object
         $testEnt = $this->createTestCustomer();
@@ -1761,51 +1724,51 @@ abstract class IndexTestsAbstract extends TestCase
      *
      * @group testHierarcySubqueries
      *
-    public function testHierarcySubqueries()
-    {
-        $indexes = array("db");
-        if (index_is_available("elastic"))
-            $indexes[] = "elastic";
+	public function testHierarcySubqueries()
+	{
+		$indexes = array("db");
+		if (index_is_available("elastic"))
+			$indexes[] = "elastic";
+		
+		// Setup files and folders for example
+		$antfs = new AntFs($this->dbh, $this->user);
+		$fldr = $antfs->openFolder("/tests/testHierarcySubqueries", true);
+		$this->assertNotNull($fldr);
+		$fldr2 = $antfs->openFolder("/tests/testHierarcySubqueries/Child", true);
+		$this->assertNotNull($fldr2);
+		$file = $fldr2->openFile("testsync", true);
+		$this->assertNotNull($file);
 
-        // Setup files and folders for example
-        $antfs = new AntFs($this->dbh, $this->user);
-        $fldr = $antfs->openFolder("/tests/testHierarcySubqueries", true);
-        $this->assertNotNull($fldr);
-        $fldr2 = $antfs->openFolder("/tests/testHierarcySubqueries/Child", true);
-        $this->assertNotNull($fldr2);
-        $file = $fldr2->openFile("testsync", true);
-        $this->assertNotNull($file);
+		foreach ($indexes as $indName)
+		{
+			$fldr->setIndex($indName);
+			$fldr->index();
+			$fldr2->setIndex($indName);
+			$fldr2->index();
+			$file->setIndex($indName);
+			$file->index();
 
-        foreach ($indexes as $indName)
-        {
-            $fldr->setIndex($indName);
-            $fldr->index();
-            $fldr2->setIndex($indName);
-            $fldr2->index();
-            $file->setIndex($indName);
-            $file->index();
+			// Test equal to root which should return none
+			$objList = new CAntObjectList($this->dbh, "file", $this->user);
+			$objList->setIndex($indName); // Manually set index type
+			$objList->addCondition("and", "folder_id", "is_equal", $fldr->id);
+			$objList->getObjects();
+			$this->assertEquals(0, $objList->getNumObjects());
 
-            // Test equal to root which should return none
-            $objList = new CAntObjectList($this->dbh, "file", $this->user);
-            $objList->setIndex($indName); // Manually set index type
-            $objList->addCondition("and", "folder_id", "is_equal", $fldr->id);
-            $objList->getObjects();
-            $this->assertEquals(0, $objList->getNumObjects());
+			// Now test with is_less_or_equal
+			$objList = new CAntObjectList($this->dbh, "file", $this->user);
+			$objList->setIndex($indName); // Manually set index type
+			$objList->addCondition("and", "folder_id", "is_less_or_equal", $fldr->id);
+			$objList->getObjects();
+			$this->assertTrue($objList->getNumObjects() > 0);
+		}
 
-            // Now test with is_less_or_equal
-            $objList = new CAntObjectList($this->dbh, "file", $this->user);
-            $objList->setIndex($indName); // Manually set index type
-            $objList->addCondition("and", "folder_id", "is_less_or_equal", $fldr->id);
-            $objList->getObjects();
-            $this->assertTrue($objList->getNumObjects() > 0);
-        }
-
-        // Cleanup
-        $file->removeHard();
-        $fldr2->removeHard();
-        $fldr->removeHard();
-    }
-     *
+		// Cleanup
+		$file->removeHard();
+		$fldr2->removeHard();
+		$fldr->removeHard();
+	}
+     * 
      */
 
     /**
@@ -1813,28 +1776,28 @@ abstract class IndexTestsAbstract extends TestCase
      *
      * @group testFkeyLabelToId
      *
-    public function testFkeyLabelToId()
-    {
-        $dbh = $this->dbh;
+	public function testFkeyLabelToId()
+	{
+		$dbh = $this->dbh;
 
-        $obj = new CAntObject($dbh, "activity", null, $this->user);
-        $grpdat = $obj->getGroupingEntryByName("type_id", "testFkeyLabelToId");
-        if (!$grpdat)
-            $grpdat = $obj->addGroupingEntry("type_id", "testFkeyLabelToId");
-        $obj->setValue("name", "Test customer testFkeyLabelToId");
-        $obj->setValue("type_id", $grpdat["id"]);
-        $oid = $obj->save();
+		$obj = new CAntObject($dbh, "activity", null, $this->user);
+		$grpdat = $obj->getGroupingEntryByName("type_id", "testFkeyLabelToId");
+		if (!$grpdat)
+			$grpdat = $obj->addGroupingEntry("type_id", "testFkeyLabelToId");
+		$obj->setValue("name", "Test customer testFkeyLabelToId");
+		$obj->setValue("type_id", $grpdat["id"]);
+		$oid = $obj->save();
 
-        // Query based on type_id label
-        $objList = new CAntObjectList($this->dbh, "activity", $this->user);
-        $objList->addCondition("and", "type_id", "is_equal", "testFkeyLabelToId");
-        $objList->getObjects();
-        $this->assertTrue($objList->getNumObjects() > 0);
+		// Query based on type_id label
+		$objList = new CAntObjectList($this->dbh, "activity", $this->user);
+		$objList->addCondition("and", "type_id", "is_equal", "testFkeyLabelToId");
+		$objList->getObjects();
+		$this->assertTrue($objList->getNumObjects() > 0);
 
-        // Cleanup
-        $obj->deleteGroupingEntry("groups", $grpdat['id']);
-        $obj->removeHard();
-    }
-     *
+		// Cleanup
+		$obj->deleteGroupingEntry("groups", $grpdat['id']);
+		$obj->removeHard();
+	}
+     * 
      */
 }

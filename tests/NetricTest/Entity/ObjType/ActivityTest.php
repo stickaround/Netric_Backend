@@ -11,27 +11,27 @@ class ActivityTest extends TestCase
 {
     /**
      * Tennant account
-     *
+     * 
      * @var \Netric\Account\Account
      */
     private $account = null;
     
     /**
      * Administrative user
-     *
+     * 
      * @var \Netric\User
      */
     private $user = null;
     
 
-    /**
-     * Setup each test
-     */
-    protected function setUp()
-    {
+	/**
+	 * Setup each test
+	 */
+	protected function setUp() 
+	{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
-    }
+	}
 
     /**
      * Test dynamic factory of entity

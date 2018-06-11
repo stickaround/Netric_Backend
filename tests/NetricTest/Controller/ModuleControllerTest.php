@@ -93,7 +93,7 @@ class ModuleControllerTest extends TestCase
         $module->fromArray($ret);
         $this->testModules[] = $module;
 
-        $this->assertGreaterThan(0, $module->getId());
+        $this->assertGreaterThan(0, $module->getId(), $ret);
         $this->assertEquals($data['name'], $module->getName(), var_export($ret, true));
         $this->assertEquals($data['title'], $module->getTitle(), var_export($ret, true));
     }
