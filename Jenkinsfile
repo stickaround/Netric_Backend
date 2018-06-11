@@ -37,6 +37,7 @@ pipeline {
 
         stage('Test') {
             steps {
+                /*
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
@@ -51,6 +52,7 @@ pipeline {
                     ])
                     reporter.collectAndSendReport('netric.com')
                 }
+                */
                 script {
                     dir('.clair') {
                         def nodeIp = sh(

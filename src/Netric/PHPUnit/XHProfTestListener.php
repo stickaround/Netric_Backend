@@ -239,7 +239,7 @@ class XHProfTestListener implements TestListener
             print("\n\nXHProf runs for tests exceeding threshold: ");
             print(count($this->runs) . "\n");
             foreach ($this->runs as $test => $run) {
-                print(' * ' . $test . " - " . $run['timeinms'] . "ms\n   " . $run['file'] . "\n\n");
+                print(' * ' . $test . " - " . round($run['timeinms']/1000, 0) . "s\n   " . $run['file'] . "\n\n");
             }
             print("\n");
         }
