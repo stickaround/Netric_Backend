@@ -56,7 +56,7 @@ class PermissionController extends Mvc\AbstractAccountController
         }
 
         $retData = [
-            "dacl_data" => $dacl->toArray(),
+            "dacl" => $dacl->toArray(),
             "user_names" => [],
             "group_names" => []
         ];
