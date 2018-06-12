@@ -37,7 +37,8 @@ class ModuleServiceTest extends TestCase
      */
     protected function tearDown()
     {
-        foreach ($this->testModules as $module) {
+        foreach ($this->testModules as $module)
+        {
             $this->moduleService->delete($module);
         }
     }

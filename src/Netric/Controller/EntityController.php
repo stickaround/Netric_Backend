@@ -185,7 +185,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($entity) {
             $entityData = $entity->toArray();
             $dacl = $daclLoader->getForEntity($entity);
-            $entityData["dacl"] = $dacl->toArray();
+            $entityData["applied_dacl"] = $dacl->toArray();
         }
 
         return $this->sendOutput($entityData);
@@ -210,6 +210,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
         // Create a new entity to save
         $entity = $loader->create($objData['obj_type']);
@@ -231,8 +232,13 @@ class EntityController extends Mvc\AbstractAccountController
         // Check to see if any new object_multi objects were sent awaiting save
         $this->savePendingObjectMultiObjects($entity, $objData);
 
+        // Rebuild the entity data including the applied_dacl
+        $entityData = $entity->toArray();
+        $dacl = $daclLoader->getForEntity($entity);
+        $entityData["applied_dacl"] = $dacl->toArray();
+
         // Return the saved entity
-        return $this->sendOutput($entity->toArray());
+        return $this->sendOutput($entityData);
     }
 
     /**
@@ -402,6 +408,11 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Return the default view
         $ret['default_view'] = $viewsService->getDefaultViewForUser($def->getObjType(), $user);
+
+        // Get the dacl for entity definition
+        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
+        $dacl = $daclLoader->getForEntityDefinition($def);
+        $ret['applied_dacl'] = $dacl->toArray();
 
         return $ret;
     }
@@ -850,7 +861,6 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function checkIfUserIsAllowed(Entity $entity, $permission)
     {
-
         // Check entity permission
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);

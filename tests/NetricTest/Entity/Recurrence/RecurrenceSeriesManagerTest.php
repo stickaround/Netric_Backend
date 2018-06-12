@@ -234,5 +234,6 @@ class RecurrenceSeriesManagerTest extends TestCase
 
         // Cleanup
         $this->entityDataMapper->delete($event, true);
+
     }
 }

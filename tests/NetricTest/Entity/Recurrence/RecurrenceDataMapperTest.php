@@ -60,7 +60,7 @@ class RecurrenceDataMapperTest extends TestCase
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
-        $rp->setDateEnd(new \DateTime("3/1/2010"));
+        $rp->setDateEnd( new \DateTime("3/1/2010"));
 
         $rid = $this->dataMapper->save($rp);
         $this->assertNotNull($rid);

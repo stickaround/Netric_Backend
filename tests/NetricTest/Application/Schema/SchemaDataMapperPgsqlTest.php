@@ -59,7 +59,8 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
     {
         $columns = [];
         $values = [];
-        foreach ($data as $colName => $value) {
+        foreach ($data as $colName=>$value)
+        {
             $columns[] = $colName;
             $values[] = $value;
         }

@@ -61,11 +61,13 @@ abstract class AbstractDataMapperTests extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        foreach ($this->testWorkFlows as $workFlow) {
+        foreach ($this->testWorkFlows as $workFlow)
+        {
             $dataMapper->delete($workFlow);
         }
 
-        foreach ($this->testEntities as $entity) {
+        foreach ($this->testEntities as $entity)
+        {
             $this->entityLoader->delete($entity, true);
         }
     }
@@ -130,11 +132,15 @@ abstract class AbstractDataMapperTests extends TestCase
          * We can't just do assertEquals because defaults may have been set in addition
          * to what is in $workFlowData such as 'id' which will cause it to fail.
          */
-        foreach ($workFlowData as $key => $value) {
-            if (is_array($value)) {
+        foreach ($workFlowData as $key=>$value)
+        {
+            if (is_array($value))
+            {
                 // Test expected nested array values
-                foreach ($value as $subValueKey => $subValue) {
-                    foreach ($subValue as $entryKey => $entryValue) {
+                foreach ($value as $subValueKey=>$subValue)
+                {
+                    foreach ($subValue as $entryKey=>$entryValue)
+                    {
                         $this->assertEquals(
                             $entryValue,
                             $openedData[$key][$subValueKey][$entryKey],
@@ -142,7 +148,9 @@ abstract class AbstractDataMapperTests extends TestCase
                         );
                     }
                 }
-            } else {
+            }
+            else
+            {
                 $this->assertEquals($value, $openedData[$key], "$key does not match");
             }
         }
@@ -210,18 +218,25 @@ abstract class AbstractDataMapperTests extends TestCase
          * We can't just do assertEquals because defaults may have been set in addition
          * to what is in $workFlowData such as 'id' which will cause it to fail.
          */
-        foreach ($workFlowData as $key => $value) {
-            if (is_array($value)) {
+        foreach ($workFlowData as $key=>$value)
+        {
+            if (is_array($value))
+            {
                 // Test expected nested array values
-                foreach ($value as $subValueKey => $subValue) {
-                    foreach ($subValue as $entryKey => $entryValue) {
-                        if (is_array($entryValue)) {
+                foreach ($value as $subValueKey=>$subValue)
+                {
+                    foreach ($subValue as $entryKey=>$entryValue)
+                    {
+                        if (is_array($entryValue))
+                        {
                             // We can only go so deep, just check to make sure there same number of elements
                             $this->assertEquals(
                                 count($entryValue),
                                 count($openedData[$key][$subValueKey][$entryKey])
                             );
-                        } else {
+                        }
+                        else
+                        {
                             $this->assertEquals(
                                 $entryValue,
                                 $openedData[$key][$subValueKey][$entryKey]
@@ -229,7 +244,9 @@ abstract class AbstractDataMapperTests extends TestCase
                         }
                     }
                 }
-            } else {
+            }
+            else
+            {
                 $this->assertEquals($value, $openedData[$key]);
             }
         }
@@ -327,10 +344,10 @@ abstract class AbstractDataMapperTests extends TestCase
         // Get workflows and make sure the above is included
         $workFlows = $dataMapper->getWorkFlows();
         $found = false;
-        foreach ($workFlows as $wf) {
-            if ($wf->getId() == $workFlow->getId()) {
+        foreach ($workFlows as $wf)
+        {
+            if ($wf->getId() == $workFlow->getId())
                 $found = true;
-            }
         }
         $this->assertTrue($found);
     }
@@ -357,15 +374,14 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type']);
         $workFlowFound = false;
         $anomalyFound = false;
-        foreach ($workFlows as $wf) {
-            if ($wf->getId() === $workFlow->getId()) {
+        foreach ($workFlows as $wf)
+        {
+            if ($wf->getId() === $workFlow->getId())
                 $workFlowFound = true;
-            }
 
             // A returned workflow should never be different than $workFlowData['obj_type']
-            if ($wf->getObjType() !=  $workFlowData['obj_type']) {
+            if ($wf->getObjType() !=  $workFlowData['obj_type'])
                 $anomalyFound = true;
-            }
         }
         $this->assertTrue($workFlowFound);
         $this->assertFalse($anomalyFound);
@@ -392,12 +408,13 @@ abstract class AbstractDataMapperTests extends TestCase
         // Get only active workflows and make sure the above is not included
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type'], true);
         $workFlowFound = false;
-        foreach ($workFlows as $wf) {
-            if ($wf->getId() === $workFlow->getId()) {
+        foreach ($workFlows as $wf)
+        {
+            if ($wf->getId() === $workFlow->getId())
                 $workFlowFound = true;
-            }
         }
         $this->assertFalse($workFlowFound);
+
     }
 
     /**
@@ -421,12 +438,13 @@ abstract class AbstractDataMapperTests extends TestCase
         // Second param turns off filtering for active workflows only
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type'], false);
         $workFlowFound = false;
-        foreach ($workFlows as $wf) {
-            if ($wf->getId() === $workFlow->getId()) {
+        foreach ($workFlows as $wf)
+        {
+            if ($wf->getId() === $workFlow->getId())
                 $workFlowFound = true;
-            }
         }
         $this->assertTrue($workFlowFound);
+
     }
 
     public function testSaveWorkFlowInstance()
@@ -577,8 +595,10 @@ abstract class AbstractDataMapperTests extends TestCase
         // Get scheduled actions array and make sure the above added action is there
         $scheduled = $dataMapper->getScheduledActions();
         $found = null;
-        foreach ($scheduled as $queuedAction) {
-            if ($queuedAction['instance']->getId() == $workFlowInstance->getId()) {
+        foreach ($scheduled as $queuedAction)
+        {
+            if ($queuedAction['instance']->getId() == $workFlowInstance->getId())
+            {
                 // Found our scheduled action
                 $found = $queuedAction;
                 break;

@@ -100,6 +100,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals("folder", $field->subtype);
         $this->assertEquals('/System/Customer Files', $field->autocreatebase);
         $this->assertEquals('id', $field->autocreatename);
+
     }
 
     /**

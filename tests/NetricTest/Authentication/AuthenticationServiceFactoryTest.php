@@ -8,8 +8,7 @@ use Netric;
 use PHPUnit\Framework\TestCase;
 
 class AuthenticationServiceFactoryTest extends TestCase
-{
-
+{   
     /**
      * Account used for testing
      *

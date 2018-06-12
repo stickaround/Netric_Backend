@@ -16,36 +16,36 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class AbstractDataMapperTests extends TestCase
 {
-    /**
+	/**
      * Tennant account
-     *
+     * 
      * @var \Netric\Account\Account
      */
     protected $account = null;
     
     /**
      * Administrative user
-     *
+     * 
      * @var \Netric\User
      */
     protected $user = null;
     
 
-    /**
-     * Setup each test
-     */
-    protected function setUp()
-    {
+	/**
+	 * Setup each test
+	 */
+	protected function setUp() 
+	{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
-    }
+	}
     
     /**
-     * Setup datamapper for the parent DataMapperTests class
-     *
-     * @return DataMapperInterface
-     */
-    abstract protected function getDataMapper();
+	 * Setup datamapper for the parent DataMapperTests class
+	 *
+	 * @return DataMapperInterface
+	 */
+	abstract protected function getDataMapper();
 
     /**
      * Test saving and loading partners
@@ -277,4 +277,5 @@ abstract class AbstractDataMapperTests extends TestCase
         // Cleanup by partner id (second param)
         $dm->deletePartner($partner, true);
     }
+
 }

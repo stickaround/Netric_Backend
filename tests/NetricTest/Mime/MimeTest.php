@@ -206,6 +206,6 @@ n in das Wasser, Schw=C3=A4nzchen in die H=C3=B6h!'],
             }
         }
 
-        $this->assertTrue($allGood);
+        $this->assertTrue($allGood, $messages);
     }
 }

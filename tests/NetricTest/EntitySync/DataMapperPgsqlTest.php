@@ -10,37 +10,37 @@ use Netric\EntitySync;
  * @group integration
  * @group integration-pgsql
  */
-class DataMapperPgsqlTest extends AbstractDataMapperTests
+class DataMapperPgsqlTest extends AbstractDataMapperTests 
 {
-    /**
-     * Setup datamapper
-     *
-     * @return DataMapperInterface
-     */
-    protected function getDataMapper()
-    {
-        $dbh = $this->account->getServiceManager()->get("Db");
-        return new EntitySync\DataMapperPgsql($this->account, $dbh);
-    }
+	/**
+	 * Setup datamapper
+	 *
+	 * @return DataMapperInterface
+	 */
+	protected function getDataMapper()
+	{
+		$dbh = $this->account->getServiceManager()->get("Db");
+		return new EntitySync\DataMapperPgsql($this->account, $dbh);
+	}
 
-    /**
-     * Test construction
-     */
-    public function testConstruct()
-    {
-        $dm = $this->getDataMapper();
-        $this->assertInstanceOf('\Netric\EntitySync\DataMapperPgsql', $dm);
-    }
+	/**
+	 * Test construction
+	 */
+	public function testConstruct()
+	{
+		$dm = $this->getDataMapper();
+		$this->assertInstanceOf('\Netric\EntitySync\DataMapperPgsql', $dm);
+	}
 
-    /**
-     * In the pgsql datamapper save and delete individual collections
-     * are handled as private helper functions to saving partners.
-     *
-     * Other datamappers will probably implement this differently depending
-     * on how they manage relationships. For example, a document store will
-     * probably just embed the collections into the partner object.
-     */
-    public function testSaveAndDeleteCollection()
+	/**
+	 * In the pgsql datamapper save and delete individual collections
+	 * are handled as private helper functions to saving partners.
+	 *
+	 * Other datamappers will probably implement this differently depending
+	 * on how they manage relationships. For example, a document store will
+	 * probably just embed the collections into the partner object.
+	 */
+	public function testSaveAndDeleteCollection()
     {
         $dm = $this->getDataMapper();
 
@@ -82,4 +82,5 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         $ret = $deleteCollection->invoke($dm, $collection->getId());
         $this->assertTrue($ret, $dm->getLastError());
     }
+	
 }

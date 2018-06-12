@@ -8,8 +8,7 @@ use Netric;
 use PHPUnit\Framework\TestCase;
 
 class AuthenticationControllerTest extends TestCase
-{
-
+{   
     /**
      * Account used for testing
      *
@@ -55,7 +54,8 @@ class AuthenticationControllerTest extends TestCase
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $res = $index->executeQuery($query);
-        for ($i = 0; $i < $res->getTotalNum(); $i++) {
+        for ($i = 0; $i < $res->getTotalNum(); $i++)
+        {
             $user = $res->getEntity($i);
             $dm->delete($user, true);
         }
@@ -72,7 +72,8 @@ class AuthenticationControllerTest extends TestCase
 
     protected function tearDown()
     {
-        if ($this->user) {
+        if ($this->user)
+        {
             $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
             $dm->delete($this->user, true);
         }

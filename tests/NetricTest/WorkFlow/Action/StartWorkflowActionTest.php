@@ -35,11 +35,13 @@ class StartWorkflowActionTest extends AbstractActionTests
      */
     protected function tearDown()
     {
-        foreach ($this->testEntities as $entity) {
+        foreach ($this->testEntities as $entity)
+        {
             $this->entityLoader->delete($entity, true);
         }
 
-        foreach ($this->testWorkFlows as $workFlow) {
+        foreach ($this->testWorkFlows as $workFlow)
+        {
             $this->workFlowDataMapper->delete($workFlow);
         }
 

@@ -12,7 +12,7 @@ class LoaderTest extends TestCase
 {
     /**
      * Tennant account
-     *
+     * 
      * @var \Netric\Account\Account
      */
     private $account = null;
@@ -44,27 +44,27 @@ class LoaderTest extends TestCase
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         $loader->clearCache("customer", "groups");
         
-        // Use the loader to get the object
+		// Use the loader to get the object
         $grp = $loader->get("customer", "groups")->getByName($newGroup->name);
         $this->assertNotNull($grp);
         $this->assertEquals($newGroup->name, $grp->name);
 
-        // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
+		// Test to see if the isLoaded function indicates the entity has been loaded and cached locally
         $refIm = new \ReflectionObject($loader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
         $this->assertTrue($isLoaded->invoke($loader, "customer", "groups"));
 
-        // TODO: Test to see if it is cached
+		// TODO: Test to see if it is cached
         /*
-        $refIm = new \ReflectionObject($loader);
+		$refIm = new \ReflectionObject($loader);
         $getCached = $refIm->getMethod("getCached");
-        $getCached->setAccessible(true);
-        $this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
+		$getCached->setAccessible(true);
+		$this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
          * *
          */
 
-        // Cleanup
+		// Cleanup
         $groups = $loader->get("customer", "groups");
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
@@ -88,13 +88,13 @@ class LoaderTest extends TestCase
         // Load through loader
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         
-        // Use the loader to get private groups
+		// Use the loader to get private groups
         $groupings = $loader->get("note", "groups", array("user_id" => \Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
         $grp = $groupings->getByName($newGroup->name);
         $this->assertNotNull($grp->id);
         $this->assertNotNull($grp->user_id);
 
-        // Cleanup
+		// Cleanup
         $groupings->delete($grp->id);
         $groupings->save();
     }

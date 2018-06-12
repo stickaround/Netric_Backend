@@ -18,14 +18,14 @@ class EntityQueryTest extends TestCase
         //$query->andWhere('fieldname')->isLessThan("value");
         
         // Get the protected and private values
-        $refColl = new \ReflectionObject($query);
-        $wheresProp = $refColl->getProperty('wheres');
-        $wheresProp->setAccessible(true);
+		$refColl = new \ReflectionObject($query);
+		$wheresProp = $refColl->getProperty('wheres');
+		$wheresProp->setAccessible(true);
 
-        // Test values
+		// Test values
         $wheres = $wheresProp->getValue($query);
-        $this->assertEquals("name", $wheres[0]->fieldName, "Where name not set");
-        $this->assertEquals("test", $wheres[0]->value, "Where condtiion value not set");
+		$this->assertEquals("name", $wheres[0]->fieldName, "Where name not set");
+		$this->assertEquals("test", $wheres[0]->value, "Where condtiion value not set");
     }
     
     /**
@@ -37,8 +37,8 @@ class EntityQueryTest extends TestCase
         $query->orderBy("name");
         $orderBy = $query->getOrderBy();
 
-        // Test values
-        $this->assertEquals("name", $orderBy[0]->fieldName, "Order by name not set");
+		// Test values
+		$this->assertEquals("name", $orderBy[0]->fieldName, "Order by name not set");
         $this->assertEquals(Netric\EntityQuery\OrderBy::ASCENDING, $orderBy[0]->direction, "Order by name not set");
     }
 

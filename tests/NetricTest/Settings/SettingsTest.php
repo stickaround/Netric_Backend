@@ -34,7 +34,7 @@ class SettingsTest extends TestCase
     public function testGetAndSet()
     {
         $testVal = "MyValue";
-        $ret = $this->settings->set("utest/val", $testVal);
+        $ret = $this->settings->set("utest/val",  $testVal);
         $this->assertTrue($ret);
 
         $this->assertEquals($testVal, $this->settings->get("utest/val"));
@@ -43,7 +43,7 @@ class SettingsTest extends TestCase
     public function testGetAndSetForUser()
     {
         $testVal = "MyValue";
-        $ret = $this->settings->setForUser($this->user, "utest/val", $testVal);
+        $ret = $this->settings->setForUser($this->user, "utest/val",  $testVal);
         $this->assertTrue($ret);
 
         $this->assertEquals($testVal, $this->settings->getForUser($this->user, "utest/val"));
@@ -56,7 +56,7 @@ class SettingsTest extends TestCase
     {
         $testVal = "MyValue";
         $key = "utest/val1";
-        $this->settings->set($key, $testVal);
+        $this->settings->set($key,  $testVal);
 
         // Test to see if it is cached
         $refSettings = new \ReflectionObject($this->settings);
@@ -72,7 +72,7 @@ class SettingsTest extends TestCase
     {
         $testVal = "MyValue";
         $key = "utest/val2";
-        $this->settings->set($key, $testVal);
+        $this->settings->set($key,  $testVal);
 
         // Test to see if it is cached
         $refSettings = new \ReflectionObject($this->settings);
