@@ -36,9 +36,6 @@ pipeline {
         }
 
         stage('Test') {
-            when {
-                branch 'master'
-            }
             steps {
                 script {
                     sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
