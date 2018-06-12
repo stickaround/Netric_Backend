@@ -11,34 +11,34 @@ namespace NetricTest\EntitySync\Commit\DataMapper;
 
 use PHPUnit\Framework\TestCase;
 
-class PgsqlTest extends DmTestsAbstract
+class PgsqlTest extends DmTestsAbstract 
 {
     /**
      * Handle to pgsql database
-     *
+     * 
      * @var Db\Pgsql
      */
     private $dbh = null;
 
     /**
-     * Use this funciton in all the datamappers to construct the datamapper
-     *
-     * @return \Netric\Entity\Commit\DataMaper\DataMapperInterface
-     */
-    protected function getDataMapper()
-    {
+	 * Use this funciton in all the datamappers to construct the datamapper
+	 *
+	 * @return \Netric\Entity\Commit\DataMaper\DataMapperInterface
+	 */
+	protected function getDataMapper()
+	{      
         $sm = $this->account->getServiceManager();
         $dbh = $sm->get("Db");
         $this->dbh = $dbh;
 
-        return new \Netric\EntitySync\Commit\DataMapper\Pgsql($this->account);
-    }
+		return new \Netric\EntitySync\Commit\DataMapper\Pgsql($this->account);
+	}
 
-    public function testCreateNewSequenceIfMissing()
-    {
-        $dm = $this->getDataMapper();
+	public function testCreateNewSequenceIfMissing()
+	{
+		$dm = $this->getDataMapper();
 
-        $reflector = new \ReflectionClass(get_class($dm));
+		$reflector = new \ReflectionClass(get_class($dm));
         $property = $reflector->getProperty("sSequenceName");
         $property->setAccessible(true);
         $property->setValue($dm, "test_create_new_for_commit");
@@ -47,5 +47,6 @@ class PgsqlTest extends DmTestsAbstract
         $this->assertTrue($nextCid > 0); // make sure the sequence gets created
 
         $this->dbh->query("DROP SEQUENCE test_create_new_for_commit;");
-    }
+
+	}
 }

@@ -86,7 +86,8 @@ class ModuleTest extends TestCase
                     "icon" => "tags",
                     "browseby" => "groups",
                 )
-            ));
+            )
+        );
 
         $data = $module->toArray();
         $this->assertEquals($data['id'], $module->getId());
@@ -116,7 +117,8 @@ class ModuleTest extends TestCase
                     "objType" => "note",
                     "icon" => "plus",
                 )
-            ));
+            )
+        );
 
         $this->assertTrue($module->isDirty());
 
@@ -137,7 +139,8 @@ class ModuleTest extends TestCase
                     "objType" => "note",
                     "icon" => "plus",
                 )
-            ));
+            )
+        );
 
         $xmlNavigation = $module->convertNavigationToXml();
         $this->assertRegexp("/xml/", $xmlNavigation);

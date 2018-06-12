@@ -31,28 +31,43 @@
         -->
     </testsuites>
 
-    <!-- Configure code coverage -->
+    <!-- these are for code-coverage reports, but for some reason it is ignoring
+    the blacklist and throwing errors over code in lib/ZPush that we did not write -->
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="false">
-            <directory suffix=".php">../src/Netric</directory>
-            <directory suffix=".php">../src/ZPush/backend/netric</directory>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory>../src/Netric</directory>
+            <directory>../src/ZPush/backend/netric</directory>
         </whitelist>
+        <blacklist>
+            <directory>../vendor</directory>
+            <directory>../tests</directory>
+        </blacklist>
     </filter>
 
     <logging>
         <log type="coverage-html" target="./tmp/coverage/"
+             highlight="true"
              lowUpperBound="50" highLowerBound="80" 
         />
         <log type="coverage-clover" target="./tmp/clover.xml"
              lowUpperBound="50" highLowerBound="80"
         />
-        <log type="coverage-text" target="php://stdout"
-             lowUpperBound="50" highLowerBound="80"
-             showOnlySummary="true" showUncoveredFiles="false"/>
-        <log type="junit" target="./tmp/junit.xml" />
+        <log type="junit" target="./tmp/junit.xml" logIncompleteSkipped="false"/>
     </logging>
 
     <listeners>
+        <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener">
+            <arguments>
+                <array>
+                    <element key="slowThreshold">
+                        <integer>2000</integer>
+                    </element>
+                    <element key="reportLength">
+                        <integer>10</integer>
+                    </element>
+                </array>
+            </arguments>
+        </listener>
         <listener class="Netric\PHPUnit\XHProfTestListener">
         <arguments>
             <array>

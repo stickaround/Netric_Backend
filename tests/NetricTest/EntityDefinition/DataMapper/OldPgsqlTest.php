@@ -49,15 +49,12 @@ class PgsqlTest extends DmTestsAbstract
 
         // First cleanup
         $dbh->query("delete from app_object_types where name='$objName'");
-        if ($dbh->tableExists("objects_" . $objName . "_act")) {
+        if ($dbh->tableExists("objects_" . $objName . "_act"))
             $dbh->query("DROP TABLE objects_" . $objName . "_act");
-        }
-        if ($dbh->tableExists("objects_" . $objName . "_del")) {
+        if ($dbh->tableExists("objects_" . $objName . "_del"))
             $dbh->query("DROP TABLE objects_" . $objName . "_del");
-        }
-        if ($dbh->tableExists("objects_" . $objName)) {
+        if ($dbh->tableExists("objects_" . $objName))
             $dbh->query("DROP TABLE objects_" . $objName);
-        }
 
         // Create unit test type
         $query = "insert into app_object_types(name, title, revision) 
@@ -108,12 +105,10 @@ class PgsqlTest extends DmTestsAbstract
 
         // Cleanup in case this is left over
         $dbh->query("DELETE FROM app_object_type_fields WHERE name='" . $field->name . "' and type_id='" . $def->getId() . "'");
-        if ($dbh->ColumnExists($def->getTable(), $field->name)) {
+        if ($dbh->ColumnExists($def->getTable(), $field->name))
             $dbh->query("ALTER TABLE " . $def->getTable() . " DROP COLUMN " . $field->name . ";");
-        }
-        if ($dbh->ColumnExists($def->getTable(), $field->name . "_fval")) {
+        if ($dbh->ColumnExists($def->getTable(), $field->name . "_fval"))
             $dbh->query("ALTER TABLE " . $def->getTable() . " DROP COLUMN " . $field->name . "_fval;");
-        }
 
         // Get access to private checkObjColumn with reflection object
         $refIm = new \ReflectionObject($dm);
@@ -141,8 +136,10 @@ class PgsqlTest extends DmTestsAbstract
         $customerFields = $def->getFields();
 
         // Loop thru customer fields and find a field with fkey type
-        foreach ($customerFields as $field) {
+        foreach ($customerFields as $field)
+        {
             if ($field->type === "fkey") {
+
                 // Insert sample optional value in the custom table
                 $dbh->query("INSERT INTO {$field->subtype} (name) VALUES('test_optional_value_custom_table')");
 

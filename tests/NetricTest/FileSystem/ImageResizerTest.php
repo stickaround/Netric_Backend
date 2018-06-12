@@ -144,4 +144,6 @@ class ImageResizerTest extends TestCase
         $this->assertEquals(32, $sizes[0]);
         $this->assertEquals(32, $sizes[1]);
     }
+
+
 }

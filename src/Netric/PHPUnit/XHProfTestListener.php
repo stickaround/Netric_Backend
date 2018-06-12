@@ -40,12 +40,12 @@ class XHProfTestListener implements TestListener
     /**
      * @var array
      */
-    protected $runs = [];
+    protected $runs = array();
 
     /**
      * @var array
      */
-    protected $options = [];
+    protected $options = array();
 
     /**
      * Internal tracking for test suites.
@@ -62,7 +62,7 @@ class XHProfTestListener implements TestListener
      *
      * @param array $options
      */
-    public function __construct(array $options = [])
+    public function __construct(array $options = array())
     {
         if (!isset($options['appNamespace'])) {
             throw new InvalidArgumentException(
@@ -79,7 +79,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addError(Test $test, \Throwable $t, float $time): void
+    public function addError(Test $test, \Exception $e, $time)
     {
     }
 
@@ -90,7 +90,7 @@ class XHProfTestListener implements TestListener
      * @param Warning $e
      * @param float   $time
      */
-    public function addWarning(Test $test, Warning $e, float $time): void
+    public function addWarning(Test $test, Warning $e, $time)
     {
     }
 
@@ -101,7 +101,7 @@ class XHProfTestListener implements TestListener
      * @param AssertionFailedError $e
      * @param float                $time
      */
-    public function addFailure(Test $test, AssertionFailedError $e, float $time): void
+    public function addFailure(Test $test, AssertionFailedError $e, $time)
     {
     }
 
@@ -112,7 +112,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addIncompleteTest(Test $test, \Throwable $t, float $time): void
+    public function addIncompleteTest(Test $test, \Exception $e, $time)
     {
     }
 
@@ -123,7 +123,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addRiskyTest(Test $test, \Throwable $t, float $time): void
+    public function addRiskyTest(Test $test, \Exception $e, $time)
     {
     }
 
@@ -134,7 +134,7 @@ class XHProfTestListener implements TestListener
      * @param \Exception $e
      * @param float      $time
      */
-    public function addSkippedTest(Test $test, \Throwable $t, float $time): void
+    public function addSkippedTest(Test $test, \Exception $e, $time)
     {
     }
 
@@ -143,7 +143,7 @@ class XHProfTestListener implements TestListener
      *
      * @param Test $test
      */
-    public function startTest(Test $test): void
+    public function startTest(Test $test)
     {
         if (!extension_loaded('xhprof')) {
             return;
@@ -165,10 +165,10 @@ class XHProfTestListener implements TestListener
     /**
      * A test ended.
      *
-     * @param Test  $test
-     * @param float $time
+     * @param Test $test
+     * @param float                  $time
      */
-    public function endTest(Test $test, float $time): void
+    public function endTest(Test $test, $time)
     {
         if (!extension_loaded('xhprof')) {
             return;
@@ -200,10 +200,8 @@ class XHProfTestListener implements TestListener
 
         $test_name = get_class($test) . '::' . $test->getName();
 
-        $this->runs[$test_name] = [
-            'timeinms' => $this->toMilliseconds($time),
-            'file' => $this->options['xhprofWeb'] . '?run=' . $runId . '&source=' . $this->options['appNamespace']
-        ];
+        $this->runs[$test_name] = $this->options['xhprofWeb'] . '?run=' . $runId .
+            '&source=' . $this->options['appNamespace'];
     }
 
     /**
@@ -211,7 +209,7 @@ class XHProfTestListener implements TestListener
      *
      * @param TestSuite $suite
      */
-    public function startTestSuite(TestSuite $suite): void
+    public function startTestSuite(TestSuite $suite)
     {
         $this->suites++;
     }
@@ -221,7 +219,7 @@ class XHProfTestListener implements TestListener
      *
      * @param TestSuite $suite
      */
-    public function endTestSuite(TestSuite $suite): void
+    public function endTestSuite(TestSuite $suite)
     {
         if (!extension_loaded('xhprof')) {
             return;
@@ -229,17 +227,10 @@ class XHProfTestListener implements TestListener
 
         $this->suites--;
         if ($this->suites == 0 && count($this->runs) > 0) {
-            // Sort by timeinms desc, then file asc
-            foreach ($this->runs as $key => $row) {
-                $timeinms[$key]  = $row['timeinms'];
-                $file[$key] = $row['file'];
-            }
-            array_multisort($timeinms, SORT_DESC, $file, SORT_ASC, $this->runs);
-
             print("\n\nXHProf runs for tests exceeding threshold: ");
             print(count($this->runs) . "\n");
             foreach ($this->runs as $test => $run) {
-                print(' * ' . $test . " - " . round($run['timeinms']/1000, 0) . "s\n   " . $run['file'] . "\n\n");
+                print(' * ' . $test . "\n   " . $run . "\n\n");
             }
             print("\n");
         }

@@ -55,7 +55,4 @@ class SchemaProperty
     const TYPE_TIME_WITH_TIME_ZONE = 'time with time zone';
     const TYPE_TIMESTAMP = 'timestamp with time zone';
     const TYPE_DATE = 'date';
-
-    // JSON document stored in binary format
-    const TYPE_JSON = 'jsonb';
 }

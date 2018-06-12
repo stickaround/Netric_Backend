@@ -67,9 +67,7 @@ class BrowserViewTest extends TestCase
 
         // Make sure toArray returns the same thing (remove null and empty first)
         $viewArray = $view->toArray();
-        $viewArray = array_filter($viewArray, function ($val) {
-            return !empty($val);
-        });
+        $viewArray = array_filter($viewArray, function($val) { return !empty($val); });
         $this->assertEquals($viewData, $viewArray);
     }
 }

@@ -74,7 +74,8 @@ class WorkFlowManagerTest extends TestCase
 
     protected function tearDown()
     {
-        foreach ($this->testEntities as $entity) {
+        foreach ($this->testEntities as $entity)
+        {
             $this->entityLoader->delete($entity, true);
         }
     }
@@ -264,5 +265,6 @@ class WorkFlowManagerTest extends TestCase
 
         // Cleanup
         $this->workFlowDataMapper->delete($workFlow);
+
     }
 }

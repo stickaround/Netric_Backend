@@ -26,21 +26,21 @@ class ScheduleRunnerWorkerTest extends TestCase
 
     /**
      * Worker instance to test
-     *
+     * 
      * @var ScheduleRunnerWorker
      */
     private $worker = null;
 
     /**
      * Mock scheudler service to interact with
-     *
+     * 
      * @var SchedulerService
      */
     private $schedulerService = null;
 
     /**
      * Mock worker service to interact with
-     *
+     * 
      * @var WorkerService
      */
     private $workerService = null;
@@ -85,8 +85,8 @@ class ScheduleRunnerWorkerTest extends TestCase
         $workerJob->setValue("worker_name", "Test");
         $workerJob->setValue("job_data", json_encode(['myvar'=>'myval']));
 
-        /*
-         * Mock out service calls to simulate real-world interactions
+        /* 
+         * Mock out service calls to simulate real-world interactions 
          * with the test scheduled work
          */
         $this->schedulerService->method('getScheduledToRun')->willReturn([$workerJob]);

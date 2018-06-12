@@ -40,7 +40,8 @@ class LocalFileStoreTest extends AbstractFileStoreTests
         $this->localPath = $dataPath;
 
         // Make directory if it does not exist
-        if (!file_exists($this->localPath)) {
+        if (!file_exists($this->localPath))
+        {
             mkdir($this->localPath);
         }
     }
@@ -62,16 +63,17 @@ class LocalFileStoreTest extends AbstractFileStoreTests
      */
     private function rrmdir($dir)
     {
-        if (is_dir($dir)) {
+        if (is_dir($dir))
+        {
             $objects = scandir($dir);
 
-            foreach ($objects as $object) {
+            foreach ($objects as $object)
+            {
                 if ($object != "." && $object != "..") {
-                    if (is_dir($dir."/".$object)) {
+                    if (is_dir($dir."/".$object))
                         $this->rrmdir($dir."/".$object);
-                    } else {
+                    else
                         unlink($dir."/".$object);
-                    }
                 }
             }
 

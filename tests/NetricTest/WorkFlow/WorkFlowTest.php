@@ -94,18 +94,25 @@ class WorkFlowTest extends TestCase
          * We can't just do assertEquals because defaults may have been set in addition
          * to what is in $workFlowData such as 'revision' which will cause it to fail.
          */
-        foreach ($workFlowData as $key => $value) {
-            if (is_array($value)) {
+        foreach ($workFlowData as $key=>$value)
+        {
+            if (is_array($value))
+            {
                 // Test expected nested array values
-                foreach ($value as $subValueKey => $subValue) {
-                    foreach ($subValue as $entryKey => $entryValue) {
-                        if (is_array($entryValue)) {
+                foreach ($value as $subValueKey=>$subValue)
+                {
+                    foreach ($subValue as $entryKey=>$entryValue)
+                    {
+                        if (is_array($entryValue))
+                        {
                             // We can only go so deep, just check to make sure there same number of elements
                             $this->assertEquals(
                                 count($entryValue),
                                 count($retrievedData[$key][$subValueKey][$entryKey])
                             );
-                        } else {
+                        }
+                        else
+                        {
                             $this->assertEquals(
                                 $entryValue,
                                 $retrievedData[$key][$subValueKey][$entryKey]
@@ -113,7 +120,9 @@ class WorkFlowTest extends TestCase
                         }
                     }
                 }
-            } else {
+            }
+            else
+            {
                 $this->assertEquals($value, $retrievedData[$key]);
             }
         }
@@ -181,6 +190,7 @@ class WorkFlowTest extends TestCase
 
         $this->assertEquals(1, count($workFlow->getActions()));
         $this->assertEquals(0, count($workFlow->getRemovedActions()));
+
     }
 
     public function testGetActions()

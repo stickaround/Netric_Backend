@@ -1,29 +1,27 @@
 version: '2'
 services:
   netric_server:
-    build: ../
+    image: 'dockerhub.aereusdev.com/netric:latest'
+    ports:
+      - '80:80'
+      - '443:443'
     environment:
-      APPLICATION_ENV: testing
-      RUN_SETUP_INSTALL: 1
-    volumes:
-      - '../tests/tmp:/var/www/html/tests/tmp'
-    depends_on:
+      APPLICATION_ENV: integration
+    links:
       - memcached
       - gearmand
       - mail
       - db1
       - mogilefs
       - mogilestore
-    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
-    logging:
-      driver: "json-file"
   memcached:
     image: memcached
   gearmand:
     image: kendu/gearman
   db1:
     image: 'dockerhub.aereusdev.com/pgsql:latest'
-    command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200", "-c", "synchronous_commit=off", "-c", "fsync=off", "-c", "full_page_writes=off"]
+    ports:
+      - '5432:5432'
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
@@ -35,7 +33,7 @@ services:
       DB_HOST: db1
       DB_NAME: antsystem
       DB_PORT: 5432
-    depends_on:
+    links:
       - db1
   mogilefs:
     image: 'dockerhub.aereusdev.com/mogiletracker:latest'
@@ -47,13 +45,8 @@ services:
       DB_PORT: 5432
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 240
-    depends_on:
+    links:
       - mogilestore
       - db1
-    logging:
-      driver: "json-file"
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'
-    logging:
-          driver: "json-file"

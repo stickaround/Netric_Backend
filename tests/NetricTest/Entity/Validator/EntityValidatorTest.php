@@ -17,7 +17,7 @@ class EntityValidatorTest extends TestCase
 {
     /**
      * Tennant account
-     *
+     * 
      * @var Account
      */
     private $account = null;

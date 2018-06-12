@@ -110,14 +110,22 @@ services:
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
 
   kibana:
-    image: dockerhub.aereusdev.com/kibana:latest
+    build: kibana/
     container_name: kibana
     ports:
       - "5601:5601"
     depends_on:
       - elasticsearch
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
 
   xhprof:
     build: xhprof/
