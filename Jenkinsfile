@@ -109,7 +109,7 @@ pipeline {
             steps {
                 // Call stack deploy to upgrade
                 script {
-                    def server = 'aereus@web2.aereus.com -o StrictHostKeyChecking=no';
+                    def server = '-o StrictHostKeyChecking=no aereus@web2.aereus.com';
 
                     sshagent (credentials: ['aereus']) {
                         sh "scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
