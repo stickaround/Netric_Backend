@@ -38,7 +38,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    echo 'Skipping test to verify deployment to production'
+                    echo "Removing tests to verify deployment"
                 }
             }
         }
