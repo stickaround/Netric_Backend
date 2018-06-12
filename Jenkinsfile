@@ -70,7 +70,7 @@ pipeline {
                 }
                 */
                 script {
-                    echo 'tests here'
+                    echo "Skipping tests for now"
                 }
             }
         }
