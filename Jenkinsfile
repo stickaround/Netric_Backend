@@ -109,13 +109,13 @@ pipeline {
             steps {
                 // Call stack deploy to upgrade
                 script {
-                    def server = '-o StrictHostKeyChecking=no aereus@web2.aereus.com';
+                    def server = 'aereus@web2.aereus.com';
 
                     sshagent (credentials: ['aereus']) {
-                        sh "scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
-                        sh "scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml"
-                        sh "ssh ${server} chmod +x /home/aereus/deploy.sh"
-                        sh "ssh ${server} /home/aereus/deploy.sh production ${APPLICATION_VERSION}"
+                        sh "scp -o StrictHostKeyChecking=no scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
+                        sh "scp -o StrictHostKeyChecking=no docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml"
+                        sh "ssh -o StrictHostKeyChecking=no ${server} chmod +x /home/aereus/deploy.sh"
+                        sh "ssh -o StrictHostKeyChecking=no ${server} /home/aereus/deploy.sh production ${APPLICATION_VERSION}"
                     }
 
                     // Wait for the upgrade to finish
