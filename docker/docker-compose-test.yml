@@ -14,6 +14,7 @@ services:
       - db1
       - mogilefs
       - mogilestore
+      - logstash
     entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
     logging:
       driver: "json-file"
@@ -27,6 +28,8 @@ services:
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
+    logging:
+      driver: "json-file"
   mail:
     image: 'dockerhub.aereusdev.com/mail:latest'
     environment:
@@ -37,6 +40,8 @@ services:
       DB_PORT: 5432
     depends_on:
       - db1
+    logging:
+      driver: "json-file"
   mogilefs:
     image: 'dockerhub.aereusdev.com/mogiletracker:latest'
     environment:
@@ -47,7 +52,7 @@ services:
       DB_PORT: 5432
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 240
+      WAIT_FOR_DB_TIMEOUT: 480
     depends_on:
       - mogilestore
       - db1
@@ -56,4 +61,42 @@ services:
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'
     logging:
-          driver: "json-file"
+      driver: "json-file"
+    logging:
+      driver: "json-file"
+  logstash:
+    build: logstash/
+    container_name: logstash
+    ports:
+      - "12200:12200"
+      - "12201:12201/udp"
+      - "5141:5141"
+      - "5141:5141/udp"
+    depends_on:
+      - elasticsearch
+    logging:
+      driver: "json-file"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    container_name: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 9200:9200
+    environment:
+      - http.host=0.0.0.0
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    logging:
+      driver: "json-file"

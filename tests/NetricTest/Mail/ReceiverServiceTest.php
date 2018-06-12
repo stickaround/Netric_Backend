@@ -74,7 +74,9 @@ class ReceiverServiceTest extends TestCase
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
         $groupings = $groupingsLoader->get(
-            "email_message", "mailbox_id", ["user_id"=>$this->user->getId()]
+            "email_message",
+            "mailbox_id",
+            ["user_id"=>$this->user->getId()]
         );
         $inbox = new Group();
         $inbox->name = "Inbox";
@@ -115,7 +117,9 @@ class ReceiverServiceTest extends TestCase
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get("Netric/EntityGroupings/Loader");
         $groupings = $groupingsLoader->get(
-            "email_message", "mailbox_id", ["user_id"=>$this->user->getId()]
+            "email_message",
+            "mailbox_id",
+            ["user_id"=>$this->user->getId()]
         );
         $groupings->delete($this->inbox->id);
         $groupingsLoader->save($groupings);
@@ -155,7 +159,7 @@ class ReceiverServiceTest extends TestCase
             $toRemove = [];
 
             // Queue messages to be deleted by id since you can't iterate after changing
-            foreach ($imap as $msgNo=>$message) {
+            foreach ($imap as $msgNo => $message) {
                 // Put it at the beginning so we can reverse delete
                 array_unshift($toRemove, $msgNo);
             }
@@ -262,7 +266,7 @@ class ReceiverServiceTest extends TestCase
             'password' => getenv('TESTS_NETRIC_MAIL_PASSWORD')
         ]);
         // Delete the first message
-        foreach ($imap as $msgNo=>$message) {
+        foreach ($imap as $msgNo => $message) {
             $imap->removeMessage($msgNo);
             break;
         }

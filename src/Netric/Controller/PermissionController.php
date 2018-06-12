@@ -61,8 +61,6 @@ class PermissionController extends Mvc\AbstractAccountController
             "group_names" => []
         ];
 
-
-
         $users = $dacl->getUsers();
         // Get the user details
         foreach ($users as $userId) {
@@ -135,15 +133,11 @@ class PermissionController extends Mvc\AbstractAccountController
             }
         }
 
-        // before saving the dacl for entity definition we need to clear the cache for it
-        $defLoader->clearCache($objData['obj_type']);
-
         $def = $defLoader->get($objData['obj_type']);
         $dacl = $daclLoader->getForEntityDefinition($def);
         $dacl->fromArray($objData);
         $def->setDacl($dacl);
         $definitionDatamapper->save($def);
-
         return $this->sendOutput($dacl->toArray());
     }
 }

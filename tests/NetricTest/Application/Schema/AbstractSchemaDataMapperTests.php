@@ -115,14 +115,14 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
         );
 
         $dataMapper = $this->getDataMapper($testDefinition, $account->getId());
-        $this->assertTrue($dataMapper->update($account->getId()), $dataMapper->getLastError());
+        $this->assertTrue($dataMapper->update($account->getId()));
 
         // Now test reading and writing data
         $data = array(
             "name" => 'my test value',
             "value" => 100,
         );
-        $this->assertTrue($this->insertIntoBucket("unit_test_schema", $data), $dataMapper->getLastError());
+        $this->assertTrue($this->insertIntoBucket("unit_test_schema", $data));
 
         // Make sure the primary key was setup
         $this->assertTrue($this->primaryKeyExists("unit_test_schema", "id"));

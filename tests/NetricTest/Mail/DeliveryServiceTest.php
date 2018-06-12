@@ -74,7 +74,9 @@ class DeliveryServiceTest extends TestCase
         // If it does not exist, create an inbox for the user
         $groupingsLoader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
         $groupings = $groupingsLoader->get(
-            "email_message", "mailbox_id", ["user_id" => $this->user->getId()]
+            "email_message",
+            "mailbox_id",
+            ["user_id" => $this->user->getId()]
         );
         $inbox = new Group();
         $inbox->name = "Inbox";
@@ -101,7 +103,9 @@ class DeliveryServiceTest extends TestCase
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get("Netric/EntityGroupings/Loader");
         $groupings = $groupingsLoader->get(
-            "email_message", "mailbox_id", ["user_id" => $this->user->getId()]
+            "email_message",
+            "mailbox_id",
+            ["user_id" => $this->user->getId()]
         );
         $groupings->delete($this->inbox->id);
         $groupingsLoader->save($groupings);
@@ -179,7 +183,6 @@ class DeliveryServiceTest extends TestCase
         $file = $this->account->getServiceManager()->get("EntityLoader")->get("file", $attachments[0]);
         $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
         $this->assertGreaterThan(0, $file->getValue("file_size"));
-
     }
 
     /**

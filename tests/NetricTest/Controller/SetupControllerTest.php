@@ -12,7 +12,7 @@ use Netric\Controller\SetupController;
  * Only define index specific tests here and try to avoid name collision with the tests
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
- * 
+ *
  * @group integration
  */
 class SetupControllerTest extends TestCase

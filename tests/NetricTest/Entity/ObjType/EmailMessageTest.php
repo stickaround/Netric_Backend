@@ -50,8 +50,7 @@ class EmailMessageTest extends TestCase
     protected function tearDown()
     {
         $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        foreach ($this->testEntities as $entity)
-        {
+        foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
     }
@@ -303,7 +302,6 @@ class EmailMessageTest extends TestCase
 
         // Make sure it discovered the thread
         $this->assertEquals($email1->getValue("thread"), $email2->getValue("thread"));
-
     }
 
     public function testOnBeforeSave()
