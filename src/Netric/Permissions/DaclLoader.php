@@ -115,7 +115,7 @@ class DaclLoader
     /**
      * Get an access controll list by name
      *
-     * @param string $key The name of the list to pull
+     * @param string $key The name of list to pull
      * @return Dacl
      */
     public function byName($key, $cache = true)

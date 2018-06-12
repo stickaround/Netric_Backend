@@ -40,7 +40,7 @@ class PermissionController extends Mvc\AbstractAccountController
         // Make sure we have the minimum required params
         if (empty($objData['obj_type'])) {
             return $this->sendOutput([
-                "error" => "obj_type is a required param",
+                "error" => "obj_type is a required param.",
                 "params" => $objData
             ]);
         }

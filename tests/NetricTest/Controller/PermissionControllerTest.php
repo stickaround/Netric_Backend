@@ -85,7 +85,7 @@ class PermissionControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setParam('id', "");
-        $req->setParam('obj_type', "product");
+        $req->setParam('obj_type', "note");
 
         $ret = $this->controller->getGetDaclForEntityAction();
 
@@ -125,7 +125,7 @@ class PermissionControllerTest extends TestCase
 
         // Make a new user and add them to the entity dacl
         $user = $entityLoader->create("user");
-        $user->setValue("name", "utest-dacl-entity");
+        $user->setValue("name", "utest-dacl-entity-user");
         $entityLoader->save($user);
         $this->testEntities[] = $user;
 
@@ -165,7 +165,7 @@ class PermissionControllerTest extends TestCase
 
         // Make a new user and add them to the entity dacl
         $user = $entityLoader->create("user");
-        $user->setValue("name", "utest-dacl-entity");
+        $user->setValue("name", "utest-dacl-entity-user");
         $entityLoader->save($user);
         $this->testEntities[] = $user;
 

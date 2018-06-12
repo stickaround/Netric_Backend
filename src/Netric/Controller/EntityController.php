@@ -148,7 +148,7 @@ class EntityController extends Mvc\AbstractAccountController
         if (!$params['obj_type'] || (!$params['id'] && !$params['uname'])) {
             return $this->sendOutput(
                 array(
-                    "error" => "obj_type and id or uname are required params",
+                    "error" => "obj_type and id or uname are required params.",
                     "params" => $params
                 )
             );

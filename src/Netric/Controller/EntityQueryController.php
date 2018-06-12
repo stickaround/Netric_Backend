@@ -21,7 +21,7 @@ class EntityQueryController extends Mvc\AbstractAccountController
 
         if (!$rawBody) {
             return $this->sendOutput(array(
-                "error" => "Request input is not valid. Must post a raw body with JSON defining the query"
+                "error" => "Request input is not valid. Must post a raw body with JSON defining the query."
             ));
         }
 
