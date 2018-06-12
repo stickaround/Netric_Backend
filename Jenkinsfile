@@ -61,10 +61,10 @@ pipeline {
                             credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
                             url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
 
-                            sh 'chmod +x ./bin/clair-scanner_linux_amd64'
+                        sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
-                            // Fail if any critical security vulnerabilities are found
-                            sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
+                        // Fail if any critical security vulnerabilities are found
+                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                     }
                 }
             }
@@ -106,10 +106,9 @@ pipeline {
             steps {
                 // Call stack deploy to upgrade
                 script {
-                    def server = 'aereus@web2.aereus.com';
+                    def server = 'aereus@web2.aereus.com -o StrictHostKeyChecking=no';
 
                     sshagent (credentials: ['aereus']) {
-
                         sh "scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
                         sh "scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml"
                         sh "ssh ${server} chmod +x /home/aereus/deploy.sh"
