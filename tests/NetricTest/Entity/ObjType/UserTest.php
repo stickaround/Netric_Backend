@@ -14,14 +14,14 @@ class UserTest extends TestCase
 {
     /**
      * Tennant account
-     * 
+     *
      * @var \Netric\Account\Account
      */
     private $account = null;
     
     /**
      * Test user
-     * 
+     *
      * @var \Netric\Entity\ObjType\UserEntity
      */
     private $user = null;
@@ -35,11 +35,11 @@ class UserTest extends TestCase
     const TEST_USER_PASS = "testpass";
     const TEST_EMAIL = "entity_objtype_test@netric.com";
 
-	/**
-	 * Setup each test
-	 */
-	protected function setUp() 
-	{
+    /**
+     * Setup each test
+     */
+    protected function setUp()
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         
         // Setup entity datamapper for handling users
@@ -50,8 +50,7 @@ class UserTest extends TestCase
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $res = $index->executeQuery($query);
-        for ($i = 0; $i < $res->getTotalNum(); $i++)
-        {
+        for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
             $dm->delete($user, true);
         }
@@ -67,8 +66,7 @@ class UserTest extends TestCase
 
     protected function tearDown()
     {
-        if ($this->user)
-        {
+        if ($this->user) {
             $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
             $dm->delete($this->user, true);
         }

@@ -27,6 +27,8 @@ services:
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
+    logging:
+      driver: "json-file"
   mail:
     image: 'dockerhub.aereusdev.com/mail:latest'
     environment:
@@ -37,6 +39,8 @@ services:
       DB_PORT: 5432
     depends_on:
       - db1
+    logging:
+      driver: "json-file"
   mogilefs:
     image: 'dockerhub.aereusdev.com/mogiletracker:latest'
     environment:
@@ -47,7 +51,7 @@ services:
       DB_PORT: 5432
       DB_INIT: 'true'
       INIT_STORAGE_HOST: mogilestore
-      WAIT_FOR_DB_TIMEOUT: 240
+      WAIT_FOR_DB_TIMEOUT: 480
     depends_on:
       - mogilestore
       - db1
@@ -56,4 +60,6 @@ services:
   mogilestore:
     image: 'dockerhub.aereusdev.com/mogilestore:latest'
     logging:
-          driver: "json-file"
+      driver: "json-file"
+    logging:
+      driver: "json-file"

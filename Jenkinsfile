@@ -3,6 +3,7 @@
 
 import aereus.pipeline.CodeQualityReporter
 import aereus.pipeline.DeploymentTargets
+import aereus.pipeline.SwarmServiceInspector
 import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
@@ -36,27 +37,23 @@ pipeline {
 
         stage('Test') {
             steps {
-                // script {
-                //     sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                script {
+                    sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
 
-                //     // Report on junit
-                //     junit 'tests/tmp/junit.xml'
+                    // Report on junit
+                    junit 'tests/tmp/junit.xml'
 
-                //     // Create style and static analysis reports
-                //     // sh 'docker exec docker_netric_server_1 composer lint-phpcs || true'
-                //     // sh 'docker exec docker_netric_server_1 composer lint-phpmd || true'
-
-                //     // Send reports to server for code quality metrics
-                //     def reporter = new CodeQualityReporter([
-                //         cloverFilePath: readFile("tests/tmp/clover.xml"),
-                //         checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
-                //         pmdFilePath: readFile("tests/tmp/pmd.xml")
-                //     ])
-                //     reporter.collectAndSendReport('netric.com')
-                // }
+                    // Send reports to server for code quality metrics
+                    def reporter = new CodeQualityReporter([
+                        cloverFilePath: readFile("tests/tmp/clover.xml"),
+                        checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
+                        pmdFilePath: readFile("tests/tmp/pmd.xml")
+                    ])
+                    reporter.collectAndSendReport('netric.com')
+                }
                 script {
                     dir('.clair') {
-                        def nodeIp = sh (
+                        def nodeIp = sh(
                             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
                             returnStdout: true
                         ).trim();
@@ -67,7 +64,7 @@ pipeline {
                         sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
                         // Fail if any critical security vulnerabilities are found
-                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric"
+                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                     }
                 }
             }
@@ -96,7 +93,7 @@ pipeline {
                 }
                 // Wait for the upgrade to finish
                 script {
-                    getDeployStatus(
+                    verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
                         serviceName: 'netric_com_netric',
                         imageTag: "${APPLICATION_VERSION}"
@@ -109,18 +106,17 @@ pipeline {
             steps {
                 // Call stack deploy to upgrade
                 script {
-                        def server = 'aereus@web2.aereus.com';
+                    def server = 'aereus@web2.aereus.com';
 
-                        sshagent (credentials: ['aereus']) {
-
-                        sh 'scp scripts/deploy.sh ${server}:/home/aereus/deploy.sh'
-                        sh 'scp docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml'
-                        sh 'ssh ${server} chmod +x /home/aereus/deploy.sh'
-                        sh "ssh ${server} /home/aereus/deploy.sh production ${APPLICATION_VERSION}"
+                    sshagent (credentials: ['aereus']) {
+                        sh "scp -o StrictHostKeyChecking=no scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
+                        sh "scp -o StrictHostKeyChecking=no docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml"
+                        sh "ssh -o StrictHostKeyChecking=no ${server} chmod +x /home/aereus/deploy.sh"
+                        sh "ssh -o StrictHostKeyChecking=no ${server} /home/aereus/deploy.sh production ${APPLICATION_VERSION}"
                     }
 
                     // Wait for the upgrade to finish
-                    getDeployStatus(
+                    verifyDeploySuccess(
                         environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
                         serviceName: 'netric_com_netric',
                         imageTag: "${APPLICATION_VERSION}"
@@ -131,10 +127,8 @@ pipeline {
     }
     post {
         always {
-            // Shutdown
             sh 'docker-compose -f docker/docker-compose-test.yml down'
             cleanWs()
-            sh 'docker system prune -af'
         }
         failure {
             emailext (

@@ -125,7 +125,7 @@ class PermissionControllerTest extends TestCase
 
         // Make a new user and add them to the entity dacl
         $user = $entityLoader->create("user");
-        $user->setValue("name", "utest-dacl-entity");
+        $user->setValue("name", "utest-dacl-entity-user");
         $entityLoader->save($user);
         $this->testEntities[] = $user;
 
@@ -163,9 +163,9 @@ class PermissionControllerTest extends TestCase
     {
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
-        // Make a new user and add them to the entity dacl        
+        // Make a new user and add them to the entity dacl
         $user = $entityLoader->create("user");
-        $user->setValue("name", "utest-dacl-entity");        
+        $user->setValue("name", "utest-dacl-entity-user");
         $entityLoader->save($user);
         $this->testEntities[] = $user;
 

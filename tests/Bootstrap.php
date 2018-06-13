@@ -34,9 +34,6 @@ class Bootstrap
         // Initialize application
         $application = new Application($config);
 
-        // Set log path
-        //$application->getLog()->setLogWriter(__DIR__ . "/tmp/netric.log");
-
         // Initialize account
         static::$account = $application->getAccount();
 

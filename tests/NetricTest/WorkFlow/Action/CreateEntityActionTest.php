@@ -47,8 +47,7 @@ class CreateEntityActionTest extends AbstractActionTests
         $query->where('name')->equals($testLongName);
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         $result = $index->executeQuery($query);
-        for ($i = 0; $i < $result->getNum(); $i++)
-        {
+        for ($i = 0; $i < $result->getNum(); $i++) {
             $taskToDelete = $result->getEntity($i);
             // Make sure the user was copied from the parent task via <%user_id%>
             $this->assertEquals($task->getValue("user_id"), $taskToDelete->getValue("user_id"));

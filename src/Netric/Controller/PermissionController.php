@@ -40,7 +40,7 @@ class PermissionController extends Mvc\AbstractAccountController
         // Make sure we have the minimum required params
         if (empty($objData['obj_type'])) {
             return $this->sendOutput([
-                "error" => "obj_type is a required param",
+                "error" => "obj_type is a required param.",
                 "params" => $objData
             ]);
         }
@@ -60,8 +60,6 @@ class PermissionController extends Mvc\AbstractAccountController
             "user_names" => [],
             "group_names" => []
         ];
-
-
 
         $users = $dacl->getUsers();
         // Get the user details
@@ -135,15 +133,11 @@ class PermissionController extends Mvc\AbstractAccountController
             }
         }
 
-        // before saving the dacl for entity definition we need to clear the cache for it
-        $defLoader->clearCache($objData['obj_type']);
-
         $def = $defLoader->get($objData['obj_type']);
         $dacl = $daclLoader->getForEntityDefinition($def);
         $dacl->fromArray($objData);
         $def->setDacl($dacl);
         $definitionDatamapper->save($def);
-
         return $this->sendOutput($dacl->toArray());
     }
 }

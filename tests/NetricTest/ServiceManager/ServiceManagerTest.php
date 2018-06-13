@@ -16,7 +16,7 @@ class ServiceManagerTest extends TestCase
 {
     /**
      * Handle to account
-     * 
+     *
      * @var \Netric\Account\Account
      */
     private $account = null;
@@ -87,15 +87,15 @@ class ServiceManagerTest extends TestCase
         $appSl = $this->account->getApplication()->getServiceManager();
         $accSl = $this->account->getServiceManager();
 
-		// Get config service
+        // Get config service
         $appConfig = $appSl->get(Config::class);
         $this->assertInstanceOf(Config::class, $appConfig);
 
-		// Now try loading it from the account service locator, with the alias
+        // Now try loading it from the account service locator, with the alias
         $accConfig = $accSl->get("Config");
         $this->assertInstanceOf(Config::class, $accConfig);
 
-		// Make sure they are the same
+        // Make sure they are the same
         $this->assertSame($appConfig, $accConfig);
     }
 }

@@ -12,7 +12,6 @@ use Netric\Mime\Mime;
 use Netric\Mime\Part as MimePart;
 use PHPUnit\Framework\TestCase;
 
-
 class MessageTest extends TestCase
 {
     /** @var Message */
