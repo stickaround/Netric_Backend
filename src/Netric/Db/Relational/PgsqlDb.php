@@ -182,4 +182,28 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
 
         return $result->rowCount() > 0;
     }
+
+    /**
+     * Get sequence name to pass to lastInsertid
+     *
+     * EostgreSQL uses tablename_columnname_seq for every sequence name
+     *
+     * @param string $tableName
+     * @param string $columnName
+     * @return string | null
+     */
+    protected function getSequenceName(string $tableName, string $columnName): ? string
+    {
+        // Check for objects_ inherited table since it should use objects_id_seq
+        // rather than $tableName_$columnName_seq
+        if (strlen($tableName) >= strlen('objects_') &&
+            $columnName == 'id' &&
+            'objects_' == substr($tableName, 0, strlen('objects_'))
+        ) {
+            return 'objects_id_seq';
+        }
+
+        // Default to tablename_columname_seq
+        return $tableName . '_' . $columnName . '_seq';
+    }
 }

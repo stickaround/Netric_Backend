@@ -112,6 +112,19 @@ abstract class AbstractRelationalDb
     abstract protected function useSetNamespace();
 
     /**
+     * Get sequence name to pass to lastInsertid
+     *
+     * Each database uses its own naming schema for auto-incrementing
+     * colums. For example PostgreSQL uses tablename_columnname_seq but
+     * mysql does not use a column name at all so the function would return null
+     *
+     * @param string $tableName
+     * @param string $columnName
+     * @return string | null
+     */
+    abstract protected function getSequenceName(string $tableName, string $columnName): ? string;
+
+    /**
      * Chose the current connection if it exists
      *
      * @return void
@@ -256,11 +269,6 @@ abstract class AbstractRelationalDb
      */
     public function insert(string $tableName, array $params, string $primaryKeyColumn = "id")
     {
-        $this->beginTransaction();
-
-        // Assume the insert does not have an ID to return
-        $insertedId = 0;
-
         // Get all columns param keys and add to insert statement
         $columns = array_keys($params);
         $sql = 'INSERT INTO ' . $tableName . '(' . implode(',', $columns) . ')';
@@ -276,13 +284,11 @@ abstract class AbstractRelationalDb
         // Wrap get last id in try catch since we do not know if the table has a serial id
         try {
             if ($insertedId === null) {
-                $insertedId = $this->getLastInsertId();
+                $insertedId = $this->getLastInsertId($this->getSequenceName($tableName, $primaryKeyColumn));
             }
         } catch (DatabaseException $ex) {
             // Do nothing because we expect this to happen in some cases
         }
-
-        $this->commitTransaction();
 
         return $insertedId;
     }
