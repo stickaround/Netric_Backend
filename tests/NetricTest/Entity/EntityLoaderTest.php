@@ -87,7 +87,6 @@ class EntityLoaderTest extends TestCase
         $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
         $task = $entityFactory->create("task");
 
-
         // Configure a mock datamapper
         $dm = $this->getMockBuilder(DataMapperInterface::class)->getMock();
         ;
