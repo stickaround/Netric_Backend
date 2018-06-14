@@ -99,7 +99,7 @@ class Application
 
         // Setup log
         if (!self::$log) {
-            self::$log = new Log($config);
+            self::$log = new Log($config->log);
         }
 
         // Watch for error notices and log them

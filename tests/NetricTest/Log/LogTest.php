@@ -5,6 +5,7 @@
 namespace NetricTest\Log;
 
 use Netric\Log\Log;
+use Netric\Log\Writer\GelfLogWriter;
 use PHPUnit\Framework\TestCase;
 use Netric\Config\Config;
 
@@ -16,15 +17,15 @@ class LogTest extends TestCase
      * @var \Netric\Account\Account
      */
     private $account = null;
-    
+
     /**
      * Administrative user
      *
      * @var \Netric\User
      */
     private $user = null;
-    
-     /**
+
+    /**
      * Account log
      *
      * @var \Netric\Log
@@ -37,9 +38,9 @@ class LogTest extends TestCase
     protected function setUp()
     {
         // Create a silent writer
-        $this->log = new Log(new Config(['writer'=>'null']));
+        $this->log = new Log(new Config(['writer' => 'null']));
     }
-    
+
     /**
      * Test logging errors
      */
@@ -48,5 +49,14 @@ class LogTest extends TestCase
         // By default the logging is set to LOG_ERR
         $ret = $this->log->error("My Test");
         $this->assertNotEquals($ret, false);
+    }
+
+    /**
+     * Check that passing in Gelf for the log creates a gelf log writer
+     */
+    public function testConstructGelfWriter()
+    {
+        $testLog = new Log(new Config(['writer' => 'gelf', 'server'=>'logstash']));
+        $this->assertInstanceOf(GelfLogWriter::class, $testLog->getLogWriter());
     }
 }

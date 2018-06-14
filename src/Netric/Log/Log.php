@@ -11,6 +11,8 @@ namespace Netric\Log;
 use Netric\Config\Config;
 use Netric\Log\Writer\LogWriterInterface;
 use Netric\Log\Writer\PhpErrorLogWriter;
+use Netric\Log\Writer\GelfLogWriter;
+use Netric\Log\Writer\NullLogWriter;
 
 /**
  * Description of Log
@@ -46,7 +48,7 @@ class Log implements LogInterface
     /**
      * Which writer we are going to use for logging
      *
-     * @var string
+     * @var LogWriterInterface
      */
     private $writer = null;
 
@@ -92,6 +94,16 @@ class Log implements LogInterface
     }
 
     /**
+     * Get the current writer used for loggin
+     *
+     * @return LogWriterInterface
+     */
+    public function getLogWriter(): LogWriterInterface
+    {
+        return $this->writer;
+    }
+
+    /**
      * Set the requestID to correlate log entries
      *
      * @param string $requestId
@@ -109,42 +121,6 @@ class Log implements LogInterface
     public function getRequestId()
     {
         return $this->requestId;
-    }
-
-    /**
-     * Set the path to use for logging
-     *
-     * @param string $logPath
-     */
-    // public function setLogFilePath($logPath)
-    // {
-    //     if (!$logPath) {
-    //         throw new \InvalidArgumentException("Cannot set log path to empty");
-    //     }
-
-    //     // Make sure the local data path exists if we are logging to a file
-    //     $this->logPath = $logPath;
-
-    //     // Check to see if log file exists and create it if it does not
-    //     if ($this->logPath && !file_exists($this->logPath)) {
-    //         if (!touch($this->logPath)) {
-    //             throw new \RuntimeException("Could not create log file: " . $this->logPath);
-    //         }
-    //     }
-    // }
-
-    /**
-     * Destructor - cleanup file handles
-     */
-    public function __destruct()
-    {
-        // // This will be deprecated when we move it all to syslog
-        // if ($this->logFile != null) {
-        //     @fclose($this->logFile);
-        // }
-
-        // // Close connection to the system log
-        // closelog();
     }
 
     /**
@@ -353,43 +329,6 @@ class Log implements LogInterface
     {
         $this->stats = [];
     }
-
-    /**
-     * Get textual representation of the level
-     *
-     * @param int $lvl The level to convert
-     * @return string Textual representation of level
-     */
-    // private function getLevelName($lvl)
-    // {
-    //     // taken from syslog + http:// nl3.php.net/syslog for log levels
-    //     switch ($lvl) {
-    //         case self::LOG_EMERG:
-    //             // system is unusable
-    //             return "emergency";
-    //         case self::LOG_ALERT:
-    //             // action must be taken immediately
-    //             return "alert";
-    //         case self::LOG_CRIT:
-    //             // critical conditions
-    //             return "critical";
-    //         case self::LOG_ERR:
-    //             // error conditions
-    //             return "error";
-    //         case self::LOG_WARNING:
-    //             // warning conditions
-    //             return "warning";
-    //         case self::LOG_NOTICE:
-    //             // normal, but significant, condition
-    //             return "notice";
-    //         case self::LOG_INFO:
-    //             // informational message
-    //             return "info";
-    //         case self::LOG_DEBUG:
-    //             // debug-level message
-    //             return "debug";
-    //     }
-    // }
 
     /**
      * PHP error handler function is called with set_error_handler early in execution
@@ -620,8 +559,7 @@ class Log implements LogInterface
      */
     private function getWriterClassNameFromConfig(Config $logconfig): LogWriterInterface
     {
-        // Convert snake_case to PascalCase
-        $writerClassName = 'Netric\\Log\\Writer\\';
+        $writerClassName = 'Netric\Log\Writer\\';
         $writerClassName .= str_replace('_', '', ucwords($logconfig->writer, '_'));
         $writerClassName .= "LogWriter";
 

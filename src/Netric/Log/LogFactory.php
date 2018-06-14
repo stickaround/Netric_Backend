@@ -20,7 +20,7 @@ class LogFactory implements ApplicationServiceFactoryInterface
      * Service creation factory
      *
      * @param ServiceLocatorInterface $serviceLocator For loading dependencies
-     * @return HealthCheck
+     * @return LogInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
