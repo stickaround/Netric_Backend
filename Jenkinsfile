@@ -51,8 +51,9 @@ pipeline {
                     ])
                     reporter.collectAndSendReport('netric.com')
                 }
-                /*
                 script {
+                    echo 'skipping clair scan'
+                    /*
                     dir('.clair') {
                         def nodeIp = sh(
                             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
@@ -67,8 +68,8 @@ pipeline {
                         // Fail if any critical security vulnerabilities are found
                         sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                     }
+                    */
                 }
-                */
             }
         }
 
