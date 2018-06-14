@@ -51,6 +51,7 @@ pipeline {
                     ])
                     reporter.collectAndSendReport('netric.com')
                 }
+                /*
                 script {
                     dir('.clair') {
                         def nodeIp = sh(
@@ -67,6 +68,7 @@ pipeline {
                         sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                     }
                 }
+                */
             }
         }
 
