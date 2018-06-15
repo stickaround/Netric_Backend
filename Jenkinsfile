@@ -53,22 +53,20 @@ pipeline {
                 }
                 script {
                     echo 'skipping clair scan'
-                    /*
-                    dir('.clair') {
-                        def nodeIp = sh(
-                            script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
-                            returnStdout: true
-                        ).trim();
-                        git branch: 'master',
-                            credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
-                            url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+                    //dir('.clair') {
+                    //    def nodeIp = sh(
+                    //        script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
+                    //        returnStdout: true
+                    //    ).trim();
+                    //    git branch: 'master',
+                    //        credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
+                    //        url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
 
-                        sh 'chmod +x ./bin/clair-scanner_linux_amd64'
+                    //    sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
                         // Fail if any critical security vulnerabilities are found
-                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
-                    }
-                    */
+                    //   sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
+                    //}
                 }
             }
         }
