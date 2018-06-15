@@ -87,7 +87,7 @@ pipeline {
                 script {
                     sshagent (credentials: ['aereus']) {
                         echo 'Running setup'
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION} /netric-setup.sh"
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
                         echo 'Deploying'
                         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
                         sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
@@ -114,7 +114,7 @@ pipeline {
 
                     sshagent (credentials: ['aereus']) {
                         echo 'Running setup'
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION} /netric-setup.sh"
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
 
                         echo 'Deploying'
                         sh "scp -o StrictHostKeyChecking=no scripts/deploy.sh ${server}:/home/aereus/deploy.sh"

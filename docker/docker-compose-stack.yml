@@ -9,7 +9,6 @@ services:
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: ${APPLICATION_VER}
-      RUN_SETUP_UPDATE: 1
     deploy:
       replicas: 2
       update_config:
