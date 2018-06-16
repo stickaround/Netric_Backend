@@ -81,14 +81,22 @@ pipeline {
             }
         }
 
+        stage('Integration Setup') {
+            steps {
+                // Call stack deploy to upgrade
+                script {
+                    sshagent (credentials: ['aereus']) {
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
+                    }
+                }
+            }
+        }
+
         stage('Integration') {
             steps {
                 // Call stack deploy to upgrade
                 script {
                     sshagent (credentials: ['aereus']) {
-                        echo 'Running setup'
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
-                        echo 'Deploying'
                         sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
                         sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
                         sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/deploy.sh'
@@ -106,17 +114,23 @@ pipeline {
             }
         }
 
+        stage('Production Setup') {
+            steps {
+                // Call stack deploy to upgrade
+                script {
+                    sshagent (credentials: ['aereus']) {
+                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
+                    }
+                }
+            }
+        }
+
         stage('Production') {
             steps {
                 // Call stack deploy to upgrade
                 script {
                     def server = 'aereus@web2.aereus.com';
-
                     sshagent (credentials: ['aereus']) {
-                        echo 'Running setup'
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
-
-                        echo 'Deploying'
                         sh "scp -o StrictHostKeyChecking=no scripts/deploy.sh ${server}:/home/aereus/deploy.sh"
                         sh "scp -o StrictHostKeyChecking=no docker/docker-compose-stack.yml ${server}:/home/aereus/docker-compose-stack.yml"
                         sh "ssh -o StrictHostKeyChecking=no ${server} chmod +x /home/aereus/deploy.sh"

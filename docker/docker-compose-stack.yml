@@ -23,6 +23,19 @@ services:
         - com.df.port=80
         - com.df.httpsOnly=true
 
+  netric_daemon:
+    image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}
+    entrypoint: /start-daemon.sh
+    environment:
+      APPLICATION_ENV: ${APPLICATION_ENV}
+      APPLICATION_VER: daemon-${APPLICATION_VER}
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 1s
+        order: start-first
+
 networks:
   default:
     external: false
