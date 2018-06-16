@@ -10,6 +10,7 @@
 namespace Netric\Entity;
 
 use Netric\Account\Account;
+use Netric\EntityDefinition\EntityDefinition;
 
 interface DataMapperInterface
 {
@@ -69,7 +70,17 @@ interface DataMapperInterface
      * @param stirng $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
      */
-    public function setEntityMovedTo(&$def, $fromId, $toId);
+    public function setEntityMovedTo(EntityDefinition &$def, $fromId, $toId);
+
+    /**
+     * Set this object as having been moved to another object
+     *
+     * @param EntityDefinition $def The defintion of this object type
+     * @param string $fromId The id to move
+     * @param stirng $toId The unique id of the object this was moved to
+     * @return bool true on succes, false on failure
+     */
+    public function updateOldReferences(EntityDefinition $def, $fromId, $toId);
 
     /**
      * Check if an object has moved
