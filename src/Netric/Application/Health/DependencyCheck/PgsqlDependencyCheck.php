@@ -59,8 +59,18 @@ class PgsqlDependencyCheck implements DependencyCheckInterface
                 ]
             );
             return ($conn) ? true : false;
-        } catch (Exception\DatabaseConnectionException $exception) {
+        } catch (\Exception $exception) {
             return false;
         }
+    }
+
+    /**
+     * Get config values so that we can log it for troubleshooting
+     *
+     * @return string
+     */
+    public function getParamsDescription(): string
+    {
+        return "server={$this->databaseHost};user={$this->databaseUser}";
     }
 }

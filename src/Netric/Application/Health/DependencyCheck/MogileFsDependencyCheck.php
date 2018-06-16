@@ -62,4 +62,14 @@ class MogileFsDependencyCheck implements DependencyCheckInterface
             return false;
         }
     }
+
+    /**
+     * Get config values so that we can log it for troubleshooting
+     *
+     * @return string
+     */
+    public function getParamsDescription(): string
+    {
+        return "server={$this->mogileServer};account={$this->mogileAccount};port={$this->mogilePort}";
+    }
 }

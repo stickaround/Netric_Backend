@@ -12,4 +12,11 @@ interface DependencyCheckInterface
      * @return bool
      */
     public function isAvailable(): bool;
+
+    /**
+     * Get config values so that we can log it for troubleshooting
+     *
+     * @return string
+     */
+    public function getParamsDescription(): string;
 }

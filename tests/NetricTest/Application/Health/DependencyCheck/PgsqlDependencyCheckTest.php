@@ -28,4 +28,17 @@ class PgsqlDependencyCheckTest extends TestCase
         );
         $this->assertTrue($dependency->isAvailable());
     }
+
+    /**
+     * Make sure we can get a description of any of the running params
+     */
+    public function testGetParamsDescription()
+    {
+        $dependency = new PgsqlDependencyCheck(
+            "dbhost",
+            "user",
+            "password"
+        );
+        $this->assertNotNull($dependency->getParamsDescription());
+    }
 }

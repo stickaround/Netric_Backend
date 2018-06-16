@@ -28,4 +28,17 @@ class MogileFsDependencyCheckTest extends TestCase
         );
         $this->assertTrue($dependency->isAvailable());
     }
+
+    /**
+     * Make sure we can get a description of any of the running params
+     */
+    public function testGetParamsDescription()
+    {
+        $dependency = new MogileFsDependencyCheck(
+            "server",
+            "account",
+            1234 // port
+        );
+        $this->assertNotNull($dependency->getParamsDescription());
+    }
 }

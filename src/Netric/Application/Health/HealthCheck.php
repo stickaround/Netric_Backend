@@ -120,7 +120,8 @@ class HealthCheck implements HealthCheckInterface
         foreach ($this->dependencies as $dependency) {
             if (!$dependency->isAvailable()) {
                 $this->reportedErrors[] = "The dependency " . get_class($dependency) .
-                " is not yet ready or cannot connect";
+                " is not yet ready or cannot connect with params: " .
+                $dependency->getParamsDescription();
                 return false;
             }
         }
