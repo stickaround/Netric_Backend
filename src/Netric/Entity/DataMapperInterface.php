@@ -52,7 +52,7 @@ interface DataMapperInterface
      * @param bool $forceHard If true the data will be purged, if false first it will be archived
      * @return bool true on success, false on failure
      */
-    public function delete(&$entity, $forceHard = false);
+    public function delete($entity, $forceHard = false);
 
     /**
      * Save object data
@@ -70,7 +70,7 @@ interface DataMapperInterface
      * @param stirng $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
      */
-    public function setEntityMovedTo(EntityDefinition &$def, $fromId, $toId);
+    public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId);
 
     /**
      * Set this object as having been moved to another object

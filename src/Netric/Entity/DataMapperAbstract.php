@@ -13,6 +13,7 @@ use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\Validator\EntityValidatorFactory;
+use Netric\EntityDefinition\EntityDefinition;
 
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
@@ -82,7 +83,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param stirng $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
      */
-    //abstract public function setEntityMovedTo(&$def, $fromId, $toId);
+    abstract public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId);
+
+    /**
+     * Update the old references when moving an entity
+     *
+     * @param EntityDefinition $def The defintion of this object type
+     * @param string $fromId The id to move
+     * @param stirng $toId The unique id of the object this was moved to
+     */
+    abstract public function updateOldReferences(EntityDefinition $def, $fromId, $toId);
 
     /**
      * The setup function is used by all derrived classes as constructors
@@ -96,7 +106,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @var string $id The Id of the object
      * @return bool true on success, false on failure
      */
-    abstract protected function fetchById(&$entity, $id);
+    abstract protected function fetchById($entity, $id);
 
     /**
      * Purge data from the database
@@ -104,7 +114,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @var Entity $entity The entity to load data into
      * @return bool true on success, false on failure
      */
-    abstract protected function deleteHard(&$entity);
+    abstract protected function deleteHard($entity);
 
     /**
      * Flag data as deleted or archive but don't actually delete it
@@ -112,7 +122,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @var Entity $entity The entity to load data into
      * @return bool true on success, false on failure
      */
-    abstract protected function deleteSoft(&$entity);
+    abstract protected function deleteSoft($entity);
 
     /**
      * Save object data
@@ -407,7 +417,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param bool $forceHard If true the data will be purged, if false first it will be archived
      * @return bool true on success, false on failure
      */
-    public function delete(&$entity, $forceHard = false)
+    public function delete($entity, $forceHard = false)
     {
         $user = $this->getAccount()->getUser();
         $serviceManager = $this->getAccount()->getServiceManager();

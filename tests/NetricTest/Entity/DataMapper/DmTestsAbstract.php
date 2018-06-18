@@ -405,6 +405,7 @@ abstract class DmTestsAbstract extends TestCase
         if (!$dm)
             return;
 
+        // Get entity definition
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create first entity
@@ -424,22 +425,23 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $user2;
 
         // Create a task entity and set the user entity as owner
-        $task1 = $entityLoader->create("task");
-        $task1->setValue("name", "ReferencedEntity");
-        $task1->setValue("user_id", $userId1);
-        $taskId = $dm->save($task1, $this->user);
+        $task = $entityLoader->create("task");
+        $task->setValue("name", "ReferencedEntity");
+        $task->setValue("user_id", $userId1);
+        $taskId = $dm->save($task, $this->user);
 
         // Queue for cleanup
-        $this->testEntities[] = $task1;
-
-        $taskEntityTest = $entityLoader->get("task", $taskId);
+        $this->testEntities[] = $task;
 
         // Update Entity References
         $def = $user->getDefinition();
         $dm->updateOldReferences($def, $userId1, $userId2);
 
-        // Load the task entity and it should update the user_id to $userId2
-        $taskEntity = $entityLoader->get("task", $taskId);
+        // Create the task entity
+        $taskEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+
+        // Get the entity of $taskId using the datamapper and it should update the user_id to $userId2
+        $dm->getById($taskEntity, $taskId);
 
         $this->assertEquals($userId2, $taskEntity->getValue("user_id"));
     }

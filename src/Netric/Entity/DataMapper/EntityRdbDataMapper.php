@@ -46,7 +46,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var string $id The Id of the object
      * @return bool true on success, false on failure
      */
-    protected function fetchById(&$entity, $id)
+    protected function fetchById($entity, $id)
     {
         $def = $entity->getDefinition();
 
@@ -192,7 +192,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var Entity $entity The entity to load data into
      * @return bool true on success, false on failure
      */
-    protected function deleteHard(&$entity)
+    protected function deleteHard($entity)
     {
         // Only delete existing objects
         if (!$entity->getId()) {
@@ -246,7 +246,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var Entity $entity The entity to load data into
      * @return bool true on success, false on failure
      */
-    protected function deleteSoft(&$entity)
+    protected function deleteSoft($entity)
     {
         // Update the deleted flag and save
         $entity->setValue("f_deleted", true);
@@ -764,7 +764,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @return bool true on succes, false on failure
      * @throws DatabaseQueryException if query fails
      */
-    public function setEntityMovedTo(EntityDefinition &$def, $fromId, $toId)
+    public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId)
     {
         if (!$fromId || $fromId == $toId) { // never allow circular reference or blank values
             return false;
