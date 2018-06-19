@@ -15,6 +15,7 @@ use Netric\Entity\DataMapperInterface;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -393,6 +394,56 @@ abstract class DmTestsAbstract extends TestCase
         $def = $customer->getDefinition();
         $ret = $dm->setEntityMovedTo($def, $oid1, $oid2);
         $this->assertTrue($ret);
+    }
+
+    /**
+     * Test Set Entity Moved To
+     */
+    public function testUpdateOldReferences()
+    {
+        $dm = $this->getDataMapper();
+        if (!$dm)
+            return;
+
+        // Get entity definition
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+
+        // Create first entity
+        $user = $entityLoader->create("user");
+        $user->setValue("name", "testSetEntityMovedTo");
+        $userId1 = $dm->save($user, $this->user);
+
+        // Queue for cleanup
+        $this->testEntities[] = $user;
+
+        // Create second entity
+        $user2 = $entityLoader->create("user");
+        $user2->setValue("name", "testSetEntityMovedTo");
+        $userId2 = $dm->save($user2, $this->user);
+
+        // Queue for cleanup
+        $this->testEntities[] = $user2;
+
+        // Create a task entity and set the user entity as owner
+        $task = $entityLoader->create("task");
+        $task->setValue("name", "ReferencedEntity");
+        $task->setValue("user_id", $userId1);
+        $taskId = $dm->save($task, $this->user);
+
+        // Queue for cleanup
+        $this->testEntities[] = $task;
+
+        // Update Entity References
+        $def = $user->getDefinition();
+        $dm->updateOldReferences($def, $userId1, $userId2);
+
+        // Create the task entity
+        $taskEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+
+        // Get the entity of $taskId using the datamapper and it should update the user_id to $userId2
+        $dm->getById($taskEntity, $taskId);
+
+        $this->assertEquals($userId2, $taskEntity->getValue("user_id"));
     }
 
     /**

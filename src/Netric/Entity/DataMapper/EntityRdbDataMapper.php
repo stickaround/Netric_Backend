@@ -11,9 +11,13 @@ use DateTime;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\Entity;
+use Netric\Config\ConfigFactory;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -42,7 +46,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var string $id The Id of the object
      * @return bool true on success, false on failure
      */
-    protected function fetchById(&$entity, $id)
+    protected function fetchById($entity, $id)
     {
         $def = $entity->getDefinition();
 
@@ -188,7 +192,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var Entity $entity The entity to load data into
      * @return bool true on success, false on failure
      */
-    protected function deleteHard(&$entity)
+    protected function deleteHard($entity)
     {
         // Only delete existing objects
         if (!$entity->getId()) {
@@ -242,7 +246,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @var Entity $entity The entity to load data into
      * @return bool true on success, false on failure
      */
-    protected function deleteSoft(&$entity)
+    protected function deleteSoft($entity)
     {
         // Update the deleted flag and save
         $entity->setValue("f_deleted", true);
@@ -760,7 +764,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @return bool true on succes, false on failure
      * @throws DatabaseQueryException if query fails
      */
-    public function setEntityMovedTo(&$def, $fromId, $toId)
+    public function setEntityMovedTo(EntityDefinition $def, $fromId, $toId)
     {
         if (!$fromId || $fromId == $toId) { // never allow circular reference or blank values
             return false;
@@ -773,8 +777,64 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         ];
         $this->database->insert('objects_moved', $data);
 
+        // Update the referenced entities
+        $this->updateOldReferences($def, $fromId, $toId);
+
         // If it fails an exception will be thrown
         return true;
+    }
+
+    /**
+     * Update the old references when moving an entity
+     *
+     * @param EntityDefinition $def The defintion of this object type
+     * @param string $fromId The id to move
+     * @param stirng $toId The unique id of the object this was moved to
+     */
+    public function updateOldReferences(EntityDefinition $def, $fromId, $toId)
+    {
+        $entityDefinitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
+
+        $definitions = $entityDefinitionLoader->getAll();
+
+        // Loop thru all the entity definitions and check if we have fields that needs to update the reference
+        foreach ($definitions as $definition) {
+            $fields = $definition->getFields();
+            foreach ($fields as $field) {
+
+                // Check if field subtype is the same as the $def objtype and if field is not multivalue
+                if ($field->subtype == $def->getObjType()) {
+
+                    // Create an EntityQuery for each object type
+                    $query = new EntityQuery($definition->getObjType());
+
+                    // Add a condition to get all the entities with the reference from old id
+                    $query->where($field->name)->equals($fromId);
+                    $result = $entityIndex->executeQuery($query);
+
+                    if ($result) {
+                        $num = $result->getNum();
+
+                        // Loop thru the result
+                        for ($i = 0; $i < $num; $i++) {
+                            $entity = $result->getEntity($i);
+
+                            // Check if field is a multi field
+                            if ($field->isMultiValue()) {
+                                $entity->removeMultiValue($field->name, $fromId);
+                                $entity->addMultiValue($field->name, $toId);
+                            } else {
+                                $entity->setValue($field->name, $toId);
+                            }
+
+                            // Save the changes made in the entity
+                            $this->save($entity);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
