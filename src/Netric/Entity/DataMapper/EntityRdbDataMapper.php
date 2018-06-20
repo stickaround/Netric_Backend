@@ -802,35 +802,54 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         foreach ($definitions as $definition) {
             $fields = $definition->getFields();
             foreach ($fields as $field) {
+                // Skip over any fields that are not a reference to an object
+                if ($field->type != Field::TYPE_OBJECT && $field->type != Field::TYPE_OBJECT_MULTI) {
+                    continue;
+                }
+
+                // Create an EntityQuery for each object type
+                $query = new EntityQuery($definition->getObjType());
+                $oldFieldValue = null;
+                $newFieldValue = null;
 
                 // Check if field subtype is the same as the $def objtype and if field is not multivalue
                 if ($field->subtype == $def->getObjType()) {
+                    $oldFieldValue = $fromId;
+                    $newFieldValue = $toId;
+                }
 
-                    // Create an EntityQuery for each object type
-                    $query = new EntityQuery($definition->getObjType());
+                // Encode object type and id with generic obj_type:obj_id
+                if (empty($field->subtype)) {
+                    $oldFieldValue = $definition->getObjType() . ':' . $fromId;
+                    $newFieldValue = $definition->getObjType() . ':' . $toId;
+                }
 
-                    // Add a condition to get all the entities with the reference from old id
-                    $query->where($field->name)->equals($fromId);
-                    $result = $entityIndex->executeQuery($query);
+                // Only continue if the field met one of the conditions above
+                if (!$oldFieldValue || !$newFieldValue) {
+                    continue;
+                }
 
-                    if ($result) {
-                        $num = $result->getNum();
+                // Query the index for entities with a matching field
+                $query->where($field->name)->equals($oldFieldValue);
+                $result = $entityIndex->executeQuery($query);
 
-                        // Loop thru the result
-                        for ($i = 0; $i < $num; $i++) {
-                            $entity = $result->getEntity($i);
+                if ($result) {
+                    $num = $result->getNum();
 
-                            // Check if field is a multi field
-                            if ($field->isMultiValue()) {
-                                $entity->removeMultiValue($field->name, $fromId);
-                                $entity->addMultiValue($field->name, $toId);
-                            } else {
-                                $entity->setValue($field->name, $toId);
-                            }
+                    // Update each entity with a field that matched
+                    for ($i = 0; $i < $num; $i++) {
+                        $entity = $result->getEntity($i);
 
-                            // Save the changes made in the entity
-                            $this->save($entity);
+                        // Check if field is a multi field
+                        if ($field->isMultiValue()) {
+                            $entity->removeMultiValue($field->name, $oldFieldValue);
+                            $entity->addMultiValue($field->name, $newFieldValue);
+                        } else {
+                            $entity->setValue($field->name, $newFieldValue);
                         }
+
+                        // Save the changes made in the entity
+                        $this->save($entity);
                     }
                 }
             }

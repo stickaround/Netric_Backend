@@ -28,6 +28,3 @@ foreach ($rows as $row) {
         $entityDataMapper->updateOldReferences($objTypeDef, $row["object_id"], $row["moved_to"]);
     }
 }
-
-
-

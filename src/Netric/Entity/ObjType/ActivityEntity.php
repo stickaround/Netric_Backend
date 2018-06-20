@@ -52,13 +52,11 @@ class ActivityEntity extends Entity implements EntityInterface
 
         // Make sure the required data is set
         if (empty($this->getValue("subject")) ||
-            empty($this->getValue("verb")) ||
-            empty($this->getValue("obj_reference"))) {
+            empty($this->getValue("verb"))) {
             throw new \InvalidArgumentException(
-                "subject, verb, and obj_reference are required: " .
+                "subject and verb are required: " .
                 $this->getValue("subject") . "," .
                 $this->getValue("verb") . "," .
-                $this->getValue("obj_reference") . "," .
                 var_export($this->toArray(), true)
             );
         }

@@ -82,7 +82,7 @@ class ActivityLog
      * @param Entity $object The entity being acted on
      * @param string $notes Details for the activity
      * @param int $level Optional log level
-     * @return EntityInterface The created activity or null on failure
+     * @return EntityInterface|null The created activity or null on failure
      */
     public function log(Entity $subject, $verb, Entity $object, $notes = "", $level = null)
     {
@@ -91,7 +91,7 @@ class ActivityLog
 
         // We don't add activities of activities - that could create an endless loop
         if ("activity" === $objType) {
-            return;
+            return null;
         }
 
         /*
