@@ -1,6 +1,6 @@
 <?php
 /**
- * This is an update to EntitySync which changes local_revision in
+ * This is an update to EntitySync which changes revision in
  * object_sync_import from entity revision to entity commit_id
  */
 use Netric\Entity\EntityLoaderFactory;
@@ -27,7 +27,7 @@ for ($i = 0; $i < $num; $i++) {
     $row = $db->getRow($result, $i);
     $entity = $entityLoader->get($row['object_type'], $row['object_id']);
 
-    if ($entity && $entity->getValue("commit_id") && $entity->getValue('commit_id') != $row['object_id']) {
+    if ($entity && $entity->getValue("commit_id") && $entity->getValue('commit_id') != $row['revision']) {
         $sql = "UPDATE object_sync_import
                 SET revision=" . $entity->getValue("commit_id") . "
                 WHERE id=" . $row['id'];
