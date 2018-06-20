@@ -50,12 +50,12 @@ class PgsqlDependencyCheck implements DependencyCheckInterface
     {
         try {
             $conn = new \PDO(
-                "pgsql:host=" . $this->databaseHost,
+                "pgsql:dbname=postgres;host=" . $this->databaseHost,
                 $this->databaseUser,
                 $this->databasePassword,
                 [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                    \PDO::ATTR_PERSISTENT => true,
+                    \PDO::ATTR_PERSISTENT => false,
                 ]
             );
             return ($conn) ? true : false;
