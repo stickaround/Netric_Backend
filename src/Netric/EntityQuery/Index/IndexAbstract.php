@@ -271,7 +271,7 @@ abstract class IndexAbstract
         $user = $this->account->getUser();
 
         // Cleanup bool
-        if ($field->type == FIELD::TYPE_BOOL && is_string($value)) {
+        if ($field->type == Field::TYPE_BOOL && is_string($value)) {
             switch ($value) {
                 case 'true':
                 case 't':
@@ -283,7 +283,7 @@ abstract class IndexAbstract
         }
 
         // Cleanup dates and times
-        if (($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP)) {
+        if (($field->type == Field::TYPE_DATE || $field->type == Field::TYPE_TIMESTAMP)) {
             // Convert \DateTime to a timestamp
             if ($value instanceof \DateTime) {
                 $value = $value->format("Y-m-d h:i:s A e");
@@ -320,7 +320,7 @@ abstract class IndexAbstract
 
              */
             // Replace object reference with user variables
-            if (($field->type == FIELD::TYPE_OBJECT || $field->type == FIELD::TYPE_OBJECT_MULTI) && !$field->subtype
+            if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT) {
                 $value = "user:" . $user->getId();
             }
@@ -339,7 +339,7 @@ abstract class IndexAbstract
          */
 
         // If querying an object type then only leave the number if the value has the object type
-        if (($field->type == FIELD::TYPE_OBJECT || $field->type == FIELD::TYPE_OBJECT_MULTI) && $field->subtype) {
+        if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && $field->subtype) {
             $objRefParts = Entity::decodeObjRef($value);
             if ($objRefParts) {
                 $value = $objRefParts['id'];
@@ -363,10 +363,10 @@ abstract class IndexAbstract
         }
 
         switch ($field->type) {
-            case FIELD::TYPE_GROUPING:
-            case FIELD::TYPE_GROUPING_MULTI:
-            case FIELD::TYPE_OBJECT:
-            case FIELD::TYPE_OBJECT_MULTI:
+            case Field::TYPE_GROUPING:
+            case Field::TYPE_GROUPING_MULTI:
+            case Field::TYPE_OBJECT:
+            case Field::TYPE_OBJECT_MULTI:
                 return true;
                 break;
         }
