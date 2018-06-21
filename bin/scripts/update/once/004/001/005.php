@@ -127,6 +127,5 @@ if ($localStore !== $remoteStore) {
         } catch (Exception $ex) {
             $log->error("bin/updates/once/005.php: " . $ex->getMessage());
         }
-
     }
 }

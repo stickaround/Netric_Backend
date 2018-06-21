@@ -633,25 +633,6 @@ class CAntObjectIndexElastic extends CAntObjectIndex
 					$ref_field = "";
 				}
 
-
-				// Replace variables - DEPRICATED - now handled in CAntObjectList
-				// -----------------------------------------------------
-				/*
-				// Replace current user
-				if (((($field['type'] == "fkey" || $field['type'] == "fkey_multi") 
-						&& $field['subtype'] == "users") || ($field['type'] == "object" && $field['subtype'] == "user")) 
-						&& $condValue=='-3' && $USERID)
-				{
-					$condValue = $USERID;
-				}
-
-				// Replace current user team
-				if ($field['type'] == "fkey" && $field['subtype'] == "user_teams" && $condValue=='-3' && $USERTEAM)
-					$condValue = $USERTEAM;
-
-				// Replace time/date
-				 */
-
 				if (!$field)
 					continue; // Skip non-existant field
 

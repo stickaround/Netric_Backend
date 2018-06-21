@@ -58,7 +58,7 @@ class ObjectTypes
     const REMINDER = 'reminder';
     const WORKFLOW = 'workflow';
     const WORKFLOW_ACTION = 'workflow_action';
-    const USER_TEAM = 'user_teams';
+    const USER_TEAM = 'user_team';
     const WORKER_JOB = 'worker_job';
     const DABOARD_WIDGET = 'dashboard_widget';
     const NOTIFICATION = 'notification';

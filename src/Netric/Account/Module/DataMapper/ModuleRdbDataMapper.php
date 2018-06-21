@@ -14,6 +14,7 @@ use Netric\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperInterface
 {
@@ -242,7 +243,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
 
         // Set the team name in the module if the team_id is set
         if ($module->getTeamId()) {
-            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get("user_teams", $module->getTeamId());
+            $teamEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::USER_TEAM, $module->getTeamId());
             $module->setTeamName($teamEntity->getName());
         }
     }

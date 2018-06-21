@@ -13,7 +13,7 @@ use Netric\Entity\EntityInterface;
 /**
  * User Teams for entity
  */
-class UserTeamsEntity extends Entity implements EntityInterface
+class UserTeamEntity extends Entity implements EntityInterface
 {
     /**
      * Callback function used for derrived subclasses

@@ -10,11 +10,12 @@ namespace Netric\Entity\ObjType;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new User Teams entity
  */
-class UserTeamsFactory implements Entity\EntityFactoryInterface
+class UserTeamFactory implements Entity\EntityFactoryInterface
 {
     /**
      * Entity creation factory
@@ -24,7 +25,7 @@ class UserTeamsFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("user_teams");
-        return new UserTeamsEntity($def);
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER_TEAM);
+        return new UserTeamEntity($def);
     }
 }

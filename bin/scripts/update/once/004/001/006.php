@@ -1,10 +1,13 @@
 <?php
 /**
+ * @deprecated The below is no longer needed since the 'always' scripts will validate that
+ * all required modules exist.
+ *
  * Add the messages application in the applications table
  *
  * This script will check if the messages is existing in the applications table
  * If not, then it will add a new entry for messages
- */
+ *
 use Netric\Account\Module\Module;
 use Netric\Account\Module\DataMapper\DataMapperFactory;
 
@@ -37,4 +40,5 @@ if (!$messageModule) {
 
     // Save the email message module
     $result = $db->save($module);
-}
+}*/
+
