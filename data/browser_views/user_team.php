@@ -8,7 +8,7 @@ use Netric\EntityQuery\Where;
 
 return array(
     'parent_teams'=> array(
-        'obj_type' => 'user_teams',
+        'obj_type' => 'user_team',
         'name' => 'All Teams',
         'description' => 'All Teams',
         'default' => true,

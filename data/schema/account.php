@@ -2155,18 +2155,18 @@ return array(
         )
     ),
 
-    "user_teams" => array(
-        "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_INT, 'subtype' => '', 'default' => 'auto_increment'),
-            'name' => array('type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true),
-            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
-            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
-        ),
-        'PRIMARY_KEY' => 'id',
-        "INDEXES" => array(
-            array('properties' => array("parent_id")),
-        )
-    ),
+//    "user_teams" => array(
+//        "PROPERTIES" => array(
+//            'id' => array('type' => SchemaProperty::TYPE_INT, 'subtype' => '', 'default' => 'auto_increment'),
+//            'name' => array('type' => SchemaProperty::TYPE_CHAR_256, 'notnull' => true),
+//            'parent_id' => array('type' => SchemaProperty::TYPE_INT),
+//            'commit_id' => array('type' => SchemaProperty::TYPE_BIGINT),
+//        ),
+//        'PRIMARY_KEY' => 'id',
+//        "INDEXES" => array(
+//            array('properties' => array("parent_id")),
+//        )
+//    ),
 
     "user_timezones" => array(
         "PROPERTIES" => array(

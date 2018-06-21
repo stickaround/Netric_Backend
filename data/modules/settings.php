@@ -47,7 +47,7 @@ return array(
         array(
             "title" => "User Teams",
             "type" => "browse",
-            "objType" => "user_teams",
+            "objType" => "user_team",
             "route" => "user-teams",
             "icon" => "StreetViewIcon"
         )
