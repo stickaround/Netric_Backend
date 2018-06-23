@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
 
 return array(
@@ -72,7 +73,7 @@ return array(
         ),
 
         'phone_ext' => array(
-            'title'=>'Phone Ext.',
+            'title'=>'Office Phone Ext.',
             'type'=>Field::TYPE_TEXT,
             'subtype'=>'16',
             'readonly'=>false

@@ -353,7 +353,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Handle updating reference membership if needed
         foreach ($all_fields as $fname => $fdef) {
-            if ($fdef->type == "fkey_multi") {
+            if ($fdef->type == Field::TYPE_GROUPING_MULTI) {
                 $this->updateObjectGroupingMulti($entity, $fdef);
             }
 

@@ -14,6 +14,8 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\Validator\EntityValidatorFactory;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
+use Netric\EntityDefinition\Field;
 
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
@@ -505,12 +507,13 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private function updateForeignKeyNames(Entity $entity)
     {
         $serviceManager = $this->getAccount()->getServiceManager();
-        $groupingsLoader = $serviceManager->get("EntityGroupings_Loader");
-        $entityLoader = $serviceManager->get("EntityLoader");
+        $groupingsLoader = $serviceManager->get(EntityGroupingLoaderFactory::class);
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Setup filters for groupings if this is a private object
         $groupingFilter = array();
 
+        // Make sure that private objects always have either owner_id or user_id set
         if ($entity->getDefinition()->isPrivate()) {
             if ($entity->getValue("owner_id")) {
                 $groupingFilter['owner_id'] = $entity->getValue("owner_id");
@@ -530,7 +533,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             }
 
             switch ($field->type) {
-                case 'object':
+                case Field::TYPE_OBJECT:
                     $objType = $field->subtype;
                     $id = $value;
                     if (!$objType) {
@@ -552,7 +555,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
                     break;
 
-                case 'object_multi';
+                case Field::TYPE_OBJECT_MULTI:
                     $objType = $field->subtype;
 
                     if (is_array($value)) {
@@ -577,22 +580,30 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
                         }
                     }
 
-                break;
+                    break;
 
-                case 'fkey':
+                case Field::TYPE_GROUPING:
                     $objType = $entity->getDefinition()->getObjType();
                     $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
+
+                    // Clear the value in preparation for an update - or to remove it if group was deleted
+                    $entity->setValue($field->name, null);
+
                     $group = $groups->getById($value);
                     if ($group) {
+                        // If the group exists then update the name
                         $entity->setValue($field->name, $value, $group->name);
                     }
                     break;
 
-                case 'fkey_multi':
+                case Field::TYPE_GROUPING_MULTI:
                     $objType = $entity->getDefinition()->getObjType();
                     $groups = $groupingsLoader->get($objType, $field->name, $groupingFilter);
                     if (is_array($value)) {
                         foreach ($value as $valPart) {
+                            // Clear the value in preparation for an update - or to remove it if group was deleted
+                            $entity->removeMultiValue($field->name, $valPart);
+
                             $group = $groups->getById($valPart);
                             if ($group) {
                                 $entity->addMultiValue($field->name, $valPart, $group->name);
