@@ -13,7 +13,7 @@ $db = $serviceManager->get(RelationalDbFactory::class);
 if ($db->tableExists('system_registry')) {
     // And if new settings table is empty
     $result = $db->query('SELECT key_name, key_val, user_id from system_registry');
-    foreach ($rsult->fetchAll() as $row) {
+    foreach ($result->fetchAll() as $row) {
         $settingResult = $db->query(
             'SELECT id FROM settings WHERE name=:key_name AND user_id=:user_id',
             ['key_name'=>$row['key_name'], 'user_id'=>$row['user_id']]
