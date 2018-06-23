@@ -9,6 +9,8 @@ services:
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: ${APPLICATION_VER}
+    ports:
+      - 80
     deploy:
       replicas: 2
       update_config:

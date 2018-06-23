@@ -12,7 +12,7 @@ $db = $serviceManager->get(RelationalDbFactory::class);
 // Check if legacy system_registry table exists
 if ($db->tableExists('system_registry')) {
     // And if new settings table is empty
-    $result = $db->query('SELECT key_name, key_value, user_id from system_registry');
+    $result = $db->query('SELECT key_name, key_val, user_id from system_registry');
     foreach ($rsult->fetchAll() as $row) {
         $settingResult = $db->query(
             'SELECT id FROM settings WHERE name=:key_name AND user_id=:user_id',
@@ -22,7 +22,7 @@ if ($db->tableExists('system_registry')) {
             // Then copy system_registry into settings
             $db->insert('settings', [
                 'name' => $row['key_name'],
-                'value' => $row['key_value'],
+                'value' => $row['key_val'],
                 'user_id' => $row['user_id'],
             ]);
         }
