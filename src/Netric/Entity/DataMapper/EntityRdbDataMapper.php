@@ -457,7 +457,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                 if ($subtype) {
                     $assocDef = $defLoader->get($subtype);
-                    if ($assocDef->getId() && $objid) {
+                    if ($assocDef->getId() && is_numeric($objid)) {
                         $this->database->insert(
                             'object_associations',
                             [
