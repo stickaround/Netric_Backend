@@ -87,12 +87,12 @@ abstract class IndexTestsAbstract extends TestCase
         $obj->setValue("type_id", 2); // Organization
 
         // Status id
-        $statusG = $this->createGrouping("customer", "status_id", "Unit Test Status");
+        $statusG = $this->createGrouping("customer", "status_id", "Unit Test Status" . uniqid());
         $obj->setValue("status_id", $statusG['id'], $statusG['name']);
         $obj->setValue("last_contacted", time());
 
         // Groups
-        $groupsG = $this->createGrouping("customer", "groups", "Unit Test Group");
+        $groupsG = $this->createGrouping("customer", "groups", "Unit Test Group" . uniqid());
         $obj->addMultiValue("groups", $groupsG['id'], $groupsG['name']);
 
         $oid = $dm->save($obj);
@@ -153,10 +153,10 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -178,10 +178,10 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -190,7 +190,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Query null - first name is not set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -220,10 +220,10 @@ abstract class IndexTestsAbstract extends TestCase
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test with number
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -239,7 +239,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Test null
         // -------------------------------------------------
         $testEnt->setValue("type_id", null);
@@ -274,10 +274,10 @@ abstract class IndexTestsAbstract extends TestCase
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test value is set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -293,7 +293,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Test null
         // -------------------------------------------------
         $cachedStatus = $testEnt->getValue("status_id");
@@ -312,7 +312,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Make sure query with old id does not return entity
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -342,10 +342,10 @@ abstract class IndexTestsAbstract extends TestCase
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query collection for fkey_multi
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -366,7 +366,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cachedGroups = $testEnt->getValue("groups");
         $testEnt->setValue("groups", null);
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         // Test null for groups
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -382,7 +382,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Make sure object no longer returns on null query with old id
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -411,10 +411,10 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query collection for boolean
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('f_nocall')->equals(true);
@@ -444,10 +444,10 @@ abstract class IndexTestsAbstract extends TestCase
             //$this->assertTrue(false, "Index could not be setup!");
 
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-                
+
         // Create a test customer
         $testEnt = $this->createTestCustomer();
-        
+
         // Create a test case attached to the customer
         $case = $this->account->getServiceManager()->get("EntityLoader")->create("case");
         $case->setValue("name", "Unit Test Case");
@@ -456,13 +456,13 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Make sure this gets cleaned up
         $this->testEntities[] = $case;
-        
+
         // Query for customer id
         $query = new EntityQuery($case->getObjType());
         $query->where('customer_id')->equals($testEnt->getId());
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
-        
+
         // Query with null customer id
         $case->setValue("customer_id", "");
         $dm->save($case);
@@ -533,7 +533,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($notification->getDefinition()->getObjType());
         $query->where('obj_reference')->equals($objReference);
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
+        $this->assertGreaterThan(0, $res->getTotalNum());
 
         // Now set the object reference to null for testing empty
         $notification->setValue("obj_reference", "");
@@ -557,10 +557,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -575,7 +575,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Does not equal null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -602,10 +602,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -620,7 +620,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Does not equal null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -647,10 +647,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test value is set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -665,7 +665,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Test null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -692,10 +692,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test value is set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -711,7 +711,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Test null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -739,10 +739,10 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -757,7 +757,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -772,7 +772,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -787,7 +787,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -815,10 +815,10 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
             //$this->assertTrue(false, "Index could not be setup!");
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -833,7 +833,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -848,7 +848,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -863,7 +863,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -893,10 +893,10 @@ abstract class IndexTestsAbstract extends TestCase
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -911,7 +911,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -926,7 +926,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -941,7 +941,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -971,10 +971,10 @@ abstract class IndexTestsAbstract extends TestCase
             //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -989,7 +989,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1004,7 +1004,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1019,7 +1019,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1046,10 +1046,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query null - first name is not set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1076,10 +1076,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query null - first name is not set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1106,10 +1106,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Day is equal
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1124,7 +1124,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Month is equal
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1139,7 +1139,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Year is equal
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1163,10 +1163,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 days"));
@@ -1179,7 +1179,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Day - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1187,7 +1187,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->lastNumDays(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 weeks"));
@@ -1200,7 +1200,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Week - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1208,7 +1208,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->lastNumWeeks(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 months"));
@@ -1221,7 +1221,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Month - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1229,7 +1229,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->lastNumMonths(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 years"));
@@ -1242,7 +1242,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Year - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1259,10 +1259,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 days"));
@@ -1275,7 +1275,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Day - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1283,7 +1283,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->nextNumDays(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 weeks"));
@@ -1296,7 +1296,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Week - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1304,7 +1304,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->nextNumWeeks(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 months"));
@@ -1317,7 +1317,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Month - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1325,7 +1325,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->nextNumMonths(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 years"));
@@ -1338,7 +1338,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Year - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1380,7 +1380,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
         $obj = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
@@ -1402,7 +1402,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $ent = $res->getEntity(0);
         $this->assertEquals($oid, $ent->getId());
-        
+
         // Cleanup
         $dm->delete($obj, true);
     }
@@ -1438,7 +1438,7 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
-        
+
         // Cleanup
         $this->deleteGrouping("customer", "groups", $g1['id']);
         $this->deleteGrouping("customer", "groups", $g2['id']);
@@ -1482,7 +1482,7 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
-        
+
         // Cleanup
         $dm->delete($folder2, true);
         $dm->delete($folder1, true);
@@ -1526,7 +1526,7 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
-        
+
         // Cleanup
         $dm->delete($folder2, true);
         $dm->delete($folder1, true);
@@ -1731,13 +1731,17 @@ abstract class IndexTestsAbstract extends TestCase
     {
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
 
+        $memberId1 = rand();
+        $memberId2 = rand();
+        $memberId3 = rand();
+
         // Create an entity and initialize values
         $projectName = "Test Project";
         $projectEntity = $this->account->getServiceManager()->get("EntityLoader")->create("project");
         $projectEntity->setValue("name", $projectName);
-        $projectEntity->addMultiValue("members", 35, "Member One");
-        $projectEntity->addMultiValue("members", 40, "Member Two");
-        $projectEntity->addMultiValue("members", 45, "Member Three");
+        $projectEntity->addMultiValue("members", $memberId1, "Member One");
+        $projectEntity->addMultiValue("members", $memberId2, "Member Two");
+        $projectEntity->addMultiValue("members", $memberId3, "Member Three");
         $pid = $dm->save($projectEntity, $this->user);
 
         // Set the entities so it will be cleaned up properly
@@ -1745,7 +1749,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Query the project by members
         $query = new Netric\EntityQuery("project");
-        $query->where("members")->equals(45);
+        $query->where("members")->equals($memberId1);
 
         $index = $this->account->getServiceManager()->get("EntityQuery_Index");
         // Execute the query
