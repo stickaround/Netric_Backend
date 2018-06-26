@@ -39,7 +39,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         Where::COMBINED_BY_AND => [],
         Where::COMBINED_BY_OR => []
     ];
-    
+
+    /**
+     * The entity definition that is used to build the query strings
+     */
+    private $entityDefintion = null;
+
     /**
      * Setup this index for the given account
      *
@@ -97,66 +102,80 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Execute a query and return the results
      *
-     * @param EntityQuery &$query The query to execute
+     * @param EntityQuery $query The query to execute
      * @param Results $results Optional results set to use. Otherwise create new.
      * @return Results
      */
     protected function queryIndex(EntityQuery $query, Results $results = null)
     {
-        // Make sure we will clear the values
+        // Make sure that we have an entity definition before executing a query
+        $this->entityDefintion = $this->getDefinition($query->getObjType());
+
+        // Should never happen, but just in case if we do not have an entity definition throw an exception
+        if (!$this->entityDefintion)
+            throw new \RuntimeException("No entity definition" . var_export($query->toArray(), true));
+
+        // Get table to query
+        $objectTable = $this->entityDefintion->getTable();
+
+        // Make sure that these values are clean
         $this->conditionParams = [];
         $this->conditions = [
             Where::COMBINED_BY_AND => [],
             Where::COMBINED_BY_OR => []
         ];
 
-        $def = $this->getDefinition($query->getObjType());
-
-        // Set default f_deleted condition
-        if ($def->getField("f_deleted")) {
-            $conditions = $query->getWheres();
-
-            // Check if f_deleted field is set in the where conditions
-            $fDeletedCondSet = false;
-            if (count($conditions)) {
-                foreach ($conditions as $condition) {
-                    if ($condition->fieldName === "f_deleted") {
-                        $fDeletedCondSet = true;
-                        break;
-                    }
-                }
-            }
-
-            // If there is no f_deleted field condition set, then we need to set it as false as default
-            if (!$fDeletedCondSet)
-                $this->conditions[Where::COMBINED_BY_AND][] = "f_deleted=false";
-        }
-
-        // Get table to query
-        $objectTable = $def->getTable();
-
         // Start building the condition string
         $conditionString = "";
-        if (count($query->getWheres()))
-            $conditionString = $this->buildConditionString($query, $def);
+        $queryConditions = $query->getWheres();
+        if (count($queryConditions)) {
 
-        // Add order by
-        $queryOrderByString = "";
-        if (count($query->getOrderBy())) {
-            $orderBy = $query->getOrderBy();
-            foreach ($orderBy as $sort) {
-                if ($queryOrderByString) {
-                    $queryOrderByString .= ", ";
+            // Flag that will determine if we have a f_deleted field set in the query conditions
+            $fDeletedCondSet = false;
+
+            // Loop thru the query conditions and check for special fields  
+            foreach ($queryConditions as $condition) {
+
+                // If we have a full text condition, then we need to set it up properly
+                if ($condition->fieldName === "*") {
+                    $this->conditions[Where::COMBINED_BY_AND][] = "(tsv_fulltext @@ plainto_tsquery(:full_text))";
+                    $this->conditionParams["full_text"] = $condition->value;
                 }
 
-                // TODO: check this
-                // Replace name field to order by full name with path
-                //if ($def->parentField && $def->getField("path"))
-                //$order_fld = str_replace($this->obj->fields->listTitle, $this->obj->fields->listTitle."_full", $sortObj->fieldName);
-
-                $queryOrderByString .= $sort->fieldName;
-                $queryOrderByString .= " " . $sort->direction;
+                if ($condition->fieldName === "f_deleted")
+                    $fDeletedCondSet = true;
             }
+
+            // If there is no f_deleted field condition set and entityDefinition has f_deleted field
+            if (!$fDeletedCondSet && $this->entityDefintion->getField("f_deleted")) {
+
+                // Then we need to setup the f_deleted in the $this->conditions
+                $this->conditions[Where::COMBINED_BY_AND][] = "f_deleted=:f_deleted";
+                $this->conditionParams["f_deleted"] = false;
+            }
+
+            // Now, let's build the advanced query condition
+            $this->buildAdvancedConditionString($query);
+
+            // After populating the $this->conditions then we need to create the conditionString
+            if (!empty($this->conditions[Where::COMBINED_BY_AND]))
+                $conditionString = "(" . implode(" and ", $this->conditions[Where::COMBINED_BY_AND]) . ")";
+
+            if (!empty($this->conditions[Where::COMBINED_BY_OR])) {
+                if ($conditionString)
+                    $conditionString .= " or ";
+
+                $conditionString .= "(" . implode(" or ", $this->conditions[Where::COMBINED_BY_OR]) . ")";
+            }
+        }
+
+        // Get order by from $query and setup the sort order
+        $sortOrder = [];
+        if (count($query->getOrderBy())) {
+            $orderBy = $query->getOrderBy();
+
+            foreach ($orderBy as $sort)
+                $sortOrder[] = "{$sort->fieldName} $sort->direction";
         }
 
         // Start constructing query
@@ -166,19 +185,18 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " WHERE $conditionString";
 
         // Check if we have order by string
-        if (!empty($queryOrderByString)) {
-            $sql .= " ORDER BY $queryOrderByString";
-        }
+        if (count($sortOrder))
+            $sql .= " ORDER BY " . implode(", ", $sortOrder);
 
         // Check if we need to add limit
-        if ($query->getLimit()) {
+        if (!empty($query->getLimit()))
             $sql .= " LIMIT {$query->getLimit()}";
-        }
 
-        $sql .= " OFFSET {$query->getOffset()}";
+        if (!empty($query->getOffset()))
+            $sql .= " OFFSET {$query->getOffset()}";
 
         // Get fields for this object type (used in decoding multi-valued fields)
-        $ofields = $def->getFields();
+        $ofields = $this->entityDefintion->getFields();
 
         // Create results object
         if ($results === null)
@@ -203,7 +221,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
 
                 if ($fdef->type === "fkey" || $fdef->type === "object"
-                    || $fdef->type === "fkey_multi" || $fdef->type === "object_multi") {
+                    || $fdef->type === "fkey_multi" || $fdef->type === "object_multi"
+                ) {
                     if (isset($row[$fname . "_fval"])) {
                         $dec = json_decode($row[$fname . "_fval"], true);
                         if ($dec !== false) {
@@ -214,7 +233,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             }
 
             // Set and add entity
-            $ent = $this->entityFactory->create($def->getObjType());
+            $ent = $this->entityFactory->create($this->entityDefintion->getObjType());
             $ent->fromArray($row);
             $ent->resetIsDirty();
             $results->addEntity($ent);
@@ -246,46 +265,17 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     }
 
     /**
-     * Create a condition sql query string based on the query object
-     *
-     * @param EntityQuery $query
-     * @param EntityDefinition $def
-     * @return string
-     */
-    private function buildConditionString(EntityQuery $query, EntityDefinition $def)
-    {
-        // Check for full text
-        $conditions = $query->getWheres();
-        foreach ($conditions as $condition) {
-            if ($condition->fieldName === "*") {
-
-                $this->conditions[Where::COMBINED_BY_AND][] = "(tsv_fulltext @@ plainto_tsquery(:full_text))";
-                $this->conditionParams["full_text"] = $condition->value;
-                break;
-            }
-        }
-
-        return $this->buildAdvancedConditionString($query, $def);
-    }
-
-    /**
      * Process filter conditions
      *
-     * @param EntityQuery $query
-     * @param EntityDefinition $def
-     * @return string
+     * @param EntityQuery $query The query that will be used to build the advanced condition string
      * @throws \RuntimeException If a problem is encountered with the query
      */
-    public function buildAdvancedConditionString(EntityQuery $query, EntityDefinition $def = null)
+    private function buildAdvancedConditionString(EntityQuery $query)
     {
-        $inOrGroup = false;
         $conditions = $query->getWheres();
 
-        if ($def == null)
-            $def = $this->getDefinition($query->getObjType());
-
         // Get table to query
-        $objectTable = $def->getTable();
+        $objectTable = $this->entityDefintion->getTable();
 
         if (count($conditions)) {
             foreach ($conditions as $condition) {
@@ -298,25 +288,26 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if (!$operator)
                     throw new \RuntimeException("No operator provided for " . var_export($condition, true));
 
-                // Skip full text because it is already handled in buildConditionString()
+                // Skip full text because it is already handled before calling this function
                 if ($fieldName === "*")
                     continue;
 
                 // Look for associated object conditions
                 $parts = array($fieldName);
-                if (strpos($fieldName, '.'))
+                $refField = "";
+
+                if (strpos($fieldName, ".")) {
                     $parts = explode(".", $fieldName);
 
-                if (count($parts) > 1) {
-                    $fieldName = $parts[0];
-                    $ref_field = $parts[1];
-                    $field->type = "object_dereference";
-                } else {
-                    $ref_field = "";
+                    if (count($parts) > 1) {
+                        $fieldName = $parts[0];
+                        $refField = $parts[1];
+                        $field->type = "object_dereference";
+                    }
                 }
 
                 // Get field
-                $origField = $def->getField($parts[0]);
+                $origField = $this->entityDefintion->getField($parts[0]);
 
                 // If we do not have a field then throw an exception
                 if (!$origField)
@@ -331,93 +322,92 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 // Generate the $paramName for this condition and make sure it is unique
                 $paramName = $this->generateParamName($fieldName);
 
-                if ($value !== "" && $value !== null) {
-                    switch ($operator) {
-                        case 'is_equal':
-                            $this->buildIsEqual($field, $condition, $def);
-                            break;
-                        case 'is_not_equal':
-                            $this->buildIsNotEqual($field, $condition, $def);
-                            break;
-                        case 'is_greater':
-                            switch ($field->type) {
-                                case FIELD::TYPE_OBJECT_MULTI:
-                                case FIELD::TYPE_OBJECT:
-                                case FIELD::TYPE_GROUPING_MULTI:
-                                case FIELD::TYPE_TEXT:
-                                    break;
-                                default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP) {
-                                        $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                                    } elseif ($field->type == FIELD::TYPE_DATE) {
-                                        $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
+                switch ($operator) {
+                    case 'is_equal':
+                        $this->buildIsEqual($field, $condition);
+                        break;
+                    case 'is_not_equal':
+                        $this->buildIsNotEqual($field, $condition);
+                        break;
+                    case 'is_greater':
+                        switch ($field->type) {
+                            case FIELD::TYPE_OBJECT_MULTI:
+                            case FIELD::TYPE_OBJECT:
+                            case FIELD::TYPE_GROUPING_MULTI:
+                            case FIELD::TYPE_TEXT:
+                                break;
+                            default:
+                                if ($field->type == FIELD::TYPE_TIMESTAMP) {
+                                    $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
+                                } elseif ($field->type == FIELD::TYPE_DATE) {
+                                    $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
+                                }
+
+                                $this->conditions[$blogic][] = "$fieldName>:$paramName";
+                                $this->conditionParams[$paramName] = $value;
+                                break;
+                        }
+                        break;
+                    case 'is_less':
+                        switch ($field->type) {
+                            case FIELD::TYPE_OBJECT_MULTI:
+                            case FIELD::TYPE_OBJECT:
+                            case FIELD::TYPE_GROUPING_MULTI:
+                                break;
+                            case FIELD::TYPE_TEXT:
+                                break;
+                            default:
+                                if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
+                                elseif ($field->type == FIELD::TYPE_DATE)
+                                    $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
+
+                                $this->conditions[$blogic][] = "$fieldName<:$paramName";
+                                $this->conditionParams[$paramName] = $value;
+                                break;
+                        }
+                        break;
+                    case 'is_greater_or_equal':
+                        switch ($field->type) {
+                            case FIELD::TYPE_OBJECT:
+                                if ($field->subtype) {
+                                    $children = $this->getHeiarchyDownObj($field->subtype, $value);
+
+                                    foreach ($children as $child) {
+                                        $childParam = $this->generateParamName($fieldName);
+                                        $multiCond[] = "$fieldName=:$childParam";
+                                        $this->conditionParams[$childParam] = $child;
                                     }
 
-                                    $this->conditions[$blogic][] = "$fieldName>:$paramName";
-                                    $this->conditionParams[$paramName] = $value;
+                                    $this->conditions[$blogic][] = "(" . implode(" or ", $multiCond) . ")";
                                     break;
-                            }
-                            break;
-                        case 'is_less':
-                            switch ($field->type) {
-                                case FIELD::TYPE_OBJECT_MULTI:
-                                case FIELD::TYPE_OBJECT:
-                                case FIELD::TYPE_GROUPING_MULTI:
-                                    break;
-                                case FIELD::TYPE_TEXT:
-                                    break;
-                                default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
-                                        $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                                    elseif ($field->type == FIELD::TYPE_DATE)
-                                        $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
+                                }
+                                break;
+                            case FIELD::TYPE_OBJECT_MULTI:
+                            case FIELD::TYPE_GROUPING_MULTI:
+                                break;
+                            case FIELD::TYPE_TEXT:
+                                break;
+                            default:
+                                if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
+                                elseif ($field->type == FIELD::TYPE_DATE)
+                                    $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
 
-                                    $this->conditions[$blogic][] = "$fieldName<:$paramName";
-                                    $this->conditionParams[$paramName] = $value;
-                                    break;
-                            }
-                            break;
-                        case 'is_greater_or_equal':
-                            switch ($field->type) {
-                                case FIELD::TYPE_OBJECT:
-                                    if ($field->subtype) {
-                                        $children = $this->getHeiarchyDownObj($field->subtype, $value);
+                                $this->conditions[$blogic][] = "$fieldName>=:$paramName";
+                                $this->conditionParams[$paramName] = $value;
+                                break;
+                        }
+                        break;
+                    case 'is_less_or_equal':
+                        switch ($field->type) {
+                            case FIELD::TYPE_OBJECT:
+                                if (!empty($field->subtype) && $this->entityDefintion->parentField == $fieldName && is_numeric($value)) {
+                                    $refDef = $this->getDefinition($field->subtype);
+                                    $refDefTable = $refDef->getTable(true);
 
-                                        foreach ($children as $child) {
-                                            $childParam = $this->generateParamName($fieldName);
-                                            $multiCond[] =  "$fieldName=:$childParam";
-                                            $this->conditionParams[$childParam] = $child;
-                                        }
-
-                                        $this->conditions[$blogic][] = "(" . implode(" or ", $multiCond) . ")";
-                                        break;
-                                    }
-                                    break;
-                                case FIELD::TYPE_OBJECT_MULTI:
-                                case FIELD::TYPE_GROUPING_MULTI:
-                                    break;
-                                case FIELD::TYPE_TEXT:
-                                    break;
-                                default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
-                                        $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                                    elseif ($field->type == FIELD::TYPE_DATE)
-                                        $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
-
-                                    $this->conditions[$blogic][] = "$fieldName>=:$paramName";
-                                    $this->conditionParams[$paramName] = $value;
-                                    break;
-                            }
-                            break;
-                        case 'is_less_or_equal':
-                            switch ($field->type) {
-                                case FIELD::TYPE_OBJECT:
-                                    if (!empty($field->subtype) && $def->parentField == $fieldName && is_numeric($value)) {
-                                        $refDef = $this->getDefinition($field->subtype);
-                                        $refDefTable = $refDef->getTable(true);
-
-                                        if ($refDef->parentField) {
-                                            $this->conditions[$blogic][] = "$fieldName in (WITH RECURSIVE children AS
+                                    if ($refDef->parentField) {
+                                        $this->conditions[$blogic][] = "$fieldName in (WITH RECURSIVE children AS
 												(
 													-- non-recursive term
 													SELECT id FROM $refDefTable WHERE id=:$paramName
@@ -431,158 +421,143 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 												SELECT id
 												FROM children)";
 
-                                            $this->conditionParams[$paramName] = $value;
-                                        }
+                                        $this->conditionParams[$paramName] = $value;
                                     }
-                                    break;
-                                case FIELD::TYPE_OBJECT_MULTI:
-                                case FIELD::TYPE_GROUPING_MULTI:
-                                    break;
-                                case FIELD::TYPE_TEXT:
+                                }
+                                break;
+                            case FIELD::TYPE_OBJECT_MULTI:
+                            case FIELD::TYPE_GROUPING_MULTI:
+                                break;
+                            case FIELD::TYPE_TEXT:
+                                break;
+                            default:
+                                if ($field->type == FIELD::TYPE_TIMESTAMP)
+                                    $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
+                                elseif ($field->type == FIELD::TYPE_DATE)
+                                    $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
+
+                                $this->conditions[$blogic][] = "$fieldName<=:$paramName";
+                                $this->conditionParams[$paramName] = $value;
+                                break;
+                        }
+                        break;
+                    case 'begins':
+                    case 'begins_with':
+                        switch ($field->type) {
+                            case FIELD::TYPE_TEXT:
+                                if ($field->subtype) {
+                                    $this->conditions[$blogic][] = "lower($fieldName) like :$paramName";
+                                    $this->conditionParams[$paramName] = strtolower("$value%");
+                                } else {
+                                    $this->conditions[$blogic][] = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
+                                    $this->conditionParams[$paramName] = "$value*";
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 'contains':
+                        switch ($field->type) {
+                            case FIELD::TYPE_TEXT:
+                                if ($field->subtype) {
+                                    $this->conditions[$blogic][] = "lower($fieldName) like :$paramName";
+                                    $this->conditionParams[$paramName] = strtolower("%$value%");
+                                } else {
+                                    $this->conditions[$blogic][] = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
+                                    $this->conditionParams[$paramName] = $value;
+                                }
+
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case 'day_is_equal':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
+                            switch ($value) {
+                                case '<%current_day%>':
+                                    $this->conditions[$blogic][] = "extract(day from $fieldName)=extract('day' from now())";
                                     break;
                                 default:
-                                    if ($field->type == FIELD::TYPE_TIMESTAMP)
-                                        $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
-                                    elseif ($field->type == FIELD::TYPE_DATE)
-                                        $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
-
-                                    $this->conditions[$blogic][] = "$fieldName<=:$paramName";
+                                    $this->conditions[$blogic][] = "extract(day from $fieldName)=:$paramName";
                                     $this->conditionParams[$paramName] = $value;
                                     break;
                             }
-                            break;
-                        case 'begins':
-                        case 'begins_with':
-                            switch ($field->type) {
-                                case FIELD::TYPE_TEXT:
-                                    if ($field->subtype) {
-                                        $this->conditions[$blogic][] = "lower($fieldName) like :$paramName";
-                                        $this->conditionParams[$paramName] = strtolower("$value%");
-                                    }
-                                    else {
-                                        $this->conditions[$blogic][] =  "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
-                                        $this->conditionParams[$paramName] = "$value*";
-                                    }
+                        }
+                        break;
+                    case 'month_is_equal':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
+                            switch ($value) {
+                                case '<%current_month%>':
+                                    $this->conditions[$blogic][] = "extract(month from $fieldName)=extract('month' from now())";
                                     break;
                                 default:
+                                    $this->conditions[$blogic][] = "extract(month from $fieldName)=:$paramName";
+                                    $this->conditionParams[$paramName] = $value;
                                     break;
                             }
-                            break;
-                        case 'contains':
-                            switch ($field->type) {
-                                case FIELD::TYPE_TEXT:
-                                    if ($field->subtype) {
-                                        $this->conditions[$blogic][] = "lower($fieldName) like :$paramName";
-                                        $this->conditionParams[$paramName] = strtolower("%$value%");
-                                    } else {
-                                        $this->conditions[$blogic][] = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
-                                        $this->conditionParams[$paramName] = $value;
-                                    }
-
+                        }
+                        break;
+                    case 'year_is_equal':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
+                            switch ($value) {
+                                case '<%current_year%>':
+                                    $this->conditions[$blogic][] = "extract(year from $fieldName)=extract('year' from now())";
                                     break;
                                 default:
+                                    $this->conditions[$blogic][] = "extract(year from $fieldName)=:$paramName";
+                                    $this->conditionParams[$paramName] = $value;
                                     break;
                             }
-                            break;
-                        case 'day_is_equal':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
-                                switch ($value) {
-                                    case '<%current_day%>':
-                                        $this->conditions[$blogic][] = "extract(day from $fieldName)=extract('day' from now())";
-                                        break;
-                                    default:
-                                        $this->conditions[$blogic][] = "extract(day from $fieldName)=:$paramName";
-                                        $this->conditionParams[$paramName] = $value;
-                                        break;
-                                }
-                            }
-                            break;
-                        case 'month_is_equal':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
-                                switch ($value) {
-                                    case '<%current_month%>':
-                                        $this->conditions[$blogic][] = "extract(month from $fieldName)=extract('month' from now())";
-                                        break;
-                                    default:
-                                        $this->conditions[$blogic][] = "extract(month from $fieldName)=:$paramName";
-                                        $this->conditionParams[$paramName] = $value;
-                                        break;
-                                }
-                            }
-                            break;
-                        case 'year_is_equal':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP) {
-                                switch ($value) {
-                                    case '<%current_year%>':
-                                        $this->conditions[$blogic][] = "extract(year from $fieldName)=extract('year' from now())";
-                                        break;
-                                    default:
-                                        $this->conditions[$blogic][] = "extract(year from $fieldName)=:$paramName";
-                                        $this->conditionParams[$paramName] = $value;
-                                        break;
-                                }
-                            }
-                            break;
-                        case 'last_x_days':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value days')";
-                            break;
-                        case 'last_x_weeks':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value weeks')";
-                            break;
-                        case 'last_x_months':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value months')";
-                            break;
-                        case 'last_x_years':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value years')";
-                            break;
-                        case 'next_x_days':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value days')";
-                            break;
-                        case 'next_x_weeks':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value weeks')";
-                            break;
-                        case 'next_x_months':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value months')";
-                            break;
-                        case 'next_x_years':
-                            if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
-                                $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value years')";
-                            break;
-                    }
+                        }
+                        break;
+                    case 'last_x_days':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value days')";
+                        break;
+                    case 'last_x_weeks':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value weeks')";
+                        break;
+                    case 'last_x_months':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value months')";
+                        break;
+                    case 'last_x_years':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=(now()-INTERVAL '$value years')";
+                        break;
+                    case 'next_x_days':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value days')";
+                        break;
+                    case 'next_x_weeks':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value weeks')";
+                        break;
+                    case 'next_x_months':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value months')";
+                        break;
+                    case 'next_x_years':
+                        if ($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP && is_numeric($value))
+                            $this->conditions[$blogic][] = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value years')";
+                        break;
                 }
             }
         }
-
-        $conditionString = "";
-        if (!empty($this->conditions[Where::COMBINED_BY_AND]))
-            $conditionString = "(" . implode(" and ", $this->conditions[Where::COMBINED_BY_AND]) . ")";
-
-        if (!empty($this->conditions[Where::COMBINED_BY_OR])) {
-            if ($conditionString)
-                $conditionString .= " or ";
-
-            $conditionString .= "(" . implode(" or ", $this->conditions[Where::COMBINED_BY_OR]) . ")";
-        }
-
-        return $conditionString;
     }
 
     /**
      * Add conditions for "is_eqaul" operator
      *
-     * @param type $field
-     * @param type $condition
+     * @param type $field The current field that we will handle to build the is_equal where condition
+     * @param type $condition The where condition that we are dealing with
      */
-    private function buildIsEqual($field, $condition, $def)
+    private function buildIsEqual($field, $condition)
     {
-        $objectTable = $def->getTable();
+        $objectTable = $this->entityDefintion->getTable();
         $blogic = $condition->bLogic;
         $fieldName = $condition->fieldName;
         $value = $condition->value;
@@ -655,16 +630,16 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                $this->conditionParams["type_id"] = $def->getId();
+                $this->conditionParams["type_id"] = $this->entityDefintion->getId();
                 $this->conditionParams["field_id"] = $field->id;
                 break;
             case 'object_dereference':
                 // TODO: Ask sky about what is object_dereference
-                if ($field->subtype && isset($ref_field)) {
+                if ($field->subtype && isset($refField)) {
 
                     // Create subquery
                     /*$subQuery = new EntityQuery($field->subtype);
-                    $subQuery->where($ref_field)->equals($value);
+                    $subQuery->where($refField)->equals($value);
                     $subIndex = new EntityQueryIndexRdb($this->account);
                     $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
                     $refDef = $this->getDefinition($field->subtype);
@@ -686,7 +661,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $children = $this->getHeiarchyDownGrp($field, $value);
                     foreach ($children as $child) {
                         $childParam = $this->generateParamName($fkeyTableRef);
-                        $multiCond[] =  "$fkeyTableRef=:$childParam";
+                        $multiCond[] = "$fkeyTableRef=:$childParam";
                         $this->conditionParams[$childParam] = $child;
                     }
                 } elseif (!empty($value)) {
@@ -730,12 +705,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case FIELD::TYPE_TEXT:
                 if (empty($value)) {
                     $this->conditions[$blogic][] = "($fieldName is null OR $fieldName='')";
-                }
-                elseif ($field->subtype) {
+                } elseif ($field->subtype) {
                     $this->conditions[$blogic][] = "$fieldName=:$paramName";
                     $this->conditionParams[$paramName] = strtolower($value);
-                }
-                else {
+                } else {
                     $this->conditions[$blogic][] = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
                     $this->conditionParams[$paramName] = $value;
                 }
@@ -760,12 +733,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Add conditions for "is_not_eqaul" operator
      *
-     * @param type $field
-     * @param type $value
+     * @param type $field The current field that we will handle to build the is_not_equal where condition
+     * @param type $condition The where condition that we are dealing with
      */
-    private function buildIsNotEqual($field, $condition, $def)
+    private function buildIsNotEqual($field, $condition)
     {
-        $objectTable = $def->getTable();
+        $objectTable = $this->entityDefintion->getTable();
         $blogic = $condition->bLogic;
         $fieldName = $condition->fieldName;
         $operator = $condition->operator;
@@ -780,7 +753,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if ($field->subtype) {
                     if (empty($value)) {
                         $this->conditions[$blogic][] = "$fieldName is not null";
-                    } elseif (isset($field->subtype) && $def->parentField == $fieldName && $value) {
+                    } elseif (isset($field->subtype) && $this->entityDefintion->parentField == $fieldName && $value) {
                         $refDef = $this->getDefinition($field->subtype);
                         $refDefTable = $refDef->getTable(true);
                         $parentField = $refDef->parentField;
@@ -820,7 +793,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
                         if ($refDef && $refDef->getId() && !empty($objRef['id'])) {
                             $assocTypeParam = $this->generateParamName("assoc_type_id");
-                            $this->conditionParams[$assocTypeParam] = $def->getId();
+                            $this->conditionParams[$assocTypeParam] = $this->entityDefintion->getId();
 
                             $assocObjParam = $this->generateParamName("assoc_object_id");
                             $this->conditionParams[$assocObjParam] = $objRef['id'];
@@ -833,15 +806,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                $this->conditionParams["type_id"] = $def->getId();
+                $this->conditionParams["type_id"] = $this->entityDefintion->getId();
                 $this->conditionParams["field_id"] = $field->id;
                 break;
             case 'object_dereference':
                 /*$tmp_cond_str = "";
-                if ($field->subtype && $ref_field) {
+                if ($field->subtype && $refField) {
                     // Create subquery
                     $subQuery = new \Netric\EntityQuery($field->subtype);
-                    $subQuery->where($ref_field, $operator, $value);
+                    $subQuery->where($refField, $operator, $value);
                     $subIndex = new \Netric\EntityQuery\Index\Pgsql($this->account);
                     $tmp_obj_cnd_str = $subIndex->buildAdvancedConditionString($subQuery);
                     $refDef = $this->getDefinition($field->subtype);
@@ -869,7 +842,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         $children = $this->getHeiarchyDownGrp($field, $value);
                         foreach ($children as $child) {
                             $childParam = $this->generateParamName($fkeyTableRef);
-                            $multiCond[] =  "$fkeyTableRef=:$childParam";
+                            $multiCond[] = "$fkeyTableRef=:$childParam";
                             $this->conditionParams[$childParam] = $child;
                         }
                     } else {
@@ -894,7 +867,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         $children = $this->getHeiarchyDownGrp($field, $value);
                         foreach ($children as $child) {
                             $childParam = $this->generateParamName($fieldName);
-                            $multiCond[] =  "$fieldName!=:$childParam";
+                            $multiCond[] = "$fieldName!=:$childParam";
                             $this->conditionParams[$childParam] = $child;
                         }
                     } else {
@@ -902,7 +875,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         $this->conditionParams[$paramName] = $value;
                     }
 
-                    $this->conditions[$blogic][] = "((" . implode (" and ", $multiCond) . ")  or $fieldName is null)";
+                    $this->conditions[$blogic][] = "((" . implode(" and ", $multiCond) . ")  or $fieldName is null)";
                 }
 
                 break;
