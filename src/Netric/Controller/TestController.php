@@ -19,16 +19,17 @@ class TestController extends Mvc\AbstractAccountController
         $index = $serviceManager->get(IndexFactory::class);
 
 
-        $query = new EntityQuery("task");
-        $query->where('*')->fullText("reference");
-
+        $query = new EntityQuery("user");
+        $query->orWhere('revision')->equals(1);
+        $query->andwhere('name')->equals("sky");
+        $query->andWhere('name')->equals("marl");
 
         $res = $index->executeQuery($query);
 
         // $this->assertEquals(1, $res->getTotalNum());
         // $obj = $res->getEntity(0);
 
-        return $this->sendOutput("test - " . $res->getTotalNum());
+        return $this->sendOutput($res->getTotalNum());
     }
 
     public function postTestAction()
