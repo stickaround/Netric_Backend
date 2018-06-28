@@ -48,7 +48,7 @@ abstract class IndexTestsAbstract extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -163,13 +163,13 @@ abstract class IndexTestsAbstract extends TestCase
         $customer2 = $this->createTestCustomer($personTypeId);
         $customer3 = $this->createTestCustomer($organizationTypeId);
         $customer4 = $this->createTestCustomer($organizationTypeId);
-
+        
         $testObjType = $customer1->getObjType();
         $serviceManager = $this->account->getServiceManager();
         $index = $serviceManager->get(IndexFactory::class);
 
         /*
-         * Test multiple or conditions and 1 "and" blogic
+         * Test multiple or conditions and 1 "and" operator
          */
         $query = new EntityQuery($testObjType);
         $query->where('name')->equals($customer1->getValue("name"));
@@ -181,7 +181,8 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Should get at least 2 results since we only have set the type_id = 2
         $this->assertGreaterThanOrEqual(2, $res->getTotalNum());
-        $this->assertEquals($res->getEntity(0)->getValue("type_id"), $organizationTypeId);
+        $obj = $res->getEntity(0);
+        $this->assertEquals($obj->getValue("type_id"), $organizationTypeId);
 
         /*
          * Test multiple "and" conditions that can get a specific customer
@@ -194,7 +195,8 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Should get only 1 result since this query is for specific for $customer1
         $this->assertEquals(1, $res->getTotalNum());
-        $this->assertEquals($res->getEntity(0)->getValue("id"), $customer1->getValue("id"));
+        $obj = $res->getEntity(0);
+        $this->assertEquals($obj->getValue("id"), $customer1->getValue("id"));
 
         /*
          * Test multiple "and" conditions and 1 or statement
@@ -257,28 +259,6 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Should get 0 result since no customer can have 3 different status_id
         $this->assertEquals(0, $res->getTotalNum());
-
-        /*
-         * Test using does not equals
-         */
-        $query = new EntityQuery($testObjType);
-        $query->where('type_id')->doesNotEqual($organizationTypeId);
-        $res = $index->executeQuery($query);
-
-        $this->assertGreaterThanOrEqual(2, $res->getTotalNum());
-        $this->assertNotEquals($organizationTypeId, $res->getEntity(0)->getValue("type_id"));
-
-        /*
-         * Test using does not equals with multiple "and" blogic
-         */
-        $query = new EntityQuery($testObjType);
-        $query->where('type_id')->doesNotEqual($personTypeId);
-        $query->andWhere('status_id')->doesNotEqual($customer1->getValue("status_id"));
-        $res = $index->executeQuery($query);
-
-        $this->assertGreaterThanOrEqual(2, $res->getTotalNum());
-        $this->assertNotEquals($personTypeId, $res->getEntity(0)->getValue("type_id"));
-        $this->assertNotEquals($customer1->getValue("status_id"), $res->getEntity(0)->getValue("status_id"));
     }
 
     /**
@@ -295,23 +275,16 @@ abstract class IndexTestsAbstract extends TestCase
         $memberId2 = rand();
         $memberId3 = rand();
 
-        $groupId = rand();
-        $groupId1 = rand();
-        $groupId2 = rand();
-
         // Create a project that only has 1 member
         $projectEntity = $loader->create("project");
-        $projectEntity->setValue("name", "Test Project");
+        $projectEntity->setValue("name", "Test Project 4");
         $projectEntity->addMultiValue("members", $memberId, "Member");
-        $projectEntity->addMultiValue("groups", $groupId, "First Project");
-        $projectEntity->addMultiValue("groups", $groupId2, "Multiple Project");
         $pid = $loader->save($projectEntity);
 
         // Create a project that has 1 member
         $projectEntity1 = $loader->create("project");
         $projectEntity1->setValue("name", "Test Project 1");
         $projectEntity1->addMultiValue("members", $memberId1, "Member One");
-        $projectEntity1->addMultiValue("groups", $groupId, "First Project");
         $pid1 = $loader->save($projectEntity1);
 
         // Create a project that has 2 members
@@ -319,17 +292,14 @@ abstract class IndexTestsAbstract extends TestCase
         $projectEntity2->setValue("name", "Test Project 2");
         $projectEntity2->addMultiValue("members", $memberId1, "Member One");
         $projectEntity2->addMultiValue("members", $memberId2, "Member Two");
-        $projectEntity2->addMultiValue("groups", $groupId1, "Second Project");
         $pid2 = $loader->save($projectEntity2);
 
         // Create a project that only has 3 members
         $projectEntity3 = $loader->create("project");
         $projectEntity3->setValue("name", "Test Project 3");
         $projectEntity3->addMultiValue("members", $memberId1, "Member One");
-        $projectEntity3->addMultiValue("members", $memberId2, "Member Two");
-        $projectEntity3->addMultiValue("members", $memberId3, "Member Three");
-        $projectEntity3->addMultiValue("groups", $groupId1, "Second Project");
-        $projectEntity3->addMultiValue("groups", $groupId2, "Multiple Project");
+        $projectEntity1->addMultiValue("members", $memberId2, "Member Two");
+        $projectEntity1->addMultiValue("members", $memberId3, "Member Three");
         $pid3 = $loader->save($projectEntity3);
 
         // Set the entities so it will be cleaned up properly
@@ -388,13 +358,14 @@ abstract class IndexTestsAbstract extends TestCase
          * Query the projects that has the same members
          */
         $query = new EntityQuery("project");
-        $query->where("members")->equals($memberId2);
-        $query->andWhere("members")->equals($memberId3);
+        $query->where("members")->equals($memberId1);
+        $query->andWhere("members")->equals($memberId2);
         $res = $index->executeQuery($query);
 
         // This will have a result of 1 project since both $member and $member3 has one project each
+        $resultEntity = $res->getEntity(0);
         $this->assertEquals(1, $res->getTotalNum());
-        $this->assertEquals($pid3, $res->getEntity(0)->getId());
+        $this->assertEquals($pid2, $resultEntity->getId());
 
         /*
          * Query the projects that has the same members and will include other project using "or" condition
@@ -413,131 +384,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery("project");
         $query->where("members")->equals($memberId1);
         $query->andWhere("name")->equals("Test Project");
-        $res = $index->executeQuery($query);
 
         // This will have 0 results since $member1 is not a member in Test Project
         $this->assertEquals(0, $res->getTotalNum());
-
-        /*
-         * Query the project using 2 multi fields
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->equals($memberId);
-        $query->andWhere("groups")->equals($groupId2);
-        $res = $index->executeQuery($query);
-
-        // Should get 1 project since we only have one project that is $memberId and $groupId2
-        $this->assertEquals(1, $res->getTotalNum());
-        $this->assertEquals($pid, $res->getEntity(0)->getId());
-
-        /*
-         * Query the project using 2 multi fields with "and" / "or" blogic
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->equals($memberId);
-        $query->orWhere("groups")->equals($groupId1);
-        $res = $index->executeQuery($query);
-
-
-        $this->assertEquals(3, $res->getTotalNum());
-
-        /*
-         * Query the project using does not equal
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->doesNotEqual($memberId1);
-        $res = $index->executeQuery($query);
-
-        // Should get 1 projects since since $member1 has 3 projects out of 4 test projects
-        $this->assertEquals(1, $res->getTotalNum());
-
-        /*
-         * Query the project using does not equal on 2 members field
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->doesNotEqual($memberId1);
-        $query->andWhere("members")->doesNotEqual($memberId3);
-        $res = $index->executeQuery($query);
-
-        // Should get 1 project since both $member1 and $member3 has 3 projects out of 4 test projects
-        $this->assertEquals(1, $res->getTotalNum());
-
-        /*
-         * Query the project using does not equal on 2 members field using "or" blogic
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->doesNotEqual($memberId1);
-        $query->orWhere("members")->doesNotEqual($memberId);
-        $res = $index->executeQuery($query);
-
-        // Should get 4 projects
-        $this->assertEquals(4, $res->getTotalNum());
-
-        /*
-         * Query the project using does not equal on 2 different fields using "and" blogic
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->doesNotEqual($memberId3);
-        $query->andWhere("groups")->doesNotEqual($groupId);
-        $res = $index->executeQuery($query);
-
-        // Should get 1 project
-        $this->assertEquals(1, $res->getTotalNum());
-
-        /*
-         * Query the project using does not equal on 2 different fields using "and/or" blogic
-         */
-        $query = new EntityQuery("project");
-        $query->where("members")->doesNotEqual($memberId1);
-        $query->orWhere("groups")->doesNotEqual($groupId);
-        $res = $index->executeQuery($query);
-
-        // Should get 3 projects
-        $this->assertEquals(3, $res->getTotalNum());
-
-        /*
-         * Query the project using does not equal on 2 different fields using "or" blogic only
-         */
-        $query = new EntityQuery("project");
-        $query->orWhere("members")->doesNotEqual($memberId1);
-        $query->orWhere("groups")->doesNotEqual($groupId);
-        $res = $index->executeQuery($query);
-
-        // Should get 3 projects
-        $this->assertEquals(3, $res->getTotalNum());
-
-        /*
-         * Query the project using equal and does not equal operators
-         */
-        $query = new EntityQuery("project");
-        $query->andWhere("members")->equals($memberId);
-        $query->andWhere("members")->doesNotEqual($memberId1);
-        $res = $index->executeQuery($query);
-
-        // Should get 1 project
-        $this->assertEquals(1, $res->getTotalNum());
-
-        /*
-         * Query the project using equal and does not equal operators while having "or" blogic
-         */
-        $query = new EntityQuery("project");
-        $query->andWhere("members")->equals($memberId);
-        $query->orWhere("members")->doesNotEqual($memberId1);
-        $res = $index->executeQuery($query);
-
-        // Should get 1 project
-        $this->assertEquals(1, $res->getTotalNum());
-
-        /*
-         * Query the project using equal and does not equal operators while having "or" blogic
-         */
-        $query = new EntityQuery("project");
-        $query->andWhere("members")->equals($memberId1);
-        $query->orWhere("members")->doesNotEqual($memberId);
-        $res = $index->executeQuery($query);
-
-        // Should get 3 project
-        $this->assertEquals(3, $res->getTotalNum());
     }
 
     /**
@@ -2106,8 +1955,8 @@ abstract class IndexTestsAbstract extends TestCase
         // Execute the query
         $res = $index->executeQuery($query);
 
-        // We should be be able to query all at least 4 customers
-        $this->assertGreaterThanOrEqual(4, $res->getTotalNum());
+        // We should be be able to query all 4 customers
+        $this->assertEquals(4, $res->getTotalNum());
 
         // Query the customers using the combination of or/and where conditions.
         $query = new Netric\EntityQuery("customer");
