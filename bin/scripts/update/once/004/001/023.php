@@ -14,7 +14,7 @@ $db = $serviceManager->get(RelationalDbFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-$sql = "select objects_moved.object_id, objects_moved.moved_to, " .
+$sql = "select objects_moved.object_id, objects_moved.moved_to, objects_moved.object_type_id, " .
        "app_object_types.name as obj_type from objects_moved, " .
        "app_object_types WHERE objects_moved.object_type_id=app_object_types.id";
 $resultMoved = $db->query($sql);
@@ -81,14 +81,14 @@ foreach ($rowsMoved as $rowMoved) {
         // Update object_associations
         $db->update(
             'object_associations',
-            ['object_id'=>$rowMoved['moved_to']],
-            ['type_id'=>$objTypeDef->getId(), 'object_id'=>$rowMoved['object_id']]
+            ['object_id'=>$rowMoved['object_type_id']],
+            ['type_id'=>$rowMoved[''], 'object_id'=>$rowMoved['object_id']]
         );
 
         $db->update(
             'object_associations',
             ['assoc_object_id'=>$rowMoved['moved_to']],
-            ['assoc_type_id'=>$objTypeDef->getId(), 'assoc_object_id'=>$rowMoved['object_id']]
+            ['assoc_type_id'=>$rowMoved['object_type_id'], 'assoc_object_id'=>$rowMoved['object_id']]
         );
     }
 }
