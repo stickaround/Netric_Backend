@@ -14,10 +14,18 @@ if ($db->tableExists('system_registry')) {
     // And if new settings table is empty
     $result = $db->query('SELECT key_name, key_val, user_id from system_registry');
     foreach ($result->fetchAll() as $row) {
-        $settingResult = $db->query(
-            'SELECT id FROM settings WHERE name=:key_name AND user_id=:user_id',
-            ['key_name'=>$row['key_name'], 'user_id'=>$row['user_id']]
-        );
+        if ($row['user_id']) {
+            $settingResult = $db->query(
+                'SELECT id FROM settings WHERE name=:key_name AND user_id=:user_id',
+                ['key_name'=>$row['key_name'], 'user_id'=>$row['user_id']]
+            );
+        } else {
+            $settingResult = $db->query(
+                'SELECT id FROM settings WHERE name=:key_name AND user_id is NULL',
+                ['key_name'=>$row['key_name']]
+            );
+        }
+
         if ($settingResult->rowCount() == 0) {
             // Then copy system_registry into settings
             $db->insert('settings', [

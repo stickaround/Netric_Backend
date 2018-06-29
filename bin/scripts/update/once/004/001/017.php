@@ -24,7 +24,7 @@ $groupingsLoader = $serviceManager->get(LoaderFactory::class);
 $entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefinition_DataMapper");
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-// Get groups with heirarcy that need to be fixed
+// Get groups with hierarchy that need to be fixed
 $groupingTables = [
     ["table" => "ic_groups", "refObjType" => "infocenter_document", "refFieldName" => "groups"],
     ["table" => "user_groups", "refObjType" => "user", "refFieldName" => "groups"],
