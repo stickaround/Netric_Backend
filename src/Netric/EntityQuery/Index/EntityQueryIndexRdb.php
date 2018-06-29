@@ -167,9 +167,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                          * So we will continue with the next condition
                          */
                         continue;
-                    } if (count($advConditions) === 1) {
-                        // If there is only 1 $advConditionString, then we don't have to enclose it with ()
-                        $conditions[$conditionBlogic][] = $advConditions[0];
                     } else {
                         $conditions[$conditionBlogic][] = "(" . implode(" or ", $advConditions) .")";
                     }
@@ -229,11 +226,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         if (!empty($query->getOffset())) {
             $sql .= " OFFSET {$query->getOffset()}";
-        }
-
-        if ($objectTable === "objects_project") {
-            print_r(["sql" => $sql]);
-            print_r($this->conditionParams);
         }
 
         // Get fields for this object type (used in decoding multi-valued fields)
@@ -623,11 +615,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
+                // We need a unique param for type_id since it is possible to query 2 or more object multi fields
+                $fieldIdParam = $this->generateParamName("field_id");
+
                 if (empty($value)) {
                     $conditionString = "not EXISTS (select 1 from object_associations
                                         where object_associations.object_id=$objectTable.id
                                         and type_id=:type_id
-                                        and field_id=:field_id)";
+                                        and field_id=:$fieldIdParam)";
                 } else {
                     $objRef = Entity::decodeObjRef($value);
                     $referenceObjType = null;
@@ -663,23 +658,23 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
                             $conditionString = "EXISTS (select 1 from object_associations
                                     where object_associations.object_id=$objectTable.id
-                                    and type_id=:type_id and field_id=:field_id
+                                    and type_id=:type_id and field_id=:$fieldIdParam
                                     and assoc_type_id=:$assocTypeParam
                                     and assoc_object_id=:$assocObjParam)";
                         } else {
                             // only query associated subtype if there is no referenced id provided
                             $conditionString = "EXISTS (select 1 from object_associations
                                     where object_associations.object_id=$objectTable.id and
-                                    type_id=:type_id and field_id=:field_id
+                                    type_id=:type_id and field_id=:$fieldIdParam
                                     and assoc_type_id=:$assocTypeParam)";
                         }
                     }
                 }
-
-
-                // TODO: field_id should be unique always
-                $this->conditionParams["type_id"] = $this->entityDefintion->getId();
-                $this->conditionParams["field_id"] = $field->id;
+                
+                if (!empty($conditionString)) {
+                    $this->conditionParams[$fieldIdParam] = $field->id;
+                    $this->conditionParams["type_id"] = $this->entityDefintion->getId();
+                }
                 break;
             case 'object_dereference':
                 // TODO: Ask sky about what is object_dereference
@@ -703,16 +698,24 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case FIELD::TYPE_GROUPING_MULTI:
                 $multiCond = [];
                 $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
+                $fkeyRefParam = $this->generateParamName($fkeyTableRef);
 
+                // Check if the fkey table has a parent
                 if (isset($field->fkeyTable["parent"]) && is_numeric($value)) {
                     $children = $this->getHeiarchyDownGrp($field, $value);
-                    foreach ($children as $child) {
-                        $childParam = $this->generateParamName($fkeyTableRef);
-                        $multiCond[] = "$fkeyTableRef=:$childParam";
-                        $this->conditionParams[$childParam] = $child;
+
+                    // Make sure that we have a children
+                    if (!empty($children)) {
+                        foreach ($children as $child) {
+                            $childParam = $this->generateParamName($fkeyTableRef);
+                            $multiCond[] = "$fkeyTableRef=:$childParam";
+                            $this->conditionParams[$childParam] = $child;
+                        }
+                    } else {
+                        $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
+                        $this->conditionParams[$fkeyRefParam] = $value;
                     }
                 } elseif (!empty($value)) {
-                    $fkeyRefParam = $this->generateParamName($fkeyTableRef);
                     $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
                     $this->conditionParams[$fkeyRefParam] = $value;
                 }
@@ -753,7 +756,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if (empty($value)) {
                     $conditionString = "($fieldName is null OR $fieldName='')";
                 } elseif ($field->subtype) {
-                    $conditionString = "$fieldName=:$paramName";
+                    $conditionString = "lower($fieldName)=:$paramName";
                     $this->conditionParams[$paramName] = strtolower($value);
                 } else {
                     $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
@@ -831,32 +834,66 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
 
             case FIELD::TYPE_OBJECT_MULTI:
+                // We need a unique param for type_id since it is possible to query 2 or more object multi fields
+                $fieldIdParam = $this->generateParamName("field_id");
+
                 if (empty($value)) {
-                    $conditionString = "$objectTable.id in (select object_id from object_associations
-                                                    where type_id=:type_id and field_id=:field_id)";
+                    $conditionString = "$objectTable.id in  (select 1 from object_associations
+                                        where object_associations.object_id=$objectTable.id
+                                        and type_id=:type_id
+                                        and field_id=:$fieldIdParam)";
                 } else {
                     $objRef = Entity::decodeObjRef($value);
+                    $referenceObjType = null;
+                    $referenceId = null;
 
-                    if ($objRef) {
-                        $refDef = $this->getDefinition($objRef['obj_type']);
+                    /*
+                     * If we have successfully decoded the $value (e.g user:1:TestUser
+                     * Then we need to make sure we have refernce id and obj_type
+                     */
+                    if ($objRef && !empty($objRef['id']) && !empty($objRef['obj_type'])) {
+                        $referenceObjType = $objRef['obj_type'];
+                        $referenceId = $objRef['id'];
+                    } elseif ($field->subtype) {
+                        /*
+                         * If the $value provided is the actual value of the where condition
+                         * Then we will just use the field's subtype as our referenced objType
+                         */
+                        $referenceObjType = $field->subtype;
+                        $referenceId = $value;
+                    }
 
-                        if ($refDef && $refDef->getId() && !empty($objRef['id'])) {
-                            $assocTypeParam = $this->generateParamName("assoc_type_id");
-                            $this->conditionParams[$assocTypeParam] = $this->entityDefintion->getId();
+                    // If we have referencedObjType then we can now build the where condition
+                    if ($referenceObjType) {
+                        // Get the definition of the referenced objType
+                        $refDef = $this->getDefinition($referenceObjType);
 
+                        $assocTypeParam = $this->generateParamName("assoc_type_id");
+                        $this->conditionParams[$assocTypeParam] = $refDef->getId();
+
+                        if ($refDef && $refDef->getId() && $referenceId) {
                             $assocObjParam = $this->generateParamName("assoc_object_id");
-                            $this->conditionParams[$assocObjParam] = $objRef['id'];
+                            $this->conditionParams[$assocObjParam] = $referenceId;
 
-                            $conditionString = "$objectTable.id not in (select object_id from object_associations
-                                                        where type_id=:type_id and field_id=:field_id
-                                                        and assoc_type_id=:$assocTypeParam
-                                                        and assoc_object_id=:$assocObjParam)";
+                            $conditionString = "$objectTable.id not in  (select object_id from object_associations
+                                    where object_associations.object_id=$objectTable.id
+                                    and type_id=:type_id and field_id=:$fieldIdParam
+                                    and assoc_type_id=:$assocTypeParam
+                                    and assoc_object_id=:$assocObjParam)";
+                        } else {
+                            // only query associated subtype if there is no referenced id provided
+                            $conditionString = "$objectTable.id not in  (select object_id from object_associations
+                                    where object_associations.object_id=$objectTable.id and
+                                    type_id=:type_id and field_id=:$fieldIdParam
+                                    and assoc_type_id=:$assocTypeParam)";
                         }
                     }
                 }
 
-                $this->conditionParams["type_id"] = $this->entityDefintion->getId();
-                $this->conditionParams["field_id"] = $field->id;
+                if (!empty($conditionString)) {
+                    $this->conditionParams[$fieldIdParam] = $field->id;
+                    $this->conditionParams["type_id"] = $this->entityDefintion->getId();
+                }
                 break;
             case 'object_dereference':
                 /*$tmp_cond_str = "";
@@ -880,21 +917,29 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $fkeyRefField = $field->fkeyTable['ref_table']['this'];
                 $fkeyRefTable = $field->fkeyTable['ref_table']['table'];
                 $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
+                $fkeyRefParam = $this->generateParamName($fkeyTableRef);
 
                 if (empty($value)) {
                     $conditionString = "$objectTable.id in (select $fkeyRefField from $fkeyRefTable)";
                 } else {
                     $multiCond = [];
 
+                    // Check first if the fkey table has a parent
                     if (!empty($field->fkeyTable["parent"]) && is_numeric($value)) {
                         $children = $this->getHeiarchyDownGrp($field, $value);
-                        foreach ($children as $child) {
-                            $childParam = $this->generateParamName($fkeyTableRef);
-                            $multiCond[] = "$fkeyTableRef=:$childParam";
-                            $this->conditionParams[$childParam] = $child;
+
+                        // Make sure that we have $children
+                        if (!empty($children)) {
+                            foreach ($children as $child) {
+                                $childParam = $this->generateParamName($fkeyTableRef);
+                                $multiCond[] = "$fkeyTableRef=:$childParam";
+                                $this->conditionParams[$childParam] = $child;
+                            }
+                        } else {
+                            $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
+                            $this->conditionParams[$fkeyRefParam] = $value;
                         }
                     } else {
-                        $fkeyRefParam = $this->generateParamName($fkeyTableRef);
                         $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
                         $this->conditionParams[$fkeyRefParam] = $value;
                     }

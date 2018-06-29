@@ -5,8 +5,6 @@
 namespace Netric\Controller;
 
 use \Netric\Mvc;
-use Netric\EntityQuery\Index\IndexFactory;
-use Netric\EntityQuery;
 
 class TestController extends Mvc\AbstractAccountController
 {
@@ -15,21 +13,7 @@ class TestController extends Mvc\AbstractAccountController
      */
     public function getTestAction()
     {
-        $serviceManager = $this->account->getServiceManager();
-        $index = $serviceManager->get(IndexFactory::class);
-
-
-        $query = new EntityQuery("user");
-        $query->orWhere('revision')->equals(1);
-        $query->andwhere('name')->equals("sky");
-        $query->andWhere('name')->equals("marl");
-
-        $res = $index->executeQuery($query);
-
-        // $this->assertEquals(1, $res->getTotalNum());
-        // $obj = $res->getEntity(0);
-
-        return $this->sendOutput($res->getTotalNum());
+        return $this->sendOutput("test");
     }
 
     public function postTestAction()
