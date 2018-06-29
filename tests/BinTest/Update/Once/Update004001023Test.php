@@ -165,10 +165,12 @@ class Update004001023Test extends TestCase
         $this->assertTrue($binScript->run($this->scriptPath));
 
         // Load the task entity and it should update the moved from user_id to moved to user_id
+        $entityLoader->clearCache("task", $taskId);
         $taskEntity = $entityLoader->get("task", $taskId);
         $this->assertEquals($userMovedToId, $taskEntity->getValue("user_id"));
 
         // Load the task entity with the old user reference and it should update the old user to moved user id
+        $entityLoader->clearCache("task", $taskOldUserRefId);
         $taskOldUserRefEntity = $entityLoader->get("task", $taskOldUserRefId);
         $this->assertEquals($userMovedToId, $taskOldUserRefEntity->getValue("user_id"));
     }
