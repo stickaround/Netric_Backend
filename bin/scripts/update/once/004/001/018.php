@@ -193,56 +193,60 @@ foreach ($objectTypesToMove as $objectType) {
     $sql = "SELECT id FROM {$objectType['old_table']}";
     $result = $db->query($sql);
     $rows = $result->fetchAll();
+    echo "Found " . count($rows) . " " . $objectType['old_table'] . " to import\n";
 
     foreach ($rows as $row) {
         $oldEntityId = $row["id"];
 
         // We need to check first that the entity it was not moved yet
-        if (!$entityDataMapper->checkEntityHasMoved($def, $oldEntityId)) {
-            // Load old entity data
-            $oldEntity = $entityLoader->create($objType);
-            ($loadEntityFromOldTable)($oldEntity, $oldEntityId, $oldTable, $dbLegacy, $entityLoader);
-            $entityData = $oldEntity->toArray();
-            
-            // Create a new entity to save
-            $newEntity = $entityLoader->create($objType);
-
-            // Make sure that we set the id to null, so it will create a new entity record
-            $entityData["id"] = null;
-
-            // If this is a customer remove uname since we no longer use it
-            if ($objType == 'customer') {
-                $entityData['uname'] = '';
-            }
-
-            // Overcome a bug where we accidentally created many activity dasbhoards
-            if ($objType == 'dashboard' && $entityData['uname'] == 'activity') {
-                $entityData['uname'] = '';
-            }
-
-            // Parse the params of the entity
-            $newEntity->fromArray($entityData);
-            $newEntity->resetIsDirty();
-            $newEntityId = $entityDataMapper->save($newEntity);
-
-            if (!$newEntityId) {
-                throw new \RuntimeException(
-                    sprintf(
-                        "Could not save entity %s.%s: %s",
-                        $objType,
-                        $oldEntityId,
-                        print_r($entityDataMapper->getErrors(), true)
-                    )
-                );
-            }
-
-            $log->info(
-                "Update 004.001.018 moved {$objType}.$oldEntityId to " .
-                $def->getTable() . '.' . $newEntityId
-            );
-
-            // Now set the entity that it has been moved to new object table
-            $entityDataMapper->setEntityMovedTo($def, $oldEntityId, $newEntityId);
+        if ($entityDataMapper->checkEntityHasMoved($def, $oldEntityId) == false) {
+            echo $objectType['old_table'] . ".$oldEntityId already moved\n";
+            continue;
         }
+
+        // Load old entity data
+        $oldEntity = $entityLoader->create($objType);
+        $loadEntityFromOldTable($oldEntity, $oldEntityId, $oldTable, $dbLegacy);
+        $entityData = $oldEntity->toArray();
+
+        // Create a new entity to save
+        $newEntity = $entityLoader->create($objType);
+
+        // Make sure that we set the id to null, so it will create a new entity record
+        $entityData["id"] = null;
+
+        // If this is a customer remove uname since we no longer use it
+        if ($objType == 'customer') {
+            $entityData['uname'] = '';
+        }
+
+        // Overcome a bug where we accidentally created many activity dasbhoards
+        if ($objType == 'dashboard' && $entityData['uname'] == 'activity') {
+            $entityData['uname'] = '';
+        }
+
+        // Parse the params of the entity
+        $newEntity->fromArray($entityData);
+        $newEntity->resetIsDirty();
+        $newEntityId = $entityDataMapper->save($newEntity);
+
+        if (!$newEntityId) {
+            throw new \RuntimeException(
+                sprintf(
+                    "Could not save entity %s.%s: %s",
+                    $objType,
+                    $oldEntityId,
+                    print_r($entityDataMapper->getErrors(), true)
+                )
+            );
+        }
+
+        $log->info(
+            "Update 004.001.018 moved {$objType}.$oldEntityId to " .
+            $def->getTable() . '.' . $newEntityId
+        );
+
+        // Now set the entity that it has been moved to new object table
+        $entityDataMapper->setEntityMovedTo($def, $oldEntityId, $newEntityId);
     }
 }
