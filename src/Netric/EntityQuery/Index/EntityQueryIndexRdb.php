@@ -119,14 +119,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             Where::COMBINED_BY_OR => []
         ];
 
+        // Flag that will determine if we have set a f_deleted field in the query conditions
+        $fDeletedCondSet = false;
+
         // Start building the condition string
         $conditionString = "";
         $queryConditions = $query->getWheres();
 
         if (count($queryConditions)) {
-            // Flag that will determine if we have a f_deleted field set in the query conditions
-            $fDeletedCondSet = false;
-
             /*
              * This will contain conditions strings from buildAdvancedConditionString()
              * We will not empty this array if the next condition blogic is an operator "or"
@@ -176,13 +176,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
             }
 
-            // If there is no f_deleted field condition set and entityDefinition has f_deleted field
-            if (!$fDeletedCondSet && $this->entityDefintion->getField("f_deleted")) {
-                // Then we need to setup the f_deleted in the $conditions
-                $conditions[Where::COMBINED_BY_AND][] = "f_deleted=:f_deleted";
-                $this->conditionParams["f_deleted"] = false;
-            }
-
             // After populating the $conditions then we need to create the conditionString
             if (!empty($conditions[Where::COMBINED_BY_AND])) {
                 $conditionString = implode(" and ", $conditions[Where::COMBINED_BY_AND]);
@@ -195,6 +188,19 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
                 $conditionString .= implode(" or ", $conditions[Where::COMBINED_BY_OR]);
             }
+        }
+
+        /*
+         * If there is no f_deleted field condition set and entityDefinition has f_deleted field
+         * We will make sure that we will get the non-deleted records
+         */
+        if (!$fDeletedCondSet && $this->entityDefintion->getField("f_deleted")) {
+            // If $conditionString is not empty, then we will just append the "and" blogic
+            if (!empty($conditionString))
+                $conditionString .= " and ";
+
+            $conditionString .= "(f_deleted=:f_deleted)";
+            $this->conditionParams["f_deleted"] = false;
         }
 
         // Get order by from $query and setup the sort order
