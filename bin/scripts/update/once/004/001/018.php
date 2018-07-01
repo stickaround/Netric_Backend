@@ -193,14 +193,15 @@ foreach ($objectTypesToMove as $objectType) {
     $sql = "SELECT id FROM {$objectType['old_table']}";
     $result = $db->query($sql);
     $rows = $result->fetchAll();
-    echo "Found " . count($rows) . " " . $objectType['old_table'] . " to import\n";
 
     foreach ($rows as $row) {
         $oldEntityId = $row["id"];
 
         // We need to check first that the entity it was not moved yet
-        if ($entityDataMapper->checkEntityHasMoved($def, $oldEntityId) == false) {
-            echo $objectType['old_table'] . ".$oldEntityId already moved\n";
+        if ($entityDataMapper->checkEntityHasMoved($def, $oldEntityId) !== false) {
+            $log->info(
+                "Update 004.001.018 {$objType}.$oldEntityId already moved. Skipping"
+            );
             continue;
         }
 
