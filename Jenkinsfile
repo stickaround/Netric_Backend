@@ -7,6 +7,7 @@ import aereus.pipeline.SwarmServiceInspector
 import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
+def PROJECT_NAME = 'netric_com'
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
@@ -96,23 +97,12 @@ pipeline {
 
         stage('Integration') {
             steps {
-                // Call stack deploy to upgrade
-                script {
-                    sshagent (credentials: ['aereus']) {
-                        sh 'scp -P 222 -o StrictHostKeyChecking=no scripts/deploy.sh aereus@dev1.aereusdev.com:/home/aereus/deploy.sh'
-                        sh 'scp -P 222 -o StrictHostKeyChecking=no docker/docker-compose-stack.yml aereus@dev1.aereusdev.com:/home/aereus/docker-compose-stack.yml'
-                        sh 'ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com chmod +x /home/aereus/deploy.sh'
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com /home/aereus/deploy.sh integration ${APPLICATION_VERSION}"
-                    }
-                }
-                // Wait for the upgrade to finish
-                script {
-                    verifyDeploySuccess(
-                        environment: DeploymentTargets.INTEGRATION,
-                        stackName: 'netric_com',
-                        imageTag: "${APPLICATION_VERSION}"
-                    )
-                }
+                deployToSwarm(
+                    environment: DeploymentTargets.INTEGRATION,
+                    stackName: PROJECT_NAME,
+                    imageTag: APPLICATION_VERSION,
+                    serviceDomain: 'integ.netric.com'
+                )
             }
         }
 
