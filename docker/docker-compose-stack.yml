@@ -13,10 +13,6 @@ services:
       - 80
     deploy:
       replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 1s
-        order: start-first
       labels:
         - com.df.notify=true
         - com.df.distribute=true
@@ -24,6 +20,10 @@ services:
         - com.df.servicePath=/
         - com.df.port=80
         - com.df.httpsOnly=true
+      update_config:
+        parallelism: 1
+        delay: 1s
+        order: start-first
 
   netric_daemon:
     image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}

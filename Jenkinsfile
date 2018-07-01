@@ -44,15 +44,15 @@ pipeline {
                     junit 'tests/tmp/junit.xml'
 
                     // Send reports to server for code quality metrics
-                    def reporter = new CodeQualityReporter([
-                        cloverFilePath: readFile("tests/tmp/clover.xml"),
-                        checkStyleFilePath: readFile("tests/tmp/checkstyle.xml"),
-                        pmdFilePath: readFile("tests/tmp/pmd.xml")
-                    ])
-                    reporter.collectAndSendReport('netric.com')
+                    codeQualityReport(
+                        repositoryName: 'netric.com',
+                        teamName: 'Netric',
+                        cloverFile: 'tests/tmp/clover.xml',
+                        pmdFile: 'tests/tmp/pmd.xml',
+                        checkStyleFile: 'tests/tmp/checkstyle.xml'
+                    )
                 }
                 script {
-                    echo 'skipping clair scan'
                     dir('.clair') {
                         def nodeIp = sh(
                             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
@@ -109,7 +109,7 @@ pipeline {
                 script {
                     verifyDeploySuccess(
                         environment: DeploymentTargets.INTEGRATION,
-                        serviceName: 'netric_com_netric',
+                        stackName: 'netric_com',
                         imageTag: "${APPLICATION_VERSION}"
                     )
                 }
@@ -142,7 +142,7 @@ pipeline {
                     // Wait for the upgrade to finish
                     verifyDeploySuccess(
                         environment: DeploymentTargets.PRODUCTION_PRESENTATION_DALLAS,
-                        serviceName: 'netric_com_netric',
+                        stackName: 'netric_com',
                         imageTag: "${APPLICATION_VERSION}"
                     )
                 }
