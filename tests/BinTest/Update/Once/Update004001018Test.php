@@ -96,8 +96,8 @@ class Update004001018Test extends TestCase
 
         // Test the task if it was moved to the new object table
         $def = $entityDefinitionLoader->get($objType);
-        $taskEntity = $entityLoader->get($objType, $taskId);
         $movedEntityId = $entityDataMapper->checkEntityHasMoved($def, $taskId);
+        $taskEntity = $entityLoader->get($objType, $movedEntityId);
         $this->testEntities[] = $taskEntity;
 
         $this->assertEquals($taskEntity->getName(), "UnitTestTask");

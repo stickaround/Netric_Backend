@@ -84,7 +84,6 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
         );
 
         // Compose either an update or insert statement
-        $sql = "";
         if ($module->getId()) {
             $this->db->update('applications', $data, ['id' => $module->getId()]);
         } else {
