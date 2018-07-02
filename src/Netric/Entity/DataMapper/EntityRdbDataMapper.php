@@ -746,7 +746,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         $sql = 'SELECT moved_to FROM objects_moved WHERE ' .
             'object_type_id=:object_type_id AND object_id=:object_id';
-        $result = $this->database->query($sql, ['object_type_id' => $def->getId(), 'object_id' => $id]);
+        $result = $this->database->query($sql, [
+            'object_type_id' => $def->getId(),
+            'object_id' => $id
+        ]);
         if ($result->rowCount() > 0) {
             $row = $result->fetch();
             return $row['moved_to'];
