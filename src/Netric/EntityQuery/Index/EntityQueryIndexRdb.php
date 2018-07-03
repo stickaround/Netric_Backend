@@ -65,18 +65,19 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $tsVector = [];
         foreach ($fields as $field) {
             if ($field->type != FIELD::TYPE_GROUPING_MULTI && $field->type != FIELD::TYPE_OBJECT_MULTI) {
-                $tsVector[] = strtolower($entity->getValue($field->name));
+                $tsVector[] = strtolower(strip_tags($entity->getValue($field->name)));
             }
         }
 
-        $sql = "UPDATE $tableName SET tsv_fulltext=to_tsvector('english', '" . implode(" ", $tsVector) . "') ";
-        $sql .= "WHERE id=:id";
+        $sql = "UPDATE $tableName
+                SET tsv_fulltext=to_tsvector('english', '" . $this->database->escape(implode(" ", $tsVector)) . "')
+                WHERE id={$entity->getId()}";
 
         /*
          * We will be using rdb::query() here instead of rdb::update()
          * since we are using to_vector() pgsql function and not updating a field using a normal data
          */
-        $this->database->query($sql, ["id" => $entity->getId()]);
+        $this->database->query($sql);
         return true;
     }
 
@@ -751,7 +752,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $this->conditionParams[$childParam] = $child;
                         }
                     } else {
-                        $multiCond[] = "$fieldName=$paramName";
+                        $multiCond[] = "$fieldName=:$paramName";
                         $this->conditionParams[$paramName] = $value;
                     }
 
@@ -768,6 +769,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
                     $this->conditionParams[$paramName] = $value;
                 }
+                break;
+            case FIELD::TYPE_BOOL:
+                $conditionString = "$fieldName=:$paramName";
+                $this->conditionParams[$paramName] = $value;
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -970,7 +975,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $this->conditionParams[$childParam] = $child;
                         }
                     } else {
-                        $multiCond[] = "$fieldName!=$paramName";
+                        $multiCond[] = "$fieldName!=:$paramName";
                         $this->conditionParams[$paramName] = $value;
                     }
 
@@ -988,6 +993,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     $conditionString = " (to_tsvector($fieldName) @@ plainto_tsquery(:$paramName))='f'";
                     $this->conditionParams[$paramName] = $value;
                 }
+                break;
+            case FIELD::TYPE_BOOL:
+                $conditionString = "$fieldName!=:$paramName";
+                $this->conditionParams[$paramName] = $value;
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
