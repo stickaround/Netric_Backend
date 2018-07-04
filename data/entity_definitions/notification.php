@@ -32,32 +32,6 @@ return array(
             'readonly'=>false,
         ),
 
-        // Who this notification is sent to
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>false,
-            'require'=>true,
-            'default'=>array(
-                "on"=>"null",
-                "value"=>"-3",
-            ),
-        ),
-
-        // Who created this notification
-        'creator_id' => array(
-            'title'=>'Creator',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>false,
-            'require'=>true,
-            'default'=>array(
-                "on"=>"null",
-                "value"=>"-3",
-            ),
-        ),
-
         // Flag indicating if the notification has been seen
         'f_seen' => array(
             'title'=>'Seen',

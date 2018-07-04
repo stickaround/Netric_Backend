@@ -40,13 +40,6 @@ return array(
             'subtype'=>'file',
             'fkey_table'=>array("key"=>"id", "title"=>"file_title")
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>false,
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
         'groups' => array(
             'title'=>'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,

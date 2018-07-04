@@ -163,6 +163,7 @@ class Field implements \ArrayAccess
     const TYPE_NUMBER = 'number';
     const TYPE_INTEGER = 'integer';
     const TYPE_ALIAS = 'alias';
+    const TYPE_UUID = 'uuid';
 
     /**
      * Load field definition from array

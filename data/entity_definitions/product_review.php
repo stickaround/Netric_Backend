@@ -28,13 +28,6 @@ return array(
             'subtype'=>'product',
             'readonly'=>false
         ),
-        'creator_id' => array(
-            'title'=>'Reviewer',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>true,
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
     ),
     'aggregates' => array(
         'avg_rating' => array(

@@ -83,13 +83,6 @@ return array(
             'subtype'=>'marketing_campaign'
         ),
 
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null"),
-        ),
-
         'stage_id' => array(
             'title'=>'Stage',
             'type'=>Field::TYPE_GROUPING,

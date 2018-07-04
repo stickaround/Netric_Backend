@@ -48,13 +48,6 @@ return array(
             'required'=>true,
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
-        'owner_id' => array(
-            'title'=>'Approval By',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>false,
-            'required'=>true
-        ),
         'obj_reference' => array(
             'title'=>'Reference',
             'type'=>Field::TYPE_OBJECT,

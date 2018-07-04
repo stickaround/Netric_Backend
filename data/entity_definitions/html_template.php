@@ -37,17 +37,6 @@ return array(
                 "content_feed_post"=>"Content Post"
             ),
         ),
-        'owner_id' => array(
-            'title' => 'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype' => 'user',
-            'readonly' => false,
-            'require' => true,
-            'default' => array(
-                "on" => "null",
-                "value" => "-3",
-            ),
-        ),
         'scope' => array(
             'title' => 'Scope',
             'type'=>Field::TYPE_TEXT,

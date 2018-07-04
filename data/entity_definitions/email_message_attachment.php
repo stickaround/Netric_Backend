@@ -48,12 +48,6 @@ return array(
             'subtype'=>'integer',
             'readonly'=>true
         ),
-        'owner_id' => array(
-            'title'=>'User',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
         'message_id' => array(
             'title'=>'Message',
             'type'=>Field::TYPE_OBJECT,

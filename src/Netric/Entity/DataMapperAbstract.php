@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Entity;
 
 use Netric\EntityDefinition\Exception\DefinitionStaleException;
@@ -16,6 +17,7 @@ use Netric\Entity\Validator\EntityValidatorFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
 use Netric\EntityDefinition\Field;
+use Ramsey\Uuid\Uuid;
 
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
@@ -197,6 +199,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         // Create a unique name if the entity supports it
         $this->setUniqueName($entity);
 
+        // Create global uuid if not already set
+        $this->setGlobalId($entity);
+
         // Update foreign key names
         $this->updateForeignKeyNames($entity);
 
@@ -232,7 +237,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Clear cache in the EntityLoader
         $serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
-        
+
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {
             $this->entitySync->setExportedStale(
@@ -377,7 +382,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             $this->getById($entity, $matches[0]);
             return $entity;
         }
-        
+
         // Could not find a unique match
         return null;
     }
@@ -616,12 +621,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         }
     }
 
-/**
- * When saving an entity create a unqiue name if not already set
- *
- * @param EntityInterface $entity
- * @return bool true if changed, false if failed
- */
+    /**
+     * When saving an entity create a unqiue name if not already set
+     *
+     * @param EntityInterface $entity
+     * @return bool true if changed, false if failed
+     */
     private function setUniqueName(EntityInterface $entity)
     {
         $def = $entity->getDefinition();
@@ -658,7 +663,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         $isUnique = $this->verifyUniqueName($entity, $uname);
 
-            // If the unique name already exists, then append with id or a random number
+        // If the unique name already exists, then append with id or a random number
         if (!$isUnique) {
             $uname .= "-";
             $uname .= ($this->id) ? $this->id : uniqid();
@@ -669,16 +674,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         return true;
     }
 
-/**
- * Make sure that a uname is still 7unique
- *
- * This should safe-gard against values being saved in the object that change the namespace
- * of the unique name causing unique collision.
- *
- * @param Entity $entity The entity to save
- * @param string $uname The name to test for uniqueness
- * @return bool true if the uniqueName is truly unique or false if there is a collision
- */
+    /**
+     * Make sure that a uname is still 7unique
+     *
+     * This should safe-gard against values being saved in the object that change the namespace
+     * of the unique name causing unique collision.
+     *
+     * @param Entity $entity The entity to save
+     * @param string $uname The name to test for uniqueness
+     * @return bool true if the uniqueName is truly unique or false if there is a collision
+     */
     public function verifyUniqueName($entity, $uname)
     {
         $serviceManager = $this->getAccount()->getServiceManager();
@@ -706,7 +711,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
          */
         $nsParts = explode(":", $def->unameSettings);
         if (count($nsParts) > 1) {
-                // Use all but last, which is the uname field
+            // Use all but last, which is the uname field
             for ($i = 0; $i < (count($nsParts) - 1); $i++) {
                 $query->andWhere($nsParts[$i])->equals($entity->getValue($nsParts[$i]));
             }
@@ -724,13 +729,26 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         return true;
     }
 
-/**
- * Check if an object has moved
- *
- * @param EntityDefinition $def The defintion of this object type
- * @param string $id The id of the object that no longer exists - may have moved
- * @return string|bool New entity id if moved, otherwise false
- */
+    /**
+     * Make sure the entity has a global unique id (create it if not)
+     *
+     * @param EntityInterface $entity
+     */
+    public function setGlobalId(EntityInterface $entity)
+    {
+        if (!$entity->getGid()) {
+            $uuid4 = Uuid::uuid4();
+            $entity->setGid($uuid4->toString());
+        }
+    }
+
+    /**
+     * Check if an object has moved
+     *
+     * @param EntityDefinition $def The defintion of this object type
+     * @param string $id The id of the object that no longer exists - may have moved
+     * @return string|bool New entity id if moved, otherwise false
+     */
     public function checkEntityHasMoved($def, $id)
     {
         $cachedId = $def->getObjType() . "-" . $id;

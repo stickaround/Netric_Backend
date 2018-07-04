@@ -38,15 +38,5 @@ return array(
             'autocreatebase'=>'/System/Objects/cms_site', // Where to create (for folders, the path with no trail slash)
             'autocreatename'=>'id', // the field to pull the new object name from
         ),
-
-        "owner_id" => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array(
-                "value"=>"-3",
-                "on"=>"null"
-            ),
-        ),
     ),
 );

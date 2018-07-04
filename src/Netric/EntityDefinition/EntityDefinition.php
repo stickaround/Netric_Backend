@@ -1,6 +1,7 @@
 <?php
 namespace Netric\EntityDefinition;
 
+use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 
 /**
@@ -574,141 +575,7 @@ class EntityDefinition
     private function setDefaultFields()
     {
         // Add default fields that are common to all objects
-        $defaultFields = array(
-            "id" => array(
-                'title' => "ID",
-                'type' => "number",
-                'id' => "0",
-                'subtype' => "",
-                'readonly' => true,
-                'system' => true,
-            ),
-            'associations' => array(
-                'title' => 'Associations',
-                'type' => 'object_multi',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-            ),
-            'attachments' => array(
-                'title' => 'Attachments',
-                'type' => 'object_multi',
-                'subtype' => 'file',
-                'readonly' => true,
-                'system' => true,
-            ),
-            'followers' => array(
-                'title' => 'Followers',
-                'type' => 'object_multi',
-                'subtype' => 'user',
-                'readonly' => true,
-                'system' => true,
-            ),
-            'activity' => array(
-                'title' => 'Activity',
-                'type' => 'object_multi',
-                'subtype' => 'activity',
-                'system' => true,
-            ),
-            'comments' => array(
-                'title' => 'Comments',
-                'type' => 'object_multi',
-                'subtype' => 'comment',
-                'readonly' => false,
-                'system' => true,
-            ),
-            'num_comments' => array(
-                'title' => 'Num Comments',
-                'type' => 'number',
-                'subtype' => 'integer',
-                'readonly' => true,
-                'system' => true,
-            ),
-            'commit_id' => array(
-                'title' => 'Commit Revision',
-                'type' => 'number',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-            ),
-            'f_deleted' => array(
-                'title' => 'Deleted',
-                'type' => 'bool',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-            ),
-
-            // Default is true on null for this so not every entity is marked as unseen (annoying)
-            'f_seen' => array(
-                'title' => 'Seen',
-                'type' => 'bool',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-                'default' => array(
-                    "value" => true,
-                    "on" => "null"
-                ),
-            ),
-            'revision' => array(
-                'title' => 'Revision',
-                'type' => 'number',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-            ),
-
-            // The full path based on parent objects
-            // DEPRICATED: appears to no longer be used, but maybe we should start
-            // because searches would be a lot easier in the future.
-            'path' => array(
-                'title' => 'Path',
-                'type' => 'text',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-            ),
-
-            // Unique name in URL escaped form if object type uses it, otherwise the id
-            'uname' => array(
-                'title' => 'Uname',
-                'type' => 'text',
-                'subtype' => '256',
-                'readonly' => true,
-                'system' => true,
-            ),
-
-            'dacl' => array(
-                'title' => 'Security',
-                'type' => 'text',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-            ),
-            'ts_entered' => array(
-                'title' => 'Time Entered',
-                'type' => 'timestamp',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-                'default' => array(
-                    "value" => "now",
-                    "on" => "create"
-                ),
-            ),
-            'ts_updated' => array(
-                'title' => 'Time Changed',
-                'type' => 'timestamp',
-                'subtype' => '',
-                'readonly' => true,
-                'system' => true,
-                'default' => array(
-                    "value" => "now",
-                    "on" => "update"
-                ),
-            ),
-        );
+        $defaultFields = require(__DIR__ . '../../../data/entity_definitions/default.php');
 
         foreach ($defaultFields as $fname => $fdef) {
             $field = new Field();

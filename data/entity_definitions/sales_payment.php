@@ -28,11 +28,6 @@ return array(
             'subtype'=>'256',
             'readonly'=>false
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user'
-        ),
         'customer_id' => array(
             'title'=>'Customer',
             'type'=>Field::TYPE_OBJECT,
