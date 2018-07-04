@@ -15,11 +15,20 @@ use Netric\FileSystem\FileSystemFactory;
 class Entity implements EntityInterface
 {
     /**
-     * The unique id of this object/entity
+     * The unique id of this object/entity for the account (not global)
+     *
+     * Note: this is being deprecated for the $gid below
      *
      * @var string
      */
     protected $id;
+
+    /**
+     * Universally unique global id
+     *
+     * @var string
+     */
+    protected $gid = null;
 
     /**
      * The values for the fields of this entity
@@ -108,6 +117,16 @@ class Entity implements EntityInterface
     }
 
     /**
+     * Get a universally unique global id for this entity
+     *
+     * @return string
+     */
+    public function getGid()
+    {
+        return $this->gid;
+    }
+
+    /**
      * Set the unique id of this object
      *
      * @param string $id The unique id of this object instance
@@ -115,6 +134,16 @@ class Entity implements EntityInterface
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * Set the universally unique global id for this entity
+     *
+     * @param string $gid
+     */
+    public function setGid(string $gid)
+    {
+        $this->gid = $gid;
     }
 
     /**

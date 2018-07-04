@@ -763,7 +763,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      *
      * @param EntityDefinition $def The defintion of this object type
      * @param string $fromId The id to move
-     * @param stirng $toId The unique id of the object this was moved to
+     * @param string $toId The unique id of the object this was moved to
      * @return bool true on succes, false on failure
      * @throws DatabaseQueryException if query fails
      */

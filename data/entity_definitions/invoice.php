@@ -98,11 +98,6 @@ return array(
             'subtype'=>'',
             'readonly'=>false
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user'
-        ),
         'status_id' => array(
             'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,

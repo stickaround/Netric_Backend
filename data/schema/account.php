@@ -1191,7 +1191,11 @@ return array(
      */
     "objects" => array(
         "PROPERTIES" => array(
+            // id is sequential and unique to a single account
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
+            // global id is unique across all accounts but not sequential
+            'global_id' => array('type' => SchemaProperty::TYPE_UUID),
+            'uname' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'object_type_id' => array('type' => SchemaProperty::TYPE_INT),
             'revision' => array('type' => SchemaProperty::TYPE_INT),
             'ts_entered' => array('type' => SchemaProperty::TYPE_TIMESTAMP),
@@ -1202,7 +1206,6 @@ return array(
             'creator_id_fval' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'f_deleted' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'f_seen' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "true"),
-            'uname' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'path' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'dacl' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'tsv_fulltext' => array('type' => SchemaProperty::TYPE_TEXT_TOKENS),

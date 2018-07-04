@@ -24,11 +24,5 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'folder'
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null"),
-        ),
     ),
 );

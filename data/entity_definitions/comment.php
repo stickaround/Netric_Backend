@@ -33,15 +33,6 @@ return array(
                 "on"=>"create"
             ),
         ),
-        'owner_id' => array(
-            'title'=>'User',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array(
-                "value"=>"-3",
-                "on"=>"null"
-            ),
-        ),
         'obj_reference' => array(
             'title'=>'Reference',
             'type'=>Field::TYPE_OBJECT,

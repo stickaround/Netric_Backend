@@ -31,20 +31,6 @@ return array(
             'readonly'=>false,
             'required'=>true
         ),
-        'owner_id' => array(
-            'title'=>'User',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'required'=>true,
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
-        'creator_id' => array(
-            'title'=>'Entered By',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>true,
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
         'task_id' => array(
             'title'=>'Task',
             'type'=>Field::TYPE_OBJECT,

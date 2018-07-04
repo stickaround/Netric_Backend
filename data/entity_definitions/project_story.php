@@ -50,12 +50,6 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'project_milestone'
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null"),
-        ),
         'customer_id' => array(
             'title'=>'Contact',
             'type'=>Field::TYPE_OBJECT,

@@ -75,12 +75,6 @@ return array(
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"create")
         ),
-        'owner_id' => array(
-            'title'=>'User',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
         'mailbox_id' => array(
             'title'=>'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,

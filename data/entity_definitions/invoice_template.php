@@ -46,10 +46,5 @@ return array(
             'subtype'=>'file',
             'fkey_table'=>array("key"=>"id", "title"=>"file_title")
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user'
-        ),
     ),
 );

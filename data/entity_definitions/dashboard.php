@@ -41,11 +41,5 @@ return array(
             'type'=>Field::TYPE_GROUPING_MULTI,
             'subtype'=>'object_groupings',
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>-3, "on"=>"null")
-        ),
     ),
 );

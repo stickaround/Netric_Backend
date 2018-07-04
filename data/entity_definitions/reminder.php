@@ -60,18 +60,6 @@ return array(
             'readonly'=>false,
         ),
 
-        // The owner of this reminder
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>false,
-            'default'=>array(
-                "on"=>"null",
-                "value"=>"-3",
-            ),
-        ),
-
         // Flag indicating the reminder was executed
         'f_executed' => array(
             'title'=>'Completed',

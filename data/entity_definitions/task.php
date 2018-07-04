@@ -96,13 +96,6 @@ return array(
             'subtype'=>'user',
             'default'=>array("value"=>"-3", "on"=>"null")
         ),
-        'creator_id' => array(
-            'title'=>'Creator',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'readonly'=>true,
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
         'priority' => array(
             'title'=>'Priority',
             'type'=>Field::TYPE_GROUPING,

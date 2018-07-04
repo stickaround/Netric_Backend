@@ -392,12 +392,6 @@ return array(
             'readonly'=>true,
             'default'=>array("value"=>"now", "on"=>"update")
         ),
-        'owner_id' => array(
-            'title'=>'Owner',
-            'type'=>Field::TYPE_OBJECT,
-            'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null")
-        ),
         'groups' => array(
             'title'=>'Groups',
             'type'=>Field::TYPE_GROUPING_MULTI,

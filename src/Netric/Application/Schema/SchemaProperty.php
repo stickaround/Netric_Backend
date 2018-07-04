@@ -58,4 +58,7 @@ class SchemaProperty
 
     // JSON document stored in binary format
     const TYPE_JSON = 'jsonb';
+
+    // Universally unique ID
+    const TYPE_UUID = 'uuid';
 }
