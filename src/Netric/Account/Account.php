@@ -265,7 +265,7 @@ class Account
                 
         // Return anonymous user
         $anon = $loader->create("user");
-        $anon->setId(UserEntity::USER_ANONYMOUS);
+        $anon->setValue("uname", "anonymous");
         $anon->setValue("name", "anonymous");
         return $anon;
     }

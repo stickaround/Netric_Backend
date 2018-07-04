@@ -1268,7 +1268,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             $index = ""; // set to create dynamic indexes
 
             switch ($ftype) {
-                case 'text':
+                case Field::TYPE_TEXT:
                     if ($subtype) {
                         if (is_numeric($subtype)) {
                             $type = "character varying($subtype)";
@@ -1301,15 +1301,16 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     $type = "character varying(128)";
                     $index = "btree";
                     break;
-                case 'timestamp':
+                case Field::TYPE_TIMESTAMP:
                     $type = "timestamp with time zone";
                     $index = "btree";
                     break;
-                case 'date':
+                case Field::TYPE_DATE:
                     $type = "date";
                     $index = "btree";
                     break;
-                case 'integer':
+                case 'int':
+                case Field::TYPE_INTEGER:
                     $type = "integer";
                     $index = "btree";
                     break;
@@ -1322,9 +1323,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     $type = "numeric";
                     $index = "btree";
                     break;
-                case 'int':
-                case 'integer':
-                case 'number':
+                case Field::TYPE_NUMBER:
                     if ($subtype) {
                         $type = $subtype;
                     } else {
@@ -1333,19 +1332,19 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
                     $index = "btree";
                     break;
-                case 'fkey':
+                case Field::TYPE_GROUPING:
                     $type = "integer";
                     $index = "btree";
                     break;
 
-                case 'fkey_multi':
+                case Field::TYPE_GROUPING_MULTI:
                     $type = "text"; // store json
 
                     //$type = "integer[]";
                     //$index = "GIN";
                     break;
 
-                case 'object_multi':
+                case Field::TYPE_OBJECT_MULTI:
                     $type = "text"; // store json
 
                     //$type = "text[]";
@@ -1357,7 +1356,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     $type = "bool DEFAULT false";
                     break;
 
-                case 'object':
+                case Field::TYPE_OBJECT:
                     if ($subtype) {
                         $type = "bigint";
                         $index = "btree";
@@ -1370,6 +1369,9 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
                     // Special type should not have a column
                     $type = '';
                     break;
+                case Field::TYPE_UUID:
+                    $type = "uuid";
+                    break;
                 default:
                     throw new \RuntimeException(
                         'Did not know how to create column ' .
@@ -1380,18 +1382,18 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
             if ($type) {
                 $query = "ALTER TABLE " . $def->getTable() . " ADD COLUMN $colname $type";
                 $this->dbh->query($query);
-
-                // Store cached foreign key names
-                if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi") {
-                    $this->dbh->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
-                }
             }
-        } else {
-            // Make sure that existing foreign fields have local _fval caches
-            if ($ftype == "fkey" || $ftype == "object" || $ftype == "fkey_multi" || $ftype == "object_multi") {
-                if (!$this->dbh->columnExists($def->getTable(), $colname . "_fval")) {
-                    $this->dbh->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
-                }
+        }
+
+        // Make sure that existing foreign fields have local _fval caches
+        // Store cached foreign key names
+        if ($ftype == Field::TYPE_GROUPING ||
+            $ftype == Field::TYPE_OBJECT ||
+            $ftype == Field::TYPE_GROUPING_MULTI ||
+            $ftype == Field::TYPE_OBJECT_MULTI
+        ) {
+            if (!$this->dbh->columnExists($def->getTable(), $colname . "_fval")) {
+                $this->dbh->query("ALTER TABLE " . $def->getTable() . " ADD COLUMN " . $colname . "_fval text");
             }
         }
 
@@ -1421,7 +1423,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         if (!$dbh->tableExists($tables[0])) {
             $query = "CREATE TABLE " . $tables[0] . "
 						(
-							CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (id),
+							CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (gid),
 							CHECK(object_type_id='" . $typeId . "' and f_deleted='f')
 						) 
 						INHERITS ($base);";
@@ -1432,7 +1434,7 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
         if (!$dbh->tableExists($tables[1])) {
             $query = "CREATE TABLE " . $tables[1] . "
 						(
-							CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (id),
+							CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (gid),
 							CHECK(object_type_id='" . $typeId . "' and f_deleted='t')
 						) 
 						INHERITS ($base);";
@@ -1441,6 +1443,11 @@ class Pgsql extends DataMapperAbstract implements EntityDefinitionDataMapperInte
 
         // Create indexes for system columns
         foreach ($tables as $tbl) {
+            if (!$dbh->indexExists($tbl . "_oldid_idx")) {
+                $dbh->query("CREATE INDEX " . $tbl . "_uname_idx
+							  ON $tbl (id);");
+            }
+
             if (!$dbh->indexExists($tbl . "_uname_idx")) {
                 $dbh->query("CREATE INDEX " . $tbl . "_uname_idx
 							  ON $tbl

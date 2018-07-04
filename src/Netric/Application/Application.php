@@ -180,6 +180,19 @@ class Application
                 "; message=" . $unhandledException->getMessage() .
                 "\n" . $unhandledException->getTraceAsString()
             );
+
+            // If we are suppressing logs then print out this exception
+            //if ($this->config->log->writer == 'null') {
+                print(
+                    $this->config->log->writer . "\n" .
+                    'Unhandled application exception in ' .
+                    $unhandledException->getFile() .
+                    ':' . $unhandledException->getLine() .
+                    "; message=" . $unhandledException->getMessage() .
+                    "\n" . $unhandledException->getTraceAsString()
+                );
+            //}
+
             $returnStatusCode = -1;
         }
 

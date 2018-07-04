@@ -317,6 +317,17 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     }
 
     /**
+     * Load an entity by a universally unique global id
+     *
+     * @param string $gid
+     * @return EntityInterface
+     */
+    public function getByGlobalId(string $gid): EntityInterface
+    {
+
+    }
+
+    /**
      * Get an entity by a unique name path
      *
      * Unique names can be namespaced, and we can reference entities with a full
@@ -736,9 +747,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function setGlobalId(EntityInterface $entity)
     {
-        if (!$entity->getGid()) {
+        if (!$entity->getValue('gid')) {
             $uuid4 = Uuid::uuid4();
-            $entity->setGid($uuid4->toString());
+            $entity->setValue('gid', $uuid4->toString());
         }
     }
 
@@ -746,12 +757,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * Check if an object has moved
      *
      * @param EntityDefinition $def The defintion of this object type
-     * @param string $id The id of the object that no longer exists - may have moved
+     * @param string $localId The id of the object that no longer exists - may have moved
      * @return string|bool New entity id if moved, otherwise false
      */
-    public function checkEntityHasMoved($def, $id)
+    public function checkEntityHasMoved($def, $localId)
     {
-        $cachedId = $def->getObjType() . "-" . $id;
+        $cachedId = $def->getObjType() . "-" . $localId;
         /*
          * If we have already checked the this entity, then return the result
          * If the cached result is empty, then will try to check again if the entity has been moved now
@@ -761,11 +772,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         }
 
         // Check if entity has moved
-        $movedToId = $this->entityHasMoved($def, $id);
+        $movedToId = $this->entityHasMoved($def, $localId);
 
         // Store the result in the cache
         if ($movedToId) {
-            $this->cacheMovedEntities[$cachedId ] = $movedToId;
+            $this->cacheMovedEntities[$cachedId] = $movedToId;
         }
 
         return $movedToId;
