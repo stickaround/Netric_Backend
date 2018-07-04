@@ -2,11 +2,12 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     "id" => array(
-        'title' => "ID",
-        'type' => "number",
+        'title' => "Local ID",
+        'type' => Field::TYPE_NUMBER,
         'id' => "0",
         'subtype' => "",
         'readonly' => true,

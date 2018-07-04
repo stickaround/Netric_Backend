@@ -575,7 +575,7 @@ class EntityDefinition
     private function setDefaultFields()
     {
         // Add default fields that are common to all objects
-        $defaultFields = require(__DIR__ . '../../../data/entity_definitions/default.php');
+        $defaultFields = require(__DIR__ . '/../../../data/entity_definitions/default.php');
 
         foreach ($defaultFields as $fname => $fdef) {
             $field = new Field();

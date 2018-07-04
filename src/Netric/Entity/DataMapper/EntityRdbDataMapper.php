@@ -269,8 +269,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $data = $this->getDataToInsertFromEntity($entity);
         $all_fields = $def->getFields();
 
-        // Try to manipulate data to correctly build the sql statement based on custom table definitions
+        // Set typei_id to correctly build the sql statement based on custom table definitions
         $data["object_type_id"] = $def->getId();
+
+        // Set data as JSON (we are replacing columsn with this for custom fields)
+        $data['field_data'] = json_encode($entity->toArray());
 
         $targetTable = $def->getTable();
 
