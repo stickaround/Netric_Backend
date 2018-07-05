@@ -2,7 +2,6 @@
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityDefinition\DataMapper\DataMapperAbstract;
 use Netric\EntityDefinition\Field;
 use Netric\Permissions\Dacl;
 use Netric\Account\Account;
@@ -868,7 +867,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $this->database->query($query);
 
             // Add index to legacy id until everyone moves to guid
-            $this->database->query("CREATE UNIQUE INDEX IF NOT EXISTS " . $tables[0] . "_id_idx");
+            $this->database->query("CREATE UNIQUE INDEX IF NOT EXISTS {$tables[0]}_id_idx ON {$tables[0]}(id)");
         }
 
         // Deleted / Archived
@@ -882,7 +881,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $this->database->query($query);
 
             // Add index to legacy id until everyone moves to guid
-            $this->database->query("CREATE UNIQUE INDEX IF NOT EXISTS " . $tables[1] . "_id_idx");
+            $this->database->query("CREATE UNIQUE INDEX IF NOT EXISTS {$tables[1]}_id_idx ON {$tables[1]}(id)");
         }
 
         // Create indexes for system columns
