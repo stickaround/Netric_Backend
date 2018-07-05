@@ -166,6 +166,27 @@ abstract class DmTestsAbstract extends TestCase
     }
 
     /**
+     * Test loading an object by guid
+     */
+    public function testGetByGuid()
+    {
+        $dm = $this->getDataMapper();
+
+        // Create an entity and initialize values
+        $customer = $this->createCustomer();
+        $customer->setValue('name', 'tester');
+        $dm->save($customer, $this->user);
+        $guid = $customer->getValue('guid');
+
+        // Queue for cleanup
+        $this->testEntities[] = $customer;
+
+        // Load the entity by guid (no need for obj_type)
+        $loadedCustomer = $dm->getByGuid($guid);
+        $this->assertEquals($customer->getId(), $loadedCustomer->getId());
+    }
+
+    /**
      * Test loading an object by id and putting it into cache
      */
     public function testSave()
@@ -253,11 +274,6 @@ abstract class DmTestsAbstract extends TestCase
     public function testSaveClearMultiVal()
     {
         $dm = $this->getDataMapper();
-        if (!$dm) {
-            // Do not run if we don't have a datamapper to work with
-            $this->assertTrue(true);
-            return;
-        }
 
         // Create a few test groups
         $groupingsStat = $this->groupingDataMapper->getGroupings("customer", "status_id");
@@ -299,6 +315,25 @@ abstract class DmTestsAbstract extends TestCase
         $this->groupingDataMapper->saveGroupings($groupingsStat);
         $groupingsGroups->delete($groupsGrp->id);
         $this->groupingDataMapper->saveGroupings($groupingsGroups);
+    }
+
+    /**
+     * Make sure the guid is set for a new entity
+     */
+    public function testSetGlobalId()
+    {
+        $dm = $this->getDataMapper();
+
+        // Create an entity and initialize values
+        $cmsSite = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("cms_site");
+        $cmsSite->setValue("name", "test site");
+        $dm->save($cmsSite, $this->user);
+
+        // Queue for cleanup
+        $this->testEntities[] = $cmsSite;
+
+        // Make sure the guid was set when saved
+        $this->assertNotEmpty($cmsSite->getValue('guid'));
     }
 
     /**

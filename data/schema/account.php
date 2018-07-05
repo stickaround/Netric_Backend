@@ -1193,7 +1193,7 @@ return array(
             // id is sequential and unique to a single account
             'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
             // global id is unique across all accounts but not sequential
-            'gid' => array('type' => SchemaProperty::TYPE_UUID),
+            'guid' => array('type' => SchemaProperty::TYPE_UUID),
             'uname' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'object_type_id' => array('type' => SchemaProperty::TYPE_INT),
             'revision' => array('type' => SchemaProperty::TYPE_INT),

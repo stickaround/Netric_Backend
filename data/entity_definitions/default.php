@@ -13,7 +13,7 @@ return array(
         'readonly' => true,
         'system' => true,
     ),
-    "gid" => array(
+    "guid" => array(
         'title' => "Global ID",
         'type' => Field::TYPE_UUID,
         'id' => "0",
