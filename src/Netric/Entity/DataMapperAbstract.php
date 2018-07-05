@@ -113,6 +113,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     abstract protected function fetchById($entity, $id);
 
     /**
+     * Get entity data by guid
+     *
+     * @param string $guid
+     * @return array|null
+     */
+    abstract protected function fetchDataByGuid(string $guid):? array;
+
+    /**
      * Purge data from the database
      *
      * @var Entity $entity The entity to load data into
@@ -319,12 +327,22 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     /**
      * Load an entity by a universally unique global id
      *
-     * @param string $gid
-     * @return EntityInterface
+     * @param string $guid
+     * @return EntityInterface|null
      */
-    public function getByGlobalId(string $gid): EntityInterface
+    public function getByGuid(string $guid): ? EntityInterface
     {
+        $serviceManager = $this->getAccount()->getServiceManager();
+        $entityFactory = $serviceManager->get(EntityFactoryFactory::class);
+        $data = $this->fetchDataByGuid($guid);
 
+        if (!$data || empty($data['obj_type'])) {
+            return null;
+        }
+
+        $entity = $entityFactory->create($data['obj_type']);
+        $entity->fromArray($data);
+        return $entity;
     }
 
     /**
@@ -747,9 +765,9 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function setGlobalId(EntityInterface $entity)
     {
-        if (!$entity->getValue('gid')) {
+        if (!$entity->getValue('guid')) {
             $uuid4 = Uuid::uuid4();
-            $entity->setValue('gid', $uuid4->toString());
+            $entity->setValue('guid', $uuid4->toString());
         }
     }
 

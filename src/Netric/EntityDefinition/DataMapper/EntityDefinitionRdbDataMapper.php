@@ -861,22 +861,28 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         if (!$this->database->tableExists($tables[0])) {
             $query = "CREATE TABLE " . $tables[0] . "
 						(
-							CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (id),
+							CONSTRAINT " . $tables[0] . "_pkey PRIMARY KEY (guid),
 							CHECK(object_type_id='" . $typeId . "' and f_deleted='f')
 						)
 						INHERITS ($base);";
             $this->database->query($query);
+
+            // Add index to legacy id until everyone moves to guid
+            $this->database->query("CREATE UNIQUE INDEX IF NOT EXISTS " . $tables[0] . "_id_idx");
         }
 
         // Deleted / Archived
         if (!$this->database->tableExists($tables[1])) {
             $query = "CREATE TABLE " . $tables[1] . "
 						(
-							CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (id),
+							CONSTRAINT " . $tables[1] . "_pkey PRIMARY KEY (guid),
 							CHECK(object_type_id='" . $typeId . "' and f_deleted='t')
 						)
 						INHERITS ($base);";
             $this->database->query($query);
+
+            // Add index to legacy id until everyone moves to guid
+            $this->database->query("CREATE UNIQUE INDEX IF NOT EXISTS " . $tables[1] . "_id_idx");
         }
 
         // Create indexes for system columns

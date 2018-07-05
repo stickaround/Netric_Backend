@@ -71,6 +71,37 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     }
 
     /**
+     * Get entity data by guid
+     *
+     * @param string $guid
+     * @return array|null
+     */
+    protected function fetchDataByGuid(string $guid):? array
+    {
+        $result = $this->database->query(
+            'select * from objects where guid=:guid',
+            ['guid' => $guid]
+        );
+
+        // The object was not found
+        if ($result->rowCount() === 0) {
+            return null;
+        }
+
+        // Load rows and set values in the entity
+        $row = $result->fetch();
+        $entityData = json_decode($row['field_data'], true);
+
+        // Override any of the json data with system column values
+        // Some of these may be generated at update/insert so they could have
+        // changed after the entity was exported and saved to the column
+        $entityData['id'] = $row['id'];
+        $entityData['ts_entered'] = $row['ts_entered'];
+        $entityData['ts_updated'] = $row['ts_updated'];
+        return $entityData;
+    }
+
+    /**
      * Set a field in an entity from a raw database row
      *
      * @param EntityInterface $entity
