@@ -90,7 +90,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Load rows and set values in the entity
         $row = $result->fetch();
-        $entityData = json_decode($row['field_data'], true);
+        $entityData = [];
+
+        // It is possible that field_data is not yet set
+        if ($row['field_data']) {
+            $entityData = json_decode($row['field_data'], true);
+        }
 
         // Override any of the json data with system column values
         // Some of these may be generated at update/insert so they could have

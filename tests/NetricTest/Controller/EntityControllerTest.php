@@ -199,6 +199,27 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($page->getId(), $ret['id'], var_export($ret, true));
     }
 
+    /**
+     * Test getting an entity by guid
+     */
+    public function testPostGetEntityActionGuid()
+    {
+        // Create a test entity for querying
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $site = $loader->create("cms_site");
+        $site->setValue("name", "www.testsite.com");
+        $loader->save($site);
+        $this->testEntities[] = $site;
+
+        // Set params in the request
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(['guid' => $site->getValue('guid')]));
+        $req->setParam('content-type', 'application/json');
+
+        $ret = $this->controller->postGetAction();
+        $this->assertEquals($site->getValue('guid'), $ret['guid'], var_export($ret, true));
+    }
+
     public function testGetDefinitionForms()
     {
         // Set params in the request

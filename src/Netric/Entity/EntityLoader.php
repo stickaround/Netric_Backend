@@ -176,6 +176,57 @@ class EntityLoader
     }
 
     /**
+     * Get an entity by the global universal ID (no need for obj_type)
+     *
+     * @param string $guid
+     * @return EntityInterface|null
+     */
+    public function getByGuid(string $guid): ? EntityInterface
+    {
+        if ($this->isLoaded('guid', $guid)) {
+            return $this->loadedEntities['guid'][$guid];
+        }
+
+        // First check to see if the object is cached
+        $data = $this->getCached('guid', $guid);
+        if ($data && isset($data['obj_type'])) {
+            $entity = $this->create($data['obj_type']);
+            $entity->fromArray($data);
+            if ($entity->getId()) {
+                // Clear dirty status
+                $entity->resetIsDirty();
+
+                // Save in loadedEntities so we don't hit the cache again
+                $this->loadedEntities['guid'][$guid] = $entity;
+
+                // Stat a cache hit
+                StatsPublisher::increment("entity.cache.hit");
+
+                return $entity;
+            }
+        }
+
+        // Stat a cache miss
+        StatsPublisher::increment("entity.cache.miss");
+
+        // Load from datamapper
+        $entity = $this->dataMapper->getByGuid($guid);
+        if ($entity) {
+            $this->loadedEntities['guid'][$guid] = $entity;
+            $this->cache->set(
+                $this->dataMapper->getAccount()->getName() . "/objects/guid/" . $guid,
+                $entity->toArray()
+            );
+            return $entity;
+        }
+
+        // TODO: make sure it is deleted from the index?
+
+        // Could not be loaded
+        return null;
+    }
+
+    /**
      * Get an entity by a unique name path
      *
      * Unique names can be namespaced, and we can reference entities with a full

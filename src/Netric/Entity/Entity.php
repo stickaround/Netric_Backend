@@ -1031,6 +1031,7 @@ class Entity implements EntityInterface
     {
         $thisData = $this->toArray();
         $thisData['id'] = null;
+        $thisData['guid'] = null;
         $toEntity->fromArray($thisData);
     }
 
