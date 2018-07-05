@@ -140,53 +140,54 @@ class EntityController extends Mvc\AbstractAccountController
             $body = json_decode($rawBody, true);
             $params['obj_type'] = (isset($body['obj_type'])) ? $body['obj_type'] : null;
             $params['id'] = (isset($body['id'])) ? $body['id'] : null;
+            $params['guid'] = (isset($body['guid'])) ? $body['guid'] : null;
             $params['uname'] = (isset($body['uname'])) ? $body['uname'] : null;
             $params['uname_conditions'] = (isset($body['uname_conditions'])) ? $body['uname_conditions'] : [];
         }
 
-        // Make sure we have the minimum required params
-        if (!$params['obj_type'] || (!$params['id'] && !$params['uname'])) {
-            return $this->sendOutput(
-                array(
-                    "error" => "obj_type and id or uname are required params.",
-                    "params" => $params
-                )
-            );
-        }
-
-        // Get by uname if the ID is not set
-        if (isset($params['uname']) && empty($params['id'])) {
-            // Retrieve the entity bu a unique name and optional condition
+        // Get the entity utilizing whatever params were passed in
+        $entity = null;
+        if (!empty($params['guid'])) {
+            // Retrieve the entity by guid
+            $entity = $loader->getByGuid($params['guid']);
+        } elseif (isset($params['id']) && isset($params['obj_type'])) {
+            // Retrieve the entity by obj_type and id
+            $entity = $loader->get($params['obj_type'], $params['id']);
+        } elseif (!empty($params['uname'])) {
+            // Retrieve the entity by a unique name and optional condition
             $entity = $loader->getByUniqueName(
                 $params['obj_type'],
                 $params['uname'],
                 $params['uname_conditions']
             );
+        } else {
+            return $this->sendOutput(
+                array(
+                    "error" => "guid, or obj_type + id, or uname are required params.",
+                    "params" => $params
+                )
+            );
         }
 
-        if (isset($params['id']) && isset($params['obj_type'])) {
-            // Retrieve the entity by id
-            $entity = $loader->get($params['obj_type'], $params['id']);
-
-            // If user is not allowed, then return an error
-            if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
-                return $this->sendOutput(
-                    array(
-                        "error" => "You dont have permission to view this.",
-                        "id" => $entity->getId(),
-                        "params" => $params
-                    )
-                );
-            }
+        // Entity Could not be found - we might want to change this to a 404 status code
+        if (!$entity) {
+            return $this->sendOutput([]);
         }
 
-        $entityData = [];
-
-        if ($entity) {
-            $entityData = $entity->toArray();
-            $dacl = $daclLoader->getForEntity($entity);
-            $entityData["dacl"] = $dacl->toArray();
+        // If user is not allowed, then return an error
+        if (!$this->checkIfUserIsAllowed($entity, Dacl::PERM_VIEW)) {
+            return $this->sendOutput(
+                array(
+                    "error" => "You do not have permission to view this.",
+                    "guid" => $entity->getValue('guid'),
+                    "params" => $params
+                )
+            );
         }
+
+        $entityData = $entity->toArray();
+        $dacl = $daclLoader->getForEntity($entity);
+        $entityData["dacl"] = $dacl->toArray();
 
         return $this->sendOutput($entityData);
     }

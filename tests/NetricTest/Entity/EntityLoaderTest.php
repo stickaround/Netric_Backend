@@ -57,10 +57,10 @@ class EntityLoaderTest extends TestCase
         $loader = $this->account->getServiceManager()->get("EntityLoader");
 
         // Create a test object
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
         $cust = $loader->create("customer");
         $cust->setValue("name", "EntityLoaderTest:testGet");
-        $cid = $dm->save($cust);
+        $cid = $dataMapper->save($cust);
         
         // Use the laoder to get the object
         $ent = $loader->get("customer", $cid);
@@ -79,7 +79,40 @@ class EntityLoaderTest extends TestCase
         $this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
 
         // Cleanup
-        $dm->delete($cust, true);
+        $dataMapper->delete($cust, true);
+    }
+
+    /**
+     * Test loading an object definition
+     */
+    public function testGetByGuid()
+    {
+        $loader = $this->account->getServiceManager()->get("EntityLoader");
+
+        // Create a test object
+        $dataMapper = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $cust = $loader->create("customer");
+        $cust->setValue("name", "EntityLoaderTest:testGet");
+        $dataMapper->save($cust);
+
+        // Use the laoder to get the object
+        $ent = $loader->getByGuid($cust->getValue('guid'));
+        $this->assertEquals($cust->getValue('guid'), $ent->getValue('guid'));
+
+        // Test to see if the isLoaded function indicates the entity has been loaded and cached locally
+        $refIm = new \ReflectionObject($loader);
+        $isLoaded = $refIm->getMethod("isLoaded");
+        $isLoaded->setAccessible(true);
+        $this->assertTrue($isLoaded->invoke($loader, "guid", $cust->getValue('guid')));
+
+        // Test to see if it is cached
+        $refIm = new \ReflectionObject($loader);
+        $getCached = $refIm->getMethod("getCached");
+        $getCached->setAccessible(true);
+        $this->assertTrue(is_array($getCached->invoke($loader, "guid", $cust->getValue('guid'))));
+
+        // Cleanup
+        $dataMapper->delete($cust, true);
     }
 
     public function testByUniqueName()
@@ -88,17 +121,17 @@ class EntityLoaderTest extends TestCase
         $task = $entityFactory->create("task");
 
         // Configure a mock datamapper
-        $dm = $this->getMockBuilder(DataMapperInterface::class)->getMock();
+        $dataMapper = $this->getMockBuilder(DataMapperInterface::class)->getMock();
         ;
-        $dm->method('getByUniqueName')
+        $dataMapper->method('getByUniqueName')
             ->willReturn($task);
-        $dm->method('getAccount')
+        $dataMapper->method('getAccount')
             ->willReturn($this->account);
 
         $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
         $cache = $this->account->getServiceManager()->get(CacheFactory::class);
         $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $loader = new EntityLoader($dm, $defLoader, $entityFactory, $cache);
+        $loader = new EntityLoader($dataMapper, $defLoader, $entityFactory, $cache);
 
         $entity = $loader->getByUniqueName("task", "my_test");
 

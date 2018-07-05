@@ -196,7 +196,7 @@ class EntityTest extends TestCase
     /**
      * Test shallow cloning an entity
      */
-    public function testClone()
+    public function testCloneTo()
     {
         $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
         $cust->setValue("name", "Entity_DataMapperTests");
@@ -215,12 +215,14 @@ class EntityTest extends TestCase
         $cust->setValue("last_contacted", time());
         // Set a fake id just to make sure it does not get copied
         $cust->setId(1);
+        $cust->setValue('guid', '82d264a2-8070-11e8-adc0-fa7ae01bbebc');
 
         // Clone it
         $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
         $cust->cloneTo($cloned);
 
         $this->assertEmpty($cloned->getId());
+        $this->assertEmpty($cloned->getValue('guid'));
         $this->assertEquals($cust->getValue("name"), $cloned->getValue("name"));
         $this->assertEquals($cust->getValue("f_nocall"), $cloned->getValue("f_nocall"));
         $this->assertEquals($cust->getValue("owner_id"), $cloned->getValue("owner_id"));

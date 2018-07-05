@@ -53,7 +53,10 @@ class Update004001024Test extends TestCase
 
         // Create a new entity type and modify the table to match pre 4.1.24
         $testType = new EntityDefinition('utest_preguid');
-        $definitionDataMapper->saveDef($testType);
+        $testType->setTitle("Unit Test Update");
+        $testType->setSystem(false);
+        $testType->setDacl(new Dacl());
+        $definitionDataMapper->save($testType);
 
         // Create test entity
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
