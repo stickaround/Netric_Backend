@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y \
     libgearman-dev \
     libxml2-dev \
     libneon27-dev \
+    libsodium-dev \
+    uuid-dev \
     unzip \
     git \
     curl \
@@ -31,6 +33,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-enable xdebug \
     && docker-php-ext-install pcntl \
     && docker-php-ext-enable pcntl \
+    && pecl install libsodium \
+    && docker-php-ext-enable sodium \
+    && pecl install uuid \
+    && docker-php-ext-enable uuid \
     && pecl install mailparse \
     && docker-php-ext-enable mailparse
 
