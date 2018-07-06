@@ -83,7 +83,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $groupings = $dm->getGroupings("note", "groups", array("user_id" => $systemUser->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = UserEntity::USER_SYSTEM;
+        $newGroup->user_id = $systemUser->getId();
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
 

@@ -1,5 +1,5 @@
 <?php
-namespace NetricTest\Worker;
+namespace NetricTest\WorkerMan\Worker;
 
 use Netric\WorkerMan\Worker\EntityMaintainerWorker;
 use Netric\WorkerMan\Job;

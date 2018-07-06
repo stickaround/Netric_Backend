@@ -15,6 +15,7 @@ use Netric\FileSystem\FileStore\FileStoreFactory;
 use Netric\Log\LogFactory;
 use Netric\Db\DbFactory;
 use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -29,7 +30,7 @@ $log =$serviceManager->get(LogFactory::class);
 /*
  * If the store is not local then we need to upload any local files
  */
-if ($localStore !== $remoteStore) {
+if ($localStore !== $remoteStore && $entityLoader->definitionExists(ObjectTypes::FILE)) {
     // Undeleted
     $query = new EntityQuery("file");
     $query->where('dat_ans_key')->equals("");
