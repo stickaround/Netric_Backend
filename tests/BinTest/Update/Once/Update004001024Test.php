@@ -10,6 +10,7 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Console\BinScript;
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
 
 class Update004001024Test extends TestCase
@@ -39,17 +40,12 @@ class Update004001024Test extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
+    public function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/024.php";
         $serviceManager = $this->account->getServiceManager();
         $definitionDataMapper = $serviceManager->get(DataMapperFactory::class);
-
-        // First cleanup
-        if ($definitionDataMapper->fetchByName('utest_preguid')) {
-            $definitionDataMapper->deleteDef($definitionDataMapper->fetchByName('utest_preguid'));
-        }
 
         // Create a new entity type and modify the table to match pre 4.1.24
         $testType = new EntityDefinition('utest_preguid');
@@ -68,7 +64,7 @@ class Update004001024Test extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
+    public function tearDown()
     {
         $serviceManager = $this->account->getServiceManager();
         $definitionDataMapper = $serviceManager->get(DataMapperFactory::class);
