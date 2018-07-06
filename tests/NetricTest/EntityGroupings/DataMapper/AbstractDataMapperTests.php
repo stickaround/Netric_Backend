@@ -4,6 +4,7 @@ namespace NetricTest\EntityGroupings\DataMapper;
 use Netric\Entity\Entity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Define common tests that will need to be run with all data mappers.
@@ -41,7 +42,7 @@ abstract class AbstractDataMapperTests extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**

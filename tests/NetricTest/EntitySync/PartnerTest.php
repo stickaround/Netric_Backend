@@ -7,6 +7,7 @@ namespace NetricTest\EntitySync;
 use Netric\EntitySync;
 use Netric\EntitySync\Partner;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * Class PartnerTest
@@ -42,7 +43,7 @@ class PartnerTest extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         $partnerId = "PartnerTest";
         $dm = $this->account->getServiceManager()->get("EntitySync_DataMapper");

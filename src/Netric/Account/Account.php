@@ -247,9 +247,16 @@ class Account
          * of each user object in memory.
          */
         if ($userId) {
-            $user = $loader->get("user", $userId);
-            if ($user != false) {
-                return $user;
+            if (is_numeric($userId)) {
+                // Legacy get by ID
+                if ($loader->get("user", $userId)) {
+                    return $loader->get("user", $userId);
+                }
+            } elseif (is_string($userId)) {
+                // New get by guid
+                if ($loader->getByGuid($userId)) {
+                    return $loader->getByGuid($userId);
+                }
             }
         } elseif ($username) {
             $query = new EntityQuery("user");
@@ -262,9 +269,10 @@ class Account
 
             return null;
         }
-                
+
         // Return anonymous user
         $anon = $loader->create("user");
+        $anon->setValue("guid", UserEntity::USER_ANONYMOUS);
         $anon->setValue("uname", "anonymous");
         $anon->setValue("name", "anonymous");
         return $anon;

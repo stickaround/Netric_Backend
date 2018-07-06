@@ -47,6 +47,13 @@ class Update004001024Test extends TestCase
         $serviceManager = $this->account->getServiceManager();
         $definitionDataMapper = $serviceManager->get(DataMapperFactory::class);
 
+        // Pre-create the objects table not attached with pkey on id like it was pre this update
+        $db = $serviceManager->get(RelationalDbFactory::class);
+        $db->query("CREATE TABLE objects_utest_preguid () INHERITS (objects)");
+        $db->query("CREATE TABLE objects_utest_preguid_act(
+                      CONSTRAINT objects_utest_preguid_act_pkey PRIMARY KEY (id)
+                    ) INHERITS (objects_utest_preguid)");
+
         // Create a new entity type and modify the table to match pre 4.1.24
         $testType = new EntityDefinition('utest_preguid');
         $testType->setTitle("Unit Test Update");
@@ -99,13 +106,10 @@ class Update004001024Test extends TestCase
     {
         $serviceManager = $this->account->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $db = $serviceManager->get(RelationalDbFactory::class);
 
-        // Modify the table to look like it did before we added guid
-        $db->query("ALTER TABLE objects_utest_preguid_act DROP CONSTRAINT objects_utest_preguid_act_pkey");
+        // Null guid to activate the update
+        $db = $serviceManager->get(RelationalDbFactory::class);
         $db->query("UPDATE  objects_utest_preguid_act SET guid=null");
-        $db->query("DROP INDEX IF EXISTS objects_utest_preguid_act_id_idx");
-        $db->query("DROP INDEX IF EXISTS objects_utest_preguid_del_id_idx");
 
         // Run the 024.php update once script to scan the objects_moved table and update the referenced entities
         $binScript = new BinScript($this->account->getApplication(), $this->account);

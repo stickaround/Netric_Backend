@@ -106,10 +106,10 @@ class Application
         set_error_handler(array(self::$log, "phpErrorHandler"));
 
         // Log unhandled exceptions
-        set_exception_handler(array(self::$log, "phpUnhandledExceptionHandler"));
+        //set_exception_handler(array(self::$log, "phpUnhandledExceptionHandler"));
 
         // Watch for fatal errors which cause script execution to fail
-        register_shutdown_function(array(self::$log, "phpShutdownErrorChecker"));
+        //register_shutdown_function(array(self::$log, "phpShutdownErrorChecker"));
 
         // Setup the application service manager
         $this->serviceManager = new ApplicationServiceManager($this);

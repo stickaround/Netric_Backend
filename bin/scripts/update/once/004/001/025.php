@@ -20,7 +20,7 @@ $numNullObjects = 0;
 do {
     // First create all UUIDs in the gid field
     $sql = "SELECT o.id, o.guid, t.name as obj_type FROM objects o, app_object_types t
-            WHERE o.object_type_id=t.id AND t.field_data IS NULL LIMIT 100000";
+            WHERE o.object_type_id=t.id AND o.field_data IS NULL LIMIT 100000";
     $result = $db->query($sql);
     $numNullObjects = $result->rowCount();
     $rows = $result->fetchAll();

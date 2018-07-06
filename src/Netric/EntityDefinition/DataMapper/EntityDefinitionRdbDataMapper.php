@@ -297,7 +297,9 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         );
 
         // Remove tables
-        $this->database->query('DROP TABLE objects_' . $def->getObjType() . ' CASCADE');
+        if ($this->database->tableExists('objects_' . $def->getObjType())) {
+            $this->database->query('DROP TABLE objects_' . $def->getObjType() . ' CASCADE');
+        }
 
         return true;
     }

@@ -103,7 +103,7 @@ class Update004001025Test extends TestCase
         // Modify the raw data and set field_data to null to invoke the update script
         $db->query(
             'UPDATE objects SET field_data=NULL WHERE guid=:guid',
-            $this->testEntity->getValue('guid')
+            ['guid' => $this->testEntity->getValue('guid')]
         );
 
         // Run the 025.php update once script to scan the objects_moved table and update the referenced entities
@@ -113,9 +113,9 @@ class Update004001025Test extends TestCase
         // Make sure a guid was set (clear cache first then reload fresh)
         $result = $db->query(
             'SELECT field_data FROM objects WHERE guid=:guid',
-            $this->testEntity->getValue('guid')
+            ['guid' => $this->testEntity->getValue('guid')]
         );
-        $row = $result->fetchRow();
+        $row = $result->fetch();
         $this->assertNotEmpty($row['field_data']);
     }
 }

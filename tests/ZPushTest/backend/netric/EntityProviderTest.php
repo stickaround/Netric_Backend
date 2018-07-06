@@ -264,41 +264,6 @@ class EntityProviderTest extends TestCase
      */
     public function testGetNoteFolders()
     {
-        /*
-         * Below is depricated since we no longer use groupings as folders
-         *
-        // Add a note grouping for the user
-        $sm = $this->account->getServiceManager();
-        $entityGroupingsLoader = $sm->get("EntityGroupings_Loader");
-        $groupings = $entityGroupingsLoader->get("note", "groups", array("user_id"=>$this->user->getId()));
-        $newGroup = $groupings->create();
-        $newGroup->name = "utttest note folder";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
-        $groupings->add($newGroup);
-        $entityGroupingsLoader->save($groupings);
-        $savedGroup = $groupings->getByName("utttest note folder");
-
-        // Get groupings as folders
-        $folders = $this->provider->getNoteFolders();
-
-        $found = false;
-        $allNotesFound = false;
-        foreach ($folders as $folder) {
-            if ($folder->serverid == \EntityProvider::FOLDER_TYPE_NOTE. "-" . $savedGroup->id) {
-                $found = true;
-            } else if ($folder->serverid == \EntityProvider::FOLDER_TYPE_NOTE. "-all") {
-                $allNotesFound = true;
-            }
-        }
-
-        // Cleanup first
-        $groupings->delete($savedGroup->id);
-
-        // Test result
-        $this->assertTrue($found);
-        $this->assertTrue($allNotesFound);
-        */
-
         // Get folder hierarchy
         $folders = $this->provider->getNoteFolders();
 
@@ -553,7 +518,8 @@ class EntityProviderTest extends TestCase
         $groupings = $entityGroupingsLoader->get("note", "groups", array("user_id"=>$this->user->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
+        //$newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
+        $newGroup->user_id = $this->user->getId();
         $groupings->add($newGroup);
         $entityGroupingsLoader->save($groupings);
         $savedGroup = $groupings->getByName("utttest");

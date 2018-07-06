@@ -7,6 +7,7 @@ namespace NetricTest\EntityGroupings;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\ObjType\UserEntity;
 
 class LoaderTest extends TestCase
 {
@@ -76,12 +77,14 @@ class LoaderTest extends TestCase
      */
     public function testGetFiltered()
     {
+        $systemUser = $this->account->getUser(UserEntity::USER_SYSTEM);
+
         // Create test group manually
         $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
-        $groupings = $dm->getGroupings("note", "groups", array("user_id" => \Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
+        $groupings = $dm->getGroupings("note", "groups", array("user_id" => $systemUser->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
+        $newGroup->user_id = $systemUser->getId();
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
         
@@ -89,7 +92,7 @@ class LoaderTest extends TestCase
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
         
         // Use the loader to get private groups
-        $groupings = $loader->get("note", "groups", array("user_id" => \Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
+        $groupings = $loader->get("note", "groups", array("user_id" => $systemUser->getId()));
         $grp = $groupings->getByName($newGroup->name);
         $this->assertNotNull($grp->id);
         $this->assertNotNull($grp->user_id);

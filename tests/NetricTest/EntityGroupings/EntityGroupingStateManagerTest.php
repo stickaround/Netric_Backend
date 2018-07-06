@@ -5,8 +5,9 @@
  */
 namespace NetricTest\EntityGroupings;
 
-use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 
 class EntityGroupingStateManagerTest extends TestCase
 {
@@ -77,11 +78,12 @@ class EntityGroupingStateManagerTest extends TestCase
     public function testGetFiltered()
     {
         // Create test group manually
-        $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
-        $groupings = $dm->getGroupings("note", "groups", array("user_id" => \Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
+        $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
+        $systemUser = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $groupings = $dm->getGroupings("note", "groups", array("user_id" => $systemUser->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
-        $newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
+        $newGroup->user_id = UserEntity::USER_SYSTEM;
         $groupings->add($newGroup);
         $dm->saveGroupings($groupings);
 
@@ -89,7 +91,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
 
         // Use the loader to get private groups
-        $groupings = $loader->get("note", "groups", array("user_id" => \Netric\Entity\ObjType\UserEntity::USER_SYSTEM));
+        $groupings = $loader->get("note", "groups", array("user_id" => $systemUser->getId()));
         $grp = $groupings->getByName($newGroup->name);
         $this->assertNotNull($grp->id);
         $this->assertNotNull($grp->user_id);
