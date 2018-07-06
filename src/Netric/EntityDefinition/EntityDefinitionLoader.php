@@ -68,6 +68,43 @@ class EntityDefinitionLoader
     }
 
     /**
+     * Save a defintion from a system definition if it exists
+     *
+     * @param string $objType
+     */
+    public function forceSystemReset(string $objType)
+    {
+        $sysData = $this->getSysDef($objType);
+        $def = $this->loadDefinition($objType);
+
+        // Check the revision to see if we need to update
+        if ($sysData) {
+            // Reset to the system revision
+            //$def->revision = $sysData['revision'];
+
+            // System definition has been updated, save to datamapper
+            $def->fromArray($sysData);
+            $this->dataMapper->save($def);
+        }
+    }
+
+    /**
+     * Check if an entity definition exists
+     *
+     * @param string $objType
+     * @return bool
+     */
+    public function definitionExists(string $objType): bool
+    {
+        try {
+            $def = $this->get($objType);
+            return ($def) ? true : false;
+        } catch (Exception $exception) {
+            return false;
+        }
+    }
+
+    /**
      * Construct the definition class
      *
      * @param string $objType
@@ -104,27 +141,6 @@ class EntityDefinitionLoader
         $this->cache->set($this->getUniqueKeyForObjType($objType), $def->toArray());
 
         return $def;
-    }
-
-    /**
-     * Save a defintion from a system definition if it exists
-     *
-     * @param string $objType
-     */
-    public function forceSystemReset(string $objType)
-    {
-        $sysData = $this->getSysDef($objType);
-        $def = $this->loadDefinition($objType);
-
-        // Check the revision to see if we need to update
-        if ($sysData) {
-            // Reset to the system revision
-            //$def->revision = $sysData['revision'];
-
-            // System definition has been updated, save to datamapper
-            $def->fromArray($sysData);
-            $this->dataMapper->save($def);
-        }
     }
 
     /**

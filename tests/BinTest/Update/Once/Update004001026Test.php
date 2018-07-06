@@ -1,13 +1,10 @@
 <?php
 namespace BinTest\Update\Once;
 
-use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Permissions\Dacl;
 use Netric\Console\BinScript;
-use Netric\EntityDefinition\EntityDefinition;
+use Netric\Entity\EntityLoaderFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -63,6 +60,7 @@ class Update004001026Test extends TestCase
     public function testRun()
     {
         $serviceManager = $this->account->getServiceManager();
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $db = $serviceManager->get(RelationalDbFactory::class);
 
         // Change the guid of the system user to some random UUID
@@ -77,7 +75,7 @@ class Update004001026Test extends TestCase
         $this->assertTrue($binScript->run($this->scriptPath));
 
         // Make sure we can load the system user by the correct GUID
-        $systemUser = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $systemUser = $entityLoader->getByGuid(UserEntity::USER_SYSTEM);
         $this->assertNotNull($systemUser);
         $this->assertEquals('system', $systemUser->getValue('uname'));
     }

@@ -59,7 +59,7 @@ foreach ($rowsMoved as $rowMoved) {
                     "{$field->name}='{$newFieldValue}' " .
                     "WHERE {$field->name}='{$oldFieldValue}'"
                 );
-            } elseif ($field->type == Field::TYPE_GROUPING_MULTI) {
+            } elseif ($field->type == Field::TYPE_OBJECT_MULTI) {
                 // Replace array values in the field column that is json encoded
                 $db->query(
                     "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
