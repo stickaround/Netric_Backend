@@ -1,5 +1,7 @@
 <?php
 namespace Netric\EntityDefinition;
+use Netric\Entity\ObjType\UserEntity;
+use PetstoreIO\User;
 
 /**
  * Field definition
@@ -429,8 +431,8 @@ class Field implements \ArrayAccess
             }
         }
 
-        if ((($this->type == "fkey" && $this->subtype == "users")
-            || ($this->type == "object" && $this->subtype == "user")) && $ret == "-3") {
+        if ((($this->type == Field::TYPE_OBJECT && $this->subtype == "user")
+            || ($this->type == "object" && $this->subtype == "user")) && $ret == UserEntity::USER_CURRENT) {
             if ($user) {
                 $ret = $user->getId();
             } else {

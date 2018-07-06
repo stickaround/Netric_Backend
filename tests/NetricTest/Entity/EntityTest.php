@@ -10,6 +10,7 @@ use Netric\FileSystem\FileSystemFactory;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\ObjType\UserEntity;
 
 class EntityTest extends TestCase
 {
@@ -34,7 +35,7 @@ class EntityTest extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**

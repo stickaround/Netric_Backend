@@ -259,7 +259,7 @@ class ServiceLocator
 	 */
 	private function factoryEntityQuery_Index()
 	{
-        $acc = $this->getAnt()->getNetricAccount(); return $acc->getServiceManager()->get("EntityQuery_Index");
+        $acc = USER_ANONYMOUS; return $acc->getServiceManager()->get("EntityQuery_Index");
 	}
 
 	/**
@@ -280,8 +280,12 @@ class ServiceLocator
 	private function factoryAntFs()
 	{	
 		$user = $this->getAnt()->getUser();
-		if (!$user)
-			$user = $this->getAnt()->getUser(\Netric\User::USER_ANONYMOUS);
+		if (!$user) {
+		    $entityLoader = $this->factoryEntityLoader();
+            $userEntity = $entityLoader->getUser(Netric\Entity\ObjType\UserEntity::USER_ANONYMOUS);
+            $user = $this->getAnt()->getUser($userEntity->getId());
+        }
+
 		
 		$user = new AntUser($this->getAnt()->dbh, $user->getId(), $this->getAnt());
 		$antfs = new AntFs($this->getAnt()->dbh, $user);

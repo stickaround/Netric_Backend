@@ -28,12 +28,11 @@ class UserEntity extends Entity implements EntityInterface
      *
      * @const int
      */
-    const USER_ADMINISTRATOR = -1;
-    const USER_CURRENT = -3;
-    const USER_ANONYMOUS = -4;
-    const USER_SYSTEM = -5;
-    const USER_WORKFLOW = -6;
-
+    const USER_ADMINISTRATOR = '841a3586-fae4-4861-a2bb-6a68f565d5';
+    const USER_CURRENT = '08956e8f-a1d3-49cc-9ef3-8c802d96aa2c';
+    const USER_ANONYMOUS = '91e6c4ba-e25f-4496-a8e9-4a72fa17bc2d';
+    const USER_SYSTEM = '1015fe3b-7d9d-4f4b-bf34-700e165c27f0';
+    const USER_WORKFLOW = 'bc1895fb-f427-49cc-8643-3c662d94218d';
 
     /**
      * System groups
@@ -177,7 +176,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isAnonymous()
     {
-        return ($this->getId() == self::USER_ANONYMOUS);
+        return ($this->getValue('guid') == self::USER_ANONYMOUS);
     }
 
     /**
@@ -185,7 +184,7 @@ class UserEntity extends Entity implements EntityInterface
      */
     public function isSystem()
     {
-        return ($this->getId() == self::USER_SYSTEM);
+        return ($this->getValue('guid') == self::USER_SYSTEM);
     }
 
     /**

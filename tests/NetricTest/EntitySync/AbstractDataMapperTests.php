@@ -10,6 +10,7 @@ namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\ObjType\UserEntity;
 
 /**
  * @group integration
@@ -37,7 +38,7 @@ abstract class AbstractDataMapperTests extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
     
     /**

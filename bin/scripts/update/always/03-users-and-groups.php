@@ -32,7 +32,7 @@ $groupingsLoader->save($groupings);
 $usersData = require(__DIR__ . "/../../../../data/account/users.php");
 $entityLoader = $account->getServiceManager()->get("EntityLoader");
 foreach ($usersData as $userData) {
-    if (!$entityLoader->get("user", $userData['id'])) {
+    if (!$entityLoader->getByGuid($userData['guid'])) {
         $user = $entityLoader->create("user");
         $user->fromArray($userData);
         $entityLoader->save($user);

@@ -684,11 +684,12 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             return;
         }
 
-        // Now escape the uname field to a uri fiendly name
+        // Now escape the uname field to a uri friendly name
         $uname = strtolower($uname);
         $uname = str_replace(" ", "-", $uname);
         $uname = str_replace("&", "_and_", $uname);
-        $uname = preg_replace('/[^A-Za-z0-9_-]/', '', $uname);
+        $uname = str_replace("@", "_at_", $uname);
+        $uname = preg_replace('/[^A-Za-z0-9_-.]/', '', $uname);
 
         $isUnique = $this->verifyUniqueName($entity, $uname);
 

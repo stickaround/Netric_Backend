@@ -8,22 +8,22 @@ use Netric\Entity\ObjType\UserEntity;
 
 return array(
     array(
-        "id"=>UserEntity::USER_ANONYMOUS,
+        "guid"=>UserEntity::USER_ANONYMOUS,
         "name"=>"anonymous",
         "full_name"=>"Anonymous"
     ),
     array(
-        "id"=>UserEntity::USER_CURRENT,
+        "guid"=>UserEntity::USER_CURRENT,
         "name"=>"current",
         "full_name"=>"Current User"
     ),
     array(
-        "id"=>UserEntity::USER_SYSTEM,
+        "guid"=>UserEntity::USER_SYSTEM,
         "name"=>"system",
         "full_name"=>"System"
     ),
     array(
-        "id"=>UserEntity::USER_WORKFLOW,
+        "guid"=>UserEntity::USER_WORKFLOW,
         "name"=>"workflow",
         "full_name"=>"Workflow"
     ),
