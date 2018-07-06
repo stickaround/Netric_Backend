@@ -99,7 +99,7 @@ class EntityDefinitionLoader
         try {
             $def = $this->get($objType);
             return ($def) ? true : false;
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             return false;
         }
     }
