@@ -5,7 +5,6 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use Netric\Permissions\Dacl;
 use Netric\Account\Account;
-
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
@@ -297,8 +296,8 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             ['id' => $def->getId()]
         );
 
-        // Leave object table, it's partitioned and won't hurt anything for now
-        // Later we may want a cleanup routine - Sky Stebnicki
+        // Remove tables
+        $this->database->query('DROP TABLE objects_' . $def->getObjType() . ' CASCADE');
 
         return true;
     }

@@ -46,12 +46,7 @@ class Update004001025Test extends TestCase
         $serviceManager = $this->account->getServiceManager();
         $definitionDataMapper = $serviceManager->get(DataMapperFactory::class);
 
-        // First cleanup
-        if ($definitionDataMapper->fetchByName('utest_blankfielddata')) {
-            $definitionDataMapper->deleteDef($definitionDataMapper->fetchByName('utest_blankfielddata'));
-        }
-
-        // Create a new entity type and modify the table to match pre 4.1.24
+        // Create a new entity type and modify the table to match pre field_data column
         $testType = new EntityDefinition('utest_blankfielddata');
         $testType->setTitle("Unit Test Update");
         $testType->setSystem(false);
