@@ -68,7 +68,7 @@ class Update004001026Test extends TestCase
         // Change the guid of the system user to some random UUID
         $db->update(
             'objects_user',
-            ['guid'=>'1c1cb585-5c39-460a-9700-946200b03ae2', 'uname'=>'system-notvalid'],
+            ['guid'=>'bf82ad1b-2c39-4751-8890-a9f06579f840', 'uname'=>'system-notvalid'],
             ['name'=>'system']
         );
 

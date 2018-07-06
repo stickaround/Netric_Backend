@@ -689,7 +689,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $uname = str_replace(" ", "-", $uname);
         $uname = str_replace("&", "_and_", $uname);
         $uname = str_replace("@", "_at_", $uname);
-        $uname = preg_replace('/[^A-Za-z0-9_-.]/', '', $uname);
+        $uname = preg_replace('/[^A-Za-z0-9._-]/', '', $uname);
 
         $isUnique = $this->verifyUniqueName($entity, $uname);
 

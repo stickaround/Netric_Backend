@@ -10,6 +10,16 @@ $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
+// Update the uname of all users
+$query = new EntityQuery("user");
+$index = $this->getServiceManager()->get(IndexFactory::class);
+$res = $index->executeQuery($query);
+for ($i = 0; $i < $res->getTotalNum(); $i++) {
+    $userEntity = $res->getEntity($i);
+    // Reset uname so that on save name is copied to uname
+    $userEntity->setValue('uname', '');
+    $entityLoader->save($userEntity);
+}
 
 // Make sure system users have the right uname and guid
 $users = require(__DIR__ . "/../../../../../../data/account/users.php");
