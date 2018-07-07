@@ -40,9 +40,11 @@
     </filter>
 
     <logging>
+        <!--
         <log type="coverage-html" target="./tmp/coverage/"
              lowUpperBound="50" highLowerBound="80" 
         />
+        -->
         <log type="coverage-clover" target="./tmp/clover.xml"
              lowUpperBound="50" highLowerBound="80"
         />
