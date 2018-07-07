@@ -1,9 +1,4 @@
 <?php
-
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
 namespace Netric\Application\Setup;
 
 use Netric\Account\Account;
