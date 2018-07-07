@@ -100,6 +100,7 @@ class SetupTest extends TestCase
         // Create a new test account
         $accountId = $this->mapper->createAccount("ut_setup");
         $account = $this->mapper->loadById($accountId, $this->application);
+        $this->setup->setupAccount($account, "test@test.com", "password");
 
         // Run updates on the account
         $updater = new AccountUpdater($account);

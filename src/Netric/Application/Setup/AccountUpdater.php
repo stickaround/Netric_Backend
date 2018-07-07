@@ -89,8 +89,10 @@ class AccountUpdater extends AbstractHasErrors
 
     /**
      * Save the last updated schema version to the settings for this account
+     *
+     * @returns The version that was saved
      */
-    public function saveUpdatedVersion()
+    public function saveUpdatedVersion(): string
     {
         $updated = false;
 
@@ -103,12 +105,15 @@ class AccountUpdater extends AbstractHasErrors
             $updated = true;
         }
 
-        $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
-
         if ($updated) {
+            $newversion = $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
             $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
             $settings->set("system/schema_version", $newversion);
+            return $newversion;
         }
+
+        // Return current version since nothing was updated
+        return implode('.', [$this->version->major, $this->version->minor, $this->version->point]);
     }
 
     /**
@@ -283,9 +288,9 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         // Save the last updated version
-        $this->saveUpdatedVersion();
+        $savedVersion = $this->saveUpdatedVersion();
 
-        return $this->updatedToVersion->major . "." . $this->updatedToVersion->minor . "." . $this->updatedToVersion->point;
+        return $savedVersion;
     }
 
     /**

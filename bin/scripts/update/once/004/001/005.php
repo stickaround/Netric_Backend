@@ -32,7 +32,9 @@ $log =$serviceManager->get(LogFactory::class);
 /*
  * If the store is not local then we need to upload any local files
  */
-if ($localStore !== $remoteStore && $entityDefinitionLoader->definitionExists(ObjectTypes::FILE)) {
+if ($localStore !== $remoteStore &&
+    $entityDefinitionLoader->definitionExists(ObjectTypes::FILE) &&
+    $entityDefinitionLoader->definitionExists(ObjectTypes::ACTIVITY)) {
     // Undeleted
     $query = new EntityQuery("file");
     $query->where('dat_ans_key')->equals("");
