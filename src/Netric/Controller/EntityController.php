@@ -4,6 +4,7 @@ namespace Netric\Controller;
 use Netric\Entity\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
+use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Mvc;
 use Netric\Permissions\Dacl;
 use Netric\EntityDefinition\EntityDefinition;
@@ -63,7 +64,8 @@ class EntityController extends Mvc\AbstractAccountController
             return $this->sendOutput(array("error" => "obj_type must be set"));
         }
 
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
         $query = new \Netric\EntityQuery($params["obj_type"]);
 
@@ -92,17 +94,15 @@ class EntityController extends Mvc\AbstractAccountController
         for ($i = 0; $i < $res->getNum(); $i++) {
             $ent = $res->getEntity($i);
 
-            // Print full details
-            $entities[] = $ent->toArray();
+            // Export to array
+            $entityData = $ent->toArray();
 
-            if (isset($params['updatemode']) && $params['updatemode']) { // Only get id and revision
-            // Return condensed results
-                $entities[] = array(
-                    "id" => $ent->getId(),
-                    "revision" => $ent->getValue("revision"),
-                    "num_comments" => $ent->getValue("num_comments"),
-                );
-            }
+            // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
+            $dacl = $daclLoader->getForEntity($ent);
+            $entityData["applied_dacl"] = $dacl->toArray();
+
+            // Print full details
+            $entities[] = $entityData;
         }
         $ret["entities"] = $entities;
 
@@ -186,8 +186,10 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         $entityData = $entity->toArray();
+
+        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
         $dacl = $daclLoader->getForEntity($entity);
-        $entityData["dacl"] = $dacl->toArray();
+        $entityData["applied_dacl"] = $dacl->toArray();
 
         return $this->sendOutput($entityData);
     }
@@ -383,6 +385,7 @@ class EntityController extends Mvc\AbstractAccountController
     {
         $serviceManager = $this->account->getServiceManager();
         $user = $this->account->getUser();
+        $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
 
         $ret = $def->toArray();
         $ret["browser_mode"] = "table";
@@ -403,6 +406,10 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Return the default view
         $ret['default_view'] = $viewsService->getDefaultViewForUser($def->getObjType(), $user);
+
+        // Add the currently applied DACL for this entity definition
+        $defDacl = $daclLoader->getForEntityDefinition($def);
+        $ret['applied_dacl'] = $defDacl->toArray();
 
         return $ret;
     }
