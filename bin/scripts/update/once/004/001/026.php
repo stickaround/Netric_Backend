@@ -5,10 +5,20 @@
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Entity\ObjType\UserEntity;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
+
+// Update old system user GUIDs
+$db->update('objects_user', ['guid'=>UserEntity::USER_CURRENT], ['id' => -3]);
+$db->update('objects_user', ['guid'=>UserEntity::USER_ADMINISTRATOR], ['id' => -1]);
+$db->update('objects_user', ['guid'=>UserEntity::USER_ANONYMOUS], ['id' => -4]);
+$db->update('objects_user', ['guid'=>UserEntity::USER_SYSTEM], ['id' => -5]);
+$db->update('objects_user', ['guid'=>UserEntity::USER_WORKFLOW], ['id' => -6]);
 
 // Update the uname of all users
 $query = new EntityQuery("user");
