@@ -104,47 +104,9 @@ class AntLog
 	 */
 	public function __construct()
 	{
-		// Make sure the local data path exists
-		if (AntConfig::getInstance()->log)
-		{
-			$this->logPath = AntConfig::getInstance()->log;
-
-			if ($this->logPath === 'stderr') {
-			    $this->logPath = "php://stderr";
-            }
-
-			// Now make sure we have not exceeded the maxiumu size for this log file
-			if (file_exists($this->logPath))
-			{
-				if (filesize($this->logPath) >= ($this->maxSize * 1024))
-					unlink($this->logPath);
-			}
-
-			// Check to see if log file exists and create it if it does not
-			if (!file_exists($this->logPath))
-			{
-				if (touch($this->logPath) && $this->logPath != "php://stderr")
-					chmod($this->logPath, 0777);
-				else
-					$this->logPath = ""; // clear the path which will raise exception on write
-			}
-
-			// Now open the file
-			///$this->logFile = fopen($this->logPath, 'a');
-		}
-
 		// Set current logging level if defined
 		if (defined("ANTLOG_LEVEL"))
 			$this->level = ANTLOG_LEVEL;
-	}
-
-	/**
-	 * Destructor - cleanup file handles
-	 */
-	public function __destruct()
-	{
-		if ($this->logFile != null)
-			@fclose($this->logFile);
 	}
 
 	/**
@@ -200,8 +162,7 @@ class AntLog
 		$eventData[LOGDEF_ACCOUNT] = "";
 		$eventData[LOGDEF_USER] = "";
 
-		//file_put_contents($this->logPath, $message, FILE_APPEND);
-		return fputcsv($this->logFile, $eventData);
+        error_log(json_encode($eventData));
 	}
 
 	/**

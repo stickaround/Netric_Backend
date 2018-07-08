@@ -69,7 +69,7 @@ class Log implements LogInterface
     /**
      * Constructor
      *
-     * @param Config $config
+     * @param Config $logConfig
      */
     public function __construct(Config $logConfig)
     {
@@ -121,80 +121,6 @@ class Log implements LogInterface
     public function getRequestId()
     {
         return $this->requestId;
-    }
-
-    /**
-     * Put a new entry into the log
-     *
-     * This is usually called by one of the aliased methods like info, error, warning
-     * which in turn just sets the level and writes to this method.
-     *
-     * @param int $lvl The level of the event being logged
-     * @param string|array $message The message to log
-     * @return bool true on success, false on failure
-     */
-    public function writeLogOld($lvl, $message): bool
-    {
-        // Only log events below the current logging level set
-        if ($lvl > $this->level) {
-            return false;
-        }
-
-        // Prepare the log
-        $logDetails = array(
-            'time' => gmdate("Y-m-d\TH:i:s\Z"),
-            'level' => $lvl,
-            'severity' => $this->getLevelName($lvl),
-            'client_ip' => (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : null,
-            'client_port' => (isset($_SERVER['REMOTE_PORT'])) ? $_SERVER['REMOTE_PORT'] : null,
-            'app_env' => (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production",
-            'app_name' => 'netric_com',
-            'app_ver' => (getenv('APP_VER')) ? getenv('APP_VER') : "latest",
-        );
-
-        if (!is_array($message)) {
-            $logDetails['message'] = $message;
-        }
-
-        // Add request to the log if available
-        if (isset($_SERVER['REQUEST_URI'])) {
-            $logDetails['request'] = $_SERVER['REQUEST_URI'];
-        }
-
-        // If the request ID was set the log it
-        if ($this->requestId) {
-            $logDetails['request_id'] = $this->requestId;
-        }
-
-        /*
-         * If this is a structured log entry then add each key to the logDetails
-         * Note that these MAY override any of the keys above. That is intentional
-         * and useful for things like when you want to pass through client logs
-         * from and override application_name to the client's name.
-         */
-        if (is_array($message)) {
-            foreach ($message as $key => $val) {
-                $logDetails[$key] = $val;
-            }
-        }
-
-        // Increment the stats counter for this level
-        if (!isset($this->stats[$this->getLevelName($lvl)])) {
-            $this->stats[$this->getLevelName($lvl)] = 0;
-        }
-        $this->stats[$this->getLevelName($lvl)]++;
-
-        // Determine what writer to use
-        switch ($this->writer) {
-            case self::WRITER_SYSLOG:
-                return $this->writerSyslog($logDetails);
-            case self::WRITER_STDERR:
-            case self::WRITER_FILE:
-                return $this->writerFile($logDetails);
-        }
-
-        // No supported writers appear to be configured
-        return false;
     }
 
     /**
@@ -533,22 +459,6 @@ class Log implements LogInterface
             default:
                 return var_export($arg, true);
         }
-    }
-
-    /**
-     * Write a log entry to a file
-     *
-     * @param array $logDetails
-     * @return bool
-     */
-    private function writerFile(array $logDetails)
-    {
-        if (!$this->logFile) {
-            $this->logFile = fopen($this->logPath, 'a');
-        }
-
-        fwrite($this->logFile, json_encode($logDetails) . "\n");
-        return true;
     }
 
     /**

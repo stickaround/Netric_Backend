@@ -324,26 +324,20 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * automatically delete before inserting, but for custom tables it could cause a bug
          * where it tried to update an ID that does not exist.
          */
-        if ($entity->getId() && !$entity->fieldValueChanged("f_deleted") && $entity->getValue("revision") > 1) {
-            $this->database->update($targetTable, $data, ['id' => $entity->getId()]);
+        if (!empty($entity->getId()) && !$entity->fieldValueChanged("f_deleted") && $entity->getValue("revision") > 1) {
+            $this->database->update($targetTable, $data, ['guid' => $entity->getValue('guid')]);
         } else {
             // Clean out old record if it exists in a different partition
             if ($entity->getId()) {
                 $this->database->query(
-                    'DELETE FROM ' . $def->getTable() . ' WHERE id=:entity_id',
-                    ['entity_id' => $entity->getId()]
+                    'DELETE FROM ' . $def->getTable() . ' WHERE guid=:entity_guid',
+                    ['entity_guid' => $entity->getValue('guid')]
                 );
             }
 
             // Now try saving the entity
             try {
                 $entityId = $this->database->insert($targetTable, $data);
-                // if ($entity->getId() && $entityId != $entity->getId()) {
-                //     throw new \RuntimeException(
-                //         "Returned id from DB insert $entityId is different " .
-                //             "than the id saved: " . $entity->getId()
-                //     );
-                // }
                 if (!$entity->getId()) {
                     $entity->setValue('id', $entityId);
                 }

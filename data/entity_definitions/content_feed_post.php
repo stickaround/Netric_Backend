@@ -2,6 +2,7 @@
 namespace data\entity_definitions;
 
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'parent_field' => 'parent_id',
@@ -76,7 +77,7 @@ return array(
             'type' => Field::TYPE_OBJECT,
             'subtype' => 'user',
             'readonly' => false,
-            "default" => array("value" => "-3", "on" => "null"),
+            "default" => array("value" => UserEntity::USER_CURRENT, "on" => "null"),
         ),
 
         "feed_id" => array(

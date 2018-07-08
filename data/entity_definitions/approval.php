@@ -1,6 +1,8 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'fields' => array(
@@ -46,7 +48,7 @@ return array(
             'subtype'=>'user',
             'readonly'=>true,
             'required'=>true,
-            'default'=>array("value"=>"-3", "on"=>"null")
+            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
         ),
         'obj_reference' => array(
             'title'=>'Reference',
