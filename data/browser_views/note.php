@@ -5,6 +5,7 @@
  */
 namespace data\browser_views;
 
+use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery\Where;
 
 return array(
@@ -18,7 +19,7 @@ return array(
                 'blogic' => Where::COMBINED_BY_AND,
                 'field_name' => 'user_id',
                 'operator' => Where::OPERATOR_EQUAL_TO,
-                'value' => -3
+                'value' => UserEntity::USER_CURRENT,
             ),
         ),
         'order_by' => array(

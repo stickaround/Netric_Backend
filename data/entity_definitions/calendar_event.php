@@ -1,6 +1,8 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'fields' => array(
@@ -104,7 +106,7 @@ return array(
         'user_id' => array('title'=>'Owner',
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null")
+            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
         ),
         'recur_id' => array(
             'title'=>'Recurrance',

@@ -34,7 +34,6 @@ class EntityQueryController extends Mvc\AbstractAccountController
 
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-        $user = $this->account->getUser();
 
         $query = new \Netric\EntityQuery($params["obj_type"]);
         $query->fromArray($params);

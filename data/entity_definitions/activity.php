@@ -1,6 +1,8 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'fields' => array(
@@ -114,7 +116,7 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
             'default'=>array(
-                "value"=>"-3",
+                "value"=>UserEntity::USER_CURRENT,
                 "on"=>"null"
             ),
         ),

@@ -1,6 +1,8 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'inherit_dacl_ref' => 'project',
@@ -94,7 +96,7 @@ return array(
             'title'=>'Assigned To',
             'type'=>Field::TYPE_OBJECT,
             'subtype'=>'user',
-            'default'=>array("value"=>"-3", "on"=>"null")
+            'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
         ),
         'priority' => array(
             'title'=>'Priority',

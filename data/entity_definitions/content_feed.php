@@ -1,6 +1,8 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'list_title' => 'title',
@@ -46,7 +48,7 @@ return array(
             'type'=>Field::TYPE_OBJECT,
             'subtype' => 'user',
             'readonly' => true,
-            'default' => array("value" => "-3", "on" => "null")
+            'default' => array("value" => UserEntity::USER_CURRENT, "on" => "null")
         ),
         'groups' => array(
             'title' => 'Groups',

@@ -300,7 +300,7 @@ abstract class IndexAbstract
         // Replace user vars
         if ($user) {
             // Replace current user
-            if (intval($value) === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
+            if ($value === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
                 $value = $user->getId();
             }
 
@@ -316,9 +316,8 @@ abstract class IndexAbstract
             if ($field->type == "fkey" && $field->subtype == "user_teams"
                 && ($value==USER_CURRENT || $value==TEAM_CURRENTUSER) && $user->teamId)
                 $value = $user->teamId;
+            */
 
-
-             */
             // Replace object reference with user variables
             if (($field->type == Field::TYPE_OBJECT || $field->type == Field::TYPE_OBJECT_MULTI) && !$field->subtype
                 && $value == "user:" . UserEntity::USER_CURRENT) {
@@ -363,8 +362,6 @@ abstract class IndexAbstract
         }
 
         switch ($field->type) {
-            case Field::TYPE_GROUPING:
-            case Field::TYPE_GROUPING_MULTI:
             case Field::TYPE_OBJECT:
             case Field::TYPE_OBJECT_MULTI:
                 return true;
