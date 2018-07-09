@@ -28,11 +28,11 @@ class UserEntity extends Entity implements EntityInterface
      *
      * @const int
      */
-    const USER_ADMINISTRATOR = '841a3586-fae4-4861-a2bb-6a68f565d5';
-    const USER_CURRENT = '08956e8f-a1d3-49cc-9ef3-8c802d96aa2c';
-    const USER_ANONYMOUS = '91e6c4ba-e25f-4496-a8e9-4a72fa17bc2d';
-    const USER_SYSTEM = '1015fe3b-7d9d-4f4b-bf34-700e165c27f0';
-    const USER_WORKFLOW = 'bc1895fb-f427-49cc-8643-3c662d94218d';
+    const USER_ADMINISTRATOR = '935b5810-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_CURRENT = '935b5cb6-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_ANONYMOUS = '935b5e28-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_SYSTEM = '935b5f54-831d-11e8-adc0-fa7ae01bbebc';
+    const USER_WORKFLOW = '935b6076-831d-11e8-adc0-fa7ae01bbebc';
 
     /**
      * System groups

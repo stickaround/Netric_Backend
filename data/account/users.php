@@ -14,7 +14,7 @@ return array(
     ),
     array(
         "guid"=>UserEntity::USER_CURRENT,
-        "name"=>"current",
+        "name"=>"current.user",
         "full_name"=>"Current User"
     ),
     array(
