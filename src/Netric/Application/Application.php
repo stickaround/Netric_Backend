@@ -426,10 +426,11 @@ class Application
                 return $this->initDb(--$numRetries);
             } else {
                 // Let the caller know that we cannot create the database
-                throw new \RuntimeException(
-                    "Could not create application database: " .
-                        $this->dm->getLastError()->getMessage()
-                );
+                $exceptionText = "Could not create application database: ";
+                if ($this->dm->getLastError()) {
+                    $exceptionText .= $this->dm->getLastError()->getMessage();
+                }
+                throw new \RuntimeException($exceptionText);
             }
         }
 
