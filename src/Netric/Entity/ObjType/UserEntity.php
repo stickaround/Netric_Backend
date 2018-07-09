@@ -26,7 +26,7 @@ class UserEntity extends Entity implements EntityInterface
     /**
      * System users
      *
-     * @const int
+     * @const string
      */
     const USER_ADMINISTRATOR = '935b5810-831d-11e8-adc0-fa7ae01bbebc';
     const USER_CURRENT = '935b5cb6-831d-11e8-adc0-fa7ae01bbebc';
