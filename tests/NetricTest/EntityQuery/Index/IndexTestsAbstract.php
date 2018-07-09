@@ -10,8 +10,13 @@
 namespace NetricTest\EntityQuery\Index;
 
 use Netric;
+use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
+use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
 
@@ -76,30 +81,30 @@ abstract class IndexTestsAbstract extends TestCase
     /**
      * Create a test customer
      */
-    protected function createTestCustomer()
+    protected function createTestCustomer($typeId = 2)
     {
         $uniName = "utestequals." . uniqid();
-        
-        // Save a test object
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-        $obj = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-        $obj->setValue("name", $uniName);
-        $obj->setValue("f_nocall", true);
-        $obj->setValue("type_id", 2); // Organization
 
         // Status id
-        $statusG = $this->createGrouping("customer", "status_id", "Unit Test Status");
-        $obj->setValue("status_id", $statusG['id'], $statusG['name']);
-        $obj->setValue("last_contacted", time());
+        $statusG = $this->createGrouping("customer", "status_id", "Unit Test Status" . uniqid());
 
         // Groups
-        $groupsG = $this->createGrouping("customer", "groups", "Unit Test Group");
-        $obj->addMultiValue("groups", $groupsG['id'], $groupsG['name']);
+        $groupsG = $this->createGrouping("customer", "groups", "Unit Test Group" . uniqid());
 
-        $oid = $dm->save($obj);
-        $this->testEntities[] = $obj;
+        // Save a test object
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $customer = $loader->create("customer");
+        $customer->setValue("name", $uniName);
+        $customer->setValue("f_nocall", true);
+        $customer->setValue("type_id", $typeId);
+        $customer->setValue("last_contacted", time());
+        $customer->setValue("status_id", $statusG['id'], $statusG['name']);
+        $customer->addMultiValue("groups", $groupsG['id'], $groupsG['name']);
+        $loader->save($customer);
 
-        return $obj;
+        $this->testEntities[] = $customer;
+
+        return $customer;
     }
 
     /**
@@ -144,6 +149,358 @@ abstract class IndexTestsAbstract extends TestCase
     }
 
     /**
+     * Run tests with combination of "and" and "or" conditions
+     */
+    public function testEntityQueryIndexSanitizeConditionValue()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+
+        $taskDef = $entityDefinitionLoader->get("task");
+        $userIdField = $taskDef->getField("user_id");
+
+        $sanitizedValue = $index->sanitizeWhereCondition($userIdField, UserEntity::USER_CURRENT);
+        $this->assertEquals($sanitizedValue, $this->user->getId());
+    }
+
+    /**
+     * Run tests with combination of "and" and "or" conditions
+     */
+    public function testIndexQueryRdbSave()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+
+        // Create customer test object
+        $customer = $this->createTestCustomer();
+
+        $res = $index->save($customer);
+        $this->assertTrue($res);
+    }
+
+    /**
+     * Run tests with entity query index using object fields
+     */
+    public function testIndexQueryUsingObjectField()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+
+        // Create customer test object. This will also create an activity log
+        $customer = $this->createTestCustomer();
+
+        $activityDef = $entityDefinitionLoader->get("activity");
+        $verbObjectField = $activityDef->getField("verb_object");
+
+        // Test first if verb_object field has no subtype
+        $this->assertEmpty($verbObjectField->subtype);
+
+        /*
+         * Now, let's query the activity using a field with no subtype
+         */
+        $query = new EntityQuery("activity");
+        $query->where('verb_object')->equals($customer->getObjRef());
+        $res = $index->executeQuery($query);
+
+        // This should return 0 result since verb_object was not set
+        $this->assertEmpty(0, $res->getTotalNum());
+
+
+        /**
+         * Query the activity entity using object reference
+         */
+        $query = new EntityQuery("activity");
+        $query->where('verb')->equals("create");
+        $query->where('obj_reference')->equals($customer->getObjRef());
+        $res = $index->executeQuery($query);
+
+        // This should return 1 result since creating an entity will always create an 1 activity log
+        $this->assertEquals(1, $res->getTotalNum());
+
+        // Get the activity entity
+        $activityEntity = $res->getEntity(0);
+
+        /*
+         * We will update the activity's verb_object, then we will try to query it
+         */
+        $customer->setValue("verb_object", $customer->getObjRef());
+        $entityLoader->save($customer);
+
+        $query = new EntityQuery("activity");
+        $query->where('verb_object')->equals($customer->getObjRef());
+        $res = $index->executeQuery($query);
+
+        // This should return 1 result since verb_object we have now set the verb_object
+        $this->assertEmpty(0, $res->getTotalNum());
+    }
+
+    /**
+     * Run tests with combination of "and" and "or" conditions
+     */
+    public function testCombinationOfWhereConditions()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $personTypeId = 1;
+        $organizationTypeId = 2;
+
+        // Create customer test objects
+        $customer1 = $this->createTestCustomer($personTypeId);
+        $customer2 = $this->createTestCustomer($personTypeId);
+        $customer3 = $this->createTestCustomer($organizationTypeId);
+        $customer4 = $this->createTestCustomer($organizationTypeId);
+        
+        $testObjType = $customer1->getObjType();
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+
+        /*
+         * Test multiple or conditions and 1 "and" operator
+         */
+        $query = new EntityQuery($testObjType);
+        $query->where('name')->equals($customer1->getValue("name"));
+        $query->orWhere('name')->equals($customer2->getValue("name"));
+        $query->orWhere('name')->equals($customer3->getValue("name"));
+        $query->orWhere('name')->equals($customer4->getValue("name"));
+        $query->andWhere('type_id')->equals($organizationTypeId);
+        $res = $index->executeQuery($query);
+
+        // Should get at least 2 results since we only have set the type_id = 2
+        $this->assertGreaterThanOrEqual(2, $res->getTotalNum());
+        $obj = $res->getEntity(0);
+        $this->assertEquals($obj->getValue("type_id"), $organizationTypeId);
+
+        /*
+         * Test multiple "and" conditions that can get a specific customer
+         */
+        $query = new EntityQuery($testObjType);
+        $query->where('name')->equals($customer1->getValue("name"));
+        $query->andWhere('status_id')->equals($customer1->getValue("status_id"));
+        $query->andWhere('last_contacted')->equals($customer1->getValue("last_contacted"));
+        $res = $index->executeQuery($query);
+
+        // Should get only 1 result since this query is for specific for $customer1
+        $this->assertEquals(1, $res->getTotalNum());
+        $obj = $res->getEntity(0);
+        $this->assertEquals($obj->getValue("id"), $customer1->getValue("id"));
+
+        /*
+         * Test multiple "and" conditions and 1 or statement
+         */
+        $query = new EntityQuery($testObjType);
+        $query->orWhere('type_id')->equals($personTypeId);
+        $query->andwhere('name')->equals($customer4->getValue("name"));
+        $query->andWhere('status_id')->equals($customer4->getValue("status_id"));
+        $query->andWhere('last_contacted')->equals($customer4->getValue("last_contacted"));
+        $res = $index->executeQuery($query);
+
+        // Should get at least 3 results since the "and" conditions are specific for $customer4 and customer 1,2 has type_id $personType
+        $this->assertGreaterThanOrEqual(3, $res->getTotalNum());
+
+        /*
+         * Test multiple "or" conditions in the same text field
+         */
+        $query = new EntityQuery($testObjType);
+        $query->where('name')->equals($customer1->getValue("name"));
+        $query->orWhere('name')->equals($customer2->getValue("name"));
+        $query->orWhere('name')->equals($customer3->getValue("name"));
+        $res = $index->executeQuery($query);
+
+        // Should get 3 result3 since we set 3 "or" conditions for name field
+        $this->assertEquals(3, $res->getTotalNum());
+
+        /*
+         * Test multiple "or" conditions in the same multi field
+         */
+        $query = new EntityQuery($testObjType);
+        $query->where('groups')->equals($customer1->getValue("groups")[0]);
+        $query->orWhere('groups')->equals($customer2->getValue("groups")[0]);
+        $query->orWhere('groups')->equals($customer3->getValue("groups")[0]);
+        $res = $index->executeQuery($query);
+
+        // Should get 3 result3 since we set 3 "or" conditions for groups field
+        $this->assertEquals(3, $res->getTotalNum());
+
+        /*
+         * Test multiple "or" conditions in different fields
+         */
+        $query = new EntityQuery($testObjType);
+        $query->where('status_id')->equals($customer1->getValue("status_id"));
+        $query->orwhere('name')->equals($customer2->getValue("name"));
+        $query->orWhere('id')->equals($customer3->getValue("id"));
+        $query->orWhere('groups')->equals($customer4->getValue("groups")[0]);
+        $res = $index->executeQuery($query);
+
+        // Should get 4 results since we set 4 "or" conditions for different fields
+        $this->assertEquals(4, $res->getTotalNum());
+
+        /*
+         * Test multiple "and" conditions in the same field
+         */
+        $query = new EntityQuery($testObjType);
+        $query->where('status_id')->equals($customer1->getValue("status_id"));
+        $query->andWhere('status_id')->equals($customer2->getValue("status_id"));
+        $query->andWhere('status_id')->equals($customer3->getValue("status_id"));
+        $res = $index->executeQuery($query);
+
+        // Should get 0 result since no customer can have 3 different status_id
+        $this->assertEquals(0, $res->getTotalNum());
+    }
+
+    /**
+     * Make sure "OR" and "AND" query conditions will work
+     */
+    public function testObjectMultiEqualsCondition()
+    {
+        $serviceManager = $this->account->getServiceManager();
+        $loader = $serviceManager->get(EntityLoaderFactory::class);
+        $index = $serviceManager->get(IndexFactory::class);
+
+        $memberId = rand();
+        $memberId1 = rand();
+        $memberId2 = rand();
+        $memberId3 = rand();
+
+        // Create a project that only has 1 member
+        $projectEntity = $loader->create("project");
+        $projectEntity->setValue("name", "Test Project 4");
+        $projectEntity->addMultiValue("members", $memberId, "Member");
+        $pid = $loader->save($projectEntity);
+
+        // Create a project that has 1 member
+        $projectEntity1 = $loader->create("project");
+        $projectEntity1->setValue("name", "Test Project 1");
+        $projectEntity1->addMultiValue("members", $memberId1, "Member One");
+        $pid1 = $loader->save($projectEntity1);
+
+        // Create a project that has 2 members
+        $projectEntity2 = $loader->create("project");
+        $projectEntity2->setValue("name", "Test Project 2");
+        $projectEntity2->addMultiValue("members", $memberId1, "Member One");
+        $projectEntity2->addMultiValue("members", $memberId2, "Member Two");
+        $pid2 = $loader->save($projectEntity2);
+
+        // Create a project that only has 3 members
+        $projectEntity3 = $loader->create("project");
+        $projectEntity3->setValue("name", "Test Project 3");
+        $projectEntity3->addMultiValue("members", $memberId1, "Member One");
+        $projectEntity1->addMultiValue("members", $memberId2, "Member Two");
+        $projectEntity1->addMultiValue("members", $memberId3, "Member Three");
+        $pid3 = $loader->save($projectEntity3);
+
+        // Set the entities so it will be cleaned up properly
+        $this->testEntities[] = $projectEntity;
+        $this->testEntities[] = $projectEntity1;
+        $this->testEntities[] = $projectEntity2;
+        $this->testEntities[] = $projectEntity3;
+
+        /*
+         * Query the project of a specific member with 1 project
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId);
+
+        // Execute the query
+        $res = $index->executeQuery($query);
+
+        $resultEntity = $res->getEntity(0);
+        $this->assertEquals($pid, $resultEntity->getId());
+        $this->assertEquals($projectEntity->getName(), $resultEntity->getName());
+        $this->assertEquals(1, $res->getTotalNum());
+
+        /*
+         * Query the project of a specific member with multiple projects
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId1);
+        $res = $index->executeQuery($query);
+
+        // This will have a result of 3 since $member1 has 3 projects
+        $this->assertEquals(3, $res->getTotalNum());
+
+        /*
+         * Query the projects of two different members
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId1);
+        $query->orWhere("members")->equals($memberId);
+        $res = $index->executeQuery($query);
+
+        // This will have a result of 4 projects since both $member1 has 3 projects while $memberId has 1
+        $this->assertEquals(4, $res->getTotalNum());
+
+        /*
+         * Query the projects of two different members that only has 1 projects each
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId);
+        $query->orWhere("members")->equals($memberId3);
+        $res = $index->executeQuery($query);
+
+        // This will have a result of two since both $member and $member3 has one project each
+        $this->assertEquals(2, $res->getTotalNum());
+
+        /*
+         * Query the projects that has the same members
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId1);
+        $query->andWhere("members")->equals($memberId2);
+        $res = $index->executeQuery($query);
+
+        // This will have a result of 1 project since both $member and $member3 has one project each
+        $resultEntity = $res->getEntity(0);
+        $this->assertEquals(1, $res->getTotalNum());
+        $this->assertEquals($pid2, $resultEntity->getId());
+
+        /*
+         * Query the projects that has the same members and will include other project using "or" condition
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId1);
+        $query->andWhere("members")->equals($memberId2);
+        $query->orWhere("members")->equals($memberId);
+        $res = $index->executeQuery($query);
+
+        $this->assertEquals(2, $res->getTotalNum());
+
+        /*
+         * Create a query that will use members and name field
+         */
+        $query = new EntityQuery("project");
+        $query->where("members")->equals($memberId1);
+        $query->andWhere("name")->equals("Test Project");
+
+        // This will have 0 results since $member1 is not a member in Test Project
+        $this->assertEquals(0, $res->getTotalNum());
+    }
+
+    /**
      * Run test of is equal conditions
      */
     public function testWhereFullText()
@@ -153,11 +510,11 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
-        
+        //$this->assertTrue(false, "Index could not be setup!");
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -178,11 +535,11 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
-        
+        //$this->assertTrue(false, "Index could not be setup!");
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -191,7 +548,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Query null - first name is not set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -218,13 +575,13 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
+        //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test with number
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -240,7 +597,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Test null
         // -------------------------------------------------
         $testEnt->setValue("type_id", null);
@@ -272,13 +629,13 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
+        //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test value is set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -294,7 +651,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Test null
         // -------------------------------------------------
         $cachedStatus = $testEnt->getValue("status_id");
@@ -313,7 +670,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Make sure query with old id does not return entity
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -340,13 +697,13 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
+        //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query collection for fkey_multi
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -367,7 +724,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cachedGroups = $testEnt->getValue("groups");
         $testEnt->setValue("groups", null);
         $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
-        
+
         // Test null for groups
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -383,7 +740,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Make sure object no longer returns on null query with old id
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -411,11 +768,11 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
-        
+        //$this->assertTrue(false, "Index could not be setup!");
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query collection for boolean
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('f_nocall')->equals(true);
@@ -442,13 +799,13 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
+        //$this->assertTrue(false, "Index could not be setup!");
 
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-                
+
         // Create a test customer
         $testEnt = $this->createTestCustomer();
-        
+
         // Create a test case attached to the customer
         $case = $this->account->getServiceManager()->get("EntityLoader")->create("case");
         $case->setValue("name", "Unit Test Case");
@@ -457,13 +814,13 @@ abstract class IndexTestsAbstract extends TestCase
 
         // Make sure this gets cleaned up
         $this->testEntities[] = $case;
-        
+
         // Query for customer id
         $query = new EntityQuery($case->getObjType());
         $query->where('customer_id')->equals($testEnt->getId());
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
-        
+
         // Query with null customer id
         $case->setValue("customer_id", "");
         $dm->save($case);
@@ -534,7 +891,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery($notification->getDefinition()->getObjType());
         $query->where('obj_reference')->equals($objReference);
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
+        $this->assertGreaterThan(0, $res->getTotalNum());
 
         // Now set the object reference to null for testing empty
         $notification->setValue("obj_reference", "");
@@ -558,10 +915,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -576,7 +933,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Does not equal null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -603,10 +960,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query value
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -621,7 +978,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Does not equal null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -648,10 +1005,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test value is set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -666,7 +1023,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Test null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -693,10 +1050,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Test value is set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -712,7 +1069,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Test null
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -739,11 +1096,11 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
-        
+        //$this->assertTrue(false, "Index could not be setup!");
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -758,7 +1115,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -773,7 +1130,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -788,7 +1145,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -815,11 +1172,11 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
-        
+        //$this->assertTrue(false, "Index could not be setup!");
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -834,7 +1191,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -849,7 +1206,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -864,7 +1221,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -891,13 +1248,13 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
+        //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -912,7 +1269,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -927,7 +1284,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -942,7 +1299,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -969,13 +1326,13 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-            //$this->assertTrue(false, "Index could not be setup!");
+        //$this->assertTrue(false, "Index could not be setup!");
 
         $uniName = "utestequals." . uniqid();
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Is greater inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -990,7 +1347,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1005,7 +1362,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertFalse($found);
-        
+
         // Is greater or equal inclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1020,7 +1377,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Is greater or equal exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1047,10 +1404,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query null - first name is not set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1077,10 +1434,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Query null - first name is not set
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1107,10 +1464,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Day is equal
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1125,7 +1482,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Month is equal
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1140,7 +1497,7 @@ abstract class IndexTestsAbstract extends TestCase
             }
         }
         $this->assertTrue($found);
-        
+
         // Year is equal
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1164,10 +1521,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 days"));
@@ -1180,7 +1537,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Day - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1188,7 +1545,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->lastNumDays(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 weeks"));
@@ -1201,7 +1558,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Week - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1209,7 +1566,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->lastNumWeeks(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 months"));
@@ -1222,7 +1579,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Month - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1230,7 +1587,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->lastNumMonths(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 years"));
@@ -1243,7 +1600,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Year - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1260,10 +1617,10 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $testEnt = $this->createTestCustomer();
-        
+
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 days"));
@@ -1276,7 +1633,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Day - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1284,7 +1641,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->nextNumDays(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 weeks"));
@@ -1297,7 +1654,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Week - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1305,7 +1662,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->nextNumWeeks(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 months"));
@@ -1318,7 +1675,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Month - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1326,7 +1683,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('last_contacted')->nextNumMonths(1);
         $res = $index->executeQuery($query);
         $this->assertEquals(0, $res->getTotalNum());
-        
+
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 years"));
@@ -1339,7 +1696,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $obj = $res->getEntity(0);
         $this->assertEquals($testEnt->getId(), $obj->getId());
-        
+
         // Year - exclusive
         // -------------------------------------------------
         $query = new EntityQuery($testEnt->getObjType());
@@ -1381,7 +1738,7 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        
+
         // Save a test object
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
         $obj = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
@@ -1403,7 +1760,7 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(1, $res->getTotalNum());
         $ent = $res->getEntity(0);
         $this->assertEquals($oid, $ent->getId());
-        
+
         // Cleanup
         $dm->delete($obj, true);
     }
@@ -1439,7 +1796,7 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
-        
+
         // Cleanup
         $this->deleteGrouping("customer", "groups", $g1['id']);
         $this->deleteGrouping("customer", "groups", $g2['id']);
@@ -1483,7 +1840,7 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
-        
+
         // Cleanup
         $dm->delete($folder2, true);
         $dm->delete($folder1, true);
@@ -1527,7 +1884,7 @@ abstract class IndexTestsAbstract extends TestCase
         }
         $this->assertTrue($found1);
         $this->assertTrue($found2);
-        
+
         // Cleanup
         $dm->delete($folder2, true);
         $dm->delete($folder1, true);
@@ -1726,85 +2083,53 @@ abstract class IndexTestsAbstract extends TestCase
     }
 
     /**
-     * Make sure "OR" and "AND" query conditions will work
-     */
-    public function testObjectMultiEqualsCondition()
-    {
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-
-        // Create an entity and initialize values
-        $projectName = "Test Project";
-        $projectEntity = $this->account->getServiceManager()->get("EntityLoader")->create("project");
-        $projectEntity->setValue("name", $projectName);
-        $projectEntity->addMultiValue("members", 35, "Member One");
-        $projectEntity->addMultiValue("members", 40, "Member Two");
-        $projectEntity->addMultiValue("members", 45, "Member Three");
-        $pid = $dm->save($projectEntity, $this->user);
-
-        // Set the entities so it will be cleaned up properly
-        $this->testEntities[] = $projectEntity;
-
-        // Query the project by members
-        $query = new Netric\EntityQuery("project");
-        $query->where("members")->equals(45);
-
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        // Execute the query
-        $res = $index->executeQuery($query);
-
-        $resultEntity = $res->getEntity(0);
-        $this->assertEquals($pid, $resultEntity->getId());
-        $this->assertEquals($projectName, $resultEntity->getName());
-    }
-
-    /**
      * Test hierarcy subqueries
      *
      * @group testHierarcySubqueries
      *
     public function testHierarcySubqueries()
     {
-        $indexes = array("db");
-        if (index_is_available("elastic"))
-            $indexes[] = "elastic";
+    $indexes = array("db");
+    if (index_is_available("elastic"))
+    $indexes[] = "elastic";
 
-        // Setup files and folders for example
-        $antfs = new AntFs($this->dbh, $this->user);
-        $fldr = $antfs->openFolder("/tests/testHierarcySubqueries", true);
-        $this->assertNotNull($fldr);
-        $fldr2 = $antfs->openFolder("/tests/testHierarcySubqueries/Child", true);
-        $this->assertNotNull($fldr2);
-        $file = $fldr2->openFile("testsync", true);
-        $this->assertNotNull($file);
+    // Setup files and folders for example
+    $antfs = new AntFs($this->dbh, $this->user);
+    $fldr = $antfs->openFolder("/tests/testHierarcySubqueries", true);
+    $this->assertNotNull($fldr);
+    $fldr2 = $antfs->openFolder("/tests/testHierarcySubqueries/Child", true);
+    $this->assertNotNull($fldr2);
+    $file = $fldr2->openFile("testsync", true);
+    $this->assertNotNull($file);
 
-        foreach ($indexes as $indName)
-        {
-            $fldr->setIndex($indName);
-            $fldr->index();
-            $fldr2->setIndex($indName);
-            $fldr2->index();
-            $file->setIndex($indName);
-            $file->index();
+    foreach ($indexes as $indName)
+    {
+    $fldr->setIndex($indName);
+    $fldr->index();
+    $fldr2->setIndex($indName);
+    $fldr2->index();
+    $file->setIndex($indName);
+    $file->index();
 
-            // Test equal to root which should return none
-            $objList = new CAntObjectList($this->dbh, "file", $this->user);
-            $objList->setIndex($indName); // Manually set index type
-            $objList->addCondition("and", "folder_id", "is_equal", $fldr->id);
-            $objList->getObjects();
-            $this->assertEquals(0, $objList->getNumObjects());
+    // Test equal to root which should return none
+    $objList = new CAntObjectList($this->dbh, "file", $this->user);
+    $objList->setIndex($indName); // Manually set index type
+    $objList->addCondition("and", "folder_id", "is_equal", $fldr->id);
+    $objList->getObjects();
+    $this->assertEquals(0, $objList->getNumObjects());
 
-            // Now test with is_less_or_equal
-            $objList = new CAntObjectList($this->dbh, "file", $this->user);
-            $objList->setIndex($indName); // Manually set index type
-            $objList->addCondition("and", "folder_id", "is_less_or_equal", $fldr->id);
-            $objList->getObjects();
-            $this->assertTrue($objList->getNumObjects() > 0);
-        }
+    // Now test with is_less_or_equal
+    $objList = new CAntObjectList($this->dbh, "file", $this->user);
+    $objList->setIndex($indName); // Manually set index type
+    $objList->addCondition("and", "folder_id", "is_less_or_equal", $fldr->id);
+    $objList->getObjects();
+    $this->assertTrue($objList->getNumObjects() > 0);
+    }
 
-        // Cleanup
-        $file->removeHard();
-        $fldr2->removeHard();
-        $fldr->removeHard();
+    // Cleanup
+    $file->removeHard();
+    $fldr2->removeHard();
+    $fldr->removeHard();
     }
      *
      */
@@ -1816,25 +2141,25 @@ abstract class IndexTestsAbstract extends TestCase
      *
     public function testFkeyLabelToId()
     {
-        $dbh = $this->dbh;
+    $dbh = $this->dbh;
 
-        $obj = new CAntObject($dbh, "activity", null, $this->user);
-        $grpdat = $obj->getGroupingEntryByName("type_id", "testFkeyLabelToId");
-        if (!$grpdat)
-            $grpdat = $obj->addGroupingEntry("type_id", "testFkeyLabelToId");
-        $obj->setValue("name", "Test customer testFkeyLabelToId");
-        $obj->setValue("type_id", $grpdat["id"]);
-        $oid = $obj->save();
+    $obj = new CAntObject($dbh, "activity", null, $this->user);
+    $grpdat = $obj->getGroupingEntryByName("type_id", "testFkeyLabelToId");
+    if (!$grpdat)
+    $grpdat = $obj->addGroupingEntry("type_id", "testFkeyLabelToId");
+    $obj->setValue("name", "Test customer testFkeyLabelToId");
+    $obj->setValue("type_id", $grpdat["id"]);
+    $oid = $obj->save();
 
-        // Query based on type_id label
-        $objList = new CAntObjectList($this->dbh, "activity", $this->user);
-        $objList->addCondition("and", "type_id", "is_equal", "testFkeyLabelToId");
-        $objList->getObjects();
-        $this->assertTrue($objList->getNumObjects() > 0);
+    // Query based on type_id label
+    $objList = new CAntObjectList($this->dbh, "activity", $this->user);
+    $objList->addCondition("and", "type_id", "is_equal", "testFkeyLabelToId");
+    $objList->getObjects();
+    $this->assertTrue($objList->getNumObjects() > 0);
 
-        // Cleanup
-        $obj->deleteGroupingEntry("groups", $grpdat['id']);
-        $obj->removeHard();
+    // Cleanup
+    $obj->deleteGroupingEntry("groups", $grpdat['id']);
+    $obj->removeHard();
     }
      *
      */

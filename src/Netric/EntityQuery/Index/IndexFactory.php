@@ -22,6 +22,6 @@ class IndexFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        return new Pgsql($sl->getAccount());
+        return new EntityQueryIndexRdb($sl->getAccount());
     }
 }
