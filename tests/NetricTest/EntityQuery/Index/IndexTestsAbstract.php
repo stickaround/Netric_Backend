@@ -18,7 +18,6 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
-use Netric\Entity\ObjType\UserEntity;
 
 /**
  * @group integration
