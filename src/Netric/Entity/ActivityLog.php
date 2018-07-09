@@ -158,12 +158,7 @@ class ActivityLog
         $actEntity->setValue("type_id", $group->id, $group->name);
 
         // Log which entity performed the action
-        $subjectRef = $subject->getObjRef();
-        if (empty($subjectRef)) {
-            $subjectRef = $subject->getName();
-        }
-
-        $actEntity->setValue("subject", $subjectRef, $subject->getName());
+        $actEntity->setValue("subject", $subject->getObjRef(), $subject->getName());
 
         // Add referenced entity to activity associations
         $actEntity->addMultiValue("associations", $object->getObjRef(), $object->getName());

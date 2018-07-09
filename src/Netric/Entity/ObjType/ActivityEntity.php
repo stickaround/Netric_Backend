@@ -11,7 +11,6 @@ namespace Netric\Entity\ObjType;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
-use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Activty entity used for logging activity logs
@@ -49,34 +48,6 @@ class ActivityEntity extends Entity implements EntityInterface
                     $this->getValueName('obj_reference')
                 );
             }
-        }
-
-        /*
-         * If the activity subject is empty but we have associations
-         * Then we will try to get our subect from it
-         */
-        if (empty($this->getValue("subject")) && !empty($this->getValue('associations'))) {
-            $assoc = $this->getValue('associations');
-
-            // Decode the association value and check if we have a valid object reference value
-            $assocParts = $this->decodeObjRef($assoc[0]);
-            $assocObjType = $assocParts["obj_type"];
-            $assocId = $assocParts["id"];
-            $assocName = $assocParts["name"];
-
-            // Make sure that we have objType and id before we load the object reference
-            if (empty($assocName) && !empty($assocObjType) && !empty($assocId)) {
-                $entityLoader = $sm->get(EntityLoaderFactory::class);
-                $assocEntity = $entityLoader->get($assocObjType, $assocId);
-
-                if ($assocEntity) {
-                    $assocName = $assocEntity->getName();
-                } else {
-                    $assocName = $assoc[0];
-                }
-            }
-
-            $this->setValue("subject", $assocName);
         }
 
         // Make sure the required data is set

@@ -12,9 +12,12 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
+use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
-use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @group integration
@@ -48,7 +51,7 @@ abstract class IndexTestsAbstract extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -142,6 +145,113 @@ abstract class IndexTestsAbstract extends TestCase
         $groupings = $dm->getGroupings($objType, $field);
         $groupings->delete($id);
         $dm->saveGroupings($groupings);
+    }
+
+    /**
+     * Run tests with combination of "and" and "or" conditions
+     */
+    public function testEntityQueryIndexSanitizeConditionValue()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+
+        $taskDef = $entityDefinitionLoader->get("task");
+        $userIdField = $taskDef->getField("user_id");
+
+        $sanitizedValue = $index->sanitizeWhereCondition($userIdField, UserEntity::USER_CURRENT);
+        $this->assertEquals($sanitizedValue, $this->user->getId());
+    }
+
+    /**
+     * Run tests with combination of "and" and "or" conditions
+     */
+    public function testIndexQueryRdbSave()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+
+        // Create customer test object
+        $customer = $this->createTestCustomer();
+
+        $res = $index->save($customer);
+        $this->assertTrue($res);
+    }
+
+    /**
+     * Run tests with entity query index using object fields
+     */
+    public function testIndexQueryUsingObjectField()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+
+        // Create customer test object. This will also create an activity log
+        $customer = $this->createTestCustomer();
+
+        $activityDef = $entityDefinitionLoader->get("activity");
+        $verbObjectField = $activityDef->getField("verb_object");
+
+        // Test first if verb_object field has no subtype
+        $this->assertEmpty($verbObjectField->subtype);
+
+        /*
+         * Now, let's query the activity using a field with no subtype
+         */
+        $query = new EntityQuery("activity");
+        $query->where('verb_object')->equals($customer->getObjRef());
+        $res = $index->executeQuery($query);
+
+        // This should return 0 result since verb_object was not set
+        $this->assertEmpty(0, $res->getTotalNum());
+
+
+        /**
+         * Query the activity entity using object reference
+         */
+        $query = new EntityQuery("activity");
+        $query->where('verb')->equals("create");
+        $query->where('obj_reference')->equals($customer->getObjRef());
+        $res = $index->executeQuery($query);
+
+        // This should return 1 result since creating an entity will always create an 1 activity log
+        $this->assertEquals(1, $res->getTotalNum());
+
+        // Get the activity entity
+        $activityEntity = $res->getEntity(0);
+
+        /*
+         * We will update the activity's verb_object, then we will try to query it
+         */
+        $customer->setValue("verb_object", $customer->getObjRef());
+        $entityLoader->save($customer);
+
+        $query = new EntityQuery("activity");
+        $query->where('verb_object')->equals($customer->getObjRef());
+        $res = $index->executeQuery($query);
+
+        // This should return 1 result since verb_object we have now set the verb_object
+        $this->assertEmpty(0, $res->getTotalNum());
     }
 
     /**
