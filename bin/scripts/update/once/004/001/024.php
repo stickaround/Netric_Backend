@@ -22,14 +22,14 @@ foreach ($definitions as $def) {
     $tblBase = "objects_" . $def->getObjType();
 
     // Only alter tables that have not already been updated
-    if (!$db->indexExists($tblBase . "_act_id_idx")) {
+    if (!$db->indexExists($tblBase . "_act_id_idx") && $db->tableExists($tblBase ."_act")) {
         $db->query("ALTER TABLE {$tblBase}_act DROP CONSTRAINT {$tblBase}_act_pkey");
         $db->query("CREATE UNIQUE INDEX  {$tblBase}_act_id_idx ON {$tblBase}_act (id)");
         $db->query("ALTER TABLE {$tblBase}_act ADD CONSTRAINT {$tblBase}_act_pkey PRIMARY KEY (guid)");
     }
 
     // Now update the deleted archive partition
-    if (!$db->indexExists($tblBase . "_del_id_idx")) {
+    if (!$db->indexExists($tblBase . "_del_id_idx") && $db->tableExists($tblBase ."_del")) {
         $db->query("ALTER TABLE {$tblBase}_del DROP CONSTRAINT {$tblBase}_del_pkey");
         $db->query("CREATE UNIQUE INDEX  {$tblBase}_del_id_idx ON {$tblBase}_del (id)");
         $db->query("ALTER TABLE {$tblBase}_del ADD CONSTRAINT {$tblBase}_del_pkey PRIMARY KEY (guid)");
