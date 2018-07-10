@@ -160,6 +160,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         $serviceManager = $this->account->getServiceManager();
         $index = $serviceManager->get(IndexFactory::class);
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
         $taskDef = $entityDefinitionLoader->get("task");
@@ -167,7 +168,25 @@ abstract class IndexTestsAbstract extends TestCase
 
         $sanitizedValue = $index->sanitizeWhereCondition($userIdField, UserEntity::USER_CURRENT);
         $this->assertEquals($sanitizedValue, $this->user->getId());
+
+        // Now let's create a task entity and set the value of user_id to current user's id
+        $taskEntity = $entityLoader->create("task");
+        $taskEntity->setValue("user_id", $this->user->getId());
+        $entityLoader->save($taskEntity);
+
+        $this->testEntities[] = $taskEntity;
+
+        // We will now create a query using UserEntity::USER_CURRENT to get the $taskEntity
+        $query = new EntityQuery("task");
+        $query->where('user_id')->equals(UserEntity::USER_CURRENT);
+        $res = $index->executeQuery($query);
+
+        // This should return 1 result since we have created 1 task that has current user's id
+        $this->assertEquals(1, $res->getTotalNum());
+        $this->assertEquals($taskEntity->getId(), $res->getEntity(0)->getId());
     }
+
+
 
     /**
      * Run tests with combination of "and" and "or" conditions
@@ -273,7 +292,7 @@ abstract class IndexTestsAbstract extends TestCase
         $customer2 = $this->createTestCustomer($personTypeId);
         $customer3 = $this->createTestCustomer($organizationTypeId);
         $customer4 = $this->createTestCustomer($organizationTypeId);
-        
+
         $testObjType = $customer1->getObjType();
         $serviceManager = $this->account->getServiceManager();
         $index = $serviceManager->get(IndexFactory::class);
@@ -408,8 +427,8 @@ abstract class IndexTestsAbstract extends TestCase
         $projectEntity3 = $loader->create("project");
         $projectEntity3->setValue("name", "Test Project 3");
         $projectEntity3->addMultiValue("members", $memberId1, "Member One");
-        $projectEntity1->addMultiValue("members", $memberId2, "Member Two");
-        $projectEntity1->addMultiValue("members", $memberId3, "Member Three");
+        $projectEntity3->addMultiValue("members", $memberId2, "Member Two");
+        $projectEntity3->addMultiValue("members", $memberId3, "Member Three");
         $pid3 = $loader->save($projectEntity3);
 
         // Set the entities so it will be cleaned up properly
@@ -468,11 +487,11 @@ abstract class IndexTestsAbstract extends TestCase
          * Query the projects that has the same members
          */
         $query = new EntityQuery("project");
-        $query->where("members")->equals($memberId1);
-        $query->andWhere("members")->equals($memberId2);
+        $query->where("members")->equals($memberId2);
+        $query->andWhere("members")->equals($memberId3);
         $res = $index->executeQuery($query);
 
-        // This will have a result of 1 project since both $member and $member3 has one project each
+        // This will have a result of 1 project since both $member2 and $member3 has one project each
         $resultEntity = $res->getEntity(0);
         $this->assertEquals(1, $res->getTotalNum());
         $this->assertEquals($pid2, $resultEntity->getId());
