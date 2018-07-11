@@ -1,0 +1,18 @@
+output:
+  logstash:
+    enabled: true
+    hosts:
+      - elk:5044
+    timeout: 15
+    tls:
+      certificate_authorities:
+      - /etc/pki/tls/certs/logstash-beats.crt
+
+filebeat:
+  prospectors:
+    -
+      paths:
+        - /var/log/apache2/*
+      document_type: apache
+      fields:
+              apache: true

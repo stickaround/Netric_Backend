@@ -1,0 +1,7 @@
+# We don't do this, but it looks like a user map to other users in case you don't want to use
+# email alais.
+user = {{DB_USER}}
+password = {{DB_PASSWORD}}
+hosts = {{DB_HOST}}
+dbname = {{DB_NAME}}
+query = SELECT email FROM mail_view_users WHERE email='%s'

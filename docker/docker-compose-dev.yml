@@ -1,0 +1,128 @@
+version: '2'
+
+services:
+  netric_server:
+    build: ../
+    ports:
+     - "80:80"
+     - "443:443"
+    environment:
+       APPLICATION_ENV: development
+       RUN_SETUP_INSTALL: 1
+       XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=0 remote_autostart=0"
+       PHP_IDE_CONFIG: "serverName=local.aereusdev.com"
+    volumes:
+     - ../:/var/www/html/
+    depends_on:
+      - logstash
+      - memcached
+      - gearmand
+      - mail
+      - db1
+      - mogilefs
+      - mogilestore
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"     
+
+  memcached:
+    image: memcached
+
+  gearmand:
+    image: kendu/gearman
+
+  db1:
+    image: dockerhub.aereusdev.com/pgsql:latest
+    environment:
+      POSTGRES_USER: vagrant
+      POSTGRES_PASSWORD: vagrant
+    command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200", "-c", "synchronous_commit=off", "-c", "fsync=off", "-c", "full_page_writes=off"]
+    ports:
+      - "5432:5432"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
+
+  mail:
+    image: dockerhub.aereusdev.com/mail:latest
+    environment:
+        DB_USER: vagrant
+        DB_PASSWORD: vagrant
+        DB_HOST: db1
+        DB_NAME: antsystem
+        DB_PORT: 5432
+    depends_on:
+      - db1
+
+  mogilefs:
+    image: dockerhub.aereusdev.com/mogiletracker:latest
+    environment:
+        DB_USER: vagrant
+        DB_PASSWORD: vagrant
+        DB_HOST: db1
+        DB_NAME: mogilefs
+        DB_PORT: 5432
+        DB_INIT: "true"
+        INIT_STORAGE_HOST: mogilestore
+        WAIT_FOR_DB_TIMEOUT: 240
+    depends_on:
+      - mogilestore
+      - db1
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://localhost:12201"   
+
+  mogilestore:
+    image: dockerhub.aereusdev.com/mogilestore:latest
+
+  logstash:
+    build: logstash/
+    container_name: logstash
+    ports:
+      - "12200:12200"
+      - "12201:12201/udp"
+      - "5141:5141"
+      - "5141:5141/udp"
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    container_name: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 9200:9200
+    environment:
+      - http.host=0.0.0.0
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
+  kibana:
+    image: dockerhub.aereusdev.com/kibana:latest
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  xhprof:
+    build: xhprof/
+    container_name: xhprof
+    volumes:
+         - ../data/profile_runs:/profiles
+    ports:
+      - "8888:80"

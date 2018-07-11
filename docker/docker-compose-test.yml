@@ -1,0 +1,98 @@
+version: '2'
+services:
+  netric_server:
+    build: ../
+    environment:
+      APPLICATION_ENV: testing
+      RUN_SETUP_INSTALL: 1
+    volumes:
+      - '../tests/tmp:/var/www/html/tests/tmp'
+    depends_on:
+      - memcached
+      - gearmand
+      - mail
+      - db1
+      - mogilefs
+      - mogilestore
+      - logstash
+    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
+    logging:
+      driver: "json-file"
+  memcached:
+    image: memcached
+  gearmand:
+    image: kendu/gearman
+  db1:
+    image: 'dockerhub.aereusdev.com/pgsql:latest'
+    command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200", "-c", "synchronous_commit=off", "-c", "fsync=off", "-c", "full_page_writes=off"]
+    environment:
+      POSTGRES_USER: vagrant
+      POSTGRES_PASSWORD: vagrant
+    logging:
+      driver: "json-file"
+  mail:
+    image: 'dockerhub.aereusdev.com/mail:latest'
+    environment:
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: antsystem
+      DB_PORT: 5432
+    depends_on:
+      - db1
+    logging:
+      driver: "json-file"
+  mogilefs:
+    image: 'dockerhub.aereusdev.com/mogiletracker:latest'
+    environment:
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: mogilefs
+      DB_PORT: 5432
+      DB_INIT: 'true'
+      INIT_STORAGE_HOST: mogilestore
+      WAIT_FOR_DB_TIMEOUT: 480
+    depends_on:
+      - mogilestore
+      - db1
+    logging:
+      driver: "json-file"
+  mogilestore:
+    image: 'dockerhub.aereusdev.com/mogilestore:latest'
+    logging:
+      driver: "json-file"
+    logging:
+      driver: "json-file"
+  logstash:
+    build: logstash/
+    container_name: logstash
+    ports:
+      - "12200:12200"
+      - "12201:12201/udp"
+      - "5141:5141"
+      - "5141:5141/udp"
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    container_name: elasticsearch
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - 9200:9200
+    environment:
+      - http.host=0.0.0.0
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

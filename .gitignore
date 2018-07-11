@@ -32,6 +32,23 @@
 ehthumbs.db
 Thumbs.db
 
+# IDE Files #
+######################
+/.idea
+/.buildpath
+/.project
+/.vscode
+nbproject/
+.~lock.*
+.buildpath
+.project
+.settings
 
-# Ignore the server data directory
-server/data/
+
+# Composer *
+#################
+composer.lock
+
+# Vendor directory
+/vendor
+/tests/NetricTest/FileSystem/FileStore/tmp/
