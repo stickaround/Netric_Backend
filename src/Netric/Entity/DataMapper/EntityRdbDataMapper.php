@@ -1,13 +1,13 @@
 <?php
 namespace Netric\Entity\DataMapper;
 
+use DateTime;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
-use DateTime;
 use Netric\Entity\EntityFactoryFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
@@ -837,6 +837,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Loop thru all the entity definitions and check if we have fields that needs to update the reference
         foreach ($definitions as $definition) {
             $fields = $definition->getFields();
+
             foreach ($fields as $field) {
                 // Skip over any fields that are not a reference to an object
                 if ($field->type != Field::TYPE_OBJECT && $field->type != Field::TYPE_OBJECT_MULTI) {
@@ -856,8 +857,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
                 // Encode object type and id with generic obj_type:obj_id
                 if (empty($field->subtype)) {
-                    $oldFieldValue = $definition->getObjType() . ':' . $fromId;
-                    $newFieldValue = $definition->getObjType() . ':' . $toId;
+                    $oldFieldValue = $def->getObjType() . ':' . $fromId;
+                    $newFieldValue = $def->getObjType() . ':' . $toId;
                 }
 
                 // Only continue if the field met one of the conditions above
