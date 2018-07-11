@@ -35,7 +35,7 @@ foreach ($rowsMoved as $rowMoved) {
 
             // Log what is going on to track progress
             $log->info(
-                "Update 004001023: Moving {$rowMoved["name"]}.{$field->name}" .
+                "Update 004001023: Moving {$rowMoved["obj_type"]}.{$field->name}" .
                 " from {$rowMoved['object_id']} to {$rowMoved['moved_to']}"
             );
 
