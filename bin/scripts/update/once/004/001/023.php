@@ -7,9 +7,11 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\Field;
+use Netric\Log\LogFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
+$log = $serviceManager->get(LogFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
@@ -30,6 +32,12 @@ foreach ($rowsMoved as $rowMoved) {
             if ($field->type != Field::TYPE_OBJECT && $field->type != Field::TYPE_OBJECT_MULTI) {
                 continue;
             }
+
+            // Log what is going on to track progress
+            $log->info(
+                "Update 004001023: Moving {$rowMoved["name"]}.{$field->name}" .
+                " from {$rowMoved['object_id']} to {$rowMoved['moved_to']}"
+            );
 
             // Create an EntityQuery for each object type
             $oldFieldValue = null;
@@ -81,8 +89,8 @@ foreach ($rowsMoved as $rowMoved) {
         // Update object_associations
         $db->update(
             'object_associations',
-            ['object_id'=>$rowMoved['object_type_id']],
-            ['type_id'=>$rowMoved[''], 'object_id'=>$rowMoved['object_id']]
+            ['object_id'=>$rowMoved['moved_to']],
+            ['type_id'=>$rowMoved['object_type_id'], 'object_id'=>$rowMoved['object_id']]
         );
 
         $db->update(
