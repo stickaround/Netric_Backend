@@ -492,9 +492,8 @@ abstract class IndexTestsAbstract extends TestCase
         $res = $index->executeQuery($query);
 
         // This will have a result of 1 project since both $member2 and $member3 has one project each
-        $resultEntity = $res->getEntity(0);
         $this->assertEquals(1, $res->getTotalNum());
-        $this->assertEquals($pid2, $resultEntity->getId());
+        $this->assertEquals($pid3, $res->getEntity(0)->getId());
 
         /*
          * Query the projects that has the same members and will include other project using "or" condition
@@ -513,6 +512,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query = new EntityQuery("project");
         $query->where("members")->equals($memberId1);
         $query->andWhere("name")->equals("Test Project");
+        $res = $index->executeQuery($query);
 
         // This will have 0 results since $member1 is not a member in Test Project
         $this->assertEquals(0, $res->getTotalNum());

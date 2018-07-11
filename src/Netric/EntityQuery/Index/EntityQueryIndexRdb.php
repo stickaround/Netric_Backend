@@ -173,10 +173,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         $conditionBlogic = $condition->bLogic;
                     }
 
-                    $nextCondition = $queryConditions[$idx+1];
-                    if (!empty($nextCondition) && $nextCondition->bLogic == Where::COMBINED_BY_OR) {
+                    if (isset($queryConditions[$idx+1])
+                        && $queryConditions[$idx+1]->bLogic == Where::COMBINED_BY_OR) {
                         /*
-                         * If the $nextCondition bLogic is an operator "or" then we will set it as a group
+                         * If the nextCondition bLogic is an operator "or" then we will set it as a group
                          * So we will continue with the next condition
                          */
                         continue;
@@ -247,6 +247,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // Check if we need to add offset
         if (!empty($query->getOffset())) {
             $sql .= " OFFSET {$query->getOffset()}";
+        }
+
+        if ($objectTable === "objects_customer") {
+            echo $sql;
+            print_r(conditionParams);
         }
 
         $result = $this->database->query($sql, $this->conditionParams);
