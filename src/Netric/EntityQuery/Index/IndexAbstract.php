@@ -300,7 +300,7 @@ abstract class IndexAbstract
         // Replace user vars
         if ($user) {
             // Replace current user
-            if ($value === UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
+            if ($value == UserEntity::USER_CURRENT && $this->fieldContainsUserValues($field)) {
                 $value = $user->getId();
             }
 
