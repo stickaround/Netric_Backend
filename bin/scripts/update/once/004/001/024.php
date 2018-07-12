@@ -15,7 +15,7 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 // Wrap this into a transaction so that we can extend the statement timeout (it takes a while)
 $db->beginTransaction();
 
-// Do not timeout
+// Do not timeout for this long query
 $db->query('set statement_timeout to 0');
 
 // First create all UUIDs in the gid field
