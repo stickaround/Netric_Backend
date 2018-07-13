@@ -5,9 +5,11 @@
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Log\LogFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
+$log = $serviceManager->get(LogFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
