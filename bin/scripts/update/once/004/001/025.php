@@ -5,13 +5,13 @@
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\EntityFactoryFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
-$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$entityFactory = $serviceManager->get(EntityFactoryFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
 $numNullObjects = 0;
@@ -26,7 +26,8 @@ do {
     $rows = $result->fetchAll();
     foreach ($rows as $row) {
         // Load the object up old school style (obj_type, id)
-        $entity = $entityLoader->get($row['obj_type'], $row['id']);
+        $entity = $entityFactory->create($row['obj_type']);
+        $entityDataMapper->getById($entity, $row['id']);
         // Update raw data in table
         $db->update('objects', ['field_data' => json_encode($entity->toArray)], ['guid' => $row['guid']]);
     }
