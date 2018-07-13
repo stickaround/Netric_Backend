@@ -26,14 +26,40 @@ foreach ($definitions as $def) {
 
     // Only alter tables that have not already been updated
     if (!$db->indexExists($tblBase . "_act_id_idx") && $db->tableExists($tblBase ."_act")) {
-        $db->query("ALTER TABLE {$tblBase}_act DROP CONSTRAINT {$tblBase}_act_pkey");
+        // Try deleting the primary key
+        try {
+            $db->query("ALTER TABLE {$tblBase}_act DROP CONSTRAINT {$tblBase}_act_pkey");
+        } catch (\Exception $ex) {
+            $log->error("Tried to delete pkey {$tblBase}_act_pkey it did not exist");
+
+            // In some cases, old tables were renamed from the id to the name of the object
+            try {
+                $db->query("ALTER TABLE {$tblBase}_act DROP CONSTRAINT objects_{$def->getId()}_act_pkey");
+            } catch (\Exception $ex) {
+                $log->error("Tried to delete pkey objects_{$def->getId()}_act_pkey it did not exist");
+            }
+        }
+
         $db->query("CREATE UNIQUE INDEX  {$tblBase}_act_id_idx ON {$tblBase}_act (id)");
         $db->query("ALTER TABLE {$tblBase}_act ADD CONSTRAINT {$tblBase}_act_pkey PRIMARY KEY (guid)");
     }
 
     // Now update the deleted archive partition
     if (!$db->indexExists($tblBase . "_del_id_idx") && $db->tableExists($tblBase ."_del")) {
-        $db->query("ALTER TABLE {$tblBase}_del DROP CONSTRAINT {$tblBase}_del_pkey");
+        // Try deleting the primary key
+        try {
+            $db->query("ALTER TABLE {$tblBase}_del DROP CONSTRAINT {$tblBase}_del_pkey");
+        } catch (\Exception $ex) {
+            $log->error("Tried to delete pkey {$tblBase}_act_pkey it did not exist");
+
+            // In some cases, old tables were renamed from the id to the name of the object
+            try {
+                $db->query("ALTER TABLE {$tblBase}_del DROP CONSTRAINT objects_{$def->getId()}_del_pkey");
+            } catch (\Exception $ex) {
+                $log->error("Tried to delete pkey objects_{$def->getId()}_act_pkey it did not exist");
+            }
+        }
+
         $db->query("CREATE UNIQUE INDEX  {$tblBase}_del_id_idx ON {$tblBase}_del (id)");
         $db->query("ALTER TABLE {$tblBase}_del ADD CONSTRAINT {$tblBase}_del_pkey PRIMARY KEY (guid)");
     }
