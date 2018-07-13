@@ -1,7 +1,6 @@
 <?php
 namespace Netric\EntityDefinition;
 
-use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 
 /**
@@ -242,6 +241,7 @@ class EntityDefinition
      * Get a form
      *
      * @param string $medium Either 'default', 'mobile' or 'infobox'
+     * @return string|null
      */
     public function getForm($medium = 'default')
     {
@@ -302,10 +302,10 @@ class EntityDefinition
     /**
      * Get a field
      *
-     * @param string $name The name of the field to get
+     * @param string $fname The name of the field to get
      * @return Field
      */
-    public function getField($fname)
+    public function getField(string $fname)
     {
         if (isset($this->fields[$fname])) {
             return $this->fields[$fname];
@@ -318,7 +318,7 @@ class EntityDefinition
      * Get all fields for this object type
      *
      * @param bool $includeRemoved If true, then removed fields will be returned with null values
-     * @return Field
+     * @return Field[]
      */
     public function getFields($includeRemoved = false)
     {
@@ -589,11 +589,6 @@ class EntityDefinition
     /**
      * Get the title of this object type
      *
-     * FIXME:
-     * Even though the title property is public right now,
-     * we intend on moving it to private in the near future so
-     * this function can be used in preparation for that change.
-     *
      * @return string
      */
     public function getTitle()
@@ -606,13 +601,6 @@ class EntityDefinition
      *
      * The title is the human readable short description
      * of the object type and always has an upper case first letter.
-     *
-     * FIXME:
-     * Right now $this->title is public, but as described in getTitle above,
-     * we plan on moving it to private in the near future so we are providing
-     * a getter and setter function for the property so code can begin using it
-     * to make the transition to a better design easier. It's always nice when
-     * we have less code to change.
      *
      * @param string $title The title of this object type
      */
