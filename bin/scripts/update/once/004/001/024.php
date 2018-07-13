@@ -12,12 +12,15 @@ $db = $serviceManager->get(RelationalDbFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-// Do not timeout
+// Wrap this into a transaction so that we can extend the statement timeout (it takes a while)
+$db->beginTransaction();
+// Do not timeout for this long query
 $db->query('set statement_timeout to 0');
-
 // First create all UUIDs in the gid field
 $sql = "UPDATE objects SET guid = CAST(LPAD(TO_HEX(id), 32, '0') AS UUID) WHERE guid is NULL";
-
+$db->query($sql);
+// Commit the transaction
+$db->commitTransaction();
 
 // Loop through all object types and update the primary key
 $definitions = $entityDefinitionLoader->getAll();

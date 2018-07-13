@@ -12,15 +12,8 @@ namespace NetricTest\EntityQuery\Index;
 use Netric;
 use PHPUnit\Framework\TestCase;
 
-class PgsqlTest extends IndexTestsAbstract
+class EntityQueryIndexRdbTest extends IndexTestsAbstract
 {
-    /**
-     * Handle to pgsql database
-     *
-     * @var Db\Pgsql
-     */
-    private $dbh = null;
-    
     /**
      * Use this funciton in all the indexes to construct the datamapper
      *
@@ -28,8 +21,7 @@ class PgsqlTest extends IndexTestsAbstract
      */
     protected function getIndex()
     {
-        $this->dbh = $this->account->getServiceManager()->get("Db");
-        return new \Netric\EntityQuery\Index\Pgsql($this->account);
+        return new \Netric\EntityQuery\Index\EntityQueryIndexRdb($this->account);
     }
     
     /**

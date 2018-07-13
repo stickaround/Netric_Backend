@@ -64,7 +64,21 @@ class Where
     const OPERATOR_GREATER_THAN_OR_EQUAL_TO  = 'is_greater_or_equal';
     const OP_GTE                             = 'is_greater_or_equal';
     const OPERATOR_CONTAINS                  = 'contains';
-    // TODO: add the rest here
+    const OPERATOR_BEGINS                    = 'begins';
+    const OPERATOR_BEGINS_WITH               = 'begins_with';
+    const OPERATOR_DAY_IS_EQUAL              = 'day_is_equal';
+    const OPERATOR_MONTH_IS_EQUAL            = 'month_is_equal';
+    const OPERATOR_YEAR_IS_EQUAL             = 'year_is_equal';
+    const OPERATOR_LAST_X_DAYS               = 'last_x_days';
+    const OPERATOR_LAST_X_WEEKS              = 'last_x_weeks';
+    const OPERATOR_LAST_X_MONTHS             = 'last_x_months';
+    const OPERATOR_LAST_X_YEARS              = 'last_x_years';
+    const OPERATOR_NEXT_X_DAYS               = 'next_x_days';
+    const OPERATOR_NEXT_X_WEEKS              = 'next_x_weeks';
+    const OPERATOR_NEXT_X_MONTHS             = 'next_x_months';
+    const OPERATOR_NEXT_X_YEARS              = 'next_x_years';
+
+
 
     /**
      * Create a where condition
@@ -202,7 +216,7 @@ class Where
      */
     public function beginsWith($value)
     {
-        $this->operator = "begins";
+        $this->operator = self::OPERATOR_BEGINS;
         $this->value = $value;
     }
 
@@ -213,7 +227,7 @@ class Where
      */
     public function dayIsEqual($value)
     {
-        $this->operator = "day_is_equal";
+        $this->operator = self::OPERATOR_DAY_IS_EQUAL;
         $this->value = $value;
     }
 
@@ -224,7 +238,7 @@ class Where
      */
     public function monthIsEqual($value)
     {
-        $this->operator = "month_is_equal";
+        $this->operator = self::OPERATOR_MONTH_IS_EQUAL;
         $this->value = $value;
     }
 
@@ -235,7 +249,7 @@ class Where
      */
     public function yearIsEqual($value)
     {
-        $this->operator = "year_is_equal";
+        $this->operator = self::OPERATOR_YEAR_IS_EQUAL;
         $this->value = $value;
     }
 
@@ -246,7 +260,7 @@ class Where
      */
     public function lastNumDays($value)
     {
-        $this->operator = "last_x_days";
+        $this->operator = self::OPERATOR_LAST_X_DAYS;
         $this->value = $value;
     }
 
@@ -257,7 +271,7 @@ class Where
      */
     public function lastNumWeeks($value)
     {
-        $this->operator = "last_x_weeks";
+        $this->operator = self::OPERATOR_LAST_X_WEEKS;
         $this->value = $value;
     }
 
@@ -268,7 +282,7 @@ class Where
      */
     public function lastNumMonths($value)
     {
-        $this->operator = "last_x_months";
+        $this->operator = self::OPERATOR_LAST_X_MONTHS;
         $this->value = $value;
     }
 
@@ -279,7 +293,7 @@ class Where
      */
     public function lastNumYears($value)
     {
-        $this->operator = "last_x_years";
+        $this->operator = self::OPERATOR_LAST_X_YEARS;
         $this->value = $value;
     }
 
@@ -290,7 +304,7 @@ class Where
      */
     public function nextNumDays($value)
     {
-        $this->operator = "next_x_days";
+        $this->operator = self::OPERATOR_NEXT_X_DAYS;
         $this->value = $value;
     }
 
@@ -301,7 +315,7 @@ class Where
      */
     public function nextNumWeeks($value)
     {
-        $this->operator = "next_x_weeks";
+        $this->operator = self::OPERATOR_NEXT_X_WEEKS;
         $this->value = $value;
     }
 
@@ -312,7 +326,7 @@ class Where
      */
     public function nextNumMonths($value)
     {
-        $this->operator = "next_x_months";
+        $this->operator = self::OPERATOR_NEXT_X_MONTHS;
         $this->value = $value;
     }
 
@@ -323,7 +337,7 @@ class Where
      */
     public function nextNumYears($value)
     {
-        $this->operator = "next_x_years";
+        $this->operator = self::OPERATOR_NEXT_X_YEARS;
         $this->value = $value;
     }
 
@@ -334,7 +348,39 @@ class Where
      */
     public function fullText($value)
     {
-        $this->operator = "contains";
+        $this->operator = self::OPERATOR_CONTAINS;
         $this->value = $value;
+    }
+
+    /**
+     * Function that will get the date type of the operator
+     * @return string
+     */
+    public function getOperatorDateType()
+    {
+        switch ($this->operator) {
+            
+            case self::OPERATOR_DAY_IS_EQUAL:
+            case self::OPERATOR_LAST_X_DAYS:
+            case self::OPERATOR_NEXT_X_DAYS:
+                return "day";
+                break;
+            case self::OPERATOR_LAST_X_WEEKS:
+            case self::OPERATOR_NEXT_X_WEEKS:
+                return "week";
+                break;
+            case self::OPERATOR_MONTH_IS_EQUAL:
+            case self::OPERATOR_LAST_X_MONTHS:
+            case self::OPERATOR_NEXT_X_MONTHS:
+                return "month";
+                break;
+            case self::OPERATOR_YEAR_IS_EQUAL:
+            case self::OPERATOR_LAST_X_YEARS:
+            case self::OPERATOR_NEXT_X_YEARS:
+                return "year";
+                break;
+            default:
+                break;
+        }
     }
 }
