@@ -261,10 +261,10 @@ class EntityDefinition
     /**
      * Add a field
      *
-     * @param Netric\EntityDefinition\Field
-     * @retrun bool true on succes, false on failure
+     * @param Field $field
+     * @return bool true on succes, false on failure
      */
-    public function addField($field)
+    public function addField(Field $field)
     {
         if (!$field) {
             return false;
