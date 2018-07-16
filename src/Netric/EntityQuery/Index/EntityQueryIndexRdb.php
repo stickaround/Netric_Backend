@@ -249,11 +249,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " OFFSET {$query->getOffset()}";
         }
 
-        if ($objectTable === "objects_customer") {
-            echo $sql;
-            print_r(conditionParams);
-        }
-
         $result = $this->database->query($sql, $this->conditionParams);
 
         // Process the raw data of entities and update the $results
