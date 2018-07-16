@@ -76,7 +76,7 @@ abstract class AbstractDataMapperTests extends TestCase
     abstract protected function getDataMapper($optDbName = null);
 
     /**
-     * This is a cleanup method that we need done mantually in the datamapper driver
+     * This is a cleanup method that we need done manually in the datamapper driver
      *
      * We do not want to expose this in the application datamapper since the
      * application database should NEVER be deleted. So we leave it up to each
@@ -92,8 +92,13 @@ abstract class AbstractDataMapperTests extends TestCase
         $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
         $this->testAccountIds[] = $aid;
         $error = ($aid === -1) ? $dataMapper->getLastError()->getMessage() : "";
+
         // Make sure we did not get a 0 which is failure
         $this->assertNotEquals(0, $aid, $error);
+
+        // Now let's try using the function datamapper::getAccounts()
+        $result = $dataMapper->getAccounts();
+        $this->assertGreaterThan(0, $result);
     }
 
     public function testDeleteAccount()
@@ -114,11 +119,15 @@ abstract class AbstractDataMapperTests extends TestCase
      */
     public function testCreateDatabase()
     {
-        $dataMapper = $this->getDataMapper("testsystemdb");
+        $databaseName = "testsystemdb" . uniqid();
+        $dataMapper = $this->getDataMapper($databaseName);
         $this->assertTrue($dataMapper->createDatabase());
 
+        // Close connection first before deleting the database
+        $dataMapper->close();
+
         // Cleanup
-        $this->deleteDatabase("testsystemdb");
+        $this->deleteDatabase($databaseName);
     }
 
     /**
@@ -136,8 +145,12 @@ abstract class AbstractDataMapperTests extends TestCase
         $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
         $this->testAccountIds[] = $aid;
         $ret = $dataMapper->createEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
-        $dataMapper->deleteEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
         $this->assertTrue($ret);
+
+        // Now try retrieving the email domain using ::getEmailDomain()
+        $result = $dataMapper->getEmailDomain($aid, self::TEST_EMAIL_DOMAIN);
+        $this->assertEquals($result["account_id"], $aid);
+        $this->assertEquals($result["domain"], self::TEST_EMAIL_DOMAIN);
     }
 
     public function testDeleteEmailDomain()
@@ -307,5 +320,25 @@ abstract class AbstractDataMapperTests extends TestCase
 
         // Cleanup
         $dataMapper->releaseLock($utestLockName);
+    }
+
+    public function testSetAccountUserEmail()
+    {
+        $dataMapper = $this->getDataMapper();
+        $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
+        $this->testAccountIds[] = $aid;
+
+        // Test creating an account user email
+        $ret = $dataMapper->setAccountUserEmail(
+            $aid,
+            self::TEST_ACCOUNT_NAME,
+            'unitest@' . self::TEST_EMAIL_DOMAIN
+        );
+        $this->assertTrue($ret);
+
+        // Now let's try retrieving the the user email using the function ::setAccountUserEmail()
+        $result = $dataMapper->getAccountsByEmail('unitest@' . self::TEST_EMAIL_DOMAIN);
+        $this->assertEquals($result[0]["account"], self::TEST_ACCOUNT_NAME);
+        $this->assertEquals($result[0]["username"], self::TEST_ACCOUNT_NAME);
     }
 }

@@ -421,4 +421,25 @@ abstract class AbstractRelationalDb
         // Close connection
         $this->pdoConnection = null;
     }
+
+    /**
+     * Function that will check if we can connect to PDO using the RDB parameters
+     *
+     * @return bool Returns true if we can connect to PDO otherwise returns false
+     */
+    public function checkPdoConnection()
+    {
+        try {
+            $pdoConnection = new \PDO(
+                $this->getDataSourceName($this->getDatabaseName()),
+                $this->databaseUser,
+                $this->databasePassword,
+                $this->connectionAttributes
+            );
+
+            return ($pdoConnection) ? true : false;
+        } catch (\Exception $oException) {
+            return false;
+        }
+    }
 }

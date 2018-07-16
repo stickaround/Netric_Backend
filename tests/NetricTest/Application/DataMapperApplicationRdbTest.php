@@ -2,12 +2,12 @@
 namespace NetricTest\Application;
 
 use Netric\Application\DataMapperInterface;
-use Netric\Application\DataMapperPgsql;
+use Netric\Application\ApplicationRdbDataMapper;
 use Netric\Config\ConfigLoader;
-use Netric\Db\Pgsql;
+use Netric\Db\Relational\PgsqlDb;
 use PHPUnit\Framework\TestCase;
 
-class DataMapperPgsqlTest extends AbstractDataMapperTests
+class DataMapperApplicationRdbTest extends AbstractDataMapperTests
 {
     /**
      * Get an implementation specific DataMapper
@@ -19,7 +19,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
     {
         $dbName = ($optDbName) ? $optDbName : $this->config->db['sysdb'];
 
-        return new DataMapperPgsql(
+        return new ApplicationRdbDataMapper(
             $this->config->db['syshost'],
             $dbName,
             $this->config->db['user'],
@@ -38,12 +38,17 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
      */
     protected function deleteDatabase($dbName)
     {
-        $db = new Pgsql(
+        $db = new PgsqlDb(
             $this->config->db['syshost'],
             $this->config->db['sysdb'],
             $this->config->db['user'],
             $this->config->db['password']
         );
+
+        $db->query("ALTER DATABASE $dbName CONNECTION LIMIT 0;");
+
+        $sql = "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=:database_name";
+        $db->query($sql, ["database_name" => $dbName]);
 
         $db->query("DROP DATABASE $dbName");
     }
