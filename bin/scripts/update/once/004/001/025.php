@@ -29,6 +29,10 @@ do {
         $entity = $entityFactory->create($row['obj_type']);
         $entityDataMapper->getById($entity, $row['id']);
         // Update raw data in table
-        $db->update('objects', ['field_data' => json_encode($entity->toArray)], ['guid' => $row['guid']]);
+        $db->update(
+            'objects',
+            ['field_data' => json_encode($entity->toArray)],
+            ['guid' => $row['guid']]
+        );
     }
 } while ($numNullObjects > 0);

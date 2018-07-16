@@ -726,8 +726,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * Eventually we will just remove it along with this entire function.
          */
         if ($fdef->type == "object" && $fdef->subtype && $this->getAccount()->getServiceManager() && $value) {
-            $entity = $this->getAccount()->getServiceManager()->get(EntityLoaderFactory::class)->get($fdef->subtype, $value);
-            if ($entity) {
+            $entity  = $this->getAccount()->getServiceManager()->get(EntityFactoryFactory::class)->create($fdef->subtype);
+            if ($this->getById($entity, $value)) {
                 $ret[(string)$value] = $entity->getName();
             } else {
                 $log = $this->getAccount()->getApplication()->getLog();
