@@ -106,12 +106,22 @@ abstract class AbstractDataMapperTests extends TestCase
         $dataMapper = $this->getDataMapper();
         $aid = $dataMapper->createAccount(self::TEST_ACCOUNT_NAME);
 
+        $ret = $dataMapper->deleteAccount($aid);
+
         // Now delete it
-        $this->assertTrue($dataMapper->deleteAccount($aid));
+        $this->assertTrue($ret);
+        $this->assertEquals(0, sizeof($dataMapper->getErrors()));
 
         // Make sure we cannot open it now
         $account = new Account($this->application);
         $this->assertFalse($dataMapper->getAccountById($aid, $account));
+
+        // Try deleting an account that is not existing
+        $ret = $dataMapper->deleteAccount(-123);
+        $this->assertFalse($ret);
+
+        // Make sure that an error is logged when deleting an account that is not existing
+        $this->assertEquals(1, sizeof($dataMapper->getErrors()));
     }
 
     /**

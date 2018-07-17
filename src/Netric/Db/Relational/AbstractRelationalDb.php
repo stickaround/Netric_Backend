@@ -427,7 +427,7 @@ abstract class AbstractRelationalDb
      *
      * @return bool Returns true if we can connect to PDO otherwise returns false
      */
-    public function checkPdoConnection()
+    public function checkConnection()
     {
         try {
             $pdoConnection = new \PDO(

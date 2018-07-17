@@ -100,6 +100,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function getAccountById($id, Account $account)
     {
+        // Check first if we have database connection before getting the account data
+        if (!$this->checkDbConnection()) {
+            return false;
+        }
+        
         $sql = "SELECT * FROM accounts WHERE id=:id";
         $result = $this->database->query($sql, ["id" => $id]);
 
@@ -120,6 +125,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function getAccountByName($name, Account $account = null)
     {
+        // Check first if we have database connection before getting the account data
+        if (!$this->checkDbConnection()) {
+            return false;
+        }
+        
         $sql = "SELECT * FROM accounts WHERE name=:name";
         $result = $this->database->query($sql, ["name" => $name]);
 
@@ -144,6 +154,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function getAccounts($version = "")
     {
+        // Check first if we have database connection before getting the account data
+        if (!$this->checkDbConnection()) {
+            return false;
+        }
+        
         $ret = array();
         $sqlParams = [];
 
@@ -173,6 +188,11 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
      */
     public function getAccountsByEmail($emailAddress)
     {
+        // Check first if we have database connection before getting the account data
+        if (!$this->checkDbConnection()) {
+            return false;
+        }
+        
         $ret = array();
 
         // Check accounts for a username matching this address
@@ -296,27 +316,28 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         $defaultAcctDb = new PgsqlDb($this->host, $this->defaultAccountDatabase, $this->username, $this->password);
 
         // First try to connect to this database to see if it exists
-        /*if ($this->database->checkPdoConnection() && $defaultAcctDb->checkPdoConnection()) {
+        if ($this->checkDbConnection() && $defaultAcctDb->checkConnection()) {
             return true;
-        }*/
+        }
 
         // Try to create databases  by connecting to template1, then create the new db, and reconnect
         $postgres = new PgsqlDb($this->host, "postgres", $this->username, $this->password);
 
+
         // Try to create the application database if it does not exist
-        if (!$this->database->checkPdoConnection()) {
+        if (!$this->checkDbConnection()) {
             if (!$postgres->query("CREATE DATABASE " . $this->databaseName)) {
                 throw new \RuntimeException("Could not create database: " . $this->databaseName);
             }
         }
 
         // Now try to make the default account database if it does not exist
-        if (!$defaultAcctDb->checkPdoConnection()) {
+        if (!$defaultAcctDb->checkConnection()) {
             if (!$postgres->query("CREATE DATABASE " . $this->defaultAccountDatabase)) {
                 throw new \RuntimeException("Could not create database: " . $this->defaultAccountDatabase);
             }
 
-            if (!$defaultAcctDb->checkPdoConnection()) {
+            if (!$defaultAcctDb->checkConnection()) {
                 throw new \RuntimeException("Failed to connect to created database: " . $this->defaultAccountDatabase);
             }
         }
@@ -332,7 +353,7 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         );
 
         // New database was created, now try to reconnect and return the results
-        return $this->database->checkPdoConnection();
+        return $this->checkDbConnection();
     }
 
     /**
@@ -671,5 +692,21 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
     public function close()
     {
         $this->database->close();
+    }
+
+    /**
+     * Function that will check if we have database connection
+     *
+     * @return bool Returns true if we have db connection otherwise returns false
+     */
+    private function checkDbConnection()
+    {
+        // If we do not have a database connection, then we log this as an error
+        if (!$this->database->checkConnection()) {
+            $this->errors["noDbConnection"] = new Error("There is no database connection.");
+            return false;
+        }
+
+        return true;
     }
 }
