@@ -358,7 +358,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlowFound = false;
         $anomalyFound = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() === $workFlow->getId()) {
+            if ($wf->getId() == $workFlow->getId()) {
                 $workFlowFound = true;
             }
 
@@ -393,7 +393,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type'], true);
         $workFlowFound = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() === $workFlow->getId()) {
+            if ($wf->getId() == $workFlow->getId()) {
                 $workFlowFound = true;
             }
         }
@@ -422,7 +422,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $workFlows = $dataMapper->getWorkFlows($workFlowData['obj_type'], false);
         $workFlowFound = false;
         foreach ($workFlows as $wf) {
-            if ($wf->getId() === $workFlow->getId()) {
+            if ($wf->getId() == $workFlow->getId()) {
                 $workFlowFound = true;
             }
         }

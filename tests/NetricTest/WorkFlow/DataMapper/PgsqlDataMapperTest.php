@@ -4,7 +4,7 @@
  */
 namespace NetricTest\WorkFlow\DataMapper;
 
-use Netric\WorkFlow\DataMapper\PgsqlDataMapper;
+use Netric\WorkFlow\DataMapper\WorkFlowRdbDataMapper;
 use Netric\WorkFlow\Action\ActionFactory;
 
 class PgsqlDataMapperTest extends AbstractDataMapperTests
@@ -17,6 +17,6 @@ class PgsqlDataMapperTest extends AbstractDataMapperTests
         $actionFactory = new ActionFactory($sm);
         $entityLoader = $sm->get("EntityLoader");
         $entityIndex = $sm->get("EntityQuery_Index");
-        return new PgsqlDataMapper($db, $actionFactory, $entityLoader, $entityIndex);
+        return new WorkFlowRdbDataMapper($account, $actionFactory);
     }
 }
