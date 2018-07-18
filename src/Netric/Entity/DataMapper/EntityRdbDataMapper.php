@@ -389,7 +389,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             }
 
             // Handle object associations
-            if ($fdef->isObjectReference()) {
+            if ($fdef->isObjectReference() && !empty($fdef->id)) {
                 $this->updateObjectAssociations($entity, $fdef);
             }
         }
