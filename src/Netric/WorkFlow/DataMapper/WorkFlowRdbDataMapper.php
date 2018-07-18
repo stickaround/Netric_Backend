@@ -2,8 +2,6 @@
 namespace Netric\WorkFlow\DataMapper;
 
 use Netric\Entity\EntityLoader;
-use Netric\Entity\EntityLoaderFactory;
-use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
 use Netric\Error\ErrorAwareInterface;
@@ -12,7 +10,6 @@ use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
-use Netric\Account\Account;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Db\Relational\RelationalDbInterface;
 
@@ -50,19 +47,22 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
     private $entityIndex = null;
 
     /**
-     * Construct the DataMapper
+     * Construct the WorkFlow DataMapper
      *
-     * @param Account $account
+     * @param RelationalDbInterface $database Handles to database actions
+     * @param EntityLoader $entityLoader Entity loader for loading up the entities
+     * @param IndexInterface $entityIndex Index used for querying entities - mostly actions
      * @param ActionFactory $actionFactory Factory to create new actions
      */
     public function __construct(
-        Account $account,
+        RelationalDbInterface $database,
+        EntityLoader $entityLoader,
+        IndexInterface $entityIndex,
         ActionFactory $actionFactory
     ) {
-        $this->account = $account;
-        $this->database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $this->entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
+        $this->database = $database;
+        $this->entityLoader = $entityLoader;
+        $this->entityIndex = $entityIndex;
         $this->actionFactory = $actionFactory;
     }
 
