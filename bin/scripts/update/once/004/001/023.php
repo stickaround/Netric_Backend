@@ -56,7 +56,7 @@ foreach ($rowsMoved as $rowMoved) {
             }
 
             // Only continue if the field met one of the conditions above
-            if (!$oldFieldValue || !$newFieldValue) {
+            if (!$oldFieldValue || !$newFieldValue || !$db->tableExists("objects_{$objTypeDef->getObjType()}_act")) {
                 continue;
             }
 
