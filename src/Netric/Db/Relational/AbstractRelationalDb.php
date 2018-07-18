@@ -253,7 +253,8 @@ abstract class AbstractRelationalDb
             throw new DatabaseQueryException(
                 $oPdoException->getMessage() .
                 ",database=" . $this->getDatabaseName() . "." . $this->getNamespace() .
-                ", query=" . $sqlQuery
+                ", query=" . $sqlQuery .
+                ", params=" . var_export($params, true)
             );
         }
     }

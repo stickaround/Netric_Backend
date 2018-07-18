@@ -462,7 +462,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $defLoader = $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
 
         /*
-         * Just like with fkey_multi above, we first clear out all existing values in the
+         * We first clear out all existing values in the
          * union table because trying to update them would require more work than its worth.
          */
         $this->database->delete(
