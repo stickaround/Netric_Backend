@@ -321,7 +321,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
         // Try to create databases  by connecting to template1, then create the new db, and reconnect
         $postgres = new PgsqlDb($this->host, "postgres", $this->username, $this->password);
 
-
         // Try to create the application database if it does not exist
         if (!$this->checkDbConnection()) {
             if (!$postgres->query("CREATE DATABASE " . $this->databaseName)) {
