@@ -4,6 +4,8 @@
  * Add default users and groups for each account
  */
 use Netric\EntityGroupings\Group;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexFactory;
 
 $account = $this->getAccount();
 if (!$account)
@@ -32,7 +34,11 @@ $groupingsLoader->save($groupings);
 $usersData = require(__DIR__ . "/../../../../data/account/users.php");
 $entityLoader = $account->getServiceManager()->get("EntityLoader");
 foreach ($usersData as $userData) {
-    if (!$entityLoader->getByGuid($userData['guid'])) {
+    $query = new EntityQuery("user");
+    $query->where('name')->equals($userData['name']);
+    $index = $account->getServiceManager()->get(IndexFactory::class);
+    $res = $index->executeQuery($query);
+    if (!$res->getTotalNum()) {
         $user = $entityLoader->create("user");
         $user->fromArray($userData);
         $entityLoader->save($user);
