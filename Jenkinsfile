@@ -102,7 +102,7 @@ pipeline {
                         environment: DeploymentTargets.INTEGRATION,
                         stackName: PROJECT_NAME,
                         imageTag: APPLICATION_VERSION,
-                        serviceDomain: 'integ.netric.com'
+                        serviceDomain: '*.integ.netric.com'
                     )
                 }
             }

@@ -28,7 +28,7 @@ do {
         // Load the object up old school style (obj_type, id)
         $entity = $entityFactory->create($row['obj_type']);
         $entityDataMapper->getById($entity, $row['id']);
-        // Update raw data in table
+        // Encode the json and update the table row
         $db->update(
             'objects',
             ['field_data' => json_encode($entity->toArray)],
