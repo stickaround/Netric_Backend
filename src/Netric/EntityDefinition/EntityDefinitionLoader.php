@@ -82,6 +82,7 @@ class EntityDefinitionLoader
             // System definition has been updated, save to datamapper
             $def->fromArray($sysData);
             $this->dataMapper->save($def);
+            $this->clearCache($objType);
         }
     }
 

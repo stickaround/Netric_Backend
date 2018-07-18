@@ -12,10 +12,8 @@ use Netric\Entity\EntityFactoryFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\EntityDefinition;
-use Netric\Entity\EntityLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\Entity;
-use Netric\Config\ConfigFactory;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
 
