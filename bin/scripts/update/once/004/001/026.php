@@ -7,11 +7,20 @@ use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
+$entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+$entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
+
+// Make sure the user entity is updated
+$userDefinition = $entityDefinitionDataMapper->fetchByName('user');
+$entityDefinitionDataMapper->updateSystemDefinition($userDefinition);
+$entityDefinitionLoader->clearCache('user'); // reset cache
 
 // Update old system user GUIDs
 $db->update('objects_user_act', ['guid'=>UserEntity::USER_CURRENT], ['name' => 'current.user']);

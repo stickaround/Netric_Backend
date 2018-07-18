@@ -262,7 +262,7 @@ class EntityDefinition
      * Add a field
      *
      * @param Field $field
-     * @return bool true on succes, false on failure
+     * @return bool true on success, false on failure
      */
     public function addField(Field $field)
     {
