@@ -18,9 +18,7 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 $entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
 // Make sure the user entity is updated
-$userDefinition = $entityDefinitionDataMapper->fetchByName('user');
-$entityDefinitionDataMapper->updateSystemDefinition($userDefinition);
-$entityDefinitionLoader->clearCache('user'); // reset cache
+$entityDefinitionLoader->forceSystemReset('user');
 
 // Update old system user GUIDs
 $db->update('objects_user_act', ['guid'=>UserEntity::USER_CURRENT], ['name' => 'current.user']);

@@ -79,9 +79,6 @@ class EntityDefinitionLoader
 
         // Check the revision to see if we need to update
         if ($sysData) {
-            // Reset to the system revision
-            //$def->revision = $sysData['revision'];
-
             // System definition has been updated, save to datamapper
             $def->fromArray($sysData);
             $this->dataMapper->save($def);
