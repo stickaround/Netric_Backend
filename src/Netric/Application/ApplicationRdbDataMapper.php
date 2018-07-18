@@ -299,8 +299,6 @@ class ApplicationRdbDataMapper implements DataMapperInterface, ErrorAwareInterfa
             return true;
         } else if ($ret === 0) {
             $this->errors[] = new Error("Accountid $accountId does not exists.");
-        } else {
-            $this->errors[] = new Error("Error deleting accountId $accountId");
         }
 
         return false;
