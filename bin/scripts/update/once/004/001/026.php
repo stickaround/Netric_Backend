@@ -14,11 +14,11 @@ $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
 
 // Update old system user GUIDs
-$db->update('objects_user', ['guid'=>UserEntity::USER_CURRENT], ['name' => 'current.user']);
-$db->update('objects_user', ['guid'=>UserEntity::USER_ADMINISTRATOR], ['name' => 'administrator']);
-$db->update('objects_user', ['guid'=>UserEntity::USER_ANONYMOUS], ['name' => 'anonymous']);
-$db->update('objects_user', ['guid'=>UserEntity::USER_SYSTEM], ['name' => 'system']);
-$db->update('objects_user', ['guid'=>UserEntity::USER_WORKFLOW], ['name' => 'workflow']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_CURRENT], ['name' => 'current.user']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_ADMINISTRATOR], ['name' => 'administrator']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_ANONYMOUS], ['name' => 'anonymous']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_SYSTEM], ['name' => 'system']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_WORKFLOW], ['name' => 'workflow']);
 
 // Update the uname of all users
 $query = new EntityQuery("user");
