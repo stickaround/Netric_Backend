@@ -170,7 +170,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      */
     public function indexExists($idxname)
     {
-        $sql = "select * from pg_indexes where indexname=:index_name";
+        $sql = "SELECT * FROM pg_indexes WHERE indexname=:index_name";
         $params = ["index_name" => $idxname];
 
         if ($this->schemaName) {
@@ -181,6 +181,69 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
         $result = $this->query($sql, $params);
 
         return $result->rowCount() > 0;
+    }
+
+    /**
+     * Function that will check if constraint is already existing in a table
+     *
+     * @param $tableName The table to be checked
+     * @param $constraintName The name of the constraint that we are looking for
+     * @return bool
+     */
+    public function constraintExists($tableName, $constraintName)
+    {
+        $sql = "SELECT table_name FROM information_schema.table_constraints
+					WHERE table_name=:table_name and constraint_name=:constraint_name;";
+
+        $result = $this->query($sql, [
+            "table_name" => $tableName,
+            "constraint_name" => $constraintName
+        ]);
+
+        return $result->rowCount() > 0;
+    }
+
+    /**
+     * Function that will get the primary key of the table
+     *
+     * @param $tableName The name of the table where we will be getting its primary key
+     * @return mixed
+     */
+    public function getPrimaryKeys($tableName)
+    {
+        $sql .= "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
+				FROM   pg_index i
+				JOIN   pg_attribute a ON a.attrelid = i.indrelid
+									 AND a.attnum = ANY(i.indkey)
+				WHERE  i.indrelid='{$tableName}'::regclass
+				AND    i.indisprimary ORDER BY attname;";
+
+        $result = $this->query($sql);
+        return $result->fetchAll();
+    }
+
+    /**
+     * Function that will check if the columnName provided is a primary key
+     *
+     * @param String $tableName The name of the table that we will be checking if columnName is primary key
+     * @param Array|String $columnName The name of the column that will be checked
+     * @return bool
+     */
+    public function isPrimaryKey($tableName, $columnName)
+    {
+        $primaryKeys = $this->getPrimaryKeys($tableName);
+
+        $pKeyNames = [];
+        foreach ($primaryKeys as $pKey) {
+            $pKeyNames[] = $pKey["attname"];
+        }
+
+        $actualPkeyName = implode("_", $pKeyNames);
+
+        // Check if the names are the same - have all the same columns
+        $columnNames = (is_array($columnName)) ? $columnName : array($columnName);
+        asort($columnNames);
+        return ($actualPkeyName == implode("_", $columnNames));
     }
 
     /**
