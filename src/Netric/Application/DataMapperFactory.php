@@ -20,6 +20,6 @@ class DataMapperFactory implements ApplicationServiceFactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get(Config::class);
-        return new DataMapperPgsql($config->db->host, $config->db->sysdb, $config->db->user, $config->db->password);
+        return new ApplicationRdbDataMapper($config->db->host, $config->db->sysdb, $config->db->user, $config->db->password);
     }
 }

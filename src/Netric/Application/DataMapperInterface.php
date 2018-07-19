@@ -27,7 +27,7 @@ interface DataMapperInterface
      * @param \Netric\Account\Account $account Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
-    public function getAccountById($id, &$account);
+    public function getAccountById($id, Account $account);
 
     /**
      * Get an account by the unique name

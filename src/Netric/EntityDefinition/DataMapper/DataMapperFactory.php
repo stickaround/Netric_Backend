@@ -7,7 +7,6 @@
  */
 namespace Netric\EntityDefinition\DataMapper;
 
-use Netric\Db\DbFactory;
 use Netric\ServiceManager;
 
 /**
@@ -23,8 +22,6 @@ class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $db = $sl->get(DbFactory::class);
-
         return new EntityDefinitionRdbDataMapper($sl->getAccount());
     }
 }

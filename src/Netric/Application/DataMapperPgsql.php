@@ -102,7 +102,7 @@ class DataMapperPgsql implements DataMapperInterface, ErrorAwareInterface
      * @param \Netric\Account\Account $app Reference to Account object to initialize
      * @return bool true on success, false on failure/not found
      */
-    public function getAccountById($id, &$account)
+    public function getAccountById($id, Account $account)
     {
         $result = $this->dbh->query("SELECT * FROM accounts WHERE id=" . $this->dbh->escapeNumber($id));
         if ($this->dbh->getNumRows($result)) {
