@@ -6,6 +6,9 @@ namespace NetricTest\WorkFlow\DataMapper;
 
 use Netric\WorkFlow\DataMapper\WorkFlowRdbDataMapper;
 use Netric\WorkFlow\Action\ActionFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 class PgsqlDataMapperTest extends AbstractDataMapperTests
 {
@@ -17,6 +20,9 @@ class PgsqlDataMapperTest extends AbstractDataMapperTests
         $actionFactory = new ActionFactory($sm);
         $entityLoader = $sm->get("EntityLoader");
         $entityIndex = $sm->get("EntityQuery_Index");
-        return new WorkFlowRdbDataMapper($account, $actionFactory);
+        $database = $sm->get(RelationalDbFactory::class);
+        $entityLoader = $sm->get(EntityLoaderFactory::class);
+        $entityIndex = $sm->get(IndexFactory::class);
+        return new WorkFlowRdbDataMapper($database, $entityLoader, $entityIndex, $actionFactory);
     }
 }
