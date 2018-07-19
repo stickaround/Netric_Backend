@@ -12,7 +12,7 @@
  *  netric setup/update
  *
  * # To run admin jobs type
- * netric setup/run --script=admin/entitymaint
+ * netric setup/run --script=admin/entitymaint.php
  */
 
 // Setup autoloader
