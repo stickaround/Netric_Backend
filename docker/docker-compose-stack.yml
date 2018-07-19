@@ -32,7 +32,7 @@ services:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: daemon-${APPLICATION_VER}
     deploy:
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 1s

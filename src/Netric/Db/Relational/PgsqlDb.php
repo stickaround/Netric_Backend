@@ -108,7 +108,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      */
     public function columnExists(string $tableName, string $columnName): bool
     {
-        // Check if we explictely passed the schema in dot notation schema.table
+        // Check if we explicitly passed the schema in dot notation schema.table
         if (strpos($tableName, '.')) {
             $parts = explode(".", $tableName);
             $schema = $parts[0];
