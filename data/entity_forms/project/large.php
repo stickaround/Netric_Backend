@@ -30,11 +30,7 @@
                     <objectsref obj_type='task' ref_field='project'></objectsref>
                 </tab>
 
-                <tab name='Cases'>
-                    <objectsref obj_type='case' ref_field='project_id'></objectsref>
-                </tab>
-
-                <tab name='Stories'>
+                <tab name='Issues'>
                     <objectsref obj_type='project_story' ref_field='project_id'></objectsref>
                 </tab>
 

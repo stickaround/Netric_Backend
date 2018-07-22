@@ -1,6 +1,6 @@
 <?php
 /**
- * Story object used to track features/requirements/stories for projects
+ * Issue object used to track features/requirements/stories for projects
  *
  * Name: project_story
  */
