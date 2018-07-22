@@ -26,10 +26,9 @@ class Bootstrap
 
         // Initialize Netric Application and Account
         $configLoader = new ConfigLoader();
-        $applicationEnvironment = "testing";
 
         // Setup the new config
-        $config = $configLoader->fromFolder(__DIR__ . "/../config", $applicationEnvironment);
+        $config = $configLoader->fromFolder(__DIR__ . "/../config", 'testing');
 
         // Initialize application
         $application = new Application($config);

@@ -13,6 +13,9 @@ services:
       - 80
     deploy:
       replicas: 2
+      placement:
+        constraints:
+          - node.role!=manager
       labels:
         - com.df.notify=true
         - com.df.distribute=true
@@ -33,6 +36,9 @@ services:
       APPLICATION_VER: daemon-${APPLICATION_VER}
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.role!=manager
       update_config:
         parallelism: 1
         delay: 1s
