@@ -9,8 +9,8 @@ use Netric\EntityQuery\Where;
 return array(
     'all_stories'=> array(
 		'obj_type' => 'project_story',
-		'name' => 'All Stories',
-		'description' => 'View all stories both in the backlog and those assigned to a milestone/sprint',
+		'name' => 'All Issues',
+		'description' => 'View all issues both in the backlog and those assigned to a milestone/sprint',
 		'default' => true,
 		'order_by' => array(
 			'date' => array(
@@ -24,7 +24,7 @@ return array(
 	'in_progress'=> array(
 		'obj_type' => 'project_story',
 		'name' => 'In-Progress',
-		'description' => 'Stories that are currently being worked on',
+		'description' => 'Issues that are currently being worked on',
 		'default' => false,
 		'conditions' => array(
 			'status' => array(
@@ -50,7 +50,7 @@ return array(
 	'backlog'=> array(
 		'obj_type' => 'project_story',
 		'name' => 'Backlog',
-		'description' => 'Stories not yet assigned to a milestone/sprint and incomplete',
+		'description' => 'Issues not yet assigned to a milestone/sprint and incomplete',
 		'default' => false,
 		'conditions' => array(
 			'milestone' => array(
@@ -88,7 +88,7 @@ return array(
 	'completed'=> array(
 		'obj_type' => 'project_story',
 		'name' => 'Completed',
-		'description' => 'Stories that are completed',
+		'description' => 'Issues that are completed',
 		'default' => false,
 		'conditions' => array(
 			'status' => array(

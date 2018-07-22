@@ -31,8 +31,8 @@
                 <field name='activity'></field>
             </tab>
 
-            <tab name='Stories'>
-                <objectsref name='Sprint Stories' obj_type='project_story' ref_field='milestone_id'></objectsref>
+            <tab name='Issues'>
+                <objectsref name='Sprint Issues' obj_type='project_story' ref_field='milestone_id'></objectsref>
             </tab>
 
             <tab name='Tasks'>

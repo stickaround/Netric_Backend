@@ -24,7 +24,7 @@ return array(
             "icon" => "ViewListIcon",
         ),
         array(
-            "title" => "Stories",
+            "title" => "Issues",
             "type" => "browse",
             "route" => "stories",
             "objType" => "project_story",
