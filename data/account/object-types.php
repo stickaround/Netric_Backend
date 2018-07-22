@@ -35,7 +35,7 @@ return [
     ["obj_type" => "product_review", "title" => "Product Review", "revision" => "0", "system" => true],
     ["obj_type" => "dashboard", "title" => "Dashboard", "revision" => "0", "system" => true],
     ["obj_type" => "sales_payment", "title" => "Payment", "revision" => "0", "system" => true],
-    ["obj_type" => "project_story", "title" => "User Story", "revision" => "0", "system" => true],
+    ["obj_type" => "project_story", "title" => "Issue", "revision" => "0", "system" => true],
     ["obj_type" => "folder", "title" => "Folder", "revision" => "0", "system" => true],
     ["obj_type" => "file", "title" => "File", "revision" => "0", "system" => true],
     ["obj_type" => "calendar", "title" => "Calendar", "revision" => "0", "system" => true],
