@@ -403,7 +403,7 @@ abstract class AbstractRelationalDbTests extends TestCase
         $ret = $database->isColumnPrimaryKey("utest_people", "id");
         $this->assertTrue($ret);
 
-        $ret = $database->isColumnPrimaryKey("utest_people", "id_not_primary_key");
+        $ret = $database->isColumnPrimaryKey("utest_people", "id_not_primary_key_utest");
         $this->assertFalse($ret);
     }
 }
