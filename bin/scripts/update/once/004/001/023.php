@@ -86,6 +86,12 @@ foreach ($rowsMoved as $rowMoved) {
             }
         }
 
+        // Wrap the below associations updates in a transaction with no timeout
+        // because they can run very long due to the number of rows
+        $db->beginTransaction();
+
+        $db->query("SET statement_timeout=0");
+
         // Update object_associations
         $db->update(
             'object_associations',
@@ -98,5 +104,7 @@ foreach ($rowsMoved as $rowMoved) {
             ['assoc_object_id'=>$rowMoved['moved_to']],
             ['assoc_type_id'=>$rowMoved['object_type_id'], 'assoc_object_id'=>$rowMoved['object_id']]
         );
+
+        $db->commitTransaction();
     }
 }
