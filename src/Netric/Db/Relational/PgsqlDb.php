@@ -168,7 +168,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @param string $idxname The name of the index to look for
      * @return bool true if the index was found, false if it was not
      */
-    public function indexExists($idxname)
+    public function indexExists(string $idxname): bool
     {
         $sql = "SELECT * FROM pg_indexes WHERE indexname=:index_name";
         $params = ["index_name" => $idxname];
@@ -186,11 +186,11 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     /**
      * Function that will check if constraint is already existing in a table
      *
-     * @param $tableName The table to be checked
-     * @param $constraintName The name of the constraint that we are looking for
+     * @param String $tableName The table to be checked
+     * @param String $constraintName The name of the constraint that we are looking for
      * @return bool
      */
-    public function constraintExists($tableName, $constraintName)
+    public function constraintExists(string $tableName, string $constraintName): bool
     {
         $sql = "SELECT table_name FROM information_schema.table_constraints
 					WHERE table_name=:table_name and constraint_name=:constraint_name;";
@@ -206,17 +206,17 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     /**
      * Function that will get the primary key of the table
      *
-     * @param $tableName The name of the table where we will be getting its primary key
+     * @param String $tableName The name of the table where we will be getting its primary key
      * @return mixed
      */
-    public function getPrimaryKeys($tableName)
+    public function getPrimaryKeys(string $tableName): array
     {
         $sql .= "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type
 				FROM   pg_index i
 				JOIN   pg_attribute a ON a.attrelid = i.indrelid
 									 AND a.attnum = ANY(i.indkey)
 				WHERE  i.indrelid='{$tableName}'::regclass
-				AND    i.indisprimary ORDER BY attname;";
+				AND    i.indisprimary ORDER BY attname";
 
         $result = $this->query($sql);
         return $result->fetchAll();
@@ -229,7 +229,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @param Array|String $columnName The name of the column that will be checked
      * @return bool
      */
-    public function isPrimaryKey($tableName, $columnName)
+    public function isColumnPrimaryKey(string $tableName, $columnName): bool
     {
         $primaryKeys = $this->getPrimaryKeys($tableName);
 

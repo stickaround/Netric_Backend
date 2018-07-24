@@ -28,7 +28,7 @@ class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
      */
     protected function getDataMapper(array $schemaDefinition, $accountId)
     {
-        $configLoader = new \Netric\Config\ConfigLoader();
+        $configLoader = new ConfigLoader();
         $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
         // Setup the new config
@@ -69,7 +69,7 @@ class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
      */
     protected function primaryKeyExists($bucketName, $propertyOrProperties)
     {
-        return $this->database->isPrimaryKey($bucketName, $propertyOrProperties);
+        return $this->database->isColumnPrimaryKey($bucketName, $propertyOrProperties);
     }
 
     /**

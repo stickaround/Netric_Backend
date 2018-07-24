@@ -28,7 +28,7 @@ interface SchemaDataMapperInterface extends ErrorAwareInterface
      *
      * @return string
      */
-    public function getLastAppliedSchemaHash();
+    public function getLastAppliedSchemaHash(): string;
 
     /**
      * Set the last applied schema revision hash

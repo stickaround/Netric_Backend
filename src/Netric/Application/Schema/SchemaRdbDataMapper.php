@@ -39,7 +39,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
      *
      * @return string
      */
-    public function getLastAppliedSchemaHash()
+    public function getLastAppliedSchemaHash(): string
     {
         // We want to fail gracefully since a schema that has not been created is a valid state
         if (!$this->database->tableExists("settings")) {
@@ -77,7 +77,6 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
         // First delete the old value if it already exists
         $this->database->delete("settings", ["name" => "system/last_applied_definition"]);
 
-        // Build the insert data
         $insertData = [
             "name" => "system/last_applied_definition",
             "value" => $schemaHash

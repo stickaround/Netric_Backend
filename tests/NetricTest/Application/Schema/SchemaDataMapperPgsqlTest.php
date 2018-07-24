@@ -80,7 +80,7 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
      */
     protected function primaryKeyExists($bucketName, $propertyOrProperties)
     {
-        return $this->dbh->isPrimaryKey($bucketName, $propertyOrProperties);
+        return $this->dbh->isColumnPrimaryKey($bucketName, $propertyOrProperties);
     }
 
     /**

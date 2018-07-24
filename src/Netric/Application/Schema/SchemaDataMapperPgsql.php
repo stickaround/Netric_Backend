@@ -43,7 +43,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      *
      * @return string
      */
-    public function getLastAppliedSchemaHash()
+    public function getLastAppliedSchemaHash() : string
     {
         // We want to fail gracefully since a schema that has not been created is a valid state
         if (!$this->dbh->tableExists('settings')) {
@@ -278,7 +278,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         }
 
         // First check to see if the primary key already exists
-        if ($this->dbh->isPrimaryKey($tableName, $columnNameOrNames)) {
+        if ($this->dbh->isColumnPrimaryKey($tableName, $columnNameOrNames)) {
             return true;
         }
 
