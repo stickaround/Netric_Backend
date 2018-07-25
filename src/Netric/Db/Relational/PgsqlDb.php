@@ -207,7 +207,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * Function that will get the primary key of the table
      *
      * @param String $tableName The name of the table where we will be getting its primary key
-     * @return mixed
+     * @return array
      */
     public function getPrimaryKeys(string $tableName): array
     {
