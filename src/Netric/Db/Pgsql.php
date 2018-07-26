@@ -556,7 +556,7 @@ class Pgsql implements DbInterface
      * @param null $schema
      * @return bool
      */
-    public function isPrimaryKey($tbl, $col, $schema = null)
+    public function isColumnPrimaryKey($tbl, $col, $schema = null)
     {
         if (!$this->isActive()) {
             $this->connect();

@@ -152,4 +152,38 @@ interface RelationalDbInterface
      * @return bool
      */
     public function namespaceExists(string $namespace): bool;
+
+    /**
+     * Function that will check if constraint is already existing in a table
+     *
+     * @param String $tableName The table to be checked
+     * @param String $constraintName The name of the constraint that we are looking for
+     * @return bool
+     */
+    public function constraintExists(string $tableName, string $constraintName): bool;
+
+    /**
+     * Check if an index exists by name
+     *
+     * @param string $idxname The name of the index to look for
+     * @return bool true if the index was found, false if it was not
+     */
+    public function indexExists(string $idxname): bool;
+
+    /**
+     * Function that will get the primary key of the table
+     *
+     * @param String $tableName The name of the table where we will be getting its primary key
+     * @return array
+     */
+    public function getPrimaryKeys(string $tableName): array;
+
+    /**
+     * Function that will check if the columnName provided is a primary key
+     *
+     * @param String $tableName The name of the table that we will be checking if columnName is primary key
+     * @param Array|String $columnName The name of the column that will be checked
+     * @return bool
+     */
+    public function isColumnPrimaryKey(string $tableName, $columnName): bool;
 }

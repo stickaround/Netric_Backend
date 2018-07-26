@@ -36,12 +36,14 @@ abstract class AbstractRelationalDbTests extends TestCase
         $database->query(
             'CREATE TABLE utest_people(
                 id SERIAL PRIMARY KEY,
+                const_name TEXT,
                 name TEXT
             )'
         );
 
         $database->query('DROP TABLE IF EXISTS utest_nopkey');
         $database->query('CREATE TABLE utest_nopkey(name TEXT)');
+        $database->query('ALTER TABLE utest_people ADD CONSTRAINT utest_constraint UNIQUE (const_name)');
     }
 
     public function tearDown()
@@ -359,5 +361,49 @@ abstract class AbstractRelationalDbTests extends TestCase
 
         $this->assertTrue($database->namespaceExists('utest_namespace_exists'));
         $this->assertFalse($database->namespaceExists('utest_namespace_noexists'));
+    }
+
+    /**
+     * Test if the database has a constraint
+     *
+     * @return void
+     */
+    public function testConstraintName()
+    {
+        $database = $this->getDatabase();
+
+        $this->assertTrue($database->constraintExists('utest_people', 'utest_constraint'));
+        $this->assertFalse($database->constraintExists('utest_people', 'utest_constraint_false'));
+    }
+
+    /**
+     * Test the getting of primary key of the database
+     *
+     * @return void
+     */
+    public function testGetPrimaryKeys()
+    {
+        $database = $this->getDatabase();
+
+        $primaryKeys = $database->getPrimaryKeys("utest_people");
+
+        $this->assertEquals(sizeof($primaryKeys), 1);
+        $this->assertEquals($primaryKeys[0]["attname"], "id");
+    }
+
+    /**
+     * Test the checking of the column of database if it is a primary key or not
+     *
+     * @return void
+     */
+    public function testIsColumnPrimaryKey()
+    {
+        $database = $this->getDatabase();
+
+        $ret = $database->isColumnPrimaryKey("utest_people", "id");
+        $this->assertTrue($ret);
+
+        $ret = $database->isColumnPrimaryKey("utest_people", "id_not_primary_key_utest");
+        $this->assertFalse($ret);
     }
 }

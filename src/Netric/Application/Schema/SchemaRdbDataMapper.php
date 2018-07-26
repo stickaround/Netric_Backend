@@ -1,34 +1,30 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright Copyright (c) 2015-2016 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\Application\Schema;
 
-use Netric\Db\Pgsql;
 use Netric\Error\Error;
+use Netric\Db\Relational\RelationalDbInterface;
 
 /**
  * PostgreSQL implementation of the schema DataMapper
  */
-class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
+class SchemaRdbDataMapper extends AbstractSchemaDataMapper
 {
     /**
-     * Handle to the database where the account is located
+     * Handle to database
      *
-     * @var Pgsql
+     * @var RelationalDbInterface
      */
-    private $dbh = null;
+    private $database = null;
 
     /**
      * Construct this DataMapper
      *
-     * @param Pgsql $dbh A handle to the PostgreSQL account database
+     * @param RelationalDbInterface $database The Relational Database Interface that will handle the db actions
      * @param array $schemaDefinition The latest schema definition
      */
-    public function __construct(Pgsql $dbh, array $schemaDefinition)
+    public function __construct(RelationalDbInterface $database, array $schemaDefinition)
     {
-        $this->dbh = $dbh;
+        $this->database = $database;
         $this->schemaDefinition = $schemaDefinition;
     }
 
@@ -43,18 +39,19 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      *
      * @return string
      */
-    public function getLastAppliedSchemaHash() : string
+    public function getLastAppliedSchemaHash(): string
     {
         // We want to fail gracefully since a schema that has not been created is a valid state
-        if (!$this->dbh->tableExists('settings')) {
+        if (!$this->database->tableExists("settings")) {
             return '';
         }
 
-        $result = $this->dbh->query(
-            "SELECT value FROM settings WHERE name='system/last_applied_definition'"
-        );
-        if ($this->dbh->getNumRows($result)) {
-            return $this->dbh->getValue($result, 0, 'value');
+        $sql = "SELECT value FROM settings WHERE name=:name";
+        $result = $this->database->query($sql, ["name" => "system/last_applied_definition"]);
+
+        if ($result->rowCount()) {
+            $row = $result->fetch();
+            return $row['value'];
         }
 
         // Not found, default to empty string
@@ -64,34 +61,33 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
     /**
      * Set the last applied schema revision hash
      *
+     * @param String $schemaHash The schema that will be set
      * @throws \RuntimeException if there is a problem with the schema
      * @return void
      */
     public function setLastAppliedSchemaHash(string $schemaHash)
     {
-        if (!$this->dbh->tableExists('settings')) {
+        if (!$this->database->tableExists("settings")) {
             throw new \RuntimeException(
-                'Tried to set schma hash on a schema that does not ' .
-                'have a settings table: ' . $this->dbh->getSchema()
+                "Tried to set schma hash on a schema that does not " .
+                "have a settings table: " . $this->database->getNamespace()
             );
         }
 
         // First delete the old value if it already exists
-        $this->dbh->query(
-            "DELETE FROM settings WHERE name='system/last_applied_definition'"
-        );
-        
-        // Insert the new value and check for failure
-        $sql = "INSERT INTO settings(name, value) " .
-               "VALUES(" .
-                    "'system/last_applied_definition', " .
-                    "'" . $this->dbh->escape($schemaHash) . "'" .
-                ")";
-        if (!$this->dbh->query($sql)) {
-            throw new \RuntimeException(
-                'Could not set last_applied_definition: ' .
-                $this->dbh->getLastError()
-            );
+        $this->database->delete("settings", ["name" => "system/last_applied_definition"]);
+
+        $insertData = [
+            "name" => "system/last_applied_definition",
+            "value" => $schemaHash
+        ];
+
+        // Insert the new value
+        $ret = $this->database->insert("settings", $insertData);
+
+        // Throw a runtime exception if insert query did not return a value
+        if (!$ret) {
+            throw new \RuntimeException("Could not set last_applied_definition using the value: $schemaHash");
         }
     }
 
@@ -103,18 +99,14 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     protected function createSchemaIfNotExists($accountId)
     {
-        if (!$this->dbh->schemaExists("acc_" . $accountId)) {
-            if (!$this->dbh->query("CREATE SCHEMA acc_" . $accountId . ";", false)) {
-                // We failed for some reason
-                $this->errors[] = new Error("Could not create schema: " . $this->dbh->getLastError());
-                return false;
-            }
+        $schemaName = "acc_" . $accountId;
+        if (!$this->database->namespaceExists($schemaName)) {
+            $this->database->createNamespace($schemaName);
 
             // Switch to the new schema
-            $this->dbh->setSchema("acc_" . $accountId);
+            $this->database->setNamespace($schemaName);
         }
 
-        // Schema exists
         return true;
     }
 
@@ -131,7 +123,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     protected function applyBucketDefinition($bucketName, array $bucketDefinition)
     {
-        $tableExists = $this->dbh->tableExists($bucketName);
+        $tableExists = $this->database->tableExists($bucketName);
 
         // Create or update columns
         // -----------------------------------------------
@@ -151,13 +143,12 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         foreach ($bucketDefinition['PROPERTIES'] as $columnName => $columnDefinition) {
             if (!$this->applyColumn($bucketName, $columnName, $columnDefinition, $createColumns)) {
                 // Something went wrong, leave and return an error
-                $this->errors[] = new Error($this->dbh->getLastError());
+                $this->errors[] = new Error("Error saving column $columnName in $bucketName");
                 return false;
             }
         }
 
         // Create the table if it does not exist
-        // ----------------------------------------
         if (is_array($createColumns)) {
             $sql = "CREATE TABLE IF NOT EXISTS $bucketName(" . implode(',', $createColumns) . ")";
 
@@ -166,27 +157,23 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
                 $sql .= " INHERITS (".$bucketDefinition['INHERITS'].")";
             }
 
-            $sql .= ";";
-
             // Create the table
-            if (!$this->dbh->query($sql)) {
-                throw new \RuntimeException("Could not create table $bucketName: " . $this->dbh->getLastError());
+            if (!$this->database->query($sql)) {
+                throw new \RuntimeException("Could not create table $bucketName");
             }
         }
 
 
         // Create primary key
-        // -----------------------------------------------
         if (isset($bucketDefinition['PRIMARY_KEY'])) {
             if (!$this->applyPrimaryKey($bucketName, $bucketDefinition['PRIMARY_KEY'])) {
                 // Something went wrong, leave and return an error
-                $this->errors[] = new Error($this->dbh->getLastError());
+                $this->errors[] = new Error("Error on creating primary key in $bucketName");
                 return false;
             }
         }
 
         // Create keys if supported by the database
-        // -----------------------------------------------
         if (isset($bucketDefinition['KEYS'])) {
             foreach ($bucketDefinition['KEYS'] as $keyData) {
                 $this->applyForeignKey($bucketName, $keyData);
@@ -194,7 +181,6 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         }
 
         // Create indexes
-        // -----------------------------------------------
         if (isset($bucketDefinition['INDEXES'])) {
             foreach ($bucketDefinition['INDEXES'] as $indexData) {
                 $this->applyIndex($bucketName, $indexData);
@@ -220,32 +206,34 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
             throw new \RuntimeException("Column name '$columnName' on table '$tableName' is too long.");
         }
 
-        if (isset($columnDefinition['default']) && $columnDefinition['default'] == 'auto_increment' && strlen($columnName) > 61) { // "${column_name}_gen"
+        if (!empty($columnDefinition["default"])
+            && $columnDefinition["default"] === "auto_increment"
+            && strlen($columnName) > 61) {
             throw new \RuntimeException("Auto increment column name '$columnName' on table '$tableName' is too long.");
         }
 
         // Return true if the column already exists
         if ($createColumns === false) {
-            if ($this->dbh->columnExists($tableName, $columnName)) {
+            if ($this->database->columnExists($tableName, $columnName)) {
                 return true;
             }
         }
 
         // Determine the column type
-        if (isset($columnDefinition['default']) && $columnDefinition['default'] == 'auto_increment') {
-            $columnType = ($columnDefinition['type'] == 'bigint') ? 'bigserial' : 'serial';
-        } elseif (isset($columnDefinition['subtype']) && $columnDefinition['subtype']) {
-            $columnType = $columnDefinition['type'] . " " . $columnDefinition['subtype'];
-        } elseif (isset($columnDefinition['type'])) {
-            $columnType = $columnDefinition['type'];
+        if (!empty($columnDefinition["default"]) && $columnDefinition["default"] === 'auto_increment') {
+            $columnType = ($columnDefinition["type"] === "bigint") ? "bigserial" : "serial";
+        } elseif (!empty($columnDefinition["subtype"]) && $columnDefinition["subtype"]) {
+            $columnType = $columnDefinition["type"] . " " . $columnDefinition["subtype"];
+        } elseif (!empty($columnDefinition["type"])) {
+            $columnType = $columnDefinition["type"];
         } else {
             throw new \RuntimeException("Could not add $columnName to $tableName because missing type " . var_export($columnDefinition, true));
         }
 
         // Add column defaults
         $default = "";
-        if (isset($columnDefinition['default']) && $columnDefinition['default'] != 'auto_increment') {
-            $default = " DEFAULT '{$columnDefinition['default']}'";
+        if (!empty($columnDefinition["default"]) && $columnDefinition["default"] !== "auto_increment") {
+            $default = " DEFAULT '{$columnDefinition["default"]}'";
         }
 
         /*
@@ -260,7 +248,7 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         // Add column definition
         $sql = "ALTER TABLE $tableName ADD COLUMN {$columnName} {$columnType} $default";
 
-        return ($this->dbh->query($sql)) ? true : false;
+        return ($this->database->query($sql)) ? true : false;
     }
 
     /**
@@ -272,25 +260,22 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
      */
     private function applyPrimaryKey($tableName, $columnNameOrNames)
     {
+        // Get the primary key available for this table
+        $primaryKey = $this->database->getPrimaryKeys($tableName);
+
+        // If the table already has a primary key, then leave it alone
+        if (sizeof($primaryKey) > 0) {
+            return true;
+        }
+
         // Normalize to an array so we can implode below
         if (!is_array($columnNameOrNames)) {
             $columnNameOrNames = array($columnNameOrNames);
         }
 
-        // First check to see if the primary key already exists
-        if ($this->dbh->isColumnPrimaryKey($tableName, $columnNameOrNames)) {
-            return true;
-        }
-
-        // If the table already has a primary key, then leave it alone
-        if ($this->dbh->hasPrimaryKey($tableName)) {
-            // TODO: Log that the primary keys are different
-            return true;
-        }
-
         // Run the SQL
-        $sql = "ALTER TABLE $tableName ADD PRIMARY KEY (" . implode(', ', $columnNameOrNames) . ");";
-        return ($this->dbh->query($sql)) ? true : false;
+        $sql = "ALTER TABLE $tableName ADD PRIMARY KEY (" . implode(', ', $columnNameOrNames) . ")";
+        return ($this->database->query($sql)) ? true : false;
     }
 
     /**
@@ -303,15 +288,15 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
     private function applyForeignKey($tableName, $keyDefinition)
     {
         // Make sure the definition is valid
-        if (!isset($keyDefinition['property'])
-            || isset($keyDefinition['references_bucket'])
-            || isset($keyDefinition['references_property'])) {
+        if (empty($keyDefinition["property"])
+            || !empty($keyDefinition["references_bucket"])
+            || !empty($keyDefinition["references_property"])) {
             $this->errors[] = new Error("Key definition for $tableName is invalid" . var_export($keyDefinition, true));
             return false;
         }
 
         // Set the key name
-        $foreignKeyName = $tableName . "_" . $keyDefinition['property'] . "_fkey";
+        $foreignKeyName = "{$tableName}_{$keyDefinition["property"]}_fkey";
 
         if (strlen($foreignKeyName) > 63) {
             throw new \RuntimeException("Key name '$foreignKeyName' on table '$tableName' is too long");
@@ -320,9 +305,13 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         // TODO: right now we don't do anything with keys
         return true;
 
-        $sql = ($keyDefinition[0] == 'UNIQUE') ?  'CREATE UNIQUE INDEX' : 'CREATE INDEX';
-        $sql .= " {$tableName}_{$foreignKeyName}_idx ON {$tableName} (" . implode(', ', $keyDefinition[1]) . ");";
-        return ($this->dbh->query($sql)) ? true : false;
+        /*
+         * TODO: What should we do with the keys?
+         * 
+         * $sql = ($keyDefinition[0] === "UNIQUE") ? "CREATE UNIQUE INDEX" : "CREATE INDEX";
+         * $sql .= " {$tableName}_{$foreignKeyName}_idx ON {$tableName} (" . implode(', ', $keyDefinition[1]) . ")";
+         * return ($this->database->query($sql)) ? true : false;
+         */
     }
 
     /**
@@ -374,14 +363,14 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
         }
 
         // Return true if the index already exists
-        if ($this->dbh->indexExists("{$tableName}_{$indexName}_idx")) {
+        if ($this->database->indexExists("{$tableName}_{$indexName}_idx")) {
             return true;
         }
 
         $sql = (isset($indexData['type']) && $indexData['type'] == 'UNIQUE') ?  'CREATE UNIQUE INDEX' : 'CREATE INDEX';
         $sql .= " {$tableName}_{$indexName}_idx ON {$tableName} (" . implode(', ', $indexData['properties']) . ");";
 
-        return ($this->dbh->query($sql)) ? true : false;
+        return ($this->database->query($sql)) ? true : false;
     }
 
     /**
@@ -395,11 +384,11 @@ class SchemaDataMapperPgsql extends AbstractSchemaDataMapper
     private function applyConstraint($tableName, $constraintName, $constraint)
     {
         // If already exists do nothing
-        if ($this->dbh->constraintExists($tableName, $tableName . "_" . $constraintName)) {
+        if ($this->database->constraintExists($tableName, "{$tableName}_{$constraintName}")) {
             return true;
         }
 
-        $sql = "ALTER $tableName ADD CONSTRAINT {$tableName}_".$constraintName." CHECK (" . $constraint . ")";
-        return ($this->dbh->query($sql)) ? true : false;
+        $sql = "ALTER $tableName ADD CONSTRAINT {$tableName}_{$constraintName} CHECK (" . $constraint . ")";
+        return ($this->database->query($sql)) ? true : false;
     }
 }

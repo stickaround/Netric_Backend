@@ -6,20 +6,21 @@ namespace NetricTest\Application\Schema;
 
 use Netric\Application\Application;
 use Netric\Config\ConfigLoader;
-use Netric\Db\Pgsql;
-use Netric\Application\Schema\SchemaDataMapperPgsql;
+use Netric\Db\Relational\PgsqlDb;
+use Netric\Application\Schema\SchemaRdbDataMapper;
+use Netric\Db\Relational\RelationalDbInterface;
 
-class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
+class SchemaRdbDataMapperTest extends AbstractSchemaDataMapperTests
 {
     /**
      * Handle to current database
      *
-     * @var null
+     * @var RelationalDbInterface
      */
-    private $dbh = null;
+    private $database = null;
 
     /**
-     * Get the PostgreSQL DataMapper
+     * Get the Relational Database DataMapper
      *
      * @param array $schemaDefinition
      * @param string $accountId THe account we will be managing the schema for
@@ -27,13 +28,13 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
      */
     protected function getDataMapper(array $schemaDefinition, $accountId)
     {
-        $configLoader = new \Netric\Config\ConfigLoader();
+        $configLoader = new ConfigLoader();
         $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
         // Setup the new config
         $config = $configLoader->fromFolder(__DIR__ . "/../../../../config", $applicationEnvironment);
 
-        $pgsql = new Pgsql(
+        $this->database = new PgsqlDb(
             $config->db['host'],
             $config->db['accdb'],
             $config->db['user'],
@@ -41,11 +42,9 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
         );
 
         // Set the schema we will be interacting with
-        $pgsql->setSchema("acc_" . $accountId);
+        $this->database->setNamespace("acc_" . $accountId);
 
-        $this->dbh = $pgsql;
-
-        return new SchemaDataMapperPgsql($pgsql, $schemaDefinition);
+        return new SchemaRdbDataMapper($this->database, $schemaDefinition);
     }
 
     /**
@@ -57,18 +56,8 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
      */
     protected function insertIntoBucket($bucketName, array $data)
     {
-        $columns = [];
-        $values = [];
-        foreach ($data as $colName => $value) {
-            $columns[] = $colName;
-            $values[] = $value;
-        }
-
-        $sql = "INSERT INTO " . $bucketName . "(" . implode(',', $columns) . ")
-                VALUES('" . implode("','", $values) . "')";
-
         // Return true if we were able to insert successfully
-        return ($this->dbh->query($sql)) ? true : false;
+        return ($this->database->insert($bucketName, $data)) ? true : false;
     }
 
     /**
@@ -80,7 +69,7 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
      */
     protected function primaryKeyExists($bucketName, $propertyOrProperties)
     {
-        return $this->dbh->isColumnPrimaryKey($bucketName, $propertyOrProperties);
+        return $this->database->isColumnPrimaryKey($bucketName, $propertyOrProperties);
     }
 
     /**
@@ -92,6 +81,6 @@ class SchemaDataMapperPgsqlTest extends AbstractSchemaDataMapperTests
      */
     protected function indexExists($bucketName, $propertyOrProperties)
     {
-        return $this->dbh->indexExists($bucketName . "_" . $propertyOrProperties . "_idx");
+        return $this->database->indexExists($bucketName . "_" . $propertyOrProperties . "_idx");
     }
 }

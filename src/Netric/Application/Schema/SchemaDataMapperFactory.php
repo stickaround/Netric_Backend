@@ -8,7 +8,7 @@ namespace Netric\Application\Schema;
 
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\ServiceManager\AccountServiceFactoryInterface;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Create the default DataMapper for account schemas
@@ -23,8 +23,8 @@ class SchemaDataMapperFactory implements AccountServiceFactoryInterface
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get(DbFactory::class);
+        $database = $sl->get(RelationalDbFactory::class);
         $schemaDefinition = include(__DIR__ . "/../../../../data/schema/account.php");
-        return new SchemaDataMapperPgsql($dbh, $schemaDefinition);
+        return new SchemaRdbDataMapper($database, $schemaDefinition);
     }
 }
