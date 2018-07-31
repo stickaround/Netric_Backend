@@ -6,6 +6,8 @@
 namespace NetricTest\Entity\Recurrence;
 
 use Netric;
+use Netric\Entity\Recurrence\RecurrenceDataMapperFactory;
+use Netric\Entity\Recurrence\RecurrenceRdbDataMapper;
 use PHPUnit\Framework\TestCase;
 
 class RecurrenceDataMapperFactoryTest extends TestCase
@@ -14,7 +16,7 @@ class RecurrenceDataMapperFactoryTest extends TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $dm = $sm->get("RecurrenceDataMapper"); // is mapped to this name
-        $this->assertInstanceOf('Netric\Entity\Recurrence\RecurrenceDataMapper', $dm);
+        $dm = $sm->get(RecurrenceDataMapperFactory::class);
+        $this->assertInstanceOf(RecurrenceRdbDataMapper::class, $dm);
     }
 }

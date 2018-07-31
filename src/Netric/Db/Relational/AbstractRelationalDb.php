@@ -273,11 +273,23 @@ abstract class AbstractRelationalDb
         // Get all columns param keys and add to insert statement
         $columns = array_keys($params);
         $sql = 'INSERT INTO ' . $tableName . '(' . implode(',', $columns) . ')';
+
+        // Clear the value of columns since we will clean up the column names
+        $columns = [];
+        $queryParams = [];
+
+        // We need to make sure that we do not have special characters in our column params
+        foreach ($params as $paramName=>$paramValue) {
+            $columnName = preg_replace('/[^a-zA-Z0-9_.]/', '', $paramName);
+            $columns[] = $columnName;
+            $queryParams[$columnName] = $paramValue;
+        }
+
         // Add values as params by prefixing each with ':'
         $sql .= ' VALUES(:' . implode(',:', $columns) . ')';
 
         // Run query, get next value (if selected), and commit
-        $this->query($sql, $params);
+        $this->query($sql, $queryParams);
 
         // If the primary key was set in the params already, return it
         $insertedId = (empty($params[$primaryKeyColumn])) ? null : $params[$primaryKeyColumn];
@@ -306,10 +318,15 @@ abstract class AbstractRelationalDb
     {
         $sql = 'UPDATE ' . $tableName . ' SET ';
 
+        $queryParams = [];
+
         // Add update statements
         $updateStatements = [];
         foreach ($params as $colName => $colValue) {
-            $updateStatements[] = $colName . '=:' . $colName;
+            // We need to make sure that we do not have special characters in our column params
+            $columnParam = preg_replace('/[^a-zA-Z0-9_.]/', '', $colName);
+            $updateStatements[] = $colName . '=:' . $columnParam;
+            $queryParams[$columnParam] = $colValue;
         }
         $sql .= implode(',', $updateStatements);
 
@@ -326,7 +343,7 @@ abstract class AbstractRelationalDb
         }
 
         // Run the update and return the id as the result
-        $result = $this->query($sql, array_merge($params, $escapedWhereParams));
+        $result = $this->query($sql, array_merge($queryParams, $escapedWhereParams));
 
         // Let the user know how many rows were updated
         return $result->rowCount();

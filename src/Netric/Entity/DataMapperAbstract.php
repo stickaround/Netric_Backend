@@ -279,7 +279,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
          * and not an exception, then save the recurrence pattern.
          */
         if (!$entity->isRecurrenceException() && $entity->getRecurrencePattern()) {
-            $this->recurIdentityMapper->saveFromEntity($entity);
+            $this->recurIdentityMapper->saveFromEntity($entity, $useRecurId);
         }
 
         // Log the activity

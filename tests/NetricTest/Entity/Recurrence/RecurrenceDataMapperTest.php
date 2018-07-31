@@ -4,8 +4,9 @@
  */
 namespace NetricTest\Entity\Recurrence;
 
-use Netric\Entity\Recurrence\RecurrenceDataMapper;
+use Netric\Entity\Recurrence\RecurrenceRdbDataMapper;
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\Db\Relational\RelationalDbFactory;
 use PHPUnit\Framework\TestCase;
 
 class RecurrenceDataMapperTest extends TestCase
@@ -44,13 +45,13 @@ class RecurrenceDataMapperTest extends TestCase
 
         // Setup the recurrence datamapper
         $entDefLoader = $sm->get("EntityDefinitionLoader");
-        $dbh = $sm->get("Db");
-        $this->dataMapper = new RecurrenceDataMapper($this->account, $dbh, $entDefLoader);
+        $database = $sm->get(RelationalDbFactory::class);
+        $this->dataMapper = new RecurrenceRdbDataMapper($database, $entDefLoader);
     }
 
     public function testConstruct()
     {
-        $this->assertInstanceOf('Netric\Entity\Recurrence\RecurrenceDataMapper', $this->dataMapper);
+        $this->assertInstanceOf(RecurrenceRdbDataMapper::class, $this->dataMapper);
     }
 
     public function testSave()
