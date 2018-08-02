@@ -249,7 +249,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     /**
      * Get sequence name to pass to lastInsertid
      *
-     * EostgreSQL uses tablename_columnname_seq for every sequence name
+     * PostgreSQL uses tablename_columnname_seq for every sequence name
      *
      * @param string $tableName
      * @param string $columnName
@@ -268,5 +268,23 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
 
         // Default to tablename_columname_seq
         return $tableName . '_' . $columnName . '_seq';
+    }
+
+    /**
+     * Get the last inserted id of the table
+     *
+     * @param string $tableName The table where we will be getting the last inserted id
+     * @return string
+     */
+    public function getLastInsertedId(string $tableName)
+    {
+        // Wrap get last id in try catch since we do not know if the table has a serial id
+        try {
+            return $this->getLastInsertId($this->getSequenceName($tableName, "id"));
+        } catch (DatabaseException $ex) {
+            // Do nothing because we expect this to happen in some cases
+        }
+
+        return null;
     }
 }

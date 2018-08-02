@@ -93,13 +93,13 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             'ep_locked' => $data['ep_locked'],
         ];
 
-        $recurrenceData["dayofweekmask[1]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_SUNDAY);
-        $recurrenceData["dayofweekmask[2]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_MONDAY);
-        $recurrenceData["dayofweekmask[3]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_TUESDAY);
-        $recurrenceData["dayofweekmask[4]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_WEDNESDAY);
-        $recurrenceData["dayofweekmask[5]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_THURSDAY);
-        $recurrenceData["dayofweekmask[6]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_FRIDAY);
-        $recurrenceData["dayofweekmask[7]"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_SATURDAY);
+        $daysOfWeekMaskData["1"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_SUNDAY);
+        $daysOfWeekMaskData["2"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_MONDAY);
+        $daysOfWeekMaskData["3"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_TUESDAY);
+        $daysOfWeekMaskData["4"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_WEDNESDAY);
+        $daysOfWeekMaskData["5"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_THURSDAY);
+        $daysOfWeekMaskData["6"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_FRIDAY);
+        $daysOfWeekMaskData["7"] = ($dayOfWeekMask & RecurrencePattern::WEEKDAY_SATURDAY);
         
         $recurrenceId = null;
         if ($recurPattern->getId()) {
@@ -115,7 +115,27 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                  * because we cannot ever assume that if it already has an id that it was previously saved.
                  */
                 $recurrenceData['id'] = $recurrenceId;
-                $this->database->update("object_recurrence", $recurrenceData, ["id" => $recurrenceId]);
+
+                // Add update statements for recurrence fields
+                $updateStatements = [];
+                foreach ($recurrenceData as $colName => $colValue) {
+                    $updateStatements[] = "$colName=:$colName";
+                }
+
+                // Add update statements for days of week mask fields
+                $updateParams = $recurrenceData;
+                foreach ($daysOfWeekMaskData as $index => $value) {
+                    $updateStatements[] = "dayofweekmask[$index]=:dayofweekmask$index";
+                    $updateParams["dayofweekmask$index"] = $value;
+                }
+
+                $sql = "UPDATE object_recurrence SET ";
+                $sql .= implode(',', $updateStatements);
+                $sql .= " WHERE id=:cond_id";
+
+                // Run the update and return the id as the result
+                $updateParams["cond_id"] = $recurrenceId;
+                $result = $this->database->query($sql, $updateParams);
 
                 return $recurrenceId;
             }
@@ -123,11 +143,27 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
         // Override the recurrence id if the $useId is set
         if ($useId) {
-            $recurrenceData['id'] = $useId;
+            $recurrenceData["id"] = $useId;
+            $recurrenceId = $useId;
         }
 
-        // If we are not updating a recurrence, then it is time to create a new one
-        $recurrenceId = $this->database->insert("object_recurrence", $recurrenceData);
+        $insertColumns = array_keys($recurrenceData);
+        $insertParams = $insertColumns;
+        foreach ($daysOfWeekMaskData as $index => $value) {
+            $insertColumns[] = "dayofweekmask[$index]";
+            $insertParams[] = "dayofweekmask$index";
+            $recurrenceData["dayofweekmask$index"] = $value;
+        }
+
+        $sql = "INSERT INTO object_recurrence (" . implode(",", $insertColumns) . ")";
+        // Add values as params by prefixing each with ':'
+        $sql .= " VALUES(:" . implode(",:", $insertParams) . ")";
+
+        // Run query, get next value (if selected), and commit
+        $this->database->query($sql, $recurrenceData);
+
+        // Get the last inserted id in object_recurrence table
+        $recurrenceId = $this->database->getLastInsertedId("object_recurrence");
         $recurPattern->setId($recurrenceId);
 
         return $recurrenceId;
@@ -140,7 +176,6 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
      */
     public function getNextId()
     {
-
         $sql = "select nextval('object_recurrence_id_seq') as id";
         $result = $this->database->query($sql);
 
