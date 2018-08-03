@@ -162,8 +162,10 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         // Run query, get next value (if selected), and commit
         $this->database->query($sql, $recurrenceData);
 
+        $sequenceName = $this->database->getSequenceName("object_recurrence", "id");
+
         // Get the last inserted id in object_recurrence table
-        $recurrenceId = $this->database->getLastInsertedId("object_recurrence");
+        $recurrenceId = $this->database->getLastInsertId($sequenceName);
         $recurPattern->setId($recurrenceId);
 
         return $recurrenceId;

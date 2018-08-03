@@ -122,7 +122,7 @@ abstract class AbstractRelationalDb
      * @param string $columnName
      * @return string | null
      */
-    abstract protected function getSequenceName(string $tableName, string $columnName): ? string;
+    abstract public function getSequenceName(string $tableName, string $columnName): ? string;
 
     /**
      * Chose the current connection if it exists
