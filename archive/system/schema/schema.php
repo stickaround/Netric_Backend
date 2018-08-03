@@ -54,7 +54,6 @@ return array(
 		)
 	),
 
-
 	"app_object_imp_maps" => array(
 		"COLUMNS" => array(
 			'id'			=> array('type'=>'bigint', 'default'=>'auto_increment'),
