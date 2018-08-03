@@ -1369,7 +1369,7 @@ return array(
             'all_day' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'ep_locked' => array('type' => SchemaProperty::TYPE_INT),
             'dayofmonth' => array('type' => SchemaProperty::TYPE_SMALLINT),
-            'dayofweekmask' => array('type' => SchemaProperty::TYPE_BOOL_ARRAY),
+            'dayofweekmask' => array('type' => SchemaProperty::TYPE_INT_ARRAY),
             'duration' => array('type' => SchemaProperty::TYPE_INT),
             'instance' => array('type' => SchemaProperty::TYPE_SMALLINT),
             'monthofyear' => array('type' => SchemaProperty::TYPE_SMALLINT),

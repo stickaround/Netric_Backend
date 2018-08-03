@@ -1602,7 +1602,7 @@ return array(
 			'all_day'		=> array('type'=>'boolean', "default"=>"false"),
 			'ep_locked'		=> array('type'=>'integer'),
 			'dayofmonth'	=> array('type'=>'smallint'),
-			'dayofweekmask'	=> array('type'=>'boolean[]'),
+			'dayofweekmask'	=> array('type'=>'integer[]'),
 			'duration'		=> array('type'=>'integer'),
 			'instance'		=> array('type'=>'smallint'),
 			'monthofyear'	=> array('type'=>'smallint'),
