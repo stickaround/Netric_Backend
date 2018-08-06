@@ -7,6 +7,7 @@ namespace NetricTest\Entity\Recurrence;
 use Netric\Entity\Recurrence\RecurrenceRdbDataMapper;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 
 class RecurrenceDataMapperTest extends TestCase
@@ -33,12 +34,19 @@ class RecurrenceDataMapperTest extends TestCase
     private $dataMapper = null;
 
     /**
+     * Test recurrence patterns created that need to be cleaned up
+     *
+     * @var RecurrencePattern[]
+     */
+    private $testRecurrence = [];
+
+    /**
      * Setup each test
      */
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         // Get service manager for locading dependencies
         $sm = $this->account->getServiceManager();
@@ -54,6 +62,16 @@ class RecurrenceDataMapperTest extends TestCase
         $this->assertInstanceOf(RecurrenceRdbDataMapper::class, $this->dataMapper);
     }
 
+    /**
+     * Cleanup any test entities we created
+     */
+    protected function tearDown()
+    {
+        foreach ($this->testRecurrence as $rp) {
+            $this->dataMapper->delete($rp);
+        }
+    }
+
     public function testSave()
     {
         $rp = new RecurrencePattern();
@@ -64,7 +82,25 @@ class RecurrenceDataMapperTest extends TestCase
         $rp->setDateEnd(new \DateTime("3/1/2010"));
 
         $rid = $this->dataMapper->save($rp);
+        $this->testRecurrence[] = $rp;
+
         $this->assertNotNull($rid);
+    }
+
+    public function testUpdateParentObjectId()
+    {
+        $rp = new RecurrencePattern();
+        $rp->setObjType("task");
+        $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
+        $rp->setInterval(1);
+        $rp->setDateStart(new \DateTime("1/1/2010"));
+        $rp->setDateEnd(new \DateTime("3/1/2010"));
+
+        $rid = $this->dataMapper->save($rp);
+        $this->assertNotNull($rid);
+
+        $result = $this->dataMapper->updateParentObjectId($rid, 1);
+        $this->assertTrue($result);
     }
 
     public function testLoad()
@@ -81,6 +117,8 @@ class RecurrenceDataMapperTest extends TestCase
         $rp->fromArray($data);
 
         $rid = $this->dataMapper->save($rp);
+        $this->testRecurrence[] = $rp;
+
         $this->assertNotNull($rid);
 
         $opened = $this->dataMapper->load($rid);
@@ -114,6 +152,7 @@ class RecurrenceDataMapperTest extends TestCase
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
+        $this->testRecurrence[] = $rp;
 
         // Delete
         $this->dataMapper->delete($rp);
@@ -135,6 +174,7 @@ class RecurrenceDataMapperTest extends TestCase
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
+        $this->testRecurrence[] = $rp;
 
         // Delete
         $this->dataMapper->deleteById($rid);
@@ -163,6 +203,7 @@ class RecurrenceDataMapperTest extends TestCase
         $rp = new RecurrencePattern();
         $rp->fromArray($data);
         $rid = $this->dataMapper->save($rp);
+        $this->testRecurrence[] = $rp;
 
         // Check before date-start, $rid should not be returned
         $dateTo = new \DateTime("2015-01-01");

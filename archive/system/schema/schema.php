@@ -1601,7 +1601,7 @@ return array(
 			'all_day'		=> array('type'=>'boolean', "default"=>"false"),
 			'ep_locked'		=> array('type'=>'integer'),
 			'dayofmonth'	=> array('type'=>'smallint'),
-			'dayofweekmask'	=> array('type'=>'integer[]'),
+			'dayofweekmask'	=> array('type'=>'boolean[]'),
 			'duration'		=> array('type'=>'integer'),
 			'instance'		=> array('type'=>'smallint'),
 			'monthofyear'	=> array('type'=>'smallint'),

@@ -255,7 +255,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
      * @param string $columnName
      * @return string | null
      */
-    public function getSequenceName(string $tableName, string $columnName): ? string
+    protected function getSequenceName(string $tableName, string $columnName): ? string
     {
         // Check for objects_ inherited table since it should use objects_id_seq
         // rather than $tableName_$columnName_seq
