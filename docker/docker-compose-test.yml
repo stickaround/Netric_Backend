@@ -33,6 +33,7 @@ services:
   mail:
     image: 'dockerhub.aereusdev.com/mail:latest'
     environment:
+      APP_HOST: netric.com
       DB_USER: vagrant
       DB_PASSWORD: vagrant
       DB_HOST: db1
