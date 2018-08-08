@@ -200,6 +200,7 @@ class EntityController extends Mvc\AbstractAccountController
     public function postSaveAction()
     {
         $rawBody = $this->getRequest()->getBody();
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
@@ -234,8 +235,14 @@ class EntityController extends Mvc\AbstractAccountController
         // Check to see if any new object_multi objects were sent awaiting save
         $this->savePendingObjectMultiObjects($entity, $objData);
 
+        $entityData = $entity->toArray();
+
+        // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
+        $dacl = $daclLoader->getForEntity($entity);
+        $entityData["applied_dacl"] = $dacl->toArray();
+
         // Return the saved entity
-        return $this->sendOutput($entity->toArray());
+        return $this->sendOutput($entityData);
     }
 
     /**
