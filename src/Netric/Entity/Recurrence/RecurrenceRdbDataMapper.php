@@ -125,8 +125,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                 // Add update statements for days of week mask fields
                 $updateParams = $recurrenceData;
                 foreach ($daysOfWeekMaskData as $index => $value) {
-                    $updateStatements[] = "dayofweekmask[$index]=:dayofweekmask$index";
-                    $updateParams["dayofweekmask$index"] = ($value > 0) ? true : false;
+                    $updateStatements[] = "dayofweekmask[$index]=:dayofweekmask_$index";
+                    $updateParams["dayofweekmask_$index"] = ($value > 0) ? true : false;
                 }
 
                 $sql = "UPDATE object_recurrence SET ";
@@ -151,15 +151,14 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $insertParams = $insertColumns;
         foreach ($daysOfWeekMaskData as $index => $value) {
             $insertColumns[] = "dayofweekmask[$index]";
-            $insertParams[] = "dayofweekmask$index";
-            $recurrenceData["dayofweekmask$index"] = ($value > 0) ? true : false;
+            $insertParams[] = "dayofweekmask_$index";
+            $recurrenceData["dayofweekmask_$index"] = ($value > 0) ? true : false;
         }
 
         $sql = "INSERT INTO object_recurrence (" . implode(",", $insertColumns) . ")";
         // Add values as params by prefixing each with ':'
         $sql .= " VALUES(:" . implode(",:", $insertParams) . ")";
 
-        print_r($recurrenceData);
         // Run query, get next value (if selected), and commit
         $this->database->query($sql, $recurrenceData);
 
