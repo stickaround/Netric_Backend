@@ -152,13 +152,14 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         foreach ($daysOfWeekMaskData as $index => $value) {
             $insertColumns[] = "dayofweekmask[$index]";
             $insertParams[] = "dayofweekmask$index";
-            $recurrenceData["dayofweekmask$index"] = ($value > 0) ? true : false;;
+            $recurrenceData["dayofweekmask$index"] = ($value > 0) ? true : false;
         }
 
         $sql = "INSERT INTO object_recurrence (" . implode(",", $insertColumns) . ")";
         // Add values as params by prefixing each with ':'
         $sql .= " VALUES(:" . implode(",:", $insertParams) . ")";
 
+        print_r($recurrenceData);
         // Run query, get next value (if selected), and commit
         $this->database->query($sql, $recurrenceData);
 
