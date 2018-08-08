@@ -142,7 +142,7 @@ class RecurrenceIdentityMapper
      * @param RecurrencePattern $recurrencePattern The recurrence pattern we are updating
      * @param string $entityId The id of the entity that we will use to set as its first entity of recurrence
      */
-    public function setFirstEntityId(RecurrencePattern $recurrencePattern, $entityId)
+    public function setFirstEntityId(RecurrencePattern $recurrencePattern, string $entityId = null)
     {
         $recurrFirstEntityId = $recurrencePattern->getFirstEntityId();
 
