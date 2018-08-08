@@ -93,14 +93,14 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             'ep_locked' => $data['ep_locked'],
         ];
 
-        $daysOfWeekMaskData["1"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_SUNDAY) ? true : false);
-        $daysOfWeekMaskData["2"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_MONDAY) ? true : false);
-        $daysOfWeekMaskData["3"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_TUESDAY) ? true : false);
-        $daysOfWeekMaskData["4"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_WEDNESDAY) ? true : false);
-        $daysOfWeekMaskData["5"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_THURSDAY) ? true : false);
-        $daysOfWeekMaskData["6"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_FRIDAY) ? true : false);
-        $daysOfWeekMaskData["7"] = (($dayOfWeekMask & RecurrencePattern::WEEKDAY_SATURDAY) ? true : false);
-        
+        $daysOfWeekMaskData["1"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_SUNDAY;
+        $daysOfWeekMaskData["2"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_MONDAY;
+        $daysOfWeekMaskData["3"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_TUESDAY;
+        $daysOfWeekMaskData["4"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_WEDNESDAY;
+        $daysOfWeekMaskData["5"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_THURSDAY;
+        $daysOfWeekMaskData["6"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_FRIDAY;
+        $daysOfWeekMaskData["7"] = $dayOfWeekMask & RecurrencePattern::WEEKDAY_SATURDAY;
+
         $recurrenceId = null;
         if ($recurPattern->getId()) {
             $recurrenceId = $recurPattern->getId();
@@ -126,7 +126,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
                 $updateParams = $recurrenceData;
                 foreach ($daysOfWeekMaskData as $index => $value) {
                     $updateStatements[] = "dayofweekmask[$index]=:dayofweekmask$index";
-                    $updateParams["dayofweekmask$index"] = $value;
+                    $updateParams["dayofweekmask$index"] = ($value > 0) ? true : false;
                 }
 
                 $sql = "UPDATE object_recurrence SET ";
@@ -152,7 +152,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         foreach ($daysOfWeekMaskData as $index => $value) {
             $insertColumns[] = "dayofweekmask[$index]";
             $insertParams[] = "dayofweekmask$index";
-            $recurrenceData["dayofweekmask$index"] = $value;
+            $recurrenceData["dayofweekmask$index"] = ($value > 0) ? true : false;;
         }
 
         $sql = "INSERT INTO object_recurrence (" . implode(",", $insertColumns) . ")";
@@ -259,7 +259,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
             if ($row['day7']) {
                 $recurPattern->setDayOfWeek(RecurrencePattern::WEEKDAY_SATURDAY, true);
             }
-            
+
             // Make sure that we start tracking changes from now on
             $recurPattern->resetIsChanged();
 
@@ -287,8 +287,8 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         }
 
         $result = $this->database->update("object_recurrence",
-                                        ["parent_object_id" => $entityId],
-                                        ["id" => $recurrenceId]);
+            ["parent_object_id" => $entityId],
+            ["id" => $recurrenceId]);
 
         return ($result) ? true : false;
     }
@@ -350,7 +350,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
 
         $def = $this->entityDefinitionLoader->get($objType);
         $dateToString = $dateTo->format("Y-m-d");
-        
+
         $sql = "SELECT id FROM object_recurrence
 				  WHERE f_active is true AND
 				  date_processed_to<:date_to_string
