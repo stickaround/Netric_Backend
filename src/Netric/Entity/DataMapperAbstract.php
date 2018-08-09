@@ -218,19 +218,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $this->updateForeignKeyNames($entity);
 
         /*
-         * If the entity has a new recurrence pattern, then we need to get the next recurring id
-         * now so we can save it to the entity before saving the recurring patterns itself.
-         * This is the result of a circular reference where the recurrence pattern has a
-         * reference to the first entity id, and the entity has a reference to the recurrence
-         * pattern. We might want to come up with a better overall solution. - Sky Stebnicki
+         * If this is part of a recurring series - which means it has a recurrence pattern -
+         * and not an exception, then save the recurrence pattern.
          */
-        $useRecurId = null;
-        if ($entity->getRecurrencePattern() && $def->recurRules) {
-            if (!$entity->getValue($def->recurRules['field_recur_id'])) {
-                $useRecurId = $this->recurIdentityMapper->getNextId();
-                $entity->getRecurrencePattern()->setId($useRecurId);
-                $entity->setValue($def->recurRules['field_recur_id'], $useRecurId);
-            }
+        $recurrencePattern = $entity->getRecurrencePattern();
+        if (!$entity->isRecurrenceException()
+            && $recurrencePattern
+            && $def->recurRules['field_recur_id']) {
+            $recurrenceId = $this->recurIdentityMapper->saveFromEntity($entity);
+            $recurrencePattern->setId($recurrenceId);
+            $entity->setValue($def->recurRules['field_recur_id'], $recurrenceId);
         }
 
         // Call beforeSave
@@ -271,16 +268,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
             ->get(EntityAggregatorFactory::class)
             ->updateAggregates($entity);
 
+        /*
+         * If entity has a recurrence, then we need to set the recurrence first entity id
+         */
+        if ($recurrencePattern) {
+            $this->recurIdentityMapper->setFirstEntityId($recurrencePattern, $entity->getId());
+
+            // After saving the recurrence data, we need to update the entity's recurrence
+            $entity->setRecurrencePattern($recurrencePattern);
+        }
+
         // Reset dirty flag and changelog
         $entity->resetIsDirty();
-
-        /*
-         * If this is part of a recurring series - which means it has a recurrence pattern -
-         * and not an exception, then save the recurrence pattern.
-         */
-        if (!$entity->isRecurrenceException() && $entity->getRecurrencePattern()) {
-            $this->recurIdentityMapper->saveFromEntity($entity);
-        }
 
         // Log the activity
         $serviceManager->get(ActivityLogFactory::class)->log($user, $event, $entity);

@@ -25,6 +25,7 @@ class SchemaProperty
     const TYPE_BIGINT = 'bigint';
     const TYPE_DOUBLE = 'double precision';
     const TYPE_REAL = 'real';
+    const TYPE_INT_ARRAY = 'integer[]';
 
     // Strings
     const TYPE_CHAR = 'character(1)';

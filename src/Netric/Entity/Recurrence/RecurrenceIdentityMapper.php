@@ -30,7 +30,7 @@ class RecurrenceIdentityMapper
      *
      * @param RecurrenceDataMapper $dataMapper To save and load patterns from the datastore
      */
-    public function __construct(RecurrenceDataMapper $dataMapper)
+    public function __construct(RecurrenceRdbDataMapper $dataMapper)
     {
         $this->recurDataMapper = $dataMapper;
     }
@@ -86,11 +86,9 @@ class RecurrenceIdentityMapper
         $recurPattern = $entity->getRecurrencePattern();
         $def = $entity->getDefinition();
 
-        if ($entity->getId() && $recurPattern) {
-            // Move first entity to current entity
-            if ($recurPattern->getFirstEntityId() != $entity->getId()) {
-                $recurPattern->setFirstEntityId($entity->getId());
-            }
+        if ($recurPattern) {
+            // Set the first entity id of the recurrence pattern
+            $this->setFirstEntityId($recurPattern, $entity->getId());
 
             // Make sure the object type is correct for validation of fields
             if ($recurPattern->getObjType() != $def->getObjType()) {
@@ -127,14 +125,36 @@ class RecurrenceIdentityMapper
             */
 
             // Make sure this succeeds, it should never fail
-            if ($this->save($recurPattern)) {
-                return true;
+            $recurrenceId = $this->save($recurPattern);
+            if ($recurrenceId) {
+                return $recurrenceId;
             } else {
                 throw new \RuntimeException($this->recurDataMapper->getLastError()->getMessage());
             }
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Function that will set the first entity id of a recurrence pattern
+     *
+     * @param RecurrencePattern $recurrencePattern The recurrence pattern we are updating
+     * @param string $entityId The id of the entity that we will use to set as its first entity of recurrence
+     */
+    public function setFirstEntityId(RecurrencePattern $recurrencePattern, string $entityId = null)
+    {
+        $recurrFirstEntityId = $recurrencePattern->getFirstEntityId();
+
+        // If we have not set a first entity id for this recurrence pattern
+        if ($entityId && !$recurrFirstEntityId && $recurrFirstEntityId != $entityId) {
+            $recurrencePattern->setFirstEntityId($entityId);
+
+            // Make sure that we have a recurrence id
+            if ($recurrencePattern->getId()) {
+                $this->recurDataMapper->updateParentObjectId($recurrencePattern->getId(), $entityId);
+            }
+        }
     }
 
     /**

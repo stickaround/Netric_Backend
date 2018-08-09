@@ -168,7 +168,7 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
         }
 
         // Delete the recurrence pattern
-        $this->recurIdentityMapper->delete($recurrencePattern);
+        $result = $this->recurIdentityMapper->delete($recurrencePattern);
 
         return true;
     }

@@ -94,14 +94,21 @@ class RecurrenceSeriesManagerTest extends TestCase
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);
 
+        $recurRules = $event->getDefinition()->recurRules;
+        $recurrencePattern = $event->getRecurrencePattern();
+
+        // Test that references was properly created
+        $this->assertEquals($recurrencePattern->getFirstEntityId(), $event->getId());
+        $this->assertEquals($recurrencePattern->getId(), $event->getValue($recurRules['field_recur_id']));
+
         // Create the series for +1 day from start - should create one instance
         $dateTo = new \DateTime("2016-01-02");
-        $numCreated = $this->recurSeriesManager->createSeries($event->getRecurrencePattern(), $dateTo);
+        $numCreated = $this->recurSeriesManager->createSeries($recurrencePattern, $dateTo);
         $this->assertEquals(1, $numCreated);
 
         // Create the series for +5 days from start - should create four instances after the above
         $dateTo = new \DateTime("2016-01-05");
-        $numCreated = $this->recurSeriesManager->createSeries($event->getRecurrencePattern(), $dateTo);
+        $numCreated = $this->recurSeriesManager->createSeries($recurrencePattern, $dateTo);
         $this->assertEquals(3, $numCreated);
 
         // Delete the series
