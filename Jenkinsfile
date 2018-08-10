@@ -45,13 +45,13 @@ pipeline {
                     junit 'tests/tmp/junit.xml'
 
                     // Send reports to server for code quality metrics
-                    //codeQualityReport(
-                    //    repositoryName: 'netric.com',
-                    //    teamName: 'Netric',
-                    //    cloverFile: 'tests/tmp/clover.xml',
-                    //    pmdFile: 'tests/tmp/pmd.xml',
-                    //    checkStyleFile: 'tests/tmp/checkstyle.xml'
-                    //)
+                    codeQualityReport(
+                       repositoryName: 'netric.com',
+                       teamName: 'Netric',
+                       cloverFile: 'tests/tmp/clover.xml',
+                       pmdFile: 'tests/tmp/pmd.xml',
+                       checkStyleFile: 'tests/tmp/checkstyle.xml'
+                    )
                 }
                 script {
                     dir('.clair') {
