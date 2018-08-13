@@ -163,7 +163,7 @@ class RecurrenceRdbDataMapper extends DataMapperAbstract
         $this->database->query($sql, $recurrenceData);
 
         // Get the last inserted id in object_recurrence table
-        $recurrenceId = $this->database->getLastInsertId(null, "object_recurrence");
+        $recurrenceId = $this->database->getLastInsertId("object_recurrence_id_seq");
         $recurPattern->setId($recurrenceId);
 
         return $recurrenceId;

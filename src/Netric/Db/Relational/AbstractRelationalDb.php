@@ -395,23 +395,12 @@ abstract class AbstractRelationalDb
      * Get the last inserted id of a sequence
      *
      * @param string $sequenceName If null then primary key is used
-     * @param string $tableName If set, we are going to build the sequence name using the table name
      * @return int
      */
-    public function getLastInsertId($sequenceName = null, string $tableName = null)
+    public function getLastInsertId($sequenceName = null)
     {
         $pdoConnection = $this->getConnection();
         try {
-
-            /*
-             * If no sequence name was set but table name is provided
-             * Then we can build the sequence name
-             */
-            if (!$sequenceName && $tableName) {
-                // Set the sequence to use the id column
-                $sequenceName = $this->getSequenceName($tableName, "id");
-            }
-
             return $pdoConnection->lastInsertId($sequenceName);
         } catch (\PDOException $exception) {
             throw new DatabaseException(
