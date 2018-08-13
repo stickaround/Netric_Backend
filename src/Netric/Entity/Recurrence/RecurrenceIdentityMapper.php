@@ -135,7 +135,7 @@ class RecurrenceIdentityMapper
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
