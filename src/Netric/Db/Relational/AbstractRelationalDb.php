@@ -285,7 +285,8 @@ abstract class AbstractRelationalDb
         // Wrap get last id in try catch since we do not know if the table has a serial id
         try {
             if ($insertedId === null) {
-                $insertedId = $this->getLastInsertId($this->getSequenceName($tableName, $primaryKeyColumn));
+                $sequenceName = $this->getSequenceName($tableName, $primaryKeyColumn);
+                $insertedId = $this->getLastInsertId($sequenceName);
             }
         } catch (DatabaseException $ex) {
             // Do nothing because we expect this to happen in some cases
