@@ -30,7 +30,7 @@ class RecurrenceIdentityMapper
      *
      * @param RecurrenceDataMapper $dataMapper To save and load patterns from the datastore
      */
-    public function __construct(RecurrenceDataMapper $dataMapper)
+    public function __construct(RecurrenceRdbDataMapper $dataMapper)
     {
         $this->recurDataMapper = $dataMapper;
     }
@@ -78,10 +78,11 @@ class RecurrenceIdentityMapper
      * Save a recurrence pattern from an entity
      *
      * @param Entity $entity The entity containing the recurrence pattern to save
+     * @param int $useId We can reserve an ID to use when creating a new instace via getNextId()
      * @return bool
      * @throws \RuntimeException if there is a problem saving
      */
-    function saveFromEntity(Entity $entity)
+    function saveFromEntity(Entity $entity, $useId = null)
     {
         $recurPattern = $entity->getRecurrencePattern();
         $def = $entity->getDefinition();
@@ -127,7 +128,7 @@ class RecurrenceIdentityMapper
             */
 
             // Make sure this succeeds, it should never fail
-            if ($this->save($recurPattern)) {
+            if ($this->save($recurPattern, $useId)) {
                 return true;
             } else {
                 throw new \RuntimeException($this->recurDataMapper->getLastError()->getMessage());

@@ -238,7 +238,7 @@ class RecurrenceDataMapper extends \Netric\DataMapperAbstract
 					dayofweekmask[7] as day7
 				  FROM object_recurrence WHERE id=" . $dbh->escapeNumber($id);
         $result = $dbh->query($query);
-        //echo "\n-----\nLOAD: " . $query . "\n-----\n";
+        
         if ($dbh->getNumRows($result)) {
             $row = $dbh->GetRow($result, 0);
 

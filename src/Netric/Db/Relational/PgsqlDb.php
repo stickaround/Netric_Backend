@@ -249,7 +249,7 @@ class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
     /**
      * Get sequence name to pass to lastInsertid
      *
-     * EostgreSQL uses tablename_columnname_seq for every sequence name
+     * PostgreSQL uses tablename_columnname_seq for every sequence name
      *
      * @param string $tableName
      * @param string $columnName
