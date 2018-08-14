@@ -6,6 +6,7 @@ use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Db\DbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityFactoryFactory;
@@ -947,5 +948,101 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         return $ret;
+    }
+
+    /**
+     * Function that will load an entity from the old table
+     *
+     * @param EntityInterface $entity The old entity that will be loaded from the old table
+     * @param string $id The id of the entity that will be used to load the data from old table
+     * @param string $tableName The name of the old table
+     * @param DbInterface $dbh The old database connection
+     * @return bool
+     */
+    public function loadEntityFromOldTable(EntityInterface $entity, string $id, string $tableName, $dbh) {
+        $def = $entity->getDefinition();
+        $query = "select * from " . $tableName . " where id='" . $dbh->escape($id) . "'";
+        $result = $dbh->query($query);
+        if (!$dbh->getNumRows($result)) {
+            // The object was not found
+            return false;
+        }
+
+        $row = $dbh->getRow($result, 0);
+
+        // Load data for foreign keys
+        $all_fields = $def->getFields();
+        foreach ($all_fields as $fname => $fdef) {
+            // Populate values and foreign values for foreign entries if not set
+            if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
+                $mvals = null;
+
+                // set values of fkey_multi and object_multi fields as array of id(s)
+                if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
+                    if ($row[$fname]) {
+                        $parts = json_decode($row[$fname], true);
+                        if ($parts !== false) {
+                            $row[$fname] = $parts;
+                        }
+                    }
+
+                    // Was not set in the column, try reading from mvals list that was generated above
+                    if (!$row[$fname]) {
+                        if (!$mvals && $row[$fname . "_fval"]) {
+                            $mvals = json_decode($row[$fname . "_fval"], true);
+                        }
+
+                        if ($mvals) {
+                            foreach ($mvals as $id => $mval) {
+                                $row[$fname][] = $id;
+                            }
+                        }
+                    }
+                }
+
+                // Get object with no subtype - we may want to store this locally eventually
+                // so check to see if the data is not already defined
+                if (!$row[$fname] && $fdef->type == "object" && !$fdef->subtype) {
+                    if (!$mvals && $row[$fname . "_fval"]) {
+                        $mvals = json_decode($row[$fname . "_fval"], true);
+                    }
+
+                    if ($mvals) {
+                        foreach ($mvals as $id => $mval) {
+                            $row[$fname] = $id; // There is only one value but it is assoc
+                        }
+                    }
+                }
+            }
+
+            switch ($fdef->type) {
+                case "bool":
+                    $row[$fname] = ($row[$fname] == 't') ? true : false;
+                    break;
+                case "date":
+                case "timestamp":
+                    $row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
+                    break;
+                case 'object_multi':
+                    if ($fdef->subtype && is_array($row[$fname])) {
+                        foreach ($row[$fname] as $index => $objectId) {
+                            if (is_numeric($objectId)) {
+                                $row[$fname][$index] = $objectId;
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            // Check if we have an fkey label/name associated with column ids - these are cached in the object
+            $fkeyValueName = (isset($row[$fname . "_fval"])) ? json_decode($row[$fname . "_fval"], true) : null;
+
+            // Set entity value
+            if (isset($row[$fname])) {
+                $entity->setValue($fname, $row[$fname], $fkeyValueName);
+            }
+        }
+
+        return true;
     }
 }

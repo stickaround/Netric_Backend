@@ -58,6 +58,7 @@ class ObjectTypes
     const REMINDER = 'reminder';
     const WORKFLOW = 'workflow';
     const WORKFLOW_ACTION = 'workflow_action';
+    const WORKFLOW_INSTANCES = 'workflow_instances';
     const USER_TEAM = 'user_team';
     const WORKER_JOB = 'worker_job';
     const DABOARD_WIDGET = 'dashboard_widget';

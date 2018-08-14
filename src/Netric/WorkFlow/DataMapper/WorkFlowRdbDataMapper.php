@@ -11,6 +11,7 @@ use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Db\Relational\RelationalDbInterface;
+use DateTime;
 
 /**
  * Relational Database datamapper for CRUD operations on a WorkFlow object
@@ -327,19 +328,19 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             "f_completed" => (($workFlowInstance->isCompleted()) ? 't' : 'f'),
         );
 
-        $workflowInstanceId = $workFlowInstance->getId();
-        if ($workflowInstanceId) {
-            $this->database->update("workflow_instances", $workflowData, ['id' => $workflowInstanceId]);
-        } else {
-            $workflowInstanceId = $this->database->insert("workflow_instances", $workflowData);
+        $workFlowInstanceId = $workFlowInstance->getId();
 
-            // Set the workflow instance id
-            if ($workflowInstanceId) {
-                $workFlowInstance->setId($workflowInstanceId);
-            }
+        if ($workFlowInstanceId) {
+            $entity = $this->entityLoader->get("workflow_instance", $workFlowInstanceId);
+        } else {
+            $entity = $this->entityLoader->create("workflow_instance");
         }
 
-        return $workflowInstanceId;
+        $entity->fromArray($workflowData);
+        $workFlowInstanceId = $this->entityLoader->save($entity);
+        $workFlowInstance->setId($workFlowInstanceId);
+
+        return $workFlowInstanceId;
     }
 
     /**
@@ -350,23 +351,24 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      */
     public function getWorkFlowInstanceById($workFlowInstanceId)
     {
-        $sql = "SELECT id, workflow_id, object_type, object_uid, ts_started, f_completed
-                FROM workflow_instances WHERE id=:id";
+        $workflowInstanceEntity = $this->entityLoader->get("workflow_instance", $workFlowInstanceId);
 
-        $result = $this->database->query($sql, ["id" => $workFlowInstanceId]);
+        if ($workflowInstanceEntity) {
+            $objectType = $workflowInstanceEntity->getValue("object_type");
+            $objectUid = $workflowInstanceEntity->getValue("object_uid");
+            $workflowId = $workflowInstanceEntity->getValue("workflow_id");
+            $completedFlag = $workflowInstanceEntity->getValue("f_completed");
 
-        if ($result->rowCount()) {
-            $row = $result->fetch();
-            $entity = $this->entityLoader->get($row['object_type'], $row['object_uid']);
+            $entity = $this->entityLoader->get($objectType, $objectUid);
 
             // Entity was deleted
             if (!$entity) {
                 return null;
             }
 
-            $workFlowInstance = new WorkFlowInstance($row['workflow_id'], $entity, $row['id']);
+            $workFlowInstance = new WorkFlowInstance($workflowId, $entity, $workFlowInstanceId);
             $workFlowInstance->setTimeStarted(new \DateTime($row['ts_started']));
-            $workFlowInstance->setCompleted(($row['f_completed'] == 1) ? true : false);
+            $workFlowInstance->setCompleted(($completedFlag === 1) ? true : false);
             return $workFlowInstance;
         }
 
@@ -380,7 +382,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      * This is only for admin really because an instance will almost always be set to completed
      * but never deleted since we want to maintain a record of the instance run.
      *
-     * @param int $WorkFlowInstanceId The workflow instance id that we are going to delete
+     * @param int $workFlowInstanceId The workflow instance id that we are going to delete
      * @throws \InvalidArgumentException if anything but a workFlowInstanceId is passed
      */
     public function deleteWorkFlowInstance($workFlowInstanceId)
@@ -552,7 +554,9 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             "instance_id" => $workFlowInstanceId
         ];
 
-        $scheduleId = $this->database->insert("workflow_action_schedule", $scheduleData);
+        $entity = $this->entityLoader->create("workflow_action_schedule");
+        $entity->fromArray($scheduleData);
+        $scheduleId = $this->entityLoader->save($entity);
 
         return ($scheduleId) ? true : false;
     }
@@ -570,12 +574,18 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \InvalidArgumentException("The first two params must be numeric");
         }
 
-        $this->database->delete(
-            'workflow_action_schedule',
-            ['action_id' => $actionId, "instance_id" => $workFlowInstanceId]
-        );
+        $query = new EntityQuery("workflow_action_schedule");
+        $query->where("action_id")->equals($actionId);
+        $query->andWhere("instance_id")->equals($workFlowInstanceId);
+        $result = $this->entityIndex->executeQuery($query);
 
-        return true;
+        if ($result->getNum()) {
+            $entity = $result->getEntity($i);
+            $this->entityLoader->delete($entity);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -588,25 +598,29 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
     public function getScheduledActionTime($workFlowInstanceId, $actionId)
     {
         if (!is_numeric($workFlowInstanceId) || !is_numeric($actionId)) {
-            throw new \InvalidArgumentException("The first two params must be numeric");
+            throw new \InvalidArgumentException("The first two params must be numeric. $workFlowInstanceId and $actionId was provided.");
         }
 
-        $sql = "SELECT ts_execute FROM workflow_action_schedule
-                WHERE action_id=:action_id AND instance_id=:instance_id";
+        $query = new EntityQuery("workflow_action_schedule");
+        $query->where("action_id")->equals($actionId);
+        $query->andWhere("instance_id")->equals($workFlowInstanceId);
 
-        $result = $this->database->query($sql, ["action_id" => $actionId, "instance_id" => $workFlowInstanceId]);
+        $result = $this->entityIndex->executeQuery($query);
 
-        if ($result->rowCount()) {
-            $row = $result->fetch();
-            $strTime = $row["ts_execute"];
+        if ($result->getNum()) {
+            $entity = $result->getEntity($i);
+            $strTime = $entity->getValue("ts_execute");
 
             // $strTime should always be set, but you can never be too careful
             if (!$strTime) {
                 return null;
             }
 
+            $scheduledTime = new DateTime();
+            $scheduledTime->setTimestamp($strTime);
+
             // We should have a valid time from the PGSQL timestamp column, return the new date
-            return new \DateTime($strTime);
+            return $scheduledTime;
         }
 
         // Action is not scheduled
@@ -629,15 +643,20 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             $toDate = new \DateTime();
         }
 
-        $sql = "SELECT action_id, instance_id FROM workflow_action_schedule
-                WHERE ts_execute<=:ts_execute";
-
-        $result = $this->database->query($sql, ["ts_execute" => $toDate->format("Y-m-d g:i a T")]);
+        $query = new EntityQuery("workflow_action_schedule");
+        $query->where("ts_execute")->isLessOrEqualTo($toDate->format("Y-m-d g:i a T"));
+        $result = $this->entityIndex->executeQuery($query);
+        $num = $result->getNum();
 
         // Get all scheduled actions
-        foreach ($result->fetchAll() as $row) {
-            $instance = $this->getWorkFlowInstanceById($row['instance_id']);
-            $action = $this->getActionById($row['action_id']);
+        for ($i = 0; $i < $num; $i++) {
+            $entity = $result->getEntity($i);
+
+            $instanceId = $entity->getValue('instance_id');
+            $actionId = $entity->getValue('action_id');
+
+            $instance = $this->getWorkFlowInstanceById($instanceId);
+            $action = $this->getActionById($actionId);
 
             // Only return the scheduled action if the instance and action are still valid
             if ($instance && $action) {
@@ -647,7 +666,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
                 );
             } else {
                 // It looks like either the action was deleted or the instance was cancelled, cleanup
-                $this->deleteScheduledAction($row['instance_id'], $row['action_id']);
+                $this->deleteScheduledAction($instanceId, $actionId);
             }
         }
 

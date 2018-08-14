@@ -16,6 +16,8 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Db\DbFactory;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -48,6 +50,13 @@ abstract class DmTestsAbstract extends TestCase
     private $groupingDataMapper = null;
 
     /**
+     * Test old entities created that needed to be cleaned up
+     * 
+     * @var array
+     */
+    private $testOldEntities = [];
+
+    /**
      * Setup each test
      */
     protected function setUp()
@@ -65,6 +74,11 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
         foreach ($this->testEntities as $entity) {
             $dm->delete($entity, true);
+        }
+
+        $db = $this->account->getServiceManager()->get(RelationalDbFactory::class);
+        foreach ($this->testOldEntities as $oldEntity) {
+            $db->delete($oldEntity["table"], ["id" => $oldEntity["id"]]);
         }
     }
 
@@ -348,7 +362,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // First test a custom table object
         // ------------------------------------------------------------------------
-        
+
         // Create a test customer to delete
         $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
         $customer->setValue("name", "Entity_DataMapperTests");
@@ -374,7 +388,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Test a dynamic table object
         // ------------------------------------------------------------------------
-        
+
         // Create a test customer to delete
         $story = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
         $story->setValue("name", "Entity_DataMapperTests");
@@ -592,7 +606,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Save first time
         $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-        
+
         // Set saveRevisions to false
         $customer->setValue("name", "testCommitImcrement First");
         $cid = $dm->save($customer, $this->user);
@@ -973,5 +987,29 @@ abstract class DmTestsAbstract extends TestCase
         // Cleanup groupings
         $groupingsStat->delete($statGrp->id);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
+    }
+
+    /**
+     * Function that will test the loading of entity from the old table
+     */
+    public function testLoadEntityFromOldTable()
+    {
+        $customerName = "unit test customer" . rand();
+        $serviceManager = $this->account->getServiceManager();
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $dbLegacy = $serviceManager->get(DbFactory::class);
+        $db = $serviceManager->get(RelationalDbFactory::class);
+        $dm = $this->getDataMapper();
+
+        $oldEntityId = $db->insert("customers", ["name" => $customerName]);
+        $this->testOldEntities[] = ["table" => "customers", "id" => $oldEntityId];
+
+        $oldEntity = $entityLoader->create("customer");
+        $result = $dm->loadEntityFromOldTable($oldEntity, $oldEntityId, "customers", $dbLegacy);
+        $this->assertTrue($result);
+
+        $entityData = $oldEntity->toArray();
+        $this->assertEquals($entityData["id"], $oldEntityId);
+        $this->assertEquals($entityData["name"], $customerName);
     }
 }
