@@ -109,13 +109,18 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         if (!$def->system) {
             throw new \InvalidArgumentException("Can do a system update on a custom entity definition");
         }
-
+        echo "OBJ TYPE DATA: " . $def->getObjType();
         // Check if this is a system object and if it is
         $sysData = $this->getSysDef($def->getObjType());
         if ($sysData) {
+            print_r($sysData);
             // Check to see if the sysData has changed since the last time we loaded it
             $systemDefinitionHash = $this->getLatestSystemDefinitionHash($def->getObjType());
+            echo "sys hash" . $systemDefinitionHash;
+            echo "def hash" . $def->systemDefinitionHash;
             if ($systemDefinitionHash != $def->systemDefinitionHash) {
+
+                print_r($sysData);
                 // System definition has been updated, save the changes
                 $def->fromArray($sysData);
 

@@ -988,28 +988,4 @@ abstract class DmTestsAbstract extends TestCase
         $groupingsStat->delete($statGrp->id);
         $this->groupingDataMapper->saveGroupings($groupingsStat);
     }
-
-    /**
-     * Function that will test the loading of entity from the old table
-     */
-    public function testLoadEntityFromOldTable()
-    {
-        $customerName = "unit test customer" . rand();
-        $serviceManager = $this->account->getServiceManager();
-        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
-        $dbLegacy = $serviceManager->get(DbFactory::class);
-        $db = $serviceManager->get(RelationalDbFactory::class);
-        $dm = $this->getDataMapper();
-
-        $oldEntityId = $db->insert("customers", ["name" => $customerName]);
-        $this->testOldEntities[] = ["table" => "customers", "id" => $oldEntityId];
-
-        $oldEntity = $entityLoader->create("customer");
-        $result = $dm->loadEntityFromOldTable($oldEntity, $oldEntityId, "customers", $dbLegacy);
-        $this->assertTrue($result);
-
-        $entityData = $oldEntity->toArray();
-        $this->assertEquals($entityData["id"], $oldEntityId);
-        $this->assertEquals($entityData["name"], $customerName);
-    }
 }
