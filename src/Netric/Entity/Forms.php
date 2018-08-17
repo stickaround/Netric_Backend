@@ -7,10 +7,10 @@
  */
 namespace Netric\Entity;
 
-use Netric\Db\DbInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\Config\Config;
+use Netric\Db\Relational\RelationalDbInterface;
 
 /**
  * Class for managing entity forms
@@ -20,43 +20,40 @@ use Netric\Config\Config;
 class Forms
 {
     /**
-     * Database handle
+     * Handle to database
      *
-     * @var \Netric\Db\DbInterface
+     * @var RelationalDbInterface
      */
-    private $dbh = null;
+    private $database = null;
 
     /**
      * Netric configuration
      *
-     * @var \Netric\Config\Config
+     * @var Config
      */
     private $config = null;
 
     /**
      * Class constructor to set up dependencies
      *
-     * @param \Netric\Db\DbInterface
+     * @param RelationalDbInterface $database Handles to database actions
+     * @param Config $config Contains the configuration info
      */
-    public function __construct(DbInterface $dbh, Config $config)
+    public function __construct(RelationalDbInterface $database, Config $config)
     {
-        $this->dbh = $dbh;
+        $this->database = $database;
         $this->config = $config;
     }
 
     /**
      * Service creation factory
      *
-     * @param \Netric\EntityDefinition $def
+     * @param EntityDefinition $def
      * @return array Associative array
      */
     public function getDeviceForms(EntityDefinition $def, UserEntity $user)
     {
-        $dbh = $this->dbh;
-
-        /*
-         * First look for the new form names: small, medium, large, xlarge
-         */
+        // First look for the new form names: small, medium, large, xlarge
         $small = $this->getFormUiXml($def, $user, "small");
         $medium = $this->getFormUiXml($def, $user, "medium");
         $large = $this->getFormUiXml($def, $user, "large");
@@ -123,53 +120,55 @@ class Forms
      *
      * In all the above cases it will be checking
      *
-     * @param \Netric\EntityDefinition $def The object type definition
-     * @param \Netric\Entity\ObjType\UserEntity $user User to get forms for
+     * @param EntityDefinition $def The object type definition
+     * @param UserEntity $user User to get forms for
      * @param string $device The device scope / size - 'small', 'medium', 'large', 'xlarge'
      * @return string
      */
     public function getFormUiXml(EntityDefinition $def, UserEntity $user, $device)
     {
-        $dbh = $this->dbh;
-
-        // Protect against SQL Injection
-        $scope = $dbh->escape($device);
-
         // Check for user specific form
-        $result = $dbh->query("SELECT form_layout_xml FROM app_object_type_frm_layouts
-                                WHERE user_id='" . $user->getId() . "'
-                                    AND scope='" . $device . "'
-                                    AND type_id='" . $def->getId() . "';");
-        if ($dbh->getNumRows($result)) {
-            $val = $dbh->getValue($result, 0, "form_layout_xml");
-            if ($val && $val!="*") {
-                return $val;
+        $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts
+                WHERE user_id=:user_id AND scope=:scope AND type_id=:type_id";
+
+        $params = [
+            "scope" => $device,
+            "type_id" => $def->getId()
+        ];
+        $result = $this->database->query($sql, array_merge(["user_id" => $user->getId()], $params));
+
+        if ($result->rowCount()) {
+            $row = $result->fetch();
+            if (!empty($row["form_layout_xml"]) && $row["form_layout_xml"] !== "*") {
+                return $row["form_layout_xml"];
             }
         }
         
         // Check for team specific form
         if ($user->getValue("team_id")) {
-            $result = $dbh->query("SELECT form_layout_xml FROM app_object_type_frm_layouts
-                                    WHERE team_id='" . $user->getValue("team_id") . "' 
-                                        AND scope='" . $device . "'
-                                        AND type_id='" . $def->getId() . "';");
-            if ($dbh->getNumRows($result)) {
-                $val = $dbh->getValue($result, 0, "form_layout_xml");
-                if ($val && $val!="*") {
-                    return $val;
+            $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts
+                    WHERE team_id=:team_id AND scope=:scope AND type_id=:type_id";
+
+            $result = $this->database->query($sql, array_merge(["team_id" => $user->getValue("team_id")], $params));
+
+            if ($result->rowCount()) {
+                $row = $result->fetch();
+                if (!empty($row["form_layout_xml"]) && $row["form_layout_xml"] !== "*") {
+                    return $row["form_layout_xml"];
                 }
             }
         }
 
         // Check for default custom that applies to all users and teams
-        $result = $dbh->query("SELECT form_layout_xml FROM app_object_type_frm_layouts
-                                WHERE scope='" . $device . "'
-                                AND team_id IS NULL AND user_id IS NULL
-                                AND type_id='" . $def->getId() . "';");
-        if ($dbh->getNumRows($result)) {
-            $val = $dbh->getValue($result, 0, "form_layout_xml");
-            if ($val && $val!="*") {
-                return $val;
+        $sql = "SELECT form_layout_xml FROM app_object_type_frm_layouts
+                WHERE scope=:scope AND type_id=:type_id AND team_id IS NULL AND user_id IS NULL";
+
+        $result = $this->database->query($sql, $params);
+
+        if ($result->rowCount()) {
+            $row = $result->fetch();
+            if (!empty($row["form_layout_xml"]) && $row["form_layout_xml"] !== "*") {
+                return $row["form_layout_xml"];
             }
         }
 
@@ -180,7 +179,7 @@ class Forms
     /**
      * Get system defined UIXML form for an object type
      *
-     * @param \Netric\EntityDefinition $def The object type definition
+     * @param EntityDefinition $def The object type definition
      * @param string $device Device type/size 'small', 'medium', 'large', 'xlarge'
      * @return string UIXML form if defined
      * @throws \Exception When called when $def is not a valid object type
@@ -207,7 +206,7 @@ class Forms
     /**
      * Override the default system form for a specific team
      *
-     * @param \Netric\EntityDefinition $def The object type definition
+     * @param EntityDefinition $def The object type definition
      * @param int $teamId The unique id of the team that will use this form
      * @param string $deviceType The type of device the form is for: small|medium|large|xlarge
      * @param string $xmlForm The UIXML representing the form
@@ -290,42 +289,40 @@ class Forms
             throw new \InvalidArgumentException("Entity definition is bad");
         }
 
-        // Clean any existing forms that match this deviceType (used to be called scope)
-        $sql = "DELETE FROM app_object_type_frm_layouts WHERE
-                scope='" . $this->dbh->escape($deviceType) . "' AND
-                type_id=" . $this->dbh->escapeNumber($def->getId());
+        $params = [
+            "scope" => $device,
+            "type_id" => $def->getId()
+        ];
+
         if ($teamId) {
-            $sql .= " AND team_id=" . $this->dbh->escapeNumber($teamId);
+            $params["team_id"] = $teamId;
         } elseif ($userId) {
-            $sql .= " AND user_id=" . $this->dbh->escapeNumber($userId);
+            $params["user_id"] = $userId;
         } else {
-            $sql .= "AND user_id IS NULL and team_id IS NULL";
+            $params["user_id"] = null;
+            $params["team_id"] = null;
         }
-        $this->dbh->query($sql);
+
+        // Clean any existing forms that match this deviceType (used to be called scope)
+        $this->database->delete("app_object_type_frm_layouts", $params);
 
         // Insert the new form if set, otherwise just leave it deleted
-        if (!$xmlForm !== null) {
-            $sql = "INSERT INTO
-                  app_object_type_frm_layouts(
-                    scope,
-                    team_id,
-                    user_id,
-                    type_id,
-                    form_layout_xml
-                  )
-                VALUES (
-                  '" . $this->dbh->escape($deviceType) . "',
-                  " . $this->dbh->escapeNumber($teamId) . ",
-                  " . $this->dbh->escapeNumber($userId) . ",
-                  " . $def->getId() . ",
-                  '" . $this->dbh->escape($xmlForm) . "'
-                )";
-            if ($this->dbh->query($sql)) {
-                return true;
-            } else {
-                echo "ERROR: " . $this->dbh->getLastError();
-                return false;
+        if (!empty($xmlForm)) {
+            $insertData = [
+                "scope" => $deviceType,
+                "team_id" => $teamId,
+                "user_id" => $userId,
+                "type_id" => $def->getId(),
+                "form_layout_xml" => $xmlForm
+            ];
+
+            $layoutId = $this->database->insert("app_object_type_frm_layouts", $insertData);
+
+            if (!$layoutId) {
+                throw new \Exception("Error saving xml form in " . $def->getObjType());
             }
+
+            return $layoutId;
         }
 
         return true;

@@ -143,7 +143,6 @@ abstract class IndexAbstract
      */
     public function getHeiarchyUp(\Netric\EntityDefinition\Field $field, $this_id)
     {
-        $dbh = $this->dbh;
         $parent_arr = array($this_id);
 
         // TODO: finish

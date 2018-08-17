@@ -5,8 +5,8 @@ use Netric\Application\Application;
 use Netric\Account\Account;
 use Netric\Application\Schema\SchemaDataMapperFactory;
 use Netric\Application\Schema\SchemaDataMapperInterface;
-use Netric\Application\Schema\SchemaDataMapperPgsql;
-use Netric\Db\Pgsql;
+use Netric\Application\Schema\SchemaRdbDataMapper;
+use Netric\Db\Relational\PgsqlDb;
 use Netric\Error\AbstractHasErrors;
 use Netric\Entity\EntityLoaderFactory;
 
@@ -125,7 +125,7 @@ class Setup extends AbstractHasErrors
         switch ($config->db['type']) {
             case 'pgsql':
                 // Get handle to system database
-                $dbh = new Pgsql(
+                $rdb = new PgsqlDb(
                     $config->db['syshost'],
                     $config->db['sysdb'],
                     $config->db['user'],
@@ -133,7 +133,7 @@ class Setup extends AbstractHasErrors
                 );
 
                 // Return DataMapper for this database type
-                return new SchemaDataMapperPgsql($dbh, $schemaDefinition);
+                return new SchemaRdbDataMapper($rdb, $schemaDefinition);
 
                 break;
             default:

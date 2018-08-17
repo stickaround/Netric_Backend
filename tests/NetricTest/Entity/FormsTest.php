@@ -9,6 +9,7 @@ namespace NetricTest\Entity;
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\FormsFactory;
+use Netric\Entity\ObjType\UserEntity;
 
 class FormsTest extends TestCase
 {
@@ -43,7 +44,7 @@ class FormsTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->formService = $sm->get(FormsFactory::class);
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     public function testCreateForUser()
@@ -58,6 +59,9 @@ class FormsTest extends TestCase
         // Get the form for the account and see if it matches what we just saved
         $testSaveXml = $this->formService->getFormUiXml($def, $this->user, "test");
         $this->assertEquals($testXml, $testSaveXml);
+
+        // Get the form using ::getDeviceForms()
+        $deviceForms = $this->formService->getDeviceForms($def, $this->user);
 
         // Cleanup by setting it to null
         $this->formService->saveForUser($def, $this->user->getId(), "test", null);
