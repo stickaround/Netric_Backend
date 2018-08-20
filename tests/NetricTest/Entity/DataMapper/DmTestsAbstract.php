@@ -50,13 +50,6 @@ abstract class DmTestsAbstract extends TestCase
     private $groupingDataMapper = null;
 
     /**
-     * Test old entities created that needed to be cleaned up
-     * 
-     * @var array
-     */
-    private $testOldEntities = [];
-
-    /**
      * Setup each test
      */
     protected function setUp()
@@ -74,11 +67,6 @@ abstract class DmTestsAbstract extends TestCase
         $dm = $this->getDataMapper();
         foreach ($this->testEntities as $entity) {
             $dm->delete($entity, true);
-        }
-
-        $db = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-        foreach ($this->testOldEntities as $oldEntity) {
-            $db->delete($oldEntity["table"], ["id" => $oldEntity["id"]]);
         }
     }
 

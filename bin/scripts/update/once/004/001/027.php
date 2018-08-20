@@ -31,7 +31,7 @@ $entityIndex = $serviceManager->get(IndexFactory::class);
  */
 $types = [
     ["obj_type" => "workflow_instance", "title" => "Workflow Instance", "revision" => "0", "system" => true],
-    ["obj_type" => "workflow_action_schedule", "title" => "Workflow Action Schedule", "revision" => "0", "system" => true]
+    ["obj_type" => "workflow_action_scheduled", "title" => "Workflow Action Scheduled", "revision" => "0", "system" => true]
 ];
 
 foreach ($types as $objDefData) {
@@ -67,7 +67,7 @@ foreach ($types as $objDefData) {
 
 $objectTypesToMove = [
     ['obj_type' => 'workflow_instance', 'old_table' => 'workflow_instances'],
-    ['obj_type' => 'workflow_action_schedule', 'old_table' => 'workflow_action_schedule'],
+    ['obj_type' => 'workflow_action_scheduled', 'old_table' => 'workflow_action_schedule'],
 ];
 
 /**
