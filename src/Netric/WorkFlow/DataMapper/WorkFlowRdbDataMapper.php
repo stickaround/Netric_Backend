@@ -10,7 +10,6 @@ use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\ActionInterface;
-use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Db\Relational\RelationalDbInterface;
 
 /**

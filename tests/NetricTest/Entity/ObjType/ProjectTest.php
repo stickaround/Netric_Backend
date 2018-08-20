@@ -6,7 +6,7 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use Netric\EntityQuery;
-use Netric\EntityQuery\Index\Pgsql;
+use Netric\EntityQuery\Index\EntityQueryIndexRdb;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 
@@ -79,7 +79,7 @@ class ProjectTest extends TestCase
         $query = new EntityQuery("task");
         $query->where('project')->equals($pid_2);
 
-        $queryIndex = new Pgsql($this->account);
+        $queryIndex = new EntityQueryIndexRdb($this->account);
         $res = $queryIndex->executeQuery($query);
         $num = $res->getNum();
         $newTask = $res->getEntity(0);

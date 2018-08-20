@@ -3,7 +3,7 @@ namespace Netric\Entity;
 
 use Netric\ServiceManager;
 use Netric\Config\ConfigFactory;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Service factory for the Forms
@@ -18,8 +18,8 @@ class FormsFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get(DbFactory::class);
+        $database = $sl->get(RelationalDbFactory::class);
         $config = $sl->get(ConfigFactory::class);
-        return new Forms($dbh, $config);
+        return new Forms($database, $config);
     }
 }
