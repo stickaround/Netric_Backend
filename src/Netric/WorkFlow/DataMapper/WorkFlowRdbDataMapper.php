@@ -4,6 +4,7 @@ namespace Netric\WorkFlow\DataMapper;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
 use Netric\Error\ErrorAwareInterface;
 use Netric\Error\Error;
 use Netric\WorkFlow\WorkFlow;
@@ -554,7 +555,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             "instance_id" => $workFlowInstanceId
         ];
 
-        $entity = $this->entityLoader->create("workflow_action_scheduled");
+        $entity = $this->entityLoader->create(ObjectTypes::WORKFLOW_ACTION_SCHEDULED);
         $entity->fromArray($scheduleData);
         $scheduleId = $this->entityLoader->save($entity);
 
@@ -574,7 +575,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \InvalidArgumentException("The first two params must be numeric");
         }
 
-        $query = new EntityQuery("workflow_action_scheduled");
+        $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION_SCHEDULED);
         $query->where("action_id")->equals($actionId);
         $query->andWhere("instance_id")->equals($workFlowInstanceId);
         $result = $this->entityIndex->executeQuery($query);
@@ -601,7 +602,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \InvalidArgumentException("The first two params must be numeric. $workFlowInstanceId and $actionId was provided.");
         }
 
-        $query = new EntityQuery("workflow_action_scheduled");
+        $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION_SCHEDULED);
         $query->where("action_id")->equals($actionId);
         $query->andWhere("instance_id")->equals($workFlowInstanceId);
 
@@ -643,7 +644,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             $toDate = new \DateTime();
         }
 
-        $query = new EntityQuery("workflow_action_scheduled");
+        $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION_SCHEDULED);
         $query->where("ts_execute")->isLessOrEqualTo($toDate->format("Y-m-d g:i a T"));
         $result = $this->entityIndex->executeQuery($query);
         $num = $result->getNum();
