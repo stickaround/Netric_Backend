@@ -14,10 +14,10 @@ interface DataMapperInterface
      *
      * This is also responsible for loading collections
      *
-     * @param string $id Netric unique partner id
+     * @param string $partnerId Netric unique partner id
      * @return Partner or null if id does not exist
      */
-    public function getPartnerById($id);
+    public function getPartnerById(string $partnerId);
 
     /**
      * Get a partner by the remote partner id
@@ -27,7 +27,7 @@ interface DataMapperInterface
      * @param string $partnerId Remotely provided unique ident
      * @return Partner or null if id does not exist
      */
-    public function getPartnerByPartnerId($partnerId);
+    public function getPartnerByPartnerId(string $partnerId);
 
     /**
      * Get a partner by id
@@ -40,21 +40,22 @@ interface DataMapperInterface
     public function savePartner(Partner $partner);
 
     /**
-     * Delete a partner by id
+     * Delete a partner
      *
-     * @param string $id The unique id of the partnership to delete
+     * @param Partner $partner The partner to delete
+     * @param bool $byPartnerId Option to delete by partner id which is useful for purging duplicates
      * @return bool true on success, false on failure
      */
-    public function deletePartner($id);
+    public function deletePartner(Partner $partner, bool $byPartnerId = false);
 
     /**
      * Mark a commit as stale for all sync collections
      *
-     * @param int $colType Type from \Netric\EntitySync::COLL_TYPE_*
+     * @param int $colType Type from EntitySync::COLL_TYPE_*
      * @param string $lastCommitId
      * @param string $newCommitId
      */
-    public function setExportedStale($collType, $lastCommitId, $newCommitId);
+    public function setExportedStale(int $collType, string $lastCommitId, string $newCommitId);
 
     /**
      * Log that a commit was exported from this collection
@@ -65,7 +66,7 @@ interface DataMapperInterface
      * @param int $commitId The commit id synchronized, if null then delete the entry
      * @return bool true on success, false on failure
      */
-    public function logExported($collType, $collectionId, $uniqueId, $commitId);
+    public function logExported(int $collType = null, int $collectionId = null, int $uniqueId = null, int $commitId = null);
 
     /**
      * Log that a commit was exported from this collection
@@ -77,7 +78,8 @@ interface DataMapperInterface
      * @param int $localRevision The revision of the local object
      * @return bool true if imported false if failure
      */
-    public function logImported($collectionId, $remoteId, $remoteRevision = null, $localId = null, $localRevision = null);
+    public function logImported(int $collectionId, string $remoteId, int $remoteRevision = null,
+                                int $localId = null, int $localRevision = null);
 
     /**
      * Get a list of previously exported commits that have been updated
@@ -98,7 +100,7 @@ interface DataMapperInterface
      * @param int $collectionId The id of the collection we get stats for
      * @return array(array('id'=>objectId, 'action'=>'delete'))
      */
-    public function getExportedStale($collectionId);
+    public function getExportedStale(int $collectionId);
 
     /**
      * Get a list of previously imported objects
@@ -106,7 +108,7 @@ interface DataMapperInterface
      * @param int $collectionId The id of the collection we get stats for
      * @return array(array('uid', 'local_id', 'revision'))
      */
-    public function getImported($collectionId);
+    public function getImported(int $collectionId);
 
     /**
      * Get listening partnership for this object type

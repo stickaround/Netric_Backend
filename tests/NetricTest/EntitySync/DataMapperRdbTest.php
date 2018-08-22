@@ -5,6 +5,8 @@
 namespace NetricTest\EntitySync;
 
 use Netric\EntitySync;
+use Netric\EntitySync\DataMapperRdb;
+use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * @group integration
@@ -19,8 +21,8 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
      */
     protected function getDataMapper()
     {
-        $dbh = $this->account->getServiceManager()->get("Db");
-        return new EntitySync\DataMapperPgsql($this->account, $dbh);
+        $database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
+        return new DataMapperRdb($this->account, $database);
     }
 
     /**
@@ -29,7 +31,7 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
     public function testConstruct()
     {
         $dm = $this->getDataMapper();
-        $this->assertInstanceOf('\Netric\EntitySync\DataMapperPgsql', $dm);
+        $this->assertInstanceOf(DataMapperRdb::class, $dm);
     }
 
     /**
