@@ -3,9 +3,9 @@ namespace Netric\Entity\BrowserView;
 
 use Netric\ServiceManager;
 use Netric\Config\ConfigFactory;
-use Netric\Db\DbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Settings\SettingsFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Create a new BrowserView service for getting and saving forms
@@ -22,10 +22,10 @@ class BrowserViewServiceFactory implements ServiceManager\AccountServiceFactoryI
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get(DbFactory::class);
         $config = $sl->get(ConfigFactory::class);
         $defLoader = $sl->get(EntityDefinitionLoaderFactory::class);
         $settings = $sl->get(SettingsFactory::class);
-        return new BrowserViewService($dbh, $config, $defLoader, $settings);
+        $rdb = $sl->get(RelationalDbFactory::class);
+        return new BrowserViewService($rdb, $config, $defLoader, $settings);
     }
 }
