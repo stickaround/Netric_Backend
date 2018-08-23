@@ -3,6 +3,8 @@
 namespace NetricTest\EntitySync;
 
 use Netric;
+use Netric\EntitySync\DataMapperRdb;
+use Netric\EntitySync\DataMapperFactory;
 
 use PHPUnit\Framework\TestCase;
 
@@ -14,13 +16,8 @@ class DataMapperFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntitySync\DataMapperPgsql',
-            $sm->get('EntitySync_DataMapper')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntitySync\DataMapperPgsql',
-            $sm->get('Netric\EntitySync\DataMapper')
+            DataMapperRdb::class,
+            $sm->get(DataMapperFactory::class)
         );
     }
 }

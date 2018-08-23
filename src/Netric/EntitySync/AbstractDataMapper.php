@@ -6,7 +6,10 @@
  * @copyright Copyright (c) 2003-2015 Aereus Corporation (http://www.aereus.com)
  */
 
- namespace Netric\EntitySync;
+namespace Netric\EntitySync;
+
+use Netric\Account\Account;
+use Netric\Db\Relational\RelationalDbInterface;
 
 abstract class AbstractDataMapper extends \Netric\DataMapperAbstract
 {
@@ -20,13 +23,12 @@ abstract class AbstractDataMapper extends \Netric\DataMapperAbstract
     /**
      * Class constructor
      *
-     * @param \Netric\Account\Account $account Account for tennant that we are mapping data for
-     * @param \Netric\Db\DbInterface $dbh Handle to database
+     * @param Account $account Account for tennant that we are mapping data for
+     * @param RelationalDbInterface $dbh Handle to database
      */
-    public function __construct(\Netric\Account\Account $account, \Netric\Db\DbInterface $dbh)
+    public function __construct(\Netric\Account\Account $account, RelationalDbInterface $database)
     {
         $this->setAccount($account);
-
-        $this->dbh = $dbh;
+        $this->database = $database;
     }
 }
