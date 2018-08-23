@@ -3,6 +3,8 @@
 namespace NetricTest\EntitySync\Commit\DataMapper;
 
 use Netric;
+use Netric\EntitySync\Commit\DataMapper\DataMapperRdb;
+use Netric\EntitySync\Commit\DataMapper\DataMapperFactory;
 
 use PHPUnit\Framework\TestCase;
 
@@ -14,13 +16,8 @@ class DataMapperFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntitySync\Commit\DataMapper\Pgsql',
-            $sm->get('EntitySyncCommit_DataMapper')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntitySync\Commit\DataMapper\PgSql',
-            $sm->get('Netric\EntitySync\Commit\DataMapper\DataMapper')
+            DataMapperRdb::class,
+            $sm->get(DataMapperFactory::class)
         );
     }
 }
