@@ -241,11 +241,13 @@ class WorkFlowManagerTest extends TestCase
          * This essentially does the same thing but just schedules the child task
          * specifically for the sake of testing.
          */
-        $this->workFlowDataMapper->scheduleAction(
+        $result = $this->workFlowDataMapper->scheduleAction(
             $workFlowInstance->getId(),
             $actionUpdateField->getId(),
             new \DateTime(date("Y-m-d"))
         );
+
+        $this->assertTrue($result);
 
         // Run scheduled actions which should execute the above
         $this->workFlowManager->runScheduledActions();

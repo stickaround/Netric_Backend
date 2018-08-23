@@ -16,6 +16,8 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Db\DbFactory;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -348,7 +350,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // First test a custom table object
         // ------------------------------------------------------------------------
-        
+
         // Create a test customer to delete
         $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
         $customer->setValue("name", "Entity_DataMapperTests");
@@ -374,7 +376,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Test a dynamic table object
         // ------------------------------------------------------------------------
-        
+
         // Create a test customer to delete
         $story = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
         $story->setValue("name", "Entity_DataMapperTests");
@@ -592,7 +594,7 @@ abstract class DmTestsAbstract extends TestCase
 
         // Save first time
         $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
-        
+
         // Set saveRevisions to false
         $customer->setValue("name", "testCommitImcrement First");
         $cid = $dm->save($customer, $this->user);

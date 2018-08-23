@@ -6,6 +6,7 @@ use Netric\Db\Relational\Exception\DatabaseQueryException;
 use Netric\Entity\DataMapperAbstract;
 use Netric\Entity\DataMapperInterface;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Db\DbInterface;
 use Netric\Entity\EntityInterface;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityFactoryFactory;
