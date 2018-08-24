@@ -8,17 +8,20 @@
  */
 namespace Netric\EntitySync\Commit\DataMapper;
 
+use Netric\Account\Account;
+use Netric\Db\Relational\RelationalDbInterface;
+
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract implements DataMapperInterface
 {
     /**
      * Class constructor
      *
-     * @param ServiceLocator $sl The ServiceLocator container
      * @param string $accountName The name of the ANT account that owns this data
+     * @param RelationalDbInterface $database Handles to database actions
      */
-    public function __construct(\Netric\Account\Account $account)
+    public function __construct(Account $account, RelationalDbInterface $database)
     {
         $this->setAccount($account);
-        $this->setUp();
+        $this->database = $database;
     }
 }

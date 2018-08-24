@@ -20,7 +20,7 @@ class DataMapperRdbTest extends DmTestsAbstract
      *
      * @var RelationalDbInterface
      */
-    private $database = null;
+    protected $database = null;
 
     /**
      * Use this funciton in all the datamappers to construct the datamapper
@@ -29,10 +29,11 @@ class DataMapperRdbTest extends DmTestsAbstract
      */
     protected function getDataMapper()
     {
-        $sm = $this->account->getServiceManager();
+        $account = \NetricTest\Bootstrap::getAccount();
+        $sm = $account->getServiceManager();
         $this->database = $sm->get(RelationalDbFactory::class);
 
-        return new DataMapperRdb($this->account);
+        return new DataMapperRdb($account, $this->database);
     }
 
     public function testCreateNewSequenceIfMissing()

@@ -4,8 +4,6 @@
  */
 namespace Netric\EntitySync\Commit\DataMapper;
 
-use Netric\Db\Relational\RelationalDbFactory;
-
 class DataMapperRdb extends DataMapperAbstract
 {
     /**
@@ -13,7 +11,7 @@ class DataMapperRdb extends DataMapperAbstract
      *
      * @var RelationalDbInterface
      */
-    private $database = null;
+    protected $database = null;
 
     /**
      * Sequence name
@@ -30,14 +28,6 @@ class DataMapperRdb extends DataMapperAbstract
      * keep up with those commits for 2,924,712 years before wrapping.
      */
     private $sSequenceName = "object_commit_seq";
-
-    /**
-     * Setup this class called from the parent constructor
-     */
-    protected function setUp()
-    {
-        $this->database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-    }
 
     /**
      * Get next id
