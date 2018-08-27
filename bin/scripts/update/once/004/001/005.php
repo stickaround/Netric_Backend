@@ -13,14 +13,12 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\FileSystem\FileStore\LocalFileStoreFactory;
 use Netric\FileSystem\FileStore\FileStoreFactory;
 use Netric\Log\LogFactory;
-use Netric\Db\DbFactory;
 use Netric\EntityQuery;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
 $config = $serviceManager->get(ConfigFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);
 $localStore = $serviceManager->get(LocalFileStoreFactory::class);

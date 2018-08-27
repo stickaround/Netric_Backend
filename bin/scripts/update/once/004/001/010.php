@@ -2,22 +2,19 @@
 /**
  * Move the old project_membership data to the project's member table (which is now an object multi)
  */
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityLoaderFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 $loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
 
 $projectMemberships = [];
 $result = $db->query("SELECT * from project_membership");
 
-for ($i = 0; $i < $db->getNumRows($result); $i++) {
-    // Get the result row
-    $row = $db->getRow($result, $i);
-
+foreach ($result->fetchAll() as $row) {
     $projectId = $row['project_id'];
     $projectMemberships[$projectId][] = $row;
 }

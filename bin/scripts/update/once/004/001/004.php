@@ -4,11 +4,11 @@
  * object_sync_import from entity revision to entity commit_id
  */
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
 $sql = "SELECT osi.id, osi.object_id, osi.revision, osc.object_type
@@ -19,23 +19,17 @@ $sql = "SELECT osi.id, osi.object_id, osi.revision, osc.object_type
           osi.object_id IS NOT NULL AND
           osi.revision IS NOT NULL AND
           osc.object_type IS NOT NULL AND
-          (osc.field_name IS NULL OR osc.field_name='')
-          ";
+          (osc.field_name IS NULL OR osc.field_name='')";
+
 $result = $db->query($sql);
-$num = $db->getNumRows($result);
-for ($i = 0; $i < $num; $i++) {
-    $row = $db->getRow($result, $i);
+
+foreach ($result->fetchAll() as $row) {
     $entity = $entityLoader->get($row['object_type'], $row['object_id']);
 
     if ($entity && $entity->getValue("commit_id") && $entity->getValue('commit_id') != $row['revision']) {
-        $sql = "UPDATE object_sync_import
-                SET revision=" . $entity->getValue("commit_id") . "
-                WHERE id=" . $row['id'];
-        if (!$db->query($sql)) {
-            throw new \RuntimeException("Query failed: " . $db->getLastError());
-        }
+        $db->update("object_sync_import", ["revision" => $commitId], ["id" => $row['id']]);
     } else {
         // At some point an entity was imported but it looks like it may be stale now.
-        $db->query("DELETE FROM object_sync_import WHERE id={$row['id']}");
+        $db->delete("object_sync_import", ["id" => $row['id']]);
     }
 }

@@ -5,10 +5,9 @@ use Netric\Console\BinScript;
 use Netric\Entity\EntityInterface;
 use PHPUnit\Framework\TestCase;
 
-use Netric\Db\DbFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
-use Netric\Application\Schema\SchemaDataMapperPgsql;
+use Netric\Application\Schema\SchemaRdbDataMapper;
 use Netric\Application\Schema\SchemaProperty;
 use Netric\Db\Relational\RelationalDbInterface;
 
@@ -107,11 +106,8 @@ class Update004001015Test extends TestCase
             }
         }
 
-        // Cleanup the tables created for this unit test
-        $serviceManager = $this->account->getServiceManager();
-        $schemaDb = $serviceManager->get(DbFactory::class);
         foreach ($this->tablesCreated as $table) {
-            $schemaDb->query("DROP TABLE $table");
+            $this->db->query("DROP TABLE $table");
         }
     }
 
@@ -376,9 +372,7 @@ class Update004001015Test extends TestCase
     private function createTable($tableName, $schemaDefinition)
     {
         $serviceManager = $this->account->getServiceManager();
-        $schemaDb = $serviceManager->get(DbFactory::class);
-        $schemaDM = new SchemaDataMapperPgsql($schemaDb, $schemaDefinition);
-
+        $schemaDM = new SchemaRdbDataMapper($this->db, $schemaDefinition);
         $schemaDM->update($this->account->getId());
 
         $this->tablesCreated[] = $tableName;

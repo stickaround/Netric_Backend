@@ -2,11 +2,11 @@
 /**
  * Removes the table fkey contraint in calendar_events table recur_id column
  */
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 
 if ($db->tableExists('calendar_events')) {
     $db->query("ALTER TABLE calendar_events DROP CONSTRAINT IF EXISTS calendar_events_recur_fkey");
