@@ -7,13 +7,6 @@ namespace Netric\EntitySync\Commit\DataMapper;
 class DataMapperRdb extends DataMapperAbstract
 {
     /**
-     * Handle to database
-     *
-     * @var RelationalDbInterface
-     */
-    protected $database = null;
-
-    /**
      * Sequence name
      *
      * There is currently no reason to use more than one sequence even though
