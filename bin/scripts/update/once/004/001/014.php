@@ -4,12 +4,12 @@
  * This script cleans them all up since they were really killing performance with all
  * the associations.
  */
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityLoaderFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 $loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
 
@@ -21,9 +21,7 @@ while ($iterations < 1000 && $numDeleted > 1) {
     $iterations++;
     $sql = "SELECT id FROM objects_activity_act WHERE ts_entered IS NULL limit 10000";
     $results = $db->query($sql);
-    $totalNum = $db->getNumRows($results);
-    for ($i = 0; $i < $totalNum; $i++) {
-        $row = $db->getRow($results, $i);
+    foreach ($result->fetchAll() as $row) {
         $activity = $loader->get("activity", $row['id']);
 
         // Hard delete it if it exists

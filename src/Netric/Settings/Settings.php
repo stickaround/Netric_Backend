@@ -12,6 +12,7 @@ use Netric\Cache\CacheInterface;
 use Netric\Db\DbInterface;
 use Netric\ServiceManager;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Db\Relational\RelationalDbInterface;
 
 /**
  * Get and set account and user settings
@@ -19,11 +20,11 @@ use Netric\Entity\ObjType\UserEntity;
 class Settings
 {
     /**
-     * Handle to account database
+     * Handle to database
      *
-     * @var Database
+     * @var RelationalDbInterface
      */
-    private $dbh = null;
+    protected $database = null;
 
     /**
      * The current tennant's account
@@ -42,13 +43,13 @@ class Settings
     /**
      * Create new settings service
      *
-     * @param DbInterface $dbh Handle to the account database
+     * @param RelationalDbInterface $database Handles to database actions
      * @param Account $account The account of the current tennant
      * @param CacheInterface $cache Cache settings to speed things up
      */
-    public function __construct(DbInterface $dbh, Account $account, CacheInterface $cache)
+    public function __construct(RelationalDbInterface $database, Account $account, CacheInterface $cache)
     {
-        $this->dbh = $dbh;
+        $this->database = $database;
         $this->account = $account;
         $this->cache = $cache;
     }
@@ -210,34 +211,28 @@ class Settings
      * @param int $teamId Optional team id to save the setting for
      * @return bool true on success, false on failure
      */
-    private function saveDb($name, $value, $userId = null, $teamId = null)
+    private function saveDb(string $name, string $value, int $userId = null, int $teamId = null)
     {
-        $sql = "SELECT id FROM settings
-                WHERE name='" . $this->dbh->escape($name) . "'";
+        // Set the parameters
+        $params = ["name" => $name];
+        $settingData = ["value" => $value];
+
+        $sql = "SELECT id FROM settings WHERE name=:name";
 
         // Either add a user or explicitely exclude it
-        $sql .= " AND user_id ";
-        $sql .= (is_numeric($userId)) ? "=$userId" : ' IS NULL';
-
-        $result = $this->dbh->query($sql);
-        if ($this->dbh->getNumRows($result)) {
-            $row = $this->dbh->getRow($result, 0);
-            $sql = "UPDATE settings
-                    SET value='" . $this->dbh->escape($value) . "'
-                    WHERE id='" . $this->dbh->escape($row['id']) . "'";
-            if (!$this->dbh->query($sql)) {
-                return false;
-            }
+        if (is_numeric($userId)) {
+            $sql .= " AND user_id=:user_id";
+            $params["user_id"] = $userId;
         } else {
-            $sql = "INSERT INTO settings(name, value, user_id)
-                    VALUES (
-                      '" . $this->dbh->escape($name) . "',
-                      '" . $this->dbh->escape($value) . "',
-                      " . $this->dbh->escapeNumber($userId) . "
-                    )";
-            if (!$this->dbh->query($sql)) {
-                return false;
-            }
+            $sql .= " AND user_id IS NULL";
+        }
+
+        $result = $this->database->query($sql, $params);
+        if ($result->rowCount()) {
+            $row = $result->fetch();
+            $this->database->update("settings", $settingData, ["id" => $row['id']]);
+        } else {
+            $this->database->insert("settings", array_merge($params, $settingData));
         }
 
         return true;
@@ -251,23 +246,25 @@ class Settings
      * @param int $teamId Optional team id to save the setting for
      * @return null
      */
-    private function getDb($name, $userId = null, $teamId = null)
+    private function getDb(string $name, int $userId = null, int $teamId = null)
     {
-        $ret = null;
-
-        $sql = "SELECT value FROM settings
-                WHERE name='" . $this->dbh->escape($name) . "'";
+        $params = ["name" => $name];
+        $sql = "SELECT value FROM settings WHERE name=:name";
 
         // Either add a user or explicitely exclude it
-        $sql .= " AND user_id ";
-        $sql .= (is_numeric($userId)) ? "=$userId" : ' IS NULL';
-
-        $result = $this->dbh->query($sql);
-        if ($this->dbh->getNumRows($result)) {
-            $row = $this->dbh->getRow($result, 0);
-            $ret = $row['value'];
+        if (is_numeric($userId)) {
+            $sql .= " AND user_id=:user_id";
+            $params["user_id"] = $userId;
+        } else {
+            $sql .= " AND user_id IS NULL";
         }
 
-        return $ret;
+        $result = $this->database->query($sql, $params);
+        if ($result->rowCount()) {
+            $row = $result->fetch();
+            return $row['value'];
+        }
+
+        return null;
     }
 }

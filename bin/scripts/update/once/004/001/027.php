@@ -11,14 +11,12 @@ use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionData
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Db\DbFactory;
 use Netric\EntityDefinition\EntityDefinition;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
 $log = $account->getApplication()->getLog();
 $db = $serviceManager->get(RelationalDbFactory::class);
-$dbLegacy = $serviceManager->get(DbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
@@ -73,16 +71,17 @@ $objectTypesToMove = [
 /**
  * Get an entity from the old table
  */
-$loadEntityFromOldTable = function (&$entity, $id, $tableName, $dbh) {
+$loadEntityFromOldTable = function (&$entity, $id, $tableName, $database) {
     $def = $entity->getDefinition();
-    $query = "select * from " . $tableName . " where id='" . $dbh->escape($id) . "'";
-    $result = $dbh->query($query);
-    if (!$dbh->getNumRows($result)) {
+    $query = "SELECT * FROM $tableName WHERE id=:id";
+
+    $result = $database->query($query, ["id" => $id]);
+    if (!$result->rowCount()) {
         // The object was not found
         return false;
     }
 
-    $row = $dbh->getRow($result, 0);
+    $row = $result->fetch();
 
     // Load data for foreign keys
     $all_fields = $def->getFields();
@@ -185,7 +184,7 @@ foreach ($objectTypesToMove as $objectType) {
 
         // Load old entity data
         $oldEntity = $entityLoader->create($objType);
-        $loadEntityFromOldTable($oldEntity, $oldEntityId, $oldTable, $dbLegacy);
+        $loadEntityFromOldTable($oldEntity, $oldEntityId, $oldTable, $db);
         $entityData = $oldEntity->toArray();
 
         // Create a new entity to save

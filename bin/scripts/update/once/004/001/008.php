@@ -3,13 +3,13 @@
  * Move the old calendar_events_recurring table to the new object_recurrence table
  */
 use Netric\Entity\Recurrence\RecurrencePattern;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Log\LogFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 $loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $serviceManager->get(LogFactory::class);
 
@@ -23,8 +23,7 @@ if ($db->tableExists('calendar_events_recurring')) {
     // Specify what object type we are going to move
     $objType = "calendar_event";
 
-    // Query the calendar event recurrences
-    $result = $db->query("SELECT calendar_events.id AS event_id,
+    $sql = "SELECT calendar_events.id AS event_id,
                 calendar_events_recurring.*,
                 calendar_events_recurring.type AS recur_type,
                 calendar_events_recurring.day AS day_of_month,
@@ -35,12 +34,12 @@ if ($db->tableExists('calendar_events_recurring')) {
                 week_days[7] as day7
                 FROM calendar_events_recurring
                 INNER JOIN calendar_events ON (calendar_events_recurring.id = calendar_events.recur_id)
-                WHERE f_imported_to_entity IS NULL OR f_imported_to_entity = FALSE;");
+                WHERE f_imported_to_entity IS NULL OR f_imported_to_entity = FALSE";
 
+    // Query the calendar event recurrences
+    $result = $db->query($sql);
 
-    for ($i = 0; $i < $db->getNumRows($result); $i++) {
-        // Get the result row
-        $row = $db->getRow($result, $i);
+    foreach ($result->fetchAll() as $row) {
 
         // Setup the object type
         $row['obj_type'] = $objType;
@@ -99,7 +98,7 @@ if ($db->tableExists('calendar_events_recurring')) {
             if ($loader->save($event)) {
                 echo "Saved " . $event->getId() . "\n";
                 // Update the calendar_events_recurring that it has been imported
-                $db->query("UPDATE calendar_events_recurring SET f_imported_to_entity = TRUE WHERE id = $calendarEventRecurringId");
+                $db->update("calendar_events_recurring", ["f_imported_to_entity" => true], ["id" => $calendarEventRecurringId]);
             }
         } catch (\InvalidArgumentException $ex) {
             // Some old recurrence patterns are invalid, just skip them

@@ -10,11 +10,11 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Crypt\VaultServiceFactory;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);
@@ -33,14 +33,9 @@ try {
 if ($def) {
     // Find all email_account entities
     $sql = "SELECT * FROM email_accounts";
-    $results = $db->query($sql);
-    $totalNum = $db->getNumRows($results);
+    $result = $db->query($sql);
 
-    // Loop over total num - the results will paginate as needed
-    for ($i = 0; $i < $totalNum; $i++) {
-        // Get email_account details
-        $row = $db->getRow($results, $i);
-
+    foreach ($result->fetchAll() as $row) {
         // Make sure the account does not already exist
         $query = new \Netric\EntityQuery("email_account");
         $query->where("address")->equals($row['address']);
@@ -67,7 +62,7 @@ if ($def) {
         $newid = $entityLoader->save($entity);
 
         // Update all email messages
-        $db->query("UPDATE objects_email_message_act SET email_account=$newid WHERE email_account=$oldid");
-        $db->query("UPDATE objects_email_message_del SET email_account=$newid WHERE email_account=$oldid");
+        $db->update("objects_email_message_act", ["email_account" => $newid], ["email_account" => $oldid]);
+        $db->update("objects_email_message_del", ["email_account" => $newid], ["email_account" => $oldid]);
     }
 }

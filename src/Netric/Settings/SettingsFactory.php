@@ -2,7 +2,7 @@
 namespace Netric\Settings;
 
 use Netric\ServiceManager;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Cache\CacheFactory;
 
 /**
@@ -20,9 +20,9 @@ class SettingsFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dbh = $sl->get(DbFactory::class);
+        $database = $sl->get(RelationalDbFactory::class);
         $cache = $sl->get(CacheFactory::class);
         $account = $sl->getAccount();
-        return new Settings($dbh, $account, $cache);
+        return new Settings($database, $account, $cache);
     }
 }

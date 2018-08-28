@@ -5,29 +5,25 @@
  * that was previously saved in the objects_* tables to f_seen=true where null. Entities will do
  * this automatically for all future saves due to the field default.
  */
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityLoaderFactory;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$db = $serviceManager->get(DbFactory::class);
+$db = $serviceManager->get(RelationalDbFactory::class);
 $loader = $serviceManager->get(EntityLoaderFactory::class);
 $log = $account->getApplication()->getLog();
 
 $projectMemberships = [];
 if ($db->columnExists('app_object_types', 'object_table')) {
-    $result = $db->query("SELECT id, name, object_table from app_object_types");
-    for ($i = 0; $i < $db->getNumRows($result); $i++) {
-        // Get the result row
-        $row = $db->getRow($result, $i);
-    
+    $sql = "SELECT id, name, object_table FROM app_object_types";
+    $result = $db->query($sql);
+
+    foreach ($result->fetchAll() as $row) {
         $table = ($row['object_table']) ? $row['object_table'] : 'objects_' . $row['name'];
     
         if ($db->columnExists($table, 'f_seen')) {
-            $ret = $db->query("UPDATE $table SET f_seen=true WHERE f_seen IS NULL");
-            if (!$ret) {
-                $log->error("Update 004.001.013 failed to update table: " . $db->getLastError());
-            }
+            $db->query("UPDATE $table SET f_seen=true WHERE f_seen IS NULL");
         }
     }
 }
