@@ -37,7 +37,7 @@ use Netric\Settings\SettingsFactory;
 use Netric\Mail\SenderServiceFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\Cache\CacheFactory;
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 /**
  * Netric backend class
@@ -161,7 +161,7 @@ class BackendNetric implements IBackend
              * as the main netric app does - third.level.domain > config.default_account...
              */
             $account = $application->getAccount();
-            $db = $account->getServiceManager()->get(DbFactory::class);
+            $db = $account->getServiceManager()->get(RelationalDbFactory::class);
             $cache = $account->getServiceManager()->get(CacheFactory::class);
             $settings = $account->getServiceManager()->get(SettingsFactory::class);
             $this->stateMachine = new NetricStateMachine($log, $db, $cache, $settings);
@@ -237,7 +237,7 @@ class BackendNetric implements IBackend
 
         // Set stateMachine stores for this account
         $stateMachine = $this->GetStateMachine();
-        $stateMachine->setDatabase($sm->get(DbFactory::class));
+        $stateMachine->setDatabase($sm->get(RelationalDbFactory::class));
         $stateMachine->setSettingsService($sm->get(SettingsFactory::class));
 
         // Setup the entity provider

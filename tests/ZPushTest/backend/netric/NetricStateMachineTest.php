@@ -6,6 +6,7 @@ namespace ZPushTest\backend\netric;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Log\LogInterface;
+use Netric\Db\Relational\RelationalDbFactory;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -55,7 +56,7 @@ class NetricStateMachineTest extends TestCase
 
         // Get dependencies
         $log = $this->getMockBuilder(LogInterface::class)->getMock();
-        $db = $this->account->getServiceManager()->get("Db");
+        $database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
         $cache = $this->account->getServiceManager()->get("Cache");
         $settings = $this->account->getServiceManager()->get("Netric/Settings/Settings");
 
@@ -65,7 +66,7 @@ class NetricStateMachineTest extends TestCase
         }
 
         // Setup the provider service
-        $this->stateMachine = new \NetricStateMachine($log, $db, $cache, $settings);
+        $this->stateMachine = new \NetricStateMachine($log, $database, $cache, $settings);
 
         // Clean up any states
         $this->stateMachine->CleanStates(self::TEST_DEVID, 'test', false);
