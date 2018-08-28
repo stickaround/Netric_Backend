@@ -14,6 +14,13 @@ use Netric\Db\Relational\RelationalDbInterface;
 abstract class AbstractDataMapper extends \Netric\DataMapperAbstract
 {
     /**
+     * Handle to database
+     *
+     * @var RelationalDbInterface
+     */
+    protected $database = null;
+
+    /**
      * Class constructor
      *
      * @param Account $account Account for tennant that we are mapping data for
