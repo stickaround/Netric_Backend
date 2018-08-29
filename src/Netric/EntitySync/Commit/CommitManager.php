@@ -40,7 +40,7 @@ class CommitManager
      */
     public function createCommit($key)
     {
-        $cid = $this->dm->getNextCommitId($key);
+        $cid = $this->dm->getNextCommitId();
         $this->dm->saveHead($key, $cid);
         return $cid;
     }

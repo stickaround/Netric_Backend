@@ -4,7 +4,6 @@ namespace BinTest\Update\Once;
 use Netric\Console\BinScript;
 use Netric\Entity\EntityInterface;
 use PHPUnit\Framework\TestCase;
-use Netric\Db\DbFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\Application\Schema\SchemaDataMapperPgsql;

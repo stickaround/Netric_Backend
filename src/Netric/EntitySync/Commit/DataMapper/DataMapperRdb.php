@@ -25,17 +25,18 @@ class DataMapperRdb extends DataMapperAbstract
     /**
      * Get next id
      *
-     * @param string $key
      * @return int
      */
-    public function getNextCommitId(string $key)
+    public function getNextCommitId()
     {
-        $cid = $this->getNextSeqVal();
+        $cid = $this->database->getNextVal($this->sSequenceName);
 
         // The sequence may not be defined, try creating it
         if (!$cid) {
-            $this->createSeq();
-            $cid = $this->getNextSeqVal();
+            $this->database->createSequenceName($this->sSequenceName);
+
+            // After creating the sequence, we can now retrieve the sequence id
+            $cid = $this->database->getNextVal($this->sSequenceName);
         }
 
         return $cid;
@@ -83,31 +84,5 @@ class DataMapperRdb extends DataMapperAbstract
         } else {
             return 0;
         }
-    }
-
-    /**
-     * Get the next value of the sequence
-     */
-    private function getNextSeqVal()
-    {
-        $sql = "SELECT nextval('" . $this->sSequenceName . "')";
-        $result = $this->database->query($sql);
-
-        if ($result->rowCount()) {
-            $row = $result->fetch();
-            return $row["nextval"];
-        }
-
-        return null;
-    }
-
-    /**
-     * Try to create the sequence
-     *
-     * @return int|bool current id of the sequence on success, false on failure
-     */
-    private function createSeq()
-    {
-        $this->database->query("CREATE SEQUENCE " . $this->sSequenceName);
     }
 }

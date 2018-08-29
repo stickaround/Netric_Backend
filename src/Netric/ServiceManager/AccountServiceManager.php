@@ -55,7 +55,6 @@ class AccountServiceManager extends AbstractServiceManager implements AccountSer
         "EntityFactory" => "Netric\\Entity\\EntityFactoryFactory",
         "RecurrenceDataMapper" => "Netric\\Entity\\Recurrence\\RecurrenceDataMapper",
         "RecurrenceIdentityMapper" => "Netric\\Entity\\Recurrence\\RecurrenceIdentityMapper",
-        "Db" => "Netric\\Db\\Db",
         "Config" => "Netric\\Config\\Config",
         "Cache" => "Netric\\Cache\\Cache",
         "Entity_DataMapper" => "Netric\\Entity\\DataMapper\\DataMapper",
