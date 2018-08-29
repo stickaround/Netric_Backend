@@ -16,10 +16,10 @@ abstract class AbstractDataMapper extends \Netric\DataMapperAbstract
     /**
      * Handle to database
      *
-     * @var \Netric\Db\Pgsql
+     * @var RelationalDbInterface
      */
-    protected $dbh = null;
-    
+    protected $database = null;
+
     /**
      * Class constructor
      *

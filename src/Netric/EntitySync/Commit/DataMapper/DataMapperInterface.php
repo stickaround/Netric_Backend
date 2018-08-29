@@ -16,15 +16,15 @@ interface DataMapperInterface
     * @param string $typekey Can be any unique key
     * @return bigint
     */
-    public function getNextCommitId($typekey);
+    public function getNextCommitId(string $typekey);
 
    /**
     * Set the head commit id for a collection
     *
     * @param string $typekey
-    * @param bigint $cid
+    * @param int $cid
     */
-    public function saveHead($typekey, $cid);
+    public function saveHead(string $typekey, int $cid);
 
   /**
    * Get the head commit id for a collection
@@ -32,5 +32,5 @@ interface DataMapperInterface
    * @param string $typekey
    * @return bigint
    */
-    public function getHead($typekey);
+    public function getHead(string $typekey);
 }

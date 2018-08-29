@@ -10,15 +10,17 @@
 namespace NetricTest\EntitySync\Commit\DataMapper;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntitySync\Commit\DataMapper\DataMapperRdb;
 
-class PgsqlTest extends DmTestsAbstract
+class DataMapperRdbTest extends DmTestsAbstract
 {
     /**
-     * Handle to pgsql database
+     * Handle to database
      *
-     * @var Db\Pgsql
+     * @var RelationalDbInterface
      */
-    private $dbh = null;
+    protected $database = null;
 
     /**
      * Use this funciton in all the datamappers to construct the datamapper
@@ -27,11 +29,11 @@ class PgsqlTest extends DmTestsAbstract
      */
     protected function getDataMapper()
     {
-        $sm = $this->account->getServiceManager();
-        $dbh = $sm->get("Db");
-        $this->dbh = $dbh;
+        $account = \NetricTest\Bootstrap::getAccount();
+        $sm = $account->getServiceManager();
+        $this->database = $sm->get(RelationalDbFactory::class);
 
-        return new \Netric\EntitySync\Commit\DataMapper\Pgsql($this->account);
+        return new DataMapperRdb($account, $this->database);
     }
 
     public function testCreateNewSequenceIfMissing()
@@ -41,11 +43,9 @@ class PgsqlTest extends DmTestsAbstract
         $reflector = new \ReflectionClass(get_class($dm));
         $property = $reflector->getProperty("sSequenceName");
         $property->setAccessible(true);
-        $property->setValue($dm, "test_create_new_for_commit");
+        $property->setValue($dm, "object_recurrence_id_seq");
 
-        $nextCid = $dm->getNextCommitId('customer');
+        $nextCid = $dm->getNextCommitId('object_recurrence');
         $this->assertTrue($nextCid > 0); // make sure the sequence gets created
-
-        $this->dbh->query("DROP SEQUENCE test_create_new_for_commit;");
     }
 }

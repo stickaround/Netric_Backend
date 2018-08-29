@@ -7,7 +7,7 @@
  */
 namespace Netric\EntitySync\Commit\DataMapper;
 
-use Netric\Db\DbFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 use Netric\ServiceManager;
 
 /**
@@ -23,7 +23,7 @@ class DataMapperFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $db = $sl->get(DbFactory::class);
-        return new Pgsql($sl->getAccount(), $db);
+        $database = $sl->get(RelationalDbFactory::class);
+        return new DataMapperRdb($sl->getAccount(), $database);
     }
 }

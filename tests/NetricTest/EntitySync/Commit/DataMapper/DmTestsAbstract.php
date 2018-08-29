@@ -24,14 +24,6 @@ abstract class DmTestsAbstract extends TestCase
     protected $account = null;
 
     /**
-     * Setup each test
-     */
-    protected function setUp()
-    {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-    }
-
-    /**
      * Use this funciton in all the datamappers to construct the datamapper
      *
      * @return \Netric\Entity\Commit\DataMaper\DataMapperInterface
