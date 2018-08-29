@@ -14,6 +14,7 @@ use Netric\Db\DbInterface;
 use Netric\Log\LogInterface;
 use Netric\Cache\CacheInterface;
 use Netric\Settings\Settings;
+use Netric\Db\Relational\RelationalDbInterface;
 
 /**
  * IStateMachine using the netric database
@@ -30,9 +31,9 @@ class NetricStateMachine implements IStateMachine
     /**
      * Active database connection
      *
-     * @var DbInterface
+     * @var RelationalDbInterface
      */
-    private $db = null;
+    private $database = null;
 
     /**
      * Account settings service
@@ -51,18 +52,18 @@ class NetricStateMachine implements IStateMachine
      * Constructor
      *
      * @param LogInterface $log Logger for recording what is going on
-     * @param DbInterface $db Handle to database for account
+     * @param DbInterface $database Handle to database for account
      * @param CacheInterface $cache Store what we can in cache to speed things up
      * @param Settings $settings Account settings service
      */
     public function __construct(
         LogInterface $log,
-        DbInterface $db = null,
+        RelationalDbInterface $database = null,
         CacheInterface $cache = null,
         Settings $settings = null
     ) {
         $this->log = $log;
-        $this->db = $db;
+        $this->database = $database;
         $this->settings = $settings;
     }
 
@@ -72,11 +73,11 @@ class NetricStateMachine implements IStateMachine
      * This is typically used when a user logs in to make sure we are writing to
      * the correct account database.
      *
-     * @param DbInterface $db
+     * @param DbInterface $database
      */
-    public function setDatabase(DbInterface $db)
+    public function setDatabase(RelationalDbInterface $database)
     {
-        $this->db = $db;
+        $this->database = $database;
     }
 
     /**
@@ -109,24 +110,29 @@ class NetricStateMachine implements IStateMachine
      */
     public function GetStateHash($devid, $type, $key = false, $counter = false)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
         $hash = null;
         $record = null;
 
-        $sql = "SELECT updated_at FROM async_device_states WHERE " .
-           "device_id='" . $db->escape($devid) . "' AND " .
-           "state_type='" . $db->escape($type) . "' AND " .
-           "uuid ". (($key) ? "='$key'" : 'IS NULL') . " AND " .
-           "counter=" . $db->escapeNumber((int)$counter);
-        $results = $db->query($sql);
-        if (!$db->getNumRows($results)) {
-            throw new StateNotFoundException(
-                "SqlStateMachine->GetStateHash(): Could not locate state with error:" .
-                $db->getLastError()
-            );
+        $params = [
+            "device_id" => $devid,
+            "state_type" => $type,
+            "counter" => (int)$counter
+        ];
+
+        $sql = "SELECT updated_at FROM async_device_states
+                WHERE device_id=:device_id AND state_type=:state_type AND counter=:counter";
+
+        if ($key) {
+            $sql .= " AND uuid=:uuid";
+            $params["uuid"] = $key;
         } else {
-            // datetime->format("U") returns EPOCH
-            $row = $db->getRow($results);
+            $sql .= " AND uuid IS NULL";
+        }
+
+        $result = $database->query($sql, $params);
+        if ($result->rowCount()) {
+            $row = $result->fetch();
             $datetime = new DateTime($row["updated_at"]);
             $hash = $datetime->format("U");
         }
@@ -151,7 +157,7 @@ class NetricStateMachine implements IStateMachine
      */
     public function GetState($devid, $type, $key = false, $counter = false, $cleanstates = true)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
 
         // Convert boolean to null since the interface uses false to represent null
         if ($key === false) {
@@ -168,24 +174,31 @@ class NetricStateMachine implements IStateMachine
             $this->CleanStates($devid, $type, $key, $counter);
         }
 
-        $sql = "SELECT state_data FROM async_device_states WHERE " .
-            "device_id='" . $this->db->escape($devid) . "' AND " .
-            "state_type='" . $this->db->escape($type) . "' AND " .
-            "uuid ". (($key) ? "='$key'" : 'IS NULL') . " AND " .
-            "counter=" . $this->db->escapeNumber((int)$counter);
-        $data = null;
-        $results = $db->query($sql);
-        if (!$db->getNumRows($results)) {
-            // throw an exception on all other states, but not FAILSAVE
-            // as it's most of the times not there by default
-            if ($type !== IStateMachine::FAILSAVE) {
-                throw new StateNotFoundException("Could not locate state");
-            }
+        $params = [
+            "device_id" => $devid,
+            "state_type" => $type,
+            "counter" => (int)$counter
+        ];
+
+        $sql = "SELECT state_data FROM async_device_states
+                WHERE device_id=:device_id AND state_type=:state_type AND counter=:counter";
+
+        if ($key) {
+            $sql .= " AND uuid=:uuid";
+            $params["uuid"] = $key;
         } else {
-            $row = $db->getRow($results);
-            if (is_string($db->unEscapeBytea($row["state_data"]))) {
+            $sql .= " AND uuid IS NULL";
+        }
+
+        $data = null;
+        $result = $database->query($sql, $params);
+        if ($result->rowCount()) {
+            $row = $result->fetch();
+            $stateData = pg_unescape_bytea($row["state_data"]);
+
+            if (is_string($stateData)) {
                 // DB returns a string for LOB objects
-                $data = unserialize($db->unEscapeBytea($row["state_data"]));
+                $data = unserialize($stateData);
             } else {
                 $data = unserialize(stream_get_contents($row["state_data"]));
             }
@@ -207,7 +220,7 @@ class NetricStateMachine implements IStateMachine
      */
     public function SetState($state, $devid, $type, $key = false, $counter = false)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
 
         // Convert boolean to null since the interface uses false to represent null
         if ($key === false) {
@@ -222,44 +235,35 @@ class NetricStateMachine implements IStateMachine
         $this->log->debug("ZPUSH->NetricStateMachine->SetState(): devid: $devid type: $type key: $key " .
             "counter: " . var_export($counter, true) . "");
 
-        $sql = "SELECT device_id FROM async_device_states WHERE " .
-            "device_id='" . $db->escape($devid) . "' AND " .
-            "state_type='" . $db->escape($type) . "' AND " .
-            "uuid ". (($key) ? "='$key'" : 'IS NULL') . " AND " .
-            "counter=" . $db->escapeNumber((int)$counter);
-        $results = $db->query($sql);
+        $params = [
+            "device_id" => $devid,
+            "state_type" => $type,
+            "counter" => (int)$counter
+        ];
 
-        // Either insert or update the state
-        if (!$db->getNumRows($results)) {
-            // New record
-            $sql = "INSERT INTO async_device_states ".
-                   "(device_id, state_type, uuid, counter, state_data, created_at, updated_at) " .
-                   "VALUES (
-                    '" . $db->escape($devid) . "', 
-                    '" . $db->escape($type) . "', 
-                    " . ((!$key) ? 'NULL' : "'" . $db->escape($key) . "'") . ", 
-                    " . $db->escapeNumber($counter) . ", 
-                    '" . $db->escapeBytea(serialize($state)) . "', 
-                    'now', 
-                    'now'
-                   )";
+        $sql = "SELECT device_id FROM async_device_states
+                WHERE device_id=:device_id AND state_type=:state_type AND counter=:counter";
+
+        if ($key) {
+            $sql .= " AND uuid=:uuid";
+            $params["uuid"] = $key;
         } else {
-            // Existing record, we update it
-            $sql = "UPDATE async_device_states SET " .
-                        "state_data = '" . $db->escapeBytea(serialize($state)) . "', " .
-                        "updated_at = 'now' " .
-                    "WHERE " .
-                        "device_id='" . $db->escape($devid) . "' AND " .
-                        "state_type='" . $db->escape($type) . "' AND " .
-                        "uuid ". (($key) ? "='$key'" : 'IS NULL') . " AND " .
-                        "counter=" . $db->escapeNumber((int)$counter);
+            $sql .= " AND uuid IS NULL";
         }
 
-        // Run query and check for error
-        if (!$db->query($sql)) {
-            throw new UnavailableException(
-                "NetricStateMachine->SetState(): Could not write state:" . $db->getLastError()
-            );
+        $result = $database->query($sql, $params);
+
+        $stateData = [
+            "state_data" => pg_escape_bytea(serialize($state)),
+            "updated_at" => "now"
+        ];
+
+        // Either insert or update the state
+        if ($result->rowCount()) {
+            $database->update("async_device_states", $stateData, $params);
+        } else {
+            $stateData["created_at"] = "now";
+            $database->insert("async_device_states", array_merge($stateData, $params));
         }
 
         return strlen(serialize($state));
@@ -279,7 +283,7 @@ class NetricStateMachine implements IStateMachine
      */
     public function CleanStates($devid, $type, $key, $counter = false, $thisCounterOnly = false)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
 
         // Convert boolean to null since the interface uses false to represent null
         if ($key === false) {
@@ -292,26 +296,33 @@ class NetricStateMachine implements IStateMachine
             "thisCounterOnly: " . var_export($thisCounterOnly, true)
         );
 
-        $sql = "DELETE FROM async_device_states WHERE " .
-            "device_id='" . $db->escape($devid) . "' AND " .
-            "state_type='" . $db->escape($type) . "' AND " .
-            "uuid ". (($key) ? "='$key'" : 'IS NULL') . " AND ";
-        if ($counter === false) {
-            // Remove all the states. Counter are 0 or >0, then deleting >= 0 deletes all
-            $sql .= "counter >= 0";
-        } else if ($counter !== false && $thisCounterOnly === true) {
-            $sql .= "counter = " . $db->escapeNumber((int)$counter);
+        $params = [
+            "device_id" => $devid,
+            "state_type" => $type,
+            "counter" => (int)$counter
+        ];
+
+        $sql = "DELETE FROM async_device_states
+                WHERE device_id=:device_id AND state_type=:state_type";
+
+        if ($key) {
+            $sql .= " AND uuid=:uuid";
+            $params["uuid"] = $key;
         } else {
-            $sql .= "counter < " . $db->escapeNumber((int)$counter);
+            $sql .= " AND uuid IS NULL";
         }
 
-        // Execute and check for error
-        if (!$db->query($sql)) {
-            $this->log->error(
-                "NetricStateMachine->CleanStates(): Error cleaning states " .
-                $db->getLastError()
-            );
+        if ($counter === false) {
+            // Remove all the states. Counter are 0 or >0, then deleting >= 0 deletes all
+            $sql .= " AND counter>=:counter";
+            $params["counter"] = 0;
+        } else if ($counter !== false && $thisCounterOnly === true) {
+            $sql .= " AND counter=:counter";
+        } else {
+            $sql .= " AND counter<:counter";
         }
+
+        $database->query($sql, $params);
     }
 
     /**
@@ -323,21 +334,29 @@ class NetricStateMachine implements IStateMachine
      */
     public function LinkUserDevice($username, $devid)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
         $this->log->debug("ZPUSH->NetricStateMachine->LinkUserDevice(): devid: $devid username: $username");
 
-        $sql = "SELECT username FROM async_users WHERE " .
-                "username = '" . $db->escape($username) . "' AND " .
-                "device_id = '" . $db->escape($devid) . "'";
-        $results = $db->query($sql);
-        if ($db->getNumRows($results)) {
+        $sql = "SELECT username FROM async_users
+                WHERE username=:username AND device_id=:device_id";
+
+        $params = [
+            "username" => $username,
+            "device_id" => $devid
+        ];
+
+        $result = $database->query($sql, $params);
+        if ($result->rowCount()) {
             // User is already linked
             $this->log->debug("ZPUSH->NetricStateMachine->LinkUserDevice(): already linked so nothing changed");
             return false;
         } else {
-            $sql = "INSERT INTO async_users (username, device_id) " .
-                   "VALUES ('" . $db->escape($username) . "', '" . $db->escape($devid) . "')";
-            if ($db->query($sql)) {
+            $database->insert("async_users", $params);
+
+            // Run the select query again to make sure that we have succesfully save the data in async_users
+            $result = $database->query($sql, $params);
+
+            if ($result->rowCount()) {
                 $this->log->debug("ZPUSH->NetricStateMachine->LinkUserDevice(): Linked device $devid to $username");
                 return true;
             } else {
@@ -356,29 +375,28 @@ class NetricStateMachine implements IStateMachine
      */
     public function UnLinkUserDevice($username, $devid)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
         $this->log->debug("ZPUSH->NetricStateMachine->UnLinkUserDevice(): devid: $devid username: $username");
 
         // First check to see if the user exists
-        $sql = "SELECT username FROM async_users WHERE " .
-            "username = '" . $db->escape($username) . "' AND " .
-            "device_id = '" . $db->escape($devid) . "'";
-        $results = $db->query($sql);
-        if ($db->getNumRows($results)) {
+        $sql = "SELECT username FROM async_users
+                WHERE username=:username AND device_id=:device_id";
+
+        $params = [
+            "username" => $username,
+            "device_id" => $devid
+        ];
+
+        $result = $database->query($sql, $params);
+        if ($result->rowCount()) {
             // We found a link
-            $sql = "DELETE FROM async_users WHERE " .
-                "username = '" . $db->escape($username) . "' AND " .
-                "device_id = '" . $db->escape($devid) . "'";
-            if ($db->query($sql)) {
-                $this->log->debug(
-                    "NetricStateMachine->LinkUserDevice(): user-device unlinked $devid:$username"
-                );
+            $result = $database->delete("async_users", $params);
+
+            if ($result) {
+                $this->log->debug("NetricStateMachine->LinkUserDevice(): user-device unlinked $devid:$username");
                 return true;
             } else {
-                $this->log->error(
-                    "NetricStateMachine->LinkUserDevice(): error unlinking $devid:$username: " .
-                    $db->getLastError()
-                );
+                $this->log->error("NetricStateMachine->LinkUserDevice(): error unlinking $devid:$username");
                 return false;
             }
         } else {
@@ -398,33 +416,30 @@ class NetricStateMachine implements IStateMachine
      */
     public function GetAllDevices($username = false)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
         $this->log->debug("ZPUSH->NetricStateMachine->GetAllDevices(): username: " . var_export($username, true));
 
+        $params = [];
         if ($username === false) {
             // We also need to find potentially obsolete states that have no link to the async_users table anymore
             $sql = "SELECT DISTINCT(device_id) FROM async_device_states ORDER BY device_id";
         } else {
-            $sql = "SELECT device_id FROM async_users WHERE " .
-                   "username = '" . $db->escape($username) . "' ORDER BY device_id";
-        }
-        $results = $db->query($sql);
-
-        if (!$results) {
-            $this->log->error(
-                "NetricStateMachine->GetAllDevices(): could not get devices: " .
-                $db->getLastError()
-            );
-            return [];
+            $sql = "SELECT device_id FROM async_users WHERE username=:username ORDER BY device_id";
+            $params["username"] = $username;
         }
 
-        // Get all devices
+        $result = $database->query($sql, $params);
+
         $out = [];
-        $num = $db->getNumRows($results);
-        for ($i = 0; $i < $num; $i++) {
-            $row = $db->getRow($results, $i);
-            $out[] = $row['device_id'];
+        if ($result->rowCount()) {
+            // Get all devices
+            foreach ($result->fetchAll() as $row) {
+                $out[] = $row['device_id'];
+            }
+        } else {
+            $this->log->error("NetricStateMachine->GetAllDevices(): could not get devices.");
         }
+
         return $out;
     }
 
@@ -472,40 +487,36 @@ class NetricStateMachine implements IStateMachine
      */
     public function GetAllStatesForDevice($devid)
     {
-        $db = $this->getDatabase();
+        $database = $this->getDatabase();
         $this->log->debug("ZPUSH->NetricStateMachine->GetAllStatesForDevice(): devid '$devid'");
 
-        $sql = "SELECT state_type, uuid, counter FROM async_device_states WHERE " .
-               "device_id = '" . $db->escape($devid) . "' ORDER BY id_state";
-        $result = $db->query($sql);
+        $sql = "SELECT state_type, uuid, counter FROM async_device_states
+                WHERE device_id=:device_id ORDER BY id_state";
 
-        // Log any errors
-        if (!$result) {
-            $this->log->error(
-                "NetricStateMachine->GetAllStatesForDevice(): Failed to get states - " .
-                $db->getLastError()
-            );
-            return [];
-        }
+        $result = $database->query($sql, ["device_id" => $devid]);
 
         // Send all states minus state_data since that would be way too big
         $out = [];
-        $num = $db->getNumRows($result);
-        for ($i = 0; $i < $num; $i++) {
-            $row = $db->getRow($result, $i);
-            $state = array('type' => false, 'counter' => false, 'uuid' => false);
-            if ($row["state_type"] !== null && strlen($row["state_type"]) > 0) {
-                $state["type"] = $row["state_type"];
-            } else if ($row["counter"] !== null && is_numeric($row["counter"])) {
-                $state["type"] = "";
+        if ($result->rowCount()) {
+            // Get all devices
+            foreach ($result->fetchAll() as $row) {
+                $state = array('type' => false, 'counter' => false, 'uuid' => false);
+                if ($row["state_type"] !== null && strlen($row["state_type"]) > 0) {
+                    $state["type"] = $row["state_type"];
+                } else if ($row["counter"] !== null && is_numeric($row["counter"])) {
+                    $state["type"] = "";
+                }
+                if ($row["counter"] !== null && strlen($row["counter"]) > 0) {
+                    $state["counter"] = $row["counter"];
+                }
+                if ($row["uuid"] !== null && strlen($row["uuid"]) > 0) {
+                    $state["uuid"] = $row["uuid"];
+                }
+
+                $out[] = $state;
             }
-            if ($row["counter"] !== null && strlen($row["counter"]) > 0) {
-                $state["counter"] = $row["counter"];
-            }
-            if ($row["uuid"] !== null && strlen($row["uuid"]) > 0) {
-                $state["uuid"] = $row["uuid"];
-            }
-            $out[] = $state;
+        } else {
+            $this->log->error("NetricStateMachine->GetAllStatesForDevice(): Failed to get states.");
         }
 
         return $out;
@@ -519,10 +530,10 @@ class NetricStateMachine implements IStateMachine
      */
     private function getDatabase()
     {
-        if (!$this->db) {
+        if (!$this->database) {
             throw new RuntimeException("The account database has not been set yet");
         }
-        return $this->db;
+        return $this->database;
     }
 
     /**
