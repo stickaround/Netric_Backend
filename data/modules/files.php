@@ -17,7 +17,7 @@ return array(
             "icon" => "ViewListIcon"
         ),
         array(
-            "title" => "All Foldersssss",
+            "title" => "All Folders",
             "type" => "browse",
             "route" => "all-folders",
             "objType" => "folder",
