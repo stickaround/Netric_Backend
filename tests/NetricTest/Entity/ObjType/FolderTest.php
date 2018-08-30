@@ -6,6 +6,8 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\ObjType\FolderEntity;
+use Netric\FileSystem\FileSystemFactory;
 
 class FolderTest extends TestCase
 {
@@ -54,6 +56,14 @@ class FolderTest extends TestCase
     public function testFactory()
     {
         $entity = $this->account->getServiceManager()->get("EntityFactory")->create("folder");
-        $this->assertInstanceOf('\Netric\Entity\ObjType\FolderEntity', $entity);
+        $this->assertInstanceOf(FolderEntity::class, $entity);
+    }
+
+    public function testGetRootFolder()
+    {
+        $account = \NetricTest\Bootstrap::getAccount();
+        $loader = $account->getServiceManager()->get("EntityLoader");
+        $entity = $this->account->getServiceManager()->get(EntityFactory::class)->create("folder");
+        $rootFolderEntity = $entity->getRootFolder();
     }
 }

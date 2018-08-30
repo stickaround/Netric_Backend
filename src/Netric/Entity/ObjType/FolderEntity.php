@@ -13,6 +13,9 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Folder for entity
@@ -27,13 +30,21 @@ class FolderEntity extends Entity implements EntityInterface
     private $entityLoader = null;
 
     /**
+     * Index to query entities
+     *
+     * @var IndexInterface
+     */
+    private $entityIndex = null;
+
+    /**
      * @param EntityDefinition $def
      * @param EntityLoader $entityLoader
+     * @param IndexInterface $entityQueryIndex Index to find entities
      */
-    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader, IndexInterface $entityQueryIndex)
     {
         $this->entityLoader = $entityLoader;
-
+        $this->entityIndex = $entityQueryIndex;
         parent::__construct($def);
     }
 
@@ -44,6 +55,23 @@ class FolderEntity extends Entity implements EntityInterface
      */
     public function onBeforeSave(ServiceManager\AccountServiceManagerInterface $sm)
     {
+        $path = $this->getValue("name");
+
+        // If this folder has no parent_id and we are not dealing with root folder
+        if (!$this->getValue("parent_id") && $path !== '/') {
+            $rootFolderEntity = $this->getRootFolder();
+
+            // This will avoid any circular reference to the root folder entity
+            if ($rootFolderEntity && $rootFolderEntity->getId() != $this->getId()) {
+                $this->setValue("parent_id", $rootFolderEntity->getId());
+            }
+        }
+
+        // Make sure that parent_id and entity id is not the same
+        if ($this->getId() == $this->getValue("parent_id")) {
+            throw new \RuntimeException("Invalid parent id. Cannot set its own id as parent id.");
+        }
+
         // Check to see if they are trying to delete a system directory - should never happen
         if ($this->getValue("f_system") === true && $this->getValue("f_deleted") === true) {
             throw new \RuntimeException("A system folder cannot be deleted: " . $this->getFullPath());
@@ -84,10 +112,12 @@ class FolderEntity extends Entity implements EntityInterface
         } elseif (!$this->getValue("parent_id")) {
             // This condition should never happen, but just in case
             // TODO: throw exception?
-            return false;
+
+            // Right now, just return the root path, so it wont create a blank folder
+            return "/";
         }
 
-        $parentFolder = $this->entityLoader->get("folder", $this->getValue("parent_id"));
+        $parentFolder = $this->entityLoader->get(ObjectTypes::FOLDER, $this->getValue("parent_id"));
         $pre = $parentFolder->getFullPath();
 
         // If our parent is the root, then just absolute path to root and avoid returing '//"
@@ -113,5 +143,25 @@ class FolderEntity extends Entity implements EntityInterface
 
         $this->setValue("parent_id", $newParentFolder->getId());
         return true;
+    }
+
+    /**
+     * Function that will get the root folder
+     *
+     * @return EntityInterface|null Returns the root folder entity if exists, otherwise null
+     */
+    public function getRootFolder()
+    {
+        $query = new EntityQuery(ObjectTypes::FOLDER);
+        $query->where("parent_id")->equals("");
+        $query->andWhere("name")->equals("/");
+        $query->andWhere("f_system")->equals(true);
+
+        $result = $this->entityIndex->executeQuery($query);
+        if ($result->getNum()) {
+            return $result->getEntity();
+        }
+
+        return null;
     }
 }

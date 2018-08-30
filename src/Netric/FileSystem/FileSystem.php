@@ -16,6 +16,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Entity\DataMapperInterface;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a file system service
@@ -27,7 +28,7 @@ class FileSystem implements Error\ErrorAwareInterface
     /**
      * Index to query entities
      *
-     * @var EntityQuery\Index\IndexInterface
+     * @var IndexInterface
      */
     private $entityIndex = null;
 
@@ -589,14 +590,11 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function setRootFolder()
     {
-        $query = new EntityQuery("folder");
-        $query->where("parent_id")->equals("");
-        $query->andWhere("name")->equals("/");
-        $query->andWhere("f_system")->equals(true);
+        $folderEntity = $this->entityLoader->create(ObjectTypes::FOLDER);
+        $rootFolderEntity = $folderEntity->getRootFolder();
 
-        $result = $this->entityIndex->executeQuery($query);
-        if ($result->getNum()) {
-            $this->rootFolder = $result->getEntity();
+        if ($rootFolderEntity) {
+            $this->rootFolder = $rootFolderEntity;
         } else {
             // Create root folder
             $rootFolder = $this->entityLoader->create("folder");
