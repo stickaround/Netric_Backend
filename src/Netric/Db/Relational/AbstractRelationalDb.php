@@ -443,4 +443,37 @@ abstract class AbstractRelationalDb
             return false;
         }
     }
+
+    /**
+     * Function that will get the next value of the sequence
+     *
+     * @param string $sequenceName The sequence that we will be getting its next value
+     */
+    public function getNextVal(string $sequenceName) {
+        $namespace = $this->getNamespace();
+        $sql = "SELECT nextval('$namespace.$sequenceName')";
+
+        try {
+            $result = $this->query($sql);
+
+            if ($result->rowCount()) {
+                $row = $result->fetch();
+                return $row["nextval"];
+            }
+
+            return null;
+        } catch (DatabaseQueryException $ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Function that will create a new sequence name
+     *
+     * @param string $sequenceName The name of the sequence that will be created
+     */
+    public function createSequenceName(string $sequenceName) {
+        $namespace = $this->getNamespace();
+        $this->query("CREATE SEQUENCE $namespace.$sequenceName");
+    }
 }

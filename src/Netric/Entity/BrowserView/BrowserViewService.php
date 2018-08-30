@@ -410,7 +410,7 @@ class BrowserViewService
      * @param string $viewId The unique id of the view to remove
      * @return bool true on success, false on failure
      */
-    private function removeViewFromLocalCache(string $objType, string $viewId)
+    private function removeViewFromLocalCache(string $objType = null, string $viewId = null)
     {
         if (empty($objType) || empty($viewId)) {
             return false;

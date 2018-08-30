@@ -211,7 +211,7 @@ class Settings
      * @param int $teamId Optional team id to save the setting for
      * @return bool true on success, false on failure
      */
-    private function saveDb(string $name, string $value, int $userId = null, int $teamId = null)
+    private function saveDb(string $name = null, string $value = null, int $userId = null, int $teamId = null)
     {
         // Set the parameters
         $params = ["name" => $name];

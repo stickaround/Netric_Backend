@@ -17,7 +17,6 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Db\DbFactory;
 
 abstract class DmTestsAbstract extends TestCase
 {

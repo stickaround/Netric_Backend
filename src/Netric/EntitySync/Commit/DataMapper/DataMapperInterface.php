@@ -13,10 +13,9 @@ interface DataMapperInterface
    /**
     * Get next id
     *
-    * @param string $typekey Can be any unique key
     * @return bigint
     */
-    public function getNextCommitId(string $typekey);
+    public function getNextCommitId();
 
    /**
     * Set the head commit id for a collection
