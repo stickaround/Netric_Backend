@@ -228,8 +228,13 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Save the entity
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-        if (!$dataMapper->save($entity)) {
-            return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
+
+        try {
+            if (!$dataMapper->save($entity)) {
+                return $this->sendOutput(array("error" => "Error saving: " . $dataMapper->getLastError()));
+            }
+        } catch(\RuntimeException $ex) {
+            return $this->sendOutput(array("error" => "Error saving: " . $ex->getMessage()));
         }
 
         // Check to see if any new object_multi objects were sent awaiting save
@@ -341,8 +346,11 @@ class EntityController extends Mvc\AbstractAccountController
         $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
 
         // Get the groupings for this $objType and $fieldName
-        $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
-
+        try {
+            $groupings = $this->getGroupings($loader, $objType, $fieldName, $filterArray);
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
 
         if (!$groupings) {
             return $this->sendOutput(array("error" => "No groupings found for specified obj_type and field"));

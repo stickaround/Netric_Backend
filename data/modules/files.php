@@ -14,8 +14,14 @@ return array(
             "type" => "browse",
             "route" => "all-files",
             "objType" => "file",
-            "icon" => "ViewListIcon",
-            "browseby" => "groups",
+            "icon" => "ViewListIcon"
+        ),
+        array(
+            "title" => "All Foldersssss",
+            "type" => "browse",
+            "route" => "all-folders",
+            "objType" => "folder",
+            "icon" => "ViewListIcon"
         )
     )
 );

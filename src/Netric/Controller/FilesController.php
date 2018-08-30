@@ -7,9 +7,9 @@ namespace Netric\Controller;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Mvc;
-use Netric\Entity\EntityLoader;
-use Netric\FileSystem\FileSystem;
-use Netric\FileSystem\ImageResizer;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\FileSystem\ImageResizerFactory;
 use Netric\FileSystem\FileStreamWrapper;
 use Netric\Application\Response\HttpResponse;
 use Netric\Permissions\DaclLoader;
@@ -56,14 +56,14 @@ class FilesController extends Mvc\AbstractAccountController
         $sl = $this->account->getServiceManager();
 
         // Get the FileSystem service
-        $this->fileSystem = $sl->get(FileSystem::class);
+        $this->fileSystem = $sl->get(FileSystemFactory::class);
 
         // Set the local dataPath from the system config service
         $config = $sl->get(ConfigFactory::class);
         $this->dataPath = $config->data_path;
 
         // Set resizer if we are working with images
-        $this->imageResizer = $sl->get(ImageResizer::class);
+        $this->imageResizer = $sl->get(ImageResizerFactory::class);
     }
 
     /**
@@ -73,10 +73,10 @@ class FilesController extends Mvc\AbstractAccountController
      */
     public function getAccessControlList()
     {
-        $dacl = new \Netric\Permissions\Dacl();
+        $dacl = new Dacl();
 
         // By default allow authenticated users to access a controller
-        $dacl->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_EVERYONE);
+        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
 
         return $dacl;
     }
@@ -351,7 +351,7 @@ class FilesController extends Mvc\AbstractAccountController
 
         // We will need the entityLoader to load up a user
         $serviceManager = $this->getApplication()->getAccount()->getServiceManager();
-        $entiyLoader = $serviceManager->get(EntityLoader::class);
+        $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Get the user entity for the user id
         $userToGetImageFor = $entiyLoader->get('user', $userId);
