@@ -87,7 +87,11 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
 
         // Throw a runtime exception if insert query did not return a value
         if (!$ret) {
-            throw new \RuntimeException("Could not set last_applied_definition using the value: $schemaHash");
+
+            // Check again, maybe schema has been saved but did not return a value during insert
+            if (!$this->getLastAppliedSchemaHash()) {
+                throw new \RuntimeException("Could not set last_applied_definition using the value: $schemaHash");
+            }
         }
     }
 

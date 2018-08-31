@@ -68,7 +68,7 @@ class FolderEntity extends Entity implements EntityInterface
         }
 
         // Make sure that parent_id and entity id is not the same
-        if ($this->getId() == $this->getValue("parent_id")) {
+        if ($this->getId() && $this->getId() == $this->getValue("parent_id")) {
             throw new \RuntimeException("Invalid parent id. Cannot set its own id as parent id.");
         }
 
