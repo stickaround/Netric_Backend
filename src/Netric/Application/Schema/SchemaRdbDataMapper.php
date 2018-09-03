@@ -87,7 +87,6 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
 
         // Throw a runtime exception if insert query did not return a value
         if (!$ret) {
-
             // Check again, maybe schema has been saved but did not return a value during insert
             if (!$this->getLastAppliedSchemaHash()) {
                 throw new \RuntimeException("Could not set last_applied_definition using the value: $schemaHash");
@@ -311,7 +310,7 @@ class SchemaRdbDataMapper extends AbstractSchemaDataMapper
 
         /*
          * TODO: What should we do with the keys?
-         * 
+         *
          * $sql = ($keyDefinition[0] === "UNIQUE") ? "CREATE UNIQUE INDEX" : "CREATE INDEX";
          * $sql .= " {$tableName}_{$foreignKeyName}_idx ON {$tableName} (" . implode(', ', $keyDefinition[1]) . ")";
          * return ($this->database->query($sql)) ? true : false;

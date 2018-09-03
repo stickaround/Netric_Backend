@@ -20,7 +20,7 @@ return array(
             'version' => array('type'=>SchemaProperty::TYPE_CHAR_256),
             'active' => array('type'=>SchemaProperty::TYPE_BOOL, 'default'=>'t'),
         ),
-        'PRIMARY_KEY'		=> 'id',
+        'PRIMARY_KEY'       => 'id',
         // TODO: constraints for unique name
         "INDEXES" => array(
             array('properties'=>array("name")),
@@ -34,7 +34,7 @@ return array(
             'email_address' => array('type'=>SchemaProperty::TYPE_CHAR_256),
             'username' => array('type'=>SchemaProperty::TYPE_CHAR_256),
         ),
-        'PRIMARY_KEY'		=> 'id',
+        'PRIMARY_KEY'       => 'id',
         // TODO: constraints for unique account_id, email_alias
         "KEYS" => array(
             array(
@@ -107,6 +107,7 @@ return array(
     ),
     "settings" => array(
         "PROPERTIES" => array(
+            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
             'name' => array('type'=>SchemaProperty::TYPE_CHAR_256),
             'value' => array('type'=>SchemaProperty::TYPE_CHAR_TEXT)
         ),
