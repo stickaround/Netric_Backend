@@ -2105,7 +2105,7 @@ return array(
 
     "settings" => array(
         "PROPERTIES" => array(
-            'id' => array('type' => SchemaProperty::TYPE_BIGINT, 'subtype' => '', 'default' => 'auto_increment'),
+            'id' => array('type' => SchemaProperty::TYPE_BIGSERIAL),
             'name' => array('type' => SchemaProperty::TYPE_CHAR_256),
             'value' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
