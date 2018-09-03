@@ -8,6 +8,9 @@ use Netric\Entity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\FolderEntity;
 use Netric\FileSystem\FileSystemFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class FolderTest extends TestCase
 {
@@ -32,16 +35,16 @@ class FolderTest extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     private function createTestFile()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        $loader = $account->getServiceManager()->get("EntityLoader");
+        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->getEntityDataMapper();
 
-        $file = $loader->create("file");
+        $file = $loader->create(ObjectTypes::FILE);
         $file->setValue("name", "test.txt");
         $dataMapper->save($file);
 
@@ -55,15 +58,15 @@ class FolderTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("folder");
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::FOLDER);
         $this->assertInstanceOf(FolderEntity::class, $entity);
     }
 
     public function testGetRootFolder()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        $loader = $account->getServiceManager()->get("EntityLoader");
-        $entity = $this->account->getServiceManager()->get(EntityFactory::class)->create("folder");
+        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entity = $loader->create(ObjectTypes::FOLDER);
         $rootFolderEntity = $entity->getRootFolder();
     }
 }
