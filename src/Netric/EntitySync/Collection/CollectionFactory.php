@@ -44,7 +44,7 @@ class CollectionFactory implements CollectionFactoryInterface
     /**
      * Factory for creating collections and injecting all dependencies
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm
+     * @param AccountServiceManagerInterface $sm
      * @param int $type The type to load as defined by \Netric\EntitySync::COLL_TYPE_*
      * @param array $data Optional data to initialize into the collection
      * @return CollectionInterface

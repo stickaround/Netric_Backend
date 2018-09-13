@@ -8,15 +8,17 @@
  */
 namespace Netric\EntityQuery;
 
+use Netric\EntityQuery;
+
 /**
  * Parse form fields to an actual query
  *
- * $param \Netric\EntityQuery &$query The query to setup
+ * $param EntityQuery &$query The query to setup
  * @param array $params The REQUEST params to use to build the query
  */
 class FormParser
 {
-    public static function buildQuery(\Netric\EntityQuery &$query, $params)
+    public static function buildQuery(EntityQuery $query, $params)
     {
         // Add where conditions
         if (isset($params["where"])) {

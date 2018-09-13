@@ -9,8 +9,10 @@ namespace Netric\Authentication;
 
 use Netric\ServiceManager;
 use Netric\Entity\EntityLoader;
+use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Handle authentication from the client
@@ -29,21 +31,21 @@ class AuthenticationService
     /**
      * User index
      *
-     * @var Netric\EntityQuery\Index\IndexInterface
+     * @var IndexInterface
      */
     private $userIndex = null;
 
     /**
      * User loader
      *
-     * @var Netric\EntityLoader
+     * @var EntityLoader
      */
     private $userLoader = null;
 
     /**
      * Update request object
      *
-     * @var Netric\Request\RequestInterface
+     * @var RequestInterface
      */
     private $request = null;
 
@@ -127,8 +129,8 @@ class AuthenticationService
      * Class constructor
      *
      * @param string $privateKey A server-side private key for hmac
-     * @param Netric\EntityQuery\Index\IndexInterface $userIndex for querying users by id
-     * @param Netric\EntityLoader $userLoader Loader to get user entities by id
+     * @param IndexInterface $userIndex for querying users by id
+     * @param EntityLoader $userLoader Loader to get user entities by id
      */
     public function __construct($privateKey, IndexInterface $userIndex, EntityLoader $userLoader, RequestInterface $request)
     {
@@ -216,7 +218,7 @@ class AuthenticationService
         }
 
         // Load the user by username
-        $query = new \Netric\EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where("active")->equals(true);
         $query->andWhere('name')->equals(strtolower($username));
         $query->orWhere('email')->equals(strtolower($username));

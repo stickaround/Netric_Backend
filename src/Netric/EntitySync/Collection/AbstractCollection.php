@@ -3,7 +3,8 @@ namespace Netric\EntitySync\Collection;
 
 use Netric\EntitySync\Commit;
 use Netric\Entity\EntityInterface;
-use \Netric\EntitySync\DataMapperInterface;
+use Netric\EntitySync\DataMapperInterface;
+use Netric\EntitySync\Commit\CommitManager;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -13,14 +14,14 @@ abstract class AbstractCollection
     /**
      * DataMapper for sync operations
      *
-     * @var \Netric\EntitySync\DataMapperInterface
+     * @var DataMapperInterface
      */
     protected $dataMapper = null;
 
     /**
      * Service for managing commits
      *
-     * @var \Netric\EntitySync\Commit\CommitManager
+     * @var CommitManager
      */
     protected $commitManager = null;
 

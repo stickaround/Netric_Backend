@@ -8,6 +8,8 @@ namespace Netric\Controller;
 use Netric\Mvc;
 use Netric\Console\Console;
 use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Permissions\Dacl;
+use Netric\Entity\ObjType\UserEntity;
 
 class AuthenticationController extends Mvc\AbstractAccountController
 {
@@ -18,10 +20,10 @@ class AuthenticationController extends Mvc\AbstractAccountController
      */
     public function getAccessControlList()
     {
-        $dacl = new \Netric\Permissions\Dacl();
+        $dacl = new Dacl();
 
         // By default allow authenticated users to access a controller
-        $dacl->allowGroup(\Netric\Entity\ObjType\UserEntity::GROUP_EVERYONE);
+        $dacl->allowGroup(UserEntity::GROUP_EVERYONE);
 
         return $dacl;
     }

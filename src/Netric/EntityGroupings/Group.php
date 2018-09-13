@@ -10,6 +10,8 @@
  */
 namespace Netric\EntityGroupings;
 
+use Netric\EntityGroupings\Group;
+
 /**
  * Base grouping entry
  *
@@ -76,7 +78,7 @@ class Group
     /**
      * Children
      *
-     * @var \Netric\EntityGroupings\Group[]
+     * @var Group[]
      */
     public $children = array();
 

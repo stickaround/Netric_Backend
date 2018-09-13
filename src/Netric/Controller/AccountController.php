@@ -5,7 +5,7 @@
  */
 namespace Netric\Controller;
 
-use \Netric\Mvc;
+use Netric\Mvc;
 use Netric\Account\Module\ModuleServiceFactory;
 
 class AccountController extends Mvc\AbstractAccountController

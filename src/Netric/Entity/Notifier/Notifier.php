@@ -12,6 +12,7 @@ use Netric\EntityQuery;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Manages notifications to followers of an entity
@@ -80,7 +81,7 @@ class Notifier
         $notificationIds = array();
 
         // We obviously never want to send notifications about notifications or activities
-        if ($objType === 'notification' || $objType === 'activity') {
+        if ($objType == ObjectTypes::NOTIFICATION || $objType == ObjectTypes::ACTIVITY) {
             return $notificationIds;
         }
 
@@ -92,7 +93,7 @@ class Notifier
          * clicks on the link for the notification, it will take them to the
          * entity being commented on.
          */
-        $objReference = ($objType === "comment")
+        $objReference = ($objType == ObjectTypes::COMMENT)
             ? $entity->getValue("obj_reference")
             : Entity::encodeObjRef($objType, $entity->getId());
 
@@ -155,7 +156,7 @@ class Notifier
             $entity->getId()
         );
 
-        $query = new EntityQuery("notification");
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($user->getId());
         $query->andWhere("obj_reference")->equals($objReference);
         $query->andWhere("f_seen")->equals(false);
@@ -184,7 +185,7 @@ class Notifier
          * Query past notification entities to see if an entity is outstanding
          * and not yet seen for this entity/object reference.
          */
-        $query = new EntityQuery("notification");
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($userId);
         $query->andWhere("obj_reference")->equals($objReference);
         $query->andWhere("creator_id")->equals($this->user->getId());
@@ -199,7 +200,7 @@ class Notifier
             $notification = $result->getEntity(0);
         } else {
             // There are no outstanding/unseen notifications, create a new one
-            $notification = $this->entityLoader->create("notification");
+            $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
             $notification->setValue("obj_reference", $objReference);
             $notification->setValue("owner_id", $userId);
             $notification->setValue("creator_id", $this->user->getId(), $this->user->getName());

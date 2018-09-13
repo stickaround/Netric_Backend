@@ -10,6 +10,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Config\ConfigFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Netric account instance
@@ -249,8 +250,8 @@ class Account
         if ($userId) {
             if (is_numeric($userId)) {
                 // Legacy get by ID
-                if ($loader->get("user", $userId)) {
-                    return $loader->get("user", $userId);
+                if ($loader->get(ObjectTypes::USER, $userId)) {
+                    return $loader->get(ObjectTypes::USER, $userId);
                 }
             } elseif (is_string($userId)) {
                 // New get by guid
@@ -259,7 +260,7 @@ class Account
                 }
             }
         } elseif ($username) {
-            $query = new EntityQuery("user");
+            $query = new EntityQuery(ObjectTypes::USER);
             $query->where('name')->equals($username);
             $index = $this->getServiceManager()->get(IndexFactory::class);
             $res = $index->executeQuery($query);
@@ -271,7 +272,7 @@ class Account
         }
 
         // Return anonymous user
-        $anon = $loader->create("user");
+        $anon = $loader->create(ObjectTypes::USER);
         $anon->setValue("guid", UserEntity::USER_ANONYMOUS);
         $anon->setValue("uname", "anonymous");
         $anon->setValue("name", "anonymous");

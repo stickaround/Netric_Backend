@@ -4,6 +4,8 @@ namespace Netric\Controller;
 use Netric\Entity\Entity;
 use Netric\EntityDefinition\Field;
 use Netric\Entity\EntityInterface;
+use Netric\EntityQuery;
+use Netric\EntityQuery\FormParser;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Mvc;
 use Netric\Permissions\Dacl;
@@ -16,6 +18,7 @@ use Netric\Permissions\DaclLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityGroupings\Loader as GroupingsLoader;
 
 /**
  * Controller for interacting with entities
@@ -67,7 +70,7 @@ class EntityController extends Mvc\AbstractAccountController
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
 
-        $query = new \Netric\EntityQuery($params["obj_type"]);
+        $query = new EntityQuery($params["obj_type"]);
 
         if (isset($params['offset'])) {
             $query->setOffset($params['offset']);
@@ -78,7 +81,7 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         // Parse values passed from POST or GET params
-        \Netric\EntityQuery\FormParser::buildQuery($query, $params);
+        FormParser::buildQuery($query, $params);
 
         // Execute the query
         $res = $index->executeQuery($query);
@@ -839,13 +842,13 @@ class EntityController extends Mvc\AbstractAccountController
     /**
      * Get the groupings model
      *
-     * @param {Netric\EntityGroupings\Loader} $loader The entity loader that we will be using to get the entity definition
+     * @param {GroupingsLoader} $loader The entity loader that we will be using to get the entity definition
      * @param {string} $objType The object type where we will be getting the groups
      * @param {string} $fieldName The name of the field we are working with
      * @param {array} $groupFilter This will be used to filter the groups and return only the groups that mached the filter
      * @return EntityGroupings Returns the instance of EntityGroupings Model
      */
-    private function getGroupings(\Netric\EntityGroupings\Loader $loader, $objType, $fieldName, &$groupFilter = array())
+    private function getGroupings(GroupingsLoader $loader, $objType, $fieldName, &$groupFilter = array())
     {
 
         // Get the entity defintion of the $objType

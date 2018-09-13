@@ -11,6 +11,7 @@ namespace Netric\EntityGroupings;
 use Netric\Cache\CacheFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\ServiceManager;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 
 /**
  * Create a Entity Loader service
@@ -20,10 +21,10 @@ class LoaderFactory implements ServiceManager\AccountServiceFactoryInterface
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return Loader
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $sl)
     {
         $dm = $sl->get(EntityGroupingDataMapperFactory::class);
         $cache = $sl->get(CacheFactory::class);

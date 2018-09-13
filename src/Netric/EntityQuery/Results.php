@@ -2,6 +2,10 @@
 namespace Netric\EntityQuery;
 
 use Netric\Stats\StatsPublisher;
+use Netric\Entity\EntityInterface;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexInterface;
+use Netric\Models\Entity;
 
 /**
  * Results of entity query will be managed here
@@ -11,21 +15,21 @@ class Results
     /**
      * The query used to construct these results
      *
-     * @var \Netric\EntityQuery
+     * @var EntityQuery
      */
     private $query = null;
 
     /**
      * DataMapper reference used for automatic pagination after initial load
      *
-     * @var Index\IndexInterface
+     * @var IndexInterface
      */
     private $index = null;
 
     /**
      * Array of entities that are loaded in this collection
      *
-     * @param \Netric\Models\Entity
+     * @param Entity
      */
     private $entities = array();
 
@@ -66,7 +70,7 @@ class Results
      *
      * @param string $objType Unique name of the object type we are querying
      */
-    public function __construct(\Netric\EntityQuery $query, Index\IndexInterface &$index = null)
+    public function __construct(EntityQuery $query, IndexInterface &$index = null)
     {
         $this->query = $query;
         if ($index) {
@@ -89,7 +93,7 @@ class Results
      *
      * @param Index\IndexInterface &$index
      */
-    public function setIndex(Index\IndexInterface &$index)
+    public function setIndex(IndexInterface $index)
     {
         $this->index = $index;
     }
@@ -169,9 +173,9 @@ class Results
     /**
      * Add an entity to this collection
      *
-     * @param \Netric\Entity\EntityInterface $entity
+     * @param EntityInterface $entity
      */
-    public function addEntity(\Netric\Entity\EntityInterface $entity)
+    public function addEntity(EntityInterface $entity)
     {
         // Stat a cache list hit
         StatsPublisher::increment("entity.cache.queryres");
@@ -190,7 +194,7 @@ class Results
      * Retrieve an entity from the collection
      *
      * @param int $offset The offset of the entity to get in the collection
-     * @return \Netric\Entity\EntityInterface
+     * @return EntityInterface
      */
     public function getEntity($offset = 0)
     {

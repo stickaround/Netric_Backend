@@ -12,10 +12,11 @@ use Netric\FileSystem\FileSystemFactory;
 use Netric\FileSystem\ImageResizerFactory;
 use Netric\FileSystem\FileStreamWrapper;
 use Netric\Application\Response\HttpResponse;
-use Netric\Permissions\DaclLoader;
+use Netric\Permissions\DaclLoaderFactory;
 use Netric\Permissions\Dacl;
 use DateTime;
 use Netric\Config\ConfigFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class FilesController
@@ -181,7 +182,7 @@ class FilesController extends Mvc\AbstractAccountController
             $folderEntity = $this->fileSystem->openFolder($folderPath);
             if ($folderEntity) {
                 $user = $this->account->getUser();
-                $daclLoader = $this->account->getServiceManager()->get(DaclLoader::class);
+                $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
                 $dacl = $daclLoader->getForEntity($folderEntity);
                 if (!$dacl->isAllowed($user)) {
                     // Log a warning to flag repeat offenders
@@ -265,7 +266,7 @@ class FilesController extends Mvc\AbstractAccountController
         }
 
         // Make sure the current user has access
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoader::class);
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($fileEntity);
         if (!$dacl->isAllowed($user)) {
             $log->warning(
@@ -354,7 +355,7 @@ class FilesController extends Mvc\AbstractAccountController
         $entiyLoader = $serviceManager->get(EntityLoaderFactory::class);
 
         // Get the user entity for the user id
-        $userToGetImageFor = $entiyLoader->get('user', $userId);
+        $userToGetImageFor = $entiyLoader->get(ObjectTypes::USER, $userId);
         $imageId = ($userToGetImageFor) ? $userToGetImageFor->getValue('image_id') : null;
 
         // 404 if the user was not found or there was no image_id uploaded
