@@ -13,6 +13,7 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Email thread extension
@@ -143,7 +144,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
             return;
         }
 
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("thread")->equals($this->getId());
         $results = $this->entityIndex->executeQuery($query);
         $num = $results->getTotalNum();
@@ -154,7 +155,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
 
         // If we are doing a hard delete, then also get previously deleted
         if ($hard) {
-            $query = new EntityQuery("email_message");
+            $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
             $query->where("thread")->equals($this->getId());
             $query->andWhere("f_deleted")->equals(true);
             $results = $this->entityIndex->executeQuery($query);
@@ -175,7 +176,7 @@ class EmailThreadEntity extends Entity implements EntityInterface
             return;
         }
 
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("thread")->equals($this->getId());
         $query->andWhere("f_deleted")->equals(true);
         $results = $this->entityIndex->executeQuery($query);

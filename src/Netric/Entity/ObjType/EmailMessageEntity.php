@@ -16,6 +16,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Mail;
 use Netric\Mime;
 use Netric\FileSystem\FileSystem;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Email entity extension
@@ -113,7 +114,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
     public function onAfterSave(AccountServiceManagerInterface $sm)
     {
         if ($this->isDeleted()) {
-            $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
+            $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
 
             // Decrement the number of messages in the thread if it exists
             if ($thread) {
@@ -146,7 +147,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             }
         }
 
-        $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
+        $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
 
         // If this is the last message, then purge the thread
         if ($thread && intval($thread->getValue("num_messages")) === 1) {
@@ -490,7 +491,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
          * at least for cases where the sender includes in-reply-to in the header.
          */
         if (trim($this->getValue("in_reply_to"))) {
-            $query = new EntityQuery("email_message");
+            $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
             $query->where("message_id")->equals($this->getValue("in_reply_to"));
             $query->andWhere("owner_id")->equals($this->getValue("owner_id"));
             $results = $this->entityIndex->executeQuery($query);
@@ -522,7 +523,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // If we could not find a thread that already exists, then create a new one
         if (!$thread) {
-            $thread = $this->entityLoader->create("email_thread");
+            $thread = $this->entityLoader->create(ObjectTypes::EMAIL_THREAD);
             $thread->setValue("owner_id", $this->getValue("owner_id"));
             $thread->setValue("num_messages", 0);
         }

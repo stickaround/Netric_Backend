@@ -11,6 +11,7 @@ use Netric\Entity\EntityLoader;
 use DateInterval;
 use DateTime;
 use Netric\FileSystem\FileSystem;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Service responsible maintaining entities in the background
@@ -248,7 +249,7 @@ class EntityMaintainerService extends AbstractHasErrors
                 $deletedEntities[] = $entity->getId();
                 $this->log->info(
                     "EntityMaintainerService->purgeStaleDeletedForType: deleted " .
-                    count($deletedEntities) . " of " . $totalNum . "  - " . $def->getObjType()
+                    count($deletedEntities) . " of $totalNum  - " . $def->getObjType()
                 );
             }
         }
@@ -277,7 +278,7 @@ class EntityMaintainerService extends AbstractHasErrors
             $cutoff->sub(new DateInterval('P1Y'));
         }
 
-        $query = new EntityQuery('email_message');
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where('flag_spam')->equals(true);
         $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);
@@ -300,13 +301,13 @@ class EntityMaintainerService extends AbstractHasErrors
          * it and that is a recipe for disaster.
          */
         foreach ($toDeleteIds as $entityId) {
-            $entity = $this->entityLoader->get('email_message', $entityId);
+            $entity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $entityId);
             if ($entity) {
                 $this->entityLoader->delete($entity, true);
                 $deletedEntities[] = $entity->getId();
                 $this->log->info(
                     "EntityMaintainerService->deleteOldSpamMessages: deleted " .
-                    count($deletedEntities) . " of " . $totalNum . "  - email_message"
+                    count($deletedEntities) . " of $totalNum  - email_message"
                 );
             }
         }
@@ -336,7 +337,7 @@ class EntityMaintainerService extends AbstractHasErrors
             $cutoff->sub(new DateInterval('P1D'));
         }
 
-        $query = new EntityQuery('file');
+        $query = new EntityQuery(ObjectTypes::FILE);
         $query->where('folder_id')->equals($tmpFolder->getId());
         $query->andWhere("ts_entered")->isLessOrEqualTo($cutoff->getTimestamp());
         $result = $this->entityIndex->executeQuery($query);
@@ -363,7 +364,7 @@ class EntityMaintainerService extends AbstractHasErrors
                 $deletedFiles[] = $entity->getId();
                 $this->log->info(
                     "EntityMaintainerService->cleanTempFolder: deleted " .
-                    count($deletedFiles) . " of " . $totalNum . "  - file"
+                    count($deletedFiles) . " of $totalNum  - file"
                 );
             }
         }

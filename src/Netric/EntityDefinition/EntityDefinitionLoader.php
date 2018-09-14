@@ -248,7 +248,7 @@ class EntityDefinitionLoader
      * @param EntityDefinition $def
      * @return int|bool Number of views on success, false on failure
      */
-    private function setSysViews(&$def)
+    private function setSysViews($def)
     {
         $objType = $def->getObjType();
 
@@ -280,7 +280,7 @@ class EntityDefinitionLoader
      *
      * @param EntityDefinition $def
      */
-    private function setSysForms(&$def)
+    private function setSysForms($def)
     {
         $objType = $def->getObjType();
 

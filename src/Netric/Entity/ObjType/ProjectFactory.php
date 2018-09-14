@@ -13,6 +13,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new project entity
@@ -27,7 +28,7 @@ class ProjectFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("project");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT);
         $entityIndex = $sl->get(IndexFactory::class);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new ProjectEntity($def, $entityLoader, $entityIndex);

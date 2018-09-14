@@ -11,6 +11,7 @@ use Netric\EntityDefinition\Field;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Comment represents a single comment on any entity
@@ -24,7 +25,7 @@ class CommentEntity extends Entity implements EntityInterface
      */
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
-        $entityLoader = $sm->get("EntityLoader");
+        $entityLoader = $sm->get(EntityLoaderFactory::class);
         $currentUser = $sm->getAccount()->getUser();
 
         // Set comments associations to all directly associated objects if new

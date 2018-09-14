@@ -4,6 +4,8 @@
  */
 namespace Netric\Entity;
 
+use Netric\ServiceManager\AccountServiceManagerInterface;
+
 interface EntityInterface
 {
     /**
@@ -108,16 +110,16 @@ interface EntityInterface
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onBeforeSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm);
+    public function onBeforeSave(AccountServiceManagerInterface $sm);
 
     /**
      * Callback function used for derrived subclasses
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
+     * @param AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
-    public function onAfterSave(\Netric\ServiceManager\AccountServiceManagerInterface $sm);
+    public function onAfterSave(AccountServiceManagerInterface $sm);
 
     /**
      * Check if a field value changed since created or opened

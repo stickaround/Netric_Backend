@@ -37,6 +37,7 @@ class ObjectTypes
     const INVOICE_TEMPLATE = 'invoice_templace';
     const ISSUE = 'case';
     const LEAD = 'lead';
+    const LOG = 'log';
     const MARKETING_CAMPAIGN = 'marketing_campaign';
     const MEMBER = 'member';
     const NOTE = 'note';

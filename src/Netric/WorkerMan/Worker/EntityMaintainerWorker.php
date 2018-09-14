@@ -8,6 +8,7 @@ namespace Netric\WorkerMan\Worker;
 use Netric\WorkerMan\Job;
 use Netric\WorkerMan\AbstractWorker;
 use Netric\Entity\EntityMaintainerService;
+use Netric\Entity\EntityMaintainerServiceFactory;
 
 /**
  * This worker is used to perform various cleanup operations on entity collections
@@ -52,7 +53,7 @@ class EntityMaintainerWorker extends AbstractWorker
         $accounts = $application->getAccounts();
         foreach ($accounts as $account) {
             // Get the maintainer service for this account
-            $maintainerService = $account->getServiceManager()->get(EntityMaintainerService::class);
+            $maintainerService = $account->getServiceManager()->get(EntityMaintainerServiceFactory::class);
 
             // Log that we have started since processing may take a while
             $log->info("EntityMaintainerWorker->work: maintaining " . $account->getName());

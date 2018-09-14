@@ -75,7 +75,7 @@ class Entity implements EntityInterface
      *
      * @param EntityDefinition $def The definition of this type of object
      */
-    public function __construct(&$def)
+    public function __construct($def)
     {
         $this->def = $def;
         $this->objType = $def->getObjType();

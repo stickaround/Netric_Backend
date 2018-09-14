@@ -13,6 +13,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Project represents a single project entity
@@ -40,7 +41,7 @@ class ProjectEntity extends Entity implements EntityInterface
      * @param EntityLoader $entityLoader The loader for a specific entity
      * @param IndexInterface $index IndexInterface for running queries against
      */
-    public function __construct(&$def, EntityLoader $entityLoader, IndexInterface $indexInterface)
+    public function __construct($def, EntityLoader $entityLoader, IndexInterface $indexInterface)
     {
         parent::__construct($def);
 
@@ -92,7 +93,7 @@ class ProjectEntity extends Entity implements EntityInterface
         $toEntity->setId($toEntityId);
 
         // Query the tasks of this project entity
-        $query = new EntityQuery("task");
+        $query = new EntityQuery(ObjectTypes::TASK);
         $query->where('project')->equals($this->getId());
 
         // Execute query and get num results
@@ -104,7 +105,7 @@ class ProjectEntity extends Entity implements EntityInterface
             $task = $res->getEntity($i);
 
             // Create a new task to be cloned
-            $toTask = $this->entityLoader->create("task");
+            $toTask = $this->entityLoader->create(ObjectTypes::TASK);
 
             $task->cloneTo($toTask);
 

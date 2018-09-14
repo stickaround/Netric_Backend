@@ -17,6 +17,8 @@ use Netric\Entity\Validator\EntityValidatorFactory;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
 use Netric\EntityDefinition\Field;
+use Netric\Account\Account;
+use Netric\Entity\EntityLoaderFactory;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -65,7 +67,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * @param ServiceLocator $sl The ServiceLocator container
      * @param string $accountName The name of the ANT account that owns this data
      */
-    public function __construct(\Netric\Account\Account $account)
+    public function __construct(Account $account)
     {
         $this->setAccount($account);
         $this->setUp();
@@ -174,7 +176,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      * Save main processor
      *
      * @param Entity $entity The enitity to save
-     * @param \Netric\Entity\ObjType\UserEntity $user Optional user performing the save if other than current in $this->account
+     * @param UserEntity $user Optional user performing the save if other than current in $this->account
      * @return int|bool If success the id of the saved entity will be returned, false if failure
      */
     public function save($entity, $user = null)
@@ -248,7 +250,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $serviceManager->get(IndexFactory::class)->save($entity);
 
         // Clear cache in the EntityLoader
-        $serviceManager->get("EntityLoader")->clearCache($def->getObjType(), $entity->getId());
+        $serviceManager->get(EntityLoaderFactory::class)->clearCache($def->getObjType(), $entity->getId());
 
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {
@@ -392,7 +394,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $parentFieldCondition = [];
         if ($def->parentField && count($segments) >= 1) {
             $parentField = $def->getField($def->parentField);
-            if ($parentField->type == "object" && !empty($parentField->subtype)) {
+            if ($parentField->type === "object" && !empty($parentField->subtype)) {
                 $parentEntity = $this->getByUniqueName(
                     $parentField->subtype,
                     implode('/', $segments),
@@ -526,7 +528,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         }
 
         // Clear cache in the EntityLoader
-        $serviceManager->get("EntityLoader")->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
+        $serviceManager->get(EntityLoaderFactory::class)->clearCache($entity->getDefinition()->getObjType(), $entity->getId());
 
         return $ret;
     }

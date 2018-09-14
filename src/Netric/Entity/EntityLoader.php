@@ -120,7 +120,7 @@ class EntityLoader
      */
     private function getCached($objType, $id)
     {
-        $key = $this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id;
+        $key = $this->dataMapper->getAccount()->getName() . "/objects/$objType/$id";
         return $this->cache->get($key);
     }
 
@@ -165,7 +165,7 @@ class EntityLoader
         // Load from datamapper
         if ($this->dataMapper->getById($entity, $id)) {
             $this->loadedEntities[$objType][$id] = $entity;
-            $this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id, $entity->toArray());
+            $this->cache->set($this->dataMapper->getAccount()->getName() . "/objects/$objType/$id", $entity->toArray());
             return $entity;
         } else {
             // TODO: make sure it is deleted from the index?
@@ -214,7 +214,7 @@ class EntityLoader
         if ($entity) {
             $this->loadedEntities['guid'][$guid] = $entity;
             $this->cache->set(
-                $this->dataMapper->getAccount()->getName() . "/objects/guid/" . $guid,
+                $this->dataMapper->getAccount()->getName() . "/objects/guid/$guid",
                 $entity->toArray()
             );
             return $entity;
@@ -299,7 +299,7 @@ class EntityLoader
             $this->loadedEntities[$objType][$id] = null;
         }
 
-        $ret = $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/" . $objType . "/" . $id);
+        $ret = $this->cache->remove($this->dataMapper->getAccount()->getName() . "/objects/$objType/$id");
     }
 
     /**

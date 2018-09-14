@@ -10,6 +10,7 @@ namespace Netric\Entity\ObjType;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new activity entity
@@ -24,7 +25,7 @@ class EmailAccountFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("email_account");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_ACCOUNT);
         return new EmailAccountEntity($def);
     }
 }

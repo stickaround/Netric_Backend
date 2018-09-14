@@ -8,6 +8,7 @@ namespace Netric\Entity\ObjType;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new Workflow entity
@@ -22,7 +23,7 @@ class WorkflowFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("workflow");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::WORKFLOW);
         return new WorkflowEntity($def);
     }
 }

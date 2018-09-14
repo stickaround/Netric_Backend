@@ -11,6 +11,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\ServiceManager;
 use Netric\Entity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new default object type entity
@@ -25,7 +26,7 @@ class UserFactory implements Entity\EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("user");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         return new UserEntity($def, $entityLoader);
     }

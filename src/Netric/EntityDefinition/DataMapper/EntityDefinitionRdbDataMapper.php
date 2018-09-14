@@ -649,7 +649,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
      * @param EntityDefintionn $def The EntityDefinition we are editing
      * @param string $fname The name of the field to delete
      */
-    private function removeField(&$def, $fname)
+    private function removeField($def, $fname)
     {
         if (!$def->getId()) {
             return false;

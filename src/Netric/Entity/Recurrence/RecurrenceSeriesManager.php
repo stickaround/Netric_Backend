@@ -9,6 +9,7 @@
 namespace Netric\Entity\Recurrence;
 
 use Netric\Entity;
+use Netric\Entity\EntityInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Error;
@@ -143,10 +144,10 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     /**
      * Remove a series of entities and the associated recurrence pattern
      *
-     * @param Entity\EntityInterface $entity Any entity in the series
+     * @param EntityInterface $entity Any entity in the series
      * @return bool
      */
-    public function removeSeries(Entity\EntityInterface $entity)
+    public function removeSeries(EntityInterface $entity)
     {
         $recurrencePattern = $entity->getRecurrencePattern();
         $recurRules = $entity->getDefinition()->recurRules;
@@ -362,12 +363,12 @@ class RecurrenceSeriesManager implements Error\ErrorAwareInterface
     /**
      * Generate a new date relative to the first entities value
      *
-     * @param Entity\EntityInterface $firstEntity
+     * @param EntityInterface $firstEntity
      * @param \DateTime $date
      * @param $useTimeField
      * @return \DateTime
      */
-    private function createRelativeDate(Entity\EntityInterface $firstEntity, \DateTime $date, $useTimeField)
+    private function createRelativeDate(EntityInterface $firstEntity, \DateTime $date, $useTimeField)
     {
         $relativeDate = new \DateTime();
 
