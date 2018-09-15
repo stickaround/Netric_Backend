@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+# Update all dependencies
 composer install
 composer update
 
