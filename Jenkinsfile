@@ -42,7 +42,7 @@ pipeline {
                     //sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
                     sh 'docker-compose -f docker/docker-compose-test.yml up -d'
                     sh 'docker-compose -f docker/docker-compose-test.yml exec -T netric_server /netric-setup.sh'
-                    sh 'docker-compose -f docker/docker-compose-test.yml exec -T netric_server /netric-test.sh'
+                    sh 'docker-compose -f docker/docker-compose-test.yml exec -T netric_server /netric-tests.sh'
 
                     // Report on junit
                     junit 'tests/tmp/junit.xml'
