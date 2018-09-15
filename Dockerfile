@@ -123,6 +123,9 @@ RUN chmod +x /start-daemon.sh
 # Make sure data/log is owned by www-data
 RUN chown -R www-data:www-data /var/www/html/data/
 
+# Clean out any copied dependencies - avoid platoform problems
+RUN rm -rf /var/www/html/vendor/
+
 # Run composer install to get all required dependencies
 RUN cd /var/www/html && composer install && composer update
 
