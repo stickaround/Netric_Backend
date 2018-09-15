@@ -15,7 +15,7 @@ services:
       - mogilefs
       - mogilestore
       - logstash
-    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
+    #entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
     logging:
       driver: "json-file"
   memcached:
