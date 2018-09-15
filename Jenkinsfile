@@ -39,7 +39,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    #sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                    //sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
                     sh 'docker-compose -f docker/docker-compose-test.yml up'
                     sh 'docker-compose -f docker/docker-compose-test.yml exec netric_server /netric-setup.sh'
                     sh 'docker-compose -f docker/docker-compose-test.yml exec netric_server /netric-test.sh'
