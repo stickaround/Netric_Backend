@@ -10,11 +10,8 @@ chown -R www-data:www-data data/tmp
 
 cd /var/www/html/bin
 
-# Wait for 60 seconds for mogilefs to get its act together
-sleep 60
-
 # Check if system dependencies are ready prior to starting and wait
-RETRIES=240
+RETRIES=480
 until ./netric health/test-dependencies > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
   echo "Waiting for dependencies to come up, $((RETRIES--)) remaining attempts..."
   sleep 1

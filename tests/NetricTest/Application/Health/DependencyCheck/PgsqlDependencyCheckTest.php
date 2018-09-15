@@ -30,6 +30,21 @@ class PgsqlDependencyCheckTest extends TestCase
     }
 
     /**
+     * Make sure that it fails if there is no database
+     *
+     * @return void
+     */
+    public function testIsNotActive()
+    {
+        $dependency = new PgsqlDependencyCheck(
+            'noexist',
+            'baduser',
+            'badpass'
+        );
+        $this->assertFalse($dependency->isAvailable());
+    }
+
+    /**
      * Make sure we can get a description of any of the running params
      */
     public function testGetParamsDescription()
