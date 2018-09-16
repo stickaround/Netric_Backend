@@ -4,7 +4,6 @@ services:
     build: ../
     environment:
       APPLICATION_ENV: testing
-      RUN_SETUP_INSTALL: 1
     volumes:
       - '../tests/tmp:/var/www/html/tests/tmp'
     depends_on:
@@ -15,7 +14,7 @@ services:
       - mogilefs
       - mogilestore
       - logstash
-    #entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh"'
+    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh > /dev/stdout"'
     logging:
       driver: "json-file"
   memcached:
