@@ -102,12 +102,13 @@ pipeline {
         stage('Integration') {
             steps {
                 script {
-                    deployToSwarm(
-                        environment: DeploymentTargets.INTEGRATION,
-                        stackName: PROJECT_NAME,
-                        imageTag: APPLICATION_VERSION,
-                        serviceDomain: '*.integ.netric.com'
-                    )
+                    print 'Skipping for now'
+                    //deployToSwarm(
+                    //    environment: DeploymentTargets.INTEGRATION,
+                    //    stackName: PROJECT_NAME,
+                    //    imageTag: APPLICATION_VERSION,
+                    //    serviceDomain: '*.integ.netric.com'
+                    //)
                 }
             }
         }
