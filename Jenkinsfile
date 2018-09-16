@@ -57,6 +57,7 @@ pipeline {
                     )
                 }
                 script {
+                    // Check container for security vulnerabilities
                     dir('.clair') {
                         def nodeIp = sh(
                             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
