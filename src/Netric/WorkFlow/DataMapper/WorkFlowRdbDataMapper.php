@@ -80,9 +80,9 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         $workflowEntity = null;
         if ($workFlow->getId()) {
-            $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
+            $workflowEntity = $this->entityLoader->get(ObjectTypes::WORKFLOW, $workFlow->getId());
         } else {
-            $workflowEntity = $this->entityLoader->create("workflow");
+            $workflowEntity = $this->entityLoader->create(ObjectTypes::WORKFLOW);
         }
 
         // Set entity values
@@ -131,7 +131,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         }
 
         // Query the workflow action entities so we can delete them
-        $query = new EntityQuery("workflow_action");
+        $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION);
         $query->andWhere("workflow_id")->equals($workFlow->getId());
         $result = $this->entityIndex->executeQuery($query);
 
@@ -148,7 +148,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         }
 
         // Delete the workflow
-        $workflowEntity = $this->entityLoader->get("workflow", $workFlow->getId());
+        $workflowEntity = $this->entityLoader->get(ObjectTypes::WORKFLOW, $workFlow->getId());
         if ($workflowEntity) {
             $this->entityLoader->delete($workflowEntity, true);
             return true;
@@ -169,7 +169,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             return null;
         }
 
-        $entityWorkflow = $this->entityLoader->get("workflow", $workflowId);
+        $entityWorkflow = $this->entityLoader->get(ObjectTypes::WORKFLOW, $workflowId);
 
         if ($entityWorkflow) {
             return $this->constructWorkFlowFromRow($entityWorkflow->toArray());
@@ -190,7 +190,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
     public function getWorkFlows($objType = null, $onlyActive = true, $filterEvent = null)
     {
         // Query all actions
-        $query = new EntityQuery("workflow");
+        $query = new EntityQuery(ObjectTypes::WORKFLOW);
 
         if ($onlyActive) {
             $query->andWhere("f_active")->equals(true);
@@ -332,9 +332,9 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $workFlowInstanceId = $workFlowInstance->getId();
 
         if ($workFlowInstanceId) {
-            $entity = $this->entityLoader->get("workflow_instance", $workFlowInstanceId);
+            $entity = $this->entityLoader->get(ObjectTypes::WORKFLOW_INSTANCE, $workFlowInstanceId);
         } else {
-            $entity = $this->entityLoader->create("workflow_instance");
+            $entity = $this->entityLoader->create(ObjectTypes::WORKFLOW_INSTANCE);
         }
 
         $entity->fromArray($workflowData);
@@ -352,7 +352,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
      */
     public function getWorkFlowInstanceById($workFlowInstanceId)
     {
-        $workflowInstanceEntity = $this->entityLoader->get("workflow_instance", $workFlowInstanceId);
+        $workflowInstanceEntity = $this->entityLoader->get(ObjectTypes::WORKFLOW_INSTANCE, $workFlowInstanceId);
 
         if ($workflowInstanceEntity) {
             $objectType = $workflowInstanceEntity->getValue("object_type");
@@ -415,7 +415,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $actionsArray = array();
 
         // Query all actions
-        $query = new EntityQuery("workflow_action");
+        $query = new EntityQuery(ObjectTypes::WORKFLOW_ACTION);
         if ($parentActionId) {
             $query->where("parent_action_id")->equals($parentActionId);
         } else {
@@ -483,7 +483,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
 
         // First purge any actions queued to be deleted
         foreach ($actionsToRemove as $action) {
-            $actionEntity = $this->entityLoader->get("workflow_action", $action->getId());
+            $actionEntity = $this->entityLoader->get(ObjectTypes::WORKFLOW_ACTION, $action->getId());
             if (!$this->entityLoader->delete($actionEntity, true)) {
                 throw new \RuntimeException("Could not delete action");
             }
@@ -510,7 +510,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \InvalidArgumentException("Type is required but not set in: " . var_export($actionData, true));
         }
 
-        $actionEntity = $this->entityLoader->create("workflow_action");
+        $actionEntity = $this->entityLoader->create(ObjectTypes::WORKFLOW_ACTION);
         $actionEntity->setValue("type", 0); // for legacy code - can eventually delete when /lib/Workflow is deleted
         $actionEntity->setValue("type_name", $actionData['type']);
         $actionEntity->setValue("name", $actionData['name']);

@@ -78,7 +78,7 @@ class EntityGroupingStateManager
     public function get(string $objType, string $fieldName, array $filters = [])
     {
         if (!$objType || !$fieldName) {
-            throw new InvalidArgumentException('$objType and $fieldName are required params');
+            throw new InvalidArgumentException("$objType and $fieldName are required params");
         }
 
         if ($this->isLoaded($objType, $fieldName, $filters)) {

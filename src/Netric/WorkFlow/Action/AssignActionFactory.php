@@ -4,6 +4,7 @@ namespace Netric\WorkFlow\Action;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\LoaderFactory;
 
 /**
  * Factory to create a new AssignAction
@@ -21,7 +22,7 @@ class AssignActionFactory
         // Return a new TestAction
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $actionFactory = new ActionFactory($serviceLocator);
-        $groupingsLoader = $serviceLocator->get("EntityGroupings_Loader");
+        $groupingsLoader = $serviceLocator->get(LoaderFactory::class);
         $queryIndex = $serviceLocator->get(IndexFactory::class);
         return new AssignAction($entityLoader, $actionFactory, $groupingsLoader, $queryIndex);
     }

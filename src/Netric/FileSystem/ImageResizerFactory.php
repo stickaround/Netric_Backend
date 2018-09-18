@@ -9,6 +9,7 @@ namespace Netric\FileSystem;
 
 use Netric\ServiceManager;
 use Netric\Config\ConfigFactory;
+use Netric\FileSystem\FileSystemFactory;
 
 /**
  * Create an image resizer service
@@ -25,7 +26,7 @@ class ImageResizerFactory implements ServiceManager\AccountServiceFactoryInterfa
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $fileSystem = $sl->get('Netric\FileSystem\FileSystem');
+        $fileSystem = $sl->get(FileSystemFactory::class);
         $config = $sl->get(ConfigFactory::class);
         $localTempPath = $config->data_path . '/tmp';
 

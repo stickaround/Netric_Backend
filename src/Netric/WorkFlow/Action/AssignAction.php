@@ -10,6 +10,7 @@ use Netric\EntityQuery;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Action to assign an entity to a user
@@ -108,7 +109,7 @@ class AssignAction extends AbstractAction implements ActionInterface
      */
     private function getNextUserFromTeam($teamId)
     {
-        $query = new EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where("team_id")->equals($teamId);
         $result = $this->queryIndex->executeQuery($query);
         $num = $result->getTotalNum();
@@ -125,7 +126,7 @@ class AssignAction extends AbstractAction implements ActionInterface
      */
     private function getNextUserFromGroup($groupId)
     {
-        $query = new EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where("groups")->equals($groupId);
         $result = $this->queryIndex->executeQuery($query);
         $num = $result->getTotalNum();
