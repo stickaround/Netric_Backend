@@ -177,7 +177,7 @@ foreach ($objectTypesToMove as $objectType) {
         $alreadyMovedId = $entityDataMapper->checkEntityHasMoved($def, $oldEntityId);
         if ($alreadyMovedId !== false) {
             $log->info(
-                "Update 004.001.018 {$objType}.$oldEntityId already moved to $alreadyMovedId. Skipping"
+                "Update 004.001.027 {$objType}.$oldEntityId already moved to $alreadyMovedId. Skipping"
             );
             continue;
         }

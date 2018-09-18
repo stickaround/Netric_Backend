@@ -790,8 +790,8 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
          * If we have already checked the this entity, then return the result
          * If the cached result is empty, then will try to check again if the entity has been moved now
          */
-        if (isset($this->cacheMovedEntities[$cachedId ])) {
-            return $this->cacheMovedEntities[$cachedId ];
+        if (isset($this->cacheMovedEntities[$cachedId])) {
+            return $this->cacheMovedEntities[$cachedId];
         }
 
         // Check if entity has moved
