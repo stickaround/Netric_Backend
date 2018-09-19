@@ -171,7 +171,7 @@ foreach ($objectTypesToMove as $objectType) {
     $rows = $result->fetchAll();
 
     $log->info(
-        "Moving {$result->rowCount()} records from oldTable: $oldTable. ObjType: $objType.";
+        "Moving {$result->rowCount()} records from oldTable: $oldTable. ObjType: $objType."
     );
 
     foreach ($rows as $row) {

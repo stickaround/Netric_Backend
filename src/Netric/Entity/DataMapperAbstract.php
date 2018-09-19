@@ -787,7 +787,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     {
         $cachedId = $def->getObjType() . "-" . $localId;
         /*
-         * If we have already checked the this entity, then return the result
+         * If we have already checked this entity, then return the result
          * If the cached result is empty, then will try to check again if the entity has been moved now
          */
         if (isset($this->cacheMovedEntities[$cachedId])) {
