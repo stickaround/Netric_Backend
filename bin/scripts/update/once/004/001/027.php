@@ -170,6 +170,10 @@ foreach ($objectTypesToMove as $objectType) {
     $result = $db->query($sql);
     $rows = $result->fetchAll();
 
+    $log->info(
+        "Moving {$result->rowCount()} records from oldTable: $oldTable. ObjType: $objType.";
+    );
+
     foreach ($rows as $row) {
         $oldEntityId = $row["id"];
 
