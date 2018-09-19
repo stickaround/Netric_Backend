@@ -12,6 +12,7 @@
 namespace Netric\EntityDefinition\DataMapper;
 
 use Netric\EntityDefinition\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Config\ConfigFactory;
 
 abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
@@ -94,7 +95,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
      */
     public function getLoader()
     {
-        return $this->getAccount()->getServiceManager()->get("EntityDefinitionLoader");
+        return $this->getAccount()->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
     }
 
     /**

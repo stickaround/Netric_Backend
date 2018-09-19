@@ -8,6 +8,8 @@
 
 namespace Netric\EntitySync\Commit;
 
+use Netric\EntitySync\Commit\DataMapper\DataMapperInterface;
+
 /**
  * Manage handles creating, getting, and working with commits
  *
@@ -18,16 +20,16 @@ class CommitManager
     /**
      * DataMapper
      *
-     * @var DataMapper\DataMapperInterface
+     * @var DataMapperInterface
      */
     private $dm = null;
 
     /**
      * Class constructor
      *
-     * @param DataMapper\DataMapperInterface $dm
+     * @param DataMapperInterface $dm
      */
-    public function __construct(DataMapper\DataMapperInterface $dm)
+    public function __construct(DataMapperInterface $dm)
     {
         $this->dm = $dm;
     }

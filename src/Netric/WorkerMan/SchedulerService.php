@@ -9,6 +9,7 @@ use Netric\Entity\EntityLoader;
 use Netric\WorkerMan\Scheduler\ScheduledJob;
 use Netric\WorkerMan\Scheduler\RecurringJob;
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class SchedulerService will handle scheduling jobs to happen at a specific time or intervals
@@ -51,7 +52,7 @@ class SchedulerService
      */
     public function scheduleAtTime($workerName, DateTime $execute, array $data = [])
     {
-        $scheduledJob = $this->entityLoader->create('worker_job');
+        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB);
         $scheduledJob->setValue('worker_name', $workerName);
         $scheduledJob->setValue('ts_scheduled', $execute->getTimestamp());
         $scheduledJob->setValue('job_data', json_encode($data));
@@ -69,7 +70,7 @@ class SchedulerService
      */
     public function scheduleAtInterval($workerName, array $data = [], $type, $interval)
     {
-        $scheduledJob = $this->entityLoader->create('worker_job');
+        $scheduledJob = $this->entityLoader->create(ObjectTypes::WORKER_JOB);
         $scheduledJob->setValue('worker_name', $workerName);
         $scheduledJob->setValue('job_data', json_encode($data));
         $scheduledJob->setValue("ts_scheduled", time());
@@ -101,7 +102,7 @@ class SchedulerService
             $toDate = new DateTime();
         }
 
-        $query = new EntityQuery("worker_job");
+        $query = new EntityQuery(ObjectTypes::WORKER_JOB);
         $query->where('ts_scheduled')->isLessOrEqualTo($toDate->getTimestamp());
         
         // If we are looking for a specific worker name then add it to the filter

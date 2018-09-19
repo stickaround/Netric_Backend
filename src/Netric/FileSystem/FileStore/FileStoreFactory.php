@@ -8,6 +8,9 @@
 namespace Netric\FileSystem\FileStore;
 
 use Netric\ServiceManager;
+use Netric\Config\ConfigFactory;
+use Netric\FileSystem\FileStore\MogileFileStoreFactory;
+use Netric\FileSystem\FileStore\LocalFileStoreFactory;
 
 /**
  * Create a file system storage service
@@ -22,12 +25,15 @@ class FileStoreFactory implements ServiceManager\AccountServiceFactoryInterface
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $config = $sl->get('Netric\Config\Config');
+        $config = $sl->get(ConfigFactory::class);
         $store = $config->get('files')->get('store');
 
-        $fileStore = 'Netric\FileSystem\FileStore';
-        $fileStore .= ($store === "mogile") ? '\MogileFileStore' : '\LocalFileStore';
+        if ($store === "mogile") {
+            return $sl->get(MogileFileStoreFactory::class);
+        } else {
+            return $sl->get(LocalFileStoreFactory::class);
+        }
 
-        return $sl->get($fileStore);
+
     }
 }

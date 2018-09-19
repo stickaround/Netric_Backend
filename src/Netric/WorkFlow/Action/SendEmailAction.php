@@ -9,6 +9,7 @@ use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Mail\SenderService;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Action to send email messages
@@ -64,7 +65,7 @@ class SendEmailAction extends AbstractAction implements ActionInterface
         $params = $this->getParams($entity);
 
         // Create the email message entity
-        $email = $this->entityLoader->create("email_message");
+        $email = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
 
         // Check if we are using an html_template id for loading a template
         if (isset($params['fid'])) {

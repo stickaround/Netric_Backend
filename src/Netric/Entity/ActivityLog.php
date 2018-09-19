@@ -15,6 +15,7 @@ use Netric\Entity\EntityLoader;
 use Netric\EntityGroupings;
 use Netric\EntityGroupings\Group;
 use Netric\Log\LogInterface;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class for managing an entity activity log
@@ -90,7 +91,7 @@ class ActivityLog
         $objType = $objDef->getObjType();
 
         // We don't add activities of activities - that could create an endless loop
-        if ("activity" === $objType) {
+        if ($objType == ObjectTypes::ACTIVITY) {
             return null;
         }
 
@@ -102,7 +103,7 @@ class ActivityLog
         $name = "";
 
         // If we created a comment, then get the name from the object commented on
-        if (("comment" == $objType) && $object->getValue("obj_reference")) {
+        if (($objType == ObjectTypes::COMMENT) && $object->getValue("obj_reference")) {
             $parts = Entity::decodeObjRef($object->getValue("obj_reference"));
             if (isset($parts['name'])) {
                 // Get the cached name of the entity we commented on
@@ -133,7 +134,7 @@ class ActivityLog
             }
         }
 
-        $actEntity = $this->entityLoader->create("activity");
+        $actEntity = $this->entityLoader->create(ObjectTypes::ACTIVITY);
         $actEntity->setValue("name", $name);
         $actEntity->setValue("notes", $notes);
         $actEntity->setValue("verb", $verb);
@@ -206,7 +207,7 @@ class ActivityLog
         }
 
         // If we're working with a comment copy attachments
-        if ("comment" == $objType) {
+        if ($objType == ObjectTypes::COMMENT) {
             $attachments = $object->getValue("attachments");
             if (is_array($attachments) && count($attachments)) {
                 foreach ($attachments as $attId) {
@@ -250,7 +251,7 @@ class ActivityLog
      */
     private function getActivityTypeGroup(EntityDefinition $objDef, $createIfMissing = true)
     {
-        $groupings = $this->groupingsLoader->get("activity", "type_id");
+        $groupings = $this->groupingsLoader->get(ObjectTypes::ACTIVITY, "type_id");
 
         $existing = $groupings->getByName($objDef->title);
         if ($existing) {

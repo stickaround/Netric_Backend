@@ -16,6 +16,7 @@ use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
 use Netric\EntityGroupings\EntityGroupings;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
+use Netric\EntitySync\Commit\CommitManager;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -33,12 +34,12 @@ class GroupingCollection extends AbstractCollection implements CollectionInterfa
      * Constructor
      *
      * @param DataMapperInterface $dm The sync datamapper
-     * @param Commit\CommitManager $commitManager Manage system commits
+     * @param CommitManager $commitManager Manage system commits
      * @param EntityGroupingDataMapperInterface $groupingDataMapper Entity DataMapper
      */
     public function __construct(
         DataMapperInterface $dm,
-        Commit\CommitManager $commitManager,
+        CommitManager $commitManager,
         EntityGroupingDataMapperInterface $groupingDataMapper
     ) {
         $this->groupingDataMapper = $groupingDataMapper;

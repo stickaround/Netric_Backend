@@ -2,6 +2,7 @@
 namespace Netric\Entity\BrowserView;
 
 use Netric\ServiceManager;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Config\ConfigFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Settings\SettingsFactory;
@@ -17,10 +18,10 @@ class BrowserViewServiceFactory implements ServiceManager\AccountServiceFactoryI
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $sl)
     {
         $config = $sl->get(ConfigFactory::class);
         $defLoader = $sl->get(EntityDefinitionLoaderFactory::class);

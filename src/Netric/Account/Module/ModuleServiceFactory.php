@@ -6,6 +6,7 @@
 namespace Netric\Account\Module;
 
 use Netric\ServiceManager;
+use Netric\Account\Module\DataMapper\DataMapperFactory;
 
 /**
  * Create a module service
@@ -20,7 +21,7 @@ class ModuleServiceFactory implements ServiceManager\AccountServiceFactoryInterf
      */
     public function createService(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $dataMapper = $sl->get('Netric/Account/Module/DataMapper/DataMapper');
+        $dataMapper = $sl->get(DataMapperFactory::class);
 
         return new ModuleService($dataMapper);
     }

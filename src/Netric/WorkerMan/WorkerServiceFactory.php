@@ -8,6 +8,7 @@ namespace Netric\WorkerMan;
 use Netric\ServiceManager\ApplicationServiceFactoryInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\SchedulerService;
+use Netric\Config\ConfigFactory;
 
 /**
  * Handle setting up a worker service
@@ -22,7 +23,7 @@ class WorkerServiceFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $config = $sl->get('Netric\Config\Config');
+        $config = $sl->get(ConfigFactory::class);
 
         $queue = null;
 

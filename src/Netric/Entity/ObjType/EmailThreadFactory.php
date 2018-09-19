@@ -11,6 +11,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new email thread entity
@@ -25,7 +26,7 @@ class EmailThreadFactory implements EntityFactoryInterface
      */
     public static function create(AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("email_thread");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_THREAD);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $entityQueryIndex = $sl->get(IndexFactory::class);
         return new EmailThreadEntity($def, $entityLoader, $entityQueryIndex);

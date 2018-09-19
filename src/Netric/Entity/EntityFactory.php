@@ -3,6 +3,9 @@ namespace Netric\Entity;
 
 use Netric\ServiceManager;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\Entity;
+use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\Entity\EntityInterface;
 
 /**
  * Create a new EntityFactory service
@@ -14,16 +17,16 @@ class EntityFactory
     /**
      * Service manager used to load dependencies
      *
-     * @var \Netric\ServiceManager\AccountServiceManagerInterface
+     * @var AccountServiceManagerInterface
      */
     private $serviceManager = null;
 
     /**
      * Class constructor
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator implementation for injecting dependencies
+     * @param AccountServiceManagerInterface $sl ServiceLocator implementation for injecting dependencies
      */
-    public function __construct(ServiceManager\AccountServiceManagerInterface $sl)
+    public function __construct(AccountServiceManagerInterface $sl)
     {
         $this->serviceManager = $sl;
     }
@@ -32,7 +35,7 @@ class EntityFactory
      * Service creation factory
      *
      * @param string $objType The name of the type of object the new entity represents
-     * @return \Netric\Entity|EntityInterface
+     * @return EntityInterface
      */
     public function create($objType)
     {
@@ -56,6 +59,6 @@ class EntityFactory
 
         $def = $this->serviceManager->get(EntityDefinitionLoaderFactory::class)->get($objType);
         // TODO: if !$def then throw an exception
-        return new \Netric\Entity\Entity($def);
+        return new Entity($def);
     }
 }

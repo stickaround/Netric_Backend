@@ -9,6 +9,7 @@ use Netric\Application\Schema\SchemaRdbDataMapper;
 use Netric\Db\Relational\PgsqlDb;
 use Netric\Error\AbstractHasErrors;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class for setting up an account on creation and for managing updates
@@ -53,7 +54,7 @@ class Setup extends AbstractHasErrors
 
         // Create admin user
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
-        $adminUser = $entityLoader->create("user");
+        $adminUser = $entityLoader->create(ObjectTypes::USER);
         $adminUser->setValue("name", $adminUserName);
         $adminUser->setValue("password", $adminPassword);
         $adminUser->setIsAdmin(true);

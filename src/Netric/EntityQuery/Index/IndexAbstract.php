@@ -14,6 +14,11 @@ use Netric\EntityQuery\Plugin\PluginInterface;
 use Netric\Entity\Entity;
 use Netric\Account\Account;
 use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 abstract class IndexAbstract
 {
@@ -27,7 +32,7 @@ abstract class IndexAbstract
     /**
      * Entity factory used for instantiating new entities
      *
-     * @var \Netric\Entity\EntityFactory
+     * @var EntityFactory
      */
     protected $entityFactory = null;
 
@@ -62,10 +67,10 @@ abstract class IndexAbstract
     /**
      * Save an object to the index
      *
-     * @param \Netric\Entity\Entity $entity Entity to save
+     * @param Entity $entity Entity to save
      * @return bool true on success, false on failure
      */
-    abstract public function save(\Netric\Entity\Entity $entity);
+    abstract public function save(Entity $entity);
 
     /**
      * Delete an object from the index
@@ -80,7 +85,7 @@ abstract class IndexAbstract
      *
      * @param EntityQuery &$query The query to execute
      * @param Results $results Optional results set to use. Otherwise create new.
-     * @return \Netric\EntityQuery\Results
+     * @return Results
      */
     abstract protected function queryIndex(EntityQuery $query, Results $results = null);
 
@@ -89,7 +94,7 @@ abstract class IndexAbstract
      *
      * @param EntityQuery $query A query to execute
      * @param Results $results Optional results set to use. Otherwise create new.
-     * @return \Netric\EntityQuery\Results
+     * @return Results
      */
     public function executeQuery(EntityQuery $query, Results $results = null)
     {
@@ -130,7 +135,7 @@ abstract class IndexAbstract
      */
     public function getDefinition($objType)
     {
-        $defLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         return $defLoader->get($objType);
     }
 
@@ -141,7 +146,7 @@ abstract class IndexAbstract
      * @param string $parent_field The field containing the id of the parent entry
      * @param int $this_id The id of the child element
      */
-    public function getHeiarchyUp(\Netric\EntityDefinition\Field $field, $this_id)
+    public function getHeiarchyUp(Field $field, $this_id)
     {
         $parent_arr = array($this_id);
 
@@ -176,11 +181,9 @@ abstract class IndexAbstract
      * @param string $parent_field The field containing the id of the parent entry
      * @param int $this_id The id of the child element
      */
-    public function getHeiarchyDownGrp(\Netric\EntityDefinition\Field $field, $this_id)
+    public function getHeiarchyDownGrp(Field $field, $this_id)
     {
         $children_arr = array($this_id);
-
-
 
         return $children_arr;
     }
@@ -196,7 +199,7 @@ abstract class IndexAbstract
     {
         $ret = array($oid);
 
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $ent = $loader->get($objType, $oid);
         $ret[] = $ent->getId();
         if ($ent->getDefinition()->parentField) {
@@ -232,15 +235,15 @@ abstract class IndexAbstract
         $ret = array($oid);
         $aProtectCircular[] = $oid;
 
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $ent = $loader->get($objType, $oid);
         //$ret[] = $ent->getId();
         if ($ent->getDefinition()->parentField) {
             // Make sure parent is set, is of type object, and the object type has not crossed over (could be bad)
             $field = $ent->getDefinition()->getField($ent->getDefinition()->parentField);
             if ($field->type == FIELD::TYPE_OBJECT && $field->subtype == $objType) {
-                $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-                $query = new \Netric\EntityQuery($field->subtype);
+                $index = $this->account->getServiceManager()->get(IndexFactory::class);
+                $query = new EntityQuery($field->subtype);
                 $query->where($ent->getDefinition()->parentField)->equals($ent->getId());
                 $res = $index->executeQuery($query);
                 for ($i = 0; $i < $res->getTotalNum(); $i++) {
@@ -356,7 +359,7 @@ abstract class IndexAbstract
     private function fieldContainsUserValues(EntityDefinition\Field $field)
     {
         // If field subtype is not a user, then we do not need to proceed
-        if ($field->subtype !== "user") {
+        if ($field->subtype !== ObjectTypes::USER) {
             return false;
         }
 

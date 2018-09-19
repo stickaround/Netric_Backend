@@ -50,8 +50,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $def = $entity->getDefinition();
 
         $result = $this->database->query(
-            'select * from ' . $def->getTable() . ' where id=:id',
-            ['id' => $id]
+            "select * from {$def->getTable()} where id=:id",
+            ["id" => $id]
         );
 
         // The object was not found
@@ -96,9 +96,11 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             $entityData = json_decode($row['field_data'], true);
         }
 
-        // Override any of the json data with system column values
-        // Some of these may be generated at update/insert so they could have
-        // changed after the entity was exported and saved to the column
+        /**
+         * Override any of the json data with system column values
+         * Some of these may be generated at update/insert so they could have
+         * changed after the entity was exported and saved to the column
+         */
         $entityData['id'] = $row['id'];
         $entityData['ts_entered'] = $row['ts_entered'];
         $entityData['ts_updated'] = $row['ts_updated'];
@@ -269,9 +271,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             'DELETE FROM object_associations WHERE ' .
                 '(object_id=:object_id and type_id=:type_id) OR ' .
                 '(assoc_object_id=:object_id and assoc_type_id=:type_id)',
-            [
-                'object_id' => $id, 'type_id' => $objTypeId,
-            ]
+            ['object_id' => $id, 'type_id' => $objTypeId]
         );
     }
 

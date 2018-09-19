@@ -1,7 +1,7 @@
 <?php
 namespace Netric\Controller;
 
-use \Netric\Mvc;
+use Netric\Mvc;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Permissions\DaclLoaderFactory;
 

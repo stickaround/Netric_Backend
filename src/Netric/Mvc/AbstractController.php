@@ -15,6 +15,7 @@ use Netric\Application\Application;
 use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Request\RequestFactory;
+use Netric\Request\RequestInterface;
 
 /**
  * Main abstract class for controllers in netric
@@ -31,14 +32,14 @@ abstract class AbstractController
     /**
      * Reference to current netric account
      *
-     * @var \Netric\Account\Account
+     * @var Account
      */
     public $account = null;
 
     /**
      * Get request interface
      *
-     * @var \Netric\Request\RequestInterface
+     * @var RequestInterface
      */
     protected $request = null;
 
@@ -87,7 +88,7 @@ abstract class AbstractController
     /**
      * Get the request object
      *
-     * @return \Netric\Request\RequestInterface
+     * @return RequestInterface
      */
     public function getRequest()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace Netric\Controller;
 
-use \Netric\Mvc;
+use Netric\Mvc;
 use Netric\Permissions\Dacl;
 use Netric\Permissions\Dacl\Entry;
 use Netric\Permissions\DaclLoaderFactory;
@@ -10,6 +10,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\LoaderFactory as EntityGroupingLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Controller for interaction with permission/security
@@ -64,14 +65,14 @@ class PermissionController extends Mvc\AbstractAccountController
         $users = $dacl->getUsers();
         // Get the user details
         foreach ($users as $userId) {
-            $userEntity = $entityLoader->get("user", $userId);
+            $userEntity = $entityLoader->get(ObjectTypes::USER, $userId);
 
             if ($userEntity) {
                 $retData["user_names"][$userId] = $userEntity->getName();
             }
         }
 
-        $userGroups = $groupingLoader->get("user", "groups");
+        $userGroups = $groupingLoader->get(ObjectTypes::USER, "groups");
         $groups = $userGroups->toArray();
 
         // Get the group details

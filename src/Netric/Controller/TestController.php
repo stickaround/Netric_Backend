@@ -4,7 +4,7 @@
  */
 namespace Netric\Controller;
 
-use \Netric\Mvc;
+use Netric\Mvc;
 
 class TestController extends Mvc\AbstractAccountController
 {

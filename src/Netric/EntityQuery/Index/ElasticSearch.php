@@ -9,25 +9,27 @@ namespace Netric\EntityQuery\Index;
 
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
+use Netric\Account\Account;
+use Netric\Entity\Entity;
 
 class ElasticSearch extends IndexAbstract
 {
     /**
      * Setup this index for the given account
      *
-     * @param \Netric\Account\Account $account
+     * @param Account $account
      */
-    protected function setUp(\Netric\Account\Account $account)
+    protected function setUp(Account $account)
     {
     }
     
     /**
      * Save an object to the index
      *
-     * @param \Netric\Entity\Entity $entity Entity to save
+     * @param Entity $entity Entity to save
      * @return bool true on success, false on failure
      */
-    public function save(\Netric\Entity\Entity $entity)
+    public function save(Entity $entity)
     {
         // TODO: build
         return true;

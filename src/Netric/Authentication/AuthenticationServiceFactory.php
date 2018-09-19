@@ -2,6 +2,7 @@
 namespace Netric\Authentication;
 
 use Netric\ServiceManager;
+use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Request\RequestFactory;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -16,10 +17,10 @@ class AuthenticationServiceFactory implements ServiceManager\AccountServiceFacto
     /**
      * Service creation factory
      *
-     * @param \Netric\ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
      * @return FileSystem
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(AccountServiceManagerInterface $sl)
     {
         $key = "GENERATEDSERVERSIDEKEY";
         $userIndex = $sl->get(IndexFactory::class);

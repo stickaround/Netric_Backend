@@ -14,6 +14,7 @@ use Netric\EntitySync\DataMapperInterface;
 use Netric\EntitySync\EntitySync;
 use Netric\EntitySync\Commit;
 use Netric\EntitySync\Commit\CommitManager;
+use Netric\EntityQuery\Index\IndexInterface;
 
 /**
  * Class used to represent a sync partner or endpoint
@@ -23,21 +24,21 @@ class EntityCollection extends AbstractCollection implements CollectionInterface
     /**
      * Index for querying entities
      *
-     * @var \Netric\EntityQuery\Index\IndexInterface
+     * @var IndexInterface
      */
     private $index = null;
 
     /**
      * Constructor
      *
-     * @param \Netric\EntitySync\DataMapperInterface $dm The sync datamapper
+     * @param DataMapperInterface $dm The sync datamapper
      * @param CommitManager $commitManager A manager used to keep track of commits
-     * @param \Netric\EntityQuery\Index\IndexInterface $idx Index for querying entities
+     * @param IndexInterface $idx Index for querying entities
      */
     public function __construct(
         DataMapperInterface $dm,
         Commit\CommitManager $commitManager,
-        Index\IndexInterface $idx
+        IndexInterface $idx
     ) {
         $this->index = $idx;
 

@@ -10,8 +10,9 @@ namespace Netric\EntitySync;
 
 use Netric\Account\Account;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\DataMapperAbstract;
 
-abstract class AbstractDataMapper extends \Netric\DataMapperAbstract
+abstract class AbstractDataMapper extends DataMapperAbstract
 {
     /**
      * Handle to database
@@ -26,7 +27,7 @@ abstract class AbstractDataMapper extends \Netric\DataMapperAbstract
      * @param Account $account Account for tennant that we are mapping data for
      * @param RelationalDbInterface $dbh Handle to database
      */
-    public function __construct(\Netric\Account\Account $account, RelationalDbInterface $database)
+    public function __construct(Account $account, RelationalDbInterface $database)
     {
         $this->setAccount($account);
         $this->database = $database;

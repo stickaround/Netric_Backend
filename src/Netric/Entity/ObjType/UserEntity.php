@@ -15,6 +15,8 @@ use Netric\Entity\EntityLoader;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Permissions\DaclLoaderFactory;
 use Netric\Permissions\Dacl;
+use Netric\EntityDefinition\EntityDefinition;
+use Netric\Authentication\AuthenticationServiceFactory;
 
 /**
  * Description of User
@@ -57,7 +59,7 @@ class UserEntity extends Entity implements EntityInterface
      * @param EntityDefinition $def The definition of this type of object
      * @param EntityLoader $entityLoader The loader for a specific entity
      */
-    public function __construct(&$def, EntityLoader $entityLoader)
+    public function __construct(EntityDefinition $def, EntityLoader $entityLoader)
     {
         parent::__construct($def);
 
@@ -73,7 +75,7 @@ class UserEntity extends Entity implements EntityInterface
     {
         // If the password was updated for this user then encrypt it
         if ($this->fieldValueChanged("password")) {
-            $authService = $sm->get("/Netric/Authentication/AuthenticationService");
+            $authService = $sm->get(AuthenticationServiceFactory::class);
             $this->encryptPassword($authService);
         }
 
@@ -210,7 +212,7 @@ class UserEntity extends Entity implements EntityInterface
     {
         $groups = $this->getGroups();
         foreach ($groups as $group) {
-            if ($group === self::GROUP_ADMINISTRATORS) {
+            if ($group == self::GROUP_ADMINISTRATORS) {
                 return true;
             }
         }

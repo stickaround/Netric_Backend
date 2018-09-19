@@ -12,6 +12,7 @@ use Netric\Entity\EntityFactoryInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Create a new email entity
@@ -26,7 +27,7 @@ class EmailMessageFactory implements EntityFactoryInterface
      */
     public static function create(ServiceManager\AccountServiceManagerInterface $sl)
     {
-        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get("email_message");
+        $def = $sl->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE);
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $entityQueryIndex = $sl->get(IndexFactory::class);
         $fileSystem = $sl->get(FileSystemFactory::class);

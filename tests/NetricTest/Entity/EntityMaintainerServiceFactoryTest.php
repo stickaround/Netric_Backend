@@ -3,6 +3,7 @@ namespace NetricTest\Entity;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityMaintainerService;
+use Netric\Entity\EntityMaintainerServiceFactory;
 
 class EntityMaintainerServiceFactoryTest extends TestCase
 {
@@ -12,7 +13,7 @@ class EntityMaintainerServiceFactoryTest extends TestCase
         $sl = $account->getServiceManager();
         $this->assertInstanceOf(
             EntityMaintainerService::class,
-            $sl->get("Netric\Entity\EntityMaintainerService")
+            $sl->get(EntityMaintainerServiceFactory::class)
         );
     }
 }
