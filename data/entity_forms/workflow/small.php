@@ -10,7 +10,7 @@
 </row>
 <row>
     <column>
-        <field name='object_type'></field>
+        <obj_type name='object_type'></obj_type>
     </column>
 </row>
 <row>
