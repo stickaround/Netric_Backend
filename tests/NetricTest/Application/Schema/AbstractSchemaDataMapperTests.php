@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Netric\Application\Application;
 use Netric\Application\Schema\SchemaDataMapperInterface;
 use Netric\Application\Schema\SchemaProperty;
+use NetricTest\Bootstrap;
 
 abstract class AbstractSchemaDataMapperTests extends TestCase
 {
@@ -34,7 +35,7 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->application = $this->account->getApplication();
 
         $this->deleteTestAccount();

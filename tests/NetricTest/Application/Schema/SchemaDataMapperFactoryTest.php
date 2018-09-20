@@ -5,6 +5,8 @@
 namespace NetricTest\Application\Schema;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Application\Schema\SchemaDataMapperInterface;
+use Netric\Application\Schema\SchemaDataMapperFactory;
 
 class SchemaDataMapperFactoryTest extends TestCase
 {
@@ -13,8 +15,8 @@ class SchemaDataMapperFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Application\Schema\SchemaDataMapperInterface',
-            $sm->get('Netric\Application\Schema\SchemaDataMapper')
+            SchemaDataMapperInterface::class,
+            $sm->get(SchemaDataMapperFactory::class)
         );
     }
 }

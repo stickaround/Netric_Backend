@@ -7,6 +7,8 @@ namespace NetricTest\Controller;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Controller\AccountController;
 
 class AccountControllerTest extends TestCase
 {
@@ -26,10 +28,10 @@ class AccountControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Create the controller
-        $this->controller = new Netric\Controller\AccountController(
+        $this->controller = new AccountController(
             $this->account->getApplication(),
             $this->account
         );

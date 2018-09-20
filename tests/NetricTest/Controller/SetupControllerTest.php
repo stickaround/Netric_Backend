@@ -4,6 +4,7 @@ namespace NetricTest\Controller;
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Controller\SetupController;
+use NetricTest\Bootstrap;
 
 /**
  * Test querying ElasticSearch server
@@ -38,8 +39,8 @@ class SetupControllerTest extends TestCase
      */
     protected function setUp()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
-        $this->controller = new Netric\Controller\SetupController($account->getApplication(), $account);
+        $account = Bootstrap::getAccount();
+        $this->controller = new SetupController($account->getApplication(), $account);
         $this->controller->testMode = true;
     }
 
@@ -48,7 +49,7 @@ class SetupControllerTest extends TestCase
      */
     protected function tearDown()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         foreach ($this->accountsToCleanup as $tempAccountName) {
             $account->getApplication()->deleteAccount($tempAccountName);
         }

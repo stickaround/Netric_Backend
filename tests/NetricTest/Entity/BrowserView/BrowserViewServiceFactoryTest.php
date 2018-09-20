@@ -8,6 +8,8 @@ namespace NetricTest\Entity\BrowserView;
 use NetricTest;
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\BrowserView\BrowserViewService;
+use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 
 class BrowserViewServiceFactoryTest extends TestCase
 {
@@ -15,7 +17,7 @@ class BrowserViewServiceFactoryTest extends TestCase
     {
         $account = NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $bvs = $sm->get('Netric\Entity\BrowserView\BrowserViewService');
-        $this->assertInstanceOf('Netric\Entity\BrowserView\BrowserViewService', $bvs);
+        $bvs = $sm->get(BrowserViewServiceFactory::class);
+        $this->assertInstanceOf(BrowserViewService::class, $bvs);
     }
 }

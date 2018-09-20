@@ -3,6 +3,7 @@ namespace NetricTest\Db\Relational;
 
 use Netric\Db\Relational\RelationalDbInterface;
 use PHPUnit\Framework\TestCase;
+use Netric\Db\Relational\RelationalDbFactory;
 
 class RelationalDbFactoryTest extends TestCase
 {
@@ -13,7 +14,7 @@ class RelationalDbFactoryTest extends TestCase
 
         $this->assertInstanceOf(
             RelationalDbInterface::class,
-            $sm->get('Netric\Db\Relational\RelationalDb')
+            $sm->get(RelationalDbFactory::class)
         );
     }
 }

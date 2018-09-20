@@ -11,6 +11,7 @@ use Netric\Account\AccountIdentityMapper;
 use Netric\Application\Setup\Setup;
 use Netric\Settings\SettingsFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 class AccountUpdaterTest extends TestCase
 {
@@ -30,7 +31,7 @@ class AccountUpdaterTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Cleanup if there's any left-overs from a failed test
         $application = $this->account->getApplication();

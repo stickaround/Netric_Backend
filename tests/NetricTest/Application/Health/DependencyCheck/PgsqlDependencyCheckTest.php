@@ -4,6 +4,7 @@ namespace NetricTest\Application\Health\DependencyCheck;
 use Netric\Application\Health\DependencyCheck\PgsqlDependencyCheck;
 use Netric\Config\ConfigFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 /**
  * Make sure we can test a connection to a database
@@ -17,7 +18,7 @@ class PgsqlDependencyCheckTest extends TestCase
      */
     public function testIsActive()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $serviceLocator = $account->getServiceManager();
         $config = $serviceLocator->get(ConfigFactory::class);
 

@@ -8,6 +8,9 @@ use Netric\Account\Module\Module;
 use Netric\Account\Module\ModuleService;
 use PHPUnit\Framework\TestCase;
 use Netric\Account\Module\ModuleServiceFactory;
+use NetricTest\Bootstrap;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class ModuleServiceTest extends TestCase
 {
@@ -27,7 +30,7 @@ class ModuleServiceTest extends TestCase
 
     protected function setUp()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->moduleService = $sm->get(ModuleServiceFactory::class);
     }
@@ -98,8 +101,8 @@ class ModuleServiceTest extends TestCase
         // Create a temp user
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $entityLoader = $sm->get("EntityLoader");
-        $user = $entityLoader->create("user");
+        $entityLoader = $sm->get(EntityLoaderFactory::class);
+        $user = $entityLoader->create(ObjectTypes::USER);
 
         // Make sure we can get modules for this entity
         $modules = $this->moduleService->getForUser($user);

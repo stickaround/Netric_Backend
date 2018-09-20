@@ -10,6 +10,10 @@ use Netric\Entity\ObjType\FolderEntity;
 use Netric\Entity\ObjType\FileEntity;
 use Netric\FileSystem\FileSystem;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery;
 
 /**
  * Test calling the files controller
@@ -68,21 +72,21 @@ class FilesControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
 
         // Create the controller
-        $this->controller = new Netric\Controller\FilesController($this->account->getApplication(), $this->account);
+        $this->controller = new FilesController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
 
         // Get FileSystem
         $this->fileSystem = $sl->get(FileSystem::class);
 
         // Make sure old test user does not exist
-        $query = new \Netric\EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
@@ -90,7 +94,7 @@ class FilesControllerTest extends TestCase
         }
 
         // Create a temporary user
-        $user = $loader->create("user");
+        $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
@@ -115,7 +119,7 @@ class FilesControllerTest extends TestCase
         }
 
         // Remote the temp user
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $entityLoader = $sl->get(EntityLoader::class);
         $entityLoader->delete($this->user, true);
@@ -183,7 +187,7 @@ class FilesControllerTest extends TestCase
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
 
-        $file = $loader->create("file");
+        $file = $loader->create(ObjectTypes::FILE);
         $file->setValue("name", "newFile.jpg");
         $loader->save($file);
         $this->testFiles[] = $file;

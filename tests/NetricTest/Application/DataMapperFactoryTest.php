@@ -25,7 +25,7 @@ class DataMapperFactoryTest extends TestCase
 
         $this->assertInstanceOf(
             DataMapperInterface::class,
-            $serviceManager->get('Application_DataMapper')
+            $serviceManager->get(DataMapperFactory::class)
         );
     }
 }

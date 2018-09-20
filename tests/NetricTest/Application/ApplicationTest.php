@@ -8,6 +8,8 @@ use Netric;
 use Netric\Config\ConfigLoader;
 use Netric\Application\Application;
 use PHPUnit\Framework\TestCase;
+use Netric\Config\Config;
+use Netric\Account\Account;
 
 class ApplicationTest extends TestCase
 {
@@ -35,7 +37,7 @@ class ApplicationTest extends TestCase
 
     public function testGetConfig()
     {
-        $this->assertInstanceOf('Netric\Config\Config', $this->application->getConfig());
+        $this->assertInstanceOf(Config::class, $this->application->getConfig());
     }
     
     /**
@@ -43,7 +45,7 @@ class ApplicationTest extends TestCase
      */
     public function testGetAccount()
     {
-        $this->assertInstanceOf('Netric\Account\Account', $this->application->getAccount());
+        $this->assertInstanceOf(Account::class, $this->application->getAccount());
     }
 
     public function testGetAccountsByEmail()

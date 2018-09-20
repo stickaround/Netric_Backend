@@ -8,6 +8,8 @@ namespace NetricTest\Controller;
 use Netric\Controller\EntityQueryController;
 use Netric\Entity\EntityLoaderFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -37,7 +39,7 @@ class EntityQueryControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
         $this->serviceManager = $this->account->getServiceManager();
@@ -62,13 +64,13 @@ class EntityQueryControllerTest extends TestCase
     public function testPostExecuteAction()
     {
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->create("task");
+        $taskEntity = $entityLoader->create(ObjectTypes::TASK);
         $taskEntity->setValue("name", "UnitTestTask");
         $entityLoader->save($taskEntity);
         $this->testEntities[] = $taskEntity;
 
         // Set params in the request
-        $data = ['obj_type' => "task"];
+        $data = ['obj_type' => ObjectTypes::TASK];
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
         $req->setParam('content-type', 'application/json');

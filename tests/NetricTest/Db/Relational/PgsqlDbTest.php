@@ -2,6 +2,7 @@
 namespace NetricTest\Db\Relational;
 
 use Netric\Db\Relational\PgsqlDb;
+use NetricTest\Bootstrap;
 
 /**
  * This file should be extended to test any database adapters/interfaces
@@ -16,7 +17,7 @@ class PgsqlDbTest extends AbstractRelationalDbTests
      */
     protected function getDatabase()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $config = $sm->get('Config');
 

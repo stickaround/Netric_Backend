@@ -8,6 +8,7 @@ namespace NetricTest\Controller;
 use Netric\Controller\ModuleController;
 use Netric\Account\Module\ModuleServiceFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 /**
  * @group integration
@@ -37,7 +38,7 @@ class ModuleControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
         $this->serviceManager = $this->account->getServiceManager();

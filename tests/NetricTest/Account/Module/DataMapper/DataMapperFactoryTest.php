@@ -4,12 +4,13 @@ namespace NetricTest\FileSystem;
 use PHPUnit\Framework\TestCase;
 use Netric\Account\Module\DataMapper\DataMapperInterface;
 use Netric\Account\Module\DataMapper\DataMapperFactory;
+use NetricTest\Bootstrap;
 
 class DataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
             DataMapperInterface::class,

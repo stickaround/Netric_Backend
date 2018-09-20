@@ -3,6 +3,7 @@ namespace NetricTest\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Controller\HealthController;
+use NetricTest\Bootstrap;
 
 /**
  * Test self-checking validation actions
@@ -25,7 +26,7 @@ class HealthControllerTest extends TestCase
      */
     protected function setUp()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         // Rest stats for logs since erros may have occurred before this test
         $account->getApplication()->getLog()->resetLevelStats();
         $this->controller = new HealthController($account->getApplication(), $account);

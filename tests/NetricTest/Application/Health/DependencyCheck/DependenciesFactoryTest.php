@@ -3,6 +3,7 @@ namespace NetricTest\Application\Health\DependencyCheck;
 
 use Netric\Application\Health\DependencyCheck\DependenciesFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 /**
  * Make sure our dependencies factory works
@@ -19,7 +20,7 @@ class DependenciesFactoryTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     public function testCreateService()
