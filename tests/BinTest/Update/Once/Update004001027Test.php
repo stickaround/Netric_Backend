@@ -90,9 +90,18 @@ class Update004001027Test extends TestCase
         $insertData = [
             'object_type_id' => 12,
             'object_type' => "task",
-            'object_uid' => $objectUid
+            'object_uid' => $objectUid,
+            'f_completed' => false
         ];
         $workflowInstanceId = $db->insert('workflow_instances', $insertData);
+
+        $insertData = [
+            'object_type_id' => 12,
+            'object_type' => "task",
+            'object_uid' => rand(),
+            'f_completed' => true
+        ];
+        $completedWorkflowInstanceId = $db->insert('workflow_instances', $insertData);
 
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
@@ -106,5 +115,9 @@ class Update004001027Test extends TestCase
         $this->assertEquals($workflowInstanceEntity->getValue("object_type"), "task");
         $this->assertEquals($workflowInstanceEntity->getValue("object_uid"), $objectUid);
         $this->assertEquals($workflowInstanceEntity->getId(), $movedEntityId);
+
+        // This workflow instance should not be moved since it is already completed
+        $movedEntityId = $entityDataMapper->checkEntityHasMoved($def, $completedWorkflowInstanceId);
+        $this->assertFalse($movedEntityId);
     }
 }
