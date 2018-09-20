@@ -166,8 +166,15 @@ foreach ($objectTypesToMove as $objectType) {
     // Get the entity definition
     $def = $entityDefinitionLoader->get($objType);
 
-    $sql = "SELECT id FROM {$objectType['old_table']}";
-    $result = $db->query($sql);
+    $params = [];
+    $sql = "SELECT id FROM $oldTable";
+
+    if ($oldTable === "workflow_instances") {
+        $sql .= " WHERE f_completed=:completed";
+        $params["completed"] = false;
+    }
+
+    $result = $db->query($sql, $params);
     $rows = $result->fetchAll();
 
     $log->info(
