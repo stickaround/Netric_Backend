@@ -5,6 +5,10 @@ use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\ObjType\WorkerJobEntity;
 use Netric\Account\Account;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class WorkerJobTest extends TestCase
 {
@@ -28,7 +32,7 @@ class WorkerJobTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
@@ -37,8 +41,8 @@ class WorkerJobTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("worker_job");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("worker_job");
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::WORKER_JOB);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::WORKER_JOB);
         $this->assertInstanceOf(WorkerJobEntity::class, $entity);
     }
 }

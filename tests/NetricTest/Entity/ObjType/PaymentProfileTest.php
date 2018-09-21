@@ -3,8 +3,10 @@ namespace NetricTest\Entity\ObjType;
 
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\PaymentProfileEntity;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 class PaymentProfileTest extends TestCase
 {
@@ -28,7 +30,7 @@ class PaymentProfileTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
@@ -37,7 +39,7 @@ class PaymentProfileTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create("payment_profile");
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::SALES_PAYMENT_PROFILE);
         $this->assertInstanceOf(PaymentProfileEntity::class, $entity);
     }
 }

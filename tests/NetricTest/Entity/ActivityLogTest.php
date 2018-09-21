@@ -11,6 +11,8 @@ use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ActivityLogFactory;
+use NetricTest\Bootstrap;
+use Netric\Entity\EntityLoaderFactory;
 
 class ActivityLogTest extends TestCase
 {
@@ -47,10 +49,10 @@ class ActivityLogTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
         $this->activityLog = $this->account->getServiceManager()->get(ActivityLogFactory::class);
-        $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
     }
 
     /**

@@ -7,14 +7,17 @@ namespace NetricTest\Entity\Recurrence;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\Recurrence\RecurrenceSeriesManager;
+use Netric\Entity\Recurrence\RecurrenceSeriesManagerFactory;
 
 class RecurrenceSeriesManagerFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $seriesWriter = $sm->get('Netric/Entity/Recurrence/RecurrenceSeriesManager');
-        $this->assertInstanceOf('Netric\Entity\Recurrence\RecurrenceSeriesManager', $seriesWriter);
+        $seriesWriter = $sm->get(RecurrenceSeriesManagerFactory::class);
+        $this->assertInstanceOf(RecurrenceSeriesManager::class, $seriesWriter);
     }
 }

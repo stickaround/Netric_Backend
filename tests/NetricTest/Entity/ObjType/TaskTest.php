@@ -7,6 +7,11 @@ namespace NetricTest\Entity\ObjType;
 use Netric\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\TaskEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class TaskTest extends TestCase
 {
@@ -30,8 +35,8 @@ class TaskTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -39,8 +44,8 @@ class TaskTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("task");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("task");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\TaskEntity", $entity);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::TASK);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $this->assertInstanceOf(TaskEntity::class, $entity);
     }
 }

@@ -4,11 +4,14 @@ namespace NetricTest\Entity\ObjType;
 use Netric\Account\Account;
 
 use Netric\Entity\EntityInterface;
-use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use PHPUnit\Framework\TestCase;
 use Netirc\Entity\Validator\EntityValidator;
 use Netric\Entity\Validator\EntityValidatorFactory;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Check entity validator
@@ -41,9 +44,9 @@ class EntityValidatorTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->validator = $this->account->getServiceManager()->get(EntityValidatorFactory::class);
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -70,7 +73,7 @@ class EntityValidatorTest extends TestCase
         $uname = 'utest-cust-' . rand(0, 1000);
 
         // Create first dashboard with uname
-        $entity1 = $serviceManager->get(EntityFactoryFactory::class)->create("dashboard");
+        $entity1 = $serviceManager->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD);
         $entity1->setValue('name', $uname); // will automatically set uname
         $entityDataMapper->save($entity1);
         $this->testEntities[] = $entity1;
@@ -78,7 +81,7 @@ class EntityValidatorTest extends TestCase
         $this->assertTrue($isValid);
 
         // Now try to create another dashboard with the same uname
-        $entity2 = $serviceManager->get(EntityFactoryFactory::class)->create("dashboard");
+        $entity2 = $serviceManager->get(EntityLoaderFactory::class)->create(ObjectTypes::DASHBOARD);
         $entity2->setValue('name', $uname . '-copy');
         $entity2->setValue('uname', $uname); // manually set to same as above
 

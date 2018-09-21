@@ -9,6 +9,9 @@ use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class RecurrenceDataMapperTest extends TestCase
 {
@@ -45,14 +48,14 @@ class RecurrenceDataMapperTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         // Get service manager for locading dependencies
         $sm = $this->account->getServiceManager();
 
         // Setup the recurrence datamapper
-        $entDefLoader = $sm->get("EntityDefinitionLoader");
+        $entDefLoader = $sm->get(EntityDefinitionLoaderFactory::class);
         $database = $sm->get(RelationalDbFactory::class);
         $this->dataMapper = new RecurrenceRdbDataMapper($database, $entDefLoader);
     }
@@ -75,7 +78,7 @@ class RecurrenceDataMapperTest extends TestCase
     public function testSave()
     {
         $rp = new RecurrencePattern();
-        $rp->setObjType("task");
+        $rp->setObjType(ObjectTypes::TASK);
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
@@ -90,7 +93,7 @@ class RecurrenceDataMapperTest extends TestCase
     public function testUpdateParentObjectId()
     {
         $rp = new RecurrencePattern();
-        $rp->setObjType("task");
+        $rp->setObjType(ObjectTypes::TASK);
         $rp->setRecurType(RecurrencePattern::RECUR_DAILY);
         $rp->setInterval(1);
         $rp->setDateStart(new \DateTime("1/1/2010"));
@@ -107,7 +110,7 @@ class RecurrenceDataMapperTest extends TestCase
     {
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_WEEKLY,
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01",
@@ -144,7 +147,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
@@ -166,7 +169,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "interval" => 1,
             "date_start" => "2015-01-01",
             "date_end" => "2015-03-01"
@@ -194,7 +197,7 @@ class RecurrenceDataMapperTest extends TestCase
         // Create
         $data = array(
             "recur_type" => RecurrencePattern::RECUR_DAILY,
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "interval" => 1,
             "date_start" => "2015-02-01",
             "date_end" => "2015-03-01",
@@ -207,22 +210,22 @@ class RecurrenceDataMapperTest extends TestCase
 
         // Check before date-start, $rid should not be returned
         $dateTo = new \DateTime("2015-01-01");
-        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
         $this->assertFalse(in_array($rid, $staleIds));
 
         // Check the day after start date which should create entities
         $dateTo = new \DateTime("2015-02-02");
-        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
         $this->assertTrue(in_array($rid, $staleIds));
 
         // Check a couple days out which should also return the above
         $dateTo = new \DateTime("2015-02-20");
-        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
         $this->assertTrue(in_array($rid, $staleIds));
 
         // Go beyond the end date which should NOT return the above pattern
         $dateTo = new \DateTime("2015-05-01");
-        $staleIds = $this->dataMapper->getStalePatternIds("task", $dateTo);
+        $staleIds = $this->dataMapper->getStalePatternIds(ObjectTypes::TASK, $dateTo);
         $this->assertFalse(in_array($rid, $staleIds));
 
         // Cleanup

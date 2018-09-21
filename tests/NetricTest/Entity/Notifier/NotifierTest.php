@@ -8,11 +8,16 @@ use Netric\EntityQuery;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\Notifier\Notifier;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Account\Account;
 use Netric\Entity\ObjType\ActivityEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\Notifier\NotifierFactory;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery\Index\IndexFactory;
+
 
 class NotifierTest extends TestCase
 {
@@ -63,13 +68,13 @@ class NotifierTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->account = Bootstrap::getAccount();
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $this->notifier = $this->account->getServiceManager()->get(NotifierFactory::class);
 
         // Make sure test user does not exist from previous failed query
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $query = new EntityQuery("user");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where("name")->equals("notifiertest");
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
@@ -77,7 +82,7 @@ class NotifierTest extends TestCase
         }
 
         // Create a test user to assign a task and notification to
-        $this->testUser = $this->entityLoader->create("user");
+        $this->testUser = $this->entityLoader->create(ObjectTypes::USER);
         $this->testUser->setValue("name", "notifiertest");
         $this->entityLoader->save($this->testUser);
         $this->testEntities[] = $this->testUser;
@@ -101,7 +106,7 @@ class NotifierTest extends TestCase
     public function testSend()
     {
         // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("user_id", $this->testUser->getId());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
@@ -117,7 +122,7 @@ class NotifierTest extends TestCase
         $this->assertEquals(1, count($notificationIds));
 
         // Check that the test notification has the right values
-        $notification = $this->entityLoader->get("notification", $notificationIds[0]);
+        $notification = $this->entityLoader->get(ObjectTypes::NOTIFICATION, $notificationIds[0]);
         $this->testEntities[] = $notification;
 
         // Make sure we created a notice for the test user
@@ -140,10 +145,10 @@ class NotifierTest extends TestCase
     public function testMarkNotificationsSeen()
     {
         // Index for querying entities
-        $entityIndex = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
 
         // Create a test task entity and assign it to $this->testUser
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("user_id", $this->testUser->getId());
         $task->setValue("name", "test task");
         $this->entityLoader->save($task);
@@ -153,7 +158,7 @@ class NotifierTest extends TestCase
         $this->notifier->send($task, ActivityEntity::VERB_CREATED);
 
         // Query to make sure we have an unseen notification for the test user
-        $query = new EntityQuery("notification");
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($this->testUser->getId());
         $query->andWhere("obj_reference")->equals("task:" . $task->getId());
         $query->andWhere("f_seen")->equals(false);
@@ -164,7 +169,7 @@ class NotifierTest extends TestCase
         $this->notifier->markNotificationsSeen($task, $this->testUser);
 
         // Query to make sure no unseen entities exist for the current user
-        $query = new EntityQuery("notification");
+        $query = new EntityQuery(ObjectTypes::NOTIFICATION);
         $query->where("owner_id")->equals($this->testUser->getId());
         $query->andWhere("obj_reference")->equals("task:" . $task->getId());
         $query->andWhere("f_seen")->equals(false);

@@ -6,6 +6,8 @@ namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
 
 class RecurrencePatternTest extends TestCase
 {
@@ -29,14 +31,14 @@ class RecurrencePatternTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     public function testConstructor()
     {
         $pattern = new RecurrencePattern();
-        $this->assertInstanceof('\Netric\Entity\Recurrence\RecurrencePattern', $pattern);
+        $this->assertInstanceof(RecurrencePattern::class, $pattern);
     }
 
     public function testSetDayOfWeek()
@@ -251,93 +253,4 @@ class RecurrencePatternTest extends TestCase
         $this->assertEquals($import['field_time_end'], $exported['field_time_end']);
         $this->assertEquals($import['ep_locked'], $exported['ep_locked']);
     }
-
-    /**
-     * @group recur
-     */
-    /*
-    function testRecur()
-    {
-        $dbh = $this->dbh;
-
-        $obj = new CAntObject($dbh, "task", null, $this->user);
-        $obj->setValue("name", "My Recurring Task");
-        $obj->setValue("start_date", "1/1/2011");
-        $obj->setValue("deadline", "1/1/2011");
-        $rp = $obj->getRecurrencePattern();
-        $rp->type = RECUR_DAILY;
-        $rp->interval = 1;
-        $rp->dateStart = "1/1/2011";
-        $rp->dateEnd = "3/1/2011";
-        $obj->save();
-
-        $this->assertNotNull($rp->id);
-
-        $created = $rp->createInstances("1/3/2011");
-        $this->assertEquals($created, 2); // should create two additional objects
-
-        $obj->remove();
-
-        // Make sure recurrence pattern is flagged inactive
-        $this->assertEquals($dbh->GetNumberRows($dbh->Query("select * from object_recurrence where id='".$rp->id."' and f_active is false")), 1);
-
-        $obj->remove();
-
-        // Make sure recurrence pattern is purged
-        $this->assertEquals($dbh->GetNumberRows($dbh->Query("select * from object_recurrence where id='".$rp->id."'")), 0);
-
-
-        // Now test using CAntObjectList::checkForRecurrence
-        $obj = new CAntObject($dbh, "task", null, $this->user);
-        $obj->setValue("name", "My Recurring Task");
-        $obj->setValue("start_date", "1/1/2011");
-        $obj->setValue("deadline", "1/1/2011");
-        $rp = $obj->getRecurrencePattern();
-        $rp->type = RECUR_DAILY;
-        $rp->interval = 1;
-        $rp->dateStart = "1/1/2011";
-        $rp->dateEnd = "1/3/2011";
-        $oid = $obj->save();
-
-        $this->assertNotNull($rp->id);
-
-        $objList = new CAntObjectList($dbh, "task", $this->user);
-        $objList->addCondition("and", "start_date", "is_less", "5/1/2011"); // Should fire create instances
-        $objList->getObjects();
-
-        // Make sure there are three recurring tasks created
-        $this->assertEquals(3, $dbh->GetNumberRows($dbh->Query("select id from project_tasks where recurrence_pattern='".$rp->id."'")));
-
-        // Cleanup
-        $rp->removeSeries();
-        $obj->removeHard();
-
-        // Test with an event due to using timestamps rather than dates
-        $obj = new CAntObject($dbh, "calendar_event", null, $this->user);
-        $obj->setValue("name", "My Recurring Event");
-        $obj->setValue("ts_start", "1/5/2011 09:00 AM");
-        $obj->setValue("ts_end", "1/5/2011 10:00 AM");
-        $rp = $obj->getRecurrencePattern();
-        $rp->type = RECUR_WEEKLY;
-        $rp->interval = 1;
-        $rp->dateStart = "1/5/2011"; // First Wednesday
-        $rp->dateEnd = "1/19/2011"; // Third Wednesday
-        $rp->dayOfWeekMask = $rp->dayOfWeekMask | WEEKDAY_WEDNESDAY;
-        $obj->save();
-
-        $this->assertNotNull($rp->id);
-
-        $objList = new CAntObjectList($dbh, "calendar_event", $this->user);
-        $objList->addCondition("and", "ts_start", "is_greater_or_equal", "1/1/2011"); // Should fire create instances
-        $objList->addCondition("and", "ts_start", "is_less_or_equal", "5/1/2011"); // Should fire create instances
-        $objList->getObjects();
-
-        // Make sure there are three recurring tasks created
-        $this->assertEquals(3, $dbh->GetNumberRows($dbh->Query("select id from calendar_events where recurrence_pattern='".$rp->id."'")));
-
-        // Cleanup
-        $rp->removeSeries();
-        $obj->removeHard();
-    }
-    */
 }

@@ -9,6 +9,11 @@ use Netric\EntityQuery;
 use Netric\EntityQuery\Index\EntityQueryIndexRdb;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\ObjType\ProjectEntity;
 
 class ProjectTest extends TestCase
 {
@@ -32,8 +37,8 @@ class ProjectTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -41,9 +46,9 @@ class ProjectTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("project");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("project");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\ProjectEntity", $entity);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::PROJECT);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT);
+        $this->assertInstanceOf(ProjectEntity::class, $entity);
     }
 
     /**
@@ -51,10 +56,10 @@ class ProjectTest extends TestCase
      */
     public function testCloneTo()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $proj1 = $this->account->getServiceManager()->get("EntityFactory")->create("project");
-        $proj2 = $this->account->getServiceManager()->get("EntityFactory")->create("project");
-        $task = $this->account->getServiceManager()->get("EntityFactory")->create("task");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $proj1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT);
+        $proj2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT);
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
 
         // Create orginal object
         $proj1->setValue("name", "Project One");
@@ -64,7 +69,7 @@ class ProjectTest extends TestCase
         // Add task to project 1
         $task->setValue("name", "Project One");
         $task->setValue("deadline", "1/7/2013"); // 1 week later
-        $task->setValue("project", $pid_1);
+        $task->setValue(ObjectTypes::PROJECT, $pid_1);
         $tid = $entityLoader->save($task);
 
         // Create a new project and clone the references
@@ -76,7 +81,7 @@ class ProjectTest extends TestCase
         $proj1->cloneTo($proj2);
 
         // Get the new task
-        $query = new EntityQuery("task");
+        $query = new EntityQuery(ObjectTypes::TASK);
         $query->where('project')->equals($pid_2);
 
         $queryIndex = new EntityQueryIndexRdb($this->account);

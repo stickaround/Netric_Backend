@@ -21,8 +21,7 @@ use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
-use Netric\Entity\EntityFactoryFactory;
-use Netric\Entity\\Recurrence\RecurrenceDataMapperFactory;
+use Netric\Entity\Recurrence\RecurrenceDataMapperFactory;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -89,7 +88,7 @@ abstract class DmTestsAbstract extends TestCase
      */
     protected function createCustomer()
     {
-        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory)->create(ObjectTypes::CONTACT);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         // text
         $customer->setValue("name", "Entity_DataMapperTests");
         // bool
@@ -147,7 +146,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Get entity definition
-        $ent = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::CONTACT);
+        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
 
         // Load the object through the loader which should cache it
         $ret = $dm->getById($ent, $cid);
@@ -226,7 +225,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Get entity definition
-        $ent = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::CONTACT);
+        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
 
         // Load the object through the loader which should cache it
         $ret = $dm->getById($ent, $cid);
@@ -308,7 +307,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Create new entity
-        $ent = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::CONTACT);
+        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
 
         // Load the object through the loader which should cache it
         $ret = $dm->getById($ent, $cid);
@@ -657,7 +656,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load into a new entity
-        $ent = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::CONTACT);
+        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $ret = $dm->getById($ent, $oid);
 
         // Even though we just loaded all the data into the entity, it should not be marked as dirty
@@ -765,7 +764,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
 
         // Load the entity from the datamapper
-        $ent = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::CONTACT);
+        $ent = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $ret = $dm->getById($ent, $cid);
 
         // Make sure the fvals for references are updated
@@ -878,24 +877,24 @@ abstract class DmTestsAbstract extends TestCase
      */
     public function testGetByUniqueName()
     {
-        $entityFactory = $this->account->getServiceManager()->get(EntityFactoryFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $dm = $this->getDataMapper();
 
         // Create site
-        $site = $entityFactory->create(ObjectTypes::SITE);
+        $site = $entityLoader->create(ObjectTypes::SITE);
         $site->setValue("name", 'www.test.com');
         $dm->save($site);
         $this->testEntities[] = $site; // for cleanup
 
         // Create root page for site
-        $homePage = $entityFactory->create(ObjectTypes::PAGE);
+        $homePage = $entityLoader->create(ObjectTypes::PAGE);
         $homePage->setValue("name", 'testgetbyunamehome'); // for uname
         $homePage->setValue("site_id", $site->getId());
         $dm->save($homePage);
         $this->testEntities[] = $homePage; // for cleanup
 
         // Create a subpage for the site
-        $subPage = $entityFactory->create(ObjectTypes::PAGE);
+        $subPage = $entityLoader->create(ObjectTypes::PAGE);
         $subPage->setValue("name", "testgetbyunamefile");  // for uname
         $subPage->setValue('parent_id', $homePage->getId());
         $subPage->setValue("site_id", $site->getId());
@@ -931,7 +930,7 @@ abstract class DmTestsAbstract extends TestCase
         $customer->setValue("owner_id", $this->user->getId());
         $cid = $dm->save($customer, $this->user);
 
-        $customerEntity = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::CONTACT);
+        $customerEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $dm->getById($customerEntity, $cid);
 
         // Create reminder and set the customer as our object reference
@@ -945,7 +944,7 @@ abstract class DmTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
         $this->testEntities[] = $reminder;
 
-        $reminderEntity = $this->account->getServiceManager()->get(EntityFactoryFactory::class)->create(ObjectTypes::REMINDER);
+        $reminderEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
         $dm->getById($reminderEntity, $rid);
         $this->assertEquals($customerEntity->getName(), $customerName);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);

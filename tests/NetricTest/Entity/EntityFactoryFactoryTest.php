@@ -6,6 +6,9 @@ namespace NetricTest\Entity;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\EntityFactory;
+use Netric\Entity\EntityFactoryFactory;
 
 class EntityFactoryFactoryTest extends TestCase
 {
@@ -13,6 +16,6 @@ class EntityFactoryFactoryTest extends TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $this->assertInstanceOf('Netric\Entity\EntityFactory', $sm->get('EntityFactory'));
+        $this->assertInstanceOf(EntityFactory::class, $sm->get(EntityFactoryFactory::class));
     }
 }

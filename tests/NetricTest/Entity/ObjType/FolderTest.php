@@ -11,6 +11,7 @@ use Netric\FileSystem\FileSystemFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
+use NetricTest\Bootstrap;
 
 class FolderTest extends TestCase
 {
@@ -34,13 +35,13 @@ class FolderTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     private function createTestFile()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->getEntityDataMapper();
 
@@ -64,9 +65,11 @@ class FolderTest extends TestCase
 
     public function testGetRootFolder()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = $loader->create(ObjectTypes::FOLDER);
         $rootFolderEntity = $entity->getRootFolder();
+
+        $this->assertNotNull($rootFolderEntity);
     }
 }

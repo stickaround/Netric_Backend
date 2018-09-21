@@ -7,6 +7,11 @@ namespace NetricTest\Entity\ObjType;
 use Netric\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\MemberEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class MemberTest extends TestCase
 {
@@ -30,8 +35,8 @@ class MemberTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -39,8 +44,8 @@ class MemberTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("member");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("member");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\MemberEntity", $entity);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::MEMBER);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::MEMBER);
+        $this->assertInstanceOf(MemberEntity::class, $entity);
     }
 }

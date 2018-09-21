@@ -8,6 +8,12 @@ use Netric\Crypt\VaultServiceFactory;
 use Netric\Entity;
 use Netric\Crypt\BlockCipher;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\EmailAccountEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EmailAccountEntityTest extends TestCase
 {
@@ -31,8 +37,8 @@ class EmailAccountEntityTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -40,13 +46,13 @@ class EmailAccountEntityTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("email_account");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\EmailAccountEntity", $entity);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT);
+        $this->assertInstanceOf(EmailAccountEntity::class, $entity);
     }
 
     public function testOnBeforeSavePasswordEncrypt()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("email_account");
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT);
         $entity->setValue("address", "test@test.com");
         $entity->setValue("password", "test");
 

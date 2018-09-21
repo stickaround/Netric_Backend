@@ -6,6 +6,10 @@ namespace NetricTest\Entity;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\EntityFactoryFactory;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EntityFactoryTest extends TestCase
 {
@@ -29,9 +33,9 @@ class EntityFactoryTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
-        $this->entityFactory = $sm->get("EntityFactory");
+        $this->entityFactory = $sm->get(EntityFactoryFactory::class);
     }
 
     /**
@@ -39,7 +43,7 @@ class EntityFactoryTest extends TestCase
      */
     public function testCreateUser()
     {
-        $user = $this->entityFactory->create("user");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\UserEntity", $user);
+        $user = $this->entityFactory->create(ObjectTypes::USER);
+        $this->assertInstanceOf(UserEntity::class, $user);
     }
 }

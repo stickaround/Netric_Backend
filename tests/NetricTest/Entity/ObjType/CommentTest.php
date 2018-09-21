@@ -6,6 +6,12 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\CommentEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class CommentTest extends TestCase
 {
@@ -29,8 +35,8 @@ class CommentTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -38,9 +44,9 @@ class CommentTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("comment");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("comment");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\CommentEntity", $entity);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoader::class)->get(ObjectTypes::COMMENT);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
+        $this->assertInstanceOf(CommentEntity::class, $entity);
     }
 
     /**
@@ -48,9 +54,9 @@ class CommentTest extends TestCase
      */
     public function testHasCommentsOnReferencedEntity()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $customer = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
-        $comment = $this->account->getServiceManager()->get("EntityFactory")->create("comment");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
 
         // Save customer so we have it to work with
         $customer->setValue("name", "test num_comments");
@@ -58,11 +64,11 @@ class CommentTest extends TestCase
 
         // Now save the comment which should increment the num_comments of $customer
         $comment->setValue("obj_reference", "customer:" . $cid, $customer->getName());
-        $comment->setValue("comment", "Test Comment");
+        $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 
         // Now re-open the referenced customer just to make sure it was saved right
-        $openedCustomer = $entityLoader->get("customer", $cid);
+        $openedCustomer = $entityLoader->get(ObjectTypes::CONTACT, $cid);
         $this->assertEquals(1, $openedCustomer->getValue("num_comments"));
 
         // Delete the comment and make sure num_comments is decremented
@@ -82,9 +88,9 @@ class CommentTest extends TestCase
      */
     public function testSyncFollowers()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $customer = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
-        $comment = $this->account->getServiceManager()->get("EntityFactory")->create("comment");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $comment = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::COMMENT);
 
         // Save customer with a fake user callout for testing
         $customer->setValue("name", "test sync followers");
@@ -93,7 +99,7 @@ class CommentTest extends TestCase
 
         // Now create a comment on the customer which should sync the followers
         $comment->setValue("obj_reference", "customer:" . $cid, $customer->getName());
-        $comment->setValue("comment", "Test Comment");
+        $comment->setValue(ObjectTypes::COMMENT, "Test Comment");
         $entityLoader->save($comment);
 
         // Check to make sure the comment has user 456 as a follower copied from customer

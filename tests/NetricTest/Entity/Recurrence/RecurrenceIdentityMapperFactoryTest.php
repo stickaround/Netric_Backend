@@ -7,14 +7,17 @@ namespace NetricTest\Entity\Recurrence;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\Recurrence\RecurrenceIdentityMapper;
+use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
 
 class RecurrenceIdentityMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $im = $sm->get("RecurrenceIdentityMapper"); // is mapped to this name
-        $this->assertInstanceOf('Netric\Entity\Recurrence\RecurrenceIdentityMapper', $im);
+        $im = $sm->get(RecurrenceIdentityMapperFactory::class); // is mapped to this name
+        $this->assertInstanceOf(RecurrenceIdentityMapper::class, $im);
     }
 }

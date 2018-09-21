@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\Entity\ObjType\UserEntity;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EntityTest extends TestCase
 {
@@ -34,7 +36,7 @@ class EntityTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
@@ -43,7 +45,7 @@ class EntityTest extends TestCase
      */
     public function testFieldDefaultTimestamp()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "testFieldDefaultTimestamp");
         $cust->setFieldsDefault('create'); // time_created has a 'now' on 'create' default
         $this->assertTrue(is_numeric($cust->getValue("time_entered")));
@@ -54,7 +56,7 @@ class EntityTest extends TestCase
      */
     public function testSetFieldsDefaultBool()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "testFieldDefaultTimestamp");
         $cust->setValue("f_deleted", true);
         $cust->setFieldsDefault('null');
@@ -66,7 +68,7 @@ class EntityTest extends TestCase
      */
     public function testToArray()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "Entity_DataMapperTests");
         // bool
         $cust->setValue("f_nocall", true);
@@ -103,7 +105,7 @@ class EntityTest extends TestCase
         );
 
         // Load data into entity
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->fromArray($data);
 
         // Test values
@@ -128,7 +130,7 @@ class EntityTest extends TestCase
         );
 
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $existingCust = $loader->get('customer', $cust->getId());
+        $existingCust = $loader->get(ObjectTypes::CONTACT, $cust->getId());
 
         // Load the updated data into the entity
         $existingCust->fromArray($updatedData, true);
@@ -147,7 +149,7 @@ class EntityTest extends TestCase
      */
     public function testFromArrayEmptyMval()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
 
         // Preset attachments
         $cust->addMultiValue("attachments", 1, "fakefile.txt");
@@ -181,7 +183,7 @@ class EntityTest extends TestCase
         $tempFolderId = $file->getValue("folder_id");
 
         // Create a customer
-        $cust = $entityLoader->create("customer");
+        $cust = $entityLoader->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "Aereus Corp");
         $cust->addMultiValue("attachments", $file->getId(), $file->getValue("name"));
         $dataMapper->save($cust);
@@ -199,7 +201,7 @@ class EntityTest extends TestCase
      */
     public function testCloneTo()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "Entity_DataMapperTests");
 
         // bool
@@ -219,7 +221,7 @@ class EntityTest extends TestCase
         $cust->setValue('guid', '82d264a2-8070-11e8-adc0-fa7ae01bbebc');
 
         // Clone it
-        $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cloned = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->cloneTo($cloned);
 
         $this->assertEmpty($cloned->getId());
@@ -236,7 +238,7 @@ class EntityTest extends TestCase
      */
     public function testSetHasComments()
     {
-        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("customer");
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
 
         // Should have incremented 'num_comments' to 1
         $cust->setHasComments();
@@ -281,7 +283,7 @@ class EntityTest extends TestCase
      */
     public function testUpdateFollowers()
     {
-        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $entity->setValue("user_id", 123, "John");
         $entity->setValue("notes", "Hey [user:456:Dave], check this out please. [user:0:invalidId] should not add [user:abc:nonNumericId]");
 
@@ -308,12 +310,12 @@ class EntityTest extends TestCase
     public function testSyncFollowers()
     {
         // Add some fake users to a test task
-        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task1->addMultiValue("followers", 123, "John");
         $task1->addMultiValue("followers", 456, "Dave");
 
         // Create a second task and synchronize
-        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task2->syncFollowers($task1);
 
         $this->assertEquals(2, count($task1->getValue("followers")));
@@ -326,14 +328,14 @@ class EntityTest extends TestCase
     public function testSyncFollowersWithInvalid()
     {
         // Add some fake users to a test task
-        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+        $task1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task1->addMultiValue("followers", 123, "John");
         $task1->addMultiValue("followers", 456, "Dave");
         $task1->addMultiValue("followers", 0, "invlid zero id");
         $task1->addMultiValue("followers", "testId", "invlid non-numeric id");
 
         // Create a second task and synchronize
-        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("task");
+        $task2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task2->syncFollowers($task1);
 
         // It will count 4 followers here since we added additional 2 invalid followers
@@ -358,7 +360,7 @@ class EntityTest extends TestCase
     public function testSetValueObjectWithName()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create("task");
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue('user_id', 123, 'fakeusername');
         $this->assertEquals('fakeusername', $task->getValueName('user_id'));
     }
@@ -377,7 +379,7 @@ class EntityTest extends TestCase
         $username = 'fakeusername';
         $userid = 123;
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create("task");
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue('followers', $userid, $username);
         $this->assertEquals($username, $task->getValueName('followers'));
         $this->assertEquals([$userid], $task->getValue('followers'));
@@ -389,7 +391,7 @@ class EntityTest extends TestCase
     public function testGetOwnerId()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create("task");
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue('owner_id', 123);
         $this->assertEquals(123, $task->getOwnerId());
     }
@@ -400,7 +402,7 @@ class EntityTest extends TestCase
     public function testGetOwnerIdCreatorId()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create("task");
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue('creator_id', 123);
         $this->assertEquals(123, $task->getOwnerId());
     }
@@ -412,7 +414,7 @@ class EntityTest extends TestCase
     {
         $sm = $this->account->getServiceManager();
         // Activity has a user_id field
-        $activity = $sm->get(EntityLoaderFactory::class)->create("activity");
+        $activity = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
         $activity->setValue('user_id', 123);
         $this->assertEquals(123, $activity->getOwnerId());
     }
