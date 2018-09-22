@@ -9,12 +9,13 @@ use Netric;
 use Netric\Entity\Recurrence\RecurrenceDataMapperFactory;
 use Netric\Entity\Recurrence\RecurrenceRdbDataMapper;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 class RecurrenceDataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $dm = $sm->get(RecurrenceDataMapperFactory::class);
         $this->assertInstanceOf(RecurrenceRdbDataMapper::class, $dm);

@@ -12,6 +12,8 @@ namespace NetricTest\Controller;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Controller\TestController;
 
 class TestControllerTest extends TestCase
 {
@@ -20,8 +22,8 @@ class TestControllerTest extends TestCase
      */
     public function testTest()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
-        $con = new Netric\Controller\TestController($account->getApplication(), $account);
+        $account = Bootstrap::getAccount();
+        $con = new TestController($account->getApplication(), $account);
         $con->testMode = true;
         $ret = $con->getTestAction();
         $this->assertEquals("test", $ret);

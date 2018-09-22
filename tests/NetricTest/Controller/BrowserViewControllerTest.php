@@ -9,6 +9,8 @@ use Netric\Controller\BrowserViewController;
 use Netric\Entity\BrowserView\BrowserView;
 use Netric\Entity\BrowserView\BrowserViewServiceFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -38,7 +40,7 @@ class BrowserViewControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser();
 
         // Get the service manager of the current user
@@ -64,7 +66,7 @@ class BrowserViewControllerTest extends TestCase
     public function testSaveAction()
     {
         $data = array(
-            'obj_type' => "customer",
+            'obj_type' => ObjectTypes::CONTACT,
             'name' => "unit_test_view",
             'description' => "Unit Test Browser View",
         );
@@ -75,7 +77,7 @@ class BrowserViewControllerTest extends TestCase
         $browserViewId = $this->controller->postSaveAction();
 
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById("customer", $browserViewId);
+        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId);
         $browserViewData = $browserView->toArray();
         $this->testBrowserViews[] = $browserView;
 
@@ -87,7 +89,7 @@ class BrowserViewControllerTest extends TestCase
     public function testDeleteAction()
     {
         $data = array(
-            'obj_type' => "customer",
+            'obj_type' => ObjectTypes::CONTACT,
             'name' => "unit_test_view_delete",
             'description' => "Unit Test Browser View Delete",
         );
@@ -98,7 +100,7 @@ class BrowserViewControllerTest extends TestCase
         $browserViewId = $this->controller->postSaveAction();
 
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById("customer", $browserViewId);
+        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId);
         $this->testBrowserViews[] = $browserView;
 
         // Set params in the request
@@ -112,7 +114,7 @@ class BrowserViewControllerTest extends TestCase
     public function testSetDefaultViewAction()
     {
         $data = array(
-            'obj_type' => "customer",
+            'obj_type' => ObjectTypes::CONTACT,
             'name' => "unit_test_view_default",
             'description' => "Unit Test Browser View Default",
         );
@@ -123,7 +125,7 @@ class BrowserViewControllerTest extends TestCase
         $browserViewId = $this->controller->postSaveAction();
 
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
-        $browserView = $browserViewService->getViewById("customer", $browserViewId);
+        $browserView = $browserViewService->getViewById(ObjectTypes::CONTACT, $browserViewId);
         $this->testBrowserViews[] = $browserView;
 
         // Set default view
@@ -131,7 +133,7 @@ class BrowserViewControllerTest extends TestCase
         $req->setBody(json_encode($browserView->toArray()));
         $defaultViewId = $this->controller->postSetDefaultViewAction();
 
-        $defaultViewIdForUser = $browserViewService->getDefaultViewForUser("customer", $this->user);
+        $defaultViewIdForUser = $browserViewService->getDefaultViewForUser(ObjectTypes::CONTACT, $this->user);
         $this->assertEquals($browserViewId, $defaultViewId, var_export($browserView->toArray(), true));
         $this->assertEquals($defaultViewId, $defaultViewIdForUser, var_export($browserView->toArray(), true));
     }

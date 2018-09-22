@@ -8,6 +8,7 @@ use Netric\Account\Account;
 use Netric\Application\Application;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 class BinScriptTest extends TestCase
 {
@@ -20,7 +21,7 @@ class BinScriptTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
     }
 
@@ -30,7 +31,7 @@ class BinScriptTest extends TestCase
     public function testConstruct()
     {
         $binScript = new BinScript($this->account->getApplication());
-        $this->assertInstanceOf('\Netric\Console\BinScript', $binScript);
+        $this->assertInstanceOf(BinScript::class, $binScript);
     }
 
     /**

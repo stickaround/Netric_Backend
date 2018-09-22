@@ -8,6 +8,9 @@ use Netric\Entity\BrowserView\BrowserView;
 use Netric\EntityQuery\Where;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\FormsFactory;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class BrowserViewTest extends TestCase
 {
@@ -39,10 +42,10 @@ class BrowserViewTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->formService = $sm->get(FormsFactory::class);
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -53,7 +56,7 @@ class BrowserViewTest extends TestCase
         // Load the new view
         $view = new BrowserView();
         $viewData = array(
-            'obj_type' => 'note',
+            'obj_type' => ObjectTypes::NOTE,
             'conditions' => array(
                 array(
                     'blogic' => Where::COMBINED_BY_AND,

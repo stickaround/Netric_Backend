@@ -11,6 +11,11 @@ use Netric\FileSystem\FileSystemFactory;
 use Netric\Mime;
 use Netric\Mail;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EmailMessageTest extends TestCase
 {
@@ -40,8 +45,8 @@ class EmailMessageTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -49,7 +54,7 @@ class EmailMessageTest extends TestCase
      */
     protected function tearDown()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -60,8 +65,8 @@ class EmailMessageTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("email_message");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\EmailMessageEntity", $entity);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_MESSAGE);
+        $this->assertInstanceOf(EmailMessageEntity::class, $entity);
     }
 
     /**
@@ -69,11 +74,11 @@ class EmailMessageTest extends TestCase
      */
     public function testGetAddressListFromString()
     {
-        $method = new \ReflectionMethod('Netric\Entity\ObjType\EmailMessageEntity', 'getAddressListFromString');
+        $method = new \ReflectionMethod(EmailMessageEntity::class, 'getAddressListFromString');
         $method->setAccessible(true);
 
-        $entityFactory = $this->account->getServiceManager()->get("EntityFactory");
-        $emailEntity = $entityFactory->create("email_message");
+        $entityFactory = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailEntity = $entityFactory->create(ObjectTypes::EMAIL_MESSAGE);
         $addresses = "\"Test\" <test@test.com>, test@test2.com";
         $addressList = $method->invoke($emailEntity, $addresses);
         $this->assertEquals(2, $addressList->count());
@@ -88,8 +93,8 @@ class EmailMessageTest extends TestCase
      */
     public function testToMailMimeMessage()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->setValue("subject", "My Test Message");
         $emailMessage->setValue("body", "<p>My Body</p>");
         $emailMessage->setValue("sent_from", "Test User <test@myaereuscom>");
@@ -118,8 +123,8 @@ class EmailMessageTest extends TestCase
      */
     public function testToMailMimeMessageAttachment()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->setValue("subject", "My Test Message");
         $emailMessage->setValue("body", "<p>My Body</p>");
         $emailMessage->setValue("sent_from", "Test User <test@myaereuscom>");
@@ -200,8 +205,8 @@ class EmailMessageTest extends TestCase
         $message->setBody($mimeMessage);
 
         // Now import this message into entity
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->fromMailMessage($message);
 
         // Test values
@@ -239,8 +244,8 @@ class EmailMessageTest extends TestCase
         $message->setBody("My Body");
 
         // Now import this message into entity
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->fromMailMessage($message);
 
         // Test values
@@ -266,8 +271,8 @@ class EmailMessageTest extends TestCase
         $message->setBody("<p>My Body</p>");
 
         // Now import this message into entity
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->fromMailMessage($message);
 
         // Test values
@@ -279,10 +284,10 @@ class EmailMessageTest extends TestCase
 
     public function testDiscoverThread()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create first message - this makes a new thread
-        $email1 = $entityLoader->create("email_message");
+        $email1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email1->setValue("message_id", "utest-" . rand());
         $email1->setValue("subject", "test message 1");
         $email1->setValue("owner_id", $this->user->getId());
@@ -293,7 +298,7 @@ class EmailMessageTest extends TestCase
         $this->assertNotEmpty($email1->getValue("thread"));
 
         // Now create a second message, simulating a reply to
-        $email2 = $entityLoader->create("email_message");
+        $email2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email2->setValue("in_reply_to", $email1->getValue("message_id"));
         $email2->setValue("subject", "test message 2");
         $email2->setValue("owner_id", $this->user->getId());
@@ -306,10 +311,10 @@ class EmailMessageTest extends TestCase
 
     public function testOnBeforeSave()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create first message - this makes a new thread
-        $email = $entityLoader->create("email_message");
+        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
 
         // Run through onBeforeSave and make sure it worked
         $email->onBeforeSave($this->account->getServiceManager());
@@ -330,17 +335,17 @@ class EmailMessageTest extends TestCase
 
     public function testOnAfterSave_Delete()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create first message - this makes a new thread
-        $email1 = $entityLoader->create("email_message");
+        $email1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email1->setValue("message_id", "utest-" . rand());
         $email1->setValue("owner_id", $this->user->getId());
         $entityLoader->save($email1);
         $this->testEntities[] = $email1;
 
         // Now create a second message, simulating a reply to and attach
-        $email2 = $entityLoader->create("email_message");
+        $email2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email2->setValue("in_reply_to", $email1->getValue("message_id"));
         $email2->setValue("owner_id", $this->user->getId());
         $entityLoader->save($email2);
@@ -372,8 +377,8 @@ class EmailMessageTest extends TestCase
 
     public function testOnBeforeDeleteHard()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
 
         // Add an attachment
         $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
@@ -395,8 +400,8 @@ class EmailMessageTest extends TestCase
 
     public function testGetHtmlBody()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
 
         // Add a plain text message
         $emailMessage->setValue("body_type", EmailMessageEntity::BODY_TYPE_PLAIN);
@@ -409,8 +414,8 @@ class EmailMessageTest extends TestCase
 
     public function testGetPlainBody()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
 
         // Add a plain text message
         $emailMessage->setValue("body_type", EmailMessageEntity::BODY_TYPE_HTML);

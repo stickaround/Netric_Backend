@@ -16,6 +16,8 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -52,7 +54,7 @@ class PermissionControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
         $this->serviceManager = $this->account->getServiceManager();
@@ -85,7 +87,7 @@ class PermissionControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setParam('id', "");
-        $req->setParam('obj_type', "note");
+        $req->setParam('obj_type', ObjectTypes::NOTE);
 
         $ret = $this->controller->getGetDaclForEntityAction();
 
@@ -100,7 +102,7 @@ class PermissionControllerTest extends TestCase
     {
         // Create a task entity so we can get the default dacl for an entity
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
-        $taskEntity = $entityLoader->create("task");
+        $taskEntity = $entityLoader->create(ObjectTypes::TASK);
         $taskEntity->setValue("name", "UnitTestTask");
         $entityLoader->save($taskEntity);
         $this->testEntities[] = $taskEntity;
@@ -124,7 +126,7 @@ class PermissionControllerTest extends TestCase
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // Make a new user and add them to the entity dacl
-        $user = $entityLoader->create("user");
+        $user = $entityLoader->create(ObjectTypes::USER);
         $user->setValue("name", "utest-dacl-entity-user");
         $entityLoader->save($user);
         $this->testEntities[] = $user;
@@ -134,7 +136,7 @@ class PermissionControllerTest extends TestCase
         $dacl->allowUser($user->getId());
 
         $defLoader = $this->serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get("product");
+        $def = $defLoader->get(ObjectTypes::PRODUCT);
         $def->setDacl($dacl);
 
         // Save the entity definition
@@ -142,13 +144,13 @@ class PermissionControllerTest extends TestCase
         $definitionDatamapper->save($def);
 
         // Create a utest entity so we can get the dacl for the obj type
-        $utestEntity = $entityLoader->create("product");
+        $utestEntity = $entityLoader->create(ObjectTypes::PRODUCT);
         $entityLoader->save($utestEntity);
         $this->testEntities[] = $utestEntity;
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "product");
+        $req->setParam('obj_type', ObjectTypes::PRODUCT);
         $req->setParam('id', $utestEntity->getId());
 
         $ret = $this->controller->getGetDaclForEntityAction();
@@ -164,13 +166,13 @@ class PermissionControllerTest extends TestCase
         $entityLoader = $this->serviceManager->get(EntityLoaderFactory::class);
 
         // Make a new user and add them to the entity dacl
-        $user = $entityLoader->create("user");
+        $user = $entityLoader->create(ObjectTypes::USER);
         $user->setValue("name", "utest-dacl-entity-user");
         $entityLoader->save($user);
         $this->testEntities[] = $user;
 
         // Create a task entity to set the dacl
-        $taskEntity = $entityLoader->create("task");
+        $taskEntity = $entityLoader->create(ObjectTypes::TASK);
         $taskEntity->setValue("name", "UnitTestTaskDacl");
         $entityLoader->save($taskEntity);
         $this->testEntities[] = $taskEntity;
@@ -181,7 +183,7 @@ class PermissionControllerTest extends TestCase
 
         // Set params in the request
         $data = $dacl->toArray();
-        $data['obj_type'] = "task";
+        $data['obj_type'] = ObjectTypes::TASK;
         $data['entity_id'] = $taskEntity->getId();
 
         // Set params in the request
@@ -197,7 +199,7 @@ class PermissionControllerTest extends TestCase
 
         // Get the task entity and check if the dacl was saved
         $daclLoader = $this->serviceManager->get(DaclLoaderFactory::class);
-        $entity = $entityLoader->get("task", $taskEntity->getId());
+        $entity = $entityLoader->get(ObjectTypes::TASK, $taskEntity->getId());
         $daclEntity = $daclLoader->getForEntity($entity);
         $this->assertTrue($dacl->isAllowed($user, Dacl::PERM_VIEW));
     }

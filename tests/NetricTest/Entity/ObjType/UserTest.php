@@ -9,6 +9,13 @@ use Netric\Permissions\DaclLoaderFactory;
 use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
 
 class UserTest extends TestCase
 {
@@ -40,15 +47,15 @@ class UserTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
         
         // Make sure old test user does not exist
-        $query = new \Netric\EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
@@ -56,8 +63,8 @@ class UserTest extends TestCase
         }
 
         // Create a test user
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->create("user");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $dm->save($user);
@@ -67,7 +74,7 @@ class UserTest extends TestCase
     protected function tearDown()
     {
         if ($this->user) {
-            $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+            $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dm->delete($this->user, true);
         }
     }
@@ -77,9 +84,9 @@ class UserTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("user");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("user");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\UserEntity", $entity);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::USER);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
+        $this->assertInstanceOf(UserEntity::class, $entity);
     }
 
     public function testOnBeforeSave()
@@ -100,7 +107,7 @@ class UserTest extends TestCase
 
     public function testOnBeforeSaveNewUserPasswordSet()
     {
-        $user = $this->account->getServiceManager()->get("EntityFactory")->create("user");
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->onBeforeSave($this->account->getServiceManager());
@@ -111,7 +118,7 @@ class UserTest extends TestCase
 
     public function testOnAfterSaveAppicationEmailMapSet()
     {
-        $user = $this->account->getServiceManager()->get("EntityFactory")->create("user");
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("email", self::TEST_EMAIL);
         $user->setValue("password", self::TEST_USER_PASS);
@@ -128,7 +135,7 @@ class UserTest extends TestCase
     {
         $app = $this->account->getApplication();
 
-        $user = $this->account->getServiceManager()->get("EntityFactory")->create("user");
+        $user = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("email", self::TEST_EMAIL);
         $user->setValue("password", self::TEST_USER_PASS);
@@ -183,7 +190,7 @@ class UserTest extends TestCase
     public function testGetOwnerId()
     {
         $sm = $this->account->getServiceManager();
-        $task = $sm->get(EntityLoaderFactory::class)->create("user");
+        $task = $sm->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
         $task->setValue('id', 1);
         $task->setValue('owner_id', 2);
 

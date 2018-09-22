@@ -10,6 +10,12 @@ use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;
 use Netric\EntityQuery;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\NotificationEntity;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class NotificationTest extends TestCase
 {
@@ -53,14 +59,14 @@ class NotificationTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
-        $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
 
         // Make sure test user does not exist from previous failed query
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $query = new EntityQuery("user");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where("name")->equals("notificationtest");
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
@@ -68,7 +74,7 @@ class NotificationTest extends TestCase
         }
 
         // Create a test user to assign a task and notification to
-        $this->testUser = $this->entityLoader->create("user");
+        $this->testUser = $this->entityLoader->create(ObjectTypes::USER);
         $this->testUser->setValue("name", "notificationtest");
         $this->testUser->setValue("email", "test@netric.com");
         $this->entityLoader->save($this->testUser);
@@ -92,8 +98,8 @@ class NotificationTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("notification");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\NotificationEntity", $entity);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::NOTIFICATION);
+        $this->assertInstanceOf(NotificationEntity::class, $entity);
     }
 
     /**
@@ -102,13 +108,13 @@ class NotificationTest extends TestCase
     public function testSendEmailNotification()
     {
         // Set obj_reference to a task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "A test task");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
 
         // Create a new notification
-        $notification = $this->entityLoader->create("notification");
+        $notification = $this->entityLoader->create(ObjectTypes::NOTIFICATION);
         $notification->setValue("f_email", true);
         $notification->setValue("owner_id", $this->testUser->getId());
         $notification->setValue("creator_id", $this->user->getId());

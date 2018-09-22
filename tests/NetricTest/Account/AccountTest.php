@@ -8,6 +8,9 @@ namespace NetricTest\Account;
 use Netric;
 use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
+use Netric\ServiceManager\ServiceLocatorInterface;
+use Netric\Application\Application;
+use Netric\Config\ConfigFactory;
 
 class AccountTest extends TestCase
 {
@@ -15,19 +18,19 @@ class AccountTest extends TestCase
     {
         $account = Bootstrap::getAccount();
 
-        $this->assertInstanceOf('Netric\ServiceManager\ServiceLocatorInterface', $account->getServiceManager());
+        $this->assertInstanceOf(ServiceLocatorInterface::class, $account->getServiceManager());
     }
 
     public function testGetApplication()
     {
         $account = Bootstrap::getAccount();
-        $this->assertInstanceOf('Netric\Application\Application', $account->getApplication());
+        $this->assertInstanceOf(Application::class, $account->getApplication());
     }
 
     public function testGetAccountUrl()
     {
         $account = Bootstrap::getAccount();
-        $config = $account->getServiceManager()->get("Config");
+        $config = $account->getServiceManager()->get(ConfigFactory::class);
 
         // Test without protocol
         $url = $account->getAccountUrl(false);

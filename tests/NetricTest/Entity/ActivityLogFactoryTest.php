@@ -6,16 +6,19 @@ namespace NetricTest\Settings;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ActivityLog;
+use Netric\Entity\ActivityLogFactory;
 
 class ActivityLogFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Entity\ActivityLog',
-            $sm->get('Netric\Entity\ActivityLog')
+            ActivityLog::class,
+            $sm->get(ActivityLogFactory::class)
         );
     }
 }

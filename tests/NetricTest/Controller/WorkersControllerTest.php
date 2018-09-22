@@ -8,6 +8,7 @@ use Netric;
 use Netric\WorkerMan\WorkerService;
 use Netric\Controller\WorkersController;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 class WorkersControllerTest extends TestCase
 {
@@ -37,7 +38,7 @@ class WorkersControllerTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Create the controller
         $this->controller = new WorkersController($this->account->getApplication(), $this->account);

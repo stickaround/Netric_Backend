@@ -10,6 +10,12 @@ use Netric\Entity\EntityInterface;
 use Netric\Mime;
 use Netric\Mail;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\EmailThreadEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -42,8 +48,8 @@ class EmailThreadTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -51,7 +57,7 @@ class EmailThreadTest extends TestCase
      */
     protected function tearDown()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -62,8 +68,8 @@ class EmailThreadTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("email_thread");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\EmailThreadEntity", $entity);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_THREAD);
+        $this->assertInstanceOf(EmailThreadEntity::class, $entity);
     }
 
     /**
@@ -71,15 +77,15 @@ class EmailThreadTest extends TestCase
      */
     public function testOnAfterSave_Remove()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a thread and an email message for testing
-        $thread = $entityLoader->create("email_thread");
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
         $thread->setValue("subject", "My New test Thread");
         $tid = $entityLoader->save($thread);
         $this->testEntities[] = $thread;
 
-        $message = $entityLoader->create("email_message");
+        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $message->setValue("thread", $tid);
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
@@ -88,7 +94,7 @@ class EmailThreadTest extends TestCase
         $entityLoader->delete($thread);
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->get("email_message", $eid);
+        $reloadedMessage = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $eid);
         $this->assertTrue($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -97,15 +103,15 @@ class EmailThreadTest extends TestCase
      */
     public function testOnAfterSave_Undelete()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a thread and an email message for testing
-        $thread = $entityLoader->create("email_thread");
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
         $thread->setValue("subject", "My New test Thread");
         $tid = $entityLoader->save($thread);
         $this->testEntities[] = $thread;
 
-        $message = $entityLoader->create("email_message");
+        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $message->setValue("thread", $tid);
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
@@ -118,7 +124,7 @@ class EmailThreadTest extends TestCase
         $entityLoader->save($thread);
 
         // Check to make sure the message was soft-deleted as well
-        $reloadedMessage = $entityLoader->get("email_message", $eid);
+        $reloadedMessage = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $eid);
         $this->assertFalse($reloadedMessage->getValue("f_deleted"));
     }
 
@@ -127,15 +133,15 @@ class EmailThreadTest extends TestCase
      */
     public function testOnAfterDeleteHard()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a thread and an email message for testing
-        $thread = $entityLoader->create("email_thread");
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
         $thread->setValue("subject", "My New test Thread");
         $tid = $entityLoader->save($thread);
         $this->testEntities[] = $thread;
 
-        $message = $entityLoader->create("email_message");
+        $message = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $message->setValue("thread", $tid);
         $eid = $entityLoader->save($message);
         $this->testEntities[] = $message;
@@ -144,13 +150,13 @@ class EmailThreadTest extends TestCase
         $entityLoader->delete($thread, true);
 
         // Make sure message was also purged
-        $this->assertNull($entityLoader->get("email_message", $eid));
+        $this->assertNull($entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $eid));
     }
 
     public function testAddToSenders()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $thread = $entityLoader->create("email_thread");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
         $thread->addToSenders("test1@myaereus.com, test2@myaereus.com");
         $this->assertEquals("test1@myaereus.com,test2@myaereus.com", $thread->getValue("senders"));
 
@@ -165,8 +171,8 @@ class EmailThreadTest extends TestCase
 
     public function testAddToReceivers()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $thread = $entityLoader->create("email_thread");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $thread = $entityLoader->create(ObjectTypes::EMAIL_THREAD);
         $thread->addToSenders("test1@myaereus.com, test2@myaereus.com");
         $this->assertEquals("test1@myaereus.com,test2@myaereus.com", $thread->getValue("senders"));
 

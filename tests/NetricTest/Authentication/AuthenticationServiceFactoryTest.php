@@ -6,6 +6,8 @@ namespace NetricTest\Authentication;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\Authentication\AuthenticationService;
+use Netric\Authentication\AuthenticationServiceFactory;
 
 class AuthenticationServiceFactoryTest extends TestCase
 {
@@ -25,7 +27,7 @@ class AuthenticationServiceFactoryTest extends TestCase
     public function testCreate()
     {
         $serviceManager = $this->account->getServiceManager();
-        $authService = $serviceManager->get("/Netric/Authentication/AuthenticationService");
-        $this->assertInstanceOf("\\Netric\\Authentication\\AuthenticationService", $authService);
+        $authService = $serviceManager->get(AuthenticationServiceFactory::class);
+        $this->assertInstanceOf(AuthenticationService::class, $authService);
     }
 }

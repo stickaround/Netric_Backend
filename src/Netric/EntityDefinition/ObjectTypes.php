@@ -56,6 +56,7 @@ class ObjectTypes
     const REPORT = 'report';
     const SALES_ORDER = 'sales_order';
     const SALES_PAYMENT = 'sales_payment';
+    const SALES_PAYMENT_PROFILE = 'payment_profile';
     const STATUS_UPDATE = 'status_update';
     const SITE = 'cms_site';
     const TASK = 'task';

@@ -5,6 +5,8 @@
 namespace NetricTest\Account\Module;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Account\Module\ModuleService;
+use Netric\Account\Module\ModuleServiceFactory;
 
 class ModuleServiceFactoryTest extends TestCase
 {
@@ -13,8 +15,8 @@ class ModuleServiceFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Account\Module\ModuleService',
-            $sm->get('Netric\Account\Module\ModuleService')
+            ModuleService::class,
+            $sm->get(ModuleServiceFactory::class)
         );
     }
 }

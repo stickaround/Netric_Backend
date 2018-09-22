@@ -6,6 +6,12 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\ObjType\WorkflowActionEntity;
+use Netric\EntityDefinition\ObjectTypes;
 
 class WorkflowActionTest extends TestCase
 {
@@ -29,8 +35,8 @@ class WorkflowActionTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -38,7 +44,7 @@ class WorkflowActionTest extends TestCase
      */
     public function testFactory()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("workflow_action");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\WorkflowActionEntity", $entity);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::WORKFLOW_ACTION);
+        $this->assertInstanceOf(WorkflowActionEntity::class, $entity);
     }
 }

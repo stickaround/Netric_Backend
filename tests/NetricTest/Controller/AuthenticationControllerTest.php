@@ -6,6 +6,14 @@ namespace NetricTest\Controller;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Controller\AuthenticationController;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Authentication\AuthenticationServiceFactory;
 
 class AuthenticationControllerTest extends TestCase
 {
@@ -20,7 +28,7 @@ class AuthenticationControllerTest extends TestCase
     /**
      * Controller instance used for testing
      *
-     * @var \Netric\Controller\AuthenticationController
+     * @var \AuthenticationController
      */
     protected $controller = null;
 
@@ -41,19 +49,19 @@ class AuthenticationControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Create the controller
-        $this->controller = new Netric\Controller\AuthenticationController($this->account->getApplication(), $this->account);
+        $this->controller = new AuthenticationController($this->account->getApplication(), $this->account);
         $this->controller->testMode = true;
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new \Netric\EntityQuery("user");
+        $query = new \Netric\EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
@@ -61,8 +69,8 @@ class AuthenticationControllerTest extends TestCase
         }
 
         // Create a test user
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->create("user");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
@@ -73,7 +81,7 @@ class AuthenticationControllerTest extends TestCase
     protected function tearDown()
     {
         if ($this->user) {
-            $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+            $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dm->delete($this->user, true);
         }
     }
@@ -143,7 +151,7 @@ class AuthenticationControllerTest extends TestCase
 
         // Clear the identity to force rechecking
         $sm = $this->account->getServiceManager();
-        $sm->get("/Netric/Authentication/AuthenticationService")->clearIdentity();
+        $sm->get(AuthenticationServiceFactory::class)->clearIdentity();
 
         // Checkin with the valid token
         $this->controller->getRequest()->setParam("Authentication", "BADTOKEN");

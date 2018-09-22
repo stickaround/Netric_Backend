@@ -4,6 +4,7 @@ namespace NetricTest\Entity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityMaintainerService;
 use Netric\Entity\EntityMaintainerServiceFactory;
+use NetricTest\Bootstrap;
 
 class EntityMaintainerServiceFactoryTest extends TestCase
 {

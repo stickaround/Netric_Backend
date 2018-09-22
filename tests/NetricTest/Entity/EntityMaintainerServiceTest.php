@@ -11,6 +11,10 @@ use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric\FileSystem\FileSystem;
 use Netric\Account\Account;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+use NetricTest\Bootstrap;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class EntityMaintainerServiceTest
@@ -51,7 +55,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Create a temporary definition with a max cap of 1 entity
         $def = new EntityDefinition("utest_maint" . rand());
@@ -71,7 +75,7 @@ class EntityMaintainerServiceTest extends TestCase
         ;
         $entityDefinitionLoader->method('getAll')->willReturn([$def]);
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entityIndex = $this->account->getServiceManager()->get("EntityQuery_Index");
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
         $log = $this->getMockBuilder(LogInterface::class)->getMock();
@@ -90,7 +94,7 @@ class EntityMaintainerServiceTest extends TestCase
     protected function tearDown()
     {
         // Cleanup test entities
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $ent) {
             $entityLoader->delete($ent, true);
         }
@@ -118,7 +122,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     public function testTrimAllCappedTypes()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create 2 entities which is one more than the cap
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
@@ -141,7 +145,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     public function testTrimCappedForType()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create 2 entities which is one more than the cap
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
@@ -164,7 +168,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     public function testPurgeAllStaleDeleted()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create then soft delete two entities
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
@@ -195,7 +199,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     public function testPurgeStaleDeletedForType()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create an entity to purge after deleted
         $entity1 = $entityLoader->create($this->testDefinition->getObjType());
@@ -229,19 +233,19 @@ class EntityMaintainerServiceTest extends TestCase
 
     public function testDeleteOldSpamMessages()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         $timeEnteredAndCutoff = time();
 
         // Create a spam message to delete that is made a little earlier than $timeEnteredAndCutoff
-        $entity1 = $entityLoader->create('email_message');
+        $entity1 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity1->setValue("ts_entered", $timeEnteredAndCutoff - 1000);
         $entity1->setValue("flag_spam", true);
         $entityLoader->save($entity1);
         $this->testEntities[] = $entity1;
 
         // Create a second message that is not yet old enough to delete
-        $entity2 = $entityLoader->create('email_message');
+        $entity2 = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity2->setValue("ts_entered", $timeEnteredAndCutoff + 1000);
         $entity2->setValue("flag_spam", true);
         $entityLoader->save($entity2);
@@ -264,7 +268,7 @@ class EntityMaintainerServiceTest extends TestCase
      */
     public function testCleanTempFolder()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
 
         // Create test folder

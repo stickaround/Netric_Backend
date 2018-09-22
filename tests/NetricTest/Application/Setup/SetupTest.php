@@ -10,6 +10,9 @@ use Netric\Account\AccountIdentityMapper;
 use Netric\Application\Setup\Setup;
 use Netric\Application\Setup\AccountUpdater;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Cache\CacheFactory;
+use Netric\Application\DataMapperFactory;
 
 class SetupTest extends TestCase
 {
@@ -53,12 +56,12 @@ class SetupTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->application = $this->account->getApplication();
         $serviceManager =$this->account->getServiceManager();
 
-        $this->cache = $serviceManager->get("Cache");
-        $dataMapper = $serviceManager->get("Application_DataMapper");
+        $this->cache = $serviceManager->get(CacheFactory::class);
+        $dataMapper = $serviceManager->get(DataMapperFactory::class);
 
         $this->mapper = new AccountIdentityMapper($dataMapper, $this->cache);
         $this->setup = new Setup();

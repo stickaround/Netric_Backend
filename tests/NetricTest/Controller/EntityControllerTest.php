@@ -11,7 +11,10 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\Controller\EntityController;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -55,7 +58,7 @@ class EntityControllerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Create the controller
         $this->controller = new EntityController($this->account->getApplication(), $this->account);
@@ -71,7 +74,7 @@ class EntityControllerTest extends TestCase
         foreach ($this->testGroups as $groupId) {
             $dataRemove = array(
                 'action' => "delete",
-                'obj_type' => "note",
+                'obj_type' => ObjectTypes::NOTE,
                 'field_name' => 'groups',
                 'id' => $groupId,
                 'filter' => array('user_id' => -9)
@@ -100,7 +103,7 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dashboardEntity = $loader->create("dashboard");
+        $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
         $dashboardEntity->setValue("name", "activity");
         $loader->save($dashboardEntity);
         $this->testEntities[] = $dashboardEntity;
@@ -108,7 +111,7 @@ class EntityControllerTest extends TestCase
         // Set params in the request
         $req = $this->controller->getRequest();
         $req->setBody(json_encode(array(
-            'obj_type' => 'dashboard',
+            'obj_type' => ObjectTypes::DASHBOARD,
             'id' => $dashboardEntity->getId()
         )));
 
@@ -120,7 +123,7 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $dashboardEntity = $loader->create("dashboard");
+        $dashboardEntity = $loader->create(ObjectTypes::DASHBOARD);
         $dashboardEntity->setValue("name", "activity");
         $dashboardEntity->setValue("owner_id", $this->account->getUser()->getId());
         $loader->save($dashboardEntity);
@@ -129,7 +132,7 @@ class EntityControllerTest extends TestCase
         // Test The getting of entity using unique name
         // Set params in the request
         $data = array(
-            'obj_type' => "dashboard",
+            'obj_type' => ObjectTypes::DASHBOARD,
             'uname' => $dashboardEntity->getValue("uname"),
             'uname_conditions' => [
                 'owner_id' => $this->account->getUser()->getId(),
@@ -140,7 +143,7 @@ class EntityControllerTest extends TestCase
         $req->setParam('content-type', 'application/json');
 
         $ret = $this->controller->postGetAction();
-        $dashboardEntity = $loader->get("dashboard", $ret['id']);
+        $dashboardEntity = $loader->get(ObjectTypes::DASHBOARD, $ret['id']);
         $this->assertEquals($dashboardEntity->getValue("name"), "activity");
     }
 
@@ -148,13 +151,13 @@ class EntityControllerTest extends TestCase
     {
         // Create a test entity for querying
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $customer = $loader->create("customer");
+        $customer = $loader->create(ObjectTypes::CONTACT);
         $customer->setValue("name", "Test");
         $loader->save($customer);
         $this->testEntities[] = $customer;
 
         $data = array(
-            'obj_type' => "customer",
+            'obj_type' => ObjectTypes::CONTACT,
             'id' => $customer->getId(),
         );
 
@@ -224,7 +227,7 @@ class EntityControllerTest extends TestCase
     {
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam('obj_type', "customer");
+        $req->setParam('obj_type', ObjectTypes::CONTACT);
 
         $ret = $this->controller->getGetDefinitionAction();
 
@@ -238,7 +241,7 @@ class EntityControllerTest extends TestCase
     public function testSave()
     {
         $data = array(
-            'obj_type' => "customer",
+            'obj_type' => ObjectTypes::CONTACT,
             'first_name' => "Test",
             'last_name' => "User",
         );
@@ -258,7 +261,7 @@ class EntityControllerTest extends TestCase
     {
         // First create an entity to save
         $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $entity = $loader->create("note");
+        $entity = $loader->create(ObjectTypes::NOTE);
         $entity->setValue("name", "Test");
         $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
         $dm->save($entity);
@@ -266,7 +269,7 @@ class EntityControllerTest extends TestCase
 
         // Set params in the request
         $req = $this->controller->getRequest();
-        $req->setParam("obj_type", "note");
+        $req->setParam("obj_type", ObjectTypes::NOTE);
         $req->setParam("id", $entityId);
 
         // Try to delete
@@ -277,7 +280,7 @@ class EntityControllerTest extends TestCase
     public function testGetGroupings()
     {
         $req = $this->controller->getRequest();
-        $req->setParam("obj_type", "customer");
+        $req->setParam("obj_type", ObjectTypes::CONTACT);
         $req->setParam("field_name", "groups");
 
         $ret = $this->controller->getGetGroupingsAction();
@@ -455,17 +458,17 @@ class EntityControllerTest extends TestCase
     public function testMassEdit()
     {
         // Setup the loaders
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // First create entities to save
-        $entity1 = $loader->create("note");
+        $entity1 = $loader->create(ObjectTypes::NOTE);
         $entity1->setValue("body", "Note 1");
         $entity1->addMultiValue("groups", 1, "note group 1");
         $dm->save($entity1);
         $entityId1 = $entity1->getId();
 
-        $entity2 = $loader->create("note");
+        $entity2 = $loader->create(ObjectTypes::NOTE);
         $entity2->setValue("body", "Note 2");
         $entity2->addMultiValue("groups", 2, "note group 2");
         $dm->save($entity2);
@@ -473,7 +476,7 @@ class EntityControllerTest extends TestCase
 
         // Setup the data
         $data = array(
-            'obj_type' => "note",
+            'obj_type' => ObjectTypes::NOTE,
             'id' => array($entityId1, $entityId2),
             'entity_data' => array(
                 "body" => "test mass edit",
@@ -502,7 +505,7 @@ class EntityControllerTest extends TestCase
 
 
         // Lets load the actual entities and test them
-        $updatedEntity1 = $loader->get("note", $entityId1);
+        $updatedEntity1 = $loader->get(ObjectTypes::NOTE, $entityId1);
         $this->assertEquals($data['entity_data']['body'], $updatedEntity1->getValue("body"));
         $this->assertTrue(in_array($data['entity_data']['groups'][0], $updatedEntity1->getValue("groups")));
         $this->assertTrue(in_array($data['entity_data']['groups'][1], $updatedEntity1->getValue("groups")));
@@ -511,7 +514,7 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($data['entity_data']['groups_fval'][3], $updatedEntity1->getValueName("groups", 3));
         $this->assertEquals($data['entity_data']['groups_fval'][4], $updatedEntity1->getValueName("groups", 4));
 
-        $updatedEntity2 = $loader->get("note", $entityId2);
+        $updatedEntity2 = $loader->get(ObjectTypes::NOTE, $entityId2);
         $this->assertEquals($data['entity_data']['body'], $updatedEntity2->getValue("body"));
         $this->assertTrue(in_array($data['entity_data']['groups'][0], $updatedEntity2->getValue("groups")));
         $this->assertTrue(in_array($data['entity_data']['groups'][1], $updatedEntity2->getValue("groups")));
@@ -524,11 +527,11 @@ class EntityControllerTest extends TestCase
     public function testMergeEntities()
     {
         // Setup the loaders
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // First create entities to merge
-        $entity1 = $loader->create("note");
+        $entity1 = $loader->create(ObjectTypes::NOTE);
         $entity1->setValue("body", "body 1");
         $entity1->setValue("name", "name 1");
         $entity1->setValue("title", "title 1");
@@ -537,7 +540,7 @@ class EntityControllerTest extends TestCase
         $dm->save($entity1);
         $entityId1 = $entity1->getId();
 
-        $entity2 = $loader->create("note");
+        $entity2 = $loader->create(ObjectTypes::NOTE);
         $entity2->setValue("body", "body 2");
         $entity2->setValue("name", "name 2");
         $entity2->setValue("path", "path 2");
@@ -546,7 +549,7 @@ class EntityControllerTest extends TestCase
         $dm->save($entity2);
         $entityId2 = $entity2->getId();
 
-        $entity3 = $loader->create("note");
+        $entity3 = $loader->create(ObjectTypes::NOTE);
         $entity3->setValue("body", "body 3");
         $entity3->setValue("name", "name 3");
         $entity3->setValue("path", "path 3");
@@ -558,7 +561,7 @@ class EntityControllerTest extends TestCase
 
         // Setup the merge data
         $data = array(
-            'obj_type' => "note",
+            'obj_type' => ObjectTypes::NOTE,
             'id' => array($entityId1, $entityId2, $entityId3),
             'merge_data' => array(
                 $entityId1 => array("body"),
@@ -594,13 +597,13 @@ class EntityControllerTest extends TestCase
         $this->assertEquals($mId3, $ret['id']);
 
         // Lets load the actual entities and check if they are deleted
-        $originalEntity1 = $loader->get("note", $entityId1);
+        $originalEntity1 = $loader->get(ObjectTypes::NOTE, $entityId1);
         $this->assertEquals($originalEntity1->getValue("f_deleted"), 1);
 
-        $originalEntity2 = $loader->get("note", $entityId2);
+        $originalEntity2 = $loader->get(ObjectTypes::NOTE, $entityId2);
         $this->assertEquals($originalEntity2->getValue("f_deleted"), 1);
 
-        $originalEntity3 = $loader->get("note", $entityId3);
+        $originalEntity3 = $loader->get(ObjectTypes::NOTE, $entityId3);
         $this->assertEquals($originalEntity3->getValue("f_deleted"), 1);
     }
 
@@ -609,7 +612,7 @@ class EntityControllerTest extends TestCase
         // Setup the save group data
         $dataGroup = array(
             'action' => "add",
-            'obj_type' => "note",
+            'obj_type' => ObjectTypes::NOTE,
             'field_name' => 'groups',
             'name' => 'test save group',
             'color' => 'blue',
@@ -629,7 +632,7 @@ class EntityControllerTest extends TestCase
         // Setup the save group data with parent
         $dataWithParent = array(
             'action' => "add",
-            'obj_type' => "note",
+            'obj_type' => ObjectTypes::NOTE,
             'field_name' => 'groups',
             'parent_id' => $retGroup['id'],
             'name' => 'test group with parent',
@@ -651,7 +654,7 @@ class EntityControllerTest extends TestCase
         // Test the edit function of SaveGroup
         $dataEdit = array(
             'action' => "edit",
-            'obj_type' => "note",
+            'obj_type' => ObjectTypes::NOTE,
             'field_name' => 'groups',
             'id' => $retGroup['id'],
             'name' => 'test edit group save',

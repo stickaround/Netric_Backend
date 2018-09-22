@@ -5,16 +5,19 @@
 namespace NetricTest\Entity\Notifier;
 
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\Notifier\Notifier;
+use Netric\Entity\Notifier\NotifierFactory;
 
 class NotifierFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Entity\Notifier\Notifier',
-            $sm->get('Netric\Entity\Notifier\Notifier')
+            Notifier::class,
+            $sm->get(NotifierFactory::class)
         );
     }
 }

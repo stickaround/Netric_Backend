@@ -5,10 +5,19 @@
 namespace NetricTest\Entity\Recurrence;
 
 use Netric\Entity\Recurrence;
+use Netric\Entity\Recurrence\RecurrencePattern;
 use Netric\Entity;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\Recurrence\RecurrenceSeriesManagerFactory;
+use Netric\Entity\Recurrence\RecurrenceIdentityMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
+
 
 class RecurrenceSeriesManagerTest extends TestCase
 {
@@ -59,14 +68,14 @@ class RecurrenceSeriesManagerTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         $sm = $this->account->getServiceManager();
-        $this->entityDataMapper = $sm->get("Entity_DataMapper");
-        $this->entityLoader = $sm->get("EntityLoader");
-        $this->recurSeriesManager = $sm->get("Netric/Entity/Recurrence/RecurrenceSeriesManager");
-        $this->recurIndentityMapper = $sm->get("RecurrenceIdentityMapper");
+        $this->entityDataMapper = $sm->get(DataMapperFactory::class);
+        $this->entityLoader = $sm->get(EntityLoaderFactory::class);
+        $this->recurSeriesManager = $sm->get(RecurrenceSeriesManagerFactory::class);
+        $this->recurIndentityMapper = $sm->get(RecurrenceIdentityMapperFactory::class);
     }
 
     /**
@@ -90,7 +99,7 @@ class RecurrenceSeriesManagerTest extends TestCase
                 "date_end" => "2016-01-05",
             )
         );
-        $event = $this->entityLoader->create("calendar_event");
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);
 
@@ -131,13 +140,13 @@ class RecurrenceSeriesManagerTest extends TestCase
             "ts_start" => strtotime("2016-01-01 08:00:00 PST"),
             "ts_end" => strtotime("2016-01-01 09:00:00 PST"),
             "recurrence_pattern" => array(
-                "recur_type" => Recurrence\RecurrencePattern::RECUR_DAILY,
+                "recur_type" => RecurrencePattern::RECUR_DAILY,
                 "interval" => 1,
                 "date_start" => "2016-01-01",
                 "date_end" => "2016-01-05",
             )
         );
-        $event = $this->entityLoader->create("calendar_event");
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);
 
@@ -148,7 +157,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertNotEmpty($eid);
 
         // Open the new entity
-        $event2 = $this->entityLoader->get("calendar_event", $eid);
+        $event2 = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $eid);
         $this->assertEquals($event->getName(), $event2->getName());
 
         // Make sure the dates are different but the times are the same
@@ -178,13 +187,13 @@ class RecurrenceSeriesManagerTest extends TestCase
             "ts_start" => strtotime("2016-01-01 08:00:00 PST"),
             "ts_end" => strtotime("2016-01-01 09:00:00 PST"),
             "recurrence_pattern" => array(
-                "recur_type" => Recurrence\RecurrencePattern::RECUR_DAILY,
+                "recur_type" => RecurrencePattern::RECUR_DAILY,
                 "interval" => 1,
                 "date_start" => "2016-01-01",
                 "date_end" => "2016-01-05",
             )
         );
-        $event = $this->entityLoader->create("calendar_event");
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $eventId = $this->entityDataMapper->save($event);
         $recurId = $event->getRecurrencePattern()->getId();
@@ -198,7 +207,7 @@ class RecurrenceSeriesManagerTest extends TestCase
         $this->assertTrue($ret);
 
         // Try to open the original and make sure it is deleted
-        $this->assertTrue($this->entityLoader->get("calendar_event", $eventId)->isDeleted());
+        $this->assertTrue($this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $eventId)->isDeleted());
 
         // Make sure the recurring pattern was also deleted
         $this->assertNull($this->recurIndentityMapper->getById($recurId));
@@ -221,14 +230,14 @@ class RecurrenceSeriesManagerTest extends TestCase
                 "date_end" => "2016-01-05",
             )
         );
-        $event = $this->entityLoader->create("calendar_event");
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->fromArray($entityData);
         $this->entityDataMapper->save($event);
         $recurId = $event->getRecurrencePattern()->getId();
 
         // Create a query that gets events from January 1 to January 5
         $dateTo = new \DateTime("2016-01-05");
-        $query = new EntityQuery("calendar_event");
+        $query = new EntityQuery(ObjectTypes::CALENDAR_EVENT);
         $query->where("ts_start")->isLessThan($dateTo->format("Y-m-d"));
 
         // Have the manager create instances using the query

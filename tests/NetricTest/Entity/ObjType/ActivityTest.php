@@ -6,6 +6,12 @@ namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Entity\ObjType\ActivityEntity;
 
 class ActivityTest extends TestCase
 {
@@ -29,8 +35,8 @@ class ActivityTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $this->user = $this->account->getUser(\Netric\Entity\ObjType\UserEntity::USER_SYSTEM);
+        $this->account = Bootstrap::getAccount();
+        $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
     /**
@@ -38,14 +44,14 @@ class ActivityTest extends TestCase
      */
     public function testFactory()
     {
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("activity");
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("activity");
-        $this->assertInstanceOf("\\Netric\\Entity\\ObjType\\ActivityEntity", $entity);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::ACTIVITY);
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
+        $this->assertInstanceOf(ActivityEntity::class, $entity);
     }
 
     public function testOnBeforeSave()
     {
-        $entity = $this->account->getServiceManager()->get("EntityFactory")->create("activity");
+        $entity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ACTIVITY);
 
         // onBeforeSave copies obj_reference to the 'associations' field
         $entity->setValue("subject", "user:123", "Fake User");

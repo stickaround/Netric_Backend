@@ -8,6 +8,8 @@ use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Application\DataMapperInterface;
 use Netric\Account\Account;
+use Netric\Application\DataMapperFactory;
+use Netric\Cache\CacheFactory;
 
 class AccountIdentityMapperTest extends TestCase
 {
@@ -44,8 +46,8 @@ class AccountIdentityMapperTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
 
-        $this->cache = $this->account->getServiceManager()->get("Cache");
-        $this->dataMapper = $this->account->getServiceManager()->get("Application_DataMapper");
+        $this->cache = $this->account->getServiceManager()->get(CacheFactory::class);
+        $this->dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         $this->mapper = new Netric\Account\AccountIdentityMapper($this->dataMapper, $this->cache);
     }
