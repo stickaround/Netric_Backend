@@ -6,6 +6,9 @@ use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
+
 
 /**
  * Test entity definition loader class that is responsible for creating and initializing exisiting definitions
@@ -24,7 +27,7 @@ class EntityDefinitionLoaderTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     /**
@@ -32,7 +35,7 @@ class EntityDefinitionLoaderTest extends TestCase
      */
     public function testGet()
     {
-        $taskDefinition = new EntityDefinition('task');
+        $taskDefinition = new EntityDefinition(ObjectTypes::TASK);
         $taskDefinition->id = 123;
 
         // Configure a mock DataMapper
@@ -48,7 +51,7 @@ class EntityDefinitionLoaderTest extends TestCase
 
         // Load the object through the loader which should cache it
         $loader = new EntityDefinitionLoader($dm, $cache);
-        $taskDefinitionLoaded = $loader->get("task");
+        $taskDefinitionLoaded = $loader->get(ObjectTypes::TASK);
 
         $this->assertSame($taskDefinition, $taskDefinitionLoaded);
     }
@@ -58,7 +61,7 @@ class EntityDefinitionLoaderTest extends TestCase
      */
     public function testGetCached()
     {
-        $taskDefinition = new EntityDefinition('task');
+        $taskDefinition = new EntityDefinition(ObjectTypes::TASK);
 
         // Configure a mock DataMapper
         $dm = $this->getMockBuilder(EntityDefinitionDataMapperInterface::class)->getMock();
@@ -74,7 +77,7 @@ class EntityDefinitionLoaderTest extends TestCase
 
         // Load the object through the loader which should cache it
         $loader = new EntityDefinitionLoader($dm, $cache);
-        $loader->get("task");
+        $loader->get(ObjectTypes::TASK);
     }
 
     /**
@@ -82,13 +85,13 @@ class EntityDefinitionLoaderTest extends TestCase
      */
     public function testGetAll()
     {
-        $taskDefinition = new EntityDefinition('task');
+        $taskDefinition = new EntityDefinition(ObjectTypes::TASK);
         $taskDefinition->id = 123;
 
         // Configure a mock DataMapper
         $dm = $this->getMockBuilder(EntityDefinitionDataMapperInterface::class)->getMock();
         $dm->method('getAccount')->willReturn($this->account);
-        $dm->method('getAllObjectTypes')->willReturn(['task']);
+        $dm->method('getAllObjectTypes')->willReturn([ObjectTypes::TASK]);
         $dm->method('fetchByName')->willReturn($taskDefinition);
 
         // Configure a mock cache

@@ -11,6 +11,7 @@ namespace NetricTest\EntityQuery\Index;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityQuery\Index\EntityQueryIndexRdb;
 
 class EntityQueryIndexRdbTest extends IndexTestsAbstract
 {
@@ -21,7 +22,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
      */
     protected function getIndex()
     {
-        return new \Netric\EntityQuery\Index\EntityQueryIndexRdb($this->account);
+        return new EntityQueryIndexRdb($this->account);
     }
     
     /**

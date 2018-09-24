@@ -6,12 +6,13 @@ use Netric;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 use Netric\EntityDefinition\DataMapper\EntityDefinitionRdbDataMapper;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
 
 class DataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(

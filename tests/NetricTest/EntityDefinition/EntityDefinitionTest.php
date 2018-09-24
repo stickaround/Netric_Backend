@@ -7,6 +7,8 @@ namespace NetricTest\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinition;
 use PHPUnit\Framework\TestCase;
 use Netric\Permissions\Dacl;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EntityDefinitionTest extends TestCase
 {
@@ -22,7 +24,7 @@ class EntityDefinitionTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     /**
@@ -30,9 +32,9 @@ class EntityDefinitionTest extends TestCase
      */
     public function testGetObjType()
     {
-        $entDef = new EntityDefinition("customer");
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
         
-        $this->assertEquals("customer", $entDef->getObjType());
+        $this->assertEquals(ObjectTypes::CONTACT, $entDef->getObjType());
     }
 
     /**
@@ -41,7 +43,7 @@ class EntityDefinitionTest extends TestCase
     public function testSetDefaultFields()
     {
         // Constructor add default fields
-        $entDef = new EntityDefinition("customer");
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
 
         $field = $entDef->getField("id");
         $this->assertEquals("id", $field->name);
@@ -54,7 +56,7 @@ class EntityDefinitionTest extends TestCase
      */
     public function testFromArray()
     {
-        $entDef = new EntityDefinition("customer");
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
         
         $data = array(
             "revision" => 10,
@@ -111,7 +113,7 @@ class EntityDefinitionTest extends TestCase
      */
     public function testToArray()
     {
-        $entDef = new EntityDefinition("customer");
+        $entDef = new EntityDefinition(ObjectTypes::CONTACT);
         $data = $entDef->toArray();
         $this->assertTrue(is_array($data));
         // TODO: test more abotu the data returned
@@ -123,7 +125,7 @@ class EntityDefinitionTest extends TestCase
     public function testSetAndGetTitle()
     {
         $title = "Test";
-        $definition = new EntityDefinition("customer");
+        $definition = new EntityDefinition(ObjectTypes::CONTACT);
         $definition->setTitle($title);
         $this->assertEquals($title, $definition->getTitle());
     }
@@ -131,7 +133,7 @@ class EntityDefinitionTest extends TestCase
     public function testSEtAndGetDacl()
     {
         $dacl = new Dacl();
-        $definition = new EntityDefinition("customer");
+        $definition = new EntityDefinition(ObjectTypes::CONTACT);
         $definition->setDacl($dacl);
         $this->assertEquals($dacl, $definition->getDacl());
     }

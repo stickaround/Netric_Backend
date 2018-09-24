@@ -9,6 +9,8 @@ use Netric\EntitySync;
 use Netric\EntitySync\Collection;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class GroupingCollectionTest extends AbstractCollectionTests
 {
@@ -41,7 +43,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         // Make sure we don't override parent tearDown
         parent::setUp();
 
-        $this->groupingDataMapper = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
+        $this->groupingDataMapper = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
     }
 
     /**
@@ -53,7 +55,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
         parent::tearDown();
 
         $dm = $this->groupingDataMapper;
-        $groupings = $dm->getGroupings("customer", "groups");
+        $groupings = $dm->getGroupings(ObjectTypes::CONTACT, "groups");
 
         // Cleanup the test groupings in object_groupings table
         foreach ($this->testObjectGroupings as $groupId) {
@@ -70,7 +72,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
     {
 
         $collection = new Collection\GroupingCollection($this->esDataMapper, $this->commitManager, $this->groupingDataMapper);
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
         $collection->setFieldName("groups");
         return $collection;
     }
@@ -78,7 +80,7 @@ class GroupingCollectionTest extends AbstractCollectionTests
     protected function createLocal()
     {
         // Create the grouping below
-        $this->groupings = $this->groupingDataMapper->getGroupings("customer", "groups");
+        $this->groupings = $this->groupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
         $newGroup = $this->groupings->create();
         $newGroup->name = "UTEST CS::testGetExportChanged" . rand();
         $this->groupings->add($newGroup);

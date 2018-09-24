@@ -18,6 +18,12 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\Entity;
+use Netric\EntityQuery\Index\IndexAbstract;
 
 /**
  * @group integration
@@ -50,7 +56,7 @@ abstract class IndexTestsAbstract extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
 
@@ -59,7 +65,7 @@ abstract class IndexTestsAbstract extends TestCase
      */
     protected function tearDown()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -85,14 +91,14 @@ abstract class IndexTestsAbstract extends TestCase
         $uniName = "utestequals." . uniqid();
 
         // Status id
-        $statusG = $this->createGrouping("customer", "status_id", "Unit Test Status" . uniqid());
+        $statusG = $this->createGrouping(ObjectTypes::CONTACT, "status_id", "Unit Test Status" . uniqid());
 
         // Groups
-        $groupsG = $this->createGrouping("customer", "groups", "Unit Test Group" . uniqid());
+        $groupsG = $this->createGrouping(ObjectTypes::CONTACT, "groups", "Unit Test Group" . uniqid());
 
         // Save a test object
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $customer = $loader->create("customer");
+        $customer = $loader->create(ObjectTypes::CONTACT);
         $customer->setValue("name", $uniName);
         $customer->setValue("f_nocall", true);
         $customer->setValue("type_id", $typeId);
@@ -116,7 +122,7 @@ abstract class IndexTestsAbstract extends TestCase
      */
     protected function createGrouping($objType, $field, $name, $parent = null)
     {
-        $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
+        $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
         $groupings = $dm->getGroupings($objType, $field);
         $group = $groupings->create($name);
         if ($parent) {
@@ -141,7 +147,7 @@ abstract class IndexTestsAbstract extends TestCase
      */
     protected function deleteGrouping($objType, $field, $id)
     {
-        $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
+        $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
         $groupings = $dm->getGroupings($objType, $field);
         $groupings->delete($id);
         $dm->saveGroupings($groupings);
@@ -163,21 +169,21 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-        $taskDef = $entityDefinitionLoader->get("task");
+        $taskDef = $entityDefinitionLoader->get(ObjectTypes::TASK);
         $userIdField = $taskDef->getField("user_id");
 
         $sanitizedValue = $index->sanitizeWhereCondition($userIdField, UserEntity::USER_CURRENT);
         $this->assertEquals($sanitizedValue, $this->user->getId());
 
         // Now let's create a task entity and set the value of user_id to current user's id
-        $taskEntity = $entityLoader->create("task");
+        $taskEntity = $entityLoader->create(ObjectTypes::TASK);
         $taskEntity->setValue("user_id", $this->user->getId());
         $entityLoader->save($taskEntity);
 
         $this->testEntities[] = $taskEntity;
 
         // We will now create a query using UserEntity::USER_CURRENT to get the $taskEntity
-        $query = new EntityQuery("task");
+        $query = new EntityQuery(ObjectTypes::TASK);
         $query->where('user_id')->equals(UserEntity::USER_CURRENT);
         $res = $index->executeQuery($query);
 
@@ -228,7 +234,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Create customer test object. This will also create an activity log
         $customer = $this->createTestCustomer();
 
-        $activityDef = $entityDefinitionLoader->get("activity");
+        $activityDef = $entityDefinitionLoader->get(ObjectTypes::ACTIVITY);
         $verbObjectField = $activityDef->getField("verb_object");
 
         // Test first if verb_object field has no subtype
@@ -237,7 +243,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Now, let's query the activity using a field with no subtype
          */
-        $query = new EntityQuery("activity");
+        $query = new EntityQuery(ObjectTypes::ACTIVITY);
         $query->where('verb_object')->equals($customer->getObjRef());
         $res = $index->executeQuery($query);
 
@@ -248,7 +254,7 @@ abstract class IndexTestsAbstract extends TestCase
         /**
          * Query the activity entity using object reference
          */
-        $query = new EntityQuery("activity");
+        $query = new EntityQuery(ObjectTypes::ACTIVITY);
         $query->where('verb')->equals("create");
         $query->where('obj_reference')->equals($customer->getObjRef());
         $res = $index->executeQuery($query);
@@ -265,7 +271,7 @@ abstract class IndexTestsAbstract extends TestCase
         $customer->setValue("verb_object", $customer->getObjRef());
         $entityLoader->save($customer);
 
-        $query = new EntityQuery("activity");
+        $query = new EntityQuery(ObjectTypes::ACTIVITY);
         $query->where('verb_object')->equals($customer->getObjRef());
         $res = $index->executeQuery($query);
 
@@ -405,26 +411,26 @@ abstract class IndexTestsAbstract extends TestCase
         $memberId3 = rand();
 
         // Create a project that only has 1 member
-        $projectEntity = $loader->create("project");
+        $projectEntity = $loader->create(ObjectTypes::PROJECT);
         $projectEntity->setValue("name", "Test Project 4");
         $projectEntity->addMultiValue("members", $memberId, "Member");
         $pid = $loader->save($projectEntity);
 
         // Create a project that has 1 member
-        $projectEntity1 = $loader->create("project");
+        $projectEntity1 = $loader->create(ObjectTypes::PROJECT);
         $projectEntity1->setValue("name", "Test Project 1");
         $projectEntity1->addMultiValue("members", $memberId1, "Member One");
         $pid1 = $loader->save($projectEntity1);
 
         // Create a project that has 2 members
-        $projectEntity2 = $loader->create("project");
+        $projectEntity2 = $loader->create(ObjectTypes::PROJECT);
         $projectEntity2->setValue("name", "Test Project 2");
         $projectEntity2->addMultiValue("members", $memberId1, "Member One");
         $projectEntity2->addMultiValue("members", $memberId2, "Member Two");
         $pid2 = $loader->save($projectEntity2);
 
         // Create a project that only has 3 members
-        $projectEntity3 = $loader->create("project");
+        $projectEntity3 = $loader->create(ObjectTypes::PROJECT);
         $projectEntity3->setValue("name", "Test Project 3");
         $projectEntity3->addMultiValue("members", $memberId1, "Member One");
         $projectEntity3->addMultiValue("members", $memberId2, "Member Two");
@@ -440,7 +446,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Query the project of a specific member with 1 project
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId);
 
         // Execute the query
@@ -454,7 +460,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Query the project of a specific member with multiple projects
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId1);
         $res = $index->executeQuery($query);
 
@@ -464,7 +470,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Query the projects of two different members
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId1);
         $query->orWhere("members")->equals($memberId);
         $res = $index->executeQuery($query);
@@ -475,7 +481,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Query the projects of two different members that only has 1 projects each
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId);
         $query->orWhere("members")->equals($memberId3);
         $res = $index->executeQuery($query);
@@ -486,7 +492,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Query the projects that has the same members
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId2);
         $query->andWhere("members")->equals($memberId3);
         $res = $index->executeQuery($query);
@@ -498,7 +504,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Query the projects that has the same members and will include other project using "or" condition
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId1);
         $query->andWhere("members")->equals($memberId2);
         $query->orWhere("members")->equals($memberId);
@@ -509,7 +515,7 @@ abstract class IndexTestsAbstract extends TestCase
         /*
          * Create a query that will use members and name field
          */
-        $query = new EntityQuery("project");
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where("members")->equals($memberId1);
         $query->andWhere("name")->equals("Test Project");
         $res = $index->executeQuery($query);
@@ -619,7 +625,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Test null
         // -------------------------------------------------
         $testEnt->setValue("type_id", null);
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('type_id')->equals(null);
         $res = $index->executeQuery($query);
@@ -674,7 +680,7 @@ abstract class IndexTestsAbstract extends TestCase
         // -------------------------------------------------
         $cachedStatus = $testEnt->getValue("status_id");
         $testEnt->setValue("status_id", null);
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('status_id')->equals(null);
         $res = $index->executeQuery($query);
@@ -741,7 +747,7 @@ abstract class IndexTestsAbstract extends TestCase
 
         $cachedGroups = $testEnt->getValue("groups");
         $testEnt->setValue("groups", null);
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         // Test null for groups
         // -------------------------------------------------
@@ -819,13 +825,13 @@ abstract class IndexTestsAbstract extends TestCase
         }
         //$this->assertTrue(false, "Index could not be setup!");
 
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Create a test customer
         $testEnt = $this->createTestCustomer();
 
         // Create a test case attached to the customer
-        $case = $this->account->getServiceManager()->get("EntityLoader")->create("case");
+        $case = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::ISSUE);
         $case->setValue("name", "Unit Test Case");
         $case->setValue("customer_id", $testEnt->getId(), $testEnt->getName());
         $cid = $dm->save($case);
@@ -861,10 +867,10 @@ abstract class IndexTestsAbstract extends TestCase
         }
         //$this->assertTrue(false, "Index could not be setup!");
 
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Create a test project with a member
-        $project = $this->account->getServiceManager()->get("EntityLoader")->create("project");
+        $project = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::PROJECT);
         $project->setValue("name", "Unit Test Project");
         $project->setValue("members", $this->user->getId(), $this->user->getName());
         $pid = $dm->save($project);
@@ -890,14 +896,14 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a test customer
         $testEnt = $this->createTestCustomer();
 
         // Create a notification for this customer
-        $objReference = Netric\Entity\Entity::encodeObjRef($testEnt->getDefinition()->getObjType(), $testEnt->getId());
-        $notification = $entityLoader->create("notification");
+        $objReference = Entity::encodeObjRef($testEnt->getDefinition()->getObjType(), $testEnt->getId());
+        $notification = $entityLoader->create(ObjectTypes::NOTIFICATION);
         $notification->setValue("name", "Unit Test Notification");
         $notification->setValue("obj_reference", $objReference);
         $entityLoader->save($notification);
@@ -1546,7 +1552,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 days"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1567,7 +1573,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 weeks"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1588,7 +1594,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 months"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1609,7 +1615,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("-2 years"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1642,7 +1648,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Day - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 days"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1663,7 +1669,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Week - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 weeks"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1684,7 +1690,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Month - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 months"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1705,7 +1711,7 @@ abstract class IndexTestsAbstract extends TestCase
         // Year - inclusive
         // -------------------------------------------------
         $testEnt->setValue("last_contacted", strtotime("+2 years"));
-        $this->account->getServiceManager()->get("Entity_DataMapper")->save($testEnt);
+        $this->account->getServiceManager()->get(DataMapperFactory::class)->save($testEnt);
 
         $query = new EntityQuery($testEnt->getObjType());
         $query->where('id')->equals($testEnt->getId());
@@ -1758,8 +1764,8 @@ abstract class IndexTestsAbstract extends TestCase
         }
 
         // Save a test object
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
-        $obj = $this->account->getServiceManager()->get("EntityLoader")->create("project_story");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $obj = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create("project_story");
         $obj->setValue("name", "testSearchDeleted");
         $oid = $dm->save($obj);
         $dm->delete($obj);
@@ -1794,10 +1800,10 @@ abstract class IndexTestsAbstract extends TestCase
             return;
         }
 
-        $g1 = $this->createGrouping("customer", "groups", "HeiarchyDownGrp1");
-        $g2 = $this->createGrouping("customer", "groups", "HeiarchyDownGrp2", $g1['id']);
+        $g1 = $this->createGrouping(ObjectTypes::CONTACT, "groups", "HeiarchyDownGrp1");
+        $g2 = $this->createGrouping(ObjectTypes::CONTACT, "groups", "HeiarchyDownGrp2", $g1['id']);
 
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get("customer");
+        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get(ObjectTypes::CONTACT);
         $field = $def->getField("groups");
 
         $children = $index->getHeiarchyDownGrp($field, $g1["id"]);
@@ -1816,8 +1822,8 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertTrue($found2);
 
         // Cleanup
-        $this->deleteGrouping("customer", "groups", $g1['id']);
-        $this->deleteGrouping("customer", "groups", $g2['id']);
+        $this->deleteGrouping(ObjectTypes::CONTACT, "groups", $g1['id']);
+        $this->deleteGrouping(ObjectTypes::CONTACT, "groups", $g2['id']);
     }
 
     /**
@@ -1830,21 +1836,21 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
-        $folder1 = $loader->create("folder");
+        $folder1 = $loader->create(ObjectTypes::FOLDER);
         $folder1->setValue("name", "My Test Folder");
         $dm->save($folder1);
         $this->assertNotNull($folder1->getId());
 
-        $folder2 = $loader->create("folder");
+        $folder2 = $loader->create(ObjectTypes::FOLDER);
         $folder2->setValue("name", "My Test SubFolder");
         $folder2->setValue("parent_id", $folder1->getId());
         $dm->save($folder2);
         $this->assertNotNull($folder2->getId());
 
-        $children = $index->getHeiarchyDownObj("folder", $folder1->getId());
+        $children = $index->getHeiarchyDownObj(ObjectTypes::FOLDER, $folder1->getId());
         $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
@@ -1874,21 +1880,21 @@ abstract class IndexTestsAbstract extends TestCase
         if (!$index) {
             return;
         }
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
-        $folder1 = $loader->create("folder");
+        $folder1 = $loader->create(ObjectTypes::FOLDER);
         $folder1->setValue("name", "My Test Folder");
         $dm->save($folder1);
         $this->assertNotNull($folder1->getId());
 
-        $folder2 = $loader->create("folder");
+        $folder2 = $loader->create(ObjectTypes::FOLDER);
         $folder2->setValue("name", "My Test SubFolder");
         $folder2->setValue("parent_id", $folder1->getId());
         $dm->save($folder2);
         $this->assertNotNull($folder2->getId());
 
-        $children = $index->getHeiarchyUpObj("folder", $folder2->getId());
+        $children = $index->getHeiarchyUpObj(ObjectTypes::FOLDER, $folder2->getId());
         $this->assertTrue(count($children) > 0);
         $found1 = false;
         $found2 = false;
@@ -1920,12 +1926,12 @@ abstract class IndexTestsAbstract extends TestCase
 
         $testPlugin = new TestAssets\TestIndexPlugin();
 
-        $property = new \ReflectionProperty("\\Netric\\EntityQuery\\Index\\IndexAbstract", "pluginsLoaded");
+        $property = new \ReflectionProperty(IndexAbstract::class, "pluginsLoaded");
         $property->setAccessible(true);
-        $property->setValue($index, ["customer" => $testPlugin]);
+        $property->setValue($index, [ObjectTypes::CONTACT => $testPlugin]);
 
         // Query value
-        $query = new EntityQuery("customer");
+        $query = new EntityQuery(ObjectTypes::CONTACT);
         $query->where('*')->fullText("test");
         $index->executeQuery($query);
 
@@ -1967,22 +1973,22 @@ abstract class IndexTestsAbstract extends TestCase
      */
     public function testQueryObjectReference()
     {
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Create an entity and initialize values
         $customerName = "Test Customer";
-        $customer = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $customer->setValue("name", $customerName);
         $customer->setValue("owner_id", $this->user->getId());
         $cid = $dm->save($customer, $this->user);
 
-        $customerEntity = $this->account->getServiceManager()->get("EntityFactory")->create("customer");
+        $customerEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $dm->getById($customerEntity, $cid);
         $this->assertEquals($customerEntity->getName(), $customerName);
 
         // Create reminder and set the customer as our object reference
         $customerReminder = "Customer Reminder";
-        $reminder = $this->account->getServiceManager()->get("EntityLoader")->create("reminder");
+        $reminder = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
         $reminder->setValue("name", $customerReminder);
         $reminder->setValue("obj_reference", "customer:$cid:$customerName");
         $rid = $dm->save($reminder, $this->user);
@@ -1991,18 +1997,18 @@ abstract class IndexTestsAbstract extends TestCase
         $this->testEntities[] = $customer;
         $this->testEntities[] = $reminder;
 
-        $reminderEntity = $this->account->getServiceManager()->get("EntityFactory")->create("reminder");
+        $reminderEntity = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::REMINDER);
         $dm->getById($reminderEntity, $rid);
         $this->assertEquals($reminderEntity->getName(), $customerReminder);
         $this->assertEquals($reminderEntity->getValue("obj_reference"), "customer:$cid:$customerName");
         $this->assertEquals($reminderEntity->getValueName("obj_reference"), $customerName);
 
         // Now query the customer's reminder using the obj reference used
-        $query = new Netric\EntityQuery("reminder");
+        $query = new Netric\EntityQuery(ObjectTypes::REMINDER);
         $query->where("obj_reference")->equals("customer:$cid:$customerName");
         $query->where("id")->equals($rid);
 
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         // Execute the query
         $res = $index->executeQuery($query);
 
@@ -2020,11 +2026,11 @@ abstract class IndexTestsAbstract extends TestCase
      */
     public function testBooleanOperatorsWithConditions()
     {
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Create an entity and initialize values
         $customerName1 = "Test Customer 1";
-        $customer1 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $customer1->setValue("name", $customerName1);
         $customer1->setValue("owner_id", $this->user->getId());
         $customer1->setValue("type_id", "1");
@@ -2032,7 +2038,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cid1 = $dm->save($customer1, $this->user);
 
         $customerName2 = "Test Customer 2";
-        $customer2 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer2 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $customer2->setValue("name", $customerName2);
         $customer2->setValue("owner_id", $this->user->getId());
         $customer2->setValue("type_id", "1");
@@ -2040,7 +2046,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cid2 = $dm->save($customer2, $this->user);
 
         $customerName3 = "Test Customer 3";
-        $customer3 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer3 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $customer3->setValue("name", $customerName3);
         $customer3->setValue("owner_id", $this->user->getId());
         $customer3->setValue("type_id", "2");
@@ -2048,7 +2054,7 @@ abstract class IndexTestsAbstract extends TestCase
         $cid3 = $dm->save($customer3, $this->user);
 
         $customerName4 = "Test Customer 4";
-        $customer4 = $this->account->getServiceManager()->get("EntityLoader")->create("customer");
+        $customer4 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $customer4->setValue("name", $customerName3);
         $customer4->setValue("owner_id", $this->user->getId());
         $customer4->setValue("type_id", "2");
@@ -2062,11 +2068,11 @@ abstract class IndexTestsAbstract extends TestCase
         $this->testEntities[] = $customer4;
 
         // Query the customers using and where conditions. This should only query the customer 1
-        $query = new Netric\EntityQuery("customer");
+        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
         $query->where("type_id")->equals(1);
         $query->where("city")->equals("new_city");
 
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         // Execute the query
         $res = $index->executeQuery($query);
 
@@ -2076,11 +2082,11 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals("new_city", $resultEntity->getValue("city"));
 
         // Query the customers using or where conditions. This should query all the customers
-        $query = new Netric\EntityQuery("customer");
+        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
         $query->orWhere("type_id")->equals(1);
         $query->orWhere("type_id")->equals(2);
 
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         // Execute the query
         $res = $index->executeQuery($query);
 
@@ -2088,97 +2094,15 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals(4, $res->getTotalNum());
 
         // Query the customers using the combination of or/and where conditions.
-        $query = new Netric\EntityQuery("customer");
+        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
         $query->where("type_id")->equals(1);
         $query->orWhere("city")->equals("old_city");
 
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         // Execute the query
         $res = $index->executeQuery($query);
 
         // We should be be able to query all 3 customers
         $this->assertEquals(3, $res->getTotalNum());
     }
-
-    /**
-     * Test hierarcy subqueries
-     *
-     * @group testHierarcySubqueries
-     *
-    public function testHierarcySubqueries()
-    {
-    $indexes = array("db");
-    if (index_is_available("elastic"))
-    $indexes[] = "elastic";
-
-    // Setup files and folders for example
-    $antfs = new AntFs($this->dbh, $this->user);
-    $fldr = $antfs->openFolder("/tests/testHierarcySubqueries", true);
-    $this->assertNotNull($fldr);
-    $fldr2 = $antfs->openFolder("/tests/testHierarcySubqueries/Child", true);
-    $this->assertNotNull($fldr2);
-    $file = $fldr2->openFile("testsync", true);
-    $this->assertNotNull($file);
-
-    foreach ($indexes as $indName)
-    {
-    $fldr->setIndex($indName);
-    $fldr->index();
-    $fldr2->setIndex($indName);
-    $fldr2->index();
-    $file->setIndex($indName);
-    $file->index();
-
-    // Test equal to root which should return none
-    $objList = new CAntObjectList($this->dbh, "file", $this->user);
-    $objList->setIndex($indName); // Manually set index type
-    $objList->addCondition("and", "folder_id", "is_equal", $fldr->id);
-    $objList->getObjects();
-    $this->assertEquals(0, $objList->getNumObjects());
-
-    // Now test with is_less_or_equal
-    $objList = new CAntObjectList($this->dbh, "file", $this->user);
-    $objList->setIndex($indName); // Manually set index type
-    $objList->addCondition("and", "folder_id", "is_less_or_equal", $fldr->id);
-    $objList->getObjects();
-    $this->assertTrue($objList->getNumObjects() > 0);
-    }
-
-    // Cleanup
-    $file->removeHard();
-    $fldr2->removeHard();
-    $fldr->removeHard();
-    }
-     *
-     */
-
-    /**
-     * Test if using an fkey label works
-     *
-     * @group testFkeyLabelToId
-     *
-    public function testFkeyLabelToId()
-    {
-    $dbh = $this->dbh;
-
-    $obj = new CAntObject($dbh, "activity", null, $this->user);
-    $grpdat = $obj->getGroupingEntryByName("type_id", "testFkeyLabelToId");
-    if (!$grpdat)
-    $grpdat = $obj->addGroupingEntry("type_id", "testFkeyLabelToId");
-    $obj->setValue("name", "Test customer testFkeyLabelToId");
-    $obj->setValue("type_id", $grpdat["id"]);
-    $oid = $obj->save();
-
-    // Query based on type_id label
-    $objList = new CAntObjectList($this->dbh, "activity", $this->user);
-    $objList->addCondition("and", "type_id", "is_equal", "testFkeyLabelToId");
-    $objList->getObjects();
-    $this->assertTrue($objList->getNumObjects() > 0);
-
-    // Cleanup
-    $obj->deleteGroupingEntry("groups", $grpdat['id']);
-    $obj->removeHard();
-    }
-     *
-     */
 }

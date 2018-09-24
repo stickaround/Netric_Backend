@@ -3,6 +3,7 @@
 namespace NetricTest\EntityDefinition;
 
 use Netric\EntityDefinition\EntityDefinitionLoader;
+use NetricTest\Bootstrap;
 
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +16,7 @@ class EntityDefinitionLoaderFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(

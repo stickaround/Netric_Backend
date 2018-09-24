@@ -11,13 +11,16 @@ namespace NetricTest\EntityQuery;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery\FormParser;
 
 class FormParserTest extends TestCase
 {
 
     public function testBuildQueryWheres()
     {
-        $query = new Netric\EntityQuery("customer");
+        $query = new EntityQuery(ObjectTypes::CONTACT);
         $params = array(
             "where" => array(
                 "and,first_name,is_equal,Sky",
@@ -25,7 +28,8 @@ class FormParserTest extends TestCase
             ),
             "q" => "full text search",
         );
-        Netric\EntityQuery\FormParser::buildQuery($query, $params);
+
+        FormParser::buildQuery($query, $params);
                 
         // Test wheres
         $wheres = $query->getWheres();
@@ -49,14 +53,15 @@ class FormParserTest extends TestCase
     
     public function testBuildQueryOrderBy()
     {
-        $query = new Netric\EntityQuery("customer");
+        $query = new EntityQuery(ObjectTypes::CONTACT);
         $params = array(
             "order_by" => array(
                 "last_name",
                 "first_name,DESC",
             ),
         );
-        Netric\EntityQuery\FormParser::buildQuery($query, $params);
+
+        FormParser::buildQuery($query, $params);
                 
         // Test wheres
         $orders = $query->getOrderBy();
@@ -71,12 +76,13 @@ class FormParserTest extends TestCase
     
     public function testBuildQueryOffsetLimit()
     {
-        $query = new Netric\EntityQuery("customer");
+        $query = new EntityQuery(ObjectTypes::CONTACT);
         $params = array(
             "offset" => 100,
             "limit" => 73,
         );
-        Netric\EntityQuery\FormParser::buildQuery($query, $params);
+
+        FormParser::buildQuery($query, $params);
                 
         $this->assertEquals($params["offset"], $query->getOffset());
         $this->assertEquals($params['limit'], $query->getLimit());

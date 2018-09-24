@@ -14,7 +14,7 @@ class FieldTest extends TestCase
     public function testIsObjectReference()
     {
         $field = new Field();
-        $field->type = 'object';
+        $field->type = Field::TYPE_OBJECT;
         $this->assertTrue($field->isObjectReference());
     }
 
@@ -26,7 +26,7 @@ class FieldTest extends TestCase
     public function testIsObjectReferenceMulti()
     {
         $field = new Field();
-        $field->type = 'object_multi';
+        $field->type = Field::TYPE_OBJECT_MULTI;
         $this->assertTrue($field->isObjectReference());
     }
 
@@ -38,7 +38,7 @@ class FieldTest extends TestCase
     public function testIsNotObjectReference()
     {
         $field = new Field();
-        $field->type = 'integer';
+        $field->type = Field::TYPE_INTEGER;
         $this->assertFalse($field->isObjectReference());
     }
 
@@ -50,7 +50,7 @@ class FieldTest extends TestCase
     public function testIsGroupingReference()
     {
         $field = new Field();
-        $field->type = 'fkey';
+        $field->type = Field::TYPE_GROUPING;
         $this->assertTrue($field->isGroupingReference());
     }
 
@@ -62,7 +62,7 @@ class FieldTest extends TestCase
     public function testIsGroupingReferenceMulti()
     {
         $field = new Field();
-        $field->type = 'fkey_multi';
+        $field->type = Field::TYPE_GROUPING_MULTI;
         $this->assertTrue($field->isGroupingReference());
     }
 
@@ -74,7 +74,7 @@ class FieldTest extends TestCase
     public function testIsNotGroupingReference()
     {
         $field = new Field();
-        $field->type = 'integer';
+        $field->type = Field::TYPE_INTEGER;
         $this->assertFalse($field->isGroupingReference());
     }
 
@@ -86,7 +86,7 @@ class FieldTest extends TestCase
     public function testIsMultiValueGrouping()
     {
         $field = new Field();
-        $field->type = 'fkey_multi';
+        $field->type = Field::TYPE_GROUPING_MULTI;
         $this->assertTrue($field->isMultiValue());
     }
 
@@ -98,7 +98,7 @@ class FieldTest extends TestCase
     public function testIsMultiValueObject()
     {
         $field = new Field();
-        $field->type = 'object_multi';
+        $field->type = Field::TYPE_OBJECT_MULTI;
         $this->assertTrue($field->isMultiValue());
     }
 
@@ -110,7 +110,7 @@ class FieldTest extends TestCase
     public function testIsNotMultiValue()
     {
         $field = new Field();
-        $field->type = 'fkey';
+        $field->type = Field::TYPE_GROUPING;
         $this->assertFalse($field->isMultiValue());
     }
 }

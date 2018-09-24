@@ -8,6 +8,9 @@ namespace NetricTest\EntityGroupings;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
+use Netric\EntityGroupings\LoaderFactory;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 class EntityGroupingStateManagerTest extends TestCase
 {
@@ -23,7 +26,7 @@ class EntityGroupingStateManagerTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     /**
@@ -31,10 +34,10 @@ class EntityGroupingStateManagerTest extends TestCase
      */
     public function testGet()
     {
-        $dm = $this->account->getServiceManager()->get('Netric\EntityGroupings\DataMapper\EntityGroupingDataMapper');
+        $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
         
         // Create test group
-        $groupings = $dm->getGroupings("customer", "groups");
+        $groupings = $dm->getGroupings(ObjectTypes::CONTACT, "groups");
         $newGroup = $groupings->create();
         $newGroup->name = "uttest-eg-loader-get";
         $groupings->add($newGroup);
@@ -42,11 +45,11 @@ class EntityGroupingStateManagerTest extends TestCase
 
         
         // Load through loader
-        $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $loader->clearCache("customer", "groups");
+        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $loader->clearCache(ObjectTypes::CONTACT, "groups");
         
         // Use the loader to get the object
-        $grp = $loader->get("customer", "groups")->getByName($newGroup->name);
+        $grp = $loader->get(ObjectTypes::CONTACT, "groups")->getByName($newGroup->name);
         $this->assertNotNull($grp);
         $this->assertEquals($newGroup->name, $grp->name);
 
@@ -54,19 +57,19 @@ class EntityGroupingStateManagerTest extends TestCase
         $refIm = new \ReflectionObject($loader);
         $isLoaded = $refIm->getMethod("isLoaded");
         $isLoaded->setAccessible(true);
-        $this->assertTrue($isLoaded->invoke($loader, "customer", "groups"));
+        $this->assertTrue($isLoaded->invoke($loader, ObjectTypes::CONTACT, "groups"));
 
         // TODO: Test to see if it is cached
         /*
         $refIm = new \ReflectionObject($loader);
         $getCached = $refIm->getMethod("getCached");
         $getCached->setAccessible(true);
-        $this->assertTrue(is_array($getCached->invoke($loader, "customer", $cid)));
+        $this->assertTrue(is_array($getCached->invoke($loader, ObjectTypes::CONTACT, $cid)));
          * *
          */
 
         // Cleanup
-        $groups = $loader->get("customer", "groups");
+        $groups = $loader->get(ObjectTypes::CONTACT, "groups");
         $grp = $groups->getByName($newGroup->name);
         $groups->delete($grp->id);
         $groups->save();
@@ -80,7 +83,7 @@ class EntityGroupingStateManagerTest extends TestCase
         // Create test group manually
         $dm = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
         $systemUser = $this->account->getUser(UserEntity::USER_SYSTEM);
-        $groupings = $dm->getGroupings("note", "groups", array("user_id" => $systemUser->getId()));
+        $groupings = $dm->getGroupings(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
         $newGroup->user_id = $systemUser->getId();
@@ -91,7 +94,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
 
         // Use the loader to get private groups
-        $groupings = $loader->get("note", "groups", array("user_id" => $systemUser->getId()));
+        $groupings = $loader->get(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));
         $grp = $groupings->getByName($newGroup->name);
         $this->assertNotNull($grp->id);
         $this->assertNotNull($grp->user_id);

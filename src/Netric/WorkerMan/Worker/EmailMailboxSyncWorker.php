@@ -12,6 +12,7 @@ use Netric\WorkerMan\AbstractWorker;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Mail\ReceiverServiceFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * This worker is used to synchronize changes with a mailbox
@@ -64,7 +65,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
         $entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Get email accounts
-        $query = new EntityQuery("email_account");
+        $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT);
         $query->where("owner_id")->equals($workload['user_id']);
         $query->andWhere("type")->doesNotEqual("");
         $results = $entityIndex->executeQuery($query);

@@ -6,6 +6,8 @@ namespace NetricTest\EntitySync\Commit;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntitySync\Commit\CommitManagerFactory;
 
 class CommitManagerTest extends TestCase
 {
@@ -21,12 +23,12 @@ class CommitManagerTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     public function testCreateCommit()
     {
-        $oCommitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $oCommitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
 
         $lastCommit = $oCommitManager->getHeadCommit("test");
 
@@ -39,7 +41,7 @@ class CommitManagerTest extends TestCase
 
     public function testGetHeadCommit()
     {
-        $oCommitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $oCommitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
 
         // Create and return a new commit
         $nextCommit = $oCommitManager->createCommit("test");
