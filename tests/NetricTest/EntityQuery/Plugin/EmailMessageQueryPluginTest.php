@@ -6,6 +6,11 @@ use Netric\EntityQuery\Plugin;
 use PHPUnit\Framework\TestCase;
 use Netric\WorkerMan;
 use Netric\WorkerMan\SchedulerService;
+use NetricTest\Bootstrap;
+use Netric\WorkerMan\Queue\InMemory;
+use Netric\WorkerMan\WorkerService;
+use Netric\EntityQuery\Plugin\EmailMessageQueryPlugin;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -24,7 +29,7 @@ class EmailMessageQueryPluginTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     public function testOnBeforeQuery()
@@ -35,15 +40,15 @@ class EmailMessageQueryPluginTest extends TestCase
             ->getMock();
 
         // Setup an in-memory worker queue for testing
-        $queue = new WorkerMan\Queue\InMemory();
-        $service = new WorkerMan\WorkerService($this->account->getApplication(), $queue, $schedulerService);
+        $queue = new InMemory();
+        $service = new WorkerService($this->account->getApplication(), $queue, $schedulerService);
 
         // Create plugin
-        $plugin = new Plugin\EmailMessageQueryPlugin();
+        $plugin = new EmailMessageQueryPlugin();
         $plugin->setWorkerService($service);
 
         // Setup query and run the plugin just like the index would right before a query
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals(123);
         $this->assertTrue($plugin->onBeforeExecuteQuery($this->account->getServiceManager(), $query));
 
@@ -63,8 +68,8 @@ class EmailMessageQueryPluginTest extends TestCase
 
     public function testOnAfterExecuteQuery()
     {
-        $plugin = new Plugin\EmailMessageQueryPlugin();
-        $query = new EntityQuery("email_message");
+        $plugin = new EmailMessageQueryPlugin();
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $this->assertTrue($plugin->onAfterExecuteQuery($this->account->getServiceManager(), $query));
     }
 }

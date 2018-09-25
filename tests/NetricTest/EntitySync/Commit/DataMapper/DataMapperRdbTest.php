@@ -12,6 +12,7 @@ namespace NetricTest\EntitySync\Commit\DataMapper;
 use PHPUnit\Framework\TestCase;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntitySync\Commit\DataMapper\DataMapperRdb;
+use NetricTest\Bootstrap;
 
 class DataMapperRdbTest extends DmTestsAbstract
 {
@@ -29,7 +30,7 @@ class DataMapperRdbTest extends DmTestsAbstract
      */
     protected function getDataMapper()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->database = $sm->get(RelationalDbFactory::class);
 

@@ -11,6 +11,11 @@ namespace NetricTest\EntitySync;
 use Netric\EntitySync;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
+use NetricTest\Bootstrap;
+use Netric\EntitySync\Partner;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntitySync\Commit\CommitManagerFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -37,7 +42,7 @@ abstract class AbstractDataMapperTests extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
     
@@ -57,7 +62,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm = $this->getDataMapper();
 
         // Save the partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setPartnerId($partnerId);
         $partner->setOwnerId($this->user->getId());
         $ret = $dm->savePartner($partner);
@@ -79,7 +84,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $dm = $this->getDataMapper();
 
         // Save the partner
-        $partner = new EntitySync\Partner($dm);
+        $partner = new Partner($dm);
         $partner->setPartnerId($partnerId);
         $partner->setOwnerId($this->user->getId());
         $ret = $dm->savePartner($partner);
@@ -109,11 +114,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner->setOwnerId($this->user->getId());
 
         // Add a collection
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
         $collection->setPartnerId($partner->getId());
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
         $collection->setConditions($testConditions);
         $partner->addCollection($collection);
 
@@ -125,7 +130,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $collections = $partner2->getCollections();
         $this->assertEquals(1, count($collections));
         $this->assertEquals($testConditions, $collections[0]->getConditions());
-        $this->assertEquals("customer", $collections[0]->getObjType());
+        $this->assertEquals(ObjectTypes::CONTACT, $collections[0]->getObjType());
 
         // Cleanup by partner id (second param)
         $dm->deletePartner($partner, true);
@@ -148,11 +153,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner->setOwnerId($this->user->getId());
 
         // Add a collection
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
         $collection->setPartnerId($partner->getId());
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
 
         // Save the partner which should save the collection
@@ -170,7 +175,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $collections = $partner3->getCollections();
         $this->assertEquals(1, count($collections));
         $this->assertEquals($testConditions, $collections[0]->getConditions());
-        $this->assertEquals("customer", $collections[0]->getObjType());
+        $this->assertEquals(ObjectTypes::CONTACT, $collections[0]->getObjType());
         $this->assertEquals("categories", $collections[0]->getFieldName());
 
         // Cleanup by partner id (second param)
@@ -191,11 +196,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner->setOwnerId($this->user->getId());
 
         // Add a collection and save
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
         $collection->setPartnerId($partner->getId());
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
 
@@ -227,11 +232,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner->setOwnerId($this->user->getId());
 
         // Add a collection and save
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
         $collection->setPartnerId($partner->getId());
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
 
@@ -258,11 +263,11 @@ abstract class AbstractDataMapperTests extends TestCase
         $partner->setOwnerId($this->user->getId());
 
         // Add a collection and save
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
         $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
         $collection->setPartnerId($partner->getId());
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
         $partner->addCollection($collection);
         $dm->savePartner($partner);
 

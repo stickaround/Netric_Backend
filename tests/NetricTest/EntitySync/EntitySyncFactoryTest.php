@@ -5,22 +5,20 @@ namespace NetricTest\EntitySync;
 use Netric;
 
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntitySync\EntitySync;
+use Netric\EntitySync\EntitySyncFactory;
 
 class EntitySyncFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntitySync\EntitySync',
-            $sm->get('EntitySync')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntitySync\EntitySync',
-            $sm->get('Netric\EntitySync\EntitySync')
+            EntitySync::class,
+            $sm->get(EntitySyncFactory::class)
         );
     }
 }

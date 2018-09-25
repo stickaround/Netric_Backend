@@ -7,6 +7,10 @@ namespace NetricTest\EntitySync;
 use Netric\EntitySync;
 use Netric\EntitySync\DataMapperRdb;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntitySync\Commit\CommitManagerFactory;
+use Netric\EntitySync\Collection\EntityCollection;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * @group integration
@@ -58,23 +62,23 @@ class DataMapperPgsqlTest extends AbstractDataMapperTests
         $ret = $dm->savePartner($partner);
 
         // Create a new collection and save it
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
-        $commitManager = $this->account->getServiceManager()->get("EntitySyncCommitManager");
-        $collection = new EntitySync\Collection\EntityCollection($dm, $commitManager, $index);
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
+        $commitManager = $this->account->getServiceManager()->get(CommitManagerFactory::class);
+        $collection = new EntityCollection($dm, $commitManager, $index);
         $collection->setPartnerId($partner->getId());
-        $collection->setObjType("customer");
+        $collection->setObjType(ObjectTypes::CONTACT);
 
         $ret = $saveCollection->invoke($dm, $collection);
         $this->assertTrue($ret, $dm->getLastError());
         $this->assertNotNull($collection->getId());
-        $this->assertEquals("customer", $collection->getObjType());
+        $this->assertEquals(ObjectTypes::CONTACT, $collection->getObjType());
 
         // Save changes to a collection
-        $collection->setObjType("task");
+        $collection->setObjType(ObjectTypes::TASK);
         $ret = $saveCollection->invoke($dm, $collection);
         $this->assertTrue($ret, $dm->getLastError());
         $this->assertNotNull($collection->getId());
-        $this->assertEquals("task", $collection->getObjType());
+        $this->assertEquals(ObjectTypes::TASK, $collection->getObjType());
 
         // Cleanup by partner id (second param)
         $dm->deletePartner($partner, true);

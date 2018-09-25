@@ -5,6 +5,8 @@ namespace NetricTest\EntitySync\Commit;
 use Netric;
 
 use PHPUnit\Framework\TestCase;
+use Netric\EntitySync\Commit\CommitManager;
+use Netric\EntitySync\Commit\CommitManagerFactory;
 
 class CommitManagerFactoryTest extends TestCase
 {
@@ -14,13 +16,8 @@ class CommitManagerFactoryTest extends TestCase
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntitySync\Commit\CommitManager',
-            $sm->get('EntitySyncCommitManager')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntitySync\Commit\CommitManager',
-            $sm->get('Netric\EntitySync\Commit\CommitManager')
+            CommitManager::class,
+            $sm->get(CommitManagerFactory::class)
         );
     }
 }

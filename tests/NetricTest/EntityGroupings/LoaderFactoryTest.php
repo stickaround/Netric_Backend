@@ -3,24 +3,21 @@
 namespace NetricTest\EntityGroupings;
 
 use Netric;
-
+use NetricTest\Bootstrap;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityGroupings\Loader;
+use Netric\EntityGroupings\LoaderFactory;
 
 class LoaderFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
         $this->assertInstanceOf(
-            'Netric\EntityGroupings\Loader',
-            $sm->get('EntityGroupings_Loader')
-        );
-
-        $this->assertInstanceOf(
-            'Netric\EntityGroupings\Loader',
-            $sm->get('Netric\EntityGroupings\Loader')
+            Loader::class,
+            $sm->get(LoaderFactory::class)
         );
     }
 }

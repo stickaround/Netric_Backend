@@ -14,6 +14,8 @@ use Netric\EntityDefinition\DataMapper\EntityDefinitionDataMapperInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -43,7 +45,7 @@ abstract class DmTestsAbstract extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
     }
 
     /**
@@ -64,7 +66,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dm = $this->getDataMapper();
 
-        $entDef = $dm->fetchByName("customer");
+        $entDef = $dm->fetchByName(ObjectTypes::CONTACT);
 
         // Make sure the ID is set
         $this->assertFalse(empty($entDef->id));
@@ -210,7 +212,7 @@ abstract class DmTestsAbstract extends TestCase
         $def = new EntityDefinition("utest_save_dacl");
         $def->setTitle("Unit Test Dacl");
         $def->setSystem(false);
-        $dacl = new Netric\Permissions\Dacl();
+        $dacl = new Dacl();
         $def->setDacl($dacl);
 
         // Test inserting with dacl
@@ -243,7 +245,7 @@ abstract class DmTestsAbstract extends TestCase
         $def = new EntityDefinition("utest_save_empty_dacl");
         $def->setTitle("Unit Test Dacl");
         $def->setSystem(false);
-        $dacl = new Netric\Permissions\Dacl();
+        $dacl = new Dacl();
         $def->setDacl($dacl);
 
         // Test inserting with dacl
@@ -268,7 +270,7 @@ abstract class DmTestsAbstract extends TestCase
      */
     public function testGetLatestSystemDefinitionHash()
     {
-        $this->assertNotNull($this->getDataMapper()->getLatestSystemDefinitionHash('task'));
+        $this->assertNotNull($this->getDataMapper()->getLatestSystemDefinitionHash(ObjectTypes::TASK));
     }
 
     /**
@@ -286,7 +288,7 @@ abstract class DmTestsAbstract extends TestCase
     {
         $dataMapper = $this->getDataMapper();
 
-        $taskDefinition = $dataMapper->fetchByName('task');
+        $taskDefinition = $dataMapper->fetchByName(ObjectTypes::TASK);
         $previousRevision = (int)$taskDefinition->revision;
 
         // Clear out the system hash which will force it to update and increment the revision
@@ -294,7 +296,7 @@ abstract class DmTestsAbstract extends TestCase
         $dataMapper->updateSystemDefinition($taskDefinition);
 
         // Make sure we were updated
-        $reloadedTaskDefinition = $dataMapper->fetchByName('task');
+        $reloadedTaskDefinition = $dataMapper->fetchByName(ObjectTypes::TASK);
         $this->assertNotEmpty($reloadedTaskDefinition->systemDefinitionHash);
         $this->assertGreaterThan($previousRevision, $reloadedTaskDefinition->revision);
     }

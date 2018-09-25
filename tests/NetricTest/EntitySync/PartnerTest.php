@@ -8,6 +8,11 @@ use Netric\EntitySync;
 use Netric\EntitySync\Partner;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\UserEntity;
+use NetricTest\Bootstrap;
+use Netric\EntitySync\DataMapperFactory;
+use Netric\EntitySync\Collection\CollectionInterface;
+use Netric\EntitySync\Collection\EntityCollection;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class PartnerTest
@@ -42,11 +47,11 @@ class PartnerTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         $partnerId = "PartnerTest";
-        $dm = $this->account->getServiceManager()->get("EntitySync_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $this->partner = new Partner($dm);
     }
 
@@ -55,7 +60,7 @@ class PartnerTest extends TestCase
      */
     public function testConstruct()
     {
-        $this->assertInstanceOf('\Netric\EntitySync\Partner', $this->partner);
+        $this->assertInstanceOf(Partner::class, $this->partner);
     }
 
     /**
@@ -117,7 +122,7 @@ class PartnerTest extends TestCase
     public function testAddAndGetCollection()
     {
         // Create a mock collection
-        $collection = $this->getMockBuilder('\Netric\EntitySync\Collection\CollectionInterface')
+        $collection = $this->getMockBuilder(CollectionInterface::class)
                      ->getMock();
         // Configure the type to be entity.
         $collection->method('getType')->willReturn(1);
@@ -133,7 +138,7 @@ class PartnerTest extends TestCase
     public function testRemoveCollection()
     {
         // Create a mock collection
-        $collection = $this->getMockBuilder('\Netric\EntitySync\Collection\CollectionInterface')
+        $collection = $this->getMockBuilder(CollectionInterface::class)
                      ->getMock();
         // Configure the type to be entity.
         $collection->method('getType')->willReturn(1);
@@ -164,11 +169,11 @@ class PartnerTest extends TestCase
         );
 
         // Create a mock collection
-        $collection = $this->getMockBuilder('\Netric\EntitySync\Collection\EntityCollection')
+        $collection = $this->getMockBuilder(EntityCollection::class)
                      ->disableOriginalConstructor()
                      ->getMock();
         $collection->method('getType')->willReturn(1);
-        $collection->method('getObjType')->willReturn("customer");
+        $collection->method('getObjType')->willReturn(ObjectTypes::CONTACT);
         $collection->method('getConditions')->willReturn(array());
 
         // Add the collection
@@ -182,14 +187,14 @@ class PartnerTest extends TestCase
         /*
          * Verify that the collectin is not returned when conditions are passed
          */
-        $gotColl = $getCollection->invoke($this->partner, "customer", $conditions);
+        $gotColl = $getCollection->invoke($this->partner, ObjectTypes::CONTACT, $conditions);
         $this->assertNull($gotColl);
 
         /*
          * Verify that collections are correctly gathered with no conditions
          */
-        $gotColl = $getCollection->invoke($this->partner, "customer");
-        $this->assertInstanceOf('\Netric\EntitySync\Collection\CollectionInterface', $gotColl);
+        $gotColl = $getCollection->invoke($this->partner, ObjectTypes::CONTACT);
+        $this->assertInstanceOf(CollectionInterface::class, $gotColl);
     }
 
     public function testGetCollectionWithCondition()
@@ -225,19 +230,19 @@ class PartnerTest extends TestCase
         );
 
         // Create two mock collections
-        $collection = $this->getMockBuilder('\Netric\EntitySync\Collection\EntityCollection')
+        $collection = $this->getMockBuilder(EntityCollection::class)
                      ->disableOriginalConstructor()
                      ->getMock();
         $collection->method('getType')->willReturn(1);
-        $collection->method('getObjType')->willReturn("customer");
+        $collection->method('getObjType')->willReturn(ObjectTypes::CONTACT);
         $collection->method('getConditions')->willReturn($conditions);
         $this->partner->addCollection($collection);
 
-        $collection2 = $this->getMockBuilder('\Netric\EntitySync\Collection\EntityCollection')
+        $collection2 = $this->getMockBuilder(EntityCollection::class)
             ->disableOriginalConstructor()
             ->getMock();
         $collection2->method('getType')->willReturn(1);
-        $collection2->method('getObjType')->willReturn("customer");
+        $collection2->method('getObjType')->willReturn(ObjectTypes::CONTACT);
         $collection2->method('getConditions')->willReturn($conditions2);
         $this->partner->addCollection($collection2);
 
@@ -249,8 +254,8 @@ class PartnerTest extends TestCase
         /*
          * Test with conditions
          */
-        $gotColl = $getCollection->invoke($this->partner, "customer", null, $conditions);
-        $this->assertInstanceOf('\Netric\EntitySync\Collection\CollectionInterface', $gotColl);
+        $gotColl = $getCollection->invoke($this->partner, ObjectTypes::CONTACT, null, $conditions);
+        $this->assertInstanceOf(CollectionInterface::class, $gotColl);
 
         /*
          * Try same object type with conditions that do not match
@@ -269,13 +274,13 @@ class PartnerTest extends TestCase
                 "condValue"=>"john",
             ),
         );
-        $gotColl = $getCollection->invoke($this->partner, "customer", null, $noMatchConditions);
+        $gotColl = $getCollection->invoke($this->partner, ObjectTypes::CONTACT, null, $noMatchConditions);
         $this->assertNull($gotColl);
 
         /**
          * Make sure other types of collections do not make a false positive match
          */
         $this->assertNull($getCollection->invoke($this->partner, null, null, $conditions));
-        $this->assertNull($getCollection->invoke($this->partner, "customer", "badfiled", $conditions));
+        $this->assertNull($getCollection->invoke($this->partner, ObjectTypes::CONTACT, "badfiled", $conditions));
     }
 }

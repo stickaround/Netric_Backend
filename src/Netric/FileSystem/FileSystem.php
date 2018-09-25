@@ -124,11 +124,11 @@ class FileSystem implements Error\ErrorAwareInterface
 
         // Check first if we have $fileId, if so then we will just load that file id
         if ($fileEntityData && isset($fileEntityData["id"]) && !empty($fileEntityData["id"])) {
-            $file = $this->entityLoader->get("file", $fileEntityData["id"]);
+            $file = $this->entityLoader->get(ObjectTypes::FILE, $fileEntityData["id"]);
             $file->setValue("name", $fileEntityData["name"]);
         } else {
             // Create a new file that will represent the file data
-            $file = $this->entityLoader->create("file");
+            $file = $this->entityLoader->create(ObjectTypes::FILE);
             $file->setValue("owner_id", $this->user->getId());
 
             // In some cases you may want to name the file something other than the local file name
@@ -180,7 +180,7 @@ class FileSystem implements Error\ErrorAwareInterface
     {
         $ret = $this->entityDataMapper->delete($file, $purge);
         if ($ret) {
-            $this->entityLoader->clearCache("file", $file->getId());
+            $this->entityLoader->clearCache(ObjectTypes::FILE, $file->getId());
         }
         return $ret;
     }
@@ -205,7 +205,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function openFileById($fid)
     {
-        $file = $this->entityLoader->get("file", $fid);
+        $file = $this->entityLoader->get(ObjectTypes::FILE, $fid);
         return ($file && $file->getId()) ? $file : null;
     }
 
@@ -261,7 +261,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     public function openFolderById($folderId)
     {
-        return $this->entityLoader->get("folder", $folderId);
+        return $this->entityLoader->get(ObjectTypes::FOLDER, $folderId);
     }
 
     /**
@@ -412,7 +412,7 @@ class FileSystem implements Error\ErrorAwareInterface
         }
 
         // Create the new empty file
-        $file = $this->entityLoader->create("file");
+        $file = $this->entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", $fileName);
         $file->setValue("folder_id", $folder->getId());
         $file->setValue("name", $this->escapeFilename($fileName));
@@ -486,7 +486,7 @@ class FileSystem implements Error\ErrorAwareInterface
             } elseif ($createIfMissing) {
                 // TODO: Check permissions to see if we have access to create
 
-                $nextFolder = $this->entityLoader->create("folder");
+                $nextFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
                 $nextFolder->setValue("name", $nextFolderName);
                 $nextFolder->setValue("parent_id", $lastFolder->getId());
                 $nextFolder->setValue("owner_id", $this->user->getId());
@@ -554,7 +554,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function getChildFolderByName($name, FolderEntity $parentFolder)
     {
-        $query = new EntityQuery("folder");
+        $query = new EntityQuery(ObjectTypes::FOLDER);
         $query->where("parent_id")->equals($parentFolder->getId());
         $query->andWhere("name")->equals($name);
         $result = $this->entityIndex->executeQuery($query);
@@ -574,7 +574,7 @@ class FileSystem implements Error\ErrorAwareInterface
      */
     private function getChildFileByName($fileName, FolderEntity $parentFolder)
     {
-        $query = new EntityQuery("file");
+        $query = new EntityQuery(ObjectTypes::FILE);
         $query->where("folder_id")->equals($parentFolder->getId());
         $query->andWhere("name")->equals($fileName);
         $result = $this->entityIndex->executeQuery($query);
@@ -597,7 +597,7 @@ class FileSystem implements Error\ErrorAwareInterface
             $this->rootFolder = $rootFolderEntity;
         } else {
             // Create root folder
-            $rootFolder = $this->entityLoader->create("folder");
+            $rootFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
             $rootFolder->setValue("name", "/");
             $rootFolder->setValue("owner_id", $this->user->getId());
             $rootFolder->setValue("f_system", true);
