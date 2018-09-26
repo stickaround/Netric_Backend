@@ -10,6 +10,10 @@ use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Account\Account;
 use Netric\EntityGroupings\Group;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Mail\DeliveryServiceFactory;
 
 class DeliveryServiceTest extends TestCase
 {
@@ -61,20 +65,20 @@ class DeliveryServiceTest extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a temporary user
         $this->origCurrentUser = $this->account->getUser();
-        $this->user = $entityLoader->create("user");
+        $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $entityLoader->save($this->user);
         $this->testEntities[] = $this->user;
         $this->account->setCurrentUser($this->user);
 
         // If it does not exist, create an inbox for the user
-        $groupingsLoader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
         $groupings = $groupingsLoader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             ["user_id" => $this->user->getId()]
         );
@@ -87,7 +91,7 @@ class DeliveryServiceTest extends TestCase
         $this->inbox = $groupings->getByPath("Inbox");
 
         // Create a new test email account
-        $this->emailAccount = $entityLoader->create("email_account");
+        $this->emailAccount = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT);
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue("name", "test-imap");
         $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_HOST'));
@@ -101,9 +105,9 @@ class DeliveryServiceTest extends TestCase
     {
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
-        $groupingsLoader = $serviceLocator->get("Netric/EntityGroupings/Loader");
+        $groupingsLoader = $serviceLocator->get(LoaderFactory::class);
         $groupings = $groupingsLoader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             ["user_id" => $this->user->getId()]
         );
@@ -111,7 +115,7 @@ class DeliveryServiceTest extends TestCase
         $groupingsLoader->save($groupings);
 
         // Delete any test entities
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -132,7 +136,7 @@ class DeliveryServiceTest extends TestCase
      */
     public function testDeliverComplex()
     {
-        $deliveryService = $this->account->getServiceManager()->get("Netric/Mail/DeliveryService");
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
         $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m6.complex.mime.unseen']);
         $fakeUniqueId = "1234"; // Does not really matter
         $messageId = $deliveryService->deliverMessage(
@@ -146,7 +150,7 @@ class DeliveryServiceTest extends TestCase
         $this->assertNotEquals(0, $messageId);
         $this->assertNotEquals(-1, $messageId);
         
-        $emailMessage = $this->account->getServiceManager()->get("EntityLoader")->get("email_message", $messageId);
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
         $this->testEntities[] = $emailMessage;
 
         // Check some snippets of text that should be in the hrml body
@@ -160,7 +164,7 @@ class DeliveryServiceTest extends TestCase
 
     public function testDeliverAttachment()
     {
-        $deliveryService = $this->account->getServiceManager()->get("Netric/Mail/DeliveryService");
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
         $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m7.attachment']);
         $fakeUniqueId = "1234"; // Does not really matter
         $messageId = $deliveryService->deliverMessage(
@@ -174,13 +178,13 @@ class DeliveryServiceTest extends TestCase
         $this->assertNotEquals(0, $messageId);
         $this->assertNotEquals(-1, $messageId);
 
-        $emailMessage = $this->account->getServiceManager()->get("EntityLoader")->get("email_message", $messageId);
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
         $this->testEntities[] = $emailMessage;
 
         // Check some snippets of text that should be in the hrml body
         $attachments = $emailMessage->getValue("attachments");
         $this->assertEquals(3, count($attachments));
-        $file = $this->account->getServiceManager()->get("EntityLoader")->get("file", $attachments[0]);
+        $file = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get("file", $attachments[0]);
         $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
         $this->assertGreaterThan(0, $file->getValue("file_size"));
     }
@@ -190,7 +194,7 @@ class DeliveryServiceTest extends TestCase
      */
     public function testDeliverNoDuplicates()
     {
-        $deliveryService = $this->account->getServiceManager()->get("Netric/Mail/DeliveryService");
+        $deliveryService = $this->account->getServiceManager()->get(DeliveryServiceFactory::class);
         $storageMessage = new Storage\Message(['file'=>__DIR__ . '/_files/m1.example.org.unseen']);
         $fakeUniqueId = "1234";
 
@@ -204,7 +208,7 @@ class DeliveryServiceTest extends TestCase
         );
 
         // Queue for cleanup
-        $emailMessage = $this->account->getServiceManager()->get("EntityLoader")->get("email_message", $messageId);
+        $emailMessage = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::EMAIL_MESSAGE, $messageId);
         $this->testEntities[] = $emailMessage;
 
         // Assure that the response is not 0  (failure) or -1 (already delivered)

@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Netric\Request\HttpRequest;
 use Netric\Request\ConsoleRequest;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Request\RequestFactory;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Test querying ElasticSearch server
@@ -24,7 +26,7 @@ class RouterTest extends TestCase
     {
         $account = \NetricTest\Bootstrap::getAccount();
 
-        $request = $account->getServiceManager()->get("Netric/Request/Request");
+        $request = $account->getServiceManager()->get(RequestFactory::class);
         $request->setParam("controller", "test");
         $request->setParam("function", "test");
 
@@ -40,7 +42,7 @@ class RouterTest extends TestCase
 
         // Setup anonymous user which should be blocked
         $origCurrentUser = $account->getUser();
-        $loader = $account->getServiceManager()->get("EntityLoader");
+        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $user = $loader->getByGuid(UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 
@@ -67,7 +69,7 @@ class RouterTest extends TestCase
 
         // Setup anonymous user which should be blocked
         $origCurrentUser = $account->getUser();
-        $loader = $account->getServiceManager()->get("EntityLoader");
+        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $user = $loader->getByGuid(UserEntity::USER_ANONYMOUS);
         $account->setCurrentUser($user);
 

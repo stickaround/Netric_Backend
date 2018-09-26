@@ -7,6 +7,7 @@ namespace NetricTest\FileSystem\FileStore;
 use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore\LocalFileStore;
+use Netric\Entity\DataMapper\DataMapperFactory;
 
 class LocalFileStoreTest extends AbstractFileStoreTests
 {
@@ -31,7 +32,7 @@ class LocalFileStoreTest extends AbstractFileStoreTests
 
         $accId = $account->getId();
         $dataPath = __DIR__ . "/tmp";
-        $dataMapper = $sm->get("Entity_DataMapper");
+        $dataMapper = $sm->get(DataMapperFactory::class);
 
         $this->localFileStore = new LocalFileStore($accId, $dataPath, $dataMapper);
         $this->localPath = $dataPath;

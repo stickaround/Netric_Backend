@@ -8,6 +8,11 @@ use Netric\Entity\EntityInterface;
 use Netric\Account\Account;
 use Netric\Permissions\DaclLoader;
 use Netric\Permissions\Dacl;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Permissions\DaclLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use NetricTest\Bootstrap;
 
 class DaclLoaderTest extends TestCase
 {
@@ -48,25 +53,25 @@ class DaclLoaderTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->account = Bootstrap::getAccount();
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a temporary user
-        $this->user = $entityLoader->create("user");
+        $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", UserEntity::GROUP_USERS);
         $entityLoader->save($this->user);
         $this->testEntities[] = $this->user;
 
         // Let's store the current file DACL since we will modify it, and we want to restore it on shutdonw
-        $definitionLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
-        $fileDef = $definitionLoader->get("file");
+        $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $fileDef = $definitionLoader->get(ObjectTypes::FILE);
         $this->origFileDacl = $fileDef->getDacl();
 
         // Reset DACL for files
         $fileDef->setDacl(null);
 
-        $this->daclLoader = $this->account->getServiceManager()->get("Netric/Permissions/DaclLoader");
+        $this->daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
     }
 
     protected function tearDown()
@@ -74,14 +79,14 @@ class DaclLoaderTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
 
         // Delete any test entities
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
 
         // Restore original permissions to the file definition
-        $definitionLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
-        $fileDef = $definitionLoader->get("file");
+        $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $fileDef = $definitionLoader->get(ObjectTypes::FILE);
         $fileDef->setDacl($this->origFileDacl);
     }
 
@@ -90,10 +95,10 @@ class DaclLoaderTest extends TestCase
      */
     public function testGetForEntity()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New file
-        $file = $entityLoader->create("file");
+        $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
         $daclData = array(
             "entries" => array(
@@ -119,10 +124,10 @@ class DaclLoaderTest extends TestCase
      */
     public function testGetForEntity_Parent()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New folder which is the parent of a file
-        $folder = $entityLoader->create("folder");
+        $folder = $entityLoader->create(ObjectTypes::FOLDER);
         $folder->setValue("name", "MyFolder");
         $daclData = array(
             "entries" => array(
@@ -137,7 +142,7 @@ class DaclLoaderTest extends TestCase
         $this->testEntities[] = $folder;
 
         // New file that is a child of the parent
-        $file = $entityLoader->create("file");
+        $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("folder_id", $folder->getid());
         $file->setValue("name", "myFiletest.txt");
         $entityLoader->save($file);
@@ -156,10 +161,10 @@ class DaclLoaderTest extends TestCase
      */
     public function testGetForEntity_Definition()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New file
-        $file = $entityLoader->create("file");
+        $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
         $entityLoader->save($file);
         $this->testEntities[] = $file;
@@ -182,10 +187,10 @@ class DaclLoaderTest extends TestCase
      */
     public function testGetForEntity_Default()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // New file with no DACL
-        $file = $entityLoader->create("file");
+        $file = $entityLoader->create(ObjectTypes::FILE);
         $file->setValue("name", "myFiletest.txt");
         $entityLoader->save($file);
         $this->testEntities[] = $file;

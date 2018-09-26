@@ -13,6 +13,10 @@ use Netric\WorkFlow\WorkFlowManager;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\WorkFlowInstance;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\WorkFlow\WorkFlowManagerFactory;
+use Netric\WorkFlow\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /*
  * @group integration
@@ -67,9 +71,9 @@ class WorkFlowManagerTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
-        $this->entityLoader = $sl->get("EntityLoader");
-        $this->workFlowManager = $sl->get("Netric/WorkFlow/WorkFlowManager");
-        $this->workFlowDataMapper = $sl->get("Netric/WorkFlow/DataMapper/DataMapper");
+        $this->entityLoader = $sl->get(EntityLoaderFactory::class);
+        $this->workFlowManager = $sl->get(WorkFlowManagerFactory::class);
+        $this->workFlowDataMapper = $sl->get(DataMapperFactory::class);
     }
 
     protected function tearDown()
@@ -85,7 +89,7 @@ class WorkFlowManagerTest extends TestCase
          * Create a test entity to run on before saving
          * the workflow so we do not trigger it in the entity datamapper
          */
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("done", false); // should cause it to be ignored by the WorkFlow
         $this->entityLoader->save($task);
@@ -93,7 +97,7 @@ class WorkFlowManagerTest extends TestCase
 
         // Create a new workflow with conditions
         $workFlow = new WorkFlow($this->actionFactory);
-        $workFlow->setObjType("task");
+        $workFlow->setObjType(ObjectTypes::TASK);
         $workFlow->setOnlyOnConditionsUnmet(true);
         $workFlow->setOnUpdate(true);
         $condition = new Where("done");
@@ -154,7 +158,7 @@ class WorkFlowManagerTest extends TestCase
          * Create a test entity to run on before saving
          * the workflow so we do not trigger it in the entity datamapper
          */
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("done", true);
         $this->entityLoader->save($task);
@@ -162,7 +166,7 @@ class WorkFlowManagerTest extends TestCase
 
         // Create a new workflow with conditions
         $workFlow = new WorkFlow($this->actionFactory);
-        $workFlow->setObjType("task");
+        $workFlow->setObjType(ObjectTypes::TASK);
         $workFlow->setOnlyOnConditionsUnmet(true);
         $workFlow->setOnDaily(true);
         $condition = new Where("done");
@@ -185,7 +189,7 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowManager->runPeriodicWorkFlows();
 
         // Make sure the entity was changed
-        $openedTask = $this->entityLoader->get("task", $task->getId());
+        $openedTask = $this->entityLoader->get(ObjectTypes::TASK, $task->getId());
         $this->assertEquals('automatically changed', $openedTask->getValue("name"));
 
         /*
@@ -197,7 +201,7 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowManager->runPeriodicWorkFlows();
 
         // Make sure that the entity was not changed since 'daily' was already run before
-        $openedTask = $this->entityLoader->get("task", $task->getId());
+        $openedTask = $this->entityLoader->get(ObjectTypes::TASK, $task->getId());
         $this->assertEquals('test', $openedTask->getValue("name"));
 
         // Cleanup
@@ -210,14 +214,14 @@ class WorkFlowManagerTest extends TestCase
          * Create a test entity to run on before saving
          * the workflow so we do not trigger it in the entity datamapper
          */
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
 
         // Create a new workflow with conditions
         $workFlow = new WorkFlow($this->actionFactory);
-        $workFlow->setObjType("task");
+        $workFlow->setObjType(ObjectTypes::TASK);
         $workFlow->setOnUpdate(true);
 
         // Setup a test action to change the name to 'automatically changed'
@@ -253,7 +257,7 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowManager->runScheduledActions();
 
         // Get the entity again and make sure it was changed by the above action
-        $openedTask = $this->entityLoader->get("task", $task->getId());
+        $openedTask = $this->entityLoader->get(ObjectTypes::TASK, $task->getId());
         $this->assertEquals('automatically changed', $openedTask->getValue("name"));
 
         // Make sure the scheduled action is deleted

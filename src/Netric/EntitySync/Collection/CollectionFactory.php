@@ -9,6 +9,7 @@ use Netric\EntitySync\Commit\CommitManagerFactory;
 use Netric\EntitySync\DataMapperFactory;
 use Netric\EntitySync\EntitySync;
 use Netric\ServiceManager\AccountServiceManagerInterface;
+use Netric\EntityQuery\Index\IndexFactory;
 
 class CollectionFactory implements CollectionFactoryInterface
 {
@@ -60,7 +61,7 @@ class CollectionFactory implements CollectionFactoryInterface
 
         switch ($type) {
             case EntitySync::COLL_TYPE_ENTITY:
-                $index = $sm->get("EntityQuery_Index");
+                $index = $sm->get(IndexFactory::class);
                 $collection = new EntityCollection($dm, $commitManager, $index);
                 break;
             case EntitySync::COLL_TYPE_GROUPING:

@@ -7,6 +7,9 @@ use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\WorkFlow\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Base tests for all actions
@@ -56,11 +59,11 @@ abstract class AbstractActionTests extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
-        $this->entityLoader = $sl->get("EntityLoader");
-        $this->workFlowDataMapper = $sl->get("Netric/WorkFlow/DataMapper/DataMapper");
+        $this->entityLoader = $sl->get(EntityLoaderFactory::class);
+        $this->workFlowDataMapper = $sl->get(DataMapperFactory::class);
 
         // Create a test user
-        $this->testUser = $this->entityLoader->create("user");
+        $this->testUser = $this->entityLoader->create(ObjectTypes::USER);
         $this->testUser->setValue("name", "wftest-" . rand());
         $this->testUser->setValue("email", "test@test.com");
         $this->entityLoader->save(($this->testUser));
@@ -147,7 +150,7 @@ abstract class AbstractActionTests extends TestCase
         $user = $this->testUser;
 
         // Create an entity
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
         $task->setValue("user_id", $user->getId(), $user->getName());
 
@@ -175,7 +178,7 @@ abstract class AbstractActionTests extends TestCase
         $user = $this->testUser;
 
         // Create an entity
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
         $task->setValue("user_id", $user->getId(), $user->getName());
 
@@ -210,7 +213,7 @@ abstract class AbstractActionTests extends TestCase
         $action->setParam("subject", "<%name%>");
 
         // Create an entity
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
 
         // Make sure we can get the raw unmerged value
@@ -230,7 +233,7 @@ abstract class AbstractActionTests extends TestCase
         $action->setParam("username", "<%user_id.name%>");
 
         // Create an entity
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
         $task->setValue("user_id", $user->getId(), $user->getName());
 
@@ -259,7 +262,7 @@ abstract class AbstractActionTests extends TestCase
         $action->setParam("subject", "Work on <%obj_type%>");
 
         // Create an entity
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "ut-action-test-task");
 
         // Setup reflection object to access protected function
@@ -286,7 +289,7 @@ abstract class AbstractActionTests extends TestCase
         $action->setParam("subject", "Work on <%oid%>");
 
         // Create an entity
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setId(123);
         $task->setValue("name", "ut-action-test-task");
 
@@ -320,7 +323,7 @@ abstract class AbstractActionTests extends TestCase
         $action->setParam("to", "<%user_id%>,<%creator_id%>,<%user_id.email%>");
 
         // Create an entity with a user to send to
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("user_id", $user->getId(), $user->getName());
         $task->setValue("creator_id", $user->getId(), $user->getName());
 

@@ -8,6 +8,8 @@ use Netric;
 use Netric\FileSystem\FileStore\MogileFileStore;
 use Netric\FileSystem\FileStore\FileStoreInterface;
 use MogileFs;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Config\ConfigFactory;
 
 /**
  * Running this test requires we have an ANS service running
@@ -38,9 +40,9 @@ class MogileFileStoreTest extends AbstractFileStoreTests
         $this->tmpPath = __DIR__ . "/tmp";
 
         $accId = $account->getId();
-        $dataMapper = $sm->get("Entity_DataMapper");
+        $dataMapper = $sm->get(DataMapperFactory::class);
 
-        $config = $sm->get("Config");
+        $config = $sm->get(ConfigFactory::class);
 
         $this->mogileFileStore = new MogileFileStore(
             $accId,

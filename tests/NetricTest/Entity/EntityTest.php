@@ -176,7 +176,7 @@ class EntityTest extends TestCase
 
         $fileSystem = $sm->get(FileSystemFactory::class);
         $entityLoader = $sm->get(EntityLoaderFactory::class);
-        $dataMapper = $sm->get("Entity_DataMapper");
+        $dataMapper = $sm->get(DataMapperFactory::class);
 
         // Temp file
         $file = $fileSystem->createFile("%tmp%", "testfile.txt", true);

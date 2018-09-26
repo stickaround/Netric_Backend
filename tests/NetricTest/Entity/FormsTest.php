@@ -10,6 +10,7 @@ use Netric\Entity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\FormsFactory;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 
 class FormsTest extends TestCase
 {
@@ -50,7 +51,7 @@ class FormsTest extends TestCase
     public function testCreateForUser()
     {
         $testXml = "<field name='name' />";
-        $defLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $def = $defLoader->get("comment");
 
         // Save new small form
@@ -70,7 +71,7 @@ class FormsTest extends TestCase
     public function testCreateForAccount()
     {
         $testXml = "<field name='name' />";
-        $defLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
         $def = $defLoader->get("comment");
 
         // Save new small form

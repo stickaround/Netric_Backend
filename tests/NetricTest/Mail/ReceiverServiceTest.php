@@ -10,6 +10,11 @@ use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Account\Account;
 use Netric\EntityGroupings\Group;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\Mail\ReceiverServiceFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 class ReceiverServiceTest extends TestCase
 {
@@ -61,20 +66,20 @@ class ReceiverServiceTest extends TestCase
     protected function setUp()
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a temporary user
         $this->origCurrentUser = $this->account->getUser();
-        $this->user = $entityLoader->create("user");
+        $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $entityLoader->save($this->user);
         $this->testEntities[] = $this->user;
         $this->account->setCurrentUser($this->user);
 
         // If it does not exist, create an inbox for the user
-        $groupingsLoader = $this->account->getServiceManager()->get("Netric/EntityGroupings/Loader");
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
         $groupings = $groupingsLoader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             ["user_id"=>$this->user->getId()]
         );
@@ -87,7 +92,7 @@ class ReceiverServiceTest extends TestCase
         $this->inbox = $groupings->getByPath("Inbox");
 
         // Create a new test email account with params above
-        $this->emailAccount = $entityLoader->create("email_account");
+        $this->emailAccount = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT);
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue("name", "test-imap");
         $this->emailAccount->setValue("host", getenv('TESTS_NETRIC_MAIL_HOST'));
@@ -115,9 +120,9 @@ class ReceiverServiceTest extends TestCase
     {
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
-        $groupingsLoader = $serviceLocator->get("Netric/EntityGroupings/Loader");
+        $groupingsLoader = $serviceLocator->get(LoaderFactory::class);
         $groupings = $groupingsLoader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             ["user_id"=>$this->user->getId()]
         );
@@ -125,7 +130,7 @@ class ReceiverServiceTest extends TestCase
         $groupingsLoader->save($groupings);
 
         // Delete any test entities
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -205,16 +210,16 @@ class ReceiverServiceTest extends TestCase
 
     public function testSyncMailbox_Download()
     {
-        $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
+        $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
 
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
         // Check if we imported 5 messages - the number that got uploaded
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere("email_account")->equals($this->emailAccount->getId());
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(5, $results->getTotalNum());
 
@@ -226,26 +231,26 @@ class ReceiverServiceTest extends TestCase
 
     public function testSyncMailbox_DownloadSeenFlag()
     {
-        $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
+        $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
 
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
         // In setup we set one message to unseen
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
         $query->andWhere("flag_seen")->equals(false);
-        $query->andWhere("email_account")->equals($this->emailAccount->getId());
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(1, $results->getTotalNum());
 
         // Clean up all messages
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere("email_account")->equals($this->emailAccount->getId());
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         for ($i = 0; $i < $results->getTotalNum(); $i++) {
             $this->testEntities[] = $results->getEntity($i);
@@ -254,7 +259,7 @@ class ReceiverServiceTest extends TestCase
 
     public function testSyncMailbox_DownloadDelete()
     {
-        $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
+        $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
 
         // Import 5 sample messages from the copied files in the setUp
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
@@ -276,11 +281,11 @@ class ReceiverServiceTest extends TestCase
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
         // Check if one message got deleted
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere("email_account")->equals($this->emailAccount->getId());
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $this->assertEquals(4, $results->getTotalNum());
 
@@ -292,18 +297,18 @@ class ReceiverServiceTest extends TestCase
 
     public function testSyncMailbox_UploadChange()
     {
-        $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Import 7 sample messages from the copied files in the setUp
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
         // Delete one of the messages locally
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere("email_account")->equals($this->emailAccount->getId());
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
 
         // Change the first entity
@@ -338,18 +343,18 @@ class ReceiverServiceTest extends TestCase
 
     public function testSyncMailbox_UploadDelete()
     {
-        $receiver = $this->account->getServiceManager()->get("Netric/Mail/ReceiverService");
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $receiver = $this->account->getServiceManager()->get(ReceiverServiceFactory::class);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Import 7 sample messages from the copied files in the setUp
         $this->assertTrue($receiver->syncMailbox($this->inbox->id, $this->emailAccount));
 
         // Delete one of the messages locally
-        $query = new EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("mailbox_id")->equals($this->inbox->id);
         $query->andWhere("owner_id")->equals($this->user->getId());
-        $query->andWhere("email_account")->equals($this->emailAccount->getId());
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $query->andWhere(ObjectTypes::EMAIL_ACCOUNT)->equals($this->emailAccount->getId());
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $entityLoader->delete($results->getEntity(0));
 

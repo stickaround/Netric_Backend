@@ -76,7 +76,7 @@ class EntityMaintainerServiceTest extends TestCase
         $entityDefinitionLoader->method('getAll')->willReturn([$def]);
 
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
-        $entityIndex = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $entityIndex = $this->account->getServiceManager()->get(IndexFactory::class);
         $fileSystem = $this->account->getServiceManager()->get(FileSystem::class);
         $log = $this->getMockBuilder(LogInterface::class)->getMock();
         $this->maintainerService = new EntityMaintainerService(

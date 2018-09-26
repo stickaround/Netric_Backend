@@ -8,6 +8,9 @@ use Netric;
 use PHPUnit\Framework\TestCase;
 use Netric\FileSystem\FileStore;
 use Netric\Entity\DataMapperInterface;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 abstract class AbstractFileStoreTests extends TestCase
 {
@@ -33,16 +36,16 @@ abstract class AbstractFileStoreTests extends TestCase
     private function getEntityDataMapper()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        return $account->getServiceManager()->get("Entity_DataMapper");
+        return $account->getServiceManager()->get(DataMapperFactory::class);
     }
 
     private function createTestFile()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        $loader = $account->getServiceManager()->get("EntityLoader");
+        $loader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $dataMapper = $this->getEntityDataMapper();
 
-        $file = $loader->create("file");
+        $file = $loader->create(ObjectTypes::FILE);
         $file->setValue("name", "test.txt");
         $dataMapper->save($file);
 
@@ -202,7 +205,7 @@ abstract class AbstractFileStoreTests extends TestCase
 
         // Now loop through all revisions and make sure we purged them
         $dataMapper = $this->getEntityDataMapper();
-        $files = $dataMapper->getRevisions("file", $testFile->getId());
+        $files = $dataMapper->getRevisions(ObjectTypes::FILE, $testFile->getId());
         foreach ($files as $rev => $file) {
             $this->assertFalse($fileStore->fileExists($file));
         }

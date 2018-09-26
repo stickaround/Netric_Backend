@@ -1803,7 +1803,7 @@ abstract class IndexTestsAbstract extends TestCase
         $g1 = $this->createGrouping(ObjectTypes::CONTACT, "groups", "HeiarchyDownGrp1");
         $g2 = $this->createGrouping(ObjectTypes::CONTACT, "groups", "HeiarchyDownGrp2", $g1['id']);
 
-        $def = $this->account->getServiceManager()->get("EntityDefinitionLoader")->get(ObjectTypes::CONTACT);
+        $def = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get(ObjectTypes::CONTACT);
         $field = $def->getField("groups");
 
         $children = $index->getHeiarchyDownGrp($field, $g1["id"]);

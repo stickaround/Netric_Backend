@@ -6,6 +6,9 @@ use Netric\Permissions;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Entity\EntityInterface;
 use Netric\Permissions\Dacl;
+use NetricTest\Bootstrap;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class DaclTest extends TestCase
 {
@@ -32,11 +35,11 @@ class DaclTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->account = Bootstrap::getAccount();
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create a temporary user
-        $this->user = $entityLoader->create("user");
+        $this->user = $entityLoader->create(ObjectTypes::USER);
         $this->user->setValue("name", "utest-email-receiver-" . rand());
         $this->user->addMultiValue("groups", UserEntity::GROUP_USERS);
         $entityLoader->save($this->user);
@@ -48,7 +51,7 @@ class DaclTest extends TestCase
         $serviceLocator = $this->account->getServiceManager();
 
         // Delete any test entities
-        $entityLoader = $serviceLocator->get("EntityLoader");
+        $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -125,8 +128,8 @@ class DaclTest extends TestCase
         $this->assertTrue($dacl->isAllowed($this->user, Dacl::PERM_VIEW));
 
         // Make a new user and add them to the group to test
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $user2 = $entityLoader->create("user");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user2 = $entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "utest-dacl-" . rand());
         $user2->addMultiValue("groups", UserEntity::GROUP_USERS);
         $entityLoader->save($user2);
@@ -172,13 +175,13 @@ class DaclTest extends TestCase
         $dacl->allowGroup(UserEntity::GROUP_USERS);
 
         // Make sure anonymous access is not allowed if only authenticated users were given access
-        $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW));
+        $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW));
 
         // Now give everyone view only access and test
         $dacl->allowGroup(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW);
-        $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_VIEW));
+        $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_VIEW));
 
         // But not edit
-        $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Permissions\Dacl::PERM_EDIT));
+        $this->assertFalse($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, Dacl::PERM_EDIT));
     }
 }

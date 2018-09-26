@@ -17,7 +17,7 @@ class LogFactoryTest extends TestCase
         // Get by alias (old method)
         $this->assertInstanceOf(
             Log::class,
-            $sm->get('Log')
+            $sm->get(LogFactory::class)
         );
 
         // Get by factory (newer and preferred method)
