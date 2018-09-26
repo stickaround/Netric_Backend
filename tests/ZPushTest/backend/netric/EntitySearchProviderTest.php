@@ -94,7 +94,7 @@ class EntitySearchProviderTest extends TestCase
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new EntityQueryObjectTypes::USER);
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
         $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);

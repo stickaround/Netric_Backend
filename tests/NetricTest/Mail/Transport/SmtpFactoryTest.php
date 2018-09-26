@@ -8,7 +8,6 @@ use Netric\Mail\Transport\SmtpFactory;
 use PHPUnit\Framework\TestCase;
 use Netric\Settings\SettingsFactory;
 use Netric\Mail\Transport\Smtp;
-use Netric\Mail\Transport\SmtpFactory;
 use NetricTest\Bootstrap;
 
 class SmtpFactoryTest extends TestCase
@@ -75,7 +74,7 @@ class SmtpFactoryTest extends TestCase
         $transport = $smtpFactory->createService($sm);
 
         $this->assertInstanceOf(
-            'Netric\Mail\Transport\Smtp',
+            Smtp::class,
             $transport
         );
 
