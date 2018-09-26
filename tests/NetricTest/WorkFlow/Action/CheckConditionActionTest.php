@@ -6,6 +6,8 @@ use Netric\EntityQuery\Where;
 use Netric\Entity\EntityInterface;
 use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class CheckConditionActionTest extends AbstractActionTests
 {
@@ -53,8 +55,8 @@ class CheckConditionActionTest extends AbstractActionTests
         $serviceManager = $this->account->getServiceManager();
 
         // Save an entity where conditions match
-        $entityLoader = $serviceManager->get("EntityLoader");
-        $task = $entityLoader->create("task");
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("done", false);
         $tid = $entityLoader->save($task);
@@ -88,8 +90,8 @@ class CheckConditionActionTest extends AbstractActionTests
         $serviceManager = $this->account->getServiceManager();
 
         // Save an entity where conditions match
-        $entityLoader = $serviceManager->get("EntityLoader");
-        $task = $entityLoader->create("task");
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("done", true);
         $tid = $entityLoader->save($task);

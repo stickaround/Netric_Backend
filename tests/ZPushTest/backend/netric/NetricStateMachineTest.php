@@ -7,6 +7,8 @@ namespace ZPushTest\backend\netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Log\LogInterface;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Settings\SettingsFactory;
+use Netric\Cache\CacheFactory;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -57,8 +59,8 @@ class NetricStateMachineTest extends TestCase
         // Get dependencies
         $log = $this->getMockBuilder(LogInterface::class)->getMock();
         $database = $this->account->getServiceManager()->get(RelationalDbFactory::class);
-        $cache = $this->account->getServiceManager()->get("Cache");
-        $settings = $this->account->getServiceManager()->get("Netric/Settings/Settings");
+        $cache = $this->account->getServiceManager()->get(CacheFactory::class);
+        $settings = $this->account->getServiceManager()->get(SettingsFactory::class);
 
         // Initialize zpush - copied from zpush index file
         if (!defined ( 'REAL_BASE_PATH' )) {

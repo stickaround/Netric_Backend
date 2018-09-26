@@ -6,6 +6,10 @@ namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\SmtpFactory;
 use PHPUnit\Framework\TestCase;
+use Netric\Settings\SettingsFactory;
+use Netric\Mail\Transport\Smtp;
+use Netric\Mail\Transport\SmtpFactory;
+use NetricTest\Bootstrap;
 
 class SmtpFactoryTest extends TestCase
 {
@@ -21,8 +25,8 @@ class SmtpFactoryTest extends TestCase
 
     protected function setUp()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $account = Bootstrap::getAccount();
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $this->oldSettings = array(
             'smtp_host' => $settings->get("email/smtp_host"),
             'smtp_user' => $settings->get("email/smtp_user"),
@@ -34,8 +38,8 @@ class SmtpFactoryTest extends TestCase
     protected function tearDown()
     {
         // Restore cached old settings
-        $account = \NetricTest\Bootstrap::getAccount();
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $account = Bootstrap::getAccount();
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $settings->set("email/smtp_host", $this->oldSettings['smtp_host']);
         $settings->set("email/smtp_user", $this->oldSettings['smtp_user']);
         $settings->set("email/smtp_password", $this->oldSettings['smtp_password']);
@@ -44,11 +48,11 @@ class SmtpFactoryTest extends TestCase
 
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Mail\Transport\Smtp',
-            $sm->get('Netric\Mail\Transport\Smtp')
+            Smtp::class,
+            $sm->get(SmtpFactory::class)
         );
     }
 
@@ -59,9 +63,9 @@ class SmtpFactoryTest extends TestCase
         $testUser = 'testuser';
         $testPassword = 'password';
 
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $settings = $sm->get("Netric/Settings/Settings");
+        $settings = $sm->get(SettingsFactory::class);
         $settings->set('email/smtp_host', $testHost);
         $settings->set('email/smtp_port', $testPort);
         $settings->set('email/smtp_user', $testUser);

@@ -184,7 +184,7 @@ class DeliveryServiceTest extends TestCase
         // Check some snippets of text that should be in the hrml body
         $attachments = $emailMessage->getValue("attachments");
         $this->assertEquals(3, count($attachments));
-        $file = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get("file", $attachments[0]);
+        $file = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::FILE, $attachments[0]);
         $this->assertEquals("HoS-Logo-Black.pdf", $file->getValue("name"));
         $this->assertGreaterThan(0, $file->getValue("file_size"));
     }

@@ -497,7 +497,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
             $results = $this->entityIndex->executeQuery($query);
             if ($results->getNum()) {
                 $emailMessage = $results->getEntity(0);
-                $thread = $this->entityLoader->get("email_thread", $emailMessage->getValue("thread"));
+                $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $emailMessage->getValue("thread"));
             }
         }
 
@@ -579,7 +579,7 @@ class EmailMessageEntity extends Entity implements EntityInterface
 
         // If a thread was not passed, the load it from value
         if (!$thread) {
-            $thread = $this->entityLoader->get("email_thread", $this->getValue("thread"));
+            $thread = $this->entityLoader->get(ObjectTypes::EMAIL_THREAD, $this->getValue("thread"));
         }
 
         /*

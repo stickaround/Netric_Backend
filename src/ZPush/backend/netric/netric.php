@@ -38,6 +38,14 @@ use Netric\Mail\SenderServiceFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\Cache\CacheFactory;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntitySync\EntitySyncFactory;
+use Netric\EntitySync\DataMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery\Where;
+use Netric\EntitySync\Collection\CollectionFactory;
+use Netric\EntitySync\EntitySync;
 
 /**
  * Netric backend class
@@ -221,7 +229,7 @@ class BackendNetric implements IBackend
 
         // Get the authentication service and authenticate the credentials
         $sm = $this->account->getServiceManager();
-        $authService = $sm->get("/Netric/Authentication/AuthenticationService");
+        $authService = $sm->get(AuthenticationServiceFactory::class);
         if ($authService->authenticate($username, $password))
         {
             $this->user = $this->account->getUser(null, $username);
@@ -448,8 +456,8 @@ class BackendNetric implements IBackend
         $message = Netric\Mail\Message::fromString($sm->mime);
 
         // Create a new EmailMessage entity from the mail message
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailEntity = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailEntity = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailEntity->setValue("owner_id", $this->user->getId());
 
         // Import the mail message into the entity
@@ -772,7 +780,7 @@ class BackendNetric implements IBackend
         if (!$this->partnership)
         {
             $serviceManager = $this->account->getServiceManager();
-            $entitySync = $serviceManager->get("EntitySync");
+            $entitySync = $serviceManager->get(EntitySyncFactory::class);
             $this->partnership = $entitySync->getPartner($this->deviceId);
             if (!$this->partnership)
             {
@@ -798,36 +806,36 @@ class BackendNetric implements IBackend
         switch ($folder['type'])
         {
             case EntityProvider::FOLDER_TYPE_CONTACT:
-                $objType = "contact_personal";
+                $objType = ObjectTypes::CONTACT_PERSONAL;
                 $cond = array(
                     array(
-                        "blogic" => Netric\EntityQuery\Where::COMBINED_BY_AND,
+                        "blogic" => Where::COMBINED_BY_AND,
                         "field" => "user_id",
-                        "operator" => Netric\EntityQuery\Where::OPERATOR_EQUAL_TO,
+                        "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $this->user->getId()
                     )
                 );
                 break;
 
             case EntityProvider::FOLDER_TYPE_CALENDAR:
-                $objType = "calendar_event";
+                $objType = ObjectTypes::CALENDAR_EVENT;
                 $cond = array(
                     array(
-                        "blogic" => Netric\EntityQuery\Where::COMBINED_BY_AND,
+                        "blogic" => Where::COMBINED_BY_AND,
                         "field" => "calendar",
-                        "operator" => Netric\EntityQuery\Where::OPERATOR_EQUAL_TO,
+                        "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $folder['id']
                     )
                 );
                 break;
 
             case EntityProvider::FOLDER_TYPE_NOTE:
-                $objType = "note";
+                $objType = ObjectTypes::NOTE;
                 $cond = array(
                     array(
-                        "blogic" => Netric\EntityQuery\Where::COMBINED_BY_AND,
+                        "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"user_id",
-                        "operator" => Netric\EntityQuery\Where::OPERATOR_EQUAL_TO,
+                        "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue"=>$this->user->getId()
                     ),
                 );
@@ -835,30 +843,30 @@ class BackendNetric implements IBackend
                 break;
 
             case EntityProvider::FOLDER_TYPE_TASK:
-                $objType = "task";
+                $objType = ObjectTypes::TASK;
                 $cond = array(
                     array(
-                        "blogic" => Netric\EntityQuery\Where::COMBINED_BY_AND,
+                        "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"user_id",
-                        "operator" => Netric\EntityQuery\Where::OPERATOR_EQUAL_TO,
+                        "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue"=>$this->user->getId()
                     )
                 );
                 break;
 
             case EntityProvider::FOLDER_TYPE_EMAIL:
-                $objType = "email_message";
+                $objType = ObjectTypes::EMAIL_MESSAGE;
                 $cond = array(
                     array(
-                        "blogic" => Netric\EntityQuery\Where::COMBINED_BY_AND,
+                        "blogic" => Where::COMBINED_BY_AND,
                         "field"=>"owner_id",
-                        "operator" => Netric\EntityQuery\Where::OPERATOR_EQUAL_TO,
+                        "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue"=>$this->user->getId()
                     ),
                     array(
-                        "blogic" => Netric\EntityQuery\Where::COMBINED_BY_AND,
+                        "blogic" => Where::COMBINED_BY_AND,
                         "field" => "mailbox_id",
-                        "operator" => Netric\EntityQuery\Where::OPERATOR_EQUAL_TO,
+                        "operator" => Where::OPERATOR_EQUAL_TO,
                         "condValue" => $folder['id']
                     ),
                 );
@@ -870,14 +878,14 @@ class BackendNetric implements IBackend
         {
             // Get service locator for account
             $serviceManager = $this->account->getServiceManager();
-            $coll = \Netric\EntitySync\Collection\CollectionFactory::create(
+            $coll = CollectionFactory::create(
                 $serviceManager,
-                \Netric\EntitySync\EntitySync::COLL_TYPE_ENTITY
+                EntitySync::COLL_TYPE_ENTITY
             );
             $coll->setObjType($objType);
             $coll->setConditions($cond);
             $this->partnership->addCollection($coll);
-            $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
+            $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership);
         }
 
         // Cache for future requests
@@ -1012,7 +1020,7 @@ class BackendNetric implements IBackend
          */
         if ($this->partnership) {
             $serviceManager = $this->account->getServiceManager();
-            $serviceManager->get("EntitySync_DataMapper")->savePartner($this->partnership);
+            $serviceManager->get(DataMapperFactory::class)->savePartner($this->partnership);
              $this->log->info("ZPUSH->Saved partnership: " . $this->partnership->getId());
         }
     }

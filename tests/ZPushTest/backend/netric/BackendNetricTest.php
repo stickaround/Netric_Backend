@@ -7,6 +7,16 @@ namespace ZPushTest\backend\netric;
 use PHPUnit\Framework\TestCase;
 use Netric\Mail\Transport\InMemory;
 use Netric\Mail\SenderService;
+use NetricTest\Bootstrap;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\Log\LogFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery;
+use Netric\Log\LogInterface;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -63,15 +73,15 @@ class BackendNetricTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new \Netric\EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++)
         {
@@ -80,8 +90,8 @@ class BackendNetricTest extends TestCase
         }
 
         // Create a test user
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->create("user");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("full_name", self::TEST_USER_FULL_NAME);
         $user->setValue("email", self::TEST_USER_EMAIL);
@@ -100,7 +110,7 @@ class BackendNetricTest extends TestCase
         $this->backend = new \BackendNetric();
 
         // Mock the log so we are not printing to stderr
-        $log = $this->getMockBuilder('\Netric\Log\LogInterface')
+        $log = $this->getMockBuilder(LogInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->backend->setLog($log);
@@ -121,7 +131,7 @@ class BackendNetricTest extends TestCase
      */
     protected function tearDown()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }
@@ -190,8 +200,8 @@ class BackendNetricTest extends TestCase
      */
     public function testFetch()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $task = $entityLoader->create("task");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "My Unit Test Task");
         $task->setValue("user_id", $this->user->getId());
         $task->setValue("start_date", date("m/d/Y"));
@@ -231,7 +241,7 @@ class BackendNetricTest extends TestCase
     {
         // Create a test file
         $testData = "test data";
-        $fileSystem = $this->account->getServiceManager()->get("Netric/FileSystem/FileSystem");
+        $fileSystem = $this->account->getServiceManager()->get(FileSystemFactory::class);
         $file = $fileSystem->createFile("%tmp%", "testZPushAttachment.txt", true);
         $fileSystem->writeFile($file, $testData);
         $this->testEntities[] = $file;
@@ -248,7 +258,7 @@ class BackendNetricTest extends TestCase
     {
         // Setup a test sender service to use
         $transport = new InMemory();
-        $log = $this->account->getServiceManager()->get("Log");
+        $log = $this->account->getServiceManager()->get(LogFactory::class);
         $senderService = new SenderService(
             $transport,
             $transport,
@@ -282,8 +292,8 @@ class BackendNetricTest extends TestCase
     public function testChangesSink()
     {
         // Get inbox - it was created in $this->setUp
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
         $group = $groupings->create('test-' . rand());
         $group->user_id = $this->user->getId();
         $groupings->add($group);
@@ -305,8 +315,8 @@ class BackendNetricTest extends TestCase
         $this->assertEquals(0, count($changedFolders), var_export($changedFolders, true));
 
         // Create a dummy email message which will add the to stats
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $email = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "Test message");
         $email->setValue("flag_seen", 'f');
         $email->setValue("owner_id", $this->user->getId());

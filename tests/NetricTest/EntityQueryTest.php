@@ -4,6 +4,9 @@ namespace NetricTest;
 use PHPUnit\Framework\TestCase;
 use Netric;
 use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery\Where;
+use Netric\EntityQuery\OrderBy;
 
 class EntityQueryTest extends TestCase
 {
@@ -12,7 +15,7 @@ class EntityQueryTest extends TestCase
      */
     public function testWhere()
     {
-        $query = new Netric\EntityQuery("customer");
+        $query = new EntityQuery(ObjectTypes::CONTACT);
         $query->where('name')->equals("test");
         //$query->orWhere('fieldname')->isGreaterThan("value");
         //$query->andWhere('fieldname')->isLessThan("value");
@@ -33,7 +36,7 @@ class EntityQueryTest extends TestCase
      */
     public function testOrderBy()
     {
-        $query = new Netric\EntityQuery("customer");
+        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
         $query->orderBy("name");
         $orderBy = $query->getOrderBy();
 
@@ -47,12 +50,12 @@ class EntityQueryTest extends TestCase
      */
     public function testToArray()
     {
-        $query = new Netric\EntityQuery("customer");
+        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
         $query->where('name')->equals("test");
         $query->orderBy("name");
 
         $arrQuery = $query->toArray();
-        $this->assertEquals("customer", $arrQuery['obj_type']);
+        $this->assertEquals(ObjectTypes::CONTACT, $arrQuery['obj_type']);
         $this->assertEquals($query->getOffset(), $arrQuery['offset']);
         $this->assertEquals($query->getLimit(), $arrQuery['limit']);
 
@@ -77,7 +80,7 @@ class EntityQueryTest extends TestCase
     public function testFromArray()
     {
         $arrQueryData = array(
-            'obj_type' => 'customer',
+            'obj_type' => ObjectTypes::CONTACT,
             'limit' => 100,
             'offset' => 20,
             'conditions' => array(
@@ -110,13 +113,13 @@ class EntityQueryTest extends TestCase
          * that is already tested in WhereTest::testFromArray
          */
         $wheres = $query->getWheres();
-        $this->assertInstanceOf('\Netric\EntityQuery\Where', $wheres[0]);
+        $this->assertInstanceOf(Where::class, $wheres[0]);
 
         /*
          * We don't need to test all the properties of the OrderBy object since
          * that is already tested in OrderByTest::testFromArray
          */
         $orders = $query->getOrderBy();
-        $this->assertInstanceOf('\Netric\EntityQuery\OrderBy', $orders[0]);
+        $this->assertInstanceOf(OrderBy::class, $orders[0]);
     }
 }

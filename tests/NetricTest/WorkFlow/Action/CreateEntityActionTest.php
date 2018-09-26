@@ -5,6 +5,8 @@ use Netric\WorkFlow\WorkFlowInstance;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class CreateEntityActionTest extends AbstractActionTests
 {
@@ -22,7 +24,7 @@ class CreateEntityActionTest extends AbstractActionTests
     {
         $testLongName = 'utest-workflow-action-create-entity';
         $action = $this->getAction();
-        $action->setParam('obj_type', 'task');
+        $action->setParam('obj_type', ObjectTypes::TASK);
         $action->setParam('name', $testLongName);
         $action->setParam('user_id', '<%user_id%>'); // Copy from parent task
 
@@ -30,7 +32,7 @@ class CreateEntityActionTest extends AbstractActionTests
         $user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
         // Create a test task that will create another task that copies the woner
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("user_id", $user->getId());
         $task->setId(321);
@@ -43,9 +45,9 @@ class CreateEntityActionTest extends AbstractActionTests
 
         // Get and cleanup
         $newEntityFound = false;
-        $query = new EntityQuery("task");
+        $query = new EntityQuery(ObjectTypes::TASK);
         $query->where('name')->equals($testLongName);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $result = $index->executeQuery($query);
         for ($i = 0; $i < $result->getNum(); $i++) {
             $taskToDelete = $result->getEntity($i);

@@ -6,6 +6,16 @@ namespace ZPushTest\backend\netric;
 
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\FileSystem\FileSystemFactory;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\Log\LogFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery;
+use Netric\Log\LogInterface;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -74,15 +84,15 @@ class EntityProviderTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new \Netric\EntityQuery("user");
+        $query = new EntityQuery(ObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++)
         {
@@ -91,8 +101,8 @@ class EntityProviderTest extends TestCase
         }
 
         // Create a test user
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->create("user");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("active", true);
@@ -101,11 +111,11 @@ class EntityProviderTest extends TestCase
         $this->testEntities[] = $user; // cleanup automatically
 
         // Get the entityLoader
-        $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create inbox mailbox for testing
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$user->getId()));
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$user->getId()));
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
             $inbox->user_id = $user->getId();
@@ -114,7 +124,7 @@ class EntityProviderTest extends TestCase
         }
 
         // Create a calendar for the user to test
-        $calendar = $this->entityLoader->create("calendar");
+        $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UTest provider");
         $calendar->setValue("user_id", $this->user->getId());
         $this->entityLoader->save($calendar);
@@ -187,7 +197,7 @@ class EntityProviderTest extends TestCase
     {
         // Add a calendar for the user
         $entityLoader = $this->entityLoader;
-        $calendar = $entityLoader->create("calendar");
+        $calendar = $entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "a test calendar");
         $calendar->setValue("user_id", $this->user->getId());
         $entityLoader->save($calendar);
@@ -216,8 +226,8 @@ class EntityProviderTest extends TestCase
     {
         // Add a mail folder for the user
         $sm = $this->account->getServiceManager();
-        $entityGroupingsLoader = $sm->get("EntityGroupings_Loader");
-        $groupings = $entityGroupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
+        $entityGroupingsLoader = $sm->get(LoaderFactory::class);
+        $groupings = $entityGroupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
 
         /*
          * TODO: We have removed the ability to have multiple folders and just return the inbox
@@ -284,7 +294,7 @@ class EntityProviderTest extends TestCase
      */
     public function testGetSyncObject_Task()
     {
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "My Unit Test Task");
         $task->setValue("user_id", $this->user->getId());
         $task->setValue("start_date", date("m/d/Y"));
@@ -312,7 +322,7 @@ class EntityProviderTest extends TestCase
      */
     public function testGetSyncObject_Contact()
     {
-        $contact = $this->entityLoader->create("contact_personal");
+        $contact = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
         $contact->setValue("first_name", "John");
         $contact->setValue("last_name", "Doe");
         $contact->setValue("user_id", $this->user->getId());
@@ -337,17 +347,17 @@ class EntityProviderTest extends TestCase
     public function testGetSyncObject_Appointment()
     {
         // Create a new calendar for this event
-        $calendar = $this->entityLoader->create("calendar");
+        $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UT_TEST_CALENDAR");
         $calid = $this->entityLoader->save($calendar);
         $this->testEntities[] = $calendar;
 
         // Create an event
-        $event = $this->entityLoader->create("calendar_event");
+        $event = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $event->setValue("name", "UnitTest Event");
         $event->setValue("ts_start", "10/8/2011 2:30 PM");
         $event->setValue("ts_end", "10/8/2011 3:30 PM");
-        $event->setValue("calendar", $calid);
+        $event->setValue(ObjectTypes::CALENDAR, $calid);
         $cid = $this->entityLoader->save($event);
 
         // Queue for cleanup
@@ -367,7 +377,7 @@ class EntityProviderTest extends TestCase
      */
     public function testGetSyncObject_Email()
     {
-        $email = $this->entityLoader->create("email_message");
+        $email = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "A test message");
         $email->setValue("sent_from", "sky@stebnicki.net");
         $eid = $this->entityLoader->save($email);
@@ -395,7 +405,7 @@ class EntityProviderTest extends TestCase
         $this->assertNotNull($id);
 
         // Open and check the data
-        $entity = $this->entityLoader->get("task", $id);
+        $entity = $this->entityLoader->get(ObjectTypes::TASK, $id);
         $this->testEntities[] = $entity;
         $this->assertEquals($task->subject, $entity->getValue("name"));
         $this->assertGreaterThan(0, $entity->getValue("user_id"));
@@ -406,7 +416,7 @@ class EntityProviderTest extends TestCase
         $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_TASK . "-my", $id, $task);
 
         // Test the new value
-        $openedEntity = $this->entityLoader->get("task", $id);
+        $openedEntity = $this->entityLoader->get(ObjectTypes::TASK, $id);
         $this->assertEquals($task->subject, $openedEntity->getValue("name"));
     }
 
@@ -420,7 +430,7 @@ class EntityProviderTest extends TestCase
         $this->assertNotNull($id);
 
         // Open and check the data
-        $entity = $this->entityLoader->get("email_message", $id);
+        $entity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         $this->testEntities[] = $entity;
         $this->assertEquals($mail->subject, $entity->getValue("subject"));
         $this->assertGreaterThan(0, $entity->getValue("owner_id"));
@@ -430,7 +440,7 @@ class EntityProviderTest extends TestCase
         $this->provider->saveSyncObject($emailMailboxes[0]->serverid, $id, $mail);
 
         // Test the new value
-        $openedEntity = $this->entityLoader->get("email_message", $id);
+        $openedEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         $this->assertEquals($mail->subject, $openedEntity->getValue("subject"));
     }
 
@@ -467,7 +477,7 @@ class EntityProviderTest extends TestCase
         date_default_timezone_set('America/New_York');
 
         // Open and check the data
-        $entity = $this->entityLoader->get("calendar_event", $eid);
+        $entity = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $eid);
         $this->testEntities[] = $entity;
         $this->assertEquals($entity->getValue("name"), $app->subject);
         // Because we changed timezones, the times should be -5 hours  in EST
@@ -495,7 +505,7 @@ class EntityProviderTest extends TestCase
         $this->assertNotNull($id);
 
         // Open and check the data
-        $entity = $this->entityLoader->get("contact_personal", $id);
+        $entity = $this->entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
         $this->testEntities[] = $entity;
         $this->assertEquals($contact->firstname, $entity->getValue("first_name"));
         $this->assertEquals($contact->lastname, $entity->getValue("last_name"));
@@ -506,7 +516,7 @@ class EntityProviderTest extends TestCase
         $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_CONTACT . "-my", $id, $contact);
 
         // Test the new value
-        $openedEntity = $this->entityLoader->get("contact_personal", $id);
+        $openedEntity = $this->entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
         $this->assertEquals($contact->firstname, $openedEntity->getValue("first_name"));
     }
 
@@ -514,8 +524,8 @@ class EntityProviderTest extends TestCase
     {
         // Add a grouping to use
         $sm = $this->account->getServiceManager();
-        $entityGroupingsLoader = $sm->get("EntityGroupings_Loader");
-        $groupings = $entityGroupingsLoader->get("note", "groups", array("user_id"=>$this->user->getId()));
+        $entityGroupingsLoader = $sm->get(LoaderFactory::class);
+        $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE, "groups", array("user_id"=>$this->user->getId()));
         $newGroup = $groupings->create();
         $newGroup->name = "utttest";
         //$newGroup->user_id = \Netric\Entity\ObjType\UserEntity::USER_SYSTEM;
@@ -534,7 +544,7 @@ class EntityProviderTest extends TestCase
         $this->assertNotNull($id);
 
         // Open and check the data
-        $entity = $this->entityLoader->get("note", $id);
+        $entity = $this->entityLoader->get(ObjectTypes::NOTE, $id);
         $this->testEntities[] = $entity;
 
         // Cleanup before testing
@@ -552,7 +562,7 @@ class EntityProviderTest extends TestCase
         $this->provider->saveSyncObject(\EntityProvider::FOLDER_TYPE_NOTE . "-my", $id, $note);
 
         // Test the new value
-        $openedEntity = $this->entityLoader->get("note", $id);
+        $openedEntity = $this->entityLoader->get(ObjectTypes::NOTE, $id);
         $this->assertEquals('plain', $entity->getValue("body_type"));
         $this->assertEquals($note->asbody, $entity->getValue("body"));
     }
@@ -560,8 +570,8 @@ class EntityProviderTest extends TestCase
     public function testMoveEntity_Email()
     {
         // Create drafts mailbox for testing - Inbox is already added in $this->setUp
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
         if (!$groupings->getByName("Drafts")) {
             $inbox = $groupings->create("Drafts");
             $inbox->user_id = $this->user->getId();
@@ -572,7 +582,7 @@ class EntityProviderTest extends TestCase
         $grpInbox = $groupings->getByName("Inbox");
         $grpDrafts = $groupings->getByName("Drafts");
 
-        $entity = $this->entityLoader->create("email_message");
+        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity->setValue("mailbox_id", $grpDrafts->id);
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
@@ -584,7 +594,7 @@ class EntityProviderTest extends TestCase
         );
         $this->assertTrue($ret);
 
-        $loadedEntity = $this->entityLoader->get("email_message", $id);
+        $loadedEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         $this->assertEquals($grpInbox->id, $loadedEntity->getValue("mailbox_id"));
     }
 
@@ -593,14 +603,14 @@ class EntityProviderTest extends TestCase
         $calendar1 = $this->testCalendar;
 
         // Create a second calendar - first is created in setUp
-        $calendar2 = $this->entityLoader->create("calendar");
+        $calendar2 = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar2->setValue("name", "UTest provider 2");
         $calendar2->setValue("user_id", $this->user->getId());
         $this->entityLoader->save($calendar2);
         $this->testEntities[] = $calendar2;
 
-        $entity = $this->entityLoader->create("calendar_event");
-        $entity->setValue("calendar", $calendar1->getId());
+        $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
+        $entity->setValue(ObjectTypes::CALENDAR, $calendar1->getId());
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
@@ -611,8 +621,8 @@ class EntityProviderTest extends TestCase
         );
         $this->assertTrue($ret);
 
-        $loadedEntity = $this->entityLoader->get("calendar_event", $id);
-        $this->assertEquals($calendar2->getId(), $loadedEntity->getValue("calendar"));
+        $loadedEntity = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
+        $this->assertEquals($calendar2->getId(), $loadedEntity->getValue(ObjectTypes::CALENDAR));
     }
 
     /**
@@ -647,9 +657,9 @@ class EntityProviderTest extends TestCase
 
     public function testGetEntityStat()
     {
-        $entity = $this->entityLoader->create("calendar_event");
+        $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         $entity->setValue("name", "test event for stats");
-        $entity->setValue("calendar", $this->testCalendar->getId());
+        $entity->setValue(ObjectTypes::CALENDAR, $this->testCalendar->getId());
         $id = $this->entityLoader->save($entity);
         $this->testEntities[] = $entity;
 
@@ -670,7 +680,7 @@ class EntityProviderTest extends TestCase
         $folderParts = explode("-", $emailFolders[0]->serverid);
         $mailboxId = $folderParts[1];
 
-        $entity = $this->entityLoader->create("email_message");
+        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity->setValue("flag_seen", false);
         $entity->setValue("mailbox_id", $mailboxId);
         $id = $this->entityLoader->save($entity);
@@ -683,7 +693,7 @@ class EntityProviderTest extends TestCase
         );
         $this->assertTrue($ret);
 
-        $loadedEntity = $this->entityLoader->get("email_message", $id);
+        $loadedEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         $this->assertTrue($loadedEntity->getValue("flag_seen"));
     }
 
@@ -696,7 +706,7 @@ class EntityProviderTest extends TestCase
         $folderParts = explode("-", $emailFolders[0]->serverid);
         $mailboxId = $folderParts[1];
 
-        $entity = $this->entityLoader->create("email_message");
+        $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $entity->setValue("subject", "testDeleteEntity in provider");
         $entity->setValue("mailbox_id", $mailboxId);
         $id = $this->entityLoader->save($entity);
@@ -708,15 +718,15 @@ class EntityProviderTest extends TestCase
         );
         $this->assertTrue($ret);
 
-        $loadedEntity = $this->entityLoader->get("email_message", $id);
+        $loadedEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         $this->assertTrue($loadedEntity->getValue("f_deleted"));
     }
 
     public function testDeleteFolder()
     {
         // Create a grouping to delete
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("email_message", "mailbox_id", array("user_id"=>$this->user->getId()));
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id"=>$this->user->getId()));
         $group = $groupings->getByName("Test");
         if (!$group) {
             $group = $groupings->create("Test");

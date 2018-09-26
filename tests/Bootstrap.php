@@ -8,6 +8,8 @@ use Zend\Loader\StandardAutoloader;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Config\ConfigLoader;
 use Netric\Application\Application;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 error_reporting(E_ALL | E_STRICT);
 chdir(__DIR__);
@@ -39,8 +41,8 @@ class Bootstrap
         // Get or create an administrator user so permissions are not limiting
         $user = self::$account->getUser(null, "automated_test");
         if (!$user) {
-            $loader = static::$account->getServiceManager()->get("EntityLoader");
-            $user = $loader->create("user");
+            $loader = static::$account->getServiceManager()->get(EntityLoaderFactory::class);
+            $user = $loader->create(ObjectTypes::USER);
             $user->setValue("name", "automated_test");
             $user->addMultiValue("groups", UserEntity::GROUP_ADMINISTRATORS);
             $loader->save($user);

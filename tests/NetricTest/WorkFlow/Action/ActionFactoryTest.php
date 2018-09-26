@@ -7,6 +7,7 @@ namespace NetricTest\WorkFlow\Action;
 use PHPUnit\Framework\TestCase;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\WorkFlow\Action\Exception\ActionNotFoundException;
+use Netric\WorkFlow\Action\TestAction;
 
 class ActionFactoryTest extends TestCase
 {
@@ -37,7 +38,7 @@ class ActionFactoryTest extends TestCase
     public function testCreate()
     {
         $testAction = $this->actionFactory->create("test");
-        $this->assertInstanceOf('Netric\WorkFlow\Action\TestAction', $testAction);
+        $this->assertInstanceOf(TestAction::class, $testAction);
     }
 
     /**

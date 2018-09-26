@@ -5,6 +5,13 @@
 namespace ZPushTest\backend\netric;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery;
+use NetricTest\Bootstrap;
 
 // Add all z-push required files
 require_once("z-push.includes.php");
@@ -81,15 +88,15 @@ class EntitySearchProviderTest extends TestCase
      */
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
         // Make sure old test user does not exist
-        $query = new \Netric\EntityQuery("user");
+        $query = new EntityQueryObjectTypes::USER);
         $query->where('name')->equals(self::TEST_USER);
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $user = $res->getEntity($i);
@@ -97,8 +104,8 @@ class EntitySearchProviderTest extends TestCase
         }
 
         // Create a test user
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
-        $user = $loader->create("user");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $user = $loader->create(ObjectTypes::USER);
         $user->setValue("name", self::TEST_USER);
         $user->setValue("password", self::TEST_USER_PASS);
         $user->setValue("full_name", "Test User");
@@ -109,11 +116,11 @@ class EntitySearchProviderTest extends TestCase
         $this->testEntities[] = $user; // cleanup automatically
 
         // Get the entityLoader
-        $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         // Create inbox mailbox for testing
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("email_message", "mailbox_id", array("user_id" => $user->getId()));
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::EMAIL_MESSAGE, "mailbox_id", array("user_id" => $user->getId()));
         if (!$groupings->getByName("Inbox")) {
             $inbox = $groupings->create("Inbox");
             $inbox->user_id = $user->getId();
@@ -123,7 +130,7 @@ class EntitySearchProviderTest extends TestCase
         $this->groupInbox = $groupings->getByName("Inbox");
 
         // Create a calendar for the user to test
-        $calendar = $this->entityLoader->create("calendar");
+        $calendar = $this->entityLoader->create(ObjectTypes::CALENDAR);
         $calendar->setValue("name", "UTest provider");
         $calendar->setValue("user_id", $this->user->getId());
         $this->entityLoader->save($calendar);
@@ -164,15 +171,15 @@ class EntitySearchProviderTest extends TestCase
         }
         $this->assertNotNull($foundItem);
         $this->assertEquals("Test", $foundItem[SYNC_GAL_FIRSTNAME]);
-        $this->assertEquals("User", $foundItem[SYNC_GAL_LASTNAME]);
+        $this->assertEquals(ObjectTypes::USER, $foundItem[SYNC_GAL_LASTNAME]);
         $this->assertEquals($this->user->getValue("email"), $foundItem[SYNC_GAL_EMAILADDRESS]);
     }
 
     public function testGetMailboxSearchResults()
     {
         // Add test email message to inbox
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $email = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $email = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $email->setValue("subject", "test message");
         $email->setValue("owner_id", $this->user->getId());
         $email->setValue("mailbox_id", $this->groupInbox->id);

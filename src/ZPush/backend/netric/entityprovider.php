@@ -32,6 +32,10 @@ use Netric\Log\LogInterface;
 use Netric\Account\Account;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\FileSystem\FileSystemFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\LoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
 
 /**
  * Save and load sync objects from netric entities
@@ -86,7 +90,7 @@ class EntityProvider
     {
         $this->account = $account;
         $this->user = $user;
-        $this->entityLoader = $account->getServiceManager()->get("EntityLoader");
+        $this->entityLoader = $account->getServiceManager()->get(EntityLoaderFactory::class);
         $this->log = ($log) ? $log : $account->getApplication()->getLog();
     }
 
@@ -162,11 +166,11 @@ class EntityProvider
             throw new StatusException("Cannot move entity from type {$oldFolder['type']} to {$newFolder['type']}");
         }
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
         switch ($oldFolder['type']) {
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get("email_message", $id);
+                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
 
                 if (!$entity)
                     return false;
@@ -176,12 +180,12 @@ class EntityProvider
                 return true;
 
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get("calendar_event", $id);
+                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
 
                 if (!$entity)
                     return false;
 
-                $entity->setValue("calendar", $newFolder['id']);
+                $entity->setValue(ObjectTypes::CALENDAR, $newFolder['id']);
                 $entityLoader->save($entity);
                 return true;
 
@@ -210,7 +214,7 @@ class EntityProvider
     public function getEntityStat($folderId, $id)
     {
         $folder = $this->unpackFolderId($folderId);
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = $this->getEntity($folderId, $id);
 
         // Return the stat
@@ -236,24 +240,24 @@ class EntityProvider
     public function getEntity($folderId, $id)
     {
         $folder = $this->unpackFolderId($folderId);
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = null;
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->get("task", $id);
+                $entity = $entityLoader->get(ObjectTypes::TASK, $id);
                 break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get("email_message", $id);
+                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
                 break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get("calendar_event", $id);
+                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
                 break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->get("contact_personal", $id);
+                $entity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
                 break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->get("note", $id);
+                $entity = $entityLoader->get(ObjectTypes::NOTE, $id);
                 break;
             default:
                 // Not supported
@@ -275,24 +279,24 @@ class EntityProvider
     public function markEntitySeen($folderId, $id, $flags)
     {
         $folder = $this->unpackFolderId($folderId);
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = null;
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->get("task", $id);
+                $entity = $entityLoader->get(ObjectTypes::TASK, $id);
                 break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get("email_message", $id);
+                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
                 break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get("calendar_event", $id);
+                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
                 break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->get("contact_personal", $id);
+                $entity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
                 break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->get("note", $id);
+                $entity = $entityLoader->get(ObjectTypes::NOTE, $id);
                 break;
             default:
                 // Not supported
@@ -322,24 +326,24 @@ class EntityProvider
     public function deleteEntity($folderId, $id)
     {
         $folder = $this->unpackFolderId($folderId);
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = null;
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_TASK:
-                $entity = $entityLoader->get("task", $id);
+                $entity = $entityLoader->get(ObjectTypes::TASK, $id);
                 break;
             case self::FOLDER_TYPE_EMAIL:
-                $entity = $entityLoader->get("email_message", $id);
+                $entity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
                 break;
             case self::FOLDER_TYPE_CALENDAR:
-                $entity = $entityLoader->get("calendar_event", $id);
+                $entity = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
                 break;
             case self::FOLDER_TYPE_CONTACT:
-                $entity = $entityLoader->get("contact_personal", $id);
+                $entity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
                 break;
             case self::FOLDER_TYPE_NOTE:
-                $entity = $entityLoader->get("note", $id);
+                $entity = $entityLoader->get(ObjectTypes::NOTE, $id);
                 break;
             default:
                 // Not supported
@@ -368,9 +372,9 @@ class EntityProvider
 
         switch ($folder['type']) {
             case self::FOLDER_TYPE_EMAIL:
-                $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
+                $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
                 $groupings = $groupingsLoader->get(
-                    "email_message",
+                    ObjectTypes::EMAIL_MESSAGE,
                     "mailbox_id",
                     array("user_id" => $this->user->getId())
                 );
@@ -390,8 +394,8 @@ class EntityProvider
                 return $groupingsLoader->save($groupings);
 
             case self::FOLDER_TYPE_CALENDAR:
-                $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-                $entity = $entityLoader->get("calendar", $folder['id']);
+                $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+                $entity = $entityLoader->get(ObjectTypes::CALENDAR, $folder['id']);
 
                 if (!$entity)
                     return false;
@@ -507,9 +511,9 @@ class EntityProvider
          * the names are different like - groupings.user_id=email_message.owner_id
          */
         $serviceManager = $this->account->getServiceManager();
-        $gloader = $serviceManager->get("EntityGroupings_Loader");
+        $gloader = $serviceManager->get(LoaderFactory::class);
         $groupings = $gloader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             array("user_id" => $this->user->getId())
         );
@@ -609,9 +613,9 @@ class EntityProvider
 
         // Get note groupings
         $serviceManager = $this->account->getServiceManager();
-        $gloader = $serviceManager->get("EntityGroupings_Loader");
+        $gloader = $serviceManager->get(LoaderFactory::class);
         $groupings = $gloader->get(
-            "note",
+            ObjectTypes::NOTE,
             "groups",
             array("user_id"=>$this->user->getId())
         );
@@ -658,7 +662,7 @@ class EntityProvider
         $folders = array();
 
         // Setup the query
-        $query = new Netric\EntityQuery("calendar");
+        $query = new Netric\EntityQuery(ObjectTypes::CALENDAR);
         $query->where("user_id")->equals($this->user->getId());
 
         // Check fi we are only supposed to get a single calendar
@@ -667,7 +671,7 @@ class EntityProvider
 
         // Execute the query
         $serviceManager = $this->account->getServiceManager();
-        $index = $serviceManager->get("EntityQuery_Index");
+        $index = $serviceManager->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $num = $results->getNum();
         for ($i = 0; $i < $num; $i++) {
@@ -692,8 +696,8 @@ class EntityProvider
      */
     private function getContact($id, $contentParameters)
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $contactEntity = $entityLoader->get("contact_personal", $id);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $contactEntity = $entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
 
         $contact = new SyncContact();
         $contact->email1address = $contactEntity->getValue('email');
@@ -748,8 +752,8 @@ class EntityProvider
         //$pulltz = ($this->user->timezoneName) ? $this->user->timezoneName : 'utc';
         $pulltz = 'utc';
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $entityEvent = $entityLoader->get("calendar_event", $id);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $entityEvent = $entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
 
         if (!$entityEvent->getValue("ts_end") || !$entityEvent->getValue("ts_start"))
             return false;
@@ -879,8 +883,8 @@ class EntityProvider
      */
     private function getTask($id, $contentParameters)
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $taskEntity = $entityLoader->get("task", $id);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $taskEntity = $entityLoader->get(ObjectTypes::TASK, $id);
         $task = new SyncTask();
         $task->subject = $taskEntity->getValue('name');
         $task->body = $taskEntity->getValue('notes');
@@ -906,8 +910,8 @@ class EntityProvider
      */
     private function getNote($id, $contentParameters)
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $noteEntity = $entityLoader->get("note", $id);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $noteEntity = $entityLoader->get(ObjectTypes::NOTE, $id);
         $syncNote = new SyncNote();
         $syncNote->messageclass = "IPM.Note";
         $syncNote->subject = $noteEntity->getValue('name');
@@ -956,8 +960,8 @@ class EntityProvider
         $mimesupport = $contentParameters->GetMimeSupport();
         $bodypreference = $contentParameters->GetBodyPreference(); /* fmbiete's contribution r1528, ZP-320 */
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailEntity = $entityLoader->get("email_message", $id);
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailEntity = $entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
 
         $output = new SyncMail();
 
@@ -1133,9 +1137,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get("contact_personal", $id);
+            $entity = $this->entityLoader->get(ObjectTypes::CONTACT_PERSONAL, $id);
         } else {
-            $entity = $this->entityLoader->create("contact_personal");
+            $entity = $this->entityLoader->create(ObjectTypes::CONTACT_PERSONAL);
         }
 
         $entity->setValue('user_id', $this->user->getId());
@@ -1202,9 +1206,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get("note", $id);
+            $entity = $this->entityLoader->get(ObjectTypes::NOTE, $id);
         } else {
-            $entity = $this->entityLoader->create("note");
+            $entity = $this->entityLoader->create(ObjectTypes::NOTE);
         }
 
         $entity->setValue('user_id', $this->user->getId());
@@ -1213,8 +1217,8 @@ class EntityProvider
         if (isset($syncNote->categories)) {
 
             $sm = $this->account->getServiceManager();
-            $entityGroupingsLoader = $sm->get("EntityGroupings_Loader");
-            $groupings = $entityGroupingsLoader->get("note", "groups", array("user_id" => $this->user->getId()));
+            $entityGroupingsLoader = $sm->get(LoaderFactory::class);
+            $groupings = $entityGroupingsLoader->get(ObjectTypes::NOTE, "groups", array("user_id" => $this->user->getId()));
 
             foreach ($syncNote->categories as $catName) {
                 // See if there is a grouping with this category name
@@ -1290,9 +1294,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get("task", $id);
+            $entity = $this->entityLoader->get(ObjectTypes::TASK, $id);
         } else {
-            $entity = $this->entityLoader->create("task");
+            $entity = $this->entityLoader->create(ObjectTypes::TASK);
         }
 
         $entity->setValue('user_id', $this->user->getId());
@@ -1322,9 +1326,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get("calendar_event", $id);
+            $entity = $this->entityLoader->get(ObjectTypes::CALENDAR_EVENT, $id);
         } else {
-            $entity = $this->entityLoader->create("calendar_event");
+            $entity = $this->entityLoader->create(ObjectTypes::CALENDAR_EVENT);
         }
 
         // Get timezone info
@@ -1356,7 +1360,7 @@ class EntityProvider
         $entity->setValue("sharing", 1);
         $entity->setValue("user_id", $this->user->getId());
         $entity->setValue("all_day", ($syncAppointment->alldayevent) ? 't' : 'f');
-        $entity->setValue("calendar", $calendarId);
+        $entity->setValue(ObjectTypes::CALENDAR, $calendarId);
         if ($syncAppointment->starttime)
             $entity->setValue("ts_start", $syncAppointment->starttime);
         if ($syncAppointment->endtime)
@@ -1574,9 +1578,9 @@ class EntityProvider
         // Either load or create the entity
         $entity = null;
         if ($id) {
-            $entity = $this->entityLoader->get("email_message", $id);
+            $entity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $id);
         } else {
-            $entity = $this->entityLoader->create("email_message");
+            $entity = $this->entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         }
 
         $entity->setValue('subject', $syncMail->subject);

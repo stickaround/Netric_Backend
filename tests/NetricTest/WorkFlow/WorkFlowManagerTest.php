@@ -17,6 +17,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\WorkFlow\WorkFlowManagerFactory;
 use Netric\WorkFlow\DataMapper\DataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use NetricTest\Bootstrap;
 
 /*
  * @group integration
@@ -68,7 +69,7 @@ class WorkFlowManagerTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
         $this->entityLoader = $sl->get(EntityLoaderFactory::class);

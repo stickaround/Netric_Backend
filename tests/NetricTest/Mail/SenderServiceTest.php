@@ -7,6 +7,10 @@ use Netric\Mail\SenderService;
 use Netric\Mail\Message;
 use Netric\Account\Account;
 use PHPUnit\Framework\TestCase;
+use Netric\Log\LogFactory;
+use Netric\Entity\EntityLoaderFactory;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
 
 class SenderServiceTest extends TestCase
 {
@@ -40,10 +44,10 @@ class SenderServiceTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $this->transport = new InMemory();
         $this->bulkTransport = new InMemory();
-        $log = $this->account->getServiceManager()->get("Log");
+        $log = $this->account->getServiceManager()->get(LogFactory::class);
         $this->senderService = new SenderService(
             $this->transport,
             $this->bulkTransport,
@@ -71,8 +75,8 @@ class SenderServiceTest extends TestCase
     {
         $message = $this->getMessage();
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->fromMailMessage($message);
         $this->senderService->send($emailMessage);
         $this->assertEquals($message->getTo(), $this->transport->getLastMessage()->getTo());
@@ -82,8 +86,8 @@ class SenderServiceTest extends TestCase
     {
         $message = $this->getMessage();
 
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
-        $emailMessage = $entityLoader->create("email_message");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        $emailMessage = $entityLoader->create(ObjectTypes::EMAIL_MESSAGE);
         $emailMessage->fromMailMessage($message);
         $this->senderService->sendBulk($emailMessage);
         $this->assertEquals($message->getTo(), $this->bulkTransport->getLastMessage()->getTo());

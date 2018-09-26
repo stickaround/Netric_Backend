@@ -12,6 +12,9 @@ use Netric\EntityQuery\Where;
 use Netric\WorkFlow\WorkFlow;
 use Netric\Entity\EntityInterface;
 use Netric\Entity\EntityLoader;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use NetricTest\Bootstrap;
 
 abstract class AbstractDataMapperTests extends TestCase
 {
@@ -48,10 +51,10 @@ abstract class AbstractDataMapperTests extends TestCase
      */
     protected function setUp()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->actionFactory = new ActionFactory($sm);
-        $this->entityLoader = $sm->get("EntityLoader");
+        $this->entityLoader = $sm->get(EntityLoaderFactory::class);
     }
 
     /**
@@ -87,7 +90,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Data to save and test
         $workFlowData = array(
             "name" => "Test Save",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
@@ -158,7 +161,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Data to save and test
         $workFlowData = array(
             "name" => "Test Save",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
@@ -245,7 +248,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Data to save and test
         $workFlowData = array(
             "name" => "Test Save",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
@@ -287,7 +290,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Data to save and test
         $workFlowData = array(
             "name" => "Test Save",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,
@@ -316,7 +319,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => true,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -345,7 +348,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => true,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -381,7 +384,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -410,7 +413,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -436,7 +439,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -445,7 +448,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->testWorkFlows[] = $workFlow;
 
         // Create a new task for the instance
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "testSaveWorkFlowInstance");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -466,7 +469,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => false,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -475,7 +478,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->testWorkFlows[] = $workFlow;
 
         // Create a new task for the instance
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "testSaveWorkFlowInstance");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -505,7 +508,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => false,
             "actions" => array(
                 array(
@@ -521,7 +524,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $actionId = $workFlow->getActions()[0]->getId();
 
         // Create a new task for the instance
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "testSaveWorkFlowInstance");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -543,7 +546,7 @@ abstract class AbstractDataMapperTests extends TestCase
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Workflows",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => false,
             "actions" => array(
                 array(
@@ -559,7 +562,7 @@ abstract class AbstractDataMapperTests extends TestCase
         $actionId = $workFlow->getActions()[0]->getId();
 
         // Create a new task for the instance
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "testSaveWorkFlowInstance");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;

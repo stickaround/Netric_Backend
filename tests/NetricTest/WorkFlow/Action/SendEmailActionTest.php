@@ -5,6 +5,8 @@ use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\Action\SendEmailAction;
 use Netric\Mail\Transport\InMemory;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\Mail\SenderServiceFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class SendEmailActionTest extends AbstractActionTests
 {
@@ -42,12 +44,12 @@ class SendEmailActionTest extends AbstractActionTests
      */
     public function testExecute()
     {
-        $senderService = $this->account->getServiceManager()->get("Netric/Mail/SenderService");
+        $senderService = $this->account->getServiceManager()->get(SenderServiceFactory::class);
         $transport = new InMemory();
         $senderService->setMailTransport($transport);
 
         // Create a test user
-        $user = $this->entityLoader->create("user");
+        $user = $this->entityLoader->create(ObjectTypes::USER);
         $user->setValue("name", "user-test-" . rand());
         $user->setValue("email", "test@test.com");
         $this->entityLoader->save($user);

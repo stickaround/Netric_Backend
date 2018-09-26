@@ -10,6 +10,7 @@ use Netric\EntityQuery;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\WorkerMan\WorkerService;
 use Netric\WorkerMan\WorkerServiceFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Hook before and after querying an email_thread
@@ -58,7 +59,7 @@ class EmailThreadQueryPlugin implements PluginInterface
             return true;
         } else {
             // Something failed
-            $sl->get("Log")->error("EmailTHREADQueryPlugin->onBeforeExecuteQuery: For some reason a job could not be queued");
+            $sl->get(LogFactory::class)->error("EmailTHREADQueryPlugin->onBeforeExecuteQuery: For some reason a job could not be queued");
             return false;
         }
     }

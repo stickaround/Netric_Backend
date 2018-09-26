@@ -5,16 +5,19 @@
 namespace NetricTest\WorkFlow\DataMapper;
 
 use PHPUnit\Framework\TestCase;
+use Netric\WorkFlow\DataMapper\WorkFlowRdbDataMapper;
+use Netric\WorkFlow\DataMapper\DataMapperFactory;
+use NetricTest\Bootstrap;
 
 class DataMapperFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\WorkFlow\DataMapper\DataMapperInterface',
-            $sm->get('Netric\WorkFlow\DataMapper\DataMapper')
+            WorkFlowRdbDataMapper::class,
+            $sm->get(DataMapperFactory::class)
         );
     }
 }
