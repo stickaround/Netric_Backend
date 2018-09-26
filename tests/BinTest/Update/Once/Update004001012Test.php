@@ -4,6 +4,7 @@ namespace BinTest\Update\Once;
 use Netric\Console\BinScript;
 use Netric\Entity\EntityInterface;
 use PHPUnit\Framework\TestCase;
+use Netric\Entity\EntityLoaderFactory;
 
 /**
  * Make sure the bin/scripts/update/once/004/001/012.php script works
@@ -47,7 +48,7 @@ class Update004001012Test extends TestCase
      */
     protected function tearDown()
     {
-        $entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
         }

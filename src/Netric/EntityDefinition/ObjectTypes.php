@@ -21,7 +21,7 @@ class ObjectTypes
     const CONTENT_FEED = 'content_feed';
     const CONTENT_FEED_POST = 'content_feed_post';
     const DASHBOARD = 'dashboard';
-    const DABOARD_WIDGET = 'dashboard_widget';
+    const DASHBOARD_WIDGET = 'dashboard_widget';
     const DISCUSSION = 'discussion';
     const DOCUMENT = 'infocenter_document';
     const EMAIL_ACCOUNT = 'email_account';

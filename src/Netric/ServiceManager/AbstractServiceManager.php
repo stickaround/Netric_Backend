@@ -16,24 +16,6 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
     protected $loadedServices = array();
 
     /**
-     * Map a name to a class factory
-     *
-     * The target will be appended with 'Factory' so
-     * "test" => "Netric/ServiceManager/Test/Service",
-     * will load
-     * Netric/ServiceManager/Test/ServiceFactory
-     *
-     * Use these sparingly because it does obfuscate from the
-     * client what classes are being loaded.
-     *
-     * @var array
-     */
-    protected $invokableFactoryMaps = array(
-        // Test service map
-        "test" => "Netric/ServiceManager/Test/Service"
-    );
-
-    /**
      * Optional parent used to walk up a tree
      *
      * This could be used in cases where the Applicaiton has a base
@@ -108,9 +90,6 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     private function initializeServiceByFactory($serviceName, $bCache = true)
     {
-        // First check to see if $sServiceName has been mapped to a factory
-        $serviceName = $this->getInvokableTarget($serviceName);
-
         // Normalise the serviceName
         $serviceName = $this->normalizeClassPath($serviceName);
 
@@ -199,21 +178,6 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         } else {
             // Just append factory since the word is too short to have it
             $sServiceName .= 'Factory';
-        }
-
-        return $sServiceName;
-    }
-
-    /**
-     * Check to see if a name is mapped to a real namespaced class
-     *
-     * @param string $sServiceName The potential service name alias
-     * @return string If a map exists the rename the service to the real path, otherwise return the alias
-     */
-    private function getInvokableTarget($sServiceName)
-    {
-        if (isset($this->invokableFactoryMaps[$sServiceName])) {
-            $sServiceName = $this->invokableFactoryMaps[$sServiceName];
         }
 
         return $sServiceName;

@@ -11,6 +11,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
 
 class Update004001023Test extends TestCase
 {
@@ -106,13 +107,13 @@ class Update004001023Test extends TestCase
         $db = $serviceManager->get(RelationalDbFactory::class);
 
         // Create a user entity that will act as our moved to user entity
-        $userMovedTo = $entityLoader->create("user");
+        $userMovedTo = $entityLoader->create(ObjectTypes::USER);
         $userMovedTo->setValue("name", "Unit Test Moved To User");
         $userMovedToId = $entityDataMapper->save($userMovedTo);
         $this->testEntities[] = $userMovedTo;
 
         // Create a user entity that will act as our moved from user entity
-        $userMovedFrom = $entityLoader->create("user");
+        $userMovedFrom = $entityLoader->create(ObjectTypes::USER);
         $userMovedFrom->setValue("name", "Unit Test Moved From User");
         $userMovedFromId = $entityDataMapper->save($userMovedFrom);
         $this->testEntities[] = $userMovedFrom;

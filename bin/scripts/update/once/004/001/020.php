@@ -6,6 +6,7 @@ use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -15,7 +16,7 @@ $entityIndex = $serviceManager->get(IndexFactory::class);
 
 
 // Find all dashboard entity with scope = system
-$query = new EntityQuery("dashboard");
+$query = new EntityQuery(ObjectTypes::DASHBOARD);
 $query->where("scope")->equals("system");
 
 // Get the results

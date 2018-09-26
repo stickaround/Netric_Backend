@@ -11,6 +11,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
 
 class Update004001027Test extends TestCase
 {
@@ -86,10 +87,10 @@ class Update004001027Test extends TestCase
         $db = $serviceManager->get(RelationalDbFactory::class);
 
         $objectUid = rand();
-        $objType = "workflow_instance";
+        $objType = ObjectTypes::WORKFLOW_INSTANCE;
         $insertData = [
             'object_type_id' => 12,
-            'object_type' => "task",
+            'object_type' => ObjectTypes::TASK,
             'object_uid' => $objectUid,
             'f_completed' => false
         ];
@@ -97,7 +98,7 @@ class Update004001027Test extends TestCase
 
         $insertData = [
             'object_type_id' => 12,
-            'object_type' => "task",
+            'object_type' => ObjectTypes::TASK,
             'object_uid' => rand(),
             'f_completed' => true
         ];
@@ -112,7 +113,7 @@ class Update004001027Test extends TestCase
         $workflowInstanceEntity = $entityLoader->get($objType, $movedEntityId);
         $this->testEntities[] = $workflowInstanceEntity;
 
-        $this->assertEquals($workflowInstanceEntity->getValue("object_type"), "task");
+        $this->assertEquals($workflowInstanceEntity->getValue("object_type"), ObjectTypes::TASK);
         $this->assertEquals($workflowInstanceEntity->getValue("object_uid"), $objectUid);
         $this->assertEquals($workflowInstanceEntity->getId(), $movedEntityId);
 
