@@ -45,7 +45,7 @@ pipeline {
                         //sh 'docker-compose -f docker/docker-compose-test.yml exec -T netric_server /netric-setup.sh'
                         //sh 'docker-compose -f docker/docker-compose-test.yml exec -T netric_server /netric-tests.sh'
                     }
-
+                    
                     // Report on junit
                     junit 'tests/tmp/junit.xml'
 
@@ -58,8 +58,8 @@ pipeline {
                        checkStyleFile: 'tests/tmp/checkstyle.xml'
                     )
                 }
-                script {
-                    // Check container for security vulnerabilities
+                // script {
+                //     // Check container for security vulnerabilities
                 //     dir('.clair') {
                 //         def nodeIp = sh(
                 //             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
@@ -76,7 +76,7 @@ pipeline {
                 //         // Fail if any critical security vulnerabilities are found
                 //         sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
                 //    }
-                }
+                // }
             }
         }
 
