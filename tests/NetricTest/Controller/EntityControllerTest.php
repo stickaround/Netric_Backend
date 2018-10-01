@@ -260,10 +260,10 @@ class EntityControllerTest extends TestCase
     public function testDelete()
     {
         // First create an entity to save
-        $loader = $this->account->getServiceManager()->get("EntityLoader");
+        $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $entity = $loader->create(ObjectTypes::NOTE);
         $entity->setValue("name", "Test");
-        $dm = $this->account->getServiceManager()->get("Entity_DataMapper");
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $dm->save($entity);
         $entityId = $entity->getId();
 
@@ -291,7 +291,7 @@ class EntityControllerTest extends TestCase
     public function testSavePendingObjectMultiObjects()
     {
         $data = array(
-            'obj_type' => "calendar_event",
+            'obj_type' => ObjectTypes::CALENDAR_EVENT,
             'name' => "Test",
             'attendees_new' => [
                 ['name' => '[user:1:test]'],

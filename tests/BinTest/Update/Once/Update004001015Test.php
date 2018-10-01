@@ -4,12 +4,13 @@ namespace BinTest\Update\Once;
 use Netric\Console\BinScript;
 use Netric\Entity\EntityInterface;
 use PHPUnit\Framework\TestCase;
-
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\Application\Schema\SchemaRdbDataMapper;
 use Netric\Application\Schema\SchemaProperty;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Make sure the bin/scripts/update/once/004/001/015.php script works
@@ -85,7 +86,7 @@ class Update004001015Test extends TestCase
         $this->entityGroupingDataMapper = $serviceManager->get(EntityGroupingDataMapperFactory::class);
         $this->db = $serviceManager->get(RelationalDbFactory::class);
 
-        $this->entityLoader = $this->account->getServiceManager()->get("EntityLoader");
+        $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/015.php";
     }
 
@@ -150,7 +151,7 @@ class Update004001015Test extends TestCase
         }
 
         $fieldName = "stage_id";
-        $objType = "customer";
+        $objType = ObjectTypes::CONTACT;
 
         // Add a test group data to the old fkey group table
         $groupName = "Customer $fieldName Group Unit Test";
@@ -220,7 +221,7 @@ class Update004001015Test extends TestCase
         }
 
         $fieldName = "groups";
-        $objType = "customer";
+        $objType = ObjectTypes::CONTACT;
 
         // Add a test group
         $groupName1 = "$objType Group Test Unit Test 1";
@@ -304,7 +305,7 @@ class Update004001015Test extends TestCase
         $this->testEntities[] = $userEntity;
 
         $fieldName = "groups";
-        $objType = "contact_personal";
+        $objType = ObjectTypes::CONTACT_PERSONAL;
         $filters = ["user_id" => $userEntity->getId()];
 
         // Add a test group

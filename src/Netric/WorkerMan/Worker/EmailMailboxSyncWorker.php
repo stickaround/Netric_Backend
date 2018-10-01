@@ -49,7 +49,7 @@ class EmailMailboxSyncWorker extends AbstractWorker
         // Get the account and user we are working with
         $application = $this->getApplication();
         $account = $application->getAccount($workload['account_id']);
-        $user = $account->getServiceManager()->get(EntityLoaderFactory::class)->get("user", $workload['user_id']);
+        $user = $account->getServiceManager()->get(EntityLoaderFactory::class)->get(ObjectTypes::USER, $workload['user_id']);
         // Fail if not a valid user
         if (!$user) {
             $log->info(

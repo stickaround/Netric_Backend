@@ -25,6 +25,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Mail\Storage\Writable\WritableInterface;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Config\Config;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Service responsible for receiving messages and synchronizing with remote mailboxes
@@ -168,7 +169,7 @@ class ReceiverService extends AbstractHasErrors
 
         // Get the mailbox path
         $mailboxGroupings = $this->groupingsLoader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             ["user_id"=>$this->user->getId()]
         );
@@ -233,7 +234,7 @@ class ReceiverService extends AbstractHasErrors
         while (count($stats = $syncColl->getExportChanged(false)) > 0) {
             foreach ($stats as $stat) {
                 // Load the email entity
-                $emailEntity = $this->entityLoader->get("email_message", $stat['id']);
+                $emailEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $stat['id']);
 
                 // The entity was somehow deleted on netric without the sync knowing
                 if (!$emailEntity) {
@@ -396,7 +397,7 @@ class ReceiverService extends AbstractHasErrors
                     $importMid = 0;
 
                     if (isset($stat['local_id'])) {
-                        $emailEntity = $this->entityLoader->get("email_message", $stat['local_id']);
+                        $emailEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $stat['local_id']);
                         $emailEntity->setValue("flag_seen", $message->hasFlag(Storage::FLAG_SEEN) ? true : false);
                         $emailEntity->setValue("flag_flagged", $message->hasFlag(Storage::FLAG_FLAGGED) ? true : false);
                         if ($emailEntity->fieldValueChanged("flag_seen") || $emailEntity->fieldValueChanged("flag_flagged")) {
@@ -428,7 +429,7 @@ class ReceiverService extends AbstractHasErrors
 
                     // Log delivery result
                     if ($importMid > 0) {
-                        $emailEntity = $this->entityLoader->get("email_message", $importMid);
+                        $emailEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $importMid);
                         $syncColl->logImported(
                             $stat['remote_id'],
                             $stat['remote_revision'],
@@ -462,7 +463,7 @@ class ReceiverService extends AbstractHasErrors
 
                 case 'delete':
                     if (isset($stat['local_id'])) {
-                        $emailEntity = $this->entityLoader->get("email_message", $stat['local_id']);
+                        $emailEntity = $this->entityLoader->get(ObjectTypes::EMAIL_MESSAGE, $stat['local_id']);
                         if ($emailEntity && $emailEntity->getValue("f_deleted") === false) {
                             $this->entityLoader->delete($emailEntity);
                             $this->log->info("ReceiverService->receiveChanges: Imported delete {$stat['local_id']}");
@@ -502,14 +503,14 @@ class ReceiverService extends AbstractHasErrors
             ),
         );
 
-        $syncColl = $syncPartner->getEntityCollection("email_message", $conditions);
+        $syncColl = $syncPartner->getEntityCollection(ObjectTypes::EMAIL_MESSAGE, $conditions);
 
         // Create collection if it does not yet exist
         if (!$syncColl) {
             $this->log->info("ReceiverService->syncMailbox: Creating a new collection for $mailboxId");
 
             $syncColl = $this->collectionFactory->createCollection(EntitySync::COLL_TYPE_ENTITY);
-            $syncColl->setObjType("email_message");
+            $syncColl->setObjType(ObjectTypes::EMAIL_MESSAGE);
             $syncColl->setConditions($conditions);
             $syncPartner->addCollection($syncColl);
             $this->entitySync->savePartner($syncPartner);
@@ -597,7 +598,7 @@ class ReceiverService extends AbstractHasErrors
     private function getJunkMailboxForUser(UserEntity $user)
     {
         $maiboxes = $this->groupingsLoader->get(
-            "email_message",
+            ObjectTypes::EMAIL_MESSAGE,
             "mailbox_id",
             ["user_id"=>$user->getId()]
         );

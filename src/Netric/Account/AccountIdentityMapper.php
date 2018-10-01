@@ -216,7 +216,7 @@ class AccountIdentityMapper implements ErrorAwareInterface
      */
     private function loadFromCache($id, Account &$account)
     {
-        $data = $this->cache->get("netric/account/" . $id);
+        $data = $this->cache->get("netric/account/$id");
         if ($data) {
             if (isset($data["id"]) && isset($data["name"])) {
                 $account->fromArray($data);

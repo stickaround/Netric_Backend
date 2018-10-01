@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 use DateTime;
 use DateInterval;
 use Zend\Validator\Date;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Class SchedulerServiceTest
@@ -52,8 +55,8 @@ class SchedulerServiceTest extends TestCase
         // Get globally setup account
         $serviceLocator = Bootstrap::getAccount()->getServiceManager();
 
-        $this->entityIndex = $serviceLocator->get("Netric/EntityQuery/Index/Index");
-        $this->entityLoader = $serviceLocator->get("EntityLoader");
+        $this->entityIndex = $serviceLocator->get(IndexFactory::class);
+        $this->entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
 
         $this->scheduler = new SchedulerService($this->entityIndex, $this->entityLoader);
     }
@@ -76,7 +79,7 @@ class SchedulerServiceTest extends TestCase
         // Add the job to the queue
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
 
         $this->assertNotNull($id);
     }
@@ -94,7 +97,7 @@ class SchedulerServiceTest extends TestCase
             RecurrencePattern::RECUR_DAILY,
             1
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
 
         $this->assertNotNull($id);
     }
@@ -107,7 +110,7 @@ class SchedulerServiceTest extends TestCase
         // Create a scheduled job to run now
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
 
         $jobs = $this->scheduler->getScheduledToRun();
 
@@ -133,7 +136,7 @@ class SchedulerServiceTest extends TestCase
             RecurrencePattern::RECUR_DAILY,
             1
         );
-        $this->tempEntitiesToDelete[] = $this->entityLoader->get('worker_job', $id);
+        $this->tempEntitiesToDelete[] = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
 
         // Get scheduled jobs for the next three days
         $runTo = new DateTime();
@@ -156,7 +159,7 @@ class SchedulerServiceTest extends TestCase
     {
         $now = new DateTime();
         $id = $this->scheduler->scheduleAtTime('Test', $now, ['myvar' => 'testval']);
-        $jobEntity = $this->entityLoader->get('worker_job', $id);
+        $jobEntity = $this->entityLoader->get(ObjectTypes::WORKER_JOB, $id);
         $this->tempEntitiesToDelete[] = $jobEntity;
 
         // Set a scheduled job as completed

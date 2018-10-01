@@ -11,6 +11,7 @@ use Netric\ServiceManager\Test\Service;
 use Netric\ServiceManager\Test\ServiceFactory;
 use Netric\Config\Config;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\Config\ConfigFactory;
 
 class ServiceManagerTest extends TestCase
 {
@@ -64,17 +65,6 @@ class ServiceManagerTest extends TestCase
         $this->assertSame($testService1, $testService2);
     }
 
-    /**
-     * Make sure that mapped or aliased services can be loaded
-     */
-    public function testGetMapped()
-    {
-        // "test" should map to "Netric/ServiceManager/Test/Service"
-        $sl = $this->account->getServiceManager();
-        $svc = $sl->get("test");
-        $this->assertInstanceOf(Service::class, $svc);
-        $this->assertEquals("TEST", $svc->getTestString());
-    }
 
     /**
      * Check if we can get a service from the parent service locator
@@ -92,7 +82,7 @@ class ServiceManagerTest extends TestCase
         $this->assertInstanceOf(Config::class, $appConfig);
 
         // Now try loading it from the account service locator, with the alias
-        $accConfig = $accSl->get("Config");
+        $accConfig = $accSl->get(ConfigFactory::class);
         $this->assertInstanceOf(Config::class, $accConfig);
 
         // Make sure they are the same

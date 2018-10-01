@@ -14,6 +14,9 @@ use Netric\Mail\Transport\TransportInterface;
 use Netric\Mail;
 use Netric\Mail\Address;
 use Netric\Mail\Transport\TransportFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Log\LogFactory;
 
 /**
  * Notification entity
@@ -84,10 +87,10 @@ class NotificationEntity extends Entity implements EntityInterface
         }
 
         // Get the user that owns this notice
-        $user = $sm->get("EntityLoader")->get("user", $this->getValue("owner_id"));
+        $user = $sm->get(EntityLoaderFactory::class)->get(ObjectTypes::USER, $this->getValue("owner_id"));
 
         // Get the user that triggered this notice
-        $creator = $sm->get("EntityLoader")->get("user", $this->getValue("creator_id"));
+        $creator = $sm->get(EntityLoaderFactory::class)->get(ObjectTypes::USER, $this->getValue("creator_id"));
 
         // Make sure the user has an email
         if (!$user || !$user->getValue("email")) {
@@ -96,7 +99,7 @@ class NotificationEntity extends Entity implements EntityInterface
 
         // Get the referenced entity
         $objReference = Entity::decodeObjRef($this->getValue("obj_reference"));
-        $entity = $sm->get("EntityLoader")->get($objReference['obj_type'], $objReference['id']);
+        $entity = $sm->get(EntityLoaderFactory::class)->get($objReference['obj_type'], $objReference['id']);
 
         // Set the body
         $body = $creator->getName() . " " . $this->getValue('name') . " on ";
@@ -137,7 +140,7 @@ class NotificationEntity extends Entity implements EntityInterface
              * This should never happen, but in case we cannot send the email for
              * reason we should log it as an error and continue working.
              */
-            $log = $sm->get("Log");
+            $log = $sm->get(LogFactory::class);
             $log->error("Could not send notification: " . $ex->getMessage(), var_export($config, true));
         }
     }

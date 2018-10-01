@@ -11,6 +11,10 @@ namespace NetricTest\Mail;
 
 use Netric\Mail\MessageFactory;
 use PHPUnit\Framework\TestCase;
+use Netric\Mail\AddressList;
+use Netric\Mail\Message;
+use Netric\Mail\Address;
+use Netric\Mail\Exception\InvalidArgumentException;
 
 /**
  * @group      Netric_Mail
@@ -33,11 +37,11 @@ class MessageFactoryTest extends TestCase
 
         $message = MessageFactory::getInstance($options);
 
-        $this->assertInstanceOf('Netric\Mail\Message', $message);
+        $this->assertInstanceOf(Message::class, $message);
         $this->assertEquals('UTF-8', $message->getEncoding());
         $this->assertEquals('subject', $message->getSubject());
         $this->assertEquals('body', $message->getBody());
-        $this->assertInstanceOf('Netric\Mail\Address', $message->getSender());
+        $this->assertInstanceOf(Address::class, $message->getSender());
         $this->assertEquals($options['sender'], $message->getSender()->getEmail());
 
         $getMethods = [
@@ -50,7 +54,7 @@ class MessageFactoryTest extends TestCase
 
         foreach ($getMethods as $key => $method) {
             $value = $message->{$method}();
-            $this->assertInstanceOf('Netric\Mail\AddressList', $value);
+            $this->assertInstanceOf(AddressList::class, $value);
             $this->assertEquals(1, count($value));
             $this->assertTrue($value->has($options[$key]));
         }
@@ -69,13 +73,13 @@ class MessageFactoryTest extends TestCase
         $message = MessageFactory::getInstance($options);
 
         $from = $message->getFrom();
-        $this->assertInstanceOf('Netric\Mail\AddressList', $from);
+        $this->assertInstanceOf(AddressList::class, $from);
         $this->assertEquals(1, count($from));
         $this->assertTrue($from->has('matthew@example.com'));
         $this->assertEquals('Matthew', $from->get('matthew@example.com')->getName());
 
         $to = $message->getTo();
-        $this->assertInstanceOf('Netric\Mail\AddressList', $to);
+        $this->assertInstanceOf(AddressList::class, $to);
         $this->assertEquals(2, count($to));
         $this->assertTrue($to->has('zf-devteam@example.com'));
         $this->assertTrue($to->has('zf-contributors@example.com'));
@@ -87,14 +91,14 @@ class MessageFactoryTest extends TestCase
             'foo' => 'bar',
         ];
         $mail = MessageFactory::getInstance($options);
-        $this->assertInstanceOf('Netric\Mail\Message', $mail);
+        $this->assertInstanceOf(Message::class, $mail);
     }
 
     public function testEmptyOption()
     {
         $options = [];
         $mail = MessageFactory::getInstance();
-        $this->assertInstanceOf('Netric\Mail\Message', $mail);
+        $this->assertInstanceOf(Message::class, $mail);
     }
 
     public function invalidMessageOptions()
@@ -117,7 +121,7 @@ class MessageFactoryTest extends TestCase
      */
     public function testExceptionForOptionsNotArrayOrTraversable($options)
     {
-        $this->expectException('Netric\Mail\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         MessageFactory::getInstance($options);
     }
 }

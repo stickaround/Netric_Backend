@@ -4,6 +4,9 @@
  */
 use Netric\EntityQuery;
 use Netric\WorkerMan\SchedulerService;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
 if (!$account)
@@ -14,9 +17,9 @@ $workerJobsData = require(__DIR__ . "/../../../../data/account/worker-jobs.php")
 
 // Get services
 $serviceLocator = $account->getServiceManager();
-$entityIndex = $serviceLocator->get('Netric/EntityQuery/Index/Index');
+$entityIndex = $serviceLocator->get(IndexFactory::class);
 $schedulerService = $serviceLocator->get(SchedulerService::class);
-$entityLoader = $serviceLocator->get('EntityLoader');
+$entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
 
 foreach ($workerJobsData as $jobToSchedule) {
     /*
@@ -27,7 +30,7 @@ foreach ($workerJobsData as $jobToSchedule) {
      * some reason then the recurring series will need to be restarted by adding
      * at least one instance.
      */
-    $query = new EntityQuery('worker_job');
+    $query = new EntityQuery(ObjectTypes::WORKER_JOB);
     $query->where('worker_name', $jobToSchedule['worker_name']);
     $result = $entityIndex->executeQuery($query);
     if (!$result->getTotalNum()) {

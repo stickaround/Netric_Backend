@@ -7,6 +7,10 @@ use Netric\WorkerMan\Worker\EmailMailboxSyncWorker;
 use Netric\Entity\ObjType\EmailAccountEntity;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\Group;
+use Netric\Entity\EntityLoaderFactory;
+use NetricTest\Bootstrap;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Config\ConfigFactory;
 
 /**
  * @group integration
@@ -40,17 +44,17 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $sl = $this->account->getServiceManager();
 
         // Create a test user
-        $this->user = $sl->get("EntityLoader")->create("user");
+        $this->user = $sl->get(EntityLoaderFactory::class)->create(ObjectTypes::USER);
         $this->user->setValue("name", "test_" . rand());
-        $sl->get("EntityLoader")->save($this->user);
+        $sl->get(EntityLoaderFactory::class)->save($this->user);
 
         // Create an email account for testing
-        $config = $sl->get("Config");
-        $this->emailAccount = $sl->get("EntityLoader")->create("email_account");
+        $config = $sl->get(ConfigFactory::class);
+        $this->emailAccount = $sl->get(EntityLoaderFactory::class)->create(ObjectTypes::EMAIL_ACCOUNT);
         $this->emailAccount->setValue("owner_id", $this->user->getId());
         $this->emailAccount->setValue("type", "imap");
         $this->emailAccount->setValue("host", $config->imap_host);
-        $sl->get("EntityLoader")->save($this->emailAccount);
+        $sl->get(EntityLoaderFactory::class)->save($this->emailAccount);
     }
 
     protected function tearDown()
@@ -58,10 +62,10 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $sl = $this->account->getServiceManager();
 
         // Cleanup email account
-        $sl->get("EntityLoader")->delete($this->emailAccount, true);
+        $sl->get(EntityLoaderFactory::class)->delete($this->emailAccount, true);
 
         // Cleanup user
-        $sl->get("EntityLoader")->delete($this->user, true);
+        $sl->get(EntityLoaderFactory::class)->delete($this->user, true);
     }
 
     public function testWork()
@@ -97,7 +101,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
         // Set working flag
         $this->emailAccount->setValue("f_synchronizing", true);
         $sl = $this->account->getServiceManager();
-        $sl->get("EntityLoader")->save($this->emailAccount);
+        $sl->get(EntityLoaderFactory::class)->save($this->emailAccount);
 
         // Make sure it is a success
         $this->assertTrue($worker->work($job));
@@ -124,7 +128,7 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $this->emailAccount->setValue("ts_last_full_sync", strtotime("-1 day"));
 
         $sl = $this->account->getServiceManager();
-        $sl->get("EntityLoader")->save($this->emailAccount);
+        $sl->get(EntityLoaderFactory::class)->save($this->emailAccount);
 
         // Make sure it is a success
         $this->assertTrue($worker->work($job));

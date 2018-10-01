@@ -11,6 +11,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Permissions\Dacl;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
 
 class Update004001020Test extends TestCase
 {
@@ -83,7 +84,7 @@ class Update004001020Test extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $daclLoader = $serviceManager->get(DaclLoaderFactory::class);
 
-        $systemDashboardEntity = $entityLoader->create("dashboard");
+        $systemDashboardEntity = $entityLoader->create(ObjectTypes::DASHBOARD);
         $systemDashboardEntity->setValue("name", "SystemWideDashboard");
         $systemDashboardEntity->setValue("uname", "systemWideDashboard");
         $systemDashboardEntity->setValue("scope", "system");
@@ -94,7 +95,7 @@ class Update004001020Test extends TestCase
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
 
-        $systemWideDashboard = $entityLoader->get("dashboard", $systemDashboardEntity->getId());
+        $systemWideDashboard = $entityLoader->get(ObjectTypes::DASHBOARD, $systemDashboardEntity->getId());
         $dacl = $daclLoader->getForEntity($systemWideDashboard);
 
         $this->assertTrue($dacl->groupIsAllowed(UserEntity::GROUP_EVERYONE, DACL::PERM_VIEW));

@@ -7,6 +7,7 @@ namespace BinTest\Update\Always;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class DashboardAndWidgetsTest extends TestCase
 {
@@ -55,10 +56,10 @@ class DashboardAndWidgetsTest extends TestCase
         $serviceManager = $this->account->getServiceManager();
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 
-        $dashboardEntity = $entityLoader->getByUniqueName("dashboard", "activity");
+        $dashboardEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD, "activity");
         $this->assertNotNull($dashboardEntity->getValue("id"));
 
-        $widgetEntity = $entityLoader->getByUniqueName("dashboard_widget", null, array(
+        $widgetEntity = $entityLoader->getByUniqueName(ObjectTypes::DASHBOARD_WIDGET, null, array(
             "dashboard_id" => $dashboardEntity->getValue("id"),
             "widget_name" => "activity"
         ));

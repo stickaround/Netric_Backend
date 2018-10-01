@@ -2,6 +2,8 @@
 namespace NetricTest\Mail;
 
 use PHPUnit\Framework\TestCase;
+use Netric\Mail\SenderService;
+use Netric\Mail\SenderServiceFactory;
 
 class SenderServiceFactoryTest extends TestCase
 {
@@ -10,8 +12,8 @@ class SenderServiceFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sl = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Mail\SEnderService',
-            $sl->get("Netric/Mail/SenderService")
+            SenderService::class,
+            $sl->get(SenderServiceFactory::class)
         );
     }
 }

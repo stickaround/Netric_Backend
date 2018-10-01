@@ -15,6 +15,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Log\LogFactory;
 use Netric\EntityQuery;
+use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -32,7 +33,7 @@ $result = $db->query($sql);
 foreach ($result->fetchAll() as $row) {
 
     // Loop through the duplicates and delete all but hte first
-    $query = new EntityQuery("email_account");
+    $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT);
     $query->where("address")->equals($row['address']);
     $query->orderBy("id");
     $ret = $entityIndex->executeQuery($query);
@@ -41,8 +42,8 @@ foreach ($result->fetchAll() as $row) {
         $emailAccount = $ret->getEntity($j);
 
         // First delete all messages in this account
-        $messageQuery = new \Netric\EntityQuery("email_message");
-        $messageQuery->where("email_account")->equals($emailAccount->getId());
+        $messageQuery = new EntityQuery("email_message");
+        $messageQuery->where(ObjectTypes::EMAIL_ACCOUNT)->equals($emailAccount->getId());
         $messageRet = $entityIndex->executeQuery($messageQuery);
         $numMessagesToDelete= $messageRet->getTotalNum();
         for ($m = 0; $m < $numMessagesToDelete; $m++) {

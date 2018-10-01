@@ -329,7 +329,7 @@ class EmailMessageTest extends TestCase
         $this->assertEquals(0, $email->getValue("num_attachments"));
 
         // cleanup thread
-        $thread = $entityLoader->get("email_thread", $email->getValue("thread"));
+        $thread = $entityLoader->get(ObjectTypes::EMAIL_THREAD, $email->getValue("thread"));
         $this->testEntities[] = $thread;
     }
 
@@ -351,8 +351,8 @@ class EmailMessageTest extends TestCase
         $entityLoader->save($email2);
         $this->testEntities[] = $email2;
 
-        $entityLoader->clearCache("email_thread", $email1->getValue("thread"));
-        $thread = $entityLoader->get("email_thread", $email1->getValue("thread"));
+        $entityLoader->clearCache(ObjectTypes::EMAIL_THREAD, $email1->getValue("thread"));
+        $thread = $entityLoader->get(ObjectTypes::EMAIL_THREAD, $email1->getValue("thread"));
 
         // Should have 2 messages in the queue
         $this->assertEquals(2, $thread->getValue("num_messages"));
@@ -361,8 +361,8 @@ class EmailMessageTest extends TestCase
         $entityLoader->delete($email2);
 
         // Should have decremented num_messages but not deleted the thread
-        $entityLoader->clearCache("email_thread", $email1->getValue("thread"));
-        $thread = $entityLoader->get("email_thread", $email1->getValue("thread"));
+        $entityLoader->clearCache(ObjectTypes::EMAIL_THREAD, $email1->getValue("thread"));
+        $thread = $entityLoader->get(ObjectTypes::EMAIL_THREAD, $email1->getValue("thread"));
         $this->assertEquals(1, $thread->getValue("num_messages"));
         $this->assertFalse($thread->isDeleted());
 
@@ -370,8 +370,8 @@ class EmailMessageTest extends TestCase
         $entityLoader->delete($email1);
 
         // Should have decremented num_messages but not deleted the thread
-        $entityLoader->clearCache("email_thread", $email1->getValue("thread"));
-        $thread = $entityLoader->get("email_thread", $email1->getValue("thread"));
+        $entityLoader->clearCache(ObjectTypes::EMAIL_THREAD, $email1->getValue("thread"));
+        $thread = $entityLoader->get(ObjectTypes::EMAIL_THREAD, $email1->getValue("thread"));
         $this->assertTrue($thread->isDeleted());
     }
 

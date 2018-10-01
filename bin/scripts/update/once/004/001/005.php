@@ -34,7 +34,7 @@ if ($localStore !== $remoteStore &&
     $entityDefinitionLoader->definitionExists(ObjectTypes::FILE) &&
     $entityDefinitionLoader->definitionExists(ObjectTypes::ACTIVITY)) {
     // Undeleted
-    $query = new EntityQuery("file");
+    $query = new EntityQuery(ObjectTypes::FILE);
     $query->where('dat_ans_key')->equals("");
     $query->andWhere('dat_local_path')->doesNotEqual("");
 

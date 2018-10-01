@@ -11,6 +11,10 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Crypt\VaultServiceFactory;
 use Netric\Db\Relational\RelationalDbFactory;
+use Netric\Crypt\BlockCipher;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Log\LogFactory;
+use Netric\EntityQuery;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -19,13 +23,13 @@ $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);
 $vaultService = $serviceManager->get(VaultServiceFactory::class);
-$blockCypher = new \Netric\Crypt\BlockCipher($vaultService->getSecret("EntityEnc"));
+$blockCypher = new BlockCipher($vaultService->getSecret("EntityEnc"));
 
 $def = null;
 try {
-    $def = $entityDefinitionLoader->get("email_account");
+    $def = $entityDefinitionLoader->get(ObjectTypes::EMAIL_ACCOUNT);
 } catch (Exception $ex) {
-    $serviceManager->get("Log")->error("Could not load email_account definition");
+    $serviceManager->get(LogFactory::class)->error("Could not load email_account definition");
     $def = null;
 }
 
@@ -37,7 +41,7 @@ if ($def) {
 
     foreach ($result->fetchAll() as $row) {
         // Make sure the account does not already exist
-        $query = new \Netric\EntityQuery("email_account");
+        $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT);
         $query->where("address")->equals($row['address']);
         $ret = $entityIndex->executeQuery($query);
         if ($ret->getNum()) {
@@ -45,7 +49,7 @@ if ($def) {
             continue;
         }
 
-        $entity = $entityLoader->create("email_account");
+        $entity = $entityLoader->create(ObjectTypes::EMAIL_ACCOUNT);
 
         // Make sure to set the id to null, so the system will insert the record and create the new entity
         $oldid = $row['id'];
@@ -62,7 +66,7 @@ if ($def) {
         $newid = $entityLoader->save($entity);
 
         // Update all email messages
-        $db->update("objects_email_message_act", ["email_account" => $newid], ["email_account" => $oldid]);
-        $db->update("objects_email_message_del", ["email_account" => $newid], ["email_account" => $oldid]);
+        $db->update("objects_email_message_act", [ObjectTypes::EMAIL_ACCOUNT => $newid], [ObjectTypes::EMAIL_ACCOUNT => $oldid]);
+        $db->update("objects_email_message_del", [ObjectTypes::EMAIL_ACCOUNT => $newid], [ObjectTypes::EMAIL_ACCOUNT => $oldid]);
     }
 }

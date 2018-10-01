@@ -10,6 +10,8 @@ use Netric\Entity;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\FormsFactory;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class FormsTest extends TestCase
 {
@@ -50,8 +52,8 @@ class FormsTest extends TestCase
     public function testCreateForUser()
     {
         $testXml = "<field name='name' />";
-        $defLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
-        $def = $defLoader->get("comment");
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $def = $defLoader->get(ObjectTypes::COMMENT);
 
         // Save new small form
         $this->formService->saveForUser($def, $this->user->getId(), "test", $testXml);
@@ -70,8 +72,8 @@ class FormsTest extends TestCase
     public function testCreateForAccount()
     {
         $testXml = "<field name='name' />";
-        $defLoader = $this->account->getServiceManager()->get("EntityDefinitionLoader");
-        $def = $defLoader->get("comment");
+        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $def = $defLoader->get(ObjectTypes::COMMENT);
 
         // Save new small form
         $this->formService->saveForAccount($def, "test", $testXml);

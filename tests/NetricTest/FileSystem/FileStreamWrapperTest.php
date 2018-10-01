@@ -8,10 +8,10 @@ use Netric\FileSystem\FileSystem;
 use Netric\FileSystem\FileStreamWrapper;
 use Netric\Entity\DataMapperInterface;
 use Netric\EntityQuery;
-use Netric\Entity\EntityLoader;
+use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType;
-
 use PHPUnit\Framework\TestCase;
+use Netric\FileSystem\FileSystemFactory;
 
 class FileStreamWrapperTest extends TestCase
 {
@@ -49,8 +49,8 @@ class FileStreamWrapperTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
-        $this->fileSystem = $sl->get("Netric/FileSystem/FileSystem");
-        $this->entityLoader = $sl->get("EntityLoader");
+        $this->fileSystem = $sl->get(FileSystemFactory::class);
+        $this->entityLoader = $sl->get(EntityLoaderFactory::class);
     }
 
     /**

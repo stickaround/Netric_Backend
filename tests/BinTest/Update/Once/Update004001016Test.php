@@ -11,6 +11,7 @@ use Netric\Application\Schema\SchemaProperty;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Make sure the bin/scripts/update/once/004/001/016.php script works
@@ -94,7 +95,7 @@ class Update004001016Test extends TestCase
         }
 
         // Clean up test object groupings
-        $groupings = $this->entityGroupingDataMapper->getGroupings('customer', 'groups');
+        $groupings = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT, 'groups');
         foreach ($this->testGroupingIDs as $groupingId) {
             $groupings->delete($groupingId);
             $this->entityGroupingDataMapper->saveGroupings($groupings);
@@ -119,7 +120,7 @@ class Update004001016Test extends TestCase
     {
         // Create a test grouping
         $newGroupingName = "Unit Test Group" . rand();
-        $groupingsGroups = $this->entityGroupingDataMapper->getGroupings("customer", "groups");
+        $groupingsGroups = $this->entityGroupingDataMapper->getGroupings(ObjectTypes::CONTACT, "groups");
         $groupsGrp = $groupingsGroups->getByName($newGroupingName);
         if (!$groupsGrp)
             $groupsGrp = $groupingsGroups->create($newGroupingName);
@@ -128,7 +129,7 @@ class Update004001016Test extends TestCase
         $this->testGroupingIDs[] = $groupsGrp->id;
 
         // Create a new entity
-        $customer = $this->entityLoader->create("customer");
+        $customer = $this->entityLoader->create(ObjectTypes::CONTACT);
         $customer->setValue('name', 'test update 4.001.016');
         $contactId = $this->entityLoader->save($customer, $this->user);
 
@@ -137,7 +138,7 @@ class Update004001016Test extends TestCase
          * from inserting into the object_grouping_mem table
          */
         $definitionLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $customerDefinition = $definitionLoader->get('customer');
+        $customerDefinition = $definitionLoader->get(ObjectTypes::CONTACT);
         $data = ['groups' => '[ ' . $groupsGrp->id . ']'];
         $this->db->update(
             $customerDefinition->object_table,

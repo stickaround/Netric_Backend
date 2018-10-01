@@ -3,6 +3,7 @@ namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\EntityDefinition\ObjectTypes;
 
 class UpdateFieldActionTest extends AbstractActionTests
 {
@@ -46,7 +47,7 @@ class UpdateFieldActionTest extends AbstractActionTests
         $action->setParam('update_value', 'edited test');
 
         // Create a test task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;

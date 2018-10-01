@@ -5,16 +5,19 @@
 namespace NetricTest\WorkFlow\DataMapper;
 
 use PHPUnit\Framework\TestCase;
+use Netric\WorkFlow\WorkFlowManager;
+use Netric\WorkFlow\WorkFlowManagerFactory;
+use NetricTest\Bootstrap;
 
 class WorkFlowManagerFactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\WorkFlow\WorkFlowManager',
-            $sm->get('Netric\WorkFlow\WorkFlowManager')
+            WorkFlowManager::class,
+            $sm->get(WorkFlowManagerFactory::class)
         );
     }
 }

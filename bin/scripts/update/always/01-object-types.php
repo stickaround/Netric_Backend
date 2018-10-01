@@ -4,6 +4,7 @@
  */
 use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 
 // Get object types for each account
 $types = require(__DIR__ . "/../../../../data/account/object-types.php");
@@ -12,7 +13,7 @@ $account = $this->getAccount();
 if (!$account)
     throw new \RuntimeException("This must be run only against a single account");
 
-$entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefinition_DataMapper");
+$entityDefinitionDataMapper = $account->getServiceManager()->get(DataMapperFactory::class);
 $entityDefinitionLoader = $account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
 
 // Loop through each type and add it if it does not exist

@@ -4,6 +4,7 @@ namespace NetricTest\WorkFlow\Action;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\EntityDefinition\ObjectTypes;
 
 class StartWorkflowActionTest extends AbstractActionTests
 {
@@ -53,7 +54,7 @@ class StartWorkflowActionTest extends AbstractActionTests
     {
         // Create a new workflow with conditions
         $workFlow = new WorkFlow($this->actionFactory);
-        $workFlow->setObjType("task");
+        $workFlow->setObjType(ObjectTypes::TASK);
 
         // Setup a test action to change the name to 'automatically changed'
         $actionUpdateField = $this->actionFactory->create("update_field");
@@ -68,7 +69,7 @@ class StartWorkflowActionTest extends AbstractActionTests
         /*
          * Create a task to run the new workflow against
          */
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setValue("done", false); // should cause it to be ignored by the WorkFlow
         $this->entityLoader->save($task);

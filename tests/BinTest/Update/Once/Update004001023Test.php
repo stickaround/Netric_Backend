@@ -11,6 +11,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
 
 class Update004001023Test extends TestCase
 {
@@ -106,19 +107,19 @@ class Update004001023Test extends TestCase
         $db = $serviceManager->get(RelationalDbFactory::class);
 
         // Create a user entity that will act as our moved to user entity
-        $userMovedTo = $entityLoader->create("user");
+        $userMovedTo = $entityLoader->create(ObjectTypes::USER);
         $userMovedTo->setValue("name", "Unit Test Moved To User");
         $userMovedToId = $entityDataMapper->save($userMovedTo);
         $this->testEntities[] = $userMovedTo;
 
         // Create a user entity that will act as our moved from user entity
-        $userMovedFrom = $entityLoader->create("user");
+        $userMovedFrom = $entityLoader->create(ObjectTypes::USER);
         $userMovedFrom->setValue("name", "Unit Test Moved From User");
         $userMovedFromId = $entityDataMapper->save($userMovedFrom);
         $this->testEntities[] = $userMovedFrom;
 
         // Create a task entity and set the $userMovedFrom as our user_id
-        $task = $entityLoader->create("task");
+        $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "Referenced Entity for User Moved From");
         $task->setValue("user_id", $userMovedFromId);
         $taskId = $entityDataMapper->save($task);
@@ -129,7 +130,7 @@ class Update004001023Test extends TestCase
         $this->testOldUserIds[] = $oldUserId;
 
         // Create a task entity and add the old user as it's owner
-        $taskOldUserRef = $entityLoader->create("task");
+        $taskOldUserRef = $entityLoader->create(ObjectTypes::TASK);
         $taskOldUserRef->setValue("name", "Referenced Entity for old user entity");
         $taskOldUserRefId = $entityDataMapper->save($taskOldUserRef);
         $this->testEntities[] = $taskOldUserRef;
@@ -165,13 +166,13 @@ class Update004001023Test extends TestCase
         $this->assertTrue($binScript->run($this->scriptPath));
 
         // Load the task entity and it should update the moved from user_id to moved to user_id
-        $entityLoader->clearCache("task", $taskId);
-        $taskEntity = $entityLoader->get("task", $taskId);
+        $entityLoader->clearCache(ObjectTypes::TASK, $taskId);
+        $taskEntity = $entityLoader->get(ObjectTypes::TASK, $taskId);
         $this->assertEquals($userMovedToId, $taskEntity->getValue("user_id"));
 
         // Load the task entity with the old user reference and it should update the old user to moved user id
-        $entityLoader->clearCache("task", $taskOldUserRefId);
-        $taskOldUserRefEntity = $entityLoader->get("task", $taskOldUserRefId);
+        $entityLoader->clearCache(ObjectTypes::TASK, $taskOldUserRefId);
+        $taskOldUserRefEntity = $entityLoader->get(ObjectTypes::TASK, $taskOldUserRefId);
         $this->assertEquals($userMovedToId, $taskOldUserRefEntity->getValue("user_id"));
     }
 }

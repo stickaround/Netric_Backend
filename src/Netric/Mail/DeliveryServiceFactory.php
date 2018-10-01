@@ -10,6 +10,7 @@ use Netric\EntityGroupings\LoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\FileSystem\FileSystemFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Create a service for delivering mail
@@ -27,7 +28,7 @@ class DeliveryServiceFactory implements ServiceManager\AccountServiceFactoryInte
         $user = $sl->getAccount()->getUser();
         $entityLoader = $sl->get(EntityLoaderFactory::class);
         $groupingsLoader = $sl->get(LoaderFactory::class);
-        $log = $sl->get("Log");
+        $log = $sl->get(LogFactory::class);
         $index = $sl->get(IndexFactory::class);
         $fileSystem = $sl->get(FileSystemFactory::class);
 

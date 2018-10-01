@@ -4,6 +4,8 @@ namespace NetricTest\WorkFlow\Action;
 use Netric\EntityGroupings\Group;
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\LoaderFactory;
 
 class AssignActionTest extends AbstractActionTests
 {
@@ -53,17 +55,17 @@ class AssignActionTest extends AbstractActionTests
     public function testExecute()
     {
         // Create three users for assignment
-        $user1 = $this->entityLoader->create("user");
+        $user1 = $this->entityLoader->create(ObjectTypes::USER);
         $user1->setValue("name", "testuser-" . rand());
         $user1Id = $this->entityLoader->save($user1);
         $this->testEntities[] = $user1;
 
-        $user2 = $this->entityLoader->create("user");
+        $user2 = $this->entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "testuser-" . rand());
         $user2Id = $this->entityLoader->save($user2);
         $this->testEntities[] = $user2;
 
-        $user3 = $this->entityLoader->create("user");
+        $user3 = $this->entityLoader->create(ObjectTypes::USER);
         $user3->setValue("name", "testuser-" . rand());
         $user3Id = $this->entityLoader->save($user3);
         $this->testEntities[] = $user3;
@@ -76,7 +78,7 @@ class AssignActionTest extends AbstractActionTests
         $action->setParam('users', implode(',', $usersArray));
 
         // Create a test task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -109,8 +111,8 @@ class AssignActionTest extends AbstractActionTests
     public function SKIP_testExecute_Team()
     {
         // Create a test team_id
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("user", "team_id");
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::USER, "team_id");
         $group = $groupings->getByName("Test");
         if ($group) {
             $groupings->delete($group->id);
@@ -122,19 +124,19 @@ class AssignActionTest extends AbstractActionTests
         $groupingsLoader->save($groupings);
 
         // Create three users for assignment
-        $user1 = $this->entityLoader->create("user");
+        $user1 = $this->entityLoader->create(ObjectTypes::USER);
         $user1->setValue("name", "testuser-" . rand());
         $user1->setValue("team_id", $group->id);
         $user1Id = $this->entityLoader->save($user1);
         $this->testEntities[] = $user1;
 
-        $user2 = $this->entityLoader->create("user");
+        $user2 = $this->entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "testuser-" . rand());
         $user2->setValue("team_id", $group->id);
         $user2Id = $this->entityLoader->save($user2);
         $this->testEntities[] = $user2;
 
-        $user3 = $this->entityLoader->create("user");
+        $user3 = $this->entityLoader->create(ObjectTypes::USER);
         $user3->setValue("name", "testuser-" . rand());
         $user3->setValue("team_id", $group->id);
         $user3Id = $this->entityLoader->save($user3);
@@ -148,7 +150,7 @@ class AssignActionTest extends AbstractActionTests
         $action->setParam('team_id', $group->id);
 
         // Create a test task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;
@@ -188,8 +190,8 @@ class AssignActionTest extends AbstractActionTests
     public function SKIP_testExecute_Group()
     {
         // Create a test team_id
-        $groupingsLoader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
-        $groupings = $groupingsLoader->get("user", "groups");
+        $groupingsLoader = $this->account->getServiceManager()->get(LoaderFactory::class);
+        $groupings = $groupingsLoader->get(ObjectTypes::USER, "groups");
         $group = $groupings->getByName("Test");
         if ($group) {
             $groupings->delete($group->id);
@@ -201,19 +203,19 @@ class AssignActionTest extends AbstractActionTests
         $groupingsLoader->save($groupings);
 
         // Create three users for assignment
-        $user1 = $this->entityLoader->create("user");
+        $user1 = $this->entityLoader->create(ObjectTypes::USER);
         $user1->setValue("name", "testuser-" . rand());
         $user1->addMultiValue("groups", $group->id);
         $user1Id = $this->entityLoader->save($user1);
         $this->testEntities[] = $user1;
 
-        $user2 = $this->entityLoader->create("user");
+        $user2 = $this->entityLoader->create(ObjectTypes::USER);
         $user2->setValue("name", "testuser-" . rand());
         $user2->addMultiValue("groups", $group->id);
         $user2Id = $this->entityLoader->save($user2);
         $this->testEntities[] = $user2;
 
-        $user3 = $this->entityLoader->create("user");
+        $user3 = $this->entityLoader->create(ObjectTypes::USER);
         $user3->setValue("name", "testuser-" . rand());
         $user3->addMultiValue("groups", $group->id);
         $user3Id = $this->entityLoader->save($user3);
@@ -227,7 +229,7 @@ class AssignActionTest extends AbstractActionTests
         $action->setParam('group_id', $group->id);
 
         // Create a test task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $this->entityLoader->save($task);
         $this->testEntities[] = $task;

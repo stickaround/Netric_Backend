@@ -10,6 +10,7 @@ use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityQuery;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
 
 class Update004001019Test extends TestCase
 {
@@ -82,7 +83,7 @@ class Update004001019Test extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityIndex = $serviceManager->get(IndexFactory::class);
 
-        $userDashboardEntity = $entityLoader->create("dashboard");
+        $userDashboardEntity = $entityLoader->create(ObjectTypes::DASHBOARD);
         $userDashboardEntity->setValue("name", "UserActivityDashboard");
         $userDashboardEntity->setValue("uname", "activity");
         $userDashboardEntity->setValue("scope", "user");
@@ -96,7 +97,7 @@ class Update004001019Test extends TestCase
         $this->assertTrue($binScript->run($this->scriptPath));
 
         // Find all dashboard entity with uname "activity" and scope is not system
-        $query = new EntityQuery("dashboard");
+        $query = new EntityQuery(ObjectTypes::DASHBOARD);
         $query->where("uname")->equals("activity");
         $query->where("scope")->doesNotEqual("system");
 
@@ -105,7 +106,7 @@ class Update004001019Test extends TestCase
         $totalNum = $results->getTotalNum();
         $this->assertEquals($totalNum, 0);
 
-        $systemDashboardEntity = $entityLoader->create("dashboard");
+        $systemDashboardEntity = $entityLoader->create(ObjectTypes::DASHBOARD);
         $systemDashboardEntity->setValue("name", "SystemActivityDashboard");
         $systemDashboardEntity->setValue("uname", "activity");
         $systemDashboardEntity->setValue("scope", "system");
@@ -117,7 +118,7 @@ class Update004001019Test extends TestCase
         $this->assertTrue($binScript->run($this->scriptPath));
 
         // Find all dashboard entity with uname "activity" and scope is system
-        $query = new EntityQuery("dashboard");
+        $query = new EntityQuery(ObjectTypes::DASHBOARD);
         $query->where("uname")->equals("activity");
         $query->where("scope")->equals("system");
 

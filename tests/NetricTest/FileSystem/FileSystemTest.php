@@ -9,7 +9,11 @@ use Netric\Entity\DataMapperInterface;
 use Netric\EntityQuery;
 use Netric\Entity\EntityLoader;
 use Netric\Entity\ObjType;
-
+use Netric\FileSystem\FileSystemFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
 use PHPUnit\Framework\TestCase;
 
 class FileSystemTest extends TestCase
@@ -68,10 +72,10 @@ class FileSystemTest extends TestCase
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
-        $this->fileSystem = $sl->get("Netric/FileSystem/FileSystem");
-        $this->dataMapper = $sl->get("Entity_DataMapper");
-        $this->entityLoader = $sl->get("EntityLoader");
-        $this->entityIndex = $sl->get("EntityQuery_Index");
+        $this->fileSystem = $sl->get(FileSystemFactory::class);
+        $this->dataMapper = $sl->get(DataMapperFactory::class);
+        $this->entityLoader = $sl->get(EntityLoaderFactory::class);
+        $this->entityIndex = $sl->get(IndexFactory::class);
     }
 
     protected function tearDown()
@@ -119,14 +123,14 @@ class FileSystemTest extends TestCase
         }
 
         // Create /testOpenSub
-        $subFolder = $this->entityLoader->create("folder");
+        $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
         $subFolder->setValue("name", "testOpenSub");
         $subFolder->setValue("parent_id", $rootFolder->getId());
         $this->dataMapper->save($subFolder);
         $this->queueFolderForCleanup($subFolder);
 
         // Create /testOpenSub/Child
-        $childFolder = $this->entityLoader->create("folder");
+        $childFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
         $childFolder->setValue("name", "Child");
         $childFolder->setValue("parent_id", $subFolder->getId());
         $this->dataMapper->save($childFolder);
@@ -335,7 +339,7 @@ class FileSystemTest extends TestCase
         }
 
         // Create /testDeleteFolder
-        $subFolder = $this->entityLoader->create("folder");
+        $subFolder = $this->entityLoader->create(ObjectTypes::FOLDER);
         $subFolder->setValue("name", "testDeleteFolder");
         $subFolder->setValue("parent_id", $rootFolder->getId());
         $this->dataMapper->save($subFolder);

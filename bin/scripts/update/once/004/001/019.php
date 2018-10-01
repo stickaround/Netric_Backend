@@ -5,6 +5,7 @@
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -18,6 +19,6 @@ $result = $db->query($sql);
 
 // Loop thru the results and delete the entities
 foreach ($result->fetchAll() as $row) {
-    $entity = $entityLoader->get("dashboard", $row['id']);
+    $entity = $entityLoader->get(ObjectTypes::DASHBOARD, $row['id']);
     $entityDataMapper->delete($entity);
 }

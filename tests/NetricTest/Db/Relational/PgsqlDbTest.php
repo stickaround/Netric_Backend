@@ -3,6 +3,7 @@ namespace NetricTest\Db\Relational;
 
 use Netric\Db\Relational\PgsqlDb;
 use NetricTest\Bootstrap;
+use Netric\Config\ConfigFactory;
 
 /**
  * This file should be extended to test any database adapters/interfaces
@@ -19,7 +20,7 @@ class PgsqlDbTest extends AbstractRelationalDbTests
     {
         $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $config = $sm->get('Config');
+        $config = $sm->get(ConfigFactory::class);
 
         // Create a connection to the template to create a new test database
         $dbh = pg_connect(

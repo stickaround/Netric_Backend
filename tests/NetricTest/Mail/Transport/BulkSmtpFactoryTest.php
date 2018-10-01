@@ -6,6 +6,9 @@ namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\BulkSmtpFactory;
 use PHPUnit\Framework\TestCase;
+use Netric\Settings\SettingsFactory;
+use Netric\Mail\Transport\Smtp;
+use Netric\Mail\Transport\SmtpFactory;
 
 class BulkSmtpFactoryTest extends TestCase
 {
@@ -22,7 +25,7 @@ class BulkSmtpFactoryTest extends TestCase
     protected function setUp()
     {
         $account = \NetricTest\Bootstrap::getAccount();
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $this->oldSettings = array(
             'smtp_bulk_host' => $settings->get("email/smtp_bulk_host"),
             'smtp_bulk_user' => $settings->get("email/smtp_bulk_user"),
@@ -35,7 +38,7 @@ class BulkSmtpFactoryTest extends TestCase
     {
         // Restore cached old settings
         $account = \NetricTest\Bootstrap::getAccount();
-        $settings = $account->getServiceManager()->get("Netric/Settings/Settings");
+        $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $settings->set("email/smtp_bulk_host", $this->oldSettings['smtp_bulk_host']);
         $settings->set("email/smtp_bulk_user", $this->oldSettings['smtp_bulk_user']);
         $settings->set("email/smtp_bulk_password", $this->oldSettings['smtp_bulk_password']);
@@ -47,8 +50,8 @@ class BulkSmtpFactoryTest extends TestCase
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Mail\Transport\Smtp',
-            $sm->get('Netric\Mail\Transport\BulkSmtp')
+            Smtp::class,
+            $sm->get(SmtpFactory::class)
         );
     }
 
@@ -61,7 +64,7 @@ class BulkSmtpFactoryTest extends TestCase
 
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
-        $settings = $sm->get("Netric/Settings/Settings");
+        $settings = $sm->get(SettingsFactory::class);
         $settings->set('email/smtp_bulk_host', $testHost);
         $settings->set('email/smtp_bulk_port', $testPort);
         $settings->set('email/smtp_bulk_user', $testUser);
@@ -71,7 +74,7 @@ class BulkSmtpFactoryTest extends TestCase
         $transport = $smtpFactory->createService($sm);
 
         $this->assertInstanceOf(
-            'Netric\Mail\Transport\Smtp',
+            Smtp::class,
             $transport
         );
 

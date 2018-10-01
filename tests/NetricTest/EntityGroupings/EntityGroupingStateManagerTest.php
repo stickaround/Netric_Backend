@@ -91,7 +91,7 @@ class EntityGroupingStateManagerTest extends TestCase
         $dm->saveGroupings($groupings);
 
         // Load through loader
-        $loader = $this->account->getServiceManager()->get("EntityGroupings_Loader");
+        $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
 
         // Use the loader to get private groups
         $groupings = $loader->get(ObjectTypes::NOTE, "groups", array("user_id" => $systemUser->getId()));

@@ -9,15 +9,22 @@
  * This script will simply find and re-save any contacts missing a commit_id
  * so that synchronization will be fixed.
  */
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityQuery;
+
+
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
-$index = $serviceManager->get("EntityQuery_Index");
-$entityLoader = $serviceManager->get("EntityLoader");
-$entityDefinitionLoader = $serviceManager->get("EntityDefinitionLoader");
+$index = $serviceManager->get(IndexFactory::class);
+$entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+$entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
 $def = null;
 try {
-    $def = $entityDefinitionLoader->get("contact_personal");
+    $def = $entityDefinitionLoader->get(ObjectTypes::CONTACT_PERSONAL);
 } catch (Exception $ex) {
     $serviceManager->get("Log")->error("Could not load contact_personal definition");
     $def = null;
@@ -27,7 +34,7 @@ try {
 if ($def) {
 
     // Find all contact_personal entities where commit_id is null
-    $query = new \Netric\EntityQuery("contact_personal");
+    $query = new EntityQuery(ObjectTypes::CONTACT_PERSONAL);
     $query->where("commit_id")->equals("");
 
     // Get the results

@@ -8,6 +8,8 @@ use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\Action\ActionFactory;
 use Netric\EntityQuery\Where;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
+use NetricTest\Bootstrap;
 
 class WorkFlowTest extends TestCase
 {
@@ -27,7 +29,7 @@ class WorkFlowTest extends TestCase
 
     protected function setUp()
     {
-        $this->account = \NetricTest\Bootstrap::getAccount();
+        $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
     }
@@ -40,7 +42,7 @@ class WorkFlowTest extends TestCase
         $workFlowData = array(
             "id" => 123,
             "name" => "Test",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "notes" => "Details Here",
             "active" => true,
             "on_create" => true,

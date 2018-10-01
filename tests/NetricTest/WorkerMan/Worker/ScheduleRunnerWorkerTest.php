@@ -11,6 +11,8 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\Account\Account;
 use NetricTest\Bootstrap;
 use InvalidArgumentException;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Make sure that the scheudle runner will queue jobs
@@ -79,8 +81,8 @@ class ScheduleRunnerWorkerTest extends TestCase
     {
         // Create a temporary worker job to run
         $sl = $this->account->getServiceManager();
-        $entityLoader = $sl->get("EntityLoader");
-        $workerJob = $entityLoader->create("worker_job");
+        $entityLoader = $sl->get(EntityLoaderFactory::class);
+        $workerJob = $entityLoader->create(ObjectTypes::WORKER_JOB);
         $workerJob->setId(1234);
         $workerJob->setValue("worker_name", "Test");
         $workerJob->setValue("job_data", json_encode(['myvar'=>'myval']));

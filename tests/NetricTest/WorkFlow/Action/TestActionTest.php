@@ -3,6 +3,7 @@ namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\EntityDefinition\ObjectTypes;
 
 class TestActionTest extends AbstractActionTests
 {
@@ -24,7 +25,7 @@ class TestActionTest extends AbstractActionTests
         $action = $this->getAction();
 
         // Create a task that will email the owner when completed
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setId(321);
 

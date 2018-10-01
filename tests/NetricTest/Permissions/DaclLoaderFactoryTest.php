@@ -3,16 +3,19 @@ namespace NetricTest\Permissions;
 
 use Netric;
 use PHPUnit\Framework\TestCase;
+use NetricTest\Bootstrap;
+use Netric\Permissions\DaclLoader;
+use Netric\Permissions\DaclLoaderFactory;
 
 class DaclLoaderactoryTest extends TestCase
 {
     public function testCreateService()
     {
-        $account = \NetricTest\Bootstrap::getAccount();
+        $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->assertInstanceOf(
-            'Netric\Permissions\DaclLoader',
-            $sm->get('Netric\Permissions\DaclLoader')
+            DaclLoader::class,
+            $sm->get(DaclLoaderFactory::class)
         );
     }
 }

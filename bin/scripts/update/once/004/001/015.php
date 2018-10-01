@@ -5,6 +5,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityGroupings\LoaderFactory;
 use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 
 $account = $this->getAccount();
 $log = $account->getApplication()->getLog();
@@ -12,7 +13,7 @@ $serviceManager = $account->getServiceManager();
 $db = $serviceManager->get(RelationalDbFactory::class);
 $dm = $serviceManager->get(EntityGroupingDataMapperFactory::class);
 $groupingsLoader = $serviceManager->get(LoaderFactory::class);
-$entityDefinitionDataMapper = $account->getServiceManager()->get("EntityDefinition_DataMapper");
+$entityDefinitionDataMapper = $account->getServiceManager()->get(DataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
 // First remove stale foreign key constraints

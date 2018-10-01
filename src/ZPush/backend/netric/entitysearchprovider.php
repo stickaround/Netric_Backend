@@ -20,6 +20,12 @@ require_once($zPushRoot . 'lib/exceptions/statusexception.php');
 // Include netric autoloader for all netric libraries
 require_once(dirname(__FILE__) . "/../../../../init_autoloader.php");
 
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\ObjectTypes;
+use Netric\Account\Account;
+use Netric\Entity\ObjType\UserEntity;
+use Netric\EntityQuery;
+
 /**
  * Simple diff of changes
  */
@@ -54,8 +60,8 @@ class EntitySearchProvider implements ISearchProvider
      * @throws StatusException, FatalException
      */
     public function __construct(
-        \Netric\Account\Account $account,
-        \Netric\Entity\ObjType\UserEntity $user
+        Account $account,
+        UserEntity $user
     )
     {
         if (!$account) {
@@ -114,13 +120,13 @@ class EntitySearchProvider implements ISearchProvider
         $items = array();
 
         // Create entity query
-        $query = new \Netric\EntityQuery("user");
+        $query = new \Netric\EntityQuery(ObjectTypes::USER);
         $query->where("*")->contains($searchquery);
         $query->setOffset($offset);
         $query->setLimit($limit);
 
         // Execute the query and get the results
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $num = $results->getNum();
         $totalNum = $results->getTotalNum();
@@ -210,7 +216,7 @@ class EntitySearchProvider implements ISearchProvider
         $items = array();
 
         // Create entity query
-        $query = new \Netric\EntityQuery("email_message");
+        $query = new EntityQuery(ObjectTypes::EMAIL_MESSAGE);
         $query->where("*")->contains($searchText);
         if ($searchGreater)
             $query->andWhere("ts_entered")->isGreaterOrEqualTo($searchGreater);
@@ -234,7 +240,7 @@ class EntitySearchProvider implements ISearchProvider
             $query->setLimit($searchRange[1] - $searchRange[0]);
 
         // Execute the query and get the results
-        $index = $this->account->getServiceManager()->get("EntityQuery_Index");
+        $index = $this->account->getServiceManager()->get(IndexFactory::class);
         $results = $index->executeQuery($query);
         $num = $results->getNum();
         $totalNum = $results->getTotalNum();

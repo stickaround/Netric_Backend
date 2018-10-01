@@ -9,6 +9,7 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory as EntityDefinitionDataMapperFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 $account = $this->getAccount();
 $serviceManager = $account->getServiceManager();
@@ -18,7 +19,7 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 $entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 
 // Make sure the user entity is updated
-$entityDefinitionLoader->forceSystemReset('user');
+$entityDefinitionLoader->forceSystemReset(ObjectTypes::USER);
 
 // Update old system user GUIDs
 $db->update('objects_user_act', ['guid'=>UserEntity::USER_CURRENT], ['name' => 'current.user']);
@@ -28,7 +29,7 @@ $db->update('objects_user_act', ['guid'=>UserEntity::USER_SYSTEM], ['name' => 's
 $db->update('objects_user_act', ['guid'=>UserEntity::USER_WORKFLOW], ['name' => 'workflow']);
 
 // Update the uname of all users
-$query = new EntityQuery("user");
+$query = new EntityQuery(ObjectTypes::USER);
 $index = $serviceManager->get(IndexFactory::class);
 $res = $index->executeQuery($query);
 for ($i = 0; $i < $res->getTotalNum(); $i++) {
@@ -41,7 +42,7 @@ for ($i = 0; $i < $res->getTotalNum(); $i++) {
 // Make sure system users have the right uname and guid
 $users = require(__DIR__ . "/../../../../../../data/account/users.php");
 foreach ($users as $userData) {
-    $query = new EntityQuery("user");
+    $query = new EntityQuery(ObjectTypes::USER);
     $query->where('name')->equals($userData['name']);
     $index = $serviceManager->get(IndexFactory::class);
     $res = $index->executeQuery($query);

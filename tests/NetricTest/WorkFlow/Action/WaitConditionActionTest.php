@@ -5,6 +5,8 @@ use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlow;
 use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 class WaitConditionActionTest extends AbstractActionTests
 {
@@ -59,7 +61,7 @@ class WaitConditionActionTest extends AbstractActionTests
         // Create and save the workflow
         $workFlowData = array(
             "name" => "Test Get Execute Wait Action",
-            "obj_type" => "task",
+            "obj_type" => ObjectTypes::TASK,
             "active" => true,
         );
         $workFlow = new WorkFlow($this->actionFactory);
@@ -78,8 +80,8 @@ class WaitConditionActionTest extends AbstractActionTests
         $this->workFlowDataMapper->save($workFlow);
 
         // Save an entity to run workflow instance on
-        $entityLoader = $serviceManager->get("EntityLoader");
-        $task = $entityLoader->create("task");
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+        $task = $entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $entityLoader->save($task);
         $this->testEntities[] = $task;

@@ -3,6 +3,7 @@ namespace NetricTest\WorkFlow\Action;
 
 use Netric\WorkFlow\Action\ActionInterface;
 use Netric\WorkFlow\WorkFlowInstance;
+use Netric\EntityDefinition\ObjectTypes;
 
 class WebhookActionTest extends AbstractActionTests
 {
@@ -37,7 +38,7 @@ class WebhookActionTest extends AbstractActionTests
         $action->setParam('url', 'http://test.com/<%obj_type%>/<%oid%>');
 
         // Create a test task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setId(321);
 
@@ -66,7 +67,7 @@ class WebhookActionTest extends AbstractActionTests
         $action->setParam('url', 'http://test.com/<%obj_type%>/<%oid%>');
 
         // Create a test task
-        $task = $this->entityLoader->create("task");
+        $task = $this->entityLoader->create(ObjectTypes::TASK);
         $task->setValue("name", "test");
         $task->setId(321);
 

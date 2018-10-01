@@ -11,6 +11,7 @@ use Netric\Authentication\AuthenticationServiceFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
+use Netric\EntityDefinition\ObjectTypes;
 
 class Update004001018Test extends TestCase
 {
@@ -85,7 +86,7 @@ class Update004001018Test extends TestCase
         $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
         $db = $serviceManager->get(RelationalDbFactory::class);
 
-        $objType = "task";
+        $objType = ObjectTypes::TASK;
         $insertData = [
             'name' => "UnitTestTask"
         ];
