@@ -171,7 +171,7 @@ class EntitySearchProviderTest extends TestCase
         }
         $this->assertNotNull($foundItem);
         $this->assertEquals("Test", $foundItem[SYNC_GAL_FIRSTNAME]);
-        $this->assertEquals("user", $foundItem[SYNC_GAL_LASTNAME]);
+        $this->assertEquals("User", $foundItem[SYNC_GAL_LASTNAME]);
         $this->assertEquals($this->user->getValue("email"), $foundItem[SYNC_GAL_EMAILADDRESS]);
     }
 
