@@ -90,6 +90,9 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
      */
     private function initializeServiceByFactory($serviceName, $bCache = true)
     {
+        // First check to see if $sServiceName has been mapped to a factory
+        $serviceName = $this->getInvokableTarget($serviceName);
+
         // Normalise the serviceName
         $serviceName = $this->normalizeClassPath($serviceName);
 
@@ -197,5 +200,20 @@ abstract class AbstractServiceManager implements ServiceLocatorInterface
         } else {
             return false;
         }
+    }
+
+    /**
+     * Check to see if a name is mapped to a real namespaced class
+     *
+     * @param string $sServiceName The potential service name alias
+     * @return string If a map exists the rename the service to the real path, otherwise return the alias
+     */
+    private function getInvokableTarget($sServiceName)
+    {
+        if (isset($this->invokableFactoryMaps[$sServiceName])) {
+            $sServiceName = $this->invokableFactoryMaps[$sServiceName];
+        }
+
+        return $sServiceName;
     }
 }
