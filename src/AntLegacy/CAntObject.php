@@ -334,6 +334,8 @@ class CAntObject
 		{
 			$this->load($comprev, $cachedata);
 		}
+
+		$this->fields = AntObjectDefLoader::getInstance($this->dbh)->getDef($this->object_type);
 	}
 
 	/**

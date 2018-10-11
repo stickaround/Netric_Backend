@@ -217,7 +217,7 @@ class CAntObjectFields
 			$this->useCustomTable = true;
 		}
 		 */
-		$this->useCustomTable = $this->entityDefinition->isCustomTable();
+		// $this->useCustomTable = $this->entityDefinition->isCustomTable();
 
 		$det_view = null;
 		

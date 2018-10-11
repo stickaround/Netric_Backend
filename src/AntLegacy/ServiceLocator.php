@@ -259,7 +259,8 @@ class ServiceLocator
 	 */
 	private function factoryEntityQuery_Index()
 	{
-        $acc = USER_ANONYMOUS; return $acc->getServiceManager()->get("EntityQuery_Index");
+		$acc = $this->getAnt()->getNetricAccount();
+		return $acc->getServiceManager()->get("EntityQuery_Index");
 	}
 
 	/**
