@@ -7,6 +7,9 @@ require_once("src/AntLegacy/calendar/calendar_functions.awp");
 require_once("src/AntLegacy/controllers/ObjectListController.php");
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+
 /**
  * Class for controlling calendar and calendar event functions
  */
@@ -29,8 +32,8 @@ class CalendarController extends Controller
 
         Netric\EntityQuery\FormParser::buildQuery($query, null);
 
-        $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-        $index = $sl->get("EntityQuery_Index");
+        $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+        $index = $sm->get(IndexFactory::class);
 
         // Execute the query
         $res = $index->executeQuery($query);
@@ -109,8 +112,8 @@ class CalendarController extends Controller
         
 		if (isset($params['calid']))
         {
-            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-            $loader = $sl->get("EntityLoader");
+            $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+            $loader = $sm->get(EntityLoaderFactory::class);
             $cal = $loader->get("calendar", $params['calid']);
 
             $ret = $cal->getValue("name");
@@ -359,8 +362,8 @@ class CalendarController extends Controller
 
         Netric\EntityQuery\FormParser::buildQuery($query, null);
 
-        $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-        $index = $sl->get("EntityQuery_Index");
+        $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+        $index = $sm->get(IndexFactory::class);
 
         // Execute the query
         $res = $index->executeQuery($query);
@@ -380,7 +383,7 @@ class CalendarController extends Controller
 
         if (count($ret["myCalendars"]) === 0)
         {
-            $loader = $sl->get("EntityLoader");
+            $loader = $sm->get(EntityLoaderFactory::class);
             $cal = $loader->create("calendar");
 
             $cal->setValue("user_id", $this->user->id);
@@ -494,8 +497,8 @@ class CalendarController extends Controller
         $view= $params['f_view'];
         if (($params['calendar_id'] || $params['share_id']) && $view)
         {
-            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-            $loader = $sl->get("EntityLoader");
+            $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+            $loader = $sm->get(EntityLoaderFactory::class);
             $fView = ($view === 't') ? true : false;
 
             if (isset($params['calendar_id']) && $params['calendar_id'])
@@ -556,8 +559,8 @@ class CalendarController extends Controller
         
         if (($params['calendar_id'] || $params['share_id']) && $color)
         {
-            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-            $loader = $sl->get("EntityLoader");
+            $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+            $loader = $sm->get(EntityLoaderFactory::class);
 
             if (isset($params['calendar_id']) && $params['calendar_id']) {
                 $cal = $loader->get("calendar", $params['calendar_id']);
@@ -631,8 +634,8 @@ class CalendarController extends Controller
 
             Netric\EntityQuery\FormParser::buildQuery($query, null);
 
-            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-            $index = $sl->get("EntityQuery_Index");
+            $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+            $index = $sm->get(IndexFactory::class);
 
             // Execute the query
             $res = $index->executeQuery($query);
@@ -645,7 +648,7 @@ class CalendarController extends Controller
             }
             else
             {
-                $loader = $sl->get("EntityLoader");
+                $loader = $sm->get(EntityLoaderFactory::class);
                 $cal = $loader->create("calendar");
 
                 $cal->setValue("name", $name);

@@ -17,6 +17,8 @@ require_once("src/AntLegacy/calendar/calendar_functions.awp");
 require_once("src/AntLegacy/contact_functions.awp");
 require_once("src/AntLegacy/customer/customer_functions.awp");
 
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+
 /**
 * Actions for interacting with basic application functions
 */
@@ -221,8 +223,8 @@ class ApplicationController extends Controller
         
         if ($appid && $obj_type)
         {
-            $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-            $dm = $sl->get("EntityDefinition_DataMapper");
+            $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+            $dm = $sm->get(DataMapperFactory::class);
 			$def = $dm->get($obj_type);
 			$res = $dm->associateWithApp($def, $appid);
            	$ret = ($res) ? 1 : 0; // return success if association was a success

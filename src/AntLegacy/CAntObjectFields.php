@@ -10,6 +10,8 @@
 require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+
 define('OBJ_TYPE_TEXT', 'text');
 define('OBJ_TYPE_INT', 'integer');
 //define('OBJ_TYPE_REAL', 'real');
@@ -143,8 +145,8 @@ class CAntObjectFields
 		$obj_views = null;
 
 		// Load new EntityDefinition
-        $sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$this->entityDefinition = $sl->get("EntityDefinitionLoader")->get($obj_name);
+        $sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$this->entityDefinition = $sm->get(EntityDefinitionLoaderFactory::class)->get($obj_name);
         
 		// Replace the below basic getters
 		$this->revision = $this->entityDefinition->revision;

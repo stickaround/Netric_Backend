@@ -21,6 +21,12 @@ require_once("src/AntLegacy/aereus.lib.php/CCache.php");
 require_once("src/AntLegacy/DaclLoader.php");
 require_once("src/AntLegacy/Help.php");
 
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Entity\EntityLoaderFactory;
+
 /**
  * Base singleton class for service loader
  */
@@ -143,7 +149,7 @@ class ServiceLocator
         if (!$acc)
         	throw new \Exception("Could not get the account. Aborting!");
 
-        return $acc->getServiceManager()->get("Entity_DataMapper");
+        return $acc->getServiceManager()->get(IndexFactory::class);
         /*
 		// For now all we support is pgsql
 		$dm = new Entity_DataMapper_Pgsql($this, $this->ant->id);
@@ -162,7 +168,7 @@ class ServiceLocator
         if (!$acc)
         	throw new \Exception("Could not get the account. Aborting!");
 
-        return $acc->getServiceManager()->get("EntityDefinition_DataMapper");
+        return $acc->getServiceManager()->get(DataMapperFactory::class);
 		// For now all we support is pgsql
 		//$dm = new EntityDefinition_DataMapper_Pgsql($this->ant->id, $this->ant->dbh);
 		//return $dm;
@@ -189,7 +195,7 @@ class ServiceLocator
         if (!$acc)
         	throw new \Exception("Could not get the account. Aborting!");
 
-        return $acc->getServiceManager()->get("EntityDefinitionLoader");
+        return $acc->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
 		// For now all we support is pgsql
 		//$dm = $this->get("EntityDefinition_DataMapper");
 		//$loader = new EntityDefinitionLoader($dm);
@@ -207,7 +213,7 @@ class ServiceLocator
         if (!$acc)
         	throw new \Exception("Could not get the account. Aborting!");
 
-        return $acc->getServiceManager()->get("/Netric/Authentication/AuthenticationService");
+        return $acc->getServiceManager()->get(AuthenticationServiceFactory::class);
 		// For now all we support is pgsql
 		//$dm = $this->get("EntityDefinition_DataMapper");
 		//$loader = new EntityDefinitionLoader($dm);
@@ -235,7 +241,7 @@ class ServiceLocator
         if (!$acc)
         	throw new \Exception("Could not get the account. Aborting!");
 
-        return $acc->getServiceManager()->get("EntityLoader");
+        return $acc->getServiceManager()->get(EntityLoaderFactory::class);
 		//$dm = $this->get("Entity_DataMapper");
 		//$definitionLoader = $this->get("EntityDefinitionLoader");
 		//$loader = EntityLoader::getInstance($dm, $definitionLoader);
@@ -260,7 +266,7 @@ class ServiceLocator
 	private function factoryEntityQuery_Index()
 	{
 		$acc = $this->getAnt()->getNetricAccount();
-		return $acc->getServiceManager()->get("EntityQuery_Index");
+		return $acc->getServiceManager()->get(IndexFactory::class);
 	}
 
 	/**

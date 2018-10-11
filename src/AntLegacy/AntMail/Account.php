@@ -8,7 +8,11 @@
  */
 require_once('src/AntLegacy/security_functions.php');
 require_once('src/AntLegacy/AntObjectSync.php');
- 
+
+use Netric\EntitySync\EntitySyncFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+use Netric\Entity\EntityLoaderFactory;
+
 class AntMail_Account
 {
     /**
@@ -269,8 +273,8 @@ class AntMail_Account
 
 
 		// We will use the service locator to get the entity loader and load the email_account entity
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$entityLoader = $sl->get("EntityLoader");
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$entityLoader = $sm->get(EntityLoaderFactory::class);
 		$entity = $entityLoader->get("email_account", $aid);
 
 		if($entity)
@@ -387,8 +391,8 @@ class AntMail_Account
 		return $this->id;*/
 
 		// Get the Entity Loader
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$entityLoader = $sl->get("EntityLoader");
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$entityLoader = $sm->get(EntityLoaderFactory::class);
 
 		if ($this->id)
 		{
@@ -454,19 +458,19 @@ class AntMail_Account
 		$partner = $this->getSyncPartner(false);
 		if ($partner) {
 			$serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
-			$entitySync = $serviceManager->get("EntitySync");
+			$entitySync = $serviceManager->get(EntitySyncFactory::class);
 			$entitySync->deletePartner($partner);
 		}
 
 		//$ret = $this->dbh->Query("DELETE FROM email_accounts WHERE id='".$this->id."'");
 
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
 
 		// Get the new netric entity DataMapper
-		$dataMapper = $sl->get("Entity_DataMapper");
+		$dataMapper = $sm->get(DataMapperFactory::class);
 
 		// Get the new netric entity loader
-		$loader = $sl->get("EntityLoader");
+		$loader = $sm->get(EntityLoaderFactory::class);
 
 		// Get the email_account entity using the $this->id
 		$entity = $loader->get("email_account", $this->id);
@@ -486,7 +490,7 @@ class AntMail_Account
 	public function getSyncPartner($createIfMissing=true)
 	{
 		$serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
-		$entitySync = $serviceManager->get("EntitySync");
+		$entitySync = $serviceManager->get(EntitySyncFactory::class);
         $partner = $entitySync->getPartner("EmailAccounts/" . $this->id);
         if (!$partner && $createIfMissing)
         {

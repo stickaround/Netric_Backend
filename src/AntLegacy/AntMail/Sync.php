@@ -12,6 +12,8 @@ require_once('src/AntLegacy/CAntObject.php');
 require_once('src/AntLegacy/Object/EmailMessage.php');
 require_once('src/AntLegacy/AntObjectSync.php');
  
+use Netric\EntitySync\DataMapperFactory;
+
 class AntMail_Sync
 {
     /**
@@ -123,7 +125,7 @@ class AntMail_Sync
                 $syncColl->setObjType("email_message");
                 $syncColl->setConditions($conditions);
                 $syncPartner->addCollection($syncColl);
-                $serviceManager->get("EntitySync_DataMapper")->savePartner($syncPartner);
+                $serviceManager->get(DataMapperFactory::class)->savePartner($syncPartner);
             }
 
 			// First send changes to server
@@ -178,7 +180,7 @@ class AntMail_Sync
                 }
             }
 
-			
+
 			// Now get new messages from the server and import
 			// --------------------------------------------------------------------
 			$emailList = $backend->getMessageList($mailboxPath);
@@ -215,7 +217,7 @@ class AntMail_Sync
 					if (isset($stat['local_id']))
 					{
 						$emailObj = CAntObject::factory($this->dbh, "email_message", $stat['local_id'], $this->user);
-						$emailObj->setValue("flag_seen", $emailMeta['seen']==1?'t':'f');            
+						$emailObj->setValue("flag_seen", $emailMeta['seen']==1?'t':'f');
 						$emailObj->setValue("flag_flagged", $emailMeta['flagged']==1?'t':'f');
                         if ($emailObj->fieldValueChanged("seen") || $emailObj->fieldValueChanged("flagged"))
                         {
@@ -310,7 +312,7 @@ class AntMail_Sync
 
             // Save the changes to the collection
             $serviceManager = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
-            $serviceManager->get("EntitySync_DataMapper")->savePartner($syncPartner);
+            $serviceManager->get(DataMapperFactory::class)->savePartner($syncPartner);
 		}
 
 		return $ret;
@@ -332,7 +334,7 @@ class AntMail_Sync
 		// When syncing emails, account type should not be empty
 		if(empty($accountObj->type))
 			return array();
-		
+
 		$backend = $accountObj->getBackend();
 
 		// Get object sync partnership and collection
@@ -357,7 +359,7 @@ class AntMail_Sync
             $syncColl->setFieldName("mailbox_id");
             $syncColl->setConditions($conditions);
             $syncPartner->addCollection($syncColl);
-            $serviceManager->get("EntitySync_DataMapper")->savePartner($syncPartner);
+            $serviceManager->get(DataMapperFactory::class)->savePartner($syncPartner);
         }
 
 		// First send changes to server

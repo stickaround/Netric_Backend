@@ -1,5 +1,7 @@
 <?php
 
+use Netric\EntityQuery\Index\IndexFactory;
+
 class CAntObjectIndexEq extends CAntObjectIndex
 {
     public function __construct($dbh, $obj) 
@@ -95,8 +97,8 @@ class CAntObjectIndexEq extends CAntObjectIndex
             }
         }
         
-        $sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-        $index = $sl->get("EntityQuery_Index");
+        $sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+        $index = $sm->get(IndexFactory::class);
         $res = $index->executeQuery($query);
         
 		$this->objList->lastQuery = $query;

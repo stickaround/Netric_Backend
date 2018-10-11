@@ -38,6 +38,11 @@ define("ACT_TYPE_EMAIL", -2);
 $G_OBJ_IND_EXISTS = array();
 
 use Netric\Entity\Recurrence\RecurrencePattern;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory; 
+use Netric\Entity\EntityLoaderFactory;
+
 
 /**
  * CAntObject class definition
@@ -266,8 +271,8 @@ class CAntObject
 			$this->indexType = ANT_INDEX_TYPE;
 
 		// Load new EntityDefinition
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$this->def = $sl->get("EntityDefinitionLoader")->get($obj_type);
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$this->def = $sm->get(EntityDefinitionLoaderFactory::class)->get($obj_type);
 		$this->object_type_id = $this->def->getId();
 		$this->title = $this->def->title;
 		$this->fSystem = $this->def->system;
@@ -608,8 +613,8 @@ class CAntObject
 	 */
 	public function getDataFromDb()
 	{
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$loader = $sl->get("EntityLoader");
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$loader = $sm->get(EntityLoaderFactory::class);
 		$entity = $loader->get($this->object_type, $this->id);
 
 		// Check to see if object not found
@@ -724,7 +729,7 @@ class CAntObject
 		{
 			$query = "select assoc_type_id, assoc_object_id
 							 from object_associations
-							 where field_id='".$fdef->id."' and type_id='".$this->object_type_id."' 
+							 where field_id='".$fdef->id."' and type_id='".$this->object_type_id."'
 							 and object_id='".$this->id."' LIMIT 1000";
 			$result = $dbh->Query($query);
 			for ($i = 0; $i < $dbh->GetNumberRows($result); $i++)
@@ -1029,8 +1034,8 @@ class CAntObject
 
 		// Save values to the database
 		// ------------------------------------------------------------------
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$loader = $sl->get("EntityLoader");
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$loader = $sm->get(EntityLoaderFactory::class);
 
 		if ($this->id)
 			$entity = $loader->get($this->object_type, $this->id);
@@ -1113,7 +1118,7 @@ class CAntObject
 			$entity->setRecurrencePattern($recurrencePattern);
 		}
 
-		$dm = $sl->get("Entity_DataMapper");
+		$dm = $sm->get(EntityDataMapperFactory::class);
 		$dm->save($entity, $this->user);
 
 		$performed = (!$this->id) ? "create" : "update";
@@ -1822,7 +1827,7 @@ class CAntObject
 					$this->dacl->remove();
 
 				// Remove associations
-				$dbh->Query("delete from object_associations where 
+				$dbh->Query("delete from object_associations where
 								(object_id='".$this->id."' and type_id='".$this->object_type_id."')
 								or (assoc_object_id='".$this->id."' and assoc_type_id='".$this->object_type_id."')");
 
@@ -1962,8 +1967,8 @@ class CAntObject
 						 and (index_type='".$this->getIndexTypeId()."' OR revision>'".(($this->revision)?$this->revision:1)."')");
 			if ($ret && $this->indexType!="db")
 			{
-				$dbh->Query("insert into object_indexed(object_type_id, object_id, revision, index_type) 
-							 values('".$this->object_type_id."', '".$this->id."', 
+				$dbh->Query("insert into object_indexed(object_type_id, object_id, revision, index_type)
+							 values('".$this->object_type_id."', '".$this->id."',
 									'".(($this->revision)?$this->revision:1)."', '".$this->getIndexTypeId()."')");
 			}
 
@@ -2027,9 +2032,9 @@ class CAntObject
 				CustSyncContact($this->dbh, $this->user->id, $this->id, null, "cust_to_contact");
 
 			// Sync child objects if set to inherit fields
-			$result = $this->dbh->Query("select customer_association_types.inherit_fields, customer_associations.customer_id 
-										 from customer_associations, customer_association_types where f_child='t' and inherit_fields is not null 
-										 and inherit_fields!='' and customer_associations.type_id=customer_association_types.id 
+			$result = $this->dbh->Query("select customer_association_types.inherit_fields, customer_associations.customer_id
+										 from customer_associations, customer_association_types where f_child='t' and inherit_fields is not null
+										 and inherit_fields!='' and customer_associations.type_id=customer_association_types.id
 										 and customer_associations.parent_id='".$this->id."'");
 			for ($i = 0; $i < $this->dbh->GetNumberRows($result); $i++)
 			{
@@ -3312,8 +3317,8 @@ class CAntObject
 			$this->cache->remove($this->dbh->dbname."/object/getname/".$this->object_type."/".$this->id);
 
 			// Clear EntityLoader cache
-			$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-			$sl->get("EntityLoader")->clearCache($this->object_type, $this->id);
+			$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+			$sm->get(EntityLoaderFactory::class)->clearCache($this->object_type, $this->id);
 		}
 
 	}
@@ -3323,8 +3328,8 @@ class CAntObject
 	 */
 	public function clearDefinitionCache()
 	{
-		$sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$sl->get("EntityDefinitionLoader")->clearCache($this->object_type);
+		$sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$sm->get(EntityDefinitionLoaderFactory::class)->clearCache($this->object_type);
 
 		/* This is done in the CAntObjectFields class as it should be
 		global $G_CACHE_ANTOBJFDEFS;
@@ -4059,8 +4064,8 @@ class CAntObject
 		$field->fromArray($fdef);
 		$this->def->addField($field);
 
-        $sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$dm = $sl->get("EntityDefinition_DataMapper");
+        $sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$dm = $sm->get(DataMapperFactory::class);
 		$dm->save($this->def);
 
 		/*
@@ -4088,8 +4093,8 @@ class CAntObject
 	public function removeField($fname)
 	{
 		$this->def->removeField($fname);
-        $sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-		$dm = $sl->get("EntityDefinition_DataMapper");
+        $sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+		$dm = $sm->get(DataMapperFactory::class);
 		$dm->save($this->def);
 
 		/*
@@ -5183,7 +5188,7 @@ class CAntObject
 		if (!$this->id)
 			return $data;
 
-		$dm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator()->get("Entity_DataMapper");
+		$dm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager()->get(EntityDataMapperFactory::class);
 		$revisions = $dm->getRevisions($this->object_type, $this->id);
 
 		if ($revisions != false)

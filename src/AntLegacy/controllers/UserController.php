@@ -9,6 +9,8 @@ require_once('src/AntLegacy/Social.php');
 require_once('src/AntLegacy/AntChat.php');
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
+use Netric\Authentication\AuthenticationServiceFactory;
+
 /**
 * Class for controlling User functions
 */
@@ -317,8 +319,8 @@ class UserController extends Controller
             if ($params['currentPassword'] && $params['newPassword'] && $params['verifyPassword'])
             {
                 // Get new netric authentication service
-                $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-                $authService = $sl->get("AuthenticationService");
+                $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+                $authService = $sm->get(AuthenticationServiceFactory::class);
 
                 // TODO: change this to the authservice
                 $currentPassword = $params['currentPassword'];

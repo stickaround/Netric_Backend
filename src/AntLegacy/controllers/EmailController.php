@@ -4,6 +4,8 @@ require_once('src/AntLegacy/AntMail/Account.php');
 require_once('src/AntLegacy/Controller.php');
 require_once('AdminController.php');
 
+use Netric\Entity\EntityLoaderFactory;
+
 class EmailController extends Controller
 {
     public function __construct($ant, $user)
@@ -210,8 +212,8 @@ class EmailController extends Controller
             //$dbh->Query("update email_accounts set f_default='f' where user_id='$userId'");
 
             // Setup the new service locator
-            $sl = ServiceLocatorLoader::getInstance($this->dbh)->getServiceLocator();
-            $entityLoader = $sl->get("EntityLoader");
+            $sm = ServiceLocatorLoader::getInstance($this->dbh)->getServiceManager();
+            $entityLoader = $sm->get(EntityLoaderFactory::class);
 
             // Create the query for email_account
             $query = new \Netric\EntityQuery("email_account");

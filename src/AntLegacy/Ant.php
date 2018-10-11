@@ -22,6 +22,8 @@ require_once("src/AntLegacy/NetricApplicationLoader.php");
 require_once("src/AntLegacy/ServiceLocatorLoader.php"); // Temp
 //require_once("src/AntLegacy/aereus.lib.php/CSessions.php");
 
+use Netric\Authentication\AuthenticationServiceFactory;
+
 /**
  * Define editions
  */
@@ -971,7 +973,7 @@ class Ant
         if ($id === null) {
             // Get the authentication service
             $sm = $this->getNetricAccount()->getServiceManager();
-            $auth = $sm->get("Netric/Authentication/AuthenticationService");
+            $auth = $sm->get(AuthenticationServiceFactory::class);
 
             // Check if the current session is authenticated
             $id = $auth->getIdentity();

@@ -10,6 +10,9 @@ require_once("src/AntLegacy/AntUser.php");
 require_once("src/AntLegacy/CAntObject.php");		
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
+
 class ObjectDynIdx extends AntService
 {
 	public function main(&$dbh)
@@ -29,8 +32,8 @@ class ObjectDynIdx extends AntService
 			$obj = CAntObject::factory($dbh, $row['name'], null, $this->user);
 
             $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-            $dm = $sl->get("EntityDefinition_DataMapper");
-            $def = $sl->get("EntityDefinitionLoader")->get($row['name']);
+            $dm = $sl->get(DataMapperFactory::class);
+            $def = $sl->get(EntityDefinitionLoaderFactory::class)->get($row['name']);
 
 			$res2 = $dbh->Query("select name from app_object_type_fields where type_id='".$row['id']."'
 								 and name!='id' and name!='uname' and name!='f_deleted' and f_indexed is not true;");
