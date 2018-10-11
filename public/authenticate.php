@@ -9,12 +9,14 @@ require_once("src/AntLegacy/customer/customer_functions.awp");
 require_once("src/AntLegacy/AntUser.php");
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
+use Netric\Authentication\AuthenticationServiceFactory;
+
 // Get new netric authentication service
 if (!isset($dbh))
     $dbh = null;
 
-$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-$authService = $sl->get("AuthenticationService");
+$sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+$authService = $sm->get(AuthenticationServiceFactory::class);
 
 $binfo = new CBrowser();
 $antsys = new AntSystem();

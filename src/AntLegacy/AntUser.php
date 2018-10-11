@@ -11,6 +11,12 @@ require_once("src/AntLegacy/aereus.lib.php/antapi.php");
 require_once('src/AntLegacy/security_functions.php');
 require_once('src/AntLegacy/ServiceLocatorLoader.php');
 
+use Netric\Authentication\AuthenticationServiceFactory;
+use Netric\Settings\SettingsFactory;
+use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Entity\EntityLoaderFactory;
+use Netric\Entity\DataMapper\DataMapperFactory;
+
 // Define reserved group ids
 define("GROUP_USERS", -4);
 define("GROUP_EVERYONE", -3);
@@ -409,7 +415,7 @@ class AntUser
 		}
 
 		$sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
-		$settings = $sm->get("Netric/Settings/Settings");
+		$settings = $sm->get(SettingsFactory::class);
 		$acustid = $settings->get("general/customer_id");
 
 		// If we do not have a customer id, then let's get it from AntSystem and save it in the settings after
@@ -610,8 +616,8 @@ class AntUser
 		$result = $dbh->Query($sql);*/
 
 		// Setup the netric service locator
-		$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-		$index = $sl->get("EntityQuery_Index");
+		$sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+		$index = $sm->get(IndexFactory::class);
 
 		// Get the entity query for email_account object type
 		$query = new \Netric\EntityQuery('email_account');
@@ -790,8 +796,8 @@ class AntUser
 			return 0;
 
 		// Get new netric authentication service
-		$sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-		$authService = $sl->get("AuthenticationService");
+		$sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+		$authService = $sm->get(AuthenticationServiceFactory::class);
 
 		$query = "SELECT id, password, password_salt FROM objects_user
 				  WHERE lower(name)=lower('" . $dbh->Escape($username) . "')";
@@ -811,9 +817,9 @@ class AntUser
 				 * perfect time to do the upgrade since we have the user-supplied
 				 * clear text password
 				 */
-				$loader = $sl->get("EntityLoader");
+				$loader = $sm->get(EntityLoaderFactory::class);
 				$user = $loader->get("user", $row['id']);
-				$dm = $sl->get("Entity_DataMapper");
+				$dm = $sm->get(DataMapperFactory::class);
 
 				// Change to temp password to force reset
 				$user->setValue("password", "TMPWILLRESET");

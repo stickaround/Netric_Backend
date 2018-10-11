@@ -9,6 +9,8 @@
 				Copyright (c) 2007 Aereus Corporation. All rights reserved.
 
 ============================================================================*/
+use Netric\EntityDefinition\DataMapper\DataMapperFactory;
+
 $g_obj_cache = null; // cache in memory for multiple calls
 function objGetNameFromId($dbh, $id, $get="name")
 {
@@ -191,8 +193,8 @@ function objCreateType($dbh, $name, $title, $appid = null)
 	$def->system = false;
 
 	// Save the new object type
-    $sl = ServiceLocatorLoader::getInstance($dbh)->getServiceLocator();
-	$dm = $sl->get("EntityDefinition_DataMapper");
+    $sm = ServiceLocatorLoader::getInstance($dbh)->getServiceManager();
+	$dm = $sm->get(DataMapperFactory::class);
 	$dm->save($def);
 
 	/*
