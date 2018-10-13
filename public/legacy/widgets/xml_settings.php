@@ -1,8 +1,8 @@
 <?php
-	require_once(__DIR__ . "../../../src/AntLegacy/AntConfig.php");
-	require_once("ant.php");
-	require_once("ant_user.php");
-	require_once("src/AntLegacy/aereus.lib.php/CChart.php");
+	require_once("../../../src/AntLegacy/AntConfig.php");
+	require_once("../../../ant.php");
+	require_once("../../../ant_user.php");
+	require_once("../../../src/AntLegacy/aereus.lib.php/CChart.php");
 
 	$dbh = $ANT->dbh;
 	$USERNAME = $USER->name;
