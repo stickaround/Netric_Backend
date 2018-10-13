@@ -130,6 +130,7 @@ class Ant
      */
     public function __construct($account_id = null)
     {
+        $account_id = 1;
         $this->cache = CCache::getInstance();
         
         $antsys = new AntSystem();

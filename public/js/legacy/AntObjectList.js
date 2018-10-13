@@ -195,7 +195,7 @@ AntObjectList.prototype.getObjects = function(offset, limit)
 	{
 		this.cbData.cls.totalNum = resp.totalNum;
 
-		if (resp.entities.length)
+		if (resp.entities && resp.entities.length)
 		{
             this.cbData.cls.objects = resp.entities;
 		}

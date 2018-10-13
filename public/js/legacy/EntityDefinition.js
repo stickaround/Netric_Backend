@@ -174,8 +174,9 @@ Ant.EntityDefinition.prototype.load = function(forceNoAsync)
  * @public
  * @param {Object} data Initialize values of this defintion based on data
  */
-Ant.EntityDefinition.prototype.fromData = function(data)
+Ant.EntityDefinition.prototype.fromData = function(entityDefData)
 {
+	const data = (entityDefData) ? entityDefData : {};
 	this.id = data.id;
 	this.title = data.title;
 	this.revision = data.revision;

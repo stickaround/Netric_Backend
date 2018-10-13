@@ -119,13 +119,13 @@ function CAntObject(type, oid)
         //def.name = type;
         //def.fields = new Array();
 
-   		this.title = this.def.title;
+   		this.title = (this.def.title) ? this.def.title : "";
 
-        if ("y" == this.title.charAt(this.title.length - 1))
+        if (this.title && "y" == this.title.charAt(this.title.length - 1))
         {
             this.titlePl = this.title.substr(0, this.title.length - 1) +"ies";
         }
-        else if ("s" != this.title.charAt(this.title.length - 1))
+        else if (this.title && "s" != this.title.charAt(this.title.length - 1))
             this.titlePl = this.title+"s";
         else
             this.titlePl = this.title;
