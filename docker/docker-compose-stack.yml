@@ -1,6 +1,6 @@
 version: "3.5"
 
-services:  
+services:
   netric:
     image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}
     networks:
@@ -10,7 +10,7 @@ services:
       APPLICATION_ENV: ${APPLICATION_ENV}
       APPLICATION_VER: ${APPLICATION_VER}
     ports:
-      - 80
+      - 10001:80
     deploy:
       replicas: 2
       placement:
