@@ -61,13 +61,13 @@ return array(
 			),
 			'status_not_completed' => array(
 				'blogic' => Where::COMBINED_BY_AND,
-				'field_name' => 'is_not_equal',
+				'field_name' => 'status_id',
 				'operator' => Where::OPERATOR_NOT_EQUAL_TO,
 				'value' => 'Completed'
 			),
 			'status_not_rejected' => array(
 				'blogic' => Where::COMBINED_BY_AND,
-				'field_name' => 'is_not_equal',
+				'field_name' => 'status_id',
 				'operator' => Where::OPERATOR_NOT_EQUAL_TO,
 				'value' => 'Rejected'
 			),

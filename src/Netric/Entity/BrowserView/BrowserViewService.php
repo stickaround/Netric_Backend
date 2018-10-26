@@ -13,6 +13,7 @@ use Netric\Settings\Settings;
 use Netric\EntityDefinition\EntityDefinitionLoader;
 use Netric;
 use Netric\Db\Relational\RelationalDbInterface;
+use Netric\EntityGroupings\Loader as EntityGroupingLoader;
 
 /**
  * Class for managing entity forms
@@ -59,19 +60,28 @@ class BrowserViewService
     private $settings = null;
 
     /**
+     * EntityGroupingLoader to get the groupings data to sanitize the condition values
+     *
+     * @var EntityGroupingLoader
+     */
+    private $entityGroupingLoader = null;
+
+    /**
      * Class constructor to set up dependencies
      *
      * @param RelationalDbInterface $rdb
      * @param Config $config The configuration object
      * @param EntityDefinitionLoader $defLoader To get definitions of entities by $objType
      * @param Settings $settings Account or user settings service
+     * @param EntityGroupingLoader $entityGroupingLoader To get the groupings data to sanitize the condition values
      */
-    public function __construct(RelationalDbInterface $rdb, Config $config, EntityDefinitionLoader $defLoader, Settings $settings)
+    public function __construct(RelationalDbInterface $rdb, Config $config, EntityDefinitionLoader $defLoader, Settings $settings, EntityGroupingLoader $entityGroupingLoader)
     {
         $this->database = $rdb;
         $this->config = $config;
         $this->definitionLoader = $defLoader;
         $this->settings = $settings;
+        $this->entityGroupingLoader = $entityGroupingLoader;
     }
 
     /**
@@ -293,9 +303,13 @@ class BrowserViewService
                 $view->fromArray($vData);
                 $view->setId($key); // For saving the default in user settings
                 $view->setSystem(true);
+
+                // Sanitize view conditions for fkey and fkey_multi fields
+                $this->sanitizeViewConditionValues($view);
                 $views[] = $view;
             }
         }
+
         return $views;
     }
 
@@ -481,6 +495,39 @@ class BrowserViewService
             $view = new BrowserView();
             $view->fromArray($viewData);
             $this->views[$objType][] = $view;
+        }
+    }
+
+    /**
+     * Function that will sanitize the condition value if the condition field type is fkey or fkey_multi
+     *
+     * @param {BrowserView} $view The browser view that we will sanitize the value of its conditions
+     * @throws Netric\EntityGroupings\Exception
+     */
+    private function sanitizeViewConditionValues($view)
+    {
+        $objType = $view->getObjType();
+        $def = $this->definitionLoader->get($objType);
+        $conditions = $view->getConditions();
+
+        foreach ($conditions as $condition) {
+            $fieldName = $condition->fieldName;
+            $condValue = $condition->value;
+            $field = $def->getField($fieldName);
+
+            // We need to check if we have a numeric value for the grouping referenced field
+            if ($field->isGroupingReference() && !is_numeric($condValue)) {
+                // If not, then we need to sanitize its value by loading the grouping data and get the value's id
+                $groupings = $this->entityGroupingLoader->get($objType, $fieldName);
+
+                $group = $groupings->getByName($condValue);
+
+                // If we found the group by using the $condValue
+                if ($group) {
+                    //We will update the condition's value with the group id
+                    $condition->value = $group->id;
+                }
+            }
         }
     }
 }
