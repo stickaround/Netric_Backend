@@ -68,6 +68,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      */
     public function save(Module $module)
     {
+        $navigationData = $module->getNavigation() ? $module->getNavigation() : [];
         // Setup data for the database columns
         $data = array(
             "name" => $module->getName(),
@@ -80,6 +81,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             "sort_order" => $module->getSortOrder(),
             "icon" => $module->getIcon(),
             "default_route" => $module->getDefaultRoute(),
+            "navigation_data" => json_encode($navigationData),
             "xml_navigation" => $module->convertNavigationToXml()
         );
 
@@ -182,34 +184,25 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
     private function createModuleFromRow(array $row)
     {
         $module = new Module();
-        $moduleName = $row['name'];
 
         /*
-         * It is important that we do this first so that the xml_navigation is only overridden if a user modifies it,
-         * otherwise it will always pull from the disk so that we can continue to make updates to the default navigation in the system.
-         */
-        $basePath = $this->config->get("application_path") . "/data";
-
-        // Check first if we have a navigation file existing and set it as default data for our module
-        if (file_exists($basePath . "/modules/" . $moduleName . ".php")) {
-            $moduleData = include($basePath . "/modules/" . $moduleName . ".php");
-
-            // Import module data coming from the navigation file as our default data
-            $module->fromArray($moduleData);
-        }
-
-        /*
-         * If module data from the database has xml_navigation, then we will use this to set the module's navigation
-         * Otherwise, we will use the module navigation file
-         */
+         * Legacy settings used to be stored in xml_navigation
+         * but we no longer use this
+         *
         if (isset($row['xml_navigation']) && !empty($row['xml_navigation'])) {
             // Convert the xmlNavigation to array
             $navigation = $module->convertXmltoNavigation($row['xml_navigation']);
             $module->setNavigation($navigation);
         }
+        */
 
         // Now, Import the module data coming from the database and override what was set using the default navigation file
         $module->fromArray($row);
+
+        // Convert navigation data to an array and set
+        if (isset($row['navigation_data']) && !empty($row['navigation_data'])) {
+            $module->setNavigation(json_decode($row['navigation_data'], true));
+        }
 
         // Set the system value separately
         $module->setSystem(($row['f_system'] == 't') ? true : false);

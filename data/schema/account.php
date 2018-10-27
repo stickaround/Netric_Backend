@@ -324,6 +324,7 @@ return array(
             'scope' => array('type' => SchemaProperty::TYPE_CHAR_32),
             'settings' => array('type' => SchemaProperty::TYPE_CHAR_128),
             'xml_navigation' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
+            'navigation_data' => array('type' => SchemaProperty::TYPE_CHAR_TEXT),
             'f_system' => array('type' => SchemaProperty::TYPE_BOOL, "default" => "false"),
             'user_id' => array('type' => SchemaProperty::TYPE_INT),
             'team_id' => array('type' => SchemaProperty::TYPE_INT),

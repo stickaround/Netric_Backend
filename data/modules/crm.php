@@ -8,6 +8,11 @@ return array(
     "title" => "CRM",
     "icon" => "ContactsIcon",
     "default_route" => "all-customers",
+    "name" => "crm",
+    "short_title" => 'CRM',
+    "scope" => 'system',
+    "sort_order" => '4',
+    "f_system" => true,
     "navigation" => array(
         array(
             "title" => "All Customers",

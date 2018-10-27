@@ -17,14 +17,17 @@ $modules = require(__DIR__ . "/../../../../data/account/modules.php");
 $serviceLocator = $account->getServiceManager();
 $moduleService = $serviceLocator->get(ModuleServiceFactory::class);
 
-foreach ($modules as $moduleData) {
-    $module = $moduleService->getByName($moduleData['name']);
+foreach ($modules as $moduleName) {
+    // Get the data definition for the module
+    $moduleData = require(__DIR__ . "/../../../../data/modules/" . $moduleName . ".php");
 
     // If module is already saved then selectively update fields
+    $module = $moduleService->getByName($moduleName);
     if ($module) {
         // We do this in case the user has modified publish status or sort_order
         $module->setTitle($moduleData['title']);
         $module->setShortTitle($moduleData['short_title']);
+        $module->setNavigation($moduleData['navigation']);
     }
 
     // Module has not yet been added. Create a new module and import the data

@@ -90,9 +90,6 @@ abstract class AbstractDataMapperTests extends TestCase
         $this->assertNotNull($module);
         $this->assertNotEmpty($module->getId());
 
-        // Make sure that we have a navigation set
-        $this->assertNotNull($module->getNavigation());
-
         // Make sure that the navigation set is an array
         $this->assertTrue(is_array($module->getNavigation()));
     }
@@ -150,17 +147,13 @@ abstract class AbstractDataMapperTests extends TestCase
         );
         $module->setNavigation($nav);
 
-        // Save the udpated navigation
+        // Save the updated navigation
         $dataMapper->save($module);
 
         // It should update the navigation
         $newModule = $dataMapper->get("notes");
         $newNav = $newModule->getNavigation();
         $this->assertEquals($newNav[0]['route'], $nav[0]['route']);
-
-        // Reset the navigation
-        $module->setNavigation(null);
-        $dataMapper->save($module);
     }
 
     public function testDelete()

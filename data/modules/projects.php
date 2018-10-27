@@ -8,6 +8,11 @@ return array(
     "title" => "Work",
     "icon" => "WorkIcon",
     "default_route" => "tasks",
+    "name" => "projects",
+    "short_title" => 'Work',
+    "scope" => 'system',
+    "sort_order" => '6',
+    "f_system" => true,
     "navigation" => array(
         array(
             "title" => "Tasks",

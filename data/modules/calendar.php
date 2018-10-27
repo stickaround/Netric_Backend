@@ -8,6 +8,11 @@ return array(
     "title" => "Calendar",
     "icon" => "DateRangeIcon",
     "default_route" => "all-calendars",
+    "name" => "calendar",
+    "short_title" => 'Calendar',
+    "scope" => 'system',
+    "sort_order" => '5',
+    "f_system" => true,
     "navigation" => array(
         array(
             "title" => "All Calendars",

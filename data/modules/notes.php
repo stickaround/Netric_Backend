@@ -8,6 +8,11 @@ return array(
     "title" => "Notes",
     "icon" => "LibraryBooksIcon",
     "default_route" => "all-notes",
+    "name" => "notes",
+    "short_title" => 'Notes',
+    "scope" => 'system',
+    "sort_order" => '8',
+    "f_system" => true,
     "navigation" => array(
         array(
             "title" => "Manage Categories",

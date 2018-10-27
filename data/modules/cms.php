@@ -8,6 +8,11 @@ return [
     "title" => "Content",
     "icon" => "LocalLibraryIcon",
     "default_route" => "sites",
+    "name" => "cms",
+    "short_title" => 'Content',
+    "scope" => 'system',
+    "sort_order" => '9',
+    "f_system" => true,
     "navigation" => [
         [
             "title" => "Sites",

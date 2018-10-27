@@ -7,8 +7,21 @@ namespace modules\navigation;
 return array(
     "title" => "Messages",
     "icon" => "EmailIcon",
-    "default_route" => "all-notifications",
+    "default_route" => "inbox",
+    "name" => "messages",
+    "short_title" => 'Messages',
+    "scope" => 'system',
+    "settings" => "Plugin_Messages_Settings",
+    "sort_order" => '2',
+    "f_system" => 't',
     "navigation" => array(
+        array(
+            "title" => "Inbox",
+            "type" => "browse",
+            "route" => "inbox",
+            "objType" => "email_thread",
+            "icon" => "tags",
+        ),
         array(
             "title" => "Notifications",
             "type" => "browse",

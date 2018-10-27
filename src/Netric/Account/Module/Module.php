@@ -105,7 +105,7 @@ class Module
      *
      * @var array
      */
-    private $navigation = null;
+    private $navigation = [];
 
     /**
      * Flag that will determine if the module navigation data was changed and needs to be saved
@@ -355,7 +355,7 @@ class Module
      *
      * @param array|null $navigation
      */
-    public function setNavigation($navigation)
+    public function setNavigation(array $navigation)
     {
         // Set the navigation array
         $this->navigation = $navigation;
@@ -367,7 +367,7 @@ class Module
      *
      * @return array
      */
-    public function getNavigation()
+    public function getNavigation(): array
     {
         return $this->navigation;
     }

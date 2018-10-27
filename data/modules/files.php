@@ -8,6 +8,11 @@ return array(
     "title" => "Files & Documents",
     "icon" => "PermMediaIcon",
     "default_route" => "all-files",
+    "name" => "files",
+    "short_title" => 'Files',
+    "scope" => 'system',
+    "sort_order" => '7',
+    "f_system" => true,
     "navigation" => array(
         array(
             "title" => "All Files",
