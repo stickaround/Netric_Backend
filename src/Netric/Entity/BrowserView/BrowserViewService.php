@@ -304,8 +304,8 @@ class BrowserViewService
                 $view->setId($key); // For saving the default in user settings
                 $view->setSystem(true);
 
-                // Sanitize view conditions for fkey and fkey_multi fields
-                $this->sanitizeViewConditionValues($view);
+                // Traverse through the view's conditions and convert the grouping name to id
+                $this->convertGroupingNameToID($view);
                 $views[] = $view;
             }
         }
@@ -499,12 +499,12 @@ class BrowserViewService
     }
 
     /**
-     * Function that will sanitize the condition value if the condition field type is fkey or fkey_multi
+     * Function that will convert the grouping name to id
      *
      * @param {BrowserView} $view The browser view that we will sanitize the value of its conditions
      * @throws Netric\EntityGroupings\Exception
      */
-    private function sanitizeViewConditionValues($view)
+    private function convertGroupingNameToID($view)
     {
         $objType = $view->getObjType();
         $def = $this->definitionLoader->get($objType);

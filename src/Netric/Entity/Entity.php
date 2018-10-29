@@ -971,10 +971,6 @@ class Entity implements EntityInterface
         $objType = $this->def->getObjType();
         $name = ($includeName) ? $this->getName() : null;
 
-        if ($objType == ObjectTypes::DASHBOARD_WIDGET) {
-            $name = $this->getValue("widget_name");
-        }
-
         return self::encodeObjRef($objType, $this->getId(), $name);
     }
 
