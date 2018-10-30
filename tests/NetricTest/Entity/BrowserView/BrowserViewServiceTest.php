@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\EntityGroupings\LoaderFactory;
 
 class BrowserViewServiceTest extends TestCase
 {
@@ -154,13 +155,21 @@ class BrowserViewServiceTest extends TestCase
     public function testGetSystemViews()
     {
         // Use note because we know it has at least one BrowserView defined: default
-        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::NOTE);
+        $sysViews = $this->browserViewService->getSystemViews(ObjectTypes::PROJECT_STORY);
         $this->assertTrue(count($sysViews) >= 1);
         $this->assertInstanceOf(BrowserView::class, $sysViews[0]);
 
-        // We know the first view 'default' in objects/browser_views/note.php has a condition
-        $conditions = $sysViews[0]->getConditions();
-        $this->assertEquals("user_id", $conditions[0]->fieldName);
+        // We know the 2nd view in data/browser_views/project_story.php has a condition
+        $conditions = $sysViews[1]->getConditions();
+        $this->assertEquals("status_id", $conditions[0]->fieldName);
+
+        $sm = $this->account->getServiceManager();
+        $groupingLoader = $sm->get(LoaderFactory::class);
+        $groupings = $groupingLoader->get(ObjectTypes::PROJECT_STORY, "status_id");
+
+        // We should be able to get the groupings by id using the condition value
+        $group = $groupings->getById($conditions[0]->value);
+        $this->assertNotFalse($group);
     }
 
     /**
