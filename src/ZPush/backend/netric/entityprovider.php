@@ -1236,6 +1236,7 @@ class EntityProvider
             isset($syncNote->asbody->type) &&
             isset($syncNote->asbody->data)) {
             $bodyContent = stream_get_contents($syncNote->asbody->data);
+            $this->log->debug("ZPUSH->EntityProvider->saveNote ");
             switch ($syncNote->asbody->type) {
                 case SYNC_BODYPREFERENCE_PLAIN:
                 default:
@@ -1252,7 +1253,6 @@ class EntityProvider
                     break;
             }
         } else {
-
             $this->log->debug("ZPUSH->EntityProvider->saveNote either type or data are not set. Setting to empty body");
             $entity->setValue('body', $syncNote->asbody);
             $entity->setValue('body_type', 'plain');

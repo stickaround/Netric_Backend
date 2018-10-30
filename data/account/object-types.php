@@ -7,7 +7,7 @@ return [
     ["obj_type" => "email_account", "title" => "Email Account", "revision" => "0", "system" => true],
     ["obj_type" => "email_message", "title" => "Email", "revision" => "0", "system" => true],
     ["obj_type" => "email_message_attachment", "title" => "Email Attachment", "revision" => "0", "system" => true],
-    ["obj_type" => "email_thread", "title" => "Email Thread", "revision" => "0", "system" => true],
+    ["obj_type" => "email_thread", "title" => "Message Thread", "revision" => "0", "system" => true],
     ["obj_type" => "email_campaign", "title" => "Email Campaign", "revision" => "0", "system" => true],
     ["obj_type" => "content_feed_post", "title" => "Feed Post", "revision" => "0", "system" => true],
     ["obj_type" => "project_milestone", "title" => "Milestone", "revision" => "0", "system" => true],

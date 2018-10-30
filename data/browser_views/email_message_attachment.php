@@ -9,8 +9,8 @@ use Netric\EntityQuery\Where;
 return array(
     'all_email_attachments'=> array(
 		'obj_type' => 'email_message_attachment',
-		'name' => 'All Email Attachments',
-		'description' => 'My Email Message Attachments',
+		'name' => 'All Attachments',
+		'description' => 'Message Attachments',
 		'default' => true,
 		'order_by' => array(
 			'date' => array(

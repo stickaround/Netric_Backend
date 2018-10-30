@@ -9,7 +9,7 @@ use Netric\EntityQuery\Where;
 return array(
     'email_messages'=> array(
 		'obj_type' => 'email_message',
-		'name' => 'Email Messages',
+		'name' => 'Messages',
 		'description' => '',
 		'default' => true,
 		'order_by' => array(

@@ -19,7 +19,7 @@ return array(
             "title" => "Inbox",
             "type" => "browse",
             "route" => "inbox",
-            "objType" => "email_thread",
+            "objType" => "email_message",
             "icon" => "tags",
         ),
         array(
