@@ -106,4 +106,26 @@ return array(
 		),
 		'table_columns' => array('name', 'status_id', 'priority_id', 'owner_id', 'cost_estimated')
 	),
+
+	'not_completed'=> array(
+		'obj_type' => 'project_story',
+		'name' => 'Not Completed',
+		'description' => 'Issues that are not yet completed',
+		'default' => false,
+		'conditions' => array(
+			'status' => array(
+				'blogic' => Where::COMBINED_BY_AND,
+				'field_name' => 'status_id',
+				'operator' => Where::OPERATOR_NOT_EQUAL_TO,
+				'value' => 'Completed'
+			),
+		),
+		'order_by' => array(
+			'date' => array(
+				'field_name' => 'ts_entered',
+				'direction' => 'desc',
+			),
+		),
+		'table_columns' => array('name', 'status_id', 'priority_id', 'owner_id', 'cost_estimated')
+	),
 );
