@@ -7,6 +7,11 @@
     <column>
         <field name='sent_from'></field>
     </column>
+</row
+<row>
+    <column>
+        <field name='send_to'></field>
+    </column>
 </row>
 <row>
     <column>
@@ -18,11 +23,7 @@
         <field name='bcc'></field>
     </column>
 </row>
-<row>
-    <column>
-        <field name='subject'></field>
-    </column>
-</row>
+
 <row>
     <column>
         <field name='subject'></field>
