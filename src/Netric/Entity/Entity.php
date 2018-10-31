@@ -8,6 +8,7 @@ use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityDefinition\Field;
 use DateTime;
 use Netric\FileSystem\FileSystemFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 /**
  * Base class sharing common functionality of all stateful entities
@@ -967,8 +968,10 @@ class Entity implements EntityInterface
      */
     public function getObjRef($includeName = false)
     {
+        $objType = $this->def->getObjType();
         $name = ($includeName) ? $this->getName() : null;
-        return self::encodeObjRef($this->def->getObjType(), $this->getId(), $name);
+
+        return self::encodeObjRef($objType, $this->getId(), $name);
     }
 
     /**
