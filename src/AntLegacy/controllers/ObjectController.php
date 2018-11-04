@@ -26,6 +26,7 @@ class ObjectController extends Controller
         $this->ant = $ant;
         $this->user = $user;
         $this->cache = CCache::getInstance();
+        $this->sm = ServiceLocatorLoader::getInstance($ant->dbh)->getServiceManager();
     }
 
     /**
@@ -1769,7 +1770,7 @@ class ObjectController extends Controller
         if (!$objType)
             return $this->sendOutput(array("error" => "objectType is a required param!"));
 
-        $defLoader = $this->ant->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $defLoader = $this->sm->get(EntityDefinitionLoaderFactory::class);
 
         if (isset($params['clearcache'])) // force a refresh of cache
         $defLoader->clearCache($objType);
@@ -1970,7 +1971,7 @@ class ObjectController extends Controller
         if (!$params['obj_type'] || !$params['name'])
             return $this->sendOutput(array("error" => "obj_type and field name are required parameters"));
 
-        $def = $this->ant->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($params['obj_type']);
+        $def = $this->sm->get(EntityDefinitionLoaderFactory::class)->get($params['obj_type']);
 
 		// check if the field already exists
         if ($def->getField($param['name']))
@@ -1984,7 +1985,7 @@ class ObjectController extends Controller
         $def->addField($field);
 
 		// Get datamapper and save
-        $dm = $this->ant->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->sm->get(DataMapperFactory::class);
         $dm->save($def);
 
         return $this->sendOutput($field->toArray());
@@ -2000,7 +2001,7 @@ class ObjectController extends Controller
         if (!$params['obj_type'] || !$params['fname'])
             return $this->sendOutput(array("error" => "obj_type and field name are required parameters"));
 
-        $def = $this->ant->getServiceManager()->get(EntityDefinitionLoaderFactory::class)->get($params['obj_type']);
+        $def = $this->sm->get(EntityDefinitionLoaderFactory::class)->get($params['obj_type']);
         $field = $def->getField($params['fname']);
 
 		// check if the field exists
@@ -2016,7 +2017,7 @@ class ObjectController extends Controller
         $def->removeField($params['fname']);
 
 		// Get datamapper and save
-        $dm = $this->ant->getServiceManager()->get(DataMapperFactory::class);
+        $dm = $this->sm->get(DataMapperFactory::class);
         $dm->save($def);
 
         return $this->sendOutput(1);

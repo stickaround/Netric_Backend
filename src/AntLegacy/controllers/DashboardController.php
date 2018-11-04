@@ -101,7 +101,7 @@ class DashboardController extends Controller
 			$obj->setValue("name", ucwords(str_replace("-", " ", substr($dashName, strpos($dashName, '.')+1))));
 			$obj->setValue("description", "User specific implementation of application dashboard - $dashName. Simply delete this dashboard to reset use to default application dashboard.");
 			$obj->setValue("scope", "user");
-			$obj->setValue("app_dash", $dashName);
+			// $obj->setValue("app_dash", $dashName);
 			$obj->setValue("uname", $uname);
 
 			// copy dashboard layout
