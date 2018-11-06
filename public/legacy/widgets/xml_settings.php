@@ -53,15 +53,13 @@
 			(select widget_id from user_dashboard_layout where user_id='$USERID' and dashboard='$dash')
 			) or type != 'system' order by title
 		 */
-		$result = $dbh->Query("select id, title, class_name, description from app_widgets where title!='Settings' ORDER BY title");
-		$num = $dbh->GetNumberRows($result);
-		for ($i = 0; $i < $num; $i++)
+		$legacyWidgets = require(__DIR__ . "/app_widgets_data.php");
+		foreach ($legacyWidgets as $widgetData)
 		{
-			$row = $dbh->GetNextRow($result, $i);
-            $description = rawurlencode(stripslashes($row['description']));            
+            $description = rawurlencode(stripslashes($widgetData['description']));
             if(empty($description))
                 $description = "No description available.";
-			echo "<widget id='".$row['id']."' class_name='".$row['class_name']."' description='$description'>".rawurlencode($row['title'])."</widget>";
+			echo "<widget id='{$widgetData['id']}' class_name='{$widgetData['class_name']}' description='{$description}'>".rawurlencode($widgetData['title'])."</widget>";
 		}
 		$dbh->FreeResults($result);
 		echo "</widgets>";

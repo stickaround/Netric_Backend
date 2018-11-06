@@ -160,9 +160,8 @@ class CAntObject_Dashboard extends CAntObject
             return false;
         else
         {
-            $sql = "SELECT * FROM app_widgets WHERE id='$widgetId'";
-            $result = $this->dbh->Query($sql);
-            return $this->dbh->GetRow($result);
+			$legacyWidgets = require_once(__DIR__ . "/../../../public/legacy/widgets/app_widgets_data.php");
+			return (!empty($legacyWidgets[$widgetId])) ? $legacyWidgets[$widgetId] : false;
         }
     }
 
