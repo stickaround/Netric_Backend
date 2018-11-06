@@ -8,6 +8,8 @@ return array(
     "title" => "Settings",
     "icon" => "SettingsIcon",
     "default_route" => "profile",
+    "name" => "settings",
+    "short_title" => 'Settings',
     "navigation" => array(
         array(
             "title" => "My Profile",
