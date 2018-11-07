@@ -42,6 +42,7 @@ use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityDefinition\DataMapper\DataMapperFactory;
 use Netric\Entity\DataMapper\DataMapperFactory as EntityDataMapperFactory; 
 use Netric\Entity\EntityLoaderFactory;
+use Netric\EntityDefinition\ObjectTypes;
 
 
 /**
@@ -1118,8 +1119,9 @@ class CAntObject
 			$entity->setRecurrencePattern($recurrencePattern);
 		}
 
+		$userEntity = $loader->get(ObjectTypes::USER, $this->user->getId());
 		$dm = $sm->get(EntityDataMapperFactory::class);
-		$dm->save($entity, $this->user);
+		$dm->save($entity, $userEntity);
 
 		$performed = (!$this->id) ? "create" : "update";
 
