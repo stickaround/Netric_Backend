@@ -226,9 +226,9 @@ class AuthenticationService
         if (!$res->getTotalNum()) {
             $this->lastErrorMessage = self::IDENTITY_NOT_FOUND;
             return null;
-        } else {
-            $user = $res->getEntity(0);
         }
+        
+        $user = $res->getEntity(0);
 
         // Make sure user is active
         if (false == $user->getValue("active")) {
@@ -320,9 +320,9 @@ class AuthenticationService
     {
         if (self::DEFAULT_EXPIRES > 0) {
             return time() + self::DEFAULT_EXPIRES;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 
     /**
@@ -331,12 +331,12 @@ class AuthenticationService
     public function hashPassword($password, $salt)
     {
         // Iterate hash 4 levels
-        $n = self::HASH_ITERATIONS;
+        $numberOfIterations = self::HASH_ITERATIONS;
         $hpass = md5($salt . $password);
 
         do {
             $hpass = md5($hpass . $password);
-        } while (--$n);
+        } while (--$numberOfIterations);
 
         return $hpass;
     }

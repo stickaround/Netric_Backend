@@ -25,7 +25,7 @@ $config = $configLoader->fromFolder(__DIR__ . "/../../config", $applicationEnvir
         <link rel="stylesheet" id='netric-css-base' href="<?php print($manifest['netric.css']); ?>" />
         <title>Netric</title>
         <script type="text/javascript" src="<?php print($manifest['netric.js']); ?>"></script>
-		<script>
+        <script>
             function startApplication() {
                 netric.Application.load(function(app){
                     app.run(document.getElementById("netric-app"));

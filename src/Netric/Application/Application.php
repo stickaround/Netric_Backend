@@ -308,34 +308,19 @@ class Application
      *
      * @return string The unique account name for this instance of netric
      */
-    private function getAccountName()
+    private function getAccountName(): string
     {
-        global $_SERVER, $_GET, $_POST, $_SERVER;
+        global $_SERVER, $_GET, $_POST, $_SERVER, $_REQUEST;
 
-        $ret = null;
+        // First check if an account header was provided
+        if (!empty($_REQUEST['X-NTRC-ACCOUNT'])) {
+            return $_REQUEST['X-NTRC-ACCOUNT'];
+        }
 
         // Check url - 3rd level domain is the account name
         if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != $this->getConfig()->localhost_root
             && strpos($_SERVER['HTTP_HOST'], "." . $this->getConfig()->localhost_root)) {
             $left = str_replace("." . $this->getConfig()->localhost_root, '', $_SERVER['HTTP_HOST']);
-            if ($left) {
-                return $left;
-            }
-        }
-
-        // Check get - less common
-        if (isset($_GET['account']) && $_GET['account']) {
-            return $_GET['account'];
-        }
-
-        // Check post - less common
-        if (isset($_POST['account']) && $_POST['account']) {
-            return $_POST['account'];
-        }
-
-        // Check for any third level domain (not sure if this is safe)
-        if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] && substr_count($_SERVER['HTTP_HOST'], '.') >= 2) {
-            $left = substr($_SERVER['HTTP_HOST'], 0, strpos($_SERVER['HTTP_HOST'], '.'));
             if ($left) {
                 return $left;
             }
