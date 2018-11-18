@@ -1,7 +1,4 @@
 <?php
-/**
- * Test the authentication service
- */
 namespace NetricTest\Authentication;
 
 use Netric;

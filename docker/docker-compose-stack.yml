@@ -4,7 +4,7 @@ services:
   netric:
     image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}
     networks:
-      - proxy
+      - service_netric
       - default
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}
@@ -47,5 +47,5 @@ services:
 networks:
   default:
     external: false
-  proxy:
+  service_netric:
     external: true

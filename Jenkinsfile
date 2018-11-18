@@ -8,7 +8,7 @@ import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
 // 49152
-def PROJECT_NAME = 'netric_svc'
+def PROJECT_NAME = 'netric'
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
@@ -21,18 +21,19 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
-                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                        /* If this is the master branch, punlish to stable, if it is develop publish to latest */
-                        clientImage = docker.image("${DOCKERHUB_SERVER}/netric-client-web:latest")
-                        clientImage.pull()
-                    }
+                    // We no longer serve the clinet directly from this service
+                    // docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+                    //     /* If this is the master branch, punlish to stable, if it is develop publish to latest */
+                    //     clientImage = docker.image("${DOCKERHUB_SERVER}/netric-client-web:latest")
+                    //     clientImage.pull()
+                    // }
 
-                    /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
-                    clientImage.inside {
-                        sh 'cp -r /var/www/app/build/* ./public/mobile/'
-                    }
+                    // /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
+                    // clientImage.inside {
+                    //     sh 'cp -r /var/www/app/build/* ./public/mobile/'
+                    // }
 
-                    dockerImage = docker.build("${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}");
+                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}");
                 }
             }
         }
@@ -52,32 +53,32 @@ pipeline {
 
                     // Send reports to server for code quality metrics
                     codeQualityReport(
-                       repositoryName: 'netric.com',
+                       repositoryName: 'netric.svc',
                        teamName: 'Netric',
                        cloverFile: 'tests/tmp/clover.xml',
                        pmdFile: 'tests/tmp/pmd.xml',
                        checkStyleFile: 'tests/tmp/checkstyle.xml'
                     )
                 }
-                // script {
-                //     // Check container for security vulnerabilities
-                //     dir('.clair') {
-                //         def nodeIp = sh(
-                //             script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
-                //             returnStdout: true
-                //         ).trim();
+                script {
+                    // Check container for security vulnerabilities
+                    dir('.clair') {
+                        def nodeIp = sh(
+                            script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
+                            returnStdout: true
+                        ).trim();
 
-                //         // Pull the clairscanner binary
-                //         git branch: 'master',
-                //             credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
-                //             url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+                        // Pull the clairscanner binary
+                        git branch: 'master',
+                            credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
+                            url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
 
-                //         sh 'chmod +x ./bin/clair-scanner_linux_amd64'
+                        sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
-                //         // Fail if any critical security vulnerabilities are found
-                //         sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/netric:${APPLICATION_VERSION}"
-                //    }
-                // }
+                        // Fail if any critical security vulnerabilities are found
+                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                   }
+                }
             }
         }
 
@@ -96,7 +97,7 @@ pipeline {
                 // Call stack deploy to upgrade
                 script {
                     sshagent (credentials: ['aereus']) {
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                     }
                 }
             }
@@ -121,7 +122,7 @@ pipeline {
                 // Call stack deploy to upgrade
                 script {
                     sshagent (credentials: ['aereus']) {
-                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/netric:${APPLICATION_VERSION}"
+                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                     }
                 }
             }
