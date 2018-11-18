@@ -8,7 +8,7 @@ import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
 // 49152
-def PROJECT_NAME = 'netric_com'
+def PROJECT_NAME = 'netric_svc'
 def dockerImage;
 def clientImage;
 currentBuild.result = "SUCCESS"
