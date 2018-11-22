@@ -13,7 +13,7 @@ use Netric\Config\ConfigLoader;
 // @see http://www.html5rocks.com/en/tutorials/cors/#toc-adding-cors-support-to-the-server
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-header("Access-Control-Allow-Headers: Authentication, Options, Content-Type");
+header("Access-Control-Allow-Headers: Authentication, Options, Content-Type, X-NTRC-ACCOUNT");
 
 
 $configLoader = new ConfigLoader();
