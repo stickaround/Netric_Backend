@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/netric.com.iml" filepath="$PROJECT_DIR$/.idea/netric.com.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/netric.svc.iml" filepath="$PROJECT_DIR$/.idea/netric.svc.iml" />
     </modules>
   </component>
 </project>
