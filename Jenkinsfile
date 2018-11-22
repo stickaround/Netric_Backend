@@ -40,23 +40,23 @@ pipeline {
 
         stage('Test') {
             steps {
-                // script {
-                //     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                //         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
-                //     }
+                script {
+                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+                        sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                    }
                     
-                //     // Report on junit
-                //     junit 'tests/tmp/junit.xml'
+                    // Report on junit
+                    junit 'tests/tmp/junit.xml'
 
-                //     // Send reports to server for code quality metrics
-                //     codeQualityReport(
-                //        repositoryName: 'netric.svc',
-                //        teamName: 'Netric',
-                //        cloverFile: 'tests/tmp/clover.xml',
-                //        pmdFile: 'tests/tmp/pmd.xml',
-                //        checkStyleFile: 'tests/tmp/checkstyle.xml'
-                //     )
-                // }
+                    // Send reports to server for code quality metrics
+                    codeQualityReport(
+                       repositoryName: 'netric.svc',
+                       teamName: 'Netric',
+                       cloverFile: 'tests/tmp/clover.xml',
+                       pmdFile: 'tests/tmp/pmd.xml',
+                       checkStyleFile: 'tests/tmp/checkstyle.xml'
+                    )
+                }
                 script {
                     // Check container for security vulnerabilities
                     dir('.clair') {
@@ -114,16 +114,16 @@ pipeline {
             }
         }
 
-        // stage('Production Setup') {
-        //     steps {
-        //         // Call stack deploy to upgrade
-        //         script {
-        //             sshagent (credentials: ['aereus']) {
-        //                 sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Production Setup') {
+            steps {
+                // Call stack deploy to upgrade
+                script {
+                    sshagent (credentials: ['aereus']) {
+                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                    }
+                }
+            }
+        }
 
         stage('Production') {
             steps {
