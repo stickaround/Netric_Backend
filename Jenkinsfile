@@ -114,16 +114,16 @@ pipeline {
             }
         }
 
-        stage('Production Setup') {
-            steps {
-                // Call stack deploy to upgrade
-                script {
-                    sshagent (credentials: ['aereus']) {
-                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
-                    }
-                }
-            }
-        }
+        // stage('Production Setup') {
+        //     steps {
+        //         // Call stack deploy to upgrade
+        //         script {
+        //             sshagent (credentials: ['aereus']) {
+        //                 sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Production') {
             steps {
