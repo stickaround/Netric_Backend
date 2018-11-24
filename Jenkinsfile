@@ -40,23 +40,23 @@ pipeline {
 
         stage('Test') {
             steps {
-                // script {
-                //     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                //         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
-                //     }
+                script {
+                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+                        sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+                    }
                     
-                //     // Report on junit
-                //     junit 'tests/tmp/junit.xml'
+                    // Report on junit
+                    junit 'tests/tmp/junit.xml'
 
-                //     // Send reports to server for code quality metrics
-                //     codeQualityReport(
-                //        repositoryName: 'netric.svc',
-                //        teamName: 'Netric',
-                //        cloverFile: 'tests/tmp/clover.xml',
-                //        pmdFile: 'tests/tmp/pmd.xml',
-                //        checkStyleFile: 'tests/tmp/checkstyle.xml'
-                //     )
-                // }
+                    // Send reports to server for code quality metrics
+                    codeQualityReport(
+                       repositoryName: 'netric.svc',
+                       teamName: 'Netric',
+                       cloverFile: 'tests/tmp/clover.xml',
+                       pmdFile: 'tests/tmp/pmd.xml',
+                       checkStyleFile: 'tests/tmp/checkstyle.xml'
+                    )
+                }
                 script {
                     // Check container for security vulnerabilities
                     dir('.clair') {
