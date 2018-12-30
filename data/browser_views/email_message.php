@@ -8,16 +8,16 @@ use Netric\EntityQuery\Where;
 
 return array(
     'email_messages'=> array(
-		'obj_type' => 'email_message',
-		'name' => 'Messages',
-		'description' => '',
-		'default' => true,
-		'order_by' => array(
-			'date' => array(
-    			'field_name' => 'message_date',
-    			'direction' => 'desc',
-    		),
-		),
-		'table_columns' => array('subject', 'message_date', 'sent_from', 'send_to', 'priority')
+        'obj_type' => 'email_message',
+        'name' => 'Messages',
+        'description' => '',
+        'default' => true,
+        'order_by' => array(
+            'date' => array(
+                'field_name' => 'message_date',
+                'direction' => 'desc',
+            ),
+        ),
+        'table_columns' => array('subject', 'message_date', 'sent_from', 'send_to', 'priority')
     ),
 );

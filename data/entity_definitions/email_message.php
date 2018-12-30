@@ -1,5 +1,6 @@
 <?php
 namespace data\entity_definitions;
+
 use Netric\EntityDefinition\Field;
 
 return array(

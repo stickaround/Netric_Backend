@@ -230,18 +230,11 @@ class BackendNetric implements IBackend
         // Get the authentication service and authenticate the credentials
         $sm = $this->account->getServiceManager();
         $authService = $sm->get(AuthenticationServiceFactory::class);
-        if ($authService->authenticate($username, $password))
-        {
-            $this->user = $this->account->getUser(null, $username);
-            /*
-            if ($this->user->timezoneName)
-                date_default_timezone_set($this->user->timezoneName);
-             */
-        }
-        else
-        {
+        if (!$authService->authenticate($username, $password)) {
             throw new AuthenticationRequiredException("Bad username and/or password");
         }
+
+        $this->user = $this->account->getUser(null, $username);
 
         // Set stateMachine stores for this account
         $stateMachine = $this->GetStateMachine();
@@ -252,16 +245,14 @@ class BackendNetric implements IBackend
         $this->entityProvider = new EntityProvider($this->account, $this->user, $this->log);
 
         // Return auth results
-        if ($this->user)
-        {
-            $this->log->info("ZPUSH->Login: $username, $domain, [success]");
-            return true;
-        }
-        else
-        {
+        if (!$this->user) {
             $this->log->info("ZPUSH->Login: $username, $domain, [failed]");
             return false;
         }
+
+        // Succeeded
+        $this->log->info("ZPUSH->Login: $username, $domain, [success]");
+        return true;
     }
 
     /**
@@ -283,8 +274,9 @@ class BackendNetric implements IBackend
      */
     public function Setup($store, $checkACLonly = false, $folderid = false, $readonly = false)
     {
-        if (!isset($this->user))
+        if (!isset($this->user)) {
             return false;
+        }
 
         return true;
     }
@@ -520,8 +512,7 @@ class BackendNetric implements IBackend
      */
     public function GetAttachmentData($fileId)
     {
-        if (!is_numeric($fileId))
-        {
+        if (!is_numeric($fileId)) {
             throw new StatusException(
                 sprintf("GetAttachmentData('%s'): Attachment requested for non-existing file", $fileId),
                 SYNC_ITEMOPERATIONSSTATUS_INVALIDATT
@@ -532,8 +523,7 @@ class BackendNetric implements IBackend
         $file = $fileSystem->openFileById($fileId);
 
         // Make sure file is valid and was not deleted
-        if (!$file)
-        {
+        if (!$file) {
             // TODO: In the future the filesystem will handle permissions so we will need to call
             // $fileSystem->getLastError to populate the contents of the exception.
             throw new StatusException(
@@ -543,7 +533,8 @@ class BackendNetric implements IBackend
         }
 
         $attachment = new SyncItemOperationsAttachment();
-        $attachment->data = $fileSystem->openFileStreamById($fileId);;
+        $attachment->data = $fileSystem->openFileStreamById($fileId);
+        ;
         $attachment->contenttype = $file->getMimeType();
         return $attachment;
     }
@@ -576,7 +567,6 @@ class BackendNetric implements IBackend
      */
     public function MeetingResponse($requestid, $folderid, $response)
     {
-
     }
 
     /**
@@ -618,21 +608,19 @@ class BackendNetric implements IBackend
         $notifications = array();
         $stopat = time() + $timeout - 1;
 
-        while($stopat > time() && count($notifications)==0)
-        {
-            foreach ($this->sinkFolders as $folderId)
-            {
+        while ($stopat > time() && count($notifications)==0) {
+            foreach ($this->sinkFolders as $folderId) {
                 $collection = $this->getSyncCollection($folderId);
 
                 // Check if this collection is behind the head (last) change
-                if ($collection->isBehindHead())
-                {
+                if ($collection->isBehindHead()) {
                     $notifications[] = $folderId;
                 }
             }
 
-            if (count($notifications)==0)
+            if (count($notifications)==0) {
                 sleep(5);
+            }
         }
 
          $this->log->info("ZPUSH->ChangeSync: returning with " . count($notifications) . " changed folders");
@@ -704,15 +692,12 @@ class BackendNetric implements IBackend
     public function GetUserDetails($username)
     {
         $user = $this->account->getUser(null, $username);
-        if ($user)
-        {
+        if ($user) {
             return array(
                 'emailaddress' => $user->getValue('email'),
                 'fullname' => $user->getValue("full_name")
             );
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -777,23 +762,23 @@ class BackendNetric implements IBackend
             }
         }
 
-        if (!$this->partnership)
-        {
+        if (!$this->partnership) {
             $serviceManager = $this->account->getServiceManager();
             $entitySync = $serviceManager->get(EntitySyncFactory::class);
             $this->partnership = $entitySync->getPartner($this->deviceId);
-            if (!$this->partnership)
-            {
+            if (!$this->partnership) {
                 $this->partnership = $entitySync->createPartner($this->deviceId, $this->user->getId());
             }
         }
 
-        if (!$this->partnership)
+        if (!$this->partnership) {
             throw new StatusException("Could not create partnership");
+        }
 
         // Check if we have already loaded the collection
-        if (isset($this->syncCollections[$folderid]))
+        if (isset($this->syncCollections[$folderid])) {
             return $this->syncCollections[$folderid];
+        }
 
         // Properties used to create a new collection if needed
         $cond = array();
@@ -803,8 +788,7 @@ class BackendNetric implements IBackend
         $folder = $this->entityProvider->unpackFolderId($folderid);
 
         // get object collection
-        switch ($folder['type'])
-        {
+        switch ($folder['type']) {
             case EntityProvider::FOLDER_TYPE_CONTACT:
                 $objType = ObjectTypes::CONTACT_PERSONAL;
                 $cond = array(
@@ -874,8 +858,7 @@ class BackendNetric implements IBackend
         }
 
         $coll = $this->partnership->getEntityCollection($objType, $cond);
-        if (!$coll)
-        {
+        if (!$coll) {
             // Get service locator for account
             $serviceManager = $this->account->getServiceManager();
             $coll = CollectionFactory::create(
@@ -907,8 +890,7 @@ class BackendNetric implements IBackend
         //if oof state is set it must be set of oof and get otherwise
         if (isset($oof->oofstate)) {
             $this->settingsOOFSEt($oof);
-        }
-        else {
+        } else {
             $this->settingsOOFGEt($oof);
         }
     }
@@ -997,7 +979,8 @@ class BackendNetric implements IBackend
      * @access private
      * @return bool
      */
-    private function settingsUserInformation(&$userinformation) {
+    private function settingsUserInformation(&$userinformation)
+    {
         if (!isset($this->user)) {
             $this->log->warning("ZPUSH->The store or user are not available for getting user information");
             return false;
