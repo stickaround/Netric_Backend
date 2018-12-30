@@ -1,5 +1,5 @@
 <row>
     <column>
-        <plugin name='email_thread'></plugin>
+        <plugin name='MessageThread'></plugin>
     </column>
 </row>
