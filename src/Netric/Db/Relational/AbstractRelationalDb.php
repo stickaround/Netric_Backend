@@ -449,7 +449,8 @@ abstract class AbstractRelationalDb
      *
      * @param string $sequenceName The sequence that we will be getting its next value
      */
-    public function getNextVal(string $sequenceName) {
+    public function getNextVal(string $sequenceName)
+    {
         $namespace = $this->getNamespace();
         $sql = "SELECT nextval('$namespace.$sequenceName')";
 
@@ -472,8 +473,27 @@ abstract class AbstractRelationalDb
      *
      * @param string $sequenceName The name of the sequence that will be created
      */
-    public function createSequenceName(string $sequenceName) {
+    public function createSequenceName(string $sequenceName)
+    {
         $namespace = $this->getNamespace();
         $this->query("CREATE SEQUENCE $namespace.$sequenceName");
+    }
+
+    /**
+     * Quote a param and escape it if needed
+     *
+     * @param mixed $param The parameter to qute
+     * @return string Quoted string
+     */
+    public function quote($param): string
+    {
+        $pdoConnection = $this->getConnection();
+
+        if (is_string($param)) {
+            return $pdoConnection->quote($param);
+        }
+
+        // Default to doing nothing
+        return $param;
     }
 }

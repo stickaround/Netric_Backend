@@ -334,19 +334,6 @@ abstract class IndexTestsAbstract extends TestCase
         $this->assertEquals($obj->getValue("id"), $customer1->getValue("id"));
 
         /*
-         * Test multiple "and" conditions and 1 or statement
-         */
-        $query = new EntityQuery($testObjType);
-        $query->orWhere('type_id')->equals($personTypeId);
-        $query->andwhere('name')->equals($customer4->getValue("name"));
-        $query->andWhere('status_id')->equals($customer4->getValue("status_id"));
-        $query->andWhere('last_contacted')->equals($customer4->getValue("last_contacted"));
-        $res = $index->executeQuery($query);
-
-        // Should get at least 3 results since the "and" conditions are specific for $customer4 and customer 1,2 has type_id $personType
-        $this->assertGreaterThanOrEqual(3, $res->getTotalNum());
-
-        /*
          * Test multiple "or" conditions in the same text field
          */
         $query = new EntityQuery($testObjType);

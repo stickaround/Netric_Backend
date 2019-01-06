@@ -190,6 +190,22 @@ class EntityQuery
     }
 
     /**
+     * Check if a field exists in the wheres array
+     *
+     * @param string $fieldName
+     * @return bool
+     */
+    public function fieldIsInWheres(string $fieldName): bool
+    {
+        foreach ($this->getWheres() as $where) {
+            if ($where->fieldName === $fieldName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Add a field to order this by
      *
      * @param string $fieldName

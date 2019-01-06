@@ -122,4 +122,19 @@ class EntityQueryTest extends TestCase
         $orders = $query->getOrderBy();
         $this->assertInstanceOf(OrderBy::class, $orders[0]);
     }
+
+    /**
+     * Assure that the query can let consumers know if a field is being used as a condition
+     *
+     * @return void
+     */
+    public function testFieldIsInWheres()
+    {
+        $query = new Netric\EntityQuery(ObjectTypes::CONTACT);
+        $query->where('name')->equals('test');
+
+        // Test both positive and negative results
+        $this->assertTrue($query->fieldIsInWheres('name'));
+        $this->assertFalse($query->fieldIsInWheres('age'));
+    }
 }

@@ -2,17 +2,16 @@
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition\Field;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Where;
 use Netric\EntityQuery\Results;
 use Netric\EntityQuery\Aggregation;
-use Netric\EntityDefinition\EntityDefinition;
 use Netric\Account\Account;
 use Netric\Entity\Entity;
 use Netric\EntityQuery\Aggregation\AggregationInterface;
 use Netric\Db\Relational\RelationalDbInterface;
 use Netric\Db\Relational\RelationalDbFactory;
-use Netric\Db\Relational\Exception\DatabaseQueryException;
 
 /**
  * Relational Database implementation of indexer for querying objects
@@ -25,20 +24,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @var RelationalDbInterface
      */
     private $database = null;
-
-    /**
-     * Contains the parameter values that will be used to build the where clause
-     *
-     * @var Array
-     */
-    private $conditionParams = [];
-
-    /**
-     * The entity definition that is used to build the query strings
-     *
-     * @var EntityDefinition
-     */
-    private $entityDefintion = null;
 
     /**
      * Setup this index for the given account
@@ -94,7 +79,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     public function delete($objectId)
     {
-        // Nothing need be done because we are currently storing data in pgsql
+        // Nothing need be done because this index queries the source persistent store
         return true;
     }
 
@@ -107,114 +92,74 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      */
     protected function queryIndex(EntityQuery $query, Results $results = null)
     {
-        // Create results object
-        if ($results === null) {
-            $results = new Results($query, $this);
-        } else {
+        // If re-running an existing result (getting the next page) then clear
+        if ($results !== null) {
             $results->clearEntities();
         }
 
+        // Create results object if it does not exist
+        if ($results === null) {
+            $results = new Results($query, $this);
+        }
+
         // Make sure that we have an entity definition before executing a query
-        $this->entityDefintion = $this->getDefinition($query->getObjType());
+        $entityDefinition = $this->getDefinition($query->getObjType());
 
         // Should never happen, but just in case if we do not have an entity definition throw an exception
-        if (!$this->entityDefintion) {
-            throw new \RuntimeException("No entity definition" . var_export($query->toArray(), true));
+        if (!$entityDefinition) {
+            throw new \RuntimeException(
+                "No entity definition" . var_export($query->toArray(), true)
+            );
         }
 
         // Get table to query
-        $objectTable = $this->entityDefintion->getTable();
-
-        // Make sure that these values are clean
-        $this->conditionParams = [];
-        $conditions = [
-            Where::COMBINED_BY_AND => [],
-            Where::COMBINED_BY_OR => []
-        ];
-
-        // Flag that will determine if we have set a f_deleted field in the query conditions
-        $fDeletedCondSet = false;
+        $objectTable = $entityDefinition->getTable();
 
         // Start building the condition string
         $conditionString = "";
         $queryConditions = $query->getWheres();
 
-        if (count($queryConditions)) {
-            /*
-             * This will contain conditions strings from buildConditionStringAndSetParams()
-             * We will not empty this array if the next condition blogic is an operator "or"
-             */
-            $advConditions = [];
+        // Flag to indicate if we need to close an opening ( in a query
+        $parenShouldBeClosed = false;
 
-            // Set the default Blogic to and
-            $conditionBlogic = Where::COMBINED_BY_AND;
+        // Loop thru the query conditions and check for special fields
+        foreach ($queryConditions as $condition) {
+            $whereString = $this->buildConditionStringAndSetParams($entityDefinition, $condition);
 
-            // Loop thru the query conditions and check for special fields
-            foreach ($queryConditions as $idx => $condition) {
-                // If we have a full text condition, then we need to set it up properly
-                if ($condition->fieldName === "*") {
-                    $conditions[Where::COMBINED_BY_AND][] = "(tsv_fulltext @@ plainto_tsquery(:full_text))";
-                    $this->conditionParams["full_text"] = $condition->value;
-                    continue;
-                }
-
-                if ($condition->fieldName === "f_deleted") {
-                    $fDeletedCondSet = true;
-                }
-
-                $advConditionString = $this->buildConditionStringAndSetParams($condition);
-
-                // Make sure that we have built an advanced condition string
-                if (!empty($advConditionString)) {
-                    $advConditions[] = $advConditionString;
-
-                    // We will always use the bLogic of the first condition
-                    if (count($advConditions) === 1) {
-                        $conditionBlogic = $condition->bLogic;
+            // Make sure that we have built an advanced condition string
+            if (!empty($whereString)) {
+                // Wrap all AND queries in () to make order of operations clear when OR is encoutered
+                if ($condition->bLogic == Where::COMBINED_BY_AND) {
+                    if ($conditionString) {
+                        $conditionString .= ") AND (";
+                    } elseif (empty($conditionString)) {
+                        $conditionString .= " ( ";
                     }
-
-                    if (isset($queryConditions[$idx+1])
-                        && $queryConditions[$idx+1]->bLogic == Where::COMBINED_BY_OR) {
-                        /*
-                         * If the nextCondition bLogic is an operator "or" then we will set it as a group
-                         * So we will continue with the next condition
-                         */
-                        continue;
-                    } else {
-                        $conditions[$conditionBlogic][] = "(" . implode(" or ", $advConditions) .")";
-                    }
-
-                    // Clear the advanced conditions array
-                    $advConditions = [];
-                }
-            }
-
-            // After populating the $conditions then we need to create the conditionString
-            if (!empty($conditions[Where::COMBINED_BY_AND])) {
-                $conditionString = implode(" and ", $conditions[Where::COMBINED_BY_AND]);
-            }
-
-            if (!empty($conditions[Where::COMBINED_BY_OR])) {
-                if ($conditionString) {
-                    $conditionString .= " or ";
+                    $parenShouldBeClosed = true;
+                } elseif ($condition->bLogic == Where::COMBINED_BY_OR) {
+                    $conditionString .= ($conditionString) ? " OR " : " (";
                 }
 
-                $conditionString .= implode(" or ", $conditions[Where::COMBINED_BY_OR]);
+                $conditionString .= $whereString;
             }
+        }
+
+        // Close any dangling opening (
+        if ($conditionString) {
+            $conditionString .= ")";
         }
 
         /*
          * If there is no f_deleted field condition set and entityDefinition has f_deleted field
          * We will make sure that we will get the non-deleted records
          */
-        if (!$fDeletedCondSet && $this->entityDefintion->getField("f_deleted")) {
+        if (!$query->fieldIsInWheres('f_deleted') && $entityDefinition->getField("f_deleted")) {
             // If $conditionString is not empty, then we will just append the "and" blogic
             if (!empty($conditionString)) {
                 $conditionString .= " and ";
             }
 
-            $conditionString .= "(f_deleted=:f_deleted)";
-            $this->conditionParams["f_deleted"] = false;
+            $conditionString .= "f_deleted=false";
         }
 
         // Get order by from $query and setup the sort order
@@ -250,19 +195,19 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " OFFSET {$query->getOffset()}";
         }
 
-        $result = $this->database->query($sql, $this->conditionParams);
+        $result = $this->database->query($sql);
 
         // Process the raw data of entities and update the $results
-        $this->processEntitiesRawData($result->fetchAll(), $results);
+        $this->processEntitiesRawData($entityDefinition, $result->fetchAll(), $results);
 
         // Set the total num of the Results
-        $this->setResultsTotalNum($results, $conditionString);
+        $this->setResultsTotalNum($entityDefinition, $results, $conditionString);
 
         // Get the aggregations and update the Results' aggregations
         if ($query->hasAggregations()) {
             $aggregations = $query->getAggregations();
             foreach ($aggregations as $agg) {
-                $this->queryAggregation($agg, $results, $conditionString);
+                $this->queryAggregation($entityDefinition, $agg, $results, $conditionString);
             }
         }
 
@@ -272,13 +217,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Function that will set the total num for results
      *
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param Results $results The results that we will be updating its total num
-     * @param string $conditionQuery The query condition that will be used for filtering
+     * @param string $conditionString The query condition that will be used for filtering
      */
-    private function setResultsTotalNum(Results $results, $conditionString)
+    private function setResultsTotalNum(EntityDefinition $entityDefinition, Results $results, $conditionString)
     {
         // Get table to query
-        $objectTable = $this->entityDefintion->getTable();
+        $objectTable = $entityDefinition->getTable();
 
         // Create the sql string to get the total num
         $sql = "SELECT count(*) as total_num FROM $objectTable";
@@ -288,7 +234,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " WHERE $conditionString";
         }
 
-        $result = $this->database->query($sql, $this->conditionParams);
+        $result = $this->database->query($sql);
         if ($result->rowCount()) {
             $row = $result->fetch();
             $results->setTotalNum($row["total_num"]);
@@ -298,13 +244,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Process the raw data of entities and add them in the $results
      *
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param Array $entitiesRawDataArray An array of entities raw data that will be processed
      * @param Results $results Results that will be used where we will add the processed entities
      */
-    private function processEntitiesRawData(array $entitiesRawDataArray, Results $results)
+    private function processEntitiesRawData(EntityDefinition $entityDefinition, array $entitiesRawDataArray, Results $results)
     {
         // Get fields for this object type (used in decoding multi-valued fields)
-        $ofields = $this->entityDefintion->getFields();
+        $ofields = $entityDefinition->getFields();
 
         foreach ($entitiesRawDataArray as $entityData) {
             // Decode multival fields into arrays of values
@@ -331,7 +278,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             }
 
             // Set and add entity
-            $entity = $this->entityFactory->create($this->entityDefintion->getObjType());
+            $entity = $this->entityFactory->create($entityDefinition->getObjType());
             $entity->fromArray($entityData);
             $entity->resetIsDirty();
             $results->addEntity($entity);
@@ -340,15 +287,20 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
     /**
      * Build the conditions string using the $condition argument provided
-     * The class parameter $this->conditionParams[] will be updated accordingly
      *
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param Array $condition The where condition that we are dealing with
-     * @Returns String $conditionString Returns the condition string after processing the $condition
+     * @return string Query condition string with param values pre-populated and quoted
      */
-    private function buildConditionStringAndSetParams($condition)
+    private function buildConditionStringAndSetParams(EntityDefinition $enityDefinition, $condition): string
     {
         $fieldName = $condition->fieldName;
         $operator = $condition->operator;
+
+        // If we have a full text condition, then return a vector search
+        if ($fieldName === "*") {
+            return "(tsv_fulltext @@ plainto_tsquery(" . $this->database->quote($condition->value) . "))";
+        }
 
         // Should never happen, but just in case if operator is missing throw an exception
         if (!$operator) {
@@ -356,7 +308,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Get the Field Definition using the field name provided in the $condition
-        $field = $this->getFieldUsingFieldName($fieldName);
+        $field = $this->getFieldUsingFieldName($enityDefinition, $fieldName);
 
         // Sanitize and replace environment variables like 'current_user' to concrete vals
         $condition->value = $this->sanitizeWhereCondition($field, $condition->value);
@@ -364,16 +316,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // After sanitizing the condition value, then we are now ready to build the condition string
         $value = $condition->value;
 
-        // Generate the $paramName for this condition and make sure it is unique
-        $paramName = $this->generateParamName($fieldName);
-
         $conditionString = "";
         switch ($operator) {
             case Where::OPERATOR_EQUAL_TO:
-                $conditionString = $this->buildIsEqual($field, $condition);
+                $conditionString = $this->buildIsEqual($enityDefinition, $field, $condition);
                 break;
             case Where::OPERATOR_NOT_EQUAL_TO:
-                $conditionString = $this->buildIsNotEqual($field, $condition);
+                $conditionString = $this->buildIsNotEqual($enityDefinition, $field, $condition);
                 break;
             case Where::OPERATOR_GREATER_THAN:
                 switch ($field->type) {
@@ -389,8 +338,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName>:$paramName";
-                        $this->conditionParams[$paramName] = $value;
+                        $conditionString = "$fieldName>" . $this->database->quote($value);
                         break;
                 }
                 break;
@@ -408,8 +356,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName<:$paramName";
-                        $this->conditionParams[$paramName] = $value;
+                        $conditionString = "$fieldName<" . $this->database->quote($value);
                         break;
                 }
                 break;
@@ -420,9 +367,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $children = $this->getHeiarchyDownObj($field->subtype, $value);
 
                             foreach ($children as $child) {
-                                $childParam = $this->generateParamName($fieldName);
-                                $multiCond[] = "$fieldName=:$childParam";
-                                $this->conditionParams[$childParam] = $child;
+                                $multiCond[] = "$fieldName=" . $this->database->quote($child);
                             }
 
                             $conditionString = "(" . implode(" or ", $multiCond) . ")";
@@ -440,8 +385,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName>=:$paramName";
-                        $this->conditionParams[$paramName] = $value;
+                        $conditionString = "$fieldName>=" . $this->database->quote($value);
                         break;
                 }
                 break;
@@ -449,7 +393,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 switch ($field->type) {
                     case FIELD::TYPE_OBJECT:
                         if (!empty($field->subtype)
-                            && $this->entityDefintion->parentField == $fieldName
+                            && $entityDefinition->parentField == $fieldName
                             && is_numeric($value)) {
                             $refDef = $this->getDefinition($field->subtype);
                             $refDefTable = $refDef->getTable(true);
@@ -458,7 +402,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                                 $conditionString = "$fieldName in (WITH RECURSIVE children AS
 												(
 													-- non-recursive term
-													SELECT id FROM $refDefTable WHERE id=:$paramName
+                                                    SELECT id FROM $refDefTable 
+                                                    WHERE id=" . $this->database->quote($value) . "
 													UNION ALL
 													-- recursive term
 													SELECT $refDefTable.id
@@ -468,8 +413,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 												)
 												SELECT id
 												FROM children)";
-
-                                $this->conditionParams[$paramName] = $value;
                             }
                         }
                         break;
@@ -484,8 +427,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName<=:$paramName";
-                        $this->conditionParams[$paramName] = $value;
+                        $conditionString = "$fieldName<=" . $this->database->quote($value);
                         break;
                 }
                 break;
@@ -494,14 +436,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 switch ($field->type) {
                     case FIELD::TYPE_TEXT:
                         if ($field->subtype) {
-                            $conditionString = "lower($fieldName) like :$paramName";
-                            $this->conditionParams[$paramName] = strtolower("$value%");
+                            $conditionString = "lower($fieldName) like " . $this->database->quote(strtolower("$value%"));
                         } else {
-                            $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
-                            $this->conditionParams[$paramName] = "$value*";
+                            $conditionString = "to_tsvector($fieldName) @@ 
+                                plainto_tsquery(" . $this->database->quote("$value*") . ")";
                         }
-                        break;
-                    default:
                         break;
                 }
                 break;
@@ -509,11 +448,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 switch ($field->type) {
                     case FIELD::TYPE_TEXT:
                         if ($field->subtype) {
-                            $conditionString = "lower($fieldName) like :$paramName";
-                            $this->conditionParams[$paramName] = strtolower("%$value%");
+                            $conditionString = "lower($fieldName) like " . $this->database->quote(strtolower("%$value%"));
                         } else {
-                            $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
-                            $this->conditionParams[$paramName] = $value;
+                            $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(" . $this->database->quote($value) . ")";
                         }
 
                         break;
@@ -534,11 +471,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
     /**
      * Function that will get a Field Definition using a field name
+     *
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param String $fieldName The name of the field that we will be using to get a Field Definition
      *
      * @return Field
      */
-    private function getFieldUsingFieldName($fieldName)
+    private function getFieldUsingFieldName(EntityDefinition $entityDefinition, $fieldName)
     {
         // Look for associated object conditions
         $parts = array($fieldName);
@@ -555,7 +494,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Get the field
-        $field = $this->entityDefintion->getField($parts[0]);
+        $field = $entityDefinition->getField($parts[0]);
 
         // If we do not have a field then throw an exception
         if (!$field) {
@@ -587,10 +526,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if ($value === "<%current_$dateType%>") {
                     $conditionString = "extract($dateType from $fieldName)=extract('$dateType' from now())";
                 } else {
-                    // Generate the $paramName for this condition and make sure it is unique
-                    $paramName = $this->generateParamName($fieldName);
-                    $conditionString = "extract($dateType from $fieldName)=:$paramName";
-                    $this->conditionParams[$paramName] = $value;
+                    $conditionString = "extract($dateType from $fieldName)=" . $this->database->quote($value);
                 }
                 break;
 
@@ -617,24 +553,21 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Add conditions for "is_eqaul" operator
      *
-     * @param type $field The current field that we will handle to build the is_equal where condition
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
+     * @param string $field The current field that we will handle to build the is_equal where condition
      * @param Array $condition The where condition that we are dealing with
      */
-    private function buildIsEqual($field, $condition)
+    private function buildIsEqual(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $this->entityDefintion->getTable();
+        $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
         $value = $condition->value;
-
-        // Generate the $paramName for this condition and make sure it is unique
-        $paramName = $this->generateParamName($fieldName);
 
         $conditionString = "";
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($value) {
-                    $conditionString = "$fieldName=:$paramName";
-                    $this->conditionParams[$paramName] = $value;
+                    $conditionString = "$fieldName=" . $this->database->quote($value);
                 } else {
                     $conditionString = "$fieldName is null";
 
@@ -644,7 +577,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
-                $conditionString = $this->buildObjectMultiQueryCondition($field, $condition);
+                $conditionString = $this->buildObjectMultiQueryCondition($entityDefinition, $field, $condition);
                 break;
             case 'object_dereference':
                 // TODO: Ask sky about what is object_dereference
@@ -668,7 +601,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case FIELD::TYPE_GROUPING_MULTI:
                 $multiCond = [];
                 $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
-                $fkeyRefParam = $this->generateParamName($fkeyTableRef);
 
                 // Check if the fkey table has a parent
                 if (isset($field->fkeyTable["parent"]) && is_numeric($value)) {
@@ -677,17 +609,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     // Make sure that we have a children
                     if (!empty($children)) {
                         foreach ($children as $child) {
-                            $childParam = $this->generateParamName($fkeyTableRef);
-                            $multiCond[] = "$fkeyTableRef=:$childParam";
-                            $this->conditionParams[$childParam] = $child;
+                            $multiCond[] = "$fkeyTableRef=" . $this->database->quote($child);
                         }
                     } else {
-                        $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
-                        $this->conditionParams[$fkeyRefParam] = $value;
+                        $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
                     }
                 } elseif (!empty($value)) {
-                    $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
-                    $this->conditionParams[$fkeyRefParam] = $value;
+                    $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
                 }
 
                 $thisfld = $field->fkeyTable['ref_table']["this"];
@@ -701,22 +629,19 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_GROUPING:
-                $conditionString = $this->buildGroupingQueryCondition($field, $condition);
+                $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
                 break;
             case FIELD::TYPE_TEXT:
                 if (empty($value)) {
                     $conditionString = "($fieldName is null OR $fieldName='')";
                 } elseif ($field->subtype) {
-                    $conditionString = "lower($fieldName)=:$paramName";
-                    $this->conditionParams[$paramName] = strtolower($value);
+                    $conditionString = "lower($fieldName)=" . $this->database->quote(strtolower($value));
                 } else {
-                    $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(:$paramName)";
-                    $this->conditionParams[$paramName] = $value;
+                    $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(" . $this->database->quote($value) . ")";
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "$fieldName=:$paramName";
-                $this->conditionParams[$paramName] = $value;
+                $conditionString = "$fieldName=" . $this->database->quote($value);
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -727,8 +652,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
             default:
                 if (!empty($value)) {
-                    $conditionString = "$fieldName=:$paramName";
-                    $this->conditionParams[$paramName] = $value;
+                    $conditionString = "$fieldName=" . $this->database->quote($value);
                 } else {
                     $conditionString = "$fieldName is null";
                 }
@@ -741,25 +665,22 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Add conditions for "is_not_eqaul" operator
      *
-     * @param type $field The current field that we will handle to build the is_not_equal where condition
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
+     * @param Field $field The current field that we will handle to build the is_not_equal where condition
      * @param Array $condition The where condition that we are dealing with
      */
-    private function buildIsNotEqual($field, $condition)
+    private function buildIsNotEqual(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $this->entityDefintion->getTable();
+        $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
         $value = $condition->value;
-
-        // Generate the $paramName for this condition and make sure it is unique
-        $paramName = $this->generateParamName($fieldName);
-
         $conditionString = "";
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($field->subtype) {
                     if (empty($value)) {
                         $conditionString = "$fieldName is not null";
-                    } elseif (isset($field->subtype) && $this->entityDefintion->parentField == $fieldName && $value) {
+                    } elseif (isset($field->subtype) && $entityDefinition->parentField == $fieldName && $value) {
                         $refDef = $this->getDefinition($field->subtype);
                         $refDefTable = $refDef->getTable(true);
                         $parentField = $refDef->parentField;
@@ -768,7 +689,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $conditionString = "$fieldName not in (WITH RECURSIVE children AS
                                     (
                                         -- non-recursive term
-                                        SELECT id FROM $refDefTable WHERE id=:$paramName
+                                        SELECT id FROM $refDefTable WHERE id=" . $this->database->quote($value) . "
                                         UNION ALL
                                         -- recursive term
                                         SELECT $refDefTable.id
@@ -778,17 +699,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                                     )
                                     SELECT id
                                     FROM children)";
-                            $this->conditionParams[$paramName] = $value;
                         }
                     } else {
-                        $conditionString = "$fieldName!=:$paramName";
-                        $this->conditionParams[$paramName] = $value;
+                        $conditionString = "$fieldName!=" . $this->database->quote($value);
                     }
                 }
                 break;
 
             case FIELD::TYPE_OBJECT_MULTI:
-                $conditionString = $this->buildObjectMultiQueryCondition($field, $condition);
+                $conditionString = $this->buildObjectMultiQueryCondition($entityDefinition, $field, $condition);
                 break;
             case 'object_dereference':
                 /*$tmp_cond_str = "";
@@ -812,7 +731,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $fkeyRefField = $field->fkeyTable['ref_table']['this'];
                 $fkeyRefTable = $field->fkeyTable['ref_table']['table'];
                 $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
-                $fkeyRefParam = $this->generateParamName($fkeyTableRef);
 
                 if (empty($value)) {
                     $conditionString = "$objectTable.id in (select $fkeyRefField from $fkeyRefTable)";
@@ -826,17 +744,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         // Make sure that we have $children
                         if (!empty($children)) {
                             foreach ($children as $child) {
-                                $childParam = $this->generateParamName($fkeyTableRef);
-                                $multiCond[] = "$fkeyTableRef=:$childParam";
-                                $this->conditionParams[$childParam] = $child;
+                                $multiCond[] = "$fkeyTableRef=" . $this->database->quote($child);
                             }
                         } else {
-                            $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
-                            $this->conditionParams[$fkeyRefParam] = $value;
+                            $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
                         }
                     } else {
-                        $multiCond[] = "$fkeyTableRef=:$fkeyRefParam";
-                        $this->conditionParams[$fkeyRefParam] = $value;
+                        $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
                     }
 
                     $conditionString = "$objectTable.id not in
@@ -846,22 +760,22 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
                 break;
             case FIELD::TYPE_GROUPING:
-                $conditionString = $this->buildGroupingQueryCondition($field, $condition);
+                $conditionString = $this->buildGroupingQueryCondition($entityDefinition, $field, $condition);
                 break;
             case FIELD::TYPE_TEXT:
                 if (empty($value)) {
                     $conditionString = "($fieldName!='' AND $fieldName is not NULL)";
                 } elseif ($field->subtype) {
-                    $conditionString = "lower($fieldName)!=:$paramName";
-                    $this->conditionParams[$paramName] = strtolower($value);
+                    $conditionString = "lower($fieldName)!=" .
+                                        $this->database->quote(strtolower($value));
                 } else {
-                    $conditionString = " (to_tsvector($fieldName) @@ plainto_tsquery(:$paramName))='f'";
-                    $this->conditionParams[$paramName] = $value;
+                    $conditionString = " (to_tsvector($fieldName) @@ plainto_tsquery(" .
+                                        $this->database->quote($value) .
+                                        "))='f'";
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "$fieldName!=:$paramName";
-                $this->conditionParams[$paramName] = $value;
+                $conditionString = "$fieldName!=" . $this->database->quote($value);
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -870,10 +784,12 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 } elseif ($field->type == FIELD::TYPE_DATE) {
                     $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                 }
+                // Format the string then fall through to default
             default:
                 if (!empty($value)) {
-                    $conditionString = "($fieldName!=:$paramName or $fieldName is null)";
-                    $this->conditionParams[$paramName] = $value;
+                    $conditionString = "($fieldName!=" .
+                                        $this->database->quote($value) .
+                                        " or $fieldName is null)";
                 } else {
                     $conditionString = "$fieldName is not null";
                 }
@@ -886,19 +802,17 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Function that will be the query string for Grouping Query Conditions
      *
-     * @param type $field The current field that we will handle to build the is_not_equal where condition
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
+     * @param Field $field The current field that we will handle to build the is_not_equal where condition
      * @param Array $condition The where condition that we are dealing with
      * @return string
      */
-    private function buildGroupingQueryCondition($field, $condition)
+    private function buildGroupingQueryCondition(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $this->entityDefintion->getTable();
+        $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
         $value = $condition->value;
         $operator = $condition->operator;
-
-        // Generate the $paramName for this condition and make sure it is unique
-        $paramName = $this->generateParamName($fieldName);
 
         $conditionString = "";
         if (empty($value)) {
@@ -919,13 +833,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $children = $this->getHeiarchyDownGrp($field, $value);
 
                 foreach ($children as $child) {
-                    $childParam = $this->generateParamName($fieldName);
-                    $multiCond[] = "$fieldName{$operatorSign}=:$childParam";
-                    $this->conditionParams[$childParam] = $child;
+                    $multiCond[] = "$fieldName{$operatorSign}=" .
+                                    $this->database->quote($child);
                 }
             } else {
-                $multiCond[] = "$fieldName{$operatorSign}=:$paramName";
-                $this->conditionParams[$paramName] = $value;
+                $multiCond[] = "$fieldName{$operatorSign}=" . $this->database->quote($value);
             }
 
             $conditionString = "(" . implode(" or ", $multiCond) . ")";
@@ -942,24 +854,22 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Function that will be the query string for ObjectMulti Query Conditions
      *
-     * @param type $field The current field that we will handle to build the is_not_equal where condition
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
+     * @param Field $field The current field that we will handle to build the is_not_equal where condition
      * @param Array $condition The where condition that we are dealing with
      * @return string
      */
-    private function buildObjectMultiQueryCondition($field, $condition)
+    private function buildObjectMultiQueryCondition(EntityDefinition $entityDefinition, $field, $condition)
     {
-        $objectTable = $this->entityDefintion->getTable();
+        $objectTable = $entityDefinition->getTable();
         $value = $condition->value;
         $operator = $condition->operator;
-
-        // We need a unique param for type_id since it is possible to query 2 or more object multi fields
-        $fieldIdParam = $this->generateParamName("field_id");
 
         // This is a query string that is common for different condition operators
         $selectQueryString = "select object_id from object_associations
                                         where object_associations.object_id=$objectTable.id
-                                        and type_id=:type_id
-                                        and field_id=:$fieldIdParam";
+                                        and type_id=" . $entityDefinition->getId() . "
+                                        and field_id=" . $field->id;
 
         $conditionString = "";
 
@@ -996,9 +906,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 // Get the definition of the referenced objType
                 $refDef = $this->getDefinition($referenceObjType);
 
-                $assocTypeParam = $this->generateParamName("assoc_type_id");
-                $this->conditionParams[$assocTypeParam] = $refDef->getId();
-
                 $prefixQueryString = "";
                 if ($operator == Where::OPERATOR_EQUAL_TO) {
                     $prefixQueryString = "EXISTS";
@@ -1007,22 +914,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
 
                 if ($refDef && $refDef->getId() && $referenceId) {
-                    $assocObjParam = $this->generateParamName("assoc_object_id");
-                    $this->conditionParams[$assocObjParam] = $referenceId;
-
-                    $conditionString = "$prefixQueryString ($selectQueryString and assoc_type_id=:$assocTypeParam
-                                    and assoc_object_id=:$assocObjParam)";
+                    $conditionString = "$prefixQueryString ($selectQueryString and assoc_type_id=" . $refDef->getId() . "
+                                    and assoc_object_id=" . $this->database->quote($referenceId) . ")";
                 } else {
                     // only query associated subtype if there is no referenced id provided
-                    $conditionString = "$prefixQueryString ($selectQueryString and assoc_type_id=:$assocTypeParam)";
+                    $conditionString = "$prefixQueryString ($selectQueryString and assoc_type_id=" . $refDef->getId() . ")";
                 }
             }
-        }
-
-        // Only populate the condition params if we have built a condition string
-        if (!empty($conditionString)) {
-            $this->conditionParams[$fieldIdParam] = $field->id;
-            $this->conditionParams["type_id"] = $this->entityDefintion->getId();
         }
 
         return $conditionString;
@@ -1046,11 +944,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             return array($childId);
         }
 
-        $heiarchyIdParam = $this->generateParamName("heiarchy_id");
         $sql = "WITH RECURSIVE children AS
                 (
                     -- non-recursive term
-                    SELECT id FROM {$field->subtype} WHERE id=:$heiarchyIdParam
+                    SELECT id FROM {$field->subtype} WHERE id=:heiarchy_id
                     UNION ALL
                     -- recursive term
                     SELECT {$field->subtype}.id
@@ -1061,7 +958,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 SELECT id
                 FROM children";
 
-        $result = $this->database->query($sql, [$heiarchyIdParam => $childId]);
+        $result = $this->database->query($sql, ['heiarchy_id' => $childId]);
         foreach ($result->fetchAll() as $row) {
             $ret[] = $row["id"];
         }
@@ -1072,14 +969,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     /**
      * Set aggregation data
      *
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param AggregationInterface $agg
      * @param Results $results Results that will be used where we will set the aggregate data
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition that will be used for filtering
      */
-    private function queryAggregation(AggregationInterface $agg, Results $results, $conditionQuery)
+    private function queryAggregation(EntityDefinition $entityDefinition, AggregationInterface $agg, Results $results, $conditionQuery)
     {
-        $objectTable = $this->entityDefintion->getTable();
+        $objectTable = $entityDefinition->getTable();
         $fieldName = $agg->getField();
         $aggTypeName = $agg->getTypeName();
 
@@ -1107,7 +1005,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         $sql = "SELECT $queryFields FROM $objectTable WHERE id is not null $conditionQuery $orderBy";
 
-        $result = $this->database->query($sql, $this->conditionParams);
+        $result = $this->database->query($sql);
 
         // Make sure that we have results before we process the aggregates
         if ($result->rowCount()) {
@@ -1145,19 +1043,20 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     }
 
     /**
-     * Function that will generate a unique parameter name that will be used in where conditions
+     * Handle converting boolean to strings
      *
-     * @param $paramName The parameter name that will be used
-     * @return mixed
+     * @param Field $field
+     * @param mixed $value
      */
-    private function generateParamName($paramName)
+    public function sanitizeWhereCondition(Field $field, $value)
     {
-        // If param is already existing in condition params, then we need to generate a new param
-        if (!empty($this->conditionParams[$paramName])) {
-            // This will make sure that there will be no duplicate paramName
-            return $this->generateParamName($paramName . rand());
+        $value = parent::sanitizeWhereCondition($field, $value);
+
+        // Convert bool to string
+        if ($field->type == Field::TYPE_BOOL) {
+            return ($value === true) ? 'true' : 'false';
         }
 
-        return $paramName;
+        return $value;
     }
 }

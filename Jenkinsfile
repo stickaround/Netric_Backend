@@ -15,6 +15,11 @@ currentBuild.result = "SUCCESS"
 
 pipeline {
     agent { node { label 'linux' } }
+    options {
+        // buildDiscarder(logRotator(numToKeepStr:'10'))
+        // timeout(time: 5, unit: 'MINUTES')
+        ansiColor('xterm')
+    }
     stages {
         stage('Build') {
             steps {

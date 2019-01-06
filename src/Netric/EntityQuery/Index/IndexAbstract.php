@@ -275,9 +275,10 @@ abstract class IndexAbstract
         // Cleanup bool
         if ($field->type == Field::TYPE_BOOL && is_string($value)) {
             switch ($value) {
+                case 'yes':
                 case 'true':
                 case 't':
-                case true:
+                case '1':
                     return true;
                 default:
                     return false;

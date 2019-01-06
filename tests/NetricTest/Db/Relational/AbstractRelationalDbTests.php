@@ -406,4 +406,31 @@ abstract class AbstractRelationalDbTests extends TestCase
         $ret = $database->isColumnPrimaryKey("utest_people", "id_not_primary_key_utest");
         $this->assertFalse($ret);
     }
+
+    /**
+     * Make sure we escape dangerous strings
+     *
+     * @return void
+     */
+    public function testQuote()
+    {
+        $database = $this->getDatabase();
+        $testString = "Co'mpl''ex \"st'\"ring";
+        $this->assertNotEmpty($database->quote($testString));
+        // More driver-specific tests may be run in the extended classes
+        // For now we just make sure that something was changed
+        $this->assertNotEquals($testString, $database->quote($testString));
+    }
+
+    /**
+     * Make sure quote does nothing with a number
+     *
+     * @return void
+     */
+    public function testQuoteNumber()
+    {
+        $database = $this->getDatabase();
+        $testNumber = 100;
+        $this->assertEquals($testNumber, $database->quote($testNumber));
+    }
 }

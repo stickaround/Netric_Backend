@@ -186,4 +186,12 @@ interface RelationalDbInterface
      * @return bool
      */
     public function isColumnPrimaryKey(string $tableName, $columnName): bool;
+
+    /**
+     * Quote a param and escape it if needed
+     *
+     * @param mixed $param The parameter to qute
+     * @return string Quoted string
+     */
+    public function quote($param): string;
 }
