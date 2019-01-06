@@ -16,7 +16,6 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperInterface;
 use Netric\Entity\Recurrence\RecurrencePattern;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\EntityLoaderFactory;
-use Netric\Db\Relational\RelationalDbFactory;
 use NetricTest\Bootstrap;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
@@ -443,8 +442,9 @@ abstract class DmTestsAbstract extends TestCase
     public function testUpdateOldReferences()
     {
         $dm = $this->getDataMapper();
-        if (!$dm)
+        if (!$dm) {
             return;
+        }
 
         // Get entity definition
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);

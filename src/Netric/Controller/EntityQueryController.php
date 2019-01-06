@@ -39,7 +39,16 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $query->fromArray($params);
 
         // Execute the query
-        $res = $index->executeQuery($query);
+        try {
+            $res = $index->executeQuery($query);
+        } catch (\Exception $ex) {
+            $this->sendOutput([
+                'error' => $ex->getMessage(),
+                'query_ran' => $query->toArray()
+            ]);
+            
+            // TODO: Log the error
+        }
 
         // Pagination
         // ---------------------------------------------
@@ -47,6 +56,8 @@ class EntityQueryController extends Mvc\AbstractAccountController
         $ret["offset"] = $res->getOffset();
         $ret["limit"] = $query->getLimit();
         $ret['num'] = $res->getNum();
+        $ret['query_ran'] = $query->toArray();
+        $ret['account'] = $this->getApplication()->getAccount()->getName();
 
         // Set results
         $entities = array();

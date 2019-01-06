@@ -633,7 +633,8 @@ class Application
          * can load up any request to see the full profile and determine where performance
          * issues might be taking place.
          */
-        if ($this->config->profile->save_profile) {
+       
+        if ($this->config->profile->save_profiles) {
             $file_name = __DIR__ . '/../../../data/profile_runs/' . $this->getRequestId() . '.netric.xhprof';
             $file = fopen($file_name, 'w');
             if ($file) {

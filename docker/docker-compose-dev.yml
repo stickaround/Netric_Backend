@@ -1,18 +1,18 @@
-version: '2'
+version: "2"
 
 services:
   netric_server:
     build: ../
     ports:
-     - "80:80"
-     - "443:443"
+      - "80:80"
+      - "443:443"
     environment:
-       APPLICATION_ENV: development
-       RUN_SETUP_INSTALL: 1
-       XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=0 remote_autostart=0"
-       PHP_IDE_CONFIG: "serverName=local.aereusdev.com"
+      APPLICATION_ENV: development
+      RUN_SETUP_INSTALL: 1
+      XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=0 remote_autostart=0"
+      PHP_IDE_CONFIG: "serverName=local.aereusdev.com"
     volumes:
-     - ../:/var/www/html/
+      - ../:/var/www/html/
     depends_on:
       - logstash
       - memcached
@@ -24,7 +24,7 @@ services:
     logging:
       driver: gelf
       options:
-        gelf-address: "udp://localhost:12201"     
+        gelf-address: "udp://localhost:12201"
 
   memcached:
     image: memcached
@@ -37,44 +37,56 @@ services:
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
-    command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200", "-c", "synchronous_commit=off", "-c", "fsync=off", "-c", "full_page_writes=off"]
+    command:
+      [
+        "-c",
+        "shared_buffers=256MB",
+        "-c",
+        "max_connections=100",
+        "-c",
+        "synchronous_commit=off",
+        "-c",
+        "fsync=off",
+        "-c",
+        "full_page_writes=off",
+      ]
     ports:
       - "5432:5432"
     logging:
       driver: gelf
       options:
-        gelf-address: "udp://localhost:12201"   
+        gelf-address: "udp://localhost:12201"
 
   mail:
     image: dockerhub.aereusdev.com/mail:latest
     environment:
-        APP_HOST: netric.com
-        DB_USER: vagrant
-        DB_PASSWORD: vagrant
-        DB_HOST: db1
-        DB_NAME: antsystem
-        DB_PORT: 5432
+      APP_HOST: netric.com
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: antsystem
+      DB_PORT: 5432
     depends_on:
       - db1
 
   mogilefs:
     image: dockerhub.aereusdev.com/mogiletracker:latest
     environment:
-        DB_USER: vagrant
-        DB_PASSWORD: vagrant
-        DB_HOST: db1
-        DB_NAME: mogilefs
-        DB_PORT: 5432
-        DB_INIT: "true"
-        INIT_STORAGE_HOST: mogilestore
-        WAIT_FOR_DB_TIMEOUT: 240
+      DB_USER: vagrant
+      DB_PASSWORD: vagrant
+      DB_HOST: db1
+      DB_NAME: mogilefs
+      DB_PORT: 5432
+      DB_INIT: "true"
+      INIT_STORAGE_HOST: mogilestore
+      WAIT_FOR_DB_TIMEOUT: 240
     depends_on:
       - mogilestore
       - db1
     logging:
       driver: gelf
       options:
-        gelf-address: "udp://localhost:12201"   
+        gelf-address: "udp://localhost:12201"
 
   mogilestore:
     image: dockerhub.aereusdev.com/mogilestore:latest
@@ -124,6 +136,6 @@ services:
     build: xhprof/
     container_name: xhprof
     volumes:
-         - ../data/profile_runs:/profiles
+      - ../data/profile_runs:/profiles
     ports:
       - "8888:80"

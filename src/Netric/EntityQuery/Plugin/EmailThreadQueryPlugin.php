@@ -57,11 +57,11 @@ class EmailThreadQueryPlugin implements PluginInterface
 
         if ($workerMan->doWorkBackground("EmailMailboxSync", $jobData)) {
             return true;
-        } else {
-            // Something failed
-            $sl->get(LogFactory::class)->error("EmailTHREADQueryPlugin->onBeforeExecuteQuery: For some reason a job could not be queued");
-            return false;
         }
+        
+        // Something failed
+        $sl->get(LogFactory::class)->error("EmailTHREADQueryPlugin->onBeforeExecuteQuery: For some reason a job could not be queued");
+        return false;
     }
 
     /**
