@@ -209,8 +209,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
          */
         if (!$fDeletedCondSet && $this->entityDefintion->getField("f_deleted")) {
             // If $conditionString is not empty, then we will just append the "and" blogic
-            if (!empty($conditionString))
+            if (!empty($conditionString)) {
                 $conditionString .= " and ";
+            }
 
             $conditionString .= "(f_deleted=:f_deleted)";
             $this->conditionParams["f_deleted"] = false;
@@ -274,7 +275,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param Results $results The results that we will be updating its total num
      * @param string $conditionQuery The query condition that will be used for filtering
      */
-    private function setResultsTotalNum(Results $results, $conditionString) {
+    private function setResultsTotalNum(Results $results, $conditionString)
+    {
         // Get table to query
         $objectTable = $this->entityDefintion->getTable();
 
@@ -299,7 +301,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param Array $entitiesRawDataArray An array of entities raw data that will be processed
      * @param Results $results Results that will be used where we will add the processed entities
      */
-    private function processEntitiesRawData(Array $entitiesRawDataArray, Results $results)
+    private function processEntitiesRawData(array $entitiesRawDataArray, Results $results)
     {
         // Get fields for this object type (used in decoding multi-valued fields)
         $ofields = $this->entityDefintion->getFields();
@@ -536,7 +538,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      *
      * @return Field
      */
-    private function getFieldUsingFieldName($fieldName) {
+    private function getFieldUsingFieldName($fieldName)
+    {
         // Look for associated object conditions
         $parts = array($fieldName);
         $refField = "";
@@ -568,7 +571,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param Array $condition The where condition that we are dealing with
      * @return string
      */
-    private function buildConditionWithDateOperators($condition) {
+    private function buildConditionWithDateOperators($condition)
+    {
         $conditionString = "";
         $fieldName = $condition->fieldName;
         $value = $condition->value;
@@ -904,7 +908,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString = "$fieldName is not null";
             }
         } else {
-
             $operatorSign = "";
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
                 $operatorSign = "!";
