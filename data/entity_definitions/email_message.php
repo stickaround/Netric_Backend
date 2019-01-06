@@ -6,7 +6,7 @@ use Netric\EntityDefinition\Field;
 return array(
     'is_private' => true,
     'default_activity_level' => 1,
-    'parent_field' => 'mailbox_id',
+    //'parent_field' => 'mailbox_id',
     'store_revisions' => false,
     'fields' => array(
         'subject' => array(
