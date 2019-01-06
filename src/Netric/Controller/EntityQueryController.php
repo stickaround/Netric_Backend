@@ -46,8 +46,11 @@ class EntityQueryController extends Mvc\AbstractAccountController
                 'error' => $ex->getMessage(),
                 'query_ran' => $query->toArray()
             ]);
-            
-            // TODO: Log the error
+
+            // Log the error so we can setup some alerts
+            $this->getApplication()->getLog()->error(
+                "EntityQueryController: Failed API Query - " . $ex->getMessage()
+            );
         }
 
         // Pagination
