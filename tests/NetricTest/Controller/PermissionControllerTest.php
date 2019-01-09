@@ -93,9 +93,9 @@ class PermissionControllerTest extends TestCase
 
         // We should get the default dacl data for this object type
         $this->assertNotNull($ret);
-        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['dacl']['entries']);
-        $this->assertEquals(Dacl::PERM_VIEW, $ret['dacl']['entries'][Dacl::PERM_VIEW]['name']);
-        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['dacl']['entries'][Dacl::PERM_VIEW]['groups']));
+        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
+        $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
+        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['entries'][Dacl::PERM_VIEW]['groups']));
     }
 
     public function testGetGetDaclForEntityAction()
@@ -116,9 +116,9 @@ class PermissionControllerTest extends TestCase
 
         // Should get default dacl for this entity since we did not set any dacl yet
         $this->assertNotNull($ret);
-        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['dacl']['entries']);
-        $this->assertEquals(Dacl::PERM_VIEW, $ret['dacl']['entries'][Dacl::PERM_VIEW]['name']);
-        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['dacl']['entries'][Dacl::PERM_VIEW]['groups']));
+        $this->assertArrayHasKey(Dacl::PERM_VIEW, $ret['entries']);
+        $this->assertEquals(Dacl::PERM_VIEW, $ret['entries'][Dacl::PERM_VIEW]['name']);
+        $this->assertTrue(in_array(UserEntity::GROUP_CREATOROWNER, $ret['entries'][Dacl::PERM_VIEW]['groups']));
     }
 
     public function testGetGetDaclForEntityActionForObjType()
@@ -157,7 +157,7 @@ class PermissionControllerTest extends TestCase
 
         // Should get objtype dacl for this entity
         $this->assertNotNull($ret);
-        $this->assertTrue(in_array($user->getId(), $ret['dacl']['entries'][Dacl::PERM_VIEW]['users']));
+        $this->assertTrue(in_array($user->getId(), $ret['entries'][Dacl::PERM_VIEW]['users']));
         $this->assertEquals($ret['user_names'][$user->getId()], $user->getName());
     }
 

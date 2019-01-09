@@ -56,11 +56,9 @@ class PermissionController extends Mvc\AbstractAccountController
             $dacl = $daclLoader->getForEntity($entity);
         }
 
-        $retData = [
-            "dacl" => $dacl->toArray(),
-            "user_names" => [],
-            "group_names" => []
-        ];
+        $retData = $dacl->toArray();
+        $retData["user_names"] = [];
+        $retData["group_names"] = [];
 
         $users = $dacl->getUsers();
         // Get the user details
