@@ -140,15 +140,6 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             $modules[] = $this->createModuleFromRow($row);
         }
 
-        // Settings navigation that will be displayed in the frontend
-        $settingsData = array(
-            "id" => null,
-            "name" => "settings",
-            "title" => "Settings",
-            "short_title" => "Settings",
-            "f_system" => "t"
-        );
-
         $modules['settings'] = $this->createModuleFromRow($settingsData);
 
         return $modules;

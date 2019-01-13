@@ -77,7 +77,7 @@ class ModuleService
                     $module->getUserId() == $user->getId()
                 )
                 || (
-                    $module->getScope() == Module::SCOPE_USER &&
+                    $module->getScope() == Module::SCOPE_TEAM &&
                     $module->getTeamId() == $user->getValue("team_id")
                 )
             ) {
