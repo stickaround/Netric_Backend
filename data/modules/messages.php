@@ -7,7 +7,7 @@ namespace modules\navigation;
 return array(
     "title" => "Messages",
     "icon" => "EmailIcon",
-    "default_route" => "inbox",
+    "default_route" => "email",
     "name" => "messages",
     "short_title" => 'Messages',
     "scope" => 'system',
@@ -16,26 +16,25 @@ return array(
     "f_system" => 't',
     "navigation" => array(
         array(
-            "title" => "Inbox",
+            "title" => "Chat",
             "type" => "browse",
-            "route" => "inbox",
+            "route" => "chat",
+            "objType" => "chat_thread",
+            "icon" => "CommentIcon",
+        ),
+        array(
+            "title" => "Email",
+            "type" => "browse",
+            "route" => "email",
             "objType" => "email_thread",
             "icon" => "EmailIcon",
         ),
         array(
             "title" => "Notifications",
             "type" => "browse",
-            "route" => "all-notifications",
+            "route" => "notifications",
             "objType" => "notification",
-            "icon" => "announcement"
-        ),
-        array(
-            "title" => "All Messages",
-            "type" => "browse",
-            "route" => "all-messages",
-            "objType" => "email_account",
-            "icon" => "tags",
-            //"browseby" => "groups",
+            "icon" => "LightBulbIcon"
         )
     )
 );

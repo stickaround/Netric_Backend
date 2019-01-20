@@ -9,6 +9,7 @@ return [
     ["obj_type" => "email_message_attachment", "title" => "Email Attachment", "revision" => "0", "system" => true],
     ["obj_type" => "email_thread", "title" => "Message Thread", "revision" => "0", "system" => true],
     ["obj_type" => "email_campaign", "title" => "Email Campaign", "revision" => "0", "system" => true],
+    ["obj_type" => "chat_thread", "title" => "Chat Thread", "revision" => "0", "system" => true],
     ["obj_type" => "content_feed_post", "title" => "Feed Post", "revision" => "0", "system" => true],
     ["obj_type" => "project_milestone", "title" => "Milestone", "revision" => "0", "system" => true],
     ["obj_type" => "task", "title" => "Task", "revision" => "0", "system" => true],

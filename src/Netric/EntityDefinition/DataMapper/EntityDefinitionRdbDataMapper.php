@@ -785,6 +785,10 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                         $index = "btree";
                     }
                     break;
+
+                case 'uuid':
+                    $type = "uuid";
+                    break;
                 case 'auto':
                     // Special type should not have a column
                     $type = '';
