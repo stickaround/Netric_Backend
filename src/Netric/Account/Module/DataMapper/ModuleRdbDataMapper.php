@@ -140,8 +140,6 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             $modules[] = $this->createModuleFromRow($row);
         }
 
-        $modules['settings'] = $this->createModuleFromRow($settingsData);
-
         return $modules;
     }
 

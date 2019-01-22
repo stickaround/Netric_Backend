@@ -10,7 +10,7 @@ namespace Netric\Chat;
  *
  * @package Netric\Chat
  */
-class ChaSenderService
+class ChatSenderService
 {
 
 }

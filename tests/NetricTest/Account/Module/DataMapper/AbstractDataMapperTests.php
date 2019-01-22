@@ -100,10 +100,6 @@ abstract class AbstractDataMapperTests extends TestCase
         $modules = $dataMapper->getAll();
         $this->assertNotNull($modules);
         $this->assertGreaterThan(0, count($modules));
-
-        // Make sure that we have loaded the settings module
-        $this->assertTrue(isset($modules['settings']));
-        $this->assertEquals($modules['settings']->getName(), 'settings');
     }
 
     public function testSaving()
