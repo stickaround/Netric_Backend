@@ -10,7 +10,7 @@ services:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
       XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=0 remote_autostart=0"
-      PHP_IDE_CONFIG: "serverName=local.aereusdev.com"
+      PHP_IDE_CONFIG: "serverName=local.aereus.com"
     volumes:
       - ../:/var/www/html/
     depends_on:
@@ -33,7 +33,7 @@ services:
     image: kendu/gearman
 
   db1:
-    image: dockerhub.aereusdev.com/pgsql:latest
+    image: dockerhub.aereus.com/pgsql:latest
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
@@ -58,7 +58,7 @@ services:
         gelf-address: "udp://localhost:12201"
 
   mail:
-    image: dockerhub.aereusdev.com/mail:latest
+    image: dockerhub.aereus.com/mail:latest
     environment:
       APP_HOST: netric.com
       DB_USER: vagrant
@@ -70,7 +70,7 @@ services:
       - db1
 
   mogilefs:
-    image: dockerhub.aereusdev.com/mogiletracker:latest
+    image: dockerhub.aereus.com/mogiletracker:latest
     environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant
@@ -89,7 +89,7 @@ services:
         gelf-address: "udp://localhost:12201"
 
   mogilestore:
-    image: dockerhub.aereusdev.com/mogilestore:latest
+    image: dockerhub.aereus.com/mogilestore:latest
 
   logstash:
     build: logstash/
@@ -125,7 +125,7 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   kibana:
-    image: dockerhub.aereusdev.com/kibana:latest
+    image: dockerhub.aereus.com/kibana:latest
     container_name: kibana
     ports:
       - "5601:5601"

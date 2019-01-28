@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   netricservice:
-    image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}
+    image: dockerhub.aereus.com/netric:${APPLICATION_VER}
     networks:
       - service_netric
       - default
@@ -22,7 +22,7 @@ services:
         order: start-first
 
   netric_daemon:
-    image: dockerhub.aereusdev.com/netric:${APPLICATION_VER}
+    image: dockerhub.aereus.com/netric:${APPLICATION_VER}
     entrypoint: /start-daemon.sh
     environment:
       APPLICATION_ENV: ${APPLICATION_ENV}

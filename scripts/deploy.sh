@@ -14,7 +14,7 @@ else
     APPLICATION_VER=$2
 fi
 
-docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
+docker login -u aereusdev -p p7pfsGRe dockerhub.aereus.com
 
 # Update the docker stack
 export APPLICATION_ENV=$APPLICATION_ENV

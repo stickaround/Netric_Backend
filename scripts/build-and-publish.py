@@ -15,29 +15,29 @@ if buildTarget is None:
     sys.exit(1)
 
 # Login to docker registry
-subprocess.call(["docker", "login", "-u", "aereusdev", "-p", "p7pfsGRe", "dockerhub.aereusdev.com"])
+subprocess.call(["docker", "login", "-u", "aereusdev", "-p", "p7pfsGRe", "dockerhub.aereus.com"])
 
 # The below should be used to build the webapp and put the compiled source in ./server/mobile
-subprocess.call(["docker", "pull", "dockerhub.aereusdev.com/netric-client-web:" + buildTarget])
+subprocess.call(["docker", "pull", "dockerhub.aereus.com/netric-client-web:" + buildTarget])
 subprocess.call([
     "docker", "run", "--rm",
     "-v", currentPath + "/server/mobile:/var/www/app/build",
     "-w", "/var/www/app",
-    "dockerhub.aereusdev.com/netric-client-web:" + buildTarget,
+    "dockerhub.aereus.com/netric-client-web:" + buildTarget,
     "npm", "run", "build"
 ]);
 subprocess.call([
     "docker", "run", "--rm",
     "-v", currentPath + "/server/mobile:/var/www/app/build",
     "-w", "/var/www/app",
-    "dockerhub.aereusdev.com/netric-client-web:" + buildTarget,
+    "dockerhub.aereus.com/netric-client-web:" + buildTarget,
     "chmod", "-R", "777", "./build/"
 ]);
 print('Built webapp into:' + currentPath + '/server/mobile')
 
 # Not build the server which will include the built webapp above
-subprocess.call(["docker", "build", "-t", "dockerhub.aereusdev.com/netric:" + buildTarget, "."])
-subprocess.call(["docker", "push", "dockerhub.aereusdev.com/netric:" + buildTarget])
+subprocess.call(["docker", "build", "-t", "dockerhub.aereus.com/netric:" + buildTarget, "."])
+subprocess.call(["docker", "push", "dockerhub.aereus.com/netric:" + buildTarget])
 
 # Cleanup
 subprocess.call(["docker", "system", "prune", "-f"])

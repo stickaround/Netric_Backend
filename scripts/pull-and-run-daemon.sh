@@ -8,8 +8,8 @@ else
     TARGET=$1
 fi
 
-docker login -u aereusdev -p p7pfsGRe dockerhub.aereusdev.com
-docker pull dockerhub.aereusdev.com/netric:${TARGET}
+docker login -u aereusdev -p p7pfsGRe dockerhub.aereus.com
+docker pull dockerhub.aereus.com/netric:${TARGET}
 
 # Run the daemon with bin/netricd start-fg (start foreground)
 docker stop netricd
@@ -18,4 +18,4 @@ docker rm netricd
 # Optionally use syslog for the log driver
 docker run -P -d --restart=on-failure --name netricd \
    -e APPLICATION_ENV="production" --log-driver=syslog --log-opt tag=netric-${TARGET} \
-   --log-opt syslog-facility=local2 dockerhub.aereusdev.com/netric:${TARGET} /start-daemon.sh
+   --log-opt syslog-facility=local2 dockerhub.aereus.com/netric:${TARGET} /start-daemon.sh

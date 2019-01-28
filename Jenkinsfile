@@ -6,7 +6,7 @@ import aereus.pipeline.DeploymentTargets
 import aereus.pipeline.SwarmServiceInspector
 import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
-def DOCKERHUB_SERVER = "dockerhub.aereusdev.com"
+def DOCKERHUB_SERVER = "dockerhub.aereus.com"
 // 49152
 def PROJECT_NAME = 'netric'
 def dockerImage;
@@ -73,12 +73,12 @@ pipeline {
                         // Pull the clairscanner binary
                         git branch: 'master',
                             credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
-                            url: 'ssh://git@src.aereusdev.com/source/clair.aereusdev.com.git'
+                            url: 'ssh://git@src.aereus.com:222/source/clair.aereus.com.git'
 
                         sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
                         // Fail if any critical security vulnerabilities are found
-                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://192.168.1.25:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://dev1.aereus.com:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
                    }
                 }
             }
@@ -87,7 +87,7 @@ pipeline {
         stage('Publish') {
             steps {
                 script {
-                    docker.withRegistry('https://dockerhub.aereusdev.com', 'aereusdev-dockerhub') {
+                    docker.withRegistry('https://dockerhub.aereus.com', 'aereusdev-dockerhub') {
                         dockerImage.push()
                     }
                 }
@@ -99,7 +99,7 @@ pipeline {
                 // Call stack deploy to upgrade
                 script {
                     sshagent (credentials: ['aereus']) {
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereusdev.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                     }
                 }
             }
@@ -124,7 +124,7 @@ pipeline {
                 // Call stack deploy to upgrade
                 script {
                     sshagent (credentials: ['aereus']) {
-                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereusdev.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                     }
                 }
             }
