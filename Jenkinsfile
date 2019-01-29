@@ -94,16 +94,7 @@ pipeline {
             }
         }
 
-        stage('Integration Setup') {
-            steps {
-                // Call stack deploy to upgrade
-                script {
-                    sshagent (credentials: ['aereus']) {
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
-                    }
-                }
-            }
-        }
+       
 
         stage('Integration') {
             steps {
