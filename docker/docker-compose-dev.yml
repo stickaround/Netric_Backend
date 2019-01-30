@@ -26,6 +26,15 @@ services:
       options:
         gelf-address: "udp://localhost:12201"
 
+  netric_daemon:
+    build: ../
+    entrypoint: /start-daemon.sh
+    volumes:
+      - ../:/var/www/html/
+    environment:
+      APPLICATION_ENV: development
+      APPLICATION_VER: daemon-dev
+
   memcached:
     image: memcached
 
