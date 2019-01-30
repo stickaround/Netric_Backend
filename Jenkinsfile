@@ -101,7 +101,7 @@ pipeline {
                     sshagent (credentials: ['aereus']) {
                         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
                                             usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                            sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
+                            sh "ssh -p 223 -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
                                 "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com && " +
                                 "docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
                                 "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
@@ -131,7 +131,7 @@ pipeline {
                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                     // SSH into the server
                     sshagent (credentials: ['aereus']) {
-                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
+                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
                         "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com && " +
                         "docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
                         "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
