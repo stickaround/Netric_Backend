@@ -94,7 +94,23 @@ pipeline {
             }
         }
 
-       
+        stage('Integration Setup') {
+            steps {
+                // Call stack deploy to upgrade
+                script {
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        // SSH into the server
+                        sshagent (credentials: ['aereus']) {
+                            sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
+                            "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com && " +
+                            "docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
+                            "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Integration') {
             steps {
@@ -112,10 +128,14 @@ pipeline {
 
         stage('Production Setup') {
             steps {
-                // Call stack deploy to upgrade
-                script {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    // SSH into the server
                     sshagent (credentials: ['aereus']) {
-                        sh "ssh -o StrictHostKeyChecking=no aereus@web2.aereus.com docker run -i --rm -e 'APPLICATION_ENV=production' -e 'APPLICATION_VER=${APPLICATION_VERSION}' --entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+                        sh "ssh -p 222 -o StrictHostKeyChecking=no aereus@web2.aereus.com " +
+                        "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com && " +
+                        "docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
+                        "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                     }
                 }
             }
