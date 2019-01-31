@@ -40,6 +40,7 @@ class HttpResponse implements ResponseInterface
     const STATUS_CODE_OK_PARTIAL = 206;
     const STATUS_CODE_NOT_MODIFIED = 301;
     const STATUS_CODE_TEMPORARY_REDIRECT = 307;
+    const STATUS_CODE_BAD_REQUEST = 400;
     const STATUS_CODE_FORBIDDEN = 403;
     const STATUS_CODE_NOT_FOUND = 404;
 

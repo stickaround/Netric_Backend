@@ -25,6 +25,11 @@ use Netric\EntityGroupings\Loader as GroupingsLoader;
  */
 class EntityController extends Mvc\AbstractAccountController
 {
+    /**
+     * Test action used for automated tests
+     *
+     * @return string
+     */
     public function getTestAction()
     {
         return $this->sendOutput("test");

@@ -85,7 +85,7 @@ class FilesController extends Mvc\AbstractAccountController
     /**
      * Upload a new file to the filesystem via POST
      *
-     * @return array array|Response
+     * @return array|HttpResponse
      */
     public function postUploadAction()
     {
