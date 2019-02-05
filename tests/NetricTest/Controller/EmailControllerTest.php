@@ -94,7 +94,7 @@ class EmailControllerTest extends TestCase
     /**
      * Try sending a draft email
      */
-    public function testSend()
+    public function testPostSendAction()
     {
 //        $req = $this->controller->getRequest();
 //        $req->setParam("files", $testUploadedFiles);

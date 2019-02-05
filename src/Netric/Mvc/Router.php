@@ -36,6 +36,8 @@ use Netric\Application\Response\ResponseInterface;
 use Netric\Request\RequestInterface;
 use Netric\Request\ConsoleRequest;
 use Netric\Application\Application;
+use \Exception;
+use Netric\Application\Response\HttpResponse;
 
 /**
  * Expose public class methods to calling script
@@ -75,7 +77,7 @@ class Router
      *
      * @param Application $application Instance of application
      */
-    function __construct(Application $application)
+    public function __construct(Application $application)
     {
         $this->application = $application;
     }
@@ -180,6 +182,55 @@ class Router
             // TODO: return 404 Not Found
             return false;
         }
+    }
+
+    /**
+     * Process a request through a controller with a factory
+     *
+     * @param RequestInterface $request The application request
+     * @return void
+     */
+    public function runWithFactory(RequestInterface $request): ResponseInterface
+    {
+        global $_REQUEST;
+        $fName = $this->setControllerAndGetAction($request);
+
+        // Make sure the request had both a controller and action
+        if (!$this->className || !$fname || !class_exists($this->className . "Factory")) {
+            // TODO: return 404 Not Found
+            throw Exception($this->className . "->" . $fName . " not found!");
+        }
+
+        // Create new instance of class if it does not exist
+        $factoryClassName = $this->className . "Factory";
+        $factoryClass = new $factoryClassName;
+        $this->controllerClass = $factoryClass->get($this->application->getAccount()->getServiceManager());
+
+        // Make sure the action function exists
+        if (!method_exists($this->controllerClass, $fName)) {
+            // TODO: return 404 Not Found
+            throw Exception($this->className . "->" . $fName . " not found!");
+        }
+
+        // If this is an OPTIONS request for CORS, return an empty body
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+            return new HttpResponse();
+        }
+        
+        // Check permissions to make sure the current user has access to the controller
+        $hasPermission = $this->currentUserHasPermission($request);
+
+        // Call class method and pass request object
+        if ($hasPermission) {
+            $response = call_user_func(array($this->controllerClass, $fName), $request);
+
+            // Print any buffered output and return the response
+            $response->printOutput();
+            return $response;
+        }
+
+        // TODO: return 401 Authorization Required
+        throw Exception("Authorization Required");
     }
 
     /**
