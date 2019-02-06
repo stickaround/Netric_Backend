@@ -70,7 +70,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 
         // Send the message with the sender service
         $sentStatus = $this->senderService->send($emailMessage);
-        $response->write(['sent' => $sentStatus]);
+        $response->write(['result' => $sentStatus]);
         return $response;
     }
 }

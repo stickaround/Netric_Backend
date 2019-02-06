@@ -184,6 +184,11 @@ class HttpResponse implements ResponseInterface
     public function __construct(RequestInterface $request)
     {
         $this->request = $request;
+
+        // Check to see if we should suppress/buffer the output
+        if ($request->getParam('buffer_output') === 1) {
+            $this->suppressOutput(true);
+        }
     }
 
     /**
