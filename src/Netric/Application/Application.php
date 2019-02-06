@@ -168,9 +168,7 @@ class Application
         try {
             $response = $router->run($request);
             // Fail the run if the response code is not successful
-            if ($response instanceof ResponseInterface) {
-                $returnStatusCode = $response->getReturnCode();
-            }
+            $returnStatusCode = $response->getReturnCode();
         } catch (\Exception $unhandledException) {
             // An exception took place and was not handled
             $this->getLog()->error(
@@ -193,6 +191,7 @@ class Application
                 );
             //}
 
+            // Fail
             $returnStatusCode = -1;
         }
 

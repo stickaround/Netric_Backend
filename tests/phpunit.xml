@@ -61,7 +61,7 @@
                 <element key="xhprofWeb">
                     <string>http://local.aereusdev.com:8888</string>
                     </element>
-                <element key="xhprofRunsFolder">>
+                <element key="xhprofRunsFolder">
                     <string>/var/www/html/data/profile_runs</string>
                 </element>
                 <element key="appNamespace">

@@ -5,7 +5,7 @@ use Netric\Entity\EntityLoader;
 use Netric\Account\Account;
 use Netric\Controller\EmailController;
 use Netric\Entity\ObjType\UserEntity;
-use Netric\FileSystem\FileSystem;
+use Netric\Mail\SenderService;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
 use Netric\EntityQuery\Index\IndexFactory;
@@ -53,12 +53,18 @@ class EmailControllerTest extends TestCase
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
 
-        // Create the controller
-        $this->controller = new EmailController($this->account->getApplication(), $this->account);
-        $this->controller->testMode = true;
+        // Mock the entity loader service
+        $entityLoader = $this->getMockBuilder(EntityLoader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        // Get FileSystem
-        $this->fileSystem = $sl->get(FileSystem::class);
+        // Create a mock sender service
+        $senderService = $this->getMockBuilder(SenderService::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        // Create the controller with mocks
+        $this->controller = new EmailController($entityLoader, $senderService);
 
         // Make sure old test user does not exist
         $query = new EntityQuery(ObjectTypes::USER);

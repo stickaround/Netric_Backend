@@ -544,7 +544,7 @@ class HttpResponse implements ResponseInterface
      */
     private function printBodyJson()
     {
-        if (is_array($this->outputBuffer)) {
+        if (!is_array($this->outputBuffer)) {
             throw new \RuntimeException("JSON responses require an array");
         }
 

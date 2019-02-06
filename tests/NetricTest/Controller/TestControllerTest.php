@@ -10,22 +10,19 @@
  */
 namespace NetricTest\Controller;
 
-use Netric;
 use PHPUnit\Framework\TestCase;
-use NetricTest\Bootstrap;
 use Netric\Controller\TestController;
+use Netric\Request\HttpRequest;
 
 class TestControllerTest extends TestCase
 {
     /**
      * Test automatic pagination
      */
-    public function testTest()
+    public function testGetTestAction()
     {
-        $account = Bootstrap::getAccount();
-        $con = new TestController($account->getApplication(), $account);
-        $con->testMode = true;
-        $ret = $con->getTestAction();
-        $this->assertEquals("test", $ret);
+        $con = new TestController();
+        $ret = $con->getTestAction(new HttpRequest());
+        $this->assertEquals(['param'=>'test'], $ret->getOutputBuffer());
     }
 }

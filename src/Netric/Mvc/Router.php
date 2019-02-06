@@ -36,8 +36,9 @@ use Netric\Application\Response\ResponseInterface;
 use Netric\Request\RequestInterface;
 use Netric\Request\ConsoleRequest;
 use Netric\Application\Application;
-use \Exception;
 use Netric\Application\Response\HttpResponse;
+use Netric\Mvc\Exception\NotAuthorizedForRouteException;
+use Netric\Mvc\Exception\RouteNotFoundException;
 
 /**
  * Expose public class methods to calling script
@@ -92,28 +93,92 @@ class Router
         $this->className = $clsname;
     }
 
+
+
     /**
-     * Execute methods in server class
+     * Process a request through a controller with a factory
+     *
+     * @param RequestInterface $request The application request
+     * @return ResponseInterface
+     *
+     * @throws RouteNotFoundException When client calls non-existent route
+     * @throws NotAuthorizedForRouteException When client does not have permission
+     */
+    public function run(RequestInterface $request): ResponseInterface
+    {
+        $fName = $this->setControllerAndGetAction($request);
+
+        // Make sure the request had both a controller and action
+        if (!$this->className || !$fName) {
+            throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
+        }
+
+        // If a factory does not exist for the controller, call the legacy Controller caller
+        if (!class_exists($this->className . "Factory")) {
+            return $this->runLegacyWithoutFactory($request, $fName);
+        }
+
+        // Create new instance of class if it does not exist
+        $factoryClassName = $this->className . "Factory";
+        $factoryClass = new $factoryClassName;
+        $this->controllerClass = $factoryClass->get($this->application->getAccount()->getServiceManager());
+
+        // Make sure the action function exists
+        if (!method_exists($this->controllerClass, $fName)) {
+            throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
+        }
+
+        // If this is an OPTIONS request for CORS, return an empty body
+        if ($request->getParam('REQUEST_METHOD') == 'OPTIONS') {
+            return new HttpResponse($request);
+        }
+        
+        // Check permissions to make sure the current user has access to the controller
+        $hasPermission = $this->currentUserHasPermission($request);
+
+        // Call class method and pass request object
+        if ($hasPermission) {
+            $response = call_user_func(array($this->controllerClass, $fName), $request);
+
+            // Print any buffered output if not in test mode
+            if (!$this->testMode) {
+                $response->printOutput();
+            }
+            
+            return $response;
+        }
+
+        // Unhandled unauthorized call
+        throw new NotAuthorizedForRouteException("Authorization Required");
+    }
+
+    /**
+     * Execute methods in server class without a factory
+     *
+     * This is being replaced with the Controller factory pattern
+     * to make testing and DI easier in the controllers.
      *
      * @param RequestInterface $request The request being made to run
-     * @return true on success, false on failure
+     * @param string $fName the name of the action function to load
+     * @return ResponseInterface on success, exception on failure
+     *
+     * @throws RouteNotFoundException When client calls non-existent route
+     * @throws NotAuthorizedForRouteException When client does not have permission
      */
-    public function run(RequestInterface $request)
+    private function runLegacyWithoutFactory(RequestInterface $request, string $fName): ResponseInterface
     {
         global $_REQUEST;
-        $fName = $this->setControllerAndGetAction($request);
 
         // Create new instance of class if it does not exist
         if ($this->className && !$this->controllerClass && class_exists($this->className)) {
             $clsname = $this->className;
             $this->controllerClass = new $clsname($this->application, $this->application->getAccount());
-            
+
             if (isset($this->controllerClass->testMode)) {
                 $this->controllerClass->testMode = $this->testMode;
             }
         } else {
-            // TODO: return 404 Not Found
-            die($this->className . "->" . $fName . " not found!");
+            throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
         }
 
         $requestMethod = (isset($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : null;
@@ -142,7 +207,7 @@ class Router
                     $params[$varname] = $varval;
                 }
             }
-            
+
             // If testing, add session
             // I'm not sure why we are doing this - Sky Stebnicki
             if ($this->testMode) {
@@ -152,7 +217,7 @@ class Router
                     }
                 }
             }
-            
+
             // Manually set output if passed as a param
             if (isset($params['output'])) {
                 $this->controllerClass->output = $params['output'];
@@ -173,64 +238,11 @@ class Router
                 return $response;
             } else {
                 // TODO: return 401 Authorization Required
-                if (!$this->controllerClass->testMode) {
-                    echo "Authorization Required";
-                }
-                return false;
+                throw new NotAuthorizedForRouteException("Legacy controller could not be loaded");
             }
-        } else {
-            // TODO: return 404 Not Found
-            return false;
-        }
-    }
-
-    /**
-     * Process a request through a controller with a factory
-     *
-     * @param RequestInterface $request The application request
-     * @return void
-     */
-    public function runWithFactory(RequestInterface $request): ResponseInterface
-    {
-        global $_REQUEST;
-        $fName = $this->setControllerAndGetAction($request);
-
-        // Make sure the request had both a controller and action
-        if (!$this->className || !$fname || !class_exists($this->className . "Factory")) {
-            // TODO: return 404 Not Found
-            throw Exception($this->className . "->" . $fName . " not found!");
         }
 
-        // Create new instance of class if it does not exist
-        $factoryClassName = $this->className . "Factory";
-        $factoryClass = new $factoryClassName;
-        $this->controllerClass = $factoryClass->get($this->application->getAccount()->getServiceManager());
-
-        // Make sure the action function exists
-        if (!method_exists($this->controllerClass, $fName)) {
-            // TODO: return 404 Not Found
-            throw Exception($this->className . "->" . $fName . " not found!");
-        }
-
-        // If this is an OPTIONS request for CORS, return an empty body
-        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            return new HttpResponse();
-        }
-        
-        // Check permissions to make sure the current user has access to the controller
-        $hasPermission = $this->currentUserHasPermission($request);
-
-        // Call class method and pass request object
-        if ($hasPermission) {
-            $response = call_user_func(array($this->controllerClass, $fName), $request);
-
-            // Print any buffered output and return the response
-            $response->printOutput();
-            return $response;
-        }
-
-        // TODO: return 401 Authorization Required
-        throw Exception("Authorization Required");
+        throw new RouteNotFoundException($this->className . "->" . $fName . " not found!");
     }
 
     /**
@@ -291,14 +303,14 @@ class Router
      */
     private function currentUserHasPermission(RequestInterface $request)
     {
-        // Get the DACL for the selected controller
-        $dacl = $this->controllerClass->getAccessControlList();
-
         // If running from the console then allow the request
         if ($request instanceof ConsoleRequest) {
             // No account which means this is probably a console request
             return true;
         }
+
+        // Get the DACL for the selected controller
+        $dacl = $this->controllerClass->getAccessControlList();
 
         // Get the currently authenticated user
         $user = $this->application->getAccount()->getUser();

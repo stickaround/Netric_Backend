@@ -4,29 +4,63 @@
  */
 namespace Netric\Controller;
 
-use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
+use Netric\Application\Response\HttpResponse;
+use Netric\Application\Response\ConsoleResponse;
+use Netric\Request\HttpRequest;
+use Netric\Request\ConsoleRequest;
+use Netric\Mvc\AbstractFactoriedController;
 
-class TestController extends Mvc\AbstractAccountController
+/**
+ * Class TestController just to test MVC functions and routes
+ *
+ * @package Netric\Controller
+ */
+class TestController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
-     * For public tests
+     * For public tests of a GET request returning text
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
-    public function getTestAction()
+    public function getTestAction(HttpRequest $request): HttpResponse
     {
-        return $this->sendOutput("test");
+        $response = new HttpResponse($request);
+        // Buffer the output since it is small and this function is used in tests
+        $response->suppressOutput(true);
+        $response->write(['param'=>'test']);
+        return $response;
     }
 
-    public function postTestAction()
+    /**
+     * For public tests of a POST method returning JSON
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
+     */
+    public function postTestAction(HttpRequest $request): HttpResponse
     {
-        $rawBody = $this->getRequest()->getBody();
-        return $this->sendOutput(json_decode($rawBody, true));
+        $response = new HttpResponse($request);
+        // Buffer the output since it is small and this function is used in tests
+        $response->suppressOutput(true);
+        // Simply echo out the json object sent in
+        $response->write(json_decode($request->getBody()));
+        return $response;
     }
 
     /**
      * For console requests
+     *
+     * @param ConsoleRequest $request Request object for this run
+     * @return ConsoleResponse
      */
-    public function consoleTestAction()
+    public function consoleTestAction(ConsoleRequest $request): ConsoleResponse
     {
-        return $this->getTestAction();
+        $response = new ConsoleResponse();
+        // Buffer the output since it is small and this function is used in tests
+        $response->suppressOutput(true);
+        $response->write("test");
+        return $response;
     }
 }

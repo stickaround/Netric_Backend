@@ -3,14 +3,15 @@ namespace Netric\Controller;
 
 use Netric\Mvc\ControllerInterface;
 use Netric\Application\Response\HttpResponse;
+use Netric\Request\HttpRequest;
 use Netric\Entity\EntityLoader;
 use Netric\Mail\SenderService;
-use Netric\Request\HttpRequest;
+use Netric\Mvc\AbstractFactoriedController;
 
 /**
  * Controller for interacting with entities
  */
-class EmailController implements ControllerInterface
+class EmailController extends AbstractFactoriedController implements ControllerInterface
 {
     /**
      * Entity loader to get messages
@@ -40,6 +41,9 @@ class EmailController implements ControllerInterface
 
     /**
      * Get the definition (metadata) of an entity
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
      */
     public function postSendAction(HttpRequest $request): HttpResponse
     {

@@ -8,6 +8,7 @@ use Netric\Request\ConsoleRequest;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Request\RequestFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Mvc\Exception\NotAuthorizedForRouteException;
 
 /**
  * Test querying ElasticSearch server
@@ -19,24 +20,24 @@ use Netric\Entity\EntityLoaderFactory;
  */
 class RouterTest extends TestCase
 {
-    /**
-     * Test automatic pagination
-     */
     public function testRun()
     {
         $account = \NetricTest\Bootstrap::getAccount();
 
-        $request = $account->getServiceManager()->get(RequestFactory::class);
+        $request = new HttpRequest();
         $request->setParam("controller", "test");
         $request->setParam("function", "test");
 
         $svr = new Netric\Mvc\Router($account->getApplication());
         $svr->testMode = true;
         $ret = $svr->run($request);
-        $this->assertEquals($ret, "test");
+        $this->assertEquals(['param'=>'test'], $ret->getOutputBuffer());
     }
 
-    public function testAccessControl()
+    /**
+     * Make sure that an unauthorized user cannot get to a route
+     */
+    public function testAccessControlFail()
     {
         $account = \NetricTest\Bootstrap::getAccount();
 
@@ -52,9 +53,9 @@ class RouterTest extends TestCase
 
         $svr = new Netric\Mvc\Router($account->getApplication());
         $svr->testMode = true;
-        $ret = $svr->run($request);
-        // Request should fail because test requires an authenticated user
-        $this->assertEquals($ret, false);
+
+        $this->expectException(NotAuthorizedForRouteException::class);
+        $svr->run($request);
 
         // Restore original
         $account->setCurrentUser($origCurrentUser);
@@ -81,7 +82,7 @@ class RouterTest extends TestCase
         $svr->testMode = true;
         $ret = $svr->run($request);
         // Request should fail succeed even though we do not have an authenticated user
-        $this->assertEquals($ret, 'test');
+        $this->assertEquals($ret->getOutputBuffer(), ['test']);
 
         // Restore original
         $account->setCurrentUser($origCurrentUser);
