@@ -38,8 +38,8 @@ class GroupingCollectionTest extends AbstractCollectionTests
     /**
      * Setup datamapper
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         // Make sure we don't override parent tearDown
         parent::setUp();
 
@@ -49,8 +49,8 @@ class GroupingCollectionTest extends AbstractCollectionTests
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Make sure we don't override parent tearDown
         parent::tearDown();
 

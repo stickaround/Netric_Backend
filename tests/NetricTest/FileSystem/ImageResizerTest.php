@@ -51,8 +51,8 @@ class ImageResizerTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->fileSystem = $sl->get(FileSystem::class);
@@ -62,8 +62,8 @@ class ImageResizerTest extends TestCase
     /**
      * Cleanup each test
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Clean-up test files
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file, true);

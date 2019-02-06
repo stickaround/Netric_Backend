@@ -52,8 +52,8 @@ class PermissionControllerTest extends TestCase
      */
     private $testDefinitions = [];
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
@@ -67,8 +67,8 @@ class PermissionControllerTest extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Cleanup any test entities
         $loader = $this->serviceManager->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {

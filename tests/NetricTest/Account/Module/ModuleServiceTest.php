@@ -28,8 +28,8 @@ class ModuleServiceTest extends TestCase
      */
     protected $testModules = [];
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->moduleService = $sm->get(ModuleServiceFactory::class);
@@ -38,8 +38,8 @@ class ModuleServiceTest extends TestCase
     /**
      * Cleanup any created assets
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testModules as $module) {
             $this->moduleService->delete($module);
         }

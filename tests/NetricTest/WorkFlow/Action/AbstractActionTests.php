@@ -54,8 +54,8 @@ abstract class AbstractActionTests extends TestCase
     /**
      * Setup any dependencies
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
@@ -73,8 +73,8 @@ abstract class AbstractActionTests extends TestCase
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         if ($this->testUser) {
             $this->entityLoader->delete($this->testUser, true);
         }

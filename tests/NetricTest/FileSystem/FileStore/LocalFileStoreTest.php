@@ -25,8 +25,8 @@ class LocalFileStoreTest extends AbstractFileStoreTests
      */
     private $localPath = "";
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
@@ -43,8 +43,8 @@ class LocalFileStoreTest extends AbstractFileStoreTests
         }
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         parent::tearDown();
 
         if (file_exists($this->localPath)) {

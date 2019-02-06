@@ -42,8 +42,8 @@ class EntityValidatorTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->validator = $this->account->getServiceManager()->get(EntityValidatorFactory::class);
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
@@ -52,8 +52,8 @@ class EntityValidatorTest extends TestCase
     /**
      * Cleanup test entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         foreach ($this->testEntities as $entityToDelete) {
             $dataMapper->delete($entityToDelete, true);

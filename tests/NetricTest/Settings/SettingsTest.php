@@ -23,8 +23,8 @@ class SettingsTest extends TestCase
      */
     private $user = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->settings = $sm->get('Netric\Settings\Settings');

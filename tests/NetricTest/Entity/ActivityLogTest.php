@@ -48,8 +48,8 @@ class ActivityLogTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
         $this->activityLog = $this->account->getServiceManager()->get(ActivityLogFactory::class);

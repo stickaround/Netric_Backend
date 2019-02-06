@@ -44,8 +44,8 @@ class WorkerJobsTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $serviceManager = $this->account->getServiceManager();
         $this->schedulerService = $serviceManager->get(SchedulerService::class);

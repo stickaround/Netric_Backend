@@ -26,8 +26,8 @@ class AssignActionTest extends AbstractActionTests
     /**
      * Cleanup entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

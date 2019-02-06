@@ -53,8 +53,8 @@ class Update004001023Test extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/023.php";
     }
@@ -62,8 +62,8 @@ class Update004001023Test extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $serviceManager = $this->account->getServiceManager();
         $loader = $serviceManager->get(EntityLoaderFactory::class);
         $db = $serviceManager->get(RelationalDbFactory::class);

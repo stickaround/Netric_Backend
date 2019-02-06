@@ -31,16 +31,16 @@ class CheckConditionActionTest extends AbstractActionTests
     /**
      * Setup common fixtures for this action
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         // Make sure common fixtures are setup
         parent::setUp();
     }
     /**
      * Cleanup entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

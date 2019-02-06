@@ -49,8 +49,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Setup dependencies for tests
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = Bootstrap::getAccount();
         $sm = $account->getServiceManager();
         $this->actionFactory = new ActionFactory($sm);
@@ -60,8 +60,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Delete any created workflows or entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dataMapper = $this->getDataMapper();
 
         foreach ($this->testWorkFlows as $workFlow) {

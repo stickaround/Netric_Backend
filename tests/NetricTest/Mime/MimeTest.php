@@ -21,16 +21,16 @@ class MimeTest extends TestCase
     /**
      * Setup environment
      */
-    public function setUp()
-    {
+    public function setUp(): void
+{
         $this->originaltimezone = date_default_timezone_get();
     }
 
     /**
      * Tear down environment
      */
-    public function tearDown()
-    {
+    public function tearDown(): void
+{
         date_default_timezone_set($this->originaltimezone);
     }
 

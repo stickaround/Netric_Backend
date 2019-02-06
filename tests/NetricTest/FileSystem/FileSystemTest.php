@@ -67,8 +67,8 @@ class FileSystemTest extends TestCase
      */
     private $testFiles = array();
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
@@ -78,8 +78,8 @@ class FileSystemTest extends TestCase
         $this->entityIndex = $sl->get(IndexFactory::class);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Clean-up test files
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file, true);

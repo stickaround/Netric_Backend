@@ -72,8 +72,8 @@ class Update004001016Test extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $serviceManager = $this->account->getServiceManager();
 
@@ -87,8 +87,8 @@ class Update004001016Test extends TestCase
     /**
      * Cleanup any test entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Clean up the test entities
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);

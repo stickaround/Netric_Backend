@@ -29,8 +29,8 @@ class WorkerServicetest extends TestCase
      */
     private $workerService = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 

@@ -36,8 +36,8 @@ class WorkersControllerTest extends TestCase
     /**
      * Setup the controller for tests
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Create the controller

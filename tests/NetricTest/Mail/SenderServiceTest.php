@@ -42,8 +42,8 @@ class SenderServiceTest extends TestCase
      */
     private $account = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->transport = new InMemory();
         $this->bulkTransport = new InMemory();

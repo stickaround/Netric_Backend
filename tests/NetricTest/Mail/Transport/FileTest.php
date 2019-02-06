@@ -19,8 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 class FileTest extends TestCase
 {
-    public function setUp()
-    {
+    public function setUp(): void
+{
         $this->tempDir = sys_get_temp_dir() . '/mail_file_transport';
         if (!is_dir($this->tempDir)) {
             mkdir($this->tempDir);
@@ -34,8 +34,8 @@ class FileTest extends TestCase
         $this->transport  = new File($fileOptions);
     }
 
-    public function tearDown()
-    {
+    public function tearDown(): void
+{
         $this->cleanup($this->tempDir);
         rmdir($this->tempDir);
     }

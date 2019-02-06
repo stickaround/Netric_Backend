@@ -27,8 +27,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Cleanup any created assets
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dataMapper = $this->getDataMapper();
         foreach ($this->testModules as $module) {
             $dataMapper->delete($module);

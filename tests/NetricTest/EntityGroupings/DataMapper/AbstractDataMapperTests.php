@@ -41,8 +41,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -50,8 +50,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Cleanup any test entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dm = $this->getDataMapper();
         $groupings = $dm->getGroupings(ObjectTypes::CONTACT, "groups");
 

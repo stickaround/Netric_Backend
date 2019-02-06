@@ -57,8 +57,8 @@ abstract class AbstractCollectionTests extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
         $this->esDataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
@@ -71,8 +71,8 @@ abstract class AbstractCollectionTests extends TestCase
         $this->esDataMapper->savePartner($this->partner);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $this->deleteLocal();
 
         // Cleanup partner

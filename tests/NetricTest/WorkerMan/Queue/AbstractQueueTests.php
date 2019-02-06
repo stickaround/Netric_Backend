@@ -25,8 +25,8 @@ abstract class AbstractQueueTests extends TestCase
      */
     protected $actionFactory = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
     }
@@ -34,8 +34,8 @@ abstract class AbstractQueueTests extends TestCase
     /**
      * Cleanup any leftover tasks in the queue
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $queue = $this->getQueue();
         //$queue->clearWorkerQueue("Test");
     }

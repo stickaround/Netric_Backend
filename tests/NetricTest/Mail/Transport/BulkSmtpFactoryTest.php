@@ -22,8 +22,8 @@ class BulkSmtpFactoryTest extends TestCase
      */
     private $oldSettings = array();
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = \NetricTest\Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $this->oldSettings = array(
@@ -34,8 +34,8 @@ class BulkSmtpFactoryTest extends TestCase
         );
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Restore cached old settings
         $account = \NetricTest\Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);

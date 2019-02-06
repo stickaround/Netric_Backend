@@ -18,8 +18,8 @@ use PHPUnit\Framework\TestCase;
  */
 class AddressListTest extends TestCase
 {
-    public function setUp()
-    {
+    public function setUp(): void
+{
         $this->list = new AddressList();
     }
 

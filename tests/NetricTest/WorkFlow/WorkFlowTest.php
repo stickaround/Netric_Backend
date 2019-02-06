@@ -27,8 +27,8 @@ class WorkFlowTest extends TestCase
      */
     protected $actionFactory = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);

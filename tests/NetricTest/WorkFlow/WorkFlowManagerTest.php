@@ -67,8 +67,8 @@ class WorkFlowManagerTest extends TestCase
      */
     private $workFlowDataMapper = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
@@ -77,8 +77,8 @@ class WorkFlowManagerTest extends TestCase
         $this->workFlowDataMapper = $sl->get(DataMapperFactory::class);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

@@ -32,8 +32,8 @@ class MogileFileStoreTest extends AbstractFileStoreTests
      */
     private $tmpPath = "";
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = \NetricTest\Bootstrap::getAccount();
         $sm = $account->getServiceManager();
 
@@ -62,8 +62,8 @@ class MogileFileStoreTest extends AbstractFileStoreTests
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         parent::tearDown();
 
         if (file_exists($this->tmpPath)) {

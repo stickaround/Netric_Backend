@@ -45,8 +45,8 @@ class UserTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         
         // Setup entity datamapper for handling users
@@ -71,8 +71,8 @@ class UserTest extends TestCase
         $this->user = $user;
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         if ($this->user) {
             $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dm->delete($this->user, true);

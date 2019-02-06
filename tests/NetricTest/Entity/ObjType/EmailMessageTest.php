@@ -43,8 +43,8 @@ class EmailMessageTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -52,8 +52,8 @@ class EmailMessageTest extends TestCase
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);

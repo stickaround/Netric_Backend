@@ -19,8 +19,8 @@ class FileStoreFactoryTest extends TestCase
     private $account = null;
 
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
     }
 

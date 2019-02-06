@@ -49,8 +49,8 @@ class FileTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->entityDataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
@@ -59,8 +59,8 @@ class FileTest extends TestCase
     /**
      * Clean-up and test files
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testFiles as $file) {
             if ($file->getId()) {
                 $this->entityDataMapper->delete($file, true);

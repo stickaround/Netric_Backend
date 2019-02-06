@@ -50,8 +50,8 @@ class SchedulerServiceTest extends TestCase
     /**
      * Setup the service
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         // Get globally setup account
         $serviceLocator = Bootstrap::getAccount()->getServiceManager();
 
@@ -64,8 +64,8 @@ class SchedulerServiceTest extends TestCase
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->tempEntitiesToDelete as $entity) {
             $this->entityLoader->delete($entity, true);
         }

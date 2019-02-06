@@ -66,8 +66,8 @@ class NotifierTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         $this->notifier = $this->account->getServiceManager()->get(NotifierFactory::class);
@@ -91,8 +91,8 @@ class NotifierTest extends TestCase
     /**
      * Cleanup after each test
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Make sure any test entities created are deleted
         foreach ($this->testEntities as $entity) {
             // Second param is a 'hard' delete which actually purges the data

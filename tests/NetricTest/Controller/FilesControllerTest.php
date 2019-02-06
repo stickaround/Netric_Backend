@@ -70,8 +70,8 @@ class FilesControllerTest extends TestCase
     const TEST_USER = "test_files_controller";
     const TEST_USER_PASS = "testpass";
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
@@ -105,8 +105,8 @@ class FilesControllerTest extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Clean-up test files
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file);

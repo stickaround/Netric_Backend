@@ -86,8 +86,8 @@ class EntitySearchProviderTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Setup entity datamapper for handling users
@@ -149,8 +149,8 @@ class EntitySearchProviderTest extends TestCase
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

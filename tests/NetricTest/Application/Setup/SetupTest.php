@@ -54,8 +54,8 @@ class SetupTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->application = $this->account->getApplication();
         $serviceManager =$this->account->getServiceManager();

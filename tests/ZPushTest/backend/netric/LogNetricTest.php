@@ -23,8 +23,8 @@ class LogNetricTest extends TestCase
     /**
 	 * Setup each test
 	 */
-	protected function setUp() 
-	{
+	protected function setUp(): void
+{
         // We just do this to initailize the application
         $account = Bootstrap::getAccount();
 	}

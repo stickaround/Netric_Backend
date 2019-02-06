@@ -35,8 +35,8 @@ class LogTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         // Create a silent writer
         $this->log = new Log(new Config(['writer' => 'null']));
     }

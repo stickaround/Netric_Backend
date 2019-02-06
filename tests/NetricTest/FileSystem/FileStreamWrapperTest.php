@@ -44,8 +44,8 @@ class FileStreamWrapperTest extends TestCase
      */
     private $testFiles = array();
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
@@ -56,8 +56,8 @@ class FileStreamWrapperTest extends TestCase
     /**
      * Clean-up and test files
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testFiles as $file) {
             $this->fileSystem->deleteFile($file, true);
         }

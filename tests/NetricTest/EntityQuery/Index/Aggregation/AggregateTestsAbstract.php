@@ -39,8 +39,8 @@ abstract class AggregateTestsAbstract extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->createTestData();
     }
@@ -48,8 +48,8 @@ abstract class AggregateTestsAbstract extends TestCase
     /**
      * Cleanup test objects
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $this->deleteTestData();
     }
     

@@ -41,8 +41,8 @@ class FormsTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->formService = $sm->get(FormsFactory::class);

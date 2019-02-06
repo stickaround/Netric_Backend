@@ -47,8 +47,8 @@ class EmailControllerTest extends TestCase
     const TEST_USER = "test_email_controller";
     const TEST_USER_PASS = "testpass";
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $loader = $sl->get(EntityLoader::class);
@@ -88,8 +88,8 @@ class EmailControllerTest extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Remote the temp user
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();

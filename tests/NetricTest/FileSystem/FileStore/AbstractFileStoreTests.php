@@ -57,8 +57,8 @@ abstract class AbstractFileStoreTests extends TestCase
     /**
      * Clean-up and test files
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $fileStore = $this->getFileStore();
         $dataMapper = $this->getEntityDataMapper();
         foreach ($this->testFiles as $file) {

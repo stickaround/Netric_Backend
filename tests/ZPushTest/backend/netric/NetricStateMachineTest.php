@@ -52,8 +52,8 @@ class NetricStateMachineTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
 
         // Get dependencies
@@ -77,8 +77,8 @@ class NetricStateMachineTest extends TestCase
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $this->stateMachine->UnLinkUserDevice(self::TEST_USER, self::TEST_DEVID);
         $this->stateMachine->CleanStates(self::TEST_DEVID, 'test', false);
         $this->stateMachine->SetStateVersion(\NetricStateMachine::SUPPORTED_STATE_VERSION);

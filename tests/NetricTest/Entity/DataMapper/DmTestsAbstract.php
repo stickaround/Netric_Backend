@@ -55,8 +55,8 @@ abstract class DmTestsAbstract extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
         $this->groupingDataMapper = $this->account->getServiceManager()->get(EntityGroupingDataMapperFactory::class);
@@ -65,8 +65,8 @@ abstract class DmTestsAbstract extends TestCase
     /**
      * Cleanup any test entities we created
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dm = $this->getDataMapper();
         foreach ($this->testEntities as $entity) {
             $dm->delete($entity, true);

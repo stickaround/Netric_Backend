@@ -25,8 +25,8 @@ class PartTest extends TestCase
      */
     protected $testText;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->testText = 'safdsafsa�lg ��gd�� sd�jg�sdjg�ld�gksd�gj�sdfg�dsj�gjsd�gj�dfsjg�dsfj�djs�g kjhdkj '
             . 'fgaskjfdh gksjhgjkdh gjhfsdghdhgksdjhg';
         $this->part = new Mime\Part($this->testText);

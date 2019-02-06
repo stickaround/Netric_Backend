@@ -22,8 +22,8 @@ class SmtpFactoryTest extends TestCase
      */
     private $oldSettings = array();
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);
         $this->oldSettings = array(
@@ -34,8 +34,8 @@ class SmtpFactoryTest extends TestCase
         );
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Restore cached old settings
         $account = Bootstrap::getAccount();
         $settings = $account->getServiceManager()->get(SettingsFactory::class);

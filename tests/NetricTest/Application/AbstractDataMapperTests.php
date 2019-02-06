@@ -38,8 +38,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $configLoader = new ConfigLoader();
         $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
 
@@ -58,8 +58,8 @@ abstract class AbstractDataMapperTests extends TestCase
     /**
      * Cleanup after each test
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dataMapper = $this->getDataMapper();
 
         foreach ($this->testAccountIds as $accountId) {

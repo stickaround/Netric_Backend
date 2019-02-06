@@ -51,8 +51,8 @@ class DaclLoaderTest extends TestCase
      */
     private $testEntities = [];
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
@@ -74,8 +74,8 @@ class DaclLoaderTest extends TestCase
         $this->daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $serviceLocator = $this->account->getServiceManager();
 
         // Delete any test entities

@@ -29,7 +29,7 @@ abstract class AbstractRelationalDbTests extends TestCase
      */
     abstract protected function getDatabase();
 
-    public function setUp()
+    public function setUp(): void
     {
         $database = $this->getDatabase();
         $database->query('DROP TABLE IF EXISTS utest_people');
@@ -46,7 +46,7 @@ abstract class AbstractRelationalDbTests extends TestCase
         $database->query('ALTER TABLE utest_people ADD CONSTRAINT utest_constraint UNIQUE (const_name)');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $database = $this->getDatabase();
         $database->query('DROP TABLE IF EXISTS utest_people');

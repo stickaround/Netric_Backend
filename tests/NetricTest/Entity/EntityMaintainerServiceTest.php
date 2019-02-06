@@ -53,8 +53,8 @@ class EntityMaintainerServiceTest extends TestCase
     /**
      * Setup test objects and data
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Create a temporary definition with a max cap of 1 entity
@@ -91,8 +91,8 @@ class EntityMaintainerServiceTest extends TestCase
     /**
      * Teardown test objects and data
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Cleanup test entities
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $ent) {

@@ -46,8 +46,8 @@ class RecurrenceDataMapperTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
 
@@ -68,8 +68,8 @@ class RecurrenceDataMapperTest extends TestCase
     /**
      * Cleanup any test entities we created
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testRecurrence as $rp) {
             $this->dataMapper->delete($rp);
         }

@@ -30,8 +30,8 @@ class ExportFolderChagesNetricTest extends TestCase
     private $entityProvider = null;
 
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
             ->disableOriginalConstructor()
             ->getMock();

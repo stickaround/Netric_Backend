@@ -37,16 +37,16 @@ class EntityLoaderTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
     }
 
     /**
      * Cleanup any test entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $loader->delete($entity, true);

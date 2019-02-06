@@ -40,8 +40,8 @@ class Update004001024Test extends TestCase
     /**
      * Setup each test
      */
-    public function setUp()
-    {
+    public function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/once/004/001/024.php";
         $serviceManager = $this->account->getServiceManager();
@@ -71,8 +71,8 @@ class Update004001024Test extends TestCase
     /**
      * Cleanup after a test runs
      */
-    public function tearDown()
-    {
+    public function tearDown(): void
+{
         $serviceManager = $this->account->getServiceManager();
         $definitionDataMapper = $serviceManager->get(DataMapperFactory::class);
 

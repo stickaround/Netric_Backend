@@ -38,8 +38,8 @@ class EmailMailboxSyncWorkerTest extends TestCase
      */
     private $user = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
 
@@ -57,8 +57,8 @@ class EmailMailboxSyncWorkerTest extends TestCase
         $sl->get(EntityLoaderFactory::class)->save($this->emailAccount);
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $sl = $this->account->getServiceManager();
 
         // Cleanup email account

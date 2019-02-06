@@ -37,8 +37,8 @@ class SetupControllerTest extends TestCase
      *
      * @return void
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $account = Bootstrap::getAccount();
         $this->controller = new SetupController($account->getApplication(), $account);
         $this->controller->testMode = true;
@@ -47,8 +47,8 @@ class SetupControllerTest extends TestCase
     /**
      * Cleanup after each test
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $account = Bootstrap::getAccount();
         foreach ($this->accountsToCleanup as $tempAccountName) {
             $account->getApplication()->deleteAccount($tempAccountName);

@@ -33,16 +33,16 @@ abstract class AbstractSchemaDataMapperTests extends TestCase
      */
     const TEST_ACCOUNT_NAME = 'ut_schema_testr';
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->application = $this->account->getApplication();
 
         $this->deleteTestAccount();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $this->deleteTestAccount();
     }
 

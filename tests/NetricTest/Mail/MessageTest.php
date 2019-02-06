@@ -17,8 +17,8 @@ class MessageTest extends TestCase
     /** @var Message */
     public $message;
 
-    public function setUp()
-    {
+    public function setUp(): void
+{
         $this->message = new Message();
     }
 

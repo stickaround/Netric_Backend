@@ -38,8 +38,8 @@ class BrowserViewControllerTest extends TestCase
      */
     private $testBrowserViews = [];
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser();
 
@@ -54,8 +54,8 @@ class BrowserViewControllerTest extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Cleanup test browser views
         $browserViewService = $this->serviceManager->get(BrowserViewServiceFactory::class);
         foreach ($this->testBrowserViews as $browserView) {

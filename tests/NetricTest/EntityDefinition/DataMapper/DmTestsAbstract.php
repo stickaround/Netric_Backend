@@ -43,16 +43,16 @@ abstract class DmTestsAbstract extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
     }
 
     /**
      * Cleanup
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $dm = $this->getDataMapper();
         foreach ($this->testDefinitions as $def) {
             $dm->delete($def);

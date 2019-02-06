@@ -19,8 +19,8 @@ class BinScriptTest extends TestCase
      */
     private $account = null;
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
     }

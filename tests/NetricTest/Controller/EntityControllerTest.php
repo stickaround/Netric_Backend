@@ -56,8 +56,8 @@ class EntityControllerTest extends TestCase
      */
     private $testDefinitions = [];
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Create the controller
@@ -68,8 +68,8 @@ class EntityControllerTest extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Delete the added groups
         foreach ($this->testGroups as $groupId) {
             $dataRemove = array(

@@ -55,8 +55,8 @@ class AuthDotNetGatewayTest extends TestCase
     /**
      * Setup authorize.net with test account
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->gateway = new AuthDotNetGateway(
             self::API_LOGIN,
             self::API_TRANSACTION_KEY,
@@ -67,8 +67,8 @@ class AuthDotNetGatewayTest extends TestCase
     /**
      * Cleanup any created resrouces
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->profilesToDelete as $profileToken) {
             try {
                 $this->gateway->deleteProfile($profileToken);

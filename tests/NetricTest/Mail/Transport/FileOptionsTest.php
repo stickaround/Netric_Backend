@@ -17,8 +17,8 @@ use PHPUnit\Framework\TestCase;
  */
 class FileOptionsTest extends TestCase
 {
-    public function setUp()
-    {
+    public function setUp(): void
+{
         $this->options = new FileOptions();
     }
 

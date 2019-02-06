@@ -63,8 +63,8 @@ class ReceiverServiceTest extends TestCase
     /**
      * Setup the service
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = \NetricTest\Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
@@ -116,8 +116,8 @@ class ReceiverServiceTest extends TestCase
         $this->setupMessages();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(LoaderFactory::class);

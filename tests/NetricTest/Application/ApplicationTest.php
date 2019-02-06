@@ -25,8 +25,8 @@ class ApplicationTest extends TestCase
      */
     const TEST_ACCT_NAME = "unit_test_application";
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $configLoader = new ConfigLoader();
 
         // Setup the new config

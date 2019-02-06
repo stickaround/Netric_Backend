@@ -56,8 +56,8 @@ class EntityAggregatorTest extends TestCase
     /**
      * Setup each test
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
         $sm = $this->account->getServiceManager();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
@@ -68,8 +68,8 @@ class EntityAggregatorTest extends TestCase
     /**
      * Cleanup any created entities
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }

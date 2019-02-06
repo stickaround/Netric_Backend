@@ -50,8 +50,8 @@ class ScheduleRunnerWorkerTest extends TestCase
     /**
      * Setup the worker
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Mock the scheduler service

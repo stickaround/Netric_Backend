@@ -59,8 +59,8 @@ class ImportChangesNetricTest extends TestCase
     /**
      * Get the tests ready to run
      */
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->log = $this->getMockBuilder('\Netric\Log\LogInterface')
             ->disableOriginalConstructor()
             ->getMock();

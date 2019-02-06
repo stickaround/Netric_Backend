@@ -36,8 +36,8 @@ class ModuleControllerTest extends TestCase
      */
     private $testModules = [];
 
-    protected function setUp()
-    {
+    protected function setUp(): void
+{
         $this->account = Bootstrap::getAccount();
 
         // Get the service manager of the current user
@@ -51,8 +51,8 @@ class ModuleControllerTest extends TestCase
     /**
      * Cleanup after a test runs
      */
-    protected function tearDown()
-    {
+    protected function tearDown(): void
+{
         // Cleanup test modules
         $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
         foreach ($this->testModules as $module) {
