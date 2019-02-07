@@ -52,3 +52,4 @@ composer.lock
 # Vendor directory
 /vendor
 /tests/NetricTest/FileSystem/FileStore/tmp/
+tests/.phpunit.result.cache

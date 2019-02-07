@@ -59,6 +59,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         // Decode the json structure
         $objData = json_decode($rawBody, true);
 
+        // At the very least we required that the guid of a saved message be set to send it
         if (!isset($objData['guid'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write("guid is a required param");
@@ -67,6 +68,13 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 
         // Get the email entity to send
         $emailMessage = $this->entityLoader->getByGuid($objData['guid']);
+
+        // Return 404 if message was not found to send
+        if ($emailMessage === null) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_NOT_FOUND);
+            $response->write("No message guid {$objData['guid']} was found");
+            return $response;
+        }
 
         // Send the message with the sender service
         $sentStatus = $this->senderService->send($emailMessage);

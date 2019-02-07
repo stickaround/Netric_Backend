@@ -1,16 +1,13 @@
 <?php
 namespace NetricTest\Controller;
 
+use Netric\Application\Response\HttpResponse;
 use Netric\Entity\EntityLoader;
 use Netric\Controller\EmailController;
 use Netric\Entity\ObjType\EmailMessageEntity;
-use Netric\EntityDefinition\EntityDefinition;
-use Netric\EntityQuery\Index\IndexInterface;
-use Netric\FileSystem\FileSystem;
 use Netric\Mail\SenderService;
 use Netric\Request\HttpRequest;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Test calling the email controller
@@ -42,5 +39,46 @@ class EmailControllerTest extends TestCase
         $request->setBody(json_encode(['guid'=>uniqid()]));
         $response = $controller->postSendAction($request);
         $this->assertEquals(['result'=>true], $response->getOutputBuffer());
+    }
+
+    /**
+     * Make sure call without body fails
+     */
+    public function testPostSendActionNoBody()
+    {
+        // Mocks for DI - they are never used though
+        $entityLoader = $this->createMock(EntityLoader::class);
+        $senderService = $this->createMock(SenderService::class);
+
+        // Create the controller with mocks
+        $controller = new EmailController($entityLoader, $senderService);
+
+        // Make sure send is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $response = $controller->postSendAction($request);
+
+        $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());
+    }
+
+    /**
+     * Make sure call without sending it the guid of a saved message it fails
+     */
+    public function testPostSendActionNoSavedEmail()
+    {
+        // Mocks for DI - they are never used though
+        $entityLoader = $this->createMock(EntityLoader::class);
+        $senderService = $this->createMock(SenderService::class);
+
+        // Create the controller with mocks
+        $controller = new EmailController($entityLoader, $senderService);
+
+        // Make sure send is called and we get a response
+        $request = new HttpRequest();
+        $request->setParam('buffer_output', 1);
+        $request->setBody(json_encode(['bogus'=>'data']));
+        $response = $controller->postSendAction($request);
+
+        $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());
     }
 }
