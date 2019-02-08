@@ -34,6 +34,14 @@ services:
     environment:
       APPLICATION_ENV: development
       APPLICATION_VER: daemon-dev
+    depends_on:
+      - logstash
+      - memcached
+      - gearmand
+      - mail
+      - db1
+      - mogilefs
+      - mogilestore
 
   memcached:
     image: memcached
@@ -112,25 +120,17 @@ services:
       - elasticsearch
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
     container_name: elasticsearch
     ulimits:
       memlock:
         soft: -1
         hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    mem_limit: 1g
-    cap_add:
-      - IPC_LOCK
     ports:
       - 9200:9200
     environment:
-      - http.host=0.0.0.0
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
-      - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   kibana:

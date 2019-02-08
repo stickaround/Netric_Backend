@@ -1,8 +1,4 @@
 <?php
-/**
- * @author Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright Copyright (c) 2016 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\Mail;
 
 use Netric\Error\AbstractHasErrors;

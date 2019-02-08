@@ -122,22 +122,21 @@ class Gearman implements QueueInterface
 
         if ($gmWorker->work()) {
             return true;
-        } else {
-            // If we need to wait, then pause for a second then try again
-            if ($gmWorker->returnCode() == GEARMAN_IO_WAIT) {
-                sleep(1);
-                return $this->dispatchJobs();
-            }
-            
-            $error = $gmWorker->error();
-            if ($error) {
-                throw new \RuntimeException("Job failed: " . $error);
-            } else {
-                // No jobs
-                $returnCode = $gmWorker->returnCode();
-                return false;
-            }
         }
+
+        // work() failed, we may need to wait for a second then try again
+        if ($gmWorker->returnCode() == GEARMAN_IO_WAIT) {
+            sleep(1);
+            return $this->dispatchJobs();
+        }
+        
+        $error = $gmWorker->error();
+        if ($error) {
+            throw new \RuntimeException("Job failed: " . $error);
+        }
+
+        // No jobs
+        return false;
     }
 
     /**

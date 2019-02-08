@@ -30,13 +30,9 @@ Note: On some windows installations python is invoked by typing 'py'
 
    python start-dev.py
 
-6. Add localhost domain to etc/hosts or System32/drivers/etc/hosts
+6. Load netric in the browser
 
-   127.0.0.1 local.aereus.com
-
-7. Load netric in the browser
-
-   http://local.aereus.com
+   http://localhost
 
 Log in with "test@netric.com" and "password" as the password.
 
@@ -50,10 +46,10 @@ if you only want to test a specific test type:
 
 ### Accessing Services
 
-- http://local.aereus.com:80 - load netric
-- http://local.aereus.com:5601 - load kibana to view logs
-- http://local.aereus.com:8888 - view quest profiles
-- local.aereus.com:5432 - connect to postgres with user vagrant and password vagrant
+- http://localhost:80 - load netric
+- http://localhost:5601 - load kibana to view logs
+- http://localhost:8888 - view quest profiles
+- localhost:5432 - connect to postgres with user vagrant and password vagrant
 
 ### Debugging
 
