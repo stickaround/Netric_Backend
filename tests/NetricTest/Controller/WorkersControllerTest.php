@@ -37,7 +37,7 @@ class WorkersControllerTest extends TestCase
      * Setup the controller for tests
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
 
         // Create the controller
@@ -67,7 +67,7 @@ class WorkersControllerTest extends TestCase
         // Run the process action
         $ret = $this->controller->consoleProcessAction();
         $outputBuffer = $ret->getOutputBuffer();
-        $this->assertContains("Processed 1 jobs", trim(array_pop($outputBuffer)));
+        $this->assertStringContainsString("Processed 1 jobs", trim(array_pop($outputBuffer)));
     }
     
     /**

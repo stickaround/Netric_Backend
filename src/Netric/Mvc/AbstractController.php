@@ -16,6 +16,7 @@ use Netric\Permissions\Dacl;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Request\RequestFactory;
 use Netric\Request\RequestInterface;
+use Netric\Application\Response\HttpResponse;
 
 /**
  * Main abstract class for controllers in netric
@@ -171,44 +172,19 @@ abstract class AbstractController
      */
     protected function sendOutputJson($data)
     {
-        $this->setContentType("json");
-        //$data['request_id'] = $this->application->getRequestId();
-        $enc = json_encode($data);
-
-        switch (json_last_error()) {
-            case JSON_ERROR_DEPTH:
-                $enc = json_encode(array("error" => "Maximum stack depth exceeded"));
-                break;
-            case JSON_ERROR_STATE_MISMATCH:
-                $enc = json_encode(array("error" => "Underflow or the modes mismatch"));
-                break;
-            case JSON_ERROR_CTRL_CHAR:
-                $enc = json_encode(array("error" => "Unexpected control character found"));
-                break;
-            case JSON_ERROR_SYNTAX:
-                $enc = json_encode(array("error" => "Syntax error, malformed JSON"));
-                break;
-            case JSON_ERROR_UTF8:
-            // Try to fix encoding
-                foreach ($data as $vname => $vval) {
-                    if (is_string($vval)) {
-                        $data[$vname] = utf8_encode($vval);
-                    }
-                }
-                $enc = json_encode($data);
-                break;
-            case JSON_ERROR_NONE:
-            default:
-            // ALl is good
-                break;
+        if ($this->testMode) {
+            $this->request->setParam("buffer_output", 1);
         }
 
+        $response = new HttpResponse($this->request);
+        $response->setContentType(HttpResponse::TYPE_JSON);
+        $response->write($data);
 
-        if (!$this->testMode) {
-            echo $enc;
+        if ($this->testMode) {
+            return $data;
         }
 
-        return $data;
+        return $response;
     }
 
     /**
