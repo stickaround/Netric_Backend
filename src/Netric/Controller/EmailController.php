@@ -40,7 +40,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     }
 
     /**
-     * Get the definition (metadata) of an entity
+     * Send an email that was previously saved as an email_message entity
      *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
