@@ -864,8 +864,7 @@ class EntityController extends Mvc\AbstractAccountController
         if ($def->isPrivate && !count($groupFilter)) {
             $groupFilter['user_id'] = $this->account->getUser()->getId();
         }
-
-
+        
         // Get all groupings for this object type
         $groupings = $loader->get($objType, $fieldName, $groupFilter);
 

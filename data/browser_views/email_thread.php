@@ -5,6 +5,7 @@
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
+use Netric\Entity\ObjType\UserEntity;
 
 return array(
     'email_threads'=> array(
@@ -12,6 +13,14 @@ return array(
         'name' => 'Email Threads',
         'description' => '',
         'default' => true,
+        'conditions' => array(
+            'user' => array(
+                'blogic' => Where::COMBINED_BY_AND,
+                'field_name' => 'owner_id',
+                'operator' => Where::OPERATOR_EQUAL_TO,
+                'value' => UserEntity::USER_CURRENT,
+            ),
+        ),
         'order_by' => array(
             'date' => array(
                 'field_name' => 'ts_delivered',
