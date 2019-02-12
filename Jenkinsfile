@@ -26,18 +26,6 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
-                    // We no longer serve the clinet directly from this service
-                    // docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                    //     /* If this is the master branch, punlish to stable, if it is develop publish to latest */
-                    //     clientImage = docker.image("${DOCKERHUB_SERVER}/netric-client-web:latest")
-                    //     clientImage.pull()
-                    // }
-
-                    // /* Get the built client from netric.client.web container and copy to the local mounted server/mobile directory */
-                    // clientImage.inside {
-                    //     sh 'cp -r /var/www/app/build/* ./public/mobile/'
-                    // }
-
                     dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", "--no-cache .");
                 }
             }
