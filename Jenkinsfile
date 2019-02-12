@@ -38,7 +38,7 @@ pipeline {
                     //     sh 'cp -r /var/www/app/build/* ./public/mobile/'
                     // }
 
-                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}");
+                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", "--no-cache .");
                 }
             }
         }
