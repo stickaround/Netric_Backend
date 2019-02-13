@@ -26,6 +26,7 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
+                    sh 'cat test/NetricTest/Controller/EmailControllerTest.php'
                     dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", "--no-cache .");
                 }
             }
