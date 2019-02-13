@@ -36,6 +36,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+                        sh 'docker-compose -f docker/docker-compose-test.yml build --no-cache'
                         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
                     }
                     
