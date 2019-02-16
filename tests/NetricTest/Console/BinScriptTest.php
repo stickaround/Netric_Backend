@@ -20,7 +20,7 @@ class BinScriptTest extends TestCase
     private $account = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
     }
@@ -52,11 +52,10 @@ class BinScriptTest extends TestCase
     /**
      * Make sure that if a script tries to get all accounts on a BinScript that
      * was set to only run one account, that we throw an exception.
-     *
-     * @expectedException \RuntimeException
      */
     public function testRunOnlyAccount()
     {
+        $this->expectException(\RuntimeException::class);
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $binScript->run(__DIR__ . "/TestAssets/scripts/all-accounts.php");
     }

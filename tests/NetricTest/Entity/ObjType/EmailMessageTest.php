@@ -44,7 +44,7 @@ class EmailMessageTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
     }
@@ -53,7 +53,7 @@ class EmailMessageTest extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
         foreach ($this->testEntities as $entity) {
             $entityLoader->delete($entity, true);
@@ -114,8 +114,8 @@ class EmailMessageTest extends TestCase
         // Test body
         $body = $mailMessage->getBody();
         $parts = $body->getParts();
-        $this->assertContains("My Body", $parts[0]->getContent());
-        $this->assertContains("<p>My Body</p>", $parts[0]->getContent());
+        $this->assertStringContainsString("My Body", $parts[0]->getContent());
+        $this->assertStringContainsString("<p>My Body</p>", $parts[0]->getContent());
     }
 
     /**
@@ -143,7 +143,7 @@ class EmailMessageTest extends TestCase
         // Test attachments
         $body = $mailMessage->getBody();
         $parts = $body->getParts();
-        $this->assertContains(
+        $this->assertStringContainsString(
             "Textual Data",
             // 0 = body, 1 = file
             $parts[1]->getRawContent()

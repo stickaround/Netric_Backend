@@ -7,7 +7,6 @@ import aereus.pipeline.SwarmServiceInspector
 import groovy.json.JsonSlurper
 def APPLICATION_VERSION = "v" + env.BUILD_NUMBER
 def DOCKERHUB_SERVER = "dockerhub.aereus.com"
-// 49152
 def PROJECT_NAME = 'netric'
 def dockerImage;
 def clientImage;

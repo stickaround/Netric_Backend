@@ -18,7 +18,7 @@ class MessageTest extends TestCase
     public $message;
 
     public function setUp(): void
-{
+    {
         $this->message = new Message();
     }
 
@@ -554,7 +554,7 @@ class MessageTest extends TestCase
         $this->message->setEncoding('UTF-8');
         $this->message->setBody($body);
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Content-Type: text/plain;' . Headers::FOLDING . 'charset="utf-8"' . Headers::EOL
             . 'Content-Transfer-Encoding: quoted-printable' . Headers::EOL,
             $this->message->getHeaders()->toString()
@@ -602,10 +602,10 @@ class MessageTest extends TestCase
 
         $text = $this->message->getBodyText();
         $this->assertEquals($body->generateMessage(Headers::EOL), $text);
-        $this->assertContains('--foo-bar', $text);
-        $this->assertContains('--foo-bar--', $text);
-        $this->assertContains('Content-Type: text/plain', $text);
-        $this->assertContains('Content-Type: text/html', $text);
+        $this->assertStringContainsString('--foo-bar', $text);
+        $this->assertStringContainsString('--foo-bar--', $text);
+        $this->assertStringContainsString('Content-Type: text/plain', $text);
+        $this->assertStringContainsString('Content-Type: text/html', $text);
     }
 
     public function testEncodingIsAsciiByDefault()
@@ -638,23 +638,23 @@ class MessageTest extends TestCase
         $test = $this->message->getHeaders()->toString();
 
         $expected = '=?UTF-8?Q?Netric=20DevTeam?=';
-        $this->assertContains($expected, $test);
-        $this->assertContains('<zf-devteam@example.com>', $test);
+        $this->assertStringContainsString($expected, $test);
+        $this->assertStringContainsString('<zf-devteam@example.com>', $test);
 
         $expected = "=?UTF-8?Q?Matthew=20Weier=20O'Phinney?=";
-        $this->assertContains($expected, $test, $test);
-        $this->assertContains('<matthew@example.com>', $test);
+        $this->assertStringContainsString($expected, $test, $test);
+        $this->assertStringContainsString('<matthew@example.com>', $test);
 
         $expected = '=?UTF-8?Q?Netric=20Contributors=20List?=';
-        $this->assertContains($expected, $test);
-        $this->assertContains('<zf-contributors@example.com>', $test);
+        $this->assertStringContainsString($expected, $test);
+        $this->assertStringContainsString('<zf-contributors@example.com>', $test);
 
         $expected = '=?UTF-8?Q?ZF=20CR=20Team?=';
-        $this->assertContains($expected, $test);
-        $this->assertContains('<zf-crteam@example.com>', $test);
+        $this->assertStringContainsString($expected, $test);
+        $this->assertStringContainsString('<zf-crteam@example.com>', $test);
 
         $expected = 'Subject: =?UTF-8?Q?This=20is=20a=20subject?=';
-        $this->assertContains($expected, $test);
+        $this->assertStringContainsString($expected, $test);
     }
 
     /**
@@ -742,8 +742,8 @@ class MessageTest extends TestCase
         $this->message->setSubject(implode(Headers::EOL, $subject));
 
         $serializedHeaders = $this->message->getHeaders()->toString();
-        $this->assertContains('example', $serializedHeaders);
-        $this->assertNotContains("\r\n<html>", $serializedHeaders);
+        $this->assertStringContainsString('example', $serializedHeaders);
+        $this->assertStringNotContainsString("\r\n<html>", $serializedHeaders);
     }
 
     public function testHeaderUnfoldingWorksAsExpectedForMultipartMessages()
@@ -777,7 +777,7 @@ class MessageTest extends TestCase
 
         $contentType = $this->message->getHeaders()->get('Content-Type');
         $this->assertInstanceOf('Netric\Mail\Header\ContentType', $contentType);
-        $this->assertContains('multipart/alternative', $contentType->getFieldValue());
-        $this->assertContains($multipartContent->getMime()->boundary(), $contentType->getFieldValue());
+        $this->assertStringContainsString('multipart/alternative', $contentType->getFieldValue());
+        $this->assertStringContainsString($multipartContent->getMime()->boundary(), $contentType->getFieldValue());
     }
 }

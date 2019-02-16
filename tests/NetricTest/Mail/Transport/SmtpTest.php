@@ -28,7 +28,7 @@ class SmtpTest extends TestCase
     public $connection;
 
     public function setUp(): void
-{
+    {
         $this->transport  = new Smtp();
         $this->connection = new SmtpProtocolSpy();
         $this->transport->setConnection($this->connection);
@@ -91,10 +91,10 @@ class SmtpTest extends TestCase
         $this->transport->send($message);
 
         $data = $this->connection->getLog();
-        $this->assertContains('MAIL FROM:<mailer@lists.zend.com>', $data);
-        $this->assertContains('RCPT TO:<matthew@zend.com>', $data);
-        $this->assertContains('RCPT TO:<zf-crteam@lists.zend.com>', $data);
-        $this->assertContains("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
+        $this->assertStringContainsString('MAIL FROM:<mailer@lists.zend.com>', $data);
+        $this->assertStringContainsString('RCPT TO:<matthew@zend.com>', $data);
+        $this->assertStringContainsString('RCPT TO:<zf-crteam@lists.zend.com>', $data);
+        $this->assertStringContainsString("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
     }
 
     public function testSendMailWithEnvelopeTo()
@@ -107,9 +107,9 @@ class SmtpTest extends TestCase
         $this->transport->send($message);
 
         $data = $this->connection->getLog();
-        $this->assertContains('MAIL FROM:<ralph.schindler@zend.com>', $data);
-        $this->assertContains('RCPT TO:<users@lists.zend.com>', $data);
-        $this->assertContains('To: Netric DevTeam <devteam@netric.com>', $data);
+        $this->assertStringContainsString('MAIL FROM:<ralph.schindler@zend.com>', $data);
+        $this->assertStringContainsString('RCPT TO:<users@lists.zend.com>', $data);
+        $this->assertStringContainsString('To: Netric DevTeam <devteam@netric.com>', $data);
     }
 
     public function testSendMailWithEnvelope()
@@ -126,9 +126,9 @@ class SmtpTest extends TestCase
         $this->assertEquals($to, $this->connection->getRecipients());
 
         $data = $this->connection->getLog();
-        $this->assertContains('MAIL FROM:<mailer@lists.zend.com>', $data);
-        $this->assertContains('RCPT TO:<users@lists.zend.com>', $data);
-        $this->assertContains('RCPT TO:<dev@lists.zend.com>', $data);
+        $this->assertStringContainsString('MAIL FROM:<mailer@lists.zend.com>', $data);
+        $this->assertStringContainsString('RCPT TO:<users@lists.zend.com>', $data);
+        $this->assertStringContainsString('RCPT TO:<dev@lists.zend.com>', $data);
     }
 
     public function testSendMinimalMail()
@@ -150,7 +150,7 @@ class SmtpTest extends TestCase
 
         $this->transport->send($message);
 
-        $this->assertContains($expectedMessage, $this->connection->getLog());
+        $this->assertStringContainsString($expectedMessage, $this->connection->getLog());
     }
 
     public function testReceivesMailArtifacts()
@@ -162,15 +162,15 @@ class SmtpTest extends TestCase
         $this->assertEquals($expectedRecipients, $this->connection->getRecipients());
 
         $data = $this->connection->getLog();
-        $this->assertContains('MAIL FROM:<ralph.schindler@zend.com>', $data);
-        $this->assertContains('To: Netric DevTeam <devteam@netric.com>', $data);
-        $this->assertContains('Subject: Testing Netric\Mail\Transport\Sendmail', $data);
-        $this->assertContains("Cc: matthew@zend.com\r\n", $data);
-        $this->assertNotContains("Bcc: \"CR-Team, ZF Project\" <zf-crteam@lists.zend.com>\r\n", $data);
-        $this->assertContains("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
-        $this->assertContains("X-Foo-Bar: Matthew\r\n", $data);
-        $this->assertContains("Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n", $data);
-        $this->assertContains("\r\n\r\nThis is only a test.", $data, $data);
+        $this->assertStringContainsString('MAIL FROM:<ralph.schindler@zend.com>', $data);
+        $this->assertStringContainsString('To: Netric DevTeam <devteam@netric.com>', $data);
+        $this->assertStringContainsString('Subject: Testing Netric\Mail\Transport\Sendmail', $data);
+        $this->assertStringContainsString("Cc: matthew@zend.com\r\n", $data);
+        $this->assertStringNotContainsString("Bcc: \"CR-Team, ZF Project\" <zf-crteam@lists.zend.com>\r\n", $data);
+        $this->assertStringContainsString("From: devteam@netric.com,\r\n Matthew <matthew@zend.com>\r\n", $data);
+        $this->assertStringContainsString("X-Foo-Bar: Matthew\r\n", $data);
+        $this->assertStringContainsString("Sender: Ralph Schindler <ralph.schindler@zend.com>\r\n", $data);
+        $this->assertStringContainsString("\r\n\r\nThis is only a test.", $data, $data);
     }
 
     public function testCanUseAuthenticationExtensionsViaPluginManager()

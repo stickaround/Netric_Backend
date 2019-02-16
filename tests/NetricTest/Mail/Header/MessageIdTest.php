@@ -32,7 +32,7 @@ class MessageIdTest extends TestCase
         $messageid = new Header\MessageId();
         $messageid->setId();
 
-        $this->assertContains('@', $messageid->getFieldValue());
+        $this->assertStringContainsString('@', $messageid->getFieldValue());
     }
 
 

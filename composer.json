@@ -4,14 +4,17 @@
   "license": "Commercial",
   "homepage": "http://www.netric.com/",
   "autoload": {
-    "psr-4": { "Netric\\": "src/Netric" }
+    "psr-4": {
+      "Netric\\": "src/Netric"
+    }
   },
   "scripts": {
-    "lint": ["@lint-phpmd", "@lint-phpcs"],
-    "lint-phpcs":
-      "./vendor/bin/phpcs -p --standard=PSR2 --report=checkstyle --report-file=./tests/tmp/checkstyle.xml ./src/Netric",
-    "lint-phpmd":
-      "./vendor/bin/phpmd ./src/Netric xml cleancode,codesize,controversial,design,naming,unusedcode --reportfile ./tests/tmp/pmd.xml"
+    "lint": [
+      "@lint-phpmd",
+      "@lint-phpcs"
+    ],
+    "lint-phpcs": "./vendor/bin/phpcs -p --standard=PSR2 --report=checkstyle --report-file=./tests/tmp/checkstyle.xml ./src/Netric",
+    "lint-phpmd": "./vendor/bin/phpmd ./src/Netric xml cleancode,codesize,controversial,design,naming,unusedcode --reportfile ./tests/tmp/pmd.xml"
   },
   "require": {
     "php": ">=7.2",

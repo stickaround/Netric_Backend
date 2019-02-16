@@ -10,6 +10,7 @@ use Netric\WorkFlow\DataMapper\DataMapperInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\WorkFlow\DataMapper\DataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\WorkFlow\Action\Exception\CircularChildActionsException;
 
 /**
  * Base tests for all actions
@@ -55,7 +56,7 @@ abstract class AbstractActionTests extends TestCase
      * Setup any dependencies
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
@@ -74,7 +75,7 @@ abstract class AbstractActionTests extends TestCase
      * Cleanup
      */
     protected function tearDown(): void
-{
+    {
         if ($this->testUser) {
             $this->entityLoader->delete($this->testUser, true);
         }
@@ -420,22 +421,20 @@ abstract class AbstractActionTests extends TestCase
 
     /**
      * Make sure an action cannot add itself
-     *
-     * @expectedException \Netric\WorkFlow\Action\Exception\CircularChildActionsException
      */
     public function testAddAction_NotSelf()
     {
+        $this->expectException(CircularChildActionsException::class);
         $action = $this->getAction();
         $action->addAction($action);
     }
 
     /**
      * Make sure a descendant never adds a parent
-     *
-     * @expectedException \Netric\WorkFlow\Action\Exception\CircularChildActionsException
      */
     public function testAddAction_NotSCircular()
     {
+        $this->expectException(CircularChildActionsException::class);
         $action = $this->getAction();
 
         // Create a test action

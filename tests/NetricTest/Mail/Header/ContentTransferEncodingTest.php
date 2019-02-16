@@ -1,15 +1,8 @@
 <?php
-/**
- * Netric Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Netric Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace NetricTest\Mail\Header;
 
 use Netric\Mail\Header\ContentTransferEncoding;
+use Netric\Mail\Header\Exception\InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -96,7 +89,7 @@ class ContentTransferEncodingTest extends TestCase
         $header->setTransferEncoding('quoted-printable');
         $string = $header->toString();
 
-        $this->assertContains("Content-Transfer-Encoding: quoted-printable", $string);
+        $this->assertStringContainsString("Content-Transfer-Encoding: quoted-printable", $string);
     }
 
     /**
@@ -120,11 +113,10 @@ class ContentTransferEncodingTest extends TestCase
     /**
      * @dataProvider headerLines
      * @group ZF2015-04
-     * @expectedException Netric\Mail\Header\Exception\InvalidArgumentException
      */
     public function testFromStringRaisesExceptionForInvalidMultilineValues($headerLine)
     {
-        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         ContentTransferEncoding::fromString($headerLine);
     }
 
@@ -133,7 +125,7 @@ class ContentTransferEncodingTest extends TestCase
      */
     public function testFromStringRaisesExceptionForContinuations()
     {
-        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException', 'expects');
+        $this->expectException(InvalidArgumentException::class);
         ContentTransferEncoding::fromString("Content-Transfer-Encoding: 8bit\r\n 7bit");
     }
 
@@ -143,7 +135,7 @@ class ContentTransferEncodingTest extends TestCase
     public function testSetTransferEncodingRaisesExceptionForInvalidValues()
     {
         $header = new ContentTransferEncoding();
-        $this->expectException('Netric\Mail\Header\Exception\InvalidArgumentException', 'expects');
+        $this->expectException(InvalidArgumentException::class);
         $header->setTransferEncoding("8bit\r\n 7bit");
     }
 }

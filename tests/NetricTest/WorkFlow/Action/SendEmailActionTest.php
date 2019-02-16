@@ -21,7 +21,7 @@ class SendEmailActionTest extends AbstractActionTests
      * Cleanup entities
      */
     protected function tearDown(): void
-{
+    {
         foreach ($this->testEntities as $entity) {
             $this->entityLoader->delete($entity, true);
         }
@@ -88,7 +88,7 @@ class SendEmailActionTest extends AbstractActionTests
             "Automated Email",
             $mailMessage->getSubject()
         );
-        $this->assertContains(
+        $this->assertStringContainsString(
             "Hello " . $user->getName(),
             $mailMessage->getBodyText()
         );

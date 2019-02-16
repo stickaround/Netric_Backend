@@ -19,11 +19,10 @@ class StopWorkflowActionTest extends AbstractActionTests
 
     /**
      * Make sure we can execute this action type and it works as designed
-     *
-     * @expectedException \RuntimeException
      */
     public function testExecute()
     {
+        $this->expectException(\RuntimeException::class);
         $action = $this->getAction();
 
         // Create a task that will email the owner when completed

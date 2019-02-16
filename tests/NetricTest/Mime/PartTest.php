@@ -26,7 +26,7 @@ class PartTest extends TestCase
     protected $testText;
 
     protected function setUp(): void
-{
+    {
         $this->testText = 'safdsafsa�lg ��gd�� sd�jg�sdjg�ld�gksd�gj�sdfg�dsj�gjsd�gj�dfsjg�dsfj�djs�g kjhdkj '
             . 'fgaskjfdh gksjhgjkdh gjhfsdghdhgksdjhg';
         $this->part = new Mime\Part($this->testText);
@@ -50,7 +50,7 @@ class PartTest extends TestCase
         $actual = $this->part->getHeaders();
 
         foreach ($expectedHeaders as $expected) {
-            $this->assertContains($expected, $actual);
+            $this->assertStringContainsString($expected, $actual);
         }
     }
 
@@ -77,22 +77,22 @@ class PartTest extends TestCase
 
         // Test Base64
         $fp = fopen($testfile, 'rb');
-        $this->assertInternalType('resource', $fp);
+        $this->assertIsResource($fp);
         $part = new Mime\Part($fp);
         $part->setEncoding(Mime\Mime::ENCODING_BASE64);
         $fp2 = $part->getEncodedStream();
-        $this->assertInternalType('resource', $fp2);
+        $this->assertIsResource($fp2);
         $encoded = stream_get_contents($fp2);
         fclose($fp);
         $this->assertEquals(base64_decode($encoded), $original);
 
         // test QuotedPrintable
         $fp = fopen($testfile, 'rb');
-        $this->assertInternalType('resource', $fp);
+        $this->assertIsResource($fp);
         $part = new Mime\Part($fp);
         $part->setEncoding(Mime\Mime::ENCODING_QUOTEDPRINTABLE);
         $fp2 = $part->getEncodedStream();
-        $this->assertInternalType('resource', $fp2);
+        $this->assertIsResource($fp2);
         $encoded = stream_get_contents($fp2);
         fclose($fp);
         $this->assertEquals(quoted_printable_decode($encoded), $original);

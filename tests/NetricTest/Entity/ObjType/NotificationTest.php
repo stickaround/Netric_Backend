@@ -58,7 +58,7 @@ class NotificationTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
+    {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
         $this->entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
@@ -85,7 +85,7 @@ class NotificationTest extends TestCase
      * Cleanup after each test
      */
     protected function tearDown(): void
-{
+    {
         // Make sure any test entities created are deleted
         foreach ($this->testEntities as $entity) {
             // Second param is a 'hard' delete which actually purges the data
@@ -142,7 +142,7 @@ class NotificationTest extends TestCase
         );
 
         // Make sure dropbox email is generated for replying to
-        $this->assertContains(
+        $this->assertStringContainsString(
             $this->account->getName() . "-com-task." . $task->getId(),
             $message->getFrom()->current()->getEmail()
         );

@@ -38,6 +38,6 @@ class AccountTest extends TestCase
 
         // Include the protocol
         $url = $account->getAccountUrl();
-        $this->assertContains("http", $url);
+        $this->assertStringContainsString("http", $url);
     }
 }

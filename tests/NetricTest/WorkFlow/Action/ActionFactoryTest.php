@@ -26,7 +26,7 @@ class ActionFactoryTest extends TestCase
     private $actionFactory = null;
 
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $sl = $this->account->getServiceManager();
         $this->actionFactory = new ActionFactory($sl);
@@ -43,11 +43,10 @@ class ActionFactoryTest extends TestCase
 
     /**
      * Check that trying to load a non-existing actions results in an exception
-     *
-     * @expectedException \Netric\WorkFlow\Action\Exception\ActionNotFoundException
      */
     public function testCreateNotFound()
     {
+        $this->expectException(ActionNotFoundException::class);
         $this->actionFactory->create("none-existing-action");
     }
 }

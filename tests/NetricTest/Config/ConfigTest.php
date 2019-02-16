@@ -7,6 +7,8 @@
 namespace NetricTest\Config;
 
 use Netric\Config\Config;
+use Netric\Config\Exception\ViolatedReadOnlyException;
+use Netric\Config\Exception\RuntimeException;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
@@ -63,38 +65,38 @@ class ConfigTest extends TestCase
 
     /**
      * Make sure we cannot write to a property once constructed
-     *
-     * @expectedException \Netric\Config\Exception\ViolatedReadOnlyException
      */
     public function testVerifyReadOnly()
     {
         $config = new Config(array("database"=>"test"));
+        
         // This is not allowed
+        $this->expectException(ViolatedReadOnlyException::class);
         $config->database = "my customvalue;";
     }
 
     /**
      * Make sure we cannot write to an unset property
-     *
-     * @expectedException \Netric\Config\Exception\ViolatedReadOnlyException
      */
     public function testVerifyReadOnlyWhenNotSet()
     {
         $config = new Config(array("database"=>"test"));
         // This should throw an exception
+        $this->expectException(ViolatedReadOnlyException::class);
         $config->notset = "my customvalue;";
     }
 
     /**
      * Make sure we can't set a property to an object
-     *
-     * @expectedException \Netric\Config\Exception\RuntimeException
      */
     public function testNotAllowObjects()
     {
         $genericObject = new \stdClass();
+        
         // This should throw an exception
+        $this->expectException(RuntimeException::class);
         $config = new Config(array("database"=>$genericObject));
+        $this->assertNotNull($config);
     }
 
     /**

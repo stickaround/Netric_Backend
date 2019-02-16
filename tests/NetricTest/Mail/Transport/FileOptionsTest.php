@@ -1,12 +1,4 @@
 <?php
-/**
- * Netric Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Netric Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace NetricTest\Mail\Transport;
 
 use Netric\Mail\Transport\FileOptions;
@@ -18,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class FileOptionsTest extends TestCase
 {
     public function setUp(): void
-{
+    {
         $this->options = new FileOptions();
     }
 
@@ -30,7 +22,7 @@ class FileOptionsTest extends TestCase
     public function testDefaultCallbackIsSetByDefault()
     {
         $callback = $this->options->getCallback();
-        $this->assertInternalType('callable', $callback);
+        $this->assertIsCallable($callback);
         $test     = call_user_func($callback, '');
         $this->assertRegExp('#^NetricMail_\d+_\d+\.eml$#', $test);
     }

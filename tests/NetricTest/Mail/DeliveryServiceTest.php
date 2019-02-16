@@ -63,7 +63,7 @@ class DeliveryServiceTest extends TestCase
      * Setup the service
      */
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $entityLoader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
 
@@ -102,7 +102,7 @@ class DeliveryServiceTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         $serviceLocator = $this->account->getServiceManager();
         // Delete the inbox
         $groupingsLoader = $serviceLocator->get(LoaderFactory::class);
@@ -154,9 +154,9 @@ class DeliveryServiceTest extends TestCase
         $this->testEntities[] = $emailMessage;
 
         // Check some snippets of text that should be in the hrml body
-        $this->assertContains("$2,399", $emailMessage->getValue("body"));
+        $this->assertStringContainsString("$2,399", $emailMessage->getValue("body"));
         // Make sure the body which is quoted-printable was decoded
-        $this->assertContains(
+        $this->assertStringContainsString(
             "td style=\"font-weight: bold; padding-top: 10px; padding-left: 12px;\"",
             $emailMessage->getValue("body")
         );
