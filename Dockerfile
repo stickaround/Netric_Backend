@@ -76,12 +76,12 @@ RUN cd /tmp \
 #    && docker-php-ext-enable xhprof
 
 # install PHP PEAR extensions
-# RUN pear install mail \
-#     && pear install Auth_SASL \
-#     && pear install HTTP_Request2 \
-#     && pear install File_IMC-0.5.0 \
-#     && pear install mail_mime \
-#     && pear install Net_SMTP
+RUN pear install mail \
+    && pear install Auth_SASL \
+    && pear install HTTP_Request2 \
+    && pear install File_IMC-0.5.0 \
+    && pear install mail_mime \
+    && pear install Net_SMTP
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer \

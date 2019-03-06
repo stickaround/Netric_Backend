@@ -10,7 +10,7 @@ services:
       APPLICATION_ENV: development
       RUN_SETUP_INSTALL: 1
       XDEBUG_CONFIG: "remote_host=${HOST_IP} remote_enable=1 remote_connect_back=0 remote_autostart=0"
-      PHP_IDE_CONFIG: "serverName=local.aereus.com"
+      PHP_IDE_CONFIG: "serverName=localhost"
     volumes:
       - ../:/var/www/html/
     depends_on:
