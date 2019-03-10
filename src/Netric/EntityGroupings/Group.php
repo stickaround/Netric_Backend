@@ -1,16 +1,5 @@
 <?php
-
-/**
- * This class represents a grouping field entry
- *
- * @cateogry Entity
- * @section Grouping
- * @author      Sky Stebnicki, sky.stebnicki@aereus.com
- * @copyright   Copyright (c) 2003-2013 Aereus Corporation (http://www.aereus.com)
- */
 namespace Netric\EntityGroupings;
-
-use Netric\EntityGroupings\Group;
 
 /**
  * Base grouping entry

@@ -98,8 +98,13 @@ return array(
             'subtype'=>'user',
             'default'=>array("value"=>UserEntity::USER_CURRENT, "on"=>"null")
         ),
-        'priority' => array(
+        'priority_id' => array(
             'title'=>'Priority',
+            'type'=>Field::TYPE_GROUPING,
+            'subtype'=>'object_groupings',
+        ),
+        'status_id' => array(
+            'title'=>'Status',
             'type'=>Field::TYPE_GROUPING,
             'subtype'=>'object_groupings',
         ),

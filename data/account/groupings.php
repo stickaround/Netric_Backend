@@ -42,6 +42,18 @@ return array(
             array("name"=>"Defect", "color"=>"AD2323"),
         )
     ),
+    'task' => array(
+        'status_id' => array(
+            array("name"=>"Todo", "sort_oder"=>1, "color"=>"2A4BD7"),
+            array("name"=>"In-Progress", "sort_oder"=>2, "color"=>"FF9233"),
+            array("name"=>"Completed", "sort_oder"=>6, "color"=>"1D6914"),
+        ),
+        'priority_id' => array(
+            array("name"=>"Low", "sort_oder"=>1, "color"=>"1D6914"),
+            array("name"=>"Medium", "sort_oder"=>2, "color"=>"1D6914"),
+            array("name"=>"High", "sort_oder"=>3, "color"=>"AD2323"),
+        ),
+    ),
     'marketing_campaign' => array(
         'type_id' => array(
             array("name"=>"Email", "color"=>"2A4BD7"),

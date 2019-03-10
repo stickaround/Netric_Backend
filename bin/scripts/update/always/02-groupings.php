@@ -6,16 +6,16 @@ use Netric\EntityGroupings\Group;
 use Netric\EntityGroupings\LoaderFactory;
 
 $account = $this->getAccount();
-if (!$account)
+if (!$account) {
     throw new \RuntimeException("This must be run only against a single account");
+}
 
 $defaultGroups= require(__DIR__ . "/../../../../data/account/groupings.php");
 
 $groupingsLoader = $account->getServiceManager()->get(LoaderFactory::class);
 
-foreach ($defaultGroups as $objType=>$fields) {
-    foreach ($fields as $fieldName=>$groupsData) {
-
+foreach ($defaultGroups as $objType => $fields) {
+    foreach ($fields as $fieldName => $groupsData) {
         // Get groupings for each objType and $fieldName
         $groupings = $groupingsLoader->get($objType, $fieldName);
 
@@ -32,14 +32,17 @@ foreach ($defaultGroups as $objType=>$fields) {
                 // Required data
                 $group->name = $groupData['name'];
 
-                if (isset($groupData['id']))
+                if (isset($groupData['id'])) {
                     $group->id = $groupData['id'];
+                }
 
-                if (isset($groupData['color']))
+                if (isset($groupData['color'])) {
                     $group->color = $groupData['color'];
-
-                if (isset($groupData['sort_oder']))
+                }
+                    
+                if (isset($groupData['sort_oder'])) {
                     $group->sortOrder = $groupData['sort_oder'];
+                }
 
                 $groupings->add($group);
             }
