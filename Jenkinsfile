@@ -25,7 +25,6 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
-                    sh 'ls -l tests/NetricTest/Controller/'
                     dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", "--no-cache .");
                 }
             }
@@ -40,15 +39,15 @@ pipeline {
                     }
                     
                     // Report on junit
-                    junit 'tests/tmp/junit.xml'
+                    junit '.reports/junit.xml'
 
                     // Send reports to server for code quality metrics
                     codeQualityReport(
                        repositoryName: 'netric.svc',
                        teamName: 'Netric',
-                       cloverFile: 'tests/tmp/clover.xml',
-                       pmdFile: 'tests/tmp/pmd.xml',
-                       checkStyleFile: 'tests/tmp/checkstyle.xml'
+                       cloverFile: '.reports/clover.xml',
+                       pmdFile: '.reports/pmd.xml',
+                       checkStyleFile: '.reports/checkstyle.xml'
                     )
                 }
                 script {

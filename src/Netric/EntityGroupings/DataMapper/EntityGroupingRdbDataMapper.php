@@ -286,8 +286,8 @@ class EntityGroupingRdbDataMapper implements EntityGroupingDataMapperInterface
         }
 
         if ($grp->isSystem && $this->database->columnExists($field->subtype, "f_system")) {
-            $tableData['f_system'] = $grp->isSystem;
-        }
+        $tableData['f_system'] = $grp->isSystem;
+    }
 
         if ($grp->sortOrder && $this->database->columnExists($field->subtype, "sort_order")) {
             $tableData['sort_order'] = $grp->sortOrder;

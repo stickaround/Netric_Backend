@@ -7,17 +7,16 @@ set -e
 export PHP_IDE_CONFIG="serverName=devel.netric.com"
 
 # Make sure permissions are set in generated data files
-chmod -R 777 /var/www/html/tests/tmp/
-chmod -R 777 /var/www/html/tests/data/
+chmod -R 777 /var/www/html/.reports/
+chmod -R 777 /var/www/html/test/data/
 
-cd /var/www/html/tests
-../vendor/bin/phpunit -c phpunit.xml -d memory_limit=256M $@
+cd /var/www/html
+vendor/bin/phpunit -d memory_limit=256M $@
 
 # Perform static analysis
-cd ..
 composer lint-phpcs || true
 composer lint-phpmd || true
 
 # Make sure permissions are set in generated data files
-chmod -R 777 /var/www/html/tests/tmp/
-chmod -R 777 /var/www/html/tests/data/
+chmod -R 777 /var/www/html/.reports/
+chmod -R 777 /var/www/html/test/data/

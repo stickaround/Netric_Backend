@@ -1,5 +1,0 @@
-deny from all
-
-<Files "CallPageWorkflow.php">
-    Allow from all
-</Files>

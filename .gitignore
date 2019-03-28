@@ -2,7 +2,9 @@
 #################
 *.local.ini
 
+# Temp directories
 .idea/
+.reports/
  
 # Packages #
 ############
@@ -44,12 +46,9 @@ nbproject/
 .project
 .settings
 
-
-# Composer *
-#################
-composer.lock
-
 # Vendor directory
 /vendor
-/tests/NetricTest/FileSystem/FileStore/tmp/
-tests/.phpunit.result.cache
+
+# Unit test files
+/test/NetricTest/FileSystem/FileStore/tmp/
+.phpunit.result.cache

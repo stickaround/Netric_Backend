@@ -10,6 +10,7 @@ namespace Netric\Entity\ObjType;
 use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\Entity;
 use Netric\Entity\EntityInterface;
+use Netric\EntityGroupings\Loader;
 
 /**
  * Task represents a single task entity
@@ -17,12 +18,25 @@ use Netric\Entity\EntityInterface;
 class TaskEntity extends Entity implements EntityInterface
 {
     /**
+     * Constant statuses
+     */
+    const STATUS_TODO = 'ToDo';
+    const STATUS_IN_PROGRESS = 'In-Progress';
+    const STATUS_COMPLETED = 'Completed';
+
+    /**
      * Callback function used for derrived subclasses
      *
      * @param \Netric\ServiceManager\AccountServiceManagerInterface $sm Service manager used to load supporting services
      */
     public function onBeforeSave(AccountServiceManagerInterface $sm)
     {
+        if ($this->getValue('status_id')) {
+            $this->setValue(
+                'done',
+                ($this->getValueName('status_id') === self::STATUS_COMPLETED)
+            );
+        }
     }
 
     /**

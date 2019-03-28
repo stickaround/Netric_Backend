@@ -24,8 +24,6 @@
  * $svr->setClass("ServerClassName");
  * $sve->run();
  *
- * // You can also refer to /tests/rpcsvr.php for a working example
- *
  * @category  ANT Library
  * @package   RpcSvr
  * @copyright Copyright (c) 2003-2014 Aereus Corporation (http://www.aereus.com)

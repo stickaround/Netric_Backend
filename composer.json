@@ -9,12 +9,18 @@
     }
   },
   "scripts": {
+    "lint-fix": "phpcbf",
+    "test": "vendor/bin/phpunit",
+    "test-ci": [
+      "@composer lint",
+      "@composer test"
+    ],
     "lint": [
       "@lint-phpmd",
       "@lint-phpcs"
     ],
-    "lint-phpcs": "./vendor/bin/phpcs -p --standard=PSR2 --report=checkstyle --report-file=./tests/tmp/checkstyle.xml ./src/Netric",
-    "lint-phpmd": "./vendor/bin/phpmd ./src/Netric xml cleancode,codesize,controversial,design,naming,unusedcode --reportfile ./tests/tmp/pmd.xml"
+    "lint-phpcs": "phpcs",
+    "lint-phpmd": "phpmd ./src/Netric xml ./phpmd.xml --reportfile .reports/pmd.xml"
   },
   "require": {
     "php": ">=7.2",
