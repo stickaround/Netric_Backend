@@ -4,7 +4,8 @@
 
 # Temp directories
 .idea/
-.reports/
+.reports/*
+!.reports/.gitkeep
  
 # Packages #
 ############
