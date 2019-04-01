@@ -1,4 +1,6 @@
 <?php
+use Netric\Entity\ObjType\TaskEntity;
+
 /**
  * Default groupings for entities
  *
@@ -44,9 +46,9 @@ return array(
     ),
     'task' => array(
         'status_id' => array(
-            array("name"=>"Todo", "sort_oder"=>1, "color"=>"2A4BD7"),
-            array("name"=>"In-Progress", "sort_oder"=>2, "color"=>"FF9233"),
-            array("name"=>"Completed", "sort_oder"=>6, "color"=>"1D6914"),
+            array("name"=>TaskEntity::STATUS_TODO, "sort_oder"=>1, "color"=>"2A4BD7"),
+            array("name"=>TaskEntity::STATUS_IN_PROGRESS, "sort_oder"=>2, "color"=>"FF9233"),
+            array("name"=>TaskEntity::STATUS_COMPLETED, "sort_oder"=>6, "color"=>"1D6914"),
         ),
         'priority_id' => array(
             array("name"=>"Low", "sort_oder"=>1, "color"=>"1D6914"),
