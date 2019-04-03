@@ -4,11 +4,9 @@
  */
 namespace NetricTest\Entity\ObjType;
 
-use Netric\Entity;
 use Netric\Entity\ObjType\UserEntity;
 use PHPUnit\Framework\TestCase;
 use NetricTest\Bootstrap;
-use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\TaskEntity;
 use Netric\EntityDefinition\ObjectTypes;
