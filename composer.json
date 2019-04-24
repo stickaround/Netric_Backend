@@ -19,7 +19,7 @@
       "@lint-phpmd",
       "@lint-phpcs"
     ],
-    "lint-phpcs": "phpcs",
+    "lint-phpcs": "phpcs || true",
     "lint-phpmd": "phpmd ./src/Netric xml ./phpmd.xml --reportfile .reports/pmd.xml || true"
   },
   "require": {
