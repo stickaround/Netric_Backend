@@ -31,6 +31,6 @@
 
     <!-- Paths to check -->
     <file>config</file>
-    <file>module</file>
+    <file>src/Netric</file>
     <file>public/index.php</file>
 </ruleset>
