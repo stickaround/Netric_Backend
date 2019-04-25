@@ -25,7 +25,6 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
-                    sh 'docker rmi $(docker images -a -q)'
                     dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", "--no-cache .");
                 }
             }
