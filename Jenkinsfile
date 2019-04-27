@@ -38,9 +38,6 @@ pipeline {
                         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
                     }
 
-                    sh 'ls -la .reports/'
-                    sh 'ls -la test/tmp'
-                    
                     // Report on junit
                     junit '.reports/junit.xml'
 
