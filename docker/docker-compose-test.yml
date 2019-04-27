@@ -62,8 +62,6 @@ services:
     image: 'dockerhub.aereus.com/mogilestore:latest'
     logging:
       driver: "json-file"
-    logging:
-      driver: "json-file"
   logstash:
     build: logstash/
     container_name: logstash
