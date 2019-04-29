@@ -168,6 +168,90 @@ class DeliveryService extends AbstractHasErrors
     }
 
     /**
+     * Import a message from a remote server into a netric entity
+     *
+     * @param UserEntity $user The user we are delivering on behalf of
+     * @param string $uniqueId the id of the message on the server
+     * @param string $filePath Path to the file containing the message to import
+     * @param EmailAccountEntity $emailAccount The account we are importing for
+     * @param int $mailboxId The mailbox to place the new imssage into
+     * @return int The imported message id, 0 on failure, and -1 if already imported
+     */
+    public function deliverMessageFromFile(
+        UserEntity $user,
+        string $uniqueId,
+        string $filePath,
+        EmailAccountEntity $emailAccount,
+        $mailboxId
+    ) {
+        $parser = new PhpMimeMailParser\Parser();
+        $parser->setPath($filePath);
+
+        // Create EmailMessageEntity and import Mail\Message
+        $emailEntity = $this->entityLoader->create("email_message");
+        $plainbody = $parser->getMessageBody('text');
+        $htmlbody = $parser->getMessageBody('html');
+
+        // Get char types
+        //$htmlCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("html"));
+        //$plainCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("text"));
+
+        $spamFlag = (trim(strtolower($parser->getHeader('x-spam-flag'))) == "yes") ? true : false;
+
+        // Make sure messages are unicode
+        /*
+        ini_set('mbstring.substitute_character', "none");
+        $plainbody= mb_convert_encoding($plainbody, 'UTF-8', $plainCharType);
+        $htmlbody= mb_convert_encoding($htmlbody, 'UTF-8', $htmlCharType);
+        */
+
+        $origDate = $parser->getHeader('date');
+        if (is_array($origDate)) {
+            $origDate = $origDate[count($origDate) - 1];
+        }
+        if (!strtotime($origDate) && $origDate) {
+            $origDate = substr($origDate, 0, strrpos($origDate, " "));
+        }
+        $messageDate = ($origDate) ? date(DATE_RFC822, strtotime($origDate)) : date(DATE_RFC822);
+
+        // Create new mail object and save it to ANT
+        $emailEntity->setValue("message_date", $messageDate);
+        $emailEntity->setValue("parse_rev", self::PARSE_REV);
+        $emailEntity->setValue("subject", $parser->getHeader('subject'));
+        $emailEntity->setValue("sent_from", $parser->getHeader('from'));
+        $emailEntity->setValue("send_to", $parser->getHeader('to'));
+        $emailEntity->setValue("cc", $parser->getHeader('cc'));
+        $emailEntity->setValue("bcc", $parser->getHeader('bcc'));
+        $emailEntity->setValue("in_reply_to", $parser->getHeader('in-reply-to'));
+        $emailEntity->setValue("flag_spam", $spamFlag);
+        $emailEntity->setValue("message_id", $parser->getHeader('message-id'));
+        if ($htmlbody) {
+            $emailEntity->setValue("body", $htmlbody);
+            $emailEntity->setValue("body_type", "html");
+        } else {
+            $emailEntity->setValue("body", $plainbody);
+            $emailEntity->setValue("body_type", "plain");
+        }
+
+        $attachments = $parser->getAttachments();
+        foreach ($attachments as $att) {
+            $this->importMailParseAtt($att, $emailEntity);
+        }
+
+        // Cleanup resources
+        $parser = null;
+
+        $emailEntity->setValue("email_account", $emailAccount->getId());
+        $emailEntity->setValue("owner_id", $user->getId());
+        $emailEntity->setValue("mailbox_id", $mailboxId);
+        $emailEntity->setValue("message_uid", $uniqueId);
+        $emailEntity->setValue("flag_seen", false);
+        $mailId = $this->entityLoader->save($emailEntity);
+
+        return $mailId;
+    }
+
+    /**
      * @deprecated We now use importMailParse
      *
      * @param Storage\Part $mime
