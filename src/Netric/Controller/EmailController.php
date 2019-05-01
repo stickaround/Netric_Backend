@@ -81,4 +81,29 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         $response->write(['result' => $sentStatus]);
         return $response;
     }
+
+    /**
+     * Deliver a new email message
+     *
+     * @param HttpRequest $request Request object for this run
+     * @return HttpResponse
+     */
+    public function postReceiveAction(HttpRequest $request): HttpResponse
+    {
+        $response = new HttpResponse($request);
+
+        $uploadedMessageFile = $request->getParam('message');
+
+        if (!is_uploaded_file($uploadedMessageFile['tmp_name'])) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write("RAW message missing or failed to upload");
+            return $response;
+        }
+
+
+        // TODO: Stream inbound file
+        // $rawBody = $request->getBody();
+
+        return $response;
+    }
 }

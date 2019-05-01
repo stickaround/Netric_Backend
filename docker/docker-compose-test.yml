@@ -5,7 +5,7 @@ services:
     environment:
       APPLICATION_ENV: testing
     volumes:
-      - '.reports:/var/www/html/.reports'
+      - '../.reports:/var/www/html/.reports'
     depends_on:
       - memcached
       - gearmand
@@ -60,8 +60,6 @@ services:
       driver: "json-file"
   mogilestore:
     image: 'dockerhub.aereus.com/mogilestore:latest'
-    logging:
-      driver: "json-file"
     logging:
       driver: "json-file"
   logstash:

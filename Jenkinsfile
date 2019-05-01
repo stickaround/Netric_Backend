@@ -37,7 +37,7 @@ pipeline {
                         sh 'docker-compose -f docker/docker-compose-test.yml build --no-cache'
                         sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
                     }
-                    
+
                     // Report on junit
                     junit '.reports/junit.xml'
 
