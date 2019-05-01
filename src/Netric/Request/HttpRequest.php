@@ -140,7 +140,7 @@ class HttpRequest implements RequestInterface
      * Set/override a param
      *
      * @param string $name
-     * @param string $value
+     * @param string|array $value
      */
     public function setParam($name, $value)
     {

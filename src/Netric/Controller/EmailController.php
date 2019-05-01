@@ -1,12 +1,15 @@
 <?php
 namespace Netric\Controller;
 
+use Netric\Log\LogInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\Application\Response\HttpResponse;
 use Netric\Request\HttpRequest;
 use Netric\Entity\EntityLoader;
 use Netric\Mail\SenderService;
+use Netric\Mail\DeliveryService;
 use Netric\Mvc\AbstractFactoriedController;
+use RuntimeException;
 
 /**
  * Controller for interacting with entities
@@ -28,15 +31,42 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     private $senderService;
 
     /**
+     * Delivery service saves imported messages
+     *
+     * @var DeliveryService
+     */
+    private $deliveryService;
+
+    /**
+     * @var LogInterface
+     */
+    private $log;
+
+    /**
+     * If in test mode, we don't do file upload validation
+     *
+     * @var bool
+     */
+    public $testMode = false;
+
+    /**
      * Initialize controller and all dependencies
      *
      * @param EntityLoader $entityLoader
      * @param SenderService $senderService
+     * @param DeliveryService $deliveryService
+     * @param LogInterface $log
      */
-    public function __construct(EntityLoader $entityLoader, SenderService $senderService)
-    {
+    public function __construct(
+        EntityLoader $entityLoader,
+        SenderService $senderService,
+        DeliveryService $deliveryService,
+        LogInterface $log
+    ) {
         $this->entityLoader = $entityLoader;
         $this->senderService = $senderService;
+        $this->deliveryService = $deliveryService;
+        $this->log = $log;
     }
 
     /**
@@ -83,7 +113,11 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     }
 
     /**
-     * Deliver a new email message
+     * Deliver a email message
+     *
+     * This is normally called from the SMTP server to deliver a message to
+     * a known recipient. However, it is entirely possible to call it directly
+     * for delivery if bypassing an SMTP gateway is needed.
      *
      * @param HttpRequest $request Request object for this run
      * @return HttpResponse
@@ -92,18 +126,37 @@ class EmailController extends AbstractFactoriedController implements ControllerI
     {
         $response = new HttpResponse($request);
 
+        // Messages are sent as a multipart form with a file param called 'message'
         $uploadedMessageFile = $request->getParam('message');
+        $recipient = $request->getParam('recipient');
 
-        if (!is_uploaded_file($uploadedMessageFile['tmp_name'])) {
+        if (!$recipient || !is_array($uploadedMessageFile)) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write("RAW message missing or failed to upload");
+            $response->write(['error' => "Params 'message' and 'recipient' are required"]);
             return $response;
         }
 
+        // Make sure the file was uploaded by PHP (or we're in a unit test with testMode)
+        if (!is_uploaded_file($uploadedMessageFile['tmp_name']) && !$this->testMode) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => "RAW message missing or failed to upload"]);
+            return $response;
+        }
 
-        // TODO: Stream inbound file
-        // $rawBody = $request->getBody();
-
-        return $response;
+        // Try to import message
+        try {
+            $messageGuid = $this->deliveryService->deliverMessageFromFile($recipient, $uploadedMessageFile['tmp_name']);
+            $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
+            $response->write(['result'=>true, 'guid' => $messageGuid]);
+            return $response;
+        } catch (RuntimeException $exception) {
+            $this->log->error(
+                "EmailController::postReceiveAction: failed to deliver message to $recipient - " .
+                $exception->getMessage()
+            );
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => $exception->getMessage()]);
+            return $response;
+        }
     }
 }

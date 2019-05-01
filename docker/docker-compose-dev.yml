@@ -51,24 +51,6 @@ services:
     image: kendu/gearman
     depends_on:
       - memcached
-      - db1
-    environment:
-      DB_USER: vagrant
-      DB_PASSWORD: vagrant
-      DB_HOST: db1
-      DB_NAME: antsystem
-      DB_PORT: 5432
-    entrypoint:
-      [
-        "gearmand",
-        "--libpq-conninfo",
-        "hostaddr=db1 port=5432 dbname=gearman user=vagrant password=vagrant",
-        "--libpq-table=queue_netric",
-        "--verbose",
-        "DEBUG",
-        "-q",
-        "Postgres",
-      ]
 
   db1:
     image: dockerhub.aereus.com/pgsql:latest

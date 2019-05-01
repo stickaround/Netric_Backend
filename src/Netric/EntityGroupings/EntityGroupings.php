@@ -125,6 +125,7 @@ class EntityGroupings
      * Get a group that is hierarchical by path
      *
      * @param string $path The full path to a grouping separated by '/'
+     * @return Group
      */
     public function getByPath($path)
     {

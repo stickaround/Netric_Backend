@@ -5,6 +5,7 @@
  */
 namespace Netric\Mail;
 
+use Netric\EntityGroupings\Group;
 use Netric\EntityQuery;
 use Netric\Error\AbstractHasErrors;
 use Netric\Entity\ObjType\EmailAccountEntity;
@@ -13,11 +14,12 @@ use Netric\FileSystem\FileSystem;
 use Netric\Log\Log;
 use Netric\EntityGroupings\Loader as GroupingsLoader;
 use Netric\Entity\ObjType\EmailMessageEntity;
-use Netric\Mail\Storage;
+use Netric\Mail\Exception\AddressNotFoundException;
 use Netric\Mail;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Mime;
+use Netric\EntityDefinition\ObjectTypes;
 use PhpMimeMailParser;
 
 /**
@@ -170,20 +172,37 @@ class DeliveryService extends AbstractHasErrors
     /**
      * Import a message from a remote server into a netric entity
      *
-     * @param UserEntity $user The user we are delivering on behalf of
-     * @param string $uniqueId the id of the message on the server
+     * @param string $emailAddress The address to deliver to
      * @param string $filePath Path to the file containing the message to import
-     * @param EmailAccountEntity $emailAccount The account we are importing for
-     * @param int $mailboxId The mailbox to place the new imssage into
      * @return int The imported message id, 0 on failure, and -1 if already imported
      */
     public function deliverMessageFromFile(
-        UserEntity $user,
-        string $uniqueId,
-        string $filePath,
-        EmailAccountEntity $emailAccount,
-        $mailboxId
-    ) {
+        string $emailAddress,
+        string $filePath
+    ): string {
+        // First get the email account from the address
+        $emailAccount = $this->getEmailAccountFromAddress($emailAddress);
+        if (!$emailAccount) {
+            throw new AddressNotFoundException("$emailAddress not found");
+        }
+
+        // Get user entity from email account
+        $user = $this->entityLoader->get(ObjectTypes::USER, $emailAccount->getOwnerId());
+
+        // Get Inbox for user
+        $mailboxGroups = $this->groupingsLoader->get(
+            ObjectTypes::EMAIL_MESSAGE,
+            'mailbox_id',
+            ['user_id' => $user->getId()]
+        );
+        $inboxGroup = $mailboxGroups->getByPath('Inbox');
+        if (!$inboxGroup) {
+            // User exists, we need to create the inbox
+            $inboxGroup = $this->createInbox($emailAccount);
+        }
+        $mailboxId = $inboxGroup->id;
+
+        // Ready to deliver the message, create a parser and point it to the email message file
         $parser = new PhpMimeMailParser\Parser();
         $parser->setPath($filePath);
 
@@ -192,14 +211,16 @@ class DeliveryService extends AbstractHasErrors
         $plainbody = $parser->getMessageBody('text');
         $htmlbody = $parser->getMessageBody('html');
 
-        // Get char types
-        //$htmlCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("html"));
-        //$plainCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("text"));
+        // Create a unique ID from hashing the file
+        $uniqueId = hash_file('md5', $filePath);
 
+        // Check if the message was flagged as spam by the spam filters
         $spamFlag = (trim(strtolower($parser->getHeader('x-spam-flag'))) == "yes") ? true : false;
 
         // Make sure messages are unicode
         /*
+        $htmlCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("html"));
+        $plainCharType = $this->getCharTypeFromHeaders($parser->getMessageBodyHeaders("text"));
         ini_set('mbstring.substitute_character', "none");
         $plainbody= mb_convert_encoding($plainbody, 'UTF-8', $plainCharType);
         $htmlbody= mb_convert_encoding($htmlbody, 'UTF-8', $htmlCharType);
@@ -228,7 +249,7 @@ class DeliveryService extends AbstractHasErrors
         if ($htmlbody) {
             $emailEntity->setValue("body", $htmlbody);
             $emailEntity->setValue("body_type", "html");
-        } else {
+        } elseif ($plainbody) {
             $emailEntity->setValue("body", $plainbody);
             $emailEntity->setValue("body_type", "plain");
         }
@@ -240,15 +261,13 @@ class DeliveryService extends AbstractHasErrors
 
         // Cleanup resources
         $parser = null;
-
         $emailEntity->setValue("email_account", $emailAccount->getId());
         $emailEntity->setValue("owner_id", $user->getId());
         $emailEntity->setValue("mailbox_id", $mailboxId);
         $emailEntity->setValue("message_uid", $uniqueId);
         $emailEntity->setValue("flag_seen", false);
-        $mailId = $this->entityLoader->save($emailEntity);
-
-        return $mailId;
+        $this->entityLoader->save($emailEntity);
+        return $emailEntity->getValue('guid');
     }
 
     /**
@@ -532,5 +551,48 @@ class DeliveryService extends AbstractHasErrors
     private function importProcessAutoResp()
     {
         // TODO: add auto-responder
+    }
+
+    /**
+     * Get an email account from an address if it exists
+     *
+     * @param string $emailAddress
+     * @return EmailAccountEntity|null
+     */
+    private function getEmailAccountFromAddress(string $emailAddress): ?EmailAccountEntity
+    {
+        // Check to make sure this message was not already imported - no duplicates
+        $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT);
+        $query->where("address")->equals($emailAddress);
+        $result = $this->entityIndex->executeQuery($query);
+        $num = $result->getNum();
+        if (!$num) {
+            return null;
+        }
+
+        return $result->getEntity(0);
+    }
+
+    /**
+     * Create an Inbox group
+     *
+     * @param EmailAccountEntity $emailAccount
+     * @return Group
+     */
+    private function createInbox(EmailAccountEntity $emailAccount): Group
+    {
+        $groupings = $this->groupingsLoader->get(
+            ObjectTypes::EMAIL_MESSAGE,
+            "mailbox_id",
+            ["user_id" => $emailAccount->getOwnerId()]
+        );
+
+        $inbox = new Group();
+        $inbox->name = "Inbox";
+        $inbox->isSystem = true;
+        $inbox->user_id = $emailAccount->getOwnerId();
+        $groupings->add($inbox);
+        $this->groupingsLoader->save($groupings);
+        return $groupings->getByPath("Inbox");
     }
 }

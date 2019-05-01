@@ -5,7 +5,9 @@ use Netric\Mvc\ControllerFactoryInterface;
 use Netric\Mvc\ControllerInterface;
 use Netric\ServiceManager\ServiceLocatorInterface;
 use Netric\Mail\SenderServiceFactory;
+use Netric\Mail\DeliveryServiceFactory;
 use Netric\Entity\EntityLoaderFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Construct the EmailController for itneracting with email messages
@@ -22,6 +24,8 @@ class EmailControllerFactory implements ControllerFactoryInterface
     {
         $entityLoader = $serviceLocator->get(EntityLoaderFactory::class);
         $senderService = $serviceLocator->get(SenderServiceFactory::class);
-        return new EmailController($entityLoader, $senderService);
+        $deliveryService = $serviceLocator->get(DeliveryServiceFactory::class);
+        $log = $serviceLocator->get(LogFactory::class);
+        return new EmailController($entityLoader, $senderService, $deliveryService, $log);
     }
 }
