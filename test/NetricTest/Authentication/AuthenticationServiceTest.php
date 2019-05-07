@@ -10,6 +10,7 @@ use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use ReflectionException;
 
 /**
  * @group integration
@@ -46,8 +47,15 @@ class AuthenticationServiceTest extends TestCase
     const TEST_USER = "test_auth";
     const TEST_USER_PASS = "testpass";
 
+    /**
+     * Example private key to use for NTRC-PVK method
+     *
+     * @const string
+     */
+    const PRIVATE_KEY = "427846f9-4490-488e-b6dc-cc059297de0f";
+
     protected function setUp(): void
-{
+    {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
         
@@ -75,7 +83,7 @@ class AuthenticationServiceTest extends TestCase
     }
 
     protected function tearDown(): void
-{
+    {
         if ($this->user) {
             $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
             $dm->delete($this->user, true);
@@ -180,7 +188,7 @@ class AuthenticationServiceTest extends TestCase
 
         $sessionStr = $this->authService->getSignedSession($this->user->getId(), $expires, $pass, $salt);
 
-        // Create a mock request and pretend $sessionStr was in the 'Authenticaton' header field
+        // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
         $req = $this->getMockBuilder(RequestInterface::class)
                      ->getMock();
         $req->method('getParam')->willReturn($sessionStr);
@@ -190,4 +198,26 @@ class AuthenticationServiceTest extends TestCase
         $authUserId = $this->authService->getIdentity();
         $this->assertEquals($this->user->getId(), $authUserId);
     }
+
+    /**
+     * Make sure we can get an identity from a shared private key
+     *
+     * This is used for service-to-service calls only. The private key
+     * will never be shared outside of our service network.
+     *
+     * @throws ReflectionException
+     */
+//    public function testGetIdentityPrivateKey()
+//    {
+//        $authToken = AuthenticationService::METHOD_PRIVATE_KEY . " " . self::PRIVATE_KEY;
+//
+//        // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
+//        $req = $this->getMockBuilder(RequestInterface::class)->getMock();
+//        $req->method('getParam')->willReturn($authToken);
+//        $this->authService->setRequest($req);
+//
+//        // Now get the identity (userid) of the authenticated user
+//        $authUserId = $this->authService->getIdentity();
+//        $this->assertEquals($this->user->getId(), $authUserId);
+//    }
 }

@@ -18,7 +18,7 @@ class AuthenticationServiceFactory implements ServiceManager\AccountServiceFacto
      * Service creation factory
      *
      * @param AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
-     * @return FileSystem
+     * @return AuthenticationService
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
