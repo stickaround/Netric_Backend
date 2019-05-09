@@ -58,7 +58,8 @@ class AuthenticationServiceTest extends TestCase
     {
         $this->account = \NetricTest\Bootstrap::getAccount();
         $this->authService = $this->account->getServiceManager()->get(AuthenticationServiceFactory::class);
-        
+        $this->authService->setPrivateKey(self::PRIVATE_KEY);
+
         // Setup entity datamapper for handling users
         $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
@@ -207,17 +208,36 @@ class AuthenticationServiceTest extends TestCase
      *
      * @throws ReflectionException
      */
-//    public function testGetIdentityPrivateKey()
-//    {
-//        $authToken = AuthenticationService::METHOD_PRIVATE_KEY . " " . self::PRIVATE_KEY;
-//
-//        // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
-//        $req = $this->getMockBuilder(RequestInterface::class)->getMock();
-//        $req->method('getParam')->willReturn($authToken);
-//        $this->authService->setRequest($req);
-//
-//        // Now get the identity (userid) of the authenticated user
-//        $authUserId = $this->authService->getIdentity();
-//        $this->assertEquals($this->user->getId(), $authUserId);
-//    }
+    public function testGetIdentityPrivateKey()
+    {
+        $authHeader = AuthenticationService::METHOD_PRIVATE_KEY . " " . self::PRIVATE_KEY;
+
+        // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
+        $req = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $req->method('getParam')->willReturn($authHeader);
+        $this->authService->setRequest($req);
+
+        // Make sure the system user was loaded
+        $authUserId = $this->authService->getIdentity();
+        $this->assertNotNull($authUserId, "UserId for system user not found");
+    }
+
+    /**
+     * Verify that a bad private key will result in no identity being returned
+     *
+     * @throws ReflectionException
+     */
+    public function testGetIdentityPrivateKeyWithBadKey()
+    {
+        $authHeader = AuthenticationService::METHOD_PRIVATE_KEY . " BADKEY";
+
+        // Create a mock request and pretend $sessionStr was in the 'Authentication' header field
+        $req = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $req->method('getParam')->willReturn($authHeader);
+        $this->authService->setRequest($req);
+
+        // Make sure the system user was loaded
+        $authUserId = $this->authService->getIdentity();
+        $this->assertNull($authUserId);
+    }
 }

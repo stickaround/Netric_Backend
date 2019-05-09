@@ -7,14 +7,13 @@
  */
 namespace Netric\Authentication;
 
-use Netric\ServiceManager;
+use Netric\Authentication\Token\AuthenticationTokenInterface;
 use Netric\Entity\EntityLoader;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexInterface;
 use Netric\Request\RequestInterface;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Authentication\Token\PrivateKeyToken;
-use Netric\Authentication\Token\HmacToken;
 
 /**
  * Authenticate an external request
@@ -163,7 +162,14 @@ class AuthenticationService
             return $this->validatedIdentityUid;
         }
 
-        // TODO: Try loading up a mechanism here
+        // Try loading up a mechanism token here (newer approach)
+        $token = $this->getTokenFromRequest();
+        if ($token && $token->tokenIsValid()) {
+            $userGuid = $token->getUserGuid();
+            $user = $this->userLoader->getByGuid($userGuid);
+            $this->validatedIdentityUid = $user->getId();
+            return $user->getId();
+        }
 
         /*
          * Get auth data array which is a : separated string
@@ -264,6 +270,16 @@ class AuthenticationService
 
         // Create a session string
         return $this->getSignedSession($user->getId(), $this->getExpiresTs(), $hashedPass, $salt);
+    }
+
+    /**
+     * Set the private key used for encryption
+     *
+     * @param string $privateKey
+     */
+    public function setPrivateKey(string $privateKey)
+    {
+        $this->privateKey = $privateKey;
     }
 
     /**
@@ -429,30 +445,34 @@ class AuthenticationService
     /**
      * Get instance of auth token from header or supplied param
      */
-//    private function getTokenFromRequest()
-//    {
-//        // Get authentication from either headers/get/post
-//        $fullAuthHeader = $this->request->getParam("Authentication");
-//
-//        // Make sure the auth token exists and is at least 9 chars (length of method and space)
-//        if (!$fullAuthHeader || strlen($fullAuthHeader) < 9) {
-//            // TODO: throw an exception
-//        }
-//
-//        // Check if legacy header was passed (with no method)
+    private function getTokenFromRequest():? AuthenticationTokenInterface
+    {
+        // Get authentication from either headers/get/post
+        $fullAuthHeader = $this->request->getParam("Authentication");
+
+        // Make sure the auth token exists and is at least 9 chars (length of method and space)
+        if (!$fullAuthHeader || strlen($fullAuthHeader) < 9) {
+            // TODO: throw an exception?
+            return null;
+        }
+
+        // Check if legacy header was passed (with no method)
 //        if (substr($fullAuthHeader, 0, 5) != 'NTRC-') {
 //            // Return default token
 //            return new HmacToken($fullAuthHeader);
 //        }
-//
-//        list($methodName, $token) = explode(" ", $fullAuthHeader);
-//        switch ($methodName) {
-//            case self::METHOD_PRIVATE_KEY:
-//                return new PrivateKeyToken($this->privateKey, $token);
-//                break;
-//        }
-//
-//        // Default to HMAC
-//        return new HmacToken($this->privateKey, $token);
-//    }
+
+        list($methodName, $token) = explode(" ", $fullAuthHeader);
+        switch ($methodName) {
+            case self::METHOD_PRIVATE_KEY:
+                return new PrivateKeyToken($this->privateKey, $token);
+                break;
+        }
+
+        // TODO: Default to HMAC
+        // Once we move all the HMAC logic in this service to an external class, we'll
+        // just return it as a default here.
+        //return new HmacToken($this->privateKey, $token);
+        return null;
+    }
 }
