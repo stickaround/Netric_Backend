@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="NetricTest\Controller\EmailControllerTest" file="/var/www/html/tests/NetricTest/Controller/EmailControllerTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.263574">
+    <testcase name="testPostSendAction" class="NetricTest\Controller\EmailControllerTest" classname="NetricTest.Controller.EmailControllerTest" file="/var/www/html/tests/NetricTest/Controller/EmailControllerTest.php" line="23" assertions="1" time="0.263574"/>
+  </testsuite>
+</testsuites>

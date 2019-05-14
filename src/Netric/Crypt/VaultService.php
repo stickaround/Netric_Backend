@@ -1,14 +1,10 @@
 <?php
-/**
- * @author Sky Stebnicki <sky.stebnicki@aereus.com>
- * @copyright 2016 Aereus
- */
 namespace Netric\Crypt;
 
 use RuntimeException;
 
 /**
- * Service for securely storing and retrieving shared secrets
+ * Service for securely retrieving shared secrets
  */
 class VaultService
 {
@@ -43,7 +39,7 @@ class VaultService
         if (!file_exists($filePath)) {
             throw new RuntimeException("Vault file not found: " . $filePath);
         }
-        
+
         return file_get_contents($filePath);
         //return "fdsagfdaahah354h6gf4s3h2fgs65h46";
     }

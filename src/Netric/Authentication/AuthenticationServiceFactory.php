@@ -6,6 +6,7 @@ use Netric\ServiceManager\AccountServiceManagerInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\Request\RequestFactory;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Crypt\VaultServiceFactory;
 
 /**
  * Create an authentication service
@@ -22,10 +23,13 @@ class AuthenticationServiceFactory implements ServiceManager\AccountServiceFacto
      */
     public function createService(AccountServiceManagerInterface $sl)
     {
-        $key = "GENERATEDSERVERSIDEKEY";
+
         $userIndex = $sl->get(IndexFactory::class);
         $userLoader = $sl->get(EntityLoaderFactory::class);
         $request = $sl->get(RequestFactory::class);
+
+        $vault = $sl->get(VaultServiceFactory::classe);
+        $key = $vault->getSecret("auth_private_key");
 
         return new AuthenticationService($key, $userIndex, $userLoader, $request);
     }
