@@ -5,21 +5,24 @@
  */
 namespace Netric\Crypt;
 
-use Netric\ServiceManager;
+use Netric\Config\ConfigFactory;
+use Netric\ServiceManager\ApplicationServiceFactoryInterface;
+use Netric\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Create a service for getting and setting secrets
  */
-class VaultServiceFactory implements ServiceManager\AccountServiceFactoryInterface
+class VaultServiceFactory implements ApplicationServiceFactoryInterface
 {
     /**
      * Service creation factory
      *
-     * @param ServiceManager\AccountServiceManagerInterface $sl ServiceLocator for injecting dependencies
+     * @param ServiceLocatorInterface $serviceLocator ServiceLocator for injecting dependencies
      * @return VaultService
      */
-    public function createService(ServiceManager\AccountServiceManagerInterface $sl)
+    public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        return new VaultService();
+        $config = $serviceLocator->get(ConfigFactory::class);
+        return new VaultService($config->vault_dir);
     }
 }

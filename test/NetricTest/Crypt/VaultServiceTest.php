@@ -12,6 +12,6 @@ class VaultServiceTest extends TestCase
         $account = Bootstrap::getAccount();
         $sl = $account->getServiceManager();
         $vaultService = $sl->get(VaultServiceFactory::class);
-        $this->assertNotEmpty($vaultService->getSecret("My Test Key"));
+        $this->assertNotEmpty($vaultService->getSecret("EntityEnc"));
     }
 }
