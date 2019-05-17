@@ -5,7 +5,7 @@ namespace Netric\Db\Relational;
 use Netric\Db\Relational\Exception\DatabaseQueryException;
 
 /**
- * Database for PGSQL
+ * Database for PostgreSQL
  */
 class PgsqlDb extends AbstractRelationalDb implements RelationalDbInterface
 {
