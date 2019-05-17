@@ -11,6 +11,9 @@ services:
       APPLICATION_VER: ${APPLICATION_VER}
     ports:
       - 10001:80
+    secrets:
+    - auth_private_key
+    - entityenc
     deploy:
       replicas: 2
       placement:
@@ -42,3 +45,9 @@ networks:
     external: false
   service_netric:
     external: true
+
+secrets:
+  entityenc:
+    file: /var/aereusdata/secrets/netric/entityenc
+  auth_private_key:
+    file: /var/aereusdata/secrets/netric/auth_private_key
