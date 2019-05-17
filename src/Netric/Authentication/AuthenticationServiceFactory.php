@@ -28,7 +28,7 @@ class AuthenticationServiceFactory implements ServiceManager\AccountServiceFacto
         $userLoader = $sl->get(EntityLoaderFactory::class);
         $request = $sl->get(RequestFactory::class);
 
-        $vault = $sl->get(VaultServiceFactory::classe);
+        $vault = $sl->get(VaultServiceFactory::class);
         $key = $vault->getSecret("auth_private_key");
 
         return new AuthenticationService($key, $userIndex, $userLoader, $request);
