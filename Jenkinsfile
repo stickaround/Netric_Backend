@@ -131,7 +131,6 @@ pipeline {
 
         stage('Production') {
             steps {
-                // Call stack deploy to upgrade
                 script {
                     script {
                         deployToSwarm(
