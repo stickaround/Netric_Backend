@@ -75,6 +75,7 @@
         <fieldset name="Dates">
             <row>
                 <column>
+                    <field name='start_date' tooltip='Date when this task should be starting.'></field>
                     <field name='deadline' tooltip='Optional due date for the completion of this task.'></field>
                     <field name='date_completed'></field>
                 </column>
