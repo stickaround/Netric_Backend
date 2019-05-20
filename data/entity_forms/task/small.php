@@ -1,7 +1,6 @@
 <field name='name' hidelabel="t" class='headline'></field>
 <field name='done'></field>
 <field name='deadline'></field>
-<field name='start_date'></field>
 <recurrence></recurrence>
 <field name='user_id'></field>
 <field name='priority'></field>

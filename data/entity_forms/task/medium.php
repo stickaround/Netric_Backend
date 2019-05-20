@@ -10,7 +10,6 @@
             <row>
                 <column>
                     <field name='done'></field>
-                    <field name='start_date' tooltip='Date when this task should be starting.'></field>
                     <field name='deadline' tooltip='Optional due date for the completion of this task.'></field>
                     <field name='priority'></field>
                     <field name='category'></field>
