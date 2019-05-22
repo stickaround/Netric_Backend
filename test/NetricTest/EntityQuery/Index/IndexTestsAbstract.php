@@ -169,27 +169,27 @@ abstract class IndexTestsAbstract extends TestCase
         $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
         $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 
-        $taskDef = $entityDefinitionLoader->get(ObjectTypes::TASK);
-        $userIdField = $taskDef->getField("user_id");
+        $projectDef = $entityDefinitionLoader->get(ObjectTypes::PROJECT);
+        $userIdField = $projectDef->getField("user_id");
 
         $sanitizedValue = $index->sanitizeWhereCondition($userIdField, UserEntity::USER_CURRENT);
         $this->assertEquals($sanitizedValue, $this->user->getId());
 
-        // Now let's create a task entity and set the value of user_id to current user's id
-        $taskEntity = $entityLoader->create(ObjectTypes::TASK);
-        $taskEntity->setValue("user_id", $this->user->getId());
-        $entityLoader->save($taskEntity);
+        // Now let's create a project entity and set the value of user_id to current user's id
+        $projectEntity = $entityLoader->create(ObjectTypes::PROJECT);
+        $projectEntity->setValue("user_id", $this->user->getId());
+        $entityLoader->save($projectEntity);
 
-        $this->testEntities[] = $taskEntity;
+        $this->testEntities[] = $projectEntity;
 
-        // We will now create a query using UserEntity::USER_CURRENT to get the $taskEntity
-        $query = new EntityQuery(ObjectTypes::TASK);
+        // We will now create a query using UserEntity::USER_CURRENT to get the $projectEntity
+        $query = new EntityQuery(ObjectTypes::PROJECT);
         $query->where('user_id')->equals(UserEntity::USER_CURRENT);
         $res = $index->executeQuery($query);
 
-        // This should return 1 result since we have created 1 task that has current user's id
+        // This should return 1 result since we have created 1 project that has current user's id
         $this->assertEquals(1, $res->getTotalNum());
-        $this->assertEquals($taskEntity->getId(), $res->getEntity(0)->getId());
+        $this->assertEquals($projectEntity->getId(), $res->getEntity(0)->getId());
     }
 
 
