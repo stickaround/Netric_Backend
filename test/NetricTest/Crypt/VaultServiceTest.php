@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Crypt;
 
 use PHPUnit\Framework\TestCase;

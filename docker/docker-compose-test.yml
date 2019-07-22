@@ -1,11 +1,11 @@
-version: '2'
+version: "2"
 services:
   netric_server:
     build: ../
     environment:
       APPLICATION_ENV: testing
     volumes:
-      - '../.reports:/var/www/html/.reports'
+      - "../.reports:/var/www/html/.reports"
     depends_on:
       - memcached
       - gearmand
@@ -14,7 +14,7 @@ services:
       - mogilefs
       - mogilestore
       - logstash
-    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh > /dev/stdout"'
+    entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh NetricTest/Crypt > /dev/stdout"'
     logging:
       driver: "json-file"
   memcached:
@@ -22,15 +22,27 @@ services:
   gearmand:
     image: kendu/gearman
   db1:
-    image: 'dockerhub.aereus.com/pgsql:latest'
-    command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200", "-c", "synchronous_commit=off", "-c", "fsync=off", "-c", "full_page_writes=off"]
+    image: "dockerhub.aereus.com/pgsql:latest"
+    command:
+      [
+        "-c",
+        "shared_buffers=256MB",
+        "-c",
+        "max_connections=200",
+        "-c",
+        "synchronous_commit=off",
+        "-c",
+        "fsync=off",
+        "-c",
+        "full_page_writes=off",
+      ]
     environment:
       POSTGRES_USER: vagrant
       POSTGRES_PASSWORD: vagrant
     logging:
       driver: "json-file"
   mail:
-    image: 'dockerhub.aereus.com/mail:latest'
+    image: "dockerhub.aereus.com/mail:latest"
     environment:
       APP_HOST: netric.com
       DB_USER: vagrant
@@ -43,14 +55,14 @@ services:
     logging:
       driver: "json-file"
   mogilefs:
-    image: 'dockerhub.aereus.com/mogiletracker:latest'
+    image: "dockerhub.aereus.com/mogiletracker:latest"
     environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant
       DB_HOST: db1
       DB_NAME: mogilefs
       DB_PORT: 5432
-      DB_INIT: 'true'
+      DB_INIT: "true"
       INIT_STORAGE_HOST: mogilestore
       WAIT_FOR_DB_TIMEOUT: 480
     depends_on:
@@ -59,7 +71,7 @@ services:
     logging:
       driver: "json-file"
   mogilestore:
-    image: 'dockerhub.aereus.com/mogilestore:latest'
+    image: "dockerhub.aereus.com/mogilestore:latest"
     logging:
       driver: "json-file"
   logstash:
