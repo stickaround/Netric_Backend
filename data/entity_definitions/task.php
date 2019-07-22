@@ -9,7 +9,7 @@ return array(
     'recur_rules' => array(
         "field_time_start"=>"",
         "field_time_end"=>"",
-        "field_date_start"=>"start_date",
+        "field_date_start"=>"deadline",
         "field_date_end"=>"deadline",
         "field_recur_id"=>"recur_id"
     ),

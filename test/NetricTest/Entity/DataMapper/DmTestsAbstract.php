@@ -680,6 +680,7 @@ abstract class DmTestsAbstract extends TestCase
         $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue("name", "A test task");
         $task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
+        $task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
         $task->setRecurrencePattern($recurrencePattern);
         $tid = $dm->save($task, $this->user);
         $this->assertNotNull($recurrencePattern->getId());
@@ -709,6 +710,7 @@ abstract class DmTestsAbstract extends TestCase
         $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
         $task->setValue("name", "A test task");
         $task->setValue("start_date", date("Y-m-d", strtotime("2015-12-01")));
+        $task->setValue("deadline", date("Y-m-d", strtotime("2015-12-01")));
         $task->setRecurrencePattern($recurrencePattern);
         $tid = $dm->save($task, $this->user);
 
