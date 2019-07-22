@@ -32,6 +32,7 @@ pipeline {
 
         stage('Test') {
             steps {
+                // Temporarily disable tests
                 // script {
                 //     docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
                 //         sh 'docker-compose -f docker/docker-compose-test.yml build --no-cache'
