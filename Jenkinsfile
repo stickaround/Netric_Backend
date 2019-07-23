@@ -91,11 +91,9 @@ pipeline {
                         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
                                             usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                             sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
-                                "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com && " +
-                                "ls -lh /var/aereusdata/secrets/netric && " +
-                                "hostname && " +
-                                "whoami && " +
-                                "docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
+                                "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com"
+                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com hostname "
+                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
                                 "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
                                 "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                         }
