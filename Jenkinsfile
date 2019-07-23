@@ -87,6 +87,7 @@ pipeline {
             steps {
                 // Call stack deploy to upgrade
                 script {
+                    sh "ls -lh /var/aereusdata/secrets/netric"
                     sshagent (credentials: ['aereus']) {
                         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
                                             usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
