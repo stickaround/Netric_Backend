@@ -20,10 +20,6 @@ until ./netric health/test-dependencies > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; 
 done
 echo "All dependencies are up"
 
-# Make sure secrets are se
-echo "Available secrets"
-ls -lh /var/run/secrets
-
 # Run install in case this is our first run - it will exit gracefully if
 # netric was previously installed
 ./netric setup/install --username=test@netric.com --password=password
