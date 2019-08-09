@@ -25,4 +25,4 @@ os.chdir("../docker")
 # Run docker compose daemon
 subprocess.call(["docker-compose", "-f", "docker-compose-dev.yml", "up", "-d"])
 
-print("Done. Go to http://devel.netric.com and use 'test@netric.com' and 'password' to log in.")
+print("Done. The netric service is now running. To use the UI, clone netric.client.web and follow the instructions in the README.")
