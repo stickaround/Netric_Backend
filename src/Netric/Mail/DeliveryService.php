@@ -561,7 +561,7 @@ class DeliveryService extends AbstractHasErrors
      */
     private function getEmailAccountFromAddress(string $emailAddress): ?EmailAccountEntity
     {
-        // Check to make sure this message was not already imported - no duplicates
+        // Query email accounts for unique email address
         $query = new EntityQuery(ObjectTypes::EMAIL_ACCOUNT);
         $query->where("address")->equals($emailAddress);
         $result = $this->entityIndex->executeQuery($query);

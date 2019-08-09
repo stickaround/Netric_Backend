@@ -1,27 +1,33 @@
 <?php
+
 /**
  * Return browser views for entity of object type 'project_story'
  */
+
 namespace data\browser_views;
 
 use Netric\EntityQuery\Where;
 
 return array(
-    'all_stories'=> array(
+	'all_stories' => array(
 		'obj_type' => 'project_story',
 		'name' => 'All Issues',
 		'description' => 'View all issues both in the backlog and those assigned to a milestone/sprint',
 		'default' => true,
 		'order_by' => array(
+			'status' => array(
+				'field_name' => 'status_id',
+				'direction' => 'asc',
+			),
 			'date' => array(
-    			'field_name' => 'ts_entered',
-    			'direction' => 'desc',
-    		),
+				'field_name' => 'ts_entered',
+				'direction' => 'desc',
+			),
 		),
 		'table_columns' => array('name', 'status_id', 'priority_id', 'owner_id', 'cost_estimated')
-    ),
-		
-	'in_progress'=> array(
+	),
+
+	'in_progress' => array(
 		'obj_type' => 'project_story',
 		'name' => 'In-Progress',
 		'description' => 'Issues that are currently being worked on',
@@ -46,8 +52,8 @@ return array(
 		),
 		'table_columns' => array('name', 'status_id', 'priority_id', 'owner_id', 'cost_estimated')
 	),
-		
-	'backlog'=> array(
+
+	'backlog' => array(
 		'obj_type' => 'project_story',
 		'name' => 'Backlog',
 		'description' => 'Issues not yet assigned to a milestone/sprint and incomplete',
@@ -84,8 +90,8 @@ return array(
 		),
 		'table_columns' => array('name', 'status_id', 'priority_id', 'owner_id', 'cost_estimated')
 	),
-		
-	'completed'=> array(
+
+	'completed' => array(
 		'obj_type' => 'project_story',
 		'name' => 'Completed',
 		'description' => 'Issues that are completed',
@@ -107,7 +113,7 @@ return array(
 		'table_columns' => array('name', 'status_id', 'priority_id', 'owner_id', 'cost_estimated')
 	),
 
-	'not_completed'=> array(
+	'not_completed' => array(
 		'obj_type' => 'project_story',
 		'name' => 'Not Completed',
 		'description' => 'Issues that are not yet completed',
