@@ -128,7 +128,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         $response = new HttpResponse($request);
 
         // Messages are sent as a multipart form with a file param called 'message'
-        $uploadedMessageFile = $request->getParam('message');
+        $files = $request->getParam('files');
         $recipient = $request->getParam('recipient');
 
         if (!$recipient) {
@@ -137,14 +137,14 @@ class EmailController extends AbstractFactoriedController implements ControllerI
             return $response;
         }
 
-        if (!is_array($uploadedMessageFile)) {
+        if (!isset($files['message']) || !is_array($files['message'])) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => "'message' is a required param"]);
             return $response;
         }
 
         // Make sure the file was uploaded by PHP (or we're in a unit test with testMode)
-        if (!is_uploaded_file($uploadedMessageFile['tmp_name']) && !$this->testMode) {
+        if (!is_uploaded_file($files['message']['tmp_name']) && !$this->testMode) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => "RAW message missing or failed to upload"]);
             return $response;
@@ -152,7 +152,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
 
         // Try to import message
         try {
-            $messageGuid = $this->deliveryService->deliverMessageFromFile($recipient, $uploadedMessageFile['tmp_name']);
+            $messageGuid = $this->deliveryService->deliverMessageFromFile($recipient, $files['message']['tmp_name']);
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
             $response->write(['result' => true, 'guid' => $messageGuid]);
             return $response;

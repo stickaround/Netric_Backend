@@ -1,4 +1,5 @@
 <?php
+
 namespace NetricTest\Controller;
 
 use Netric\Application\Response\HttpResponse;
@@ -44,9 +45,9 @@ class EmailControllerTest extends TestCase
         // Make sure send is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['guid'=>uniqid()]));
+        $request->setBody(json_encode(['guid' => uniqid()]));
         $response = $controller->postSendAction($request);
-        $this->assertEquals(['result'=>true], $response->getOutputBuffer());
+        $this->assertEquals(['result' => true], $response->getOutputBuffer());
     }
 
     /**
@@ -88,7 +89,7 @@ class EmailControllerTest extends TestCase
         // Make sure send is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setBody(json_encode(['bogus'=>'data']));
+        $request->setBody(json_encode(['bogus' => 'data']));
         $response = $controller->postSendAction($request);
 
         $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());
@@ -120,13 +121,13 @@ class EmailControllerTest extends TestCase
         // Make sure send is called and we get a response
         $request = new HttpRequest();
         $request->setParam('buffer_output', 1);
-        $request->setParam("message", [
+        $request->setParam("files", ['message' => [
             "tmp_name" => __DIR__ . "/fixtures/mail.mime.txt", "name" => "files-upload-test.txt"
-        ]);
+        ]]);
         $request->setParam('recipient', 'test@netric.com');
 
         $response = $controller->postReceiveAction($request);
-        $this->assertEquals(['result'=>true, 'guid'=>$mockGuid], $response->getOutputBuffer());
+        $this->assertEquals(['result' => true, 'guid' => $mockGuid], $response->getOutputBuffer());
     }
 
     /**
@@ -150,5 +151,6 @@ class EmailControllerTest extends TestCase
         $request->setParam('buffer_output', 1);
 
         $response = $controller->postReceiveAction($request);
-        $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());    }
+        $this->assertEquals(HttpResponse::STATUS_CODE_BAD_REQUEST, $response->getReturnCode());
+    }
 }
