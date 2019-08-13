@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Crypt;
 
 use RuntimeException;
@@ -40,7 +41,7 @@ class VaultService
             throw new RuntimeException("Vault file not found: " . $filePath);
         }
 
-        return file_get_contents($filePath);
+        return trim(file_get_contents($filePath));
         //return "fdsagfdaahah354h6gf4s3h2fgs65h46";
     }
 
