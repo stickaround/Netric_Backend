@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Controller;
 
 use Netric\Log\LogInterface;
@@ -22,7 +23,7 @@ class EmailController extends AbstractFactoriedController implements ControllerI
      * @var EntityLoader
      */
     private $entityLoader;
-    
+
     /**
      * Sender service to interact with SMTP transport
      *
@@ -130,9 +131,15 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         $uploadedMessageFile = $request->getParam('message');
         $recipient = $request->getParam('recipient');
 
-        if (!$recipient || !is_array($uploadedMessageFile)) {
+        if (!$recipient) {
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
-            $response->write(['error' => "Params 'message' and 'recipient' are required"]);
+            $response->write(['error' => "'recipient' is a required param"]);
+            return $response;
+        }
+
+        if (!is_array($uploadedMessageFile)) {
+            $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
+            $response->write(['error' => "'message' is a required param"]);
             return $response;
         }
 
@@ -147,12 +154,12 @@ class EmailController extends AbstractFactoriedController implements ControllerI
         try {
             $messageGuid = $this->deliveryService->deliverMessageFromFile($recipient, $uploadedMessageFile['tmp_name']);
             $response->setReturnCode(HttpResponse::STATUS_CODE_OK);
-            $response->write(['result'=>true, 'guid' => $messageGuid]);
+            $response->write(['result' => true, 'guid' => $messageGuid]);
             return $response;
         } catch (RuntimeException $exception) {
             $this->log->error(
                 "EmailController::postReceiveAction: failed to deliver message to $recipient - " .
-                $exception->getMessage()
+                    $exception->getMessage()
             );
             $response->setReturnCode(HttpResponse::STATUS_CODE_BAD_REQUEST);
             $response->write(['error' => $exception->getMessage()]);
