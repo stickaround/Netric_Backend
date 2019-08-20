@@ -29,7 +29,8 @@ return array(
             'type'=>Field::TYPE_DATE,
             'subtype'=>'',
             'readonly'=>false,
-            'required'=>true
+            'required'=>true,
+            'default'=>array("value"=>"now", "on"=>"create")
         ),
         'task_id' => array(
             'title'=>'Task',
