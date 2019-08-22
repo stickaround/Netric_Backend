@@ -6,6 +6,3 @@
 <fieldset name='Description'>
 	<field name='comment' hidelabel='t' multiline='t'></field>
 </fieldset>
-<row>
-	<field name='comments' hidelabel='t'></field>
-</row>
