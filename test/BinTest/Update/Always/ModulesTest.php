@@ -7,6 +7,9 @@ namespace BinTest\Update\Always;
 use Netric\Console\BinScript;
 use PHPUnit\Framework\TestCase;
 
+use Netric\Account\Module\ModuleServiceFactory;
+use NetricTest\Bootstrap;
+
 class ModulesTest extends TestCase
 {
     /**
@@ -27,9 +30,12 @@ class ModulesTest extends TestCase
      * Setup each test
      */
     protected function setUp(): void
-{
-        $this->account = \NetricTest\Bootstrap::getAccount();
+    {
+        $this->account = Bootstrap::getAccount();
         $this->scriptPath = __DIR__ . "/../../../../bin/scripts/update/always/04-modules.php";
+
+        // Get the service manager of the current user
+        $this->serviceManager = $this->account->getServiceManager();
     }
 
     /**
@@ -50,5 +56,13 @@ class ModulesTest extends TestCase
     {
         $binScript = new BinScript($this->account->getApplication(), $this->account);
         $this->assertTrue($binScript->run($this->scriptPath));
+
+        // Get the module service
+        $moduleService = $this->serviceManager->get(ModuleServiceFactory::class);
+
+        $module = $moduleService->getByName('settings');
+
+        // Check if sort_order of settings is equal to 11
+        $this->assertEquals($module->getSortOrder(), 11);
     }
 }

@@ -28,6 +28,7 @@ foreach ($modules as $moduleName) {
         $module->setTitle($moduleData['title']);
         $module->setShortTitle($moduleData['short_title']);
         $module->setNavigation($moduleData['navigation']);
+        $module->setSortOrder($moduleData['sort_order']);
     }
 
     // Module has not yet been added. Create a new module and import the data

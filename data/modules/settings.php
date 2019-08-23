@@ -10,6 +10,7 @@ return array(
     "default_route" => "profile",
     "name" => "settings",
     "short_title" => 'Settings',
+    "sort_order" => 11,
     "navigation" => array(
         array(
             "title" => "My Profile",
