@@ -42,7 +42,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
     public function fetchByName($objType)
     {
         if (!$objType || !is_string($objType)) {
-            http_response_code(500);
             throw new \RuntimeException('objType is a required param');
         }
 
@@ -124,7 +123,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
 
         // Make sure this a valid definition
         if (!$def->getId()) {
-            http_response_code(500);
             throw new \RuntimeException($this->getAccount()->getName() . ":" . $objType . " has no id in " . $this->database->getNamespace());
         }
 
@@ -135,7 +133,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             $sql = "select * from app_object_type_fields where type_id=:type_id order by title";
             $result = $this->database->query($sql, ['type_id' => $def->getId()]);
         } catch (DatabaseQueryException $ex) {
-            http_response_code(500);
             throw new \RuntimeException(
                 'Could not pull type fields from db for ' . $this->getAccount()->getName() . ":" . $objType . ":" . $ex->getMessage()
             );
@@ -797,7 +794,6 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
                     $type = '';
                     break;
                 default:
-                    http_response_code(500);
                     throw new \RuntimeException(
                         'Did not know how to create column ' .
                         $tableName . ':' . $colname . ':' . $ftype

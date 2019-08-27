@@ -50,6 +50,14 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Load the entity definition
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
+        
+        // Get the groupings for this $objType and $fieldName
+        try {
+            $def = $defLoader->get($params['obj_type']);
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
+        
         $def = $defLoader->get($params['obj_type']);
         if (!$def) {
             return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
