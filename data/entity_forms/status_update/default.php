@@ -1,5 +1,6 @@
 <fieldset name='Status Update'>
 	<field name='ts_entered'></field>
+	<field name='ts_updated'></field>
 	<field name='owner_id'></field>
 	<field name='obj_reference'></field>
 </fieldset>
