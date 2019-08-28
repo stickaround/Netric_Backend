@@ -51,21 +51,19 @@ class EntityController extends Mvc\AbstractAccountController
         // Load the entity definition
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
         
-        // Get the groupings for this $objType and $fieldName
         try {
+            // Get the definition data for this object type
             $def = $defLoader->get($params['obj_type']);
+
+            if (!$def) {
+                return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
+            }
+    
+            $ret = $this->fillDefinitionArray($def);
+            return $this->sendOutput($ret);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
-        
-        $def = $defLoader->get($params['obj_type']);
-        if (!$def) {
-            return $this->sendOutput(array("error" => $params['obj_type'] . " could not be loaded"));
-        }
-
-        $ret = $this->fillDefinitionArray($def);
-
-        return $this->sendOutput($ret);
     }
 
     /**
@@ -96,8 +94,12 @@ class EntityController extends Mvc\AbstractAccountController
         // Parse values passed from POST or GET params
         FormParser::buildQuery($query, $params);
 
-        // Execute the query
-        $res = $index->executeQuery($query);
+        try {
+            // Execute the query
+            $res = $index->executeQuery($query);
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
 
         // Pagination
         // ---------------------------------------------
@@ -163,26 +165,31 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Get the entity utilizing whatever params were passed in
         $entity = null;
-        if (!empty($params['guid'])) {
-            // Retrieve the entity by guid
-            $entity = $loader->getByGuid($params['guid']);
-        } elseif (isset($params['id']) && isset($params['obj_type'])) {
-            // Retrieve the entity by obj_type and id
-            $entity = $loader->get($params['obj_type'], $params['id']);
-        } elseif (!empty($params['uname'])) {
-            // Retrieve the entity by a unique name and optional condition
-            $entity = $loader->getByUniqueName(
-                $params['obj_type'],
-                $params['uname'],
-                $params['uname_conditions']
-            );
-        } else {
-            return $this->sendOutput(
-                array(
-                    "error" => "guid, or obj_type + id, or uname are required params.",
-                    "params" => $params
-                )
-            );
+
+        try {
+            if (!empty($params['guid'])) {
+                // Retrieve the entity by guid
+                $entity = $loader->getByGuid($params['guid']);
+            } elseif (isset($params['id']) && isset($params['obj_type'])) {
+                // Retrieve the entity by obj_type and id
+                $entity = $loader->get($params['obj_type'], $params['id']);
+            } elseif (!empty($params['uname'])) {
+                // Retrieve the entity by a unique name and optional condition
+                $entity = $loader->getByUniqueName(
+                    $params['obj_type'],
+                    $params['uname'],
+                    $params['uname_conditions']
+                );
+            } else {
+                return $this->sendOutput(
+                    array(
+                        "error" => "guid, or obj_type + id, or uname are required params.",
+                        "params" => $params
+                    )
+                );
+            }
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
         // Entity Could not be found - we might want to change this to a 404 status code
@@ -236,7 +243,11 @@ class EntityController extends Mvc\AbstractAccountController
 
         // If editing an existing etity, then load it rather than using the new entity
         if (isset($objData['id']) && !empty($objData['id'])) {
-            $entity = $loader->get($objData['obj_type'], $objData['id']);
+            try {
+                $entity = $loader->get($objData['obj_type'], $objData['id']);
+            } catch (\Exception $ex) {
+                return $this->sendOutput(array("error" => $ex->getMessage()));
+            }
         }
 
         // Parse the params
@@ -310,16 +321,20 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the datamapper to delete
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
-        foreach ($ids as $did) {
-            $entity = $loader->get($objType, $did);
-
-            // Check first if we have permission to delete this entity
-            if ($this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
-                // Proceed with the deleting this entity
-                if ($dataMapper->delete($entity)) {
-                    $ret[] = $did;
+        try {
+            foreach ($ids as $did) {
+                $entity = $loader->get($objType, $did);
+    
+                // Check first if we have permission to delete this entity
+                if ($this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
+                    // Proceed with the deleting this entity
+                    if ($dataMapper->delete($entity)) {
+                        $ret[] = $did;
+                    }
                 }
-            }
+            }    
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
         // Return what was deleted
@@ -537,20 +552,24 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Load the entity definition
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-
-        // If we dont have definition id, then we will create a new entity definition
-        if (!$objData['id']) {
-            $def = new EntityDefinition($objData['obj_type']);
-        } else {
-            $def = $defLoader->get($objData['obj_type']);
-        }
-
-        // Import the $objData into the entity definition
-        $def->fromArray($objData);
-
-        // Save the entity definition
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
-        $dataMapper->save($def);
+
+        try {
+            // If we dont have definition id, then we will create a new entity definition
+            if (!$objData['id']) {
+                $def = new EntityDefinition($objData['obj_type']);
+            } else {
+                $def = $defLoader->get($objData['obj_type']);
+            }
+
+            // Import the $objData into the entity definition
+            $def->fromArray($objData);
+
+            // Save the entity definition
+            $dataMapper->save($def);   
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
 
         // Build the new entity definition and return the result
         $ret = $this->fillDefinitionArray($def);
@@ -589,12 +608,16 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Load the entity definition
         $defLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get($objData['obj_type']);
-
-
-        // Delete the entity definition
         $dataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
-        $dataMapper->delete($def);
+
+        try {
+            $def = $defLoader->get($objData['obj_type']);
+            
+            // Delete the entity definition
+            $dataMapper->delete($def);   
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
 
         return $this->sendOutput(true);
     }
@@ -656,19 +679,22 @@ class EntityController extends Mvc\AbstractAccountController
         // Get the datamapper
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
 
-        foreach ($ids as $id) {
-            // Load the entity that we are going to update
-            $entity = $loader->get($objData['obj_type'], $id);
-
-            // Update the fields with the data. Make sure we only update the provided fields.
-            $entity->fromArray($entityData, true);
-
-            // Save the entity
-            $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-            $dataMapper->save($entity);
-
-            // Return the entities that were updated
-            $ret[] = $entity->toArray();
+        try {
+            foreach ($ids as $id) {
+                // Load the entity that we are going to update
+                $entity = $loader->get($objData['obj_type'], $id);
+    
+                // Update the fields with the data. Make sure we only update the provided fields.
+                $entity->fromArray($entityData, true);
+    
+                // Save the entity
+                $dataMapper->save($entity);
+    
+                // Return the entities that were updated
+                $ret[] = $entity->toArray();
+            }   
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
         // Return what was edited
@@ -720,51 +746,59 @@ class EntityController extends Mvc\AbstractAccountController
         // Create the new entity where we merge all field values
         $mergedEntity = $loader->create($requestData['obj_type']);
 
-        /*
-         * Let's save the merged entity initially so we can get its entity id.
-         * We will use the merged entity id as our moved object id when we loop thru the mergedData
-         */
-        $mergedEntityId = $dataMapper->save($mergedEntity);
+        try {
+            /*
+            * Let's save the merged entity initially so we can get its entity id.
+            * We will use the merged entity id as our moved object id when we loop thru the mergedData
+            */
+            $mergedEntityId = $dataMapper->save($mergedEntity);    
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
 
         $entityData = array();
 
-        /*
-         * The merge data contains entity ids and the array of field names that will be used to merge the entities
-         * After we load the entity using the entityId, then we will loop thru the field names
-         *  and get its field values so we can assign it to the newly created merged entity ($mergedEntity)
-         *
-         * $mergeData = array (
-         *  entityId => array(fieldName1, fieldName2, fieldName3)
-         * )
-         */
-        foreach ($mergeData as $entityId => $fields) {
-            $entity = $loader->get($requestData['obj_type'], $entityId);
+        try {
+            /*
+            * The merge data contains entity ids and the array of field names that will be used to merge the entities
+            * After we load the entity using the entityId, then we will loop thru the field names
+            *  and get its field values so we can assign it to the newly created merged entity ($mergedEntity)
+            *
+            * $mergeData = array (
+            *  entityId => array(fieldName1, fieldName2, fieldName3)
+            * )
+            */
+            foreach ($mergeData as $entityId => $fields) {
+                $entity = $loader->get($requestData['obj_type'], $entityId);
 
-            // Build the entity data and get the field values from the entity we want to merge
-            foreach ($fields as $field) {
-                $fieldValue = $entity->getValue($field);
-                $entityData[$field] = $fieldValue;
+                // Build the entity data and get the field values from the entity we want to merge
+                foreach ($fields as $field) {
+                    $fieldValue = $entity->getValue($field);
+                    $entityData[$field] = $fieldValue;
 
-                // Let's check if the field value is an array, then we need to get its value names
-                if (is_array($fieldValue)) {
-                    $entityData["{$field}_fval"] = $entity->getValueNames($field);
+                    // Let's check if the field value is an array, then we need to get its value names
+                    if (is_array($fieldValue)) {
+                        $entityData["{$field}_fval"] = $entity->getValueNames($field);
+                    }
                 }
+
+                $entityDef = $entity->getDefinition();
+
+                // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
+                $dataMapper->setEntityMovedTo($entityDef, $entityId, $mergedEntityId);
+
+                // Let's flag the original entity as deleted
+                $dataMapper->delete($entity);
             }
 
-            $entityDef = $entity->getDefinition();
+            // Set the fields with the merged data.
+            $mergedEntity->fromArray($entityData, true);
 
-            // Now set the original entity id to point to the new merged entity so future requests to the old id will load the new entity
-            $dataMapper->setEntityMovedTo($entityDef, $entityId, $mergedEntityId);
-
-            // Let's flag the original entity as deleted
-            $dataMapper->delete($entity);
+            // Now save the the entity where all merged data are set
+            $dataMapper->save($mergedEntity);    
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
         }
-
-        // Set the fields with the merged data.
-        $mergedEntity->fromArray($entityData, true);
-
-        // Now save the the entity where all merged data are set
-        $dataMapper->save($mergedEntity);
 
         // Return the merged entity
         return $this->sendOutput($mergedEntity->toArray());
@@ -846,8 +880,12 @@ class EntityController extends Mvc\AbstractAccountController
                 return $this->sendOutput(array("error" => "No action made for entity group."));
         }
 
-        // Save the changes made to the groupings
-        $loader->save($groupings);
+        try {
+            // Save the changes made to the groupings
+            $loader->save($groupings);    
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
+        }
 
         return $this->sendOutput($group->toArray());
     }
@@ -863,21 +901,24 @@ class EntityController extends Mvc\AbstractAccountController
      */
     private function getGroupings(GroupingsLoader $loader, $objType, $fieldName, &$groupFilter = array())
     {
+        try {
+            // Get the entity defintion of the $objType
+            $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+            $def = $defLoader->get($objType);
 
-        // Get the entity defintion of the $objType
-        $defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
-        $def = $defLoader->get($objType);
+            // If this is a private object then send the current user as a filter
+            if ($def->isPrivate && !count($groupFilter)) {
+                $groupFilter['user_id'] = $this->account->getUser()->getId();
+            }
+            
+            // Get all groupings for this object type
+            $groupings = $loader->get($objType, $fieldName, $groupFilter);
 
-        // If this is a private object then send the current user as a filter
-        if ($def->isPrivate && !count($groupFilter)) {
-            $groupFilter['user_id'] = $this->account->getUser()->getId();
+            // Return the groupings object
+            return $groupings;   
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
         }
-        
-        // Get all groupings for this object type
-        $groupings = $loader->get($objType, $fieldName, $groupFilter);
-
-        // Return the groupings object
-        return $groupings;
     }
 
     /**

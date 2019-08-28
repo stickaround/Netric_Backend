@@ -693,4 +693,69 @@ class EntityControllerTest extends TestCase
         $result = $dataMapper->delete($testDef);
         $this->assertEquals($result, true);
     }
+
+    public function testGetDefinitionActionToReturnError()
+    {
+        // Try to get definition without specifying obj_type
+        $ret = $this->controller->getGetDefinitionAction();
+
+        // It should return an error
+        $this->assertEquals($ret['error'], 'obj_type is a required param');
+
+        // Set obj_type that is currently not existing
+        $req = $this->controller->getRequest();
+        $req->setParam('obj_type', 'NonExistingDefinition');
+        $ret = $this->controller->getGetDefinitionAction();
+        
+        // Test that error was being returned
+        $this->assertNotEmpty($ret['error']);
+    }
+
+    public function testGetActionToREturnError()
+    {
+        // Calling getGetAction without any parameters should return an empty array 
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($ret, []);
+
+        // Setting an empty guid should return an error
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(array(
+            'guid' => '',
+        )));
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
+
+        // Setting a object type only should return an error
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(array(
+            'obj_type' => 'task',
+        )));
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
+
+        // Setting entity id only should return an error
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(array(
+            'id' => 1,
+        )));
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
+
+        // Setting empty uname should return an error
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(array(
+            'uname' => '',
+        )));
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
+
+        // Setting an alpha numeric id when calling getGetAction and it should return an error
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(array(
+            'obj_type' => 'task',
+            'id' => 'invalidId123'
+        )));
+        $ret = $this->controller->getGetAction();
+        $this->assertEquals($ret['error'], 'invalidId123 is not a valid entity id');
+    }
 }
