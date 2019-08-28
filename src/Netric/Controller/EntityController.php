@@ -223,8 +223,6 @@ class EntityController extends Mvc\AbstractAccountController
     public function postSaveAction()
     {
         $rawBody = $this->getRequest()->getBody();
-        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
-
         if (!$rawBody) {
             return $this->sendOutput(array("error" => "Request input is not valid"));
         }
@@ -237,17 +235,16 @@ class EntityController extends Mvc\AbstractAccountController
         }
 
         $loader = $this->account->getServiceManager()->get(EntityLoaderFactory::class);
+        try {
+            // Create a new entity to save
+            $entity = $loader->create($objData['obj_type']);
 
-        // Create a new entity to save
-        $entity = $loader->create($objData['obj_type']);
-
-        // If editing an existing etity, then load it rather than using the new entity
-        if (isset($objData['id']) && !empty($objData['id'])) {
-            try {
+            // If editing an existing etity, then load it rather than using the new entity
+            if (isset($objData['id']) && !empty($objData['id'])) {
                 $entity = $loader->get($objData['obj_type'], $objData['id']);
-            } catch (\Exception $ex) {
-                return $this->sendOutput(array("error" => $ex->getMessage()));
             }
+        } catch (\Exception $ex) {
+            return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
         // Parse the params
@@ -270,6 +267,7 @@ class EntityController extends Mvc\AbstractAccountController
         $entityData = $entity->toArray();
 
         // Put the current DACL in a special field to keep it from being overwritten when the entity is saved
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
         $dacl = $daclLoader->getForEntity($entity);
         $entityData["applied_dacl"] = $dacl->toArray();
 
@@ -320,20 +318,20 @@ class EntityController extends Mvc\AbstractAccountController
 
         // Get the datamapper to delete
         $dataMapper = $this->account->getServiceManager()->get(DataMapperFactory::class);
-
+        
         try {
             foreach ($ids as $did) {
                 $entity = $loader->get($objType, $did);
     
                 // Check first if we have permission to delete this entity
-                if ($this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
+                if ($entity && $this->checkIfUserIsAllowed($entity, Dacl::PERM_DELETE)) {
                     // Proceed with the deleting this entity
                     if ($dataMapper->delete($entity)) {
                         $ret[] = $did;
                     }
                 }
-            }    
-        } catch (\Exception $ex) {
+            }
+        } catch(\RuntimeException $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
 
@@ -615,11 +613,10 @@ class EntityController extends Mvc\AbstractAccountController
             
             // Delete the entity definition
             $dataMapper->delete($def);   
+            return $this->sendOutput(true);
         } catch (\Exception $ex) {
             return $this->sendOutput(array("error" => $ex->getMessage()));
         }
-
-        return $this->sendOutput(true);
     }
 
     /**

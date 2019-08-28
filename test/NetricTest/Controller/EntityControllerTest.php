@@ -696,12 +696,6 @@ class EntityControllerTest extends TestCase
 
     public function testGetDefinitionActionToReturnError()
     {
-        // Try to get definition without specifying obj_type
-        $ret = $this->controller->getGetDefinitionAction();
-
-        // It should return an error
-        $this->assertEquals($ret['error'], 'obj_type is a required param');
-
         // Set obj_type that is currently not existing
         $req = $this->controller->getRequest();
         $req->setParam('obj_type', 'NonExistingDefinition');
@@ -717,45 +711,104 @@ class EntityControllerTest extends TestCase
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret, []);
 
-        // Setting an empty guid should return an error
         $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
-            'guid' => '',
-        )));
+
+        // Setting an empty guid should return an error
+        $req->setBody(json_encode(array('guid' => '')));
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
 
         // Setting a object type only should return an error
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
-            'obj_type' => 'task',
-        )));
+        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK)));
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
 
         // Setting entity id only should return an error
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
-            'id' => 1,
-        )));
+        $req->setBody(json_encode(array('id' => 1)));
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
 
         // Setting empty uname should return an error
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
-            'uname' => '',
-        )));
+        $req->setBody(json_encode(array('uname' => '')));
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret['error'], 'guid, or obj_type + id, or uname are required params.');
 
         // Setting an alpha numeric id when calling getGetAction and it should return an error
-        $req = $this->controller->getRequest();
-        $req->setBody(json_encode(array(
-            'obj_type' => 'task',
-            'id' => 'invalidId123'
-        )));
+        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK,'id' => 'invalidId123')));
         $ret = $this->controller->getGetAction();
         $this->assertEquals($ret['error'], 'invalidId123 is not a valid entity id');
+    }
+
+    public function testPostDeleteEntityDefActionToReturnError()
+    {
+        // Deleting an entity definition without providing an object type should return an error
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode(array('name' => 'DefWithNoType')));
+        $ret = $this->controller->postDeleteEntityDefAction();
+        $this->assertEquals($ret['error'], 'obj_type is a required param');
+    }
+
+    public function testPostUpdateEntityDefActionToReturnError()
+    {
+        $req = $this->controller->getRequest();
+        
+        // Saving an entity definition without providing an object type should return an error
+        $req->setBody(json_encode(array('name' => 'DefWithNoType')));
+        $ret = $this->controller->postUpdateEntityDefAction();
+        $this->assertEquals($ret['error'], 'obj_type is a required param');
+
+        // Saving an entity definition with an empty obj_type should return an error
+        $req->setBody(json_encode(array('obj_type' => '', 'name' => 'DefWithNoType')));
+        $ret = $this->controller->postUpdateEntityDefAction();
+        $this->assertEquals($ret['error'], 'obj_type is empty.');
+
+        // Saving an existing entity definition but with non existing object type
+        $req->setBody(json_encode(array('obj_type' => 'NonExistingDefinition', 'id' => 1)));
+        $ret = $this->controller->postUpdateEntityDefAction();
+        $this->assertNotEmpty($ret['error']);
+    }
+
+    public function testPostSaveActionToReturnError()
+    {
+        $req = $this->controller->getRequest();
+
+        // Saving an entity without providing any data should return an error
+        $ret = $this->controller->putSaveAction();
+        $this->assertNotEmpty($ret['error']);
+
+        // Saving an entity with invalid id should return an error
+        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK, 'id' => 'invalidId123')));
+        $ret = $this->controller->postSaveAction();
+        $this->assertEquals($ret['error'], 'invalidId123 is not a valid entity id');
+    }
+
+    public function testGetRemoveActionToReturnError()
+    {
+        $req = $this->controller->getRequest();
+
+        // Removing an entity with an empty object type should return an error
+        $req->setParam('obj_type', '');
+        $ret = $this->controller->getRemoveAction();
+        $this->assertEquals($ret['error'], 'obj_type is a required param');
+    }
+
+    public function testPostSaveGroupActionToReturnError()
+    {
+        $req = $this->controller->getRequest();
+
+        // Saving a group without object type should return an error
+        $req->setBody(json_encode(array('field_name' => 'group')));
+        $ret = $this->controller->postSaveGroupAction();
+        $this->assertEquals($ret['error'], 'obj_type is a required param');
+
+        // Saving a group without field name should return an error
+        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK)));
+        $ret = $this->controller->postSaveGroupAction();
+        $this->assertEquals($ret['error'], 'field_name is a required param');
+
+        // Saving a group without an action should return an error
+        $req->setBody(json_encode(array('obj_type' => ObjectTypes::TASK, 'field_name' => 'group')));
+        $ret = $this->controller->postSaveGroupAction();
+        $this->assertEquals($ret['error'], 'action is a required param');
     }
 }
