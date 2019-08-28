@@ -235,8 +235,8 @@ class Router
 
                 return $response;
             } else {
-                http_response_code(401);
-                throw new NotAuthorizedForRouteException("Authorization Required.");
+                // TODO: return 401 Authorization Required
+                throw new NotAuthorizedForRouteException("Legacy controller could not be loaded");
             }
         }
 

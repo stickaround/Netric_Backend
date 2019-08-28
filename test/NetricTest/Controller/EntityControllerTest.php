@@ -705,7 +705,7 @@ class EntityControllerTest extends TestCase
         $this->assertNotEmpty($ret['error']);
     }
 
-    public function testGetActionToREturnError()
+    public function testGetActionToReturnError()
     {
         // Calling getGetAction without any parameters should return an empty array 
         $ret = $this->controller->getGetAction();

@@ -3,6 +3,7 @@ namespace Netric\Application;
 
 use Netric\Account\Account;
 use Netric\Application\Exception;
+use Netric\Mvc\Exception\NotAuthorizedForRouteException;
 use Netric\Application\Response\ResponseInterface;
 use Netric\Application\Setup\Setup;
 use Netric\Request\RequestInterface;
@@ -169,6 +170,10 @@ class Application
             $response = $router->run($request);
             // Fail the run if the response code is not successful
             $returnStatusCode = $response->getReturnCode();
+        } catch (NotAuthorizedForRouteException $NotAuthorizedException) {
+            header('HTTP/1.1 401 Unauthorized');
+            print($NotAuthorizedException->getMessage());
+            $returnStatusCode = -1;
         } catch (\Exception $unhandledException) {
             // An exception took place and was not handled
             $this->getLog()->error(
@@ -193,11 +198,10 @@ class Application
 
             // Fail
             $returnStatusCode = -1;
-        }
+        } 
 
         // Handle any profiling needed for this request
         $this->profileRequest();
-
         return $returnStatusCode;
     }
 
