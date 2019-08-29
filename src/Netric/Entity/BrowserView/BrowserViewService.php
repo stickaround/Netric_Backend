@@ -343,7 +343,7 @@ class BrowserViewService
             "table_columns_data" => json_encode($data['table_columns'])
         ];
 
-        if ($viewId) {
+        if ($viewId && is_numeric($viewId)) {
             $this->database->update("app_object_views", $saveViewData, ['id' => $viewId]);
         } else {
             $viewId = $this->database->insert("app_object_views", $saveViewData);

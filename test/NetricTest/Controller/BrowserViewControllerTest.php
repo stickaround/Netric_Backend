@@ -137,4 +137,38 @@ class BrowserViewControllerTest extends TestCase
         $this->assertEquals($browserViewId, $defaultViewId, var_export($browserView->toArray(), true));
         $this->assertEquals($defaultViewId, $defaultViewIdForUser, var_export($browserView->toArray(), true));
     }
+
+    public function testPostSaveActionToReturnError()
+    {   
+        $data = array(
+            'id' => 'my_contact',
+            'name' => "unit_test_view_default",
+            'description' => "Unit Test Browser View Default",
+        );
+        
+        // Set no params in the request
+        $req = $this->controller->getRequest();
+        $ret = $this->controller->postSaveAction();
+
+        // It should return an error
+        $this->assertEquals($ret['error'], 'Request input is not valid');
+
+        // Set params in the request without obj_type key field
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $ret = $this->controller->postSaveAction();
+        
+        // It should return an error
+        $this->assertEquals($ret['error'], 'obj_type is a required param');
+
+        // Set params in the request with obj_type key field
+        $data['obj_type'] = ObjectTypes::CONTACT;
+        $req = $this->controller->getRequest();
+        $req->setBody(json_encode($data));
+        $ret = $this->controller->postSaveAction();
+
+        // It should return an error
+        $this->assertEquals(0, strpos($ret['error'], 'Error saving browser view: SQLSTATE[22P02]'));
+       
+    }
 }
