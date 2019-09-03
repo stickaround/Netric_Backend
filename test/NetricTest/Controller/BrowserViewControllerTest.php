@@ -146,13 +146,6 @@ class BrowserViewControllerTest extends TestCase
             'description' => "Unit Test Browser View Default",
         );
         
-        // Set no params in the request
-        $req = $this->controller->getRequest();
-        $ret = $this->controller->postSaveAction();
-
-        // It should return an error
-        $this->assertEquals($ret['error'], 'Request input is not valid');
-
         // Set params in the request without obj_type key field
         $req = $this->controller->getRequest();
         $req->setBody(json_encode($data));
