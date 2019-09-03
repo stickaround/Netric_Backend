@@ -3,7 +3,7 @@
 <field name='deadline'></field>
 <recurrence></recurrence>
 <field name='user_id'></field>
-<field name='priority'></field>
+<field name='priority_id'></field>
 <field name='project'></field>
 <field name='milestone_id' ref_field='project_id' ref_this='project' ref_required='t'></field>
 <field name='story_id' ref_field='project_id' ref_this='project' ref_required='t'></field>

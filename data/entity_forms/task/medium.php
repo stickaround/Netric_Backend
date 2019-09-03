@@ -11,7 +11,7 @@
                 <column>
                     <field name='done'></field>
                     <field name='deadline' tooltip='Optional due date for the completion of this task.'></field>
-                    <field name='priority'></field>
+                    <field name='priority_id'></field>
                     <field name='category'></field>
                     <recurrence></recurrence>
                 </column>
