@@ -36,8 +36,12 @@ class BrowserViewController extends Mvc\AbstractAccountController
         $view = new BrowserView();
         $view->fromArray($objData);
 
-        $result = $browserViewService->saveView($view);
-
+        try {
+            $result = $browserViewService->saveView($view);
+        } catch(\RuntimeException $ex) {
+            return $this->sendOutput(array("error" => "Error saving browser view: " . $ex->getMessage()));
+        }
+        
         if (!$view->isSystem() && $view->isDefault()) {
             $browserViewService->setDefaultViewForUser($view->getObjType(), $this->account->getUser(), $result);
         }
