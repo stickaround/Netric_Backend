@@ -198,16 +198,16 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $result = $this->database->query($sql);
 
         // Process the raw data of entities and update the $results
-        $this->processEntitiesRawData($entityDefinition, $result->fetchAll(), $results);
+        $results = $this->processEntitiesRawData($entityDefinition, $result->fetchAll(), $results);
 
         // Set the total num of the Results
-        $this->setResultsTotalNum($entityDefinition, $results, $conditionString);
+        $results = $this->setResultsTotalNum($entityDefinition, $results, $conditionString);
 
         // Get the aggregations and update the Results' aggregations
         if ($query->hasAggregations()) {
             $aggregations = $query->getAggregations();
             foreach ($aggregations as $agg) {
-                $this->queryAggregation($entityDefinition, $agg, $results, $conditionString);
+                $results = $this->queryAggregation($entityDefinition, $agg, $results, $conditionString);
             }
         }
 
@@ -220,6 +220,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param Results $results The results that we will be updating its total num
      * @param string $conditionString The query condition that will be used for filtering
+     * @return Results
      */
     private function setResultsTotalNum(EntityDefinition $entityDefinition, Results $results, $conditionString)
     {
@@ -239,6 +240,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $row = $result->fetch();
             $results->setTotalNum($row["total_num"]);
         }
+        return $results;
     }
 
     /**
@@ -247,6 +249,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param EntityDefinition $entityDefinition Definition for the entity being queried
      * @param Array $entitiesRawDataArray An array of entities raw data that will be processed
      * @param Results $results Results that will be used where we will add the processed entities
+     * @return Results
      */
     private function processEntitiesRawData(EntityDefinition $entityDefinition, array $entitiesRawDataArray, Results $results)
     {
@@ -283,6 +286,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $entity->resetIsDirty();
             $results->addEntity($entity);
         }
+        return $results;
     }
 
     /**
@@ -974,6 +978,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param Results $results Results that will be used where we will set the aggregate data
      * @param string $objectTable The actual table we are querying
      * @param string $conditionQuery The query condition that will be used for filtering
+     * @return Results
      */
     private function queryAggregation(EntityDefinition $entityDefinition, AggregationInterface $agg, Results $results, $conditionQuery)
     {
@@ -1040,6 +1045,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
             $results->setAggregation($agg->getName(), $data);
         }
+        return $results;
     }
 
     /**
