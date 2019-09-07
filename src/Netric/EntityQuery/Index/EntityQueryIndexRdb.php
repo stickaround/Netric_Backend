@@ -195,10 +195,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $sql .= " OFFSET {$query->getOffset()}";
         }
 
-        $queryResult = $this->database->query($sql);
+        $result = $this->database->query($sql);
 
         // Process the raw data of entities and update the $results
-        $results = $this->processEntitiesRawData($entityDefinition, $queryResult->fetchAll(), $results);
+        $results = $this->processEntitiesRawData($entityDefinition, $result->fetchAll(), $results);
 
         // Set the total num of the Results
         $results = $this->setResultsTotalNum($entityDefinition, $results, $conditionString);
