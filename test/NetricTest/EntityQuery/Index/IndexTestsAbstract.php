@@ -58,6 +58,9 @@ abstract class IndexTestsAbstract extends TestCase
 {
         $this->account = Bootstrap::getAccount();
         $this->user = $this->account->getUser(UserEntity::USER_SYSTEM);
+
+        $this->defLoader = $this->account->getServiceManager()->get(EntityDefinitionLoaderFactory::class);
+        $this->index = $this->account->getServiceManager()->get(IndexFactory::class);
     }
 
     /**
