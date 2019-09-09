@@ -109,7 +109,7 @@ class FilesController extends Mvc\AbstractAccountController
 
         // Could not create or get a parent folder. Return an error.
         if (!$folder) {
-            return $this->setOutput(array("error" => "Could not open the folder specified"));
+            return $this->sendOutput(array("error" => "Could not open the folder specified"));
         }
 
         $folderPath = $folder->getFullPath();
@@ -166,7 +166,7 @@ class FilesController extends Mvc\AbstractAccountController
              * with $this->testMode and will be set in the unit test and never anywhere else.
              */
             if (!is_uploaded_file($uploadedFile['tmp_name']) && !$this->testMode) {
-                return $this->setOutput(
+                return $this->sendOutput(
                     array(
                         "error" => "Security Violation: " . $uploadedFile['tmp_name'] .
                             " was not uploaded via POST."
