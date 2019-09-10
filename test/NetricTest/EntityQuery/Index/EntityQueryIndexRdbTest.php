@@ -172,7 +172,22 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         // Should return empty string, since we cannot query contains with a number field type
         $this->assertEquals($conditionString, "");
     }
+    public function testbuildConditionStringForBoolean()
+    {
+        $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
 
+        // Test Equals
+        $condition = new Where("f_seen");
+        $condition->equals(true);
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $this->assertEquals($conditionString, "f_seen='true'");
+
+        // Test Not Equal
+        $condition = new Where("f_seen");
+        $condition->doesNotEqual(true);
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $this->assertEquals($conditionString, "f_seen!='true'");
+    }
     public function testbuildConditionStringForDate()
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
@@ -184,13 +199,18 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
         $this->assertEquals($conditionString, "extract(day from date_completed)='$currentDay'");
 
-        // Test Equals
-        $currentDay = date("j");
+        // Test current month
+        $currentMonth = date("n");
         $condition = new Where("date_completed");
-        $condition->equals($currentDay);
+        $condition->monthIsEqual($currentMonth);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $this->assertEquals($conditionString, "extract(month from date_completed)='$currentMonth'");
 
-        // Should return empty string since we cannot query is equals with a date field
-        $this->assertEquals($conditionString, "");
+        // Test current year
+        $currentYear = date("Y");
+        $condition = new Where("date_completed");
+        $condition->yearIsEqual($currentYear);
+        $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
+        $this->assertEquals($conditionString, "extract(year from date_completed)='$currentYear'");
     }
 }
