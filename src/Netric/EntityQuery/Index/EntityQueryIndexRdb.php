@@ -292,7 +292,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
      * @param Array $condition The where condition that we are dealing with
      * @return string Query condition string with param values pre-populated and quoted
      */
-    private function buildConditionStringAndSetParams(EntityDefinition $enityDefinition, $condition): string
+    public function buildConditionStringAndSetParams(EntityDefinition $enityDefinition, $condition): string
     {
         $fieldName = $condition->fieldName;
         $operator = $condition->operator;
@@ -624,8 +624,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if (empty($value)) {
                     $conditionString = " NOT EXISTS (select 1 from  $reftbl where $reftbl.$thisfld=$objectTable.id) ";
                 } else {
-                    $conditionString = " EXISTS (select 1 from  $reftbl where $reftbl.$thisfld=$objectTable.id
-                            and (" . implode(" or ", $multiCond) . ")) ";
+                    $multiCondString = implode(" or ", $multiCond);
+                    $conditionString = " EXISTS (select 1 from  $reftbl where $reftbl.$thisfld=$objectTable.id and ($multiCondString)) ";
                 }
                 break;
             case FIELD::TYPE_GROUPING:
@@ -753,9 +753,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
                     }
 
-                    $conditionString = "$objectTable.id not in
-                                        (select $fkeyRefField from $fkeyRefTable
-                                        where " . implode(" or ", $multiCond) . ")";
+                    $multiCondString = implode(" or ", $multiCond);
+                    $conditionString = "$objectTable.id not in (select $fkeyRefField from $fkeyRefTable where $multiCondString)";
                 }
 
                 break;
@@ -766,12 +765,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if (empty($value)) {
                     $conditionString = "($fieldName!='' AND $fieldName is not NULL)";
                 } elseif ($field->subtype) {
-                    $conditionString = "lower($fieldName)!=" .
-                                        $this->database->quote(strtolower($value));
+                    $qoutedValueToLower = $this->database->quote(strtolower($value));
+                    $conditionString = "lower($fieldName)!=$qoutedValueToLower";
                 } else {
-                    $conditionString = " (to_tsvector($fieldName) @@ plainto_tsquery(" .
-                                        $this->database->quote($value) .
-                                        "))='f'";
+                    $quotedValue = $this->database->quote($value);
+                    $conditionString = " (to_tsvector($fieldName) @@ plainto_tsquery($quotedValue))='f'";
                 }
                 break;
             case FIELD::TYPE_BOOL:
@@ -827,20 +825,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $operatorSign = "!";
             }
 
-            $multiCond = [];
-
-            if (!empty($field->fkeyTable["parent"]) && is_numeric($value)) {
-                $children = $this->getHeiarchyDownGrp($field, $value);
-
-                foreach ($children as $child) {
-                    $multiCond[] = "$fieldName{$operatorSign}=" .
-                                    $this->database->quote($child);
-                }
-            } else {
-                $multiCond[] = "$fieldName{$operatorSign}=" . $this->database->quote($value);
-            }
-
-            $conditionString = "(" . implode(" or ", $multiCond) . ")";
+            $conditionString = "$fieldName{$operatorSign}=" . $this->database->quote($value);
 
             // If our operator is not equal to , then we need to add if fieldname is null with or operator
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
