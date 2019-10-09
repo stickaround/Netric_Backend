@@ -108,7 +108,6 @@ class DaclLoader
         $default = new Dacl();
         $default->allowGroup(UserEntity::GROUP_ADMINISTRATORS, Dacl::PERM_FULL);
         $default->allowGroup(UserEntity::GROUP_CREATOROWNER, Dacl::PERM_FULL);
-
         return $default;
     }
 
