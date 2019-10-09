@@ -17,7 +17,6 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libneon27-dev \
     libsodium-dev \
-    librdkafka-dev \
     uuid-dev \
     unzip \
     git \
