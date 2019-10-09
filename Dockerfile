@@ -39,9 +39,7 @@ RUN apt-get update && apt-get install -y \
     && pecl install uuid \
     && docker-php-ext-enable uuid \
     && pecl install mailparse \
-    && docker-php-ext-enable mailparse \
-    && pecl install rdkafka \
-    && docker-php-ext-enable rdkafka
+    && docker-php-ext-enable mailparse
 
 # Install gearman since the pecl version will not work with PHP7
 RUN cd /tmp \
