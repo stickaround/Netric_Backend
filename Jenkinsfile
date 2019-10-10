@@ -25,7 +25,7 @@ pipeline {
                 script {
                     sh 'env'
                     checkout scm
-                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", ".");
+                    dockerImage = docker.build("${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}", ". --no-cache");
                 }
             }
         }
