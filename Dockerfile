@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libneon27-dev \
     libsodium-dev \
+    librdkafka-dev \
     uuid-dev \
     unzip \
     git \
@@ -38,7 +39,9 @@ RUN apt-get update && apt-get install -y \
     && pecl install uuid \
     && docker-php-ext-enable uuid \
     && pecl install mailparse \
-    && docker-php-ext-enable mailparse
+    && docker-php-ext-enable mailparse \
+    && pecl install rdkafka \
+    && docker-php-ext-enable rdkafka
 
 # Install gearman since the pecl version will not work with PHP7
 RUN cd /tmp \
