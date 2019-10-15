@@ -31,7 +31,7 @@ class TransportFactory implements AccountServiceFactoryInterface
          * If email is being suppressed via a config param, then return InMemory transport
          * so we do not try to send out emails in a development/test environment.
          */
-        if (isset($config->email['supress'])) {
+        if (isset($config->email['supress']) && $config->email['supress'] === 'false') {
             return new InMemory();
         }
 
