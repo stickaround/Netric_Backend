@@ -31,7 +31,7 @@ do {
         // Encode the json and update the table row
         $db->update(
             'objects',
-            ['field_data' => json_encode($entity->toArray)],
+            ['field_data' => json_encode($entity->toArray())],
             ['guid' => $row['guid']]
         );
     }

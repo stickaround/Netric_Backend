@@ -76,7 +76,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
     ),
 
     'all_my_tasks' => array(
@@ -102,7 +102,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
     ),
 
     'tasks_i_have_assigned' => array(
@@ -140,7 +140,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
     ),
 
     'all_incomplete_tasks' => array(
@@ -166,7 +166,7 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
     ),
 
     'all_tasks' => array(
@@ -184,6 +184,6 @@ return array(
                 'direction' => 'asc'
             ),
         ),
-        'table_columns' => array('name', 'project', 'priority', 'deadline', 'user_id')
+        'table_columns' => array('name', 'project', 'priority_id', 'deadline', 'user_id')
     ),
 );
