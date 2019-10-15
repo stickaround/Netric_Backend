@@ -44,7 +44,8 @@ class NotificationEntity extends Entity implements EntityInterface
          * and not yet seen the entity being commented on, so there is no need to notify
          * them over and over if they have not even seen the last notice.
          */
-        if (!$this->getId() && $objRef = $this->getValue('obj_reference')) {
+       
+        if ($this->getId() && $this->getValue('obj_reference')) {
             // If the email flag is set, then send an email
             if ($this->getValue("f_email")) {
                 $this->sendEmailNotification($sm);
