@@ -23,7 +23,7 @@ class ConfigFactory implements ApplicationServiceFactoryInterface
      */
     public function createService(ServiceLocatorInterface $sl)
     {
-        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "integration";
+        $applicationEnvironment = (getenv('APPLICATION_ENV')) ? getenv('APPLICATION_ENV') : "production";
         $config = ConfigLoader::fromFolder(
             __DIR__ . "/../../../config",
             $applicationEnvironment
