@@ -52,5 +52,7 @@ networks:
 secrets:
   entityenc:
     file: /var/aereusdata/secrets/netric/entityenc
+    name: entityenc-${APPLICATION_VER}
   auth_private_key:
     file: /var/aereusdata/secrets/netric/auth_private_key
+    name: auth_private_key-${APPLICATION_VER}
