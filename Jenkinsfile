@@ -30,48 +30,48 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                // Run unit tests
-                script {
-                    docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
-                        sh 'docker-compose -f docker/docker-compose-test.yml build --no-cache'
-                        sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
-                    }
+        // stage('Test') {
+        //     steps {
+        //         // Run unit tests
+        //         script {
+        //             docker.withRegistry("https://${DOCKERHUB_SERVER}", 'aereusdev-dockerhub') {
+        //                 sh 'docker-compose -f docker/docker-compose-test.yml build --no-cache'
+        //                 sh 'docker-compose -f docker/docker-compose-test.yml up --exit-code-from netric_server'
+        //             }
 
-                    // Report on junit
-                    junit '.reports/junit.xml'
+        //             // Report on junit
+        //             junit '.reports/junit.xml'
 
-                    // Send reports to server for code quality metrics
-                    codeQualityReport(
-                       repositoryName: 'netric.svc',
-                       teamName: 'Netric',
-                       cloverFile: '.reports/clover.xml',
-                       pmdFile: '.reports/pmd.xml',
-                       checkStyleFile: '.reports/checkstyle.xml'
-                    )
-                }
-                script {
-                    // Check container for security vulnerabilities
-                    dir('.clair') {
-                        def nodeIp = sh(
-                            script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
-                            returnStdout: true
-                        ).trim();
+        //             // Send reports to server for code quality metrics
+        //             codeQualityReport(
+        //                repositoryName: 'netric.svc',
+        //                teamName: 'Netric',
+        //                cloverFile: '.reports/clover.xml',
+        //                pmdFile: '.reports/pmd.xml',
+        //                checkStyleFile: '.reports/checkstyle.xml'
+        //             )
+        //         }
+        //         script {
+        //             // Check container for security vulnerabilities
+        //             dir('.clair') {
+        //                 def nodeIp = sh(
+        //                     script: "ip addr show dev eth0  | grep 'inet ' | sed -e 's/^[ \t]*//' | cut -d ' ' -f 2 | cut -d '/' -f 1",
+        //                     returnStdout: true
+        //                 ).trim();
 
-                        // Pull the clairscanner binary
-                        git branch: 'master',
-                            credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
-                            url: 'ssh://git@src.aereus.com:222/source/clair.aereus.com.git'
+        //                 // Pull the clairscanner binary
+        //                 git branch: 'master',
+        //                     credentialsId: '9862b4cf-a692-43c5-9614-9d93114f93a7',
+        //                     url: 'ssh://git@src.aereus.com:222/source/clair.aereus.com.git'
 
-                        sh 'chmod +x ./bin/clair-scanner_linux_amd64'
+        //                 sh 'chmod +x ./bin/clair-scanner_linux_amd64'
 
-                        // Fail if any critical security vulnerabilities are found
-                        sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://dev1.aereus.com:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
-                   }
-                }
-            }
-        }
+        //                 // Fail if any critical security vulnerabilities are found
+        //                 sh "./bin/clair-scanner_linux_amd64 -t 'Critical' -c http://dev1.aereus.com:6060 --ip=${nodeIp} ${DOCKERHUB_SERVER}/${PROJECT_NAME}:${APPLICATION_VERSION}"
+        //            }
+        //         }
+        //     }
+        // }
 
         stage('Publish') {
             steps {
@@ -83,37 +83,37 @@ pipeline {
             }
         }
 
-        stage('Integration Setup') {
-            steps {
-                // Call stack deploy to upgrade
-                script {
-                    sshagent (credentials: ['aereus']) {
-                        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
-                                            usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
-                                "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com"
-                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com hostname "
-                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
-                                "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
-                                "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Integration Setup') {
+        //     steps {
+        //         // Call stack deploy to upgrade
+        //         script {
+        //             sshagent (credentials: ['aereus']) {
+        //                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'aereusdev-dockerhub',
+        //                                     usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+        //                     sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
+        //                         "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com"
+        //                     sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com hostname "
+        //                     sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
+        //                         "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
+        //                         "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Integration') {
-            steps {
-                script {
-                    deployToSwarm(
-                        environment: DeploymentTargets.INTEGRATION,
-                        stackName: PROJECT_NAME,
-                        imageTag: APPLICATION_VERSION,
-                        serviceDomain: '*.integ.netric.com'
-                    )
-                }
-            }
-        }
+        // stage('Integration') {
+        //     steps {
+        //         script {
+        //             deployToSwarm(
+        //                 environment: DeploymentTargets.INTEGRATION,
+        //                 stackName: PROJECT_NAME,
+        //                 imageTag: APPLICATION_VERSION,
+        //                 serviceDomain: '*.integ.netric.com'
+        //             )
+        //         }
+        //     }
+        // }
 
         stage('Production Setup') {
             steps {
