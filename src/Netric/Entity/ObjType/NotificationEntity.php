@@ -56,7 +56,6 @@ class NotificationEntity extends Entity implements EntityInterface
             }
             return;
         }
-        throw new \InvalidArgumentException("Cannot notify the user without obj_reference params");
     }
 
     /**
