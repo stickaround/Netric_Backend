@@ -21,6 +21,9 @@ services:
     image: memcached
   gearmand:
     image: kendu/gearman
+    depends_on:
+      - memcached
+
   db1:
     image: "dockerhub.aereus.com/pgsql:latest"
     command:
