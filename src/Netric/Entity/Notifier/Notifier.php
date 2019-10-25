@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @author Sky Stebnicki <sky.stebnicki@aereus.com>
  * @copyright 2015 Aereus
  */
+
 namespace Netric\Entity\Notifier;
 
 use Netric\Entity\Entity;
@@ -101,7 +103,7 @@ class Notifier
         $name = $this->getNameFromEventVerb($event, $entity->getDefinition()->getTitle());
 
         // Get followers of the referenced entity
-        $followers = $entity->getValue("followers");
+        $followers = $this->getInterestedUsers($entity);
 
         // If no values, then return empty array
         if (!is_array($followers)) {
@@ -226,5 +228,36 @@ class Notifier
             default:
                 return ucfirst($event) . " " . $objTypeTitle;
         }
+    }
+
+    /**
+     * Return list of users that should be notified of an event
+     *
+     * @param EntityInterface $entity
+     * @return array
+     */
+    private function getInterestedUsers(EntityInterface $entity): array
+    {
+        $objType = $entity->getDefinition()->getObjType();
+        $followers = [];
+
+        // Get followers of the referenced entity
+        if (is_array($entity->getValue("followers"))) {
+            $followers = $entity->getValue("followers");
+        }
+
+        /*
+         * If the entity being created is a comment, then we want to
+         * check the followers of the entity being commented on.
+         */
+        if ($objType == ObjectTypes::COMMENT && $entity->getValue("obj_reference")) {
+            $objRefValues = Entity::decodeObjRef($entity->getValue("obj_reference"));
+            $refEntity = $this->entityLoader->get($objRefValues['obj_type'], $objRefValues['id']);
+            if (is_array($refEntity->getValue('followers'))) {
+                $followers = array_merge($followers, $refEntity->getValue('followers'));
+            }
+        }
+
+        return $followers;
     }
 }
