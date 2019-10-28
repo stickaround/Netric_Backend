@@ -360,10 +360,13 @@ class Field implements \ArrayAccess
             switch ($on) {
                 case 'create':
                     if ($value !== null) {
-                        break;
+                        if (!$ret) {
+                            $ret = $this->default['value'];
+                        }
                     } else {
                         $ret = $this->default['value'];
                     }
+                    break;
                 // Fall through to also use update
                 case 'update':
                     if ($on == "update") {
@@ -375,6 +378,7 @@ class Field implements \ArrayAccess
                         } else {
                             $ret = $this->default['value'];
                         }
+                      
                     }
                     break;
                 case 'delete':
