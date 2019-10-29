@@ -359,11 +359,7 @@ class Field implements \ArrayAccess
             // Determin appropriate event and action
             switch ($on) {
                 case 'create':
-                    if ($value !== null) {
-                        if (!$ret) {
-                            $ret = $this->default['value'];
-                        }
-                    } else {
+                    if ($value === null) {
                         $ret = $this->default['value'];
                     }
                     break;
@@ -378,7 +374,6 @@ class Field implements \ArrayAccess
                         } else {
                             $ret = $this->default['value'];
                         }
-                      
                     }
                     break;
                 case 'delete':
