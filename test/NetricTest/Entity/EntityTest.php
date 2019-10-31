@@ -41,14 +41,25 @@ class EntityTest extends TestCase
     }
 
     /**
-     * Test default timestamp
+     * Test on create default timestamp
      */
-    public function testFieldDefaultTimestamp()
+    public function testOnCreateSetFieldDefaultTimestamp()
     {
         $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
         $cust->setValue("name", "testFieldDefaultTimestamp");
-        $cust->setFieldsDefault('create'); // time_created has a 'now' on 'create' default
-        $this->assertTrue(is_numeric($cust->getValue("time_entered")));
+        $cust->setFieldsDefault('create'); // ts_entered has a 'now' on 'create' default
+        $this->assertTrue(is_numeric($cust->getValue("ts_entered")));
+    }
+
+    /**
+     * Test on update default timestamp
+     */
+    public function testOnUpdateSetFieldDefaultTimestamp()
+    {
+        $cust = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $cust->setValue("name", "testFieldDefaultTimestamp");
+        $cust->setFieldsDefault('update'); // ts_updated has a 'now' on 'update' default
+        $this->assertTrue(is_numeric($cust->getValue("ts_updated")));
     }
 
     /**
