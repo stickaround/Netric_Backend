@@ -13,7 +13,6 @@ services:
       - db1
       - mogilefs
       - mogilestore
-      - logstash
     entrypoint: 'bash -c "/netric-setup.sh && /netric-tests.sh > /dev/stdout"'
   memcached:
     image: memcached
