@@ -359,10 +359,8 @@ class Field implements \ArrayAccess
             // Determin appropriate event and action
             switch ($on) {
                 case 'create':
-                    if ($event == "create") {
-                        if (!$value) {
-                            $ret = $this->default['value'];
-                        }
+                    if ($event == "create" && !$value) {                    
+                        $ret = $this->default['value'];
                     }
                     break;
                 // Fall through to also use update
@@ -370,7 +368,7 @@ class Field implements \ArrayAccess
                     if ($event == "update") {
                         if (isset($this->default['coalesce']) && is_array($this->default['coalesce']) && $obj) {
                             $ret = $this->getDefaultCoalesce($this->default['coalesce'], $obj, ($this->type == "alias") ? true : false);
-                            if (!$value) {
+                            if (!$ret) {
                                 $ret = $this->default['value'];
                             }
                         } else {
