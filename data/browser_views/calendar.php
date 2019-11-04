@@ -26,6 +26,6 @@ return array(
     			'direction' => 'asc',
     		),
 		),
-		'table_columns' => array('name', 'description', 'user_id')
+		'table_columns' => array('name', 'user_id', 'f_view')
     ),
 );
