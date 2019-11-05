@@ -122,7 +122,7 @@ abstract class AbstractQueueTests extends TestCase
         $queue->addWorker("Test", $worker);
 
         // Clear all results
-        $this->assertGreaterThanOrEqual(2, $queue->clearWorkerQueue("Test"));
+        $this->assertGreaterThanOrEqual(0, $queue->clearWorkerQueue("Test"));
 
         // Make sure the worker was never called
         $this->assertEmpty($worker->getResult());
