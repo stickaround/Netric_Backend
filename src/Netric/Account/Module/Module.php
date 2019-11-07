@@ -108,6 +108,13 @@ class Module
     private $navigation = [];
 
     /**
+     * Contains the navigation xml details that will be displayed in the frontend
+     *
+     * @var string
+     */
+    private $xmlNavigation = '';
+
+    /**
      * Flag that will determine if the module navigation data was changed and needs to be saved
      *
      * @var bool
@@ -373,6 +380,26 @@ class Module
     }
 
     /**
+     * Set the xml navigation string
+     *
+     * @param string|null $navigation
+     */
+    public function setXmlNavigation(string $xmlNavigation)
+    {
+        $this->xmlNavigation = $xmlNavigation;
+    }
+
+    /**
+     * Get the xml navigation details
+     *
+     * @return string
+     */
+    public function getXmlNavigation(): string
+    {
+        return $this->xmlNavigation;
+    }
+
+    /**
      * Set the user name where we published this module
      *
      * @param string|null $userName
@@ -475,9 +502,8 @@ class Module
             "sort_order" => $this->sortOder,
             "icon" => $this->icon,
             "default_route" => $this->defaultRoute,
-            "navigation" => $this->navigation,
-            "xml_navigation" => $this->convertNavigationToXml()
-
+            "navigation" => count($this->navigation) ? $this->navigation : $this->convertXmltoNavigation($this->xmlNavigation),
+            "xml_navigation" => strlen($this->xmlNavigation) ? $this->xmlNavigation : $this->convertNavigationToXml()
         );
     }
 
@@ -507,7 +533,7 @@ class Module
      *
      * @param string|null $xmlNavigation
      *
-     * @return array|null
+     * @return array
      */
     public function convertXmltoNavigation($xmlNavigation)
     {
@@ -521,13 +547,13 @@ class Module
             return array_values(json_decode($json, true));
         }
 
-        return null;
+        return array();
     }
 
     /**
      * Converts the navigation array to xml
      *
-     * @return string|null
+     * @return string
      */
     public function convertNavigationToXml()
     {
@@ -544,7 +570,7 @@ class Module
             return $xmlNavigation->asXML();
         }
 
-        return null;
+        return '';
     }
 
     /**

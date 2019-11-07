@@ -82,7 +82,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             "icon" => $module->getIcon(),
             "default_route" => $module->getDefaultRoute(),
             "navigation_data" => json_encode($navigationData),
-            "xml_navigation" => $module->convertNavigationToXml()
+            "xml_navigation" => $module->getXmlNavigation()
         );
 
         // Compose either an update or insert statement
