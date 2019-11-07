@@ -68,7 +68,6 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
      */
     public function save(Module $module)
     {
-        $navigationData = $module->getNavigation() ? $module->getNavigation() : [];
         // Setup data for the database columns
         $data = array(
             "name" => $module->getName(),
@@ -81,7 +80,7 @@ class ModuleRdbDataMapper extends AbstractHasErrors implements ModuleDataMapperI
             "sort_order" => $module->getSortOrder(),
             "icon" => $module->getIcon(),
             "default_route" => $module->getDefaultRoute(),
-            "navigation_data" => json_encode($navigationData),
+            "navigation_data" => json_encode($module->getNavigation()),
             "xml_navigation" => $module->getXmlNavigation()
         );
 
