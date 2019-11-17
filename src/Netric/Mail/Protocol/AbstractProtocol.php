@@ -203,7 +203,7 @@ abstract class AbstractProtocol
             if ($errorNum == 0) {
                 $errorStr = 'Could not open socket';
             }
-            throw new Exception\RuntimeException($errorStr);
+            throw new Exception\RuntimeException("$errorStr. Remote: $remote .Error from AbstractProtocol::_connect");
         }
 
         if (($result = stream_set_timeout($this->socket, self::TIMEOUT_CONNECTION)) === false) {
