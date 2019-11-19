@@ -42,6 +42,11 @@ class SmtpFactory implements AccountServiceFactoryInterface
             );
         }
 
+        // Setup the port if set in the system config
+        if (isset($config->email['port'])) {
+            $options['port'] = $config->email['port'];
+        }
+
         /*
          * Check for account overrides in settings. This allows specific
          * accounts to utilize another email server to send messages from.
