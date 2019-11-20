@@ -130,7 +130,7 @@ class NotificationEntity extends Entity implements EntityInterface
             // Create a new message and send it
             $from = new Address($fromEmail, $creator->getName());
             $message = new Mail\Message();
-            $message->addFrom($from);
+            $message->addFrom($config->email['noreply']);
             $message->addTo($user->getValue("email"));
             $message->setBody($body);
             $message->setEncoding('UTF-8');
