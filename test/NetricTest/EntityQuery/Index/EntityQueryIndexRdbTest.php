@@ -86,7 +86,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("project_id");
         $condition->equals(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "project_id=1");
+        $this->assertEquals("field_data->>'project_id'='1'", $conditionString);
     }
 
     public function testbuildConditionStringForString()

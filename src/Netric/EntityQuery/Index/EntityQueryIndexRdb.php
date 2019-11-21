@@ -567,13 +567,20 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($value) {
-                    $conditionString = "$fieldName=" . $this->database->quote($value);
+                    // Old column-based query condition
+                    //$conditionString = "$fieldName=" . $this->database->quote($value);
+                    // New jsonb-based query condition
+                    $conditionString = "field_data->>'$fieldName'='$value'";
                 } else {
-                    $conditionString = "$fieldName is null";
+                    // Value is null/empty or key does not exist
+                    $conditionString = "(field_data->>'$fieldName') is null OR field_data->>'$fieldName'=''";
 
-                    if (empty($field->subtype)) {
-                        $conditionString .= " or $fieldName=''";
-                    }
+                    // Old column-based query condition
+                    // $conditionString = "$fieldName is null";
+
+                    // if (empty($field->subtype)) {
+                    //     $conditionString .= " or $fieldName=''";
+                    // }
                 }
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
