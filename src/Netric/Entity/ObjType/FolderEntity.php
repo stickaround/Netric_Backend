@@ -156,6 +156,7 @@ class FolderEntity extends Entity implements EntityInterface
         $query->where("parent_id")->equals("");
         $query->andWhere("name")->equals("/");
         $query->andWhere("f_system")->equals(true);
+        $query->setLimit(1);
 
         $result = $this->entityIndex->executeQuery($query);
         if ($result->getNum()) {

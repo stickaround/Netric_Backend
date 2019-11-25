@@ -156,10 +156,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         if (!$query->fieldIsInWheres('f_deleted') && $entityDefinition->getField("f_deleted")) {
             // If $conditionString is not empty, then we will just append the "and" blogic
             if (!empty($conditionString)) {
-                $conditionString .= " and ";
+                $conditionString .= " AND ";
             }
 
-            $conditionString .= "f_deleted=false";
+            $conditionString .= "(field_data->>'f_deleted' = 'false' OR (field_data->>'f_deleted')::boolean IS NULL)";
         }
 
         // Get order by from $query and setup the sort order
@@ -338,7 +338,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName>" . $this->database->quote($value);
+                        $conditionString = "field_data->>'$fieldName' > '$value'";
                         break;
                 }
                 break;
@@ -356,27 +356,27 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName<" . $this->database->quote($value);
+                        $conditionString = "field_data->>'$fieldName' < '$value'";
                         break;
                 }
                 break;
             case Where::OPERATOR_GREATER_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
+                    case FIELD::TYPE_OBJECT_MULTI:
+                        case FIELD::TYPE_GROUPING_MULTI:
+                        case FIELD::TYPE_TEXT:
+                            break;
                     case FIELD::TYPE_OBJECT:
                         if ($field->subtype) {
                             $children = $this->getHeiarchyDownObj($field->subtype, $value);
 
                             foreach ($children as $child) {
-                                $multiCond[] = "$fieldName=" . $this->database->quote($child);
+                                $multiCond[] = "field_data->>'$fieldName' = '$child'";
                             }
 
                             $conditionString = "(" . implode(" or ", $multiCond) . ")";
                             break;
                         }
-                        break;
-                    case FIELD::TYPE_OBJECT_MULTI:
-                    case FIELD::TYPE_GROUPING_MULTI:
-                    case FIELD::TYPE_TEXT:
                         break;
                     default:
                         if ($field->type == FIELD::TYPE_TIMESTAMP) {
@@ -385,12 +385,16 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName>=" . $this->database->quote($value);
+                        $conditionString = "field_data->>'$fieldName' >= '$value'";
                         break;
                 }
                 break;
             case Where::OPERATOR_LESS_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
+                    case FIELD::TYPE_OBJECT_MULTI:
+                        case FIELD::TYPE_GROUPING_MULTI:
+                        case FIELD::TYPE_TEXT:
+                            break;
                     case FIELD::TYPE_OBJECT:
                         if (!empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
@@ -399,26 +403,22 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $refDefTable = $refDef->getTable(true);
 
                             if ($refDef->parentField) {
-                                $conditionString = "$fieldName in (WITH RECURSIVE children AS
+                                $conditionString = "field_data->>'$fieldName' in (WITH RECURSIVE children AS
 												(
 													-- non-recursive term
-                                                    SELECT id FROM $refDefTable 
-                                                    WHERE id=" . $this->database->quote($value) . "
+                                                    SELECT field_data->>'id' AS id FROM $refDefTable 
+                                                    WHERE field_data->>'id' = '$value'
 													UNION ALL
 													-- recursive term
-													SELECT $refDefTable.id
+													SELECT $refDefTable.field_data->>'id' as id
 													FROM $refDefTable
 													JOIN children AS chld
-														ON ($refDefTable.{$refDef->parentField}=chld.id)
+														ON ($refDefTable.field_data->>'{$refDef->parentField}' = chld.id)
 												)
 												SELECT id
 												FROM children)";
                             }
                         }
-                        break;
-                    case FIELD::TYPE_OBJECT_MULTI:
-                    case FIELD::TYPE_GROUPING_MULTI:
-                    case FIELD::TYPE_TEXT:
                         break;
                     default:
                         if ($field->type == FIELD::TYPE_TIMESTAMP) {
@@ -427,43 +427,81 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $conditionString = "$fieldName<=" . $this->database->quote($value);
+                        $conditionString = "field_data->>'$fieldName' <= '$value'";
                         break;
                 }
                 break;
             case Where::OPERATOR_BEGINS:
             case Where::OPERATOR_BEGINS_WITH:
-                switch ($field->type) {
-                    case FIELD::TYPE_TEXT:
-                        if ($field->subtype) {
-                            $conditionString = "lower($fieldName) like " . $this->database->quote(strtolower("$value%"));
-                        } else {
-                            $conditionString = "to_tsvector($fieldName) @@ 
-                                plainto_tsquery(" . $this->database->quote("$value*") . ")";
-                        }
-                        break;
+                if ($field->type == FIELD::TYPE_TEXT) {
+                    $conditionString = "lower(field_data->>'$fieldName') LIKE '" . strtolower("$value%") . "'";
                 }
                 break;
             case Where::OPERATOR_CONTAINS:
-                switch ($field->type) {
-                    case FIELD::TYPE_TEXT:
-                        if ($field->subtype) {
-                            $conditionString = "lower($fieldName) like " . $this->database->quote(strtolower("%$value%"));
-                        } else {
-                            $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(" . $this->database->quote($value) . ")";
-                        }
-
-                        break;
-                    default:
-                        break;
+                if ($field->type == FIELD::TYPE_TEXT) {
+                    $conditionString = "lower(field_data->>'$fieldName') LIKE '" . strtolower("%$value%") . "'";
                 }
                 break;
         }
 
         // If we are dealing with date operators
-        if (($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP)
-            && empty($conditionString)) {
-            $conditionString = $this->buildConditionWithDateOperators($condition);
+        if (empty($conditionString)) {
+            $castType = "::date";
+            switch ($field->type) {
+                case FIELD::TYPE_TIMESTAMP:
+                    $castType = "::timestamp without time zone";
+                case FIELD::TYPE_DATE:
+                    $conditionString = $this->buildConditionWithDateOperators($condition, $castType);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return $conditionString;
+    }
+
+    /**
+     * Function that will build the conditions with date operators
+     *
+     * @param Array $condition The where condition that we are dealing with
+     * @return string
+     */
+    private function buildConditionWithDateOperators($condition, $castType)
+    {
+        $conditionString = "";
+        $fieldName = $condition->fieldName;
+        $value = $condition->value;
+        $dateType = $condition->getOperatorDateType();
+
+        switch ($condition->operator) {
+            // Operator Date is equal
+            case Where::OPERATOR_DAY_IS_EQUAL:
+            case Where::OPERATOR_MONTH_IS_EQUAL:
+            case Where::OPERATOR_YEAR_IS_EQUAL:
+                // If the value is trying to get the current date
+                if ($value === "<%current_$dateType%>") {
+                    $conditionString = "extract($dateType from (field_data->>'$fieldName')$castType) = extract('$dateType' from now())";
+                } else {
+                    $conditionString = "extract($dateType from (field_data->>'$fieldName')$castType) = '$value'";
+                }
+                break;
+
+            // Operator Last X DateType
+            case Where::OPERATOR_LAST_X_DAYS:
+            case Where::OPERATOR_LAST_X_WEEKS:
+            case Where::OPERATOR_LAST_X_MONTHS:
+            case Where::OPERATOR_LAST_X_YEARS:
+                $conditionString = "(field_data->>'$fieldName')$castType >= (now()-INTERVAL '$value {$dateType}s')$castType";
+                break;
+
+            // Operator Next DateType
+            case Where::OPERATOR_NEXT_X_DAYS:
+            case Where::OPERATOR_NEXT_X_WEEKS:
+            case Where::OPERATOR_NEXT_X_MONTHS:
+            case Where::OPERATOR_NEXT_X_YEARS:
+                $conditionString = "(field_data->>'$fieldName')$castType >= now()$castType and (field_data->>'$fieldName')$castType <= (now()+INTERVAL '$value {$dateType}s')$castType";
+                break;
         }
 
         return $conditionString;
@@ -505,52 +543,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     }
 
     /**
-     * Function that will build the conditions with date operators
-     *
-     * @param Array $condition The where condition that we are dealing with
-     * @return string
-     */
-    private function buildConditionWithDateOperators($condition)
-    {
-        $conditionString = "";
-        $fieldName = $condition->fieldName;
-        $value = $condition->value;
-        $dateType = $condition->getOperatorDateType();
-
-        switch ($condition->operator) {
-            // Operator Date is equal
-            case Where::OPERATOR_DAY_IS_EQUAL:
-            case Where::OPERATOR_MONTH_IS_EQUAL:
-            case Where::OPERATOR_YEAR_IS_EQUAL:
-                // If the value is trying to get the current date
-                if ($value === "<%current_$dateType%>") {
-                    $conditionString = "extract($dateType from $fieldName)=extract('$dateType' from now())";
-                } else {
-                    $conditionString = "extract($dateType from $fieldName)=" . $this->database->quote($value);
-                }
-                break;
-
-            // Operator Last X DateType
-            case Where::OPERATOR_LAST_X_DAYS:
-            case Where::OPERATOR_LAST_X_WEEKS:
-            case Where::OPERATOR_LAST_X_MONTHS:
-            case Where::OPERATOR_LAST_X_YEARS:
-                $conditionString = "$fieldName>=(now()-INTERVAL '$value {$dateType}s')";
-                break;
-
-            // Operator Next DateType
-            case Where::OPERATOR_NEXT_X_DAYS:
-            case Where::OPERATOR_NEXT_X_WEEKS:
-            case Where::OPERATOR_NEXT_X_MONTHS:
-            case Where::OPERATOR_NEXT_X_YEARS:
-                $conditionString = "$fieldName>=now() and $fieldName<=(now()+INTERVAL '$value {$dateType}s')";
-                break;
-        }
-
-        return $conditionString;
-    }
-
-    /**
      * Add conditions for "is_eqaul" operator
      *
      * @param EntityDefinition $entityDefinition Definition for the entity being queried
@@ -563,6 +555,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $fieldName = $condition->fieldName;
         $value = $condition->value;
 
+        $castType = "";
         $conditionString = "";
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
@@ -570,10 +563,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     // Old column-based query condition
                     //$conditionString = "$fieldName=" . $this->database->quote($value);
                     // New jsonb-based query condition
-                    $conditionString = "field_data->>'$fieldName'='$value'";
+                    $conditionString = "field_data->>'$fieldName' = '$value'";
                 } else {
                     // Value is null/empty or key does not exist
-                    $conditionString = "(field_data->>'$fieldName') is null OR field_data->>'$fieldName'=''";
+                    $conditionString = "(field_data->>'$fieldName') IS NULL OR field_data->>'$fieldName' = ''";
 
                     // Old column-based query condition
                     // $conditionString = "$fieldName is null";
@@ -607,6 +600,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
                 $multiCond = [];
+                $fkeyRefField = $field->fkeyTable['ref_table']['this'];
+                $fkeyRefTable = $field->fkeyTable['ref_table']['table'];
                 $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
 
                 // Check if the fkey table has a parent
@@ -616,23 +611,20 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     // Make sure that we have a children
                     if (!empty($children)) {
                         foreach ($children as $child) {
-                            $multiCond[] = "$fkeyTableRef=" . $this->database->quote($child);
+                            $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($child)}";
                         }
                     } else {
-                        $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
+                        $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
                     }
                 } elseif (!empty($value)) {
-                    $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
+                    $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
                 }
 
-                $thisfld = $field->fkeyTable['ref_table']["this"];
-                $reftbl = $field->fkeyTable['ref_table']['table'];
-
                 if (empty($value)) {
-                    $conditionString = " NOT EXISTS (select 1 from  $reftbl where $reftbl.$thisfld=$objectTable.id) ";
+                    $conditionString = " NOT EXISTS (select 1 from  $fkeyRefTable where $fkeyRefTable.$fkeyRefField = " . $this->castNullIfInteger("$objectTable.field_data->>'id'") . ") ";
                 } else {
                     $multiCondString = implode(" or ", $multiCond);
-                    $conditionString = " EXISTS (select 1 from  $reftbl where $reftbl.$thisfld=$objectTable.id and ($multiCondString)) ";
+                    $conditionString = " EXISTS (select 1 from  $fkeyRefTable where $fkeyRefTable.$fkeyRefField = " . $this->castNullIfInteger("$objectTable.field_data->>'id'") . " and ($multiCondString)) ";
                 }
                 break;
             case FIELD::TYPE_GROUPING:
@@ -640,18 +632,18 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case FIELD::TYPE_TEXT:
                 if (empty($value)) {
-                    $conditionString = "($fieldName is null OR $fieldName='')";
-                } elseif ($field->subtype) {
-                    $conditionString = "lower($fieldName)=" . $this->database->quote(strtolower($value));
+                    $conditionString = "(field_data->>'$fieldName' IS NULL OR field_data->>'$fieldName' = '')";
                 } else {
-                    $conditionString = "to_tsvector($fieldName) @@ plainto_tsquery(" . $this->database->quote($value) . ")";
+                    $conditionString = "lower(field_data->>'$fieldName') = '" . strtolower($value) . "'";
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "$fieldName=" . $this->database->quote($value);
+                $conditionString = "field_data->>'$fieldName' = '$value'";
                 break;
             case FIELD::TYPE_DATE:
+                $castType = "::date";
             case FIELD::TYPE_TIMESTAMP:
+                $castType = "::timestamp without time zone";
                 if ($field->type == FIELD::TYPE_TIMESTAMP) {
                     $value = (is_numeric($value)) ? date("Y-m-d H:i:s T", $value) : $value;
                 } elseif ($field->type == FIELD::TYPE_DATE) {
@@ -659,13 +651,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
             default:
                 if (!empty($value)) {
-                    $conditionString = "$fieldName=" . $this->database->quote($value);
+                    $conditionString = "(field_data->>'$fieldName')$castType = '$value'";
                 } else {
-                    $conditionString = "$fieldName is null";
+                    $conditionString = "field_data->>'$fieldName' IS NULL";
                 }
                 break;
         }
-
+        
         return $conditionString;
     }
 
@@ -682,33 +674,34 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $fieldName = $condition->fieldName;
         $value = $condition->value;
         $conditionString = "";
+
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($field->subtype) {
                     if (empty($value)) {
-                        $conditionString = "$fieldName is not null";
+                        $conditionString = "field_data->>'$fieldName' IS NOT NULL";
                     } elseif (isset($field->subtype) && $entityDefinition->parentField == $fieldName && $value) {
                         $refDef = $this->getDefinition($field->subtype);
                         $refDefTable = $refDef->getTable(true);
                         $parentField = $refDef->parentField;
 
                         if ($refDef->parentField) {
-                            $conditionString = "$fieldName not in (WITH RECURSIVE children AS
+                            $conditionString = "$fieldName NOT IN (WITH RECURSIVE children AS
                                     (
                                         -- non-recursive term
-                                        SELECT id FROM $refDefTable WHERE id=" . $this->database->quote($value) . "
+                                        SELECT field_data->>'id' FROM $refDefTable WHERE field_data->>'id' = '$value'
                                         UNION ALL
                                         -- recursive term
-                                        SELECT $refDefTable.id
+                                        SELECT $refDefTable.field_data->>'id'
                                         FROM $refDefTable
                                         JOIN children AS chld
-                                            ON ($refDefTable.$parentField = chld.id)
+                                            ON ($refDefTable.field_data->>'$parentField' = chld.id)
                                     )
                                     SELECT id
                                     FROM children)";
                         }
                     } else {
-                        $conditionString = "$fieldName!=" . $this->database->quote($value);
+                        $conditionString = "field_data->>'$fieldName' != '$value'";
                     }
                 }
                 break;
@@ -740,7 +733,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $fkeyTableRef = $field->fkeyTable['ref_table']['ref'];
 
                 if (empty($value)) {
-                    $conditionString = "$objectTable.id in (select $fkeyRefField from $fkeyRefTable)";
+                    $conditionString = $this->castNullIfInteger("field_data->>'id'") . " IN (select $fkeyRefField from $fkeyRefTable)";
                 } else {
                     $multiCond = [];
 
@@ -751,17 +744,17 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         // Make sure that we have $children
                         if (!empty($children)) {
                             foreach ($children as $child) {
-                                $multiCond[] = "$fkeyTableRef=" . $this->database->quote($child);
+                                $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($child)}";
                             }
                         } else {
-                            $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
+                            $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
                         }
                     } else {
-                        $multiCond[] = "$fkeyTableRef=" . $this->database->quote($value);
+                        $multiCond[] = "$fkeyRefTable.$fkeyTableRef = {$this->database->quote($value)}";
                     }
 
                     $multiCondString = implode(" or ", $multiCond);
-                    $conditionString = "$objectTable.id not in (select $fkeyRefField from $fkeyRefTable where $multiCondString)";
+                    $conditionString = $this->castNullIfInteger("field_data->>'id'") . " NOT IN (select $fkeyRefField from $fkeyRefTable where $multiCondString)";
                 }
 
                 break;
@@ -770,17 +763,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 break;
             case FIELD::TYPE_TEXT:
                 if (empty($value)) {
-                    $conditionString = "($fieldName!='' AND $fieldName is not NULL)";
-                } elseif ($field->subtype) {
-                    $qoutedValueToLower = $this->database->quote(strtolower($value));
-                    $conditionString = "lower($fieldName)!=$qoutedValueToLower";
+                    $conditionString = "(field_data->>'$fieldName' != '' AND field_data->>'$fieldName' IS NOT NULL)";
                 } else {
-                    $quotedValue = $this->database->quote($value);
-                    $conditionString = " (to_tsvector($fieldName) @@ plainto_tsquery($quotedValue))='f'";
+                    $conditionString = "lower(field_data->>'$fieldName') != '" . strtolower($value) . "'";
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "$fieldName!=" . $this->database->quote($value);
+                $conditionString = "field_data->>'$fieldName' != '$value'";
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -792,11 +781,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 // Format the string then fall through to default
             default:
                 if (!empty($value)) {
-                    $conditionString = "($fieldName!=" .
-                                        $this->database->quote($value) .
-                                        " or $fieldName is null)";
+                    $conditionString = "(field_data->>'$fieldName' != '$value' OR field_data->>'$fieldName' IS NULL)";
                 } else {
-                    $conditionString = "$fieldName is not null";
+                    $conditionString = "field_data->>'$fieldName' IS NOT NULL";
                 }
                 break;
         }
@@ -818,25 +805,25 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $fieldName = $condition->fieldName;
         $value = $condition->value;
         $operator = $condition->operator;
-
         $conditionString = "";
+
         if (empty($value)) {
             if ($operator == Where::OPERATOR_EQUAL_TO) {
-                $conditionString = "$fieldName is null";
+                $conditionString = "field_data->>'$fieldName' IS NULL";
             } else {
-                $conditionString = "$fieldName is not null";
+                $conditionString = "field_data->>'$fieldName' IS NOT NULL";
             }
         } else {
-            $operatorSign = "";
+            $operatorSign = "=";
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
-                $operatorSign = "!";
+                $operatorSign = "!=";
             }
 
-            $conditionString = "$fieldName{$operatorSign}=" . $this->database->quote($value);
+            $conditionString = "field_data->>'$fieldName' $operatorSign '$value'";
 
             // If our operator is not equal to , then we need to add if fieldname is null with or operator
             if ($operator == Where::OPERATOR_NOT_EQUAL_TO) {
-                $conditionString = "($conditionString  or $fieldName is null)";
+                $conditionString = "($conditionString OR field_data->>'$fieldName' IS NULL)";
             }
         }
 
@@ -858,19 +845,19 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $operator = $condition->operator;
 
         // This is a query string that is common for different condition operators
-        $selectQueryString = "select object_id from object_associations
-                                        where object_associations.object_id=$objectTable.id
-                                        and type_id=" . $entityDefinition->getId() . "
-                                        and field_id=" . $field->id;
+        $selectQueryString = "SELECT ASSOC.object_id FROM object_associations AS ASSOC
+                                        WHERE ASSOC.object_id = " . $this->castNullIfInteger("$objectTable.field_data->>'id'") . "
+                                        AND ASSOC.type_id = {$entityDefinition->getId()}
+                                        AND ASSOC.field_id = {$field->id}";
 
         $conditionString = "";
 
         // If we are dealing with a condition with an empty value
         if (empty($value)) {
             if ($operator == Where::OPERATOR_EQUAL_TO) {
-                $conditionString = "not EXISTS ($selectQueryString)";
+                $conditionString = "NOT EXISTS ($selectQueryString)";
             } else {
-                $conditionString = "$objectTable.id in ($selectQueryString)";
+                $conditionString = $this->castNullIfInteger("$objectTable.field_data->>'id'") . " in ($selectQueryString)";
             }
         } else {
             $objRef = Entity::decodeObjRef($value);
@@ -902,15 +889,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 if ($operator == Where::OPERATOR_EQUAL_TO) {
                     $prefixQueryString = "EXISTS";
                 } else {
-                    $prefixQueryString = "$objectTable.id not in";
+                    $prefixQueryString = $this->castNullIfInteger("$objectTable.field_data->>'id'") . " NOT IN";
                 }
 
                 if ($refDef && $refDef->getId() && $referenceId) {
-                    $conditionString = "$prefixQueryString ($selectQueryString and assoc_type_id=" . $refDef->getId() . "
-                                    and assoc_object_id=" . $this->database->quote($referenceId) . ")";
+                    $conditionString = "$prefixQueryString ($selectQueryString AND ASSOC.assoc_type_id = {$refDef->getId()}
+                                    AND ASSOC.assoc_object_id = {$this->database->quote($referenceId)})";
                 } else {
                     // only query associated subtype if there is no referenced id provided
-                    $conditionString = "$prefixQueryString ($selectQueryString and assoc_type_id=" . $refDef->getId() . ")";
+                    $conditionString = "$prefixQueryString ($selectQueryString AND ASSOC.assoc_type_id = {$refDef->getId()})";
                 }
             }
         }
@@ -979,14 +966,15 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         $orderBy = "";
-        $queryFields = "min($fieldName) as agg_min,
-                        max($fieldName) as agg_max,
-                        avg($fieldName) as agg_avg,
-                        sum($fieldName) as agg_sum";
+        $jsonbField = "(field_data->>'$fieldName')::numeric";
+        $queryFields = "min($jsonbField) as agg_min,
+                        max($jsonbField) as agg_max,
+                        avg($jsonbField) as agg_avg,
+                        sum($jsonbField) as agg_sum";
 
         // If we are dealing with aggregate terms, then we need to group the results by $fieldName
         if ($aggTypeName === "terms") {
-            $queryFields = "distinct($fieldName) as agg_distinct, count($fieldName) as cnt";
+            $queryFields = "distinct($fieldName) as agg_distinct, count($jsonbField) as cnt";
             $orderBy = "GROUP BY $fieldName";
         }
 
@@ -995,7 +983,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $conditionQuery = "and ($conditionQuery)";
         }
 
-        $sql = "SELECT $queryFields FROM $objectTable WHERE id is not null $conditionQuery $orderBy";
+        $sql = "SELECT $queryFields FROM $objectTable WHERE field_data->>'id' IS NOT NULL $conditionQuery $orderBy";
 
         $result = $this->database->query($sql);
 
@@ -1050,5 +1038,14 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         return $value;
+    }
+
+    /**
+     * Function that will adds nullif in the fieldName that will be used in jsonb queries
+     * 
+     * @param string $fieldName The name of the field that we will be setting as nullif
+     */
+    private function castNullIfInteger($fieldName) {
+        return "nullif($fieldName, '')::int";
     }
 }
