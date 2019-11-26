@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition\Field;
@@ -265,7 +266,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     }
                 }
 
-                if ($fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
+                if (
+                    $fdef->type == FIELD::TYPE_GROUPING || $fdef->type == FIELD::TYPE_OBJECT
                     || $fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI
                 ) {
                     if (isset($entityData[$fname . "_fval"])) {
@@ -392,9 +394,11 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case Where::OPERATOR_LESS_THAN_OR_EQUAL_TO:
                 switch ($field->type) {
                     case FIELD::TYPE_OBJECT:
-                        if (!empty($field->subtype)
+                        if (
+                            !empty($field->subtype)
                             && $entityDefinition->parentField == $fieldName
-                            && is_numeric($value)) {
+                            && is_numeric($value)
+                        ) {
                             $refDef = $this->getDefinition($field->subtype);
                             $refDefTable = $refDef->getTable(true);
 
@@ -462,7 +466,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // If we are dealing with date operators
         if (($field->type == FIELD::TYPE_DATE || $field->type == FIELD::TYPE_TIMESTAMP)
-            && empty($conditionString)) {
+            && empty($conditionString)
+        ) {
             $conditionString = $this->buildConditionWithDateOperators($condition);
         }
 
@@ -518,7 +523,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $dateType = $condition->getOperatorDateType();
 
         switch ($condition->operator) {
-            // Operator Date is equal
+                // Operator Date is equal
             case Where::OPERATOR_DAY_IS_EQUAL:
             case Where::OPERATOR_MONTH_IS_EQUAL:
             case Where::OPERATOR_YEAR_IS_EQUAL:
@@ -530,7 +535,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
 
-            // Operator Last X DateType
+                // Operator Last X DateType
             case Where::OPERATOR_LAST_X_DAYS:
             case Where::OPERATOR_LAST_X_WEEKS:
             case Where::OPERATOR_LAST_X_MONTHS:
@@ -538,7 +543,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString = "$fieldName>=(now()-INTERVAL '$value {$dateType}s')";
                 break;
 
-            // Operator Next DateType
+                // Operator Next DateType
             case Where::OPERATOR_NEXT_X_DAYS:
             case Where::OPERATOR_NEXT_X_WEEKS:
             case Where::OPERATOR_NEXT_X_MONTHS:
@@ -568,12 +573,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case FIELD::TYPE_OBJECT:
                 if ($value) {
                     $conditionString = "$fieldName=" . $this->database->quote($value);
+                    //$conditionString = "field_data->>'$fieldName'='$value'";
                 } else {
-                    $conditionString = "$fieldName is null";
+                    $conditionString = "(field_data->>'$fieldName') is null";
 
-                    if (empty($field->subtype)) {
-                        $conditionString .= " or $fieldName=''";
-                    }
+                    // if (empty($field->subtype)) {
+                    //     $conditionString .= " or field_data->'$fieldName'=''";
+                    // }
                 }
                 break;
             case FIELD::TYPE_OBJECT_MULTI:
@@ -595,8 +601,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     } else {
                         $buf .= " " . $objectTable . ".$fieldName in (select id from " . $refDef->getTable() . "
                                                                                 where $tmp_obj_cnd_str) ";
-                    }*/
-                }
+                    }*/ }
                 break;
             case FIELD::TYPE_GROUPING_MULTI:
                 $multiCond = [];
@@ -786,8 +791,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             default:
                 if (!empty($value)) {
                     $conditionString = "($fieldName!=" .
-                                        $this->database->quote($value) .
-                                        " or $fieldName is null)";
+                        $this->database->quote($value) .
+                        " or $fieldName is null)";
                 } else {
                     $conditionString = "$fieldName is not null";
                 }
@@ -1012,11 +1017,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                     break;
                 case 'stats':
                     $row = $result->fetch();
-                    $data = ["min" => $row["agg_min"],
-                             "max" => $row["agg_max"],
-                             "avg" => $row["agg_avg"],
-                             "sum" => $row["agg_sum"],
-                             "count" => $results->getTotalNum()];
+                    $data = [
+                        "min" => $row["agg_min"],
+                        "max" => $row["agg_max"],
+                        "avg" => $row["agg_avg"],
+                        "sum" => $row["agg_sum"],
+                        "count" => $results->getTotalNum()
+                    ];
                     break;
                 case 'count':
                     $data = $results->getTotalNum();

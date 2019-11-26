@@ -39,7 +39,7 @@
         <arguments>
             <array>
                 <element key="xhprofWeb">
-                    <string>http://local.aereusdev.com:8888</string>
+                    <string>http://localhost:8888</string>
                     </element>
                 <element key="xhprofRunsFolder">
                     <string>/var/www/html/data/profile_runs</string>

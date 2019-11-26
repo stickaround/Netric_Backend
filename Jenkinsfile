@@ -92,8 +92,7 @@ pipeline {
                                             usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                             sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com " +
                                 "docker login -u ${USERNAME} -p ${PASSWORD} dockerhub.aereus.com"
-                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com hostname "
-                            sh "ssh -o StrictHostKeyChecking=no aereus@dev1.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
+                            sh "ssh -o StrictHostKeyChecking=no aereus@dat1-int-locsea.aereus.com docker run -i --rm -e 'APPLICATION_ENV=integration' -e 'APPLICATION_VER=${APPLICATION_VERSION}' " +
                                 "-v /var/aereusdata/secrets/netric:/var/run/secrets:ro " +
                                 "--entrypoint='/netric-setup.sh' dockerhub.aereus.com/${PROJECT_NAME}:${APPLICATION_VERSION}"
                         }

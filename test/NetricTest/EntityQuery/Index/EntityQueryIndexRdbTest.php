@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test querying ElasticSearch server
  *
@@ -7,6 +8,7 @@
  * in the parent class. For the most part, the parent class tests all public functions
  * so private functions should be tested below.
  */
+
 namespace NetricTest\EntityQuery\Index;
 
 use Netric;
@@ -27,7 +29,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     {
         return new EntityQueryIndexRdb($this->account);
     }
-    
+
     /**
      * Dummy test
      */
@@ -40,7 +42,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
         $loader = $this->account->getServiceManager()->get(LoaderFactory::class);
-        
+
         // Get all groupings for this object type
         $groupings = $loader->get(ObjectTypes::PROJECT_STORY, "status_id");
 
@@ -64,13 +66,13 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     {
         $def = $this->defLoader->get(ObjectTypes::NOTE);
         $objTable = $def->getTable();
-        
+
         // Test Equals
         $condition = new Where("groups");
         $condition->equals(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
         $this->assertEquals($conditionString, " EXISTS (select 1 from  object_grouping_mem where object_grouping_mem.object_id=objects_note.id and (grouping_id=1)) ");
-        
+
         // Test Not Equal
         $condition = new Where("groups");
         $condition->doesNotEqual(1);
@@ -81,7 +83,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
     public function testbuildConditionStringForObject()
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
-        
+
         // Test Equals
         $condition = new Where("project_id");
         $condition->equals(1);
