@@ -16,6 +16,7 @@ use Netric\Entity\EntityLoaderFactory;
 use Netric\Entity\ObjType\NotificationEntity;
 use Netric\EntityQuery\Index\IndexFactory;
 use Netric\EntityDefinition\ObjectTypes;
+use Netric\Config\ConfigFactory;
 
 class NotificationTest extends TestCase
 {
@@ -134,12 +135,6 @@ class NotificationTest extends TestCase
             $message->getTo()->current()->getEmail()
         );
 
-        // Check that we sent from the creator name
-        $this->assertEquals(
-            $this->user->getName(),
-            $message->getFrom()->current()->getName()
-        );
-
         // Check that obj_reference has value
         $this->assertEquals(
             $notification->getValue('obj_reference'),
@@ -147,8 +142,9 @@ class NotificationTest extends TestCase
         );
 
         // Make sure dropbox email is generated for replying to
+        $config = $this->account->getServiceManager()->get(ConfigFactory::class);
         $this->assertStringContainsString(
-            $this->account->getName() . "-com-task." . $task->getId(),
+            $config->email['noreply'],
             $message->getFrom()->current()->getEmail()
         );
     }
