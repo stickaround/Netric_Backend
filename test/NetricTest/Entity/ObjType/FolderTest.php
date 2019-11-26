@@ -5,6 +5,8 @@
 namespace NetricTest\Entity\ObjType;
 
 use Netric\Entity;
+use Netric\EntityQuery;
+use Netric\EntityQuery\Index\IndexFactory;
 use PHPUnit\Framework\TestCase;
 use Netric\Entity\ObjType\FolderEntity;
 use Netric\FileSystem\FileSystemFactory;
@@ -71,5 +73,15 @@ class FolderTest extends TestCase
         $rootFolderEntity = $entity->getRootFolder();
 
         $this->assertNotNull($rootFolderEntity);
+
+        // Make sure that there is only 1 root folder
+        $query = new EntityQuery(ObjectTypes::FOLDER);
+        $query->where("parent_id")->equals("");
+        $query->andWhere("name")->equals("/");
+        $query->andWhere("f_system")->equals(true);
+
+        $entityIndex = $account->getServiceManager()->get(IndexFactory::class);
+        $result = $entityIndex->executeQuery($query);
+        $this->assertEquals($result->getNum(), 1);
     }
 }

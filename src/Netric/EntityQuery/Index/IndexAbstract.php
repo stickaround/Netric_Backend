@@ -6,7 +6,7 @@
 namespace Netric\EntityQuery\Index;
 
 use Netric\EntityDefinition\Field;
-use Netric\EntityDefinition;
+use Netric\EntityDefinition\EntityDefinition;
 use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Results;
@@ -265,10 +265,10 @@ abstract class IndexAbstract
      * This function also takes care of translating environment varials such as
      * current user and current user's team into IDs for the query.
      *
-     * @param EntityDefinition\Field $field
+     * @param Field $field
      * @param mixed $value
      */
-    public function sanitizeWhereCondition(EntityDefinition\Field $field, $value)
+    public function sanitizeWhereCondition(Field $field, $value)
     {
         $user = $this->account->getUser();
 
@@ -354,10 +354,10 @@ abstract class IndexAbstract
     /**
      * Evaluate if the field can contain user values
      *
-     * @param EntityDefinition\Field $field The field that we will be evaluating
+     * @param Field $field The field that we will be evaluating
      * @return True if the field can contain user values, False if not
      */
-    private function fieldContainsUserValues(EntityDefinition\Field $field)
+    private function fieldContainsUserValues(Field $field)
     {
         // If field subtype is not a user, then we do not need to proceed
         if ($field->subtype !== ObjectTypes::USER) {
@@ -437,5 +437,40 @@ abstract class IndexAbstract
         }
 
         return $plugin;
+    }
+
+    /**
+     * Function that will get a Field Definition using a field name
+     *
+     * @param EntityDefinition $entityDefinition Definition for the entity being queried
+     * @param String $fieldName The name of the field that we will be using to get a Field Definition
+     *
+     * @return Field
+     */
+    public function getFieldUsingFieldName(EntityDefinition $entityDefinition, $fieldName)
+    {
+        // Look for associated object conditions
+        $parts = array($fieldName);
+        $refField = "";
+
+        if (strpos($fieldName, ".")) {
+            $parts = explode(".", $fieldName);
+
+            if (count($parts) > 1) {
+                $fieldName = $parts[0];
+                $refField = $parts[1];
+                $field->type = "object_dereference";
+            }
+        }
+
+        // Get the field
+        $field = $entityDefinition->getField($parts[0]);
+
+        // If we do not have a field then throw an exception
+        if (!$field) {
+            throw new \RuntimeException("Could not get field {$parts[0]}");
+        }
+
+        return $field;
     }
 }
