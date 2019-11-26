@@ -138,7 +138,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("ts_entered");
         $condition->equals(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp without time zone = '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp with time zone = '" . date("Y-m-d") . "'");
 
         // Test Equals for date field type
         $condition = new Where("date_start");
@@ -156,7 +156,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("ts_entered");
         $condition->doesNotEqual(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "((field_data->>'ts_entered')::timestamp without time zone != '" . date("Y-m-d") . "' OR field_data->>'ts_entered' IS NULL)");
+        $this->assertEquals($conditionString, "((field_data->>'ts_entered')::timestamp with time zone != '" . date("Y-m-d") . "' OR field_data->>'ts_entered' IS NULL)");
 
         // Test Not Equals for date field type
         $condition = new Where("date_start");
@@ -174,7 +174,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("ts_entered");
         $condition->isGreaterThan(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp without time zone > '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp with time zone > '" . date("Y-m-d") . "'");
 
         // Test Greater Than for date field type
         $condition = new Where("date_start");
@@ -192,7 +192,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("ts_entered");
         $condition->isGreaterOrEqualTo(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp without time zone >= '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp with time zone >= '" . date("Y-m-d") . "'");
 
         // Test Greater Than or Equal TO for date field type
         $condition = new Where("date_start");
@@ -210,7 +210,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("ts_entered");
         $condition->isLessThan(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp without time zone < '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp with time zone < '" . date("Y-m-d") . "'");
 
         // Test Less Than for date field type
         $condition = new Where("date_start");
@@ -228,7 +228,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("ts_entered");
         $condition->isLessOrEqualTo(date("Y-m-d"));
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp without time zone <= '" . date("Y-m-d") . "'");
+        $this->assertEquals($conditionString, "(field_data->>'ts_entered')::timestamp with time zone <= '" . date("Y-m-d") . "'");
 
         // Test Less Than or Equal To for date field type
         $condition = new Where("date_start");
@@ -252,13 +252,13 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("f_seen");
         $condition->equals(true);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "field_data->>'f_seen' = 'true'");
+        $this->assertEquals($conditionString, "(field_data->>'f_seen')::boolean = true");
 
         // Test Not Equal
         $condition = new Where("f_seen");
         $condition->doesNotEqual(true);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "field_data->>'f_seen' != 'true'");
+        $this->assertEquals($conditionString, "(field_data->>'f_seen')::boolean != true");
     }
     public function testbuildConditionStringForDate()
     {

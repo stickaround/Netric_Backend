@@ -159,7 +159,8 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 $conditionString .= " AND ";
             }
 
-            $conditionString .= "(field_data->>'f_deleted' = 'false' OR (field_data->>'f_deleted')::boolean IS NULL)";
+            $castType = $this->castType(FIELD::TYPE_BOOL);
+            $conditionString .= "((field_data->>'f_deleted')$castType = false OR field_data->>'f_deleted' IS NULL)";
         }
 
         // Get order by from $query and setup the sort order
@@ -316,6 +317,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // After sanitizing the condition value, then we are now ready to build the condition string
         $value = $condition->value;
 
+        $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($operator) {
             case Where::OPERATOR_EQUAL_TO:
@@ -337,8 +339,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                         } elseif ($field->type == FIELD::TYPE_DATE) {
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
-
-                        $castType = $this->castType($field->type);
+                        
                         $conditionString = "(field_data->>'$fieldName')$castType > '$value'";
                         break;
                 }
@@ -357,7 +358,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $castType = $this->castType($field->type);
                         $conditionString = "(field_data->>'$fieldName')$castType < '$value'";
                         break;
                 }
@@ -387,7 +387,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $castType = $this->castType($field->type);
                         $conditionString = "(field_data->>'$fieldName')$castType >= '$value'";
                         break;
                 }
@@ -430,7 +429,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                             $value = (is_numeric($value)) ? date("Y-m-d", $value) : $value;
                         }
 
-                        $castType = $this->castType($field->type);
                         $conditionString = "(field_data->>'$fieldName')$castType <= '$value'";
                         break;
                 }
@@ -453,7 +451,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             switch ($field->type) {
                 case FIELD::TYPE_TIMESTAMP:
                 case FIELD::TYPE_DATE:
-                    $conditionString = $this->buildConditionWithDateOperators($condition, $this->castType($field->type));
+                    $conditionString = $this->buildConditionWithDateOperators($condition, $castType);
                     break;
                 default:
                     break;
@@ -511,41 +509,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     }
 
     /**
-     * Function that will get a Field Definition using a field name
-     *
-     * @param EntityDefinition $entityDefinition Definition for the entity being queried
-     * @param String $fieldName The name of the field that we will be using to get a Field Definition
-     *
-     * @return Field
-     */
-    private function getFieldUsingFieldName(EntityDefinition $entityDefinition, $fieldName)
-    {
-        // Look for associated object conditions
-        $parts = array($fieldName);
-        $refField = "";
-
-        if (strpos($fieldName, ".")) {
-            $parts = explode(".", $fieldName);
-
-            if (count($parts) > 1) {
-                $fieldName = $parts[0];
-                $refField = $parts[1];
-                $field->type = "object_dereference";
-            }
-        }
-
-        // Get the field
-        $field = $entityDefinition->getField($parts[0]);
-
-        // If we do not have a field then throw an exception
-        if (!$field) {
-            throw new \RuntimeException("Could not get field {$parts[0]}");
-        }
-
-        return $field;
-    }
-
-    /**
      * Add conditions for "is_eqaul" operator
      *
      * @param EntityDefinition $entityDefinition Definition for the entity being queried
@@ -558,6 +521,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $fieldName = $condition->fieldName;
         $value = $condition->value;
 
+        $castType = $this->castType($field->type);
         $conditionString = "";
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
@@ -640,7 +604,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "field_data->>'$fieldName' = '$value'";
+                $conditionString = "(field_data->>'$fieldName')$castType = $value";
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -651,7 +615,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
             default:
                 if (!empty($value)) {
-                    $castType = $this->castType($field->type);
                     $conditionString = "(field_data->>'$fieldName')$castType = '$value'";
                 } else {
                     $conditionString = "field_data->>'$fieldName' IS NULL";
@@ -674,8 +637,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         $objectTable = $entityDefinition->getTable();
         $fieldName = $condition->fieldName;
         $value = $condition->value;
+        
+        $castType = $this->castType($field->type);
         $conditionString = "";
-
         switch ($field->type) {
             case FIELD::TYPE_OBJECT:
                 if ($field->subtype) {
@@ -770,7 +734,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "field_data->>'$fieldName' != '$value'";
+                $conditionString = "(field_data->>'$fieldName')$castType != $value";
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -782,7 +746,6 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 // Format the string then fall through to default
             default:
                 if (!empty($value)) {
-                    $castType = $this->castType($field->type);
                     $conditionString = "((field_data->>'$fieldName')$castType != '$value' OR field_data->>'$fieldName' IS NULL)";
                 } else {
                     $conditionString = "field_data->>'$fieldName' IS NOT NULL";
@@ -1057,10 +1020,13 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
     private function castType($fieldType) {
         switch ($fieldType) {
             case FIELD::TYPE_TIMESTAMP:
-                return "::timestamp without time zone";
+                return "::timestamp with time zone";
                 break;
             case FIELD::TYPE_DATE:
                 return "::date";
+                break;
+            case FIELD::TYPE_BOOL:
+                return "::boolean";
                 break;
             default:
                 return "";
