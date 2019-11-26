@@ -307,7 +307,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // Set typei_id to correctly build the sql statement based on custom table definitions
         $data["object_type_id"] = $def->getId();
 
-        // Set data as JSON (we are replacing columsn with this for custom fields)
+        // Set data as JSON (we are replacing columns with this for custom fields)
         $data['field_data'] = json_encode($entity->toArray());
 
         $targetTable = $def->getTable();
@@ -337,8 +337,17 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
             // Now try saving the entity
             try {
                 $entityId = $this->database->insert($targetTable, $data);
+
+                // Id is not set yet since we are inserting a new entity in the table
                 if (!$entity->getId()) {
+                    // Set the id for the newly created entity
                     $entity->setValue('id', $entityId);
+
+                    // Update the field_data->>'id' field since it was set as null initially
+                    $this->database->query("UPDATE {$def->getTable()}
+                        SET field_data = jsonb_set(field_data, '{id}', :entity_id, true)
+                        WHERE field_data->>'guid'=:entity_guid;
+                    ", ['entity_id' => $entityId, 'entity_guid' => $entity->getValue('guid')]);
                 }
             } catch (DatabaseQueryException $ex) {
                 throw new \RuntimeException(

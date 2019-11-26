@@ -21,6 +21,7 @@ use Netric\Entity\ObjType\UserEntity;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\EntityDefinition\ObjectTypes;
 use Netric\Entity\Recurrence\RecurrenceDataMapperFactory;
+use Netric\Db\Relational\RelationalDbFactory;
 
 abstract class DmTestsAbstract extends TestCase
 {
@@ -240,6 +241,16 @@ abstract class DmTestsAbstract extends TestCase
         $this->assertEquals($ent->getValue("groups"), array($groupsGrp->id));
         $this->assertEquals($ent->getValueName("groups"), $groupsGrp->name);
         $this->assertEquals($ent->getValue("last_contacted"), $contactedTime);
+
+        // Test if id field_data was saved in field_data
+        $rDatabase = $this->account->getServiceManager()->get(RelationalDbFactory::class);
+        $def = $ent->getDefinition();
+        $result = $rDatabase->query("SELECT field_data->>'id' as id FROM {$def->getTable()} WHERE field_data->>'guid' = :entity_guid",
+            ['entity_guid' => $ent->getValue('guid')]);
+
+        $row = $result->fetch();
+        $this->assertEquals($row['id'], $ent->getId());
+        $this->assertEquals($result->rowCount(), 1);
 
         // Cleanup groupings
         $groupingsStat->delete($statGrp->id);
