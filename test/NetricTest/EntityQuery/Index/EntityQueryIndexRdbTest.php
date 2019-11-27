@@ -252,13 +252,13 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("f_seen");
         $condition->equals(true);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', 'false'))::boolean = true");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean = true");
 
         // Test Not Equal
         $condition = new Where("f_seen");
         $condition->doesNotEqual(true);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', 'false'))::boolean != true");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean != true");
     }
     public function testbuildConditionStringForDate()
     {

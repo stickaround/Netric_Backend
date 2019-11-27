@@ -160,7 +160,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             }
 
             $castType = $this->castType(FIELD::TYPE_BOOL);
-            $conditionString .= "((nullif(field_data->>'f_deleted', 'false'))$castType = false OR field_data->>'f_deleted' IS NULL)";
+            $conditionString .= "((nullif(field_data->>'f_deleted', ''))$castType = false OR field_data->>'f_deleted' IS NULL)";
         }
 
         // Get order by from $query and setup the sort order
@@ -604,7 +604,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "(nullif(field_data->>'$fieldName', 'false'))$castType = $value";
+                $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType = $value";
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
@@ -734,7 +734,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
                 }
                 break;
             case FIELD::TYPE_BOOL:
-                $conditionString = "(nullif(field_data->>'$fieldName', 'false'))$castType != $value";
+                $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType != $value";
                 break;
             case FIELD::TYPE_DATE:
             case FIELD::TYPE_TIMESTAMP:
