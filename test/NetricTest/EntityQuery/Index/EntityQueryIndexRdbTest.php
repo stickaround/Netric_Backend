@@ -132,7 +132,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("revision");
         $condition->equals(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', '')) = '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer = '1'");
 
         // Test Equals for timestamp field type
         $condition = new Where("ts_entered");
@@ -150,7 +150,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("revision");
         $condition->doesNotEqual(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "((nullif(field_data->>'revision', '')) != '1' OR field_data->>'revision' IS NULL)");
+        $this->assertEquals($conditionString, "((nullif(field_data->>'revision', ''))::integer != '1' OR field_data->>'revision' IS NULL)");
 
         // Test Not Equals for timestamp field type
         $condition = new Where("ts_entered");
@@ -168,7 +168,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("revision");
         $condition->isGreaterThan(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', '')) > '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer > '1'");
 
         // Test Greater Than for timestamp field type
         $condition = new Where("ts_entered");
@@ -186,7 +186,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("revision");
         $condition->isGreaterOrEqualTo(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', '')) >= '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer >= '1'");
 
         // Test Greater Than or Equal To for timestamp field type
         $condition = new Where("ts_entered");
@@ -204,7 +204,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("revision");
         $condition->isLessThan(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', '')) < '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer < '1'");
 
         // Test Less Than for timestamp field type
         $condition = new Where("ts_entered");
@@ -222,7 +222,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $condition = new Where("revision");
         $condition->isLessOrEqualTo(1);
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
-        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', '')) <= '1'");
+        $this->assertEquals($conditionString, "(nullif(field_data->>'revision', ''))::integer <= '1'");
 
         // Test Less Than or Equal To for timestamp field type
         $condition = new Where("ts_entered");

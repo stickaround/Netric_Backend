@@ -1028,6 +1028,10 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case FIELD::TYPE_BOOL:
                 return "::boolean";
                 break;
+            case FIELD::TYPE_INTEGER:
+            case FIELD::TYPE_NUMBER:
+                return "::integer";
+                break;
             default:
                 return "";
                 break;
