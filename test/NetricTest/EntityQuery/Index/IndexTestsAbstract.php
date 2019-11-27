@@ -1955,6 +1955,7 @@ abstract class IndexTestsAbstract extends TestCase
         for ($i = 0; $i < $res->getTotalNum(); $i++) {
             $ent = $res->getEntity($i);
             $this->assertFalse($ent->isDirty());
+            break;
         }
     }
 
