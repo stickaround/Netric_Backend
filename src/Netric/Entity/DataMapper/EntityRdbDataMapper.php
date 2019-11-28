@@ -343,11 +343,9 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     // Set the id for the newly created entity
                     $entity->setValue('id', $entityId);
 
-                    // Update the field_data->>'id' field since it was set as null initially
-                    $this->database->query("UPDATE {$def->getTable()}
-                        SET field_data = jsonb_set(field_data, '{id}', :entity_id, true)
-                        WHERE field_data->>'guid'=:entity_guid;
-                    ", ['entity_id' => $entityId, 'entity_guid' => $entity->getValue('guid')]);
+                    // We need to update the field_Data->>'id' field since it was set as null when creating a new entity
+                    $data['field_data'] = json_encode($entity->toArray());
+                    $this->database->update($targetTable, $data, ['guid' => $entity->getValue('guid')]);
                 }
             } catch (DatabaseQueryException $ex) {
                 throw new \RuntimeException(

@@ -47,8 +47,7 @@ class NotificationEntity extends Entity implements EntityInterface
         if ($this->getValue('obj_reference')) {
             // If the email flag is set, then send an email
             if ($this->getValue("f_email")) {
-                // Disabling the sending of email notification for now - Marl Tumulak 11-28-2019
-                // $this->sendEmailNotification($sm);
+                $this->sendEmailNotification($sm);
             }
 
             // If the SMS flag is set, then send sms
