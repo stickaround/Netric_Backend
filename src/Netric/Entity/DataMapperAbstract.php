@@ -20,6 +20,7 @@ use Netric\EntityDefinition\Field;
 use Netric\Account\Account;
 use Netric\Entity\EntityLoaderFactory;
 use Ramsey\Uuid\Uuid;
+use Netric\Log\LogFactory;
 
 /**
  * A DataMapper is responsible for writing and reading data from a persistant store
@@ -62,6 +63,11 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     private $cacheMovedEntities = null;
 
     /**
+     * @var LogInterface
+     */
+    private $log;
+
+    /**
      * Class constructor
      *
      * @param ServiceLocator $sl The ServiceLocator container
@@ -79,6 +85,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
         $this->recurIdentityMapper = $serviceManager->get(RecurrenceIdentityMapperFactory::class);
         $this->commitManager = $serviceManager->get(CommitManagerFactory::class);
         $this->entitySync = $serviceManager->get(EntitySyncFactory::class);
+        $this->log = $serviceManager->get(LogFactory::class);
     }
 
     /**
@@ -237,13 +244,16 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Call beforeSave
         $entity->beforeSave($serviceManager);
+        $this->log->debug("Entity Before Save - {$entity->getName()}");
 
         // Save data to DataMapper implementation
         $ret = $this->saveData($entity);
+        $this->log->debug("Saved Entity - {$entity->getId()}");
 
         // Save revision for historical reference
         if ($def->storeRevisions) {
             $this->saveRevision($entity);
+            $this->log->debug("Saved Revisions - {$entity->getId()}");
         }
 
         // Save data to EntityQuery Index
@@ -254,24 +264,29 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
 
         // Log the change in entity sync
         if ($ret && $lastCommitId && $commitId) {
+            $this->log->debug("Will log in Entity Sync - {$entity->getId()} - CommitId: $commitId");
             $this->entitySync->setExportedStale(
                 EntitySync::COLL_TYPE_ENTITY,
                 $lastCommitId,
                 $commitId
             );
+            $this->log->debug("Success in Logging Entity Sync - {$entity->getId()} - CommitId: $commitId");
         }
 
         // Send notifications
         $serviceManager->get(NotifierFactory::class)->send($entity, $event);
+        $this->log->debug("Sending Notification - {$entity->getId()} - Event: $event");
 
         // Call onAfterSave
         $entity->afterSave($serviceManager);
+        $this->log->debug("After Save - {$entity->getId()}");
 
         // Update any aggregates that could be impacted by saving $entity
         $this->getAccount()
             ->getServiceManager()
             ->get(EntityAggregatorFactory::class)
             ->updateAggregates($entity);
+            $this->log->debug("Update Aggregates - {$entity->getId()}");
 
         // Reset dirty flag and changelog
         $entity->resetIsDirty();
@@ -281,11 +296,14 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
          * and not an exception, then save the recurrence pattern.
          */
         if (!$entity->isRecurrenceException() && $entity->getRecurrencePattern()) {
+            $this->log->debug("Has Recurrence - {$entity->getId()}");
             $this->recurIdentityMapper->saveFromEntity($entity, $useRecurId);
         }
 
         // Log the activity
+        $this->log->debug("Log Activity - {$entity->getId()} - Event: $event");
         $serviceManager->get(ActivityLogFactory::class)->log($user, $event, $entity);
+        $this->log->debug("Entity Successfully Saved!");
 
         return $ret;
     }
