@@ -9,7 +9,7 @@ use Netric\EntityQuery\Where;
 return array(
     'files_and_documents'=> array(
 		'obj_type' => 'file',
-		'name' => 'Files &amp; Documents',
+		'name' => 'Files & Documents',
 		'description' => 'View all files and directories',
 		'default' => true,
 		'order_by' => array(
