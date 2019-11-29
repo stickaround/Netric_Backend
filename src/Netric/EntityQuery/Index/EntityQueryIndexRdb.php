@@ -493,7 +493,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             case Where::OPERATOR_LAST_X_WEEKS:
             case Where::OPERATOR_LAST_X_MONTHS:
             case Where::OPERATOR_LAST_X_YEARS:
-                $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType >= (now()-INTERVAL '$value {$dateType}s')$castType";
+                $conditionString = "(nullif(field_data->>'$fieldName', ''))$castType <= (now()-INTERVAL '$value {$dateType}s')$castType";
                 break;
 
             // Operator Next DateType
