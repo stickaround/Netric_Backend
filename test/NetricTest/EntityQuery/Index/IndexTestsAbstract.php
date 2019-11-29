@@ -1548,9 +1548,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumDays(3);
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
-        $obj = $res->getEntity(0);
-        $this->assertEquals($testEnt->getId(), $obj->getId());
+        $this->assertEquals(0, $res->getTotalNum());
 
         // Day - exclusive
         // -------------------------------------------------
@@ -1558,7 +1556,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumDays(1);
         $res = $index->executeQuery($query);
-        $this->assertEquals(0, $res->getTotalNum());
+        $this->assertEquals(1, $res->getTotalNum());
+        $obj = $res->getEntity(0);
+        $this->assertEquals($testEnt->getId(), $obj->getId());
 
         // Week - inclusive
         // -------------------------------------------------
@@ -1569,9 +1569,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumWeeks(3);
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
-        $obj = $res->getEntity(0);
-        $this->assertEquals($testEnt->getId(), $obj->getId());
+        $this->assertEquals(0, $res->getTotalNum());
 
         // Week - exclusive
         // -------------------------------------------------
@@ -1579,7 +1577,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumWeeks(1);
         $res = $index->executeQuery($query);
-        $this->assertEquals(0, $res->getTotalNum());
+        $this->assertEquals(1, $res->getTotalNum());
+        $obj = $res->getEntity(0);
+        $this->assertEquals($testEnt->getId(), $obj->getId());
 
         // Month - inclusive
         // -------------------------------------------------
@@ -1590,9 +1590,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumMonths(3);
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
-        $obj = $res->getEntity(0);
-        $this->assertEquals($testEnt->getId(), $obj->getId());
+        $this->assertEquals(0, $res->getTotalNum());
 
         // Month - exclusive
         // -------------------------------------------------
@@ -1600,7 +1598,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumMonths(1);
         $res = $index->executeQuery($query);
-        $this->assertEquals(0, $res->getTotalNum());
+        $this->assertEquals(1, $res->getTotalNum());
+        $obj = $res->getEntity(0);
+        $this->assertEquals($testEnt->getId(), $obj->getId());
 
         // Year - inclusive
         // -------------------------------------------------
@@ -1611,9 +1611,7 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumYears(3);
         $res = $index->executeQuery($query);
-        $this->assertEquals(1, $res->getTotalNum());
-        $obj = $res->getEntity(0);
-        $this->assertEquals($testEnt->getId(), $obj->getId());
+        $this->assertEquals(0, $res->getTotalNum());
 
         // Year - exclusive
         // -------------------------------------------------
@@ -1621,7 +1619,9 @@ abstract class IndexTestsAbstract extends TestCase
         $query->where('id')->equals($testEnt->getId());
         $query->where('last_contacted')->lastNumYears(1);
         $res = $index->executeQuery($query);
-        $this->assertEquals(0, $res->getTotalNum());
+        $this->assertEquals(1, $res->getTotalNum());
+        $obj = $res->getEntity(0);
+        $this->assertEquals($testEnt->getId(), $obj->getId());
     }
 
     public function testWithinNextXNum()
