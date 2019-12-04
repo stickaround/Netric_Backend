@@ -91,97 +91,6 @@ $objectTypesToMove = [
     ['obj_type' => 'workflow_action', 'old_table' => 'workflow_actions'],
 ];
 
-/**
- * Get an entity from the old table
- */
-$loadEntityFromOldTable = function (&$entity, $id, $tableName, $database) {
-    $def = $entity->getDefinition();
-    $query = "SELECT * FROM $tableName WHERE id=:id";
-
-    $result = $database->query($query, ["id" => $id]);
-    if (!$result->rowCount()) {
-        // The object was not found
-        return false;
-    }
-
-    $row = $result->fetch();
-
-    // Load data for foreign keys
-    $all_fields = $def->getFields();
-    foreach ($all_fields as $fname => $fdef) {
-        // Populate values and foreign values for foreign entries if not set
-        if ($fdef->type == "fkey" || $fdef->type == "object" || $fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
-            $mvals = null;
-
-            // set values of fkey_multi and object_multi fields as array of id(s)
-            if ($fdef->type == "fkey_multi" || $fdef->type == "object_multi") {
-                if ($row[$fname]) {
-                    $parts = json_decode($row[$fname], true);
-                    if ($parts !== false) {
-                        $row[$fname] = $parts;
-                    }
-                }
-
-                // Was not set in the column, try reading from mvals list that was generated above
-                if (!$row[$fname]) {
-                    if (!$mvals && $row[$fname . "_fval"]) {
-                        $mvals = json_decode($row[$fname . "_fval"], true);
-                    }
-
-                    if ($mvals) {
-                        foreach ($mvals as $id => $mval) {
-                            $row[$fname][] = $id;
-                        }
-                    }
-                }
-            }
-
-            // Get object with no subtype - we may want to store this locally eventually
-            // so check to see if the data is not already defined
-            if (!$row[$fname] && $fdef->type == "object" && !$fdef->subtype) {
-                if (!$mvals && $row[$fname . "_fval"]) {
-                    $mvals = json_decode($row[$fname . "_fval"], true);
-                }
-
-                if ($mvals) {
-                    foreach ($mvals as $id => $mval) {
-                        $row[$fname] = $id; // There is only one value but it is assoc
-                    }
-                }
-            }
-        }
-
-        switch ($fdef->type) {
-            case "bool":
-                $row[$fname] = ($row[$fname] == 't') ? true : false;
-                break;
-            case "date":
-            case "timestamp":
-                $row[$fname] = ($row[$fname]) ? strtotime($row[$fname]) : null;
-                break;
-            case 'object_multi':
-                if ($fdef->subtype && is_array($row[$fname])) {
-                    foreach ($row[$fname] as $index => $objectId) {
-                        if (is_numeric($objectId)) {
-                            $row[$fname][$index] = $objectId;
-                        }
-                    }
-                }
-                break;
-        }
-
-        // Check if we have an fkey label/name associated with column ids - these are cached in the object
-        $fkeyValueName = (isset($row[$fname . "_fval"])) ? json_decode($row[$fname . "_fval"], true) : null;
-
-        // Set entity value
-        if (isset($row[$fname])) {
-            $entity->setValue($fname, $row[$fname], $fkeyValueName);
-        }
-    }
-
-    return true;
-};
-
 foreach ($objectTypesToMove as $objectType) {
     $objType = $objectType['obj_type'];
     $oldTable = $objectType['old_table'];
@@ -189,31 +98,26 @@ foreach ($objectTypesToMove as $objectType) {
     // Get the entity definition
     $def = $entityDefinitionLoader->get($objType);
 
-    $sql = "SELECT id FROM {$objectType['old_table']}";
-    $result = $db->query($sql);
+    // Get old entities that are not yet moved
+    $sql = "SELECT oldTable.* FROM $oldTable as oldTable WHERE oldTable.id NOT IN (SELECT object_id FROM objects_moved WHERE object_id = oldTable.id AND object_type_id=:object_type_id)";
+    $result = $db->query($sql, ["object_type_id" => $def->getId()]);
     $rows = $result->fetchAll();
 
     foreach ($rows as $row) {
         $oldEntityId = $row["id"];
-
-        // We need to check first that the entity it was not moved yet
-        $alreadyMovedId = $entityDataMapper->checkEntityHasMoved($def, $oldEntityId);
-        if ($alreadyMovedId !== false) {
-            $log->info(
-                "Update 004.001.018 {$objType}.$oldEntityId already moved to $alreadyMovedId. Skipping"
-            );
-            continue;
-        }
-
-        // Load old entity data
         $oldEntity = $entityLoader->create($objType);
-        $loadEntityFromOldTable($oldEntity, $oldEntityId, $oldTable, $db);
-        $entityData = $oldEntity->toArray();
+
+        // Load row and set values in the old entity
+        $allFields = $def->getFields();
+        foreach ($allFields as $fieldDefinition) {
+            $entityDataMapper->setEntityFieldValueFromRow($oldEntity, $fieldDefinition, $row);
+        }
 
         // Create a new entity to save
         $newEntity = $entityLoader->create($objType);
-
+        
         // Make sure that we set the id to null, so it will create a new entity record
+        $entityData = $oldEntity->toArray();
         $entityData["id"] = null;
 
         // If this is a customer remove uname since we no longer use it

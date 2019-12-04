@@ -115,7 +115,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      * @param array $row
      * @return void
      */
-    private function setEntityFieldValueFromRow(EntityInterface $entity, Field $field, array $row)
+    public function setEntityFieldValueFromRow(EntityInterface $entity, Field $field, array $row)
     {
         // Set IDs and names for referenced groupings or objects
         $foreignReferenceValues = null;
