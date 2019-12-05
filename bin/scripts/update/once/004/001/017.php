@@ -1,6 +1,4 @@
 <?php
-$log->info("UpdateOnce017 Initiated.");
-
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
@@ -38,6 +36,8 @@ $groupingTables = [
     ["table" => "xml_feed_post_categories", "refObjType" => "content_feed_post", "refFieldName" => "categories"],
     ["table" => "project_groups", "refObjType" => "project", "refFieldName" => "groups"],
 ];
+
+$log->info("UpdateOnce017 Initiated.");
 
 // Loop thru the grouping tables
 foreach ($groupingTables as $details) {
