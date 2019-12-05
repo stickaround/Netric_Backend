@@ -1,4 +1,5 @@
 <?php
+
 namespace Netric\Application\Setup;
 
 use Netric\Account\Account;
@@ -95,8 +96,10 @@ class AccountUpdater extends AbstractHasErrors
             $updated = true;
         } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor > $this->version->minor) {
             $updated = true;
-        } elseif ($this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
-            && $this->updatedToVersion->point > $this->version->point) {
+        } elseif (
+            $this->updatedToVersion->major == $this->version->major && $this->updatedToVersion->minor == $this->version->minor
+            && $this->updatedToVersion->point > $this->version->point
+        ) {
             $updated = true;
         }
 
@@ -268,7 +271,7 @@ class AccountUpdater extends AbstractHasErrors
         if ($dir) {
             while ($file = readdir($dir)) {
                 if (is_dir($updatePath . "/" . $file) && $file[0] != '.') {
-                    if ($this->version->major <= (int)$file) {
+                    if ($this->version->major <= (int) $file) {
                         $majors[] = $file;
                     }
                 }
@@ -305,9 +308,10 @@ class AccountUpdater extends AbstractHasErrors
         if ($dir_handle) {
             while ($file = readdir($dir_handle)) {
                 if (is_dir($path . "/" . $file) && $file[0] != '.') {
-                    if (($this->version->major == (int)$major
-                        && $this->version->minor <= (int)$file)
-                        || ($this->version->major < (int)$major)) {
+                    if (($this->version->major == (int) $major
+                            && $this->version->minor <= (int) $file)
+                        || ($this->version->major < (int) $major)
+                    ) {
                         $minors[] = $file;
                     }
                 }
@@ -338,6 +342,9 @@ class AccountUpdater extends AbstractHasErrors
     {
         $path = $base . "/" . $major . "/" . $minor;
 
+        // Log the current path of the major.minor dir
+        $this->log->info("AccountUpdater:: Current path $path");
+
         // Get individual update points
         $updates = array();
         $points = array();
@@ -348,16 +355,20 @@ class AccountUpdater extends AbstractHasErrors
                 if (!is_dir($path . "/" . $file) && $file != '.' && $file != '..') {
                     $point = substr($file, 0, -4); // remove .php to get point number
 
-                    if (($this->version->major < (int)$major)
-                        || ($this->version->major == (int)$major
-                        && $this->version->minor < (int)$minor)
-                        || ($this->version->major == (int)$major
-                        && $this->version->minor == (int)$minor
-                        && $this->version->point < (int)$point)) {
-                        $points[] = (int)$point;
+                    if (($this->version->major < (int) $major)
+                        || ($this->version->major == (int) $major
+                            && $this->version->minor < (int) $minor)
+                        || ($this->version->major == (int) $major
+                            && $this->version->minor == (int) $minor
+                            && $this->version->point < (int) $point)
+                    ) {
+                        $points[] = (int) $point;
                         $updates[] = $file;
+
+                        // Log the file that will be executed for account update
+                        $this->log->info("AccountUpdater:: To execute update $file");
                     }
-                    $pointsVersion[] = (int)$point;
+                    $pointsVersion[] = (int) $point;
                 }
             }
 
@@ -372,8 +383,8 @@ class AccountUpdater extends AbstractHasErrors
         }
 
         // Set the latest updated to variables
-        $this->updatedToVersion->major = (int)$major;
-        $this->updatedToVersion->minor = (int)$minor;
+        $this->updatedToVersion->major = (int) $major;
+        $this->updatedToVersion->minor = (int) $minor;
 
         // Pull updates/points from minor dirs
         foreach ($updates as $update) {
@@ -396,7 +407,7 @@ class AccountUpdater extends AbstractHasErrors
                 }
 
                 // Update the point
-                $this->updatedToVersion->point = (int)substr($update, 0, -4);
+                $this->updatedToVersion->point = (int) substr($update, 0, -4);
             }
         }
 
@@ -404,5 +415,7 @@ class AccountUpdater extends AbstractHasErrors
         if (!isset($this->updatedToVersion->point)) {
             $this->updatedToVersion->point = 0;
         }
+
+        return true;
     }
 }
