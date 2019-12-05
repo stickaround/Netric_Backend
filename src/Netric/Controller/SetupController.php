@@ -15,6 +15,7 @@ use Netric\Console\BinScript;
 use Netric\Application\Response\HttpResponse;
 use Netric\Application\DataMapperFactory;
 use Netric\Account\AccountSetupFactory;
+use Netric\Log\LogFactory;
 
 /**
  * Controller used for setting up netric - mostly from the command line
@@ -74,12 +75,17 @@ class SetupController extends Mvc\AbstractController
      */
     public function consoleUpdateAction()
     {
+        $serviceManager = $this->getApplication()->getServiceManager();
+        $log = $serviceManager->get(LogFactory::class);
+
         $response = new ConsoleResponse();
 
         // Update the application database
+        $log->info("SetupController:: Updating application.");
         $response->write("Updating application");
         $applicationSetup = new Setup();
         if (!$applicationSetup->updateApplication($this->getApplication())) {
+            $log->error("SetupController: Failed to update application: " . $applicationSetup->getLastError()->getMessage());
             throw new \Exception("Failed to update application: " . $applicationSetup->getLastError()->getMessage());
         }
 
@@ -91,6 +97,7 @@ class SetupController extends Mvc\AbstractController
             $response->write("Updating account " . $account->getName());
             $setup = new Setup();
             if (!$setup->updateAccount($account)) {
+                $log->error("SetupController: Failed to update account: " . $setup->getLastError()->getMessage());
                 throw new \Exception("Failed to update account: " . $setup->getLastError()->getMessage());
             }
 
