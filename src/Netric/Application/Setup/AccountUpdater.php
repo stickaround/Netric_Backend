@@ -342,6 +342,9 @@ class AccountUpdater extends AbstractHasErrors
     {
         $path = $base . "/" . $major . "/" . $minor;
 
+        // Log the current path of the major.minor dir
+        $this->log->info("AccountUpdater:: Current path $path");
+
         // Get individual update points
         $updates = array();
         $points = array();
@@ -361,6 +364,9 @@ class AccountUpdater extends AbstractHasErrors
                     ) {
                         $points[] = (int) $point;
                         $updates[] = $file;
+
+                        // Log the file that will be executed for account update
+                        $this->log->info("AccountUpdater:: To execute update $file");
                     }
                     $pointsVersion[] = (int) $point;
                 }

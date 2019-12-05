@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Move all custom table entities over to objects_* table so that we no longer
  * have to deal with custom tables from entities
@@ -21,6 +20,8 @@ $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::class);
 $entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFactory::class);
 $entityIndex = $serviceManager->get(IndexFactory::class);
+
+$log->info("UpdateOnce018 Initiated.");
 
 // Get object types for each account
 $types = require(__DIR__ . "/../../../../../../data/account/object-types.php");

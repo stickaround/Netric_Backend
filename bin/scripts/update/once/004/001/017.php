@@ -37,6 +37,8 @@ $groupingTables = [
     ["table" => "project_groups", "refObjType" => "project", "refFieldName" => "groups"],
 ];
 
+$log->info("UpdateOnce017 Initiated.");
+
 // Loop thru the grouping tables
 foreach ($groupingTables as $details) {
     $oldGroupingTable = $details["table"];
