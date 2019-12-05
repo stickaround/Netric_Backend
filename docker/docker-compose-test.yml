@@ -62,7 +62,7 @@ services:
     environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant
-      DB_HOST: db1
+      DB_HOST: mogiledb
       DB_NAME: mogilefs
       DB_PORT: 5432
       DB_INIT: "true"
@@ -70,9 +70,16 @@ services:
       WAIT_FOR_DB_TIMEOUT: 480
     depends_on:
       - mogilestore
-      - db1
+      - mogiledb
     logging:
       driver: "json-file"
+
+  mogiledb:
+    image: postgres:10
+    environment:
+      POSTGRES_USER: vagrant
+      POSTGRES_PASSWORD: vagrant
+
   mogilestore:
     image: "dockerhub.aereus.com/mogilestore:latest"
     logging:
