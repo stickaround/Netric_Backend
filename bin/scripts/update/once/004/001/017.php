@@ -1,4 +1,6 @@
 <?php
+$log->info("UpdateOnce017 Initiated.");
+
 use Netric\Db\Relational\RelationalDbFactory;
 use Netric\EntityDefinition\EntityDefinitionLoaderFactory;
 use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
