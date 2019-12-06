@@ -92,7 +92,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $entityData = [];
 
         // It is possible that field_data is not yet set
-        if ($row['field_data']) {
+        if (!empty($row['field_data']) && $row['field_data'] != 'null') {
             $entityData = json_decode($row['field_data'], true);
         }
 

@@ -19,20 +19,37 @@ $numNullObjects = 0;
 // Page through 100,000 objects at once and update
 do {
     // First create all UUIDs in the gid field
-    $sql = "SELECT o.id, o.guid, t.name as obj_type FROM objects o, app_object_types t
-            WHERE o.object_type_id=t.id AND o.field_data IS NULL LIMIT 100000";
+    $sql = "SELECT 
+                o.id, o.guid, t.name as obj_type FROM objects o, app_object_types t
+            WHERE 
+                o.object_type_id=t.id 
+                AND (o.field_data IS NULL OR o.field_data='null') 
+            LIMIT 100000";
     $result = $db->query($sql);
     $numNullObjects = $result->rowCount();
     $rows = $result->fetchAll();
     foreach ($rows as $row) {
-        // Load the object up old school style (obj_type, id)
+        // Create a new entity to fill
         $entity = $entityFactory->create($row['obj_type']);
-        $entityDataMapper->getById($entity, $row['id']);
+
+        // Get column values which is how we used to store field values
+        $def = $entity->getDefinition();
+        $resultEntity = $db->query(
+            "select * from {$def->getTable()} where id=:id",
+            ["id" => $row['id']]
+        );
+        $entityRow = $resultEntity->fetch();
+        $allFields = $def->getFields();
+        foreach ($allFields as $fieldDefinition) {
+            $entityDataMapper->setEntityFieldValueFromRow($entity, $fieldDefinition, $entityRow);
+        }
+
         // Encode the json and update the table row
         $db->update(
             'objects',
             ['field_data' => json_encode($entity->toArray())],
             ['guid' => $row['guid']]
         );
+        echo "Updated " . $row['guid'] . " with " . count($entity->toArray()) . " fields set\n";
     }
 } while ($numNullObjects > 0);
