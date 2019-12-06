@@ -344,7 +344,8 @@ class AccountUpdater extends AbstractHasErrors
 
         // Log the current path of the major.minor dir
         $this->log->info("AccountUpdater:: Current path $path");
-
+        $this->log->info("AccountUpdater:: Current version: " . json_encode($this->version));
+        
         // Get individual update points
         $updates = array();
         $points = array();
@@ -354,6 +355,7 @@ class AccountUpdater extends AbstractHasErrors
             while ($file = readdir($dir_handle)) {
                 if (!is_dir($path . "/" . $file) && $file != '.' && $file != '..') {
                     $point = substr($file, 0, -4); // remove .php to get point number
+                    $this->log->info("AccountUpdater:: Checking each file: $file point: $point");
 
                     if (($this->version->major < (int) $major)
                         || ($this->version->major == (int) $major
