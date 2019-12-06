@@ -94,7 +94,7 @@ services:
     environment:
       DB_USER: vagrant
       DB_PASSWORD: vagrant
-      DB_HOST: db1
+      DB_HOST: mogiledb
       DB_NAME: mogilefs
       DB_PORT: 5432
       DB_INIT: "true"
@@ -102,14 +102,16 @@ services:
       WAIT_FOR_DB_TIMEOUT: 240
     depends_on:
       - mogilestore
-      - db1
-    logging:
-      driver: gelf
-      options:
-        gelf-address: "udp://localhost:12201"
+      - mogiledb
 
   mogilestore:
     image: dockerhub.aereus.com/mogilestore:latest
+
+  mogiledb:
+    image: postgres:10
+    environment:
+      POSTGRES_USER: vagrant
+      POSTGRES_PASSWORD: vagrant
 
   logstash:
     build: logstash/
