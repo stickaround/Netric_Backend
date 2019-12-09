@@ -174,7 +174,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         // Start constructing query
-        $sql = "SELECT * FROM $objectTable";
+        $sql = "SELECT field_data FROM $objectTable";
 
         // Set the query condition string if it is available
         if (!empty($conditionString)) {
@@ -254,7 +254,9 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         // Get fields for this object type (used in decoding multi-valued fields)
         $ofields = $entityDefinition->getFields();
 
-        foreach ($entitiesRawDataArray as $entityData) {
+        foreach ($entitiesRawDataArray as $rawData) {
+            $entityData = json_decode($rawData['field_data'], true);
+
             // Decode multival fields into arrays of values
             foreach ($ofields as $fname => $fdef) {
                 if ($fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI) {

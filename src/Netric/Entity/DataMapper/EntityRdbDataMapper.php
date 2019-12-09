@@ -49,10 +49,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     {
         $def = $entity->getDefinition();
 
-        $result = $this->database->query(
-            "select * from {$def->getTable()} where id=:id",
-            ["id" => $id]
-        );
+        $sql = "SELECT field_data FROM {$def->getTable()} WHERE field_data->>'id' = :id";
+        $result = $this->database->query($sql, ["id" => $id]);
 
         // The object was not found
         if ($result->rowCount() === 0) {
@@ -61,9 +59,10 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Load rows and set values in the entity
         $row = $result->fetch();
+        $entityData = json_decode($row['field_data'], true);
         $allFields = $def->getFields();
         foreach ($allFields as $fieldDefinition) {
-            $this->setEntityFieldValueFromRow($entity, $fieldDefinition, $row);
+            $this->setEntityFieldValueFromRow($entity, $fieldDefinition, $entityData);
         }
 
         return true;
@@ -77,10 +76,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchDataByGuid(string $guid):? array
     {
-        $result = $this->database->query(
-            'select * from objects where guid=:guid',
-            ['guid' => $guid]
-        );
+        $sql = "SELECT field_data FROM objects where field_data->>'guid' = :guid";
+        $result = $this->database->query($sql, ['guid' => $guid]);
 
         // The object was not found
         if ($result->rowCount() === 0) {
@@ -89,21 +86,16 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
 
         // Load rows and set values in the entity
         $row = $result->fetch();
-        $entityData = [];
-
-        // It is possible that field_data is not yet set
-        if (!empty($row['field_data']) && $row['field_data'] != 'null') {
-            $entityData = json_decode($row['field_data'], true);
-        }
+        $entityData = json_decode($row['field_data'], true);
 
         /**
          * Override any of the json data with system column values
          * Some of these may be generated at update/insert so they could have
          * changed after the entity was exported and saved to the column
          */
-        $entityData['id'] = $row['id'];
-        $entityData['ts_entered'] = $row['ts_entered'];
-        $entityData['ts_updated'] = $row['ts_updated'];
+        $entityData['id'] = $entityData['id'];
+        $entityData['ts_entered'] = $entityData['ts_entered'];
+        $entityData['ts_updated'] = $entityData['ts_updated'];
         return $entityData;
     }
 
@@ -129,7 +121,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          */
         if ($field->isMultiValue()) {
             if (!empty($row[$field->name])) {
-                $values = $this->unserialize($row[$field->name]);
+                $values = $row[$field->name];
                 if ($values !== false) {
                     $row[$field->name] = $values;
                 }
@@ -163,7 +155,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         // All reference fields should store id and name of references in *_fkey row
         $foreignValues = null;
         if (isset($row[$field->name . "_fval"])) {
-            $foreignValues = $this->unserialize($row[$field->name . "_fval"]);
+            $foreignValues = $row[$field->name . "_fval"];
         }
 
         /*
@@ -246,10 +238,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         );
 
         // Delete the object from the object table
-        $result = $this->database->query(
-            "DELETE FROM " . $def->getTable() . " where id=:id",
-            ['id' => $entity->getId()]
-        );
+        $sql = "DELETE FROM " . $def->getTable() . " WHERE field_data->>'id' = :id";
+        $result = $this->database->query($sql, ['id' => $entity->getId()]);
 
         // Remove associations
         $this->deleteAssociations($def->getId(), $entity->getId);
@@ -324,14 +314,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
          * where it tried to update an ID that does not exist.
          */
         if (!empty($entity->getId()) && !$entity->fieldValueChanged("f_deleted") && $entity->getValue("revision") > 1) {
-            $this->database->update($targetTable, $data, ['guid' => $entity->getValue('guid')]);
+            $this->updateEntityData($targetTable, $entity);
         } else {
             // Clean out old record if it exists in a different partition
             if ($entity->getId()) {
-                $this->database->query(
-                    'DELETE FROM ' . $def->getTable() . ' WHERE guid=:entity_guid',
-                    ['entity_guid' => $entity->getValue('guid')]
-                );
+                $sql = "DELETE FROM {$def->getTable()} WHERE field_data->>'guid' = :entity_guid";
+                $this->database->query($sql, ['entity_guid' => $entity->getValue('guid')]);
             }
 
             // Now try saving the entity
@@ -344,8 +332,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $entity->setValue('id', $entityId);
 
                     // We need to update the field_Data->>'id' field since it was set as null when creating a new entity
-                    $data['field_data'] = json_encode($entity->toArray());
-                    $this->database->update($targetTable, $data, ['guid' => $entity->getValue('guid')]);
+                    $this->updateEntityData($targetTable, $entity);
                 }
             } catch (DatabaseQueryException $ex) {
                 throw new \RuntimeException(
@@ -381,11 +368,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                 if ($folder->getId()) {
                     $entity->setValue($fname, $folder->getId());
 
-                    $this->database->update(
-                        $targetTable,
-                        [$fname => $folder->getId()],
-                        ['id' => $entity->getId()]
-                    );
+                    $this->updateEntityData($targetTable, $entity);
                 }
             }
         }
@@ -403,6 +386,20 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         }
 
         return $entity->getId();
+    }
+
+    /**
+     * Update the entity data
+     * 
+     * @param $targetTable Table that we will be using to update the entity (deleted or active partition)
+     * @param $entity The entity that will be updated
+     */
+    private function updateEntityData(string $targetTable, Entity $entity) {
+        $sql = "UPDATE $targetTable SET field_data = :field_data, f_deleted = :f_deleted WHERE guid = :guid";
+        $this->database->query($sql, [
+            "field_data" => json_encode($entity->toArray()), 
+            "f_deleted" => $entity->getValue('f_deleted'),
+            "guid" => $entity->getValue('guid')]);
     }
 
     /**
@@ -655,21 +652,6 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     }
 
     /**
-     * Decode a json encoded string into an array
-     *
-     * @param string $val The encoded string
-     * @return array on success, null on failure
-     */
-    private function unserialize($val)
-    {
-        if ($val == null || $val == "") {
-            return null;
-        }
-
-        return json_decode($val, true);
-    }
-
-    /**
      * Serialize data from an array to a string
      *
      * @param array $data
@@ -692,7 +674,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
     private function getForeignKeyDataFromDb($fdef, $value, $oid, $otid)
     {
         $ret = array();
-
+        
         if ($fdef->type == "fkey" && $value) {
             $sql = 'SELECT ' . $fdef->fkeyTable['key'] . ' as id, ' .
                 $fdef->fkeyTable['title'] . ' as name ' .
