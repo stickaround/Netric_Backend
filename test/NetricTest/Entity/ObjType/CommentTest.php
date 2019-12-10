@@ -73,7 +73,8 @@ class CommentTest extends TestCase
 
         // Delete the comment and make sure num_comments is decremented
         $entityLoader->delete($comment);
-        $this->assertEquals(0, $openedCustomer->getValue("num_comments"));
+        $reopenedCustomer = $entityLoader->get(ObjectTypes::CONTACT, $cid);
+        $this->assertEquals(0, $reopenedCustomer->getValue("num_comments"));
 
         // Cleanup
         $entityLoader->delete($comment, true);
