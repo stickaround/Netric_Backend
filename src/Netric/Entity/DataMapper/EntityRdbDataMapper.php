@@ -76,7 +76,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
      */
     protected function fetchDataByGuid(string $guid):? array
     {
-        $sql = "SELECT field_data FROM objects where field_data->>'guid' = :guid";
+        $sql = "SELECT field_data FROM objects where guid = :guid";
         $result = $this->database->query($sql, ['guid' => $guid]);
 
         // The object was not found
@@ -318,7 +318,7 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         } else {
             // Clean out old record if it exists in a different partition
             if ($entity->getId()) {
-                $sql = "DELETE FROM {$def->getTable()} WHERE field_data->>'guid' = :entity_guid";
+                $sql = "DELETE FROM {$def->getTable()} WHERE guid = :entity_guid";
                 $this->database->query($sql, ['entity_guid' => $entity->getValue('guid')]);
             }
 

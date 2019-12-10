@@ -245,7 +245,7 @@ abstract class DmTestsAbstract extends TestCase
         // Test if id field_data was saved in field_data
         $rDatabase = $this->account->getServiceManager()->get(RelationalDbFactory::class);
         $def = $ent->getDefinition();
-        $result = $rDatabase->query("SELECT field_data->>'id' as id FROM {$def->getTable()} WHERE field_data->>'guid' = :entity_guid",
+        $result = $rDatabase->query("SELECT field_data->>'id' as id FROM {$def->getTable()} WHERE guid = :entity_guid",
             ['entity_guid' => $ent->getValue('guid')]);
 
         $row = $result->fetch();
