@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     // Build the stage
-                    sh "docker system prune -af —volumes"
+                    sh "docker system prune"
                 }
                 script {
                     sh 'env'
