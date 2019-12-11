@@ -251,7 +251,21 @@ foreach ($groupingTables as $details) {
             $updateData[$fieldName . "_fval"] = json_encode(array($group->id => $group->name));
 
             // Update the table reference
-            $db->update($def->object_table, $updateData, [$fieldName => $oldFkeyId]);
+            $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "_fval}', :group_id_fval, true)
+            WHERE field_data->>'$fieldName' = :old_group_id";
+            
+            $db->query($sql, [
+                "old_group_id" => $oldFkeyId,
+                "group_id_fval" => json_encode(array($group->id => $group->name))
+            ]);
+
+            $sql = "UPDATE {$def->object_table} SET field_data = jsonb_set(field_data, '{" . $fieldName . "}', :group_id, true)
+            WHERE field_data->>'$fieldName' = :old_group_id";
+            
+            $db->query($sql, [
+                "old_group_id" => $oldFkeyId,
+                "group_id" => $group->id
+            ]);
         }
     }
 }

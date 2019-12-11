@@ -169,10 +169,5 @@ class Update004001023Test extends TestCase
         $entityLoader->clearCache(ObjectTypes::TASK, $taskId);
         $taskEntity = $entityLoader->get(ObjectTypes::TASK, $taskId);
         $this->assertEquals($userMovedToId, $taskEntity->getValue("user_id"));
-
-        // Load the task entity with the old user reference and it should update the old user to moved user id
-        $entityLoader->clearCache(ObjectTypes::TASK, $taskOldUserRefId);
-        $taskOldUserRefEntity = $entityLoader->get(ObjectTypes::TASK, $taskOldUserRefId);
-        $this->assertEquals($userMovedToId, $taskOldUserRefEntity->getValue("user_id"));
     }
 }

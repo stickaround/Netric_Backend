@@ -62,11 +62,12 @@ foreach ($rowsMoved as $rowMoved) {
 
             if ($field->type == Field::TYPE_OBJECT) {
                 // If type = object then we will just need to update the id
-                $db->query(
-                    "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
-                    "{$field->name}='{$newFieldValue}' " .
-                    "WHERE {$field->name}='{$oldFieldValue}'"
-                );
+                $sql = "UPDATE objects_{$objTypeDef->getObjType()}_act SET field_data = jsonb_set(field_data, '{" . $field->name . "}', '\"$newFieldValue\"', true)
+                WHERE field_data->>'" . $field->name . "' = :old_group_id";
+                
+                $db->query($sql, [
+                    "old_group_id" => $oldFieldValue
+                ]);
             } elseif ($field->type == Field::TYPE_OBJECT_MULTI) {
                 // Replace array values in the field column that is json encoded
                 $db->query(

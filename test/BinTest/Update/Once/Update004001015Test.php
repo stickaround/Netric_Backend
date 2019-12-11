@@ -168,7 +168,12 @@ class Update004001015Test extends TestCase
         $this->testEntities[] = $entity;
 
         // Manually set the id of the entity since the datamapper will refresh the reference on save
-        $this->db->update($entity->getDefinition()->object_table, ['stage_id'=>$oldGroupingId], ['id'=>$entityId]);
+        $entity->setValue("stage_id", $oldGroupingId);
+        $targetTable = $entity->getDefinition()->object_table;
+        $sql = "UPDATE $targetTable SET field_data = :field_data WHERE guid = :guid";
+        $this->db->query($sql, [
+            "field_data" => json_encode($entity->toArray()),
+            "guid" => $entity->getValue('guid')]);
 
         // Run the update script that will copy the group data from customer_stages to object_groupings
         $binScript = new BinScript($this->account->getApplication(), $this->account);
@@ -182,7 +187,6 @@ class Update004001015Test extends TestCase
         // Get new object groupings (which should have a new entry for the added group)
         $groupings = $this->entityGroupingDataMapper->getGroupings($objType, $fieldName);
         $group = $groupings->getByName($groupName);
-
         $this->assertEquals($entityGroup, $group->id);
         $this->assertEquals($entityGroupName, $group->name);
 
@@ -258,10 +262,10 @@ class Update004001015Test extends TestCase
         $group1 = $groupings->getByName($groupName1);
         $group2 = $groupings->getByName($groupName2);
 
-        $this->assertEquals($entityGroups[0], $group1->id);
-        $this->assertEquals($entityGroups[1], $group2->id);
-        $this->assertEquals($entityGroupNames[$group1->id], $group1->name);
-        $this->assertEquals($entityGroupNames[$group2->id], $group2->name);
+        $this->assertEquals($entityGroups[0], $groupId1);
+        $this->assertEquals($entityGroups[1], $groupId2);
+        $this->assertEquals($entityGroupNames[$groupId1], $groupName1);
+        $this->assertEquals($entityGroupNames[$groupId2], $groupName2);
 
         $this->testObjectGroupings["object_groupings"][] = $group1->id;
         $this->testObjectGroupings["object_groupings"][] = $group2->id;
@@ -312,7 +316,6 @@ class Update004001015Test extends TestCase
         $groupName1 = "$objType Group Test Unit Test 1";
         $groupName2 = "$objType Group Test Unit Test 2";
 
-
         // Add a test group data to the old fkey group table
         $groupId1 = $this->db->insert($tableName, ["name" => $groupName1, "user_id" => $userEntity->getId()]);
         $groupId2 = $this->db->insert($tableName, ["name" => $groupName2, "user_id" => $userEntity->getId()]);
@@ -344,10 +347,10 @@ class Update004001015Test extends TestCase
         $group1 = $groupings->getByName($groupName1);
         $group2 = $groupings->getByName($groupName2);
 
-        $this->assertEquals($entityGroups[0], $group1->id);
-        $this->assertEquals($entityGroups[1], $group2->id);
-        $this->assertEquals($entityGroupNames[$group1->id], $group1->name);
-        $this->assertEquals($entityGroupNames[$group2->id], $group2->name);
+        $this->assertEquals($entityGroups[0], $groupId1);
+        $this->assertEquals($entityGroups[1], $groupId2);
+        $this->assertEquals($entityGroupNames[$groupId1], $groupName1);
+        $this->assertEquals($entityGroupNames[$groupId2], $groupName2);
 
         $this->testObjectGroupings["object_groupings"][] = $group1->id;
         $this->testObjectGroupings["object_groupings"][] = $group2->id;
