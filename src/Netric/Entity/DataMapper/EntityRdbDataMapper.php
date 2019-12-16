@@ -17,6 +17,7 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\Entity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
+use Netric\Application\Schema\SchemaDataMapperFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -554,7 +555,13 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $ret = array();
         $all_fields = $entity->getDefinition()->getFields();
 
-        foreach ($all_fields as $fname => $fdef) {
+        $schema = $this->getAccount()->getServiceManager()->get(SchemaDataMapperFactory::class);
+
+        foreach ($all_fields as $fname => $fdef) {            
+            if (!$schema->checkIfColumnExist("objects", $fname)) {
+                continue;
+            }
+
             $val = $entity->getValue($fname);
 
             // Skip over an empty id field - we won't want to try and set it
