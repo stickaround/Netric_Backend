@@ -152,6 +152,13 @@ class Field implements \ArrayAccess
     public $autocreatename = "";
 
     /**
+     * Flag that will indicate that this field needs to be in an indexed column
+     * 
+     * @var boolean
+     */
+    public $mustBeIndexed = false;
+
+    /**
      * Field type constants
      */
     const TYPE_GROUPING = 'fkey';
@@ -242,6 +249,10 @@ class Field implements \ArrayAccess
             $this->fkeyTable = $data["fkey_table"];
         }
 
+        if (isset($data["must_be_indexed"])) {
+            $this->mustBeIndexed = $data["must_be_indexed"];
+        }
+
         // If we are using standard object_groupings then manually set fkeyTable
         // so that legacy code knows how to interact with the groupings
         if ((self::TYPE_GROUPING == $this->type || self::TYPE_GROUPING_MULTI == $this->type)
@@ -285,6 +296,7 @@ class Field implements \ArrayAccess
             "autocreate" => $this->autocreate,
             "autocreatename" => $this->autocreatename,
             "autocreatebase" => $this->autocreatebase,
+            "must_be_indexed" => $this->mustBeIndexed
         );
     }
 

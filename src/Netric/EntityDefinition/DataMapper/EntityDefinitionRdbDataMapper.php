@@ -640,6 +640,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         }
 
         /*
+         * TODO: Remove this once everything is being tested in production - Marl 12-17-19
          * We need to remove this line since we do not need to create the columns for each table anymore
          * All the definition columns will be inherited from objects table - INHERITS (objects)
          */
@@ -679,7 +680,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
         $colname = $field->name;
         $ftype = $field->type;
         $subtype = $field->subtype;
-        $createAsColumn = $field->createAsColumn;
+        $mustBeIndexed = $field->mustBeIndexed;
         $tableName = strtolower($def->getTable());
 
         // Use different type for creating the system revision commit_id
@@ -805,7 +806,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             }
 
             // Make sure that the column does not exist yet
-            if ($createAsColumn && $type && !$this->database->columnExists($tableName, $colname)) {
+            if ($mustBeIndexed && $type && !$this->database->columnExists($tableName, $colname)) {
                 $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN $colname $type");
 
                 // Store cached foreign key names
@@ -815,7 +816,7 @@ class EntityDefinitionRdbDataMapper extends DataMapperAbstract implements Entity
             }
         } else {
             // Make sure that existing foreign fields have local _fval caches
-            if ($createAsColumn && ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI)) {
+            if ($mustBeIndexed && ($ftype == FIELD::TYPE_GROUPING || $ftype == FIELD::TYPE_OBJECT || $ftype == FIELD::TYPE_GROUPING_MULTI || $ftype == FIELD::TYPE_OBJECT_MULTI)) {
                 if (!$this->database->columnExists($tableName, $colname . "_fval")) {
                     $this->database->query("ALTER TABLE " . $tableName . " ADD COLUMN " . $colname . "_fval text");
                 }

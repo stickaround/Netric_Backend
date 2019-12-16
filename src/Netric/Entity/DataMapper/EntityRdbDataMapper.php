@@ -558,6 +558,12 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $schema = $this->getAccount()->getServiceManager()->get(SchemaDataMapperFactory::class);
 
         foreach ($all_fields as $fname => $fdef) {            
+
+            /*
+             * Check if the field name does exists in the objects schema definition
+             * Most of the entity data are already stored in field_data column
+             * So there is no need to build a data array for entity values
+             */
             if (!$schema->checkIfColumnExist("objects", $fname)) {
                 continue;
             }
