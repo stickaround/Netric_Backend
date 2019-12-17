@@ -933,7 +933,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
         }
 
         $orderBy = "";
-        $jsonbField = "(field_data->>'$fieldName')::numeric";
+        $jsonbField = "NULLIF(field_data->>'$fieldName', '')::numeric";
         $queryFields = "min($jsonbField) as agg_min,
                         max($jsonbField) as agg_max,
                         avg($jsonbField) as agg_avg,
@@ -947,7 +947,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
 
         // Add "and" operator in the $conditionQuery if it is not empty
         if ($conditionQuery) {
-            $conditionQuery = "and ($conditionQuery)";
+            $conditionQuery = "AND ($conditionQuery)";
         }
 
         $sql = "SELECT $queryFields FROM $objectTable WHERE field_data->>'id' IS NOT NULL $conditionQuery $orderBy";
