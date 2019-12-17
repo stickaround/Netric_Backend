@@ -73,6 +73,26 @@ abstract class AbstractSchemaDataMapper extends AbstractHasErrors implements Sch
     }
 
     /**
+     * Function that will check if column exists in the schema definition
+     * 
+     * @param string $bucketName The name of the definition
+     * @param array $columnName The name of the column we are going to check
+     */
+    public function checkIfColumnExist($bucketName, $columnName)
+    {        
+        $bucketDefinition = $this->schemaDefinition[$bucketName];
+
+        // Loop thru definition properties and check if the column name exists
+        foreach ($bucketDefinition['PROPERTIES'] as $colName => $columnDefinition) {
+            if ($columnName == $colName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Diff the actual schema against the definition to check for changes and apply them
      */
     protected function processDefinition()

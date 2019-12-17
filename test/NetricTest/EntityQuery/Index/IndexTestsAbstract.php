@@ -2096,4 +2096,39 @@ abstract class IndexTestsAbstract extends TestCase
         // We should be be able to query all 3 customers
         $this->assertEquals(3, $res->getTotalNum());
     }
+
+    /**
+     * Run tests with combination of "and" and "or" conditions
+     */
+    public function testEntityQueryWithOrderBy()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $serviceManager = $this->account->getServiceManager();
+        $index = $serviceManager->get(IndexFactory::class);
+        $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
+
+        $customerName1 = "Test Customer 1";
+        $customer1 = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::CONTACT);
+        $customer1->setValue("name", $customerName1);
+        $customer1->setValue("owner_id", $this->user->getId());
+        $customer1->setValue("type_id", "1");
+
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $cid1 = $dm->save($customer1, $this->user);
+
+        // Set the entities so it will be cleaned up properly
+        $this->testEntities[] = $customer1;
+
+        $query = new EntityQuery(ObjectTypes::CONTACT);
+        $query->where('type_id')->equals(1);
+        $query->orderBy('name');
+        $res = $index->executeQuery($query);
+        $this->assertEquals(1, $res->getTotalNum());
+        $this->assertEquals($cid1, $res->getEntity(0)->getId());
+    }
 }

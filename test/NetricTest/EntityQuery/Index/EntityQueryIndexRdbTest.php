@@ -244,6 +244,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         // Should return empty string, since we cannot query contains with a number field type
         $this->assertEquals($conditionString, "");
     }
+
     public function testbuildConditionStringForBoolean()
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);
@@ -260,6 +261,7 @@ class EntityQueryIndexRdbTest extends IndexTestsAbstract
         $conditionString = $this->index->buildConditionStringAndSetParams($def, $condition);
         $this->assertEquals($conditionString, "(nullif(field_data->>'f_seen', ''))::boolean != true");
     }
+    
     public function testbuildConditionStringForDate()
     {
         $def = $this->defLoader->get(ObjectTypes::PROJECT_STORY);

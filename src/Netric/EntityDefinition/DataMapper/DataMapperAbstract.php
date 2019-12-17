@@ -108,7 +108,7 @@ abstract class DataMapperAbstract extends \Netric\DataMapperAbstract
     public function updateSystemDefinition(EntityDefinition $def)
     {
         if (!$def->system) {
-            throw new \InvalidArgumentException("Can do a system update on a custom entity definition");
+            throw new \InvalidArgumentException("Can't do a system update on a custom entity definition");
         }
 
         // Check if this is a system object and if it is

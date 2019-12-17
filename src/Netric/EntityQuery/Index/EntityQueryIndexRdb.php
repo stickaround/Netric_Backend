@@ -169,7 +169,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             $orderBy = $query->getOrderBy();
 
             foreach ($orderBy as $sort) {
-                $sortOrder[] = "{$sort->fieldName} $sort->direction";
+                $sortOrder[] = "field_data->>'{$sort->fieldName}' $sort->direction";
             }
         }
 
