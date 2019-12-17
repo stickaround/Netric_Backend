@@ -98,7 +98,7 @@ services:
       driver: "json-file"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
     container_name: elasticsearch
     ulimits:
       memlock:

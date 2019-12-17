@@ -22,6 +22,7 @@ services:
       - mogilefs
       - mogilestore
       - kafka
+    entrypoint: 'bash -c "/netric-setup.sh && /start.sh"'
     logging:
       driver: gelf
       options:
@@ -125,7 +126,7 @@ services:
       - elasticsearch
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
     container_name: elasticsearch
     ulimits:
       memlock:
