@@ -24,6 +24,7 @@ use Netric\EntityGroupings\DataMapper\EntityGroupingDataMapperFactory;
 use Netric\Entity\DataMapper\DataMapperFactory;
 use Netric\Entity\Entity;
 use Netric\EntityQuery\Index\IndexAbstract;
+use Netric\EntityQuery\Aggregation\Min;
 
 /**
  * @group integration
@@ -2130,5 +2131,36 @@ abstract class IndexTestsAbstract extends TestCase
         $res = $index->executeQuery($query);
         $this->assertEquals(1, $res->getTotalNum());
         $this->assertEquals($cid1, $res->getEntity(0)->getId());
+    }
+
+    /**
+     * Test aggregations in query
+     */
+    public function testSettingOfAggregationsInQuery()
+    {
+        // Get index and fail if not setup
+        $index = $this->getIndex();
+        if (!$index) {
+            return;
+        }
+
+        $task = $this->account->getServiceManager()->get(EntityLoaderFactory::class)->create(ObjectTypes::TASK);
+        $task->setValue("name", "Task 1");
+        $task->setValue("cost_actual", 1);
+
+        $dm = $this->account->getServiceManager()->get(DataMapperFactory::class);
+        $taskId = $dm->save($task);
+
+        // Set the entities so it will be cleaned up properly
+        $this->testEntities[] = $task;
+
+        $query = new EntityQuery(ObjectTypes::TASK);
+        $query->where('id')->equals($taskId);
+        
+        $agg = new Min("test");
+        $agg->setField("cost_actual");
+        $query->addAggregation($agg);
+        $agg = $index->executeQuery($query)->getAggregation("test");
+        $this->assertGreaterThanOrEqual($agg, 1);
     }
 }
