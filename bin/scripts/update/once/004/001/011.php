@@ -25,10 +25,16 @@ $entityDefinitionLoader = $serviceManager->get(EntityDefinitionLoaderFactory::cl
 $entityIndex = $serviceManager->get(IndexFactory::class);
 $log = $serviceManager->get(LogFactory::class);
 
-// Find all the duplicates
-$sql = "SELECT field_data->>'address' as address, field_data->>'owner_id' as owner_id, count(*) FROM objects_email_account_act
+// Check first if address column exists in the objects_email_account table
+if ($db->columnExists("objects_email_account_act", "address")) {
+    $sql = "SELECT address, owner_id, count(*) FROM objects_email_account_act
+        GROUP BY address, owner_id HAVING count(*) > 1;";
+} else {
+    $sql = "SELECT field_data->>'address' as address, field_data->>'owner_id' as owner_id, count(*) FROM objects_email_account_act
         GROUP BY field_data->>'address', field_data->>'owner_id' HAVING count(*) > 1;";
+}
 
+// Find all the duplicates
 $result = $db->query($sql);
 foreach ($result->fetchAll() as $row) {
 

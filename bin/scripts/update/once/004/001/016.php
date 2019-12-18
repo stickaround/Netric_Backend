@@ -50,9 +50,15 @@ foreach ($groupingTables as $details) {
     // Get the field details based on the current $fieldName
     $field = $def->getField($fieldName);
 
-    // Query the group data from the old fkey table
-    $sql = "SELECT field_data->>'id' as id, field_data->>'$fieldName' as $fieldName FROM {$def->object_table} 
+    // Check first if $fieldName column exists in the objects_* table
+    if ($db->columnExists($def->object_table, $fieldName)) {
+        $sql = "SELECT id, $fieldName FROM {$def->object_table} WHERE $fieldName!='[]' AND $fieldName is not null";
+    } else {
+        $sql = "SELECT field_data->>'id' as id, field_data->>'$fieldName' as $fieldName FROM {$def->object_table} 
             WHERE field_data->>'$fieldName'!='[]' AND field_data->>'$fieldName' is not null";
+    }
+    
+    // Query the group data from the old fkey table
     $result = $db->query($sql);
 
     // Loop thru each entry in the old fkey object table

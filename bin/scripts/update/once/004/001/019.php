@@ -13,8 +13,14 @@ $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
 
+// Check first if scope column exists in the objects_dashboard table
+if ($db->columnExists("objects_dashboard", "scope")) {
+    $sql = "SELECT * FROM objects_dashboard where uname = 'activity' and scope != 'system'";
+} else {
+    $sql = "SELECT * FROM objects_dashboard where field_data->>'uname' = 'activity' and field_data->>'scope' != 'system'";
+}
+
 // Find all dashboard entity with uname "activity" and scope is not system
-$sql = "SELECT * FROM objects_dashboard where field_data->>'uname' = 'activity' and field_data->>'scope' !='system'";
 $result = $db->query($sql);
 
 // Loop thru the results and delete the entities

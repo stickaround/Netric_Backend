@@ -83,8 +83,8 @@ foreach ($rowsMoved as $rowMoved) {
             if ($db->columnExists("objects_{$objTypeDef->getObjType()}_act", "{$field->name}_fvals")) {
                 $db->query(
                     "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
-                    "{$field->name}_fvals=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
-                    "WHERE field_data->>'{$field->name}_fvals' LIKE '%{$oldFieldValue}%'"
+                    "{$field->name}_fvals=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .                    
+                    "WHERE {$field->name}_fvals LIKE '%{$oldFieldValue}%'"
                 );
             }
         }
