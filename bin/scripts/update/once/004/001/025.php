@@ -50,6 +50,5 @@ do {
             ['field_data' => json_encode($entity->toArray())],
             ['guid' => $row['guid']]
         );
-        echo "Updated " . $row['guid'] . " with " . count($entity->toArray()) . " fields set\n";
     }
 } while ($numNullObjects > 0);
