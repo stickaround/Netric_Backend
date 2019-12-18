@@ -261,7 +261,7 @@ class EntityQueryIndexRdb extends IndexAbstract implements IndexInterface
             foreach ($ofields as $fname => $fdef) {
                 if ($fdef->type == FIELD::TYPE_GROUPING_MULTI || $fdef->type == FIELD::TYPE_OBJECT_MULTI) {
                     if (isset($entityData[$fname])) {
-                        $dec = json_decode($entityData[$fname], true);
+                        $dec = $entityData[$fname];
                         if ($dec !== false) {
                             $entityData[$fname] = $dec;
                         }
