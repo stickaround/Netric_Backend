@@ -14,7 +14,7 @@ $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
 
 // Find all dashboard entity with uname "activity" and scope is not system
-$sql = "SELECT * FROM objects_dashboard where uname = 'activity' and scope !='system'";
+$sql = "SELECT * FROM objects_dashboard where field_data->>'uname' = 'activity' and field_data->>'scope' !='system'";
 $result = $db->query($sql);
 
 // Loop thru the results and delete the entities

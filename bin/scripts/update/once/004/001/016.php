@@ -51,7 +51,8 @@ foreach ($groupingTables as $details) {
     $field = $def->getField($fieldName);
 
     // Query the group data from the old fkey table
-    $sql = "SELECT id, $fieldName FROM {$def->object_table} WHERE $fieldName!='[]' AND $fieldName is not null";
+    $sql = "SELECT field_data->>'id' as id, field_data->>'$fieldName' as $fieldName FROM {$def->object_table} 
+            WHERE field_data->>'$fieldName'!='[]' AND field_data->>'$fieldName' is not null";
     $result = $db->query($sql);
 
     // Loop thru each entry in the old fkey object table

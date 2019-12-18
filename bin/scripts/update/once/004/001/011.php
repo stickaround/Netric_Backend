@@ -26,8 +26,8 @@ $entityIndex = $serviceManager->get(IndexFactory::class);
 $log = $serviceManager->get(LogFactory::class);
 
 // Find all the duplicates
-$sql = "SELECT address, owner_id, count(*) FROM objects_email_account_act
-        GROUP BY address, owner_id HAVING count(*) > 1;";
+$sql = "SELECT field_data->>'address' as address, field_data->>'owner_id' as owner_id, count(*) FROM objects_email_account_act
+        GROUP BY field_data->>'address', field_data->>'owner_id' HAVING count(*) > 1;";
 
 $result = $db->query($sql);
 foreach ($result->fetchAll() as $row) {

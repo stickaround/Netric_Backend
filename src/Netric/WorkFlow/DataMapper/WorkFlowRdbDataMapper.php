@@ -431,7 +431,7 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         $num = $result->getNum();
         for ($i = 0; $i < $num; $i++) {
             $action = $result->getEntity($i);
-
+            
             /*
              * Actions can be children of other actions.
              * Check to make sure there are no circular relationships where a child
@@ -688,26 +688,27 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
             throw new \InvalidArgumentException("First param is required to load an action");
         }
 
-        $sql = "SELECT * FROM objects_workflow_action WHERE id=:id";
+        $sql = "SELECT field_data FROM objects_workflow_action WHERE field_data->>'id' = :id";
         $result = $this->database->query($sql, ["id" => $actionId]);
 
         if ($result->rowCount()) {
             $row = $result->fetch();
+            $workflowData = json_decode($row['field_data'], true);
 
             $actionArray = array(
-                "id" => $row['id'],
-                "name" => $row['name'],
-                "workflow_id" => $row['workflow_id'],
-                "type" => $row['type_name'],
-                "parent_action_id" => $row['parent_action_id'],
-                "child_actions" => $this->getActionsArray($row['workflow_id'], $actionId),
+                "id" => $workflowData['id'],
+                "name" => $workflowData['name'],
+                "workflow_id" => $workflowData['workflow_id'],
+                "type" => $workflowData['type_name'],
+                "parent_action_id" => $workflowData['parent_action_id'],
+                "child_actions" => $this->getActionsArray($workflowData['workflow_id'], $actionId),
             );
 
             // TODO: get child actions
 
             // Get params
-            if ($row['data']) {
-                $actionArray['params'] = json_decode($row['data'], true);
+            if ($workflowData['data']) {
+                $actionArray['params'] = json_decode($workflowData['data'], true);
             }
 
             // Create action from data
