@@ -94,7 +94,7 @@ class SetupController extends Mvc\AbstractController
         // Loop through each account and update it
         $accounts = $this->getApplication()->getAccounts();
         foreach ($accounts as $account) {
-            $response->write("Updating account " . $account->getName());
+            $response->write("Updating account {$account->getName()}. ");
             $setup = new Setup();
             if (!$setup->updateAccount($account)) {
                 $log->error("SetupController: Failed to update account: " . $setup->getLastError()->getMessage());
