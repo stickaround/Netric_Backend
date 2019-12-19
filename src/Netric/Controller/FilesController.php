@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controller for FileSystem interactoin
+ * Controller for FileSystem interaction
  */
 namespace Netric\Controller;
 
