@@ -69,19 +69,21 @@ foreach ($rowsMoved as $rowMoved) {
                     "old_group_id" => $oldFieldValue
                 ]);
             } elseif ($field->type == Field::TYPE_OBJECT_MULTI) {
-                // Replace array values in the field column that is json encoded
-                $db->query(
-                    "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
-                    "{$field->name}=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
-                    "WHERE {$field->name} LIKE '%{$oldFieldValue}%'"
-                );
+                if ($db->columnExists("objects_{$objTypeDef->getObjType()}_act", $field->name)) {
+                    // Replace array values in the field column that is json encoded
+                    $db->query(
+                        "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
+                        "{$field->name}=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
+                        "WHERE {$field->name} LIKE '%{$oldFieldValue}%'"
+                    );
+                }
             }
 
             // Replace values in the cached field_fvals column
             if ($db->columnExists("objects_{$objTypeDef->getObjType()}_act", "{$field->name}_fvals")) {
                 $db->query(
                     "UPDATE objects_{$objTypeDef->getObjType()}_act SET " .
-                    "{$field->name}_fvals=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .
+                    "{$field->name}_fvals=REPLACE({$field->name}, '\"{$oldFieldValue}\"', '\"{$newFieldValue}\"') " .                    
                     "WHERE {$field->name}_fvals LIKE '%{$oldFieldValue}%'"
                 );
             }

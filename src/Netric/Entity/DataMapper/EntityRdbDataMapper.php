@@ -17,7 +17,6 @@ use Netric\Db\Relational\RelationalDbFactory;
 use Netric\Entity\Entity;
 use Netric\EntityQuery;
 use Netric\EntityQuery\Index\IndexFactory;
-use Netric\Application\Schema\SchemaDataMapperFactory;
 
 /**
  * Load and save entity data to a relational database
@@ -127,6 +126,8 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
                     $row[$field->name] = $values;
                 }
             } elseif ($foreignReferenceValues) {
+                $row[$field->name] = array();
+
                 // Error, data not set in the column, check if it was set in an referenced field values
                 foreach ($foreignReferenceValues as $referencedId => $referencedName) {
                     $row[$field->name][] = $referencedId;
@@ -555,16 +556,13 @@ class EntityRdbDataMapper extends DataMapperAbstract implements DataMapperInterf
         $ret = array();
         $all_fields = $entity->getDefinition()->getFields();
 
-        $schema = $this->getAccount()->getServiceManager()->get(SchemaDataMapperFactory::class);
-
-        foreach ($all_fields as $fname => $fdef) {            
-
+        foreach ($all_fields as $fname => $fdef) {
             /*
-             * Check if the field name does exists in the objects schema definition
+             * Check if the field name does exists in the object table
              * Most of the entity data are already stored in field_data column
              * So there is no need to build a data array for entity values
              */
-            if (!$schema->checkIfColumnExist("objects", $fname)) {
+            if (!$this->database->columnExists($entity->getDefinition()->object_table, $fname)) {
                 continue;
             }
 

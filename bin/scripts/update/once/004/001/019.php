@@ -13,8 +13,19 @@ $entityDataMapper = $serviceManager->get(EntityDataMapperFactory::class);
 $entityLoader = $serviceManager->get(EntityLoaderFactory::class);
 $db = $serviceManager->get(RelationalDbFactory::class);
 
+// Check first if scope column exists in the objects_dashboard table
+if ($db->columnExists("objects_dashboard", "scope")) {
+    $sql = "SELECT * FROM objects_dashboard where uname = 'activity' and scope != 'system'";
+} else {
+    /*
+     * If the scope does not exists in the objects_dashboard anymore,
+     * it means that we have already implemented the changes in schema definition
+     * which is putting all entity data in the field_data column.
+     */
+    $sql = "SELECT * FROM objects_dashboard where field_data->>'uname' = 'activity' and field_data->>'scope' != 'system'";
+}
+
 // Find all dashboard entity with uname "activity" and scope is not system
-$sql = "SELECT * FROM objects_dashboard where uname = 'activity' and scope !='system'";
 $result = $db->query($sql);
 
 // Loop thru the results and delete the entities

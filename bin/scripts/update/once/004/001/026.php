@@ -22,11 +22,11 @@ $entityDefinitionDataMapper = $serviceManager->get(EntityDefinitionDataMapperFac
 $entityDefinitionLoader->forceSystemReset(ObjectTypes::USER);
 
 // Update old system user GUIDs
-$db->update('objects_user_act', ['guid'=>UserEntity::USER_CURRENT], ['name' => 'current.user']);
-$db->update('objects_user_act', ['guid'=>UserEntity::USER_ADMINISTRATOR], ['name' => 'administrator']);
-$db->update('objects_user_act', ['guid'=>UserEntity::USER_ANONYMOUS], ['name' => 'anonymous']);
-$db->update('objects_user_act', ['guid'=>UserEntity::USER_SYSTEM], ['name' => 'system']);
-$db->update('objects_user_act', ['guid'=>UserEntity::USER_WORKFLOW], ['name' => 'workflow']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_CURRENT], ['uname' => 'current.user']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_ADMINISTRATOR], ['uname' => 'administrator']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_ANONYMOUS], ['uname' => 'anonymous']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_SYSTEM], ['uname' => 'system']);
+$db->update('objects_user_act', ['guid'=>UserEntity::USER_WORKFLOW], ['uname' => 'workflow']);
 
 // Update the uname of all users
 $query = new EntityQuery(ObjectTypes::USER);

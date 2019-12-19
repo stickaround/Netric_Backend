@@ -156,6 +156,9 @@ class FilesController extends Mvc\AbstractAccountController
             }
         }
 
+        $user = $this->account->getUser();
+        $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
+        
         foreach ($uploadedFiles as $uploadedFile) {
             /*
              * Make sure that the file was uploaded via HTTP_POST. This is useful to help
@@ -181,8 +184,6 @@ class FilesController extends Mvc\AbstractAccountController
              */
             $folderEntity = $this->fileSystem->openFolder($folderPath);
             if ($folderEntity) {
-                $user = $this->account->getUser();
-                $daclLoader = $this->account->getServiceManager()->get(DaclLoaderFactory::class);
                 $dacl = $daclLoader->getForEntity($folderEntity);
                 if (!$dacl->isAllowed($user)) {
                     // Log a warning to flag repeat offenders
