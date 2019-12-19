@@ -687,13 +687,21 @@ class WorkFlowRdbDataMapper extends AbstractDataMapper implements DataMapperInte
         if (!$actionId || !is_numeric($actionId)) {
             throw new \InvalidArgumentException("First param is required to load an action");
         }
-
-        $sql = "SELECT field_data FROM objects_workflow_action WHERE field_data->>'id' = :id";
+        
+        $sql = "SELECT * FROM objects_workflow_action WHERE id=:id";
         $result = $this->database->query($sql, ["id" => $actionId]);
 
         if ($result->rowCount()) {
-            $row = $result->fetch();
-            $workflowData = json_decode($row['field_data'], true);
+            $workflowData = $result->fetch();
+            
+            /*
+             * If we have field_data in our result, it means that we have already implemented the new definiton schema
+             * where we eliminated definition columns and put all the entity data in the field_data column
+             * Since field_data is json encoded, we need to decode it so we can properly retrieve the entity data.
+             */
+            if (!empty($workflowData['field_data'])) {
+                $workflowData = json_decode($workflowData['field_data'], true);
+            }
 
             $actionArray = array(
                 "id" => $workflowData['id'],
