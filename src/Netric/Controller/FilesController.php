@@ -7,6 +7,7 @@ namespace Netric\Controller;
 
 use Netric\Entity\ObjType\UserEntity;
 use Netric\Mvc;
+use Netric\Mvc\ControllerInterface;
 use Netric\Entity\EntityLoaderFactory;
 use Netric\FileSystem\FileSystemFactory;
 use Netric\FileSystem\ImageResizerFactory;
@@ -25,7 +26,7 @@ use Netric\EntityDefinition\ObjectTypes;
  *
  * @package Netric\Controller
  */
-class FilesController extends Mvc\AbstractAccountController
+class FilesController extends Mvc\AbstractAccountController implements ControllerInterface
 {
     /**
      * FileSystem instance
@@ -72,7 +73,7 @@ class FilesController extends Mvc\AbstractAccountController
      *
      * @return \Netric\Permissions\Dacl
      */
-    public function getAccessControlList()
+    public function getAccessControlList(): Dacl
     {
         $dacl = new Dacl();
 
@@ -81,7 +82,7 @@ class FilesController extends Mvc\AbstractAccountController
 
         return $dacl;
     }
-
+   
     /**
      * Upload a new file to the filesystem via POST
      *
